@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -17,19 +14,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string TemplateAttributeName = "asp-template";
         //const string ValueAttributeName = "asp-value";
         const string PostfixAttributeName = "sm-postfix";
-        const string IsTextAreaAttributeName = "sm-is-textarea";
 
         /// <summary>
         /// Specifies the editor template which will be used to render the field.
         /// </summary>
         [HtmlAttributeName(TemplateAttributeName)]
         public string Template { get; set; }
-
-        /// <summary>
-        /// Specifies the editor template which will be used to render the field.
-        /// </summary>
-        [HtmlAttributeName(IsTextAreaAttributeName)]
-        public bool IsTextArea { get; set; } = false;
 
         /// <summary>
         /// Specifies the value to set into editor input tag.
@@ -69,7 +59,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 }
             }
 
-            output.Content.SetHtmlContent(_htmlHelper.EditorFor(For, Template, new { htmlAttributes, Postfix, IsTextArea }));
+            output.Content.SetHtmlContent(_htmlHelper.EditorFor(For, Template, new { htmlAttributes, Postfix }));
         }
     }
 }

@@ -19,8 +19,12 @@ namespace Smartstore.Web.Areas.Admin.Models
         [UIHint("WidgetZone")]
         public string[] WidgetZone { get; set; }
 
-        public string Test { get; set; }
+        public string String { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("cols", 10)]
+        [AdditionalMetadata("rows", 10)]
+        public string Textarea { get; set; }
 
         #region Admin 
 
@@ -127,7 +131,7 @@ namespace Smartstore.Web.Areas.Admin.Models
             RuleFor(x => x.Double).NotNull().WithMessage("Bitte geben Sie einen Wert an.");
             RuleFor(x => x.StoreId).NotNull().WithMessage("Bitte wählen Sie einen Shop.");
             RuleFor(x => x.ButtonType).NotEmpty();
-            RuleFor(x => x.Test).NotEmpty().WithMessage("Bitte geben Sie einen Text an.");
+            RuleFor(x => x.String).NotEmpty().WithMessage("Bitte geben Sie einen Text an.");
             RuleFor(x => x.Decimal).GreaterThan(5);
             
         }

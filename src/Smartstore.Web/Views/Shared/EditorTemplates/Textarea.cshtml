@@ -17,6 +17,8 @@
 
 @{
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var cols = GetMetadata<string>("cols");
+    var rows = GetMetadata<string>("rows");
 }
 
-<input asp-for="@Model" attrs="attributes" value="@Value.EmptyNull()" class="form-control" />
+<textarea asp-for="@Model" attrs="attributes" attr-cols="(cols.HasValue(), cols)" attr-rows="(rows.HasValue(), rows)" value="@Value.EmptyNull()" class="form-control"></textarea>

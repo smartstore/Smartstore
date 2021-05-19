@@ -26,12 +26,20 @@
 
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="Test" />
+                <smart-label asp-for="String" />
             </div>
             <div class="adminData">
-                <editor asp-for="Test" />
-                @*@Html.EditorFor(model => model.Test)*@
-                <span asp-validation-for="Test"></span>
+                <editor asp-for="String" />
+                <span asp-validation-for="String"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Textarea" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Textarea" />
+                <span asp-validation-for="Textarea"></span>
             </div>
         </div>
 
