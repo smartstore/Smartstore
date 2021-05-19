@@ -33,11 +33,6 @@
     attributes["data-select-url"] = Url.Action("AllStores", "Store", new { selectedIds = strValue, area = "Admin" });
     attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
     attributes.Merge("data-placeholder", T("Admin.Common.StoresAll").Value);
-
-    if (!attributes.ContainsKey("multiple") && GetMetadata<bool>("multiple"))
-    {
-        attributes["multiple"] = "multiple";
-    }
 }
 
 <select asp-for="@Model" class="form-control" attrs="attributes"></select>

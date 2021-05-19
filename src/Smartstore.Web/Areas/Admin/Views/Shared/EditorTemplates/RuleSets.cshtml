@@ -40,10 +40,5 @@
     attributes["data-select-url"] = Url.Action("AllRuleSets", "Rule", new { selectedIds = strValue, scope = ruleScope, area = "Admin" });
     attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
     attributes.Merge("data-placeholder", T("Common.Unspecified").Value);
-
-    if (!attributes.ContainsKey("multiple") && GetMetadata<bool>("multiple"))
-    {
-        attributes["multiple"] = "multiple";
-    }
 }
 <select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="form-control rule-sets" attrs="attributes"></select>

@@ -42,17 +42,28 @@
                 <smart-label asp-for="StoreId" />
             </div>
             <div class="adminData">
-                <editor asp-for="StoreId" asp-template="Stores" />
+                <editor asp-for="StoreId" />
                 <span asp-validation-for="StoreId"></span>
             </div>
         </div>
 
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="SelectedStoreIds" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="SelectedStoreIds" />
+                <span asp-validation-for="SelectedStoreIds"></span>
+            </div>
+        </div>
+
+
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="SelectedRuleSetIds" />
             </div>
             <div class="adminData">
-                <editor asp-for="SelectedRuleSetIds"/>
+                <editor asp-for="SelectedRuleSetIds" />
                 <span asp-validation-for="SelectedRuleSetIds"></span>
             </div>
         </div>

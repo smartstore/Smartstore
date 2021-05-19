@@ -5,6 +5,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Models.Catalog;
@@ -33,8 +34,10 @@ namespace Smartstore.Web.Areas.Admin.Models
         [UIHint("Stores")]
         public int StoreId { get; set; }
 
+        [UIHint("Stores")]
+        public int[] SelectedStoreIds { get; set; }
+
         [UIHint("RuleSets")]
-        //[AdditionalMetadata("multiple", true)]
         //[AdditionalMetadata("scope", RuleScope.Product)]
         public int[] SelectedRuleSetIds { get; set; }
 
@@ -48,8 +51,6 @@ namespace Smartstore.Web.Areas.Admin.Models
         //public AddressModel Address { get; set; } = new();
 
         [UIHint("CustomerRoles")]
-        // INFO: No AdditionalMetadata anymore :-/ https://github.com/aspnet/Mvc/issues/324
-        //[AdditionalMetadata("multiple", true)]
         public int[] SelectedCustomerRoleIds { get; set; }
 
         [UIHint("DeliveryTimes")]
