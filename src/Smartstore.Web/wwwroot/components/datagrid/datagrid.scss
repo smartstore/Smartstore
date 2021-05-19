@@ -7,6 +7,7 @@
     }
 }
 
+$primary: #307abe; 
 $light: #f8f9fa;
 $border: #dee2e6;
 $even: mix($light, #fff, 60%);
@@ -20,7 +21,7 @@ $hover: darken(#f2f7fb, 0.5%);
     --dg-row-even-bg: #fff;
     --dg-row-hover-color: $hover;
     --dg-row-active-color: $hover;
-    --dg-cell-padding: 0.875rem 1rem;
+    --dg-cell-padding: 13px 16px;
     --dg-cell-align: center;
     --dg-cell-justify: flex-start;
     position: relative;
@@ -91,7 +92,8 @@ $hover: darken(#f2f7fb, 0.5%);
         z-index: 10;
     }
 
-    tr.active {
+    tr.active,
+    tr.dg-edit-row {
         --dg-row-bg: var(--dg-row-active-color) !important;
         --dg-row-even-bg: var(--dg-row-active-color) !important;
     }
@@ -120,6 +122,8 @@ $hover: darken(#f2f7fb, 0.5%);
     text-overflow: ellipsis;
     white-space: nowrap;
     padding: var(--dg-cell-padding);
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
     display: flex;
     //width: 100%;
     height: 100%;
@@ -156,6 +160,7 @@ $hover: darken(#f2f7fb, 0.5%);
 
 .dg-toolbar .btn {
     padding: 14px !important;
+    font-size: 13px;
     border-radius: 0 !important;
     outline: 0 !important;
     box-shadow: none !important;
@@ -264,6 +269,22 @@ $hover: darken(#f2f7fb, 0.5%);
     align-items: center;
     justify-content: center;
     //background-color: $even;
+}
+
+
+// Inline Edit
+// -----------------------------------------
+
+.dg-edit-row {
+    .dg-cell {
+        border-color: $primary;
+    }
+
+    .dg-cell-edit {
+        padding: 0 4px;
+        justify-content: center !important;
+        align-items: center !important;
+    }
 }
 
 

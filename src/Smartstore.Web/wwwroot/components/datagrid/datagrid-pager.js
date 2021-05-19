@@ -2,7 +2,7 @@
     template: `
         <div class="dg-pager bg-light d-flex flex-nowrap">
             <a href="#" class="dg-page dg-page-refresh px-3" @click.prevent="refresh">
-                <i class="fa fa-sync-alt" :class="{ 'fa-spin text-success': $parent.isLoading }"></i>
+                <i class="fa fa-sync-alt" :class="{ 'fa-spin text-success': $parent.isBusy }"></i>
             </a>
             
             <template v-if="totalPages > 1">
@@ -143,6 +143,9 @@
 
         setPageSize(size) {
             if (!this.$parent.isBusy) {
+                if (size > this.command.pageSize) {
+                    this.command.page = 1;
+                }
                 this.command.pageSize = size;
             }
         }

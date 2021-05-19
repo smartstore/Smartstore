@@ -188,7 +188,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductList(GridCommand command, ProductListModel model)
         {
-            var gridModel = new GridModel<ProductModel>();
+            var gridModel = new GridModel<ProductOverviewModel>();
 
             var fields = new List<string> { "name" };
             if (_searchSettings.SearchFields.Contains("sku"))
@@ -290,7 +290,7 @@ namespace Smartstore.Admin.Controllers
 
             gridModel.Rows = products.AsEnumerable().Select(x =>
             {
-                var productModel = new ProductModel
+                var productModel = new ProductOverviewModel
                 {
                     Sku = x.Sku,
                     Published = x.Published,

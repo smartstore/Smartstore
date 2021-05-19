@@ -34,6 +34,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string AllowEditAttributeName = "allow-edit";
         const string HideHeaderAttributeName = "hide-header";
         const string KeyMemberAttributeName = "key-member";
+        const string MaxHeightAttributeName = "max-height";
         const string OnDataBindingAttributeName = "ondatabinding";
         const string OnDataBoundAttributeName = "ondatabound";
         const string OnRowSelectedAttributeName = "onrowselected";
@@ -99,6 +100,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(KeyMemberAttributeName)]
         public ModelExpression KeyMember { get; set; }
+
+        /// <summary>
+        /// Maximum height of grid element including toolbar, pager, header etc. Expressed as CSS max-height expression. Default: <c>initial</c>.
+        /// </summary>
+        [HtmlAttributeName(MaxHeightAttributeName)]
+        public string MaxHeight { get; set; }
 
         /// <summary>
         /// Name of Javascript function to call before data binding.
@@ -203,7 +210,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     component.InnerHtml.AppendHtml(displaySlot);
                 }
 
-                if (AllowEdit && !column.ReadOnly && column.EditTemplate?.IsEmptyOrWhiteSpace == false)
+                if (AllowEdit && !column.ReadOnly && (column.EditTemplate == null || column.EditTemplate.IsEmptyOrWhiteSpace))
                 {
                     IHtmlContent htmlContent;
                     
@@ -249,6 +256,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     allowRowSelection = AllowRowSelection,
                     allowEdit = AllowEdit,
                     hideHeader = HideHeader,
+                    maxHeight = MaxHeight,
                     onDataBinding = OnDataBinding,
                     onDataBound = OnDataBound,
                     onRowSelected = OnRowSelected
@@ -290,7 +298,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     member = col.MemberName,
                     title = col.Title ?? col.For.Metadata.DisplayName,
                     width = col.Width.EmptyNull(),
-                    visible = col.Visible,
+                    hidden = !col.Visible,
                     //flow = col.Flow?.ToString()?.Kebaberize(),
                     halign = col.HAlign,
                     valign = col.VAlign,

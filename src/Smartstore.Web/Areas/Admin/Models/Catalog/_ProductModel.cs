@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
@@ -12,31 +13,14 @@ using Smartstore.Web.Modelling.Validation;
 namespace Smartstore.Admin.Models.Catalog
 {
     [LocalizedDisplay("Admin.Catalog.Products.Fields.")]
-    public class ProductModel : TabbableModel
+    public class ProductModel : ProductOverviewModel
     {
         // TODO: (mh) (core) Finish Smartstore.Admin.Models.Catalog.ProductModel
         // TODO: (core) What to do about AdditionalMetadataAttribute?
 
-        [LocalizedDisplay("*ID")]
-        public override int Id { get; set; }
-
-        public string EditUrl { get; set; }
-
-        [LocalizedDisplay("*PictureThumbnailUrl")]
-        public string PictureThumbnailUrl { get; set; }
-        public bool NoThumb { get; set; }
-
-        [LocalizedDisplay("*ProductType")]
-        public int ProductTypeId { get; set; }
-        [LocalizedDisplay("*ProductType")]
-        public string ProductTypeName { get; set; }
-        public string ProductTypeLabelHint { get; set; }
-
-        [LocalizedDisplay("*ProductUrl")]
-        public string ProductUrl { get; set; }
-
         [LocalizedDisplay("*AssociatedToProductName")]
         public int AssociatedToProductId { get; set; }
+
         [LocalizedDisplay("*.AssociatedToProductName")]
         public string AssociatedToProductName { get; set; }
 
@@ -50,9 +34,6 @@ namespace Smartstore.Admin.Models.Catalog
         public int ProductTemplateId { get; set; }
         //public IList<SelectListItem> AvailableProductTemplates { get; set; }
 
-        [LocalizedDisplay("A*Name")]
-        public string Name { get; set; }
-
         [LocalizedDisplay("*ShortDescription")]
         public string ShortDescription { get; set; }
 
@@ -61,12 +42,6 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*AdminComment")]
         public string AdminComment { get; set; }
-
-        [LocalizedDisplay("*ShowOnHomePage")]
-        public bool ShowOnHomePage { get; set; }
-
-        [LocalizedDisplay("Common.DisplayOrder")]
-        public int HomePageDisplayOrder { get; set; }
 
         [LocalizedDisplay("Admin.Configuration.Seo.MetaKeywords")]
         public string MetaKeywords { get; set; }
@@ -86,18 +61,6 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*ProductTags")]
         public string[] ProductTags { get; set; }
         //public MultiSelectList AvailableProductTags { get; set; }
-
-        [LocalizedDisplay("*Sku")]
-        public string Sku { get; set; }
-
-        [LocalizedDisplay("*ManufacturerPartNumber")]
-        public string ManufacturerPartNumber { get; set; }
-
-        [LocalizedDisplay("*GTIN")]
-        public string Gtin { get; set; }
-
-        [LocalizedDisplay("*CustomsTariffNumber")]
-        public string CustomsTariffNumber { get; set; }
 
         [LocalizedDisplay("*CountryOfOriginId")]
         public int? CountryOfOriginId { get; set; }
@@ -133,6 +96,8 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Download")]
         [UIHint("Download")]
         public int? DownloadId { get; set; }
+
+        [JsonIgnore]
         public string DownloadThumbUrl { get; set; }
         //public Download CurrentDownload { get; set; }
 
@@ -192,9 +157,6 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*IsEsd")]
         public bool IsEsd { get; set; }
 
-        [LocalizedDisplay("*IsTaxExempt")]
-        public bool IsTaxExempt { get; set; }
-
         [LocalizedDisplay("*TaxCategory")]
         public int? TaxCategoryId { get; set; }
         //public IList<SelectListItem> AvailableTaxCategories { get; set; }
@@ -203,8 +165,6 @@ namespace Smartstore.Admin.Models.Catalog
         public int ManageInventoryMethodId { get; set; }
         //public IList<SelectListItem> AvailableManageInventoryMethods { get; set; }
 
-        [LocalizedDisplay("*StockQuantity")]
-        public int StockQuantity { get; set; }
         public int OriginalStockQuantity { get; set; }
 
         [LocalizedDisplay("*DisplayStockAvailability")]
@@ -212,9 +172,6 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*DisplayStockQuantity")]
         public bool DisplayStockQuantity { get; set; }
-
-        [LocalizedDisplay("*MinStockQuantity")]
-        public int MinStockQuantity { get; set; }
 
         [LocalizedDisplay("*LowStockActivity")]
         public int LowStockActivityId { get; set; }
@@ -258,23 +215,8 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*CallForPrice")]
         public bool CallForPrice { get; set; }
 
-        [LocalizedDisplay("*Price")]
-        public decimal Price { get; set; }
-
-        [LocalizedDisplay("*OldPrice")]
-        public decimal OldPrice { get; set; }
-
         [LocalizedDisplay("*ProductCost")]
         public decimal ProductCost { get; set; }
-
-        [LocalizedDisplay("*SpecialPrice")]
-        public decimal? SpecialPrice { get; set; }
-
-        [LocalizedDisplay("*SpecialPriceStartDateTimeUtc")]
-        public DateTime? SpecialPriceStartDateTimeUtc { get; set; }
-
-        [LocalizedDisplay("*SpecialPriceEndDateTimeUtc")]
-        public DateTime? SpecialPriceEndDateTimeUtc { get; set; }
 
         [LocalizedDisplay("*CustomerEntersPrice")]
         public bool CustomerEntersPrice { get; set; }
@@ -284,33 +226,6 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*MaximumCustomerEnteredPrice")]
         public decimal MaximumCustomerEnteredPrice { get; set; }
-
-        [LocalizedDisplay("*Weight")]
-        public decimal Weight { get; set; }
-
-        [LocalizedDisplay("*Length")]
-        public decimal Length { get; set; }
-
-        [LocalizedDisplay("*Width")]
-        public decimal Width { get; set; }
-
-        [LocalizedDisplay("*Height")]
-        public decimal Height { get; set; }
-
-        [LocalizedDisplay("*AvailableStartDateTime")]
-        public DateTime? AvailableStartDateTimeUtc { get; set; }
-
-        [LocalizedDisplay("*AvailableEndDateTime")]
-        public DateTime? AvailableEndDateTimeUtc { get; set; }
-
-        [LocalizedDisplay("*Published")]
-        public bool Published { get; set; }
-
-        [LocalizedDisplay("Common.CreatedOn")]
-        public DateTime? CreatedOn { get; set; }
-
-        [LocalizedDisplay("Common.UpdatedOn")]
-        public DateTime? UpdatedOn { get; set; }
 
         [LocalizedDisplay("*BundleTitleText")]
         public string BundleTitleText { get; set; }
@@ -339,17 +254,11 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Admin.Common.CustomerRole.LimitedTo")]
         public int[] SelectedCustomerRoleIds { get; set; }
 
-        [LocalizedDisplay("Admin.Common.CustomerRole.LimitedTo")]
-        public bool SubjectToAcl { get; set; }
-
         // Store mapping.
         [UIHint("Stores")]
         //[AdditionalMetadata("multiple", true)]
         [LocalizedDisplay("Admin.Common.Store.LimitedTo")]
         public int[] SelectedStoreIds { get; set; }
-
-        [LocalizedDisplay("Admin.Common.Store.LimitedTo")]
-        public bool LimitedToStores { get; set; }
 
         public int NumberOfAvailableCategories { get; set; }
         public int NumberOfAvailableManufacturers { get; set; }

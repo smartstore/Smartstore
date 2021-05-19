@@ -9,7 +9,7 @@
   --dg-row-even-bg: #fff;
   --dg-row-hover-color: #f0f6fa;
   --dg-row-active-color: #f0f6fa;
-  --dg-cell-padding: 0.875rem 1rem;
+  --dg-cell-padding: 13px 16px;
   --dg-cell-align: center;
   --dg-cell-justify: flex-start;
   position: relative;
@@ -59,7 +59,8 @@
     background-color: var(--dg-row-even-bg); }
   .dg-table th:first-child {
     z-index: 10; }
-  .dg-table tr.active {
+  .dg-table tr.active,
+  .dg-table tr.dg-edit-row {
     --dg-row-bg: var(--dg-row-active-color) !important;
     --dg-row-even-bg: var(--dg-row-active-color) !important; }
   .dg-table.dg-resizing {
@@ -78,6 +79,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: var(--dg-cell-padding);
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
   display: flex;
   height: 100%;
   align-items: var(--dg-cell-align);
@@ -102,6 +105,7 @@
 
 .dg-toolbar .btn {
   padding: 14px !important;
+  font-size: 13px;
   border-radius: 0 !important;
   outline: 0 !important;
   box-shadow: none !important;
@@ -168,6 +172,14 @@
 .dg-cell-selector:not(.dg-cell-header) {
   align-items: center;
   justify-content: center; }
+
+.dg-edit-row .dg-cell {
+  border-color: #307abe; }
+
+.dg-edit-row .dg-cell-edit {
+  padding: 0 4px;
+  justify-content: center !important;
+  align-items: center !important; }
 
 .dg-pager-top {
   border-bottom: 1px solid #dee2e6; }

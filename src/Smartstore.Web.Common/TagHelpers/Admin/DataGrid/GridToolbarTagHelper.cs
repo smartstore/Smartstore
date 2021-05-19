@@ -6,7 +6,7 @@ namespace Smartstore.Web.TagHelpers.Admin
 {
     /// <summary>
     /// Template for the toolbar content as Vue slot template. Root object is called <c>grid</c>
-    /// and provides the following members: <c>selectedRows, selectedRowsCount, selectedRowKeys, hasSelection, command, rows, deleteSelected()</c>
+    /// and provides the following members: <c>selectedRows, selectedRowsCount, selectedRowKeys, hasSelection, command, rows, edit, submitChanges(), cancelEdit(), deleteSelected()</c>
     /// </summary>
     [HtmlTargetElement("toolbar", ParentTag = "datagrid")]
     public class GridToolbarTagHelper : TagHelper

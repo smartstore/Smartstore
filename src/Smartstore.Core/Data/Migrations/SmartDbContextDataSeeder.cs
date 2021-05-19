@@ -15,8 +15,16 @@ namespace Smartstore.Core.Data.Migrations
 
         public static void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
+            #region General
+
+            // TODO: (core) Delete all Telerik language resources (???)
+
+            builder.AddOrUpdate("Admin.Common.SaveChanges", "Save changes", "Änderungen speichern");
+
+            #endregion
+
             #region Identity
-            
+
             builder.Delete("Account.EmailUsernameErrors.UsernameAlreadyExists");    // Isn't used
             builder.Delete("Account.Register.Errors.UsernameAlreadyExists");        // Now is Identity.Error.DuplicateUserName
             builder.Delete("Account.EmailUsernameErrors.EmailAlreadyExists");       // Isn't used

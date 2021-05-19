@@ -10,7 +10,7 @@ Vue.component("pass", {
 
 Vue.component("sm-data-grid", {
     template: `
-        <div class="datagrid">
+        <div class="datagrid" :style="{ maxHeight: options.maxHeight }">
             <slot name="toolbar" v-bind="{ 
                 selectedRows, 
                 selectedRowsCount,
@@ -18,6 +18,9 @@ Vue.component("sm-data-grid", {
                 hasSelection,
                 command,
                 rows,
+                edit,
+                saveChanges,
+                cancelEdit,
                 deleteSelected }">
             </slot>
 
@@ -38,7 +41,8 @@ Vue.component("sm-data-grid", {
                                 </label>
                             </th>            
                 
-                            <th v-for="(column, columnIndex) in columns"
+                            <th v-for="(column, columnIndex) in columns" 
+                                v-show="!column.hidden"
                                 :data-member="column.member"
                                 :data-index="columnIndex"
                                 ref="column">
@@ -63,7 +67,7 @@ Vue.component("sm-data-grid", {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(row, rowIndex) in rows" :key="row[options.keyMemberName]" :class="{ active: isRowSelected(row) }">
+                        <tr v-for="(row, rowIndex) in rows" :key="row[options.keyMemberName]" :class="{ 'active': isRowSelected(row), 'dg-edit-row': isInlineEditRow(row) }">
                              <td v-if="allowRowSelection" class="dg-col-pinned alpha">
                                 <label class="dg-cell dg-cell-selector">
                                     <span class="dg-cell-value">
@@ -72,11 +76,13 @@ Vue.component("sm-data-grid", {
                                 </label>
                             </td>             
 
-                            <td v-for="(column, columnIndex) in columns"
+                            <td v-for="(column, columnIndex) in columns" 
+                                v-show="!column.hidden"
                                 :data-index="columnIndex"
-                                :key="row[options.keyMemberName] + '-' + columnIndex">
-                                <div class="dg-cell" :class="getCellClass(column)" :style="getCellStyles(column, false)">
-                                    <slot :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                                :key="row[options.keyMemberName] + '-' + columnIndex"
+                                @dblclick="onCellDblClick($event, row)">
+                                <div class="dg-cell" :class="getCellClass(row, column)" :style="getCellStyles(row, column, false)">
+                                    <slot v-if="!isInlineEditCell(row, column)" :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
                                         <span class="dg-cell-value">
                                             <template v-if="column.type === 'boolean'">
                                                 <i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i>
@@ -85,6 +91,8 @@ Vue.component("sm-data-grid", {
                                                 {{ renderCellValue(row[column.member], column, row) }}
                                             </template>
                                         </span>
+                                    </slot>
+                                    <slot v-if="isInlineEditCell(row, column)" :name="'edit-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
                                     </slot>
                                 </div>
                             </td>
@@ -139,11 +147,21 @@ Vue.component("sm-data-grid", {
             aggregates: [],
             selectedRows: {},
             isBusy: false,
-            isScrollable: false
+            isScrollable: false,
+            edit: {
+                active: false,
+                insertMode: false,
+                row: {},
+                tr: null,
+                getEditors() {
+                    if (!this.tr) return [];
+                    return this.tr.querySelectorAll('.dg-cell-edit select, .dg-cell-edit input, .dg-cell-edit textarea')
+                }
+            }
         }
     },
 
-    created: function () {
+    created() {
         var self = this;
         this.command = this.buildCommand();
 
@@ -168,7 +186,7 @@ Vue.component("sm-data-grid", {
         }
     },
 
-    mounted: function () {
+    mounted () {
         var self = this;
         this.read();
 
@@ -177,6 +195,10 @@ Vue.component("sm-data-grid", {
             self.isScrollable = tableWrapper.offsetWidth < tableWrapper.scrollWidth;
         });
         resizeObserver.observe(this.$refs.tableWrapper);
+    },
+
+    updated() {
+        this.initializeEditRow();
     },
 
     computed: {
@@ -205,6 +227,10 @@ Vue.component("sm-data-grid", {
 
             const selectedRows = this.selectedRows;
             return this.rows.filter(row => selectedRows[row[this.options.keyMemberName]] !== undefined);
+        },
+
+        hasEditableVisibleColumn() {
+            return this.columns.some(c => !c.hidden && c.editable);
         }
     },
 
@@ -244,7 +270,7 @@ Vue.component("sm-data-grid", {
             return style;
         },
 
-        getCellStyles(column, isHeader) {
+        getCellStyles(row, column, isHeader) {
             const style = {};
 
             if (column.halign) {
@@ -262,9 +288,10 @@ Vue.component("sm-data-grid", {
             return style;
         },
 
-        getCellClass(column) {
+        getCellClass(row, column) {
             const cssClass = {
-                'dg-cell-wrap': !column.nowrap
+                'dg-cell-wrap': !column.nowrap,
+                'dg-cell-edit': this.isInlineEditCell(row, column)
             };
 
             return cssClass;
@@ -273,9 +300,10 @@ Vue.component("sm-data-grid", {
         getGridTemplateColumns() {
             var hasFraction = false;
             var result = this.columns
+                .filter(c => !c.hidden)
                 .map(c => {
-                    let w = c.visible ? c.width : "0";
-                    if (c.visible && !c.width) {
+                    let w = c.width;
+                    if (_.isEmpty(w)) {
                         switch (c.type) {
                             case "int":
                             case "float":
@@ -343,6 +371,7 @@ Vue.component("sm-data-grid", {
                 return;
 
             var self = this;
+            self.cancelEdit();
             self.isBusy = true;
 
             const input = document.querySelector('input[name=__RequestVerificationToken]');
@@ -558,6 +587,93 @@ Vue.component("sm-data-grid", {
 
         autoSizeColumn(e, column, columnIndex) {
             column.width = 'max-content';
+        },
+
+        // #endregion
+
+        // #region Inline Edit or Insert
+
+        isInlineEditRow(row) {
+            return this.edit.active && this.edit.row === row;
+        },
+
+        isInlineEditCell(row, column) {
+            if (!this.edit.active || this.edit.row !== row) {
+                return false;
+            }
+
+            return column.editable;
+        },
+
+        onCellDblClick(e, row) {
+            this.activateEdit(row, $(e.target).closest('tr').get(0));
+        },
+
+        activateEdit(row, tableRow) {
+            if (!this.options.allowEdit || !this.hasEditableVisibleColumn) {
+                return;
+            }
+
+            this.edit.active = true;
+            this.edit.row = row;
+            this.edit.tr = tableRow;
+            this.edit.initialized = false;
+        },
+
+        initializeEditRow() {
+            var edit = this.edit;
+            if (!edit.active || edit.initialized) {
+                return;
+            }
+
+            edit.getEditors().forEach(el => {
+                // TODO: (core) Handle focus on grid activateEdit()
+                if (el.name) {
+                    var rawValue = edit.row[el.name];
+                    if (el.matches('[type="checkbox"], [type="radio"]')) {
+                        el.checked = rawValue;
+                    }
+                    else {
+                        el.value = rawValue;
+                    }
+                }
+            });
+
+            edit.initialized = true;
+        },
+
+        saveChanges() {
+            var edit = this.edit;
+            if (!edit.active) {
+                return;
+            }
+
+            edit.getEditors().forEach(el => {
+                if (el.name) {
+                    if (el.matches('[type="checkbox"], [type="radio"]')) {
+                        edit.row[el.name] = el.checked;
+                    }
+                    else if (el.matches('[type="hidden"]')) {
+                        // do nothing
+                    }
+                    else {
+                        edit.row[el.name] = el.value;
+                    }
+                }
+            });
+
+            this.cancelEdit();
+        },
+
+        cancelEdit() {
+            if (!this.edit.active) {
+                return;
+            }
+
+            this.edit.active = false;
+            this.edit.row = { };
+            this.edit.tr = null;
+            this.edit.initialized = false;
         },
 
         // #endregion
