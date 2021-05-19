@@ -17,16 +17,14 @@
 
     foreach (var attr in attributes)
     {
-        fixedAttributes.Add(attr.Key.StartsWith("data_") ? attr.Key.Replace("_", "-") : attr.Key, attr.Value.ToString());
+        fixedAttributes.Merge(attr.Key.StartsWith("data_") ? attr.Key.Replace("_", "-") : attr.Key, attr.Value.ToString(), true);
     }
 
-    fixedAttributes.Add("class", "form-control" + (large ? " form-control-lg" : ""));
-    fixedAttributes.Add("data-min", Model.MinOrderAmount.ToString());
-    fixedAttributes.Add("data-max", Model.MaxOrderAmount.ToString());
-    fixedAttributes.Add("data-postfix", Model.QuantityUnitName);
-    fixedAttributes.Add("data-step", Model.QuantityStep.ToString());
-
-
+    fixedAttributes.Merge("class", "form-control" + (large ? " form-control-lg" : ""));
+    fixedAttributes.Merge("data-min", Model.MinOrderAmount.ToString(), true);
+    fixedAttributes.Merge("data-max", Model.MaxOrderAmount.ToString(), true);
+    fixedAttributes.Merge("data-postfix", Model.QuantityUnitName, true);
+    fixedAttributes.Merge("data-step", Model.QuantityStep.ToString(), true);
 }
 
 <div class="qty-input" attr-class='(Model.QuantityUnitName != null && Model.QuantityUnitName.Value.HasValue(), "has-postfix")'>

@@ -43,10 +43,10 @@ namespace Smartstore.Core.Content.Media
                 long maxBytes = 1024 * _mediaSettings.MaxUploadFileSize;
                 for (var i = 0; i < numFiles; ++i)
                 {
-                    var file = request.Form.Files[i];
-                    if (file.Length > maxBytes)
+                    var file = request.ToPostedFileResult();
+                    if (file.Size > maxBytes)
                     {
-                        throw _exceptionFactory.MaxFileSizeExceeded(file.FileName, file.Length, maxBytes);
+                        throw _exceptionFactory.MaxFileSizeExceeded(file.FileName, file.Size, maxBytes);
                     }
                 }
             }

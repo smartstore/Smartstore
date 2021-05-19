@@ -41,10 +41,12 @@ namespace Smartstore.Web.Controllers
         private readonly IMessageFactory _messageFactory;
         private readonly ITaxCalculator _taxCalculator;
         private readonly IActivityLogger _activityLogger;
+        private readonly IMediaService _mediaService;
         private readonly IShippingService _shippingService;
         private readonly ICurrencyService _currencyService;
         private readonly IDiscountService _discountService;
         private readonly IGiftCardService _giftCardService;
+        private readonly IDownloadService _downloadService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
@@ -61,10 +63,12 @@ namespace Smartstore.Web.Controllers
             IMessageFactory messageFactory,
             ITaxCalculator taxCalculator,
             IActivityLogger activityLogger,
+            IMediaService mediaService,
             IShippingService shippingService,
             ICurrencyService currencyService,
             IDiscountService discountService,
             IGiftCardService giftCardService,
+            IDownloadService downloadService,
             IShoppingCartService shoppingCartService,
             IOrderCalculationService orderCalculationService,
             IShoppingCartValidator shoppingCartValidator,
@@ -80,10 +84,12 @@ namespace Smartstore.Web.Controllers
             _messageFactory = messageFactory;
             _taxCalculator = taxCalculator;
             _activityLogger = activityLogger;
+            _mediaService = mediaService;
             _shippingService = shippingService;
             _currencyService = currencyService;
             _discountService = discountService;
             _giftCardService = giftCardService;
+            _downloadService = downloadService;
             _shoppingCartService = shoppingCartService;
             _orderCalculationService = orderCalculationService;
             _shoppingCartValidator = shoppingCartValidator;
@@ -1076,105 +1082,110 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        //#region Upload
+        #region Upload
 
-        //[HttpPost]
-        //[MaxMediaFileSize]
-        //public async Task<IActionResult> UploadFileProductAttribute(int productId, int productAttributeId, IFormFile formFile)
-        //{
-        //    var product = await _db.Products.FindByIdAsync(productId, false);
-        //    if (product == null || formFile == null || !product.Published || product.Deleted || product.IsSystemProduct)
-        //    {
-        //        return Json(new
-        //        {
-        //            success = false,
-        //            downloadGuid = Guid.Empty,
-        //        });
-        //    }
+        [HttpPost]
+        [MaxMediaFileSize]
+        public async Task<IActionResult> UploadFileProductAttribute(int productId, int productAttributeId)
+        {
+            var product = await _db.Products.FindByIdAsync(productId, false);
+            if (product == null || !product.Published || product.Deleted || product.IsSystemProduct)
+            {
+                return Json(new
+                {
+                    success = false,
+                    downloadGuid = Guid.Empty,
+                });
+            }
 
-        //    // Ensure that this attribute belongs to this product and has the "file upload" type
-        //    var pva = await _db.ProductVariantAttributes
-        //        .AsNoTracking()
-        //        .ApplyProductFilter(new[] { productId })
-        //        .Include(x => x.ProductAttribute)
-        //        .Where(x => x.ProductAttributeId == productAttributeId)
-        //        .FirstOrDefaultAsync();
+            // Ensure that this attribute belongs to this product and has the "file upload" type
+            var variantAttribute = await _db.ProductVariantAttributes
+                .AsNoTracking()
+                .ApplyProductFilter(new[] { productId })
+                .Include(x => x.ProductAttribute)
+                .Where(x => x.ProductAttributeId == productAttributeId)
+                .FirstOrDefaultAsync();
 
-        //    if (pva == null || pva.AttributeControlType != AttributeControlType.FileUpload)
-        //    {
-        //        return Json(new
-        //        {
-        //            success = false,
-        //            downloadGuid = Guid.Empty,
-        //        });
-        //    }
+            if (variantAttribute == null || variantAttribute.AttributeControlType != AttributeControlType.FileUpload)
+            {
+                return Json(new
+                {
+                    success = false,
+                    downloadGuid = Guid.Empty,
+                });
+            }
 
-        //    var download = new Download
-        //    {
-        //        DownloadGuid = Guid.NewGuid(),
-        //        UseDownloadUrl = false,
-        //        DownloadUrl = "",
-        //        UpdatedOnUtc = DateTime.UtcNow,
-        //        EntityId = productId,
-        //        EntityName = "ProductAttribute",
-        //        IsTransient = true
-        //    };
+            var postedFile = Request.ToPostedFileResult();
+            if (postedFile == null)
+            {
+                throw new ArgumentException(T("Common.NoFileUploaded"));
+            }
 
-        //    var mediaFile = await _downloadService.InsertDownloadAsync(download, formFile.OpenReadStream(), formFile.FileName);
+            var download = new Download
+            {
+                DownloadGuid = Guid.NewGuid(),
+                UseDownloadUrl = false,
+                DownloadUrl = "",
+                UpdatedOnUtc = DateTime.UtcNow,
+                EntityId = productId,
+                EntityName = "ProductAttribute",
+                IsTransient = true
+            };
 
-        //    return Json(new
-        //    {
-        //        id = download.MediaFileId,
-        //        name = mediaFile.Name,
-        //        type = mediaFile.MediaType,
-        //        thumbUrl = _mediaService.GetUrl(download.MediaFile, _mediaSettings.ProductThumbPictureSize, string.Empty),
-        //        success = true,
-        //        message = T("ShoppingCart.FileUploaded").Value,
-        //        downloadGuid = download.DownloadGuid,
-        //    });
-        //}
+            var mediaFile = await _downloadService.InsertDownloadAsync(download, postedFile.Stream, postedFile.FileName);
 
-        // TODO: (ms) (core) Wait for FileUpload ChoiceTemplate implementation before adding file upload action(s).
-        //[HttpPost]
-        //[MaxMediaFileSize]
-        //// TODO: (ms) (core) TEST that IFormFile is beeing used
-        //public async Task<IActionResult> UploadFileCheckoutAttribute(IFormFile formFile)
-        //{
-        //    if (formFile == null || !formFile.FileName.HasValue())
-        //    {
-        //        return Json(new
-        //        {
-        //            success = false,
-        //            downloadGuid = Guid.Empty
-        //        });
-        //    }
+            return Json(new
+            {
+                id = download.MediaFileId,
+                name = mediaFile.Name,
+                type = mediaFile.MediaType,
+                thumbUrl = _mediaService.GetUrl(download.MediaFile, _mediaSettings.ProductThumbPictureSize, string.Empty),
+                success = true,
+                message = T("ShoppingCart.FileUploaded").Value,
+                downloadGuid = download.DownloadGuid,
+            });
+        }
 
-        //    var download = new Download
-        //    {
-        //        DownloadGuid = Guid.NewGuid(),
-        //        UseDownloadUrl = false,
-        //        DownloadUrl = "",
-        //        UpdatedOnUtc = DateTime.UtcNow,
-        //        EntityId = 0,
-        //        EntityName = "CheckoutAttribute",
-        //        IsTransient = true
-        //    };
+        [HttpPost]
+        [MaxMediaFileSize]
+        public async Task<IActionResult> UploadFileCheckoutAttribute()
+        {
+            var fileResult = Request.ToPostedFileResult();
+            if (fileResult == null || !fileResult.FileName.HasValue())
+            {
+                return Json(new
+                {
+                    success = false,
+                    downloadGuid = Guid.Empty
+                });
+            }
 
-        //    var mediaFile = await _downloadService.InsertDownloadAsync(download, formFile.OpenReadStream(), formFile.FileName);
+            var download = new Download
+            {
+                DownloadGuid = Guid.NewGuid(),
+                UseDownloadUrl = false,
+                DownloadUrl = "",
+                UpdatedOnUtc = DateTime.UtcNow,
+                EntityId = 0,
+                EntityName = "CheckoutAttribute",
+                IsTransient = true
+            };
 
-        //    return Json(new
-        //    {
-        //        id = download.MediaFileId,
-        //        name = mediaFile.Name,
-        //        type = mediaFile.MediaType,
-        //        thumbUrl = await _mediaService.GetUrlAsync(mediaFile.File.Id, _mediaSettings.ProductThumbPictureSize, host: string.Empty),
-        //        success = true,
-        //        message = T("ShoppingCart.FileUploaded").Value,
-        //        downloadGuid = download.DownloadGuid,
-        //    });
-        //}
+            var mediaFile = await _downloadService.InsertDownloadAsync(download, fileResult.Stream, fileResult.FileName);
 
-        //#endregion
+            return Json(new
+            {
+                id = download.MediaFileId,
+                name = mediaFile.Name,
+                type = mediaFile.MediaType,
+                thumbUrl = await _mediaService.GetUrlAsync(mediaFile.File.Id, _mediaSettings.ProductThumbPictureSize, host: string.Empty),
+                success = true,
+                message = T("ShoppingCart.FileUploaded").Value,
+                downloadGuid = download.DownloadGuid,
+            });
+        }
+        
+        #endregion
 
         #region Discount/GiftCard coupon codes & Reward points
 

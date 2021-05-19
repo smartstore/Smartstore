@@ -755,25 +755,25 @@ namespace Smartstore.Web.Controllers
             {
                 if (customer.IsRegistered() && _customerSettings.AllowCustomersToUploadAvatars)
                 {
-                    var uploadedFile = Request.Form.Files.FirstOrDefault();
-
+                    var uploadedFile = Request.ToPostedFileResult();
                     if (uploadedFile != null && uploadedFile.FileName.HasValue())
                     {
-                        if (uploadedFile.Length > _customerSettings.AvatarMaximumSizeBytes)
+                        if (uploadedFile.Size > _customerSettings.AvatarMaximumSizeBytes)
                         {
                             throw new SmartException(T("Account.Avatar.MaximumUploadedFileSize", Prettifier.HumanizeBytes(_customerSettings.AvatarMaximumSizeBytes)));
                         }
 
-                        var oldAvatar = await _db.MediaFiles.FindByIdAsync((int)customer.GenericAttributes.AvatarPictureId);
+                        var oldAvatar = await _db.MediaFiles.FindByIdAsync(customer.GenericAttributes.AvatarPictureId ?? 0);
                         if (oldAvatar != null)
                         {
                             _db.MediaFiles.Remove(oldAvatar);
                             await _db.SaveChangesAsync();
-                        }
+                        }                        
 
                         var path = _mediaService.CombinePaths(SystemAlbumProvider.Customers, uploadedFile.FileName.ToValidFileName());
                         // TODO: (mh) (core) || TODO: (mc) (core) Somethings wrong with _mediaService.SaveFileAsync.
-                        var stream = uploadedFile.OpenReadStream();
+                        // NOTE: (by ms) Works for me (now).
+                        var stream = uploadedFile.Stream;
                         Response.RegisterForDispose(stream);
 
                         var newAvatar = await _mediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
