@@ -22,8 +22,9 @@
         : new LinkType[] { LinkType.Product, LinkType.Category, LinkType.Manufacturer, LinkType.Topic, LinkType.BlogPost, LinkType.NewsItem, LinkType.File, LinkType.Url };
 }
 
-<div id="link-builder-@rnd" class="link-builder" 
+<div id="link-builder-@rnd" class="link-builder initialize-template" 
      data-field-id="@id" 
+     data-editor-template="link"
      data-current-type="@(Value != null ? link.Type.ToString().ToLower() : string.Empty)"
      attr-data-product-picker-callback='(allowedTypes.Contains(LinkType.Product), "lbPickerSelectionCompleted" + rnd.ToString())'>
     <div class="d-flex flex-nowrap input-group">

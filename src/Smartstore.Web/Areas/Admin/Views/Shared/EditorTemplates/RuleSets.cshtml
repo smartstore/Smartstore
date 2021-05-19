@@ -41,4 +41,4 @@
     attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
     attributes.Merge("data-placeholder", T("Common.Unspecified").Value);
 }
-<select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="form-control rule-sets" attrs="attributes"></select>
+<select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="form-control rule-sets initialize-template" attrs="attributes" data-editor-template="rule-sets"></select>

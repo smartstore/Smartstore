@@ -38,8 +38,9 @@
 }
 
 @*TODO: (mh) (core) Implement RoxyFileManager > ProcessRequest.*@
-<div class="html-editor-root"
+<div class="html-editor-root initialize-template"
      data-summernote-image-upload-url="@Html.Raw(Url.Action("ProcessRequest", "RoxyFileManager"))"
+     data-editor-template="html"
      data-lazy="@lazy"
      data-lang="@Html.Raw(culture != null ? $"'{culture}'" : "null")">
 

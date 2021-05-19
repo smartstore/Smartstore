@@ -63,10 +63,11 @@
 <div class="@CssClass" id="@id-parent" data-date="@value" data-target-input="nearest">
     <input asp-for="@Model"
            attrs="attributes"
-           class="form-control datetimepicker-input"
+           class="form-control datetimepicker-input initialize-template"
            data-target="#@(id)-parent"
            data-format="@format"
            data-use-current="false"
+           data-editor-template="date-time"
            type="text"
            attr-value="(value.HasValue(), value)" />
 

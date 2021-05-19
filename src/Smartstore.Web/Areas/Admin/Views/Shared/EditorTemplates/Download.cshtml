@@ -89,15 +89,15 @@
 }
 
 <div id="@clientId" 
-     class="form-row flex-nowrap download-editor"
+     class="form-row flex-nowrap download-editor initialize-template"
      attr-class='(additionalCssClasses.HasValue(), additionalCssClasses)'
      data-download-id="@Model.GetValueOrDefault()"
      data-entity-id="@EntityId"
      data-entity-name="@EntityName"
+     data-editor-template="download"
      data-create-url="@Url.Action("CreateDownloadFromMediaFile", "Download", new { area = "Admin" })"
      data-delete-url="@Url.Action("DeleteDownload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, downloadId = Model, area = "Admin" })"
-     data-use-url="@(initiallyShowUrlPanel ? "true" : "false")"
-     data-media-selected-callback="onMediaSelected_@random">
+     data-use-url="@(initiallyShowUrlPanel ? "true" : "false")">
 
     <input type="hidden" name="is-url-download-@(Model)" id="is-url-download-@(Model)" value='@(initiallyShowUrlPanel ? "true" : "false")' />
 
@@ -146,16 +146,15 @@
 
             <div class="fu-controls">
                 <file-uploader
-                    upload-url="@Url.Action("AsyncUpload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, entityId = EntityId, entityName = EntityName, area = "Admin" })"
-                    delete-url="@Url.Action("DeleteDownload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, downloadId = Model, area = "Admin" })"
-                    multi-file="false"
-                    media-path="@MediaPath"
-                    type-filter="@(string.Join("|", CatalogSettings.FileUploadAllowedExtensions.Select(x => x.Trim()).ToList()))"
-                    has-template-preview="true"
-                    display-browse-media-button="true"
-                    display-remove-button="hasFile"
-                    display-remove-button-after-upload="true"
-                    onmediaselected="@("onMediaSelected_" + random)" />
+                    sm-upload-url="@Url.Action("AsyncUpload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, entityId = EntityId, entityName = EntityName, area = "Admin" })"
+                    sm-delete-url="@Url.Action("DeleteDownload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, downloadId = Model, area = "Admin" })"
+                    sm-multi-file="false"
+                    sm-media-path="@MediaPath"
+                    sm-type-filter="@(string.Join("|", CatalogSettings.FileUploadAllowedExtensions.Select(x => x.Trim()).ToList()))"
+                    sm-has-template-preview="true"
+                    sm-display-browse-media-button="true"
+                    sm-display-remove-button="hasFile"
+                    sm-display-remove-button-after-upload="true" />
             </div>
         </div>
 

@@ -35,4 +35,4 @@
     attributes.Merge("data-placeholder", T("Admin.Common.StoresAll").Value);
 }
 
-<select asp-for="@Model" class="form-control" attrs="attributes"></select>
+<select asp-for="@Model" class="form-control initialize-template" attrs="attributes" data-editor-template="stores"></select>
