@@ -33,20 +33,13 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(PostfixAttributeName)]
         public string Postfix { get; set; }
 
-        private readonly IHtmlHelper _htmlHelper;
-
-        public EditorTagHelper(IHtmlHelper htmlHelper)
-        {
-            _htmlHelper = htmlHelper;
-        }
-
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             output.SuppressOutput();
 
             var htmlAttributes = new Dictionary<string, object>();
 
-            var viewContextAware = _htmlHelper as IViewContextAware;
+            var viewContextAware = HtmlHelper as IViewContextAware;
             viewContextAware?.Contextualize(ViewContext);
 
             var attrs = output.Attributes;
@@ -59,7 +52,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 }
             }
 
-            output.Content.SetHtmlContent(_htmlHelper.EditorFor(For, Template, new { htmlAttributes, Postfix }));
+            output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, new { htmlAttributes, postfix = Postfix }));
         }
     }
 }
