@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -6,7 +7,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 {
     public class PublicFolderPublisher : IFilePublisher
     {
-        public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context)
+        public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancellationToken)
         {
             var deploymentDir = await context.ExportProfileService.GetDeploymentDirectoryAsync(deployment, true);
             if (deploymentDir == null)

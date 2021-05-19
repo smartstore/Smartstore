@@ -1047,13 +1047,13 @@ namespace Smartstore.Web.Controllers
             //_ = await webRoot.TryCreateDirectoryAsync(publicPath);
             //content.AppendLine($"{folderName}: {publicPath}");
 
-            var deployment = await _db.ExportDeployments.FindByIdAsync(31, false);
-            //var url = await eps.GetDeploymentDirectoryUrlAsync(deployment);
-            //content.AppendLine(url.NaIfEmpty());
-            var deploymentDir = await eps.GetDeploymentDirectoryAsync(deployment, true);
-            var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile.Name);
-            content.AppendLine($"newPath: {newPath}");
-            await zipFile.FileSystem.CopyFileAsync(zipFile.SubPath, newPath, true);
+            //var deployment = await _db.ExportDeployments.FindByIdAsync(31, false);
+            ////var url = await eps.GetDeploymentDirectoryUrlAsync(deployment);
+            ////content.AppendLine(url.NaIfEmpty());
+            //var deploymentDir = await eps.GetDeploymentDirectoryAsync(deployment, true);
+            //var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile.Name);
+            //content.AppendLine($"newPath: {newPath}");
+            //await zipFile.FileSystem.CopyFileAsync(zipFile.SubPath, newPath, true);
 
             //content.AppendLine();
             //content.AppendLine($"Files for {dir.SubPath}");

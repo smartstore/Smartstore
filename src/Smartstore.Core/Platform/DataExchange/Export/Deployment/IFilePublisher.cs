@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.Extensions.Logging;
@@ -10,7 +10,13 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 {
     public interface IFilePublisher
     {
-        Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context);
+        /// <summary>
+        /// Publishes the result of a file based data export.
+        /// </summary>
+        /// <param name="deployment">Export deployment.</param>
+        /// <param name="context">Deployment context.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancellationToken);
     }
 
     public class ExportDeploymentContext
@@ -24,13 +30,13 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
         public DataDeploymentResult Result { get; set; }
 
-        public async Task<IEnumerable<IFile>> GetDeploymentFilesAsync()
+        public async Task<IList<IFile>> GetDeploymentFilesAsync(CancellationToken cancellationToken)
         {
             if (CreateZipArchive)
             {
                 if (ZipFile?.Exists ?? false)
                 {
-                    return new[] { ZipFile };
+                    return new List<IFile> { ZipFile };
                 }
             }
             else
@@ -39,14 +45,14 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 if (ExportDirectory?.SubPath?.HasValue() ?? false)
                 {
                     var files = await ExportDirectory.FileSystem
-                    .EnumerateFilesAsync(ExportDirectory.SubPath, "*", true)
-                    .ToListAsync();
+                        .EnumerateFilesAsync(ExportDirectory.SubPath, "*", true)
+                        .ToListAsync(cancellationToken);
 
                     return files;
                 }
             }
 
-            return Enumerable.Empty<IFile>();
+            return new List<IFile>();
         }
     }
 }

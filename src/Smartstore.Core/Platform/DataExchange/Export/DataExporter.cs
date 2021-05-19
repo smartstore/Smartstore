@@ -1314,7 +1314,8 @@ namespace Smartstore.Core.DataExchange.Export
             var allSucceeded = true;
             var deployments = ctx.Request.Profile.Deployments
                 .OrderBy(x => x.DeploymentTypeId)
-                .Where(x => x.Enabled);
+                .Where(x => x.Enabled)
+                .ToArray();
 
             if (!deployments.Any())
             {
@@ -1341,29 +1342,28 @@ namespace Smartstore.Core.DataExchange.Export
 
                 try
                 {
-                    // TODO: (mg) (core) complete export deployment.
                     switch (deployment.DeploymentType)
                     {
                         case ExportDeploymentType.Email:
-                            //publisher = new EmailFilePublisher(_emailAccountService.Value, _queuedEmailService.Value);
+                            publisher = new EmailFilePublisher(_db);
                             break;
                         case ExportDeploymentType.FileSystem:
-                            //publisher = new FileSystemFilePublisher();
+                            publisher = new FileSystemFilePublisher();
                             break;
                         case ExportDeploymentType.Ftp:
-                            //publisher = new FtpFilePublisher();
+                            publisher = new FtpFilePublisher();
                             break;
                         case ExportDeploymentType.Http:
-                            //publisher = new HttpFilePublisher();
+                            publisher = new HttpFilePublisher();
                             break;
                         case ExportDeploymentType.PublicFolder:
-                            //publisher = new PublicFolderPublisher();
+                            publisher = new PublicFolderPublisher();
                             break;
                     }
 
                     if (publisher != null)
                     {
-                        await publisher.PublishAsync(deployment, context);
+                        await publisher.PublishAsync(deployment, context, ctx.CancellationToken);
 
                         if (!context.Result.Succeeded)
                         {
