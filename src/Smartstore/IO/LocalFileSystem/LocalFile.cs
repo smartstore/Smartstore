@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using Smartstore.IO.SymLinks;
 
 namespace Smartstore.IO
 {
+    [DebuggerDisplay("LocalFile: {SubPath}")]
     public class LocalFile : IFile
     {
         private readonly FileInfo _fi;

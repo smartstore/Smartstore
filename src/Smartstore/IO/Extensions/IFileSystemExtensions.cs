@@ -250,6 +250,28 @@ namespace Smartstore
 
         #region Copy / Move / Delete
 
+        /// <summary>
+        /// Renames/moves a file or a directory.
+        /// </summary>
+        /// <param name="subpath">The relative path to the file or the directory to be renamed/moved.</param>
+        /// <param name="newPath">The new path after entry was moved/renamed.</param>
+        /// <exception cref="FileSystemException">Thrown if source does not exist or if <paramref name="newPath"/> already exists.</exception>
+        public static void MoveEntry(this IFileSystem fs, string subpath, string newPath)
+        {
+            fs.MoveEntry(fs.GetEntry(subpath), newPath);
+        }
+
+        /// <summary>
+        /// Renames/moves a file or a directory.
+        /// </summary>
+        /// <param name="subpath">The relative path to the file or the directory to be renamed/moved.</param>
+        /// <param name="newPath">The new path after entry was moved/renamed.</param>
+        /// <exception cref="FileSystemException">Thrown if source does not exist or if <paramref name="newPath"/> already exists.</exception>
+        public static async Task MoveEntryAsync(this IFileSystem fs, string subpath, string newPath)
+        {
+            await fs.MoveEntryAsync(await fs.GetEntryAsync(subpath), newPath);
+        }
+
         public static bool CopyFileAndDeleteSource(this IFileSystem fs, string subpath, string newPath, bool overwrite = false)
         {
             try
@@ -457,25 +479,60 @@ namespace Smartstore
         #region Misc
 
         /// <summary>
-        /// Renames/moves a file or a directory.
+        /// Attaches the given <paramref name="source"/> entry to <paramref name="fs"/> by checking
+        /// whether source's origin file system root is underneath <paramref name="fs"/> and prepending
+        /// the path difference to source's subpath.
+        /// <para>
+        /// Use this method if you - for example - want to copy directories across file system boundaries:
+        /// </para>
+        /// <para>
+        /// <code>
+        /// var sourceDir = _appContext.TenantRoot.GetDirectory("SourceDir");
+        /// var targetDir = _appContext.WebRoot.GetDirectory("exchange");
+        /// 
+        /// var attachedSourceDir = _appContext.ContentRoot.AttachEntry(sourceDir);
+        /// var attachedTargetDir = _appContext.ContentRoot.AttachEntry(targetDir);
+        /// 
+        /// _appContext.ContentRoot.CopyDirectory(attachedSourceDir.SubPath, attachedTargetDir.SubPath);
+        /// </code>
+        /// This method will throw if the involved file systems are of different type or if source file system is not underneath the target file system.
+        /// </para>
         /// </summary>
-        /// <param name="subpath">The relative path to the file or the directory to be renamed/moved.</param>
-        /// <param name="newPath">The new path after entry was moved/renamed.</param>
-        /// <exception cref="FileSystemException">Thrown if source does not exist or if <paramref name="newPath"/> already exists.</exception>
-        public static void MoveEntry(this IFileSystem fs, string subpath, string newPath)
+        /// <typeparam name="TEntry">Entry type, either <see cref="IFile"/> or <see cref="IDirectory"/>.</typeparam>
+        /// <param name="fs">The file system to attach the entry to.</param>
+        /// <param name="source">The source entry to attach.</param>
+        public static TEntry AttachEntry<TEntry>(this IFileSystem fs, TEntry source)
+            where TEntry : IFileEntry
         {
-            fs.MoveEntry(fs.GetEntry(subpath), newPath);
-        }
+            Guard.NotNull(fs, nameof(fs));
+            Guard.NotNull(source, nameof(source));
 
-        /// <summary>
-        /// Renames/moves a file or a directory.
-        /// </summary>
-        /// <param name="subpath">The relative path to the file or the directory to be renamed/moved.</param>
-        /// <param name="newPath">The new path after entry was moved/renamed.</param>
-        /// <exception cref="FileSystemException">Thrown if source does not exist or if <paramref name="newPath"/> already exists.</exception>
-        public static async Task MoveEntryAsync(this IFileSystem fs, string subpath, string newPath)
-        {
-            await fs.MoveEntryAsync(await fs.GetEntryAsync(subpath), newPath);
+            if (source.FileSystem == fs || source.FileSystem.Root.EqualsNoCase(fs.Root))
+            {
+                return source;
+            }
+
+            if (source.FileSystem.GetType() != fs.GetType())
+            {
+                throw new FileSystemException("While attaching entries, both file system implementations must be of same type.");
+            }
+
+            if (!source.FileSystem.Root.StartsWith(fs.Root))
+            {
+                throw new FileSystemException($"The root of the source entry must be underneath the target file system root. Source: {source.FileSystem.Root}, Target: {fs.Root}");
+            }
+
+            var subRoot = FileSystemBase.NormalizePath(source.FileSystem.Root[fs.Root.Length..]);
+            var expandedPath = fs.PathCombine(subRoot, source.SubPath);
+
+            if (source.IsDirectory)
+            {
+                return (TEntry)fs.GetDirectory(expandedPath);
+            }
+            else
+            {
+                return (TEntry)fs.GetFile(expandedPath);
+            }
         }
 
         /// <summary>

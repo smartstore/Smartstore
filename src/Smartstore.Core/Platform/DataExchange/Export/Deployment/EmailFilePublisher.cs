@@ -51,6 +51,8 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
                 foreach (var file in files)
                 {
+                    // TODO: (mg) (core) (perf) Use BlobStreams to save files to MediaStorage. See DatabaseMediaStorageProvider for usage (SaveFast).
+
                     var name = file.Name;
                     var bytes = await file.ReadAllBytesAsync();
 

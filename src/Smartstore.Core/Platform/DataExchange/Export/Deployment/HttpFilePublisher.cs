@@ -69,9 +69,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
                 foreach (var file in files)
                 {
-                    // Not async. Send as a sequence, next after the previous one has been completed.
-                    webClient.UploadFile(uri, file.PhysicalPath);
-
+                    await webClient.UploadFileTaskAsync(uri, file.PhysicalPath);
                     ++succeededFiles;
                 }
             }

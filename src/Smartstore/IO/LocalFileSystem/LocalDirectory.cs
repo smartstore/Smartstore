@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.IO.SymLinks;
 
 namespace Smartstore.IO
 {
+    [DebuggerDisplay("LocalDirectory: {SubPath}")]
     public class LocalDirectory : IDirectory
     {
         private readonly DirectoryInfo _di;

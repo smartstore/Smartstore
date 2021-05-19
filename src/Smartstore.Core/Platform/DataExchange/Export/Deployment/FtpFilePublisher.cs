@@ -60,8 +60,8 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
             foreach (var file in files)
             {
-                var isNotLastFile = file != files.Last();
-                var relativePath = GetRelativePath(file.PhysicalPath);
+                var isNotLastFile = file != files.Last(); // TODO: (mg) (core) Perf!!! WTF?!
+                var relativePath = GetRelativePath(file.PhysicalPath); // TODO: (mg) (core) Refactor, don't just copy. We now have "file.SubPath", which IS relative already.
 
                 await UploadFile(file, _ftpRootUrl + relativePath, isNotLastFile);
             }
@@ -72,11 +72,12 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
             foreach (var subdir in subdirs)
             {
-                var relativePath = GetRelativePath(subdir.PhysicalPath);
+                var relativePath = GetRelativePath(subdir.PhysicalPath); // TODO: (mg) (core) see above
                 var url = _ftpRootUrl + relativePath;
 
                 if (!await IsExistingDirectory(url))
                 {
+                    // TODO: (mg) (core) (perf) Why create a fresh request for every single iteration. Why not scoped??!!!!
                     var request = CreateRequest(url, true);
                     request.Method = WebRequestMethods.Ftp.MakeDirectory;
 
@@ -103,6 +104,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             {
                 while (true)
                 {
+                    // TODO: (mg) (core) (perf) Don't copy buffers, copy the stream! --> stream.CopyToAsync(requestStream)
                     var bytesRead = await stream.ReadAsync(buff.AsMemory(0, buffLength), _cancellationToken);
                     if (bytesRead == 0)
                     {
