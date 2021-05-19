@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Widgets;
 using System.Collections.Generic;
@@ -7,12 +6,8 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
-    // TODO: (ms) (core) Make model class, no interface.
-    public interface IFileUploaderModel
+    public class FileUploaderModel
     {
-        public AttributeDictionary HtmlAttributes { get; set; }
-
-        public string Id { get; set; }
         public string Name { get; set; }
         public string Path { get; set; }
         public string UploadUrl { get; set; }
@@ -30,6 +25,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string PreviewContainerId { get; set; }
         public int? MainFileId { get; set; }
         public long? MaxFileSize { get; set; }
+        public string AcceptedFileExtensions { get; set; }
 
         public string EntityType { get; set; }
         public int EntityId { get; set; }
@@ -47,38 +43,40 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string OnAborted { get; set; }
         public string OnCompleted { get; set; }
         public string OnMediaSelected { get; set; }
+
+        public string ClickableElement { get; set; }
     }
 
     [HtmlTargetElement("file-uploader", Attributes = UploadUrlAttributeName, TagStructure = TagStructure.WithoutEndTag)]
-    public class FileUploaderTagHelper : SmartTagHelper, IFileUploaderModel
+    public class FileUploaderTagHelper : SmartTagHelper
     {
-        const string FileUploaderAttributeName = "sm-file-uploader-name";
-        const string UploadUrlAttributeName = "sm-upload-url";
-        const string DisplayBrowseMediaButtonAttributeName = "sm-display-browse-media-button";
-        const string TypeFilterAttributeName = "sm-type-filter";
-        const string DisplayRemoveButtonAttributeName = "sm-display-remove-button";
-        const string DisplayRemoveButtonAfterUploadAttributeName = "sm-display-remove-button-after-upload";
-        const string UploadTextAttributeName = "sm-upload-text";
-        const string OnUploadingAttributeName = "sm-on-uploading";
-        const string OnUploadCompletedAttributeName = "sm-on-upload-completed";
-        const string OnErrorAttributeName = "sm-on-error";
-        const string OnFileRemovedAttributeName = "sm-on-file-removed";
-        const string OnAbortedAttributeName = "sm-on-aborted";
-        const string OnCompletedAttributeName = "sm-on-completed";
-        const string OnMediaSelectedAttributeName = "sm-on-media-selected";
-        const string MultiFileAttributeName = "sm-multi-file";
-        const string HasTemplatePreviewAttributeName = "sm-has-template-preview";
-        const string DownloadEnabledAttributeName = "sm-download-enabled";
-        const string MaxFileSizeAttributeName = "sm-max-file-size";
-        const string MediaPathAttributeName = "sm-media-path";
-        const string PreviewContainerIdAttributeName = "sm-preview-container-id";
-        const string MainFileIdAttributeName = "sm-main-file-id";
-        const string UploadedFilesAttributeName = "sm-uploaded-files";
-        const string EntityTypeAttributeName = "sm-entity-type";
-        const string EntityIdAttributeName = "sm-entity-id";
-        const string DeleteUrlAttributeName = "sm-delete-url";
-        const string SortUrlAttributeName = "sm-sort-url";
-        const string EntityAssignmentUrlAttributeName = "sm-entity-assigment-url";
+        const string FileUploaderAttributeName = "file-uploader-name";
+        const string UploadUrlAttributeName = "upload-url";
+        const string DisplayBrowseMediaButtonAttributeName = "display-browse-media-button";
+        const string TypeFilterAttributeName = "type-filter";
+        const string DisplayRemoveButtonAttributeName = "display-remove-button";
+        const string DisplayRemoveButtonAfterUploadAttributeName = "display-remove-button-after-upload";
+        const string UploadTextAttributeName = "upload-text";
+        const string OnUploadingAttributeName = "onuploading";
+        const string OnUploadCompletedAttributeName = "onuploadcompleted";
+        const string OnErrorAttributeName = "onerror";
+        const string OnFileRemovedAttributeName = "onfileremoved";
+        const string OnAbortedAttributeName = "onaborted";
+        const string OnCompletedAttributeName = "oncompleted";
+        const string OnMediaSelectedAttributeName = "onmediaselected";
+        const string MultiFileAttributeName = "multi-file";
+        const string HasTemplatePreviewAttributeName = "has-template-preview";
+        const string DownloadEnabledAttributeName = "download-enabled";
+        const string MaxFileSizeAttributeName = "max-file-size";
+        const string MediaPathAttributeName = "media-path";
+        const string PreviewContainerIdAttributeName = "preview-container-id";
+        const string MainFileIdAttributeName = "main-file-id";
+        const string UploadedFilesAttributeName = "uploaded-files";
+        const string EntityTypeAttributeName = "entity-type";
+        const string EntityIdAttributeName = "entity-id";
+        const string DeleteUrlAttributeName = "delete-url";
+        const string SortUrlAttributeName = "sort-url";
+        const string EntityAssignmentUrlAttributeName = "entity-assigment-url";
 
         private readonly IMediaTypeResolver _mediaTypeResolver;
 
@@ -89,10 +87,6 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         public override int Order => 100;
 
-        // TODO: (ms) (core) Remove and refactor! WTF!!!
-        [HtmlAttributeNotBound]
-        public AttributeDictionary HtmlAttributes { get; set; } = new();
-
         [HtmlAttributeName(FileUploaderAttributeName)]
         public string Name { get; set; }
 
@@ -100,11 +94,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string Path { get; set; } = SystemAlbumProvider.Files;
 
         [HtmlAttributeName(UploadUrlAttributeName)]
-        public string UploadUrl
-        {
-            get => HtmlAttributes["data-upload-url"];
-            set => HtmlAttributes["data-upload-url"] = value;
-        }
+        public string UploadUrl { get; set; }
 
         [HtmlAttributeName(UploadTextAttributeName)]
         public string UploadText { get; set; }
@@ -180,17 +170,47 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
+            var model = new FileUploaderModel
+            {
+                Name = Name,
+                Path = Path,
+                UploadUrl = UploadUrl,
+                UploadText = UploadText,
+                DisplayRemoveButton = DisplayRemoveButton,
+                DisplayBrowseMediaButton = DisplayBrowseMediaButton,
+                DisplayRemoveButtonAfterUpload = DisplayRemoveButtonAfterUpload,
+                HasTemplatePreview = HasTemplatePreview,
+                DownloadEnabled = DownloadEnabled,
+                MultiFile = MultiFile,
+                TypeFilter = TypeFilter,
+                PreviewContainerId = PreviewContainerId,
+                MainFileId = MainFileId,
+                MaxFileSize = MaxFileSize,
+                EntityType = EntityType,
+                EntityId = EntityId,
+                DeleteUrl = DeleteUrl,
+                SortUrl = SortUrl,
+                EntityAssignmentUrl = EntityAssignmentUrl,
+                UploadedFiles = UploadedFiles,
+                OnUploading = OnUploading,
+                OnUploadCompleted = OnUploadCompleted,
+                OnError = OnError,
+                OnFileRemoved = OnFileRemoved,
+                OnAborted = OnAborted,
+                OnCompleted = OnCompleted,
+                OnMediaSelected = OnMediaSelected            
+            };
+
             var extensions = _mediaTypeResolver.ParseTypeFilter(TypeFilter.HasValue() ? TypeFilter : "*");
+            model.AcceptedFileExtensions = "." + string.Join(",.", extensions);
 
-            // TODO: (ms) (core) Add these via output.Attributes
-            HtmlAttributes["data-accept"] = "." + string.Join(",.", extensions);
-            HtmlAttributes["data-show-remove-after-upload"] = DisplayRemoveButtonAfterUpload.ToString().ToLower();
-
-            var widget = new ComponentWidgetInvoker("FileUploader", this); // TODO: (ms) (core) Pass model
+            var widget = new ComponentWidgetInvoker("FileUploader", model);
             var partial = await widget.InvokeAsync(ViewContext);
 
             output.TagMode = TagMode.StartTagAndEndTag;
             output.TagName = null;
+            //output.TagName = "div";
+            //output.AppendCssClass("fu-controls");
             output.Content.SetHtmlContent(partial);
         }
     }

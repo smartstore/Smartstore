@@ -122,22 +122,22 @@
         @*Multifile uploads do not need a remove button.*@
         <div class="fu-controls">
             <file-uploader 
-                sm-upload-url="@Url.Action("Upload", "Media", new { isTransient = TransientUpload, path = MediaPath, area = "Admin" })"
-                sm-media-path="@MediaPath"
-                sm-type-filter="@TypeFilter"
-                sm-display-remove-button="!MultiFile && Model.HasValue"
-                sm-display-remove-button-after-upload="true"
-                sm-preview-container-id="@("preview-" + random)"
-                sm-multi-file="MultiFile"
-                sm-main-file-id="Model"
-                sm-display-browse-media-button="ShowBrowseMedia"
-                sm-has-template-preview="true"
-                sm-uploaded-files="UploadedFiles"
-                sm-entity-type="@EntityType"
-                sm-entity-id="EntityId"
-                sm-delete-url="@DeleteUrl"
-                sm-sort-url="@SortUrl"
-                sm-entity-assigment-url="@EntityAssignmentUrl" />
+                upload-url="@Url.Action("Upload", "Media", new { isTransient = TransientUpload, path = MediaPath, area = "Admin" })"
+                media-path="@MediaPath"
+                type-filter="@TypeFilter"
+                display-remove-button="!MultiFile && Model.HasValue"
+                display-remove-button-after-upload="true"
+                preview-container-id="@("preview-" + random)"
+                multi-file="MultiFile"
+                main-file-id="Model"
+                display-browse-media-button="ShowBrowseMedia"
+                has-template-preview="true"
+                uploaded-files="UploadedFiles"
+                entity-type="@EntityType"
+                entity-id="EntityId"
+                delete-url="@DeleteUrl"
+                sort-url="@SortUrl"
+                entity-assigment-url="@EntityAssignmentUrl" />
         </div>
     </div>
 

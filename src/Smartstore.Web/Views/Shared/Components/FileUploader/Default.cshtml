@@ -1,6 +1,6 @@
-﻿@using Smartstore.Utilities;
-@using Smartstore.Core.Content.Media;
+﻿@using Smartstore.Core.Content.Media;
 @using Smartstore.Core.Catalog.Products;
+@using Smartstore.Web.TagHelpers.Shared;
 
 @model FileUploaderModel
 
@@ -18,20 +18,7 @@
     Assets.AppendScriptParts("~/js/smartstore.media.js");
     Assets.AppendScriptParts("~/admin/js/admin.media.js");
     Assets.AppendScriptParts("~/js/smartstore.dropzoneWrapper.js");
-
-    if (!Model.Name.HasValue())
-    {
-        Model.Name = "upload-" + CommonHelper.GenerateRandomInteger();
-    }
-
-    // INFO: (mh) (core) Param id was there but value was null. Maybe this is resolved when renaming Id of Taghelper.
-    // TODO: Remove comment when checked.
-    var hasId = Model.HtmlAttributes.TryGetValue("id", out var id);
-    if (!hasId || id == null)
-    {
-        Model.Id = Model.Name;
-    }
-
+    
     var maxFilesSize = Model.MaxFileSize ?? MediaSettings.MaxUploadFileSize;
 }
 
@@ -52,21 +39,20 @@
             <a sm-if="!Model.MultiFile" href="#" class="fu-remove remove justify-content-center align-items-center pretty-link rounded-sm ml-2" title="@T("FileUploader.Dropzone.DictRemoveFile")">
                 <i class="fu-remove-icon fs-h6 p-0 text-danger">&times;</i>
             </a>
-
         </div>
 
-        @*TODO: (core) (ms) Wait for MediaController FileConflictResolutionDialog method implementation*@
-        @*RE: Don't wait. Implement*@ 
-        @*TODO: (core) (ms) Why additional class? *@
-        <div id="@Model.Name" attrs="@Model.HtmlAttributes" class="fu-fileupload"
+        <div id="@Model.Name" class="fu-fileupload"
              data-dialog-url="@Url.Action("FileConflictResolutionDialog", "Media", new { area = "Admin" })"
              data-assignment-url="@Model.EntityAssignmentUrl"
              data-remove-url="@Model.DeleteUrl"
              data-sort-url="@Model.SortUrl"
              data-entity-id="@Model.EntityId"
-             data-type-filter="@Model.TypeFilter">
-
-            <input type="hidden" id="@(Model.Id)-file" name="@(Model.Id)-file" />
+             data-type-filter="@Model.TypeFilter"
+             data-upload-url="@Model.UploadUrl"
+             data-accept="@Model.AcceptedFileExtensions"
+             data-show-remove-after-upload="@Model.DisplayRemoveButtonAfterUpload.ToString().ToLower()">
+             
+            <input type="hidden" id="@(Model.Name)-file" name="@(Model.Name)-file" />
 
             <div sm-if="Model.DisplayBrowseMediaButton" class="fu-buttons">
                 <zone name="file_uploader" />
@@ -83,8 +69,7 @@
     <div id="@Model.PreviewContainerId" class="d-flex flex-wrap preview-container mt-3">
         @foreach (var file in files)
         {
-            @*TODO: (core) (ms) Why null? *@
-            var previewUrl = await MediaService.GetUrlAsync(file.MediaFile.Id, null);
+            var previewUrl = await MediaService.GetUrlAsync(file.MediaFile.Id, 250);
             var isMainPic = file.MediaFileId == Model.MainFileId;
             var entityMediaId = 0;
 
@@ -152,7 +137,7 @@
 <script sm-target-zone="scripts" data-origin="FileUploader">
     $(function () {
         // Init dropzone
-        $("#@Model.Id").dropzoneWrapper({
+        $("#@Model.Name").dropzoneWrapper({
             onUploading: @Html.Raw(Model.OnUploading.HasValue() ? Model.OnUploading : "null"),
             onUploadCompleted: @Html.Raw(Model.OnUploadCompleted.HasValue() ? Model.OnUploadCompleted : "null"),
             onAborted: @Html.Raw(Model.OnAborted.HasValue() ? Model.OnAborted : "null"),

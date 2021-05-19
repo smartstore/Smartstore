@@ -27,17 +27,17 @@
 
             <div class="fu-controls ml-3">
                 <file-uploader 
-                    sm-file-uploader-name="uploadedFile"
-                    sm-upload-url='@Url.Action("UploadAvatar", "Customer")'
-                    sm-type-filter="image"
-                    sm-display-browse-media-button="false"
-                    sm-display-remove-button="fileId != 0"
-                    sm-display-remove-button-after-upload="true"
-                    sm-upload-text='@T("Common.FileUploader.UploadAvatar")'
-                    sm-on-upload-completed="onAvatarUploaded"
-                    sm-on-file-removed="onAvatarRemoved"
-                    sm-multi-file="false"
-                    sm-has-template-preview="true" />
+                    file-uploader-name="uploadedFile"
+                    upload-url='@Url.Action("UploadAvatar", "Customer")'
+                    type-filter="image"
+                    display-browse-media-button="false"
+                    display-remove-button="fileId != 0"
+                    display-remove-button-after-upload="true"
+                    upload-text='@T("Common.FileUploader.UploadAvatar")'
+                    onuploadcompleted="onAvatarUploaded"
+                    onfileremoved="onAvatarRemoved"
+                    multi-file="false"
+                    has-template-preview="true" />
             </div>
         </div>
 
