@@ -13,13 +13,12 @@ namespace Smartstore.IO
 {
     public class FilePermissionChecker : IFilePermissionChecker
     {
-        // TODO: (core) Complete FilePermissionChecker.Written(Directories|Files)
-
         /// <summary>
         /// Gets the relative paths of all directories that require write access.
         /// </summary>
         public static readonly string[] WrittenDirectories = new[]
         {
+            "wwwroot/exchange",
             "App_Data",
             $"App_Data/Tenants/{DataSettings.Instance.TenantName}",
             $"App_Data/Tenants/{DataSettings.Instance.TenantName}/Media",

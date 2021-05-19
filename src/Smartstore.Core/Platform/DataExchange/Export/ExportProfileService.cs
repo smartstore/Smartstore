@@ -14,6 +14,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
+using Smartstore.Http;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
@@ -153,6 +154,8 @@ namespace Smartstore.Core.DataExchange.Export
                     store = _storeContext.GetStoreById(storeId) ?? _storeContext.CurrentStore;
                 }
 
+                // TODO: (mg) (core) Always use IUrlHelper.Content("~/subpath") or WebHelper.ToAbsolutePath("~/subpath") for public URLs,
+                // so that IIS application path can be prepended if applicable. 
                 var path = _appContext.WebRoot.PathCombine(DataExporter.PublicDirectoryName, deployment.SubFolder);
 
                 return store.Url.EnsureEndsWith("/") + path.EnsureEndsWith("/");

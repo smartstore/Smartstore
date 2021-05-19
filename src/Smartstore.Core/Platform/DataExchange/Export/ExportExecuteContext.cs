@@ -207,9 +207,12 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 try
                 {
+                    // TODO: (mg) (core) You just can't invoke an async method inside a sync one! The complete chain has to be async.
                     ProgressCallback.Invoke(0, 0, message);
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
         }
     }

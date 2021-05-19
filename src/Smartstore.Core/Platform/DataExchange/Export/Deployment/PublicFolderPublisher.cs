@@ -23,6 +23,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
                     // TODO: (mg) (core) find correct way to copy from 'App_Data/Tenants/Default/ExportProfiles/<subdir> to 'wwwroot/exchange</subdir>'.
                     // MapPathInternal always combines with source root this way.
+                    // RE: Use IFileSystem.CreateFileAsync() with source file as stream (not path).
                     await context.ZipFile.FileSystem.CopyFileAsync(context.ZipFile.SubPath, newPath, true);
 
                     context.Log.Info($"Copied zipped export data to {newPath}.");
