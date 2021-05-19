@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using Smartstore.Collections;
 using Smartstore.Engine;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Widgets
 {
@@ -148,21 +149,20 @@ namespace Smartstore.Core.Widgets
         {
             var fileName = "widgetzones.json";
             var fs = _appContext.AppDataRoot;
-            var cacheKey = _memoryCache.BuildScopedKey(fileName);
-            var rawJson = _memoryCache.Get(cacheKey);
+            var cacheKey = CommonHelper.BuildScopedKey(fileName);
 
-            if (rawJson == null)
+            var rawJson = await _memoryCache.GetOrCreateAsync(cacheKey, async entry => 
             {
                 if (fs.FileExists(fileName))
                 {
-                    rawJson = await fs.ReadAllTextAsync(fileName);
-                    _memoryCache.Set(cacheKey, rawJson, fs.Watch(fileName));
+                    entry.ExpirationTokens.Add(fs.Watch(fileName));
+                    return await fs.ReadAllTextAsync(fileName);
                 }
                 else
                 {
-                    _memoryCache.Set(cacheKey, string.Empty);
+                    return string.Empty;
                 }
-            }
+            });
 
             if (rawJson is string json && json.HasValue())
             {

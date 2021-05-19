@@ -14,7 +14,7 @@ namespace Smartstore.Web.Modelling
         /// <summary>
         /// Gets or sets the name of the attribute.
         /// </summary>
-        public string Name { get;; }
+        public string Name { get; }
 
         /// <summary>
         /// Gets or sets the value of the attribute.
