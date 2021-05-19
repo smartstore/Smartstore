@@ -1,146 +1,149 @@
-﻿//using System;
-//using System.Collections;
-//using System.Collections.Generic;
-//using System.Diagnostics.CodeAnalysis;
-//using System.Net;
-//using System.Linq;
-//using System.Text;
-//using System.Web;
-//using System.Web.Caching;
-//using System.Web.Security;
-//using Smartstore.Core.Infrastructure;
-//using Smartstore.Core;
-//using System.Web.Mvc;
-//using Smartstore.Core.Fakes;
-//using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Linq;
+using System.Text;
+using System.Web;
+using Smartstore.Core;
+using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Caching.Memory;
 
-//namespace Smartstore
-//{
-//	public static class HttpExtensions
-//	{
-//		const string CacheRegionName = "SmartStoreNET:";
-//		const string RememberPathKey = "AppRelativeCurrentExecutionFilePath.Original";
+namespace Smartstore
+{
+    public static class HttpExtensions
+    {
+        const string CacheRegionName = "Smartstore:";
 
-//		private static readonly List<Tuple<string, string>> _sslHeaders = new List<Tuple<string, string>>
-//		{
-//			new Tuple<string, string>("HTTP_CLUSTER_HTTPS", "on"),
-//            new Tuple<string, string>("HTTP_X_FORWARDED_PROTO", "https"),
-//            new Tuple<string, string>("X-Forwarded-Proto", "https"),
-//			new Tuple<string, string>("x-arr-ssl", null),
-//			new Tuple<string, string>("X-Forwarded-Protocol", "https"),
-//			new Tuple<string, string>("X-Forwarded-Ssl", "on"),
-//			new Tuple<string, string>("X-Url-Scheme", "https")
-//		};
+        public static string BuildScopedKey(this IMemoryCache cache, string key)
+        {
+            return key.HasValue() ? CacheRegionName + key : null;
+        }
 
-//		/// <summary>
-//		/// Returns wether the specified url is local to the host or not
-//		/// </summary>
-//		/// <param name="request"></param>
-//		/// <param name="url"></param>
-//		/// <returns></returns>
-//		public static bool IsAppLocalUrl(this HttpRequestBase request, string url)
-//		{
-//			if (string.IsNullOrWhiteSpace(url))
-//			{
-//				return false;
-//			}
+        
+        //const string RememberPathKey = "AppRelativeCurrentExecutionFilePath.Original";
 
-//			url = url.Trim();
+        //private static readonly List<Tuple<string, string>> _sslHeaders = new List<Tuple<string, string>>
+        //{
+        //    new Tuple<string, string>("HTTP_CLUSTER_HTTPS", "on"),
+        //    new Tuple<string, string>("HTTP_X_FORWARDED_PROTO", "https"),
+        //    new Tuple<string, string>("X-Forwarded-Proto", "https"),
+        //    new Tuple<string, string>("x-arr-ssl", null),
+        //    new Tuple<string, string>("X-Forwarded-Protocol", "https"),
+        //    new Tuple<string, string>("X-Forwarded-Ssl", "on"),
+        //    new Tuple<string, string>("X-Url-Scheme", "https")
+        //};
 
-//			if (url.StartsWith("~/"))
-//			{
-//				return true;
-//			}
+        ///// <summary>
+        ///// Returns wether the specified url is local to the host or not
+        ///// </summary>
+        ///// <param name="request"></param>
+        ///// <param name="url"></param>
+        ///// <returns></returns>
+        //public static bool IsAppLocalUrl(this HttpRequestBase request, string url)
+        //{
+        //    if (string.IsNullOrWhiteSpace(url))
+        //    {
+        //        return false;
+        //    }
 
-//			if (url.StartsWith("//") || url.StartsWith("/\\"))
-//			{
-//				return false;
-//			}
+        //    url = url.Trim();
 
-//			// At this point when the url starts with "/" it is local
-//			if (url.StartsWith("/"))
-//			{
-//				return true;
-//			}
+        //    if (url.StartsWith("~/"))
+        //    {
+        //        return true;
+        //    }
 
-//			// At this point, check for a fully qualified url
-//			try
-//			{
-//				var uri = new Uri(url);
+        //    if (url.StartsWith("//") || url.StartsWith("/\\"))
+        //    {
+        //        return false;
+        //    }
 
-//				if (!uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) && !uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
-//				{
-//					return false;
-//				}
+        //    // At this point when the url starts with "/" it is local
+        //    if (url.StartsWith("/"))
+        //    {
+        //        return true;
+        //    }
 
-//				if (uri.Authority.Equals(request.Headers["Host"], StringComparison.OrdinalIgnoreCase))
-//				{
-//					return true;
-//				}
+        //    // At this point, check for a fully qualified url
+        //    try
+        //    {
+        //        var uri = new Uri(url);
 
-//				// Finally, check the base url from the settings
-//				var storeContext = EngineContext.Current.Resolve<IStoreContext>();
-//				if (storeContext != null)
-//				{
-//					var baseUrl = storeContext.CurrentStore.Url;
-//					if (baseUrl.HasValue())
-//					{
-//						if (uri.Authority.Equals(new Uri(baseUrl).Authority, StringComparison.OrdinalIgnoreCase))
-//						{
-//							return true;
-//						}
-//					}
-//				}
+        //        if (!uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) && !uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            return false;
+        //        }
 
-//				return false;
-//			}
-//			catch
-//			{
-//				// mall-formed url e.g, "abcdef"
-//				return false;
-//			}
-//		}
+        //        if (uri.Authority.Equals(request.Headers["Host"], StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            return true;
+        //        }
 
-//		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-//		public static void RememberAppRelativePath(this HttpContextBase httpContext)
-//		{
-//			httpContext.Items[RememberPathKey] = httpContext.Request.AppRelativeCurrentExecutionFilePath;
-//		}
+        //        // Finally, check the base url from the settings
+        //        var storeContext = EngineContext.Current.Resolve<IStoreContext>();
+        //        if (storeContext != null)
+        //        {
+        //            var baseUrl = storeContext.CurrentStore.Url;
+        //            if (baseUrl.HasValue())
+        //            {
+        //                if (uri.Authority.Equals(new Uri(baseUrl).Authority, StringComparison.OrdinalIgnoreCase))
+        //                {
+        //                    return true;
+        //                }
+        //            }
+        //        }
 
-//		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-//		public static string GetOriginalAppRelativePath(this HttpContextBase httpContext)
-//		{
-//			return GetItem<string>(httpContext, RememberPathKey, forceCreation: false) ?? httpContext.Request.AppRelativeCurrentExecutionFilePath;
-//		}
+        //        return false;
+        //    }
+        //    catch
+        //    {
+        //        // mall-formed url e.g, "abcdef"
+        //        return false;
+        //    }
+        //}
 
-//		public static ControllerContext GetRootControllerContext(this ControllerContext controllerContext)
-//        {
-//            Guard.NotNull(controllerContext, nameof(controllerContext));
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static void RememberAppRelativePath(this HttpContextBase httpContext)
+        //{
+        //    httpContext.Items[RememberPathKey] = httpContext.Request.AppRelativeCurrentExecutionFilePath;
+        //}
 
-//            var ctx = controllerContext;
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static string GetOriginalAppRelativePath(this HttpContextBase httpContext)
+        //{
+        //    return GetItem<string>(httpContext, RememberPathKey, forceCreation: false) ?? httpContext.Request.AppRelativeCurrentExecutionFilePath;
+        //}
 
-//            while (ctx.ParentActionViewContext != null)
-//            {
-//                ctx = ctx.ParentActionViewContext;
-//            }
+        //public static ControllerContext GetRootControllerContext(this ControllerContext controllerContext)
+        //{
+        //    Guard.NotNull(controllerContext, nameof(controllerContext));
 
-//            return ctx;
-//        }
+        //    var ctx = controllerContext;
 
-//        public static bool IsBareBonePage(this ControllerContext controllerContext)
-//        {
-//            var ctx = controllerContext.GetRootControllerContext();
+        //    while (ctx.ParentActionViewContext != null)
+        //    {
+        //        ctx = ctx.ParentActionViewContext;
+        //    }
 
-//            if (ctx is ViewContext viewContext)
-//            {
-//                // IsPopUp or Framed
-//                if (viewContext.ViewBag.IsPopup == true || viewContext.ViewBag.Framed == true)
-//                {
-//                    return true;
-//                }
-//            }
+        //    return ctx;
+        //}
 
-//            return false;
-//        }
-//	}
-//}
+        //public static bool IsBareBonePage(this ControllerContext controllerContext)
+        //{
+        //    var ctx = controllerContext.GetRootControllerContext();
+
+        //    if (ctx is ViewContext viewContext)
+        //    {
+        //        // IsPopUp or Framed
+        //        if (viewContext.ViewBag.IsPopup == true || viewContext.ViewBag.Framed == true)
+        //        {
+        //            return true;
+        //        }
+        //    }
+
+        //    return false;
+        //}
+    }
+}

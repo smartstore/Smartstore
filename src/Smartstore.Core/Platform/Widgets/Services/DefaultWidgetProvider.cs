@@ -16,15 +16,17 @@ namespace Smartstore.Core.Widgets
         private readonly IHttpContextAccessor _accessor;
         private readonly ICommonServices _services;
         private readonly IApplicationContext _appContext;
-
+        private readonly IMemoryCache _memoryCache;
+        
         private Multimap<string, WidgetInvoker> _zoneWidgetsMap;
         private Multimap<Regex, WidgetInvoker> _zoneExpressionWidgetsMap;
 
-        public DefaultWidgetProvider(IHttpContextAccessor accessor, ICommonServices services, IApplicationContext appContext)
+        public DefaultWidgetProvider(IHttpContextAccessor accessor, ICommonServices services, IApplicationContext appContext, IMemoryCache memoryCache)
         {
             _accessor = accessor;
             _services = services;
             _appContext = appContext;
+            _memoryCache = memoryCache;
         }
 
         public virtual void RegisterWidget(string[] zones, WidgetInvoker widget)
@@ -146,28 +148,19 @@ namespace Smartstore.Core.Widgets
         {
             var fileName = "widgetzones.json";
             var fs = _appContext.AppDataRoot;
-
-            // TODO: (mh) (core) Use native IMemoryCache with IChangeToken here, not ICacheManager.
-
-            // TODO: (mh) (core) Use BuildScopedKey ?
-            //var cacheKey = HttpRuntime.Cache.BuildScopedKey(fileName);
-            var cacheKey = "Smartstore:" + fileName;
-            var rawJson = await _services.CacheFactory.GetMemoryCache().GetAsync<string>(cacheKey,true);
+            var cacheKey = _memoryCache.BuildScopedKey(fileName);
+            var rawJson = _memoryCache.Get(cacheKey);
 
             if (rawJson == null)
             {
                 if (fs.FileExists(fileName))
                 {
                     rawJson = await fs.ReadAllTextAsync(fileName);
-                    // TODO: (mh) (core) How to get GetCacheDependency ?
-                    //var virtualPath = await fs.GetDirectoryAsync(fileName);
-                    //var cacheDependency = fs.VirtualPathProvider.GetCacheDependency(virtualPath, DateTime.UtcNow);
-                    //await _services.CacheFactory.GetMemoryCache().PutAsync(cacheKey, rawJson, cacheDependency);
-                    await _services.CacheFactory.GetMemoryCache().PutAsync(cacheKey, rawJson);
+                    _memoryCache.Set(cacheKey, rawJson, fs.Watch(fileName));
                 }
                 else
                 {
-                    await _services.CacheFactory.GetMemoryCache().PutAsync(cacheKey, "");
+                    _memoryCache.Set(cacheKey, string.Empty);
                 }
             }
 
@@ -180,7 +173,7 @@ namespace Smartstore.Core.Widgets
                 catch
                 {
                     // Json is invalid. Don't parse again.
-                    await _services.CacheFactory.GetMemoryCache().PutAsync(cacheKey, "");
+                    _memoryCache.Set(cacheKey, string.Empty);
                 }
             }
 
