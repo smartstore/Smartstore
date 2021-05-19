@@ -168,6 +168,7 @@ namespace Smartstore.Web
                     {
                         // Register custom metadata provider
                         o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());
+                        o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
                     }
                 });
 

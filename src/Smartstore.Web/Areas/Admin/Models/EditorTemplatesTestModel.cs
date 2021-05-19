@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
@@ -38,7 +39,7 @@ namespace Smartstore.Web.Areas.Admin.Models
         public int[] SelectedStoreIds { get; set; }
 
         [UIHint("RuleSets")]
-        //[AdditionalMetadata("scope", RuleScope.Product)]
+        [AdditionalMetadata("scope", RuleScope.Customer)]
         public int[] SelectedRuleSetIds { get; set; }
 
         [UIHint("Download")]
@@ -57,8 +58,7 @@ namespace Smartstore.Web.Areas.Admin.Models
         public int? DeliveryTimeId { get; set; }
 
         [UIHint("Discounts")]
-        //[AdditionalMetadata("multiple", true)]
-        //[AdditionalMetadata("discountType", DiscountType.AssignedToCategories)]
+        [AdditionalMetadata("discountType", DiscountType.AssignedToCategories)]
         public int[] SelectedDiscountIds { get; set; }
 
         #endregion
