@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Messaging;
 using Smartstore.IO;
@@ -13,10 +14,12 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
     public class EmailFilePublisher : IFilePublisher
     {
         private readonly SmartDbContext _db;
+        private readonly DatabaseMediaStorageProvider _dbMediaStorageProvider;
 
-        public EmailFilePublisher(SmartDbContext db)
+        public EmailFilePublisher(SmartDbContext db, DatabaseMediaStorageProvider dbMediaStorageProvider)
         {
             _db = db;
+            _dbMediaStorageProvider = dbMediaStorageProvider;
         }
 
         public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancellationToken)
@@ -60,18 +63,8 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                         MimeType = MimeTypes.MapNameToMimeType(name)
                     };
 
-                    if (canStreamBlob)
-                    {
-                        using var stream = await file.OpenReadAsync();
-                        attachment.MediaStorageId = await _db.DataProvider.InsertIntoAsync("INSERT INTO MediaStorage (Data) Values(@p0)", stream);
-                    }
-                    else
-                    {
-                        attachment.MediaStorage = new MediaStorage
-                        {
-                            Data = await file.ReadAllBytesAsync()
-                        };
-                    }
+                    using var item = MediaStorageItem.FromFile(file);
+                    await _dbMediaStorageProvider.ApplyBlobAsync(attachment, item, false);
 
                     queuedEmail.Attachments.Add(attachment);
                 }

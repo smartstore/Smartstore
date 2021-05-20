@@ -14,5 +14,10 @@
         /// Gets or sets the media storage.
         /// </summary>
         MediaStorage MediaStorage { get; set; }
+
+        /// <summary>
+        /// Gets or sets the file size in bytes.
+        /// </summary>
+        int Size { get; set; }
     }
 }

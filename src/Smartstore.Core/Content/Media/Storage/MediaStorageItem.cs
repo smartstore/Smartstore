@@ -26,7 +26,7 @@ namespace Smartstore.Core.Content.Media.Storage
 
         protected abstract Task<Stream> GetSourceStreamAsync();
 
-        public abstract Task SaveToAsync(Stream stream, MediaFile mediaFile);
+        public abstract Task SaveToAsync(Stream stream, IMediaAware media);
 
         protected override void OnDispose(bool disposing)
         {
@@ -74,10 +74,10 @@ namespace Smartstore.Core.Content.Media.Storage
                 return memStream;
             }
 
-            public override async Task SaveToAsync(Stream stream, MediaFile mediaFile)
+            public override async Task SaveToAsync(Stream stream, IMediaAware media)
             {
                 await _image.SaveAsync(stream);
-                mediaFile.Size = (int)stream.Length;
+                media.Size = (int)stream.Length;
             }
         }
 
@@ -95,7 +95,7 @@ namespace Smartstore.Core.Content.Media.Storage
                 return Task.FromResult(_stream);
             }
 
-            public override async Task SaveToAsync(Stream stream, MediaFile mediaFile)
+            public override async Task SaveToAsync(Stream stream, IMediaAware media)
             {
                 if (stream.CanSeek)
                 {
@@ -109,7 +109,7 @@ namespace Smartstore.Core.Content.Media.Storage
                     stream.Position = 0;
                 }
 
-                mediaFile.Size = (int)stream.Length;
+                media.Size = (int)stream.Length;
             }
         }
 

@@ -25,6 +25,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange.Export.Deployment;
 using Smartstore.Core.DataExchange.Export.Internal;
@@ -37,6 +38,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Domain;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Net.Mail;
 using Smartstore.Threading;
@@ -64,6 +66,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly IUrlHelper _urlHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly ITaxCalculator _taxCalculator;
+        private readonly IProviderManager _providerManager;
 
         private readonly CatalogSettings _catalogSettings;
         private readonly MediaSettings _mediaSettings;
@@ -1339,13 +1342,14 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     LastExecutionUtc = DateTime.UtcNow
                 };
-
+                
                 try
                 {
                     switch (deployment.DeploymentType)
                     {
                         case ExportDeploymentType.Email:
-                            publisher = new EmailFilePublisher(_db);
+                            publisher = new EmailFilePublisher(_db, 
+                                (DatabaseMediaStorageProvider)_providerManager.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName).Value);
                             break;
                         case ExportDeploymentType.FileSystem:
                             publisher = new FileSystemFilePublisher();

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
-using System.Threading.Tasks;
 using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media
@@ -12,24 +10,24 @@ namespace Smartstore.Core.Content.Media
         /// Applies Blob to file
         /// </summary>
         /// <param name="blob">The file binary (can be null)</param>
-        public static void ApplyBlob(this MediaFile file, byte[] blob)
+        public static void ApplyBlob(this IMediaAware media, byte[] blob)
         {
-            Guard.NotNull(file, nameof(file));
+            Guard.NotNull(media, nameof(media));
 
             if (blob == null || blob.LongLength == 0)
             {
-                file.MediaStorageId = null;
-                file.MediaStorage = null;
+                media.MediaStorageId = null;
+                media.MediaStorage = null;
             }
             else
             {
-                if (file.MediaStorage != null)
+                if (media.MediaStorage != null)
                 {
-                    file.MediaStorage.Data = blob;
+                    media.MediaStorage.Data = blob;
                 }
                 else
                 {
-                    file.MediaStorage = new MediaStorage { Data = blob };
+                    media.MediaStorage = new MediaStorage { Data = blob };
                 }
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -102,14 +103,27 @@ namespace Smartstore.Core.Content.Media.Storage
             }
         }
 
-        public virtual async Task SaveAsync(MediaFile mediaFile, MediaStorageItem item)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual Task SaveAsync(MediaFile mediaFile, MediaStorageItem item)
+            => ApplyBlobAsync(mediaFile, item, true);
+
+        /// <summary>
+        /// Applies given media storage <paramref name="item"/> to <paramref name="media"/> entity as blob.
+        /// </summary>
+        /// <param name="media">Media item</param>
+        /// <param name="item">The source item</param>
+        /// <param name="save">Whether to commit changes to <paramref name="media"/> entity to database immediately.</param>
+        public async Task ApplyBlobAsync(IMediaAware media, MediaStorageItem item, bool save = false)
         {
-            Guard.NotNull(mediaFile, nameof(mediaFile));
+            Guard.NotNull(media, nameof(media));
 
             if (item == null)
             {
-                mediaFile.ApplyBlob(null);
-                await _db.SaveChangesAsync();
+                media.ApplyBlob(null);
+                if (save)
+                {
+                    await _db.SaveChangesAsync();
+                }
                 return;
             }
 
@@ -117,38 +131,44 @@ namespace Smartstore.Core.Content.Media.Storage
             {
                 if (_db.DataProvider.CanStreamBlob)
                 {
-                    await SaveFast(mediaFile, item);
+                    await SaveFast(media, item);
                 }
                 else
                 {
                     // BLOB stream unsupported
                     var buffer = await item.SourceStream.ToByteArrayAsync();
-                    mediaFile.ApplyBlob(buffer);
-                    mediaFile.Size = buffer.Length;
-                    await _db.SaveChangesAsync();
+                    media.ApplyBlob(buffer);
+                    media.Size = buffer.Length;
+                    if (save)
+                    {
+                        await _db.SaveChangesAsync();
+                    }
                 }
             }
         }
 
-        private async Task<int> SaveFast(MediaFile mediaFile, MediaStorageItem item)
+        private async Task<int> SaveFast(IMediaAware media, MediaStorageItem item)
         {
             var sourceStream = item.SourceStream;
-            mediaFile.Size = (int)sourceStream.Length;
+            media.Size = (int)sourceStream.Length;
 
-            if (mediaFile.MediaStorageId == null)
+            var streamParam = _db.DataProvider.CreateParameter("p0", sourceStream);
+
+            if (media.MediaStorageId == null)
             {
                 // Insert new blob
                 var sql = "INSERT INTO MediaStorage (Data) Values(@p0)";
-                mediaFile.MediaStorageId = await _db.DataProvider.InsertIntoAsync(sql, sourceStream);
+                media.MediaStorageId = await _db.DataProvider.InsertIntoAsync(sql, streamParam);
             }
             else
             {
                 // Update existing blob
                 var sql = "UPDATE MediaStorage SET Data = @p0 WHERE Id = @p1";
-                await _db.Database.ExecuteSqlRawAsync(sql, sourceStream, mediaFile.MediaStorageId.Value);
+                var idParam = _db.DataProvider.CreateParameter("p1", media.MediaStorageId.Value);
+                await _db.Database.ExecuteSqlRawAsync(sql, streamParam, idParam);
             }
 
-            return mediaFile.MediaStorageId.Value;
+            return media.MediaStorageId.Value;
         }
 
         public virtual async Task RemoveAsync(params MediaFile[] mediaFiles)

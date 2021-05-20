@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -118,5 +119,8 @@ namespace Smartstore.Core.Messaging
             get => _mediaStorage ?? LazyLoader.Load(this, ref _mediaStorage);
             set => _mediaStorage = value;
         }
+
+        [NotMapped]
+        int IMediaAware.Size { get; set; }
     }
 }
