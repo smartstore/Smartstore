@@ -5,7 +5,7 @@ namespace Smartstore
 {
     public static class HttpExtensions
     {
-        // TODO: (mh) (core) You should have talked to me about this. Wen don't need PostedFileResult anymore!! TBD with MC.
+        // TODO: (ms) (core) You should have talked to me about this. We don't need PostedFileResult anymore!! TBD with MC.
         public static PostedFileResult ToPostedFileResult(this HttpRequest httpRequest, int index = 0)
         {
             if (httpRequest != null && httpRequest.Form.Files.Count > index)

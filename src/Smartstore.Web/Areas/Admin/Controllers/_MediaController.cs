@@ -124,8 +124,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!Services.Permissions.Authorize(Permissions.Media.Update))
             {
-                // TODO: (ms) (core) Implement missing methods.
-                //return RedirectToAction("AccessDenied", "Security", new { pageUrl = this.Request.RawUrl, area = "Admin" });
+                throw new AccessDeniedException();
             }
 
             // TODO: (ms) (core) Add view
