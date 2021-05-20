@@ -994,11 +994,15 @@ namespace Smartstore.Web.Controllers
 
             var zipPath = dir.FileSystem.PathCombine(dir.Parent.SubPath, dir.Parent.Name.ToValidFileName() + ".zip");
             var zipFile = await dir.FileSystem.GetFileAsync(zipPath);
-            content.AppendLine($"{zipFile.Name}: {zipPath} {zipFile.PhysicalPath}");
+            content.AppendLine($"{zipFile.Exists} {zipFile.Name}: {zipPath} {zipFile.PhysicalPath}");
             //System.IO.Compression.ZipFile.CreateFromDirectory(dir.PhysicalPath, zipFile.PhysicalPath, System.IO.Compression.CompressionLevel.Fastest, false);
 
+            var contentRoot = Services.ApplicationContext.ContentRoot;
+            var webRoot = Services.ApplicationContext.WebRoot;
+            
+
             {
-                var logDir = Services.ApplicationContext.ContentRoot.AttachEntry(dir.Parent);
+                var logDir = contentRoot.AttachEntry(dir.Parent);
                 var logPath = $"File/" + logDir.FileSystem.PathCombine(logDir.SubPath, "log.txt");
                 content.AppendLine($"Log path: " + logPath);
                 var logger = Services.LoggerFactory.CreateLogger(logPath);
@@ -1008,7 +1012,6 @@ namespace Smartstore.Web.Controllers
             ////var fullPath = @"C:\Downloads\Subfolder";
             //var fullPath = @"~\App_Data\_temp\subfolder";
             var subfolder = "SubFolder";
-            var webRoot = Services.ApplicationContext.WebRoot;
             var webRootDir = await webRoot.GetDirectoryAsync(null);
             var publicPath1 = webRoot.PathCombine(DataExporter.PublicDirectoryName, subfolder);
             subfolder = null;
@@ -1018,22 +1021,30 @@ namespace Smartstore.Web.Controllers
             content.AppendLine(publicDir1.PhysicalPath);
             content.AppendLine(publicDir2.PhysicalPath);
 
-            content.AppendLine();
-            content.AppendLine(dir.FileSystem.GetDirectory(null).SubPath);
-            await CopyDirectory(dir, dir);
+            //content.AppendLine();
+            //await CopyDirectory(dir, dir);
 
             //var folderName = webRoot.CreateUniqueDirectoryName(DataExporter.PublicDirectoryName, "Tester");
             //var publicPath = webRoot.PathCombine(DataExporter.PublicDirectoryName, folderName);
             //_ = await webRoot.TryCreateDirectoryAsync(publicPath);
             //content.AppendLine($"{folderName}: {publicPath}");
 
-            //var deployment = await _db.ExportDeployments.FindByIdAsync(31, false);
+            var deployment = await _db.ExportDeployments.FindByIdAsync(31, false);
             ////var url = await eps.GetDeploymentDirectoryUrlAsync(deployment);
             ////content.AppendLine(url.NaIfEmpty());
-            //var deploymentDir = await eps.GetDeploymentDirectoryAsync(deployment, true);
-            //var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile.Name);
-            //content.AppendLine($"newPath: {newPath}");
-            //await zipFile.FileSystem.CopyFileAsync(zipFile.SubPath, newPath, true);
+
+            var crDir = contentRoot.AttachEntry(dir);
+            var zipPath2 = crDir.FileSystem.PathCombine(crDir.Parent.SubPath, crDir.Parent.Name.ToValidFileName() + ".zip");
+            var zipFile2 = await crDir.FileSystem.GetFileAsync(zipPath2);
+            content.AppendLine($"{zipFile2.Exists} {zipFile2.Name}: {zipPath2} {zipFile2.PhysicalPath}");
+            
+            var deploymentDir = await eps.GetDeploymentDirectoryAsync(deployment, true);
+            using (var stream = await zipFile2.OpenReadAsync())
+            {
+                var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile2.Name);
+                var newFile = await deploymentDir.FileSystem.CreateFileAsync(newPath, stream, true);
+                content.AppendLine($"{newFile.Exists} {newFile.Name}: {newFile.PhysicalPath}");
+            }
 
             //content.AppendLine();
             //content.AppendLine($"Files for {dir.SubPath}");

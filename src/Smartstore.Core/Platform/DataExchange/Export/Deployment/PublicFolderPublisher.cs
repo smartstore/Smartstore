@@ -2,11 +2,19 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Smartstore.Engine;
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
 {
     public class PublicFolderPublisher : IFilePublisher
     {
+        private readonly IApplicationContext _appContext;
+
+        public PublicFolderPublisher(IApplicationContext appContext)
+        {
+            _appContext = appContext;
+        }
+
         public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancellationToken)
         {
             var deploymentDir = await context.ExportProfileService.GetDeploymentDirectoryAsync(deployment, true);
@@ -15,19 +23,28 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 return;
             }
 
+            var root = _appContext.ContentRoot.AttachEntry(context.ExportDirectory);
+
             if (context.CreateZipArchive)
             {
-                if (context.ZipFile?.Exists ?? false)
+                if (context?.ZipFile?.Exists ?? false)
                 {
-                    var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, context.ZipFile.Name);
+                    var zipPath = root.FileSystem.PathCombine(root.Parent.SubPath, context.ZipFile.Name);
+                    var zipFile = await root.FileSystem.GetFileAsync(zipPath);
 
-                    // TODO: (mg) (core) find correct way to copy from 'App_Data/Tenants/Default/ExportProfiles/<subdir> to 'wwwroot/exchange</subdir>'.
-                    // MapPathInternal always combines with source root this way.
-                    // RE: Use IFileSystem.CreateFileAsync() with source file as stream (not path).
-                    // TODO: (mg) (core) Use IFileSystemExtensions.AttachEntry() to re-root entries to top-most fs (ContentRoot).
-                    await context.ZipFile.FileSystem.CopyFileAsync(context.ZipFile.SubPath, newPath, true);
+                    using var stream = await zipFile.OpenReadAsync();
 
-                    context.Log.Info($"Copied zipped export data to {newPath}.");
+                    var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile.Name);
+                    var newFile = await deploymentDir.FileSystem.CreateFileAsync(newPath, stream, true);
+
+                    if (newFile?.Exists ?? false)
+                    {
+                        context.Log.Info($"Copied zipped export data to {newPath}.");
+                    }
+                    else
+                    {
+                        context.Log.Warn($"Failed to copy zipped export data to {newPath}.");
+                    }
                 }
             }
             else

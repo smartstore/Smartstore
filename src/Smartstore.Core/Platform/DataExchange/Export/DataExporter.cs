@@ -1357,7 +1357,7 @@ namespace Smartstore.Core.DataExchange.Export
                             publisher = new HttpFilePublisher();
                             break;
                         case ExportDeploymentType.PublicFolder:
-                            publisher = new PublicFolderPublisher();
+                            publisher = new PublicFolderPublisher(_services.ApplicationContext);
                             break;
                     }
 
