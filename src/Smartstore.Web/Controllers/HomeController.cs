@@ -83,6 +83,7 @@ using Smartstore.Core.Catalog.Categories;
 using System.Text.RegularExpressions;
 using Smartstore.Core.DataExchange.Export;
 using Dasync.Collections;
+using Smartstore.Http;
 
 namespace Smartstore.Web.Controllers
 {
@@ -971,34 +972,8 @@ namespace Smartstore.Web.Controllers
             content.AppendLine("");
             content.AppendLine("Base price: " + basePriceInfo);
 
-            content.AppendLine("");
-            var entities1 = await LoadEntities<Product>(null, 2, 2);
-            var products = entities1.Cast<Product>();
-            products.Each(x => content.AppendLine($"{x.Id} {x.Name}"));
 
-            var castBackTest = products.ToList().Cast<BaseEntity>();
-            content.AppendLine("Cast back test: " + string.Join(",", castBackTest.Select(x => x.Id)));
-
-            content.AppendLine("");
-            var entities2 = await LoadEntities<Category>(new[] { 152, 153, 154, 155 });
-            var categories = entities2.Cast<Category>();
-            categories.Each(x => content.AppendLine($"{x.Id} {x.Name}"));
-
-          
             content.AppendLine("--------------------------------------------------------------");
-
-            //var folderNames = new string[] { "~/App_Data/ExportProfiles/smartstorecategorycsv", "~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv",
-            //    "~/App_Data/ExportProfiles/", "smartstorecategorycsv" };
-
-            //foreach (var fName in folderNames)
-            //{
-            //    //var index = fName.LastIndexOf("ExportProfiles/");
-            //    //var name = index != -1 ? fName[(index + 15)..] : fName;
-            //    var reg = new Regex(".*/ExportProfiles/?", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-            //    var name = reg.Replace(fName, string.Empty);
-
-            //    content.AppendLine($"{fName}: {name}");
-            //}
 
             content.AppendLine("");
             var profile = await _db.ExportProfiles.FindByIdAsync(9, false);
@@ -1006,7 +981,7 @@ namespace Smartstore.Web.Controllers
             //var dir = await eps.GetExportDirectoryAsync(profile, null, true);
             content.AppendLine($"{dir.Exists}: {dir.Name}, {dir.SubPath}, {dir.PhysicalPath}");
 
-            var root = Services.ApplicationContext.TenantRoot;
+            //var root = Services.ApplicationContext.TenantRoot;
             //var dirName = new Regex(".*/ExportProfiles/?", RegexOptions.IgnoreCase | RegexOptions.Singleline).Replace(profile.FolderName, string.Empty);
             //var newName = root.CreateUniqueDirectoryName("ExportProfiles", dirName);
             //content.AppendLine($"{dirName} -> {newName}");
@@ -1021,13 +996,13 @@ namespace Smartstore.Web.Controllers
             content.AppendLine($"{zipFile.Name}: {zipPath} {zipFile.PhysicalPath}");
             //System.IO.Compression.ZipFile.CreateFromDirectory(dir.PhysicalPath, zipFile.PhysicalPath, System.IO.Compression.CompressionLevel.Fastest, false);
 
-
-            //var rootDir = await root.GetDirectoryAsync(null);
-            //var logPath = root.PathCombine("File/App_Data/Tenants/", rootDir.Name, dir.Parent.SubPath, "log.txt");
-            //content.AppendLine(logPath);
-
-            //var logger = Services.LoggerFactory.CreateLogger($"File/" + dir.FileSystem.PathCombine(dir.Parent.SubPath, "log.txt"));
-            //logger.Info("Hello world!");
+            {
+                var logDir = Services.ApplicationContext.ContentRoot.AttachEntry(dir.Parent);
+                var logPath = $"File/" + logDir.FileSystem.PathCombine(logDir.SubPath, "log.txt");
+                content.AppendLine($"Log path: " + logPath);
+                var logger = Services.LoggerFactory.CreateLogger(logPath);
+                logger.Info("Hello world!");
+            }
 
             ////var fullPath = @"C:\Downloads\Subfolder";
             //var fullPath = @"~\App_Data\_temp\subfolder";
@@ -1041,6 +1016,10 @@ namespace Smartstore.Web.Controllers
             var publicDir2 = await webRoot.GetDirectoryAsync(publicPath2);
             content.AppendLine(publicDir1.PhysicalPath);
             content.AppendLine(publicDir2.PhysicalPath);
+
+            content.AppendLine();
+            content.AppendLine(dir.FileSystem.GetDirectory(null).SubPath);
+            await CopyDirectory(dir, dir);
 
             //var folderName = webRoot.CreateUniqueDirectoryName(DataExporter.PublicDirectoryName, "Tester");
             //var publicPath = webRoot.PathCombine(DataExporter.PublicDirectoryName, folderName);
@@ -1067,57 +1046,44 @@ namespace Smartstore.Web.Controllers
             return Content(content.ToString());
             //return View();
 
-            async Task<IEnumerable<TEntity>> LoadEntities<TEntity>(int[] ids, int? skip = null, int take = int.MaxValue)
+            async Task CopyDirectory(IO.IDirectory directory, IO.IDirectory rootDir)
             {
-                var query = GetEntitiesQuery(typeof(TEntity), ids);
-                query = ApplyPaging(query, skip, take);
+                var fs = directory.FileSystem;
+                content.AppendLine(directory.SubPath);
+                var files = await fs.EnumerateFilesAsync(directory.SubPath).ToListAsync();
 
-                var entities = await query.ToListAsync();
-                return entities.Cast<TEntity>();
+                foreach (var file in files)
+                {
+                    var relativePathOld = GetRelativePath(file.PhysicalPath, rootDir.PhysicalPath);
+                    var relativePathNew = file.SubPath; // directory.FileSystem.PathCombine(directory.SubPath, file.Name);
+
+                    content.AppendLine($"file... {relativePathOld}... {relativePathNew}");
+                }
+
+                var subdirs = await fs.EnumerateDirectoriesAsync(directory.SubPath).ToListAsync();
+
+                foreach (var subdir in subdirs)
+                {
+                    var relativePathOld = GetRelativePath(subdir.PhysicalPath, rootDir.PhysicalPath);
+                    var relativePathNew = subdir.SubPath;// directory.FileSystem.PathCombine(directory.SubPath, subdir.Name);
+
+                    content.AppendLine($"dir... {relativePathOld}... {relativePathNew}");
+
+                    await CopyDirectory(subdir, rootDir);
+                }
             }
 
-            IQueryable<BaseEntity> GetEntitiesQuery(Type type, int[] ids)
+            string GetRelativePath(string path, string contentPhysicalPath)
             {
-                IQueryable<BaseEntity> query = null;
+                var sourcePathLength = contentPhysicalPath.Length;
+                var relativePath = path[sourcePathLength..].Replace("\\", "/");
 
-                if (type == typeof(Product))
+                if (relativePath.StartsWith("/"))
                 {
-                    var productQuery = _db.Products.AsNoTracking();
-                    productQuery = productQuery.Where(x => x.Published && x.ProductTypeId == 5);
-
-                    query = productQuery;
-                }
-                else if (type == typeof(Category))
-                {
-                    var categoryQuery = _db.Categories.AsNoTracking();
-                    categoryQuery = categoryQuery.Where(x => x.Published);
-
-                    query = categoryQuery;
+                    return relativePath[1..];
                 }
 
-                if (ids?.Any() ?? false)
-                {
-                    query = query.Where(x => ids.Contains(x.Id));
-                }
-
-                return query;
-            }
-
-            IQueryable<BaseEntity> ApplyPaging(IQueryable<BaseEntity> query, int? skip, int take)
-            {
-                query = query.OrderBy(x => x.Id);
-
-                if (skip.HasValue)
-                {
-                    query = query.Skip(skip.Value);
-                }
-
-                if (take != int.MaxValue)
-                {
-                    query = query.Take(take);
-                }
-
-                return query;
+                return relativePath;
             }
         }
     }

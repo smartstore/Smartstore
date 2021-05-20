@@ -34,6 +34,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             var emailAccount = await _db.EmailAccounts.FindByIdAsync(deployment.EmailAccountId, false, cancellationToken);
             var fromEmailAddress = emailAccount.ToMailAddress();
             var files = await context.GetDeploymentFilesAsync(cancellationToken);
+            var canStreamBlob = _db.DataProvider.CanStreamBlob;
             var num = 0;
 
             foreach (var emailAddress in emailAddresses)
@@ -51,18 +52,28 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
                 foreach (var file in files)
                 {
-                    // TODO: (mg) (core) (perf) Use BlobStreams to save files to MediaStorage. See DatabaseMediaStorageProvider for usage (SaveFast).
-
                     var name = file.Name;
-                    var bytes = await file.ReadAllBytesAsync();
-
-                    queuedEmail.Attachments.Add(new QueuedEmailAttachment
+                    var attachment = new QueuedEmailAttachment
                     {
                         StorageLocation = EmailAttachmentStorageLocation.Blob,
-                        MediaStorage = new MediaStorage { Data = bytes },
                         Name = name,
                         MimeType = MimeTypes.MapNameToMimeType(name)
-                    });
+                    };
+
+                    if (canStreamBlob)
+                    {
+                        using var stream = await file.OpenReadAsync();
+                        attachment.MediaStorageId = await _db.DataProvider.InsertIntoAsync("INSERT INTO MediaStorage (Data) Values(@p0)", stream);
+                    }
+                    else
+                    {
+                        attachment.MediaStorage = new MediaStorage
+                        {
+                            Data = await file.ReadAllBytesAsync()
+                        };
+                    }
+
+                    queuedEmail.Attachments.Add(attachment);
                 }
 
                 _db.QueuedEmails.Add(queuedEmail);

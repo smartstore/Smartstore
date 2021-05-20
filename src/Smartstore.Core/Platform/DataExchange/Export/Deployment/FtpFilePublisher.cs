@@ -57,13 +57,13 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             var files = await directory.FileSystem
                 .EnumerateFilesAsync(directory.SubPath)
                 .ToListAsync(_cancellationToken);
+            var lastFile = files.Last();
 
             foreach (var file in files)
             {
-                var isNotLastFile = file != files.Last(); // TODO: (mg) (core) Perf!!! WTF?!
                 var relativePath = GetRelativePath(file.PhysicalPath); // TODO: (mg) (core) Refactor, don't just copy. We now have "file.SubPath", which IS relative already.
 
-                await UploadFile(file, _ftpRootUrl + relativePath, isNotLastFile);
+                await UploadFile(file, _ftpRootUrl + relativePath, file != lastFile);
             }
 
             var subdirs = await directory.FileSystem

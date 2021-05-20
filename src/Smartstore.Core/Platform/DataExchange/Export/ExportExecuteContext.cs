@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Localization;
 using Smartstore.IO;
@@ -201,14 +202,13 @@ namespace Smartstore.Core.DataExchange.Export
         /// Allows to set a progress message.
         /// </summary>
         /// <param name="message">Output message.</param>
-        public void SetProgress(string message)
+        public async Task SetProgressAsync(string message)
         {
             if (ProgressCallback != null && message.HasValue())
             {
                 try
                 {
-                    // TODO: (mg) (core) You just can't invoke an async method inside a sync one! The complete chain has to be async.
-                    ProgressCallback.Invoke(0, 0, message);
+                    await ProgressCallback.Invoke(0, 0, message);
                 }
                 catch 
                 { 

@@ -197,7 +197,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                             if (profile.Deployments.Any(x => x.Enabled))
                             {
-                                SetProgress(T("Common.Publishing"), ctx);
+                                await SetProgress(T("Common.Publishing"), ctx);
 
                                 var allDeploymentsSucceeded = await Deploy(ctx);
                                 if (allDeploymentsSucceeded && profile.Cleanup)
@@ -533,14 +533,14 @@ namespace Smartstore.Core.DataExchange.Export
                 ctx.UrlRecordsPerPage?.Clear();
 
                 ctx.Request.CustomData.Clear();
-
                 ctx.ExecuteContext.CustomProperties.Clear();
+
                 ctx.ExecuteContext.Log = null;
                 ctx.Log = null;
             }
             catch (Exception ex)
             {
-                ctx.Log.ErrorsAll(ex);
+                ctx?.Log?.ErrorsAll(ex);
             }
         }
 
@@ -630,7 +630,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             ctx.LastId = entities.Last().Id;
-            SetProgress(entities.Count, ctx);
+            await SetProgress (entities.Count, ctx);
 
             return productEntities?.Cast<TEntity>() ?? entities.Cast<TEntity>();
         }
@@ -1541,20 +1541,18 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (!isPreview)
             {
+                // The export directory is the "Content" subfolder. ZIP and LOG file are in the parent folder.
                 var dir = await _exportProfileService.GetExportDirectoryAsync(request.Profile, "Content", true);
-                var dirName = dir.Parent.Name;
 
                 context.ExportDirectory = dir;
-                context.ZipFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, dirName.ToValidFileName() + ".zip"));
                 context.Result.ExportDirectory = isFileBasedExport ? dir : null;
+                context.ZipFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, dir.Parent.Name.ToValidFileName() + ".zip"));
 
-                // TODO: (mg) (core) find out how to log into a single file per profile (with fixed name 'log.txt' and without date stamp).
-                // RE: LogFile pathes are rooted to app root path, so to log to file "~/App_Data/Tenants/Default/Export/MyProfile/log.txt",
-                // use logger name: "File/App_Data/Tenants/Default/Export/MyProfile/log.txt
-
-                //var rootDir = await _services.ApplicationContext.TenantRoot.GetDirectoryAsync(null);
-                //var logPath = dir.FileSystem.PathCombine("File/App_Data/Tenants/", rootDir.Name/*SubPath is null*/, dir.Parent.SubPath, "log.txt");
-                //context.Log = _services.LoggerFactory.CreateLogger(logPath);
+                // TODO: (mg) (core) not what is required here. Find a way to log into a single file (for downloading) with a "per-export scope".
+                // - current configuration "rollingInterval: RollingInterval.Day" adds yyyyMMdd to the file name.
+                // - "rollingInterval: RollingInterval.Infinite" would create a single file but it is inaccessible or might not even exist when the export ends.
+                var logDir = _services.ApplicationContext.ContentRoot.AttachEntry(dir.Parent);
+                context.Log = _services.LoggerFactory.CreateLogger($"File/" + logDir.FileSystem.PathCombine(logDir.SubPath, "log.txt"));
             }
 
             if (profile.Projection.IsEmpty())
@@ -1665,13 +1663,13 @@ namespace Smartstore.Core.DataExchange.Export
             return await _services.Permissions.AuthorizeAsync(Permissions.Configuration.Export.Execute);
         }
 
-        private static void SetProgress(string message, DataExporterContext ctx)
+        private static async Task SetProgress(string message, DataExporterContext ctx)
         {
             if (!ctx.IsPreview && message.HasValue())
             {
                 try
                 {
-                    ctx.Request.ProgressCallback.Invoke(0, 0, message);
+                    await ctx.Request.ProgressCallback.Invoke(0, 0, message);
                 }
                 catch
                 {
@@ -1679,7 +1677,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
         }
 
-        private static void SetProgress(int loadedRecords, DataExporterContext ctx)
+        private static async Task SetProgress(int loadedRecords, DataExporterContext ctx)
         {
             if (!ctx.IsPreview && loadedRecords > 0)
             {
@@ -1694,7 +1692,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                     ctx.RecordCount = Math.Min(ctx.RecordCount + loadedRecords, totalRecords);
                     var msg = ctx.ProgressInfo.FormatInvariant(ctx.RecordCount.ToString("N0"), totalRecords.ToString("N0"));
-                    ctx.Request.ProgressCallback.Invoke(ctx.RecordCount, totalRecords, msg);
+                    await ctx.Request.ProgressCallback.Invoke(ctx.RecordCount, totalRecords, msg);
                 }
                 catch
                 {
