@@ -84,6 +84,7 @@ using System.Text.RegularExpressions;
 using Smartstore.Core.DataExchange.Export;
 using Dasync.Collections;
 using Smartstore.Http;
+using Smartstore.IO;
 
 namespace Smartstore.Web.Controllers
 {
@@ -1048,32 +1049,30 @@ namespace Smartstore.Web.Controllers
 
             async Task CopyDirectory(IO.IDirectory directory, IO.IDirectory rootDir)
             {
-                var fs = directory.FileSystem;
-                content.AppendLine(directory.SubPath);
-                var files = await fs.EnumerateFilesAsync(directory.SubPath).ToListAsync();
-
+                var files = await directory.FileSystem.EnumerateFilesAsync(directory.SubPath).ToListAsync();
                 foreach (var file in files)
                 {
-                    var relativePathOld = GetRelativePath(file.PhysicalPath, rootDir.PhysicalPath);
-                    var relativePathNew = file.SubPath; // directory.FileSystem.PathCombine(directory.SubPath, file.Name);
+                    var relativePathOld = GetRelativePathOld(file.PhysicalPath, rootDir.PhysicalPath);
+                    var relativePathNew = GetRelativePathNew(file, rootDir);
+                    var note = relativePathOld != relativePathNew ? " !!" : "";
 
-                    content.AppendLine($"file... {relativePathOld}... {relativePathNew}");
+                    content.AppendLine($"file: {relativePathOld}... {relativePathNew}{note}");
                 }
 
-                var subdirs = await fs.EnumerateDirectoriesAsync(directory.SubPath).ToListAsync();
-
+                var subdirs = await directory.FileSystem.EnumerateDirectoriesAsync(directory.SubPath).ToListAsync();
                 foreach (var subdir in subdirs)
                 {
-                    var relativePathOld = GetRelativePath(subdir.PhysicalPath, rootDir.PhysicalPath);
-                    var relativePathNew = subdir.SubPath;// directory.FileSystem.PathCombine(directory.SubPath, subdir.Name);
+                    var relativePathOld = GetRelativePathOld(subdir.PhysicalPath, rootDir.PhysicalPath);
+                    var relativePathNew = GetRelativePathNew(subdir, rootDir);
+                    var note = relativePathOld != relativePathNew ? "!!" : "";
 
-                    content.AppendLine($"dir... {relativePathOld}... {relativePathNew}");
+                    content.AppendLine($"dir : {relativePathOld}... {relativePathNew}{note}");
 
                     await CopyDirectory(subdir, rootDir);
                 }
             }
 
-            string GetRelativePath(string path, string contentPhysicalPath)
+            string GetRelativePathOld(string path, string contentPhysicalPath)
             {
                 var sourcePathLength = contentPhysicalPath.Length;
                 var relativePath = path[sourcePathLength..].Replace("\\", "/");
@@ -1084,6 +1083,11 @@ namespace Smartstore.Web.Controllers
                 }
 
                 return relativePath;
+            }
+
+            string GetRelativePathNew(IFileEntry entry, IDirectory root)
+            {
+                return entry.SubPath[root.SubPath.Length..].TrimStart('/', '\\').Replace('\\', '/');
             }
         }
     }

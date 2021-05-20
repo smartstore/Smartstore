@@ -61,9 +61,8 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
             foreach (var file in files)
             {
-                var relativePath = GetRelativePath(file.PhysicalPath); // TODO: (mg) (core) Refactor, don't just copy. We now have "file.SubPath", which IS relative already.
-
-                await UploadFile(file, _ftpRootUrl + relativePath, file != lastFile);
+                var url = BuildUrl(file);
+                await UploadFile(file, url, file != lastFile);
             }
 
             var subdirs = await directory.FileSystem
@@ -72,12 +71,11 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
             foreach (var subdir in subdirs)
             {
-                var relativePath = GetRelativePath(subdir.PhysicalPath); // TODO: (mg) (core) see above
-                var url = _ftpRootUrl + relativePath;
-
-                if (!await IsExistingDirectory(url))
+                var url = BuildUrl(subdir);
+                if (!await IsExistingFtpDirectory(url))
                 {
                     // TODO: (mg) (core) (perf) Why create a fresh request for every single iteration. Why not scoped??!!!!
+                    // RE: because you cannot use a FtpWebRequest instance over multiple requests\urls. You can only reuse the underlying FTP connection via KeepAlive which is already in use here.
                     var request = CreateRequest(url, true);
                     request.Method = WebRequestMethods.Ftp.MakeDirectory;
 
@@ -136,7 +134,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             return succeeded;
         }
 
-        private async Task<bool> IsExistingDirectory(string directoryUrl)
+        private async Task<bool> IsExistingFtpDirectory(string directoryUrl)
         {
             var result = false;
 
@@ -180,17 +178,9 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             return request;
         }
 
-        private string GetRelativePath(string path)
+        private string BuildUrl(IFileEntry entry)
         {
-            var sourcePathLength = _context.ExportDirectory.PhysicalPath.Length;
-            var relativePath = path[sourcePathLength..].Replace("\\", "/");
-
-            if (relativePath.StartsWith("/"))
-            {
-                return relativePath[1..];
-            }
-
-            return relativePath;
+            return _ftpRootUrl + entry.SubPath[_context.ExportDirectory.SubPath.Length..].TrimStart('/', '\\').Replace('\\', '/');
         }
     }
 }
