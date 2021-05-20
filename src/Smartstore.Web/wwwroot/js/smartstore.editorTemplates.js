@@ -1,49 +1,49 @@
 ﻿(function ($, window, document, undefined) {
 
     // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
-    function initSelect(ctrl) {
+    function initSelect(el) {
         if ($.fn.select2 === undefined || $.fn.selectWrapper === undefined)
             return;
 
-        if (!ctrl.classList.contains("noskin")) {
-            $(ctrl).selectWrapper();
+        if (!el.classList.contains("noskin")) {
+            $(el).selectWrapper();
         }
     }
 
     // Datetime & Time
-    function initDateTime(ctrl) {
-        var $ctrl = $(ctrl);
-        $ctrl.parent().datetimepicker({
-            format: $ctrl.data("format"),
-            useCurrent: $ctrl.data("use-current"),
+    function initDateTime(el) {
+        var $el = $(el);
+        $el.parent().datetimepicker({
+            format: $el.data("format"),
+            useCurrent: $el.data("use-current"),
             locale: moment.locale()
         });
     }
 
     // Html
-    function initHtml(ctrl) {
-        var $ctrl = $(ctrl);
+    function initHtml(el) {
+        var $el = $(el);
 
-        summernote_image_upload_url = $ctrl.data("summernote-image-upload-url");
+        summernote_image_upload_url = $el.data("summernote-image-upload-url");
 
-        if (!$ctrl.data("lazy")) {
-            $ctrl.summernote($.extend(true, {}, summernote_global_config, { lang: $ctrl.data("lang") }));
+        if (!$el.data("lazy")) {
+            $el.summernote($.extend(true, {}, summernote_global_config, { lang: $el.data("lang") }));
         }
     }
 
     // Link
-    function initLinkBuilder(ctrl) {
-        $(ctrl).linkBuilder();
+    function initLinkBuilder(el) {
+        $(el).linkBuilder();
     }
 
     // Download
-    function initDownload(ctrl) {
-        $(ctrl).downloadEditor();
+    function initDownload(el) {
+        $(el).downloadEditor();
     }
 
     // RuleSets
-    function initRuleSets(ctrl) {
-        $(ctrl)
+    function initRuleSets(el) {
+        $(el)
             .selectWrapper()
             .on('select2:selecting select2:unselecting', function (e) {
                 try {
@@ -121,35 +121,31 @@
         });
     }
 
-    window.initEditorTemplates = function () {
-        var ctrls = document.getElementsByClassName("initialize-template");
+    window.initializeEditControls = function (context) {
+        var editControls = (context || document).getElementsByClassName("edit-control");
 
-        Array.from(ctrls).forEach((ctrl) => {
-            var template = ctrl.getAttribute("data-editor-template");
+        Array.from(editControls).forEach(el => {
+            var template = el.getAttribute("data-editor");
 
             switch (template) {
-                case "access-permissions":
-                case "customer-roles":
-                case "delivery-times":
-                case "discounts":
-                case "stores":
-                    initSelect(ctrl);
+                case "select":
+                    initSelect(el);
                     break;
                 case "date-time":
                 case "time":
-                    initDateTime(ctrl);
+                    initDateTime(el);
                     break;
                 case "html":
-                    initHtml(ctrl);
+                    initHtml(el);
                     break;
                 case "link":
-                    initLinkBuilder(ctrl);
+                    initLinkBuilder(el);
                     break;
                 case "download":
-                    initDownload(ctrl);
+                    initDownload(el);
                     break;
                 case "rule-sets":
-                    initRuleSets(ctrl);
+                    initRuleSets(el);
                     break;
             }
         });

@@ -89,12 +89,12 @@
 }
 
 <div id="@clientId" 
-     class="form-row flex-nowrap download-editor initialize-template"
+     class="form-row flex-nowrap download-editor edit-control"
      attr-class='(additionalCssClasses.HasValue(), additionalCssClasses)'
      data-download-id="@Model.GetValueOrDefault()"
      data-entity-id="@EntityId"
      data-entity-name="@EntityName"
-     data-editor-template="download"
+     data-editor="download"
      data-create-url="@Url.Action("CreateDownloadFromMediaFile", "Download", new { area = "Admin" })"
      data-delete-url="@Url.Action("DeleteDownload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, downloadId = Model, area = "Admin" })"
      data-use-url="@(initiallyShowUrlPanel ? "true" : "false")">

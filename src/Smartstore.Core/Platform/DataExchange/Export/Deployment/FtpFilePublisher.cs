@@ -74,7 +74,6 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 var url = BuildUrl(subdir);
                 if (!await IsExistingFtpDirectory(url))
                 {
-                    // TODO: (mg) (core) (perf) Why create a fresh request for every single iteration. Why not scoped??!!!!
                     // RE: because you cannot use a FtpWebRequest instance over multiple requests\urls. You can only reuse the underlying FTP connection via KeepAlive which is already in use here.
                     var request = CreateRequest(url, true);
                     request.Method = WebRequestMethods.Ftp.MakeDirectory;

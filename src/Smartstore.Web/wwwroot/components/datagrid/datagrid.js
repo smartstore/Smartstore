@@ -702,11 +702,13 @@ Vue.component("sm-data-grid", {
                 return;
             }
 
-            // TODO: (core) Handle focus on grid activateEdit()
             edit.updateEditors();
             edit.initialized = true;
 
             this.$nextTick(() => {
+                // Initialize editor plugins
+                window.initializeEditControls(edit.tr);
+
                 // Handle auto-focus
                 var elFocus = $(edit.td || edit.tr).find('.dg-cell-edit :input:visible');
                 if (elFocus.length === 0) {
