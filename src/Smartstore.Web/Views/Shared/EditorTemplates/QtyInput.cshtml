@@ -1,8 +1,22 @@
 ﻿@using Smartstore.Web.Models.Catalog
-@using Microsoft.AspNetCore.Routing
 @using Smartstore.Utilities
 
 @model IQuantityInput
+
+@functions{
+    private string Value
+    {
+        get
+        {
+            string value = null;
+            if (ViewData.Model != null)
+            {
+                value = Convert.ToString(ViewData.Model.EnteredQuantity);
+            }
+            return value;
+        }
+    }
+}
 
 @{
     var large = ViewData["large"].Convert<bool>();
@@ -11,26 +25,18 @@
     var inputStyle = "spinner";
     //var inputStyle = Model.QuantiyControlType;
 
-    // TODO: (mh) (core) No need to fix this anymore?
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
-    var fixedAttributes = new AttributeDictionary();
-
-    foreach (var attr in attributes)
-    {
-        fixedAttributes.Merge(attr.Key.StartsWith("data_") ? attr.Key.Replace("_", "-") : attr.Key, attr.Value.ToString(), true);
-    }
-
-    fixedAttributes.Merge("class", "form-control" + (large ? " form-control-lg" : ""));
-    fixedAttributes.Merge("data-min", Model.MinOrderAmount.ToString(), true);
-    fixedAttributes.Merge("data-max", Model.MaxOrderAmount.ToString(), true);
-    fixedAttributes.Merge("data-postfix", Model.QuantityUnitName, true);
-    fixedAttributes.Merge("data-step", Model.QuantityStep.ToString(), true);
+    attributes.Merge("class", "form-control" + (large ? " form-control-lg" : ""));
+    attributes.Merge("data-min", Model.MinOrderAmount.ToString(), true);
+    attributes.Merge("data-max", Model.MaxOrderAmount.ToString(), true);
+    attributes.Merge("data-postfix", Model.QuantityUnitName, true);
+    attributes.Merge("data-step", Model.QuantityStep.ToString(), true);
 }
 
 <div class="qty-input" attr-class='(Model.QuantityUnitName != null && Model.QuantityUnitName.Value.HasValue(), "has-postfix")'>
     @if (inputStyle == "spinner")
     {
-        <input asp-for="@Model" attrs="@fixedAttributes" />
+        <input asp-for="EnteredQuantity" type="text" attrs="@attributes" />
     }
     else
     {
