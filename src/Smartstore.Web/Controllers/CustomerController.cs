@@ -755,10 +755,10 @@ namespace Smartstore.Web.Controllers
             {
                 if (customer.IsRegistered() && _customerSettings.AllowCustomersToUploadAvatars)
                 {
-                    var uploadedFile = Request.ToPostedFileResult();
+                    var uploadedFile = Request.Form.Files[0];
                     if (uploadedFile != null && uploadedFile.FileName.HasValue())
                     {
-                        if (uploadedFile.Size > _customerSettings.AvatarMaximumSizeBytes)
+                        if (uploadedFile.Length > _customerSettings.AvatarMaximumSizeBytes)
                         {
                             throw new SmartException(T("Account.Avatar.MaximumUploadedFileSize", Prettifier.HumanizeBytes(_customerSettings.AvatarMaximumSizeBytes)));
                         }
@@ -766,17 +766,14 @@ namespace Smartstore.Web.Controllers
                         var oldAvatar = await _db.MediaFiles.FindByIdAsync(customer.GenericAttributes.AvatarPictureId ?? 0);
                         if (oldAvatar != null)
                         {
-                            _db.MediaFiles.Remove(oldAvatar);
-                            await _db.SaveChangesAsync();
+                            await _mediaService.DeleteFileAsync(oldAvatar, true);
                         }                        
 
                         var path = _mediaService.CombinePaths(SystemAlbumProvider.Customers, uploadedFile.FileName.ToValidFileName());
-                        // TODO: (mh) (core) || TODO: (mc) (core) Somethings wrong with _mediaService.SaveFileAsync.
-                        // NOTE: (by ms) Works for me (now).
-                        var stream = uploadedFile.Stream;
-                        Response.RegisterForDispose(stream);
 
+                        using var stream = uploadedFile.OpenReadStream();
                         var newAvatar = await _mediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
+
                         if (newAvatar != null)
                         {
                             customer.GenericAttributes.AvatarPictureId = newAvatar.Id;
@@ -806,7 +803,7 @@ namespace Smartstore.Web.Controllers
                 var avatar = await _db.MediaFiles.FindByIdAsync((int)customer.GenericAttributes.AvatarPictureId);
                 if (avatar != null)
                 {
-                    _db.MediaFiles.Remove(avatar);
+                    await _mediaService.DeleteFileAsync(avatar, true);
                 }
 
                 customer.GenericAttributes.AvatarPictureId = 0;

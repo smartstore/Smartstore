@@ -45,10 +45,10 @@ namespace Smartstore.Admin.Controllers
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError, 
             string directory = "")
         {
-            var fileCount = Request.Form.Files.Count;
-            var result = new List<object>(fileCount);
+            var numFiles = Request.Form.Files.Count;
+            var result = new List<object>(numFiles);
 
-            for (var i = 0; i < fileCount; ++i)
+            for (var i = 0; i < numFiles; ++i)
             {
                 if (directory.HasValue())
                 {
@@ -60,7 +60,7 @@ namespace Smartstore.Admin.Controllers
                     }
                 }
 
-                var uploadedFile = Request.ToPostedFileResult(i);
+                var uploadedFile = Request.Form.Files[i];
                 var fileName = uploadedFile.FileName;
                 var filePath = _mediaService.CombinePaths(path, fileName);
 
@@ -85,7 +85,8 @@ namespace Smartstore.Admin.Controllers
                         }
                     }
 
-                    var mediaFile = await _mediaService.SaveFileAsync(filePath, uploadedFile.Stream, isTransient, duplicateFileHandling);
+                    using var stream = uploadedFile.OpenReadStream();
+                    var mediaFile = await _mediaService.SaveFileAsync(filePath, stream, isTransient, duplicateFileHandling);
 
                     dynamic o = JObject.FromObject(mediaFile);
                     o.success = true;

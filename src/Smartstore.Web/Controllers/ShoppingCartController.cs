@@ -1114,7 +1114,7 @@ namespace Smartstore.Web.Controllers
                 });
             }
 
-            var postedFile = Request.ToPostedFileResult();
+            var postedFile = Request.Form.Files.FirstOrDefault();
             if (postedFile == null)
             {
                 throw new ArgumentException(T("Common.NoFileUploaded"));
@@ -1131,7 +1131,8 @@ namespace Smartstore.Web.Controllers
                 IsTransient = true
             };
 
-            var mediaFile = await _downloadService.InsertDownloadAsync(download, postedFile.Stream, postedFile.FileName);
+            using var stream = postedFile.OpenReadStream();
+            var mediaFile = await _downloadService.InsertDownloadAsync(download, stream, postedFile.FileName);
 
             return Json(new
             {

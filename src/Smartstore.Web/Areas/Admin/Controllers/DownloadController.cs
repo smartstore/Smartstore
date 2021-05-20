@@ -121,14 +121,14 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Media.Download.Create)]
         public async Task<IActionResult> AsyncUpload(string clientCtrlId)
         {
-            var postedFile = Request.ToPostedFileResult();
+            var postedFile = Request.Form.Files.FirstOrDefault();
             if (postedFile == null)
             {
                 throw new ArgumentException(T("Common.NoFileUploaded"));
             }
 
             var path = _mediaService.CombinePaths(SystemAlbumProvider.Downloads, postedFile.FileName);
-            var stream = postedFile.Stream;
+            using var stream = postedFile.OpenReadStream();
             Response.RegisterForDispose(stream);
 
             var file = await _mediaService.SaveFileAsync(path, stream, dupeFileHandling: DuplicateFileHandling.Rename);
