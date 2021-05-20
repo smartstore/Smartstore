@@ -36,7 +36,6 @@ namespace Smartstore.Admin.Controllers
 
         // TODO: (ms) (core) Testing!
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Media.Upload)]
         [MaxMediaFileSize]
         public async Task<ActionResult> Upload(
@@ -127,7 +126,6 @@ namespace Smartstore.Admin.Controllers
                 throw new AccessDeniedException();
             }
 
-            // TODO: (ms) (core) Add view
             return PartialView();
         }
 

@@ -118,7 +118,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Media.Download.Create)]
         public async Task<IActionResult> AsyncUpload(string clientCtrlId)
         {
@@ -146,7 +145,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Media.Download.Update)]
         public async Task<IActionResult> AddChangelog(int downloadId, string changelogText)
         {
@@ -164,7 +162,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Media.Download.Read)]
         public async Task<IActionResult> GetChangelogText(int downloadId)
         {
@@ -190,7 +187,6 @@ namespace Smartstore.Admin.Controllers
         /// TODO: (mh) (core) Add documentation.
         /// </summary>
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Media.Download.Delete)]
         public async Task<IActionResult> DeleteDownload(bool minimalMode = false, string fieldName = null)
         {
