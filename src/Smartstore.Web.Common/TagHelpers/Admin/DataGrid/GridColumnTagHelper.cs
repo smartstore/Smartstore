@@ -155,6 +155,62 @@ namespace Smartstore.Web.TagHelpers.Admin
             await output.GetChildContentAsync();
             output.SuppressOutput();
         }
+
+        internal object ToPlainObject()
+        {
+            return new
+            {
+                member = MemberName,
+                title = Title ?? For.Metadata.DisplayName,
+                width = Width.EmptyNull(),
+                hidden = !Visible,
+                //flow = col.Flow?.ToString()?.Kebaberize(),
+                halign = HAlign,
+                valign = VAlign,
+                type = GetColumnType(),
+                format = Format,
+                resizable = Resizable,
+                sortable = Sortable,
+                editable = !ReadOnly,
+                nowrap = Nowrap,
+                entityMember = EntityMember,
+                icon = Icon
+            };
+        }
+
+        private string GetColumnType()
+        {
+            if (Type.HasValue())
+            {
+                return Type;
+            }
+
+            var t = For.Metadata.ModelType.GetNonNullableType();
+
+            if (t == typeof(string))
+            {
+                return "string";
+            }
+            if (t == typeof(bool))
+            {
+                return "boolean";
+            }
+            else if (t == typeof(DateTime) || t == typeof(DateTimeOffset))
+            {
+                return "date";
+            }
+            else if (t.IsNumericType())
+            {
+                if (t == typeof(decimal) || t == typeof(double) || t == typeof(float))
+                {
+                    return "float";
+                }
+
+                return "int";
+            }
+
+            return string.Empty;
+        }
     }
 
     /// <summary>

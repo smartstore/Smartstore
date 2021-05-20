@@ -310,4 +310,12 @@ namespace Smartstore.Admin.Models.Catalog
         public bool IsSystemProduct { get; set; }
         public string SystemName { get; set; }
     }
+
+    public partial class ProductModelValidator : SmartValidator<ProductModel>
+    {
+        public ProductModelValidator(SmartDbContext db)
+        {
+            CopyFromEntityRules<Product>(db);
+        }
+    }
 }

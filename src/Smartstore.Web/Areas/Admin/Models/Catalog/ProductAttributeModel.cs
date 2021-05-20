@@ -52,9 +52,9 @@ namespace Smartstore.Admin.Models.Catalog
         public string Description { get; set; }
     }
 
-    public partial class ProductAttributeValidator : SmartValidator<ProductAttributeModel>
+    public partial class ProductAttributeModelValidator : SmartValidator<ProductAttributeModel>
     {
-        public ProductAttributeValidator(SmartDbContext db)
+        public ProductAttributeModelValidator(SmartDbContext db)
         {
             CopyFromEntityRules<ProductAttribute>(db);
         }

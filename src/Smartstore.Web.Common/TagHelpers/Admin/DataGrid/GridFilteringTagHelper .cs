@@ -4,43 +4,30 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Core.Rules;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    [HtmlTargetElement("sorting", ParentTag = "datagrid")]
-    [RestrictChildren("sort")]
-    public class GridSortingTagHelper : TagHelper
+    [HtmlTargetElement("filtering", ParentTag = "datagrid")]
+    [RestrictChildren("filter")]
+    public class GridFilteringTagHelper : TagHelper
     {
         const string EnabledAttributeName = "enabled";
-        const string AllowUnsortAttributeName = "allow-unsort";
-        const string MultiSortAttributeName = "allow-multisort";
 
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
             if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
             {
-                parent.Sorting = this;
+                parent.Filtering = this;
             }
         }
 
         [HtmlAttributeName(EnabledAttributeName)]
         public bool Enabled { get; set; } = true;
 
-        /// <summary>
-        /// Default: <c>true</c>.
-        /// </summary>
-        [HtmlAttributeName(AllowUnsortAttributeName)]
-        public bool AllowUnsort { get; set; } = true;
-
-        /// <summary>
-        /// Default: <c>false</c>.
-        /// </summary>
-        [HtmlAttributeName(MultiSortAttributeName)]
-        public bool MultiSort { get; set; }
-
         [HtmlAttributeNotBound]
-        internal List<GridSortTagHelper> Descriptors { get; set; } = new();
+        internal List<GridFilterTagHelper> Descriptors { get; set; } = new();
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
@@ -53,43 +40,51 @@ namespace Smartstore.Web.TagHelpers.Admin
             return new
             {
                 enabled = Enabled,
-                allowUnsort = AllowUnsort,
-                allowMultiSort = MultiSort,
                 descriptors = Descriptors
-                    .Select(x => new { member = x.MemberName, descending = x.Descending })
+                    .Select(x => new { member = x.MemberName, op = x.Operator.ToString(), value = x.Value })
                     .ToArray()
             };
         }
     }
 
-    [HtmlTargetElement("sort", Attributes = ForAttributeName, ParentTag = "sorting", TagStructure = TagStructure.NormalOrSelfClosing)]
-    public class GridSortTagHelper : TagHelper
+    [HtmlTargetElement("filter", Attributes = "for,op", ParentTag = "filtering", TagStructure = TagStructure.NormalOrSelfClosing)]
+    public class GridFilterTagHelper : TagHelper
     {
-        const string ForAttributeName = "by";
-        const string DescendingAttributeName = "descending";
+        const string ForAttributeName = "for";
+        const string OperatorAttributeName = "op";
+        const string ValueAttributeName = "value";
 
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
             if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
             {
-                parent.Sorting.Descriptors.Add(this);
+                parent.Filtering.Descriptors.Add(this);
             }
         }
 
         /// <summary>
-        /// The sorted member.
+        /// The filtered member.
         /// </summary>
         [HtmlAttributeName(ForAttributeName)]
-        public ModelExpression By { get; set; }
+        public ModelExpression For { get; set; }
 
-        [HtmlAttributeName(DescendingAttributeName)]
-        public bool Descending { get; set; }
+        [HtmlAttributeName(OperatorAttributeName)]
+        public RuleOperator Operator { get; set; }
+
+        [HtmlAttributeName(ValueAttributeName)]
+        public object Value { get; set; }
 
         [HtmlAttributeNotBound]
         internal string MemberName
         {
-            get => By.Metadata.Name;
+            get => For.Metadata.Name;
+        }
+
+        [HtmlAttributeNotBound]
+        internal Type MemberType
+        {
+            get => For.Metadata.ModelType;
         }
     }
 }

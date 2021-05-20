@@ -325,7 +325,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost, IgnoreAntiforgeryToken] // TODO: (core) Why is posted _RequestVerificationToken not valid?
         [Permission(Permissions.Catalog.Product.Delete)]
-        public async Task<IActionResult> DeleteSelectedProducts(GridSelection selection)
+        public async Task<IActionResult> ProductDelete(GridSelection selection)
         {
             var ids = selection.GetEntityIds();
             var numDeleted = 0;
@@ -337,6 +337,30 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(new { Success = true, Count = numDeleted });
+        }
+
+        [HttpPost, IgnoreAntiforgeryToken] // TODO: (core) Why is posted _RequestVerificationToken not valid?
+        [Permission(Permissions.Catalog.Product.Update)]
+        public async Task<IActionResult> ProductUpdate(ProductOverviewModel model)
+        {
+            var product = await _db.Products.FindByIdAsync(model.Id);
+
+            product.Name = model.Name;
+            product.Sku = model.Sku;
+            product.Price = model.Price;
+            product.StockQuantity = model.StockQuantity;
+            product.Published = model.Published;
+
+            try
+            {
+                await _db.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex.Message);
+                return Json(new { success = false });
+            }
         }
 
         #endregion

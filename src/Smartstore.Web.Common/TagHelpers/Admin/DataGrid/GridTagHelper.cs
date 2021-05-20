@@ -142,6 +142,9 @@ namespace Smartstore.Web.TagHelpers.Admin
         internal GridSortingTagHelper Sorting { get; set; }
 
         [HtmlAttributeNotBound]
+        internal GridFilteringTagHelper Filtering { get; set; }
+
+        [HtmlAttributeNotBound]
         internal GridToolbarTagHelper Toolbar { get; set; }
 
         [HtmlAttributeNotBound]
@@ -262,56 +265,12 @@ namespace Smartstore.Web.TagHelpers.Admin
                     onRowSelected = OnRowSelected
                     //condensed = Condensed
                 },
-                dataSource = new
-                {
-                    read = DataSource.Read,
-                    insert = DataSource.Insert,
-                    update = DataSource.Update,
-                    deleteSelected = DataSource.Delete
-                },
-                columns = new List<object>(Columns.Count),
-                paging = Paging == null ? (object)new { } : (new
-                {
-                    enabled = Paging.Enabled,
-                    pageSize = Paging.PageSize,
-                    pageIndex = Paging.PageIndex,
-                    position = Paging.Position.ToString().ToLower(),
-                    total = Paging.Total,
-                    showSizeChooser = Paging.ShowSizeChooser,
-                    availableSizes = Paging.AvailableSizes
-                }),
-                sorting = Sorting == null ? (object)new { } : (new
-                {
-                    enabled = Sorting.Enabled,
-                    allowUnsort = Sorting.AllowUnsort,
-                    allowMultiSort = Sorting.MultiSort,
-                    descriptors = Sorting.Descriptors
-                        .Select(x => new { member = x.MemberName, descending = x.Descending })
-                        .ToArray()
-                }),
+                dataSource = DataSource?.ToPlainObject(),
+                columns = Columns.Select(c => c.ToPlainObject()).ToList(),
+                paging = Paging?.ToPlainObject(),
+                sorting = Sorting?.ToPlainObject(),
+                filtering = Filtering?.ToPlainObject(),
             };
-
-            foreach (var col in Columns)
-            {
-                data.columns.Add(new 
-                {
-                    member = col.MemberName,
-                    title = col.Title ?? col.For.Metadata.DisplayName,
-                    width = col.Width.EmptyNull(),
-                    hidden = !col.Visible,
-                    //flow = col.Flow?.ToString()?.Kebaberize(),
-                    halign = col.HAlign,
-                    valign = col.VAlign,
-                    type = GetColumnType(col),
-                    format = col.Format,
-                    resizable = col.Resizable,
-                    sortable = col.Sortable,
-                    editable = !col.ReadOnly,
-                    nowrap = col.Nowrap,
-                    entityMember = col.EntityMember,
-                    icon = col.Icon
-                });
-            }
 
             dict["data"] = data;
 
@@ -323,40 +282,6 @@ namespace Smartstore.Web.TagHelpers.Admin
             });
 
             return json;
-        }
-
-        private static string GetColumnType(GridColumnTagHelper column)
-        {
-            if (column.Type.HasValue())
-            {
-                return column.Type;
-            }
-
-            var t = column.For.Metadata.ModelType.GetNonNullableType();
-
-            if (t == typeof(string))
-            {
-                return "string";
-            }
-            if (t == typeof(bool))
-            {
-                return "boolean";
-            }
-            else if (t == typeof(DateTime) || t == typeof(DateTimeOffset))
-            {
-                return "date";
-            }
-            else if (t.IsNumericType())
-            {
-                if (t == typeof(decimal) || t == typeof(double) || t == typeof(float))
-                {
-                    return "float";
-                }
-
-                return "int";
-            }
-            
-            return string.Empty;
         }
     }
 }

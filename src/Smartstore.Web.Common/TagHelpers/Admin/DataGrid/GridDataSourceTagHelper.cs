@@ -39,5 +39,16 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             output.SuppressOutput();
         }
+
+        internal object ToPlainObject()
+        {
+            return new
+            {
+                read = Read,
+                insert = Insert,
+                update = Update,
+                deleteSelected = Delete
+            };
+        }
     }
 }

@@ -15,8 +15,9 @@ $hover: darken(#f2f7fb, 0.5%);
 
 .datagrid-root {
     --dg-border-color: $border;
-    --dg-header-bg: $light;
-    --dg-toolbar-bg: $light;
+    --dg-header-bg: #f6f8fa;
+    --dg-pager-bg: #f9fafa;
+    --dg-toolbar-bg: #f9fafa;
     --dg-row-bg: #fff;
     --dg-row-even-bg: #fff;
     --dg-row-hover-color: $hover;
@@ -290,6 +291,10 @@ $hover: darken(#f2f7fb, 0.5%);
 
 // Paging
 // -----------------------------------------
+
+.dg-pager {
+    background-color: var(--dg-pager-bg);
+}
 
 .dg-pager-top {
     border-bottom: 1px solid $border;

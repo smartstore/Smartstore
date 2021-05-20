@@ -1,5 +1,8 @@
 ﻿using System;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Data;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Admin.Models.Catalog
 {
@@ -102,5 +105,13 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("Admin.Common.CustomerRole.LimitedTo")]
         public bool SubjectToAcl { get; set; }
+    }
+
+    public partial class ProductOverviewModelValidator : SmartValidator<ProductOverviewModel>
+    {
+        public ProductOverviewModelValidator(SmartDbContext db)
+        {
+            CopyFromEntityRules<Product>(db);
+        }
     }
 }

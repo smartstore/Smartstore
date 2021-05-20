@@ -72,5 +72,19 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             output.SuppressOutput();
         }
+
+        internal object ToPlainObject()
+        {
+            return new
+            {
+                enabled = Enabled,
+                pageSize = PageSize,
+                pageIndex = PageIndex,
+                position = Position.ToString().ToLower(),
+                total = Total,
+                showSizeChooser = ShowSizeChooser,
+                availableSizes = AvailableSizes
+            };
+        }
     }
 }

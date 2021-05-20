@@ -10,7 +10,7 @@ Vue.component("pass", {
 
 Vue.component("sm-data-grid", {
     template: `
-        <div class="datagrid" :style="{ maxHeight: options.maxHeight }">
+        <div class="datagrid" :style="{ maxHeight: options.maxHeight }" ref="grid">
             <slot name="toolbar" v-bind="{ 
                 selectedRows, 
                 selectedRowsCount,
@@ -129,13 +129,19 @@ Vue.component("sm-data-grid", {
         paging: {
             type: Object,
             required: false,
-            default: { enabled: false, pageIndex: 1, pageSize: 25, position: "bottom" }
+            default() { return { enabled: false, pageIndex: 1, pageSize: 25, position: "bottom" } }
         },
 
         sorting: {
             type: Object,
             required: false,
-            default: { enabled: false, descriptors: [] }
+            default() { return { enabled: false, descriptors: [] } }
+        },
+
+        filtering: {
+            type: Object,
+            required: false,
+            default() { return { enabled: false, descriptors: [] } }
         },
     },
 
@@ -155,14 +161,67 @@ Vue.component("sm-data-grid", {
                 tr: null,
                 getEditors() {
                     if (!this.tr) return [];
-                    return this.tr.querySelectorAll('.dg-cell-edit select, .dg-cell-edit input, .dg-cell-edit textarea')
+                    return this.tr.querySelectorAll('.dg-cell-edit input, .dg-cell-edit textarea, .dg-cell-edit select')
+                },
+                updateEditors() {
+                    const r = this.row;
+                    this.getEditors().forEach(el => {
+                        if (el.name) {
+                            const v = r[el.name];
+                            if (el.tagName.toLowerCase() === "input") {
+                                if (el.type !== "hidden") {
+                                    switch (el.type) {
+                                        case "checkbox":
+                                        case "radio":
+                                            el.checked = v;
+                                            break;
+                                        default:
+                                            el.value = v;
+                                    }
+                                }
+                            }
+                            else {
+                                el.value = v;
+                            }
+                        }
+                    });
+                },
+                bindModel() {
+                    const r = this.row;
+                    this.getEditors().forEach(el => {
+                        if (el.name) {
+                            if (el.tagName.toLowerCase() === "input") {
+                                if (el.type !== "hidden") {
+                                    switch (el.type) {
+                                        case "checkbox":
+                                        case "radio":
+                                            r[el.name] = el.checked;
+                                            break;
+                                        case "number":
+                                        case "range":
+                                            r[el.name] = parseFloat(el.value);
+                                            break;
+                                        case "date": // TODO: (core) Bind input[type=date]
+                                        case "time": // TODO: (core) Bind input[type=time]
+                                        case "datetime": // TODO: (core) Bind input[type=time]
+                                        case "datetime-local": // TODO: (core) Bind input[type=time]
+                                        default:
+                                            r[el.name] = el.value;
+                                    }
+                                }
+                            }
+                            else {
+                                r[el.name] = el.value;
+                            }
+                        }
+                    });
                 }
             }
         }
     },
 
     created() {
-        var self = this;
+        const self = this;
         this.command = this.buildCommand();
 
         this.$on('data-binding', command => {
@@ -180,21 +239,27 @@ Vue.component("sm-data-grid", {
 
         function call(name) {
             if (_.isString(self.options[name])) {
-                var args = Array.prototype.splice.call(arguments, 1);
+                const args = Array.prototype.splice.call(arguments, 1);
                 window[self.options[name]].apply(self, args);
             }
         }
     },
 
     mounted () {
-        var self = this;
-        this.read();
+        const self = this;
 
-        var resizeObserver = new ResizeObserver(entries => {
-            var tableWrapper = entries[0].target;
+        // Handle sticky columuns on resize
+        const resizeObserver = new ResizeObserver(entries => {
+            const tableWrapper = entries[0].target;
             self.isScrollable = tableWrapper.offsetWidth < tableWrapper.scrollWidth;
         });
         resizeObserver.observe(this.$refs.tableWrapper);
+
+        // Throbber
+        this._throbber = $(this.$refs.grid).throbber({ small: true, white: true, message: '', speed: 100 }).data("throbber");
+
+        // Read data from server
+        this.read();
     },
 
     updated() {
@@ -243,6 +308,14 @@ Vue.component("sm-data-grid", {
         },
         selectedRows() {
             this.setMasterSelectorState(this.getMasterSelectorState());
+        },
+        isBusy(val) {
+            if (val) {
+                this._throbber.show();
+            }
+            else {
+                this._throbber.hide();
+            }
         }
     },
 
@@ -298,8 +371,8 @@ Vue.component("sm-data-grid", {
         },
 
         getGridTemplateColumns() {
-            var hasFraction = false;
-            var result = this.columns
+            let hasFraction = false;
+            let result = this.columns
                 .filter(c => !c.hidden)
                 .map(c => {
                     let w = c.width;
@@ -332,7 +405,7 @@ Vue.component("sm-data-grid", {
         },
 
         renderCellValue(value, column, row) {
-            var t = column.type;
+            const t = column.type;
 
             if (t === 'int') {
                 return Smartstore.globalization.formatNumber(value);
@@ -355,9 +428,9 @@ Vue.component("sm-data-grid", {
         // #region Commands
 
         buildCommand() {
-            var p = this.paging;
-            var s = this.sorting;
-            var command = {
+            const p = this.paging;
+            const s = this.sorting;
+            const command = {
                 page: p.pageIndex,
                 pageSize: p.pageSize,
                 sorting: s.descriptors
@@ -370,7 +443,7 @@ Vue.component("sm-data-grid", {
             if (this.isBusy)
                 return;
 
-            var self = this;
+            const self = this;
             self.cancelEdit();
             self.isBusy = true;
 
@@ -399,12 +472,12 @@ Vue.component("sm-data-grid", {
         },
 
         deleteSelected() {
-            var numSelected = this.selectedRowsCount;
+            const numSelected = this.selectedRowsCount;
 
             if (this.isBusy || !numSelected || !this.dataSource.deleteSelected)
                 return;
 
-            var self = this;
+            const self = this;
 
             confirm2({
                 message: "Sollen die gewählten {0} Datensätze wirklich unwiderruflich gelöscht werden?".format(numSelected),
@@ -444,12 +517,12 @@ Vue.component("sm-data-grid", {
         // #region Sorting
 
         isSortedAsc(column) {
-            var sort = this.getSortDescriptor(column);
+            const sort = this.getSortDescriptor(column);
             return sort && !sort.descending;
         },
 
         isSortedDesc(column) {
-            var sort = this.getSortDescriptor(column);
+            const sort = this.getSortDescriptor(column);
             return sort && sort.descending;
         },
 
@@ -463,8 +536,8 @@ Vue.component("sm-data-grid", {
             if (!this.sorting.enabled || !column.sortable || this.isBusy)
                 return;
 
-            var descriptor = this.getSortDescriptor(column);
-            var multiMode = this.sorting.allowMultiSort && e.ctrlKey;
+            let descriptor = this.getSortDescriptor(column);
+            let multiMode = this.sorting.allowMultiSort && e.ctrlKey;
 
             if (descriptor) {
                 if (this.sorting.allowUnsort && descriptor.descending) {
@@ -490,7 +563,7 @@ Vue.component("sm-data-grid", {
         // #region Row selection
 
         getMasterSelectorState() {
-            var numSelected = this.selectedRowsInCurrentPage.length;
+            const numSelected = this.selectedRowsInCurrentPage.length;
 
             return {
                 checked: numSelected === this.rows.length,
@@ -499,7 +572,7 @@ Vue.component("sm-data-grid", {
         },
 
         setMasterSelectorState(state) {
-            var chk = this.$refs.masterSelector;
+            let chk = this.$refs.masterSelector;
             if (!chk || !state) return;
 
             chk.checked = state.checked;
@@ -511,7 +584,7 @@ Vue.component("sm-data-grid", {
         },
 
         onSelectAllRows(e) {
-            var state = this.getMasterSelectorState();
+            const state = this.getMasterSelectorState();
             this.rows.forEach(x => {
                 this.onSelectRow(e, x, state.indeterminate);
             });
@@ -521,8 +594,8 @@ Vue.component("sm-data-grid", {
             if (!row)
                 return;
 
-            var key = row[this.options.keyMemberName];
-            var selectedRow = this.selectedRows[key];
+            const key = row[this.options.keyMemberName];
+            const selectedRow = this.selectedRows[key];
             if (selectedRow && !select) {
                 this.$delete(this.selectedRows, key);
                 this.$emit('row-selected', this.selectedRows, row, false);
@@ -555,7 +628,7 @@ Vue.component("sm-data-grid", {
                 return;
             }
 
-            var self = this;
+            const self = this;
 
             requestAnimationFrame(() => {
                 const pageX = e.pageX;
@@ -606,63 +679,76 @@ Vue.component("sm-data-grid", {
         },
 
         onCellDblClick(e, row) {
-            this.activateEdit(row, $(e.target).closest('tr').get(0));
+            const td = $(e.target).closest('td').get(0);
+            const tr = $(td).closest('tr').get(0);
+            this.activateEdit(row, tr, td);
         },
 
-        activateEdit(row, tableRow) {
+        activateEdit(row, tr, td) {
             if (!this.options.allowEdit || !this.hasEditableVisibleColumn) {
                 return;
             }
 
             this.edit.active = true;
             this.edit.row = row;
-            this.edit.tr = tableRow;
+            this.edit.tr = tr;
+            this.edit.td = td;
             this.edit.initialized = false;
         },
 
         initializeEditRow() {
-            var edit = this.edit;
+            const edit = this.edit;
             if (!edit.active || edit.initialized) {
                 return;
             }
 
-            edit.getEditors().forEach(el => {
-                // TODO: (core) Handle focus on grid activateEdit()
-                if (el.name) {
-                    var rawValue = edit.row[el.name];
-                    if (el.matches('[type="checkbox"], [type="radio"]')) {
-                        el.checked = rawValue;
-                    }
-                    else {
-                        el.value = rawValue;
-                    }
-                }
-            });
-
+            // TODO: (core) Handle focus on grid activateEdit()
+            edit.updateEditors();
             edit.initialized = true;
+
+            this.$nextTick(() => {
+                // Handle auto-focus
+                var elFocus = $(edit.td || edit.tr).find('.dg-cell-edit :input:visible');
+                if (elFocus.length === 0) {
+                    elFocus = $(edit.tr).find('.dg-cell-edit :input:visible').first();
+                }
+                elFocus.focus();
+            });
         },
 
         saveChanges() {
-            var edit = this.edit;
-            if (!edit.active) {
+            if (this.isBusy || !this.edit.active || !this.dataSource.update) {
                 return;
             }
 
-            edit.getEditors().forEach(el => {
-                if (el.name) {
-                    if (el.matches('[type="checkbox"], [type="radio"]')) {
-                        edit.row[el.name] = el.checked;
-                    }
-                    else if (el.matches('[type="hidden"]')) {
-                        // do nothing
-                    }
-                    else {
-                        edit.row[el.name] = el.value;
-                    }
+            const self = this;
+            const edit = this.edit;
+
+            edit.bindModel();
+
+            self.isBusy = true;
+
+            const input = document.querySelector('input[name=__RequestVerificationToken]');
+            const data = { __RequestVerificationToken: input.value, command: this.command, model: edit.row };
+
+            self.$emit("saving-changes", edit.row);
+
+            $.ajax({
+                url: this.dataSource.update,
+                type: 'POST',
+                cache: false,
+                dataType: 'json',
+                data: data,
+                global: false,
+                success(result) {
+                    // TODO: (core) More stuff?
+                    self.$emit("saved-changes", edit.row);
+                    self.cancelEdit();
+                },
+                complete() {
+                    self.isBusy = false;
                 }
             });
-
-            this.cancelEdit();
         },
 
         cancelEdit() {
@@ -673,6 +759,7 @@ Vue.component("sm-data-grid", {
             this.edit.active = false;
             this.edit.row = { };
             this.edit.tr = null;
+            this.edit.td = null;
             this.edit.initialized = false;
         },
 
