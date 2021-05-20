@@ -9,6 +9,17 @@ namespace Smartstore.Core.Content.Media
 {
     public class MediaSettings : ISettings
     {
+        private HashSet<int> _allowedThumbSizes;
+
+        public const int ThumbnailSizeXxs = 32;
+        public const int ThumbnailSizeXs = 72;
+        public const int ThumbnailSizeSm = 128;
+        public const int ThumbnailSizeMd = 256;
+        public const int ThumbnailSizeLg = 512;
+        public const int ThumbnailSizeXl = 600;
+        public const int ThumbnailSizeXxl = 1024;
+        public const int MaxImageSize = 2048;
+
         public bool DefaultPictureZoomEnabled { get; set; } = true;
         public string PictureZoomType { get; set; } = "window";
 
@@ -42,17 +53,6 @@ namespace Smartstore.Core.Content.Media
         public long MaxUploadFileSize { get; set; } = 102400;
 
         #region Thumb sizes / security
-
-        private HashSet<int> _allowedThumbSizes;
-
-        public const int ThumbnailSizeXxs = 32;
-        public const int ThumbnailSizeXs = 72;
-        public const int ThumbnailSizeSm = 128;
-        public const int ThumbnailSizeMd = 256;
-        public const int ThumbnailSizeLg = 512;
-        public const int ThumbnailSizeXl = 600;
-        public const int ThumbnailSizeXxl = 1024;
-        public const int MaxImageSize = 2048;
 
         public int AvatarPictureSize { get; set; } = ThumbnailSizeMd;
         public int ProductThumbPictureSize { get; set; } = ThumbnailSizeMd;

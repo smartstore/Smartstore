@@ -69,7 +69,7 @@
     <div id="@Model.PreviewContainerId" class="d-flex flex-wrap preview-container mt-3">
         @foreach (var file in files)
         {
-            var previewUrl = await MediaService.GetUrlAsync(file.MediaFile.Id, 250);
+            var previewUrl = await MediaService.GetUrlAsync(file.MediaFile.Id, MediaSettings.ThumbnailSizeMd);
             var isMainPic = file.MediaFileId == Model.MainFileId;
             var entityMediaId = 0;
 

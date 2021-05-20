@@ -204,7 +204,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var extensions = _mediaTypeResolver.ParseTypeFilter(TypeFilter.HasValue() ? TypeFilter : "*");
             model.AcceptedFileExtensions = "." + string.Join(",.", extensions);
 
-            var widget = new ComponentWidgetInvoker("FileUploader", model);
+            var widget = new ComponentWidgetInvoker("FileUploader", new { model });
             var partial = await widget.InvokeAsync(ViewContext);
 
             output.TagMode = TagMode.StartTagAndEndTag;
