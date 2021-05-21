@@ -1,0 +1,34 @@
+﻿@using Smartstore.Admin.Models
+ 
+@model StoreScopeConfigurationModel
+
+<div class="multi-store-scope well border px-0 py-2">
+    <div class="adminContent adminContent-boxed">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <div class="ctl-label">
+                    <label for="store-scope-configuration">@T("Admin.Configuration.Settings.StoreScope")</label>
+                </div>
+            </div>
+            <div class="adminData">
+                <select id="store-scope-configuration" asp-items="Model.AllStores" onchange="setLocation(this.value);">
+                </select>
+            </div>
+        </div>
+        <div sm-if="Model.StoreId > 0" class="adminRow">
+            <div class="adminTitle">&nbsp;</div>
+            <div class="adminData wide">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="override-settings" onclick="SmartStore.Admin.checkAllOverriddenStoreValue(this)">
+                    <label class="custom-control-label" for="override-settings">@T("Admin.Configuration.Settings.StoreScope.CheckAll.Hint")</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+	$(function () {
+		$('#store-scope-configuration').selectWrapper();
+	});
+</script>

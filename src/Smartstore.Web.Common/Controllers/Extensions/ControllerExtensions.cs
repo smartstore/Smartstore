@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Core;
+using Smartstore.Core.Stores;
 using Smartstore.Core.Widgets;
 using Smartstore.Utilities;
 using Smartstore.Web.Razor;
@@ -132,6 +134,24 @@ namespace Smartstore.Web.Controllers
 
             var renderer = controller.HttpContext.RequestServices.GetRequiredService<IRazorViewInvoker>();
             return renderer.InvokeWidgetAsync(widget);
+        }
+
+        /// <summary>
+        /// Get active store scope (for multi-store configuration mode)
+        /// </summary>
+        /// <param name="controller">Controller</param>
+        /// <param name="storeService">Store service</param>
+        /// <param name="workContext">Work context</param>
+        /// <returns>Store ID; 0 if we are in a shared mode</returns>
+        public static int GetActiveStoreScopeConfiguration(this ControllerBase controller, IStoreContext storeContext, IWorkContext workContext)
+        {
+            //ensure that we have 2 (or more) stores
+            if (storeContext.GetAllStores().Count < 2)
+                return 0;
+
+            var storeId = workContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
+            var store = storeContext.GetStoreById(storeId);
+            return store != null ? store.Id : 0;
         }
     }
 }
