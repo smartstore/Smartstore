@@ -1,0 +1,388 @@
+﻿@using Smartstore.Admin.Models.Topics
+
+@model TopicModel
+
+<div asp-validation-summary="ModelOnly"></div>
+
+<input type="hidden" asp-for="Id" />
+
+<tabstrip id="topic-edit" sm-nav-style="Material">
+    <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+        <div class="adminContent mb-3">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SystemName" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SystemName" attr-readonly='(Model.IsSystemTopic, "readonly")'/>
+                    <span asp-validation-for="SystemName"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IsPublished" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="IsPublished" attr-readonly='(Model.IsSystemTopic, "readonly")' />
+                    <span asp-validation-for="IsPublished"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Priority" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="Priority" />
+                    <span asp-validation-for="Priority"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IsPasswordProtected" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="IsPasswordProtected" data-toggler-for="#pnlPasswordEnabled" />
+                    <span asp-validation-for="IsPasswordProtected"></span>
+                </div>
+            </div>
+            <div id="pnlPasswordEnabled" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Password" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="Password" asp-template="null" attr-value='(Model.Password.HasValue(), Model.Password)' />
+                    <span asp-validation-for="Password"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IncludeInSitemap" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="IncludeInSitemap" />
+                    <span asp-validation-for="IncludeInSitemap"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedStoreIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedStoreIds" />
+                    <span asp-validation-for="SelectedStoreIds"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedCustomerRoleIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedCustomerRoleIds" />
+                    <span asp-validation-for="SelectedCustomerRoleIds"></span>
+                </div>
+            </div>
+            @if (Model.Id > 0)
+            {
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Url" />
+                    </div>
+                    <div class="adminData">
+                        <div class="form-control-plaintext">
+                            <a href="@Model.Url">@Model.Url</a>
+                        </div>
+                    </div>
+                </div>
+                <div sm-if="Model.MenuLinks.Any()" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MenuLinks" />
+                    </div>
+                    <div class="adminData">
+                        <div class="form-control-plaintext">
+                            @foreach (var link in Model.MenuLinks)
+                            {
+                                <div>
+                                    <a href="@link.Key" target="_blank">@link.Value</a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            <div><hr /></div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RenderAsWidget" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="RenderAsWidget" data-toggler-for="#pnlRenderAsWidget, #pnlTopicAttrValues" />
+                    <span asp-validation-for="RenderAsWidget"></span>
+                </div>
+            </div>
+            <div id="pnlTopicAttrValues" data-panel-reverse="true">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="HtmlId" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="HtmlId" />
+                        <span asp-validation-for="HtmlId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BodyCssClass" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="BodyCssClass" />
+                        <span asp-validation-for="BodyCssClass"></span>
+                    </div>
+                </div>
+            </div>
+            <div id="pnlRenderAsWidget">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="WidgetZone" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="WidgetZone" />
+                        <span asp-validation-for="WidgetZone"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CookieType" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="CookieType" asp-items="Model.AvailableCookieTypes" placeholder="@T("Common.Optional")"></select>
+                        <span asp-validation-for="CookieType"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="WidgetWrapContent" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="WidgetWrapContent" data-toggler-for="#pnlWidgetWrapContent" />
+                        <span asp-validation-for="WidgetWrapContent"></span>
+                    </div>
+                </div>
+                <div id="pnlWidgetWrapContent">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="WidgetShowTitle" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="WidgetShowTitle" data-toggler-for="#pnlTitleTag" />
+                            <span asp-validation-for="WidgetShowTitle"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow" id="pnlTitleTag">
+                        <div class="adminTitle">
+                            <smart-label asp-for="TitleTag" />
+                        </div>
+                        <div class="adminData">
+                            <select asp-for="TitleTag" asp-items="Model.AvailableTitleTags" class="autowidth" data-select-min-results-for-search="100"></select>
+                            <span asp-validation-for="TitleTag"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="WidgetBordered" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="WidgetBordered" data-toggler-for="#pnlTitleTag" />
+                            <span asp-validation-for="WidgetBordered"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @(Html.LocalizedEditor<TopicModel, TopicLocalizedModel>("topic-info-localized",
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].ShortTitle" />
+                    </div>
+				    <div class="adminData">
+					    @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input asp-for="Locales[item].LanguageId" id="@(Html.IdFor(model => model.Locales[item].LanguageId) + "_1")" type="hidden" />
+
+					    <editor asp-for="Locales[item].ShortTitle" />
+                        <span asp-validation-for="Locales[item].ShortTitle"></span>
+				    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Title" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Locales[item].Title" />
+                        <span asp-validation-for="Locales[item].Title"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Intro" />
+                    </div>
+                    <div class="adminData wide">
+                        <editor asp-for="Locales[item].Intro" rows="1" />
+                        <span asp-validation-for="Locales[item].Intro"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Body" />
+                    </div>
+                    <div class="adminData wide">
+                        <editor asp-for="Locales[item].Body" />
+                        <span asp-validation-for="Locales[item].Body"></span>
+                    </div>
+                </div>
+            </div>
+            ,
+            @<div class="adminContent">
+			    <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShortTitle" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="ShortTitle" />
+                        <span asp-validation-for="ShortTitle"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Title" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Title" />
+                        <span asp-validation-for="Title"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Intro" />
+                    </div>
+                    <div class="adminData wide">
+                        <editor asp-for="Intro" rows="1" />
+                        <span asp-validation-for="Intro"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Body" />
+                    </div>
+                    <div class="adminData wide">
+                        <editor asp-for="Body" />
+                        <span asp-validation-for="Body"></span>
+                    </div>
+                </div>
+            </div>
+        ))
+    </tab>
+
+    <tab sm-title="@T("Admin.Common.SEO")">
+        @(Html.LocalizedEditor<TopicModel, TopicLocalizedModel>("topic-seo-localized",
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].MetaTitle" />
+                    </div>
+                    <div class="adminData">
+                        @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input type="hidden" id="@(Html.IdFor(model => model.Locales[item].LanguageId) + "_2")" />
+
+                        <editor asp-for="Locales[item].MetaTitle" />
+                        <span asp-validation-for="Locales[item].MetaTitle"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].MetaDescription" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Locales[item].MetaDescription" />
+                        <span asp-validation-for="Locales[item].MetaDescription"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].MetaKeywords" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Locales[item].MetaKeywords"/>
+                        <span asp-validation-for="Locales[item].MetaKeywords"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].SeName" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Locales[item].SeName" />
+                        <span asp-validation-for="Locales[item].SeName"></span>
+                    </div>
+                </div>
+            </div>
+            ,
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MetaTitle" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="MetaTitle" />
+                        <span asp-validation-for="MetaTitle"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MetaDescription" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="MetaDescription" />
+                        <span asp-validation-for="MetaDescription"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MetaKeywords" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="MetaKeywords" />
+                        <span asp-validation-for="MetaKeywords"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeName" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="SeName" />
+                        @if (Model.Id != 0)
+                        {
+                            @await Component.InvokeAsync("NamesPerEntity", new { entityName = "Topic", entityId = Model.Id })
+                        }
+                        <span asp-validation-for="SeName"></span>
+                    </div>
+                </div>
+            </div>
+        ))
+    </tab>
+
+    @if (Model.Id > 0)
+    {
+        <tab sm-title="@T("Admin.Common.GenericAttributes")">
+            @*TODO: (mh) (core) Implement when data grid is available.*@
+        </tab>
+    }
+</tabstrip>
+
+<script sm-target-zone="scripts" data-origin="TopicCreateOrUpdate">
+    // TODO: (mh) (core) Find central place for this.
+    $(function () {
+        initializeEditControls();
+    });
+</script>
