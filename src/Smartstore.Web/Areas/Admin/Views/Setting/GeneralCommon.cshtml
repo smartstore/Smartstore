@@ -1,0 +1,88 @@
+﻿@using Smartstore.Admin.Models 
+
+@model GeneralCommonSettingsModel
+
+@{
+    Layout = "_SettingLayout";
+    ViewBag.Title = T("Admin.Configuration.Settings.GeneralCommon");
+}
+
+<form asp-action="GeneralCommon">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-sliders-h"></i>
+            @T("Admin.Configuration.Settings.GeneralCommon")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @*TODO: (mh) (core) Include scripts*@
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    @*TODO: (mh) (core) Fill tabs*@
+    <tabstrip id="generalsettings-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Common.General")" sm-selected="true">
+            <div class="adminContent">
+                @*<div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="StoreInformationSettings.StoreClosed" />
+                    </div>
+                    <div class="adminData">
+                        @Html.SettingEditorFor(model => model.StoreInformationSettings.StoreClosed,
+                            Html.CheckBoxFor(model => model.StoreInformationSettings.StoreClosed, new { data_toggler_for = "#pnlStoreClosedAllowForAdmins" }))
+                        <span asp-validation-for="StoreInformationSettings.StoreClosed"></span>
+                    </div>
+                </div>
+                <div id="pnlStoreClosedAllowForAdmins" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="StoreInformationSettings.StoreClosedAllowForAdmins" />
+                    </div>
+                    <div class="adminData">
+                        @Html.SettingEditorFor(model => model.StoreInformationSettings.StoreClosedAllowForAdmins)
+                        <span asp-validation-for="StoreInformationSettings.StoreClosedAllowForAdmins"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Admin.Configuration.Settings.CustomerUser.DateTimeSettings")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DateTimeSettings.DefaultStoreTimeZoneId" />
+                    </div>
+                    <div class="adminData">
+                        @Html.SettingEditorFor(model => model.DateTimeSettings.DefaultStoreTimeZoneId,
+                            Html.DropDownListFor(model => model.DateTimeSettings.DefaultStoreTimeZoneId, Model.DateTimeSettings.AvailableTimeZones))
+                        <span asp-validation-for="DateTimeSettings.DefaultStoreTimeZoneId"></span>
+                    </div>
+                </div>*@
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DateTimeSettings.AllowCustomersToSetTimeZone" />
+                    </div>
+                    <div class="adminData">
+                        @*@Html.SettingEditorFor(model => model.DateTimeSettings.AllowCustomersToSetTimeZone)*@
+                        <span asp-validation-for="DateTimeSettings.AllowCustomersToSetTimeZone"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.SEOSettings")"></tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.SecuritySettings")"></tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.LocalizationSettings")"></tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.PdfSettings")"></tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.CompanyInformationSettings")"></tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.ContactDataSettings")"></tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.SocialSettings")"></tab>
+    </tabstrip>
+
+</form>
