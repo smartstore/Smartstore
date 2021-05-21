@@ -56,6 +56,62 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("List");
         }
 
+        [Permission(Permissions.Cms.Topic.Create)]
+        public IActionResult Create()
+        {
+            var model = new TopicModel();
+
+            AddLocales(model.Locales);
+            AddCookieTypes(model);
+
+            model.TitleTag = "h1";
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [Permission(Permissions.Cms.Topic.Create)]
+        public async Task<IActionResult> Create(TopicModel model, bool continueEditing)
+        {
+            if (ModelState.IsValid)
+            {
+                if (!model.IsPasswordProtected)
+                {
+                    model.Password = null;
+                }
+
+                // TODO: (mh) (core) Implement & use mapping extensions.
+                var topic = await MapperFactory.MapAsync<TopicModel, Topic>(model);
+
+                if (model.WidgetZone != null)
+                {
+                    topic.WidgetZone = string.Join(",", model.WidgetZone);
+                }
+
+                topic.CookieType = (CookieType?)model.CookieType;
+
+                _db.Topics.Add(topic);
+                await _db.SaveChangesAsync();
+
+                var slugResult = await topic.ValidateSlugAsync(model.SeName, true);
+                model.SeName = slugResult.Slug;
+                await _urlService.ApplySlugAsync(slugResult, true);
+
+                await SaveStoreMappingsAsync(topic, model.SelectedStoreIds);
+                await SaveAclMappingsAsync(topic, model.SelectedCustomerRoleIds);
+                await UpdateLocalesAsync(topic, model);
+                AddCookieTypes(model, model.CookieType);
+
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
+
+                NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
+                return continueEditing ? RedirectToAction("Edit", topic.Id) : RedirectToAction("List");
+            }
+
+            // If we got this far something failed. Redisplay form.
+            return View(model);
+        }
+
         [Permission(Permissions.Cms.Topic.Read)]
         public async Task<IActionResult> Edit(int id)
         {
