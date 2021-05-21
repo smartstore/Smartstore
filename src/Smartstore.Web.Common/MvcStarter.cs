@@ -32,6 +32,7 @@ using Smartstore.IO;
 using Smartstore.Net;
 using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Razor;
 
@@ -194,6 +195,7 @@ namespace Smartstore.Web
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<DefaultViewDataAccessor>().As<IViewDataAccessor>().InstancePerLifetimeScope();
+            builder.RegisterType<StoreDependingSettingHelper>().AsSelf().InstancePerLifetimeScope();
 
             // Convenience: Register IUrlHelper as transient dependency.
             builder.Register<IUrlHelper>(c =>

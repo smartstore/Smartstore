@@ -8,24 +8,19 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.Admin.Controllers
 {
     public class SettingController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
+        private readonly StoreDependingSettingHelper _storeDependingSettings;
 
-        private StoreDependingSettingHelper _storeDependingSettings;
-
-        public SettingController(SmartDbContext db)
+        public SettingController(SmartDbContext db, StoreDependingSettingHelper storeDependingSettings)
         {
             _db = db;
-        }
-
-        private StoreDependingSettingHelper StoreDependingSettings
-        {
-            get => _storeDependingSettings ??= new StoreDependingSettingHelper(ViewData);
+            _storeDependingSettings = storeDependingSettings;
         }
 
         //[LoadSetting(IsRootedModel = true)]

@@ -77,6 +77,21 @@ namespace Smartstore.Web.Controllers
             await Services.DbContext.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Get active store scope (for multi-store configuration mode)
+        /// </summary>
+        /// <returns>Store ID; 0 if we are in a shared mode</returns>
+        protected virtual int GetActiveStoreScopeConfiguration()
+        {
+            // Ensure that we have 2 (or more) stores
+            if (Services.StoreContext.GetAllStores().Count < 2)
+                return 0;
+
+            var storeId = Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
+            var store = Services.StoreContext.GetStoreById(storeId);
+            return store != null ? store.Id : 0;
+        }
+
         // INFO: instead, throw new AccessDeniedException()
 
         /// <summary>

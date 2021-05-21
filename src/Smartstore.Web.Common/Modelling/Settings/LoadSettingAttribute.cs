@@ -1,4 +1,7 @@
-﻿using System;
+﻿// TODO: (mh) (core) PLEASE, don't port infrastructural MVC stuff via copy/paste!!!! Don't even attemp to!! I don't have that much time to fix this shit!!!!!!
+// Look at how filter attributes are implemented in Smartstore Core, then think, then port. But first: LOOK!! TBD with MC.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,12 +10,14 @@ using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Stores;
 using Smartstore.Engine;
 using Smartstore.Web.Controllers;
 
-namespace Smartstore.Web.Modelling
+namespace Smartstore.Web.Modelling.Settings
 {
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     public class LoadSettingAttribute : Attribute, IAsyncActionFilter
@@ -40,21 +45,25 @@ namespace Smartstore.Web.Modelling
         public bool IsRootedModel { get; set; }
         public ICommonServices Services { get; set; }
 
+        protected int GetActiveStoreScopeConfiguration()
+        {
+            var storeId = Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
+            var store = Services.StoreContext.GetStoreById(storeId);
+            return store != null ? store.Id : 0;
+        }
+
         public virtual async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next)
         {
             // Get the current configured store id
-            var services = EngineContext.Current.Scope.Resolve<ICommonServices>();
+            var services = filterContext.HttpContext.RequestServices.GetService<ICommonServices>();
             var controller = filterContext.Controller as Controller;
-            _storeId = controller.GetActiveStoreScopeConfiguration(services.StoreContext, services.WorkContext);
+            _storeId = GetActiveStoreScopeConfiguration();
             Func<ParameterDescriptor, bool> predicate = (x) => new[] { "storescope", "storeid" }.Contains(x.Name, StringComparer.OrdinalIgnoreCase);
             var storeScopeParam = FindActionParameters<int>(filterContext.ActionDescriptor, false, false, predicate).FirstOrDefault();
             if (storeScopeParam != null)
             {
-                // TODO: (mh) (core) Shit!!! Parameters object changed massivly. Probably another ModelBinder is needed for this to work. Research & implement!
                 // We found an action param named storeScope with type int. Assign our storeId to it.
-                //var parameter = filterContext.ActionDescriptor.Parameters.Where(x => x.Name == storeScopeParam.Name).FirstOrDefault();
-                //filterContext.ActionDescriptor.Parameters.Remove(storeScopeParam);
-                //filterContext.ActionDescriptor.Parameters.Add(parameter);
+                filterContext.ActionArguments[storeScopeParam.Name] = _storeId;
             }
 
             // Find the required ISettings concrete types in ActionDescriptor.GetParameters()
@@ -64,7 +73,7 @@ namespace Smartstore.Web.Modelling
                     // Load settings for the settings type obtained with FindActionParameters<ISettings>()
                     var settings = UpdateParameterFromStore
                         ? await services.SettingFactory.LoadSettingsAsync(x.ParameterType, _storeId)
-                        : filterContext.ActionDescriptor.Parameters.Where(y => y.Name == x.Name) as ISettings;
+                        : filterContext.ActionArguments[x.Name] as ISettings;
 
                     if (settings == null)
                     {
@@ -74,11 +83,7 @@ namespace Smartstore.Web.Modelling
                     // Replace settings from action parameters with our loaded settings.
                     if (UpdateParameterFromStore)
                     {
-                        // TODO: (mh) (core) Shit!!! Parameters object changed massivly. Probably another ModelBinder is needed for this to work. Research & implement!
-                        //filterContext.ActionDescriptor.Parameters[x.Name] = settings;
-                        //var parameter = filterContext.ActionDescriptor.Parameters.Where(y => y.Name == x.Name).FirstOrDefault();
-                        //filterContext.ActionDescriptor.Parameters.Remove(x);
-                        //filterContext.ActionDescriptor.Parameters.Add(parameter);
+                        filterContext.ActionArguments[x.Name] = settings;
                     }
 
                     return new SettingParam
@@ -103,7 +108,7 @@ namespace Smartstore.Web.Modelling
                 }
 
                 var modelType = model.GetType();
-                var settingsHelper = new StoreDependingSettingHelper(controller.ViewData);
+                var settingsHelper = filterContext.HttpContext.RequestServices.GetService<StoreDependingSettingHelper>();
                 if (IsRootedModel)
                 {
                     settingsHelper.CreateViewDataObject(_storeId);
@@ -123,7 +128,7 @@ namespace Smartstore.Web.Modelling
                         }
                     }
 
-                    settingsHelper.GetOverrideKeys(settingInstance, modelInstance, _storeId, services.Settings, !IsRootedModel);
+                    await settingsHelper.GetOverrideKeysAsync(settingInstance, modelInstance, _storeId, !IsRootedModel);
                 }
             }
         }
