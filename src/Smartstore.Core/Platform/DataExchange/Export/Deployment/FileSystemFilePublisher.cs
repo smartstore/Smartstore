@@ -1,12 +1,19 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Smartstore.Engine;
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
 {
     public class FileSystemFilePublisher : IFilePublisher
     {
+        private readonly IApplicationContext _appContext;
+
+        public FileSystemFilePublisher(IApplicationContext appContext)
+        {
+            _appContext = appContext;
+        }
+
         public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancellationToken)
         {
             var deploymentDir = await context.ExportProfileService.GetDeploymentDirectoryAsync(deployment, true);
@@ -15,17 +22,13 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 return;
             }
 
-            // TODO: (mg) (core) complete FileSystemFilePublisher
-            // TODO: (mg) (core) Use the new IFileSystemExtensions.AttachEntry() to re-root directories from different file systems to ContentRoot (which is the top-most fs).
-            throw new NotImplementedException();
+            var source = _appContext.ContentRoot.AttachEntry(context.ExportDirectory);
+            var webRootDir = await _appContext.WebRoot.GetDirectoryAsync(null);
+            var newPath = deploymentDir.FileSystem.PathCombine(webRootDir.Name, deploymentDir.SubPath);
 
-            //if (!FileSystemHelper.CopyDirectory(new DirectoryInfo(context.FolderContent), new DirectoryInfo(targetFolder)))
-            //{
-            //    context.Result.LastError = context.T("Admin.DataExchange.Export.Deployment.CopyFileFailed");
-            //}
+            await source.FileSystem.CopyDirectoryAsync(source.SubPath, newPath);
 
-
-            context.Log.Info($"Copied export data files to {deploymentDir.PhysicalPath}.");
+            context.Log.Info($"Export data files are copied to {newPath}.");
         }
     }
 }

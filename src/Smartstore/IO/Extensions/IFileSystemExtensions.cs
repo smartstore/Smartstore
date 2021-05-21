@@ -349,7 +349,7 @@ namespace Smartstore
             var sourceDirectory = await fs.GetDirectoryAsync(subpath);
             if (!sourceDirectory.Exists)
             {
-                throw new DirectoryNotFoundException("Directory " + subpath + "does not exist.");
+                throw new DirectoryNotFoundException("Directory " + subpath + " does not exist.");
             }
 
             var targetPath = fs.PathCombine(destinationPath, sourceDirectory.Name);

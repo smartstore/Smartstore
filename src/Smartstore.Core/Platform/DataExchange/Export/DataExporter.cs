@@ -93,6 +93,7 @@ namespace Smartstore.Core.DataExchange.Export
             IUrlHelper urlHelper,
             ProductUrlHelper productUrlHelper,
             ITaxCalculator taxCalculator,
+            IProviderManager providerManager,
             CatalogSettings catalogSettings,
             MediaSettings mediaSettings,
             SeoSettings seoSettings,
@@ -117,6 +118,7 @@ namespace Smartstore.Core.DataExchange.Export
             _urlHelper = urlHelper;
             _productUrlHelper = productUrlHelper;
             _taxCalculator = taxCalculator;
+            _providerManager = providerManager;
 
             _catalogSettings = catalogSettings;
             _mediaSettings = mediaSettings;
@@ -1352,7 +1354,7 @@ namespace Smartstore.Core.DataExchange.Export
                                 (DatabaseMediaStorageProvider)_providerManager.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName).Value);
                             break;
                         case ExportDeploymentType.FileSystem:
-                            publisher = new FileSystemFilePublisher();
+                            publisher = new FileSystemFilePublisher(_services.ApplicationContext);
                             break;
                         case ExportDeploymentType.Ftp:
                             publisher = new FtpFilePublisher();

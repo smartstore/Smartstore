@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
@@ -32,6 +33,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly IApplicationContext _appContext;
         private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _localizationService;
+        private readonly IUrlHelper _urlHelper;
         private readonly DataExchangeSettings _dataExchangeSettings;
 
         public ExportProfileService(
@@ -39,12 +41,14 @@ namespace Smartstore.Core.DataExchange.Export
             IApplicationContext appContext,
             IStoreContext storeContext,
             ILocalizationService localizationService,
+            IUrlHelper urlHelper,
             DataExchangeSettings dataExchangeSettings)
         {
             _db = db;
             _appContext = appContext;
             _storeContext = storeContext;
             _localizationService = localizationService;
+            _urlHelper = urlHelper;
             _dataExchangeSettings = dataExchangeSettings;
         }
 
@@ -154,11 +158,11 @@ namespace Smartstore.Core.DataExchange.Export
                     store = _storeContext.GetStoreById(storeId) ?? _storeContext.CurrentStore;
                 }
 
-                // TODO: (mg) (core) Always use IUrlHelper.Content("~/subpath") or WebHelper.ToAbsolutePath("~/subpath") for public URLs,
+                // Always use IUrlHelper.Content("~/subpath") or WebHelper.ToAbsolutePath("~/subpath") for public URLs,
                 // so that IIS application path can be prepended if applicable. 
-                var path = _appContext.WebRoot.PathCombine(DataExporter.PublicDirectoryName, deployment.SubFolder);
+                var path = WebHelper.ToAppRelativePath(_appContext.WebRoot.PathCombine(DataExporter.PublicDirectoryName, deployment.SubFolder));
 
-                return store.Url.EnsureEndsWith("/") + path.EnsureEndsWith("/");
+                return store.Url.TrimEnd('/') + _urlHelper.Content(path).EnsureEndsWith("/");
             }
 
             return null;

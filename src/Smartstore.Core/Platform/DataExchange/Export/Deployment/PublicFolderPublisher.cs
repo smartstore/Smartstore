@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Smartstore.Engine;
@@ -23,14 +22,14 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 return;
             }
 
-            var root = _appContext.ContentRoot.AttachEntry(context.ExportDirectory);
+            var source = _appContext.ContentRoot.AttachEntry(context.ExportDirectory);
 
             if (context.CreateZipArchive)
             {
                 if (context?.ZipFile?.Exists ?? false)
                 {
-                    var zipPath = root.FileSystem.PathCombine(root.Parent.SubPath, context.ZipFile.Name);
-                    var zipFile = await root.FileSystem.GetFileAsync(zipPath);
+                    var zipPath = source.FileSystem.PathCombine(source.Parent.SubPath, context.ZipFile.Name);
+                    var zipFile = await source.FileSystem.GetFileAsync(zipPath);
 
                     using var stream = await zipFile.OpenReadAsync();
 
@@ -49,11 +48,14 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             }
             else
             {
-                
-            }
+                // Ugly, but the only way I got it to work with CopyDirectoryAsync.
+                var webRootDir = await _appContext.WebRoot.GetDirectoryAsync(null);
+                var newPath = deploymentDir.FileSystem.PathCombine(webRootDir.Name, deploymentDir.SubPath);
 
-            // TODO: (mg) (core) complete PublicFolderPublisher
-            throw new NotImplementedException();
+                await source.FileSystem.CopyDirectoryAsync(source.SubPath, newPath);
+
+                context.Log.Info($"Export data files are copied to {newPath}.");
+            }
         }
     }
 }

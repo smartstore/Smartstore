@@ -1029,34 +1029,77 @@ namespace Smartstore.Web.Controllers
             //_ = await webRoot.TryCreateDirectoryAsync(publicPath);
             //content.AppendLine($"{folderName}: {publicPath}");
 
-            var deployment = await _db.ExportDeployments.FindByIdAsync(31, false);
-            ////var url = await eps.GetDeploymentDirectoryUrlAsync(deployment);
-            ////content.AppendLine(url.NaIfEmpty());
 
             var crDir = contentRoot.AttachEntry(dir);
             var zipPath2 = crDir.FileSystem.PathCombine(crDir.Parent.SubPath, crDir.Parent.Name.ToValidFileName() + ".zip");
             var zipFile2 = await crDir.FileSystem.GetFileAsync(zipPath2);
             content.AppendLine($"{zipFile2.Exists} {zipFile2.Name}: {zipPath2} {zipFile2.PhysicalPath}");
-            
-            var deploymentDir = await eps.GetDeploymentDirectoryAsync(deployment, true);
-            using (var stream = await zipFile2.OpenReadAsync())
-            {
-                var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile2.Name);
-                var newFile = await deploymentDir.FileSystem.CreateFileAsync(newPath, stream, true);
-                content.AppendLine($"{newFile.Exists} {newFile.Name}: {newFile.PhysicalPath}");
-            }
 
-            //content.AppendLine();
-            //content.AppendLine($"Files for {dir.SubPath}");
-            //var files = await dir.FileSystem.EnumerateFilesAsync(dir.SubPath, "*", true).ToListAsync();
-            //foreach (var file in files)
+            var deployment = await _db.ExportDeployments.FindByIdAsync(31, false);
+            var deploymentDir = await eps.GetDeploymentDirectoryAsync(deployment, true);
+
+            var url = await eps.GetDeploymentDirectoryUrlAsync(deployment);
+            content.AppendLine($"deployment URL: {url.NaIfEmpty()}");
+
+
+            //using (var stream = await zipFile2.OpenReadAsync())
             //{
-            //    content.AppendLine($"{file.Name}: {file.PhysicalPath}");
+            //    var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile2.Name);
+            //    var newFile = await deploymentDir.FileSystem.CreateFileAsync(newPath, stream, true);
+            //    content.AppendLine($"{newFile.Exists} {newPath}: {newFile.PhysicalPath}");
             //}
 
+            //var newPath = deploymentDir.FileSystem.PathCombine(webRootDir.Name, deploymentDir.SubPath);
+            //content.AppendLine($"copy dir: {crDir.SubPath} {newPath}");
+            //await crDir.FileSystem.CopyDirectoryAsync(crDir.SubPath, newPath);
+
+
+            //var deployment = await _db.ExportDeployments.FindByIdAsync(31, false);
+            //var deploymentDir = await eps.GetDeploymentDirectoryAsync(deployment, true);
+            //var copyResult = CopyDirectory2(new DirectoryInfo(dir.PhysicalPath), new DirectoryInfo(deploymentDir.PhysicalPath));
+            //content.AppendLine(copyResult.ToString() + " "  + dir.PhysicalPath);
 
             return Content(content.ToString());
             //return View();
+
+            bool CopyDirectory2(DirectoryInfo source, DirectoryInfo target, bool overwrite = true)
+            {
+                if (target.FullName.EnsureEndsWith("\\").StartsWith(source.FullName.EnsureEndsWith("\\"), StringComparison.CurrentCultureIgnoreCase))
+                {
+                    // Cannot copy a folder into itself.
+                    return false;
+                }
+
+                var result = true;
+                foreach (FileInfo fi in source.GetFiles())
+                {
+                    try
+                    {
+                        fi.CopyTo(Path.Combine(target.ToString(), fi.Name), overwrite);
+                    }
+                    catch (Exception ex)
+                    {
+                        result = false;
+                        ex.Dump();
+                    }
+                }
+
+                foreach (DirectoryInfo sourceSubDir in source.GetDirectories())
+                {
+                    try
+                    {
+                        DirectoryInfo targetSubDir = target.CreateSubdirectory(sourceSubDir.Name);
+                        CopyDirectory2(sourceSubDir, targetSubDir, overwrite);
+                    }
+                    catch (Exception ex)
+                    {
+                        result = false;
+                        ex.Dump();
+                    }
+                }
+
+                return result;
+            }
 
             async Task CopyDirectory(IO.IDirectory directory, IO.IDirectory rootDir)
             {

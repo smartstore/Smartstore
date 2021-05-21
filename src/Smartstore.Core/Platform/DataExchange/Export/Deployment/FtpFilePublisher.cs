@@ -74,7 +74,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 var url = BuildUrl(subdir);
                 if (!await IsExistingFtpDirectory(url))
                 {
-                    // RE: because you cannot use a FtpWebRequest instance over multiple requests\urls. You can only reuse the underlying FTP connection via KeepAlive which is already in use here.
+                    // You cannot use a FtpWebRequest instance over multiple requests\urls. You can only reuse the underlying FTP connection via KeepAlive.
                     var request = CreateRequest(url, true);
                     request.Method = WebRequestMethods.Ftp.MakeDirectory;
 
@@ -89,9 +89,6 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
         private async Task<bool> UploadFile(IFile file, string fileUrl, bool keepAlive = true)
         {
             var succeeded = false;
-            var buffLength = 32768;
-            var buff = new byte[buffLength];
-
             var request = CreateRequest(fileUrl, keepAlive, file.Length);
             request.Method = WebRequestMethods.Ftp.UploadFile;
 
@@ -99,17 +96,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
             using (var stream = await file.OpenReadAsync())
             {
-                while (true)
-                {
-                    // TODO: (mg) (core) (perf) Don't copy buffers, copy the stream! --> stream.CopyToAsync(requestStream)
-                    var bytesRead = await stream.ReadAsync(buff.AsMemory(0, buffLength), _cancellationToken);
-                    if (bytesRead == 0)
-                    {
-                        break;
-                    }
-
-                    await requestStream.WriteAsync(buff.AsMemory(0, bytesRead), _cancellationToken);
-                }
+                await stream.CopyToAsync(requestStream, _cancellationToken);
             }
 
             requestStream.Close();
