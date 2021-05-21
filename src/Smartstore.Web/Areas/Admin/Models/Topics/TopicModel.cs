@@ -17,14 +17,17 @@ namespace Smartstore.Admin.Models.Topics
     {
         public TopicModel()
         {
-            AvailableTitleTags.Add(new SelectListItem { Text = "h1", Value = "h1" });
-            AvailableTitleTags.Add(new SelectListItem { Text = "h2", Value = "h2" });
-            AvailableTitleTags.Add(new SelectListItem { Text = "h3", Value = "h3" });
-            AvailableTitleTags.Add(new SelectListItem { Text = "h4", Value = "h4" });
-            AvailableTitleTags.Add(new SelectListItem { Text = "h5", Value = "h5" });
-            AvailableTitleTags.Add(new SelectListItem { Text = "h6", Value = "h6" });
-            AvailableTitleTags.Add(new SelectListItem { Text = "div", Value = "div" });
-            AvailableTitleTags.Add(new SelectListItem { Text = "span", Value = "span" });
+            AvailableTitleTags.AddRange(new[] 
+            {
+                new SelectListItem { Text = "h1", Value = "h1" },
+                new SelectListItem { Text = "h2", Value = "h2" },
+                new SelectListItem { Text = "h3", Value = "h3" },
+                new SelectListItem { Text = "h4", Value = "h4" },
+                new SelectListItem { Text = "h5", Value = "h5" },
+                new SelectListItem { Text = "h6", Value = "h6" },
+                new SelectListItem { Text = "div", Value = "div" },
+                new SelectListItem { Text = "span", Value = "span" }
+            });
         }
 
         [UIHint("Stores")]
@@ -141,6 +144,8 @@ namespace Smartstore.Admin.Models.Topics
         public string Intro { get; set; }
 
         [LocalizedDisplay("*Body")]
+        [UIHint("Html")]
+        [AdditionalMetadata("ForceRootBlock", false)]
         public string Body { get; set; }
 
         [LocalizedDisplay("*MetaKeywords")]

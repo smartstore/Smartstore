@@ -23,7 +23,9 @@ namespace Smartstore.Admin.Components
                 return Empty();
             }
 
-            var numRecords = await _db.UrlRecords.Where(x => x.EntityName == entityName && x.EntityId == entityId).CountAsync();
+            var numRecords = await _db.UrlRecords
+                .Where(x => x.EntityName == entityName && x.EntityId == entityId)
+                .CountAsync();
             
             ViewBag.CountSlugsPerEntity = numRecords;
 

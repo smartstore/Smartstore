@@ -85,7 +85,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (model.WidgetZone != null)
                 {
-                    topic.WidgetZone = string.Join(",", model.WidgetZone);
+                    topic.WidgetZone = string.Join(',', model.WidgetZone);
                 }
 
                 topic.CookieType = (CookieType?)model.CookieType;
@@ -105,7 +105,7 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
 
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
-                return continueEditing ? RedirectToAction("Edit", topic.Id) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction("Edit", new { id = topic.Id }) : RedirectToAction("List");
             }
 
             // If we got this far something failed. Redisplay form.
@@ -202,7 +202,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (model.WidgetZone != null)
                 {
-                    topic.WidgetZone = string.Join(",", model.WidgetZone);
+                    topic.WidgetZone = string.Join(',', model.WidgetZone);
                 }
 
                 topic.CookieType = (CookieType?)model.CookieType;
@@ -221,7 +221,7 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
 
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
-                return continueEditing ? RedirectToAction("Edit", topic.Id) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction("Edit", new { id = topic.Id }) : RedirectToAction("List");
             }
 
             // TODO: (mh) (core) Remove comment after review.
@@ -236,7 +236,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// Gets a list of all available topics. 
+        /// (ajax) Gets a list of all available topics.
         /// </summary>
         /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
         /// <param name="selectedIds">Ids of selected entities.</param>
@@ -326,7 +326,8 @@ namespace Smartstore.Admin.Controllers
 
                     if (currentStoreIsAuthorized)
                     {
-                        var store = await _db.Stores.FindByIdAsync(Services.StoreContext.CurrentStore.Id);
+                        // INFO: (mh) (core) Always use IStoreContext to read store entities (don't access db). They are heavily cached.
+                        var store = Services.StoreContext.GetStoreById(Services.StoreContext.CurrentStore.Id);
                         if (store != null)
                         {
                             var baseUri = new Uri(store.GetHost());
@@ -350,23 +351,26 @@ namespace Smartstore.Admin.Controllers
 
         private static void AddCookieTypes(TopicModel model, int? selectedType = 0)
         {
-            model.AvailableCookieTypes.Add(new SelectListItem()
+            model.AvailableCookieTypes.AddRange(new[] 
             {
-                Text = "Required",
-                Value = ((int)CookieType.Required).ToString(),
-                Selected = CookieType.Required == (CookieType?)selectedType
-            });
-            model.AvailableCookieTypes.Add(new SelectListItem()
-            {
-                Text = "Analytics",
-                Value = ((int)CookieType.Analytics).ToString(),
-                Selected = CookieType.Analytics == (CookieType?)selectedType
-            });
-            model.AvailableCookieTypes.Add(new SelectListItem()
-            {
-                Text = "ThirdParty",
-                Value = ((int)CookieType.ThirdParty).ToString(),
-                Selected = CookieType.ThirdParty == (CookieType?)selectedType
+                new SelectListItem
+                {
+                    Text = "Required",
+                    Value = ((int)CookieType.Required).ToString(),
+                    Selected = CookieType.Required == (CookieType?)selectedType
+                },
+                new SelectListItem
+                {
+                    Text = "Analytics",
+                    Value = ((int)CookieType.Analytics).ToString(),
+                    Selected = CookieType.Analytics == (CookieType?)selectedType
+                },
+                new SelectListItem
+                {
+                    Text = "ThirdParty",
+                    Value = ((int)CookieType.ThirdParty).ToString(),
+                    Selected = CookieType.ThirdParty == (CookieType?)selectedType
+                }
             });
         }
 

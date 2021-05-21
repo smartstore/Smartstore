@@ -14,7 +14,8 @@
                     <smart-label asp-for="SystemName" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="SystemName" attr-readonly='(Model.IsSystemTopic, "readonly")'/>
+                    @* INFO: (mh) (core) Don't use editor tag helper if model type and resulting control kind is known *@
+                    <input asp-for="SystemName" attr-readonly='(Model.IsSystemTopic, "readonly")' />
                     <span asp-validation-for="SystemName"></span>
                 </div>
             </div>
@@ -23,7 +24,7 @@
                     <smart-label asp-for="IsPublished" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="IsPublished" attr-readonly='(Model.IsSystemTopic, "readonly")' />
+                    <input asp-for="IsPublished" attr-readonly='(Model.IsSystemTopic, "readonly")' />
                     <span asp-validation-for="IsPublished"></span>
                 </div>
             </div>
@@ -41,7 +42,7 @@
                     <smart-label asp-for="IsPasswordProtected" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="IsPasswordProtected" data-toggler-for="#pnlPasswordEnabled" />
+                    <input asp-for="IsPasswordProtected" data-toggler-for="#pnlPasswordEnabled" />
                     <span asp-validation-for="IsPasswordProtected"></span>
                 </div>
             </div>
@@ -50,7 +51,7 @@
                     <smart-label asp-for="Password" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="Password" asp-template="null" attr-value='(Model.Password.HasValue(), Model.Password)' />
+                    <editor asp-for="Password" attr-value='(Model.Password.HasValue(), Model.Password)' />
                     <span asp-validation-for="Password"></span>
                 </div>
             </div>
@@ -59,7 +60,7 @@
                     <smart-label asp-for="IncludeInSitemap" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="IncludeInSitemap" />
+                    <input asp-for="IncludeInSitemap" />
                     <span asp-validation-for="IncludeInSitemap"></span>
                 </div>
             </div>
@@ -115,7 +116,7 @@
                     <smart-label asp-for="RenderAsWidget" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="RenderAsWidget" data-toggler-for="#pnlRenderAsWidget, #pnlTopicAttrValues" />
+                    <input asp-for="RenderAsWidget" data-toggler-for="#pnlRenderAsWidget, #pnlTopicAttrValues" />
                     <span asp-validation-for="RenderAsWidget"></span>
                 </div>
             </div>
@@ -125,7 +126,7 @@
                         <smart-label asp-for="HtmlId" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="HtmlId" />
+                        <input asp-for="HtmlId" />
                         <span asp-validation-for="HtmlId"></span>
                     </div>
                 </div>
@@ -134,7 +135,7 @@
                         <smart-label asp-for="BodyCssClass" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="BodyCssClass" />
+                        <input asp-for="BodyCssClass" />
                         <span asp-validation-for="BodyCssClass"></span>
                     </div>
                 </div>
@@ -163,7 +164,7 @@
                         <smart-label asp-for="WidgetWrapContent" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="WidgetWrapContent" data-toggler-for="#pnlWidgetWrapContent" />
+                        <input asp-for="WidgetWrapContent" data-toggler-for="#pnlWidgetWrapContent" />
                         <span asp-validation-for="WidgetWrapContent"></span>
                     </div>
                 </div>
@@ -173,7 +174,7 @@
                             <smart-label asp-for="WidgetShowTitle" />
                         </div>
                         <div class="adminData">
-                            <editor asp-for="WidgetShowTitle" data-toggler-for="#pnlTitleTag" />
+                            <input asp-for="WidgetShowTitle" data-toggler-for="#pnlTitleTag" />
                             <span asp-validation-for="WidgetShowTitle"></span>
                         </div>
                     </div>
@@ -191,7 +192,7 @@
                             <smart-label asp-for="WidgetBordered" />
                         </div>
                         <div class="adminData">
-                            <editor asp-for="WidgetBordered" data-toggler-for="#pnlTitleTag" />
+                            <input asp-for="WidgetBordered" data-toggler-for="#pnlTitleTag" />
                             <span asp-validation-for="WidgetBordered"></span>
                         </div>
                     </div>
@@ -227,7 +228,7 @@
                         <smart-label asp-for="Locales[item].Intro" />
                     </div>
                     <div class="adminData wide">
-                        <editor asp-for="Locales[item].Intro" rows="1" />
+                        <textarea asp-for="Locales[item].Intro" rows="1" />
                         <span asp-validation-for="Locales[item].Intro"></span>
                     </div>
                 </div>
@@ -266,7 +267,7 @@
                         <smart-label asp-for="Intro" />
                     </div>
                     <div class="adminData wide">
-                        <editor asp-for="Intro" rows="1" />
+                        <textarea asp-for="Intro" rows="1" />
                         <span asp-validation-for="Intro"></span>
                     </div>
                 </div>
@@ -294,7 +295,7 @@
                         @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
                         <input type="hidden" id="@(Html.IdFor(model => model.Locales[item].LanguageId) + "_2")" />
 
-                        <editor asp-for="Locales[item].MetaTitle" />
+                        <textarea asp-for="Locales[item].MetaTitle" />
                         <span asp-validation-for="Locales[item].MetaTitle"></span>
                     </div>
                 </div>
@@ -303,7 +304,7 @@
                         <smart-label asp-for="Locales[item].MetaDescription" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="Locales[item].MetaDescription" />
+                        <textarea asp-for="Locales[item].MetaDescription" />
                         <span asp-validation-for="Locales[item].MetaDescription"></span>
                     </div>
                 </div>
@@ -333,7 +334,7 @@
                         <smart-label asp-for="MetaTitle" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="MetaTitle" />
+                        <textarea asp-for="MetaTitle" />
                         <span asp-validation-for="MetaTitle"></span>
                     </div>
                 </div>
@@ -342,7 +343,7 @@
                         <smart-label asp-for="MetaDescription" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="MetaDescription" />
+                        <textarea asp-for="MetaDescription" />
                         <span asp-validation-for="MetaDescription"></span>
                     </div>
                 </div>
@@ -379,10 +380,3 @@
         </tab>
     }
 </tabstrip>
-
-<script sm-target-zone="scripts" data-origin="TopicCreateOrUpdate">
-    // TODO: (mh) (core) Find central place for this.
-    $(function () {
-        initializeEditControls();
-    });
-</script>

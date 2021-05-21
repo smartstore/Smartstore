@@ -148,6 +148,11 @@
                     break;
             }
         });
-    }
+    };
+
+    // TODO: (mh) (core) Move to globalinit later.
+    $(function () {
+        initializeEditControls();
+    });
 })(jQuery, this, document);
 
