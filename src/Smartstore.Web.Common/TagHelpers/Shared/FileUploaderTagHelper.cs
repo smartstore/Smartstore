@@ -208,9 +208,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var partial = await widget.InvokeAsync(ViewContext);
 
             output.TagMode = TagMode.StartTagAndEndTag;
-            output.TagName = null;
-            //output.TagName = "div";
-            //output.AppendCssClass("fu-controls");
+            output.TagName = null;            
             output.Content.SetHtmlContent(partial);
         }
     }

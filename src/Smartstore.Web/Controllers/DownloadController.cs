@@ -192,7 +192,9 @@ namespace Smartstore.Web.Controllers
                 // TODO: (core) If the stream isn't closed it throws on await _db.SaveChangesAsync(); two lines later
                 // with: "There is already an open DataReader associated with this Connection which must be closed first"
                 // the stream is valid even if it's closed here. File will be downloaded correctly. Tested...
-                stream.Close();
+                // stream.Close();
+                // Note (ms): When stream is closed, SaveChangesAsync throws.
+                // As far as my testing went (file upload), it worked fine without closing the stream.
 
                 orderItem.DownloadCount++;
                 await _db.SaveChangesAsync();
