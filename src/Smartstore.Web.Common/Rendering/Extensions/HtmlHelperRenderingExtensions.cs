@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -210,7 +211,29 @@ namespace Smartstore.Web.Rendering
 
         #endregion
 
-        #region Hint
+        #region Labels & Hints
+
+        public static IHtmlContent SmartLabel(this IHtmlHelper helper, string expression, string labelText, string hint = null, object htmlAttributes = null)
+        {
+            var div = new TagBuilder("div");
+            div.Attributes["class"] = "ctl-label";
+
+            if (expression.IsEmpty() && labelText.IsEmpty())
+            {
+                div.InnerHtml.AppendHtml("<label>&nbsp;</label>");
+            }
+            else
+            {
+                div.InnerHtml.AppendHtml(helper.Label(expression, labelText, htmlAttributes));
+            }
+
+            if (hint.HasValue())
+            {
+                div.InnerHtml.AppendHtml(helper.Hint(hint));
+            }
+
+            return div;
+        }
 
         /// <summary>
         /// Generates a question mark icon that pops a description tooltip on hover

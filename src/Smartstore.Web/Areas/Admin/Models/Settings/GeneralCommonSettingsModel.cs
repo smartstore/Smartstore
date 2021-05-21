@@ -27,7 +27,8 @@ namespace Smartstore.Admin.Models
         [AdditionalMetadata("MetaTitleResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageTitle")]
         [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaDescription")]
         [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaKeywords")]
-        public partial class HomepageSettingsModel : ISeoModel
+        // TODO: (mh) (core) Broken! Forgot to commit new types??
+        public partial class HomepageSettingsModel //: ISeoModel
         {
             public string MetaTitle { get; set; }
 
@@ -35,7 +36,7 @@ namespace Smartstore.Admin.Models
 
             public string MetaKeywords { get; set; }
 
-            public List<SeoModelLocal> Locales { get; set; } = new();
+            //public List<SeoModelLocal> Locales { get; set; } = new();
         }
 
         [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]
@@ -65,7 +66,7 @@ namespace Smartstore.Admin.Models
         [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaDescription")]
         [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaKeywords")]
         [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]
-        public partial class SeoSettingsModel : ISeoModel
+        public partial class SeoSettingsModel //: ISeoModel
         {
             [LocalizedDisplay("*PageTitleSeparator")]
             public string PageTitleSeparator { get; set; }
@@ -79,7 +80,7 @@ namespace Smartstore.Admin.Models
 
             public string MetaKeywords { get; set; }
 
-            public List<SeoModelLocal> Locales { get; set; } = new();
+            //public List<SeoModelLocal> Locales { get; set; } = new();
 
             [LocalizedDisplay("*MetaRobotsContent")]
             public string MetaRobotsContent { get; set; }

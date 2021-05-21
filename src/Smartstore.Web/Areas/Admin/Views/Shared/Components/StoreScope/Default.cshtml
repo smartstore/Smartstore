@@ -6,9 +6,7 @@
     <div class="adminContent adminContent-boxed">
         <div class="adminRow">
             <div class="adminTitle">
-                <div class="ctl-label">
-                    <label for="store-scope-configuration">@T("Admin.Configuration.Settings.StoreScope")</label>
-                </div>
+                @Html.SmartLabel("store-scope-configuration", T("Admin.Configuration.Settings.StoreScope"))
             </div>
             <div class="adminData">
                 <select id="store-scope-configuration" asp-items="Model.AllStores" onchange="setLocation(this.value);">
@@ -19,7 +17,7 @@
             <div class="adminTitle">&nbsp;</div>
             <div class="adminData wide">
                 <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="override-settings" onclick="SmartStore.Admin.checkAllOverriddenStoreValue(this)">
+                    <input type="checkbox" class="custom-control-input" id="override-settings" onclick="Smartstore.Admin.checkAllOverriddenStoreValue(this)">
                     <label class="custom-control-label" for="override-settings">@T("Admin.Configuration.Settings.StoreScope.CheckAll.Hint")</label>
                 </div>
             </div>

@@ -41,7 +41,7 @@ namespace Smartstore.Admin.Components
             return View(model);
         }
 
-        public int GetActiveStoreScopeConfiguration()
+        private int GetActiveStoreScopeConfiguration()
         {
             var storeId = Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
             var store = Services.StoreContext.GetStoreById(storeId);
