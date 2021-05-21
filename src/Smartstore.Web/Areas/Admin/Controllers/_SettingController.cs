@@ -15,26 +15,28 @@ namespace Smartstore.Admin.Controllers
     public class SettingController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
-        
+
+        private StoreDependingSettingHelper _storeDependingSettings;
+
         public SettingController(SmartDbContext db)
         {
             _db = db;
         }
 
-        //private StoreDependingSettingHelper StoreDependingSettings
-        //{
-        //    get
-        //    {
-        //        if (_storeDependingSettings == null)
-        //        {
-        //            _storeDependingSettings = new StoreDependingSettingHelper(ViewData);
-        //        }
+        private StoreDependingSettingHelper StoreDependingSettings
+        {
+            get
+            {
+                if (_storeDependingSettings == null)
+                {
+                    _storeDependingSettings = new StoreDependingSettingHelper(ViewData);
+                }
 
-        //        return _storeDependingSettings;
-        //    }
-        //}
+                return _storeDependingSettings;
+            }
+        }
 
-        [LoadSetting(IsRootedModel = true)]
+        //[LoadSetting(IsRootedModel = true)]
         public ActionResult GeneralCommon(int storeScope,
             StoreInformationSettings storeInformationSettings,
             SeoSettings seoSettings,
