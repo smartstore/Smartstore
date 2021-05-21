@@ -200,7 +200,7 @@ namespace Smartstore.Web.Infrastructure
                 });
             }
 
-            // Add area = "" to all items in one go
+            // Add area = "" to all items in one go.
             foreach (var item in root.Children)
             {
                 item.Value.RouteValues["area"] = string.Empty;
