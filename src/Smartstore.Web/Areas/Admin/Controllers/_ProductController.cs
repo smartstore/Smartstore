@@ -195,7 +195,7 @@ namespace Smartstore.Admin.Controllers
             {
                 fields.Add("sku");
             }
-                
+
             if (_searchSettings.SearchFields.Contains("shortdescription"))
             {
                 fields.Add("shortdescription");
@@ -333,6 +333,7 @@ namespace Smartstore.Admin.Controllers
             if (ids.Any())
             {
                 var products = await _db.Products.GetManyAsync(ids, true);
+                // TODO: (core) Actually delete!
                 numDeleted = products.Count;
             }
 
