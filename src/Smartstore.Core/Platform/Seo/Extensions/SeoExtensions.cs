@@ -112,7 +112,7 @@ namespace Smartstore.Core.Seo
         /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
         /// <returns>A system unique slug</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ValidateSlugResult ValidateSlug<T>(T entity, string seName, bool ensureNotEmpty, int? languageId = null)
+        public static ValidateSlugResult ValidateSlug<T>(this T entity, string seName, bool ensureNotEmpty, int? languageId = null)
             where T : ISlugSupported
         {
             Guard.NotNull(entity, nameof(entity));
@@ -129,7 +129,7 @@ namespace Smartstore.Core.Seo
         /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
         /// <returns>A system unique slug</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity, string seName, bool ensureNotEmpty, int? languageId = null)
+        public static ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(this T entity, string seName, bool ensureNotEmpty, int? languageId = null)
             where T : ISlugSupported
         {
             Guard.NotNull(entity, nameof(entity));
