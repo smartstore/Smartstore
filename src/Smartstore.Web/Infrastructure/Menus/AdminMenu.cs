@@ -29,6 +29,7 @@ namespace Smartstore.Web.Infrastructure
         protected override Task<TreeNode<MenuItem>> BuildAsync(CacheEntryOptions cacheEntryOptions)
         {
             var contentRoot = Services.ApplicationContext.ContentRoot;
+            // TODO: (mc) (core) Either set property of file to "Copy if newer" or place directly in wwwroot.
             var file = contentRoot.GetFile("/Areas/Admin/sitemap.xml");
             var xmlSitemap = new XmlDocument();
             xmlSitemap.Load(file.PhysicalPath);
