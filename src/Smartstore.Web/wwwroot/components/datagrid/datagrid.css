@@ -24,6 +24,15 @@
   flex-flow: column;
   height: 100%; }
 
+.dg-blocker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+  z-index: 999; }
+
 .dg-table-wrapper {
   position: relative;
   flex-grow: 1;
@@ -180,7 +189,29 @@
 .dg-edit-row .dg-cell-edit {
   padding: 0 4px;
   justify-content: center !important;
-  align-items: center !important; }
+  align-items: center !important;
+  overflow: visible;
+  flex-flow: column; }
+
+.dg-edit-row .numerictextbox-group {
+  flex-grow: 0 !important; }
+
+.dg-edit-row .field-validation-valid {
+  display: none; }
+
+.dg-edit-row .field-validation-error {
+  position: absolute;
+  top: 0;
+  background-color: #fff;
+  color: #7f231c;
+  border: 1px solid #fccac7;
+  padding: 4px 8px;
+  border-radius: 2px;
+  width: auto;
+  transform: translateY(-120%);
+  z-index: 1000;
+  white-space: nowrap;
+  text-overflow: ellipsis; }
 
 .dg-pager {
   background-color: var(--dg-pager-bg); }

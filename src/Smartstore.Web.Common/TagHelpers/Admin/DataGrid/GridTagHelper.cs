@@ -215,21 +215,20 @@ namespace Smartstore.Web.TagHelpers.Admin
 
                 if (AllowEdit && !column.ReadOnly && (column.EditTemplate == null || column.EditTemplate.IsEmptyOrWhiteSpace))
                 {
-                    IHtmlContent htmlContent;
-                    
+                    var editorSlot = new TagBuilder("template");
+                    editorSlot.Attributes["v-slot:edit-" + column.NormalizedMemberName] = "item";
+
                     if (column.EditTemplate?.IsEmptyOrWhiteSpace == false)
                     {
-                        htmlContent = column.EditTemplate;
+                        editorSlot.InnerHtml.AppendHtml(column.EditTemplate);
                     }
                     else
                     {
                         // No custom edit template specified
-                        htmlContent = HtmlHelper.EditorFor(column.For);
+                        editorSlot.InnerHtml.AppendHtml(HtmlHelper.EditorFor(column.For));
+                        editorSlot.InnerHtml.AppendHtml(HtmlHelper.ValidationMessageFor(column.For));
                     }
                     
-                    var editorSlot = new TagBuilder("template");
-                    editorSlot.Attributes["v-slot:edit-" + column.NormalizedMemberName] = "item";
-                    editorSlot.InnerHtml.AppendHtml(htmlContent);
                     component.InnerHtml.AppendHtml(editorSlot);
                 }
             }
@@ -267,9 +266,9 @@ namespace Smartstore.Web.TagHelpers.Admin
                 },
                 dataSource = DataSource?.ToPlainObject(),
                 columns = Columns.Select(c => c.ToPlainObject()).ToList(),
-                paging = Paging?.ToPlainObject(),
-                sorting = Sorting?.ToPlainObject(),
-                filtering = Filtering?.ToPlainObject(),
+                paging = Paging?.ToPlainObject() ?? new { },
+                sorting = Sorting?.ToPlainObject() ?? new { },
+                filtering = Filtering?.ToPlainObject() ?? new { },
             };
 
             dict["data"] = data;

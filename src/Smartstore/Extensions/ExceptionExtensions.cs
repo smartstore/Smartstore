@@ -26,7 +26,25 @@ namespace Smartstore
                 ex.StackTrace.Dump();
                 ex.Message.Dump();
             }
-            catch { }
+            catch 
+            {
+            }
+        }
+
+        /// <summary>
+        /// Gets the message of the most inner exception.
+        /// </summary>
+        public static string GetInnerMessage(this Exception ex)
+        {
+            while (true)
+            {
+                if (ex.InnerException == null)
+                {
+                    return ex.Message;
+                }
+
+                ex = ex.InnerException;
+            }
         }
 
         public static string ToAllMessages(this Exception ex, bool includeStackTrace = false)

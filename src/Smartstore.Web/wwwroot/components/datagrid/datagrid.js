@@ -27,7 +27,7 @@ Vue.component("sm-data-grid", {
             <div v-if="paging.enabled && (paging.position === 'top' || paging.position === 'both')" class="dg-pager-wrapper border-bottom">
                 <sm-data-grid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-data-grid-pager>
             </div>
-            <div ref="tableWrapper" class="dg-table-wrapper">
+            <component :is="options.allowEdit ? 'form' : 'div'" ref="tableWrapper" class="dg-table-wrapper">
                 <table ref="table"
                     :class="getTableClass()"
                     :style="getTableStyles()">
@@ -102,10 +102,12 @@ Vue.component("sm-data-grid", {
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </component>
             <div v-if="paging.enabled && (paging.position === 'bottom' || paging.position === 'both')" class="dg-pager-wrapper border-top">
                 <sm-data-grid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-data-grid-pager>
             </div>
+
+            <div v-show="isBusy" class="dg-blocker"></div>
         </div>
     `,
 
@@ -176,6 +178,7 @@ Vue.component("sm-data-grid", {
                                             el.checked = v;
                                             break;
                                         default:
+                                            // TODO: (core) datetimepicker will not update! Investigate!
                                             el.value = v;
                                     }
                                 }
@@ -255,9 +258,6 @@ Vue.component("sm-data-grid", {
         });
         resizeObserver.observe(this.$refs.tableWrapper);
 
-        // Throbber
-        this._throbber = $(this.$refs.grid).throbber({ small: true, white: true, message: '', speed: 100 }).data("throbber");
-
         // Read data from server
         this.read();
     },
@@ -308,14 +308,6 @@ Vue.component("sm-data-grid", {
         },
         selectedRows() {
             this.setMasterSelectorState(this.getMasterSelectorState());
-        },
-        isBusy(val) {
-            if (val) {
-                this._throbber.show();
-            }
-            else {
-                this._throbber.hide();
-            }
         }
     },
 
@@ -458,7 +450,7 @@ Vue.component("sm-data-grid", {
                 cache: false,
                 dataType: 'json',
                 data: command,
-                global: false,
+                global: true,
                 success(result) {
                     self.rows = result.rows !== undefined ? result.rows : result;
                     self.total = result.total || self.rows.length;
@@ -498,7 +490,7 @@ Vue.component("sm-data-grid", {
                         cache: false,
                         dataType: 'json',
                         data: selection,
-                        global: false,
+                        global: true,
                         success(result) {
                             if (result.Success) {
                                 self.selectedRows = {};
@@ -685,9 +677,11 @@ Vue.component("sm-data-grid", {
         },
 
         activateEdit(row, tr, td) {
-            if (!this.options.allowEdit || !this.hasEditableVisibleColumn) {
+            if (!this.options.allowEdit || !this.dataSource.update || !this.hasEditableVisibleColumn) {
                 return;
             }
+
+            this.destroyValidator();
 
             this.edit.active = true;
             this.edit.row = row;
@@ -718,8 +712,54 @@ Vue.component("sm-data-grid", {
             });
         },
 
+        destroyValidator() {
+            var validator = $(this.$refs.tableWrapper).data("validator");
+            if (validator) {
+                validator.hideErrors();
+                validator.destroy();
+            }
+        },
+
+        validateForm() {
+            var form = $(this.$refs.tableWrapper);
+            if (!form.is('form')) {
+                return false;
+            }
+
+            form
+                .removeData("validator")
+                .removeData("unobtrusiveValidation")
+                .off(".validate");
+
+            $.validator.unobtrusive.parse(form);
+
+            var validator = form.validate();
+            validator.settings.ignore = ":hidden, .dg-cell-selector-checkbox";
+            //validator.settings.errorPlacement = function() {
+            //    console.log("errorPlacement", arguments);
+            //};
+            //validator.settings.invalidHandler = function() {
+            //    console.log("invalidHandler", arguments);
+            //};
+            ////validator.settings.showErrors = function() {
+            ////    console.log("showErrors", arguments);
+            ////};
+            //validator.settings.highlight = function() {
+            //    console.log("highlight", arguments);
+            //};
+            //validator.settings.unhighlight = function() {
+            //    console.log("unhighlight", arguments);
+            //};
+
+            return validator.form();
+        },
+
         saveChanges() {
             if (this.isBusy || !this.edit.active || !this.dataSource.update) {
+                return;
+            }
+
+            if (!this.validateForm()) {
                 return;
             }
 
@@ -741,11 +781,13 @@ Vue.component("sm-data-grid", {
                 cache: false,
                 dataType: 'json',
                 data: data,
-                global: false,
+                global: true,
                 success(result) {
                     // TODO: (core) More stuff?
-                    self.$emit("saved-changes", edit.row);
-                    self.cancelEdit();
+                    if (result.success) {
+                        self.$emit("saved-changes", edit.row);
+                        self.cancelEdit();
+                    }
                 },
                 complete() {
                     self.isBusy = false;
@@ -757,6 +799,8 @@ Vue.component("sm-data-grid", {
             if (!this.edit.active) {
                 return;
             }
+
+            this.destroyValidator();
 
             this.edit.active = false;
             this.edit.row = { };

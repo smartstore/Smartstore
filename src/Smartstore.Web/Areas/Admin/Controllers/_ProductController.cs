@@ -342,7 +342,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, IgnoreAntiforgeryToken] // TODO: (core) Why is posted _RequestVerificationToken not valid?
         [Permission(Permissions.Catalog.Product.Update)]
         public async Task<IActionResult> ProductUpdate(ProductOverviewModel model)
-        {
+        {   
             var product = await _db.Products.FindByIdAsync(model.Id);
 
             product.Name = model.Name;
@@ -358,7 +358,7 @@ namespace Smartstore.Admin.Controllers
             }
             catch (Exception ex)
             {
-                NotifyError(ex.Message);
+                NotifyError(ex.GetInnerMessage());
                 return Json(new { success = false });
             }
         }

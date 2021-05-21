@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.TagHelpers.Shared;
-using Smartstore.Core.Data;
-using Smartstore.Web.TagHelpers;
 using Smartstore.Web.Rendering.Builders;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using System.Reflection;
+using Smartstore.Web.TagHelpers;
+using Smartstore.Web.TagHelpers.Shared;
 
 namespace Smartstore.Web.Rendering
 {
@@ -82,6 +83,129 @@ namespace Smartstore.Web.Rendering
             {
                 return helper.Editor(htmlFieldName ?? expression.Name, templateName, additionalViewData);
             }
+        }
+
+        #endregion
+
+        #region ValidationMessageFor
+
+        /// <summary>
+        /// Returns the validation message if an error exists in the <see cref="ModelStateDictionary"/>
+        /// object for the specified <paramref name="expression"/>.
+        /// </summary>
+        /// <param name="expression">An expression to be evaluated against the current model.</param>
+        /// A new <see cref="IHtmlContent"/> containing the <paramref name="tag"/> element. An empty
+        /// <see cref="IHtmlContent"/> if the <paramref name="expression"/> is valid and client-side validation is
+        /// disabled.
+        /// </returns>
+        public static IHtmlContent ValidationMessageFor(this IHtmlHelper helper, ModelExpression expression)
+            => ValidationMessageFor(helper, expression, null, null, null);
+
+        /// <summary>
+        /// Returns the validation message if an error exists in the <see cref="ModelStateDictionary"/>
+        /// object for the specified <paramref name="expression"/>.
+        /// </summary>
+        /// <param name="expression">An expression to be evaluated against the current model.</param>
+        /// <param name="message">
+        /// The message to be displayed. If <c>null</c> or empty, method extracts an error string from the
+        /// <see cref="ModelStateDictionary"/> object. Message will always be visible but client-side
+        /// validation may update the associated CSS class.
+        /// </param>
+        /// A new <see cref="IHtmlContent"/> containing the <paramref name="tag"/> element. An empty
+        /// <see cref="IHtmlContent"/> if the <paramref name="expression"/> is valid and client-side validation is
+        /// disabled.
+        /// </returns>
+        public static IHtmlContent ValidationMessageFor(this IHtmlHelper helper, ModelExpression expression, string message)
+            => ValidationMessageFor(helper, expression, message, null, null);
+
+        /// <summary>
+        /// Returns the validation message if an error exists in the <see cref="ModelStateDictionary"/>
+        /// object for the specified <paramref name="expression"/>.
+        /// </summary>
+        /// <param name="expression">An expression to be evaluated against the current model.</param>
+        /// <param name="message">
+        /// The message to be displayed. If <c>null</c> or empty, method extracts an error string from the
+        /// <see cref="ModelStateDictionary"/> object. Message will always be visible but client-side
+        /// validation may update the associated CSS class.
+        /// </param>
+        /// <param name="tag">
+        /// The tag to wrap the <paramref name="message"/> in the generated HTML. Its default value is
+        /// <see cref="ViewContext.ValidationMessageElement"/>.
+        /// </param>
+        /// <returns>
+        /// A new <see cref="IHtmlContent"/> containing the <paramref name="tag"/> element. An empty
+        /// <see cref="IHtmlContent"/> if the <paramref name="expression"/> is valid and client-side validation is
+        /// disabled.
+        /// </returns>
+        public static IHtmlContent ValidationMessageFor(this IHtmlHelper helper, ModelExpression expression, string message, string tag)
+            => ValidationMessageFor(helper, expression, message, null, tag);
+
+        /// <summary>
+        /// Returns the validation message if an error exists in the <see cref="ModelStateDictionary"/>
+        /// object for the specified <paramref name="expression"/>.
+        /// </summary>
+        /// <param name="expression">An expression to be evaluated against the current model.</param>
+        /// <param name="message">
+        /// The message to be displayed. If <c>null</c> or empty, method extracts an error string from the
+        /// <see cref="ModelStateDictionary"/> object. Message will always be visible but client-side
+        /// validation may update the associated CSS class.
+        /// </param>
+        /// <param name="htmlAttributes">
+        /// An <see cref="object"/> that contains the HTML attributes for the
+        /// (<see cref="ViewContext.ValidationMessageElement"/>) element. Alternatively, an
+        /// <see cref="IDictionary{String, Object}"/> instance containing the HTML
+        /// attributes.
+        /// </param>
+        /// <returns>
+        /// A new <see cref="IHtmlContent"/> containing the <paramref name="tag"/> element. An empty
+        /// <see cref="IHtmlContent"/> if the <paramref name="expression"/> is valid and client-side validation is
+        /// disabled.
+        /// </returns>
+        public static IHtmlContent ValidationMessageFor(this IHtmlHelper helper, ModelExpression expression, string message, object htmlAttributes)
+            => ValidationMessageFor(helper, expression, message, htmlAttributes, null);
+
+        /// <summary>
+        /// Returns the validation message if an error exists in the <see cref="ModelStateDictionary"/>
+        /// object for the specified <paramref name="expression"/>.
+        /// </summary>
+        /// <param name="expression">An expression to be evaluated against the current model.</param>
+        /// <param name="message">
+        /// The message to be displayed. If <c>null</c> or empty, method extracts an error string from the
+        /// <see cref="ModelStateDictionary"/> object. Message will always be visible but client-side
+        /// validation may update the associated CSS class.
+        /// </param>
+        /// <param name="htmlAttributes">
+        /// An <see cref="object"/> that contains the HTML attributes for the
+        /// (<see cref="ViewContext.ValidationMessageElement"/>) element. Alternatively, an
+        /// <see cref="IDictionary{String, Object}"/> instance containing the HTML
+        /// attributes.
+        /// </param>
+        /// <param name="tag">
+        /// The tag to wrap the <paramref name="message"/> in the generated HTML. Its default value is
+        /// <see cref="ViewContext.ValidationMessageElement"/>.
+        /// </param>
+        /// <returns>
+        /// A new <see cref="IHtmlContent"/> containing the <paramref name="tag"/> element. An empty
+        /// <see cref="IHtmlContent"/> if the <paramref name="expression"/> is valid and client-side validation is
+        /// disabled.
+        /// </returns>
+        public static IHtmlContent ValidationMessageFor(this IHtmlHelper helper,
+            ModelExpression expression,
+            string message,
+            object htmlAttributes,
+            string tag)
+        {
+            Guard.NotNull(helper, nameof(helper));
+            Guard.NotNull(expression, nameof(expression));
+
+            var htmlGenerator = helper.ViewContext.HttpContext.RequestServices.GetRequiredService<IHtmlGenerator>();
+            return htmlGenerator.GenerateValidationMessage(
+                helper.ViewContext,
+                expression.ModelExplorer,
+                expression.Name,
+                message,
+                tag,
+                htmlAttributes);
         }
 
         #endregion
