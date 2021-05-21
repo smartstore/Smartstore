@@ -11,8 +11,8 @@ namespace Smartstore.Web.Modelling
             Form = form;
         }
 
-        public TabbableModel BoundModel { get; private set; }
-        public object EntityModel { get; private set; }
-        public IFormCollection Form { get; private set; }
+        public TabbableModel BoundModel { get; }
+        public object EntityModel { get; }
+        public IFormCollection Form { get; }
     }
 }
