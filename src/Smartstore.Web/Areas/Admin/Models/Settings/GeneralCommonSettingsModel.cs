@@ -7,6 +7,7 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models
 {
+    // TODO: (mh) (core) Where's the validator?!
     public partial class GeneralCommonSettingsModel : ModelBase
     {
         public StoreInformationSettingsModel StoreInformationSettings { get; set; } = new();

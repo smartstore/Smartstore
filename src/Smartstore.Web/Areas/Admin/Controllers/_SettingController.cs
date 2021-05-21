@@ -25,15 +25,7 @@ namespace Smartstore.Admin.Controllers
 
         private StoreDependingSettingHelper StoreDependingSettings
         {
-            get
-            {
-                if (_storeDependingSettings == null)
-                {
-                    _storeDependingSettings = new StoreDependingSettingHelper(ViewData);
-                }
-
-                return _storeDependingSettings;
-            }
+            get => _storeDependingSettings ??= new StoreDependingSettingHelper(ViewData);
         }
 
         //[LoadSetting(IsRootedModel = true)]
