@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Smartstore.Web.Controllers
+namespace Smartstore.Web.Modelling
 {
     /// <summary>
     /// If form name exists, then specified "actionParameterName" will be set to "true".
@@ -16,14 +16,13 @@ namespace Smartstore.Web.Controllers
             _actionParameterName = actionParameterName;
         }
 
-        public override void OnActionExecuted(ActionExecutedContext filterContext)
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
+            context.ActionArguments[_actionParameterName] = context.HttpContext.Request.Form.ContainsKey(_name);
         }
 
-        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        public override void OnActionExecuted(ActionExecutedContext context)
         {
-            var formValue = filterContext.HttpContext.Request.Form[_name];
-            filterContext.ActionArguments[_actionParameterName] = !string.IsNullOrEmpty(formValue);
         }
     }
 }
