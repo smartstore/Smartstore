@@ -15,11 +15,9 @@
             
                 <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(currentPageIndex + 1)" :class="{ disabled: !hasNextPage }"><i class="fa fa-fw fa-angle-right"></i></a>
                 <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }"><i class="fa fa-fw fa-angle-double-right"></i></a>
-
-                <span class="dg-page text-muted pl-4 text-truncate">{{ currentPageIndex }} / {{ totalPages }}</span>
             </template>
             
-            <div class="ml-auto d-flex align-items-center">
+            <div v-if="rows > 0" class="ml-auto d-flex align-items-center">
                 <span class="dg-page text-muted mr-2 text-truncate d-none d-sm-inline pl-2">
                     <span class="d-none d-md-inline">Anzeigen der Elemente </span>
                     <span>{{ firstItemIndex.toLocaleString() }}-{{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}</span>

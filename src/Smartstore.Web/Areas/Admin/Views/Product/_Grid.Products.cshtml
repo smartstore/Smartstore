@@ -11,6 +11,9 @@
     <paging position="Bottom" page-size="@gridPageSize" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
+        <button type="button" class="btn btn-secondary btn-flat" v-on:click="grid.resetState">
+            <span>Reset State</span>
+        </button>
         <a v-if="!grid.edit.active" asp-action="Create" class="btn btn-primary btn-flat mr-auto">
             <i class="fa fa-plus"></i>
             <span>@T("Admin.Common.AddNew")...</span>

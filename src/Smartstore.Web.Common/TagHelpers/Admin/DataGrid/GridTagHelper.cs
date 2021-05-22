@@ -31,10 +31,13 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string CondensedAttributeName = "condensed";
         const string AllowResizeAttributeName = "allow-resize";
         const string AllowRowSelectionAttributeName = "allow-row-selection";
+        const string AllowColumnReorderingAttributeName = "allow-column-reordering";
         const string AllowEditAttributeName = "allow-edit";
         const string HideHeaderAttributeName = "hide-header";
         const string KeyMemberAttributeName = "key-member";
         const string MaxHeightAttributeName = "max-height";
+        const string PreserveCommandStateAttributeName = "preserve-command-state";
+        const string PreserveGridStateAttributeName = "preserve-grid-state";
         const string OnDataBindingAttributeName = "ondatabinding";
         const string OnDataBoundAttributeName = "ondatabound";
         const string OnRowSelectedAttributeName = "onrowselected";
@@ -84,6 +87,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         public bool AllowRowSelection { get; set; }
 
         /// <summary>
+        /// Allows reordering of columns via drag & drop. Default: <c>false</c>.
+        /// </summary>
+        [HtmlAttributeName(AllowColumnReorderingAttributeName)]
+        public bool AllowColumnReordering { get; set; }
+
+        /// <summary>
         /// Allows inline editing of rows via double click. Default: <c>false</c>.
         /// </summary>
         [HtmlAttributeName(AllowEditAttributeName)]
@@ -106,6 +115,21 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(MaxHeightAttributeName)]
         public string MaxHeight { get; set; }
+
+        /// <summary>
+        /// Preserves command state of data grid across requests, but only within current session. 
+        /// The state key is varied by current route identifier / URL.
+        /// Data is saved on the server side. Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(PreserveCommandStateAttributeName)]
+        public bool PreserveCommandState { get; set; } = true;
+
+        /// <summary>
+        /// Preserves local state of data grid across requests. 
+        /// Data is saved on the client side (localStorage). Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(PreserveGridStateAttributeName)]
+        public bool PreserveGridState { get; set; } = true;
 
         /// <summary>
         /// Name of Javascript function to call before data binding.
@@ -226,7 +250,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     {
                         // No custom edit template specified
                         editorSlot.InnerHtml.AppendHtml(HtmlHelper.EditorFor(column.For));
-                        editorSlot.InnerHtml.AppendHtml(HtmlHelper.ValidationMessageFor(column.For));
+                        //editorSlot.InnerHtml.AppendHtml(HtmlHelper.ValidationMessageFor(column.For));
                     }
                     
                     component.InnerHtml.AppendHtml(editorSlot);
@@ -256,13 +280,15 @@ namespace Smartstore.Web.TagHelpers.Admin
                     keyMemberName = KeyMemberName,
                     allowResize = AllowResize,
                     allowRowSelection = AllowRowSelection,
+                    allowColumnReordering = AllowColumnReordering,
                     allowEdit = AllowEdit,
                     hideHeader = HideHeader,
                     maxHeight = MaxHeight,
+                    stateKey = Id,
+                    preserveState = PreserveGridState,
                     onDataBinding = OnDataBinding,
                     onDataBound = OnDataBound,
                     onRowSelected = OnRowSelected
-                    //condensed = Condensed
                 },
                 dataSource = DataSource?.ToPlainObject(),
                 columns = Columns.Select(c => c.ToPlainObject()).ToList(),

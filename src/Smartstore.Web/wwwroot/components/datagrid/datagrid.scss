@@ -48,6 +48,10 @@ $hover: darken(#f2f7fb, 0.5%);
     z-index: 999;
 }
 
+.dg-no-data > td {
+    grid-column: 1 / -1;
+}
+
 .dg-table-wrapper {
     position: relative;
     flex-grow: 1;
@@ -118,7 +122,7 @@ $hover: darken(#f2f7fb, 0.5%);
     --dg-row-even-bg: $even;
 }
 
-.dg-hover > tbody > tr:hover {
+.dg-hover > tbody > tr:hover:not(.dg-no-data) {
     --dg-row-bg: var(--dg-row-hover-color);
     --dg-row-even-bg: var(--dg-row-hover-color);
 }
@@ -171,7 +175,7 @@ $hover: darken(#f2f7fb, 0.5%);
 
 .dg-toolbar .btn {
     padding: 14px !important;
-    font-size: 13px;
+    //font-size: 13px;
     border-radius: 0 !important;
     outline: 0 !important;
     box-shadow: none !important;
@@ -301,18 +305,19 @@ $hover: darken(#f2f7fb, 0.5%);
 
     .numerictextbox-group {
         flex-grow: 0 !important;
+        width: 100%;
     }
 
     .field-validation-valid {
         display: none;
     }
 
-    .field-validation-error {
-        // TODO: (core) Adopt SCSS theme colors one bundler is ported.
+    .input-validation-error {
+        // TODO: (core) Adopt SCSS theme colors once bundler is ported. And add bubble to error message.
         position: absolute;
         top: 0;
         background-color: #fff;
-        color: #7f231c;
+        color: var(--danger);
         border: 1px solid #fccac7;
         padding: 4px 8px;
         border-radius: 2px;
@@ -321,6 +326,7 @@ $hover: darken(#f2f7fb, 0.5%);
         z-index: 1000;
         white-space: nowrap;
         text-overflow: ellipsis;
+        --shadow-color-intensity: 0.75 !important;
     }
 }
 

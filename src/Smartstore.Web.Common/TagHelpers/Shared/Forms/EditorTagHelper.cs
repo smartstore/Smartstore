@@ -15,6 +15,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         //const string ValueAttributeName = "asp-value";
         const string PostfixAttributeName = "sm-postfix";
 
+        // TODO: (mh) (core) Find a way to propagate "required" metadata to template, 'cause FluentValidation obviously does not provide this info to MVC metadata.
+
         /// <summary>
         /// Specifies the editor template which will be used to render the field.
         /// </summary>

@@ -25,6 +25,9 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string ResizableAttributeName = "resizable";
         const string SortableAttributeName = "sortable";
         const string ReadonlyAttributeName = "readonly";
+        const string FilterableAttributeName = "filterable";
+        const string GroupableAttributeName = "groupable";
+        const string ReorderableAttributeName = "reorderable";
         const string NowrapAttributeName = "nowrap";
         const string EntityMemberAttributeName = "entity-member";
         const string IconAttributeName = "icon";
@@ -46,7 +49,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         public ModelExpression For { get; set; }
 
         /// <summary>
-        /// Overrides the auto-resolved column title.
+        /// Overrides the auto-resolved column title. Use empty string to hide the column header label.
         /// </summary>
         [HtmlAttributeName(TitleAttributeName)]
         public string Title { get; set; }
@@ -108,6 +111,24 @@ namespace Smartstore.Web.TagHelpers.Admin
         public bool Sortable { get; set; } = true;
 
         /// <summary>
+        /// Allows filtering of column, but only if filtering is enabled on grid level. Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(FilterableAttributeName)]
+        public bool Filterable { get; set; } = true;
+
+        /// <summary>
+        /// Allows grouping of column, but only if grouping is enabled on grid level. Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(GroupableAttributeName)]
+        public bool Groupable { get; set; } = true;
+
+        /// <summary>
+        /// Allows reordering of column, but only if reordering is enabled on grid level. Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(ReorderableAttributeName)]
+        public bool Reorderable { get; set; } = true;
+
+        /// <summary>
         /// Makes column uneditable, even if editing is enabled on grid level. Default: <c>false</c>.
         /// </summary>
         [HtmlAttributeName(ReadonlyAttributeName)]
@@ -161,6 +182,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             return new
             {
                 member = MemberName,
+                name = For.Metadata.DisplayName,
                 title = Title ?? For.Metadata.DisplayName,
                 width = Width.EmptyNull(),
                 hidden = !Visible,
@@ -171,6 +193,8 @@ namespace Smartstore.Web.TagHelpers.Admin
                 format = Format,
                 resizable = Resizable,
                 sortable = Sortable,
+                filterable = Filterable,
+                groupable = Groupable,
                 editable = !ReadOnly,
                 nowrap = Nowrap,
                 entityMember = EntityMember,

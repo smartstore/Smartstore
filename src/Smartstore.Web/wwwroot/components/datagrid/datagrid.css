@@ -33,6 +33,9 @@
   background-color: transparent;
   z-index: 999; }
 
+.dg-no-data > td {
+  grid-column: 1 / -1; }
+
 .dg-table-wrapper {
   position: relative;
   flex-grow: 1;
@@ -79,7 +82,7 @@
 .dg-striped {
   --dg-row-even-bg: #fbfbfc; }
 
-.dg-hover > tbody > tr:hover {
+.dg-hover > tbody > tr:hover:not(.dg-no-data) {
   --dg-row-bg: var(--dg-row-hover-color);
   --dg-row-even-bg: var(--dg-row-hover-color); }
 
@@ -115,7 +118,6 @@
 
 .dg-toolbar .btn {
   padding: 14px !important;
-  font-size: 13px;
   border-radius: 0 !important;
   outline: 0 !important;
   box-shadow: none !important;
@@ -194,16 +196,17 @@
   flex-flow: column; }
 
 .dg-edit-row .numerictextbox-group {
-  flex-grow: 0 !important; }
+  flex-grow: 0 !important;
+  width: 100%; }
 
 .dg-edit-row .field-validation-valid {
   display: none; }
 
-.dg-edit-row .field-validation-error {
+.dg-edit-row .input-validation-error {
   position: absolute;
   top: 0;
   background-color: #fff;
-  color: #7f231c;
+  color: var(--danger);
   border: 1px solid #fccac7;
   padding: 4px 8px;
   border-radius: 2px;
@@ -211,7 +214,8 @@
   transform: translateY(-120%);
   z-index: 1000;
   white-space: nowrap;
-  text-overflow: ellipsis; }
+  text-overflow: ellipsis;
+  --shadow-color-intensity: 0.75 !important; }
 
 .dg-pager {
   background-color: var(--dg-pager-bg); }

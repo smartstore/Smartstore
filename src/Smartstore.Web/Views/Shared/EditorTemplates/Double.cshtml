@@ -32,6 +32,7 @@
 
 @{
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var step = GetMetadata<double>("step");
 }
 
 <div class="@CssClass">
@@ -56,7 +57,7 @@
            placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
            min="@(GetMetadata<double?>("min"))"
            max="@(GetMetadata<double?>("max"))"
-           step="@(GetMetadata<double?>("step") ?? 1)" />
+           attr-step='(step > 0, step.ToString())' />
 
     @if (TryGetMetadata<string>("postfix", out var postfix))
     {
