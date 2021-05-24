@@ -58,14 +58,8 @@ namespace Smartstore.Core.DataExchange.Export
 
         protected override Task<HookResult> OnUpdatingAsync(ExportProfile entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            entity.FolderName = PathHelper.NormalizeRelativePath(entity.FolderName);
-
-            // TODO: (mg) (core) There's no such thing like IsSafeAppRootPath anymore, because all paths are now absolute and rooted to a specific app directory. TBD with MC.
-            // TODO: (mg) (core) complete hook in ExportProfileService (PathHelper.IsSafeAppRootPath required).
-            //if (!PathHelper.IsSafeAppRootPath(entity.FolderName))
-            //{
-            //    throw new SmartException(T("Admin.DataExchange.Export.FolderName.Validate"));
-            //}
+            // No more validation of 'FolderName' necessary anymore. Contains only the name of the export folder (no more path information).
+            entity.FolderName = _regexFolderName.Replace(PathHelper.NormalizeRelativePath(entity.FolderName), string.Empty);
 
             return Task.FromResult(HookResult.Ok);
         }
