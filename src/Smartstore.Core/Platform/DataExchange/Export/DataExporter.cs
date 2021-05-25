@@ -221,7 +221,7 @@ namespace Smartstore.Core.DataExchange.Export
                 }
                 catch (Exception ex)
                 {
-                    ctx.Log.ErrorsAll(ex);
+                    ctx?.Log?.ErrorsAll(ex);
                     ctx.Result.LastError = ex.ToAllMessages(true);
                 }
                 finally
@@ -401,6 +401,8 @@ namespace Smartstore.Core.DataExchange.Export
             context.HasPublicDeployment = publicDeployment != null;
             context.PublicDirectory = await _exportProfileService.GetDeploymentDirectoryAsync(publicDeployment, true);
             context.PublicDirectoryUrl = await _exportProfileService.GetDeploymentDirectoryUrlAsync(publicDeployment, ctx.Store);
+
+            ctx.Log.Info(CreateLogHeader(ctx));
 
             using var segmenter = CreateSegmenter(ctx);
 
@@ -1439,7 +1441,9 @@ namespace Smartstore.Core.DataExchange.Export
 
             var message = new MailMessage
             {
-                From = new(emailAccount.Email, emailAccount.DisplayName)
+                From = new(emailAccount.Email, emailAccount.DisplayName),
+                Subject = _services.Localization.GetResource("Admin.DataExchange.Export.CompletedEmail.Subject", languageId).FormatInvariant(ctx.Request.Profile.Name),
+                Body = body.ToString()
             };
 
             if (profile.CompletedEmailAddresses.HasValue())
@@ -1461,12 +1465,6 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 message.To.Add(new(emailAccount.Email, emailAccount.DisplayName));
             }
-
-            message.Subject = _services.Localization
-                .GetResource("Admin.DataExchange.Export.CompletedEmail.Subject", languageId)
-                .FormatInvariant(ctx.Request.Profile.Name);
-
-            message.Body = body.ToString();
 
             await using var client = await _mailService.ConnectAsync(emailAccount);
             await client.SendAsync(message, ctx.CancellationToken);

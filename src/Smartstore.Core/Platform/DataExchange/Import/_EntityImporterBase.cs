@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 using Smartstore.IO;
@@ -33,8 +34,12 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected void Initialize(ImportExecuteContext context)
         {
+            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(context.ImportDirectory, nameof(context.ImportDirectory));
+
             UtcNow = DateTime.UtcNow;
 
+            context.Result.TotalRecords = context.DataSegmenter.TotalRows;
         }
 
         protected virtual async Task<int> ProcessLocalizationsAsync<TEntity>(
@@ -114,5 +119,65 @@ namespace Smartstore.Core.DataExchange.Import
             return 0;
         }
 
+        protected virtual async Task<int> ProcessSlugsAsync<TEntity>(
+            ImportExecuteContext context,
+            IEnumerable<ImportRow<TEntity>> batch,
+            string entityName) 
+            where TEntity : BaseEntity, ISlugSupported
+        {
+            var urlService = context.Services.Resolve<IUrlService>();
+
+            foreach (var row in batch)
+            {
+                try
+                {
+                    if (row.TryGetDataValue("SeName", out string seName) || row.IsNew || row.NameChanged)
+                    {
+                        var slugResult = await urlService.ValidateSlugAsync(row.Entity, seName, true);
+
+                        if (row.IsNew)
+                        {
+                            context.Services.DbContext.UrlRecords.Add(new UrlRecord
+                            {
+                                EntityId = row.Entity.Id,
+                                EntityName = entityName,
+                                Slug = slugResult.Slug,
+                                LanguageId = 0,
+                                IsActive = true,
+                            });
+                        }
+                        else
+                        {
+                            // Let us not save here, otherwise 'save' parameter makes no sense ;-)
+                            await urlService.ApplySlugAsync(slugResult, false);
+                        }
+
+                        // Process localized slugs.
+                        foreach (var language in context.Languages)
+                        {
+                            // ValidateSlugAsync has no 'name' parameter anymore.
+                            // We ourselves must ensure that 'Name[<UniqueSeoCode>]' is taken into account.
+                            if (!row.TryGetDataValue("SeName", language.UniqueSeoCode, out seName) || seName.IsEmpty())
+                            {
+                                row.TryGetDataValue("Name", language.UniqueSeoCode, out seName);
+                            }
+
+                            if (seName.HasValue())
+                            {
+                                slugResult = await urlService.ValidateSlugAsync(row.Entity, seName, false, language.Id);
+                                await urlService.ApplySlugAsync(slugResult, false);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddWarning(ex.Message, row.RowInfo, "SeName");
+                }
+            }
+
+            // Commit whole batch at once.
+            return await context.Services.DbContext.SaveChangesAsync();
+        }
     }
 }
