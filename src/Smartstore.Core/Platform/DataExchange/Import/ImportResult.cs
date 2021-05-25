@@ -6,14 +6,9 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public class ImportResult : ICloneable<SerializableImportResult>
     {
-        public ImportResult()
-        {
-            Clear();
-        }
+        public DateTime StartDateUtc { get; set; } = DateTime.UtcNow;
 
-        public DateTime StartDateUtc { get; set; }
-
-        public DateTime EndDateUtc { get; set; }
+        public DateTime EndDateUtc { get; set; } = DateTime.UtcNow;
 
         public int TotalRecords { get; set; }
 

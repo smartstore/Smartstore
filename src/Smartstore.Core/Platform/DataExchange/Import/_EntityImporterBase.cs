@@ -82,6 +82,9 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         if (row.TryGetDataValue(prop /* ColumnName */, lang.UniqueSeoCode, out string value))
                         {
+                            // TODO: (mg) (core) (perf) We have to work against prefetched values here (prefetch the whole batch).
+                            // Reason: ApplyLocalizedValueAsync() always hits the database to determine whether the entity exists already.
+                            // Keep in mind that this code here was build before localized property prefetching was available.
                             await localizedEntityService.ApplyLocalizedValueAsync(row.Entity, lambda, value, lang.Id);
                             shouldSave = true;
                         }

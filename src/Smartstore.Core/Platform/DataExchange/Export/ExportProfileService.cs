@@ -34,6 +34,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _localizationService;
         private readonly IUrlHelper _urlHelper;
+        private readonly ITaskStore _taskStore;
         private readonly DataExchangeSettings _dataExchangeSettings;
 
         public ExportProfileService(
@@ -42,6 +43,7 @@ namespace Smartstore.Core.DataExchange.Export
             IStoreContext storeContext,
             ILocalizationService localizationService,
             IUrlHelper urlHelper,
+            ITaskStore taskStore,
             DataExchangeSettings dataExchangeSettings)
         {
             _db = db;
@@ -49,6 +51,7 @@ namespace Smartstore.Core.DataExchange.Export
             _storeContext = storeContext;
             _localizationService = localizationService;
             _urlHelper = urlHelper;
+            _taskStore = taskStore;
             _dataExchangeSettings = dataExchangeSettings;
         }
 
@@ -222,26 +225,19 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (cloneProfile == null)
             {
-                task = new TaskDescriptor
-                {
-                    CronExpression = "0 */6 * * *",     // Every six hours.
-                    Type = nameof(DataExportTask),
-                    Enabled = false,
-                    StopOnError = false,
-                    IsHidden = true
-                };
+                task = _taskStore.CreateDescriptor(name + " Task", typeof(DataExportTask));
+                task.Enabled = false;
+                task.CronExpression = "0 */6 * * *"; // Every six hours.
+                task.StopOnError = false;
+                task.IsHidden = true;
             }
             else
             {
                 task = cloneProfile.Task.Clone();
+                task.Name = name + " Task";
             }
 
-            task.Name = name + " Task";
-
-            _db.TaskDescriptors.Add(task);
-
-            // Get the task ID.
-            await _db.SaveChangesAsync();
+            await _taskStore.InsertTaskAsync(task);
 
             if (cloneProfile == null)
             {
@@ -341,6 +337,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             // Finally update task and export profile.
+            await _taskStore.UpdateTaskAsync(task);
             await _db.SaveChangesAsync();
 
             return profile;
@@ -371,7 +368,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (profile.Task != null)
             {
-                _db.TaskDescriptors.Remove(profile.Task);
+                await _taskStore.DeleteTaskAsync(profile.Task);
             }
 
             _db.ExportProfiles.Remove(profile);

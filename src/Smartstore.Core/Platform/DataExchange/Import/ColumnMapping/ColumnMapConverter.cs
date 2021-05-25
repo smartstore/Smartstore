@@ -6,7 +6,7 @@ using Smartstore.ComponentModel.TypeConverters;
 
 namespace Smartstore.Core.DataExchange.Import
 {
-    public class ColumnMapConverter : DefaultTypeConverter
+    internal class ColumnMapConverter : DefaultTypeConverter
     {
         public ColumnMapConverter()
             : base(typeof(object))

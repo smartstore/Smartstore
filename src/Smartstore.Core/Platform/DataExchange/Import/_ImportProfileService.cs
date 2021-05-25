@@ -21,17 +21,20 @@ namespace Smartstore.Core.DataExchange.Import
         private readonly IApplicationContext _appContext;
         private readonly ILocalizationService _localizationService;
         private readonly DataExchangeSettings _dataExchangeSettings;
+        private readonly ITaskStore _taskStore;
 
         public ImportProfileService(
             SmartDbContext db,
             IApplicationContext appContext,
             ILocalizationService localizationService,
-            DataExchangeSettings dataExchangeSettings)
+            DataExchangeSettings dataExchangeSettings,
+            ITaskStore taskStore)
         {
             _db = db;
             _appContext = appContext;
             _localizationService = localizationService;
             _dataExchangeSettings = dataExchangeSettings;
+            _taskStore = taskStore;
         }
 
         public virtual async Task<IDirectory> GetImportDirectoryAsync(ImportProfile profile, string subpath = null, bool createIfNotExists = false)
@@ -100,20 +103,17 @@ namespace Smartstore.Core.DataExchange.Import
                 name = await GetNewProfileNameAsync(entityType);
             }
 
-            var task = new TaskDescriptor
-            {
-                CronExpression = "0 */24 * * *",
-                Type = typeof(DataImportTask).AssemblyQualifiedNameWithoutVersion(),
-                Enabled = false,
-                StopOnError = false,
-                IsHidden = true,
-                Name = name + " Task"
-            };
+            // INFO: (mg) (core) Task descriptor types MUST NOT be fully qualified assembly names anymore, but just the type name.
+            // The former system was too fragile in terms of portation and refactoring (keep in mind that all namespace names were changed).
+            // Please have a look at Smartstore.Scheduling.TaskNameAttribute also.
 
-            _db.TaskDescriptors.Add(task);
+            var task = _taskStore.CreateDescriptor(name + " Task", typeof(DataImportTask));
+            task.Enabled = false;
+            task.CronExpression = "0 */24 * * *"; // Every 24 hours
+            task.StopOnError = false;
+            task.IsHidden = true;
 
-            // Get the task ID.
-            await _db.SaveChangesAsync();
+            await _taskStore.InsertTaskAsync(task);
 
             var profile = new ImportProfile
             {
@@ -156,7 +156,10 @@ namespace Smartstore.Core.DataExchange.Import
 
             task.Alias = profile.Id.ToString();
 
-            // Finally update task and export profile.
+            // INFO: (mc) (core) Isolation --> always use ITaskStore to interact with task storage (which is DB in our case by default, but can be memory in future).
+            await _taskStore.UpdateTaskAsync(task);
+
+            // Finally update export profile.
             await _db.SaveChangesAsync();
 
             return profile;

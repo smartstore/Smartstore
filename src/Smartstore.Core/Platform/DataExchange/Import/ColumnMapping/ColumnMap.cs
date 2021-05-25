@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 
 namespace Smartstore.Core.DataExchange.Import
 {
+    [TypeConverter(typeof(ColumnMapConverter))]
     public class ColumnMap
     {
         // Maps source column to property.
@@ -83,7 +85,7 @@ namespace Smartstore.Core.DataExchange.Import
         }
 
         private static bool IsIndexed(string name)
-            => name.EmptyNull().EndsWith("]") && name.EmptyNull().Contains("[");
+            => name.EmptyNull().EndsWith(']') && name.EmptyNull().Contains('[');
 
         private static string CreateSourceName(string name, string index)
             => index.HasValue() ? $"{name}[{index}]" : name;
@@ -117,15 +119,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         public bool IgnoreProperty
         {
-            get
-            {
-                if (_ignored == null)
-                {
-                    _ignored = Default != null && Default == "[IGNOREPROPERTY]";
-                }
-
-                return _ignored.Value;
-            }
+            get => _ignored ??= Default != null && Default == "[IGNOREPROPERTY]";
         }
     }
 }
