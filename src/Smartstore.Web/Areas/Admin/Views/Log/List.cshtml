@@ -1,0 +1,75 @@
+﻿@using Smartstore.Admin.Models.Logging
+
+@model LogListModel
+
+@{
+    ViewBag.Title = T("Admin.System.Log").Value;
+}
+@* style="overflow-y: scroll"*@
+<form method="post" asp-action="List">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-fire"></i>
+            @T("Admin.System.Log")
+        </div>
+    </div>
+
+    @*TODO: (ms) (core) Make nicer search form inputs: No format placeholder for datetimes. Have LogLevels as dropdown selection*@
+    <div class="row mt-3 grid-filter">
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="CreatedOnFrom" />
+            <input asp-for="CreatedOnFrom" />
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="CreatedOnTo" />
+            <input asp-for="CreatedOnTo" />
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="Logger" />
+            <input asp-for="Logger" />
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="Message" />
+            <input asp-for="Message" />
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="LogLevelId" />
+            <input asp-for="AvailableLogLevels" />
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <label>&nbsp;</label>
+            <button type="submit" id="btnSearch" value="btnSearch" class="btn btn-secondary btn-block">
+                <span>@T("Admin.Common.Search")</span>
+            </button>
+        </div>
+    </div>
+</form>
+
+@{
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["GridPageSize"] = Model.GridPageSize;
+}
+
+<partial name="_Grid.Logs" model="null" view-data="gridViewData" />
+
+
+<script sm-target-zone="scripts" data-origin="logs-list">
+
+    $(function() {
+        $('#btnSearch').click(function () {
+            var grid = $('#log-grid').data('tGrid');
+            // New search. Set page size to 1.
+            grid.currentPage = 1; 
+            grid.ajaxRequest();
+            return false;
+        });
+
+        $("#@Model.Message, #@Model.Logger").keydown(function (event) {
+            if (event.keyCode == 13) {
+                // On enter key pressed - submit
+                $("#btnSearch").click();
+                return false;
+            }
+        });        
+    });
+</script>

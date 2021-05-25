@@ -1,0 +1,41 @@
+﻿@using Smartstore.Admin.Models.Logging
+
+@model LogModel
+
+@{
+    var gridPageSize = GetMetadata<int>("GridPageSize");
+}
+
+<datagrid id="log-grid" border-style="HorizontalBorders" striped="true" hover="true" allow-resize="true" allow-row-selection="true">
+    <datasource read="@Url.Action("LogList")" delete="@Url.Action("LogDelete")" />
+    <paging position="Bottom" page-size="@gridPageSize" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false"></sorting>
+    <toolbar>
+        <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat mr-auto">
+            <i class="far fa-trash-alt"></i>
+            <span>@T("Admin.Common.Delete.Selected")</span>
+        </button>
+
+        @*TODO: (ms) (core) Have some confirm check (javascript). Make this work, for some reason this is not found*@
+        <a asp-action="LogClear" type="button" class="btn btn-danger">
+            <i class="fa fa-trash-alt"></i>
+            <span>@T("Admin.System.Log.ClearLog")</span>
+        </a>
+    </toolbar>
+    <columns>
+        <column for="Logger" width="1fr">
+            <display-template>
+                <span class="muted text-muted text-truncate" :title="item.value">{{ item.row.LoggerShort }}</span>
+            </display-template>
+        </column>
+        <column for="ShortMessage" width="5fr">
+            <display-template>
+                @*TODO: (ms) (core) Create correct view link with id*@
+                <span :class="'badge badge-' + item.row.LogLevelHint" style='margin-right: 4px'>{{ item.row.LogLevel }}</span>
+                <a asp-action="View" asp-route-Id="{{ item.row.Id }}" class="text-truncate">{{ item.value }}</a>
+            </display-template>
+        </column>
+        <column for="UserName" />
+        <column for="CreatedOn" />
+    </columns>
+</datagrid>
