@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
@@ -7,7 +8,6 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models
 {
-    // TODO: (mh) (core) Where's the validator?!
     public partial class GeneralCommonSettingsModel : ModelBase
     {
         public StoreInformationSettingsModel StoreInformationSettings { get; set; } = new();
@@ -377,4 +377,29 @@ namespace Smartstore.Admin.Models
         #endregion
     }
 
+    public partial class GeneralCommonSettingsValidator : AbstractValidator<GeneralCommonSettingsModel>
+    {
+        public GeneralCommonSettingsValidator(Localizer T)
+        {
+            RuleFor(x => x.ContactDataSettings.CompanyEmailAddress).EmailAddress();
+            RuleFor(x => x.ContactDataSettings.ContactEmailAddress).EmailAddress();
+            RuleFor(x => x.ContactDataSettings.SupportEmailAddress).EmailAddress();
+            RuleFor(x => x.ContactDataSettings.WebmasterEmailAddress).EmailAddress();
+
+            RuleFor(x => x.CaptchaSettings.ReCaptchaPublicKey)
+                .NotEmpty()
+                .When(x => x.CaptchaSettings.Enabled)
+                .WithMessage(T("Admin.Configuration.Settings.GeneralCommon.CaptchaEnabledNoKeys"));
+
+            RuleFor(x => x.CaptchaSettings.ReCaptchaPrivateKey)
+                .NotEmpty()
+                .When(x => x.CaptchaSettings.Enabled)
+                .WithMessage(T("Admin.Configuration.Settings.GeneralCommon.CaptchaEnabledNoKeys"));
+
+            RuleFor(x => x.SocialSettings.TwitterSite)
+                .Must(x => x.StartsWith("@"))
+                .Unless(x => !x.SocialSettings.TwitterSite.HasValue())
+                .WithMessage(T("Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite.Error"));
+        }
+    }
 }
