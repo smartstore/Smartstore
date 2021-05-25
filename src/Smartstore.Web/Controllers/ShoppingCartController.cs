@@ -1150,7 +1150,7 @@ namespace Smartstore.Web.Controllers
         [MaxMediaFileSize]
         public async Task<IActionResult> UploadFileCheckoutAttribute()
         {
-            var fileResult = Request.ToPostedFileResult();
+            var fileResult = Request.Form.Files.FirstOrDefault();
             if (fileResult == null || !fileResult.FileName.HasValue())
             {
                 return Json(new
@@ -1171,7 +1171,8 @@ namespace Smartstore.Web.Controllers
                 IsTransient = true
             };
 
-            var mediaFile = await _downloadService.InsertDownloadAsync(download, fileResult.Stream, fileResult.FileName);
+            using var stream = fileResult.OpenReadStream();
+            var mediaFile = await _downloadService.InsertDownloadAsync(download, stream, fileResult.FileName);
 
             return Json(new
             {
