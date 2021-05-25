@@ -13,9 +13,9 @@ namespace Smartstore.Core.DataExchange.Export
         /// e.g. whether it should be written to a file (default).
         /// </summary>
         /// <param name="request">Contains request data for exporting.</param>
-        /// <param name="cancellationToken">A cancellation token to cancel the export.</param>
+        /// <param name="cancelToken">A cancellation token to cancel the export.</param>
         /// <returns>Data export result.</returns>
-        Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancellationToken);
+        Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Exports data to display them in a preview grid.

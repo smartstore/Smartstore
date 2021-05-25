@@ -24,7 +24,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// Exports data to a file.
         /// </summary>
         /// <param name="context">Export execution context.</param>
-        /// <param name="cancellationToken">A cancellation token to cancel the export.</param>
+        /// <param name="cancelToken">A cancellation token to cancel the export.</param>
         protected abstract Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken);
 
         /// <inheritdoc/>

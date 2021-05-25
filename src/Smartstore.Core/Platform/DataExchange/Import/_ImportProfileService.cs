@@ -1,10 +1,14 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Engine;
+using Smartstore.IO;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.DataExchange.Import
@@ -28,6 +32,63 @@ namespace Smartstore.Core.DataExchange.Import
             _appContext = appContext;
             _localizationService = localizationService;
             _dataExchangeSettings = dataExchangeSettings;
+        }
+
+        public virtual async Task<IDirectory> GetImportDirectoryAsync(ImportProfile profile, string subpath = null, bool createIfNotExists = false)
+        {
+            Guard.NotNull(profile, nameof(profile));
+
+            var root = _appContext.TenantRoot;
+            var path = root.PathCombine(_importFileRoot, profile.FolderName, subpath.EmptyNull());
+
+            if (createIfNotExists)
+            {
+                var _ = await root.TryCreateDirectoryAsync(path);
+            }
+
+            return await root.GetDirectoryAsync(path);
+        }
+
+        public virtual async Task<IList<ImportFile>> GetImportFilesAsync(ImportProfile profile, bool includeRelatedFiles = true)
+        {
+            var result = new List<ImportFile>();
+            var directory = await GetImportDirectoryAsync(profile, "Content");
+
+            if (directory.Exists)
+            {
+                var files = await directory.FileSystem.EnumerateFilesAsync(directory.SubPath).ToListAsync();
+                if (files.Any())
+                {
+                    foreach (var file in files)
+                    {
+                        var importFile = new ImportFile(file);
+                        if (!includeRelatedFiles && !importFile.RelatedType.HasValue)
+                        {
+                            continue;
+                        }
+
+                        result.Add(importFile);
+                    }
+
+                    // Always main data files first.
+                    result = result
+                        .OrderBy(x => x.RelatedType)
+                        .ThenBy(x => x.File.Name)
+                        .ToList();
+                }
+            }
+
+            return result;
+        }
+
+        public virtual async Task<string> GetNewProfileNameAsync(ImportEntityType entityType)
+        {
+            var defaultNamesStr = await _localizationService.GetResourceAsync("Admin.DataExchange.Import.DefaultProfileNames");
+            var defaultNames = defaultNamesStr.SplitSafe(";").ToArray();
+            var profileCount = 1 + await _db.ImportProfiles.CountAsync(x => x.EntityTypeId == (int)entityType);
+
+            var result = defaultNames.ElementAtOrDefault((int)entityType).NullEmpty() ?? entityType.ToString();
+            return result + " " + profileCount.ToString();
         }
 
         public virtual async Task<ImportProfile> InsertImportProfileAsync(string fileName, string name, ImportEntityType entityType)
@@ -101,14 +162,30 @@ namespace Smartstore.Core.DataExchange.Import
             return profile;
         }
 
-        public virtual async Task<string> GetNewProfileNameAsync(ImportEntityType entityType)
+        public virtual async Task DeleteImportProfileAsync(ImportProfile profile)
         {
-            var defaultNamesStr = await _localizationService.GetResourceAsync("Admin.DataExchange.Import.DefaultProfileNames");
-            var defaultNames = defaultNamesStr.SplitSafe(";").ToArray();
-            var profileCount = 1 + await _db.ImportProfiles.CountAsync(x => x.EntityTypeId == (int)entityType);
+            if (profile == null)
+            {
+                return;
+            }
 
-            var result = defaultNames.ElementAtOrDefault((int)entityType).NullEmpty() ?? entityType.ToString();
-            return result + " " + profileCount.ToString();
+            await _db.LoadReferenceAsync(profile, x => x.Task);
+
+            var directory = await GetImportDirectoryAsync(profile);
+
+            if (profile.Task != null)
+            {
+                _db.TaskDescriptors.Remove(profile.Task);
+            }
+
+            _db.ImportProfiles.Remove(profile);
+
+            await _db.SaveChangesAsync();
+
+            if (directory.Exists)
+            {
+                directory.FileSystem.ClearDirectory(directory, true, TimeSpan.Zero);
+            }
         }
     }
 }

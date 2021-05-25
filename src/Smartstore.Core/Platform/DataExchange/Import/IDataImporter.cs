@@ -12,8 +12,8 @@ namespace Smartstore.Core.DataExchange.Import
         /// Starts importing data. An <see cref="IEntityImporter"/> is responsible to save data to the database.
         /// </summary>
         /// <param name="request">Contains request data for importing.</param>
-        /// <param name="cancellationToken">A cancellation token to cancel the import.</param>
-        Task ImportAsync(DataImportRequest request, CancellationToken cancellationToken);
+        /// <param name="cancelToken">A cancellation token to cancel the import.</param>
+        Task ImportAsync(DataImportRequest request, CancellationToken cancelToken = default);
     }
 
     /// <summary>
@@ -25,6 +25,6 @@ namespace Smartstore.Core.DataExchange.Import
         /// Processes the import data and saves it to the database.
         /// </summary>
         /// <param name="context">Contains all information to process import data.</param>
-        Task ExecuteAsync(ImportExecuteContext context);
+        Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken);
     }
 }

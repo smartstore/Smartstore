@@ -139,13 +139,13 @@ namespace Smartstore.Core.DataExchange.Export
         /// </summary>
         public static int PageSize => 100;
 
-        public virtual async Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancellationToken = default)
+        public virtual async Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
             Guard.NotNull(request.Profile, nameof(request.Profile));
             Guard.NotNull(request.Provider?.Value, nameof(request.Provider));
 
-            var ctx = await CreateExporterContext(request, false, cancellationToken);
+            var ctx = await CreateExporterContext(request, false, cancelToken);
 
             if (!request.Profile.Enabled)
             {
@@ -159,7 +159,7 @@ namespace Smartstore.Core.DataExchange.Export
                 return ctx.Result;
             }
 
-            using (await AsyncLock.KeyedAsync(lockKey, null, cancellationToken))
+            using (await AsyncLock.KeyedAsync(lockKey, null, cancelToken))
             {
                 try
                 {
@@ -247,7 +247,7 @@ namespace Smartstore.Core.DataExchange.Export
                 }
             }
 
-            cancellationToken.ThrowIfCancellationRequested();
+            cancelToken.ThrowIfCancellationRequested();
 
             return ctx.Result;
         }
@@ -1528,7 +1528,7 @@ namespace Smartstore.Core.DataExchange.Export
             return options;
         }
 
-        private async Task<DataExporterContext> CreateExporterContext(DataExportRequest request, bool isPreview, CancellationToken cancellationToken)
+        private async Task<DataExporterContext> CreateExporterContext(DataExportRequest request, bool isPreview, CancellationToken cancelToken)
         {
             var profile = request.Profile;
             var provider = request.Provider.Value;
@@ -1538,7 +1538,7 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 IsPreview = isPreview,
                 Request = request,
-                CancellationToken = cancellationToken,
+                CancellationToken = cancelToken,
                 Filter = XmlHelper.Deserialize<ExportFilter>(profile.Filtering),
                 Projection = XmlHelper.Deserialize<ExportProjection>(profile.Projection)
             };
@@ -1564,7 +1564,7 @@ namespace Smartstore.Core.DataExchange.Export
                 context.Projection.DescriptionMergingId = (int)ExportDescriptionMerging.Description;
             }
 
-            context.ExecuteContext = new ExportExecuteContext(context.Result, cancellationToken)
+            context.ExecuteContext = new ExportExecuteContext(context.Result, cancelToken)
             {
                 Log = context.Log,
                 ExportDirectory = context.ExportDirectory,

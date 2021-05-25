@@ -48,11 +48,11 @@ namespace Smartstore.Core.DataExchange.Import
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public async Task ImportAsync(DataImportRequest request, CancellationToken cancellationToken)
+        public async Task ImportAsync(DataImportRequest request, CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
             Guard.NotNull(request.Profile, nameof(request.Profile));
-            Guard.NotNull(cancellationToken, nameof(cancellationToken));
+            Guard.NotNull(cancelToken, nameof(cancelToken));
 
             var profile = request.Profile;
             if (!profile.Enabled)
@@ -60,7 +60,7 @@ namespace Smartstore.Core.DataExchange.Import
                 return;
             }
 
-            var ctx = await CreateImporterContext(request, cancellationToken);
+            var ctx = await CreateImporterContext(request, cancelToken);
 
             try
             {
@@ -77,7 +77,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                 ctx.Log.Info(CreateLogHeader(files, ctx));
 
-                await _services.EventPublisher.PublishAsync(new ImportExecutingEvent(context), cancellationToken);
+                await _services.EventPublisher.PublishAsync(new ImportExecutingEvent(context), cancelToken);
 
                 foreach (var fileGroup in files)
                 {
@@ -110,7 +110,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                         try
                         {
-                            await ctx.Importer.ExecuteAsync(context);
+                            await ctx.Importer.ExecuteAsync(context, cancelToken);
                         }
                         catch (Exception ex)
                         {
@@ -139,7 +139,7 @@ namespace Smartstore.Core.DataExchange.Import
                 await Finalize(ctx);
             }
 
-            cancellationToken.ThrowIfCancellationRequested();
+            cancelToken.ThrowIfCancellationRequested();
         }
 
         private async Task Finalize(DataImporterContext ctx)
@@ -284,14 +284,14 @@ namespace Smartstore.Core.DataExchange.Import
             //await _db.SaveChangesAsync();
         }
 
-        private async Task<DataImporterContext> CreateImporterContext(DataImportRequest request, CancellationToken cancellationToken)
+        private async Task<DataImporterContext> CreateImporterContext(DataImportRequest request, CancellationToken cancelToken)
         {
             var profile = request.Profile;
 
             // TODO: (mg) (core) setup file logger for data import.
             ILogger logger = null;
 
-            var executeContext = new ImportExecuteContext(T("Admin.DataExchange.Import.ProgressInfo"), cancellationToken)
+            var executeContext = new ImportExecuteContext(T("Admin.DataExchange.Import.ProgressInfo"), cancelToken)
             {
                 Request = request,
                 DataExchangeSettings = _dataExchangeSettings,
@@ -308,7 +308,7 @@ namespace Smartstore.Core.DataExchange.Import
             var context = new DataImporterContext
             {
                 Request = request,
-                CancellationToken = cancellationToken,
+                CancellationToken = cancelToken,
                 Log = logger,
                 Importer = _importerFactory(profile.EntityType),
                 ColumnMap = new ColumnMapConverter().ConvertFrom<ColumnMap>(profile.ColumnMapping) ?? new ColumnMap(),

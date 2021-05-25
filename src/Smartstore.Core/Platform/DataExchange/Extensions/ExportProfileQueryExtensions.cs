@@ -7,8 +7,8 @@ namespace Smartstore.Core.DataExchange.Export
     {
         /// <summary>
         /// Applies a standard filter for an export profile query.
-        /// Includes <see cref="ExportProfile.Deployments"/> and sorts by 
-        /// <see cref="ExportProfile.IsSystemProfile"/>, then by <see cref="ExportProfile.Name"/>.
+        /// Includes <see cref="ExportProfile.Deployments"/> and <see cref="ExportProfile.Task"/>.
+        /// Sorts by <see cref="ExportProfile.IsSystemProfile"/>, then by <see cref="ExportProfile.Name"/>.
         /// </summary>
         /// <param name="query">Export profile query.</param>
         /// <param name="enabled">A value indicating whether to include enabled profiles. <c>null</c> to ignore.</param>
@@ -17,7 +17,9 @@ namespace Smartstore.Core.DataExchange.Export
         {
             Guard.NotNull(query, nameof(query));
 
-            query = query.Include(x => x.Deployments);
+            query = query
+                .Include(x => x.Deployments)
+                .Include(x => x.Task);
 
             if (enabled.HasValue)
             {

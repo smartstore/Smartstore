@@ -348,7 +348,10 @@ namespace Smartstore.Core.DataExchange.Export
 
         public virtual async Task DeleteExportProfileAsync(ExportProfile profile, bool force = false)
         {
-            Guard.NotNull(profile, nameof(profile));
+            if (profile == null)
+            {
+                return;
+            }
 
             if (!force && profile.IsSystemProfile)
             {

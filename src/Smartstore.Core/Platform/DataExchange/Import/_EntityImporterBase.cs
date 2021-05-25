@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
@@ -25,12 +26,17 @@ namespace Smartstore.Core.DataExchange.Import
         public IDirectory ImageFolder { get; private set; }
 
 
-        public Task ExecuteAsync(ImportExecuteContext context)
+        public Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
-            return ImportAsync(context);
+            return ImportAsync(context, cancelToken);
         }
 
-        protected abstract Task ImportAsync(ImportExecuteContext context);
+        /// <summary>
+        /// Imports data to the database.
+        /// </summary>
+        /// <param name="context">Import execution context.</param>
+        /// <param name="cancelToken">A cancellation token to cancel the import.</param>
+        protected abstract Task ImportAsync(ImportExecuteContext context, CancellationToken cancelToken = default);
 
         protected void Initialize(ImportExecuteContext context)
         {
