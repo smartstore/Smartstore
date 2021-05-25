@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -46,6 +47,7 @@ namespace Smartstore.Core.DataExchange.Csv
         ReplaceByNull = 2,
     }
 
+    [TypeConverter(typeof(CsvConfigurationConverter))]
     public class CsvConfiguration
     {
         private char _delimiter;
