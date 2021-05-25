@@ -224,11 +224,6 @@ namespace Smartstore.Admin.Controllers
                 return continueEditing ? RedirectToAction("Edit", new { id = topic.Id }) : RedirectToAction("List");
             }
 
-            // TODO: (mh) (core) Remove comment after review.
-            // INFO: (mh) (core) Not neccessary. There's no such message anymore.
-            // Chrome spat out an error message after validation with this rule .Must(u => u.IsEmpty() || !u.Any(x => char.IsWhiteSpace(x)))
-            // HttpContext.Response.Headers.Add("X-XSS-Protection", "0");
-
             // If we got this far something failed. Redisplay form.
             await PrepareTopicModelAsync(topic, model);
 

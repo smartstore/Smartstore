@@ -184,14 +184,13 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// TODO: (mh) (core) Add documentation.
+        /// (ajax) We don't actually delete here. We just return the editor in it's init state.
+        /// So the download entity can be set to transient state and deleted later by a scheduled task.
         /// </summary>
         [HttpPost]
         [Permission(Permissions.Media.Download.Delete)]
         public async Task<IActionResult> DeleteDownload(bool minimalMode = false, string fieldName = null)
         {
-            // We don't actually delete here. We just return the editor in it's init state.
-            // So the download entity can be set to transient state and deleted later by a scheduled task.
             return Json(new
             {
                 success = true,

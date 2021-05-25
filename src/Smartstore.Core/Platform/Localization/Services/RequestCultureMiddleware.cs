@@ -73,7 +73,7 @@ namespace Smartstore.Core.Localization
             var nf = ci.NumberFormat;
             var df = ci.DateTimeFormat;
 
-            // TODO: (core) Determine view result type somehonw and render glob script only when html view.
+            // TODO: (core) Determine view result type somehow and render glob script only when html view.
 
             var dict = new Dictionary<string, object>
             {

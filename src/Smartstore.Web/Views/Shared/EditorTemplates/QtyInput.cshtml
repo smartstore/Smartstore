@@ -45,8 +45,7 @@
                 <span data-bind="value">@Model.EnteredQuantity</span>
                 <b><i class="fas fa-caret-down"></i></b>
             </button>
-            @*TODO: (mh) (core)*@
-            @Html.DropDownListFor(model => Model.EnteredQuantity, Model.AllowedQuantities, new { @class = "form-control qty-dropdown noskin" })
+            <select asp-for="EnteredQuantity" asp-items="Model.AllowedQuantities" class="form-control qty-dropdown noskin"></select>
         </div>
     }
 </div>
