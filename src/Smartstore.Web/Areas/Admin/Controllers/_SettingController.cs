@@ -17,13 +17,13 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly StoreDependingSettingHelper _storeDependingSettings;
 
-        public SettingController(SmartDbContext db, StoreDependingSettingHelper storeDependingSettings)
+        public SettingController(SmartDbContext db/*, StoreDependingSettingHelper storeDependingSettings*/)
         {
             _db = db;
-            _storeDependingSettings = storeDependingSettings;
+            //_storeDependingSettings = storeDependingSettings;
         }
 
-        //[LoadSetting(IsRootedModel = true)]
+        [LoadSetting(IsRootedModel = true)]
         public ActionResult GeneralCommon(int storeScope,
             StoreInformationSettings storeInformationSettings,
             SeoSettings seoSettings,

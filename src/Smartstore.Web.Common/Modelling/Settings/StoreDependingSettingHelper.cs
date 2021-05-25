@@ -26,6 +26,7 @@ namespace Smartstore.Web.Modelling.Settings
             ISettingService settingService, 
             ILocalizedEntityService leService)
         {
+            // TODO: (mh) (core) ViewData is not initialized yet when injecting StoreDependingSettingHelper into controllers
             _viewData = viewDataAccessor.ViewData;
             _db = db;
             _settingService = settingService;
@@ -36,7 +37,7 @@ namespace Smartstore.Web.Modelling.Settings
 
         public StoreDependingSettingData Data => _viewData[ViewDataKey] as StoreDependingSettingData;
 
-        public bool IsOverrideChecked(object settings, string name, IFormCollection form)
+        public static bool IsOverrideChecked(object settings, string name, IFormCollection form)
         {
             var key = settings.GetType().Name + "." + name;
             return IsOverrideChecked(key, form);
