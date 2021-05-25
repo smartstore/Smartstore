@@ -14,8 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
-using Smartstore.Engine;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.Web.Modelling.Settings
 {
@@ -45,10 +43,10 @@ namespace Smartstore.Web.Modelling.Settings
         public bool IsRootedModel { get; set; }
         public ICommonServices Services { get; set; }
 
-        protected int GetActiveStoreScopeConfiguration()
+        protected int GetActiveStoreScopeConfiguration(ICommonServices services)
         {
-            var storeId = Services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
-            var store = Services.StoreContext.GetStoreById(storeId);
+            var storeId = services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
+            var store = services.StoreContext.GetStoreById(storeId);
             return store != null ? store.Id : 0;
         }
 
@@ -57,7 +55,7 @@ namespace Smartstore.Web.Modelling.Settings
             // Get the current configured store id
             var services = filterContext.HttpContext.RequestServices.GetService<ICommonServices>();
             var controller = filterContext.Controller as Controller;
-            _storeId = GetActiveStoreScopeConfiguration();
+            _storeId = GetActiveStoreScopeConfiguration(services);
             Func<ParameterDescriptor, bool> predicate = (x) => new[] { "storescope", "storeid" }.Contains(x.Name, StringComparer.OrdinalIgnoreCase);
             var storeScopeParam = FindActionParameters<int>(filterContext.ActionDescriptor, false, false, predicate).FirstOrDefault();
             if (storeScopeParam != null)
