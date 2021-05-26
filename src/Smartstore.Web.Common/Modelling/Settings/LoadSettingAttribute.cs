@@ -1,7 +1,4 @@
-﻿// TODO: (mh) (core) PLEASE, don't port infrastructural MVC stuff via copy/paste!!!! Don't even attemp to!! I don't have that much time to fix this shit!!!!!!
-// Look at how filter attributes are implemented in Smartstore Core, then think, then port. But first: LOOK!! TBD with MC.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,7 +7,6 @@ using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
@@ -18,7 +14,19 @@ using Smartstore.Core.Stores;
 namespace Smartstore.Web.Modelling.Settings
 {
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
-    public class LoadSettingAttribute : Attribute, IAsyncActionFilter
+    public class LoadSettingAttribute : TypeFilterAttribute
+    {
+        public LoadSettingAttribute()
+            : base(typeof(LoadSettingFilter))
+        {
+            Arguments = new object[] { this };
+        }
+
+        public bool UpdateParameterFromStore { get; set; } = true;
+        public bool IsRootedModel { get; set; }
+    }
+
+    internal class LoadSettingFilter : IAsyncActionFilter
     {
         public sealed class SettingParam
         {
@@ -26,36 +34,32 @@ namespace Smartstore.Web.Modelling.Settings
             public ParameterDescriptor Parameter { get; set; }
         }
 
+        private readonly LoadSettingAttribute _attribute;
+        private readonly ICommonServices _services;
+        private readonly StoreDependingSettingHelper _storeDependingSettings;
+
         protected int _storeId;
         protected SettingParam[] _settingParams;
 
-        public LoadSettingAttribute()
-            : this(true)
+        public LoadSettingFilter(LoadSettingAttribute attribute, ICommonServices services, StoreDependingSettingHelper storeDependingSettings)
         {
+            _attribute = attribute;
+            _services = services;
+            _storeDependingSettings = storeDependingSettings;
         }
 
-        public LoadSettingAttribute(bool updateParameterFromStore)
+        protected int GetActiveStoreScopeConfiguration()
         {
-            UpdateParameterFromStore = updateParameterFromStore;
-        }
-
-        public bool UpdateParameterFromStore { get; set; }
-        public bool IsRootedModel { get; set; }
-        public ICommonServices Services { get; set; }
-
-        protected int GetActiveStoreScopeConfiguration(ICommonServices services)
-        {
-            var storeId = services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
-            var store = services.StoreContext.GetStoreById(storeId);
+            var storeId = _services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
+            var store = _services.StoreContext.GetStoreById(storeId);
             return store != null ? store.Id : 0;
         }
 
         public virtual async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next)
         {
             // Get the current configured store id
-            var services = filterContext.HttpContext.RequestServices.GetService<ICommonServices>();
             var controller = filterContext.Controller as Controller;
-            _storeId = GetActiveStoreScopeConfiguration(services);
+            _storeId = GetActiveStoreScopeConfiguration();
             Func<ParameterDescriptor, bool> predicate = (x) => new[] { "storescope", "storeid" }.Contains(x.Name, StringComparer.OrdinalIgnoreCase);
             var storeScopeParam = FindActionParameters<int>(filterContext.ActionDescriptor, false, false, predicate).FirstOrDefault();
             if (storeScopeParam != null)
@@ -69,9 +73,9 @@ namespace Smartstore.Web.Modelling.Settings
                 .SelectAsync(async x =>
                 {
                     // Load settings for the settings type obtained with FindActionParameters<ISettings>()
-                    var settings = UpdateParameterFromStore
-                        ? await services.SettingFactory.LoadSettingsAsync(x.ParameterType, _storeId)
-                        : filterContext.ActionArguments[x.Name] as ISettings;
+                    var settings = _attribute.UpdateParameterFromStore
+                            ? await _services.SettingFactory.LoadSettingsAsync(x.ParameterType, _storeId)
+                            : filterContext.ActionArguments[x.Name] as ISettings;
 
                     if (settings == null)
                     {
@@ -79,7 +83,7 @@ namespace Smartstore.Web.Modelling.Settings
                     }
 
                     // Replace settings from action parameters with our loaded settings.
-                    if (UpdateParameterFromStore)
+                    if (_attribute.UpdateParameterFromStore)
                     {
                         filterContext.ActionArguments[x.Name] = settings;
                     }
@@ -106,10 +110,9 @@ namespace Smartstore.Web.Modelling.Settings
                 }
 
                 var modelType = model.GetType();
-                var settingsHelper = filterContext.HttpContext.RequestServices.GetService<StoreDependingSettingHelper>();
-                if (IsRootedModel)
+                if (_attribute.IsRootedModel)
                 {
-                    settingsHelper.CreateViewDataObject(_storeId);
+                    _storeDependingSettings.CreateViewDataObject(_storeId);
                 }
 
                 foreach (var param in _settingParams)
@@ -117,7 +120,7 @@ namespace Smartstore.Web.Modelling.Settings
                     var settingInstance = param.Instance;
                     var modelInstance = model;
 
-                    if (IsRootedModel)
+                    if (_attribute.IsRootedModel)
                     {
                         modelInstance = modelType.GetProperty(settingInstance.GetType().Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)?.GetValue(model);
                         if (modelInstance == null)
@@ -126,7 +129,7 @@ namespace Smartstore.Web.Modelling.Settings
                         }
                     }
 
-                    await settingsHelper.GetOverrideKeysAsync(settingInstance, modelInstance, _storeId, !IsRootedModel);
+                    await _storeDependingSettings.GetOverrideKeysAsync(settingInstance, modelInstance, _storeId, !_attribute.IsRootedModel);
                 }
             }
         }
