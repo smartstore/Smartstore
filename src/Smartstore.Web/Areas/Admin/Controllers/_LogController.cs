@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Logging;
-using Smartstore.Collections;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
+using Smartstore.Data.Batching;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.DataGrid;
 using Smartstore.Web.Rendering;
@@ -59,8 +59,7 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new LogListModel
             {
-                AvailableLogLevels = LogLevel.Debug.ToSelectList(false).ToList(),
-                GridPageSize = _adminAreaSettings.GridPageSize
+                AvailableLogLevels = LogLevel.Debug.ToSelectList(false).ToList()
             };
 
             return View(model);
@@ -94,27 +93,7 @@ namespace Smartstore.Admin.Controllers
             {
                 Rows = logItems.Select(x =>
                 {
-                    // TODO: (ms) (core) Make model preparer
-                    var logModel = new LogModel
-                    {
-                        Id = x.Id,
-                        LogLevelHint = _logLevelHintMap[x.LogLevel],
-                        LogLevel = x.LogLevel.GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id),
-                        ShortMessage = x.ShortMessage,
-                        FullMessage = x.FullMessage,
-                        IpAddress = x.IpAddress,
-                        CustomerId = x.CustomerId,
-                        CustomerEmail = x.Customer?.Email,
-                        PageUrl = x.PageUrl,
-                        ReferrerUrl = x.ReferrerUrl,
-                        CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                        Logger = x.Logger,
-                        LoggerShort = TruncateLoggerName(x.Logger),
-                        HttpMethod = x.HttpMethod,
-                        UserName = x.UserName,
-                        ViewUrl = Url.Action("View", "Log", new { id = x.Id })
-                    };
-
+                    var logModel = PrepareLogModel(x);
                     return logModel;
                 }),
 
@@ -129,21 +108,20 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Log.Delete)]
         public async Task<IActionResult> LogDelete(GridSelection selection)
         {
-            var ids = selection.GetEntityIds();
+            var ids = selection.GetEntityIds().ToList();
             var numDeleted = 0;
-            // TODO: (ms) (core) Make BatchDelete
             if (ids.Any())
             {
-                var logs = await _db.Logs.GetManyAsync(ids, true);
-
-                _db.Logs.RemoveRange(logs);
-                numDeleted = await _db.SaveChangesAsync();
+                numDeleted = await _db.Logs
+                    .Where(x => ids.Contains(x.Id))
+                    .BatchDeleteAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
         }
 
-        [HttpPost]
+        [HttpPost, ActionName("List")]
+        [FormValueRequired("clearall")]
         [ValidateAntiForgeryToken]
         [Permission(Permissions.System.Log.Delete)]
         public async Task<IActionResult> LogClear()
@@ -159,28 +137,11 @@ namespace Smartstore.Admin.Controllers
             var log = await _db.Logs.FindByIdAsync(id);
             if (log == null)
             {
-                // No log found with the specified id
+                // No log found with the specified id.
                 return RedirectToAction(nameof(List));
             }
 
-            var model = new LogModel
-            {
-                Id = log.Id,
-                LogLevelHint = _logLevelHintMap[log.LogLevel],
-                LogLevel = log.LogLevel.GetLocalizedEnum(),
-                ShortMessage = log.ShortMessage,
-                FullMessage = log.FullMessage,
-                IpAddress = log.IpAddress,
-                CustomerId = log.CustomerId,
-                CustomerEmail = log.Customer?.Email,
-                PageUrl = log.PageUrl,
-                ReferrerUrl = log.ReferrerUrl,
-                CreatedOn = _dateTimeHelper.ConvertToUserTime(log.CreatedOnUtc, DateTimeKind.Utc),
-                Logger = log.Logger,
-                LoggerShort = TruncateLoggerName(log.Logger),
-                HttpMethod = log.HttpMethod,
-                UserName = log.UserName
-            };
+            var model = PrepareLogModel(log);
 
             return View(model);
         }
@@ -204,6 +165,32 @@ namespace Smartstore.Admin.Controllers
             }
 
             return name;
+        }
+
+        [NonAction]
+        private LogModel PrepareLogModel(Log log)
+        {
+            var model = new LogModel
+            {
+                Id = log.Id,
+                LogLevelHint = _logLevelHintMap[log.LogLevel],
+                LogLevel = log.LogLevel.GetLocalizedEnum(),
+                ShortMessage = log.ShortMessage,
+                FullMessage = log.FullMessage,
+                IpAddress = log.IpAddress,
+                CustomerId = log.CustomerId,
+                CustomerEmail = log.Customer?.Email,
+                PageUrl = log.PageUrl,
+                ReferrerUrl = log.ReferrerUrl,
+                CreatedOn = _dateTimeHelper.ConvertToUserTime(log.CreatedOnUtc, DateTimeKind.Utc),
+                Logger = log.Logger,
+                LoggerShort = TruncateLoggerName(log.Logger),
+                HttpMethod = log.HttpMethod,
+                UserName = log.UserName,
+                ViewUrl = Url.Action("View", "Log", new { id = log.Id })
+            };
+
+            return model;
         }
     }
 }

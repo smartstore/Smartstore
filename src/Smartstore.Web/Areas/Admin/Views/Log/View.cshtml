@@ -21,8 +21,6 @@
         </div>
     </div>
 
-    @*INFO: (mh) (core) Please no more tables*@
-    @*TODO: (ms) (core) Remove comments*@
     <div class="adminContent">
         <div class="adminRow">
             <div class="adminTitle">
@@ -66,8 +64,9 @@
             </div>
             <div class="adminData">
                 <div sm-if="Model.CustomerId.HasValue" class="form-control-plaintext">
-                    @* TODO: (ms) (core) Make a tag *@
-                    @Html.ActionLink(Model.CustomerEmail.HasValue() ? Model.CustomerEmail : T("Admin.Customers.Guest").Value, "Edit", "Customer", new { id = Model.CustomerId })
+                    <a asp-action="Edit" asp-controller="Customer" asp-route-id="@Model.CustomerId">
+                        @(Model.CustomerEmail.HasValue() ? Model.CustomerEmail : T("Admin.Customers.Guest").Value)
+                    </a>
                 </div>
             </div>
         </div>

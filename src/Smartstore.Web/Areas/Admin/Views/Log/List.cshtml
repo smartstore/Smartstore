@@ -13,6 +13,13 @@
             <i class="fa fa-fire"></i>
             @T("Admin.System.Log")
         </div>
+		@*TODO: (ms) (core) Have confirm2 ask for confirmation*@
+        <div class="options">
+            <button type="submit" name="clearall" value="clearall" class="btn btn-danger" onclick="return confirm(@T("Admin.Common.AskToProceed").Value);">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.System.Log.ClearLog")</span>
+            </button>
+        </div>
     </div>
 
     <div class="row mt-3 grid-filter">
@@ -57,28 +64,28 @@
             Message: $('#@Html.FieldIdFor(model => model.Message)').val(),
             LogLevelId: $('#@Html.FieldIdFor(model => model.LogLevelId)').val()
         };
-        e.data = searchModel;*@
+        e.data = searchModel;
 
-        @*command.searchModel = searchModel;
+        command.searchModel = searchModel;
         command.CreatedOnFrom = $('#@Html.IdFor(model => model.CreatedOnFrom)').val();*@
-        // ...
+        
+        command.CreatedOnFrom = $('#@Html.IdFor(model => model.CreatedOnFrom)').val();
+        command.CreatedOnTo = $('#@Html.IdFor(model => model.CreatedOnTo)').val();
+        command.Logger = $('#@Html.IdFor(model => model.Logger)').val();
+        command.Message = $('#@Html.IdFor(model => model.Message)').val();
+        command.LogLevelId = $('#@Html.IdFor(model => model.LogLevelId)').val();
     }
 
     $(function() {
         $('#btnSearch').on("click", x => {
-            //var grid = window["log-grid"];
-            //grid.currentPage = 1;
-            //return false;
-
-            //// New search. Set page size to 1.
-            //grid.currentPage = 1;
-            //grid.ajaxRequest();
-            //return false;
+            var grid = window["log-grid"];
+            grid.currentPage = 1;
+            return false;
         });
 
         $("#@Html.IdFor(x => x.Message), #@Html.IdFor(x => x.Logger)").on("keydown", event => {
             if (event.keyCode == 13) {
-                // On enter key pressed - submit
+                // On enter key pressed - submit/return form.
                 $("#btnSearch").click();
                 return false;
             }

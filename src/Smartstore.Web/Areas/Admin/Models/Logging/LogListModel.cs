@@ -24,7 +24,5 @@ namespace Smartstore.Admin.Models.Logging
         public string Logger { get; set; }
 
         public List<SelectListItem> AvailableLogLevels { get; set; } = new();
-
-        public int GridPageSize { get; set; }
     }
 }

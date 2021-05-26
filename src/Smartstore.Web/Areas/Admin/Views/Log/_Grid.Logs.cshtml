@@ -6,7 +6,7 @@
     var gridPageSize = GetMetadata<int>("GridPageSize");
 }
 
-<datagrid id="log-grid" border-style="HorizontalBorders" striped="true" hover="true" allow-resize="true" allow-row-selection="true" x-ondatabinding="onDataBinding" preserve-grid-state="false">
+<datagrid id="log-grid" border-style="HorizontalBorders" striped="true" hover="true" allow-resize="true" allow-row-selection="true" ondatabinding="onDataBinding" preserve-grid-state="false">
     <datasource read="@Url.Action("LogList")" delete="@Url.Action("LogDelete")" />
     <paging position="Bottom" />
     <sorting enabled="true"></sorting>
@@ -15,12 +15,6 @@
             <i class="far fa-trash-alt"></i>
             <span>@T("Admin.Common.Delete.Selected")</span>
         </button>
-
-        @*TODO: (ms) (core) Have some confirm check (javascript). Make this work, for some reason this is not found*@
-        <a asp-action="LogClear" type="button" class="btn btn-danger btn-flat">
-            <i class="fa fa-trash-alt"></i>
-            <span>@T("Admin.System.Log.ClearLog")</span>
-        </a>
     </toolbar>
     <columns>
         <column for="Logger" width="250px">
