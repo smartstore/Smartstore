@@ -15,12 +15,12 @@ namespace Smartstore.Admin.Controllers
     public class SettingController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
-        private readonly StoreDependingSettingHelper _storeDependingSettings;
+        private readonly StoreDependingSettingHelper _storeDependingSettingHelper;
 
-        public SettingController(SmartDbContext db, StoreDependingSettingHelper storeDependingSettings)
+        public SettingController(SmartDbContext db, StoreDependingSettingHelper storeDependingSettingHelper)
         {
             _db = db;
-            _storeDependingSettings = storeDependingSettings;
+            _storeDependingSettingHelper = storeDependingSettingHelper;
         }
 
         [LoadSetting(IsRootedModel = true)]

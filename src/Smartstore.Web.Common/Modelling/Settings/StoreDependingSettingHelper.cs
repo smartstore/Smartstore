@@ -32,11 +32,17 @@ namespace Smartstore.Web.Modelling.Settings
             _leService = leService;
         }
 
-        private ViewDataDictionary _viewData => _viewDataAccessor.ViewData;
-
         public static string ViewDataKey => "StoreDependingSettingData";
 
-        public StoreDependingSettingData Data => _viewData[ViewDataKey] as StoreDependingSettingData;
+        public ViewDataDictionary ViewData
+        {
+            get => _viewDataAccessor.ViewData;
+        }
+
+        public StoreDependingSettingData Data
+        {
+            get => ViewData[ViewDataKey] as StoreDependingSettingData;
+        }
 
         public static bool IsOverrideChecked(object settings, string name, IFormCollection form)
         {
@@ -69,7 +75,7 @@ namespace Smartstore.Web.Modelling.Settings
 
         public void CreateViewDataObject(int activeStoreScopeConfiguration, string rootSettingClass = null)
         {
-            _viewData[ViewDataKey] = new StoreDependingSettingData
+            ViewData[ViewDataKey] = new StoreDependingSettingData
             {
                 ActiveStoreScopeConfiguration = activeStoreScopeConfiguration,
                 RootSettingClass = rootSettingClass
@@ -149,7 +155,7 @@ namespace Smartstore.Web.Modelling.Settings
                 data.ActiveStoreScopeConfiguration = storeId;
                 data.RootSettingClass = settingName;
 
-                _viewData[ViewDataKey] = data;
+                ViewData[ViewDataKey] = data;
             }
 
             if (model is ILocalizedModel)
