@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 
@@ -22,11 +23,6 @@ namespace Smartstore.Core.DataExchange.Import
         }
 
         public CancellationToken CancellationToken { get; private set; }
-
-        /// <summary>
-        /// Common Services.
-        /// </summary>
-        public ICommonServices Services { get; internal set; }
 
         public DataImportRequest Request { get; internal set; }
 
@@ -90,6 +86,11 @@ namespace Smartstore.Core.DataExchange.Import
         /// All active languages.
         /// </summary>
         public IList<Language> Languages { get; internal set; }
+
+        /// <summary>
+        /// All stores.
+        /// </summary>
+        public IList<Store> Stores { get; internal set; }
 
         /// <summary>
         /// Logger instance to log information into the import log file.

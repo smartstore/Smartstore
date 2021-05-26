@@ -47,5 +47,33 @@ namespace Smartstore.Core.Stores
         /// <param name="entityId">Entity id to check</param>
         /// <returns>Store identifiers</returns>
         Task<int[]> GetAuthorizedStoreIdsAsync(string entityName, int entityId);
+
+        /// <summary>
+        /// Prefetches a collection of store mappings for a range of entities in one go
+        /// and caches them for the duration of the current request.
+        /// </summary>
+        /// <param name="entityName">Name of the entity.</param>
+        /// <param name="entityIds">
+        /// The entity ids to load store mappings for. Can be null,
+        /// in which case all store mappings for the requested scope are loaded.
+        /// </param>
+        /// <param name="isRange">A value indicating whether <paramref name="entityIds"/> represents a range of ids (perf).</param>
+        /// <param name="isSorted">A value indicating whether <paramref name="entityIds"/> is already sorted (perf).</param>
+        /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
+        Task PrefetchStoreMappingsAsync(string entityName, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
+
+        /// <summary>
+        /// Gets a collection of store mappings for a range of entities in one go.
+        /// </summary>
+        /// <param name="entityName">Name of the entity.</param>
+        /// <param name="entityIds">
+        /// The entity ids to load store mappings for. Can be null,
+        /// in which case all store mappings for the requested scope are loaded.
+        /// </param>
+        /// <param name="isRange">A value indicating whether <paramref name="entityIds"/> represents a range of ids (perf).</param>
+        /// <param name="isSorted">A value indicating whether <paramref name="entityIds"/> is already sorted (perf).</param>
+        /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
+        /// <returns>Store mapping collection.</returns>
+        Task<StoreMappingCollection> GetStoreMappingCollectionAsync(string entityName, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
     }
 }

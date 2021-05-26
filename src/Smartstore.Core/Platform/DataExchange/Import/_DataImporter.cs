@@ -12,6 +12,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
 using Smartstore.Domain;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities;
@@ -295,9 +296,9 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 Request = request,
                 DataExchangeSettings = _dataExchangeSettings,
-                Services = _services,
                 Log = logger,
                 Languages = await _languageService.GetAllLanguagesAsync(true),
+                Stores = _services.StoreContext.GetAllStores().ToList(),
                 UpdateOnly = profile.UpdateOnly,
                 KeyFieldNames = profile.KeyFieldNames.SplitSafe(",").ToArray(),
                 // TODO: (mg) (core) get import folder for import.

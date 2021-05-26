@@ -178,7 +178,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (profile.Task != null)
             {
-                _db.TaskDescriptors.Remove(profile.Task);
+                await _taskStore.DeleteTaskAsync(profile.Task);
             }
 
             _db.ImportProfiles.Remove(profile);

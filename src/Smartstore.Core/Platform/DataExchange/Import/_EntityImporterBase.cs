@@ -4,6 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -14,7 +16,12 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public abstract class EntityImporterBase : IEntityImporter
     {
-        public DateTime UtcNow { get; private set; }
+        protected SmartDbContext _db;
+        protected ILocalizedEntityService _localizedEntityService;
+        protected IStoreMappingService _storeMappingService;
+        protected IUrlService _urlService;
+
+        public DateTime UtcNow { get; private set; } = DateTime.UtcNow;
 
         /// <summary>
         /// URL to file name map. To avoid downloading image several times.
@@ -24,7 +31,6 @@ namespace Smartstore.Core.DataExchange.Import
         public IDirectory ImageDownloadFolder { get; private set; }
 
         public IDirectory ImageFolder { get; private set; }
-
 
         public Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
@@ -38,12 +44,16 @@ namespace Smartstore.Core.DataExchange.Import
         /// <param name="cancelToken">A cancellation token to cancel the import.</param>
         protected abstract Task ImportAsync(ImportExecuteContext context, CancellationToken cancelToken = default);
 
-        protected void Initialize(ImportExecuteContext context)
+        protected void InitializeBatch(ILifetimeScope scope, ImportExecuteContext context)
         {
+            Guard.NotNull(scope, nameof(scope));
             Guard.NotNull(context, nameof(context));
             Guard.NotNull(context.ImportDirectory, nameof(context.ImportDirectory));
 
-            UtcNow = DateTime.UtcNow;
+            _db = scope.Resolve<SmartDbContext>();
+            _localizedEntityService = scope.Resolve<ILocalizedEntityService>();
+            _storeMappingService = scope.Resolve<IStoreMappingService>();
+            _urlService = scope.Resolve<IUrlService>();
 
             context.Result.TotalRecords = context.DataSegmenter.TotalRows;
         }
@@ -70,7 +80,6 @@ namespace Smartstore.Core.DataExchange.Import
                 return 0;
             }
 
-            var localizedEntityService = context.Services.Resolve<ILocalizedEntityService>();
             var shouldSave = false;
 
             foreach (var row in batch)
@@ -85,7 +94,7 @@ namespace Smartstore.Core.DataExchange.Import
                             // TODO: (mg) (core) (perf) We have to work against prefetched values here (prefetch the whole batch).
                             // Reason: ApplyLocalizedValueAsync() always hits the database to determine whether the entity exists already.
                             // Keep in mind that this code here was build before localized property prefetching was available.
-                            await localizedEntityService.ApplyLocalizedValueAsync(row.Entity, lambda, value, lang.Id);
+                            await _localizedEntityService.ApplyLocalizedValueAsync(row.Entity, lambda, value, lang.Id);
                             shouldSave = true;
                         }
                     }
@@ -95,7 +104,7 @@ namespace Smartstore.Core.DataExchange.Import
             if (shouldSave)
             {
                 // Commit whole batch at once.
-                return await context.Services.DbContext.SaveChangesAsync();
+                return await _db.SaveChangesAsync();
             }
 
             return 0;
@@ -106,15 +115,55 @@ namespace Smartstore.Core.DataExchange.Import
             IEnumerable<ImportRow<TEntity>> batch) 
             where TEntity : BaseEntity, IStoreRestricted
         {
-            var storeMappingService = context.Services.Resolve<IStoreMappingService>();
             var shouldSave = false;
+            var entityIds = batch.Select(x => x.Entity.Id).ToArray();
+            if (!entityIds.Any())
+            {
+                return 0;
+            }
+
+            var collection = await _storeMappingService.GetStoreMappingCollectionAsync(nameof(TEntity), entityIds);
 
             foreach (var row in batch)
             {
                 var storeIds = row.GetDataValue<List<int>>("StoreIds");
-                if (!storeIds.IsNullOrEmpty())
+                var hasStoreIds = storeIds?.Any() ?? false;
+                
+                if (storeIds.Count == 1 && storeIds[0] == 0)
                 {
-                    await storeMappingService.ApplyStoreMappingsAsync(row.Entity, storeIds.ToArray());
+                    hasStoreIds = false;
+                }
+
+                if (hasStoreIds)
+                {
+                    row.Entity.LimitedToStores = true;
+
+                    foreach (var store in context.Stores)
+                    {
+                        if (storeIds.Contains(store.Id))
+                        {
+                            // Add the mapping, if missing.
+                            if (collection.Find(row.Entity.Id, store.Id) == null)
+                            {
+                                _storeMappingService.AddStoreMapping(row.Entity, store.Id);
+                                shouldSave = true;
+                            }
+                        }
+                        else
+                        {
+                            // Delete the mapping, if it exists.
+                            var storeMappingToDelete = collection.Find(row.Entity.Id, store.Id);
+                            if (storeMappingToDelete != null)
+                            {
+                                _db.StoreMappings.Remove(storeMappingToDelete);
+                                shouldSave = true;
+                            }
+                        }
+                    }
+                }
+                else if (row.Entity.LimitedToStores)
+                {
+                    row.Entity.LimitedToStores = false;
                     shouldSave = true;
                 }
             }
@@ -122,7 +171,7 @@ namespace Smartstore.Core.DataExchange.Import
             if (shouldSave)
             {
                 // Commit whole batch at once.
-                return await context.Services.DbContext.SaveChangesAsync();
+                return await _db.SaveChangesAsync();
             }
 
             return 0;
@@ -134,19 +183,17 @@ namespace Smartstore.Core.DataExchange.Import
             string entityName) 
             where TEntity : BaseEntity, ISlugSupported
         {
-            var urlService = context.Services.Resolve<IUrlService>();
-
             foreach (var row in batch)
             {
                 try
                 {
                     if (row.TryGetDataValue("SeName", out string seName) || row.IsNew || row.NameChanged)
                     {
-                        var slugResult = await urlService.ValidateSlugAsync(row.Entity, seName, true);
+                        var slugResult = await _urlService.ValidateSlugAsync(row.Entity, seName, true);
 
                         if (row.IsNew)
                         {
-                            context.Services.DbContext.UrlRecords.Add(new UrlRecord
+                            _db.UrlRecords.Add(new UrlRecord
                             {
                                 EntityId = row.Entity.Id,
                                 EntityName = entityName,
@@ -158,7 +205,7 @@ namespace Smartstore.Core.DataExchange.Import
                         else
                         {
                             // Let us not save here, otherwise 'save' parameter makes no sense ;-)
-                            await urlService.ApplySlugAsync(slugResult, false);
+                            await _urlService.ApplySlugAsync(slugResult, false);
                         }
 
                         // Process localized slugs.
@@ -173,8 +220,8 @@ namespace Smartstore.Core.DataExchange.Import
 
                             if (seName.HasValue())
                             {
-                                slugResult = await urlService.ValidateSlugAsync(row.Entity, seName, false, language.Id);
-                                await urlService.ApplySlugAsync(slugResult, false);
+                                slugResult = await _urlService.ValidateSlugAsync(row.Entity, seName, false, language.Id);
+                                await _urlService.ApplySlugAsync(slugResult, false);
                             }
                         }
                     }
@@ -186,7 +233,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            return await context.Services.DbContext.SaveChangesAsync();
+            return await _db.SaveChangesAsync();
         }
     }
 }
