@@ -7,17 +7,21 @@
 }
 
 <datagrid id="products-grid" border-style="HorizontalBorders" striped="true" hover="true" allow-resize="true" allow-row-selection="true" allow-edit="true">
-    <datasource read="@Url.Action("ProductList")" delete="@Url.Action("ProductDelete")" update="@Url.Action("ProductUpdate")" />
+    <datasource read="@Url.Action("ProductList")" delete="@Url.Action("ProductDelete")" update="@Url.Action("ProductUpdate")" insert="@Url.Action("ProductAdd")" />
     <paging position="Bottom" page-size="@gridPageSize" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
         <button type="button" class="btn btn-secondary btn-flat" v-on:click="grid.resetState">
             <span>Reset State</span>
         </button>
-        <a v-if="!grid.edit.active" asp-action="Create" class="btn btn-primary btn-flat mr-auto">
+        @*<a v-if="!grid.edit.active" asp-action="Create" class="btn btn-primary btn-flat mr-auto">
             <i class="fa fa-plus"></i>
             <span>@T("Admin.Common.AddNew")...</span>
-        </a>
+        </a>*@
+        <button datagrid-action="DataGridToolAction.InsertRow" class="btn btn-primary btn-flat mr-auto">
+            <i class="fa fa-plus"></i>
+            <span>@T("Admin.Common.AddNew")...</span>
+        </button>
 
         <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning btn-flat">
             <i class="fa fa-check"></i>
@@ -69,9 +73,9 @@
         </column>
         <column for="Sku" />
         <column for="Price"
-                halign="flex-end" />
+                halign="flex-end" default-value="0" />
         <column for="StockQuantity" sortable="true" icon="fa fa-sort-amount-up"
-                halign="center">
+                halign="center" default-value="0">
             @*<display-template>
                 {{ formatNumber(item.value) }}
             </display-template>*@
@@ -83,7 +87,7 @@
         <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" />
         <column for="UpdatedOn" entity-member="UpdatedOnUtc" readonly="false" />
         <column for="Published"
-                halign="center" />
+                halign="center" default-value="true" />
     </columns>
 </datagrid>
 

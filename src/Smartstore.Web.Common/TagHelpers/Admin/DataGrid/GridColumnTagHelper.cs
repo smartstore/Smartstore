@@ -28,9 +28,11 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string FilterableAttributeName = "filterable";
         const string GroupableAttributeName = "groupable";
         const string ReorderableAttributeName = "reorderable";
+        const string HideableAttributeName = "hideable";
         const string NowrapAttributeName = "nowrap";
         const string EntityMemberAttributeName = "entity-member";
         const string IconAttributeName = "icon";
+        const string DefaultValueAttributeName = "default-value";
 
         public override void Init(TagHelperContext context)
         {
@@ -129,6 +131,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         public bool Reorderable { get; set; } = true;
 
         /// <summary>
+        /// Allows hiding of column, but only if hiding is enabled on grid level. Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(HideableAttributeName)]
+        public bool Hideable { get; set; } = true;
+
+        /// <summary>
         /// Makes column uneditable, even if editing is enabled on grid level. Default: <c>false</c>.
         /// </summary>
         [HtmlAttributeName(ReadonlyAttributeName)]
@@ -152,6 +160,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(IconAttributeName)]
         public string Icon { get; set; }
+
+        /// <summary>
+        /// Default row value of this column for inserted rows.
+        /// </summary>
+        [HtmlAttributeName(DefaultValueAttributeName)]
+        public object DefaultValue { get; set; }
 
         [HtmlAttributeNotBound]
         public TagHelperContent DisplayTemplate { get; set; }
@@ -195,10 +209,12 @@ namespace Smartstore.Web.TagHelpers.Admin
                 sortable = Sortable,
                 filterable = Filterable,
                 groupable = Groupable,
+                hideable = Hideable,
                 editable = !ReadOnly,
                 nowrap = Nowrap,
                 entityMember = EntityMember,
-                icon = Icon
+                icon = Icon,
+                defaultValue = DefaultValue
             };
         }
 

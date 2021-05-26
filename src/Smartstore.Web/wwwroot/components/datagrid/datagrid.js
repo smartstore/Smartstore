@@ -41,6 +41,7 @@ Vue.component("sm-data-grid", {
                 command,
                 rows,
                 edit,
+                insertRow,
                 saveChanges,
                 cancelEdit,
                 deleteSelected,
@@ -100,7 +101,7 @@ Vue.component("sm-data-grid", {
                         <tr v-for="(row, rowIndex) in rows" :key="row[options.keyMemberName]" :class="{ 'active': isRowSelected(row), 'dg-edit-row': isInlineEditRow(row) }">
                              <td v-if="allowRowSelection" class="dg-col-pinned alpha">
                                 <label class="dg-cell dg-cell-selector">
-                                    <span class="dg-cell-value">
+                                    <span v-if="!isInlineEditRow(row) || !edit.insertMode" class="dg-cell-value">
                                         <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" @change="onSelectRow($event, row)" />
                                     </span>
                                 </label>
@@ -210,12 +211,14 @@ Vue.component("sm-data-grid", {
                                             break;
                                         default:
                                             // TODO: (core) datetimepicker will not update! Investigate!
-                                            el.value = v;
+                                            if (v !== undefined && v !== null)
+                                                el.value = v;
                                     }
                                 }
                             }
                             else {
-                                el.value = v;
+                                if (v !== undefined && v!== null)
+                                    el.value = v;
                             }
                         }
                     });
@@ -363,7 +366,6 @@ Vue.component("sm-data-grid", {
                 this.options.hborders = value.hborders;
                 this.options.striped = value.striped;
                 this.options.hover = value.hover;
-                console.log(value);
                 var self = this;
                 value.columns.forEach((c, i) => {
                     var column = self.columns.find(x => x.member === c.member);
@@ -771,6 +773,28 @@ Vue.component("sm-data-grid", {
             this.activateEdit(row, tr, td);
         },
 
+        insertRow() {
+            if (!this.options.allowEdit || !this.dataSource.insert || !this.hasEditableVisibleColumn) {
+                return;
+            }
+
+            this.cancelEdit();
+
+            let row = {};
+            this.columns.filter(c => !_.isEmpty(c.defaultValue)).forEach(c =>
+            {
+                row[c.member] = c.defaultValue;
+            });
+            this.rows.splice(0, 0, row);
+
+            this.edit.active = true;
+            this.edit.insertMode = true;
+            this.edit.row = row;
+            this.edit.initialized = false;
+
+            this.rememberColumnWidths();
+        },
+
         activateEdit(row, tr, td) {
             if (!this.options.allowEdit || !this.dataSource.update || !this.hasEditableVisibleColumn) {
                 return;
@@ -779,6 +803,7 @@ Vue.component("sm-data-grid", {
             this.cancelEdit();
 
             this.edit.active = true;
+            this.edit.insertMode = false;
             this.edit.row = row;
             this.edit.tr = tr;
             this.edit.td = td;
@@ -793,6 +818,11 @@ Vue.component("sm-data-grid", {
             }
 
             this.destroyValidator();
+
+            if (this.rows.length && this.rows[0] === this.edit.row) {
+                // Remove inserted row
+                this.rows.splice(0, 1);
+            }
 
             this.edit.active = false;
             this.edit.row = {};
@@ -809,6 +839,10 @@ Vue.component("sm-data-grid", {
                 return;
             }
 
+            if (!edit.tr) {
+                edit.tr = this.$refs.table.querySelector("tr.dg-edit-row");
+            }
+
             edit.updateEditors();
             edit.initialized = true;
 
@@ -819,9 +853,9 @@ Vue.component("sm-data-grid", {
                 // Handle auto-focus
                 var elFocus = $(edit.td || edit.tr).find('.dg-cell-edit :input:visible');
                 if (elFocus.length === 0) {
-                    elFocus = $(edit.tr).find('.dg-cell-edit :input:visible').first();
+                    elFocus = $(edit.tr).find('.dg-cell-edit :input:visible');
                 }
-                elFocus.focus();
+                elFocus.first().focus();
             });
         },
 
@@ -889,7 +923,12 @@ Vue.component("sm-data-grid", {
         },
 
         saveChanges() {
-            if (this.isBusy || !this.edit.active || !this.dataSource.update) {
+            if (this.isBusy || !this.edit.active) {
+                return;
+            }
+
+            var url = this.edit.insertMode ? this.dataSource.insert : this.dataSource.update;
+            if (!url) {
                 return;
             }
 
@@ -910,7 +949,7 @@ Vue.component("sm-data-grid", {
             self.$emit("saving-changes", edit.row);
 
             $.ajax({
-                url: this.dataSource.update,
+                url: url,
                 type: 'POST',
                 cache: false,
                 dataType: 'json',

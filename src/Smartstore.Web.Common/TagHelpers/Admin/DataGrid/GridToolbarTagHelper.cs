@@ -6,7 +6,7 @@ namespace Smartstore.Web.TagHelpers.Admin
 {
     public enum DataGridToolAction
     {
-        AddRow,
+        InsertRow,
         CancelEdit,
         SaveChanges,
         DeleteSelectedRows,
@@ -56,9 +56,10 @@ namespace Smartstore.Web.TagHelpers.Admin
                 return;
             }
 
-            if (Action == DataGridToolAction.AddRow)
+            if (Action == DataGridToolAction.InsertRow)
             {
                 output.MergeAttribute("v-if", "!grid.edit.active");
+                output.MergeAttribute("v-on:click.prevent", "grid.insertRow");
             }
 
             if (Action == DataGridToolAction.SaveChanges || Action == DataGridToolAction.CancelEdit)
