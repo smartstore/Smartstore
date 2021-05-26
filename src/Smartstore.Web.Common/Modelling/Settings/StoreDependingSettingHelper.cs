@@ -15,7 +15,7 @@ namespace Smartstore.Web.Modelling.Settings
 {
     public class StoreDependingSettingHelper
     {
-        private readonly ViewDataDictionary _viewData;
+        private readonly IViewDataAccessor _viewDataAccessor;
         private readonly SmartDbContext _db;
         private readonly ISettingService _settingService;
         private readonly ILocalizedEntityService _leService;
@@ -26,12 +26,13 @@ namespace Smartstore.Web.Modelling.Settings
             ISettingService settingService, 
             ILocalizedEntityService leService)
         {
-            // TODO: (mh) (core) ViewData is not initialized yet when injecting StoreDependingSettingHelper into controllers
-            _viewData = viewDataAccessor.ViewData;
+            _viewDataAccessor = viewDataAccessor;
             _db = db;
             _settingService = settingService;
             _leService = leService;
         }
+
+        private ViewDataDictionary _viewData => _viewDataAccessor.ViewData;
 
         public static string ViewDataKey => "StoreDependingSettingData";
 
