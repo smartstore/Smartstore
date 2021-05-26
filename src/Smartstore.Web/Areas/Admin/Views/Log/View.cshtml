@@ -11,7 +11,7 @@
     <div class="section-header">
         <div class="title">
             <i class="fa fa-fire"></i>
-            @T("Admin.System.Log.ViewLogDetails") @Html.ActionLink("(" + T("Admin.System.Log.BackToList") + ")", "List")
+            @T("Admin.System.Log.ViewLogDetails") @Html.ActionLink($"({ T("Admin.System.Log.BackToList") })", "List")
         </div>
         <div class="options">
             <button type="submit" id="log-delete" class="btn btn-danger">
@@ -21,104 +21,107 @@
         </div>
     </div>
 
-    <table class="adminContent">
-        <tr>
-            <td class="adminTitle">
+    @*INFO: (mh) (core) Please no more tables*@
+    @*TODO: (ms) (core) Remove comments*@
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="LogLevel" />
-            </td>
-            <td class="adminData">
+            </div>
+            <div class="adminData">
                 <div class="form-control-plaintext">
                     <span class="badge badge-@Model.LogLevelHint">@Model.LogLevel</span>
                 </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="adminTitle">
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="Logger" />
-            </td>
-            <td class="adminData">
+            </div>
+            <div class="adminData">
                 <input asp-for="Logger" readonly="readonly" class="form-control-plaintext" />
-            </td>
-        </tr>
-        <tr>
-            <td class="adminTitle">
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="ShortMessage" />
-            </td>
-            <td class="adminData">
+            </div>
+            <div class="adminData">
                 <div class="form-control-plaintext">
-                    <input asp-for="ShortMessage" readonly="readonly" />
+                    <textarea asp-for="ShortMessage" readonly="readonly"></textarea>
                 </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="adminTitle">
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="IpAddress" />
-            </td>
-            <td class="adminData">
+            </div>
+            <div class="adminData">
                 <input asp-for="IpAddress" readonly="readonly" class="form-control-plaintext" />
-            </td>
-        </tr>
-        <tr>
-            <td class="adminTitle">
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="CustomerId" />
-            </td>
-            <td class="adminData">
+            </div>
+            <div class="adminData">
                 <div sm-if="Model.CustomerId.HasValue" class="form-control-plaintext">
                     @Html.ActionLink(Model.CustomerEmail.HasValue() ? Model.CustomerEmail : T("Admin.Customers.Guest").Value, "Edit", "Customer", new { id = Model.CustomerId }, new { })
                 </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="adminTitle">
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="UserName" />
-            </td>
-            <td class="adminData">
+            </div>
+            <div class="adminData">
                 <input asp-for="UserName" readonly="readonly" class="form-control-plaintext" />
-            </td>
-        </tr>
-        <tr>
-            <td class="adminTitle">
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="PageUrl" />
-            </td>
-            <td class="adminData wide">
+            </div>
+            <div class="adminData wide">
                 <div sm-if="Model.PageUrl.HasValue()" class="form-control-plaintext">
                     <span>@Model.HttpMethod </span>
                     <a href="@Model.PageUrl" target="_blank">@Model.PageUrl</a>
                 </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="adminTitle">
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="ReferrerUrl" />
-            </td>
-            <td class="adminData wide">
+            </div>
+            <div class="adminData wide">
                 <div sm-if="Model.ReferrerUrl.HasValue()" class="form-control-plaintext">
                     <span>@Model.HttpMethod </span>
                     <a href="@Model.ReferrerUrl" target="_blank">@Model.ReferrerUrl</a>
                 </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="adminTitle">
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="CreatedOn" />
-            </td>
-            <td class="adminData">
+            </div>
+            <div class="adminData">
                 <div class="form-control-plaintext">
-                    <smart-label asp-for="CreatedOn" />
+                    @Html.DisplayFor(model => model.CreatedOn)
                 </div>
-            </td>
-        </tr>
-        <tr sm-if="Model.FullMessage.HasValue()">
-            <td class="adminTitle">
+            </div>
+        </div>
+        <div class="adminRow" sm-if="Model.FullMessage.HasValue()">
+            <div class="adminTitle">
                 <smart-label asp-for="FullMessage" />
-            </td>
-            <td class="adminData wide">
+            </div>
+            <div class="adminData wide">
                 @*No whitespace within pre tag*@
-                <pre class="prettyprint xlang-java" style="white-space: pre-wrap;"><smart-label asp-for="FullMessage" /></pre>
-            </td>
-        </tr>
-    </table>
+                <pre class="prettyprint xlang-java" style="white-space: pre-wrap;">@Html.DisplayFor(model => model.FullMessage)</pre>
+            </div>
+        </div>
+    </div>
 </form>
 
 @*TODO: (ms) (core) How to replace this?*@
+@*RE: MC wanted to rethink this. So leave it this way until some decission was made*@
 @*@Html.DeleteConfirmation("log-delete")*@

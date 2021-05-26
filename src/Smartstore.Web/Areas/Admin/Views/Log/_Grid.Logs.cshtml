@@ -30,9 +30,10 @@
         </column>
         <column for="ShortMessage" width="5fr">
             <display-template>
-                @*TODO: (ms) (core) Create correct view link with id*@
                 <span :class="'badge badge-' + item.row.LogLevelHint" style='margin-right: 4px'>{{ item.row.LogLevel }}</span>
-                <a asp-action="View" asp-route-Id="{{ item.row.Id }}" class="text-truncate">{{ item.value }}</a>
+                <a :href="item.row.ViewUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
             </display-template>
         </column>
         <column for="UserName" />

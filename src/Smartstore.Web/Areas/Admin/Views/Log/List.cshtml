@@ -5,7 +5,7 @@
 @{
     ViewBag.Title = T("Admin.System.Log").Value;
 }
-@* style="overflow-y: scroll"*@
+
 <form method="post" asp-action="List">
     <div class="section-header">
         <div class="title">
@@ -14,15 +14,14 @@
         </div>
     </div>
 
-    @*TODO: (ms) (core) Make nicer search form inputs: No format placeholder for datetimes. Have LogLevels as dropdown selection*@
     <div class="row mt-3 grid-filter">
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <smart-label asp-for="CreatedOnFrom" />
-            <input asp-for="CreatedOnFrom" />
+            <editor asp-for="CreatedOnFrom" />
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <smart-label asp-for="CreatedOnTo" />
-            <input asp-for="CreatedOnTo" />
+            <editor asp-for="CreatedOnTo" />
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <smart-label asp-for="Logger" />
@@ -34,7 +33,7 @@
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <smart-label asp-for="LogLevelId" />
-            <input asp-for="AvailableLogLevels" />
+            <select asp-for="LogLevelId" asp-items="Model.AvailableLogLevels"></select>
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <label>&nbsp;</label>
@@ -52,9 +51,7 @@
 
 <partial name="_Grid.Logs" model="null" view-data="gridViewData" />
 
-
 <script sm-target-zone="scripts" data-origin="logs-list">
-
     $(function() {
         $('#btnSearch').click(function () {
             var grid = $('#log-grid').data('tGrid');
