@@ -346,6 +346,18 @@ Vue.component("sm-data-grid", {
             return this.columns.some(this.isEditableVisibleColumn);
         },
 
+        totalPages() {
+            const pageSize = this.command.pageSize;
+            if (pageSize === 0)
+                return 0;
+
+            let total = this.total / pageSize;
+            if (this.total % pageSize > 0)
+                total++;
+
+            return Math.floor(total);
+        },
+
         userPrefs: {
             get() {
                 return {
@@ -533,7 +545,7 @@ Vue.component("sm-data-grid", {
             const command = $.extend(true, { __RequestVerificationToken: input.value }, this.command);
 
             self.$emit("data-binding", command);
-
+            
             $.ajax({
                 url: this.dataSource.read,
                 type: 'POST',
@@ -544,10 +556,22 @@ Vue.component("sm-data-grid", {
                 success(result) {
                     self.rows = result.rows !== undefined ? result.rows : result;
                     self.total = result.total || self.rows.length;
-                    self.aggregates = result.aggregates !== undefined ? result.aggregates : [];
-                    self.$emit("data-bound", command, self.rows);
+
+                    console.log(self.totalPages, self.command.page);
+                    if (self.command.page > self.totalPages) {
+                        // Fix "pageIndex > totalPages" by reloading
+                        self.isBusy = false;
+                        self.command.page = self.totalPages;
+                    }
+                    else {
+
+                        self.aggregates = result.aggregates !== undefined ? result.aggregates : [];
+                        self.$emit("data-bound", command, self.rows);
+                        self.ready = true;
+                        self.isBusy = false;
+                    }
                 },
-                complete() {
+                error() {
                     self.ready = true;
                     self.isBusy = false;
                 }
@@ -587,7 +611,7 @@ Vue.component("sm-data-grid", {
                                 self.selectedRows = {};
                                 displayNotification("{0} Datensätze erfolgreich gelöscht.".format(result.Count || numSelected), "success");
                                 self.$emit("deleted-rows", selectedKeys);
-                                self.command.page = 1;
+                                self.read();
                             }
                         }
                     });

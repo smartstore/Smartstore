@@ -8,7 +8,7 @@
 
 <datagrid id="log-grid" border-style="HorizontalBorders" striped="true" hover="true" allow-resize="true" allow-row-selection="true" ondatabinding="onDataBinding" preserve-grid-state="false">
     <datasource read="@Url.Action("LogList")" delete="@Url.Action("LogDelete")" />
-    <paging position="Bottom" />
+    <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true"></sorting>
     <toolbar>
         <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat ml-auto">

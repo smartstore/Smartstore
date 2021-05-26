@@ -3,9 +3,9 @@
 
 .datagrid-root {
   --dg-border-color: #dee2e6;
-  --dg-header-bg: #f6f8fa;
-  --dg-pager-bg: #f9fafa;
-  --dg-toolbar-bg: #f9fafa;
+  --dg-header-bg: #f8f9fa;
+  --dg-pager-bg: #f8f9fa;
+  --dg-toolbar-bg: #f8f9fa;
   --dg-row-bg: #fff;
   --dg-row-even-bg: #fff;
   --dg-row-hover-color: #f0f6fa;

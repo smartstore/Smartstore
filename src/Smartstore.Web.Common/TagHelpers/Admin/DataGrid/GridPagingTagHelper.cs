@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Core.Common.Settings;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -21,7 +22,15 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string ShowChooserAttributeName = "show-size-chooser";
         const string SizesAttributeName = "available-sizes";
 
+        private readonly AdminAreaSettings _adminAreaSettings;
+        private int _pageSize;
         private int[] _availableSizes;
+
+        public GridPagingTagHelper(AdminAreaSettings adminAreaSettings)
+        {
+            _adminAreaSettings = adminAreaSettings;
+            _pageSize = _adminAreaSettings.GridPageSize;
+        }
 
         public override void Init(TagHelperContext context)
         {
@@ -36,10 +45,14 @@ namespace Smartstore.Web.TagHelpers.Admin
         public bool Enabled { get; set; } = true;
 
         /// <summary>
-        /// Page size. Default: 25.
+        /// Page size. Default: <see cref="AdminAreaSettings.GridPageSize"/>, initially 25.
         /// </summary>
         [HtmlAttributeName(PageSizeAttributeName)]
-        public int PageSize { get; set; } = 25;
+        public int PageSize 
+        {
+            get => _pageSize < 1 ? 25 : _pageSize;
+            set => _pageSize = value;
+        }
 
         /// <summary>
         /// The 1-based current page index. Default: 1.
@@ -63,7 +76,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// Available page sizes to choose from.
         /// </summary>
         [HtmlAttributeName(SizesAttributeName)]
-        public int[] AvailableSizes { 
+        public int[] AvailableSizes 
+        { 
             get => _availableSizes ??= new int[] { PageSize, PageSize * 2, PageSize * 4, PageSize * 6, PageSize * 8 };
             set => _availableSizes = value; 
         }

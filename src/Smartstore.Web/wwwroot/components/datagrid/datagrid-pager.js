@@ -17,7 +17,7 @@
                 <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }"><i class="fa fa-fw fa-angle-double-right"></i></a>
             </template>
             
-            <div v-if="rows > 0" class="ml-auto d-flex align-items-center">
+            <div v-if="rows.length > 0" class="ml-auto d-flex align-items-center">
                 <span class="dg-page text-muted mr-2 text-truncate d-none d-sm-inline pl-2">
                     <span class="d-none d-md-inline">Anzeigen der Elemente </span>
                     <span>{{ firstItemIndex.toLocaleString() }}-{{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}</span>
@@ -63,14 +63,7 @@
         },
 
         totalPages() {
-            if (this.currentPageSize === 0)
-                return 0;
-
-            var total = this.total / this.currentPageSize;
-            if (this.total % this.currentPageSize > 0)
-                total++;
-
-            return Math.floor(total);
+            return this.$parent.totalPages;
         },
 
         hasPrevPage() {
