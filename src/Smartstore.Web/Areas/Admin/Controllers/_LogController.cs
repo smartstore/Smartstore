@@ -26,7 +26,7 @@ namespace Smartstore.Admin.Controllers
         private readonly ILocalizationService _localizationService;
         private readonly AdminAreaSettings _adminAreaSettings;
 
-        private static readonly Dictionary<LogLevel, string> s_logLevelHintMap = new()
+        private static readonly Dictionary<LogLevel, string> _logLevelHintMap = new()
         {
             { LogLevel.Fatal, "dark" },
             { LogLevel.Error, "danger" },
@@ -35,7 +35,8 @@ namespace Smartstore.Admin.Controllers
             { LogLevel.Debug, "secondary" }
         };
 
-        public LogController(SmartDbContext db,
+        public LogController(
+            SmartDbContext db,
             IDbLogService dbLogService,
             IDateTimeHelper dateTimeHelper,
             ILocalizationService localizationService,
@@ -46,27 +47,6 @@ namespace Smartstore.Admin.Controllers
             _dateTimeHelper = dateTimeHelper;
             _localizationService = localizationService;
             _adminAreaSettings = adminAreaSettings;
-        }
-
-        [NonAction]
-        private static string TruncateLoggerName(string loggerName)
-        {
-            if (loggerName.IndexOf('.') < 0)
-            {
-                return loggerName;
-            }
-
-            var name = string.Empty;
-            var tokens = loggerName.Split('.');
-            for (int i = 0; i < tokens.Length; i++)
-            {
-                var token = tokens[i];
-                name += i == tokens.Length - 1
-                    ? token
-                    : token.Substring(0, 1) + "...";
-            }
-
-            return name;
         }
 
         public ActionResult Index()
@@ -108,16 +88,17 @@ namespace Smartstore.Admin.Controllers
                 .ApplyGridCommand(command, false)
                 .OrderByDescending(x => x.CreatedOnUtc);
 
-            var logItems = await new PagedList<Log>(query, command.Page - 1, command.PageSize).LoadAsync();
+            var logItems = await query.ToPagedList(command.Page - 1, command.PageSize).LoadAsync();
 
             var gridModel = new GridModel<LogModel>
             {
                 Rows = logItems.Select(x =>
                 {
+                    // TODO: (ms) (core) Make model preparer
                     var logModel = new LogModel
                     {
                         Id = x.Id,
-                        LogLevelHint = s_logLevelHintMap[x.LogLevel],
+                        LogLevelHint = _logLevelHintMap[x.LogLevel],
                         LogLevel = x.LogLevel.GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id),
                         ShortMessage = x.ShortMessage,
                         FullMessage = x.FullMessage,
@@ -150,7 +131,7 @@ namespace Smartstore.Admin.Controllers
         {
             var ids = selection.GetEntityIds();
             var numDeleted = 0;
-
+            // TODO: (ms) (core) Make BatchDelete
             if (ids.Any())
             {
                 var logs = await _db.Logs.GetManyAsync(ids, true);
@@ -178,14 +159,14 @@ namespace Smartstore.Admin.Controllers
             var log = await _db.Logs.FindByIdAsync(id);
             if (log == null)
             {
-                //No log found with the specified id
+                // No log found with the specified id
                 return RedirectToAction(nameof(List));
             }
 
-            var model = new LogModel()
+            var model = new LogModel
             {
                 Id = log.Id,
-                LogLevelHint = s_logLevelHintMap[log.LogLevel],
+                LogLevelHint = _logLevelHintMap[log.LogLevel],
                 LogLevel = log.LogLevel.GetLocalizedEnum(),
                 ShortMessage = log.ShortMessage,
                 FullMessage = log.FullMessage,
@@ -202,6 +183,27 @@ namespace Smartstore.Admin.Controllers
             };
 
             return View(model);
+        }
+
+        [NonAction]
+        private static string TruncateLoggerName(string loggerName)
+        {
+            if (loggerName.IndexOf('.') < 0)
+            {
+                return loggerName;
+            }
+
+            var name = string.Empty;
+            var tokens = loggerName.Split('.');
+            for (int i = 0; i < tokens.Length; i++)
+            {
+                var token = tokens[i];
+                name += i == tokens.Length - 1
+                    ? token
+                    : token.Substring(0, 1) + "...";
+            }
+
+            return name;
         }
     }
 }

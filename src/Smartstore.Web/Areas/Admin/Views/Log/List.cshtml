@@ -4,6 +4,7 @@
 
 @{
     ViewBag.Title = T("Admin.System.Log").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
 }
 
 <form method="post" asp-action="List">
@@ -33,7 +34,8 @@
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <smart-label asp-for="LogLevelId" />
-            <select asp-for="LogLevelId" asp-items="Model.AvailableLogLevels"></select>
+            <select asp-for="LogLevelId" asp-items="Model.AvailableLogLevels" placeholder="@T("Admin.Common.All")">
+            </select>
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <label>&nbsp;</label>
@@ -44,29 +46,42 @@
     </div>
 </form>
 
-@{
-    var gridViewData = new ViewDataDictionary(this.ViewData);
-    gridViewData["GridPageSize"] = Model.GridPageSize;
-}
-
-<partial name="_Grid.Logs" model="null" view-data="gridViewData" />
+<partial name="_Grid.Logs" model="null" />
 
 <script sm-target-zone="scripts" data-origin="logs-list">
+    function onDataBinding(command) {
+        @*var searchModel = {
+            CreatedOnFrom: $('#@Html.FieldIdFor(model => model.CreatedOnFrom)').val(),
+            CreatedOnTo: $('#@Html.FieldIdFor(model => model.CreatedOnTo)').val(),
+            Logger: $('#@Html.FieldIdFor(model => model.Logger)').val(),
+            Message: $('#@Html.FieldIdFor(model => model.Message)').val(),
+            LogLevelId: $('#@Html.FieldIdFor(model => model.LogLevelId)').val()
+        };
+        e.data = searchModel;*@
+
+        @*command.searchModel = searchModel;
+        command.CreatedOnFrom = $('#@Html.IdFor(model => model.CreatedOnFrom)').val();*@
+        // ...
+    }
+
     $(function() {
-        $('#btnSearch').click(function () {
-            var grid = $('#log-grid').data('tGrid');
-            // New search. Set page size to 1.
-            grid.currentPage = 1; 
-            grid.ajaxRequest();
-            return false;
+        $('#btnSearch').on("click", x => {
+            //var grid = window["log-grid"];
+            //grid.currentPage = 1;
+            //return false;
+
+            //// New search. Set page size to 1.
+            //grid.currentPage = 1;
+            //grid.ajaxRequest();
+            //return false;
         });
 
-        $("#@Model.Message, #@Model.Logger").keydown(function (event) {
+        $("#@Html.IdFor(x => x.Message), #@Html.IdFor(x => x.Logger)").on("keydown", event => {
             if (event.keyCode == 13) {
                 // On enter key pressed - submit
                 $("#btnSearch").click();
                 return false;
             }
-        });        
+        });
     });
 </script>

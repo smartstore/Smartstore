@@ -66,7 +66,8 @@
             </div>
             <div class="adminData">
                 <div sm-if="Model.CustomerId.HasValue" class="form-control-plaintext">
-                    @Html.ActionLink(Model.CustomerEmail.HasValue() ? Model.CustomerEmail : T("Admin.Customers.Guest").Value, "Edit", "Customer", new { id = Model.CustomerId }, new { })
+                    @* TODO: (ms) (core) Make a tag *@
+                    @Html.ActionLink(Model.CustomerEmail.HasValue() ? Model.CustomerEmail : T("Admin.Customers.Guest").Value, "Edit", "Customer", new { id = Model.CustomerId })
                 </div>
             </div>
         </div>
@@ -110,7 +111,7 @@
                 </div>
             </div>
         </div>
-        <div class="adminRow" sm-if="Model.FullMessage.HasValue()">
+        <div sm-if="Model.FullMessage.HasValue()" class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="FullMessage" />
             </div>

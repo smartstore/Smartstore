@@ -53,6 +53,9 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(PositionAttributeName)]
         public GridPagerPosition Position { get; set; }
 
+        /// <summary>
+        /// Default: <c>true</c>.
+        /// </summary>
         [HtmlAttributeName(ShowChooserAttributeName)]
         public bool ShowSizeChooser { get; set; } = true;
 
