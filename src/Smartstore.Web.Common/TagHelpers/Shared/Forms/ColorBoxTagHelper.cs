@@ -18,24 +18,26 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
-            var value = string.Empty;
-            if (output.Attributes.TryGetAttribute("value", out var valueAttribute))
+            var value = For?.Model?.ToString() ?? string.Empty;
+            if (output.Attributes.TryGetAttribute("value", out var attr))
             {
-                value = valueAttribute.Value.ToString();
+                value = attr.Value.ToString();
+                output.Attributes.Remove(attr);
             }
 
             var name = string.Empty;
-            if (output.Attributes.TryGetAttribute("name", out var nameAttribute))
+            if (output.Attributes.TryGetAttribute("name", out attr))
             {
-                name = nameAttribute.Value.ToString();
+                name = attr.Value.ToString();
+                output.Attributes.Remove(attr);
             }
 
             var id = string.Empty;
-            if (output.Attributes.TryGetAttribute("id", out var idAttribute))
+            if (output.Attributes.TryGetAttribute("id", out attr))
             {
-                id = idAttribute.Value.ToString();
+                id = attr.Value.ToString();
+                output.Attributes.Remove(attr);
             }
-
 
             var defaultColor = DefaultColor.EmptyNull();
             var isDefault = value.EqualsNoCase(defaultColor);

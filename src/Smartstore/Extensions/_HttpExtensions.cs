@@ -14,14 +14,6 @@ namespace Smartstore
 {
     public static class HttpExtensions
     {
-        const string CacheRegionName = "Smartstore:";
-
-        public static string BuildScopedKey(this IMemoryCache cache, string key)
-        {
-            return key.HasValue() ? CacheRegionName + key : null;
-        }
-
-
         //const string RememberPathKey = "AppRelativeCurrentExecutionFilePath.Original";
 
         //private static readonly List<Tuple<string, string>> _sslHeaders = new List<Tuple<string, string>>
