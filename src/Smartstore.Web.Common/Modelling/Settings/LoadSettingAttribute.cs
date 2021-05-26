@@ -16,9 +16,15 @@ namespace Smartstore.Web.Modelling.Settings
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     public class LoadSettingAttribute : TypeFilterAttribute
     {
-        public LoadSettingAttribute()
+        public LoadSettingAttribute() 
+            : this(true)
+        {
+        }
+
+        public LoadSettingAttribute(bool updateParameterFromStore) 
             : base(typeof(LoadSettingFilter))
         {
+            UpdateParameterFromStore = updateParameterFromStore;
             Arguments = new object[] { this };
         }
 
@@ -48,34 +54,27 @@ namespace Smartstore.Web.Modelling.Settings
             _storeDependingSettings = storeDependingSettings;
         }
 
-        protected int GetActiveStoreScopeConfiguration()
-        {
-            var storeId = _services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
-            var store = _services.StoreContext.GetStoreById(storeId);
-            return store != null ? store.Id : 0;
-        }
-
-        public virtual async Task OnActionExecutionAsync(ActionExecutingContext filterContext, ActionExecutionDelegate next)
+        public virtual async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             // Get the current configured store id
-            var controller = filterContext.Controller as Controller;
+            var controller = context.Controller as Controller;
             _storeId = GetActiveStoreScopeConfiguration();
             Func<ParameterDescriptor, bool> predicate = (x) => new[] { "storescope", "storeid" }.Contains(x.Name, StringComparer.OrdinalIgnoreCase);
-            var storeScopeParam = FindActionParameters<int>(filterContext.ActionDescriptor, false, false, predicate).FirstOrDefault();
+            var storeScopeParam = FindActionParameters<int>(context.ActionDescriptor, false, false, predicate).FirstOrDefault();
             if (storeScopeParam != null)
             {
                 // We found an action param named storeScope with type int. Assign our storeId to it.
-                filterContext.ActionArguments[storeScopeParam.Name] = _storeId;
+                context.ActionArguments[storeScopeParam.Name] = _storeId;
             }
 
             // Find the required ISettings concrete types in ActionDescriptor.GetParameters()
-            _settingParams = await FindActionParameters<ISettings>(filterContext.ActionDescriptor)
+            _settingParams = await FindActionParameters<ISettings>(context.ActionDescriptor)
                 .SelectAsync(async x =>
                 {
                     // Load settings for the settings type obtained with FindActionParameters<ISettings>()
                     var settings = _attribute.UpdateParameterFromStore
                             ? await _services.SettingFactory.LoadSettingsAsync(x.ParameterType, _storeId)
-                            : filterContext.ActionArguments[x.Name] as ISettings;
+                            : context.ActionArguments[x.Name] as ISettings;
 
                     if (settings == null)
                     {
@@ -85,7 +84,7 @@ namespace Smartstore.Web.Modelling.Settings
                     // Replace settings from action parameters with our loaded settings.
                     if (_attribute.UpdateParameterFromStore)
                     {
-                        filterContext.ActionArguments[x.Name] = settings;
+                        context.ActionArguments[x.Name] = settings;
                     }
 
                     return new SettingParam
@@ -97,9 +96,8 @@ namespace Smartstore.Web.Modelling.Settings
                 .ToArrayAsync();
 
             var executedContext = await next();
-            var viewResult = executedContext.Result as ViewResult;
 
-            if (viewResult != null)
+            if (executedContext.Result is ViewResult viewResult)
             {
                 var model = viewResult.Model;
 
@@ -171,6 +169,13 @@ namespace Smartstore.Web.Modelling.Settings
             }
 
             return query;
+        }
+
+        protected int GetActiveStoreScopeConfiguration()
+        {
+            var storeId = _services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
+            var store = _services.StoreContext.GetStoreById(storeId);
+            return store != null ? store.Id : 0;
         }
     }
 }
