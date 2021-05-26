@@ -61,12 +61,19 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessLocalizationsAsync<TEntity>(
             ImportExecuteContext context,
             IEnumerable<ImportRow<TEntity>> batch,
-            IDictionary<string, Expression<Func<TEntity, string>>> localizableProperties) 
+            IDictionary<string, Expression<Func<TEntity, string>>> localizableProperties,
+            CancellationToken cancelToken = default) 
             where TEntity : BaseEntity, ILocalizedEntity
         {
             Guard.NotNull(context, nameof(context));
             Guard.NotNull(batch, nameof(batch));
             Guard.NotNull(localizableProperties, nameof(localizableProperties));
+
+            var entityIds = batch.Select(x => x.Entity.Id).ToArray();
+            if (!entityIds.Any())
+            {
+                return 0;
+            }
 
             // Perf: determine whether our localizable properties actually have 
             // counterparts in the source BEFORE import batch begins. This way we spare ourself
@@ -74,28 +81,59 @@ namespace Smartstore.Core.DataExchange.Import
             var localizedProps = (from kvp in localizableProperties
                                   where context.DataSegmenter.GetColumnIndexes(kvp.Key).Length > 0
                                   select kvp.Key).ToArray();
-
-            if (localizedProps.Length == 0)
+            if (!localizedProps.Any())
             {
                 return 0;
             }
 
             var shouldSave = false;
+            var keyGroup = nameof(TEntity);
+            var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds);
 
             foreach (var row in batch)
             {
                 foreach (var prop in localizedProps)
                 {
-                    var lambda = localizableProperties[prop];
-                    foreach (var lang in context.Languages)
+                    var keySelector = localizableProperties[prop];
+                    foreach (var language in context.Languages)
                     {
-                        if (row.TryGetDataValue(prop /* ColumnName */, lang.UniqueSeoCode, out string value))
+                        if (row.TryGetDataValue(prop /* ColumnName */, language.UniqueSeoCode, out string value))
                         {
-                            // TODO: (mg) (core) (perf) We have to work against prefetched values here (prefetch the whole batch).
-                            // Reason: ApplyLocalizedValueAsync() always hits the database to determine whether the entity exists already.
-                            // Keep in mind that this code here was build before localized property prefetching was available.
-                            await _localizedEntityService.ApplyLocalizedValueAsync(row.Entity, lambda, value, lang.Id);
-                            shouldSave = true;
+                            var localizedProperty = collection.Find(language.Id, row.Entity.Id, keyGroup);
+                            if (localizedProperty != null)
+                            {
+                                if (string.IsNullOrEmpty(value))
+                                {
+                                    // Delete.
+                                    _db.LocalizedProperties.Remove(localizedProperty);
+                                    shouldSave = true;
+                                }
+                                else if (localizedProperty.LocaleValue != value)
+                                {
+                                    // Update.
+                                    localizedProperty.LocaleValue = value;
+                                    shouldSave = true;
+                                }
+                            }
+                            else if (!string.IsNullOrEmpty(value))
+                            {
+                                // Insert.
+                                var propInfo = keySelector.ExtractPropertyInfo();
+                                if (propInfo == null)
+                                {
+                                    throw new ArgumentException($"Expression '{keySelector}' does not refer to a property.");
+                                }
+
+                                _db.LocalizedProperties.Add(new LocalizedProperty
+                                {
+                                    EntityId = row.Entity.Id,
+                                    LanguageId = language.Id,
+                                    LocaleKey = propInfo.Name,
+                                    LocaleKeyGroup = keyGroup,
+                                    LocaleValue = value
+                                });
+                                shouldSave = true;
+                            }
                         }
                     }
                 }
@@ -104,7 +142,7 @@ namespace Smartstore.Core.DataExchange.Import
             if (shouldSave)
             {
                 // Commit whole batch at once.
-                return await _db.SaveChangesAsync();
+                return await _db.SaveChangesAsync(cancelToken);
             }
 
             return 0;
@@ -112,7 +150,8 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task<int> ProcessStoreMappingsAsync<TEntity>(
             ImportExecuteContext context,
-            IEnumerable<ImportRow<TEntity>> batch) 
+            IEnumerable<ImportRow<TEntity>> batch,
+            CancellationToken cancelToken = default) 
             where TEntity : BaseEntity, IStoreRestricted
         {
             var shouldSave = false;
@@ -171,7 +210,7 @@ namespace Smartstore.Core.DataExchange.Import
             if (shouldSave)
             {
                 // Commit whole batch at once.
-                return await _db.SaveChangesAsync();
+                return await _db.SaveChangesAsync(cancelToken);
             }
 
             return 0;
@@ -180,48 +219,36 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessSlugsAsync<TEntity>(
             ImportExecuteContext context,
             IEnumerable<ImportRow<TEntity>> batch,
-            string entityName) 
+            string entityName,
+            CancellationToken cancelToken = default)
             where TEntity : BaseEntity, ISlugSupported
         {
+            using var scope = _urlService.CreateBatchScope(_db);
+
             foreach (var row in batch)
             {
                 try
                 {
                     if (row.TryGetDataValue("SeName", out string seName) || row.IsNew || row.NameChanged)
                     {
-                        var slugResult = await _urlService.ValidateSlugAsync(row.Entity, seName, true);
-
-                        if (row.IsNew)
-                        {
-                            _db.UrlRecords.Add(new UrlRecord
-                            {
-                                EntityId = row.Entity.Id,
-                                EntityName = entityName,
-                                Slug = slugResult.Slug,
-                                LanguageId = 0,
-                                IsActive = true,
-                            });
-                        }
-                        else
-                        {
-                            // Let us not save here, otherwise 'save' parameter makes no sense ;-)
-                            await _urlService.ApplySlugAsync(slugResult, false);
-                        }
+                        scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, true));
 
                         // Process localized slugs.
                         foreach (var language in context.Languages)
                         {
-                            // ValidateSlugAsync has no 'name' parameter anymore.
-                            // We ourselves must ensure that 'Name[<UniqueSeoCode>]' is taken into account.
-                            if (!row.TryGetDataValue("SeName", language.UniqueSeoCode, out seName) || seName.IsEmpty())
-                            {
-                                row.TryGetDataValue("Name", language.UniqueSeoCode, out seName);
-                            }
+                            var hasSeName = row.TryGetDataValue("SeName", language.UniqueSeoCode, out seName);
+                            var hasLocalizedName = row.TryGetDataValue("Name", language.UniqueSeoCode, out string localizedName);
 
-                            if (seName.HasValue())
+                            if (hasSeName || hasLocalizedName)
                             {
-                                slugResult = await _urlService.ValidateSlugAsync(row.Entity, seName, false, language.Id);
-                                await _urlService.ApplySlugAsync(slugResult, false);
+                                // ValidateSlugAsync has no 'name' parameter anymore.
+                                // We ourselves must ensure that 'Name[<UniqueSeoCode>]' is taken into account.
+                                if (string.IsNullOrWhiteSpace(seName))
+                                {
+                                    seName = localizedName;
+                                }
+
+                                scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, false, language.Id));
                             }
                         }
                     }
@@ -233,7 +260,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            return await _db.SaveChangesAsync();
+            return await scope.CommitAsync(cancelToken);
         }
     }
 }
