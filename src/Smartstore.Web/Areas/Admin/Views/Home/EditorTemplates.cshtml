@@ -15,6 +15,17 @@
 
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="Color" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Color" id="test" name="test" value="#000" attrs='new AttributeDictionary { { "fallbackColor", "#000" } }' />
+                <colorbox id="test" name="test" value="#000" />
+                <span asp-validation-for="Color"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="WidgetZone" />
             </div>
             <div class="adminData">
@@ -156,16 +167,6 @@
             <div class="adminData">
                 <editor asp-for="Byte" sm-postfix="Test" />
                 <span asp-validation-for="Byte"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="Color" />
-            </div>
-            <div class="adminData">
-                @*@Html.EditorFor(model => model.Color, new { fallbackColor = "#ccc" })*@
-                <editor asp-for="Color" attrs='new AttributeDictionary { { "fallbackColor", "#000" } }' />
-                <span asp-validation-for="Color"></span>
             </div>
         </div>
         <div class="adminRow">

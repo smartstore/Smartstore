@@ -8,28 +8,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("colorbox", TagStructure = TagStructure.WithoutEndTag)]
     public class ColorBoxTagHelper : BaseFormTagHelper
     {
-        const string IdAttributeName = "sm-id";
-        const string NameAttributeName = "sm-name";
-        const string ValueAttributeName = "sm-value";
         const string DefaultColorAttributeName = "sm-default-color";
-
-        /// <summary>
-        /// Specifies the id which will be set when rendering the field.
-        /// </summary>
-        [HtmlAttributeName(IdAttributeName)]
-        public string FieldId { get; set; }
-
-        /// <summary>
-        /// Specifies the name which will be set if the tag doesn't contain asp-for attribute.
-        /// </summary>
-        [HtmlAttributeName(NameAttributeName)]
-        public string FieldName { get; set; }
-
-        /// <summary>
-        /// Specifies the value which will be set when rendering the field.
-        /// </summary>
-        [HtmlAttributeName(ValueAttributeName)]
-        public string FieldValue { get; set; }
 
         /// <summary>
         /// Specifies the default color of the property.
@@ -39,16 +18,25 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
-            string value;
-            if (output.Attributes.TryGetAttribute("sm-value", out var valueAttribute))
+            var value = string.Empty;
+            if (output.Attributes.TryGetAttribute("value", out var valueAttribute))
             {
                 value = valueAttribute.Value.ToString();
             }
-            else
+
+            var name = string.Empty;
+            if (output.Attributes.TryGetAttribute("name", out var nameAttribute))
             {
-                value = For != null ? For.Model.ToString() : FieldValue;
+                name = nameAttribute.Value.ToString();
             }
-            
+
+            var id = string.Empty;
+            if (output.Attributes.TryGetAttribute("id", out var idAttribute))
+            {
+                id = idAttribute.Value.ToString();
+            }
+
+
             var defaultColor = DefaultColor.EmptyNull();
             var isDefault = value.EqualsNoCase(defaultColor);
             var htmlAttributes = new Dictionary<string, object>
@@ -57,16 +45,16 @@ namespace Smartstore.Web.TagHelpers.Shared
                 { "placeholder", defaultColor }
             };
 
-            if (FieldId.HasValue())
+            if (id.HasValue())
             {
-                htmlAttributes.Add("id", FieldId);
+                htmlAttributes.Add("id", id);
             }
 
             output.TagName = "div";
             output.TagMode = TagMode.StartTagAndEndTag;
             output.AppendCssClass("input-group colorpicker-component sm-colorbox");
             output.Attributes.Add("data-fallback-color", defaultColor);
-            output.Content.AppendHtml(HtmlHelper.TextBox(For != null ? For.Name : FieldName, isDefault ? string.Empty : value, htmlAttributes));
+            output.Content.AppendHtml(HtmlHelper.TextBox(For != null ? For.Name : name, isDefault ? string.Empty : value, htmlAttributes));
 
             var addon = new TagBuilder("div");
             addon.AddCssClass("input-group-append input-group-addon");
