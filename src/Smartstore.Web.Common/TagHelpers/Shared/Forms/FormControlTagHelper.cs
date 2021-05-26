@@ -105,6 +105,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         private void ProcessFormControl(TagHelperOutput output)
         {
+            // TODO: (mh) (core) || TODO: (mc) (core) There must be a switch to prevent setting of this class in admin area.
             output.AppendCssClass("form-control");
 
             if (ControlSize != ControlSize.Medium)
