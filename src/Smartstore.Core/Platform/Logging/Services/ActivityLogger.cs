@@ -94,7 +94,7 @@ namespace Smartstore.Core.Logging
             using var tx = await _db.Database.BeginTransactionAsync(cancelToken);
 
             await _db.DataProvider.TruncateTableAsync<ActivityLog>();
-            await _db.DataProvider.SetTableIncrementAsync<ActivityLog>(0);
+            await _db.DataProvider.SetTableIncrementAsync<ActivityLog>(1);
 
             await tx.CommitAsync(cancelToken);
         }
