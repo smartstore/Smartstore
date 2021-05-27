@@ -268,12 +268,15 @@ Vue.component("sm-data-grid", {
 
     created() {
         const self = this;
+
+        // Build command
         this.command = this.buildCommand();
 
         // Load user prefs
         this.originalState = this.getGridState();
         if (this.options.preserveState) {
-            this.userPrefs = JSON.parse(localStorage.getItem('sm:grid:state:' + this.options.stateKey));
+            var userPrefs = JSON.parse(localStorage.getItem('sm:grid:state:' + this.options.stateKey));
+            this.userPrefs = userPrefs.version === this.options.version ? userPrefs : null;
         }  
 
         this.$on('data-binding', command => {
@@ -359,6 +362,16 @@ Vue.component("sm-data-grid", {
             return Math.floor(total);
         },
 
+        command2: {
+            get() {
+                return {
+                    page: this.paging.pageIndex,
+                    pageSize: this.paging.pageSize,
+                    sorting: this.sorting.descriptors
+                };
+            }
+        },
+
         userPrefs: {
             get() {
                 return this.getGridState();
@@ -368,6 +381,8 @@ Vue.component("sm-data-grid", {
                     return;
 
                 $.extend(this.options, value.options);
+                $.extend(this.paging, value.paging);
+                $.extend(this.command, value.command);
  
                 value.columns.forEach((userColumn, userIndex) => {
                     const column = this.columns.find(x => x.member === userColumn.member);
@@ -382,6 +397,9 @@ Vue.component("sm-data-grid", {
     },
 
     watch: {
+        command2(value) {
+            console.log("command2", value);
+        },
         command: {
             handler: function () {
                 this.read();
@@ -412,8 +430,7 @@ Vue.component("sm-data-grid", {
                 'dg-table': true,
                 'dg-striped': this.options.striped,
                 'dg-hover': this.options.hover,
-                'dg-scrollable': this.isScrollable,
-                //'dg-condensed': this.options.condensed
+                'dg-scrollable': this.isScrollable
             };
 
             return cssClass;
@@ -491,11 +508,18 @@ Vue.component("sm-data-grid", {
 
         getGridState() {
             return {
+                version: this.options.version,
                 options: {
                     vborders: this.options.vborders,
                     hborders: this.options.hborders,
                     striped: this.options.striped,
                     hover: this.options.hover
+                },
+                paging: {
+                    position: this.paging.position
+                },
+                command: {
+                    pageSize: this.paging.pageSize
                 },
                 columns: this.columns.map(c => {
                     return { member: c.member, hidden: c.hidden, width: c.width };
@@ -526,6 +550,12 @@ Vue.component("sm-data-grid", {
             // Reset options
             $.extend(this.options, this.originalState.options);
 
+            // Reset paging
+            $.extend(this.paging, this.originalState.paging);
+
+            // Reset command
+            $.extend(this.command, this.originalState.command);
+
             // Reset columns
             this.originalState.columns.forEach((originalColumn, originalIndex) => {
                 let column = this.columns.find(c => c.member === originalColumn.member);
@@ -546,13 +576,12 @@ Vue.component("sm-data-grid", {
         buildCommand() {
             const p = this.paging;
             const s = this.sorting;
-            const command = {
+
+            return {
                 page: p.pageIndex,
                 pageSize: p.pageSize,
                 sorting: s.descriptors
             };
-
-            return command;
         },
 
         read(force) {

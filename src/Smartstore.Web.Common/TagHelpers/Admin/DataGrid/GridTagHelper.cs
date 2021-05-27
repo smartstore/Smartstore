@@ -38,6 +38,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string MaxHeightAttributeName = "max-height";
         const string PreserveCommandStateAttributeName = "preserve-command-state";
         const string PreserveGridStateAttributeName = "preserve-grid-state";
+        const string ClassAttributeName = "class";
+        const string VersionAttributeName = "version";
         const string OnDataBindingAttributeName = "ondatabinding";
         const string OnDataBoundAttributeName = "ondatabound";
         const string OnRowSelectedAttributeName = "onrowselected";
@@ -57,16 +59,16 @@ namespace Smartstore.Web.TagHelpers.Admin
         public DataGridBorderStyle BorderStyle { get; set; } = DataGridBorderStyle.VerticalBorders;
 
         /// <summary>
-        /// Adds zebra-striping to any table row within tbody.
+        /// Adds zebra-striping to any table row within tbody. Default: <c>false</c>.
         /// </summary>
         [HtmlAttributeName(StripedAttributeName)]
         public bool Striped { get; set; }
 
         /// <summary>
-        /// Enables a hover state on table rows within tbody.
+        /// Enables a hover state on table rows within tbody.  Default: <c>true</c>.
         /// </summary>
         [HtmlAttributeName(HoverAttributeName)]
-        public bool Hover { get; set; }
+        public bool Hover { get; set; } = true;
 
         ///// <summary>
         ///// Makes data table more compact by cutting cell padding in half.
@@ -115,6 +117,21 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(MaxHeightAttributeName)]
         public string MaxHeight { get; set; }
+
+        /// <summary>
+        /// Grid configuration version. This version is compared with the user preferences version
+        /// saved in browser's localStorage. Ig this version differs, no attempt is made to load
+        /// client preferences.
+        /// Increment the value if you made changes to the grid columns or any user-customizable option.
+        /// </summary>
+        [HtmlAttributeName(VersionAttributeName)]
+        public int Version { get; set; } = 1;
+
+        /// <summary>
+        /// Custom CSS classes to apply to generated root element .datagrid-root.
+        /// </summary>
+        [HtmlAttributeName(ClassAttributeName)]
+        public string CssClass { get; set; }
 
         /// <summary>
         /// Preserves command state of data grid across requests, but only within current session. 
@@ -194,8 +211,14 @@ namespace Smartstore.Web.TagHelpers.Admin
                 throw new InvalidOperationException("At least one column must be specified in order for the grid to render correctly.");
             }
 
+            var cssClass = "datagrid-root";
+            if (CssClass.HasValue())
+            {
+                cssClass += " " + CssClass;
+            }
+
             output.TagName = "div";
-            output.AppendCssClass("datagrid-root");
+            output.AppendCssClass(cssClass);
 
             var component = new TagBuilder("sm-data-grid");
             component.Attributes[":options"] = "options";
@@ -291,6 +314,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     maxHeight = MaxHeight,
                     stateKey = Id,
                     preserveState = PreserveGridState,
+                    version = Version,
                     defaultDataRow = defaultDataRow,
                     onDataBinding = OnDataBinding,
                     onDataBound = OnDataBound,

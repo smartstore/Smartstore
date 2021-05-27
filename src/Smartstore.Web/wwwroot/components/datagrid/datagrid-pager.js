@@ -129,6 +129,7 @@
         pageTo(pageIndex) {
             if (pageIndex > 0 && pageIndex <= this.totalPages && !this.$parent.isBusy) {
                 this.command.page = pageIndex;
+                this.paging.pageIndex = pageIndex;
             }
         },
 
@@ -136,8 +137,10 @@
             if (!this.$parent.isBusy) {
                 if (size > this.command.pageSize) {
                     this.command.page = 1;
+                    this.paging.pageIndex = 1;
                 }
                 this.command.pageSize = size;
+                this.paging.pageSize = size;
             }
         }
     }

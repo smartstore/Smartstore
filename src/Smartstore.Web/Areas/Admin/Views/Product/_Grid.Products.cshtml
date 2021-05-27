@@ -6,10 +6,10 @@
     var gridPageSize = GetMetadata<int>("GridPageSize");
 }
 
-<datagrid id="products-grid" border-style="HorizontalBorders" striped="true" hover="true" 
+<datagrid id="products-grid"
           allow-resize="true" 
           allow-row-selection="true" 
-          allow-edit="true" 
+          allow-edit="true"
           preserve-grid-state="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("ProductList")" delete="@Url.Action("ProductDelete")" update="@Url.Action("ProductUpdate")" insert="@Url.Action("ProductInsert")" />
