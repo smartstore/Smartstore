@@ -22,7 +22,7 @@ namespace Smartstore.Core.DataExchange.Import
     public partial interface IEntityImporter
     {
         /// <summary>
-        /// Processes the import data and saves it to the database.
+        /// Processes a batch of import data and saves it to the database.
         /// </summary>
         /// <param name="context">Contains all information to process import data.</param>
         Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken);

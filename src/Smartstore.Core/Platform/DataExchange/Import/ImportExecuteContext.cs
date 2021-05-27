@@ -2,8 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Smartstore.Core.Localization;
-using Smartstore.Core.Stores;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 
@@ -11,61 +9,30 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public partial class ImportExecuteContext
     {
-        private string _progressInfo;
-        private IDataTable _dataTable;
+        private readonly string _progressInfo;
         private DataExchangeAbortion _abortion;
-        private ImportDataSegmenter _segmenter;
 
-        public ImportExecuteContext(string progressInfo, CancellationToken cancellation)
+        public ImportExecuteContext(string progressInfo, CancellationToken cancelToken)
         {
             _progressInfo = progressInfo;
-            CancellationToken = cancellation;
+            CancelToken = cancelToken;
         }
 
-        public CancellationToken CancellationToken { get; private set; }
+        public CancellationToken CancelToken { get; private set; }
 
         public DataImportRequest Request { get; internal set; }
 
         /// <summary>
-        /// Import settings.
-        /// </summary>
-        public DataExchangeSettings DataExchangeSettings { get; internal set; }
-
-        /// <summary>
         /// The data source (CSV, Excel etc.).
         /// </summary>
-        public IDataTable DataTable
-        {
-            get => _dataTable;
-            internal set
-            {
-                _dataTable = value;
-                _segmenter = null;
-            }
-        }
+        public IDataTable DataTable { get; internal set; }
 
         /// <summary>
         /// Mapping information between database and data source.
         /// </summary>
         public ColumnMap ColumnMap { get; internal set; }
 
-        public ImportDataSegmenter DataSegmenter
-        {
-            get
-            {
-                if (_segmenter == null)
-                {
-                    if (DataTable == null || ColumnMap == null)
-                    {
-                        throw new SmartException("A DataTable and a ColumnMap must be specified before accessing the DataSegmenter property.");
-                    }
-
-                    _segmenter = new ImportDataSegmenter(DataTable, ColumnMap);
-                }
-
-                return _segmenter;
-            }
-        }
+        public ImportDataSegmenter DataSegmenter { get; internal set; }
 
         /// <summary>
         /// A value indicating whether to only update existing records.
@@ -81,16 +48,6 @@ namespace Smartstore.Core.DataExchange.Import
         /// The import directory.
         /// </summary>
         public IDirectory ImportDirectory { get; internal set; }
-
-        /// <summary>
-        /// All active languages.
-        /// </summary>
-        public IList<Language> Languages { get; internal set; }
-
-        /// <summary>
-        /// All stores.
-        /// </summary>
-        public IList<Store> Stores { get; internal set; }
 
         /// <summary>
         /// Logger instance to log information into the import log file.
@@ -124,7 +81,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             get
             {
-                if (CancellationToken.IsCancellationRequested || IsMaxFailures)
+                if (CancelToken.IsCancellationRequested || IsMaxFailures)
                     return DataExchangeAbortion.Hard;
 
                 return _abortion;

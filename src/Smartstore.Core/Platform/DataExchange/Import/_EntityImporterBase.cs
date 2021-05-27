@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
@@ -17,9 +18,33 @@ namespace Smartstore.Core.DataExchange.Import
     public abstract class EntityImporterBase : IEntityImporter
     {
         protected SmartDbContext _db;
+        protected IStoreContext _storeContext;
+        protected ILanguageService _languageService;
         protected ILocalizedEntityService _localizedEntityService;
         protected IStoreMappingService _storeMappingService;
         protected IUrlService _urlService;
+        protected IMediaService _mediaService;
+
+        protected EntityImporterBase(
+            SmartDbContext db,
+            IStoreContext storeContext,
+            ILanguageService languageService,
+            ILocalizedEntityService localizedEntityService,
+            IStoreMappingService storeMappingService,
+            IUrlService urlService,
+            IMediaService mediaService)
+        {
+            _db = db;
+            _storeContext = storeContext;
+            _languageService = languageService;
+            _localizedEntityService = localizedEntityService;
+            _storeMappingService = storeMappingService;
+            _urlService = urlService;
+            _mediaService = mediaService;
+
+            // Always turn image post-processing off during imports. It can heavily decrease processing time.
+            _mediaService.ImagePostProcessingEnabled = false;
+        }
 
         public DateTime UtcNow { get; private set; } = DateTime.UtcNow;
 
@@ -34,15 +59,15 @@ namespace Smartstore.Core.DataExchange.Import
 
         public Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
-            return ImportAsync(context, cancelToken);
+            return ProcessBatchAsync(context, cancelToken);
         }
 
         /// <summary>
-        /// Imports data to the database.
+        /// Imports a batch of data into the database.
         /// </summary>
         /// <param name="context">Import execution context.</param>
         /// <param name="cancelToken">A cancellation token to cancel the import.</param>
-        protected abstract Task ImportAsync(ImportExecuteContext context, CancellationToken cancelToken = default);
+        protected abstract Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default);
 
         protected void InitializeBatch(ILifetimeScope scope, ImportExecuteContext context)
         {
@@ -57,12 +82,14 @@ namespace Smartstore.Core.DataExchange.Import
             // passing data segmentation control over to DataImporter. For better API design ImportAsync() method here could be renamed to ProcessBatch().
             // TBD with MC.
 
-            _db = scope.Resolve<SmartDbContext>();
-            _localizedEntityService = scope.Resolve<ILocalizedEntityService>();
-            _storeMappingService = scope.Resolve<IStoreMappingService>();
-            _urlService = scope.Resolve<IUrlService>();
+            //_db = scope.Resolve<SmartDbContext>();
+            //_storeContext = scope.Resolve<IStoreContext>();
+            //_languageService = scope.Resolve<ILanguageService>();
+            //_localizedEntityService = scope.Resolve<ILocalizedEntityService>();
+            //_storeMappingService = scope.Resolve<IStoreMappingService>();
+            //_urlService = scope.Resolve<IUrlService>();
 
-            context.Result.TotalRecords = context.DataSegmenter.TotalRows;
+            //context.Result.TotalRecords = context.DataSegmenter.TotalRows;
         }
 
         protected virtual async Task<int> ProcessLocalizationsAsync<TEntity>(
@@ -95,6 +122,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             var shouldSave = false;
             var keyGroup = nameof(TEntity);
+            var languages = await _languageService.GetAllLanguagesAsync(true);
             var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds);
 
             foreach (var row in batch)
@@ -102,7 +130,7 @@ namespace Smartstore.Core.DataExchange.Import
                 foreach (var prop in localizedProps)
                 {
                     var keySelector = localizableProperties[prop];
-                    foreach (var language in context.Languages)
+                    foreach (var language in languages)
                     {
                         if (row.TryGetDataValue(prop /* ColumnName */, language.UniqueSeoCode, out string value))
                         {
@@ -168,6 +196,7 @@ namespace Smartstore.Core.DataExchange.Import
                 return 0;
             }
 
+            var stores = _storeContext.GetAllStores();
             var collection = await _storeMappingService.GetStoreMappingCollectionAsync(nameof(TEntity), entityIds);
 
             foreach (var row in batch)
@@ -184,7 +213,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     row.Entity.LimitedToStores = true;
 
-                    foreach (var store in context.Stores)
+                    foreach (var store in stores)
                     {
                         if (storeIds.Contains(store.Id))
                         {
@@ -230,6 +259,8 @@ namespace Smartstore.Core.DataExchange.Import
             CancellationToken cancelToken = default)
             where TEntity : BaseEntity, ISlugSupported
         {
+            var languages = await _languageService.GetAllLanguagesAsync(true);
+
             using var scope = _urlService.CreateBatchScope(_db);
 
             // TODO: (mg) (core) (perf) Prefetching is missing. Without prefetching, _urlService.ValidateSlugAsync()
@@ -244,7 +275,7 @@ namespace Smartstore.Core.DataExchange.Import
                         scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, true));
 
                         // Process localized slugs.
-                        foreach (var language in context.Languages)
+                        foreach (var language in languages)
                         {
                             var hasSeName = row.TryGetDataValue("SeName", language.UniqueSeoCode, out seName);
                             var hasLocalizedName = row.TryGetDataValue("Name", language.UniqueSeoCode, out string localizedName);

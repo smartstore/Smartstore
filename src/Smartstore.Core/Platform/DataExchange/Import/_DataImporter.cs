@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using Smartstore.Collections;
 using Smartstore.Core.Common.Settings;
@@ -12,8 +13,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
-using Smartstore.Core.Stores;
-using Smartstore.Domain;
+using Smartstore.Engine;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities;
 
@@ -22,28 +22,25 @@ namespace Smartstore.Core.DataExchange.Import
     public partial class DataImporter : IDataImporter
     {
         private readonly ICommonServices _services;
-        private readonly Func<ImportEntityType, IEntityImporter> _importerFactory;
-        private readonly ILanguageService _languageService;
+        private readonly ILifetimeScopeAccessor _scopeAccessor;
+        private readonly IImportProfileService _importProfileService;
         private readonly IEmailAccountService _emailAccountService;
         private readonly IMailService _mailService;
-        private readonly DataExchangeSettings _dataExchangeSettings;
         private readonly ContactDataSettings _contactDataSettings;
 
         public DataImporter(
             ICommonServices services,
-            Func<ImportEntityType, IEntityImporter> importerFactory,
-            ILanguageService languageService,
+            ILifetimeScopeAccessor scopeAccessor,
+            IImportProfileService importProfileService,
             IEmailAccountService emailAccountService,
             IMailService mailService,
-            DataExchangeSettings dataExchangeSettings,
             ContactDataSettings contactDataSettings)
         {
             _services = services;
-            _importerFactory = importerFactory;
-            _languageService = languageService;
+            _scopeAccessor = scopeAccessor;
+            _importProfileService = importProfileService;
             _emailAccountService = emailAccountService;
             _mailService = mailService;
-            _dataExchangeSettings = dataExchangeSettings;
             _contactDataSettings = contactDataSettings;
         }
 
@@ -52,37 +49,33 @@ namespace Smartstore.Core.DataExchange.Import
         public async Task ImportAsync(DataImportRequest request, CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
-            Guard.NotNull(request.Profile, nameof(request.Profile));
             Guard.NotNull(cancelToken, nameof(cancelToken));
 
-            var profile = request.Profile;
-            if (!profile.Enabled)
-            {
-                return;
-            }
-
-            var ctx = await CreateImporterContext(request, cancelToken);
+            DataImporterContext ctx = null;
 
             try
             {
-                // TODO: (mg) (core) get import files.
-                Multimap<RelatedEntityType?, ImportFile> files = null;
-                var context = ctx.ExecuteContext;
+                var profile = await _services.DbContext.ImportProfiles.FindByIdAsync(request.ProfileId, false, cancelToken);
+                if (!(profile?.Enabled ?? false))
+                    return;
 
-                if (!await HasPermission(ctx))
+                ctx = await CreateImporterContext(request, profile, cancelToken);
+
+                if (!request.HasPermission && !await HasPermission())
                 {
                     throw new SmartException("You do not have permission to perform the selected import.");
                 }
 
-                _services.MediaService.ImagePostProcessingEnabled = false;
+                var context = ctx.ExecuteContext;
+                var files = await _importProfileService.GetImportFilesAsync(profile, profile.ImportRelatedData);
+                var fileGroups = files.ToMultimap(x => x.RelatedType, x => x);
 
-                ctx.Log.Info(CreateLogHeader(files, ctx));
-
+                ctx.Log.Info(CreateLogHeader(profile, fileGroups));
                 await _services.EventPublisher.PublishAsync(new ImportExecutingEvent(context), cancelToken);
 
-                foreach (var fileGroup in files)
+                foreach (var fileGroup in fileGroups)
                 {
-                    context.Result = ctx.Results[fileGroup.Key?.ToString()?.EmptyNull()] = new ImportResult();
+                    context.Result = ctx.Results[fileGroup.Key?.ToString()?.EmptyNull()] = new();
 
                     foreach (var file in fileGroup.Value)
                     {
@@ -92,26 +85,36 @@ namespace Smartstore.Core.DataExchange.Import
                         if (!file.File.Exists)
                             throw new SmartException($"File does not exist {file.File.SubPath}.");
 
-                        var csvConfiguration = file.IsCsv
-                            ? (new CsvConfigurationConverter().ConvertFrom<CsvConfiguration>(profile.FileTypeConfiguration) ?? CsvConfiguration.ExcelFriendlyConfiguration)
-                            : CsvConfiguration.ExcelFriendlyConfiguration;
-
-                        using var stream = file.File.OpenRead();
-
-                        context.DataTable = LightweightDataTable.FromFile(
-                            file.File.Name,
-                            stream,
-                            stream.Length,
-                            csvConfiguration,
-                            profile.Skip,
-                            profile.Take > 0 ? profile.Take : int.MaxValue);
-
-                        context.ColumnMap = file.RelatedType.HasValue ? new ColumnMap() : ctx.ColumnMap;
-                        context.File = file;
-
                         try
                         {
-                            await ctx.Importer.ExecuteAsync(context, cancelToken);
+                            var csvConfiguration = file.IsCsv
+                                ? (new CsvConfigurationConverter().ConvertFrom<CsvConfiguration>(profile.FileTypeConfiguration) ?? CsvConfiguration.ExcelFriendlyConfiguration)
+                                : CsvConfiguration.ExcelFriendlyConfiguration;
+
+                            using var stream = file.File.OpenRead();
+
+                            context.File = file;
+                            context.ColumnMap = file.RelatedType.HasValue ? new ColumnMap() : ctx.ColumnMap;
+                            context.DataTable = LightweightDataTable.FromFile(
+                                file.File.Name,
+                                stream,
+                                stream.Length,
+                                csvConfiguration,
+                                profile.Skip,
+                                profile.Take > 0 ? profile.Take : int.MaxValue);
+
+                            context.DataSegmenter = new ImportDataSegmenter(context.DataTable, context.ColumnMap);
+                            context.Result.TotalRecords = context.DataSegmenter.TotalRows;
+
+                            while (context.Abort == DataExchangeAbortion.None && context.DataSegmenter.ReadNextBatch())
+                            {
+                                using var batchScope = _scopeAccessor.CreateLifetimeScope();
+
+                                var importerFactory = batchScope.Resolve<Func<ImportEntityType, IEntityImporter>>();
+                                var importer = importerFactory(profile.EntityType);
+
+                                await importer.ExecuteAsync(context, cancelToken);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -125,7 +128,7 @@ namespace Smartstore.Core.DataExchange.Import
                             if (context.IsMaxFailures)
                                 context.Result.AddWarning("Import aborted. The maximum number of failures has been reached.");
 
-                            if (ctx.CancellationToken.IsCancellationRequested)
+                            if (ctx.CancelToken.IsCancellationRequested)
                                 context.Result.AddWarning("Import aborted. A cancellation has been requested.");
                         }
                     }
@@ -145,60 +148,50 @@ namespace Smartstore.Core.DataExchange.Import
 
         private async Task Finalize(DataImporterContext ctx)
         {
-            try
-            {
-                _services.MediaService.ImagePostProcessingEnabled = true;
-
-                await _services.EventPublisher.PublishAsync(new ImportExecutedEvent(ctx.ExecuteContext), ctx.CancellationToken);
-            }
-            catch (Exception ex)
-            {
-                ctx?.Log?.ErrorsAll(ex);
-            }
+            if (ctx == null)
+                return;
 
             try
             {
-                // Database context sharing problem: if there are entities in modified state left by the provider due to SaveChangesAsync failure,
-                // then all subsequent SaveChanges would fail too (e.g. profile update below or ITaskStore.UpdateTaskAsync...).
-                // So whatever it is, detach\dispose all what the tracker still has tracked.
-
-                _services.DbContext.DetachEntities<BaseEntity>();
+                await _services.EventPublisher.PublishAsync(new ImportExecutedEvent(ctx.ExecuteContext), ctx.CancelToken);
             }
             catch (Exception ex)
             {
-                ctx?.Log?.ErrorsAll(ex);
+                ctx.Log?.ErrorsAll(ex);
             }
+
+            var profile = await _services.DbContext.ImportProfiles.FindByIdAsync(ctx.Request.ProfileId, true, ctx.CancelToken);
 
             try
             {
-                await SendCompletionEmail(ctx);
+                await SendCompletionEmail(profile, ctx);
             }
             catch (Exception ex)
             {
-                ctx?.Log?.ErrorsAll(ex);
+                ctx.Log?.ErrorsAll(ex);
             }
 
             try
             {
-                LogResults(ctx);
+                LogResults(profile, ctx);
             }
             catch (Exception ex)
             {
-                ctx?.Log?.ErrorsAll(ex);
+                ctx.Log?.ErrorsAll(ex);
             }
 
             try
             {
                 if (ctx.Results.TryGetValue(string.Empty, out var result))
                 {
-                    ctx.Request.Profile.ResultInfo = XmlHelper.Serialize(result.Clone());
+                    profile.ResultInfo = XmlHelper.Serialize(result.Clone());
 
-                    await _services.DbContext.SaveChangesAsync(ctx.CancellationToken);
+                    await _services.DbContext.SaveChangesAsync(ctx.CancelToken);
                 }
             }
             catch (Exception ex)
             {
-                ctx?.Log?.ErrorsAll(ex);
+                ctx.Log?.ErrorsAll(ex);
             }
 
             try
@@ -209,22 +202,22 @@ namespace Smartstore.Core.DataExchange.Import
             }
             catch (Exception ex)
             {
-                ctx?.Log?.ErrorsAll(ex);
+                ctx.Log?.ErrorsAll(ex);
             }
         }
 
         #region Utilities
 
-        private async Task SendCompletionEmail(DataImporterContext ctx)
+        private async Task SendCompletionEmail(ImportProfile profile, DataImporterContext ctx)
         {
             var emailAccount = _emailAccountService.GetDefaultEmailAccount();
             var result = ctx.ExecuteContext.Result;
             var store = _services.StoreContext.CurrentStore;
             var storeInfo = $"{store.Name} ({store.Url})";
-            var intro = _services.Localization.GetResource("Admin.DataExchange.Import.CompletedEmail.Body").FormatInvariant(storeInfo);
 
             using var psb = StringBuilderPool.Instance.Get(out var body);
-            body.Append(intro);
+
+            body.Append(T("Admin.DataExchange.Import.CompletedEmail.Body", storeInfo));
 
             if (result.LastError.HasValue())
             {
@@ -250,7 +243,7 @@ namespace Smartstore.Core.DataExchange.Import
             var message = new MailMessage
             {
                 From = new(emailAccount.Email, emailAccount.DisplayName),
-                Subject = T("Admin.DataExchange.Import.CompletedEmail.Subject").Value.FormatInvariant(ctx.Request.Profile.Name),
+                Subject = T("Admin.DataExchange.Import.CompletedEmail.Subject").Value.FormatInvariant(profile.Name),
                 Body = body.ToString()
             };
 
@@ -270,7 +263,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             await using var client = await _mailService.ConnectAsync(emailAccount);
-            await client.SendAsync(message, ctx.CancellationToken);
+            await client.SendAsync(message, ctx.CancelToken);
 
             //_db.QueuedEmails.Add(new QueuedEmail
             //{
@@ -285,44 +278,34 @@ namespace Smartstore.Core.DataExchange.Import
             //await _db.SaveChangesAsync();
         }
 
-        private async Task<DataImporterContext> CreateImporterContext(DataImportRequest request, CancellationToken cancelToken)
+        private async Task<DataImporterContext> CreateImporterContext(DataImportRequest request, ImportProfile profile, CancellationToken cancelToken)
         {
-            var profile = request.Profile;
-
             // TODO: (mg) (core) setup file logger for data import.
             ILogger logger = null;
 
             var executeContext = new ImportExecuteContext(T("Admin.DataExchange.Import.ProgressInfo"), cancelToken)
             {
                 Request = request,
-                DataExchangeSettings = _dataExchangeSettings,
                 Log = logger,
-                Languages = await _languageService.GetAllLanguagesAsync(true),
-                Stores = _services.StoreContext.GetAllStores().ToList(),
                 UpdateOnly = profile.UpdateOnly,
                 KeyFieldNames = profile.KeyFieldNames.SplitSafe(",").ToArray(),
-                // TODO: (mg) (core) get import folder for import.
-                //ImportFolder = profile.GetImportFolder()
+                ImportDirectory = await _importProfileService.GetImportDirectoryAsync(profile),
                 ExtraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData)
             };
 
-            var context = new DataImporterContext
+            return new DataImporterContext
             {
                 Request = request,
-                CancellationToken = cancelToken,
+                CancelToken = cancelToken,
                 Log = logger,
-                Importer = _importerFactory(profile.EntityType),
                 ColumnMap = new ColumnMapConverter().ConvertFrom<ColumnMap>(profile.ColumnMapping) ?? new ColumnMap(),
                 ExecuteContext = executeContext
             };
-
-            return context;
         }
 
-        private string CreateLogHeader(Multimap<RelatedEntityType?, ImportFile> files, DataImporterContext ctx)
+        private string CreateLogHeader(ImportProfile profile, Multimap<RelatedEntityType?, ImportFile> files)
         {
             var executingCustomer = _services.WorkContext.CurrentCustomer;
-            var profile = ctx.Request.Profile;
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
 
@@ -344,14 +327,14 @@ namespace Smartstore.Core.DataExchange.Import
             return sb.ToString();
         }
 
-        private static void LogResults(DataImporterContext ctx)
+        private static void LogResults(ImportProfile profile, DataImporterContext ctx)
         {
             using var psb = StringBuilderPool.Instance.Get(out var sb);
 
             foreach (var item in ctx.Results)
             {
                 var result = item.Value;
-                var entityName = item.Key.HasValue() ? item.Key : ctx.Request.Profile.EntityType.ToString();
+                var entityName = item.Key.HasValue() ? item.Key : profile.EntityType.ToString();
 
                 sb.Clear();
                 sb.AppendLine();
@@ -386,15 +369,9 @@ namespace Smartstore.Core.DataExchange.Import
             }
         }
 
-        private async Task<bool> HasPermission(DataImporterContext ctx)
+        private async Task<bool> HasPermission()
         {
-            if (ctx.Request.HasPermission)
-            {
-                return true;
-            }
-
             var customer = _services.WorkContext.CurrentCustomer;
-
             if (customer.SystemName == SystemCustomerNames.BackgroundTask)
             {
                 return true;

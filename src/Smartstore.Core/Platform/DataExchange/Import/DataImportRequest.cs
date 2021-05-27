@@ -7,15 +7,15 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public partial class DataImportRequest
     {
-        public DataImportRequest(ImportProfile profile)
+        public DataImportRequest(int profileId)
         {
-            Guard.NotNull(profile, nameof(profile));
+            Guard.NotZero(profileId, nameof(profileId));
 
-            Profile = profile;
+            ProfileId = profileId;
             ProgressCallback = OnProgress;
         }
 
-        public ImportProfile Profile { get; private set; }
+        public int ProfileId { get; private set; }
 
         public bool HasPermission { get; set; }
 
