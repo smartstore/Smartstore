@@ -161,12 +161,6 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(IconAttributeName)]
         public string Icon { get; set; }
 
-        /// <summary>
-        /// Default row value of this column for inserted rows.
-        /// </summary>
-        [HtmlAttributeName(DefaultValueAttributeName)]
-        public object DefaultValue { get; set; }
-
         [HtmlAttributeNotBound]
         public TagHelperContent DisplayTemplate { get; set; }
 
@@ -211,10 +205,10 @@ namespace Smartstore.Web.TagHelpers.Admin
                 groupable = Groupable,
                 hideable = Hideable,
                 editable = !ReadOnly,
+                reorderable = Reorderable,
                 nowrap = Nowrap,
                 entityMember = EntityMember,
-                icon = Icon,
-                defaultValue = DefaultValue
+                icon = Icon
             };
         }
 

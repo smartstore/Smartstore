@@ -6,15 +6,20 @@
     var gridPageSize = GetMetadata<int>("GridPageSize");
 }
 
-<datagrid id="products-grid" border-style="HorizontalBorders" striped="true" hover="true" allow-resize="true" allow-row-selection="true" allow-edit="true">
-    <datasource read="@Url.Action("ProductList")" delete="@Url.Action("ProductDelete")" update="@Url.Action("ProductUpdate")" insert="@Url.Action("ProductAdd")" />
+<datagrid id="products-grid" border-style="HorizontalBorders" striped="true" hover="true" 
+          allow-resize="true" 
+          allow-row-selection="true" 
+          allow-edit="true" 
+          preserve-grid-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("ProductList")" delete="@Url.Action("ProductDelete")" update="@Url.Action("ProductUpdate")" insert="@Url.Action("ProductInsert")" />
     <paging position="Bottom" page-size="@gridPageSize" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
         <button type="button" class="btn btn-secondary btn-flat" v-on:click="grid.resetState">
             <span>Reset State</span>
         </button>
-        @*<a v-if="!grid.edit.active" asp-action="Create" class="btn btn-primary btn-flat mr-auto">
+        @*<a v-if="!grid.editing.active" asp-action="Create" class="btn btn-primary btn-flat mr-auto">
             <i class="fa fa-plus"></i>
             <span>@T("Admin.Common.AddNew")...</span>
         </a>*@
@@ -49,10 +54,11 @@
                     sortable="false"
                     visible="true"
                     readonly="true"
-                    resizable="false">
+                    resizable="false"
+                    reorderable="false">
                 <display-template>
                     <!-- TODO: (core) zoomable-thumb won't work in our new data grid. Fix it. -->
-                    <div class="x-zoomable-thumb-container d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; padding: 8px; left: 0; top: 0;">
+                    <div v-if="item.row.Id > 0" class="x-zoomable-thumb-container d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; padding: 8px; left: 0; top: 0;">
                         <img :alt="item.row.Id" :src="item.value" style="max-width: 42px; max-height: 32px" :class="{ 'x-zoomable-thumb': !item.row.NoThumb }" />
                     </div>
                 </display-template>
@@ -73,9 +79,9 @@
         </column>
         <column for="Sku" />
         <column for="Price"
-                halign="flex-end" default-value="0" />
+                halign="flex-end" />
         <column for="StockQuantity" sortable="true" icon="fa fa-sort-amount-up"
-                halign="center" default-value="0">
+                halign="center">
             @*<display-template>
                 {{ formatNumber(item.value) }}
             </display-template>*@
@@ -87,7 +93,7 @@
         <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" />
         <column for="UpdatedOn" entity-member="UpdatedOnUtc" readonly="false" />
         <column for="Published"
-                halign="center" default-value="true" />
+                halign="center" />
     </columns>
 </datagrid>
 

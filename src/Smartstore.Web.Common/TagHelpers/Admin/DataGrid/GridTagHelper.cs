@@ -264,6 +264,11 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         private string GenerateVueJson()
         {
+            var modelType = Columns.FirstOrDefault()?.For?.Metadata?.ContainerType;
+            var defaultDataRow = modelType != null && modelType.HasDefaultConstructor() 
+                ? Activator.CreateInstance(modelType) 
+                : null;
+            
             var dict = new Dictionary<string, object>
             {
                 { "el", "#" + Id }
@@ -286,6 +291,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     maxHeight = MaxHeight,
                     stateKey = Id,
                     preserveState = PreserveGridState,
+                    defaultDataRow = defaultDataRow,
                     onDataBinding = OnDataBinding,
                     onDataBound = OnDataBound,
                     onRowSelected = OnRowSelected

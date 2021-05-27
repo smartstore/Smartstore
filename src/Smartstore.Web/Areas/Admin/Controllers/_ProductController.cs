@@ -364,6 +364,32 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
+        [HttpPost, IgnoreAntiforgeryToken]
+        [Permission(Permissions.Catalog.Product.Create)]
+        public async Task<IActionResult> ProductInsert(ProductOverviewModel model)
+        {
+            var product = new Product 
+            {
+                Name = model.Name,
+                Sku = model.Sku,
+                Price = model.Price,
+                StockQuantity = model.StockQuantity,
+                Published = model.Published
+            };
+
+            try
+            {
+                _db.Products.Add(product);
+                await _db.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex.GetInnerMessage());
+                return Json(new { success = false });
+            }
+        }
+
         #endregion
     }
 }
