@@ -6,23 +6,31 @@
     var gridPageSize = GetMetadata<int>("GridPageSize");
 }
 
-<datagrid id="log-grid" border-style="HorizontalBorders" striped="true" hover="true" allow-resize="true" allow-row-selection="true" ondatabinding="onDataBinding" preserve-grid-state="false">
+<datagrid id="log-grid" border-style="HorizontalBorders" striped="false" hover="true"
+          ondatabinding="onDataBinding"
+          allow-resize="true"
+          allow-row-selection="true"
+          preserve-grid-state="true"
+          allow-column-reordering="true">
     <datasource read="@Url.Action("LogList")" delete="@Url.Action("LogDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
-    <sorting enabled="true"></sorting>
+    <sorting enabled="true" allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
+        <button type="button" class="btn btn-secondary btn-flat" v-on:click="grid.resetState">
+            <span>Reset State</span>
+        </button>
         <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat ml-auto">
             <i class="far fa-trash-alt"></i>
             <span>@T("Admin.Common.Delete.Selected")</span>
         </button>
     </toolbar>
     <columns>
-        <column for="Logger" width="250px">
+        <column for="Logger" width="250px" sortable="true">
             <display-template>
                 <span class="text-muted text-truncate" :title="item.value">{{ item.row.LoggerShort }}</span>
             </display-template>
         </column>
-        <column for="ShortMessage">
+        <column for="ShortMessage" entity-member="LogLevelId" sortable="true">
             <display-template>
                 <span :class="'mr-1 badge badge-' + item.row.LogLevelHint">{{ item.row.LogLevel }}</span>
                 <a :href="item.row.ViewUrl" class="text-truncate">
@@ -30,7 +38,7 @@
                 </a>
             </display-template>
         </column>
-        <column for="UserName" width="max-content" />
-        <column for="CreatedOn" width="auto" />
+        <column for="UserName" entity-member="CustomerId" sortable="true" width="max-content" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" sortable="true" width="auto" icon="fa fa-sort-amount-down" />
     </columns>
 </datagrid>

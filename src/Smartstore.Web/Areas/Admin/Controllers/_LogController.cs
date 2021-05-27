@@ -55,12 +55,9 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Log.Read)]
-        public ActionResult List()
+        public ActionResult List(LogListModel model)
         {
-            var model = new LogListModel
-            {
-                AvailableLogLevels = LogLevel.Debug.ToSelectList(false).ToList()
-            };
+            model.AvailableLogLevels = LogLevel.Debug.ToSelectList(false).ToList();
 
             return View(model);
         }
@@ -84,19 +81,18 @@ namespace Smartstore.Admin.Controllers
                 .ApplyLoggerFilter(model.Logger)
                 .ApplyMessageFilter(model.Message)
                 .ApplyLevelFilter(logLevel)
-                .ApplyGridCommand(command, false)
-                .OrderByDescending(x => x.CreatedOnUtc);
+                .ApplyGridCommand(command, false);
 
-            var logItems = await query.ToPagedList(command.Page - 1, command.PageSize).LoadAsync();
+            if (command.Sorting?.FirstOrDefault() == null)
+            {
+                query = query.OrderByDescending(x => x.CreatedOnUtc);
+            }
+
+            var logItems = await query.ToPagedList(Math.Max(command.Page - 1, 0), command.PageSize).LoadAsync();
 
             var gridModel = new GridModel<LogModel>
             {
-                Rows = logItems.Select(x =>
-                {
-                    var logModel = PrepareLogModel(x);
-                    return logModel;
-                }),
-
+                Rows = logItems.Select(x => PrepareLogModel(x)),
                 Total = logItems.TotalCount
             };
 
@@ -135,7 +131,6 @@ namespace Smartstore.Admin.Controllers
             var log = await _db.Logs.FindByIdAsync(id);
             if (log == null)
             {
-                // No log found with the specified id.
                 return RedirectToAction(nameof(List));
             }
 

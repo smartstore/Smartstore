@@ -13,9 +13,9 @@
             <i class="fa fa-fire"></i>
             @T("Admin.System.Log")
         </div>
-		@*TODO: (ms) (core) Have confirm2 ask for confirmation*@
+        @*TODO: (ms) (core) Have confirm2 ask for confirmation*@
         <div class="options">
-            <button type="submit" name="clearall" value="clearall" class="btn btn-danger" onclick="return confirm(@T("Admin.Common.AskToProceed").JsValue);">
+            <button type="submit" name="clearall" value="clearall" class="btn btn-danger" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.System.Log.ClearLog")</span>
             </button>
@@ -41,7 +41,7 @@
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <smart-label asp-for="LogLevelId" />
-            <select asp-for="LogLevelId" asp-items="Model.AvailableLogLevels" placeholder="@T("Admin.Common.All")">
+            <select asp-for="LogLevelId" asp-items="Model.AvailableLogLevels">
             </select>
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
@@ -57,18 +57,6 @@
 
 <script sm-target-zone="scripts" data-origin="logs-list">
     function onDataBinding(command) {
-        @*var searchModel = {
-            CreatedOnFrom: $('#@Html.FieldIdFor(model => model.CreatedOnFrom)').val(),
-            CreatedOnTo: $('#@Html.FieldIdFor(model => model.CreatedOnTo)').val(),
-            Logger: $('#@Html.FieldIdFor(model => model.Logger)').val(),
-            Message: $('#@Html.FieldIdFor(model => model.Message)').val(),
-            LogLevelId: $('#@Html.FieldIdFor(model => model.LogLevelId)').val()
-        };
-        e.data = searchModel;
-
-        command.searchModel = searchModel;
-        command.CreatedOnFrom = $('#@Html.IdFor(model => model.CreatedOnFrom)').val();*@
-        
         command.CreatedOnFrom = $('#@Html.IdFor(model => model.CreatedOnFrom)').val();
         command.CreatedOnTo = $('#@Html.IdFor(model => model.CreatedOnTo)').val();
         command.Logger = $('#@Html.IdFor(model => model.Logger)').val();
@@ -80,7 +68,6 @@
         $('#btnSearch').on("click", x => {
             var grid = window["log-grid"];
             grid.currentPage = 1;
-            return false;
         });
 
         $("#@Html.IdFor(x => x.Message), #@Html.IdFor(x => x.Logger)").on("keydown", event => {
