@@ -104,7 +104,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.System.Log.Delete)]
         public async Task<IActionResult> LogDelete(GridSelection selection)
         {
@@ -122,7 +121,6 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost, ActionName("List")]
         [FormValueRequired("clearall")]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.System.Log.Delete)]
         public async Task<IActionResult> LogClear()
         {
