@@ -9,11 +9,11 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 {
     public class HttpFilePublisher : IFilePublisher
     {
-        public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancellationToken)
+        public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken)
         {
             var succeededFiles = 0;
             var url = deployment.Url;
-            var files = await context.GetDeploymentFilesAsync(cancellationToken);
+            var files = await context.GetDeploymentFilesAsync(cancelToken);
 
             if (!url.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase) &&
                 !url.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase))
@@ -40,7 +40,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                     formData.Add(new ByteArrayContent(bytes), "file {0}".FormatInvariant(++num), file.Name);
                 }
 
-                var response = await client.PostAsync(uri, formData, cancellationToken);
+                var response = await client.PostAsync(uri, formData, cancelToken);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -50,7 +50,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 {
                     context.Result.LastError = context.T("Admin.Common.HttpStatus", (int)response.StatusCode, response.StatusCode.ToString());
 
-                    var content = await response.Content.ReadAsStringAsync(cancellationToken);
+                    var content = await response.Content.ReadAsStringAsync(cancelToken);
 
                     var msg = "Multipart form data upload failed. HTTP status {0} ({1}). Response: {2}".FormatInvariant(
                         (int)response.StatusCode, response.StatusCode.ToString(), content.NaIfEmpty().Truncate(2000, "..."));

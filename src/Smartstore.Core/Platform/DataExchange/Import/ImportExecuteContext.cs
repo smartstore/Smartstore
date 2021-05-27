@@ -32,7 +32,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         public ColumnMap ColumnMap { get; internal set; }
 
-        public ImportDataSegmenter DataSegmenter { get; internal set; }
+        public IImportDataSegmenterConsumer DataSegmenter { get; internal set; }
 
         /// <summary>
         /// A value indicating whether to only update existing records.

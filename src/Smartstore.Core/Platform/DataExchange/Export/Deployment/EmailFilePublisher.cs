@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Messaging;
@@ -22,7 +21,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             _dbMediaStorageProvider = dbMediaStorageProvider;
         }
 
-        public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancellationToken)
+        public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken)
         {
             var emailAddresses = deployment.EmailAddresses
                 .SplitSafe(",")
@@ -34,9 +33,9 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 return;
             }
 
-            var emailAccount = await _db.EmailAccounts.FindByIdAsync(deployment.EmailAccountId, false, cancellationToken);
+            var emailAccount = await _db.EmailAccounts.FindByIdAsync(deployment.EmailAccountId, false, cancelToken);
             var fromEmailAddress = emailAccount.ToMailAddress();
-            var files = await context.GetDeploymentFilesAsync(cancellationToken);
+            var files = await context.GetDeploymentFilesAsync(cancelToken);
             var canStreamBlob = _db.DataProvider.CanStreamBlob;
             var num = 0;
 
@@ -72,7 +71,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 _db.QueuedEmails.Add(queuedEmail);
 
                 // Blob data could be large, so better not bulk commit here.
-                num += await _db.SaveChangesAsync(cancellationToken);
+                num += await _db.SaveChangesAsync(cancelToken);
             }
 
             context.Log.Info($"{num} email(s) created and queued for deployment.");

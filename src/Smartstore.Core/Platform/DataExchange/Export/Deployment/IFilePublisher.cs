@@ -15,8 +15,8 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
         /// </summary>
         /// <param name="deployment">Export deployment.</param>
         /// <param name="context">Deployment context.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancellationToken);
+        /// <param name="cancelToken">Cancellation token.</param>
+        Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken);
     }
 
     public class ExportDeploymentContext
@@ -30,7 +30,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
         public DataDeploymentResult Result { get; set; }
 
-        public async Task<IList<IFile>> GetDeploymentFilesAsync(CancellationToken cancellationToken)
+        public async Task<IList<IFile>> GetDeploymentFilesAsync(CancellationToken cancelToken)
         {
             if (CreateZipArchive)
             {
@@ -46,7 +46,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 {
                     var files = await ExportDirectory.FileSystem
                         .EnumerateFilesAsync(ExportDirectory.SubPath, "*", true)
-                        .ToListAsync(cancellationToken);
+                        .ToListAsync(cancelToken);
 
                     return files;
                 }

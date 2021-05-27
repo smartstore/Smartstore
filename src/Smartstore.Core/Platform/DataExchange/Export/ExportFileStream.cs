@@ -47,7 +47,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
         }
 
-        public override async Task FlushAsync(CancellationToken cancellationToken)
+        public override async Task FlushAsync(CancellationToken cancelToken)
         {
             if (_stream is FileStream fStream)
             {
@@ -55,7 +55,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
             else
             {
-                await _stream.FlushAsync(cancellationToken);
+                await _stream.FlushAsync(cancelToken);
             }
         }
 
@@ -64,9 +64,9 @@ namespace Smartstore.Core.DataExchange.Export
             return _stream.Read(buffer, offset, count);
         }
 
-        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancelToken)
         {
-            return _stream.ReadAsync(buffer, offset, count, cancellationToken);
+            return _stream.ReadAsync(buffer, offset, count, cancelToken);
         }
 
         public override long Seek(long offset, SeekOrigin origin)
@@ -96,9 +96,9 @@ namespace Smartstore.Core.DataExchange.Export
             }
         }
 
-        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancelToken)
         {
-            await _stream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
+            await _stream.WriteAsync(buffer.AsMemory(offset, count), cancelToken);
 
             if (_flushBytesNumber > 0)
             {
@@ -108,7 +108,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     _bytesCounter = 0;
 
-                    await FlushAsync(cancellationToken);
+                    await FlushAsync(cancelToken);
                 }
             }
         }

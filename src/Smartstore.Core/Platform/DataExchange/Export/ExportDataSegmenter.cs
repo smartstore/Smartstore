@@ -73,9 +73,7 @@ namespace Smartstore.Core.DataExchange.Export
             _totalRecords = totalRecords;
         }
 
-        /// <summary>
-        /// Total number of records.
-        /// </summary>
+        /// <inheritdoc/>
         public int TotalRecords
         {
             get
@@ -96,14 +94,10 @@ namespace Smartstore.Core.DataExchange.Export
         /// </summary>
         public int RecordCount { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the record per segment counter.
-        /// </summary>
+        /// <inheritdoc/>
         public int RecordPerSegmentCount { get; set; }
 
-        /// <summary>
-        /// A value indicating whether there is data available.
-        /// </summary>
+        /// <inheritdoc/>
         public bool HasData
         {
             get
@@ -127,9 +121,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
         }
 
-        /// <summary>
-        /// Gets current data segment.
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<IReadOnlyCollection<dynamic>> GetCurrentSegmentAsync()
         {
             T entity;
@@ -154,10 +146,7 @@ namespace Smartstore.Core.DataExchange.Export
             return records;
         }
 
-        /// <summary>
-        /// Read next segment.
-        /// </summary>
-        /// <returns><c>true</c> next segment available. <c>false</c> no more data.</returns>
+        /// <inheritdoc/>
         public async Task<bool> ReadNextSegmentAsync()
         {
             if (_limit > 0 && RecordCount >= _limit)

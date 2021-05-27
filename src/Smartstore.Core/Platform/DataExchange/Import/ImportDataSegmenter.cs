@@ -8,7 +8,88 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.DataExchange.Import
 {
-    public class ImportDataSegmenter
+    public interface IImportDataSegmenterConsumer
+    {
+        /// <summary>
+        /// Total number of rows.
+        /// </summary>
+        int TotalRows { get; }
+
+        /// <summary>
+        /// Total number of columgs.
+        /// </summary>
+        int TotalColumns { get; }
+
+        /// <summary>
+        /// Number of current segment.
+        /// </summary>
+        int CurrentSegment { get; }
+
+        /// <summary>
+        /// Index of the first row in current segment.
+        /// </summary>
+        int CurrentSegmentFirstRowIndex { get; }
+
+        /// <summary>
+        /// Total number of segments.
+        /// </summary>
+        int TotalSegments { get; }
+
+        /// <summary>
+        /// Determines whether a specific column exists in the underlying data table.
+        /// </summary>
+        /// <param name="name">The name of the column to find.</param>
+        /// <param name="withAnyIndex">
+        ///		If <c>true</c> and a column with the passed <paramref name="name"/> does not exist,
+        ///		this method tests for the existence of any indexed column with the same name.
+        /// </param>
+        /// <returns><c>true</c> if the column exists, <c>false</c> otherwise.</returns>
+        /// <remarks>This method takes mapped column names into account.</remarks>
+        bool HasColumn(string name, bool withAnyIndex = false);
+
+        /// <summary>
+        /// Determines whether the column <c>name[index]</c> exists in the underlying data table.
+        /// </summary>
+        /// <param name="name">The name of the column to find.</param>
+        /// <param name="index">The index of the column.</param>
+        /// <returns><c>true</c> if the column exists, <c>false</c> otherwise.</returns>
+        /// <remarks>This method takes mapped column names into account.</remarks>
+        bool HasColumn(string name, string index);
+
+        /// <summary>
+        /// Indicates whether to ignore the property that is mapped to <paramref name="columnName"/>.
+        /// </summary>
+        /// <param name="columnName">The name of the column.</param>
+        /// <returns><c>true</c> ignore, <c>false</c> do not ignore.</returns>
+        bool IsIgnored(string columnName);
+
+        /// <summary>
+        /// Indicates whether to ignore the property that is mapped to <paramref name="columnName"/>.
+        /// </summary>
+        /// <param name="columnName">The name of the column.</param>
+        /// <param name="index">The index of the column.</param>
+        /// <returns><c>true</c> ignore, <c>false</c> do not ignore.</returns>
+        bool IsIgnored(string columnName, string index);
+
+        /// <summary>
+        /// Returns an array of exisiting index names for a column.
+        /// </summary>
+        /// <param name="name">The name of the columns without index qualification.</param>
+        /// <returns>An array of index names.</returns>
+        /// <remarks>
+        /// If following columns exist in source: Attr[Color], Attr[Size]
+        /// This method returns: <code>string[] { "Color", "Size" }.</code> 
+        /// </remarks>
+        string[] GetColumnIndexes(string name);
+
+        /// <summary>
+        /// Gets the current batch of data (all rows of current segment).
+        /// </summary>
+        /// <returns>Current batch of data.</returns>
+        IEnumerable<ImportRow<T>> GetCurrentBatch<T>() where T : BaseEntity;
+    }
+
+    public class ImportDataSegmenter : IImportDataSegmenterConsumer
     {
         private const int BATCHSIZE = 100;
 
@@ -19,7 +100,7 @@ namespace Smartstore.Core.DataExchange.Import
         private CultureInfo _culture;
         private ColumnMap _columnMap;
 
-        private readonly IDictionary<string, string[]> _columnIndexes = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string[]> _columnIndexes = new(StringComparer.OrdinalIgnoreCase);
 
         public ImportDataSegmenter(IDataTable table, ColumnMap map)
         {
@@ -46,28 +127,24 @@ namespace Smartstore.Core.DataExchange.Import
             set => _columnMap = value ?? new ColumnMap();
         }
 
+        /// <inheritdoc/>
         public int TotalRows => _table.Rows.Count;
 
+        /// <inheritdoc/>
         public int TotalColumns => _table.Columns.Count;
 
+        /// <inheritdoc/>
         public int CurrentSegment => _bof ? 0 : _pageable.PageNumber;
 
+        /// <inheritdoc/>
         public int CurrentSegmentFirstRowIndex => _pageable.FirstItemIndex;
 
+        /// <inheritdoc/>
         public int TotalSegments => _pageable.TotalPages;
 
         public static int BatchSize => BATCHSIZE;
 
-        /// <summary>
-        /// Determines whether a specific column exists in the underlying data table.
-        /// </summary>
-        /// <param name="name">The name of the column to find.</param>
-        /// <param name="withAnyIndex">
-        ///		If <c>true</c> and a column with the passed <paramref name="name"/> does not exist,
-        ///		this method tests for the existence of any indexed column with the same name.
-        /// </param>
-        /// <returns><c>true</c> if the column exists, <c>false</c> otherwise.</returns>
-        /// <remarks>This method takes mapped column names into account.</remarks>
+        /// <inheritdoc/>
         public bool HasColumn(string name, bool withAnyIndex = false)
         {
             var result = HasColumn(name, null);
@@ -82,32 +159,17 @@ namespace Smartstore.Core.DataExchange.Import
             return result;
         }
 
-        /// <summary>
-        /// Determines whether the column <c>name[index]</c> exists in the underlying data table.
-        /// </summary>
-        /// <param name="name">The name of the column to find.</param>
-        /// <param name="index">The index of the column.</param>
-        /// <returns><c>true</c> if the column exists, <c>false</c> otherwise.</returns>
-        /// <remarks>This method takes mapped column names into account.</remarks>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasColumn(string name, string index)
             => _table.HasColumn(_columnMap.GetMapping(name, index).MappedName);
 
-        /// <summary>
-        /// Indicates whether to ignore the property that is mapped to columnName
-        /// </summary>
-        /// <param name="columnName">The name of the column</param>
-        /// <returns><c>true</c> ignore, <c>false</c> do not ignore</returns>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsIgnored(string columnName)
             => IsIgnored(columnName, null);
 
-        /// <summary>
-        /// Indicates whether to ignore the property that is mapped to columnName
-        /// </summary>
-        /// <param name="columnName">The name of the column</param>
-        /// <param name="index">The index of the column</param>
-        /// <returns><c>true</c> ignore, <c>false</c> do not ignore</returns>
+        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsIgnored(string columnName, string index)
         {
@@ -115,15 +177,7 @@ namespace Smartstore.Core.DataExchange.Import
             return mapping.IgnoreProperty;
         }
 
-        /// <summary>
-        /// Returns an array of exisiting index names for a column.
-        /// </summary>
-        /// <param name="name">The name of the columns without index qualification.</param>
-        /// <returns>An array of index names.</returns>
-        /// <remarks>
-        /// If following columns exist in source: Attr[Color], Attr[Size]
-        /// This method returns: <code>string[] { "Color", "Size" }.</code> 
-        /// </remarks>
+        /// <inheritdoc/>
         public string[] GetColumnIndexes(string name)
         {
             if (!_columnIndexes.TryGetValue(name, out string[] indexes))
@@ -183,6 +237,7 @@ namespace Smartstore.Core.DataExchange.Import
             return false;
         }
 
+        /// <inheritdoc/>
         public IEnumerable<ImportRow<T>> GetCurrentBatch<T>() where T : BaseEntity
         {
             if (_currentBatch == null)
@@ -203,7 +258,6 @@ namespace Smartstore.Core.DataExchange.Import
 
             return _currentBatch.Cast<ImportRow<T>>();
         }
-
 
         class PagedDataList : PagedListBase
         {

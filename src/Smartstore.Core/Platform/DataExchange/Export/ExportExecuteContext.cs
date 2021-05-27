@@ -14,13 +14,13 @@ namespace Smartstore.Core.DataExchange.Export
     public class ExportExecuteContext
     {
         private readonly DataExportResult _result;
-        private readonly CancellationToken _cancellation;
+        private readonly CancellationToken _cancelToken;
         private DataExchangeAbortion _providerAbort;
 
-        internal ExportExecuteContext(DataExportResult result, CancellationToken cancellation)
+        internal ExportExecuteContext(DataExportResult result, CancellationToken cancelToken)
         {
             _result = result;
-            _cancellation = cancellation;
+            _cancelToken = cancelToken;
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace Smartstore.Core.DataExchange.Export
         {
             get
             {
-                if (_cancellation.IsCancellationRequested || IsMaxFailures)
+                if (_cancelToken.IsCancellationRequested || IsMaxFailures)
                 {
                     return DataExchangeAbortion.Hard;
                 }  

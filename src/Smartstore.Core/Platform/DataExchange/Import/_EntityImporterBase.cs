@@ -15,7 +15,7 @@ using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Import
 {
-    public abstract class EntityImporterBase : IEntityImporter
+    public abstract partial class EntityImporterBase : IEntityImporter
     {
         protected SmartDbContext _db;
         protected IStoreContext _storeContext;
@@ -57,6 +57,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         public IDirectory ImageFolder { get; private set; }
 
+        /// <inheritdoc/>
         public Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
             return ProcessBatchAsync(context, cancelToken);
@@ -68,29 +69,6 @@ namespace Smartstore.Core.DataExchange.Import
         /// <param name="context">Import execution context.</param>
         /// <param name="cancelToken">A cancellation token to cancel the import.</param>
         protected abstract Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default);
-
-        protected void InitializeBatch(ILifetimeScope scope, ImportExecuteContext context)
-        {
-            Guard.NotNull(scope, nameof(scope));
-            Guard.NotNull(context, nameof(context));
-            Guard.NotNull(context.ImportDirectory, nameof(context.ImportDirectory));
-
-            // TODO: (mg) (core) Find a way to re-resolve the IEntityImporter (ROOT) instance from new lifetime scope per batch
-            // (instead of resolving all inner dependencies here). Keep in mind that IEntityImporter impls can contain other custom
-            // ctor dependencies, these also must come from new scope.
-            // This inevitably means: IEntityImporter.ImportAsync() has to be called ONCE PER BATCH from outside (DataImporter), hence
-            // passing data segmentation control over to DataImporter. For better API design ImportAsync() method here could be renamed to ProcessBatch().
-            // TBD with MC.
-
-            //_db = scope.Resolve<SmartDbContext>();
-            //_storeContext = scope.Resolve<IStoreContext>();
-            //_languageService = scope.Resolve<ILanguageService>();
-            //_localizedEntityService = scope.Resolve<ILocalizedEntityService>();
-            //_storeMappingService = scope.Resolve<IStoreMappingService>();
-            //_urlService = scope.Resolve<IUrlService>();
-
-            //context.Result.TotalRecords = context.DataSegmenter.TotalRows;
-        }
 
         protected virtual async Task<int> ProcessLocalizationsAsync<TEntity>(
             ImportExecuteContext context,
@@ -263,8 +241,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             using var scope = _urlService.CreateBatchScope(_db);
 
-            // TODO: (mg) (core) (perf) Prefetching is missing. Without prefetching, _urlService.ValidateSlugAsync()
-            // makes one DB call per invoke.
+            // TODO: (core) (perf) IUrlService.ValidateSlugAsync ignores prefetched data.
 
             foreach (var row in batch)
             {

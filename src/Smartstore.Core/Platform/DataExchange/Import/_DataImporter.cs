@@ -103,10 +103,12 @@ namespace Smartstore.Core.DataExchange.Import
                                 profile.Skip,
                                 profile.Take > 0 ? profile.Take : int.MaxValue);
 
-                            context.DataSegmenter = new ImportDataSegmenter(context.DataTable, context.ColumnMap);
-                            context.Result.TotalRecords = context.DataSegmenter.TotalRows;
+                            var segmenter = new ImportDataSegmenter(context.DataTable, context.ColumnMap);
 
-                            while (context.Abort == DataExchangeAbortion.None && context.DataSegmenter.ReadNextBatch())
+                            context.DataSegmenter = segmenter;
+                            context.Result.TotalRecords = segmenter.TotalRows;
+
+                            while (context.Abort == DataExchangeAbortion.None && segmenter.ReadNextBatch())
                             {
                                 using var batchScope = _scopeAccessor.LifetimeScope.BeginLifetimeScope();
 

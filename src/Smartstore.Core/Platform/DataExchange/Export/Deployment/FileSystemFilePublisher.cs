@@ -14,7 +14,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             _appContext = appContext;
         }
 
-        public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancellationToken)
+        public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken)
         {
             var deploymentDir = await context.ExportProfileService.GetDeploymentDirectoryAsync(deployment, true);
             if (deploymentDir == null)

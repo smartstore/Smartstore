@@ -13,15 +13,15 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
     {
         private ExportDeployment _deployment;
         private ExportDeploymentContext _context;
-        private CancellationToken _cancellationToken;
+        private CancellationToken _cancelToken;
         private int _succeededFiles;
         private string _ftpRootUrl;
 
-        public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancellationToken)
+        public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken)
         {
             _deployment = deployment;
             _context = context;
-            _cancellationToken = cancellationToken;
+            _cancelToken = cancelToken;
             _succeededFiles = 0;
             _ftpRootUrl = deployment.Url;
 
@@ -56,7 +56,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
             var files = await directory.FileSystem
                 .EnumerateFilesAsync(directory.SubPath)
-                .ToListAsync(_cancellationToken);
+                .ToListAsync(_cancelToken);
             var lastFile = files.Last();
 
             foreach (var file in files)
@@ -67,7 +67,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
             var subdirs = await directory.FileSystem
                 .EnumerateDirectoriesAsync(directory.SubPath)
-                .ToListAsync(_cancellationToken);
+                .ToListAsync(_cancelToken);
 
             foreach (var subdir in subdirs)
             {
@@ -96,7 +96,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
             using (var stream = await file.OpenReadAsync())
             {
-                await stream.CopyToAsync(requestStream, _cancellationToken);
+                await stream.CopyToAsync(requestStream, _cancelToken);
             }
 
             requestStream.Close();
