@@ -108,7 +108,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                             while (context.Abort == DataExchangeAbortion.None && context.DataSegmenter.ReadNextBatch())
                             {
-                                using var batchScope = _scopeAccessor.CreateLifetimeScope();
+                                using var batchScope = _scopeAccessor.LifetimeScope.BeginLifetimeScope();
 
                                 var importerFactory = batchScope.Resolve<Func<ImportEntityType, IEntityImporter>>();
                                 var importer = importerFactory(profile.EntityType);
