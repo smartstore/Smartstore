@@ -56,17 +56,21 @@
 
 <script sm-target-zone="scripts" data-origin="logs-list">
     function onDataBinding(command) {
-        command.CreatedOnFrom = $('#@Html.IdFor(model => model.CreatedOnFrom)').val();
-        command.CreatedOnTo = $('#@Html.IdFor(model => model.CreatedOnTo)').val();
-        command.Logger = $('#@Html.IdFor(model => model.Logger)').val();
-        command.Message = $('#@Html.IdFor(model => model.Message)').val();
-        command.LogLevelId = $('#@Html.IdFor(model => model.LogLevelId)').val();
+        $.extend(command, {
+            CreatedOnFrom: $('#@Html.IdFor(model => model.CreatedOnFrom)').val(),
+            CreatedOnTo: $('#@Html.IdFor(model => model.CreatedOnTo)').val(),
+            Logger: $('#@Html.IdFor(model => model.Logger)').val(),
+            Message: $('#@Html.IdFor(model => model.Message)').val(),
+            LogLevelId: $('#@Html.IdFor(model => model.LogLevelId)').val()
+        });
     }
 
     $(function() {
-        $('#btnSearch').on("click", x => {
+        $('#btnSearch').on("click", e => {
+            e.preventDefault();
             var grid = window["log-grid"];
-            grid.currentPage = 1;
+            grid.paging.pageIndex = 1;
+            return false;
         });
 
         $("#@Html.IdFor(x => x.Message), #@Html.IdFor(x => x.Logger)").on("keydown", event => {

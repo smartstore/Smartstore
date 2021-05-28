@@ -10,11 +10,12 @@
           ondatabinding="onDataBinding"
           allow-resize="true"
           allow-row-selection="true"
-          preserve-grid-state="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("LogList")" delete="@Url.Action("LogDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
-    <sorting enabled="true" allow-unsort="true" allow-multisort="false"></sorting>
+    <sorting enabled="true" allow-unsort="true" allow-multisort="false">
+        @*<sort by="CreatedOn" descending="true" />*@
+    </sorting>
     <toolbar>
         <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat ml-auto">
             <i class="far fa-trash-alt"></i>
@@ -22,13 +23,13 @@
         </button>
     </toolbar>
     <columns>
-        <column for="Id" sortable="true" visible="false" />
-        <column for="Logger" width="250px" sortable="true">
+        <column for="Id" visible="false" />
+        <column for="Logger" width="250px">
             <display-template>
                 <span class="text-muted text-truncate" :title="item.value">{{ item.row.LoggerShort }}</span>
             </display-template>
         </column>
-        <column for="ShortMessage" entity-member="LogLevelId" sortable="true">
+        <column for="ShortMessage" sortable="true" hideable="false">
             <display-template>
                 <span :class="'mr-1 badge badge-' + item.row.LogLevelHint">{{ item.row.LogLevel }}</span>
                 <a :href="item.row.ViewUrl" class="text-truncate">
@@ -36,7 +37,7 @@
                 </a>
             </display-template>
         </column>
-        <column for="UserName" entity-member="CustomerId" sortable="true" width="max-content" />
-        <column for="CreatedOn" entity-member="CreatedOnUtc" sortable="true" width="auto" icon="fa fa-sort-amount-down" />
+        <column for="UserName" width="max-content" sortable="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
     </columns>
 </datagrid>

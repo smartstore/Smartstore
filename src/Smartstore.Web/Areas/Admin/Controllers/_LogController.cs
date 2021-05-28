@@ -86,11 +86,6 @@ namespace Smartstore.Admin.Controllers
                 .ApplyLevelFilter(logLevel)
                 .ApplyGridCommand(command, false);
 
-            if (command.Sorting?.FirstOrDefault() == null)
-            {
-                query = query.OrderByDescending(x => x.CreatedOnUtc);
-            }
-
             var logItems = await query.ToPagedList(Math.Max(command.Page - 1, 0), command.PageSize).LoadAsync();
 
             var gridModel = new GridModel<LogModel>
