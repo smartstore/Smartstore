@@ -22,7 +22,12 @@ namespace Smartstore.Web.Modelling.Settings
         }
 
         public LoadSettingAttribute(bool updateParameterFromStore) 
-            : base(typeof(LoadSettingFilter))
+            : this(typeof(LoadSettingFilter), updateParameterFromStore)
+        {
+        }
+
+        public LoadSettingAttribute(Type filterType, bool updateParameterFromStore)
+            : base(filterType)
         {
             UpdateParameterFromStore = updateParameterFromStore;
             Arguments = new object[] { this };
@@ -55,6 +60,12 @@ namespace Smartstore.Web.Modelling.Settings
         }
 
         public virtual async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            await OnActionExecutingAsync(context);
+            await OnActionExecutedAsync(await next());
+        }
+
+        protected async Task OnActionExecutingAsync(ActionExecutingContext context)
         {
             // Get the current configured store id
             var controller = context.Controller as Controller;
@@ -95,9 +106,11 @@ namespace Smartstore.Web.Modelling.Settings
                 })
                 .ToArrayAsync();
 
-            var executedContext = await next();
+        }
 
-            if (executedContext.Result is ViewResult viewResult)
+        protected async Task OnActionExecutedAsync(ActionExecutedContext context)
+        {
+            if (context.Result is ViewResult viewResult)
             {
                 var model = viewResult.Model;
 
