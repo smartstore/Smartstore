@@ -56,9 +56,10 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*AllowCustomersToSetTimeZone")]
             public bool AllowCustomersToSetTimeZone { get; set; }
 
-            // TODO: (mh) (core) Alter to type of int.
+            // TODO: (mh) (core) Remove comment after review.
+            // INFO: (mh) (core) We can't use int here. Value is indeed a string e.g. UTC-08. Must thus be marked as Required else selectbox can be cleared.
+            [Required]
             [LocalizedDisplay("*DefaultStoreTimeZone")]
-            //public int DefaultStoreTimeZoneId { get; set; }
             public string DefaultStoreTimeZoneId { get; set; }
 
             [LocalizedDisplay("*DefaultStoreTimeZone")]

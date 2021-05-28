@@ -203,7 +203,7 @@
                     <div class="adminData">
                         <div class="input-group">
                             <setting-editor asp-for="SeoSettings.TestSeoNameCreation"></setting-editor>
-                            <button id="TestSeoNameCreationButton" type="button" class="btn btn-outline-secondary">
+                            <button id="TestSeoNameCreationButton" type="button" class="btn btn-outline-secondary input-group-append rounded-0 align-items-center">
                                 <i class="fa fa-sync"></i>
                                 <span>@T("Admin.Common.Check")</span>
                             </button>
@@ -307,7 +307,7 @@
                     <div class="adminData">
                         <div class="input-group">
                             <setting-editor asp-for="SecuritySettings.EncryptionKey"></setting-editor>
-                            <button type="submit" name="changeencryptionkey" id="changeencryptionkey" value="changeencryptionkey" class="btn btn-outline-secondary" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
+                            <button type="submit" name="changeencryptionkey" id="changeencryptionkey" value="changeencryptionkey" class="btn btn-outline-secondary input-group-append rounded-0" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
                                 <span>@T("Admin.Common.Change")</span>
                             </button>
                         </div>

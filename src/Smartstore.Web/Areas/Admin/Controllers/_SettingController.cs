@@ -200,6 +200,8 @@ namespace Smartstore.Admin.Controllers
             // Does not contain any store specific settings
             await Services.SettingFactory.SaveSettingsAsync(securitySettings);
 
+            // TODO: (mh) (core) How to clear the cache now? Maybe we put the call into NotifyAndRedirect...
+
             return NotifyAndRedirect("GeneralCommon");
         }
 
