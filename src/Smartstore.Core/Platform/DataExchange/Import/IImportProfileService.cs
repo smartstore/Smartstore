@@ -47,5 +47,12 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         /// <param name="profile">Import profile.</param>
         Task DeleteImportProfileAsync(ImportProfile profile);
+
+        /// <summary>
+        /// Gets the localized label of all entity properties.
+        /// </summary>
+        /// <param name="entityType">Import entity type.</param>
+        /// <returns>Entity property labels. The key is the property name and the value is the localized label.</returns>
+        IDictionary<string, string> GetEntityPropertiesLabels(ImportEntityType entityType);
     }
 }
