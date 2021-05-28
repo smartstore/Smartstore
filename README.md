@@ -44,7 +44,7 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 5`, `Entity
 * **Forum:** [http://community.smartstore.com](http://community.smartstore.com)
 * **Marketplace:** [http://community.smartstore.com/marketplace](http://community.smartstore.com/marketplace)
 * **Translations:** [http://translate.smartstore.com/](http://translate.smartstore.com/)
-* **Documentation:** [Smartstore Documentation in English](http://docs.smartstore.com/display/SMNET/SmartStore.NET+Documentation+Home)
+* **Documentation:** [Smartstore Documentation in English](http://docs.smartstore.com/display/SMNET/Smartstore+Documentation+Home)
 
 <p>&nbsp;</p>
 
