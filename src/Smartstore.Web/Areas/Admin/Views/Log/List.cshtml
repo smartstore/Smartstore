@@ -41,8 +41,7 @@
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <smart-label asp-for="LogLevelId" />
-            <select asp-for="LogLevelId" asp-items="Model.AvailableLogLevels">
-            </select>
+            <select asp-for="LogLevelId" asp-items="Model.AvailableLogLevels" placeholder="@T("Admin.Common.All")"></select>
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <label>&nbsp;</label>

@@ -7,14 +7,16 @@
     ViewBag.Title = T("Admin.System.Log.ViewLogDetails").Value;
 }
 
-<form method="post" asp-action="List">
+<form method="post" asp-action="DeleteConfirmed">
     <div class="section-header">
         <div class="title">
             <i class="fa fa-fire"></i>
-            @T("Admin.System.Log.ViewLogDetails") @Html.ActionLink($"({ T("Admin.System.Log.BackToList") })", "List")
+            @T("Admin.System.Log.ViewLogDetails") <a asp-action="List">(@T("Admin.System.Log.BackToList"))</a>
         </div>
+        <input asp-for="Id" type="hidden" />
+        @*TODO: (ms) (core) Have confirm2 ask for confirmation*@
         <div class="options">
-            <button type="submit" id="log-delete" class="btn btn-danger">
+            <button type="submit" id="log-delete" class="btn btn-danger" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue)'>
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete")</span>
             </button>
@@ -37,7 +39,9 @@
                 <smart-label asp-for="Logger" />
             </div>
             <div class="adminData">
-                <input asp-for="Logger" readonly="readonly" class="form-control-plaintext" />
+                <div class="form-control-plaintext">
+                    @Model.Logger
+                </div>
             </div>
         </div>
         <div class="adminRow">
@@ -55,7 +59,9 @@
                 <smart-label asp-for="IpAddress" />
             </div>
             <div class="adminData">
-                <input asp-for="IpAddress" readonly="readonly" class="form-control-plaintext" />
+                <div class="form-control-plaintext">
+                    @Model.IpAddress
+                </div>
             </div>
         </div>
         <div class="adminRow">
@@ -75,7 +81,9 @@
                 <smart-label asp-for="UserName" />
             </div>
             <div class="adminData">
-                <input asp-for="UserName" readonly="readonly" class="form-control-plaintext" />
+                <div class="form-control-plaintext">
+                    @Model.UserName
+                </div>
             </div>
         </div>
         <div class="adminRow">
@@ -106,7 +114,7 @@
             </div>
             <div class="adminData">
                 <div class="form-control-plaintext">
-                    @Html.DisplayFor(model => model.CreatedOn)
+                    @Model.CreatedOn
                 </div>
             </div>
         </div>
@@ -116,7 +124,7 @@
             </div>
             <div class="adminData wide">
                 @*No whitespace within pre tag*@
-                <pre class="prettyprint xlang-java" style="white-space: pre-wrap;">@Html.DisplayFor(model => model.FullMessage)</pre>
+                <pre class="prettyprint xlang-java" style="white-space: pre-wrap;">@Model.FullMessage</pre>
             </div>
         </div>
     </div>

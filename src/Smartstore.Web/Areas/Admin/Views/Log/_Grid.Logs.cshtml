@@ -6,7 +6,7 @@
     var gridPageSize = GetMetadata<int>("GridPageSize");
 }
 
-<datagrid id="log-grid" border-style="HorizontalBorders" striped="false" hover="true"
+<datagrid id="log-grid"
           ondatabinding="onDataBinding"
           allow-resize="true"
           allow-row-selection="true"
@@ -16,15 +16,13 @@
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
-        <button type="button" class="btn btn-secondary btn-flat" v-on:click="grid.resetState">
-            <span>Reset State</span>
-        </button>
         <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat ml-auto">
             <i class="far fa-trash-alt"></i>
             <span>@T("Admin.Common.Delete.Selected")</span>
         </button>
     </toolbar>
     <columns>
+        <column for="Id" sortable="true" visible="false" />
         <column for="Logger" width="250px" sortable="true">
             <display-template>
                 <span class="text-muted text-truncate" :title="item.value">{{ item.row.LoggerShort }}</span>

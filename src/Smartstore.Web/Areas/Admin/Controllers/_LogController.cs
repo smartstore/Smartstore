@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Logging;
 using Smartstore.Core.Common.Services;
@@ -58,6 +59,8 @@ namespace Smartstore.Admin.Controllers
         public ActionResult List(LogListModel model)
         {
             model.AvailableLogLevels = LogLevel.Debug.ToSelectList(false).ToList();
+            model.AvailableLogLevels.RemoveAt(0);
+            model.AvailableLogLevels.Insert(0, new SelectListItem(string.Empty, string.Empty));
 
             return View(model);
         }
@@ -137,6 +140,23 @@ namespace Smartstore.Admin.Controllers
             var model = PrepareLogModel(log);
 
             return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.System.Log.Delete)]
+        public async Task<IActionResult> DeleteConfirmed(LogModel model)
+        {
+            var log = await _db.Logs.FindByIdAsync(model.Id);
+            if (log == null)
+            {
+                return RedirectToAction(nameof(List));
+            }
+
+            _db.Logs.Remove(log);
+            await _db.SaveChangesAsync();
+
+            NotifySuccess(_localizationService.GetResource("Admin.System.Log.Deleted"));
+            return RedirectToAction(nameof(List));
         }
 
         [NonAction]
