@@ -17,6 +17,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string IgnoreLabelAttributeName = "sm-ignore-label";
         const string SwitchAttributeName = "sm-switch";
         const string ControlSizeAttributeName = "sm-control-size";
+        const string PlaintextAttributeName = "sm-plaintext";
         protected const string RequiredAttributeName = "sm-required";
 
         private readonly ILocalizationService _localizationService;
@@ -40,6 +41,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         [HtmlAttributeName(IgnoreLabelAttributeName)]
         public bool IgnoreLabel { get; set; }
+
+        [HtmlAttributeName(PlaintextAttributeName)]
+        public bool Plaintext { get; set; }
 
         [HtmlAttributeName(ControlSizeAttributeName)]
         public ControlSize ControlSize { get; set; } = ControlSize.Medium;
@@ -105,7 +109,15 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         private void ProcessFormControl(TagHelperOutput output)
         {
-            // TODO: (mh) (core) || TODO: (mc) (core) There must be a switch to prevent setting of this class in admin area.
+            output.Attributes.TryGetAttribute("class", out var classAttr);
+
+            if (classAttr != null && classAttr.Value.ToString().Contains("form-control-plaintext") || Plaintext)
+            {
+                // Render hint as .form-text
+                ProcessHint(output);
+                return;
+            }
+
             output.AppendCssClass("form-control");
 
             if (ControlSize != ControlSize.Medium)
