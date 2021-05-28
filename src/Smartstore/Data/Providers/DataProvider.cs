@@ -365,7 +365,7 @@ namespace Smartstore.Data.Providers
         /// </summary>
         /// <typeparam name="T">Entity</typeparam>
         /// <param name="ident">The new ident value</param>
-        public Task SetTableIncrementAsync<T>(int ident) where T : BaseEntity
+        public Task SetTableIncrementAsync<T>(int ident = 1) where T : BaseEntity
         {
             return SetTableIncrementCoreAsync(Context.Model.FindEntityType(typeof(T)).GetTableName(), ident);
         }

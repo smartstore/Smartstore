@@ -201,6 +201,7 @@ namespace Smartstore.Admin.Controllers
             await Services.SettingFactory.SaveSettingsAsync(securitySettings);
 
             // TODO: (mh) (core) How to clear the cache now? Maybe we put the call into NotifyAndRedirect...
+            // RE: WE don't clear the cache, SaveSettingsAsync() clears cache per hook.
 
             return NotifyAndRedirect("GeneralCommon");
         }
