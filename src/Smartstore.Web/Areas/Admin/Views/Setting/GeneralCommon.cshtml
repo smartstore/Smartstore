@@ -1,13 +1,10 @@
-﻿@using Smartstore.Admin.Models 
+﻿@using Smartstore.Admin.Models
 
 @model GeneralCommonSettingsModel
 
 @{
     Layout = "_SettingLayout";
     ViewBag.Title = T("Admin.Configuration.Settings.GeneralCommon");
-
-    // TODO: (mh) (core) We should have talked about this. You can't start building a house from the roof. You build the base first!!
-    // We need "setting-editor" tag helper first. But most importantly: it has to be discussed!
 }
 
 <form asp-action="GeneralCommon">
@@ -24,23 +21,19 @@
         </div>
     </div>
 
-    @*TODO: (mh) (core) Include scripts*@
-
     @await Component.InvokeAsync("StoreScope")
 
     <div asp-validation-summary="ModelOnly"></div>
 
-    @*TODO: (mh) (core) Fill tabs*@
     <tabstrip id="generalsettings-edit" sm-nav-style="Material">
         <tab sm-title="@T("Common.General")" sm-selected="true">
             <div class="adminContent">
-                @*<div class="adminRow">
+                <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="StoreInformationSettings.StoreClosed" />
                     </div>
                     <div class="adminData">
-                        @Html.SettingEditorFor(model => model.StoreInformationSettings.StoreClosed,
-                            Html.CheckBoxFor(model => model.StoreInformationSettings.StoreClosed, new { data_toggler_for = "#pnlStoreClosedAllowForAdmins" }))
+                        <setting-editor asp-for="StoreInformationSettings.StoreClosed" data-toggler-for="#pnlStoreClosedAllowForAdmins"></setting-editor>
                         <span asp-validation-for="StoreInformationSettings.StoreClosed"></span>
                     </div>
                 </div>
@@ -49,7 +42,7 @@
                         <smart-label asp-for="StoreInformationSettings.StoreClosedAllowForAdmins" />
                     </div>
                     <div class="adminData">
-                        @Html.SettingEditorFor(model => model.StoreInformationSettings.StoreClosedAllowForAdmins)
+                        <setting-editor asp-for="StoreInformationSettings.StoreClosedAllowForAdmins"></setting-editor>
                         <span asp-validation-for="StoreInformationSettings.StoreClosedAllowForAdmins"></span>
                     </div>
                 </div>
@@ -63,29 +56,946 @@
                         <smart-label asp-for="DateTimeSettings.DefaultStoreTimeZoneId" />
                     </div>
                     <div class="adminData">
-                        @Html.SettingEditorFor(model => model.DateTimeSettings.DefaultStoreTimeZoneId,
-                            Html.DropDownListFor(model => model.DateTimeSettings.DefaultStoreTimeZoneId, Model.DateTimeSettings.AvailableTimeZones))
+                        <setting-editor asp-for="DateTimeSettings.DefaultStoreTimeZoneId">
+                            <select asp-for="DateTimeSettings.DefaultStoreTimeZoneId" asp-items="Model.DateTimeSettings.AvailableTimeZones"></select>
+                        </setting-editor>
                         <span asp-validation-for="DateTimeSettings.DefaultStoreTimeZoneId"></span>
                     </div>
-                </div>*@
+                </div>
                 <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="DateTimeSettings.AllowCustomersToSetTimeZone" />
                     </div>
                     <div class="adminData">
-                        @*@Html.SettingEditorFor(model => model.DateTimeSettings.AllowCustomersToSetTimeZone)*@
+                        <setting-editor asp-for="DateTimeSettings.AllowCustomersToSetTimeZone"></setting-editor>
                         <span asp-validation-for="DateTimeSettings.AllowCustomersToSetTimeZone"></span>
                     </div>
                 </div>
             </div>
         </tab>
-        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.SEOSettings")"></tab>
-        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.SecuritySettings")"></tab>
-        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.LocalizationSettings")"></tab>
-        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.PdfSettings")"></tab>
-        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.CompanyInformationSettings")"></tab>
-        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.ContactDataSettings")"></tab>
-        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.SocialSettings")"></tab>
-    </tabstrip>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.SEOSettings")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.MetaRobotsContent" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.MetaRobotsContent">
+                            <select asp-for="SeoSettings.MetaRobotsContent" asp-items="ViewBag.AvailableMetaContentValues" placeholder="@T("Common.Unspecified")"></select>
+                        </setting-editor>
+                        <span asp-validation-for="SeoSettings.MetaRobotsContent"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.CanonicalUrlsEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.CanonicalUrlsEnabled"></setting-editor>
+                        <span asp-validation-for="SeoSettings.CanonicalUrlsEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.CanonicalHostNameRule" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.CanonicalHostNameRule" is-enum="true"></setting-editor>
+                        <span asp-validation-for="SeoSettings.CanonicalHostNameRule"></span>
+                    </div>
+                </div>
+                <div class="robots-container adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.ExtraRobotsDisallows" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.ExtraRobotsDisallows" style="height: 250px"></setting-editor>
+                        <span asp-validation-for="SeoSettings.ExtraRobotsDisallows"></span>
+                    </div>
+                </div>
+                <div class="robots-container d-none adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.ExtraRobotsAllows" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.ExtraRobotsAllows" style="height: 250px"></setting-editor>
+                        <span asp-validation-for="SeoSettings.ExtraRobotsAllows"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                    </div>
+                    <div class="adminData">
+                        <button type="button" class="btn btn-secondary robots-toggle-button">
+                            <i class="fa fa-exchange-alt"></i>
+                            <span>@T("Admin.Configuration.Settings.GeneralCommon.DisplayAllows")</span>
+                            <span class="d-none">@T("Admin.Configuration.Settings.GeneralCommon.DisplayDisallows")</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Admin.System.MetaInfos")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.PageTitleSeparator" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.PageTitleSeparator"></setting-editor>
+                        <span asp-validation-for="SeoSettings.PageTitleSeparator"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.PageTitleSeoAdjustment" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.PageTitleSeoAdjustment" is-enum="true"></setting-editor>
+                        <span asp-validation-for="SeoSettings.PageTitleSeoAdjustment"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    @*TODO: (mh) (core) Uncomment when SeoModel is available*@
+                    @*@Html.EditorFor(model => model.SeoSettings, "SeoModel")*@
+                </div>
+                <div class="adminRow">
+                    @*TODO: (mh) (core) Uncomment when SeoModel is available*@
+                    @*@Html.EditorFor(model => model.HomepageSettings, "SeoModel")*@
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Admin.System.SeNames")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.ConvertNonWesternChars" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.ConvertNonWesternChars"></setting-editor>
+                        <span asp-validation-for="SeoSettings.ConvertNonWesternChars"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.AllowUnicodeCharsInUrls" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.AllowUnicodeCharsInUrls"></setting-editor>
+                        <span asp-validation-for="SeoSettings.AllowUnicodeCharsInUrls"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.SeoNameCharConversion" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.SeoNameCharConversion" style="height: 250px"></setting-editor>
+                        <span asp-validation-for="SeoSettings.SeoNameCharConversion"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.TestSeoNameCreation" />
+                    </div>
+                    <div class="adminData">
+                        <div class="input-group">
+                            <setting-editor asp-for="SeoSettings.TestSeoNameCreation"></setting-editor>
+                            <button id="TestSeoNameCreationButton" type="button" class="btn btn-outline-secondary">
+                                <i class="fa fa-sync"></i>
+                                <span>@T("Admin.Common.Check")</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        &nbsp;
+                    </div>
+                    <div id="TestSeoNameCreationResult" class="adminData">
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Admin.System.XMLSitemap")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SeoSettings.XmlSitemapEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SeoSettings.XmlSitemapEnabled" data-toggler-for="#xml-sitemap"></setting-editor>
+                        <span asp-validation-for="SeoSettings.XmlSitemapEnabled"></span>
+                    </div>
+                </div>
+                <div id="xml-sitemap">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SeoSettings.XmlSitemapIncludesProducts" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SeoSettings.XmlSitemapIncludesProducts"></setting-editor>
+                            <span asp-validation-for="SeoSettings.XmlSitemapIncludesProducts"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SeoSettings.XmlSitemapIncludesCategories" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SeoSettings.XmlSitemapIncludesCategories"></setting-editor>
+                            <span asp-validation-for="SeoSettings.XmlSitemapIncludesCategories"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SeoSettings.XmlSitemapIncludesManufacturers" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SeoSettings.XmlSitemapIncludesManufacturers"></setting-editor>
+                            <span asp-validation-for="SeoSettings.XmlSitemapIncludesManufacturers"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SeoSettings.XmlSitemapIncludesTopics" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SeoSettings.XmlSitemapIncludesTopics"></setting-editor>
+                            <span asp-validation-for="SeoSettings.XmlSitemapIncludesTopics"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SeoSettings.XmlSitemapIncludesNews" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SeoSettings.XmlSitemapIncludesNews"></setting-editor>
+                            <span asp-validation-for="SeoSettings.XmlSitemapIncludesNews"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SeoSettings.XmlSitemapIncludesBlog" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SeoSettings.XmlSitemapIncludesBlog"></setting-editor>
+                            <span asp-validation-for="SeoSettings.XmlSitemapIncludesBlog"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SeoSettings.XmlSitemapIncludesForum" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SeoSettings.XmlSitemapIncludesForum"></setting-editor>
+                            <span asp-validation-for="SeoSettings.XmlSitemapIncludesForum"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.SecuritySettings")">
+            <div id="SecuritySettingTable" class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SecuritySettings.EncryptionKey" />
+                    </div>
+                    <div class="adminData">
+                        <div class="input-group">
+                            <setting-editor asp-for="SecuritySettings.EncryptionKey"></setting-editor>
+                            <button type="submit" name="changeencryptionkey" id="changeencryptionkey" value="changeencryptionkey" class="btn btn-outline-secondary" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
+                                <span>@T("Admin.Common.Change")</span>
+                            </button>
+                        </div>
+                        <span asp-validation-for="SecuritySettings.EncryptionKey"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SecuritySettings.AdminAreaAllowedIpAddresses" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SecuritySettings.AdminAreaAllowedIpAddresses"></setting-editor>
+                        <span asp-validation-for="SecuritySettings.AdminAreaAllowedIpAddresses"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SecuritySettings.HideAdminMenuItemsBasedOnPermissions" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SecuritySettings.HideAdminMenuItemsBasedOnPermissions"></setting-editor>
+                        <span asp-validation-for="SecuritySettings.HideAdminMenuItemsBasedOnPermissions"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SecuritySettings.EnableHoneypotProtection" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SecuritySettings.EnableHoneypotProtection"></setting-editor>
+                        <span asp-validation-for="SecuritySettings.EnableHoneypotProtection"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="alert alert-info">
+                        @T("Admin.Configuration.Settings.General.Common.Captcha.Hint")
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CaptchaSettings.Enabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CaptchaSettings.Enabled" data-toggler-for="#pnlCaptchaSettings"></setting-editor>
+                        <span asp-validation-for="CaptchaSettings.Enabled"></span>
+                    </div>
+                </div>
+                <div id="pnlCaptchaSettings">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.UseInvisibleReCaptcha" />
+                        </div>
+                        <div class="adminData wide">
+                            <setting-editor asp-for="CaptchaSettings.UseInvisibleReCaptcha"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.UseInvisibleReCaptcha"></span>
+                            <span id="UseInvisibleReCaptchaWarning" class="d-none ml-2 text-warning">
+                                @T("Admin.Configuration.Settings.GeneralCommon.ReCaptchaTypeChangeWarning")
+                            </span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ReCaptchaPublicKey" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ReCaptchaPublicKey"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ReCaptchaPublicKey"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ReCaptchaPrivateKey" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ReCaptchaPrivateKey"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ReCaptchaPrivateKey"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ShowOnLoginPage" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ShowOnLoginPage"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ShowOnLoginPage"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ShowOnRegistrationPage" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ShowOnRegistrationPage"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ShowOnRegistrationPage"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ShowOnContactUsPage" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ShowOnContactUsPage"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ShowOnContactUsPage"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ShowOnEmailWishlistToFriendPage" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ShowOnEmailWishlistToFriendPage"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ShowOnEmailWishlistToFriendPage"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ShowOnEmailProductToFriendPage" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ShowOnEmailProductToFriendPage"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ShowOnEmailProductToFriendPage"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ShowOnAskQuestionPage" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ShowOnAskQuestionPage"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ShowOnAskQuestionPage"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ShowOnBlogCommentPage" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ShowOnBlogCommentPage"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ShowOnBlogCommentPage"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ShowOnNewsCommentPage" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ShowOnNewsCommentPage"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ShowOnNewsCommentPage"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ShowOnForumPage" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ShowOnForumPage"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ShowOnForumPage"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CaptchaSettings.ShowOnProductReviewPage" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CaptchaSettings.ShowOnProductReviewPage"></setting-editor>
+                            <span asp-validation-for="CaptchaSettings.ShowOnProductReviewPage"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.LocalizationSettings")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled" data-toggler-for="#pnlSeoFriendlyUrlsForLanguages"></setting-editor>
+                        <span asp-validation-for="LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled"></span>
+                    </div>
+                </div>
+                <div id="pnlSeoFriendlyUrlsForLanguages" class="adminRow">
+                    <div>
+                        <div class="adminTitle">
+                            <smart-label asp-for="LocalizationSettings.DefaultLanguageRedirectBehaviour" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="LocalizationSettings.DefaultLanguageRedirectBehaviour" is-enum="true"></setting-editor>
+                            <span asp-validation-for="LocalizationSettings.DefaultLanguageRedirectBehaviour"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="LocalizationSettings.InvalidLanguageRedirectBehaviour" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="LocalizationSettings.InvalidLanguageRedirectBehaviour" is-enum="true"></setting-editor>
+                            <span asp-validation-for="LocalizationSettings.InvalidLanguageRedirectBehaviour"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LocalizationSettings.UseImagesForLanguageSelection" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="LocalizationSettings.UseImagesForLanguageSelection"></setting-editor>
+                        <span asp-validation-for="LocalizationSettings.UseImagesForLanguageSelection"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LocalizationSettings.DetectBrowserUserLanguage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="LocalizationSettings.DetectBrowserUserLanguage"></setting-editor>
+                        <span asp-validation-for="LocalizationSettings.DetectBrowserUserLanguage"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.PdfSettings")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PdfSettings.Enabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PdfSettings.Enabled"></setting-editor>
+                        <span asp-validation-for="PdfSettings.Enabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PdfSettings.Enabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PdfSettings.Enabled"></setting-editor>
+                        <span asp-validation-for="PdfSettings.Enabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PdfSettings.LogoPictureId" />
+                    </div>
+                    <div class="adminData" id="pdf-logo-picture">
+                        <setting-editor asp-for="PdfSettings.LogoPictureId" parent-selector="#pdf-logo-picture"></setting-editor>
+                        <span asp-validation-for="PdfSettings.LogoPictureId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminSeparator">
+                        <hr />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PdfSettings.AttachOrderPdfToOrderPlacedEmail" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PdfSettings.AttachOrderPdfToOrderPlacedEmail"></setting-editor>
+                        <span asp-validation-for="PdfSettings.AttachOrderPdfToOrderPlacedEmail"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PdfSettings.AttachOrderPdfToOrderCompletedEmail" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PdfSettings.AttachOrderPdfToOrderCompletedEmail"></setting-editor>
+                        <span asp-validation-for="PdfSettings.AttachOrderPdfToOrderCompletedEmail"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.CompanyInformationSettings")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.CompanyName" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.CompanyName"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.CompanyName"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminSeparator"><hr /></div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.Salutation" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.Salutation">
+                            <select asp-for="CompanyInformationSettings.Salutation" asp-items="ViewBag.Salutations" placeholder="@T("Common.Unspecified")">
+                            </select>
+                        </setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.Salutation"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.Title" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.Title"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.Title"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.Firstname" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.Firstname"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.Firstname"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.Lastname" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.Lastname"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.Lastname"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.CompanyManagementDescription" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.CompanyManagementDescription">
+                            <select asp-for="CompanyInformationSettings.CompanyManagementDescription" asp-items="ViewBag.ManagementDescriptions" placeholder="@T("Common.Unspecified")">
+                            </select>
+                        </setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.CompanyManagementDescription"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.CompanyManagement" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.CompanyManagement"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.CompanyManagement"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.Street" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.Street"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.Street"></span>
+                    </div>
+                </div>
 
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.Street2" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.Street2"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.Street2"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.ZipCode" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.ZipCode"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.ZipCode"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.City" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.City"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.City"></span>
+                    </div>
+                </div>
+
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.CountryId" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.CountryId">
+                            <select asp-for="CompanyInformationSettings.CountryId" asp-items="ViewBag.AvailableCountries" placeholder="@T("Common.Unspecified")">
+                            </select>
+                        </setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.CountryId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.Region" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.Region"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.Region"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminSeparator">
+                        <hr />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.VatId" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.VatId"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.VatId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.CommercialRegister" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.CommercialRegister"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.CommercialRegister"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompanyInformationSettings.TaxNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompanyInformationSettings.TaxNumber"></setting-editor>
+                        <span asp-validation-for="CompanyInformationSettings.TaxNumber"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.ContactDataSettings")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ContactDataSettings.CompanyTelephoneNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ContactDataSettings.CompanyTelephoneNumber"></setting-editor>
+                        <span asp-validation-for="ContactDataSettings.CompanyTelephoneNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ContactDataSettings.HotlineTelephoneNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ContactDataSettings.HotlineTelephoneNumber"></setting-editor>
+                        <span asp-validation-for="ContactDataSettings.HotlineTelephoneNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ContactDataSettings.MobileTelephoneNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ContactDataSettings.MobileTelephoneNumber"></setting-editor>
+                        <span asp-validation-for="ContactDataSettings.MobileTelephoneNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ContactDataSettings.CompanyFaxNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ContactDataSettings.CompanyFaxNumber"></setting-editor>
+                        <span asp-validation-for="ContactDataSettings.CompanyFaxNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminSeparator"><hr /></div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ContactDataSettings.CompanyEmailAddress" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ContactDataSettings.CompanyEmailAddress"></setting-editor>
+                        <span asp-validation-for="ContactDataSettings.CompanyEmailAddress"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ContactDataSettings.WebmasterEmailAddress" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ContactDataSettings.WebmasterEmailAddress"></setting-editor>
+                        <span asp-validation-for="ContactDataSettings.WebmasterEmailAddress"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ContactDataSettings.SupportEmailAddress" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ContactDataSettings.SupportEmailAddress"></setting-editor>
+                        <span asp-validation-for="ContactDataSettings.SupportEmailAddress"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ContactDataSettings.ContactEmailAddress" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ContactDataSettings.ContactEmailAddress"></setting-editor>
+                        <span asp-validation-for="ContactDataSettings.ContactEmailAddress"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminSeparator" colspan="2">
+                        <hr />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BankConnectionSettings.Bankname" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="BankConnectionSettings.Bankname"></setting-editor>
+                        <span asp-validation-for="BankConnectionSettings.Bankname"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BankConnectionSettings.Bankcode" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="BankConnectionSettings.Bankcode"></setting-editor>
+                        <span asp-validation-for="BankConnectionSettings.Bankcode"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BankConnectionSettings.AccountNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="BankConnectionSettings.AccountNumber"></setting-editor>
+                        <span asp-validation-for="BankConnectionSettings.AccountNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BankConnectionSettings.AccountHolder" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="BankConnectionSettings.AccountHolder"></setting-editor>
+                        <span asp-validation-for="BankConnectionSettings.AccountHolder"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BankConnectionSettings.Iban" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="BankConnectionSettings.Iban"></setting-editor>
+                        <span asp-validation-for="BankConnectionSettings.Iban"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BankConnectionSettings.Bic" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="BankConnectionSettings.Bic"></setting-editor>
+                        <span asp-validation-for="BankConnectionSettings.Bic"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.SocialSettings")">
+            <div id="SocialLinkTable" class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SocialSettings.FacebookAppId" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SocialSettings.FacebookAppId"></setting-editor>
+                        <span asp-validation-for="SocialSettings.FacebookAppId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SocialSettings.TwitterSite" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SocialSettings.TwitterSite"></setting-editor>
+                        <span asp-validation-for="SocialSettings.TwitterSite"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SocialSettings.ShowSocialLinksInFooter" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SocialSettings.ShowSocialLinksInFooter" data-toggler-for="#pnlSocialLinks"></setting-editor>
+                        <smart-label asp-for="SocialSettings.ShowSocialLinksInFooter" />
+                    </div>
+                </div>
+                <div id="pnlSocialLinks">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SocialSettings.FacebookLink" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SocialSettings.FacebookLink"></setting-editor>
+                            <span asp-validation-for="SocialSettings.FacebookLink"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SocialSettings.TwitterLink" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SocialSettings.TwitterLink"></setting-editor>
+                            <span asp-validation-for="SocialSettings.TwitterLink"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SocialSettings.PinterestLink" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SocialSettings.PinterestLink"></setting-editor>
+                            <span asp-validation-for="SocialSettings.PinterestLink"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SocialSettings.YoutubeLink" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SocialSettings.YoutubeLink"></setting-editor>
+                            <span asp-validation-for="SocialSettings.YoutubeLink"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SocialSettings.InstagramLink" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="SocialSettings.InstagramLink"></setting-editor>
+                            <span asp-validation-for="SocialSettings.InstagramLink"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+    </tabstrip>
 </form>
+
+<script sm-target-zone="scripts" data-origin="settings-general-common">
+    $(function() {
+		// Test creation of SEO names.
+		$('#TestSeoNameCreationButton').click(function () {
+			$(this).closest('form').doAjax({
+				type: 'POST',
+				url: '@Url.Action("TestSeoNameCreation")',
+				callbackSuccess: function (resp) {
+					$('#TestSeoNameCreationResult').html('<p class="alert alert-info">' + resp + '</p>');
+				}
+			});
+        });
+
+        // Show warning when ReCaptcha type changed.
+        $('#@(Html.IdFor(x => x.CaptchaSettings.UseInvisibleReCaptcha))').change(function () {
+            var publicKey = $('#@(Html.IdFor(x => x.CaptchaSettings.ReCaptchaPublicKey))').val();
+            var privateKey = $('#@(Html.IdFor(x => x.CaptchaSettings.ReCaptchaPrivateKey))').val();
+
+            if (!_.isEmpty(publicKey) && !_.isEmpty(privateKey)) {
+                $('#UseInvisibleReCaptchaWarning').removeClass('d-none');
+            }
+        });
+
+        // Toggle robots settings for allow & disallow.
+        $('.robots-toggle-button').click(function () {
+            $('.robots-container, .robots-toggle-button > span').toggleClass("d-none");
+        });
+	});
+</script>

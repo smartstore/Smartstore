@@ -56,7 +56,9 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*AllowCustomersToSetTimeZone")]
             public bool AllowCustomersToSetTimeZone { get; set; }
 
+            // TODO: (mh) (core) Alter to type of int.
             [LocalizedDisplay("*DefaultStoreTimeZone")]
+            //public int DefaultStoreTimeZoneId { get; set; }
             public string DefaultStoreTimeZoneId { get; set; }
 
             [LocalizedDisplay("*DefaultStoreTimeZone")]
@@ -93,6 +95,7 @@ namespace Smartstore.Admin.Models
             public bool AllowUnicodeCharsInUrls { get; set; }
 
             [LocalizedDisplay("*SeoNameCharConversion")]
+            [UIHint("Textarea")]
             public string SeoNameCharConversion { get; set; }
 
             [LocalizedDisplay("*TestSeoNameCreation")]
@@ -105,9 +108,11 @@ namespace Smartstore.Admin.Models
             public CanonicalHostNameRule CanonicalHostNameRule { get; set; }
 
             [LocalizedDisplay("*ExtraRobotsDisallows")]
+            [UIHint("Textarea")]
             public string ExtraRobotsDisallows { get; set; }
 
             [LocalizedDisplay("*ExtraRobotsAllows")]
+            [UIHint("Textarea")]
             public string ExtraRobotsAllows { get; set; }
 
             [LocalizedDisplay("*XmlSitemapEnabled")]
@@ -207,7 +212,7 @@ namespace Smartstore.Admin.Models
             public bool LetterPageSizeEnabled { get; set; }
 
             [LocalizedDisplay("*PdfLogo")]
-            [UIHint("Media"), AdditionalMetadata("album", "content")]
+            [UIHint("Media"), AdditionalMetadata("album", "content"), AdditionalMetadata("transientUpload", true)]
             public int LogoPictureId { get; set; }
 
             [LocalizedDisplay("*AttachOrderPdfToOrderPlacedEmail")]
@@ -239,11 +244,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.CompanyInformationSettings.")]
         public partial class CompanyInformationSettingsModel
         {
-            // TODO: (mh) (core) Put into ViewBag
-            public List<SelectListItem> AvailableCountries { get; set; } = new();
-            public List<SelectListItem> Salutations { get; set; } = new();
-            public List<SelectListItem> ManagementDescriptions { get; set; } = new();
-
             [LocalizedDisplay("*CompanyName")]
             public string CompanyName { get; set; }
 
