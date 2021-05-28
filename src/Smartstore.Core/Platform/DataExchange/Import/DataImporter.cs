@@ -11,6 +11,7 @@ using Smartstore.Core.DataExchange.Import.Events;
 using Smartstore.Core.DataExchange.Import.Internal;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Engine;
@@ -61,12 +62,18 @@ namespace Smartstore.Core.DataExchange.Import
 
                 ctx = await CreateImporterContext(request, profile, cancelToken);
 
+                var context = ctx.ExecuteContext;
+                var dir = context.ImportDirectory;
+                var logFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, "log.txt"));
+                using var logger = new TraceLogger(logFile, false);
+
+                ctx.Log = ctx.ExecuteContext.Log = logger;
+
                 if (!request.HasPermission && !await HasPermission())
                 {
                     throw new SmartException("You do not have permission to perform the selected import.");
                 }
 
-                var context = ctx.ExecuteContext;
                 var files = await _importProfileService.GetImportFilesAsync(profile, profile.ImportRelatedData);
                 var fileGroups = files.ToMultimap(x => x.RelatedType, x => x);
 
@@ -282,16 +289,12 @@ namespace Smartstore.Core.DataExchange.Import
 
         private async Task<DataImporterContext> CreateImporterContext(DataImportRequest request, ImportProfile profile, CancellationToken cancelToken)
         {
-            // TODO: (mg) (core) setup file logger for data import.
-            ILogger logger = null;
-
             var executeContext = new ImportExecuteContext(T("Admin.DataExchange.Import.ProgressInfo"), cancelToken)
             {
                 Request = request,
-                Log = logger,
                 UpdateOnly = profile.UpdateOnly,
                 KeyFieldNames = profile.KeyFieldNames.SplitSafe(",").ToArray(),
-                ImportDirectory = await _importProfileService.GetImportDirectoryAsync(profile),
+                ImportDirectory = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true),
                 ExtraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData)
             };
 
@@ -299,7 +302,6 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 Request = request,
                 CancelToken = cancelToken,
-                Log = logger,
                 ColumnMap = new ColumnMapConverter().ConvertFrom<ColumnMap>(profile.ColumnMapping) ?? new ColumnMap(),
                 ExecuteContext = executeContext
             };
