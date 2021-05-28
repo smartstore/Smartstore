@@ -42,6 +42,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(IgnoreLabelAttributeName)]
         public bool IgnoreLabel { get; set; }
 
+        /// <summary>
+        /// Adds .form-control-plaintext instead of .form-control to input
+        /// </summary>
         [HtmlAttributeName(PlaintextAttributeName)]
         public bool Plaintext { get; set; }
 
@@ -109,32 +112,38 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         private void ProcessFormControl(TagHelperOutput output)
         {
-            output.Attributes.TryGetAttribute("class", out var classAttr);
-
-            if (classAttr != null && classAttr.Value.ToString().Contains("form-control-plaintext") || Plaintext)
+            bool isPlainText;
+            if (Plaintext)
             {
-                // Render hint as .form-text
-                ProcessHint(output);
-                return;
+                output.AppendCssClass("form-control-plaintext");
+                isPlainText = true;
             }
+            else
+            {
+                isPlainText = output.Attributes.TryGetAttribute("class", out var classAttr) && classAttr.Value.ToString().Contains("form-control-plaintext");
+            }
+            
+            if (!isPlainText)
+            {
+                output.AppendCssClass("form-control");
 
-            output.AppendCssClass("form-control");
+                // Render "Optional" placeholder
+                if (IsRequired == false && !output.Attributes.ContainsName("placeholder"))
+                {
+                    output.Attributes.Add("placeholder", _localizationService.GetResource("Common.Optional", logIfNotFound: false, returnEmptyIfNotFound: true));
+                }
+
+                // Render "required" attribute
+                if (IsRequired == true && !output.Attributes.ContainsName("required"))
+                {
+                    output.Attributes.Add(new TagHelperAttribute("required", null, HtmlAttributeValueStyle.Minimized));
+                }
+            }
+            
 
             if (ControlSize != ControlSize.Medium)
             {
                 output.AppendCssClass("form-control-" + (ControlSize == ControlSize.Small ? "sm" : "lg"));
-            }
-
-            // Render "Optional" placeholder
-            if (IsRequired == false && !output.Attributes.ContainsName("placeholder"))
-            {
-                output.Attributes.Add("placeholder", _localizationService.GetResource("Common.Optional", logIfNotFound: false, returnEmptyIfNotFound: true));
-            }
-
-            // Render "required" attribute
-            if (IsRequired == true && !output.Attributes.ContainsName("required"))
-            {
-                output.Attributes.Add(new TagHelperAttribute("required", null, HtmlAttributeValueStyle.Minimized));
             }
 
             // Render hint as .form-text
