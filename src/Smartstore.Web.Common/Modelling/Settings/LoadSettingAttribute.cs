@@ -26,7 +26,7 @@ namespace Smartstore.Web.Modelling.Settings
         {
         }
 
-        public LoadSettingAttribute(Type filterType, bool updateParameterFromStore)
+        protected LoadSettingAttribute(Type filterType, bool updateParameterFromStore)
             : base(filterType)
         {
             UpdateParameterFromStore = updateParameterFromStore;
@@ -46,17 +46,17 @@ namespace Smartstore.Web.Modelling.Settings
         }
 
         private readonly LoadSettingAttribute _attribute;
-        private readonly ICommonServices _services;
-        private readonly StoreDependingSettingHelper _storeDependingSettings;
+        protected readonly ICommonServices _services;
+        protected readonly StoreDependingSettingHelper _settingHelper;
 
         protected int _storeId;
         protected SettingParam[] _settingParams;
 
-        public LoadSettingFilter(LoadSettingAttribute attribute, ICommonServices services, StoreDependingSettingHelper storeDependingSettings)
+        public LoadSettingFilter(LoadSettingAttribute attribute, ICommonServices services, StoreDependingSettingHelper settingsHelper)
         {
             _attribute = attribute;
             _services = services;
-            _storeDependingSettings = storeDependingSettings;
+            _settingHelper = settingsHelper;
         }
 
         public virtual async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -68,7 +68,6 @@ namespace Smartstore.Web.Modelling.Settings
         protected async Task OnActionExecutingAsync(ActionExecutingContext context)
         {
             // Get the current configured store id
-            var controller = context.Controller as Controller;
             _storeId = GetActiveStoreScopeConfiguration();
             Func<ParameterDescriptor, bool> predicate = (x) => new[] { "storescope", "storeid" }.Contains(x.Name, StringComparer.OrdinalIgnoreCase);
             var storeScopeParam = FindActionParameters<int>(context.ActionDescriptor, false, false, predicate).FirstOrDefault();
@@ -123,7 +122,7 @@ namespace Smartstore.Web.Modelling.Settings
                 var modelType = model.GetType();
                 if (_attribute.IsRootedModel)
                 {
-                    _storeDependingSettings.CreateViewDataObject(_storeId);
+                    _settingHelper.CreateViewDataObject(_storeId);
                 }
 
                 foreach (var param in _settingParams)
@@ -140,7 +139,7 @@ namespace Smartstore.Web.Modelling.Settings
                         }
                     }
 
-                    await _storeDependingSettings.GetOverrideKeysAsync(settingInstance, modelInstance, _storeId, !_attribute.IsRootedModel);
+                    await _settingHelper.GetOverrideKeysAsync(settingInstance, modelInstance, _storeId, !_attribute.IsRootedModel);
                 }
             }
         }

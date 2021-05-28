@@ -26,12 +26,10 @@ namespace Smartstore.Web.Modelling.Settings
     internal class SaveSettingFilter : LoadSettingFilter
     {
         private IFormCollection _form;
-        private readonly StoreDependingSettingHelper _storeDependingSettings;
 
-        public SaveSettingFilter(SaveSettingAttribute attribute, ICommonServices services, StoreDependingSettingHelper storeDependingSettings)
-            : base (attribute, services, storeDependingSettings)
+        public SaveSettingFilter(SaveSettingAttribute attribute, ICommonServices services, StoreDependingSettingHelper settingHelper)
+            : base (attribute, services, settingHelper)
         {
-            _storeDependingSettings = storeDependingSettings;
         }
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -40,6 +38,7 @@ namespace Smartstore.Web.Modelling.Settings
 
             if (!context.ModelState.IsValid)
             {
+                await next();
                 return;
             }
 
@@ -50,7 +49,6 @@ namespace Smartstore.Web.Modelling.Settings
                 : await context.HttpContext.Request.ReadFormAsync();
 
             var executedContext = await next();
-            var viewResult = executedContext.Result as ViewResult;
 
             if (executedContext.ModelState.IsValid)
             {
@@ -71,7 +69,7 @@ namespace Smartstore.Web.Modelling.Settings
                 {
                     foreach (var param in _settingParams)
                     {
-                        await _storeDependingSettings.UpdateSettingsAsync(param.Instance, _form, _storeId);
+                        await _settingHelper.UpdateSettingsAsync(param.Instance, _form, _storeId);
                     }
                 }
             }
