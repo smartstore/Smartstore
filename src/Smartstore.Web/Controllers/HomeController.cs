@@ -974,11 +974,28 @@ namespace Smartstore.Web.Controllers
             
 
             {
-                var logDir = contentRoot.AttachEntry(dir.Parent);
-                var logPath = $"File/" + logDir.FileSystem.PathCombine(logDir.SubPath, "log.txt");
-                content.AppendLine($"Log path: " + logPath);
-                var logger = Services.LoggerFactory.CreateLogger(logPath);
-                logger.Info("Hello world!");
+                //var logDir = contentRoot.AttachEntry(dir.Parent);
+                //var logPath = $"File/" + logDir.FileSystem.PathCombine(logDir.SubPath, "log.txt");
+                //content.AppendLine($"Log path: " + logPath);
+                //var logger = Services.LoggerFactory.CreateLogger(logPath);
+                //logger.Info("Hello world!");
+
+                var logFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, "log.txt"));
+                using (var logger = new TraceLogger(logFile))
+                {
+                    logger.Info("Hello world!");
+                    logger.Error("unknown error occurred!");
+                    try
+                    {
+                        var num1 = 0;
+                        var num2 = 16;
+                        var num3 = num2 / num1;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex);
+                    }
+                }
             }
 
             ////var fullPath = @"C:\Downloads\Subfolder";

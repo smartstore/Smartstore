@@ -31,6 +31,7 @@ using Smartstore.Core.DataExchange.Export.Deployment;
 using Smartstore.Core.DataExchange.Export.Internal;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -145,31 +146,43 @@ namespace Smartstore.Core.DataExchange.Export
             Guard.NotNull(request.Profile, nameof(request.Profile));
             Guard.NotNull(request.Provider?.Value, nameof(request.Provider));
 
-            var ctx = await CreateExporterContext(request, false, cancelToken);
+            var ctx = CreateExporterContext(request, false, cancelToken);
+            var profile = request.Profile;
 
-            if (!request.Profile.Enabled)
+            if (!profile.Enabled)
             {
                 return ctx.Result;
             }
 
-            var lockKey = $"dataexporter:profile:{request.Profile.Id}";
+            var lockKey = $"dataexporter:profile:{profile.Id}";
             if (AsyncLock.IsLockHeld(lockKey))
             {
-                ctx.Result.LastError = $"The execution of the profile \"{request.Profile.Name.NaIfEmpty()}\" (ID {request.Profile.Id}) is locked.";
+                ctx.Result.LastError = $"The execution of the profile \"{profile.Name.NaIfEmpty()}\" (ID {profile.Id}) is locked.";
                 return ctx.Result;
             }
 
+            // The export directory is the "Content" subfolder. ZIP and LOG file are in the parent folder.
+            var dir = await _exportProfileService.GetExportDirectoryAsync(profile, "Content", true);
+            var logFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, "log.txt"));
+
             using (await AsyncLock.KeyedAsync(lockKey, null, cancelToken))
+            using (var logger = new TraceLogger(logFile, false))
             {
                 try
                 {
+                    ctx.Log = ctx.ExecuteContext.Log = logger;
+                    ctx.ExportDirectory = ctx.ExecuteContext.ExportDirectory = dir;
+                    ctx.ZipFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, dir.Parent.Name.ToValidFileName() + ".zip"));
+
+                    if (request?.Provider?.Value?.FileExtension?.HasValue() ?? false)
+                    {
+                        ctx.Result.ExportDirectory = dir;
+                    }
+
                     if (!await HasPermission(ctx))
                     {
                         throw new SmartException("You do not have permission to perform the selected export.");
                     }
-
-                    var profile = ctx.Request.Profile;
-                    ctx.ProgressInfo = T("Admin.DataExchange.Export.ProgressInfo");
 
                     using (var scope = new DbContextScope(_db, autoDetectChanges: false, forceNoTracking: true))
                     {
@@ -258,7 +271,7 @@ namespace Smartstore.Core.DataExchange.Export
             Guard.NotNull(request.Profile, nameof(request.Profile));
 
             var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(5.0));
-            var ctx = await CreateExporterContext(request, true, cancellation.Token);
+            var ctx = CreateExporterContext(request, true, cancellation.Token);
             var skip = Math.Max(ctx.Request.Profile.Offset, 0) + (pageIndex * PageSize);
 
             var _ = await Init(ctx);
@@ -1528,11 +1541,10 @@ namespace Smartstore.Core.DataExchange.Export
             return options;
         }
 
-        private async Task<DataExporterContext> CreateExporterContext(DataExportRequest request, bool isPreview, CancellationToken cancelToken)
+        private DataExporterContext CreateExporterContext(DataExportRequest request, bool isPreview, CancellationToken cancelToken)
         {
             var profile = request.Profile;
             var provider = request.Provider.Value;
-            var isFileBasedExport = request?.Provider?.Value?.FileExtension?.HasValue() ?? false;
 
             var context = new DataExporterContext
             {
@@ -1540,24 +1552,9 @@ namespace Smartstore.Core.DataExchange.Export
                 Request = request,
                 CancellationToken = cancelToken,
                 Filter = XmlHelper.Deserialize<ExportFilter>(profile.Filtering),
-                Projection = XmlHelper.Deserialize<ExportProjection>(profile.Projection)
+                Projection = XmlHelper.Deserialize<ExportProjection>(profile.Projection),
+                ProgressInfo = T("Admin.DataExchange.Export.ProgressInfo")
             };
-
-            if (!isPreview)
-            {
-                // The export directory is the "Content" subfolder. ZIP and LOG file are in the parent folder.
-                var dir = await _exportProfileService.GetExportDirectoryAsync(request.Profile, "Content", true);
-
-                context.ExportDirectory = dir;
-                context.Result.ExportDirectory = isFileBasedExport ? dir : null;
-                context.ZipFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, dir.Parent.Name.ToValidFileName() + ".zip"));
-
-                // TODO: (mg) (core) not what is required here. Find a way to log into a single file (for downloading) with a "per-export scope".
-                // - current configuration "rollingInterval: RollingInterval.Day" adds yyyyMMdd to the file name.
-                // - "rollingInterval: RollingInterval.Infinite" would create a single file but it is inaccessible or might not even exist when the export ends.
-                var logDir = _services.ApplicationContext.ContentRoot.AttachEntry(dir.Parent);
-                context.Log = _services.LoggerFactory.CreateLogger($"File/" + logDir.FileSystem.PathCombine(logDir.SubPath, "log.txt"));
-            }
 
             if (profile.Projection.IsEmpty())
             {
@@ -1566,8 +1563,6 @@ namespace Smartstore.Core.DataExchange.Export
 
             context.ExecuteContext = new ExportExecuteContext(context.Result, cancelToken)
             {
-                Log = context.Log,
-                ExportDirectory = context.ExportDirectory,
                 Filter = context.Filter,
                 Projection = context.Projection,
                 ProfileId = profile.Id,

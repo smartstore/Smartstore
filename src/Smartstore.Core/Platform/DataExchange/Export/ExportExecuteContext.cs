@@ -125,7 +125,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// <summary>
         /// The export directory.
         /// </summary>
-        public IDirectory ExportDirectory { get; init; }
+        public IDirectory ExportDirectory { get; internal set; }
 
         /// <summary>
         /// A value indicating whether the profile has a public deployment into "Exchange" folder.
