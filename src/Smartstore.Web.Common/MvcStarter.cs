@@ -143,7 +143,7 @@ namespace Smartstore.Web
                         if (expression != null && member != null)
                         {
                             var metadataProvider = EngineContext.Current.Application.Services.Resolve<IModelMetadataProvider>();
-                            var metadata = metadataProvider.GetMetadataForProperty(type, member.Name);
+                            var metadata = metadataProvider.GetMetadataForProperty(member.DeclaringType, member.Name);
                             name = metadata.DisplayName;
                         }
 
