@@ -16,9 +16,6 @@
     <paging position="Bottom" page-size="@gridPageSize" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
-        <button type="button" class="btn btn-secondary btn-flat" v-on:click="grid.resetState">
-            <span>Reset State</span>
-        </button>
         @*<a v-if="!grid.editing.active" asp-action="Create" class="btn btn-primary btn-flat mr-auto">
             <i class="fa fa-plus"></i>
             <span>@T("Admin.Common.AddNew")...</span>
@@ -69,7 +66,7 @@
                 <input type="text" class="form-control form-control" />
             </display-template>
         </column>*@
-        <column for="Name" width="3fr" nowrap="false">
+        <column for="Name" width="3fr" nowrap="false" hideable="false">
             <display-template>
                 <span class="mr-1 badge" v-bind:class="'badge-' + item.row.ProductTypeLabelHint">{{ item.row.ProductTypeName }}</span>
                 <a :href="item.row.EditUrl" class="text-truncate">

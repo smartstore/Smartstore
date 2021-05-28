@@ -220,7 +220,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.TagName = "div";
             output.AppendCssClass(cssClass);
 
-            var component = new TagBuilder("sm-data-grid");
+            var component = new TagBuilder("sm-datagrid");
             component.Attributes[":options"] = "options";
             component.Attributes[":data-source"] = "dataSource";
             component.Attributes[":columns"] = "columns";

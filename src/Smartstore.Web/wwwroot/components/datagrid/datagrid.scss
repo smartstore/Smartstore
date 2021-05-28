@@ -12,6 +12,7 @@ $light: #f8f9fa;
 $border: #dee2e6;
 $even: mix($light, #fff, 60%);
 $hover: darken(#f2f7fb, 0.5%);
+$body-color: #393f46;
 
 .datagrid-root {
     --dg-border-color: $border;
@@ -199,7 +200,8 @@ $hover: darken(#f2f7fb, 0.5%);
 // Sorting
 // -----------------------------------------
 
-.dg-table:not(.dg-resizing) .dg-sortable {
+.dg-table:not(.dg-resizing) .dg-sortable,
+.dg-table:not(.dg-resizing) .dg-tools {
     cursor: pointer;
     transition: background-color 0.1s ease-in-out;
 
@@ -213,7 +215,7 @@ $hover: darken(#f2f7fb, 0.5%);
 }
 
 
-// Resizing
+// Resizing & Column reordering
 // -----------------------------------------
 
 .dg-resize-handle {
@@ -246,6 +248,41 @@ $hover: darken(#f2f7fb, 0.5%);
         opacity: 1 !important;
     }
 }
+
+.dg-drop-indicator {
+    position: absolute;
+    display: block;
+    width: 10px;
+    z-index: 9999;
+    transform: translateX(-50%);
+
+    &:before,
+    &:after {
+        position: absolute;
+        display: block;
+        content: '';
+        width: 0;
+        height: 0;
+        left: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+    }
+
+    &:before {
+        // Arrow down
+        border-top: 5px solid $body-color;
+        top: 0;
+        transform: translateY(-200%);
+    }
+
+    &:after {
+        // Arrow up
+        border-bottom: 5px solid $body-color;
+        bottom: 0;
+        transform: translateY(200%);
+    }
+}
+
 
 // Pinned columns
 // -----------------------------------------
@@ -435,6 +472,47 @@ a.dg-page {
 .dg-page-size-chooser,
 span.dg-page {
     font-size: 13px;
+}
+
+
+// Tools
+// -----------------------------------------
+
+.dg-tools {
+    padding: 0 !important;
+    overflow: visible;
+    cursor: auto !important;
+    font-weight: 400;
+}
+
+.dg-tools-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none !important;
+    width: 100%;
+    height: 100%;
+}
+
+.dg-tools-dropdown {
+    min-width: 235px;
+    max-width: 350px;
+    width: auto;
+    max-height: 450px;
+    overflow-y: auto;
+    font-size: 13px;
+
+    .switch {
+        padding-top: 5px;
+        padding-bottom: 5px;
+        --switcher-w: 2rem;
+        --switcher-h: 1rem;
+    }
+
+    select {
+        height: 28px;
+        padding: 0 4px;
+    }
 }
 
 

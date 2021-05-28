@@ -193,7 +193,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 name = For.Metadata.DisplayName,
                 title = Title ?? For.Metadata.DisplayName,
                 width = Width.EmptyNull(),
-                hidden = !Visible,
+                visible = Visible,
                 //flow = col.Flow?.ToString()?.Kebaberize(),
                 halign = HAlign,
                 valign = VAlign,

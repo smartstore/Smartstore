@@ -130,12 +130,15 @@
   .dg-toolbar .btn:first-child {
     border-left: none !important; }
 
-.dg-table:not(.dg-resizing) .dg-sortable {
+.dg-table:not(.dg-resizing) .dg-sortable,
+.dg-table:not(.dg-resizing) .dg-tools {
   cursor: pointer;
   transition: background-color 0.1s ease-in-out; }
-  .dg-table:not(.dg-resizing) .dg-sortable:hover {
+  .dg-table:not(.dg-resizing) .dg-sortable:hover,
+  .dg-table:not(.dg-resizing) .dg-tools:hover {
     background-color: rgba(0, 0, 0, 0.035); }
-  .dg-table:not(.dg-resizing) .dg-sortable:active {
+  .dg-table:not(.dg-resizing) .dg-sortable:active,
+  .dg-table:not(.dg-resizing) .dg-tools:active {
     background-color: rgba(0, 0, 0, 0.075); }
 
 .dg-resize-handle {
@@ -161,6 +164,30 @@
   .dg-resize-handle:hover,
   .dg-resizing .dg-resize-handle {
     opacity: 1 !important; }
+
+.dg-drop-indicator {
+  position: absolute;
+  display: block;
+  width: 10px;
+  z-index: 9999;
+  transform: translateX(-50%); }
+  .dg-drop-indicator:before, .dg-drop-indicator:after {
+    position: absolute;
+    display: block;
+    content: '';
+    width: 0;
+    height: 0;
+    left: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent; }
+  .dg-drop-indicator:before {
+    border-top: 5px solid #393f46;
+    top: 0;
+    transform: translateY(-200%); }
+  .dg-drop-indicator:after {
+    border-bottom: 5px solid #393f46;
+    bottom: 0;
+    transform: translateY(200%); }
 
 .dg-col-pinned {
   position: sticky !important;
@@ -290,6 +317,36 @@ a.dg-page {
 .dg-page-size-chooser,
 span.dg-page {
   font-size: 13px; }
+
+.dg-tools {
+  padding: 0 !important;
+  overflow: visible;
+  cursor: auto !important;
+  font-weight: 400; }
+
+.dg-tools-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none !important;
+  width: 100%;
+  height: 100%; }
+
+.dg-tools-dropdown {
+  min-width: 235px;
+  max-width: 350px;
+  width: auto;
+  max-height: 450px;
+  overflow-y: auto;
+  font-size: 13px; }
+  .dg-tools-dropdown .switch {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    --switcher-w: 2rem;
+    --switcher-h: 1rem; }
+  .dg-tools-dropdown select {
+    height: 28px;
+    padding: 0 4px; }
 
 [dir=rtl] .dg-page-refresh {
   border-left: 1px solid #dee2e6;

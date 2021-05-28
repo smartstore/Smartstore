@@ -1,4 +1,4 @@
-﻿Vue.component("sm-data-grid-pager", {
+﻿Vue.component("sm-datagrid-pager", {
     template: `
         <div class="dg-pager d-flex flex-nowrap">
             <a href="#" class="dg-page dg-page-refresh px-3" @click.prevent="refresh">
@@ -40,17 +40,6 @@
         rows: Array,
         total: Number,
         maxPagesToDisplay: Number
-    },
-
-    created: function () {
-    },
-
-    mounted: function () {
-    },
-
-    data: function () {
-        return {
-        }
     },
 
     computed: {
@@ -121,6 +110,7 @@
             return items;
         }
     },
+
     methods: {
         refresh() {
             this.$parent.read();
@@ -128,7 +118,6 @@
 
         pageTo(pageIndex) {
             if (pageIndex > 0 && pageIndex <= this.totalPages && !this.$parent.isBusy) {
-                this.command.page = pageIndex;
                 this.paging.pageIndex = pageIndex;
             }
         },
@@ -136,10 +125,8 @@
         setPageSize(size) {
             if (!this.$parent.isBusy) {
                 if (size > this.command.pageSize) {
-                    this.command.page = 1;
                     this.paging.pageIndex = 1;
                 }
-                this.command.pageSize = size;
                 this.paging.pageSize = size;
             }
         }
