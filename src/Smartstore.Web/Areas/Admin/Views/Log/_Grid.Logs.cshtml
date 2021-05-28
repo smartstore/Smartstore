@@ -6,15 +6,13 @@
     var gridPageSize = GetMetadata<int>("GridPageSize");
 }
 
-<datagrid id="log-grid"
-          ondatabinding="onDataBinding"
-          allow-resize="true"
-          allow-row-selection="true"
-          allow-column-reordering="true">
+<datagrid id="log-grid" ondatabinding="onDataBinding" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
     <datasource read="@Url.Action("LogList")" delete="@Url.Action("LogDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
-        @*<sort by="CreatedOn" descending="true" />*@
+        @* TODO: (ms) (core) An error occures when trying to sort by CreatedOn by default. 
+        Probably since table name and property name do not match and entity-member is not being taken into account. *@
+        @* <sort by="CreatedOn" descending="true" /> *@
     </sorting>
     <toolbar>
         <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat ml-auto">
@@ -29,7 +27,7 @@
                 <span class="text-muted text-truncate" :title="item.value">{{ item.row.LoggerShort }}</span>
             </display-template>
         </column>
-        <column for="ShortMessage" sortable="true" hideable="false">
+        <column for="ShortMessage" hideable="false">
             <display-template>
                 <span :class="'mr-1 badge badge-' + item.row.LogLevelHint">{{ item.row.LogLevel }}</span>
                 <a :href="item.row.ViewUrl" class="text-truncate">
@@ -37,7 +35,7 @@
                 </a>
             </display-template>
         </column>
-        <column for="UserName" width="max-content" sortable="false" />
+        <column for="UserName" entity-member="CustomerId" width="max-content" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
     </columns>
 </datagrid>

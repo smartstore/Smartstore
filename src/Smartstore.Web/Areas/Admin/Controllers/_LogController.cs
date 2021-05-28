@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Logging;
 using Smartstore.Core.Common.Services;
@@ -56,11 +55,15 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Log.Read)]
-        public ActionResult List(LogListModel model)
+        public ActionResult List()
         {
-            model.AvailableLogLevels = LogLevel.Debug.ToSelectList(false).ToList();
+            var model = new LogListModel
+            {
+                AvailableLogLevels = LogLevel.Debug.ToSelectList(false).ToList()
+            };
+
+            // Removes newly added 'verbose' enum value to restore classic behaviour with placeholder 'all' on no selection.
             model.AvailableLogLevels.RemoveAt(0);
-            model.AvailableLogLevels.Insert(0, new SelectListItem(string.Empty, string.Empty));
 
             return View(model);
         }
@@ -86,7 +89,7 @@ namespace Smartstore.Admin.Controllers
                 .ApplyLevelFilter(logLevel)
                 .ApplyGridCommand(command, false);
 
-            var logItems = await query.ToPagedList(Math.Max(command.Page - 1, 0), command.PageSize).LoadAsync();
+            var logItems = await query.ToPagedList(command.Page - 1, command.PageSize).LoadAsync();
 
             var gridModel = new GridModel<LogModel>
             {
@@ -195,7 +198,7 @@ namespace Smartstore.Admin.Controllers
                 LoggerShort = TruncateLoggerName(log.Logger),
                 HttpMethod = log.HttpMethod,
                 UserName = log.UserName,
-                ViewUrl = Url.Action("View", "Log", new { id = log.Id })
+                ViewUrl = Url.Action(nameof(View), "Log", new { id = log.Id })
             };
 
             return model;

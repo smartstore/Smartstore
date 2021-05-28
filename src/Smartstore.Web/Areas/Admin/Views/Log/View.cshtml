@@ -7,6 +7,7 @@
     ViewBag.Title = T("Admin.System.Log.ViewLogDetails").Value;
 }
 
+@* TODO: (ms) (core) Wait until delete confirmation function has been implemented to proceed with deletion. *@
 <form method="post" asp-action="DeleteConfirmed">
     <div class="section-header">
         <div class="title">
@@ -14,7 +15,6 @@
             @T("Admin.System.Log.ViewLogDetails") <a asp-action="List">(@T("Admin.System.Log.BackToList"))</a>
         </div>
         <input asp-for="Id" type="hidden" />
-        @*TODO: (ms) (core) Have confirm2 ask for confirmation*@
         <div class="options">
             <button type="submit" id="log-delete" class="btn btn-danger" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue)'>
                 <i class="far fa-trash-alt"></i>
@@ -39,9 +39,7 @@
                 <smart-label asp-for="Logger" />
             </div>
             <div class="adminData">
-                <div class="form-control-plaintext">
-                    @Model.Logger
-                </div>
+                <input asp-for="Logger" sm-plaintext readonly="readonly" class="form-control-plaintext" />
             </div>
         </div>
         <div class="adminRow">
@@ -59,9 +57,7 @@
                 <smart-label asp-for="IpAddress" />
             </div>
             <div class="adminData">
-                <div class="form-control-plaintext">
-                    @Model.IpAddress
-                </div>
+                <input asp-for="IpAddress" sm-plaintext readonly="readonly" class="form-control-plaintext" />
             </div>
         </div>
         <div class="adminRow">
@@ -81,9 +77,7 @@
                 <smart-label asp-for="UserName" />
             </div>
             <div class="adminData">
-                <div class="form-control-plaintext">
-                    @Model.UserName
-                </div>
+                <input asp-for="UserName" sm-plaintext readonly="readonly" class="form-control-plaintext" />
             </div>
         </div>
         <div class="adminRow">
@@ -114,7 +108,7 @@
             </div>
             <div class="adminData">
                 <div class="form-control-plaintext">
-                    @Model.CreatedOn
+                    @Html.DisplayFor(model => model.CreatedOn)
                 </div>
             </div>
         </div>
@@ -124,12 +118,8 @@
             </div>
             <div class="adminData wide">
                 @*No whitespace within pre tag*@
-                <pre class="prettyprint xlang-java" style="white-space: pre-wrap;">@Model.FullMessage</pre>
+                <pre class="prettyprint xlang-java" style="white-space: pre-wrap;">@Html.DisplayFor(model => model.FullMessage)</pre>
             </div>
         </div>
     </div>
 </form>
-
-@*TODO: (ms) (core) How to replace this?*@
-@*RE: MC wanted to rethink this. So leave it this way until some decission was made*@
-@*@Html.DeleteConfirmation("log-delete")*@
