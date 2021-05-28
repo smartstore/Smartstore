@@ -33,52 +33,6 @@ namespace Smartstore.Core.Logging
             Init(append ?? file.Exists);
         }
 
-        public IFile File { get; private set; }
-
-        public IDisposable BeginScope<TState>(TState state) => default;
-
-        public bool IsEnabled(MsLogLevel logLevel)
-        {
-            return _traceSource.Switch.ShouldTrace(LogLevelToEventType(logLevel));
-        }
-
-        public void Log<TState>(MsLogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-            if (!IsEnabled(logLevel))
-            {
-                return;
-            }
-
-            var message = formatter(state, exception);
-            
-            if (exception != null && !exception.IsFatal())
-            {
-                if (message.IsEmpty() || message.EqualsNoCase(NullMessage))
-                {
-                    message = exception.Message;
-                }
-
-                message = message.Grow(exception.ToAllMessages(true), Environment.NewLine).TrimEnd('\n', '\r');
-            }
-
-            if (message.HasValue())
-            {
-                var type = LogLevelToEventType(logLevel);
-                _traceSource.TraceEvent(type, (int)type, message);
-            }
-        }
-
-        public void Flush() => _traceSource.Flush();
-
-        protected override void OnDispose(bool disposing)
-        {
-            _traceSource?.Flush();
-            _traceSource?.Close();
-
-            _streamWriter?.Close();
-            _streamWriter?.Dispose();
-        }
-
         protected virtual void Init(bool append)
         {
             _traceSource = new TraceSource("Smartstore")
@@ -124,6 +78,52 @@ namespace Smartstore.Core.Logging
             // Messages must get past the source switch to get to the listeners,
             // regardless of the settings for the listeners.
             _traceSource.Switch.Level = SourceLevels.All;
+        }
+
+        protected IFile File { get; }
+
+        IDisposable ILogger.BeginScope<TState>(TState state) => ActionDisposable.Empty;
+
+        public bool IsEnabled(MsLogLevel logLevel)
+        {
+            return _traceSource.Switch.ShouldTrace(LogLevelToEventType(logLevel));
+        }
+
+        public void Log<TState>(MsLogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            if (!IsEnabled(logLevel))
+            {
+                return;
+            }
+
+            var message = formatter?.Invoke(state, exception) ?? string.Empty;
+            
+            if (exception != null && !exception.IsFatal())
+            {
+                if (message.IsEmpty() || message.EqualsNoCase(NullMessage))
+                {
+                    message = exception.Message;
+                }
+
+                // TODO: (mg) (core) A non-null formatter has probably written exception info to message already. Maybe this is redundant (?). Check and fix.
+                message = message.Grow(exception.ToAllMessages(true), Environment.NewLine).TrimEnd('\n', '\r');
+            }
+
+            if (message.HasValue())
+            {
+                _traceSource.TraceEvent(LogLevelToEventType(logLevel), eventId.Id, message);
+            }
+        }
+
+        public void Flush() => _traceSource.Flush();
+
+        protected override void OnDispose(bool disposing)
+        {
+            _traceSource?.Flush();
+            _traceSource?.Close();
+
+            _streamWriter?.Close();
+            _streamWriter?.Dispose();
         }
 
         protected virtual TraceEventType LogLevelToEventType(MsLogLevel level)
