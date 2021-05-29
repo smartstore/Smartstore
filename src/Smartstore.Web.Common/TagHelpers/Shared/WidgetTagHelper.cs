@@ -45,7 +45,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(KeyAttributeName)]
         public virtual string Key { get; set; }
 
-        protected override string GenerateTagId(TagHelperContext context) 
+        protected override string GenerateTagId(TagHelperContext context)
             => null;
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
@@ -62,9 +62,25 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
+            if (ViewContext.HttpContext.Request.IsAjaxRequest())
+            {
+                // Don't re-inject content during AJAX requests, the target zones are most probably rendered already.
+                // Just output the content in-place.
+                if (output.TagName == "widget")
+                {
+                    output.TagName = null;
+                }
+                else if (output.TagName == "meta")
+                {
+                    output.SuppressOutput();
+                }
+
+                return;
+            }
+
             TagHelperContent childContent = await output.GetChildContentAsync();
             TagHelperContent content;
-            
+
             if (output.TagName == "widget")
             {
                 if (childContent.IsEmptyOrWhiteSpace)
