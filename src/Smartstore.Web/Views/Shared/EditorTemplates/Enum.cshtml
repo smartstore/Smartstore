@@ -1,0 +1,15 @@
+﻿@using Smartstore.Utilities
+
+@{
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var isNullable = ViewData.ModelMetadata.IsNullableValueType;
+    var items = Html.GetLocalizedEnumSelectList(ViewData.ModelMetadata.ModelType.GetNonNullableType());
+    var placeholder = attributes.Get("placeholder");
+    if (isNullable && placeholder.IsEmpty())
+    {
+        placeholder = T("Common.Unspecified");
+    }
+}
+
+<select asp-for="@Model" asp-items="@items" asp-placeholder="@placeholder" attrs="attributes" sm-required="ViewData.ModelExplorer.Metadata.IsRequired">
+</select>

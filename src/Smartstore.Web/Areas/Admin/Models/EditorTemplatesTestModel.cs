@@ -19,7 +19,7 @@ namespace Smartstore.Web.Areas.Admin.Models
         [UIHint("WidgetZone")]
         public string[] WidgetZone { get; set; }
 
-        public string String { get; set; }
+        public string String { get; set; } = "Hello World";
 
         [UIHint("Textarea")]
         [AdditionalMetadata("cols", 10)]
@@ -119,7 +119,9 @@ namespace Smartstore.Web.Areas.Admin.Models
 
         public List<SelectListItem> AllowedQuantities { get; set; } = new();
 
-        public QuantityControlType QuantityControlType { get; set; } = QuantityControlType.Spinner;
+        public QuantityControlType QuantityControlType { get; set; } = QuantityControlType.Dropdown;
+
+        public ProductType? ProductType { get; set; } = Smartstore.Core.Catalog.Products.ProductType.GroupedProduct;
 
         #endregion
     }
