@@ -252,9 +252,9 @@ namespace Smartstore.Core.Localization
         {
             Guard.IsEnumType(typeof(T), nameof(enumValue));
 
-            var resourceName = string.Format("Enums.{0}.{1}",
-                typeof(T).ToString(),
-                enumValue.ToString());
+            // TODO: (core) (perf) Put all enum (alias) names to a static map.
+            var enumName = typeof(T).GetAttribute<EnumAliasNameAttribute>(false)?.Name ?? typeof(T).Name;
+            var resourceName = $"Enums.{enumName}.{enumValue}";
 
             if (hint)
             {
@@ -277,9 +277,9 @@ namespace Smartstore.Core.Localization
         {
             Guard.IsEnumType(typeof(T), nameof(enumValue));
 
-            var resourceName = string.Format("Enums.{0}.{1}",
-                typeof(T).ToString(),
-                enumValue.ToString());
+            // TODO: (core) (perf) Put all enum (alias) names to a static map.
+            var enumName = typeof(T).GetAttribute<EnumAliasNameAttribute>(false)?.Name ?? typeof(T).Name;
+            var resourceName = $"Enums.{enumName}.{enumValue}";
 
             if (hint)
             {

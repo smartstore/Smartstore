@@ -14,7 +14,8 @@ namespace Smartstore.Web.Rendering
 {
     public static class SelectListExtensions
     {
-        public static SelectList ToSelectList<TEnum>(this TEnum enumObj, bool markCurrentAsSelected = true) where TEnum : struct
+        public static SelectList ToSelectList<TEnum>(this TEnum enumObj, bool markCurrentAsSelected = true) 
+            where TEnum : struct
         {
             if (!typeof(TEnum).IsEnum)
                 throw new ArgumentException("An Enumeration type is required.", nameof(enumObj));

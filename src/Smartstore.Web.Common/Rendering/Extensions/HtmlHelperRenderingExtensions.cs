@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using Humanizer;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Utilities;
@@ -307,6 +309,66 @@ namespace Smartstore.Web.Rendering
             small.InnerHtml.SetContent(hintText);
 
             return small;
+        }
+
+        #endregion
+
+        #region SelectList
+
+        private static readonly SelectListItem _singleEmptyItem = new() { Text = string.Empty, Value = string.Empty };
+
+        public static IEnumerable<SelectListItem> GetLocalizedEnumSelectList(this IHtmlHelper helper, Type enumType)
+        {
+            Guard.NotNull(helper, nameof(helper));
+            Guard.IsEnumType(enumType, nameof(enumType));
+
+            var requestServices = helper.ViewContext.HttpContext.RequestServices;
+            var metadataProvider = requestServices.GetService<IModelMetadataProvider>();
+            var metadata = metadataProvider.GetMetadataForType(enumType);
+            if (!metadata.IsEnum || metadata.IsFlagsEnum)
+            {
+                throw new ArgumentException("he type '{0}' is not supported. Type must be an {1} that does not have an associated {2}.".FormatCurrent(enumType.FullName, nameof(Enum).ToLowerInvariant(), nameof(FlagsAttribute)));
+            }
+            
+            var localizationService = requestServices.GetService<ILocalizationService>();
+            var selectList = new List<SelectListItem>();
+            var groupList = new Dictionary<string, SelectListGroup>();
+            var enumTypeName = enumType.GetAttribute<EnumAliasNameAttribute>(false)?.Name ?? enumType.Name;
+
+            foreach (var kvp in metadata.EnumGroupedDisplayNamesAndValues)
+            {
+                var selectListItem = new SelectListItem
+                {
+                    Text = GetLocalizedEnumValue(kvp.Key.Name),
+                    Value = kvp.Value,
+                };
+
+                if (!string.IsNullOrEmpty(kvp.Key.Group))
+                {
+                    if (!groupList.ContainsKey(kvp.Key.Group))
+                    {
+                        groupList[kvp.Key.Group] = new SelectListGroup { Name = kvp.Key.Group };
+                    }
+
+                    selectListItem.Group = groupList[kvp.Key.Group];
+                }
+
+                selectList.Add(selectListItem);
+            }
+
+            if (metadata.IsNullableValueType)
+            {
+                selectList.Insert(0, _singleEmptyItem);
+            }
+
+            return selectList;
+
+            string GetLocalizedEnumValue(string enumValue)
+            {
+                var resourceName = string.Format($"Enums.{enumTypeName}.{enumValue}");
+                var result = localizationService.GetResource(resourceName, logIfNotFound: false, returnEmptyIfNotFound: true);
+                return result.NullEmpty() ?? enumValue.Titleize();
+            }
         }
 
         #endregion
