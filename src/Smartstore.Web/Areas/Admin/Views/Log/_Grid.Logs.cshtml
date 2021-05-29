@@ -10,9 +10,7 @@
     <datasource read="@Url.Action("LogList")" delete="@Url.Action("LogDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
-        @* TODO: (ms) (core) An error occures when trying to sort by CreatedOn by default. 
-        Probably since table name and property name do not match and entity-member is not being taken into account. *@
-        @* <sort by="CreatedOn" descending="true" /> *@
+        <sort by="CreatedOn" descending="true" />
     </sorting>
     <toolbar>
         <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat ml-auto">
@@ -35,7 +33,7 @@
                 </a>
             </display-template>
         </column>
-        <column for="UserName" entity-member="CustomerId" width="max-content" />
+        <column for="UserName" width="max-content" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
     </columns>
 </datagrid>

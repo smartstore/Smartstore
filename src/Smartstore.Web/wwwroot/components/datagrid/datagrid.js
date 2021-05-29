@@ -613,6 +613,14 @@ Vue.component("sm-datagrid", {
             const input = document.querySelector('input[name=__RequestVerificationToken]');
             const command = $.extend(true, { __RequestVerificationToken: input.value }, this.command);
 
+            // Fix sort descriptors (member --> entityMember)
+            if (command.sorting) {
+                command.sorting = command.sorting.map(d => {
+                    var c = this.columns.find(x => x.member === d.member);
+                    return c?.entityMember ? { member: c.entityMember, descending: d.descending } : d;
+                });
+            }
+
             self.$emit("data-binding", command);
             
             $.ajax({
@@ -785,7 +793,7 @@ Vue.component("sm-datagrid", {
 
         getSortDescriptor(column) {
             return this.sorting.enabled
-                ? this.sorting.descriptors.find(x => x.member === column.entityMember || x.member === column.member)
+                ? this.sorting.descriptors.find(d => d.member === column.member)
                 : null;
         },
 
@@ -806,7 +814,7 @@ Vue.component("sm-datagrid", {
                 }
             }
             else {
-                descriptor = { member: column.entityMember || column.member, descending: false };
+                descriptor = { member: column.member, descending: false };
                 this.sorting.descriptors.push(descriptor);
             }
 
