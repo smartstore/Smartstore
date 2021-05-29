@@ -100,7 +100,7 @@
                         <smart-label asp-for="SeoSettings.CanonicalHostNameRule" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="SeoSettings.CanonicalHostNameRule" is-enum="true"></setting-editor>
+                        <setting-editor asp-for="SeoSettings.CanonicalHostNameRule"></setting-editor>
                         <span asp-validation-for="SeoSettings.CanonicalHostNameRule"></span>
                     </div>
                 </div>
@@ -152,7 +152,7 @@
                         <smart-label asp-for="SeoSettings.PageTitleSeoAdjustment" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="SeoSettings.PageTitleSeoAdjustment" is-enum="true"></setting-editor>
+                        <setting-editor asp-for="SeoSettings.PageTitleSeoAdjustment"></setting-editor>
                         <span asp-validation-for="SeoSettings.PageTitleSeoAdjustment"></span>
                     </div>
                 </div>
@@ -202,7 +202,7 @@
                     </div>
                     <div class="adminData">
                         <div class="input-group">
-                            <setting-editor asp-for="SeoSettings.TestSeoNameCreation"></setting-editor>
+                            <editor asp-for="SeoSettings.TestSeoNameCreation" />
                             <button id="TestSeoNameCreationButton" type="button" class="btn btn-outline-secondary input-group-append rounded-0 align-items-center">
                                 <i class="fa fa-sync"></i>
                                 <span>@T("Admin.Common.Check")</span>
@@ -306,7 +306,7 @@
                     </div>
                     <div class="adminData">
                         <div class="input-group">
-                            <setting-editor asp-for="SecuritySettings.EncryptionKey"></setting-editor>
+                            <editor asp-for="SecuritySettings.EncryptionKey" />
                             <button type="submit" name="changeencryptionkey" id="changeencryptionkey" value="changeencryptionkey" class="btn btn-outline-secondary input-group-append rounded-0" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
                                 <span>@T("Admin.Common.Change")</span>
                             </button>
@@ -319,7 +319,7 @@
                         <smart-label asp-for="SecuritySettings.AdminAreaAllowedIpAddresses" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="SecuritySettings.AdminAreaAllowedIpAddresses"></setting-editor>
+                        <editor asp-for="SecuritySettings.AdminAreaAllowedIpAddresses" />
                         <span asp-validation-for="SecuritySettings.AdminAreaAllowedIpAddresses"></span>
                     </div>
                 </div>
@@ -490,13 +490,13 @@
                         <span asp-validation-for="LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled"></span>
                     </div>
                 </div>
-                <div id="pnlSeoFriendlyUrlsForLanguages" class="adminRow">
-                    <div>
+                <div id="pnlSeoFriendlyUrlsForLanguages">
+                    <div class="adminRow">
                         <div class="adminTitle">
                             <smart-label asp-for="LocalizationSettings.DefaultLanguageRedirectBehaviour" />
                         </div>
                         <div class="adminData">
-                            <setting-editor asp-for="LocalizationSettings.DefaultLanguageRedirectBehaviour" is-enum="true"></setting-editor>
+                            <setting-editor asp-for="LocalizationSettings.DefaultLanguageRedirectBehaviour"></setting-editor>
                             <span asp-validation-for="LocalizationSettings.DefaultLanguageRedirectBehaviour"></span>
                         </div>
                     </div>
@@ -505,7 +505,7 @@
                             <smart-label asp-for="LocalizationSettings.InvalidLanguageRedirectBehaviour" />
                         </div>
                         <div class="adminData">
-                            <setting-editor asp-for="LocalizationSettings.InvalidLanguageRedirectBehaviour" is-enum="true"></setting-editor>
+                            <setting-editor asp-for="LocalizationSettings.InvalidLanguageRedirectBehaviour"></setting-editor>
                             <span asp-validation-for="LocalizationSettings.InvalidLanguageRedirectBehaviour"></span>
                         </div>
                     </div>
@@ -702,8 +702,7 @@
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="CompanyInformationSettings.CountryId">
-                            <select asp-for="CompanyInformationSettings.CountryId" asp-items="ViewBag.AvailableCountries" placeholder="@T("Common.Unspecified")">
-                            </select>
+                            <select asp-for="CompanyInformationSettings.CountryId" asp-items="ViewBag.AvailableCountries" placeholder="@T("Common.Unspecified")"></select>
                         </setting-editor>
                         <span asp-validation-for="CompanyInformationSettings.CountryId"></span>
                     </div>
@@ -915,7 +914,6 @@
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="SocialSettings.ShowSocialLinksInFooter" data-toggler-for="#pnlSocialLinks"></setting-editor>
-                        <smart-label asp-for="SocialSettings.ShowSocialLinksInFooter" />
                     </div>
                 </div>
                 <div id="pnlSocialLinks">

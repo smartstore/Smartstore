@@ -3,22 +3,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    [OutputElementHint("div")]
     [HtmlTargetElement(EditorTagName, Attributes = ForAttributeName, TagStructure = TagStructure.NormalOrSelfClosing)]
     public class SettingEditorTagHelper : BaseFormTagHelper
     {
         const string EditorTagName = "setting-editor";
         const string TemplateAttributeName = "asp-template";
-        const string PostfixAttributeName = "postfix";
-        const string IsEnumAttributeName = "is-enum";
-        const string OptionLabelAttributeName = "option-label";
         const string ParentSelectorAttributeName = "parent-selector";
         
         /// <summary>
@@ -28,28 +23,10 @@ namespace Smartstore.Web.TagHelpers.Admin
         public string Template { get; set; }
 
         /// <summary>
-        /// Specifies if the model type is an enumeration.
-        /// </summary>
-        [HtmlAttributeName(IsEnumAttributeName)]
-        public bool IsEnum { get; set; }
-
-        /// <summary>
-        /// Sets the optional label for select lists.
-        /// </summary>
-        [HtmlAttributeName(OptionLabelAttributeName)]
-        public string OptionLabel { get; set; }
-
-        /// <summary>
         /// Sets the parent selector. TODO: (mh) (core) describe why this must be set occasionally.
         /// </summary>
         [HtmlAttributeName(ParentSelectorAttributeName)]
         public string ParentSelector { get; set; }
-
-        /// <summary>
-        /// The text which will be displayed inside the input tag as a post fix.
-        /// </summary>
-        [HtmlAttributeName(PostfixAttributeName)]
-        public string Postfix { get; set; }
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
@@ -59,80 +36,48 @@ namespace Smartstore.Web.TagHelpers.Admin
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
             var content = await output.GetChildContentAsync();
-            output.TagName = null;
-            output.SuppressOutput();
-
-            var htmlAttributes = new Dictionary<string, object>();
-            var viewContextAware = HtmlHelper as IViewContextAware;
-            viewContextAware?.Contextualize(ViewContext);
-
-            // TODO: (mh) (core) This can probably be removed.
-            var attrs = output.Attributes;
-            
-            if (attrs != null && attrs.Count > 0)
+            if (content.IsEmptyOrWhiteSpace)
             {
-                foreach (var attr in attrs)
-                {
-                    htmlAttributes[attr.Name] = attr.Value;
-                }
-            }
-
-            IHtmlContent editor;
-
-            if (IsEnum)
-            {
-                // TODO: (mh) (core) Localization is incorrect.
-                editor = HtmlHelper.DropDownList(
-                    For.Name,
-                    HtmlHelper.GetEnumSelectList(For.Model.GetType()),
-                    OptionLabel.HasValue() ? OptionLabel : null, 
-                    new { htmlAttributes, postfix = Postfix });
-            }
-            else
-            {
-                editor = content.IsEmptyOrWhiteSpace ? HtmlHelper.EditorFor(For, Template, new { htmlAttributes }) : content;
+                output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template));
             }
 
             var data = HtmlHelper.ViewData[StoreDependingSettingHelper.ViewDataKey] as StoreDependingSettingData;
             if (data == null || data.ActiveStoreScopeConfiguration <= 0)
             {
-                output.Content.SetHtmlContent(editor);
+                output.TagName = null;
             }
             else
             {
-                var formRowDiv = new TagBuilder("div");
-                formRowDiv.AppendCssClass("form-row flex-nowrap multi-store-setting-group");
+                output.TagName = "div";
+                output.AppendCssClass("form-row flex-nowrap multi-store-setting-group");
 
                 var overrideColDiv = new TagBuilder("div");
-                overrideColDiv.AddCssClass("col-auto");
-                overrideColDiv.InnerHtml.AppendHtml(SettingOverrideCheckboxInternal(HtmlHelper, For.Name, data, ParentSelector));
+                overrideColDiv.Attributes["class"] = "col-auto";
+                overrideColDiv.InnerHtml.AppendHtml(SettingOverrideCheckboxInternal(data));
+
+                // Controls are not floating, so line-break prevents different distances between them.
+                overrideColDiv.InnerHtml.Append("\r\n");
 
                 var settingColDiv = new TagBuilder("div");
-                settingColDiv.AddCssClass("col multi-store-setting-control");
-                settingColDiv.InnerHtml.AppendHtml(editor);
+                settingColDiv.Attributes["class"] = "col multi-store-setting-control";
 
-                formRowDiv.InnerHtml.AppendHtml(overrideColDiv);
-                formRowDiv.InnerHtml.AppendHtml(settingColDiv);
-                output.Content.SetHtmlContent(formRowDiv);
+                output.PreContent.AppendHtml(overrideColDiv);
+                output.WrapContentWith(settingColDiv);
             }
         }
 
-        private IHtmlContent SettingOverrideCheckboxInternal(
-            IHtmlHelper helper,
-            string fieldName,
-            StoreDependingSettingData data,
-            string parentSelector = null)
+        private IHtmlContent SettingOverrideCheckboxInternal(StoreDependingSettingData data)
         {
-            var fieldPrefix = helper.ViewData.TemplateInfo.HtmlFieldPrefix;
-            var settingKey = fieldName;
+            var fieldPrefix = HtmlHelper.ViewData.TemplateInfo.HtmlFieldPrefix;
+            var settingKey = For.Name;
 
             if (fieldPrefix.HasValue())
             {
                 settingKey = fieldPrefix + "." + settingKey;
             }
-            else if (data.RootSettingClass.HasValue() && !settingKey.StartsWith(data.RootSettingClass + ".", StringComparison.OrdinalIgnoreCase))
+            else if (data.RootSettingClass.HasValue() && !settingKey.StartsWith(data.RootSettingClass + '.', StringComparison.OrdinalIgnoreCase))
             {
-                settingKey = data.RootSettingClass + "." + settingKey;
+                settingKey = data.RootSettingClass + '.' + settingKey;
             }
 
             var overrideForStore = data.OverrideSettingKeys.Contains(settingKey);
@@ -142,16 +87,16 @@ namespace Smartstore.Web.TagHelpers.Admin
             switchLabel.AppendCssClass("switch switch-blue multi-store-override-switch");
 
             var overrideInput = new TagBuilder("input");
-            overrideInput.AppendCssClass("multi-store-override-option");
-            overrideInput.Attributes.Add("type", "checkbox");
-            overrideInput.Attributes.Add("id", fieldId);
-            overrideInput.Attributes.Add("name", fieldId);
-            overrideInput.Attributes.Add("onclick", "Smartstore.Admin.checkOverriddenStoreValue(this)");
-            overrideInput.Attributes.Add("data-parent-selector", parentSelector.EmptyNull());
+            overrideInput.Attributes["class"] = "multi-store-override-option";
+            overrideInput.Attributes["type"] = "checkbox";
+            overrideInput.Attributes["id"] = fieldId;
+            overrideInput.Attributes["name"] = fieldId;
+            overrideInput.Attributes["onclick"] = "Smartstore.Admin.checkOverriddenStoreValue(this)";
+            overrideInput.Attributes["data-parent-selector"] = ParentSelector.EmptyNull();
 
             if (overrideForStore)
             {
-                overrideInput.Attributes.Add("checked", "checked");
+                overrideInput.Attributes["checked"] = "checked";
             }
 
             var toggleSpan = new TagBuilder("span");

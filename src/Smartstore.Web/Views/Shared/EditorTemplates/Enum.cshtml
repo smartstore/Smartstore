@@ -4,7 +4,7 @@
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
     var isNullable = ViewData.ModelMetadata.IsNullableValueType;
     var items = Html.GetLocalizedEnumSelectList(ViewData.ModelMetadata.ModelType.GetNonNullableType());
-    var placeholder = attributes.Get("placeholder");
+    var placeholder = attributes.Get("placeholder") ?? GetMetadata<string>("placeholder");
     if (isNullable && placeholder.IsEmpty())
     {
         placeholder = T("Common.Unspecified");
