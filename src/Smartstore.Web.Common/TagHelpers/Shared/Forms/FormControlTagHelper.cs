@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
@@ -6,6 +7,23 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    [HtmlTargetElement("select", Attributes = "asp-for, asp-placeholder")]
+    [HtmlTargetElement("select", Attributes = "asp-items, asp-placeholder")]
+    public class SelectPlaceholderTagHelper : TagHelper
+    {
+        [HtmlAttributeName("asp-placeholder")]
+        public string Placeholder { get; set; }
+
+        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+        {
+            if (Placeholder != null && Placeholder.Length > 0)
+            {
+                await output.GetChildContentAsync();
+                output.PreContent.AppendHtml($"<option>{Placeholder}</option>");
+            }
+        }
+    }
+    
     [HtmlTargetElement("input", Attributes = ForAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     [HtmlTargetElement("select", Attributes = ForAttributeName)]
     [HtmlTargetElement("select", Attributes = SelectItemsAttributeName)]
@@ -127,10 +145,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 output.AppendCssClass("form-control");
 
-                // Render "Optional" placeholder
+                // Render "Optional/Unspecified" placeholder
                 if (IsRequired == false && !output.Attributes.ContainsName("placeholder"))
                 {
-                    output.Attributes.Add("placeholder", _localizationService.GetResource("Common.Optional", logIfNotFound: false, returnEmptyIfNotFound: true));
+                    var resKey = output.TagName == "select" ? "Common.Unspecified" : "Common.Optional";
+                    output.Attributes.Add("placeholder", _localizationService.GetResource(resKey, logIfNotFound: false, returnEmptyIfNotFound: true));
                 }
 
                 // Render "required" attribute
