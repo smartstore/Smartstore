@@ -1,20 +1,5 @@
 ﻿@using Smartstore.Utilities
 
-@functions{
-    private string Value
-    {
-        get
-        {
-            string value = null;
-            if (ViewData.Model != null)
-            {
-                value = Convert.ToString(ViewData.Model);
-            }
-            return value;
-        }
-    }
-}
-
 @{
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
     var cols = GetMetadata<int>("cols");
@@ -26,5 +11,4 @@
           attr-cols="(cols > 0, cols.ToString())" 
           attr-rows="(rows > 0, rows.ToString())"
           sm-required="ViewData.ModelExplorer.Metadata.IsRequired"
-          value="@Value.EmptyNull()" 
           class="form-control"></textarea>

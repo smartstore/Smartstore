@@ -19,4 +19,4 @@
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
-<input asp-for="@Model" attrs="attributes" value="@Value.EmptyNull()" class="form-control" sm-required="ViewData.ModelExplorer.Metadata.IsRequired" />
+<input asp-for="@Model" attrs="attributes" class="form-control" sm-required="ViewData.ModelExplorer.Metadata.IsRequired" />

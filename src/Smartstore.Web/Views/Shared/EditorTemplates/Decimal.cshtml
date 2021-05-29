@@ -1,19 +1,6 @@
 ﻿@using Smartstore.Utilities
 
 @functions{
-    private decimal? Value
-    {
-        get
-        {
-            decimal? value = null;
-            if (ViewData.Model != null)
-            {
-                value = Convert.ToDecimal(ViewData.Model, System.Globalization.CultureInfo.InvariantCulture);
-            }
-            return value;
-        }
-    }
-
     private string CssClass
     {
         get
@@ -51,7 +38,6 @@
 
     <input asp-for="@Model"
            attrs="attributes"
-           value="@Value"
            type="number"
            class="form-control"
            placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"

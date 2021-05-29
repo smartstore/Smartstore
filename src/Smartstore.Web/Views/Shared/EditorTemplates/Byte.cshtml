@@ -1,19 +1,6 @@
 ﻿@using Smartstore.Utilities
 
 @functions{
-    private byte? Value
-    {
-        get
-        {
-            byte? value = null;
-            if (ViewData.Model != null)
-            {
-                value = Convert.ToByte(ViewData.Model, System.Globalization.CultureInfo.InvariantCulture);
-            }
-            return value;
-        }
-    }
-
     private string CssClass
     {
         get
@@ -50,7 +37,6 @@
         )*@
 
     <input asp-for="@Model"
-           value="@Value"
            type="number"
            attrs="attributes"
            class="form-control"

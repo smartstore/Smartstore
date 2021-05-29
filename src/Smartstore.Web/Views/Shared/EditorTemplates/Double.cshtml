@@ -1,19 +1,6 @@
 ﻿@using Smartstore.Utilities
 
 @functions{
-    private double? Value
-    {
-        get
-        {
-            double? value = null;
-            if (ViewData.Model != null)
-            {
-                value = Convert.ToDouble(ViewData.Model, System.Globalization.CultureInfo.InvariantCulture);
-            }
-            return value;
-        }
-    }
-
     private string CssClass
     {
         get
@@ -51,8 +38,6 @@
 
     <input asp-for="@Model"
            attrs="attributes"
-           value="@Value"
-           type="number"
            class="form-control "
            placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
            min="@(GetMetadata<double?>("min"))"
