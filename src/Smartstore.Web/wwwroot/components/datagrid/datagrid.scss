@@ -209,7 +209,7 @@ $body-color: #393f46;
         background-color: rgba(#000, 0.035);
     }
 
-    &:active {
+    &:active, &.show {
         background-color: rgba(#000, 0.075);
     }
 }

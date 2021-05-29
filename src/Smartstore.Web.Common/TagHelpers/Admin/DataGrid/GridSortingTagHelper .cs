@@ -55,17 +55,17 @@ namespace Smartstore.Web.TagHelpers.Admin
                 enabled = Enabled,
                 allowUnsort = AllowUnsort,
                 allowMultiSort = MultiSort,
-                descriptors = Descriptors
-                    .Select(x => new { member = x.MemberName, descending = x.Descending })
-                    .ToArray()
+                descriptors = Descriptors.Select(x => x.ToPlainObject()).ToArray()
             };
         }
     }
 
-    [HtmlTargetElement("sort", Attributes = ForAttributeName, ParentTag = "sorting", TagStructure = TagStructure.NormalOrSelfClosing)]
+    [HtmlTargetElement("sort", Attributes = ByAttributeName, ParentTag = "sorting", TagStructure = TagStructure.NormalOrSelfClosing)]
+    [HtmlTargetElement("sort", Attributes = ByMemberAttributeName, ParentTag = "sorting", TagStructure = TagStructure.NormalOrSelfClosing)]
     public class GridSortTagHelper : TagHelper
     {
-        const string ForAttributeName = "by";
+        const string ByAttributeName = "by";
+        const string ByMemberAttributeName = "by-entity-member";
         const string DescendingAttributeName = "descending";
 
         public override void Init(TagHelperContext context)
@@ -80,8 +80,14 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// <summary>
         /// The sorted member.
         /// </summary>
-        [HtmlAttributeName(ForAttributeName)]
+        [HtmlAttributeName(ByAttributeName)]
         public ModelExpression By { get; set; }
+
+        /// <summary>
+        /// The sorted entity member name.
+        /// </summary>
+        [HtmlAttributeName(ByMemberAttributeName)]
+        public string ByMember { get; set; }
 
         [HtmlAttributeName(DescendingAttributeName)]
         public bool Descending { get; set; }
@@ -89,7 +95,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeNotBound]
         internal string MemberName
         {
-            get => By.Metadata.Name;
+            get => ByMember.NullEmpty() ?? By?.Metadata?.Name;
+        }
+
+        internal object ToPlainObject()
+        {
+            return new { member = MemberName, descending = Descending };
         }
     }
 }

@@ -137,8 +137,9 @@
   .dg-table:not(.dg-resizing) .dg-sortable:hover,
   .dg-table:not(.dg-resizing) .dg-tools:hover {
     background-color: rgba(0, 0, 0, 0.035); }
-  .dg-table:not(.dg-resizing) .dg-sortable:active,
-  .dg-table:not(.dg-resizing) .dg-tools:active {
+  .dg-table:not(.dg-resizing) .dg-sortable:active, .dg-table:not(.dg-resizing) .dg-sortable.show,
+  .dg-table:not(.dg-resizing) .dg-tools:active,
+  .dg-table:not(.dg-resizing) .dg-tools.show {
     background-color: rgba(0, 0, 0, 0.075); }
 
 .dg-resize-handle {

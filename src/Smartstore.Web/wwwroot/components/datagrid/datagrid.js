@@ -634,7 +634,7 @@ Vue.component("sm-datagrid", {
                     self.rows = result.rows !== undefined ? result.rows : result;
                     self.total = result.total || self.rows.length;
 
-                    if (self.command.page > self.totalPages) {
+                    if (self.totalPages > 0 && self.command.page > self.totalPages) {
                         // Fix "pageIndex > totalPages" by reloading
                         self.isBusy = false;
                         self.paging.pageIndex = self.totalPages;
