@@ -40,10 +40,6 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.SuppressOutput();
 
             var htmlAttributes = new Dictionary<string, object>();
-
-            var viewContextAware = HtmlHelper as IViewContextAware;
-            viewContextAware?.Contextualize(ViewContext);
-
             var attrs = output.Attributes;
             
             if (attrs != null && attrs.Count > 0)
