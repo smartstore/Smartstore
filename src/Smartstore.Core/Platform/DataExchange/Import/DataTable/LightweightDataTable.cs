@@ -7,6 +7,7 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using Smartstore.Core.DataExchange.Csv;
+using Smartstore.Core.DataExchange.Excel;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -105,8 +106,7 @@ namespace Smartstore.Core.DataExchange.Import
                 switch (fileExt)
                 {
                     case ".xlsx":
-                        // TODO: (mg) (core) use new ExcelDataReader in LightweightDataTable.
-                        //dataReader = new ExcelDataReader(stream, true); // TODO: let the user specify if excel file has headers
+                        dataReader = new ExcelReader(stream); // TODO: let the user specify if excel file has headers
                         break;
                     default:
                         dataReader = new CsvDataReader(new StreamReader(stream), configuration);

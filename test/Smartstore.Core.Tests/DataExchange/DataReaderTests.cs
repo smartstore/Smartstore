@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using Smartstore.Core.DataExchange.Csv;
+using Smartstore.Core.DataExchange.Excel;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Test.Common;
 
@@ -22,17 +23,20 @@ namespace Smartstore.Core.Tests.DataExchange
         public void CanReadExcel()
         {
             var stream = GetFileStream("testdata.xlsx");
+            using var reader = new ExcelReader(stream);
 
-            using var reader = new Core.DataExchange.Excel.ExcelDataReader(stream);
+            var table = LightweightDataTable.FromDataReader(reader);
+            VerifyDataTable(table);
+        }
 
-            var headers = reader.GetColumnHeaders();
-            string.Join(",", headers.Select(x => x.ColumnName)).Dump();
+        [Test]
+        public void CanReadCsv()
+        {
+            var stream = GetFileStream("testdata.csv");
+            using var reader = new CsvDataReader(new StreamReader(stream, Encoding.UTF8));
 
-            var schemaTable = reader.GetSchemaTable();
-            $"schema table: {schemaTable.Rows.Count}, {schemaTable.Columns.Count}".Dump();
-
-            //var table = LightweightDataTable.FromDataReader(reader);
-            //VerifyDataTable(table);
+            var table = LightweightDataTable.FromDataReader(reader);
+            VerifyDataTable(table);
         }
 
         private Stream GetFileStream(string fileName)

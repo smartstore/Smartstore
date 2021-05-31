@@ -8,13 +8,10 @@ using ExcelDataReader;
 
 namespace Smartstore.Core.DataExchange.Excel
 {
-
-    // TODO: (mg) (core) Own method implementation required where IExcelDataReader throws NotSupportedException.
-
     /// <summary>
     /// Reader for reading Microsoft Excel files.
     /// </summary>
-    public partial class ExcelDataReader : Disposable, IDataReader
+    public partial class ExcelReader : Disposable, IDataReader
     {
         private IExcelDataReader _reader;
         private DataTable _schemaTable;
@@ -23,19 +20,19 @@ namespace Smartstore.Core.DataExchange.Excel
         private int _totalRows;
 
         /// <summary>
-        /// ExcelDataReader ctor.
+        /// Ctor.
         /// </summary>
-        /// <param name="source">The source stream. Will be closed as soon as the ExcelDataReader is disposed.</param>
-        public ExcelDataReader(Stream source)
+        /// <param name="source">The source stream. Will be closed as soon as the <see cref="ExcelReader"/> is disposed.</param>
+        public ExcelReader(Stream source)
             : this(source, true, "Column")
         {
         }
 
         /// <summary>
-        /// ExcelDataReader ctor.
+        /// Ctor.
         /// </summary>
-        /// <param name="source">The source stream. Will be closed as soon as the ExcelDataReader is disposed.</param>
-        public ExcelDataReader(Stream source, bool hasHeaders, string defaultColumnName)
+        /// <param name="source">The source stream. Will be closed as soon as the <see cref="ExcelReader"/> is disposed.</param>
+        public ExcelReader(Stream source, bool hasHeaders, string defaultColumnName)
         {
             Guard.NotNull(source, nameof(source));
             Guard.NotEmpty(defaultColumnName, nameof(defaultColumnName));
@@ -50,25 +47,6 @@ namespace Smartstore.Core.DataExchange.Excel
             }
 
             Init();
-
-            // INFO: IExcelDataReader.AsDataSet would read the entire Excel file. That is not what we want.
-
-            //_dataSet = _reader.AsDataSet(new ExcelDataSetConfiguration
-            //{
-            //    ConfigureDataTable = _ => new ExcelDataTableConfiguration
-            //    {
-            //        UseHeaderRow = hasHeaders,
-            //        EmptyColumnNamePrefix = defaultHeaderName
-            //    }
-            //});
-
-            //if ((_dataSet?.Tables?.Count ?? 0) == 0)
-            //{
-            //    throw new InvalidOperationException("No data tables found in Excel file.");
-            //}
-
-            //_dataTable = _dataSet.Tables[0];
-            //_columns = _dataTable.Columns.OfType<DataColumn>().ToArray();
         }
 
         protected virtual void Init()
