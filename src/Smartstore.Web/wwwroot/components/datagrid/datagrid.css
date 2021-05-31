@@ -49,9 +49,10 @@
   display: grid;
   column-gap: 0;
   row-gap: 1px; }
-  .dg-table thead,
-  .dg-table tbody,
-  .dg-table tr {
+  .dg-table > thead,
+  .dg-table > tbody,
+  .dg-table > thead > tr,
+  .dg-table > tbody > tr {
     display: contents; }
   .dg-table th,
   .dg-table td {

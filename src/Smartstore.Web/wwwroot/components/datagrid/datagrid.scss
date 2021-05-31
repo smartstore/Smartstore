@@ -68,9 +68,10 @@ $body-color: #393f46;
     column-gap: 0;
     row-gap: 1px;
 
-    thead,
-    tbody,
-    tr {
+    > thead,
+    > tbody,
+    > thead > tr,
+    > tbody > tr {
         display: contents;
     }
 

@@ -60,7 +60,7 @@
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
-<div class="@CssClass" id="@id-parent" data-date="@value" data-target-input="nearest">
+<div class="@CssClass" id="@id-parent" data-date="@value" x-data-target-input="nearest" data-keep-open="true">
     <input asp-for="@Model"
            attrs="attributes"
            class="form-control datetimepicker-input edit-control"
@@ -68,6 +68,7 @@
            data-format="@format"
            data-use-current="false"
            data-editor="date-time"
+           data-keep-open="true"
            type="text"
            attr-value="(value.HasValue(), value)" />
 

@@ -16,7 +16,8 @@
         $el.parent().datetimepicker({
             format: $el.data("format"),
             useCurrent: $el.data("use-current"),
-            locale: moment.locale()
+            locale: moment.locale(),
+            keepOpen: true
         });
     }
 
