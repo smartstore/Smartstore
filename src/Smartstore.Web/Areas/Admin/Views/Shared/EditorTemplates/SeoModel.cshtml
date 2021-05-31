@@ -7,7 +7,7 @@
     string GetResKey(string propName)
     {
         return GetMetadata<string>(propName + "ResKey") ??
-                typeof(ISeoModel).GetProperty(propName).GetAttribute<LocalizedDisplayAttribute>(true).Name ??
+                typeof(ISeoModel).GetProperty(propName)?.GetAttribute<LocalizedDisplayAttribute>(true)?.Name ??
                 "Admin.Configuration.Seo." + propName;
     }
 }

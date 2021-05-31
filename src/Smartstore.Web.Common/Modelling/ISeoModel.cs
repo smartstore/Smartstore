@@ -1,7 +1,5 @@
 ﻿namespace Smartstore.Web.Modelling
 {
-    // INFO: (mh) (core) Can't be used for interfaces.
-    //[LocalizedDisplay("Admin.Configuration.Seo.")]
     public interface ISeoModel : ILocalizedModel<SeoModelLocal>
     {
         [LocalizedDisplay("Admin.Configuration.Seo.MetaTitle")]
