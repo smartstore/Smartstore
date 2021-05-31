@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
+// TODO: (ms) (core) Either remove it if discussed so with MC or fix namespace
 namespace SmartStore
 {
     public class PostedFileResult
