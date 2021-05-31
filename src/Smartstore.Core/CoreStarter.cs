@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.ComponentModel;
@@ -6,11 +7,9 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
-using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.DependencyInjection;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
-using Smartstore.Data.Migrations;
 using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
@@ -26,6 +25,9 @@ namespace Smartstore.Core.Bootstrapping
             var appConfig = appContext.AppConfiguration;
 
             RegisterTypeConverters();
+
+            // CodePages dependency required by ExcelDataReader to avoid NotSupportedException "No data is available for encoding 1252."
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             if (appContext.IsInstalled)
             {

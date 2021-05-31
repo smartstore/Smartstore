@@ -105,7 +105,6 @@ namespace Smartstore.Core.Logging
                     message = exception.Message;
                 }
 
-                // TODO: (mg) (core) A non-null formatter has probably written exception info to message already. Maybe this is redundant (?). Check and fix.
                 message = message.Grow(exception.ToAllMessages(true), Environment.NewLine).TrimEnd('\n', '\r');
             }
 
