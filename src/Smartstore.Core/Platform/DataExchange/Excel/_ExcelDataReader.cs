@@ -8,7 +8,7 @@ using ExcelDataReader;
 
 namespace Smartstore.Core.DataExchange.Excel
 {
-    // TODO: (mg) (core) Use "ExcelDataReader" or "OfficeOpenXml" for reading Excel.
+
     // TODO: (mg) (core) Own method implementation required where IExcelDataReader throws NotSupportedException.
 
     /// <summary>

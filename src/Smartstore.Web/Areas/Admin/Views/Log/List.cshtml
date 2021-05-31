@@ -41,10 +41,7 @@
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <smart-label asp-for="LogLevelId" />
-            <select asp-for="LogLevelId" asp-items="Model.AvailableLogLevels" placeholder="@T("Admin.Common.All")">
-                @* None. Default option. Holds null value > no log level filter is applied if the user deletes the selection. *@
-                <option value=""></option>
-            </select>
+            <select asp-for="LogLevelId" asp-items="Model.AvailableLogLevels" asp-placeholder="@T("Admin.Common.All")"></select>
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <label>&nbsp;</label>
