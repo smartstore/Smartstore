@@ -1,0 +1,45 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model QueuedEmailModel
+
+<datagrid id="queuedEmails-grid" ondatabinding="onDataBinding" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
+    <datasource read="@Url.Action("QueuedEmailList")" delete="@Url.Action("QueuedEmailDelete")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting enabled="true" allow-unsort="true" allow-multisort="false">
+        <sort by="CreatedOn" descending="true" />
+    </sorting>
+    <toolbar>
+        <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat ml-auto">
+            <i class="far fa-trash-alt"></i>
+            <span>@T("Admin.Common.Delete.Selected")</span>
+        </button>
+    </toolbar>
+    <columns>
+        @*TODO (ms) (core) Maybe shorten "E-Mail-ID" > "ID" *@
+        <column for="Id" />
+        @*TODO (ms) (core) Have AttachmentsCount header have an name so it can be selected in the display options*@
+        <column for="AttachmentsCount" sortable="false" icon="fa fa-paperclip" />
+        <column for="Subject" hideable="false">
+            <display-template>
+                <a :href="item.row.ViewUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Priority" width="max-content" halign="center" valign="center" />
+        <column for="From" width="300px">
+            <display-template>
+                <span class="text-truncate">{{ item.value }}</span> 
+            </display-template>
+            </column>
+        <column for="SendManually" halign="center" valign="center">
+            <display-template>
+                <i v-if="item.row.SendManually == false" class="fa fa-fw icon-active-false"></i>
+                <i v-if="item.row.SendManually == true" class="fa fa-fw icon-active-true"></i>
+            </display-template>
+        </column>
+        <column for="SentTries" halign="center" valign="center" />
+        <column for="SentOn" entity-member="SentOnUtc" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+    </columns>
+</datagrid>

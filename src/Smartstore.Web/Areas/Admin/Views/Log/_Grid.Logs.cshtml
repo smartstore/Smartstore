@@ -2,10 +2,6 @@
 
 @model LogModel
 
-@{
-    var gridPageSize = GetMetadata<int>("GridPageSize");
-}
-
 <datagrid id="log-grid" ondatabinding="onDataBinding" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
     <datasource read="@Url.Action("LogList")" delete="@Url.Action("LogDelete")" />
     <paging position="Bottom" show-size-chooser="true" />

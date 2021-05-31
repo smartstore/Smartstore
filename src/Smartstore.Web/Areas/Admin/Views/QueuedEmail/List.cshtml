@@ -1,0 +1,117 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model QueuedEmailListModel
+
+@{
+    ViewBag.Title = T("Admin.System.QueuedEmails").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+@* TODO: (ms) (core) Finish filtering & delete all button *@
+
+<form method="post" asp-action="List">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-envelope"></i>
+            @T("Admin.System.QueuedEmails")
+        </div>
+        <div class="options">
+            <div class="input-group d-inline-flex mr-3" style="width: 400px">
+                <input asp-for="GoDirectlyToNumber" placeholder="@T("Admin.System.QueuedEmails.List.GoDirectlyToNumber")" />
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-secondary" id="go-to-email-by-number" name="go-to-email-by-number" value="go-to-email-by-number" title="@T("Admin.System.QueuedEmails.List.GoDirectlyToNumber.Hint")">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-toggle-filter" data-toggle="button" aria-pressed="false">
+                        <i class="fa fa-filter"></i>
+                        <span>@T("Common.Filter")</span>
+                        <i class="fa fa-angle-double-down"></i>
+                    </button>
+                </div>
+            </div>
+            @* TODO: (ms) (core) Wait until delete confirmation function has been implemented to proceed with deletion. Just as we do within LogList. *@
+            <button type="submit" id="delete-all" name="delete-all" value="delete-all" class="btn btn-danger" onclick='return confirm(@T("Admin.Common.AreYouSure").JsValue);'>
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.DeleteAll")</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="row mt-3 grid-filter" style="display: none">
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="SearchStartDate" />
+            <editor asp-for="SearchStartDate" />
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="SearchEndDate" />
+            <editor asp-for="SearchEndDate" />
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="SearchFromEmail" />
+            <input asp-for="SearchFromEmail" />
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="SearchToEmail" />
+            <input asp-for="SearchToEmail" />
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="SearchSendManually" />
+            <input asp-for="SearchSendManually" />
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="SearchMaxSentTries" />
+            <input asp-for="SearchMaxSentTries" />
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <smart-label asp-for="SearchLoadNotSent" />
+            <div class="mt-2">
+                <label class="switch">
+                    <input asp-for="SearchLoadNotSent" />
+                    @* TODO: (ms) (core) Findout what does data- 'AN' or data- 'AUS' and what are they good for? *@
+                    <span class="switch-toggle" @*data-on="An" data-off="Aus"*@></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
+            <label>&nbsp;</label>
+            <button type="submit" id="btnSearch" value="btnSearch" class="btn btn-secondary btn-block">
+                <span>@T("Admin.Common.ApplyFilter")</span>
+            </button>
+        </div>
+    </div>
+</form>
+
+<partial name="_Grid.QueuedEmails" model="null" />
+
+<script>
+	// Filter toggler
+	$('.btn-toggle-filter').on('click', e => {
+		$('.grid-filter').slideToggle({ duration: 200, easing: 'ease-in-out' });
+	});
+
+    $(function() {
+        $('#btnSearch').on("click", e => {
+            e.preventDefault();
+            var grid = window["queuedEmails-grid"];
+            grid.paging.pageIndex = 1; // New search. Sets index to 1 to update table.
+            return false;
+        });
+
+    function onDataBinding(command) {
+        $.extend(command, {
+            SearchStartDate: $('#@Html.IdFor(model => model.SearchStartDate)').val(),
+			SearchEndDate: $('#@Html.IdFor(model => model.SearchEndDate)').val(),
+			SearchFromEmail: $('#@Html.IdFor(model => model.SearchFromEmail)').val(),
+			SearchToEmail: $('#@Html.IdFor(model => model.SearchToEmail)').val(),
+			SearchLoadNotSent: $('#@Html.IdFor(model => model.SearchLoadNotSent)').is(':checked'),
+        	SearchSendManually: $('#@Html.IdFor(model => model.SearchSendManually)').val(),
+			SearchMaxSentTries: $('#@Html.IdFor(model => model.SearchMaxSentTries)').val()
+        });
+	}
+    // TODO (ms) (core) Is this needed anymore? Looks like some 'highlighting'.
+    //function onRowDataBound(e) {
+    //  if (e.dataItem.SentOn)
+    //      $(e.row).find('td').wrapInner('<span class="muted" />');
+    //}
+</script>
