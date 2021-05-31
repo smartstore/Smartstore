@@ -71,6 +71,80 @@ namespace Smartstore.Core.DataExchange.Excel
             //_columns = _dataTable.Columns.OfType<DataColumn>().ToArray();
         }
 
+        protected virtual void Init()
+        {
+            _schemaTable = CreateSchemaTable();
+            _schemaTable.MinimumCapacity = _reader.FieldCount;
+
+            _columns = new DataColumn[_reader.FieldCount];
+            _columnIndexes = new Dictionary<string, int>(_reader.FieldCount, StringComparer.OrdinalIgnoreCase);
+            _totalRows = _reader.RowCount - (HasHeaders ? 1 : 0);
+
+            // Get columns.
+            var readHeaders = HasHeaders && _reader.Read();
+
+            for (var i = 0; i < _reader.FieldCount; ++i)
+            {
+                var columnName = readHeaders
+                    ? Convert.ToString(_reader.GetValue(i))
+                    : null;
+
+                if (columnName.IsEmpty())
+                {
+                    columnName = DefaultColumnName + i;
+                }
+
+                _columns[i] = new DataColumn(columnName, typeof(object))
+                {
+                    Caption = columnName
+                };
+                _columnIndexes[columnName] = i - 1;
+            }
+
+            if (_columnIndexes.Count != _reader.FieldCount)
+            {
+                _columns = null;
+                _columnIndexes = null;
+
+                throw new InvalidOperationException("The first row of the Excel table must not contain duplicate column names.");
+            }
+
+            // Add rows to schema table (if any).
+            if (_reader.Read())
+            {
+                for (var i = 0; i < _reader.FieldCount; ++i)
+                {
+                    var column = _columns[i];
+                    column.DataType = _reader.GetValue(i)?.GetType() ?? typeof(string);
+
+                    _schemaTable.Rows.Add(new object[] {
+                        true,                   // 00- AllowDBNull
+                        column.ColumnName,      // 01- BaseColumnName
+                        string.Empty,           // 02- BaseSchemaName
+                        string.Empty,           // 03- BaseTableName
+                        column.ColumnName,      // 04- ColumnName
+                        i,                      // 05- ColumnOrdinal
+                        int.MaxValue,           // 06- ColumnSize
+                        column.DataType,        // 07- DataType
+                        false,                  // 08- IsAliased
+                        false,                  // 09- IsExpression
+                        false,                  // 10- IsKey
+                        false,                  // 11- IsLong
+                        false,                  // 12- IsUnique
+                        DBNull.Value,           // 13- NumericPrecision
+                        DBNull.Value,           // 14- NumericScale
+                        (int)DbType.String,     // 15- ProviderType
+                        string.Empty,           // 16- BaseCatalogName
+                        string.Empty,           // 17- BaseServerName
+                        false,                  // 18- IsAutoIncrement
+                        false,                  // 19- IsHidden
+                        true,                   // 20- IsReadOnly
+                        false                   // 21- IsRowVersion
+                    });
+                }
+            }
+        }
+
         public bool HasHeaders { get; private set; }
 
         public string DefaultColumnName { get; private set; }
@@ -263,80 +337,6 @@ namespace Smartstore.Core.DataExchange.Excel
             schema.Columns.Add(SchemaTableOptionalColumn.IsRowVersion, typeof(bool)).ReadOnly = true;
 
             return schema;
-        }
-
-        protected virtual void Init()
-        {
-            _schemaTable = CreateSchemaTable();
-            _schemaTable.MinimumCapacity = _reader.FieldCount;
-            
-            _columns = new DataColumn[_reader.FieldCount];
-            _columnIndexes = new Dictionary<string, int>(_reader.FieldCount, StringComparer.OrdinalIgnoreCase);
-            _totalRows = _reader.RowCount - (HasHeaders ? 1 : 0);
-
-            // Get columns.
-            var readHeaders = HasHeaders && _reader.Read();
-
-            for (var i = 0; i < _reader.FieldCount; ++i)
-            {
-                var columnName = readHeaders
-                    ? Convert.ToString(_reader.GetValue(i))
-                    : null;
-
-                if (columnName.IsEmpty())
-                {
-                    columnName = DefaultColumnName + i;
-                }
-
-                _columns[i] = new DataColumn(columnName, typeof(object))
-                {
-                    Caption = columnName
-                };
-                _columnIndexes[columnName] = i - 1;
-            }
-
-            if (_columnIndexes.Count != _reader.FieldCount)
-            {
-                _columns = null;
-                _columnIndexes = null;
-
-                throw new InvalidOperationException("The first row of the Excel table must not contain duplicate column names.");
-            }
-
-            // Add rows to schema table (if any).
-            if (_reader.Read())
-            {
-                for (var i = 0; i < _reader.FieldCount; ++i)
-                {
-                    var column = _columns[i];
-                    column.DataType = _reader.GetValue(i)?.GetType() ?? typeof(string);
-
-                    _schemaTable.Rows.Add(new object[] {
-                        true,                   // 00- AllowDBNull
-                        column.ColumnName,      // 01- BaseColumnName
-                        string.Empty,           // 02- BaseSchemaName
-                        string.Empty,           // 03- BaseTableName
-                        column.ColumnName,      // 04- ColumnName
-                        i,                      // 05- ColumnOrdinal
-                        int.MaxValue,           // 06- ColumnSize
-                        column.DataType,        // 07- DataType
-                        false,                  // 08- IsAliased
-                        false,                  // 09- IsExpression
-                        false,                  // 10- IsKey
-                        false,                  // 11- IsLong
-                        false,                  // 12- IsUnique
-                        DBNull.Value,           // 13- NumericPrecision
-                        DBNull.Value,           // 14- NumericScale
-                        (int)DbType.String,     // 15- ProviderType
-                        string.Empty,           // 16- BaseCatalogName
-                        string.Empty,           // 17- BaseServerName
-                        false,                  // 18- IsAutoIncrement
-                        false,                  // 19- IsHidden
-                        true,                   // 20- IsReadOnly
-                        false                   // 21- IsRowVersion
-                    });
-                }
-            }
         }
 
         #endregion
