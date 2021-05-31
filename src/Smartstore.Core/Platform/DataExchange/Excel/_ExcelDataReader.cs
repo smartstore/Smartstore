@@ -308,17 +308,18 @@ namespace Smartstore.Core.DataExchange.Excel
             {
                 for (var i = 0; i < _reader.FieldCount; ++i)
                 {
-                    var dataType = _reader.GetValue(i)?.GetType() ?? typeof(string);
+                    var column = _columns[i];
+                    column.DataType = _reader.GetValue(i)?.GetType() ?? typeof(string);
 
                     _schemaTable.Rows.Add(new object[] {
                         true,                   // 00- AllowDBNull
-                        _columns[i].ColumnName, // 01- BaseColumnName
+                        column.ColumnName,      // 01- BaseColumnName
                         string.Empty,           // 02- BaseSchemaName
                         string.Empty,           // 03- BaseTableName
-                        _columns[i].ColumnName, // 04- ColumnName
+                        column.ColumnName,      // 04- ColumnName
                         i,                      // 05- ColumnOrdinal
                         int.MaxValue,           // 06- ColumnSize
-                        dataType,               // 07- DataType
+                        column.DataType,        // 07- DataType
                         false,                  // 08- IsAliased
                         false,                  // 09- IsExpression
                         false,                  // 10- IsKey
