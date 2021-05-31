@@ -71,7 +71,10 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
-            IsRequired ??= For?.Metadata.IsRequired;
+            if (IsRequired == null && For?.Metadata?.IsRequired == true)
+            {
+                IsRequired = true;
+            }
 
             switch (output.TagName)
             {
@@ -146,10 +149,9 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.AppendCssClass("form-control");
 
                 // Render "Optional/Unspecified" placeholder
-                if (IsRequired == false && !output.Attributes.ContainsName("placeholder"))
+                if (IsRequired == false && output.TagName != "select" && !output.Attributes.ContainsName("placeholder"))
                 {
-                    var resKey = output.TagName == "select" ? "Common.Unspecified" : "Common.Optional";
-                    output.Attributes.Add("placeholder", _localizationService.GetResource(resKey, logIfNotFound: false, returnEmptyIfNotFound: true));
+                    output.Attributes.Add("placeholder", _localizationService.GetResource("Common.Optional", logIfNotFound: false, returnEmptyIfNotFound: true));
                 }
 
                 // Render "required" attribute
