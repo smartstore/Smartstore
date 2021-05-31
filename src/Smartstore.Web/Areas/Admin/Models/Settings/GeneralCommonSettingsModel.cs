@@ -107,10 +107,12 @@ namespace Smartstore.Admin.Models
 
             [LocalizedDisplay("*ExtraRobotsDisallows")]
             [UIHint("Textarea")]
+            [AdditionalMetadata("rows", 10)]
             public string ExtraRobotsDisallows { get; set; }
 
             [LocalizedDisplay("*ExtraRobotsAllows")]
             [UIHint("Textarea")]
+            [AdditionalMetadata("rows", 10)]
             public string ExtraRobotsAllows { get; set; }
 
             [LocalizedDisplay("*XmlSitemapEnabled")]
