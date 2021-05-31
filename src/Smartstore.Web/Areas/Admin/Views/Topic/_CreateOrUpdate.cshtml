@@ -155,7 +155,7 @@
                         <smart-label asp-for="CookieType" />
                     </div>
                     <div class="adminData">
-                        <select asp-for="CookieType" asp-items="Model.AvailableCookieTypes" placeholder="@T("Common.Optional")"></select>
+                        <select asp-for="CookieType" asp-items="Model.AvailableCookieTypes" asp-placeholder="@T("Common.Optional")"></select>
                         <span asp-validation-for="CookieType"></span>
                     </div>
                 </div>

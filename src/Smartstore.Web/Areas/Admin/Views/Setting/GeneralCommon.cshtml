@@ -81,7 +81,7 @@
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="SeoSettings.MetaRobotsContent">
-                            <select asp-for="SeoSettings.MetaRobotsContent" asp-items="ViewBag.AvailableMetaContentValues" placeholder="@T("Common.Unspecified")"></select>
+                            <select asp-for="SeoSettings.MetaRobotsContent" asp-items="ViewBag.AvailableMetaContentValues" asp-placeholder="@T("Common.Unspecified")"></select>
                         </setting-editor>
                         <span asp-validation-for="SeoSettings.MetaRobotsContent"></span>
                     </div>
@@ -190,7 +190,7 @@
                         <smart-label asp-for="SeoSettings.SeoNameCharConversion" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="SeoSettings.SeoNameCharConversion" style="height: 250px"></setting-editor>
+                        <editor asp-for="SeoSettings.SeoNameCharConversion" />
                         <span asp-validation-for="SeoSettings.SeoNameCharConversion"></span>
                     </div>
                 </div>
@@ -602,7 +602,7 @@
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="CompanyInformationSettings.Salutation">
-                            <select asp-for="CompanyInformationSettings.Salutation" asp-items="ViewBag.Salutations" placeholder="@T("Common.Unspecified")">
+                            <select asp-for="CompanyInformationSettings.Salutation" asp-items="ViewBag.Salutations" asp-placeholder="@T("Common.Unspecified")">
                             </select>
                         </setting-editor>
                         <span asp-validation-for="CompanyInformationSettings.Salutation"></span>
@@ -641,7 +641,7 @@
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="CompanyInformationSettings.CompanyManagementDescription">
-                            <select asp-for="CompanyInformationSettings.CompanyManagementDescription" asp-items="ViewBag.ManagementDescriptions" placeholder="@T("Common.Unspecified")">
+                            <select asp-for="CompanyInformationSettings.CompanyManagementDescription" asp-items="ViewBag.ManagementDescriptions" asp-placeholder="@T("Common.Unspecified")">
                             </select>
                         </setting-editor>
                         <span asp-validation-for="CompanyInformationSettings.CompanyManagementDescription"></span>
@@ -700,7 +700,7 @@
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="CompanyInformationSettings.CountryId">
-                            <select asp-for="CompanyInformationSettings.CountryId" asp-items="ViewBag.AvailableCountries" placeholder="@T("Common.Unspecified")"></select>
+                            <select asp-for="CompanyInformationSettings.CountryId" asp-items="ViewBag.AvailableCountries" asp-placeholder="@T("Common.Unspecified")"></select>
                         </setting-editor>
                         <span asp-validation-for="CompanyInformationSettings.CountryId"></span>
                     </div>
@@ -967,6 +967,8 @@
 </form>
 
 <script sm-target-zone="scripts" data-origin="settings-general-common">
+
+    // TODO: (mh) (core) Implement TestSeoNameCreation.
     $(function() {
 		// Test creation of SEO names.
 		$('#TestSeoNameCreationButton').click(function () {

@@ -94,6 +94,7 @@ namespace Smartstore.Admin.Models
 
             [LocalizedDisplay("*SeoNameCharConversion")]
             [UIHint("Textarea")]
+            [AdditionalMetadata("rows", 10)]
             public string SeoNameCharConversion { get; set; }
 
             [LocalizedDisplay("*TestSeoNameCreation")]
