@@ -22,17 +22,20 @@ namespace Smartstore.Admin.Controllers
     public class SettingController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
+        private readonly ILocalizedEntityService _localizedEntityService;
         private readonly StoreDependingSettingHelper _storeDependingSettingHelper;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly Lazy<IMediaTracker> _mediaTracker;
 
         public SettingController(
-            SmartDbContext db, 
+            SmartDbContext db,
+            ILocalizedEntityService localizedEntityService,
             StoreDependingSettingHelper storeDependingSettingHelper,
             IDateTimeHelper dateTimeHelper,
             Lazy<IMediaTracker> mediaTracker)
         {
             _db = db;
+            _localizedEntityService = localizedEntityService;
             _storeDependingSettingHelper = storeDependingSettingHelper;
             _dateTimeHelper = dateTimeHelper;
             _mediaTracker = mediaTracker;
@@ -80,25 +83,23 @@ namespace Smartstore.Admin.Controllers
             model.SeoSettings.MetaDescription = seoSettings.MetaDescription;
             model.SeoSettings.MetaKeywords = seoSettings.MetaKeywords;
 
-            // TODO: (mh) (core) Finish when SeoModel is available.
-            //AddLocales(_languageService, model.SeoSettings.Locales, (locale, languageId) =>
-            //{
-            //    locale.MetaTitle = seoSettings.GetLocalizedSetting(x => x.MetaTitle, languageId, storeScope, false, false);
-            //    locale.MetaDescription = seoSettings.GetLocalizedSetting(x => x.MetaDescription, languageId, storeScope, false, false);
-            //    locale.MetaKeywords = seoSettings.GetLocalizedSetting(x => x.MetaKeywords, languageId, storeScope, false, false);
-            //});
+            AddLocales(model.SeoSettings.Locales, (locale, languageId) =>
+            {
+                locale.MetaTitle = seoSettings.GetLocalizedSetting(x => x.MetaTitle, languageId, storeScope, false, false);
+                locale.MetaDescription = seoSettings.GetLocalizedSetting(x => x.MetaDescription, languageId, storeScope, false, false);
+                locale.MetaKeywords = seoSettings.GetLocalizedSetting(x => x.MetaKeywords, languageId, storeScope, false, false);
+            });
 
             model.HomepageSettings.MetaTitle = homePageSettings.MetaTitle;
             model.HomepageSettings.MetaDescription = homePageSettings.MetaDescription;
             model.HomepageSettings.MetaKeywords = homePageSettings.MetaKeywords;
 
-            // TODO: (mh) (core) Finish when SeoModel is available.
-            //AddLocales(_languageService, model.HomepageSettings.Locales, (locale, languageId) =>
-            //{
-            //    locale.MetaTitle = homePageSettings.GetLocalizedSetting(x => x.MetaTitle, languageId, storeScope, false, false);
-            //    locale.MetaDescription = homePageSettings.GetLocalizedSetting(x => x.MetaDescription, languageId, storeScope, false, false);
-            //    locale.MetaKeywords = homePageSettings.GetLocalizedSetting(x => x.MetaKeywords, languageId, storeScope, false, false);
-            //});
+            AddLocales(model.HomepageSettings.Locales, (locale, languageId) =>
+            {
+                locale.MetaTitle = homePageSettings.GetLocalizedSetting(x => x.MetaTitle, languageId, storeScope, false, false);
+                locale.MetaDescription = homePageSettings.GetLocalizedSetting(x => x.MetaDescription, languageId, storeScope, false, false);
+                locale.MetaKeywords = homePageSettings.GetLocalizedSetting(x => x.MetaKeywords, languageId, storeScope, false, false);
+            });
 
             #endregion
 
@@ -152,7 +153,7 @@ namespace Smartstore.Admin.Controllers
             MiniMapper.Map(model.SocialSettings, socialSettings);
             MiniMapper.Map(model.HomepageSettings, homePageSeoSettings);
 
-            //#region POST mapping
+            #region POST mapping
 
             // Set CountryId explicitly else it can't be resetted.
             companySettings.CountryId = model.CompanyInformationSettings.CountryId ?? 0;
@@ -164,25 +165,25 @@ namespace Smartstore.Admin.Controllers
             seoSettings.MetaDescription = model.SeoSettings.MetaDescription;
             seoSettings.MetaKeywords = model.SeoSettings.MetaKeywords;
 
-            // TODO: (mh) (core) Finish when SeoModel is available.
-            //foreach (var localized in model.SeoSettings.Locales)
-            //{
-            //    _localizedEntityService.SaveLocalizedSetting(seoSettings, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId, storeScope);
-            //    _localizedEntityService.SaveLocalizedSetting(seoSettings, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId, storeScope);
-            //    _localizedEntityService.SaveLocalizedSetting(seoSettings, x => x.MetaKeywords, localized.MetaKeywords, localized.LanguageId, storeScope);
-            //}
+            foreach (var localized in model.SeoSettings.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(seoSettings, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId, storeScope);
+                await _localizedEntityService.ApplyLocalizedSettingAsync(seoSettings, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId, storeScope);
+                await _localizedEntityService.ApplyLocalizedSettingAsync(seoSettings, x => x.MetaKeywords, localized.MetaKeywords, localized.LanguageId, storeScope);
+            }
 
             homePageSeoSettings.MetaTitle = model.HomepageSettings.MetaTitle;
             homePageSeoSettings.MetaDescription = model.HomepageSettings.MetaDescription;
             homePageSeoSettings.MetaKeywords = model.HomepageSettings.MetaKeywords;
 
-            // TODO: (mh) (core) Finish when SeoModel is available.
-            //foreach (var localized in model.HomepageSettings.Locales)
-            //{
-            //    _localizedEntityService.SaveLocalizedSetting(homePageSeoSettings, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId, storeScope);
-            //    _localizedEntityService.SaveLocalizedSetting(homePageSeoSettings, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId, storeScope);
-            //    _localizedEntityService.SaveLocalizedSetting(homePageSeoSettings, x => x.MetaKeywords, localized.MetaKeywords, localized.LanguageId, storeScope);
-            //}
+            foreach (var localized in model.HomepageSettings.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(homePageSeoSettings, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId, storeScope);
+                await _localizedEntityService.ApplyLocalizedSettingAsync(homePageSeoSettings, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId, storeScope);
+                await _localizedEntityService.ApplyLocalizedSettingAsync(homePageSeoSettings, x => x.MetaKeywords, localized.MetaKeywords, localized.LanguageId, storeScope);
+            }
+
+            await _db.SaveChangesAsync();
 
             if (resetUserSeoCharacterTable)
             {
@@ -195,13 +196,10 @@ namespace Smartstore.Admin.Controllers
             //    LocalizedRoute.ClearSeoFriendlyUrlsCachedValue();
             //}
 
-            //#endregion
+            #endregion
 
             // Does not contain any store specific settings
             await Services.SettingFactory.SaveSettingsAsync(securitySettings);
-
-            // TODO: (mh) (core) How to clear the cache now? Maybe we put the call into NotifyAndRedirect...
-            // RE: WE don't clear the cache, SaveSettingsAsync() clears cache per hook.
 
             return NotifyAndRedirect("GeneralCommon");
         }

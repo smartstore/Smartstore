@@ -1,0 +1,85 @@
+﻿@model ISeoModel
+
+@using Smartstore.Web.Modelling
+@using Smartstore.Utilities
+
+@functions {
+    string GetResKey(string propName)
+    {
+        return GetMetadata<string>(propName + "ResKey") ??
+                typeof(ISeoModel).GetProperty(propName).GetAttribute<LocalizedDisplayAttribute>(true).Name ??
+                "Admin.Configuration.Seo." + propName;
+    }
+}
+
+@{
+    var random = CommonHelper.GenerateRandomDigitCode(5);
+
+    var metaTitleResKey = GetResKey("MetaTitle");
+    var metaDescriptionResKey = GetResKey("MetaDescription");
+    var metaKeywordsResKey = GetResKey("MetaKeywords");
+}
+
+@(Html.LocalizedEditor<ISeoModel, SeoModelLocal>("seo-model-localized" + random,
+	@<div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Locales[item].MetaTitle" sm-hint="@T(metaTitleResKey)"></smart-label>
+            </div>
+            <div class="adminData">
+                @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                <input type="hidden" asp-for="Locales[item].LanguageId" />
+                <setting-editor asp-for="Locales[item].MetaTitle"></setting-editor>
+                <span asp-validation-for="Locales[item].MetaTitle"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Locales[item].MetaDescription" sm-hint="@T(metaDescriptionResKey)"></smart-label>
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Locales[item].MetaDescription"></setting-editor>
+                <span asp-validation-for="Locales[item].MetaDescription"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Locales[item].MetaKeywords" sm-hint="@T(metaKeywordsResKey)"></smart-label>
+            </div>
+            <div class="adminData wide">
+                <setting-editor asp-for="Locales[item].MetaKeywords"></setting-editor>
+                <span asp-validation-for="Locales[item].MetaKeywords"></span>
+            </div>
+        </div>
+    </div>
+	,
+	@<div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MetaTitle" sm-hint="@T(metaTitleResKey)"></smart-label>
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="MetaTitle"></setting-editor>
+                <span asp-validation-for="MetaTitle"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MetaDescription" sm-hint="@T(metaDescriptionResKey)"></smart-label>
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="MetaDescription"></setting-editor>
+                <span asp-validation-for="MetaDescription"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MetaKeywords" sm-hint="@T(metaKeywordsResKey)"></smart-label>
+            </div>
+            <div class="adminData wide">
+                <setting-editor asp-for="MetaKeywords"></setting-editor>
+                <span asp-validation-for="MetaKeywords"></span>
+            </div>
+        </div>
+    </div>
+))

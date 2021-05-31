@@ -28,8 +28,7 @@ namespace Smartstore.Admin.Models
         [AdditionalMetadata("MetaTitleResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageTitle")]
         [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaDescription")]
         [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaKeywords")]
-        // TODO: (mh) (core) Broken! Forgot to commit new types??
-        public partial class HomepageSettingsModel //: ISeoModel
+        public partial class HomepageSettingsModel : ISeoModel
         {
             public string MetaTitle { get; set; }
 
@@ -37,7 +36,7 @@ namespace Smartstore.Admin.Models
 
             public string MetaKeywords { get; set; }
 
-            //public List<SeoModelLocal> Locales { get; set; } = new();
+            public List<SeoModelLocal> Locales { get; set; } = new();
         }
 
         [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]
@@ -56,8 +55,6 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*AllowCustomersToSetTimeZone")]
             public bool AllowCustomersToSetTimeZone { get; set; }
 
-            // TODO: (mh) (core) Remove comment after review.
-            // INFO: (mh) (core) We can't use int here. Value is indeed a string e.g. UTC-08. Must thus be marked as Required else selectbox can be cleared.
             [Required]
             [LocalizedDisplay("*DefaultStoreTimeZone")]
             public string DefaultStoreTimeZoneId { get; set; }
@@ -70,7 +67,7 @@ namespace Smartstore.Admin.Models
         [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaDescription")]
         [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaKeywords")]
         [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]
-        public partial class SeoSettingsModel //: ISeoModel
+        public partial class SeoSettingsModel : ISeoModel
         {
             [LocalizedDisplay("*PageTitleSeparator")]
             public string PageTitleSeparator { get; set; }
@@ -84,7 +81,7 @@ namespace Smartstore.Admin.Models
 
             public string MetaKeywords { get; set; }
 
-            //public List<SeoModelLocal> Locales { get; set; } = new();
+            public List<SeoModelLocal> Locales { get; set; } = new();
 
             [LocalizedDisplay("*MetaRobotsContent")]
             public string MetaRobotsContent { get; set; }

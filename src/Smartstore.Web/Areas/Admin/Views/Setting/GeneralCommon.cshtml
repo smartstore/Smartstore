@@ -156,13 +156,11 @@
                         <span asp-validation-for="SeoSettings.PageTitleSeoAdjustment"></span>
                     </div>
                 </div>
-                <div class="adminRow">
-                    @*TODO: (mh) (core) Uncomment when SeoModel is available*@
-                    @*@Html.EditorFor(model => model.SeoSettings, "SeoModel")*@
+                <div>
+                    <editor asp-for="SeoSettings" asp-template="SeoModel" />
                 </div>
-                <div class="adminRow">
-                    @*TODO: (mh) (core) Uncomment when SeoModel is available*@
-                    @*@Html.EditorFor(model => model.HomepageSettings, "SeoModel")*@
+                <div>
+                    <editor asp-for="HomepageSettings" asp-template="SeoModel" />
                 </div>
                 <div class="adminRow">
                     <div class="admin-config-group">
