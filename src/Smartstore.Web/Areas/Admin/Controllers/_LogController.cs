@@ -49,13 +49,13 @@ namespace Smartstore.Admin.Controllers
             _adminAreaSettings = adminAreaSettings;
         }
 
-        public ActionResult Index()
+        public IActionResult Index()
         {
             return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.System.Log.Read)]
-        public ActionResult List()
+        public IActionResult List()
         {
             var model = new LogListModel
             {
