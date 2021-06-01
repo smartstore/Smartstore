@@ -1,5 +1,59 @@
 ﻿(function ($, window, document, undefined) {
 
+    // Replace datetimepicker internal _place() method with our own, because the original is really badly fucked up!
+    // TODO: (core) Move $.fn.datetimepicker.Constructor.prototype._place() to applicable place when bundling is available.
+    $.fn.datetimepicker.Constructor.prototype._place = function (e) {
+        const self = e && e.data && e.data.picker || this,
+            parent = document.body,
+            component = (self.component && self.component.length ? self.component : self._element).get(0),
+            position = component.getBoundingClientRect(),
+            widget = self.widget.get(0),
+            scrollTop = document.documentElement.scrollTop;
+        let vpos = "bottom",
+            hpos = "right";
+
+        parent.append(widget);
+
+        const widgetWidth = widget.offsetWidth;
+        const widgetHeight = widget.offsetHeight;
+
+        if (position.bottom + widgetHeight > window.innerHeight && position.top - widgetHeight > -2) {
+            vpos = "top";
+        }
+
+        if (position.right - widgetWidth < 0) {
+            hpos = "left";
+        }
+
+        if (vpos === "top") {
+            widget.classList.add("top");
+            widget.classList.remove("bottom");
+        }
+        else {
+            widget.classList.add("bottom");
+            widget.classList.remove("top");
+        }
+
+        if (hpos === "left") {
+            widget.classList.add("float-left");
+            widget.classList.remove("float-right");
+        }
+        else {
+            widget.classList.add("float-right");
+            widget.classList.remove("float-left");
+        }
+
+        // Default pos --> right/bottom
+        var pos = {
+            top: (vpos === "top" ? Math.max(0, scrollTop + position.top - widgetHeight - 8) : (scrollTop + position.bottom)) + "px",
+            left: (hpos == "left" ? position.left : position.left + (position.width - widgetWidth)) + "px",
+            bottom: "auto",
+            right: "auto"
+        };
+
+        $.extend(widget.style, pos);
+    };
+
     // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
     function initSelect(el) {
         if ($.fn.select2 === undefined || $.fn.selectWrapper === undefined)
@@ -17,7 +71,7 @@
             format: $el.data("format"),
             useCurrent: $el.data("use-current"),
             locale: moment.locale(),
-            keepOpen: true
+            keepOpen: false
         });
     }
 

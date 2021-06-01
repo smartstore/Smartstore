@@ -49,16 +49,18 @@
   display: grid;
   column-gap: 0;
   row-gap: 1px; }
-  .dg-table > thead,
-  .dg-table > tbody,
-  .dg-table > thead > tr,
-  .dg-table > tbody > tr {
+  .dg-table .dg-thead,
+  .dg-table .dg-tbody,
+  .dg-table .dg-tr {
     display: contents; }
-  .dg-table th,
-  .dg-table td {
+  .dg-table .dg-th,
+  .dg-table .dg-td {
     padding: 0;
     position: relative; }
-  .dg-table th {
+  .dg-table .dg-td {
+    background-color: var(--dg-row-bg);
+    transition: background-color 0.1s ease-in-out; }
+  .dg-table .dg-th {
     position: sticky;
     top: 0;
     background-color: var(--dg-header-bg);
@@ -66,15 +68,12 @@
     z-index: 1;
     user-select: none;
     overflow-x: hidden; }
-  .dg-table td {
-    background-color: var(--dg-row-bg);
-    transition: background-color 0.1s ease-in-out; }
-  .dg-table tbody tr:nth-of-type(even) > td {
+  .dg-table .dg-tbody > tr:nth-of-type(even) > td {
     background-color: var(--dg-row-even-bg); }
-  .dg-table th:first-child {
+  .dg-table .dg-th:first-child {
     z-index: 10; }
-  .dg-table tr.active,
-  .dg-table tr.dg-edit-row {
+  .dg-table .dg-tr.active,
+  .dg-table .dg-tr.dg-edit-row {
     --dg-row-bg: var(--dg-row-active-color) !important;
     --dg-row-even-bg: var(--dg-row-active-color) !important; }
   .dg-table.dg-resizing {
@@ -83,7 +82,7 @@
 .dg-striped {
   --dg-row-even-bg: #fbfbfc; }
 
-.dg-hover > tbody > tr:hover:not(.dg-no-data) {
+.dg-hover > .dg-tbody > tr:hover:not(.dg-no-data) {
   --dg-row-bg: var(--dg-row-hover-color);
   --dg-row-even-bg: var(--dg-row-hover-color); }
 

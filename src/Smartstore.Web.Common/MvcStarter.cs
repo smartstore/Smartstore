@@ -159,6 +159,7 @@ namespace Smartstore.Web
                     settings.ObjectCreationHandling = ObjectCreationHandling.Replace;
                     settings.NullValueHandling = NullValueHandling.Ignore;
                     settings.MaxDepth = 32;
+                    //settings.DateFormatHandling = DateFormatHandling.MicrosoftDateFormat;
                 })
                 .AddControllersAsServices()
                 .AddAppLocalization()

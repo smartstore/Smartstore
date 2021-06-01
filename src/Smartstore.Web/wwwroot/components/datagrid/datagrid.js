@@ -55,9 +55,9 @@ Vue.component("sm-datagrid", {
                 <table ref="table"
                     :class="getTableClass()"
                     :style="getTableStyles()">
-                    <thead v-show="!options.hideHeader" class="dg-head" ref="tableHeader">
-                        <tr ref="tableHeaderRow">
-                            <th v-if="allowRowSelection" class="dg-col-pinned alpha">
+                    <thead v-show="!options.hideHeader" class="dg-thead" ref="tableHeader">
+                        <tr ref="tableHeaderRow" class="dg-tr">
+                            <th v-if="allowRowSelection" class="dg-th dg-col-pinned alpha">
                                 <label class="dg-cell dg-cell-header dg-cell-selector">
                                     <span class="dg-cell-value">
                                         <input type="checkbox" class="dg-cell-selector-checkbox" ref="masterSelector" @change="onSelectAllRows($event)" />
@@ -66,7 +66,7 @@ Vue.component("sm-datagrid", {
                             </th>            
                 
                             <th v-for="(column, columnIndex) in columns" 
-                                class="dg-th"
+                                class="dg-th dg-th-column"
                                 v-show="column.visible"
                                 :data-member="column.member"
                                 :data-index="columnIndex"
@@ -94,24 +94,24 @@ Vue.component("sm-datagrid", {
                                     @dblclick.stop.prevent="autoSizeColumn($event, column, columnIndex)">
                                 </div>
                             </th>
-                            <th>
+                            <th class="dg-th">
                                 <div class="dg-cell dg-cell-header dg-cell-spacer">&nbsp;</div>
                             </th>
 
-                            <th class="dg-col-pinned omega">
+                            <th class="dg-th dg-col-pinned omega">
                                 <sm-datagrid-tools :options="options" :columns="columns" :paging="paging"></sm-datagrid-tools>
                             </th>  
                         </tr>
                     </thead>
-                    <tbody ref="tableBody">
-                        <tr v-if="ready && rows.length === 0" class="dg-no-data">
-                            <td class="text-muted text-center">
+                    <tbody ref="tableBody" class="dg-tbody">
+                        <tr v-if="ready && rows.length === 0" class="dg-tr dg-no-data">
+                            <td class="dg-td text-muted text-center">
                                 <div class="dg-cell justify-content-center">Keine Daten</div>
                             </td>
                         </tr>
 
-                        <tr v-for="(row, rowIndex) in rows" :key="row[options.keyMemberName]" :class="{ 'active': isRowSelected(row), 'dg-edit-row': isInlineEditRow(row) }">
-                             <td v-if="allowRowSelection" class="dg-col-pinned alpha">
+                        <tr v-for="(row, rowIndex) in rows" :key="row[options.keyMemberName]" :class="{ 'active': isRowSelected(row), 'dg-edit-row': isInlineEditRow(row), 'dg-tr': true }">
+                             <td v-if="allowRowSelection" class="dg-td dg-col-pinned alpha">
                                 <label class="dg-cell dg-cell-selector">
                                     <span v-if="!isInlineEditRow(row) || !editing.insertMode" class="dg-cell-value">
                                         <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" @change="onSelectRow($event, row)" />
@@ -119,7 +119,7 @@ Vue.component("sm-datagrid", {
                                 </label>
                             </td>             
 
-                            <td v-for="(column, columnIndex) in columns" 
+                            <td v-for="(column, columnIndex) in columns" class="dg-td"
                                 v-show="column.visible"
                                 :data-index="columnIndex"
                                 :key="row[options.keyMemberName] + '-' + columnIndex"
@@ -139,7 +139,7 @@ Vue.component("sm-datagrid", {
                                     </slot>
                                 </div>
                             </td>
-                            <td style="grid-column: span 2">
+                            <td class="dg-td" style="grid-column: span 2">
                                 <div class="dg-cell dg-cell-spacer"></div>
                             </td>
                         </tr>
@@ -716,7 +716,7 @@ Vue.component("sm-datagrid", {
         onColumnDragOver(e) {
             const d = this.dragging;
             if (d.active) {
-                const th = $(e.target).closest('th.dg-th').get(0);
+                const th = $(e.target).closest('th.dg-th-column').get(0);
                 if (th === d.source) {
                     d.target = null;
                     e.dataTransfer.dropEffect = 'none';

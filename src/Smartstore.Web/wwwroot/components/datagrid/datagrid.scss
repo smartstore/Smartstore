@@ -68,15 +68,14 @@ $body-color: #393f46;
     column-gap: 0;
     row-gap: 1px;
 
-    > thead,
-    > tbody,
-    > thead > tr,
-    > tbody > tr {
+    .dg-thead,
+    .dg-tbody,
+    .dg-tr {
         display: contents;
     }
 
-    th,
-    td {
+    .dg-th,
+    .dg-td {
         padding: 0;
         //overflow: hidden;
         //text-overflow: ellipsis;
@@ -85,7 +84,13 @@ $body-color: #393f46;
         //display: flex;
     }
 
-    th {
+    .dg-td {
+        background-color: var(--dg-row-bg);
+        transition: background-color 0.1s ease-in-out;
+        //overflow: hidden;
+    }
+
+    .dg-th {
         position: sticky;
         top: 0;
         background-color: var(--dg-header-bg);
@@ -95,22 +100,16 @@ $body-color: #393f46;
         overflow-x: hidden; // Removes annoying x-scrollbar
     }
 
-    td {
-        background-color: var(--dg-row-bg);
-        transition: background-color 0.1s ease-in-out;
-        //overflow: hidden;
-    }
-
-    tbody tr:nth-of-type(even) > td {
+    .dg-tbody > tr:nth-of-type(even) > td {
         background-color: var(--dg-row-even-bg);
     }
 
-    th:first-child {
+    .dg-th:first-child {
         z-index: 10;
     }
 
-    tr.active,
-    tr.dg-edit-row {
+    .dg-tr.active,
+    .dg-tr.dg-edit-row {
         --dg-row-bg: var(--dg-row-active-color) !important;
         --dg-row-even-bg: var(--dg-row-active-color) !important;
     }
@@ -124,7 +123,7 @@ $body-color: #393f46;
     --dg-row-even-bg: $even;
 }
 
-.dg-hover > tbody > tr:hover:not(.dg-no-data) {
+.dg-hover > .dg-tbody > tr:hover:not(.dg-no-data) {
     --dg-row-bg: var(--dg-row-hover-color);
     --dg-row-even-bg: var(--dg-row-hover-color);
 }
