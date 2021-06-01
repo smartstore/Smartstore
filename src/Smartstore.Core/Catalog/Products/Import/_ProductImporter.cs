@@ -48,6 +48,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
+            // TODO: (mg) (core) Is forceNoTracking = true really a good idea here?
             using var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true, forceNoTracking: true);
 
             if (context.File.RelatedType.HasValue)
