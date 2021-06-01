@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 
@@ -58,6 +60,16 @@ namespace Smartstore.Core.DataExchange.Import
         /// Name of key fields to identify existing records for updating.
         /// </summary>
         public string[] KeyFieldNames { get; internal set; }
+
+        /// <summary>
+        /// All active languages.
+        /// </summary>
+        public IReadOnlyCollection<Language> Languages { get; internal set; }
+
+        /// <summary>
+        /// All stores.
+        /// </summary>
+        public IReadOnlyCollection<Store> Stores { get; internal set; }
 
         /// <summary>
         /// Use this dictionary for any custom data required along the import.

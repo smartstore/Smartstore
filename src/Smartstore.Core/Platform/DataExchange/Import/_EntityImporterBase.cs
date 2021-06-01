@@ -21,21 +21,18 @@ namespace Smartstore.Core.DataExchange.Import
     {
         protected ICommonServices _services;
         protected SmartDbContext _db;
-        protected ILanguageService _languageService;
         protected ILocalizedEntityService _localizedEntityService;
         protected IStoreMappingService _storeMappingService;
         protected IUrlService _urlService;
 
         protected EntityImporterBase(
             ICommonServices services,
-            ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService)
         {
             _services = services;
             _db = services.DbContext;
-            _languageService = languageService;
             _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _urlService = urlService;
@@ -71,8 +68,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessLocalizationsAsync<TEntity>(
             ImportExecuteContext context,
             IEnumerable<ImportRow<TEntity>> batch,
-            IDictionary<string, Expression<Func<TEntity, string>>> localizableProperties,
-            CancellationToken cancelToken = default) 
+            IDictionary<string, Expression<Func<TEntity, string>>> localizableProperties) 
             where TEntity : BaseEntity, ILocalizedEntity
         {
             Guard.NotNull(context, nameof(context));
@@ -98,7 +94,6 @@ namespace Smartstore.Core.DataExchange.Import
 
             var shouldSave = false;
             var keyGroup = nameof(TEntity);
-            var languages = await _languageService.GetAllLanguagesAsync(true);
             var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds);
 
             foreach (var row in batch)
@@ -106,7 +101,7 @@ namespace Smartstore.Core.DataExchange.Import
                 foreach (var prop in localizedProps)
                 {
                     var keySelector = localizableProperties[prop];
-                    foreach (var language in languages)
+                    foreach (var language in context.Languages)
                     {
                         if (row.TryGetDataValue(prop /* ColumnName */, language.UniqueSeoCode, out string value))
                         {
@@ -153,7 +148,7 @@ namespace Smartstore.Core.DataExchange.Import
             if (shouldSave)
             {
                 // Commit whole batch at once.
-                return await _db.SaveChangesAsync(cancelToken);
+                return await _db.SaveChangesAsync(context.CancelToken);
             }
 
             return 0;
@@ -161,8 +156,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task<int> ProcessStoreMappingsAsync<TEntity>(
             ImportExecuteContext context,
-            IEnumerable<ImportRow<TEntity>> batch,
-            CancellationToken cancelToken = default) 
+            IEnumerable<ImportRow<TEntity>> batch) 
             where TEntity : BaseEntity, IStoreRestricted
         {
             var shouldSave = false;
@@ -172,7 +166,6 @@ namespace Smartstore.Core.DataExchange.Import
                 return 0;
             }
 
-            var stores = _services.StoreContext.GetAllStores();
             var collection = await _storeMappingService.GetStoreMappingCollectionAsync(nameof(TEntity), entityIds);
 
             foreach (var row in batch)
@@ -189,7 +182,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     row.Entity.LimitedToStores = true;
 
-                    foreach (var store in stores)
+                    foreach (var store in context.Stores)
                     {
                         if (storeIds.Contains(store.Id))
                         {
@@ -222,7 +215,7 @@ namespace Smartstore.Core.DataExchange.Import
             if (shouldSave)
             {
                 // Commit whole batch at once.
-                return await _db.SaveChangesAsync(cancelToken);
+                return await _db.SaveChangesAsync(context.CancelToken);
             }
 
             return 0;
@@ -231,12 +224,9 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessSlugsAsync<TEntity>(
             ImportExecuteContext context,
             IEnumerable<ImportRow<TEntity>> batch,
-            string entityName,
-            CancellationToken cancelToken = default)
+            string entityName)
             where TEntity : BaseEntity, ISlugSupported
         {
-            var languages = await _languageService.GetAllLanguagesAsync(true);
-
             using var scope = _urlService.CreateBatchScope(_db);
 
             // TODO: (core) (perf) IUrlService.ValidateSlugAsync ignores prefetched data.
@@ -250,7 +240,7 @@ namespace Smartstore.Core.DataExchange.Import
                         scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, true));
 
                         // Process localized slugs.
-                        foreach (var language in languages)
+                        foreach (var language in context.Languages)
                         {
                             var hasSeName = row.TryGetDataValue("SeName", language.UniqueSeoCode, out seName);
                             var hasLocalizedName = row.TryGetDataValue("Name", language.UniqueSeoCode, out string localizedName);
@@ -276,7 +266,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            return await scope.CommitAsync(cancelToken);
+            return await scope.CommitAsync(context.CancelToken);
         }
 
         protected static int? ZeroToNull(object value, CultureInfo culture)

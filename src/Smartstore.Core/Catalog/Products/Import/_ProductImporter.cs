@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
@@ -18,13 +21,23 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public class ProductImporter : EntityImporterBase
     {
+        private static readonly Dictionary<string, Expression<Func<Product, string>>> _localizableProperties = new()
+        {
+            { "Name", x => x.Name },
+            { "ShortDescription", x => x.ShortDescription },
+            { "FullDescription", x => x.FullDescription },
+            { "MetaKeywords", x => x.MetaKeywords },
+            { "MetaDescription", x => x.MetaDescription },
+            { "MetaTitle", x => x.MetaTitle },
+            { "BundleTitleText", x => x.BundleTitleText }
+        };
+
         public ProductImporter(
             ICommonServices services,
-            ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService)
-            : base(services, languageService, localizedEntityService, storeMappingService, urlService)
+            : base(services, localizedEntityService, storeMappingService, urlService)
         {
         }
 
@@ -76,7 +89,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
             catch (Exception ex)
             {
-                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductsAsync));
+                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(InternalProcessProductsAsync));
             }
 
             // Reduce batch to saved (valid) products.
@@ -87,6 +100,78 @@ namespace Smartstore.Core.DataExchange.Import
             context.Result.NewRecords += batch.Count(x => x.IsNew);
             context.Result.ModifiedRecords += Math.Max(0, savedProducts - context.Result.NewRecords);
 
+            // ===========================================================================
+            // 2.) Import SEO Slugs
+            // ===========================================================================
+            if (segmenter.HasColumn("SeName", true) || batch.Any(x => x.IsNew || x.NameChanged))
+            {
+                try
+                {
+                    await ProcessSlugsAsync(context, batch, typeof(Product).Name);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessSlugsAsync));
+                }
+            }
+
+            // ===========================================================================
+            // 3.) Import StoreMappings
+            // ===========================================================================
+            if (segmenter.HasColumn("StoreIds"))
+            {
+                try
+                {
+                    await ProcessStoreMappingsAsync(context, batch);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessStoreMappingsAsync));
+                }
+            }
+
+            // ===========================================================================
+            // 4.) Import Localizations
+            // ===========================================================================
+            try
+            {
+                await ProcessLocalizationsAsync(context, batch, _localizableProperties);
+            }
+            catch (Exception ex)
+            {
+                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessLocalizationsAsync));
+            }
+
+            // ===========================================================================
+            // 5.) Import product category mappings
+            // ===========================================================================
+            if (segmenter.HasColumn("CategoryIds"))
+            {
+                try
+                {
+                    await ProcessProductCategoriesAsync(context, batch);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductCategoriesAsync));
+                }
+            }
+
+            // ===========================================================================
+            // 6.) Import product manufacturer mappings
+            // ===========================================================================
+            if (segmenter.HasColumn("ManufacturerIds"))
+            {
+                try
+                {
+                    await ProcessProductManufacturersAsync(context, batch);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductManufacturersAsync));
+                }
+            }
+
             //...
         }
 
@@ -95,14 +180,8 @@ namespace Smartstore.Core.DataExchange.Import
             IEnumerable<ImportRow<Product>> batch,
             Dictionary<int, ImportProductMapping> srcToDestId)
         {
-            // TODO: (mg) (core) load templates ViewPath and ID only once per export and store them in ImportExecuteContext.CustomProperties.
-            var productTemplates = await _db.ProductTemplates
-                .AsNoTracking()
-                .OrderBy(x => x.DisplayOrder)
-                .ToListAsync(context.CancelToken);
-            var templateViewPaths = productTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id);
-
-            var defaultTemplateId = templateViewPaths["Product"];
+            var cargo = await GetCargoData(context);
+            var defaultTemplateId = cargo.TemplateViewPaths["Product"];
             var hasNameColumn = context.DataSegmenter.HasColumn("Name");
 
             foreach (var row in batch)
@@ -297,7 +376,9 @@ namespace Smartstore.Core.DataExchange.Import
 
                 if (row.TryGetDataValue("ProductTemplateViewPath", out string tvp, row.IsTransient))
                 {
-                    product.ProductTemplateId = tvp.HasValue() && templateViewPaths.ContainsKey(tvp) ? templateViewPaths[tvp] : defaultTemplateId;
+                    product.ProductTemplateId = tvp.HasValue() && cargo.TemplateViewPaths.ContainsKey(tvp) 
+                        ? cargo.TemplateViewPaths[tvp] 
+                        : defaultTemplateId;
                 }
 
                 if (id != 0 && !srcToDestId.ContainsKey(id))
@@ -328,6 +409,94 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
+            return num;
+        }
+
+        protected virtual async Task<int> ProcessProductCategoriesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
+        {
+            var cargo = await GetCargoData(context);
+
+            foreach (var row in batch)
+            {
+                var categoryIds = row.GetDataValue<List<int>>("CategoryIds");
+                if (categoryIds.IsNullOrEmpty())
+                    continue;
+
+                try
+                {
+                    var existingMappingsCategoryIds = await _db.ProductCategories
+                        .AsNoTracking()
+                        .Where(x => x.ProductId == row.Entity.Id)
+                        .Select(x => x.CategoryId)
+                        .ToListAsync(context.CancelToken);
+
+                    foreach (var categoryId in categoryIds)
+                    {
+                        if (categoryId != 0 &&
+                            cargo.CategoryIds.Contains(categoryId) &&
+                            !existingMappingsCategoryIds.Contains(categoryId))
+                        {
+                            _db.ProductCategories.Add(new ProductCategory
+                            {
+                                ProductId = row.Entity.Id,
+                                CategoryId = categoryId,
+                                IsFeaturedProduct = false,
+                                DisplayOrder = 1
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddWarning(ex.Message, row.RowInfo, "CategoryIds");
+                }
+            }
+
+            var num = await _db.SaveChangesAsync(context.CancelToken);
+            return num;
+        }
+
+        protected virtual async Task<int> ProcessProductManufacturersAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
+        {
+            var cargo = await GetCargoData(context);
+
+            foreach (var row in batch)
+            {
+                var manufacturerIds = row.GetDataValue<List<int>>("ManufacturerIds");
+                if (manufacturerIds.IsNullOrEmpty())
+                    continue;
+
+                try
+                {
+                    var existingMappingsManufacturerIds = await _db.ProductManufacturers
+                        .AsNoTracking()
+                        .Where(x => x.ProductId == row.Entity.Id)
+                        .Select(x => x.ManufacturerId)
+                        .ToListAsync(context.CancelToken);
+
+                    foreach (var manufacturerId in manufacturerIds)
+                    {
+                        if (manufacturerId != 0 &&
+                            cargo.ManufacturerIds.Contains(manufacturerId) &&
+                            !existingMappingsManufacturerIds.Contains(manufacturerId))
+                        {
+                            _db.ProductManufacturers.Add(new ProductManufacturer
+                            {
+                                ProductId = row.Entity.Id,
+                                ManufacturerId = manufacturerId,
+                                IsFeaturedProduct = false,
+                                DisplayOrder = 1
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddWarning(ex.Message, row.RowInfo, "ManufacturerIds");
+                }
+            }
+
+            var num = await _db.SaveChangesAsync(context.CancelToken);
             return num;
         }
 
@@ -577,10 +746,57 @@ namespace Smartstore.Core.DataExchange.Import
             // This is done by the ProductVariantAttributeCombinationHook (minHookImportance is set to HookImportance.Important).
         }
 
+        private async Task<ImporterCargoData> GetCargoData(ImportExecuteContext context)
+        {
+            if (context.CustomProperties.TryGetValue("ProductImporterCargoData", out object value))
+            {
+                return (ImporterCargoData)value;
+            }
+
+            var segmenter = context.DataSegmenter;
+
+            var productTemplates = await _db.ProductTemplates
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync(context.CancelToken);
+
+            // Do not pass entities here because of batch scope!
+            var result = new ImporterCargoData
+            {
+                TemplateViewPaths = productTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id)
+            };
+
+            if (segmenter.HasColumn("CategoryIds"))
+            {
+                result.CategoryIds = await _db.Categories
+                    .AsNoTracking()
+                    .Select(x => x.Id)
+                    .ToListAsync(context.CancelToken);
+            }
+
+            if (segmenter.HasColumn("ManufacturerIds"))
+            {
+                result.ManufacturerIds = await _db.Manufacturers
+                    .AsNoTracking()
+                    .Select(x => x.Id)
+                    .ToListAsync(context.CancelToken);
+            }
+
+            context.CustomProperties["ProductImporterCargoData"] = result;
+            return result;
+        }
+
         protected class ImportProductMapping
         {
             public int DestinationId { get; set; }
             public bool Inserted { get; set; }
+        }
+
+        protected class ImporterCargoData
+        {
+            public Dictionary<string, int> TemplateViewPaths { get; init; }
+            public List<int> CategoryIds { get; set; }
+            public List<int> ManufacturerIds { get; set; }
         }
     }
 }

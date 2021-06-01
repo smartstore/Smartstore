@@ -14,6 +14,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
 using Smartstore.Engine;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities;
@@ -25,6 +26,7 @@ namespace Smartstore.Core.DataExchange.Import
         private readonly ICommonServices _services;
         private readonly ILifetimeScopeAccessor _scopeAccessor;
         private readonly IImportProfileService _importProfileService;
+        private readonly ILanguageService _languageService;
         private readonly IEmailAccountService _emailAccountService;
         private readonly IMailService _mailService;
         private readonly ContactDataSettings _contactDataSettings;
@@ -33,6 +35,7 @@ namespace Smartstore.Core.DataExchange.Import
             ICommonServices services,
             ILifetimeScopeAccessor scopeAccessor,
             IImportProfileService importProfileService,
+            ILanguageService languageService,
             IEmailAccountService emailAccountService,
             IMailService mailService,
             ContactDataSettings contactDataSettings)
@@ -40,6 +43,7 @@ namespace Smartstore.Core.DataExchange.Import
             _services = services;
             _scopeAccessor = scopeAccessor;
             _importProfileService = importProfileService;
+            _languageService = languageService;
             _emailAccountService = emailAccountService;
             _mailService = mailService;
             _contactDataSettings = contactDataSettings;
@@ -295,7 +299,9 @@ namespace Smartstore.Core.DataExchange.Import
                 UpdateOnly = profile.UpdateOnly,
                 KeyFieldNames = profile.KeyFieldNames.SplitSafe(",").ToArray(),
                 ImportDirectory = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true),
-                ExtraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData)
+                ExtraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData),
+                Languages = await _languageService.GetAllLanguagesAsync(true),
+                Stores = _services.StoreContext.GetAllStores().AsReadOnly()
             };
 
             return new DataImporterContext
