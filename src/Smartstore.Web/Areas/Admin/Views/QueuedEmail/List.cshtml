@@ -64,12 +64,8 @@
         </div>
         <div class="col-sm-6 col-lg-4 col-xl-3 form-group">
             <smart-label asp-for="SearchLoadNotSent" />
-            <div class="mt-2">
-                <label class="switch">
-                    <input asp-for="SearchLoadNotSent" />
-                    @* TODO: (ms) (core) Findout what does data- 'AN' or data- 'AUS' and what are they good for? *@
-                    <span class="switch-toggle" @*data-on="An" data-off="Aus"*@></span>
-                </label>
+            <div>
+                <input asp-for="SearchLoadNotSent" />
             </div>
         </div>
 
@@ -85,18 +81,19 @@
 <partial name="_Grid.QueuedEmails" model="null" />
 
 <script>
-	// Filter toggler
-	$('.btn-toggle-filter').on('click', e => {
-		$('.grid-filter').slideToggle({ duration: 200, easing: 'ease-in-out' });
-	});
+    $(function () {
+        // Filter toggler
+        $('.btn-toggle-filter').on('click', e => {
+            $('.grid-filter').slideToggle({ duration: 200, easing: 'ease-in-out' });
+        });
 
-    $(function() {
         $('#btnSearch').on("click", e => {
             e.preventDefault();
             var grid = window["queuedEmails-grid"];
             grid.paging.pageIndex = 1; // New search. Sets index to 1 to update table.
             return false;
         });
+    });
 
     function onDataBinding(command) {
         $.extend(command, {
@@ -109,7 +106,7 @@
 			SearchMaxSentTries: $('#@Html.IdFor(model => model.SearchMaxSentTries)').val()
         });
 	}
-    // TODO (ms) (core) Is this needed anymore? Looks like some 'highlighting'.
+    // TODO (ms) (core) Make this with class rules later.
     //function onRowDataBound(e) {
     //  if (e.dataItem.SentOn)
     //      $(e.row).find('td').wrapInner('<span class="muted" />');

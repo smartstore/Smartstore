@@ -16,9 +16,9 @@
     </toolbar>
     <columns>
         @*TODO (ms) (core) Maybe shorten "E-Mail-ID" > "ID" *@
-        <column for="Id" />
+        <column for="Id" visible="false" width="max-content" resizable="false" />
         @*TODO (ms) (core) Have AttachmentsCount header have an name so it can be selected in the display options*@
-        <column for="AttachmentsCount" sortable="false" icon="fa fa-paperclip" />
+        <column for="AttachmentsCount" sortable="false" icon="fa fa-paperclip" width="max-content" resizable="false" title="" />
         <column for="Subject" hideable="false">
             <display-template>
                 <a :href="item.row.ViewUrl" class="text-truncate">
@@ -26,18 +26,9 @@
                 </a>
             </display-template>
         </column>
-        <column for="Priority" width="max-content" halign="center" valign="center" />
-        <column for="From" width="300px">
-            <display-template>
-                <span class="text-truncate">{{ item.value }}</span> 
-            </display-template>
-            </column>
-        <column for="SendManually" halign="center" valign="center">
-            <display-template>
-                <i v-if="item.row.SendManually == false" class="fa fa-fw icon-active-false"></i>
-                <i v-if="item.row.SendManually == true" class="fa fa-fw icon-active-true"></i>
-            </display-template>
-        </column>
+        <column for="Priority" resizable="false" halign="center" valign="center" />
+        <column for="From" width="300px" />
+        <column for="SendManually" halign="center" valign="center" />
         <column for="SentTries" halign="center" valign="center" />
         <column for="SentOn" entity-member="SentOnUtc" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />

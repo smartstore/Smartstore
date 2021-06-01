@@ -5,7 +5,6 @@ using Smartstore.Web.Modelling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Smartstore.Admin.Models.Messages
 {
@@ -76,9 +75,9 @@ namespace Smartstore.Admin.Models.Messages
         }
     }
 
-    public class QueuedEmailMapper : IMapper<QueuedEmail, QueuedEmailModel>
+    public class QueuedEmailMapper : Mapper<QueuedEmail, QueuedEmailModel>
     {
-        public void Map(QueuedEmail from, QueuedEmailModel to)
+        protected override void Map(QueuedEmail from, QueuedEmailModel to, dynamic parameters = null)
         {
             MiniMapper.Map(from, to);
             to.EmailAccountName = from.EmailAccount?.FriendlyName ?? string.Empty;
@@ -86,12 +85,6 @@ namespace Smartstore.Admin.Models.Messages
             to.Attachments = from.Attachments
                 .Select(x => new QueuedEmailModel.QueuedEmailAttachmentModel { Id = x.Id, Name = x.Name, MimeType = x.MimeType })
                 .ToList();
-        }
-
-        public Task MapAsync(QueuedEmail from, QueuedEmailModel to, dynamic parameters = null)
-        {
-            Map(from, to);
-            return Task.CompletedTask;
         }
     }
 }
