@@ -29,6 +29,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string CloseOnEscapePressAttributeName = "sm-close-on-escape-press";
         const string CloseOnBackdropClickAttributeName = "sm-close-on-backdrop-click";
         const string CenterVerticallyAttributeName = "sm-center-vertically";
+        const string CenterContentAttributeName = "sm-center-content";
         const string RenderAtPageEndAttributeName = "sm-render-at-page-end";
 
         private readonly IWidgetProvider _widgetProvider;
@@ -93,6 +94,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         public bool CenterVertically { get; set; }
 
         /// <summary>
+        /// Whether to center dialog content. Default = false.
+        /// </summary>
+        [HtmlAttributeName(CenterContentAttributeName)]
+        public bool CenterContent { get; set; } = false;
+
+        /// <summary>
         /// Whether to render modal at page end (right before closing body tag). Default = true.
         /// </summary>
         [HtmlAttributeName(RenderAtPageEndAttributeName)]
@@ -107,6 +114,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (Fade)
             {
                 output.AppendCssClass("fade");
+            }
+
+            if (CenterContent)
+            {
+                output.AppendCssClass("modal-box");
             }
 
             output.MergeAttribute("role", "dialog");
@@ -159,6 +171,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (CenterVertically)
             {
                 className += " modal-dialog-centered";
+            }
+
+            if (CenterContent)
+            {
+                className += " modal-box-center";
             }
 
             div.Attributes["class"] = className;
