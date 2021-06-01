@@ -110,8 +110,11 @@ Vue.component("sm-datagrid", {
                             </td>
                         </tr>
 
-                        <tr v-for="(row, rowIndex) in rows" :key="row[options.keyMemberName]" :class="{ 'active': isRowSelected(row), 'dg-edit-row': isInlineEditRow(row), 'dg-tr': true }">
-                             <td v-if="allowRowSelection" class="dg-td dg-col-pinned alpha">
+                        <tr v-for="(row, rowIndex) in rows"
+                            :data-key="row[options.keyMemberName]"
+                            :key="row[options.keyMemberName]" 
+                            :class="{ 'active': isRowSelected(row), 'dg-edit-row': isInlineEditRow(row), 'dg-tr': true }">
+                            <td v-if="allowRowSelection" class="dg-td dg-col-pinned alpha">
                                 <label class="dg-cell dg-cell-selector">
                                     <span v-if="!isInlineEditRow(row) || !editing.insertMode" class="dg-cell-value">
                                         <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" @change="onSelectRow($event, row)" />
