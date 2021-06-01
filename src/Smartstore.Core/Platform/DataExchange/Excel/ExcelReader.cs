@@ -184,12 +184,12 @@ namespace Smartstore.Core.DataExchange.Excel
         public byte GetByte(int i) => _reader.GetByte(i);
 
         public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
-             => _reader.GetBytes(i, fieldOffset, buffer, bufferoffset, length);
+            => CopyFieldToArray(i, fieldOffset, buffer, bufferoffset, length);
 
         public char GetChar(int i) => _reader.GetChar(i);
 
         public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
-             => _reader.GetChars(i, fieldoffset, buffer, bufferoffset, length);
+             => CopyFieldToArray(i, fieldoffset, buffer, bufferoffset, length);
 
         public IDataReader GetData(int i) => _reader.GetData(i);
 
@@ -215,10 +215,7 @@ namespace Smartstore.Core.DataExchange.Excel
 
         public string GetName(int i)
         {
-            if (i < 0 || i >= _columns.Length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(i), i, $"Excel column index must be included within [0, {_columns.Length}], but specified column index was '{i}'.");
-            }
+            ValidateColumnIndex(i);
 
             return _columns[i].ColumnName;
         }
@@ -237,9 +234,11 @@ namespace Smartstore.Core.DataExchange.Excel
 
         public int GetValues(object[] values)
         {
+            var record = (IDataRecord)this;
+
             for (var i = 0; i < _reader.FieldCount; ++i)
             {
-                values[i] = _reader.GetValue(i);
+                values[i] = record.GetValue(i);
             }
 
             return _reader.FieldCount;
@@ -315,6 +314,50 @@ namespace Smartstore.Core.DataExchange.Excel
             schema.Columns.Add(SchemaTableOptionalColumn.IsRowVersion, typeof(bool)).ReadOnly = true;
 
             return schema;
+        }
+
+        private void ValidateColumnIndex(int index)
+        {
+            if (index < 0 || index >= _columns.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index), index, $"Excel column index must be included within [0, {_columns.Length}], but specified column index was '{index}'.");
+            }
+        }
+
+        private long CopyFieldToArray(int column, long columnOffset, Array destinationArray, int destinationOffset, int length)
+        {
+            ValidateColumnIndex(column);
+
+            if (columnOffset < 0 || columnOffset >= int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(columnOffset));
+            }
+
+            if (length == 0)
+            {
+                return 0;
+            }
+
+            var value = this[column].ToString() ?? string.Empty;
+
+            if (destinationArray.GetType() == typeof(char[]))
+            {
+                Array.Copy(value.ToCharArray((int)columnOffset, length), 0, destinationArray, destinationOffset, length);
+            }
+            else
+            {
+                char[] chars = value.ToCharArray((int)columnOffset, length);
+                byte[] source = new byte[chars.Length];
+
+                for (var i = 0; i < chars.Length; i++)
+                {
+                    source[i] = Convert.ToByte(chars[i]);
+                }
+
+                Array.Copy(source, 0, destinationArray, destinationOffset, length);
+            }
+
+            return length;
         }
 
         #endregion

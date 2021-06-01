@@ -94,7 +94,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (contentLength == 0)
             {
-                throw Error.Argument("fileName", "The posted file '{0}' does not contain any data.".FormatInvariant(fileName));
+                throw new ArgumentException($"The posted file '{fileName}' does not contain any data.", nameof(fileName));
             }
 
             IDataReader dataReader = null;

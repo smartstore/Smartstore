@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -12,38 +13,35 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 using Smartstore.IO;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Import
 {
     public abstract partial class EntityImporterBase : IEntityImporter
     {
+        protected ICommonServices _services;
         protected SmartDbContext _db;
-        protected IStoreContext _storeContext;
         protected ILanguageService _languageService;
         protected ILocalizedEntityService _localizedEntityService;
         protected IStoreMappingService _storeMappingService;
         protected IUrlService _urlService;
-        protected IMediaService _mediaService;
 
         protected EntityImporterBase(
-            SmartDbContext db,
-            IStoreContext storeContext,
+            ICommonServices services,
             ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
-            IUrlService urlService,
-            IMediaService mediaService)
+            IUrlService urlService)
         {
-            _db = db;
-            _storeContext = storeContext;
+            _services = services;
+            _db = services.DbContext;
             _languageService = languageService;
             _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _urlService = urlService;
-            _mediaService = mediaService;
 
             // Always turn image post-processing off during imports. It can heavily decrease processing time.
-            _mediaService.ImagePostProcessingEnabled = false;
+            _services.MediaService.ImagePostProcessingEnabled = false;
         }
 
         public DateTime UtcNow { get; private set; } = DateTime.UtcNow;
@@ -174,7 +172,7 @@ namespace Smartstore.Core.DataExchange.Import
                 return 0;
             }
 
-            var stores = _storeContext.GetAllStores();
+            var stores = _services.StoreContext.GetAllStores();
             var collection = await _storeMappingService.GetStoreMappingCollectionAsync(nameof(TEntity), entityIds);
 
             foreach (var row in batch)
@@ -279,6 +277,16 @@ namespace Smartstore.Core.DataExchange.Import
 
             // Commit whole batch at once.
             return await scope.CommitAsync(cancelToken);
+        }
+
+        protected static int? ZeroToNull(object value, CultureInfo culture)
+        {
+            if (CommonHelper.TryConvert(value, culture, out int result) && result > 0)
+            {
+                return result;
+            }
+
+            return null;
         }
     }
 }

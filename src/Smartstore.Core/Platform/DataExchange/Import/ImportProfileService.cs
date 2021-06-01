@@ -131,21 +131,21 @@ namespace Smartstore.Core.DataExchange.Import
             };
 
             // TODO: (mg) (core) apply default key fields for new import profile.
-            //switch (entityType)
-            //{
-            //    case ImportEntityType.Product:
-            //        profile.KeyFieldNames = string.Join(",", ProductImporter.DefaultKeyFields);
-            //        break;
-            //    case ImportEntityType.Category:
-            //        profile.KeyFieldNames = string.Join(",", CategoryImporter.DefaultKeyFields);
-            //        break;
-            //    case ImportEntityType.Customer:
-            //        profile.KeyFieldNames = string.Join(",", CustomerImporter.DefaultKeyFields);
-            //        break;
-            //    case ImportEntityType.NewsLetterSubscription:
-            //        profile.KeyFieldNames = string.Join(",", NewsLetterSubscriptionImporter.DefaultKeyFields);
-            //        break;
-            //}
+            switch (entityType)
+            {
+                case ImportEntityType.Product:
+                    profile.KeyFieldNames = string.Join(",", ProductImporter.DefaultKeyFields);
+                    break;
+                //case ImportEntityType.Category:
+                //    profile.KeyFieldNames = string.Join(",", CategoryImporter.DefaultKeyFields);
+                //    break;
+                //case ImportEntityType.Customer:
+                //    profile.KeyFieldNames = string.Join(",", CustomerImporter.DefaultKeyFields);
+                //    break;
+                //case ImportEntityType.NewsLetterSubscription:
+                //    profile.KeyFieldNames = string.Join(",", NewsLetterSubscriptionImporter.DefaultKeyFields);
+                //    break;
+            }
 
             var folderName = SeoHelper.BuildSlug(name, true, false, false)
                 .ToValidPath()

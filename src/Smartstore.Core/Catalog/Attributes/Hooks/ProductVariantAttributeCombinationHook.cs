@@ -69,7 +69,7 @@ namespace Smartstore.Core.Catalog.Attributes
                         // BatchUpdate recommended because products contain a lot of data (like full description).
                         await _db.Products
                             .Where(x => x.Id == productId)
-                            .BatchUpdateAsync(x => new Product { LowestAttributeCombinationPrice = lowestAttributeCombinationPrice });
+                            .BatchUpdateAsync(x => new Product { LowestAttributeCombinationPrice = lowestAttributeCombinationPrice }, cancellationToken: cancelToken);
                     }
                 }
             }
