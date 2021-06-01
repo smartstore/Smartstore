@@ -95,6 +95,7 @@ namespace Smartstore.Core.DataExchange.Import
             IEnumerable<ImportRow<Product>> batch,
             Dictionary<int, ImportProductMapping> srcToDestId)
         {
+            // TODO: (mg) (core) load templates ViewPath and ID only once per export and store them in ImportExecuteContext.CustomProperties.
             var productTemplates = await _db.ProductTemplates
                 .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)
