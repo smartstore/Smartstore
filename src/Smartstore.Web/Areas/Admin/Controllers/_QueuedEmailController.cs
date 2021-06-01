@@ -59,6 +59,7 @@ namespace Smartstore.Admin.Controllers
                 : null;
 
             var query = _db.QueuedEmails.AsNoTracking()
+                .Include(x => x.EmailAccount)
                 .ApplyTimeFilter(startDateValue, endDateValue, model.SearchLoadNotSent)
                 .ApplyMailAddressFilter(model.SearchFromEmail, model.SearchToEmail)
                 .Where(x => x.SentTries < model.SearchMaxSentTries)
@@ -73,13 +74,12 @@ namespace Smartstore.Admin.Controllers
 
             var gridModel = new GridModel<QueuedEmailModel>
             {
-                Rows = queuedEmails.Select(x =>
+                Rows = await queuedEmails.SelectAsync(async x =>
                 {
                     var model = new QueuedEmailModel();
-                    MiniMapper.Map(x, model);
+                    await MapperFactory.MapAsync(x, model);
 
                     model.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-
                     if (x.SentOnUtc.HasValue)
                     {
                         model.SentOn = _dateTimeHelper.ConvertToUserTime(x.SentOnUtc.Value, DateTimeKind.Utc);
@@ -88,7 +88,8 @@ namespace Smartstore.Admin.Controllers
                     model.ViewUrl = Url.Action(nameof(Edit), "QueuedEmail", new { id = x.Id });
 
                     return model;
-                }),
+                })
+                .AsyncToList(),
 
                 Total = queuedEmails.TotalCount
             };
@@ -126,17 +127,15 @@ namespace Smartstore.Admin.Controllers
             }
 
             var model = new QueuedEmailModel();
+            await MapperFactory.MapAsync(email, model);
 
-            MiniMapper.Map(email, model);
             model.CreatedOn = _dateTimeHelper.ConvertToUserTime(email.CreatedOnUtc, DateTimeKind.Utc);
             if (email.SentOnUtc.HasValue)
             {
                 model.SentOn = _dateTimeHelper.ConvertToUserTime(email.SentOnUtc.Value, DateTimeKind.Utc);
             }
 
-            // TODO: (ms) (core) Implement view
-            //return View(model);
-            return RedirectToAction(nameof(List));
+            return View(model);
         }
     }
 }

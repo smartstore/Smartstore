@@ -15,19 +15,21 @@
         </button>
     </toolbar>
     <columns>
-        @*TODO (ms) (core) Maybe shorten "E-Mail-ID" > "ID" *@
+    @*TODO (ms) (core) think about additional (inital hidden) fields *@
         <column for="Id" visible="false" width="max-content" resizable="false" />
-        @*TODO (ms) (core) Have AttachmentsCount header have an name so it can be selected in the display options*@
         <column for="AttachmentsCount" sortable="false" icon="fa fa-paperclip" width="max-content" resizable="false" title="" />
         <column for="Subject" hideable="false">
             <display-template>
+                @*TODO (ms) (core) Have icons display send status*@
+@*                <i :v-if="item.row.SentOn" class="far fa-paper-plane mr-2"></i>
+                <i v-else class="far fa-envelope mr-2"></i>*@
                 <a :href="item.row.ViewUrl" class="text-truncate">
                     {{ item.value }}
                 </a>
             </display-template>
         </column>
         <column for="Priority" resizable="false" halign="center" valign="center" />
-        <column for="From" width="300px" />
+        <column for="EmailAccountName" width="300px" :title="@T("Admin.System.QueuedEmails.Fields.From")" />
         <column for="SendManually" halign="center" valign="center" />
         <column for="SentTries" halign="center" valign="center" />
         <column for="SentOn" entity-member="SentOnUtc" />

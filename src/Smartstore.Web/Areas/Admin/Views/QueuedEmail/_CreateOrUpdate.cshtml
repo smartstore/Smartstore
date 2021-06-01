@@ -1,0 +1,134 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model QueuedEmailModel
+
+<div asp-validation-summary="ModelOnly"></div>
+
+<input type="hidden" asp-for="Id" />
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Priority" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Priority" />
+            <span asp-validation-for="Priority"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="From" />
+        </div>
+        <div class="adminData">
+            <input asp-for="From" />
+            <span asp-validation-for="From"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="To" />
+        </div>
+        <div class="adminData">
+            <input asp-for="To" />
+            <span asp-validation-for="To"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CC" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CC" />
+            <span asp-validation-for="CC"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Bcc" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Bcc" />
+            <span asp-validation-for="Bcc"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Subject" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Subject" />
+            <span asp-validation-for="Subject"></span>
+        </div>
+    </div>
+    <div sm-if="Model.Attachments.Any()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Attachments" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext d-flex flex-wrap">
+                @foreach (var attach in Model.Attachments)
+                {
+                    <span class="mr-3 d-block text-truncate" style="max-width: 17.5rem">
+                        <i class="fa fa-paperclip pr-1"></i>
+                        <a asp-action="DownloadAttachment" asp-route-id="@attach.Id">@attach.Name</a>
+                    </span>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Body" />
+        </div>
+        <div class="adminData wide">
+            @Html.EditorFor(model => model.Body, "Html")
+            <span asp-validation-for="Body"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SendManually" />
+        </div>
+        <div class="adminData">
+            <input asp-for="SendManually" sm-switch="true" />
+            <span asp-validation-for="SendManually"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SentTries" />
+        </div>
+        <div class="adminData">
+            <input asp-for="SentTries" />
+            <span asp-validation-for="SentTries"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SentOn" />
+        </div>
+        <div class="adminData">
+            <div sm-if="Model.SentOn.HasValue">
+                <input asp-for="SentOn" sm-plaintext />
+            </div>
+            <div class="form-control-plaintext">@("".NaIfEmpty())</div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="EmailAccountName" />
+        </div>
+        <div class="adminData">
+            <input asp-for="EmailAccountName" sm-plaintext readonly="readonly" />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CreatedOn" />
+        </div>
+        <div class="adminData">
+            <input type="text" asp-for="CreatedOn" sm-plaintext readonly="readonly" />
+        </div>
+    </div>
+</div>

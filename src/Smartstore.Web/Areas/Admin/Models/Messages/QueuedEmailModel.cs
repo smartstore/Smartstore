@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Data;
 using Smartstore.Core.Messaging;
 using Smartstore.Web.Modelling;
 using System;
@@ -11,7 +12,7 @@ namespace Smartstore.Admin.Models.Messages
     [LocalizedDisplay("Admin.System.QueuedEmails.Fields.")]
     public class QueuedEmailModel : EntityModelBase
     {
-        [LocalizedDisplay("*Id")]
+        [LocalizedDisplay("Admin.Common.Entity.Fields.Id")]
         public override int Id { get; set; }
 
         [LocalizedDisplay("*Priority")]
@@ -50,6 +51,7 @@ namespace Smartstore.Admin.Models.Messages
         [LocalizedDisplay("*SendManually")]
         public bool SendManually { get; set; }
 
+        [LocalizedDisplay("*AttachmentsCount")]
         public int AttachmentsCount { get; set; }
 
         public string ViewUrl { get; set; } 
@@ -80,6 +82,7 @@ namespace Smartstore.Admin.Models.Messages
         protected override void Map(QueuedEmail from, QueuedEmailModel to, dynamic parameters = null)
         {
             MiniMapper.Map(from, to);
+                        
             to.EmailAccountName = from.EmailAccount?.FriendlyName ?? string.Empty;
             to.AttachmentsCount = from.Attachments?.Count ?? 0;
             to.Attachments = from.Attachments

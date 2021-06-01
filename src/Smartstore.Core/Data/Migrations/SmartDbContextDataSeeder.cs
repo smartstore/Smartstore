@@ -147,6 +147,10 @@ namespace Smartstore.Core.Data.Migrations
                 "The credentials provided are incorrect or you have not activated your account yet. Please check your email inbox and confirm the registration.",
                 "Die eingegebenen Benutzerdaten sind nicht korrekt oder Sie haben Ihr Konto noch nicht aktiviert. Bitte prüfen Sie Ihren Email-Posteingang und bestätigen Sie die Registrierung.");
 
+            builder.AddOrUpdate("Admin.System.QueuedEmails.Fields.Attachments",
+                "File attachments",
+                "Dateianhänge");
+
             #endregion
         }
 
