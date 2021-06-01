@@ -171,7 +171,8 @@
   display: block;
   width: 10px;
   z-index: 9999;
-  transform: translateX(-50%); }
+  transform: translateX(-50%);
+  pointer-events: none; }
   .dg-drop-indicator:before, .dg-drop-indicator:after {
     position: absolute;
     display: block;

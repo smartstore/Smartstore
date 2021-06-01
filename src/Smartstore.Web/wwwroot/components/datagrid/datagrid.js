@@ -82,16 +82,16 @@ Vue.component("sm-datagrid", {
                                     :style="getCellStyles(null, column, true)" 
                                     :class="{ 'dg-sortable': sorting.enabled && column.sortable }"
                                     :title="column.title ? null : column.name"
-                                    @click="onSort($event, column)">
+                                    v-on:click="onSort($event, column)">
                                     <i v-if="column.icon" class="dg-icon" :class="column.icon"></i>
                                     <span class="dg-cell-value">{{ column.title }}</span>
                                     <i v-if="isSortedAsc(column)" class="fa fa-fw fa-sm fa-arrow-up mx-1"></i>
                                     <i v-if="isSortedDesc(column)" class="fa fa-fw fa-sm fa-arrow-down mx-1"></i>
                                 </div>
                                 <div v-if="options.allowResize && column.resizable" 
-                                    class="dg-resize-handle" 
-                                    @mousedown.stop.prevent="onStartResize($event, column, columnIndex)"
-                                    @dblclick.stop.prevent="autoSizeColumn($event, column, columnIndex)">
+                                    class="dg-resize-handle"
+                                    v-on:mousedown.stop.prevent="onStartResize($event, column, columnIndex)"
+                                    v-on:dblclick.stop.prevent="autoSizeColumn($event, column, columnIndex)">
                                 </div>
                             </th>
                             <th class="dg-th">
@@ -260,8 +260,10 @@ Vue.component("sm-datagrid", {
                                             break;
                                         default:
                                             // TODO: (core) datetimepicker will not update! Investigate!
-                                            if (v !== undefined && v !== null)
+                                            if (v !== undefined && v !== null) {
                                                 el.value = v;
+                                            }
+                                                
                                     }
                                 }
                             }
@@ -349,6 +351,29 @@ Vue.component("sm-datagrid", {
 
         // Read data from server
         this.read();
+
+        $(document).on("show.bs.dropdown", ".dg-tools", function (e) {
+            // grab the menu
+            dropdownMenu = $(e.target).find('.dropdown-menu');
+
+            // detach it and append it to the body
+            $('body').append(dropdownMenu.detach());
+
+            // grab the new offset position
+            var eOffset = $(e.target).offset();
+
+            // make sure to place it where it would normally go (this could be improved)
+            dropdownMenu.css({
+                //'display': 'block',
+                'top': eOffset.top + $(e.target).outerHeight(),
+                'left': eOffset.left
+            });
+        });
+
+        $(window).on("hide.bs.dropdown", ".dg-tools", function (e) {
+            $(e.target).append(dropdownMenu.detach());
+            dropdownMenu.hide();
+        });
     },
 
     updated() {
@@ -709,7 +734,7 @@ Vue.component("sm-datagrid", {
         onColumnDragEnter(e) {
             e.preventDefault();
             if (this.dragging.active) {
-                this.dragging.lastEnter = e.target;
+                this.dragging.lastEnter = e.target
             }
         },
 
@@ -717,12 +742,12 @@ Vue.component("sm-datagrid", {
             const d = this.dragging;
             if (d.active) {
                 const th = $(e.target).closest('th.dg-th-column').get(0);
-                if (th === d.source) {
-                    d.target = null;
-                    e.dataTransfer.dropEffect = 'none';
-                    d.removeIndicator();
-                }
-                else if (th) {
+                //if (th === d.source) {
+                //    d.target = null;
+                //    e.dataTransfer.dropEffect = 'none';
+                //    d.removeIndicator();
+                //}
+                if (th) {
                     e.preventDefault();
                     if (th !== d.target) {
                         d.target = th;
@@ -752,7 +777,9 @@ Vue.component("sm-datagrid", {
         },
 
         onColumnDragLeave(e) {
-            //console.log("onColumnDragLeave", this.dragging);
+            //if (this.dragging.lastEnter !== e.target) {
+            //    console.log("onColumnDragLeave", e.target);
+            //}
         },
 
         onColumnDrop(e) {

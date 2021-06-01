@@ -255,6 +255,7 @@ $body-color: #393f46;
     width: 10px;
     z-index: 9999;
     transform: translateX(-50%);
+    pointer-events: none;
 
     &:before,
     &:after {
