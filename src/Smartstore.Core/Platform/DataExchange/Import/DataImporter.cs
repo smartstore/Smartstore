@@ -209,6 +209,11 @@ namespace Smartstore.Core.DataExchange.Import
 
             try
             {
+                if (ctx.ExecuteContext.ClearCache)
+                {
+                    await _services.Cache.ClearAsync();
+                }
+
                 ctx.Request.CustomData.Clear();
                 ctx.Results.Clear();
                 ctx.Log = null;

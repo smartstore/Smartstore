@@ -36,6 +36,11 @@ namespace Smartstore.Core.DataExchange.Import
         int TotalSegments { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the current segment is the last one.
+        /// </summary>
+        bool IsLastSegment { get; }
+
+        /// <summary>
         /// Determines whether a specific column exists in the underlying data table.
         /// </summary>
         /// <param name="name">The name of the column to find.</param>
@@ -141,6 +146,9 @@ namespace Smartstore.Core.DataExchange.Import
 
         /// <inheritdoc/>
         public int TotalSegments => _pageable.TotalPages;
+
+        /// <inheritdoc/>
+        public bool IsLastSegment => CurrentSegment == TotalSegments;
 
         public static int BatchSize => BATCHSIZE;
 

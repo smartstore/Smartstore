@@ -95,18 +95,17 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     var existingTags = await _db.ProductTags
                         .Where(x => newTagNames.Contains(x.Name))
-                        .ToListAsync();
-                    var existingTagsDic = existingTags.ToDictionarySafe(x => x.Name);
+                        .ToDictionaryAsync(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
                     // Tags must be saved and assigned an ID prior adding a mapping.
                     foreach (var name in newTagNames)
                     {
-                        if (!existingTagsDic.TryGetValue(name, out var tag))
+                        if (!existingTags.TryGetValue(name, out var tag))
                         {
                             tag = new ProductTag { Name = name, Published = true };
 
                             _db.ProductTags.Add(tag);
-                            existingTagsDic[name] = tag;
+                            existingTags[name] = tag;
                         }
                     }
 
@@ -114,7 +113,7 @@ namespace Smartstore.Core.Catalog.Products
 
                     foreach (var name in newTagNames)
                     {
-                        if (existingTagsDic.TryGetValue(name, out var tag) && !product.ProductTags.Any(x => x.Id == tag.Id))
+                        if (existingTags.TryGetValue(name, out var tag) && !product.ProductTags.Any(x => x.Id == tag.Id))
                         {
                             product.ProductTags.Add(tag);
                         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -40,6 +41,11 @@ namespace Smartstore.Core.DataExchange.Import
         /// A value indicating whether to only update existing records.
         /// </summary>
         public bool UpdateOnly { get; internal set; }
+
+        /// <summary>
+        /// A value indicating whether to clear the entire cache at the end of the import.
+        /// </summary>
+        public bool ClearCache { get; internal set; }
 
         /// <summary>
         /// Infos about the import file.
@@ -137,6 +143,21 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets a custom property. Creates it if it does not exist.
+        /// </summary>
+        /// <param name="key">Key\name of the custom property.</param>
+        /// <returns>Custom property.</returns>
+        public T GetCustomProperty<T>(string key)
+        {
+            if (!CustomProperties.ContainsKey(key))
+            {
+                CustomProperties[key] = Activator.CreateInstance(typeof(T));
+            }
+
+            return (T)CustomProperties[key];
         }
     }
 }

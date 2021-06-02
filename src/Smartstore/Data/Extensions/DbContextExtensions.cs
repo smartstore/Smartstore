@@ -438,12 +438,14 @@ namespace Smartstore
         /// <param name="navigationProperty">The navigation property expression.</param>
         /// <param name="force"><c>false:</c> do nothing if data is already loaded. <c>true:</c> reload data even if already loaded.</param>
         /// <param name="queryModifier">Modifier for the query that is about to be executed against the database.</param>
+        /// <param name="cancelToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         public static async Task<CollectionEntry<TEntity, TCollection>> LoadCollectionAsync<TEntity, TCollection>(
             this HookingDbContext ctx,
             TEntity entity,
             Expression<Func<TEntity, IEnumerable<TCollection>>> navigationProperty,
             bool force = false,
-            Func<IQueryable<TCollection>, IQueryable<TCollection>> queryModifier = null)
+            Func<IQueryable<TCollection>, IQueryable<TCollection>> queryModifier = null,
+            CancellationToken cancelToken = default)
             where TEntity : BaseEntity
             where TCollection : BaseEntity
         {
@@ -476,7 +478,7 @@ namespace Smartstore
                     {
                         // An entity with same key is attached already. So we gonna load the navigation property of attached entity
                         // and copy the result to this detached entity. This way we don't need to attach the source entity.
-                        var otherCollection = await ctx.LoadCollectionAsync(other, navigationProperty, force, queryModifier);
+                        var otherCollection = await ctx.LoadCollectionAsync(other, navigationProperty, force, queryModifier, cancelToken: cancelToken);
 
                         // Copy collection over to detached entity.
                         collection.CurrentValue = otherCollection.CurrentValue;
@@ -506,11 +508,11 @@ namespace Smartstore
                 if (queryModifier != null)
                 {
                     var query = queryModifier(collection.Query());
-                    collection.CurrentValue = await query.ToListAsync();
+                    collection.CurrentValue = await query.ToListAsync(cancellationToken: cancelToken);
                 }
                 else
                 {
-                    await collection.LoadAsync();
+                    await collection.LoadAsync(cancelToken);
                 }
 
                 collection.IsLoaded = true;
@@ -526,12 +528,14 @@ namespace Smartstore
         /// <param name="navigationProperty">The navigation property expression.</param>
         /// <param name="force"><c>false:</c> do nothing if data is already loaded. <c>true:</c> Reload data event if loaded already.</param>
         /// <param name="queryModifier">Modifier for the query that is about to be executed against the database.</param>
+        /// <param name="cancelToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         public static async Task<ReferenceEntry<TEntity, TProperty>> LoadReferenceAsync<TEntity, TProperty>(
             this HookingDbContext ctx,
             TEntity entity,
             Expression<Func<TEntity, TProperty>> navigationProperty,
             bool force = false,
-            Func<IQueryable<TProperty>, IQueryable<TProperty>> queryModifier = null)
+            Func<IQueryable<TProperty>, IQueryable<TProperty>> queryModifier = null,
+            CancellationToken cancelToken = default)
             where TEntity : BaseEntity
             where TProperty : BaseEntity
         {
@@ -563,7 +567,7 @@ namespace Smartstore
                     {
                         // An entity with same key is attached already. So we gonna load the reference property of attached entity
                         // and copy the result to this detached entity. This way we don't need to attach the source entity.
-                        var otherReference = await ctx.LoadReferenceAsync(other, navigationProperty, force, queryModifier);
+                        var otherReference = await ctx.LoadReferenceAsync(other, navigationProperty, force, queryModifier, cancelToken: cancelToken);
 
                         // Copy reference over to detached entity.
                         reference.CurrentValue = otherReference.CurrentValue;
@@ -593,11 +597,11 @@ namespace Smartstore
                 if (queryModifier != null)
                 {
                     var query = queryModifier(reference.Query());
-                    reference.CurrentValue = await query.FirstOrDefaultAsync();
+                    reference.CurrentValue = await query.FirstOrDefaultAsync(cancellationToken: cancelToken);
                 }
                 else
                 {
-                    await reference.LoadAsync();
+                    await reference.LoadAsync(cancelToken);
                 }
 
                 reference.IsLoaded = true;

@@ -38,7 +38,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public bool IsPreview { get; init; }
         public DataExportRequest Request { get; init; }
         public IDirectory ExportDirectory { get; set; }
-        public CancellationToken CancellationToken { get; init; }
+        public CancellationToken CancelToken { get; init; }
         public IFile ZipFile { get; set; }
         public ILogger Log { get; set; }
         public ExportExecuteContext ExecuteContext { get; set; }

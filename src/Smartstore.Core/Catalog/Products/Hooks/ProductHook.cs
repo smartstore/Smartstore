@@ -44,7 +44,7 @@ namespace Smartstore.Core.Catalog.Products
                     softDeletedProduct.CountryOfOriginId = null;
                 }
 
-                await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync(cancelToken);
 
                 // Unassign grouped products.
                 var groupedProductIds = softDeletedProducts
@@ -84,7 +84,7 @@ namespace Smartstore.Core.Catalog.Products
                 productsChunk.Each(x => x.HasDiscountsApplied = appliedProductIds.Contains(x.Id));
             }
 
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(cancelToken);
         }
     }
 }

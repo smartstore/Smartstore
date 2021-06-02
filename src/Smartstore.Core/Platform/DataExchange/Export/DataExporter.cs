@@ -321,7 +321,7 @@ namespace Smartstore.Core.DataExchange.Export
         private async Task<List<Store>> Init(DataExporterContext ctx)
         {
             List<Store> result = null;
-            var ct = ctx.CancellationToken;
+            var ct = ctx.CancelToken;
             var provider = ctx.Request.Provider.Value;
 
             ctx.ContextCurrency = (await _db.Currencies.FindByIdAsync(ctx.Projection.CurrencyId ?? 0, false, ct)) ?? _services.WorkContext.WorkingCurrency;
@@ -466,7 +466,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     ctx.Log.Warn("Export aborted. The maximum number of failures has been reached.");
                 }
-                if (ctx.CancellationToken.IsCancellationRequested)
+                if (ctx.CancelToken.IsCancellationRequested)
                 {
                     ctx.Log.Warn("Export aborted. A cancellation has been requested.");
                 }
@@ -526,7 +526,7 @@ namespace Smartstore.Core.DataExchange.Export
                     ctx.Result.Files = ctx.Result.Files.OrderBy(x => x.RelatedType).ToList();
                     profile.ResultInfo = XmlHelper.Serialize(ctx.Result);
 
-                    await _db.SaveChangesAsync(ctx.CancellationToken);
+                    await _db.SaveChangesAsync(ctx.CancelToken);
                 }
             }
             catch (Exception ex)
@@ -581,7 +581,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             var query = GetEntitiesQuery(ctx);
             query = ApplyPaging(query, null, PageSize, ctx);
-            var entities = await query.ToListAsync(ctx.CancellationToken);
+            var entities = await query.ToListAsync(ctx.CancelToken);
 
             if (!entities.Any())
             {
@@ -1261,11 +1261,11 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     if (method == "Execute")
                     {
-                        await provider.ExecuteAsync(context, ctx.CancellationToken);
+                        await provider.ExecuteAsync(context, ctx.CancelToken);
                     }
                     else if (method == "OnExecuted")
                     {
-                        await provider.OnExecutedAsync(context, ctx.CancellationToken);
+                        await provider.OnExecutedAsync(context, ctx.CancelToken);
                     }
                 }
             }
@@ -1384,7 +1384,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                     if (publisher != null)
                     {
-                        await publisher.PublishAsync(deployment, context, ctx.CancellationToken);
+                        await publisher.PublishAsync(deployment, context, ctx.CancelToken);
 
                         if (!context.Result.Succeeded)
                         {
@@ -1407,7 +1407,7 @@ namespace Smartstore.Core.DataExchange.Export
                 deployment.ResultInfo = XmlHelper.Serialize(context.Result);
             }
 
-            await _db.SaveChangesAsync(ctx.CancellationToken);
+            await _db.SaveChangesAsync(ctx.CancelToken);
 
             return allSucceeded;
         }
@@ -1415,7 +1415,7 @@ namespace Smartstore.Core.DataExchange.Export
         private async Task SendCompletionEmail(DataExporterContext ctx)
         {
             var profile = ctx.Request.Profile;
-            var emailAccount = await _db.EmailAccounts.FindByIdAsync(profile.EmailAccountId, false, ctx.CancellationToken);
+            var emailAccount = await _db.EmailAccounts.FindByIdAsync(profile.EmailAccountId, false, ctx.CancelToken);
             if (emailAccount == null)
             {
                 return;
@@ -1480,7 +1480,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             await using var client = await _mailService.ConnectAsync(emailAccount);
-            await client.SendAsync(message, ctx.CancellationToken);
+            await client.SendAsync(message, ctx.CancelToken);
 
             //_db.QueuedEmails.Add(new QueuedEmail
             //{
@@ -1515,7 +1515,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     num += await _db.Orders
                         .Where(x => chunk.Contains(x.Id))
-                        .BatchUpdateAsync(x => new Order { OrderStatusId = newOrderStatusId.Value }, ctx.CancellationToken);
+                        .BatchUpdateAsync(x => new Order { OrderStatusId = newOrderStatusId.Value }, ctx.CancelToken);
                 }
 
                 ctx.Log.Info($"Updated order status for {num} order(s).");
@@ -1550,7 +1550,7 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 IsPreview = isPreview,
                 Request = request,
-                CancellationToken = cancelToken,
+                CancelToken = cancelToken,
                 Filter = XmlHelper.Deserialize<ExportFilter>(profile.Filtering),
                 Projection = XmlHelper.Deserialize<ExportProjection>(profile.Projection),
                 ProgressInfo = T("Admin.DataExchange.Export.ProgressInfo")
