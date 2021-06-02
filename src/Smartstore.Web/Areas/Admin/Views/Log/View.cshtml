@@ -1,5 +1,5 @@
 ﻿@using Smartstore.Admin.Models.Logging
-
+ 
 @model LogModel
 
 @{
@@ -7,7 +7,6 @@
     ViewBag.Title = T("Admin.System.Log.ViewLogDetails").Value;
 }
 
-@* TODO: (ms) (core) Wait until delete confirmation function has been implemented to proceed with deletion. *@
 <form method="post" asp-action="DeleteConfirmed">
     <div class="section-header">
         <div class="title">
@@ -16,10 +15,11 @@
         </div>
         <input asp-for="Id" type="hidden" />
         <div class="options">
-            <button type="submit" id="log-delete" class="btn btn-danger" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue)'>
+            <button type="submit" id="log-delete" class="btn btn-danger">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete")</span>
             </button>
+            <confirm button-id="log-delete" />
         </div>
     </div>
 

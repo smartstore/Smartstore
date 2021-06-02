@@ -54,6 +54,42 @@
         $.extend(widget.style, pos);
     };
 
+    function initConfirmationDialogs(context) {
+        var confirmations = (context || document).getElementsByClassName("confirmation-dialog");
+
+        Array.from(confirmations).forEach(el => {
+            var dialog = $(el);
+            var submitButton = $("#" + dialog.data("submit-button-id"));
+            var acceptButton = dialog.find(".btn-accept");
+
+            submitButton.on("click", function (e) {
+                e.preventDefault();
+                dialog.modal("show");
+            });
+
+            acceptButton.on("click", function (e) {
+                e.preventDefault();
+
+                // Submit form.
+                var form = submitButton.closest("form");
+                if (form.length == 0) {
+                    console.error("Failed to retrieve form.");
+                    return;
+                }
+
+                var formPostUrl = dialog.data("form-post-url");
+                if (formPostUrl.length > 0) {
+                    form.attr("action", formPostUrl);
+                }
+
+                form.submit();
+
+                // Close dialog.
+                dialog.hide();
+            });
+        });
+    }
+
     // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
     function initSelect(el) {
         if ($.fn.select2 === undefined || $.fn.selectWrapper === undefined)
@@ -208,6 +244,7 @@
     // TODO: (mh) (core) Move to globalinit later.
     $(function () {
         initializeEditControls();
+        initConfirmationDialogs();
     });
 })(jQuery, this, document);
 

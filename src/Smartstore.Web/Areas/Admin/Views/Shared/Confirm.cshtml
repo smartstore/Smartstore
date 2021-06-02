@@ -1,0 +1,43 @@
+﻿@using Smartstore.Web.TagHelpers.Shared
+
+@model ConfirmModel
+
+<modal id="modal-@Model.ButtonId" 
+       sm-backdrop="Model.Backdrop" 
+       sm-close-on-backdrop-click="false" 
+       sm-fade="true"
+       sm-center-vertically="Model.Center" 
+       sm-center-content="true" 
+       sm-size="@Model.Size"
+       class="confirmation-dialog"
+       data-submit-button-id="@Model.ButtonId"
+       data-form-post-url="@Model.FormPostUrl">
+    @if (Model.Title.HasValue())
+    {
+        <modal-header sm-show-close="false" sm-title="@Model.Title"></modal-header>
+    }
+    <modal-body>
+        <div class="modal-box-body d-flex" attr-class='(Model.CenterContent, "flex-nowrap")'>
+            <div class="modal-box-icon">
+                <i class="@(Model.IconClass) text-@(Model.IconColor.ToString().ToLower()) fa-fw fa-3x mb-3"></i>
+            </div>
+            <div class="modal-box-message">@Model.Message</div>
+        </div>
+    </modal-body>
+    <modal-footer>
+        <button type="button" 
+                class="btn btn-@(Model.ButtonStyle.ToString().ToLower()) btn-sm btn-accept" 
+                data-dismiss="modal" 
+                tabindex="2"
+                attr-class='(Model.ConfirmType == ConfirmType.Delete, "entity-commit-trigger")'
+                attr-data-commit-type='(Model.ConfirmType == ConfirmType.Delete, Model.EntityType)' 
+                attr-data-commit-action='(Model.ConfirmType == ConfirmType.Delete, "delete")'
+                attr-data-commit-id='(Model.ConfirmType == ConfirmType.Delete, Model.Id.ToString())' >
+            <span>@Model.AcceptText</span>
+        </button>
+
+        <button type="button" class="btn btn-secondary btn-sm btn-cancel" data-dismiss="modal" tabindex="3">
+            <span>@Model.CancelText</span>
+        </button>
+    </modal-footer>
+</modal>
