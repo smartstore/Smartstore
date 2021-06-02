@@ -7,12 +7,12 @@ namespace Smartstore.Web.Rendering
     {
         public string ButtonId { get; set; }
         public string FormPostUrl { get; set; }
-        public ConfirmType ConfirmType { get; set; }
+        public ConfirmActionType ConfirmType { get; set; }
         public int Id { get; set; }
         public string EntityType { get; set; }
         public bool Backdrop { get; set; }
         public string Title { get; set; }
-        public ButtonStyle ButtonStyle { get; set; }
+        public ThemeColor ButtonStyle { get; set; }
         public string AcceptText { get; set; }
         public string CancelText { get; set; }
         public bool Center { get; set; }
@@ -20,6 +20,6 @@ namespace Smartstore.Web.Rendering
         public ModalSize Size { get; set; } = ModalSize.Medium;
         public string Message { get; set; }
         public string IconClass { get; set; }
-        public BadgeStyle IconColor { get; set; }
+        public ThemeColor IconColor { get; set; }
     }
 }

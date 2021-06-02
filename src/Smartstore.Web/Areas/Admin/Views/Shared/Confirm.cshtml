@@ -29,10 +29,10 @@
                 class="btn btn-@(Model.ButtonStyle.ToString().ToLower()) btn-sm btn-accept" 
                 data-dismiss="modal" 
                 tabindex="2"
-                attr-class='(Model.ConfirmType == ConfirmType.Delete, "entity-commit-trigger")'
-                attr-data-commit-type='(Model.ConfirmType == ConfirmType.Delete, Model.EntityType)' 
-                attr-data-commit-action='(Model.ConfirmType == ConfirmType.Delete, "delete")'
-                attr-data-commit-id='(Model.ConfirmType == ConfirmType.Delete, Model.Id.ToString())' >
+                attr-class='(Model.ConfirmType == ConfirmActionType.Delete, "entity-commit-trigger")'
+                attr-data-commit-type='(Model.ConfirmType == ConfirmActionType.Delete, Model.EntityType)' 
+                attr-data-commit-action='(Model.ConfirmType == ConfirmActionType.Delete, "delete")'
+                attr-data-commit-id='(Model.ConfirmType == ConfirmActionType.Delete, Model.Id.ToString())' >
             <span>@Model.AcceptText</span>
         </button>
 

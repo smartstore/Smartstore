@@ -7,20 +7,19 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
-    public enum ConfirmType
+    public enum ConfirmActionType
     {
         Delete,
         Action
     }
 
-    [OutputElementHint("button")]
     [HtmlTargetElement("confirm", Attributes = ButtonIdAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     public class ConfirmTagHelper : SmartTagHelper
     {
         const string ButtonIdAttributeName = "button-id";
         const string ActionAttributeName = "action";
         const string ControllerAttributeName = "controller";
-        const string ConfirmTypeAttributeName = "confirm-type";
+        const string ConfirmTypeAttributeName = "type";
         const string BackdropAttributeName = "backdrop";
         const string TitleAttributeName = "title";
         const string ButtonStyleAttributeName = "accept-button-color";
@@ -30,7 +29,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string CenterContentAttributeName = "center-content";
         const string SizeAttributeName = "size";
         const string MessageAttributeName = "message";
-        const string IconClassAttributeName = "icon-class";
+        const string IconClassAttributeName = "icon";
         const string IconColorAttributeName = "icon-color";
 
         private readonly IWidgetProvider _widgetProvider;
@@ -43,31 +42,31 @@ namespace Smartstore.Web.TagHelpers.Shared
         }
 
         /// <summary>
-        /// Specifies the id of the button which will be bound to the confirmation dialog.
+        /// Specifies the id of the toggle button which will be bound to the confirmation dialog.
         /// </summary>
         [HtmlAttributeName(ButtonIdAttributeName)]
         public string ButtonId { get; set; }
 
         /// <summary>
-        /// Specifies the action to execute after confirmation.
+        /// Specifies the action to execute after accepted confirmation.
         /// </summary>
         [HtmlAttributeName(ActionAttributeName)]
         public string Action { get; set; }
 
         /// <summary>
-        /// Specifies the controller to search for the action to execute after confirmation.
+        /// Specifies the controller to search for the action to execute after accepted confirmation.
         /// </summary>
         [HtmlAttributeName(ControllerAttributeName)]
         public string Controller { get; set; }
 
         /// <summary>
-        /// Specifies the <see cref="ConfirmType"/>. Delete || Action
+        /// Specifies the <see cref="ConfirmActionType"/>. Default = Delete.
         /// </summary>
         [HtmlAttributeName(ConfirmTypeAttributeName)]
-        public ConfirmType ConfirmType { get; set; }
+        public ConfirmActionType ConfirmType { get; set; }
 
         /// <summary>
-        /// Specifies whether the dialog has backdrop.
+        /// Specifies whether the dialog has backdrop. Default = true.
         /// </summary>
         [HtmlAttributeName(BackdropAttributeName)]
         public bool Backdrop { get; set; } = true;
@@ -79,43 +78,43 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string Title { get; set; }
 
         /// <summary>
-        /// Specifies the text for the accept button.
+        /// Specifies the custom text for the accept button.
         /// </summary>
         [HtmlAttributeName(AcceptTextAttributeName)]
         public string AcceptText { get; set; }
 
         /// <summary>
-        /// Specifies the text for the cancel button.
+        /// Specifies the custom text for the cancel button.
         /// </summary>
         [HtmlAttributeName(CancelTextAttributeName)]
         public string CancelText { get; set; }
 
         /// <summary>
-        /// Specifies the color for the accept button.
+        /// Specifies the custom color for the accept button.
         /// </summary>
         [HtmlAttributeName(ButtonStyleAttributeName)]
-        public ButtonStyle? ButtonColor { get; set; }
+        public ThemeColor? ButtonColor { get; set; }
 
         /// <summary>
-        /// Specifies whether to center the dialog vertically.
+        /// Specifies whether to center the dialog vertically. Default = false.
         /// </summary>
         [HtmlAttributeName(CenterAttributeName)]
         public bool Center { get; set; }
 
         /// <summary>
-        /// Specifies whether to center the dialog content.
+        /// Specifies whether to center the dialog content. Default = false.
         /// </summary>
         [HtmlAttributeName(CenterContentAttributeName)]
         public bool CenterContent { get; set; }
 
         /// <summary>
-        /// Specifies <see cref="ModalSize"/> of the dialog.
+        /// Specifies <see cref="ModalSize"/> of the dialog. Default = Medium.
         /// </summary>
         [HtmlAttributeName(SizeAttributeName)]
         public ModalSize Size { get; set; } = ModalSize.Medium;
 
         /// <summary>
-        /// Specifies the display message.
+        /// Specifies the custom display message.
         /// </summary>
         [HtmlAttributeName(MessageAttributeName)]
         public string Message { get; set; }
@@ -127,16 +126,16 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string IconClass { get; set; }
 
         /// <summary>
-        /// Specifies the icon color.
+        /// Specifies the custom icon color.
         /// </summary>
         [HtmlAttributeName(IconColorAttributeName)]
-        public BadgeStyle? IconColor { get; set; }
+        public ThemeColor? IconColor { get; set; }
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
             output.SuppressOutput();
 
-            Action ??= ConfirmType == ConfirmType.Delete ? "Delete" : HtmlHelper.ViewContext.RouteData.Values.GetActionName();
+            Action ??= ConfirmType == ConfirmActionType.Delete ? "Delete" : HtmlHelper.ViewContext.RouteData.Values.GetActionName();
             Controller ??= HtmlHelper.ViewContext.RouteData.Values.GetControllerName();
 
             var model = new ConfirmModel
@@ -147,9 +146,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 
                 // Labels
                 Title = Title,
-                AcceptText = AcceptText ?? (ConfirmType == ConfirmType.Delete ? T("Admin.Common.Delete") : T("Common.OK")),
-                CancelText = CancelText ?? (ConfirmType == ConfirmType.Delete ? T("Admin.Common.NoCancel") : T("Common.Cancel")),
-                Message = Message ?? (ConfirmType == ConfirmType.Delete ? T("Admin.Common.DeleteConfirmation") : T("Admin.Common.AskToProceed")),
+                AcceptText = AcceptText ?? (ConfirmType == ConfirmActionType.Delete ? T("Admin.Common.Delete") : T("Common.OK")),
+                CancelText = CancelText ?? (ConfirmType == ConfirmActionType.Delete ? T("Admin.Common.NoCancel") : T("Common.Cancel")),
+                Message = Message ?? (ConfirmType == ConfirmActionType.Delete ? T("Admin.Common.DeleteConfirmation") : T("Admin.Common.AskToProceed")),
 
                 // Modal setings
                 Backdrop = Backdrop,
@@ -163,10 +162,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                 ButtonStyle = ButtonColor ?? GetButtonStyle(ConfirmType)
             };
 
-            if (ViewContext.ViewData.Model is EntityModelBase entityModel && entityModel.Id != 0 && ConfirmType == ConfirmType.Delete)
+            if (ViewContext.ViewData.Model is EntityModelBase entityModel && entityModel.Id != 0 && ConfirmType == ConfirmActionType.Delete)
             {
                 model.Id = entityModel.Id;
-                // TODO: (MC) This is really bad, but sufficient for the moment.
+                // TODO: (mc) (core) This is really bad, but sufficient for the moment.
                 model.EntityType = ButtonId.Replace("-delete", string.Empty);
             }
 
@@ -176,30 +175,30 @@ namespace Smartstore.Web.TagHelpers.Shared
             _widgetProvider.RegisterWidget("end", widget);
         }
     
-        private static string GetIconClass(ConfirmType confirmType)
+        private static string GetIconClass(ConfirmActionType confirmType)
         {
             return confirmType switch
             {
-                ConfirmType.Action => "fa fa-exclamation-circle",
+                ConfirmActionType.Action => "fa fa-exclamation-circle",
                 _ => "fa fa-trash-alt",
             };
         }
 
-        private static BadgeStyle GetIconColor(ConfirmType confirmType)
+        private static ThemeColor GetIconColor(ConfirmActionType confirmType)
         {
             return confirmType switch
             {
-                ConfirmType.Action => BadgeStyle.Warning,
-                _ => BadgeStyle.Danger,
+                ConfirmActionType.Action => ThemeColor.Warning,
+                _ => ThemeColor.Danger,
             };
         }
 
-        private static ButtonStyle GetButtonStyle(ConfirmType confirmType)
+        private static ThemeColor GetButtonStyle(ConfirmActionType confirmType)
         {
             return confirmType switch
             {
-                ConfirmType.Action => ButtonStyle.Primary,
-                _ => ButtonStyle.Danger,
+                ConfirmActionType.Action => ThemeColor.Primary,
+                _ => ThemeColor.Danger,
             };
         }
     }

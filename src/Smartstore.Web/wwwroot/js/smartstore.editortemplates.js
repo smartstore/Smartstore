@@ -55,6 +55,7 @@
     };
 
     function initConfirmationDialogs(context) {
+        // TODO: (mh) (core) Move initConfirmationDialogs() to applicable place later (e.g. globalinit, plugin factories or alike)
         var confirmations = (context || document).getElementsByClassName("confirmation-dialog");
 
         Array.from(confirmations).forEach(el => {
@@ -62,12 +63,12 @@
             var submitButton = $("#" + dialog.data("submit-button-id"));
             var acceptButton = dialog.find(".btn-accept");
 
-            submitButton.on("click", function (e) {
+            submitButton.on("click", e => {
                 e.preventDefault();
                 dialog.modal("show");
             });
 
-            acceptButton.on("click", function (e) {
+            acceptButton.on("click", e => {
                 e.preventDefault();
 
                 // Submit form.
