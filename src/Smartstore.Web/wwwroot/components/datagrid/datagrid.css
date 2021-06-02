@@ -70,14 +70,12 @@
     overflow-x: hidden; }
   .dg-table .dg-tbody > tr:nth-of-type(even) > td {
     background-color: var(--dg-row-even-bg); }
-  .dg-table .dg-th:first-child {
-    z-index: 10; }
   .dg-table .dg-tr.active,
   .dg-table .dg-tr.dg-edit-row {
     --dg-row-bg: var(--dg-row-active-color) !important;
     --dg-row-even-bg: var(--dg-row-active-color) !important; }
   .dg-table.dg-resizing {
-    cursor: ew-resize; }
+    cursor: col-resize; }
 
 .dg-striped {
   --dg-row-even-bg: #fbfbfc; }
@@ -102,8 +100,7 @@
     white-space: normal; }
 
 .dg-cell-spacer {
-  padding: 0;
-  display: none; }
+  padding: 0; }
 
 .dg-icon + * {
   padding-left: 6px; }
@@ -150,7 +147,7 @@
   bottom: 0;
   width: 10px;
   opacity: 0;
-  cursor: ew-resize;
+  cursor: col-resize;
   transition: opacity 0.12s; }
   .dg-resize-handle:after {
     position: absolute;
@@ -195,6 +192,8 @@
   position: sticky !important;
   overflow-x: visible !important;
   z-index: 5; }
+  .dg-col-pinned.dg-th {
+    z-index: 10; }
   .dg-col-pinned.alpha {
     left: 0; }
   .dg-col-pinned.omega {
@@ -335,10 +334,9 @@ span.dg-page {
   height: 100%; }
 
 .dg-tools-dropdown {
-  min-width: 235px;
-  max-width: 350px;
+  min-width: 250px;
   width: auto;
-  max-height: 450px;
+  max-height: 100vh;
   overflow-y: auto;
   font-size: 13px; }
   .dg-tools-dropdown .switch {
@@ -349,6 +347,23 @@ span.dg-page {
   .dg-tools-dropdown select {
     height: 28px;
     padding: 0 4px; }
+
+.dg-row-edit-commands {
+  width: 100%;
+  height: 100%; }
+  .dg-row-edit-commands > button {
+    height: 50%;
+    padding: 0 !important; }
+    .dg-row-edit-commands > button > i {
+      font-size: 10px !important; }
+
+.dg-tools-columns {
+  display: grid;
+  grid-template-columns: minmax(100px, auto) minmax(100px, auto);
+  grid-gap: 0 15px; }
+
+.dg-column-toggle {
+  max-width: 150px; }
 
 [dir=rtl] .dg-page-refresh {
   border-left: 1px solid #dee2e6;

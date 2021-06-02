@@ -1,20 +1,20 @@
 ﻿Vue.component("sm-datagrid-tools", {
     template: `
         <div class="dg-cell dg-cell-header dg-tools dropdown">
-            <a href="#" class="dg-tools-toggle" data-toggle="dropdown">
+            <a href="#" class="dg-tools-toggle dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
                 <i class="fa fa-cog"></i>
             </a>
             <div class="dg-tools-dropdown dropdown-menu dropdown-menu-right" v-on:click="$event.stopPropagation()">
                 <div class="dg-tools-group px-3 pt-1">
                     <label class="d-flex align-items-center justify-content-between switcher-sm m-0">
-                        <span>Vertikale Linien</span>
+                        <span>Zeilen liniert</span>
                         <label class="switch">
                             <input type="checkbox" v-model="options.vborders">
                             <span class="switch-toggle"></span>
                         </label>
                     </label>
                     <label class="d-flex align-items-center justify-content-between switcher-sm m-0">
-                        <span>Horizontale Linien</span>
+                        <span>Spalten liniert</span>
                         <label class="switch">
                             <input type="checkbox" v-model="options.hborders">
                             <span class="switch-toggle"></span>
@@ -47,10 +47,10 @@
                     </button>
                 </div>
                 <div class="dropdown-divider"></div>
-                <div class="dg-tools-tools-group px-3 xpy-3">
-                    <div v-for="(column, columnIndex) in columns" class="form-check my-1">
-                        <input class="form-check-input" type="checkbox" v-model="column.visible" :id="'dg-toggle-' + columnIndex" :disabled="column.hideable ? null : true">
-                        <label class="form-check-label " :for="'dg-toggle-' + columnIndex">{{ column.name }}</label>
+                <div class="dg-tools-group dg-tools-columns px-3 pb-1">
+                    <div v-for="(column, columnIndex) in columns" class="dg-column-toggle form-check my-1">
+                        <input class="form-check-input" type="checkbox" v-model="column.visible" :id="'dg-column-toggle-' + columnIndex" :disabled="column.hideable ? null : true">
+                        <label class="form-check-label d-block text-truncate" :for="'dg-column-toggle-' + columnIndex">{{ column.name }}</label>
                     </div>
                 </div>
             </div>
@@ -61,16 +61,5 @@
         options: Object,
         paging: Object,
         columns: Array
-    },
-
-
-    computed: {
-
-    },
-
-    methods: {
-        refresh() {
-
-        }
     }
 });

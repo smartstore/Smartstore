@@ -74,7 +74,6 @@ Vue.component("sm-datagrid", {
                                 v-on:dragstart="onColumnDragStart"
                                 v-on:dragenter.stop="onColumnDragEnter"
                                 v-on:dragover.stop="onColumnDragOver"
-                                v-on:dragleave.stop="onColumnDragLeave"
                                 v-on:dragend="onColumnDragEnd"
                                 v-on:drop="onColumnDrop"
                                 ref="column">
@@ -93,14 +92,13 @@ Vue.component("sm-datagrid", {
                                     v-on:mousedown.stop.prevent="onStartResize($event, column, columnIndex)"
                                     v-on:dblclick.stop.prevent="autoSizeColumn($event, column, columnIndex)">
                                 </div>
-                            </th>
+                            </th> 
                             <th class="dg-th">
                                 <div class="dg-cell dg-cell-header dg-cell-spacer">&nbsp;</div>
                             </th>
-
                             <th class="dg-th dg-col-pinned omega">
                                 <sm-datagrid-tools :options="options" :columns="columns" :paging="paging"></sm-datagrid-tools>
-                            </th>  
+                            </th> 
                         </tr>
                     </thead>
                     <tbody ref="tableBody" class="dg-tbody">
@@ -142,8 +140,11 @@ Vue.component("sm-datagrid", {
                                     </slot>
                                 </div>
                             </td>
-                            <td class="dg-td" style="grid-column: span 2">
+                            <td class="dg-td" style="x-grid-column: span 2">
                                 <div class="dg-cell dg-cell-spacer"></div>
+                            </td>
+                            <td class="dg-td dg-col-pinned omega">
+                                <sm-datagrid-commands :row="row" :editing="editing"></sm-datagrid-commands>
                             </td>
                         </tr>
                     </tbody>
@@ -345,6 +346,9 @@ Vue.component("sm-datagrid", {
     mounted () {
         const self = this;
 
+        // Put to data so we can access the component instance from outside
+        $(this.$el).data("datagrid", this);
+
         // Handle sticky columuns on resize
         const resizeObserver = new ResizeObserver(entries => {
             const tableWrapper = entries[0].target;
@@ -355,27 +359,17 @@ Vue.component("sm-datagrid", {
         // Read data from server
         this.read();
 
-        $(document).on("show.bs.dropdown", ".dg-tools", function (e) {
-            // grab the menu
-            dropdownMenu = $(e.target).find('.dropdown-menu');
-
-            // detach it and append it to the body
-            $('body').append(dropdownMenu.detach());
-
-            // grab the new offset position
-            var eOffset = $(e.target).offset();
-
-            // make sure to place it where it would normally go (this could be improved)
-            dropdownMenu.css({
-                //'display': 'block',
-                'top': eOffset.top + $(e.target).outerHeight(),
-                'left': eOffset.left
-            });
+        $(this.$el).on("show.bs.dropdown", function (e) {
+            // Append the dropdown menu to body to prevent overflow clipping
+            var menu = $(e.target).find('.dropdown-menu');
+            $(e.target).data("dropdown-menu", menu);
+            menu.detach().appendTo('body');
         });
 
-        $(window).on("hide.bs.dropdown", ".dg-tools", function (e) {
-            $(e.target).append(dropdownMenu.detach());
-            dropdownMenu.hide();
+        $(this.$el).on("hide.bs.dropdown", function (e) {
+            // Put dropdown menu back to where it belongs
+            var menu = $(e.target).data('dropdown-menu');
+            menu.detach().appendTo(e.target);
         });
     },
 
@@ -515,10 +509,6 @@ Vue.component("sm-datagrid", {
                 style.alignItems = column.valign;
             }
 
-            //if (column.flow) {
-            //    style.flexFlow = column.flow;
-            //}
-
             return style;
         },
 
@@ -589,6 +579,10 @@ Vue.component("sm-datagrid", {
 
         renderCellValue(value, column, row) {
             const t = column.type;
+
+            if (!value && column.nullable) {
+                return value;
+            }
 
             if (t === 'int') {
                 return Smartstore.globalization.formatNumber(value);
@@ -745,11 +739,6 @@ Vue.component("sm-datagrid", {
             const d = this.dragging;
             if (d.active) {
                 const th = $(e.target).closest('th.dg-th-column').get(0);
-                //if (th === d.source) {
-                //    d.target = null;
-                //    e.dataTransfer.dropEffect = 'none';
-                //    d.removeIndicator();
-                //}
                 if (th) {
                     e.preventDefault();
                     if (th !== d.target) {
@@ -759,7 +748,6 @@ Vue.component("sm-datagrid", {
                         d.targetColumn = this.columns[d.targetIndex];
                         d.targetRect = th.getBoundingClientRect();
                         e.dataTransfer.dropEffect = "move";
-                        //console.log("onColumnDragOver", this.dragging.targetMember, this.dragging.targetColumn);
                     }
 
                     // TODO: (core) What about RTL?
@@ -768,36 +756,24 @@ Vue.component("sm-datagrid", {
                     let atStart = e.pageX < rect.left + (rect.width / 2);
 
                     if (atStart && attemptedIndex === (d.sourceIndex + 1)) {
-                        //d.sourceIndex++;
                         atStart = false;
                     }
 
                     d.indicate(atStart);
-
-                    //console.log("onColumnDragOver", "page", e.pageX, e.pageY, "th", this.dragging.targetRect);
                 }
             }
-        },
-
-        onColumnDragLeave(e) {
-            //if (this.dragging.lastEnter !== e.target) {
-            //    console.log("onColumnDragLeave", e.target);
-            //}
         },
 
         onColumnDrop(e) {
             if (this.dragging.active && this.dragging.target) {
                 const th = this.dragging.target;
                 const index = parseInt(th.getAttribute("data-index"));
-
-                //console.log("onColumnDrop", this.columns[this.dragging.sourceIndex], index);
                 this.changeColumnOrder(this.dragging.sourceColumn, index);
             }
         },
 
         onColumnDragEnd(e) {
             this.dragging.reset();
-            //console.log("onColumnDragEnd", this.dragging);
         },
 
         changeColumnOrder(column, newIndex) {

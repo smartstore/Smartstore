@@ -300,7 +300,13 @@ namespace Smartstore.Admin.Controllers
                     StockQuantity = x.StockQuantity,
                     Price = x.Price,
                     LimitedToStores = x.LimitedToStores,
-                    EditUrl = Url.Action("Edit", "Product", new { id = x.Id })
+                    EditUrl = Url.Action("Edit", "Product", new { id = x.Id }),
+                    ManufacturerPartNumber = x.ManufacturerPartNumber,
+                    Gtin = x.Gtin,
+                    MinStockQuantity = x.MinStockQuantity,
+                    OldPrice = x.OldPrice,
+                    AvailableStartDateTimeUtc = x.AvailableStartDateTimeUtc,
+                    AvailableEndDateTimeUtc = x.AvailableEndDateTimeUtc
                 };
 
                 //MiniMapper.Map(x, productModel);
@@ -351,6 +357,12 @@ namespace Smartstore.Admin.Controllers
             product.Price = model.Price;
             product.StockQuantity = model.StockQuantity;
             product.Published = model.Published;
+            product.ManufacturerPartNumber = model.ManufacturerPartNumber;
+            product.Gtin = model.Gtin;
+            product.MinStockQuantity = model.MinStockQuantity;
+            product.OldPrice = model.OldPrice;
+            product.AvailableStartDateTimeUtc = model.AvailableStartDateTimeUtc;
+            product.AvailableEndDateTimeUtc = model.AvailableEndDateTimeUtc;
 
             try
             {
@@ -374,7 +386,13 @@ namespace Smartstore.Admin.Controllers
                 Sku = model.Sku,
                 Price = model.Price,
                 StockQuantity = model.StockQuantity,
-                Published = model.Published
+                Published = model.Published,
+                ManufacturerPartNumber = model.ManufacturerPartNumber,
+                Gtin = model.Gtin,
+                MinStockQuantity = model.MinStockQuantity,
+                OldPrice = model.OldPrice,
+                AvailableStartDateTimeUtc = model.AvailableStartDateTimeUtc,
+                AvailableEndDateTimeUtc = model.AvailableEndDateTimeUtc
             };
 
             try

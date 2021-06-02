@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering;
@@ -190,14 +191,14 @@ namespace Smartstore.Web.TagHelpers.Admin
             return new
             {
                 member = MemberName,
-                name = For.Metadata.DisplayName,
-                title = Title ?? For.Metadata.DisplayName,
+                name = For.Metadata.DisplayName ?? For.Metadata.PropertyName.Titleize(),
+                title = Title ?? For.Metadata.DisplayName ?? For.Metadata.PropertyName.Titleize(),
                 width = Width.EmptyNull(),
                 visible = Visible,
-                //flow = col.Flow?.ToString()?.Kebaberize(),
                 halign = HAlign,
                 valign = VAlign,
                 type = GetColumnType(),
+                nullable = For.Metadata.IsNullableValueType,
                 format = Format,
                 resizable = Resizable,
                 sortable = Sortable,

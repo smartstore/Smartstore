@@ -61,12 +61,7 @@
                 </display-template>
             </column>
         }
-        @*<column for="AdminComment" width="200px">
-            <display-template>
-                <input type="text" class="form-control form-control" />
-            </display-template>
-        </column>*@
-        <column for="Name" width="3fr" nowrap="false" hideable="false">
+        <column for="Name" width="3fr" hideable="false">
             <display-template>
                 <span class="mr-1 badge" v-bind:class="'badge-' + item.row.ProductTypeLabelHint">{{ item.row.ProductTypeName }}</span>
                 <a :href="item.row.EditUrl" class="text-truncate">
@@ -75,27 +70,21 @@
             </display-template>
         </column>
         <column for="Sku" />
-        <column for="Price"
-                halign="flex-end" />
-        <column for="StockQuantity" sortable="true" icon="fa fa-sort-amount-up"
-                halign="center">
-            @*<display-template>
-                {{ formatNumber(item.value) }}
-            </display-template>*@
-        </column>
-        <column for="LimitedToStores"
-                visible="!isSingleStoreMode"
-                readonly="true"
-                halign="center" />
-        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" />
-        <column for="UpdatedOn" entity-member="UpdatedOnUtc" readonly="false" />
-        <column for="Published"
-                halign="center" />
+        <column for="Gtin" visible="false" />
+        <column for="ManufacturerPartNumber" visible="false" />
+        <column for="Price" halign="flex-end" />
+        <column for="OldPrice" halign="flex-end" visible="false" />
+        <column for="StockQuantity" halign="center" />
+        <column for="MinStockQuantity" halign="center" visible="false" />
+        <column for="LimitedToStores" visible="!isSingleStoreMode" readonly="true" halign="center" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" visible="false" />
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" readonly="true" />
+        <column for="Published" halign="center" />
+        <column for="AvailableStartDateTimeUtc" visible="false" />
+        <column for="AvailableEndDateTimeUtc" visible="false" />
     </columns>
 </datagrid>
 
 <script sm-target-zone="scripts" data-origin="products-grid">
-    $(function () {
-        $("#products-grid").thumbZoomer();
-    });
+    // ...
 </script>
