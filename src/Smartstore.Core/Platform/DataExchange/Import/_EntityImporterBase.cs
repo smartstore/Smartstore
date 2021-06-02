@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -13,6 +14,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 using Smartstore.IO;
+using Smartstore.Net;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Import
@@ -68,7 +70,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessLocalizationsAsync<TEntity>(
             ImportExecuteContext context,
             IEnumerable<ImportRow<TEntity>> batch,
-            IDictionary<string, Expression<Func<TEntity, string>>> localizableProperties) 
+            IDictionary<string, Expression<Func<TEntity, string>>> localizableProperties)
             where TEntity : BaseEntity, ILocalizedEntity
         {
             Guard.NotNull(context, nameof(context));
@@ -156,7 +158,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task<int> ProcessStoreMappingsAsync<TEntity>(
             ImportExecuteContext context,
-            IEnumerable<ImportRow<TEntity>> batch) 
+            IEnumerable<ImportRow<TEntity>> batch)
             where TEntity : BaseEntity, IStoreRestricted
         {
             var shouldSave = false;
@@ -172,7 +174,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 var storeIds = row.GetDataValue<List<int>>("StoreIds");
                 var hasStoreIds = storeIds?.Any() ?? false;
-                
+
                 if (storeIds.Count == 1 && storeIds[0] == 0)
                 {
                     hasStoreIds = false;
@@ -267,6 +269,71 @@ namespace Smartstore.Core.DataExchange.Import
 
             // Commit whole batch at once.
             return await scope.CommitAsync(context.CancelToken);
+        }
+
+        protected virtual DownloadManagerItem CreateDownloadItem(ImportExecuteContext context, string urlOrPath, int displayOrder)
+        {
+            try
+            {
+                var item = new DownloadManagerItem
+                {
+                    Id = displayOrder,
+                    DisplayOrder = displayOrder
+                };
+
+                if (urlOrPath.IsWebUrl())
+                {
+                    // We append quality to avoid importing of image duplicates.
+                    item.Url = _services.WebHelper.ModifyQueryString(urlOrPath, "q=100", null);
+
+                    if (DownloadedItems.ContainsKey(urlOrPath))
+                    {
+                        // URL has already been downloaded.
+                        item.Success = true;
+                        item.FileName = DownloadedItems[urlOrPath];
+                    }
+                    else
+                    {
+                        var localPath = string.Empty;
+
+                        try
+                        {
+                            // Exclude query string parts!
+                            localPath = new Uri(urlOrPath).LocalPath;
+                        }
+                        catch
+                        {
+                        }
+
+                        item.FileName = GetValidFileName(localPath);
+                    }
+
+                    item.Path = ImageDownloadFolder.FileSystem.PathCombine(ImageDownloadFolder.PhysicalPath, item.FileName);
+                }
+                else
+                {
+                    item.Success = true;
+                    item.FileName = GetValidFileName(urlOrPath);
+
+                    item.Path = Path.IsPathRooted(urlOrPath)
+                        ? urlOrPath
+                        : ImageFolder.FileSystem.PathCombine(ImageFolder.PhysicalPath, urlOrPath);
+                }
+
+                item.MimeType = MimeTypes.MapNameToMimeType(item.FileName);
+
+                return item;
+            }
+            catch
+            {
+                context.Result.AddWarning($"Failed to prepare image download for '{urlOrPath.NaIfEmpty()}'. Skipping file.");
+                return null;
+            }
+
+            static string GetValidFileName(string str)
+            {
+                return Path.GetFileName(str).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
+            }
         }
 
         protected static int? ZeroToNull(object value, CultureInfo culture)

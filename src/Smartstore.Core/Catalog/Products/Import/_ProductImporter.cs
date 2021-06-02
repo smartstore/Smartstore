@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -12,12 +13,14 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Products.Utilities;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import.Events;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
+using Smartstore.Net;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -38,13 +41,23 @@ namespace Smartstore.Core.DataExchange.Import
             { "BundleTitleText", x => x.BundleTitleText }
         };
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IFolderService _folderService;
+        private readonly DataExchangeSettings _dataExchangeSettings;
+
         public ProductImporter(
             ICommonServices services,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
-            IUrlService urlService)
+            IUrlService urlService,
+            IFolderService folderService,
+            IHttpContextAccessor httpContextAccessor,
+            DataExchangeSettings dataExchangeSettings)
             : base(services, localizedEntityService, storeMappingService, urlService)
         {
+            _httpContextAccessor = httpContextAccessor;
+            _folderService = folderService;
+            _dataExchangeSettings = dataExchangeSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -554,10 +567,80 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
-        protected virtual Task ProcessProductPicturesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
+        protected virtual async Task ProcessProductPicturesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
         {
-            // TODO: (mg) (core) implement ProcessProductPicturesAsync.
-            throw new NotImplementedException();
+            var cargo = await GetCargoData(context);
+            var numberOfPictures = context.ExtraData.NumberOfPictures ?? int.MaxValue;
+            var downloadManager = new DownloadManager(_httpContextAccessor.HttpContext.Request);
+            var downloaderContext = new DownloadManagerContext
+            {
+                Timeout = TimeSpan.FromMinutes(_dataExchangeSettings.ImageDownloadTimeout),
+                Logger = context.Log,
+                CancellationToken = context.CancelToken
+            };
+
+            var productIds = batch
+                .Select(x => x.Entity.Id)
+                .Where(x => x != 0)
+                .ToArray();
+
+            var existingMediaFiles = await _db.ProductMediaFiles
+                .AsNoTracking()
+                .Include(x => x.MediaFile)
+                .Where(x => productIds.Contains(x.ProductId))
+                .ToListAsync(context.CancelToken);
+            var existingMediaFilesMap = existingMediaFiles.ToMultimap(x => x.ProductId, x => x);
+
+            foreach (var row in batch)
+            {
+                var rawImageUrls = row.GetDataValue<string>("ImageUrls");
+
+                // Force pipe symbol as separator because file names can contain commas or semicolons.
+                var imageUrls = rawImageUrls.SplitSafe("|").ToArray();
+                if (!imageUrls.Any())
+                {
+                    continue;
+                }
+
+                var productId = row.Entity.Id;
+                var imageNumber = 0;
+                //var displayOrder = -1;
+                var downloadItems = new List<DownloadManagerItem>();
+
+                // Collect required image file infos.
+                foreach (var urlOrPath in imageUrls)
+                {
+                    var item = CreateDownloadItem(context, urlOrPath, ++imageNumber);
+                    if (item != null)
+                    {
+                        downloadItems.Add(item);
+                        if (downloadItems.Count >= numberOfPictures)
+                            break;
+                    }
+                }
+
+                // Download images.
+                if (downloadItems.Any(x => x.Url.HasValue()))
+                {
+                    await downloadManager.DownloadFilesAsync(downloaderContext, downloadItems.Where(x => x.Url.HasValue() && !x.Success.HasValue));
+
+                    var hasDuplicateFileNames = downloadItems
+                        .Where(x => x.Url.HasValue())
+                        .Select(x => x.FileName)
+                        .GroupBy(x => x)
+                        .Any(x => x.Count() > 1);
+
+                    if (hasDuplicateFileNames)
+                    {
+                        context.Result.AddWarning($"Found duplicate names (not supported yet). File names in URLs have to be unique!", row.RowInfo, "ImageUrls");
+                    }
+                }
+
+                // TODO: (mg) (core) implement ProcessProductPicturesAsync.
+                // TODO: (mg) (core) initialization of EntityImporterBase.ImageDownloadFolder\ImageFolder missing.
+            }
+
+            await _db.SaveChangesAsync(context.CancelToken);
         }
 
         protected virtual async Task ProcessProductTagsAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
@@ -977,6 +1060,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             var segmenter = context.DataSegmenter;
+            var catalogAlbumId = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value.Id;
 
             var productTemplates = await _db.ProductTemplates
                 .AsNoTracking()
@@ -986,6 +1070,7 @@ namespace Smartstore.Core.DataExchange.Import
             // Do not pass entities here because of batch scope!
             var result = new ImporterCargoData
             {
+                CatalogAlbumId = catalogAlbumId,
                 TemplateViewPaths = productTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id)
             };
 
@@ -1014,6 +1099,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         protected class ImporterCargoData
         {
+            public int CatalogAlbumId { get; init; }
             public Dictionary<string, int> TemplateViewPaths { get; init; }
             public List<int> CategoryIds { get; set; }
             public List<int> ManufacturerIds { get; set; }
