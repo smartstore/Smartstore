@@ -28,12 +28,12 @@ namespace Smartstore.Admin.Controllers
 
         private static readonly Dictionary<LogLevel, string> _logLevelHintMap = new()
         {
-            // TODO: (ms) (core) Verbose is missing.
             { LogLevel.Fatal, "dark" },
             { LogLevel.Error, "danger" },
             { LogLevel.Warning, "warning" },
             { LogLevel.Information, "info" },
-            { LogLevel.Debug, "secondary" }
+            { LogLevel.Debug, "secondary" },
+            { LogLevel.Verbose, "secondary" }
         };
 
         public LogController(
@@ -63,13 +63,8 @@ namespace Smartstore.Admin.Controllers
                 AvailableLogLevels = LogLevel.Debug.ToSelectList(false).ToList()
             };
 
-            // TODO: (ms) (core) This doesn't seem correct. If something is logged with Verbose Loglevel, you can't filter for it.
-            //       ALSO it has nothing to do with the display of 'all'
-            //       AND AvailableLogLevels should have been placed in ViewData
-            //       Maybe you should have just added the following resource to migration Enums.SmartStore.Core.Domain.Logging.LogLevel.Verbose
-
             // Removes newly added 'verbose' enum value to restore classic behaviour with placeholder 'all' on no selection.
-            //model.AvailableLogLevels.RemoveAt(0);
+            model.AvailableLogLevels.RemoveAt(0);
 
             return View(model);
         }
