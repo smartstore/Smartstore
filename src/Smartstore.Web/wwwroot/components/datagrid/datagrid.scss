@@ -1,11 +1,26 @@
 ﻿// TODO: (core) Remove Sass compilation stuff once bundler is up and running.
 
+
 .spa-layout {
     #content {
         // TODO: (core) Move this selector enhancement with $content-padding-x (instead of 30px) to ported scss file
         padding-bottom: 30px;
     }
 }
+
+
+// TODO: (core) Move to applicavle place later
+// -----------------------------------------
+input.form-control-plaintext {
+    outline: 0;
+}
+// END TODO
+// -----------------------------------------
+
+
+// Common
+// -----------------------------------------
+
 
 $primary: #307abe; 
 $light: #f8f9fa;

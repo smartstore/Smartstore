@@ -1,6 +1,9 @@
 ﻿.spa-layout #content {
   padding-bottom: 30px; }
 
+input.form-control-plaintext {
+  outline: 0; }
+
 .datagrid-root {
   --dg-border-color: #dee2e6;
   --dg-header-bg: #f8f9fa;
