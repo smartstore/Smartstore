@@ -82,7 +82,7 @@
             <smart-label asp-for="Body" />
         </div>
         <div class="adminData wide">
-            @Html.EditorFor(model => model.Body, "Html")
+            <editor asp-for="Body" />
             <span asp-validation-for="Body"></span>
         </div>
     </div>
@@ -91,7 +91,7 @@
             <smart-label asp-for="SendManually" />
         </div>
         <div class="adminData">
-            <input asp-for="SendManually" sm-switch="true" />
+            <editor asp-for="SendManually" />
             <span asp-validation-for="SendManually"></span>
         </div>
     </div>
@@ -109,10 +109,16 @@
             <smart-label asp-for="SentOn" />
         </div>
         <div class="adminData">
-            <div sm-if="Model.SentOn.HasValue">
-                <input asp-for="SentOn" sm-plaintext />
+            <div class="form-control-plaintext">
+                @if (Model.SentOn.HasValue)
+                {
+                    @Html.DisplayFor(model => model.SentOn);
+                }
+                else
+                {
+                    @string.Empty.NaIfEmpty();
+                }
             </div>
-            <div class="form-control-plaintext">@("".NaIfEmpty())</div>
         </div>
     </div>
     <div class="adminRow">
@@ -128,7 +134,9 @@
             <smart-label asp-for="CreatedOn" />
         </div>
         <div class="adminData">
-            <input type="text" asp-for="CreatedOn" sm-plaintext readonly="readonly" />
+            <div class="form-control-plaintext">
+                @Html.DisplayFor(model => model.CreatedOn)
+            </div>
         </div>
     </div>
 </div>

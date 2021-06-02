@@ -5,6 +5,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Web.Modelling;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace Smartstore.Admin.Models.Messages
@@ -33,6 +34,7 @@ namespace Smartstore.Admin.Models.Messages
         [LocalizedDisplay("*Subject")]
         public string Subject { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*Body")]
         public string Body { get; set; }
 
@@ -51,6 +53,7 @@ namespace Smartstore.Admin.Models.Messages
         [LocalizedDisplay("*SendManually")]
         public bool SendManually { get; set; }
 
+        // TODO: (ms) (core) Where's the resource for this?
         [LocalizedDisplay("*AttachmentsCount")]
         public int AttachmentsCount { get; set; }
 
