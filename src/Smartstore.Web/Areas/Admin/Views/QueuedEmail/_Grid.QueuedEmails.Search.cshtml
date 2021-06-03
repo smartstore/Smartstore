@@ -1,0 +1,32 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model QueuedEmailListModel
+
+<div class="form-group">
+    <smart-label asp-for="SearchStartDate" />
+    <editor asp-for="SearchStartDate" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchEndDate" />
+    <editor asp-for="SearchEndDate" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchFromEmail" />
+    <editor asp-for="SearchFromEmail" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchToEmail" />
+    <editor asp-for="SearchToEmail" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchSendManually" />
+    <div><editor asp-for="SearchSendManually" /></div>
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchMaxSentTries" />
+    <editor asp-for="SearchMaxSentTries" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchLoadNotSent" />
+    <editor asp-for="SearchLoadNotSent" />
+</div>

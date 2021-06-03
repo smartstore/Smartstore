@@ -1,8 +1,8 @@
 ﻿Vue.component("sm-datagrid-commands", {
     template: `
         <div class="dg-cell dg-commands p-0">
-            <div v-if="!editing.active || row != editing.row" class="d-flex w-100 h-100 dropdown">
-                <a href="#" class="dg-commands-toggle dropdown-toggle no-chevron btn btn-secondary btn-flat btn-block d-flex rounded-0 h-100 align-items-center justify-content-center" data-toggle="dropdown" data-boundary="window">
+            <div v-if="!editing.active || row != editing.row" class="d-flex w-100 h-100 align-items-center justify-content-center dropdown">
+                <a href="#" class="dg-commands-toggle dropdown-toggle no-chevron btn btn-secondary btn-flat btn-icon btn-sm" data-toggle="dropdown" data-boundary="window">
                     <i class="fa fa-ellipsis-h"></i>
                 </a>
                 <div class="dg-commands-dropdown dropdown-menu dropdown-menu-right">

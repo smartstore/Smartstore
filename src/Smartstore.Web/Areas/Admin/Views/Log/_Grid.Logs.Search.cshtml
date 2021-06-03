@@ -1,0 +1,28 @@
+﻿@using Smartstore.Admin.Models.Logging
+
+@model LogListModel
+
+@{ 
+    var availableLogLevels = Html.GetLocalizedEnumSelectList(typeof(Smartstore.Core.Logging.LogLevel)).Skip(1);
+}
+
+<div class="form-group">
+    <smart-label asp-for="LogLevelId" />
+    <select asp-for="LogLevelId" asp-items="@availableLogLevels" asp-placeholder="@T(" Admin.Common.All")"></select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="CreatedOnFrom" />
+    <editor asp-for="CreatedOnFrom" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="CreatedOnTo" />
+    <editor asp-for="CreatedOnTo" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="Logger" />
+    <input asp-for="Logger" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="Message" />
+    <input asp-for="Message" />
+</div>

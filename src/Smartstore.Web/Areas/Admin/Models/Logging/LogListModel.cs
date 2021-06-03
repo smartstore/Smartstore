@@ -2,12 +2,13 @@
 using Smartstore.Web.Modelling;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models.Logging
 {
     [LocalizedDisplay("Admin.System.Log.List.")]
     public class LogListModel : ModelBase
-    {        
+    {
         [LocalizedDisplay("*CreatedOnFrom")]
         public DateTime? CreatedOnFrom { get; set; }
 

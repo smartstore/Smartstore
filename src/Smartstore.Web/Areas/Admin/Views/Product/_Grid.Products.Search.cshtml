@@ -1,0 +1,41 @@
+﻿@using Smartstore.Admin.Models.Catalog
+@using Smartstore.Core.Catalog.Products
+
+@model ProductListModel
+
+<div class="form-group">
+    <smart-label asp-for="SearchProductName" />
+    <input asp-for="SearchProductName" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchProductTypeId" />
+    <select asp-for="SearchProductTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductType))" asp-placeholder="@T(" Admin.Common.All")"></select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchIsPublished" />
+    <editor asp-for="SearchIsPublished" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchHomePageProducts" />
+    <editor asp-for="SearchHomePageProducts" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchWithoutCategories" />
+    <editor asp-for="SearchWithoutCategories" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchCategoryId" />
+    <select asp-for="SearchCategoryId" asp-items="Model.AvailableCategories" asp-placeholder="@T(" Admin.Common.All")"></select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchWithoutManufacturers" />
+    <editor asp-for="SearchWithoutManufacturers" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchManufacturerId" />
+    <select asp-for="SearchManufacturerId" asp-items="Model.AvailableManufacturers" asp-placeholder="@T(" Admin.Common.All")"></select>
+</div>
+<div sm-if="!Model.IsSingleStoreMode" class="form-group">
+    <smart-label asp-for="SearchStoreId" />
+    <editor asp-for="SearchStoreId" />
+</div>

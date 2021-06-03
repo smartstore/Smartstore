@@ -22,11 +22,6 @@
                     <button type="submit" class="btn btn-secondary" id="go-to-product-by-sku" name="go-to-product-by-sku" value="go-to-product-by-sku" title="@T("Admin.Catalog.Products.List.GoDirectlyToSku.Hint")">
                         <i class="fa fa-search"></i>
                     </button>
-                    <button type="button" class="btn btn-outline-secondary btn-toggle-filter" data-toggle="button" aria-pressed="false">
-                        <i class="fa fa-filter"></i>
-                        <span>@T("Common.Filter")</span>
-                        <i class="fa fa-angle-double-down"></i>
-                    </button>
                 </div>
             </div>
 
@@ -39,9 +34,7 @@
 
 @{ 
     var gridViewData = new ViewDataDictionary(this.ViewData);
-    gridViewData["DisplayProductPictures"] = Model.DisplayProductPictures;
-    gridViewData["IsSingleStoreMode"] = Model.IsSingleStoreMode;
-    gridViewData["GridPageSize"] = Model.GridPageSize;
+    gridViewData["Parent"] = Model;
 }
 
 <partial name="_Grid.Products" model="null" view-data="gridViewData" />

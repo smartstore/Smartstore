@@ -10,14 +10,16 @@ namespace Smartstore.Web.TagHelpers.Admin
         CancelEdit,
         SaveChanges,
         DeleteSelectedRows,
-        ReactToSelection
+        ReactToSelection,
+        ToggleSearchPanel
     }
 
     /// <summary>
     /// Template for the toolbar content as Vue slot template. Root object is called <c>grid</c>
-    /// and provides the following members: <c>selectedRows, selectedRowsCount, selectedRowKeys, hasSelection, command, rows, editing, submitChanges(), cancelEdit(), deleteSelected()</c>
+    /// and provides the following members: <c>selectedRows, selectedRowsCount, selectedRowKeys, hasSelection, hasSearchPanel, showSearch, command, rows, editing, submitChanges(), cancelEdit(), deleteSelected()</c>
     /// </summary>
     [HtmlTargetElement("toolbar", ParentTag = "datagrid")]
+    [RestrictChildren("toolbar-group")]
     public class GridToolbarTagHelper : TagHelper
     {
         public override void Init(TagHelperContext context)
@@ -40,8 +42,19 @@ namespace Smartstore.Web.TagHelpers.Admin
         }
     }
 
-    [HtmlTargetElement("a", ParentTag = "toolbar")]
-    [HtmlTargetElement("button", ParentTag = "toolbar")]
+    [OutputElementHint("div")]
+    [HtmlTargetElement("toolbar-group", ParentTag = "toolbar")]
+    public class GridToolbarGroupTagHelper : TagHelper
+    {
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            output.TagName = "div";
+            output.AppendCssClass("dg-toolbar-group");
+        }
+    }
+
+    [HtmlTargetElement("a", ParentTag = "toolbar-group")]
+    [HtmlTargetElement("button", ParentTag = "toolbar-group")]
     public class GridToolTagHelper : TagHelper
     {
         const string ActionAttributeName = "datagrid-action";
@@ -53,6 +66,17 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             if (Action == null)
             {
+                return;
+            }
+
+            if (Action == DataGridToolAction.ToggleSearchPanel)
+            {
+                output.AppendCssClass("dg-search-toggle");
+                output.MergeAttribute("v-if", "grid.hasSearchPanel");
+                output.MergeAttribute("v-bind:class", "{ 'active': grid.showSearch }");
+                output.MergeAttribute("v-on:click", "grid.toggleSearch");
+                output.PostContent.AppendHtml("<span v-if='grid.numSearchFilters > 0' class='badge badge-pill badge-success dg-toolbar-badge'>{{ grid.numSearchFilters }}</span>");
+
                 return;
             }
 

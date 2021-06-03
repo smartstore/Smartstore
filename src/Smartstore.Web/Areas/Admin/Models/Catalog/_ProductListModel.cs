@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
 
@@ -8,8 +10,6 @@ namespace Smartstore.Admin.Models.Catalog
     [LocalizedDisplay("Admin.Catalog.Products.List.")]
     public class ProductListModel : ModelBase
     {
-        // TODO: (mh) (core) Finish Smartstore.Admin.Models.Catalog.ProductListModel
-
         public GridModel<ProductModel> Products { get; set; }
 
         [LocalizedDisplay("*SearchProductName")]
@@ -45,11 +45,10 @@ namespace Smartstore.Admin.Models.Catalog
 
         public bool DisplayProductPictures { get; set; }
         public bool IsSingleStoreMode { get; set; }
-        public int GridPageSize { get; set; }
 
-        //public IList<SelectListItem> AvailableCategories { get; set; }
-        //public IList<SelectListItem> AvailableManufacturers { get; set; }
-        //public IList<SelectListItem> AvailableStores { get; set; }
-        //public IList<SelectListItem> AvailableProductTypes { get; set; }
+        public List<SelectListItem> AvailableCategories { get; set; } = new();
+        public List<SelectListItem> AvailableManufacturers { get; set; } = new();
+        public List<SelectListItem> AvailableStores { get; set; } = new();
+        public List<SelectListItem> AvailableProductTypes { get; set; } = new();
     }
 }

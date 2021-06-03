@@ -1,49 +1,58 @@
 ﻿@model ProductOverviewModel
 
 @{ 
-    var displayProductPictures = GetMetadata<bool>("DisplayProductPictures");
-    var isSingleStoreMode = GetMetadata<bool>("IsSingleStoreMode");
-    var gridPageSize = GetMetadata<int>("GridPageSize");
+    var parentModel = ViewData["Parent"] as ProductListModel;
 }
 
 <datagrid id="products-grid"
-          allow-resize="true" 
-          allow-row-selection="true" 
+          allow-resize="true"
+          allow-row-selection="true"
           allow-edit="true"
           preserve-grid-state="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("ProductList")" delete="@Url.Action("ProductDelete")" update="@Url.Action("ProductUpdate")" insert="@Url.Action("ProductInsert")" />
-    <paging position="Bottom" page-size="@gridPageSize" page-index="1" show-size-chooser="true" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
-        @*<a v-if="!grid.editing.active" asp-action="Create" class="btn btn-primary btn-flat mr-auto">
-            <i class="fa fa-plus"></i>
-            <span>@T("Admin.Common.AddNew")...</span>
-        </a>*@
-        <button datagrid-action="DataGridToolAction.InsertRow" class="btn btn-primary btn-flat mr-auto">
-            <i class="fa fa-plus"></i>
-            <span>@T("Admin.Common.AddNew")...</span>
-        </button>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            @*<a v-if="!grid.editing.active" asp-action="Create" class="btn btn-primary btn-flat mr-auto">
+                    <i class="fa fa-plus"></i>
+                    <span>@T("Admin.Common.AddNew")...</span>
+                </a>*@
+            <button datagrid-action="DataGridToolAction.InsertRow" class="btn btn-primary btn-flat mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </button>
 
-        <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning btn-flat">
-            <i class="fa fa-check"></i>
-            <span>@T("Admin.Common.SaveChanges")</span>
-        </button>
-        <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-secondary btn-flat mr-auto">
-            <span>@T("Common.Cancel")</span>
-        </button>
-
-        <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
-            <i class="far fa-trash-alt"></i>
-            <span>@T("Admin.Common.Delete.Selected")</span>
-        </button>
-        <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-secondary btn-flat">
-            <i class="far fa-upload"></i>
-            <span>Exportieren</span>
-        </button>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-secondary btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-secondary btn-flat">
+                <i class="far fa-upload"></i>
+                <span>Exportieren</span>
+            </button>
+        </toolbar-group>
     </toolbar>
+    <search-panel>
+        <partial name="_Grid.Products.Search" model="parentModel" />
+    </search-panel>
     <columns>
-        @if (displayProductPictures)
+        @if (parentModel.DisplayProductPictures)
         {
             <column for="PictureThumbnailUrl"
                     title=""
@@ -76,7 +85,7 @@
         <column for="OldPrice" halign="flex-end" visible="false" />
         <column for="StockQuantity" halign="center" />
         <column for="MinStockQuantity" halign="center" visible="false" />
-        <column for="LimitedToStores" visible="!isSingleStoreMode" readonly="true" halign="center" />
+        <column for="LimitedToStores" visible="!parentModel.IsSingleStoreMode" readonly="true" halign="center" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" visible="false" />
         <column for="UpdatedOn" entity-member="UpdatedOnUtc" readonly="true" />
         <column for="Published" halign="center" />

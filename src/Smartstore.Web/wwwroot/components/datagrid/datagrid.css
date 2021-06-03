@@ -16,6 +16,7 @@ input.form-control-plaintext {
   --dg-cell-padding: 13px 16px;
   --dg-cell-align: center;
   --dg-cell-justify: flex-start;
+  --dg-search-width: 350px;
   position: relative;
   overflow: hidden;
   border: 1px solid var(--dg-border-color);
@@ -24,8 +25,22 @@ input.form-control-plaintext {
 
 .datagrid {
   display: flex;
-  flex-flow: column;
+  flex-flow: row;
   height: 100%; }
+
+.dg-grid {
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  left: 0;
+  width: 100%;
+  transition-property: left, width;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
+  z-index: 1; }
+  .dg-search.show + .dg-grid {
+    left: var(--dg-search-width);
+    width: calc(100% - var(--dg-search-width)); }
 
 .dg-blocker {
   position: absolute;
@@ -42,7 +57,8 @@ input.form-control-plaintext {
 .dg-table-wrapper {
   position: relative;
   flex-grow: 1;
-  overflow: auto; }
+  overflow: auto;
+  background-color: #fff; }
 
 .dg-table {
   position: relative;
@@ -114,32 +130,78 @@ input.form-control-plaintext {
 
 .dg-toolbar {
   background-color: var(--dg-toolbar-bg);
-  border-bottom: 1px solid var(--dg-border-color); }
+  border-bottom: 1px solid var(--dg-border-color);
+  padding: 0.5rem; }
 
 .dg-toolbar .btn {
-  padding: 14px !important;
-  border-radius: 0 !important;
-  outline: 0 !important;
-  box-shadow: none !important;
-  border-width: 0 !important;
-  border-left: 1px solid var(--dg-border-color) !important; }
+  position: relative;
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+  /*    padding: 14px !important;
+    //font-size: 13px;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    border-width: 0 !important;
+    border-left: 1px solid var(--dg-border-color) !important;*/
+  /*    &:active, &.active {
+        box-shadow: inset 0 0 1px rgba(#000, 0.5), inset 0 3px 5px rgba(#000, 0.12) !important;
+    }*/
+  /*    &:first-child {
+        border-left: none !important;
+    }*/ }
   .dg-toolbar .btn.disabled {
     pointer-events: none; }
-  .dg-toolbar .btn:active {
-    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.12) !important; }
-  .dg-toolbar .btn:first-child {
-    border-left: none !important; }
 
-.dg-table:not(.dg-resizing) .dg-sortable,
-.dg-table:not(.dg-resizing) .dg-tools {
+.dg-toolbar-group {
+  position: relative;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  vertical-align: middle;
+  padding-right: 0.5rem;
+  margin-right: 0.5rem;
+  border-right: 1px solid var(--dg-border-color); }
+  .dg-toolbar-group.omega {
+    border-right-width: 0;
+    padding-right: 0;
+    margin-right: 0;
+    margin-left: auto; }
+
+.dg-toolbar-badge {
+  position: absolute !important;
+  right: 2px;
+  top: 2px !important;
+  font-size: 10px; }
+
+.dg-search {
+  position: absolute;
+  opacity: 0;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: var(--dg-search-width);
+  border-right: 1px solid var(--dg-border-color);
+  transform: translateX(-30px);
+  transition: all 0.2s ease-in-out;
+  z-index: 0;
+  overflow-y: auto; }
+  .dg-search.show {
+    opacity: 1;
+    transform: translateX(0); }
+
+.dg-search-header {
+  display: flex;
+  align-items: center;
+  height: 49px;
+  border-bottom: 1px solid var(--dg-border-color); }
+
+.dg-table:not(.dg-resizing) .dg-sortable {
   cursor: pointer;
   transition: background-color 0.1s ease-in-out; }
-  .dg-table:not(.dg-resizing) .dg-sortable:hover,
-  .dg-table:not(.dg-resizing) .dg-tools:hover {
+  .dg-table:not(.dg-resizing) .dg-sortable:hover {
     background-color: rgba(0, 0, 0, 0.035); }
-  .dg-table:not(.dg-resizing) .dg-sortable:active, .dg-table:not(.dg-resizing) .dg-sortable.show,
-  .dg-table:not(.dg-resizing) .dg-tools:active,
-  .dg-table:not(.dg-resizing) .dg-tools.show {
+  .dg-table:not(.dg-resizing) .dg-sortable:active, .dg-table:not(.dg-resizing) .dg-sortable.show {
     background-color: rgba(0, 0, 0, 0.075); }
 
 .dg-resize-handle {

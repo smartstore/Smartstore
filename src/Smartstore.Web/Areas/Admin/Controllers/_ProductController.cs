@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
@@ -162,22 +163,21 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Catalog.Product.Read)]
-        public IActionResult List(ProductListModel model)
+        public async Task<IActionResult> List(ProductListModel model)
         {
             model.DisplayProductPictures = _adminAreaSettings.DisplayProductPictures;
             model.IsSingleStoreMode = _storeContext.IsSingleStoreMode();
-            model.GridPageSize = _adminAreaSettings.GridPageSize;
 
             // TODO: (core) Uncomment later
-            //foreach (var c in _categoryService.GetCategoryTree(includeHidden: true).FlattenNodes(false))
-            //{
-            //    model.AvailableCategories.Add(new SelectListItem { Text = c.GetCategoryNameIndented(), Value = c.Id.ToString() });
-            //}
+            foreach (var c in (await _categoryService.GetCategoryTreeAsync(includeHidden: true)).FlattenNodes(false))
+            {
+                model.AvailableCategories.Add(new SelectListItem { Text = c.GetCategoryNameIndented(), Value = c.Id.ToString() });
+            }
 
-            //foreach (var m in _manufacturerService.GetAllManufacturers(true))
-            //{
-            //    model.AvailableManufacturers.Add(new SelectListItem { Text = m.Name, Value = m.Id.ToString() });
-            //}
+            foreach (var m in await _db.Manufacturers.AsNoTracking().ApplyStandardFilter(true).Select(x => new { x.Name, x.Id }).ToListAsync())
+            {
+                model.AvailableManufacturers.Add(new SelectListItem { Text = m.Name, Value = m.Id.ToString() });
+            }
 
             //model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();
 

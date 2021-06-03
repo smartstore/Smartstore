@@ -2,21 +2,28 @@
 
 @model QueuedEmailModel
 
-<datagrid id="queuedEmails-grid" ondatabinding="onDataBinding" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
+<datagrid id="queuedEmails-grid" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
     <datasource read="@Url.Action("QueuedEmailList")" delete="@Url.Action("QueuedEmailDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
         <sort by="CreatedOn" descending="true" />
     </sorting>
     <toolbar>
-        <button type="button" class="btn btn-secondary btn-flat">
-            <i class="fa fa-fw fa-filter"></i>
-        </button>
-        <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat ml-auto">
-            <i class="far fa-trash-alt"></i>
-            <span>@T("Admin.Common.Delete.Selected")</span>
-        </button>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
     </toolbar>
+    <search-panel>
+        <partial name="_Grid.QueuedEmails.Search" model="new QueuedEmailListModel()" />
+    </search-panel>
     <columns>
     @*TODO (ms) (core) think about additional (inital hidden) fields *@
         <column for="Id" visible="false" width="max-content" resizable="false" />

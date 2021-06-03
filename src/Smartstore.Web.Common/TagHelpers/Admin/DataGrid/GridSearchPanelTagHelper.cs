@@ -4,17 +4,25 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    [HtmlTargetElement("detail-view", ParentTag = "datagrid")]
-    public class GridDetailViewTagHelper : TagHelper
+    /// <summary>
+    /// TODO: (core) Describe
+    /// </summary>
+    [HtmlTargetElement("search-panel", ParentTag = "datagrid")]
+    public class GridSearchPanelTagHelper : TagHelper
     {
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
             if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
             {
-                parent.DetailView = this;
+                parent.SearchPanel = this;
             }
         }
+
+        /// <summary>
+        /// Search panel width. Any CSS width specification is valid. Default: 350px;
+        /// </summary>
+        public string Width { get; set; } = "350px";
 
         [HtmlAttributeNotBound]
         internal TagHelperContent Template { get; set; }

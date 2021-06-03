@@ -58,15 +58,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Log.Read)]
         public IActionResult List()
         {
-            var model = new LogListModel
-            {
-                AvailableLogLevels = LogLevel.Debug.ToSelectList(false).ToList()
-            };
-
-            // Removes newly added 'verbose' enum value to restore classic behaviour with placeholder 'all' on no selection.
-            model.AvailableLogLevels.RemoveAt(0);
-
-            return View(model);
+            return View();
         }
 
         [HttpPost]

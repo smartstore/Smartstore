@@ -1,7 +1,7 @@
 ﻿Vue.component("sm-datagrid-tools", {
     template: `
-        <div class="dg-cell dg-cell-header dg-tools dropdown">
-            <a href="#" class="dg-tools-toggle dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
+        <div class="dg-cell dg-cell-header dg-tools justify-content-center dropdown">
+            <a href="#" class="dg-tools-toggle btn btn-light btn-flat btn-icon btn-sm dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
                 <i class="fa fa-cog"></i>
             </a>
             <div class="dg-tools-dropdown dropdown-menu dropdown-menu-right" v-on:click="$event.stopPropagation()">

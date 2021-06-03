@@ -22,7 +22,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     }
     
     [HtmlTargetElement("datagrid")]
-    [RestrictChildren("columns", "datasource", "paging", "toolbar", "sorting")]
+    [RestrictChildren("columns", "datasource", "paging", "toolbar", "sorting", "search-panel")]
     public class GridTagHelper : SmartTagHelper
     {
         const string BorderAttributeName = "border-style";
@@ -53,16 +53,16 @@ namespace Smartstore.Web.TagHelpers.Admin
         #region Public properties
 
         /// <summary>
-        /// DataGrid table border style. Default: <see cref="DataGridBorderStyle.VerticalBorders"/>.
+        /// DataGrid table border style. Default: <see cref="DataGridBorderStyle.HorizontalBorders"/>.
         /// </summary>
         [HtmlAttributeName(BorderAttributeName)]
-        public DataGridBorderStyle BorderStyle { get; set; } = DataGridBorderStyle.VerticalBorders;
+        public DataGridBorderStyle BorderStyle { get; set; } = DataGridBorderStyle.HorizontalBorders;
 
         /// <summary>
-        /// Adds zebra-striping to any table row within tbody. Default: <c>false</c>.
+        /// Adds zebra-striping to any table row within tbody. Default: <c>true</c>.
         /// </summary>
         [HtmlAttributeName(StripedAttributeName)]
-        public bool Striped { get; set; }
+        public bool Striped { get; set; } = true;
 
         /// <summary>
         /// Enables a hover state on table rows within tbody.  Default: <c>true</c>.
@@ -195,6 +195,9 @@ namespace Smartstore.Web.TagHelpers.Admin
         internal GridDetailViewTagHelper DetailView { get; set; }
 
         [HtmlAttributeNotBound]
+        internal GridSearchPanelTagHelper SearchPanel { get; set; }
+
+        [HtmlAttributeNotBound]
         internal string KeyMemberName 
         {
             get => KeyMember?.Metadata?.Name ?? "Id";
@@ -227,15 +230,6 @@ namespace Smartstore.Web.TagHelpers.Admin
             component.Attributes[":paging"] = "paging";
             component.Attributes[":sorting"] = "sorting";
 
-            // Generate detail-view slot
-            if (DetailView?.Template?.IsEmptyOrWhiteSpace == false)
-            {
-                var slot = new TagBuilder("template");
-                slot.Attributes["v-slot:detailview"] = "item";
-                slot.InnerHtml.AppendHtml(DetailView.Template);
-                component.InnerHtml.AppendHtml(slot);
-            }
-
             // Generate toolbar slot
             if (Toolbar?.Template?.IsEmptyOrWhiteSpace == false)
             {
@@ -249,7 +243,25 @@ namespace Smartstore.Web.TagHelpers.Admin
                 component.InnerHtml.AppendHtml(slot);
             }
 
-            // Generate template slots
+            // Generate search panel slot
+            if (SearchPanel?.Template?.IsEmptyOrWhiteSpace == false)
+            {
+                var slot = new TagBuilder("template");
+                slot.Attributes["v-slot:search"] = "grid";
+                slot.InnerHtml.AppendHtml(SearchPanel.Template);
+                component.InnerHtml.AppendHtml(slot);
+            }
+
+            // Generate detail-view slot
+            if (DetailView?.Template?.IsEmptyOrWhiteSpace == false)
+            {
+                var slot = new TagBuilder("template");
+                slot.Attributes["v-slot:detailview"] = "item";
+                slot.InnerHtml.AppendHtml(DetailView.Template);
+                component.InnerHtml.AppendHtml(slot);
+            }
+
+            // Generate column template slots
             foreach (var column in Columns)
             {
                 if (column.DisplayTemplate?.IsEmptyOrWhiteSpace == false)
@@ -312,6 +324,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     allowEdit = AllowEdit,
                     hideHeader = HideHeader,
                     maxHeight = MaxHeight,
+                    searchPanelWidth = SearchPanel?.Width,
                     stateKey = Id,
                     preserveState = PreserveGridState,
                     version = Version,

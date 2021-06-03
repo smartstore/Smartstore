@@ -32,129 +32,148 @@ Vue.component("pass", {
 
 Vue.component("sm-datagrid", {
     template: `
-        <div class="datagrid" :style="{ maxHeight: options.maxHeight }" ref="grid">
-            <slot name="toolbar" v-bind="{ 
-                selectedRows, 
-                selectedRowsCount,
-                selectedRowKeys, 
-                hasSelection,
-                command,
-                rows,
-                editing,
-                insertRow,
-                saveChanges,
-                cancelEdit,
-                deleteSelected,
-                resetState }">
-            </slot>
+        <div class="datagrid" 
+            :style="{ maxHeight: options.maxHeight, '--dg-search-width': options.searchPanelWidth }" 
+            :class="{ 'datagrid-has-search': hasSearchPanel }" 
+            ref="grid">
 
-            <div v-if="paging.enabled && (paging.position === 'top' || paging.position === 'both')" class="dg-pager-wrapper border-bottom">
-                <sm-datagrid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-datagrid-pager>
-            </div>
-            <component :is="options.allowEdit ? 'form' : 'div'" ref="tableWrapper" class="dg-table-wrapper">
-                <table ref="table"
-                    :class="getTableClass()"
-                    :style="getTableStyles()">
-                    <thead v-show="!options.hideHeader" class="dg-thead" ref="tableHeader">
-                        <tr ref="tableHeaderRow" class="dg-tr">
-                            <th v-if="allowRowSelection" class="dg-th dg-col-pinned alpha">
-                                <label class="dg-cell dg-cell-header dg-cell-selector">
-                                    <span class="dg-cell-value">
-                                        <input type="checkbox" class="dg-cell-selector-checkbox" ref="masterSelector" @change="onSelectAllRows($event)" />
-                                    </span>
-                                </label>
-                            </th>            
-                
-                            <th v-for="(column, columnIndex) in columns" 
-                                class="dg-th dg-th-column"
-                                v-show="column.visible"
-                                :data-member="column.member"
-                                :data-index="columnIndex"
-                                :draggable="options.allowColumnReordering && column.reorderable && !editing.active"
-                                v-on:dragstart="onColumnDragStart"
-                                v-on:dragenter.stop="onColumnDragEnter"
-                                v-on:dragover.stop="onColumnDragOver"
-                                v-on:dragend="onColumnDragEnd"
-                                v-on:drop="onColumnDrop"
-                                ref="column">
-                                <div class="dg-cell dg-cell-header" 
-                                    :style="getCellStyles(null, column, true)" 
-                                    :class="{ 'dg-sortable': sorting.enabled && column.sortable }"
-                                    :title="column.title ? null : column.name"
-                                    v-on:click="onSort($event, column)">
-                                    <i v-if="column.icon" class="dg-icon" :class="column.icon"></i>
-                                    <span class="dg-cell-value">{{ column.title }}</span>
-                                    <i v-if="isSortedAsc(column)" class="fa fa-fw fa-sm fa-arrow-up mx-1"></i>
-                                    <i v-if="isSortedDesc(column)" class="fa fa-fw fa-sm fa-arrow-down mx-1"></i>
-                                </div>
-                                <div v-if="options.allowResize && column.resizable" 
-                                    class="dg-resize-handle"
-                                    v-on:mousedown.stop.prevent="onStartResize($event, column, columnIndex)"
-                                    v-on:dblclick.stop.prevent="autoSizeColumn($event, column, columnIndex)">
-                                </div>
-                            </th> 
-                            <th class="dg-th">
-                                <div class="dg-cell dg-cell-header dg-cell-spacer">&nbsp;</div>
-                            </th>
-                            <th class="dg-th dg-col-pinned omega">
-                                <sm-datagrid-tools :options="options" :columns="columns" :paging="paging"></sm-datagrid-tools>
-                            </th> 
-                        </tr>
-                    </thead>
-                    <tbody ref="tableBody" class="dg-tbody">
-                        <tr v-if="ready && rows.length === 0" class="dg-tr dg-no-data">
-                            <td class="dg-td text-muted text-center">
-                                <div class="dg-cell justify-content-center">Keine Daten</div>
-                            </td>
-                        </tr>
+            <div v-if="hasSearchPanel" class="dg-search d-flex flex-column" :class="{ show: showSearch }">
+                <div class="dg-search-header d-flex py-3 mx-3">
+                    <h6 class="m-0 text-muted">Filter</h6>
+                </div>
+                <form class="dg-search-body p-3 m-0">
+                    <slot name="search" v-bind="{ command, rows, editing }"></slot>  
+                </form>
+            </div>        
 
-                        <tr v-for="(row, rowIndex) in rows"
-                            :data-key="row[options.keyMemberName]"
-                            :key="row[options.keyMemberName]" 
-                            :class="{ 'active': isRowSelected(row), 'dg-edit-row': isInlineEditRow(row), 'dg-tr': true }">
-                            <td v-if="allowRowSelection" class="dg-td dg-col-pinned alpha">
-                                <label class="dg-cell dg-cell-selector">
-                                    <span v-if="!isInlineEditRow(row) || !editing.insertMode" class="dg-cell-value">
-                                        <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" @change="onSelectRow($event, row)" />
-                                    </span>
-                                </label>
-                            </td>             
+            <div class="dg-grid">
+                <slot name="toolbar" v-bind="{ 
+                    selectedRows, 
+                    selectedRowsCount,
+                    selectedRowKeys, 
+                    hasSelection,
+                    hasSearchPanel,
+                    showSearch,
+                    toggleSearch,
+                    numSearchFilters,
+                    command,
+                    rows,
+                    editing,
+                    insertRow,
+                    saveChanges,
+                    cancelEdit,
+                    deleteSelected,
+                    resetState }">
+                </slot>
 
-                            <td v-for="(column, columnIndex) in columns" class="dg-td"
-                                v-show="column.visible"
-                                :data-index="columnIndex"
-                                :key="row[options.keyMemberName] + '-' + columnIndex"
-                                @dblclick="onCellDblClick($event, row)">
-                                <div class="dg-cell" :class="getCellClass(row, column)" :style="getCellStyles(row, column, false)">
-                                    <slot v-if="!isInlineEditCell(row, column)" :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                <div v-if="paging.enabled && (paging.position === 'top' || paging.position === 'both')" class="dg-pager-wrapper border-bottom">
+                    <sm-datagrid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-datagrid-pager>
+                </div>
+                <component :is="options.allowEdit ? 'form' : 'div'" ref="tableWrapper" class="dg-table-wrapper">
+                    <table ref="table"
+                        :class="getTableClass()"
+                        :style="getTableStyles()">
+                        <thead v-show="!options.hideHeader" class="dg-thead" ref="tableHeader">
+                            <tr ref="tableHeaderRow" class="dg-tr">
+                                <th v-if="allowRowSelection" class="dg-th dg-col-pinned alpha">
+                                    <label class="dg-cell dg-cell-header dg-cell-selector">
                                         <span class="dg-cell-value">
-                                            <template v-if="column.type === 'boolean'">
-                                                <i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i>
-                                            </template>
-                                            <template v-else>
-                                                {{ renderCellValue(row[column.member], column, row) }}
-                                            </template>
+                                            <input type="checkbox" class="dg-cell-selector-checkbox" ref="masterSelector" @change="onSelectAllRows($event)" />
                                         </span>
-                                    </slot>
-                                    <slot v-if="isInlineEditCell(row, column)" :name="'edit-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
-                                    </slot>
-                                </div>
-                            </td>
-                            <td class="dg-td" style="x-grid-column: span 2">
-                                <div class="dg-cell dg-cell-spacer"></div>
-                            </td>
-                            <td class="dg-td dg-col-pinned omega">
-                                <sm-datagrid-commands :row="row" :editing="editing"></sm-datagrid-commands>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </component>
-            <div v-if="paging.enabled && (paging.position === 'bottom' || paging.position === 'both')" class="dg-pager-wrapper border-top">
-                <sm-datagrid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-datagrid-pager>
-            </div>
+                                    </label>
+                                </th>            
+                
+                                <th v-for="(column, columnIndex) in columns" 
+                                    class="dg-th dg-th-column"
+                                    v-show="column.visible"
+                                    :data-member="column.member"
+                                    :data-index="columnIndex"
+                                    :draggable="options.allowColumnReordering && column.reorderable && !editing.active"
+                                    v-on:dragstart="onColumnDragStart"
+                                    v-on:dragenter.stop="onColumnDragEnter"
+                                    v-on:dragover.stop="onColumnDragOver"
+                                    v-on:dragend="onColumnDragEnd"
+                                    v-on:drop="onColumnDrop"
+                                    ref="column">
+                                    <div class="dg-cell dg-cell-header" 
+                                        :style="getCellStyles(null, column, true)" 
+                                        :class="{ 'dg-sortable': sorting.enabled && column.sortable }"
+                                        :title="column.title ? null : column.name"
+                                        v-on:click="onSort($event, column)">
+                                        <i v-if="column.icon" class="dg-icon" :class="column.icon"></i>
+                                        <span class="dg-cell-value">{{ column.title }}</span>
+                                        <i v-if="isSortedAsc(column)" class="fa fa-fw fa-sm fa-arrow-up mx-1"></i>
+                                        <i v-if="isSortedDesc(column)" class="fa fa-fw fa-sm fa-arrow-down mx-1"></i>
+                                    </div>
+                                    <div v-if="options.allowResize && column.resizable" 
+                                        class="dg-resize-handle"
+                                        v-on:mousedown.stop.prevent="onStartResize($event, column, columnIndex)"
+                                        v-on:dblclick.stop.prevent="autoSizeColumn($event, column, columnIndex)">
+                                    </div>
+                                </th> 
+                                <th class="dg-th">
+                                    <div class="dg-cell dg-cell-header dg-cell-spacer">&nbsp;</div>
+                                </th>
+                                <th class="dg-th dg-col-pinned omega">
+                                    <sm-datagrid-tools :options="options" :columns="columns" :paging="paging"></sm-datagrid-tools>
+                                </th> 
+                            </tr>
+                        </thead>
+                        <tbody ref="tableBody" class="dg-tbody">
+                            <tr v-if="ready && rows.length === 0" class="dg-tr dg-no-data">
+                                <td class="dg-td text-muted text-center">
+                                    <div class="dg-cell justify-content-center">Keine Daten</div>
+                                </td>
+                            </tr>
 
-            <div v-show="isBusy" class="dg-blocker"></div>
+                            <tr v-for="(row, rowIndex) in rows"
+                                :data-key="row[options.keyMemberName]"
+                                :key="row[options.keyMemberName]" 
+                                :class="{ 'active': isRowSelected(row), 'dg-edit-row': isInlineEditRow(row), 'dg-tr': true }">
+                                <td v-if="allowRowSelection" class="dg-td dg-col-pinned alpha">
+                                    <label class="dg-cell dg-cell-selector">
+                                        <span v-if="!isInlineEditRow(row) || !editing.insertMode" class="dg-cell-value">
+                                            <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" @change="onSelectRow($event, row)" />
+                                        </span>
+                                    </label>
+                                </td>             
+
+                                <td v-for="(column, columnIndex) in columns" class="dg-td"
+                                    v-show="column.visible"
+                                    :data-index="columnIndex"
+                                    :key="row[options.keyMemberName] + '-' + columnIndex"
+                                    @dblclick="onCellDblClick($event, row)">
+                                    <div class="dg-cell" :class="getCellClass(row, column)" :style="getCellStyles(row, column, false)">
+                                        <slot v-if="!isInlineEditCell(row, column)" :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                                            <span class="dg-cell-value">
+                                                <template v-if="column.type === 'boolean'">
+                                                    <i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i>
+                                                </template>
+                                                <template v-else>
+                                                    {{ renderCellValue(row[column.member], column, row) }}
+                                                </template>
+                                            </span>
+                                        </slot>
+                                        <slot v-if="isInlineEditCell(row, column)" :name="'edit-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                                        </slot>
+                                    </div>
+                                </td>
+                                <td class="dg-td" style="x-grid-column: span 2">
+                                    <div class="dg-cell dg-cell-spacer"></div>
+                                </td>
+                                <td class="dg-td dg-col-pinned omega">
+                                    <sm-datagrid-commands :row="row" :editing="editing"></sm-datagrid-commands>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </component>
+                <div v-if="paging.enabled && (paging.position === 'bottom' || paging.position === 'both')" class="dg-pager-wrapper border-top">
+                    <sm-datagrid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-datagrid-pager>
+                </div>
+
+                <div v-show="isBusy" class="dg-blocker"></div>
+            </div>
         </div>
     `,
 
@@ -204,6 +223,8 @@ Vue.component("sm-datagrid", {
             isBusy: false,
             ready: false,
             isScrollable: false,
+            showSearch: false,
+            numSearchFilters: 0,
             dragging: {
                 active: false,
                 targetRect: null,
@@ -347,7 +368,7 @@ Vue.component("sm-datagrid", {
         const self = this;
 
         // Put to data so we can access the component instance from outside
-        $(this.$el).data("datagrid", this);
+        $(this.$el.parentNode).data("datagrid", this);
 
         // Handle sticky columuns on resize
         const resizeObserver = new ResizeObserver(entries => {
@@ -355,6 +376,24 @@ Vue.component("sm-datagrid", {
             self.isScrollable = tableWrapper.offsetWidth < tableWrapper.scrollWidth;
         });
         resizeObserver.observe(this.$refs.tableWrapper);
+
+        // Bind search control events
+        if (this.hasSearchPanel) {
+            var search = $(this.$el).find(".dg-search-body");
+            search.on("change", "select", this.read);
+            search.on("change", "input[type='checkbox'], input[type='radio']", this.read);
+            search.on("keydown", "textarea, input", e => {
+                if (e.target.type === 'checkbox' || e.target.type === 'radio') {
+                    return;
+                }
+
+                if (e.keyCode == 13) {
+                    // Enter key pressed in input
+                    console.log(e);
+                    self.read();
+                }
+            });
+        }
 
         // Read data from server
         this.read();
@@ -384,6 +423,10 @@ Vue.component("sm-datagrid", {
                 pageSize: this.paging.pageSize,
                 sorting: this.sorting.descriptors
             };
+        },
+
+        hasSearchPanel() {
+            return !!(this.$scopedSlots.search);
         },
 
         allowRowSelection() {
@@ -641,6 +684,29 @@ Vue.component("sm-datagrid", {
                     var c = this.columns.find(x => x.member === d.member);
                     return c?.entityMember ? { member: c.entityMember, descending: d.descending } : d;
                 });
+            }
+
+            // Apply search filters to command
+            this.numSearchFilters = 0;
+            if (this.hasSearchPanel) {
+                const searchForm = $(this.$el).find(".dg-search-body");
+                const filterObj = searchForm.serializeToJSON();
+                this.numSearchFilters = Object.values(filterObj)
+                    .filter(x => {
+                        // TODO: (core) Make numSearchFilters detection smarter.
+                        if (_.isArray(x)) {
+                            return x.length > 0 || (x.length === 1 && x[0]);
+                        }
+                        else if (_.isBoolean(x)) {
+                            console.log(x, "yooo");
+                            return x;
+                        }
+
+                        return !!(x);
+                    })
+                    .length;
+                //console.log(this.numSearchFilters, filterObj);
+                $.extend(true, command, filterObj);
             }
 
             self.$emit("data-binding", command);
@@ -1161,6 +1227,14 @@ Vue.component("sm-datagrid", {
                     self.isBusy = false;
                 }
             });
+        },
+
+        // #endregion
+
+        // #region Search
+
+        toggleSearch() {
+            this.showSearch = !this.showSearch;
         }
 
         // #endregion
