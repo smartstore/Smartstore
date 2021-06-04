@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.IO;
+using Smartstore.Net;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.DataExchange.Import
@@ -15,12 +16,15 @@ namespace Smartstore.Core.DataExchange.Import
         private readonly string _progressInfo;
         private DataExchangeAbortion _abortion;
 
-        public ImportExecuteContext(string progressInfo, CancellationToken cancelToken)
+        public ImportExecuteContext(string progressInfo, CancellationToken cancelToken = default)
         {
             _progressInfo = progressInfo;
             CancelToken = cancelToken;
         }
 
+        /// <summary>
+        /// A <see cref="CancellationToken"/> to observe while waiting for the task to complete.
+        /// </summary>
         public CancellationToken CancelToken { get; private set; }
 
         public DataImportRequest Request { get; internal set; }
@@ -35,6 +39,9 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         public ColumnMap ColumnMap { get; internal set; }
 
+        /// <summary>
+        /// The data segmenter that provides batched data to be imported.
+        /// </summary>
         public IImportDataSegmenterConsumer DataSegmenter { get; internal set; }
 
         /// <summary>
@@ -53,9 +60,34 @@ namespace Smartstore.Core.DataExchange.Import
         public ImportFile File { get; internal set; }
 
         /// <summary>
+        /// Date and time at the beginning of the import.
+        /// </summary>
+        public DateTime UtcNow { get; private set; } = DateTime.UtcNow;
+
+        /// <summary>
         /// The import directory.
+        /// E.g. App_Data\Tenants\Default\ImportProfiles\<my-import-profile>\Content.
         /// </summary>
         public IDirectory ImportDirectory { get; internal set; }
+
+        /// <summary>
+        /// The directory for downloading images during import.
+        /// E.g. App_Data\Tenants\Default\ImportProfiles\<my-import-profile>\Content\DownloadedImage.
+        /// If the import file contains URLs for images, they will be downloaded to this directory.
+        /// </summary>
+        public IDirectory ImageDownloadDirectory { get; internal set; }
+
+        /// <summary>
+        /// The directory with the images to be imported.
+        /// E.g. App_Data\Tenants\Default\ImportProfiles\<my-import-profile>\my-images.
+        /// If the import file contains relative paths for images, then they are expected to be in that directory.
+        /// </summary>
+        public IDirectory ImageDirectory { get; internal set; }
+
+        /// <summary>
+        /// A download manager that can be used to download images.
+        /// </summary>
+        public DownloadManager DownloadManager { get; internal set; }
 
         /// <summary>
         /// Logger instance to log information into the import log file.

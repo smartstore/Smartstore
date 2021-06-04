@@ -24,8 +24,8 @@ namespace Smartstore.Core.DataExchange.Export
 {
     public partial class ExportProfileService : AsyncDbSaveHook<ExportProfile>, IExportProfileService
     {
-        private const string _defaultFileNamePattern = "%Store.Id%-%Profile.Id%-%File.Index%-%Profile.SeoName%";
-        private const string _exportFileRoot = "ExportProfiles";
+        private const string FILE_NAME_PATTERN = "%Store.Id%-%Profile.Id%-%File.Index%-%Profile.SeoName%";
+        private const string EXPORT_FILE_ROOT = "ExportProfiles";
 
         private static readonly Regex _regexFolderName = new(".*/ExportProfiles/?", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
@@ -78,7 +78,7 @@ namespace Smartstore.Core.DataExchange.Export
             // ~/App_Data/ExportProfiles/smartstorecategorycsv
             // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
             var root = _appContext.TenantRoot;
-            var path = root.PathCombine(_exportFileRoot, _regexFolderName.Replace(profile.FolderName, string.Empty), subpath.EmptyNull());
+            var path = root.PathCombine(EXPORT_FILE_ROOT, _regexFolderName.Replace(profile.FolderName, string.Empty), subpath.EmptyNull());
 
             if (createIfNotExists)
             {
@@ -243,7 +243,7 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 profile = new ExportProfile
                 {
-                    FileNamePattern = _defaultFileNamePattern
+                    FileNamePattern = FILE_NAME_PATTERN
                 };
 
                 if (isSystemProfile)
@@ -297,7 +297,7 @@ namespace Smartstore.Core.DataExchange.Export
                 .ToValidPath()
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
-            profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(_exportFileRoot, folderName);
+            profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(EXPORT_FILE_ROOT, folderName);
 
             profile.SystemName = profileSystemName.IsEmpty() && isSystemProfile
                 ? cleanedSystemName

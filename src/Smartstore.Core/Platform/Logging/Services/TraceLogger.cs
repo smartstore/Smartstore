@@ -14,7 +14,7 @@ namespace Smartstore.Core.Logging
     /// </summary>
     public partial class TraceLogger : Disposable, ILogger
     {
-        private const string NullMessage = "[null]";
+        private const string NULL_MESSAGE = "[null]";
 
         protected TraceSource _traceSource;
         protected StreamWriter _streamWriter;
@@ -100,7 +100,7 @@ namespace Smartstore.Core.Logging
             
             if (exception != null && !exception.IsFatal())
             {
-                if (message.IsEmpty() || message.EqualsNoCase(NullMessage))
+                if (message.IsEmpty() || message.EqualsNoCase(NULL_MESSAGE))
                 {
                     message = exception.Message;
                 }

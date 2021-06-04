@@ -9,8 +9,8 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public class ImportRow<T> where T : BaseEntity
     {
-        private const string ExplicitNull = "[NULL]";
-        private const string ExplicitIgnore = "[IGNORE]";
+        private const string EXPLICIT_NULL = "[NULL]";
+        private const string EXPLICIT_IGNORE = "[IGNORE]";
 
         private bool _initialized = false;
         private T _entity;
@@ -134,9 +134,9 @@ namespace Smartstore.Core.DataExchange.Import
                 return false;
             }
 
-            if (_row.TryGetValue(mapping.MappedName, out var rawValue) && rawValue != null && rawValue != DBNull.Value && !rawValue.ToString().EqualsNoCase(ExplicitIgnore))
+            if (_row.TryGetValue(mapping.MappedName, out var rawValue) && rawValue != null && rawValue != DBNull.Value && !rawValue.ToString().EqualsNoCase(EXPLICIT_IGNORE))
             {
-                value = rawValue.ToString().EqualsNoCase(ExplicitNull)
+                value = rawValue.ToString().EqualsNoCase(EXPLICIT_NULL)
                     ? default
                     : rawValue.Convert<TProp>(_segmenter.Culture);
                 return true;
@@ -193,7 +193,7 @@ namespace Smartstore.Core.DataExchange.Import
                 else if (_row.TryGetValue(mapping.MappedName, out object value) && 
                     value != null && 
                     value != DBNull.Value && 
-                    !value.ToString().EqualsNoCase(ExplicitIgnore))
+                    !value.ToString().EqualsNoCase(EXPLICIT_IGNORE))
                 {
                     // source contains field value. Set it.
                     TProp converted;
@@ -201,7 +201,7 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         converted = converter(value, _segmenter.Culture);
                     }
-                    else if (value.ToString().EqualsNoCase(ExplicitNull))
+                    else if (value.ToString().EqualsNoCase(EXPLICIT_NULL))
                     {
                         // Prop is "explicitly" set to null. Don't fallback to any default!
                         converted = default;

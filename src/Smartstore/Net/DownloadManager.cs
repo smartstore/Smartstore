@@ -10,15 +10,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Http;
 using Smartstore.IO;
 
 namespace Smartstore.Net
 {
+    // TODO: (mg) (core) review\rework DownloadManager.
+    // DownloadFileAsync is misplaced (HttpRequest dependency). HttpClient should be instantiated per DownloadManager instance.
     public sealed class DownloadManager
     {
-        private const int _bufferSize = 16384;
-
         private readonly HttpRequest _httpRequest;
 
         public DownloadManager(HttpRequest httpRequest)
@@ -27,6 +28,8 @@ namespace Smartstore.Net
 
             _httpRequest = httpRequest;
         }
+
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         /// <summary>
         /// Downloads a single file asynchronously
@@ -64,7 +67,7 @@ namespace Smartstore.Net
                 req.SetVisitorCookie(_httpRequest);
             }
 
-            using (var resp = (HttpWebResponse)(await req.GetResponseAsync()))
+            using (var resp = (HttpWebResponse)await req.GetResponseAsync())
             using (var stream = resp.GetResponseStream())
             {
                 if (resp.StatusCode == HttpStatusCode.OK)
@@ -88,7 +91,9 @@ namespace Smartstore.Net
                                 var uri = new Uri(url);
                                 fileName = Path.GetFileName(uri.LocalPath);
                             }
-                            catch { }
+                            catch
+                            {
+                            }
                         }
 
                         return new DownloadResponse(data, fileName, resp.ContentType);
@@ -100,11 +105,12 @@ namespace Smartstore.Net
         }
 
         /// <summary>
-        /// Starts asynchronous download of files and saves them to disk
+        /// Starts asynchronous download of files and saves them to disk.
         /// </summary>
-        /// <param name="context">Download context</param>
-        /// <param name="items">Items to be downloaded</param>
-        public async Task DownloadFilesAsync(DownloadManagerContext context, IEnumerable<DownloadManagerItem> items)
+        /// <param name="items">Items to be downloaded.</param>
+        /// <param name="downloadTimeout">The timespan to wait before the download request times out.</param>
+        /// <param name="cancelToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        public async Task DownloadFilesAsync(IEnumerable<DownloadManagerItem> items, TimeSpan downloadTimeout = default, CancellationToken cancelToken = default)
         {
             try
             {
@@ -117,22 +123,23 @@ namespace Smartstore.Net
 
                 client.DefaultRequestHeaders.Add("Connection", "Keep-alive");
 
-                if (context.Timeout.TotalMilliseconds > 0 && context.Timeout != Timeout.InfiniteTimeSpan)
-                    client.Timeout = context.Timeout;
+                // INFO: the default HttpClient.Timeout is 100 seconds, which has proven to be too small in some situations.
+                if (downloadTimeout != default && downloadTimeout.TotalMilliseconds > 0)
+                    client.Timeout = downloadTimeout;
 
                 IEnumerable<Task> downloadTasksQuery =
                     from item in items
-                    select ProcessUrl(context, client, item);
+                    select ProcessUrl(client, item, cancelToken);
 
-                // Now execute the bunch
+                // Now execute the bunch.
                 List<Task> downloadTasks = downloadTasksQuery.ToList();
 
                 while (downloadTasks.Count > 0)
                 {
-                    // identify the first task that completes
+                    // Identify the first task that completes.
                     Task firstFinishedTask = await Task.WhenAny(downloadTasks);
 
-                    // process only once
+                    // Process only once.
                     downloadTasks.Remove(firstFinishedTask);
 
                     await firstFinishedTask;
@@ -140,57 +147,34 @@ namespace Smartstore.Net
             }
             catch (Exception ex)
             {
-                if (context.Logger != null)
-                {
-                    context.Logger.ErrorsAll(ex);
-                }
+                Logger?.ErrorsAll(ex);
             }
         }
 
-        private async Task ProcessUrl(DownloadManagerContext context, HttpClient client, DownloadManagerItem item)
+        private async Task ProcessUrl(HttpClient client, DownloadManagerItem item, CancellationToken cancelToken)
         {
             try
             {
-                var count = 0;
-                var canceled = false;
-                var bytes = new byte[_bufferSize];
-
-                using var response = await client.GetAsync(item.Url);
+                using var response = await client.GetAsync(item.Url, HttpCompletionOption.ResponseHeadersRead, cancelToken);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    if (response.Content.Headers.ContentType != null)
+                    var contentType = response.Content.Headers.ContentType?.MediaType;
+                    if (contentType.HasValue() && !contentType.EqualsNoCase(item.MimeType))
                     {
-                        var contentType = response.Content.Headers.ContentType.MediaType;
-                        if (contentType.HasValue() && !contentType.EqualsNoCase(item.MimeType))
-                        {
-                            // Update mime type and local path.
-                            var extension = MimeTypes.MapMimeTypeToExtension(contentType).NullEmpty() ?? "jpg";
+                        // Update mime type and local path.
+                        var extension = MimeTypes.MapMimeTypeToExtension(contentType).NullEmpty() ?? "jpg";
 
-                            item.MimeType = contentType;
-                            item.Path = Path.ChangeExtension(item.Path, extension.EnsureStartsWith('.'));
-                        }
+                        item.MimeType = contentType;
+                        item.Path = Path.ChangeExtension(item.Path, extension.EnsureStartsWith('.'));
                     }
 
-                    //Task <Stream> task = client.GetStreamAsync(item.Url);
-                    Task<Stream> task = response.Content.ReadAsStreamAsync();
-                    await task;
+                    using var source = await response.Content.ReadAsStreamAsync(cancelToken);
+                    using var target = File.Open(item.Path, FileMode.Create);
 
-                    using (var srcStream = task.Result)
-                    using (var dstStream = File.Open(item.Path, FileMode.Create))
-                    {
-                        while ((count = srcStream.Read(bytes, 0, bytes.Length)) != 0 && !canceled)
-                        {
-                            dstStream.Write(bytes, 0, count);
+                    await source.CopyToAsync(target, cancelToken);
 
-                            if (context.CancellationToken.IsCancellationRequested)
-                            {
-                                canceled = true;
-                            }
-                        }
-                    }
-
-                    item.Success = !task.IsFaulted && !canceled;
+                    item.Success = !cancelToken.IsCancellationRequested;
                 }
                 else
                 {
@@ -205,18 +189,16 @@ namespace Smartstore.Net
                     item.Success = false;
                     item.ErrorMessage = ex.ToAllMessages();
 
-                    var webExc = ex.InnerException as WebException;
-                    if (webExc != null)
+                    if (ex.InnerException is WebException webExc)
                     {
                         item.ExceptionStatus = webExc.Status;
                     }
 
-                    if (context.Logger != null)
-                    {
-                        context.Logger.Error(ex, item.ToString());
-                    }
+                    Logger?.Error(ex, item.ToString());
                 }
-                catch { }
+                catch
+                {
+                }
             }
         }
     }
@@ -247,24 +229,6 @@ namespace Smartstore.Net
         /// The mime type opf the downloaded file
         /// </summary>
         public string ContentType { get; private set; }
-    }
-
-    public class DownloadManagerContext
-    {
-        /// <summary>
-        /// Optional logger to log errors
-        /// </summary>
-        public ILogger Logger { get; set; }
-
-        /// <summary>
-        /// Cancellation token
-        /// </summary>
-        public CancellationToken CancellationToken { get; set; }
-
-        /// <summary>
-        /// Timeout for the HTTP client
-        /// </summary>
-        public TimeSpan Timeout { get; set; }
     }
 
     public class DownloadManagerItem

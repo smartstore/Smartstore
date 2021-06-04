@@ -15,7 +15,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {
-            var request = new DataImportRequest(ctx.ExecutionInfo.Task.Alias.ToInt())
+            var request = new DataImportRequest(ctx.HttpContext, ctx.ExecutionInfo.Task.Alias.ToInt())
             {
                 ProgressCallback = OnProgress
             };

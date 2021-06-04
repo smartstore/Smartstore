@@ -6,8 +6,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Autofac;
-using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
@@ -21,6 +21,8 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public abstract partial class EntityImporterBase : IEntityImporter
     {
+        private const string DOWNLOADED_ITEMS_KEY = "EntityImporter.DownloadedItems";
+
         protected ICommonServices _services;
         protected SmartDbContext _db;
         protected ILocalizedEntityService _localizedEntityService;
@@ -42,17 +44,6 @@ namespace Smartstore.Core.DataExchange.Import
             // Always turn image post-processing off during imports. It can heavily decrease processing time.
             _services.MediaService.ImagePostProcessingEnabled = false;
         }
-
-        public DateTime UtcNow { get; private set; } = DateTime.UtcNow;
-
-        /// <summary>
-        /// URL to file name map. To avoid downloading image several times.
-        /// </summary>
-		public Dictionary<string, string> DownloadedItems { get; private set; } = new();
-
-        public IDirectory ImageDownloadFolder { get; private set; }
-
-        public IDirectory ImageFolder { get; private set; }
 
         /// <inheritdoc/>
         public Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
@@ -273,6 +264,11 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual DownloadManagerItem CreateDownloadItem(ImportExecuteContext context, string urlOrPath, int displayOrder)
         {
+            if (urlOrPath.IsEmpty())
+            {
+                return null;
+            }
+
             try
             {
                 var item = new DownloadManagerItem
@@ -286,11 +282,15 @@ namespace Smartstore.Core.DataExchange.Import
                     // We append quality to avoid importing of image duplicates.
                     item.Url = _services.WebHelper.ModifyQueryString(urlOrPath, "q=100", null);
 
-                    if (DownloadedItems.ContainsKey(urlOrPath))
+                    // Maps URLs to file names.
+                    // It is used to prevent the same images from being downloaded multiple times.
+                    var downloadedItems = context.GetCustomProperty<Dictionary<string, string>>(DOWNLOADED_ITEMS_KEY);
+
+                    if (downloadedItems.ContainsKey(urlOrPath))
                     {
                         // URL has already been downloaded.
                         item.Success = true;
-                        item.FileName = DownloadedItems[urlOrPath];
+                        item.FileName = downloadedItems[urlOrPath];
                     }
                     else
                     {
@@ -305,10 +305,10 @@ namespace Smartstore.Core.DataExchange.Import
                         {
                         }
 
-                        item.FileName = GetValidFileName(localPath);
+                        item.FileName = HttpUtility.UrlDecode(GetValidFileName(localPath));
                     }
 
-                    item.Path = ImageDownloadFolder.FileSystem.PathCombine(ImageDownloadFolder.PhysicalPath, item.FileName);
+                    item.Path = GetAbsolutePath(context.ImageDownloadDirectory, item.FileName);
                 }
                 else
                 {
@@ -317,7 +317,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                     item.Path = Path.IsPathRooted(urlOrPath)
                         ? urlOrPath
-                        : ImageFolder.FileSystem.PathCombine(ImageFolder.PhysicalPath, urlOrPath);
+                        : GetAbsolutePath(context.ImageDirectory, urlOrPath);
                 }
 
                 item.MimeType = MimeTypes.MapNameToMimeType(item.FileName);
@@ -330,9 +330,25 @@ namespace Smartstore.Core.DataExchange.Import
                 return null;
             }
 
-            static string GetValidFileName(string str)
+            static string GetValidFileName(string value)
             {
-                return Path.GetFileName(str).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
+                return Path.GetFileName(value).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
+            }
+            static string GetAbsolutePath(IDirectory directory, string fileNameOrRelativePath)
+            {
+                return directory.FileSystem.PathCombine(directory.PhysicalPath, fileNameOrRelativePath).Replace('/', '\\');
+            }
+        }
+
+        protected virtual void CacheDownloadItem(ImportExecuteContext context, DownloadManagerItem item)
+        {
+            if (item.Url.HasValue())
+            {
+                var downloadedItems = context.GetCustomProperty<Dictionary<string, string>>(DOWNLOADED_ITEMS_KEY);
+                if (!downloadedItems.ContainsKey(item.Url))
+                {
+                    downloadedItems.Add(item.Url, Path.GetFileName(item.Path));
+                }
             }
         }
 

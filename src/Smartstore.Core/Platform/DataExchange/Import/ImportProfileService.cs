@@ -18,7 +18,7 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public partial class ImportProfileService : IImportProfileService
     {
-        private const string _importFileRoot = "ImportProfiles";
+        private const string IMPORT_FILE_ROOT = "ImportProfiles";
         private static readonly object _lock = new();
         private static Dictionary<ImportEntityType, Dictionary<string, string>> _entityProperties = null;
 
@@ -50,7 +50,7 @@ namespace Smartstore.Core.DataExchange.Import
             Guard.NotNull(profile, nameof(profile));
 
             var root = _appContext.TenantRoot;
-            var path = root.PathCombine(_importFileRoot, profile.FolderName, subpath.EmptyNull());
+            var path = root.PathCombine(IMPORT_FILE_ROOT, profile.FolderName, subpath.EmptyNull());
 
             if (createIfNotExists)
             {
@@ -151,7 +151,7 @@ namespace Smartstore.Core.DataExchange.Import
                 .ToValidPath()
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
-            profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(_importFileRoot, folderName);
+            profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(IMPORT_FILE_ROOT, folderName);
 
             _db.ImportProfiles.Add(profile);
 

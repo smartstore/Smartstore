@@ -16,6 +16,8 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
+using Smartstore.IO;
+using Smartstore.Net;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities;
 
@@ -30,6 +32,7 @@ namespace Smartstore.Core.DataExchange.Import
         private readonly IEmailAccountService _emailAccountService;
         private readonly IMailService _mailService;
         private readonly ContactDataSettings _contactDataSettings;
+        private readonly DataExchangeSettings _dataExchangeSettings;
 
         public DataImporter(
             ICommonServices services,
@@ -38,7 +41,8 @@ namespace Smartstore.Core.DataExchange.Import
             ILanguageService languageService,
             IEmailAccountService emailAccountService,
             IMailService mailService,
-            ContactDataSettings contactDataSettings)
+            ContactDataSettings contactDataSettings,
+            DataExchangeSettings dataExchangeSettings)
         {
             _services = services;
             _scopeAccessor = scopeAccessor;
@@ -47,6 +51,7 @@ namespace Smartstore.Core.DataExchange.Import
             _emailAccountService = emailAccountService;
             _mailService = mailService;
             _contactDataSettings = contactDataSettings;
+            _dataExchangeSettings = dataExchangeSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -56,22 +61,18 @@ namespace Smartstore.Core.DataExchange.Import
             Guard.NotNull(request, nameof(request));
             Guard.NotNull(cancelToken, nameof(cancelToken));
 
-            DataImporterContext ctx = null;
+            var profile = await _services.DbContext.ImportProfiles.FindByIdAsync(request.ProfileId, false, cancelToken);
+            if (!(profile?.Enabled ?? false))
+                return;
+
+            var (ctx, logFile) = await CreateImporterContext(request, profile, cancelToken);
 
             try
             {
-                var profile = await _services.DbContext.ImportProfiles.FindByIdAsync(request.ProfileId, false, cancelToken);
-                if (!(profile?.Enabled ?? false))
-                    return;
-
-                ctx = await CreateImporterContext(request, profile, cancelToken);
-
                 var context = ctx.ExecuteContext;
-                var dir = context.ImportDirectory;
-                var logFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, "log.txt"));
                 using var logger = new TraceLogger(logFile, false);
 
-                ctx.Log = ctx.ExecuteContext.Log = logger;
+                ctx.Log = context.Log = context.DownloadManager.Logger = logger;
 
                 if (!request.HasPermission && !await HasPermission())
                 {
@@ -123,6 +124,7 @@ namespace Smartstore.Core.DataExchange.Import
                             {
                                 using var batchScope = _scopeAccessor.LifetimeScope.BeginLifetimeScope();
 
+                                // It would be nice if we could make all dependencies use our TraceLogger.
                                 var importerFactory = batchScope.Resolve<Func<ImportEntityType, IEntityImporter>>();
                                 var importer = importerFactory(profile.EntityType);
 
@@ -296,26 +298,39 @@ namespace Smartstore.Core.DataExchange.Import
             //await _db.SaveChangesAsync();
         }
 
-        private async Task<DataImporterContext> CreateImporterContext(DataImportRequest request, ImportProfile profile, CancellationToken cancelToken)
+        private async Task<(DataImporterContext Context, IFile LogFile)> CreateImporterContext(DataImportRequest request, ImportProfile profile, CancellationToken cancelToken)
         {
+            var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
+
             var executeContext = new ImportExecuteContext(T("Admin.DataExchange.Import.ProgressInfo"), cancelToken)
             {
                 Request = request,
                 UpdateOnly = profile.UpdateOnly,
                 KeyFieldNames = profile.KeyFieldNames.SplitSafe(",").ToArray(),
-                ImportDirectory = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true),
+                ImportDirectory = dir,
+                ImageDownloadDirectory = await _importProfileService.GetImportDirectoryAsync(profile, @"Content\DownloadedImages", true),
                 ExtraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData),
                 Languages = await _languageService.GetAllLanguagesAsync(true),
-                Stores = _services.StoreContext.GetAllStores().AsReadOnly()
+                Stores = _services.StoreContext.GetAllStores().AsReadOnly(),
+                DownloadManager = new DownloadManager(request.HttpContext.Request)
             };
 
-            return new DataImporterContext
+            // Relative paths for images always refer to the profile directory, not to its "Content" sub-directory.
+            executeContext.ImageDirectory = _dataExchangeSettings.ImageImportFolder.HasValue()
+                ? await _importProfileService.GetImportDirectoryAsync(profile, _dataExchangeSettings.ImageImportFolder, false)
+                : dir.Parent;
+
+            var context = new DataImporterContext
             {
                 Request = request,
                 CancelToken = cancelToken,
                 ColumnMap = new ColumnMapConverter().ConvertFrom<ColumnMap>(profile.ColumnMapping) ?? new ColumnMap(),
                 ExecuteContext = executeContext
             };
+
+            var logFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, "log.txt"));
+
+            return (context, logFile);
         }
 
         private string CreateLogHeader(ImportProfile profile, Multimap<RelatedEntityType?, ImportFile> files)

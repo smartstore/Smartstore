@@ -9,6 +9,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Autofac;
 using Dasync.Collections;
 using Humanizer;
@@ -57,6 +58,7 @@ using Smartstore.Engine;
 using Smartstore.Events;
 using Smartstore.Imaging;
 using Smartstore.IO;
+using Smartstore.Net;
 using Smartstore.Net.Mail;
 using Smartstore.Threading;
 using Smartstore.Utilities.Html;
@@ -931,6 +933,7 @@ namespace Smartstore.Web.Controllers
             var pcs = Services.Resolve<Core.Catalog.Pricing.IPriceCalculationService>();
             var eps = Services.Resolve<Core.DataExchange.Export.IExportProfileService>();
             var ips = Services.Resolve<Core.DataExchange.Import.IImportProfileService>();
+            var des = Services.Resolve<Core.DataExchange.DataExchangeSettings>();
             var store = Services.StoreContext.CurrentStore;
             var currency = Services.WorkContext.WorkingCurrency;
             var customer = await _db.Customers.FindByIdAsync(2666330, false);
@@ -946,6 +949,34 @@ namespace Smartstore.Web.Controllers
             {
                 content.AppendLine($"{imFile.File.Name} {imFile.RelatedType?.ToString()?.NaIfEmpty()}");
             }
+
+            //var tenantRoot = Services.ApplicationContext.TenantRoot;
+            //var downloadPath = tenantRoot.PathCombine(imDir.SubPath, "DownloadedImages");
+            //await tenantRoot.TryCreateDirectoryAsync(downloadPath);
+            //var imageDownloadDirectory = await tenantRoot.GetDirectoryAsync(downloadPath);
+
+            //var imageDirectory = des.ImageImportFolder.HasValue()
+            //    ? await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(imDir.Parent.SubPath, des.ImageImportFolder))
+            //    : imDir.Parent;
+
+            var imageDownloadDirectory = await ips.GetImportDirectoryAsync(imProfile, @"Content\DownloadedImages", true);
+            var imageDirectory = des.ImageImportFolder.HasValue()
+                ? await ips.GetImportDirectoryAsync(imProfile, des.ImageImportFolder, false)
+                : imDir.Parent;
+
+            content.AppendLine($"imageDownloadDirectory {imageDownloadDirectory.Exists}: {imageDownloadDirectory.Name}, {imageDownloadDirectory.SubPath}, {imageDownloadDirectory.PhysicalPath}");
+            content.AppendLine($"imageDirectory {imageDirectory.Exists}: {imageDirectory.Name}, {imageDirectory.SubPath}, {imageDirectory.PhysicalPath}");
+
+            var url = "https://smartstore.com/media/2286/pagebuilder/2286.png";
+            var localPath = new Uri(url).LocalPath;
+            var fileName1 = Path.GetFileName(localPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
+            var pathTest1 = imageDownloadDirectory.FileSystem.PathCombine(imageDownloadDirectory.PhysicalPath, fileName1).Replace('/', '\\');
+
+            var urlOrPath = "Content/DownloadedImages/my-image.jpg";
+            var fileName2 = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
+            var pathTest2 = imageDirectory.FileSystem.PathCombine(imageDirectory.PhysicalPath, urlOrPath).Replace('/', '\\');
+            content.AppendLine($"path test1: {fileName1} {pathTest1}");
+            content.AppendLine($"path test2: {fileName2} {pathTest2}");
 
             content.AppendLine("--------------------------------------------------------------");
             content.AppendLine("");
@@ -972,32 +1003,6 @@ namespace Smartstore.Web.Controllers
             var contentRoot = Services.ApplicationContext.ContentRoot;
             var webRoot = Services.ApplicationContext.WebRoot;
             
-
-            {
-                //var logDir = contentRoot.AttachEntry(dir.Parent);
-                //var logPath = $"File/" + logDir.FileSystem.PathCombine(logDir.SubPath, "log.txt");
-                //content.AppendLine($"Log path: " + logPath);
-                //var logger = Services.LoggerFactory.CreateLogger(logPath);
-                //logger.Info("Hello world!");
-
-                var logFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, "log.txt"));
-                using (var logger = new TraceLogger(logFile))
-                {
-                    logger.Info("Hello world!");
-                    logger.Error("unknown error occurred!");
-                    try
-                    {
-                        var num1 = 0;
-                        var num2 = 16;
-                        var num3 = num2 / num1;
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex);
-                    }
-                }
-            }
-
             ////var fullPath = @"C:\Downloads\Subfolder";
             //var fullPath = @"~\App_Data\_temp\subfolder";
             var subfolder = "SubFolder";
@@ -1010,43 +1015,36 @@ namespace Smartstore.Web.Controllers
             content.AppendLine(publicDir1.PhysicalPath);
             content.AppendLine(publicDir2.PhysicalPath);
 
-            //content.AppendLine();
-            //await CopyDirectory(dir, dir);
+            content.AppendLine("--------------------------------------------------------------");
+            content.AppendLine("");
 
-            //var folderName = webRoot.CreateUniqueDirectoryName(DataExporter.PublicDirectoryName, "Tester");
-            //var publicPath = webRoot.PathCombine(DataExporter.PublicDirectoryName, folderName);
-            //_ = await webRoot.TryCreateDirectoryAsync(publicPath);
-            //content.AppendLine($"{folderName}: {publicPath}");
-
-
-            var crDir = contentRoot.AttachEntry(dir);
-            var zipPath2 = crDir.FileSystem.PathCombine(crDir.Parent.SubPath, crDir.Parent.Name.ToValidFileName() + ".zip");
-            var zipFile2 = await crDir.FileSystem.GetFileAsync(zipPath2);
-            content.AppendLine($"{zipFile2.Exists} {zipFile2.Name}: {zipPath2} {zipFile2.PhysicalPath}");
-
-            var deployment = await _db.ExportDeployments.FindByIdAsync(31, false);
-            var deploymentDir = await eps.GetDeploymentDirectoryAsync(deployment, true);
-
-            var url = await eps.GetDeploymentDirectoryUrlAsync(deployment);
-            content.AppendLine($"deployment URL: {url.NaIfEmpty()}");
-
-
-            //using (var stream = await zipFile2.OpenReadAsync())
-            //{
-            //    var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile2.Name);
-            //    var newFile = await deploymentDir.FileSystem.CreateFileAsync(newPath, stream, true);
-            //    content.AppendLine($"{newFile.Exists} {newPath}: {newFile.PhysicalPath}");
-            //}
-
-            //var newPath = deploymentDir.FileSystem.PathCombine(webRootDir.Name, deploymentDir.SubPath);
-            //content.AppendLine($"copy dir: {crDir.SubPath} {newPath}");
-            //await crDir.FileSystem.CopyDirectoryAsync(crDir.SubPath, newPath);
-
-
-            //var deployment = await _db.ExportDeployments.FindByIdAsync(31, false);
-            //var deploymentDir = await eps.GetDeploymentDirectoryAsync(deployment, true);
-            //var copyResult = CopyDirectory2(new DirectoryInfo(dir.PhysicalPath), new DirectoryInfo(deploymentDir.PhysicalPath));
-            //content.AppendLine(copyResult.ToString() + " "  + dir.PhysicalPath);
+            var imageUrls = new[] 
+            {
+                @"https://smartstore.com/media/3815/pagebuilder/page-builder.gif",
+                @"https://smartstore.com/media/4820/content/Supermarket_Rabatte_1439x1080.jpg",
+                @"https://smartstore.com/media/4597/showcase/STIHL%20Preview.png",
+                @"https://smartstore.com/media/4593/showcase/Carlobolaget%20Preview.png",
+                @"https://smartstore.com/media/3663/showcase/3663.jpg",
+                @"https://smartstore.com/media/1628/showcase/1628.jpg",
+            };
+            var downloadItems = imageUrls.Select(x =>
+            {
+                var fileName = HttpUtility.UrlDecode(Path.GetFileName(x).ToValidFileName());
+                return new DownloadManagerItem 
+                { 
+                    Url = x,
+                    FileName = fileName,
+                    Path = @"C:\Downloads\DownloadManager\" + fileName
+                };
+            })
+            .ToList();
+            var dm = new DownloadManager(Request);
+            await dm.DownloadFilesAsync(downloadItems);
+            foreach (var item in downloadItems)
+            {
+                var success = item.Success.HasValue ? item.Success.Value.ToString() : "-";
+                content.AppendLine($"{success} {System.IO.File.Exists(item.Path)}: {item.FileName}... {item.Path}");
+            }
 
             return Content(content.ToString());
             //return View();
