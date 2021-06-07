@@ -21,7 +21,10 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public abstract partial class EntityImporterBase : IEntityImporter
     {
-        private const string DOWNLOADED_ITEMS_KEY = "EntityImporter.DownloadedItems";
+        // Maps (per batch) already downloaded URLs to file names.
+        // Background: in some imports subsequent products (e.g. associated products)
+        // share the same images, where multiple downloading is unnecessary.
+        private readonly Dictionary<string, string> _downloadedItems = new();
 
         protected ICommonServices _services;
         protected SmartDbContext _db;
@@ -282,30 +285,15 @@ namespace Smartstore.Core.DataExchange.Import
                     // We append quality to avoid importing of image duplicates.
                     item.Url = _services.WebHelper.ModifyQueryString(urlOrPath, "q=100", null);
 
-                    // Maps URLs to file names.
-                    // It is used to prevent the same images from being downloaded multiple times.
-                    var downloadedItems = context.GetCustomProperty<Dictionary<string, string>>(DOWNLOADED_ITEMS_KEY);
-
-                    if (downloadedItems.ContainsKey(urlOrPath))
+                    if (_downloadedItems.ContainsKey(urlOrPath))
                     {
                         // URL has already been downloaded.
                         item.Success = true;
-                        item.FileName = downloadedItems[urlOrPath];
+                        item.FileName = _downloadedItems[urlOrPath];
                     }
                     else
                     {
-                        var localPath = string.Empty;
-
-                        try
-                        {
-                            // Exclude query string parts!
-                            localPath = new Uri(urlOrPath).LocalPath;
-                        }
-                        catch
-                        {
-                        }
-
-                        item.FileName = HttpUtility.UrlDecode(GetValidFileName(localPath));
+                        item.FileName = DownloadManager.GetFileNameFromUrl(urlOrPath) ?? Path.GetRandomFileName();
                     }
 
                     item.Path = GetAbsolutePath(context.ImageDownloadDirectory, item.FileName);
@@ -313,7 +301,7 @@ namespace Smartstore.Core.DataExchange.Import
                 else
                 {
                     item.Success = true;
-                    item.FileName = GetValidFileName(urlOrPath);
+                    item.FileName = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
 
                     item.Path = Path.IsPathRooted(urlOrPath)
                         ? urlOrPath
@@ -330,10 +318,6 @@ namespace Smartstore.Core.DataExchange.Import
                 return null;
             }
 
-            static string GetValidFileName(string value)
-            {
-                return Path.GetFileName(value).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
-            }
             static string GetAbsolutePath(IDirectory directory, string fileNameOrRelativePath)
             {
                 return directory.FileSystem.PathCombine(directory.PhysicalPath, fileNameOrRelativePath).Replace('/', '\\');
@@ -342,13 +326,9 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual void CacheDownloadItem(ImportExecuteContext context, DownloadManagerItem item)
         {
-            if (item.Url.HasValue())
+            if (item.Success && item.Url.HasValue() && !_downloadedItems.ContainsKey(item.Url))
             {
-                var downloadedItems = context.GetCustomProperty<Dictionary<string, string>>(DOWNLOADED_ITEMS_KEY);
-                if (!downloadedItems.ContainsKey(item.Url))
-                {
-                    downloadedItems.Add(item.Url, Path.GetFileName(item.Path));
-                }
+                _downloadedItems[item.Url] = Path.GetFileName(item.Path);
             }
         }
 

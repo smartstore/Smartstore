@@ -9,7 +9,6 @@ using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using Autofac;
 using Dasync.Collections;
 using Humanizer;
@@ -25,7 +24,6 @@ using Smartstore.Caching;
 using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
@@ -1018,36 +1016,101 @@ namespace Smartstore.Web.Controllers
             content.AppendLine("--------------------------------------------------------------");
             content.AppendLine("");
 
-            var imageUrls = new[] 
-            {
-                @"https://smartstore.com/media/3815/pagebuilder/page-builder.gif",
-                @"https://smartstore.com/media/4820/content/Supermarket_Rabatte_1439x1080.jpg",
-                @"https://smartstore.com/media/4597/showcase/STIHL%20Preview.png",
-                @"https://smartstore.com/media/4593/showcase/Carlobolaget%20Preview.png",
-                @"https://smartstore.com/media/3663/showcase/3663.jpg",
-                @"https://smartstore.com/media/1628/showcase/1628.jpg",
-            };
-            var downloadItems = imageUrls.Select(x =>
-            {
-                var fileName = HttpUtility.UrlDecode(Path.GetFileName(x).ToValidFileName());
-                return new DownloadManagerItem 
-                { 
-                    Url = x,
-                    FileName = fileName,
-                    Path = @"C:\Downloads\DownloadManager\" + fileName
-                };
-            })
-            .ToList();
-            var dm = new DownloadManager(Request);
-            await dm.DownloadFilesAsync(downloadItems);
-            foreach (var item in downloadItems)
-            {
-                var success = item.Success.HasValue ? item.Success.Value.ToString() : "-";
-                content.AppendLine($"{success} {System.IO.File.Exists(item.Path)}: {item.FileName}... {item.Path}");
-            }
+
+            //var imageUrls = new[] 
+            //{
+            //    @"https://smartstore.com/media/3815/pagebuilder/page-builder.gif",
+            //    @"https://smartstore.com/media/4820/content/Supermarket_Rabatte_1439x1080.jpg",
+            //    @"https://smartstore.com/media/4597/showcase/STIHL%20Preview.png",
+            //    @"https://smartstore.com/media/4593/showcase/Carlobolaget%20Preview.png",
+            //    @"https://smartstore.com/media/3663/showcase/3663.jpg",
+            //    @"https://smartstore.com/media/1628/showcase/1628.jpg",
+            //};
+
+            //foreach (var imageUrl in imageUrls)
+            //{
+            //    await DownloadManager.DownloadFileAsync(async dr =>
+            //    {
+            //        var data = await dr.Stream.ToByteArrayAsync();
+
+            //        await System.IO.File.WriteAllBytesAsync(@"C:\Downloads\DownloadManager\" + dr.FileName, data);
+
+            //        return data != null && data.Length != 0;
+            //    },
+            //    imageUrl, Request);
+            //}
+
+            //var downloadItems = imageUrls.Select(x =>
+            //{
+            //    var fileName = DownloadManager.GetFileNameFromUrl(x);
+            //    return new DownloadManagerItem 
+            //    { 
+            //        Url = x,
+            //        FileName = fileName,
+            //        Path = @"C:\Downloads\DownloadManager\" + fileName
+            //    };
+            //})
+            //.ToList();
+            //var dm = new DownloadManager();
+            //await dm.DownloadFilesAsync(downloadItems);
+            //foreach (var item in downloadItems)
+            //{
+            //    var success = item.Success && System.IO.File.Exists(item.Path);
+            //    content.AppendLine($"{success} {item.StatusCode}: {item.FileName}... {item.Path}");
+            //}
+            //dm.Dispose();
+
 
             return Content(content.ToString());
             //return View();
+
+            //async Task CreateQueuedEmail()
+            //{
+            //    var uh = Services.Resolve<IUrlHelper>();
+            //    var pm = Services.Resolve<Engine.Modularity.IProviderManager>();
+            //    var dmsp = (DatabaseMediaStorageProvider)pm.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName).Value;
+
+            //    var pdfUrl = "https://s23.q4cdn.com/202968100/files/doc_downloads/test.pdf";
+            //    var attachment = new QueuedEmailAttachment
+            //    {
+            //        StorageLocation = EmailAttachmentStorageLocation.Blob
+            //    };
+
+            //    var errorMessage = await DownloadManager.DownloadFileAsync<string>(async dr =>
+            //    {
+            //        attachment.MimeType = dr.ContentType;
+            //        attachment.Name = dr.FileName;
+            //        attachment.MediaStorage = new MediaStorage
+            //        {
+            //            Data = await dr.Stream.ToByteArrayAsync()
+            //        };
+
+            //        //var storageItem = MediaStorageItem.FromStream(dr.Stream);
+            //        //await dmsp.ApplyBlobAsync(attachment, storageItem, true);
+
+            //        return null;
+            //    },
+            //    pdfUrl, uh.ActionContext.HttpContext.Request, 5000, false/*true*/);
+
+            //    if (errorMessage.IsEmpty())
+            //    {
+            //        var queuedEmail = new QueuedEmail
+            //        {
+            //            From = "from-me@web.de",
+            //            SendManually = true,
+            //            To = "to-other@web.de",
+            //            Subject = "Test mail",
+            //            Body = "Phosfluorescently evolve standardized manufactured products after sustainable products.",
+            //            CreatedOnUtc = DateTime.UtcNow,
+            //            EmailAccountId = 1
+            //        };
+
+            //        queuedEmail.Attachments.Add(attachment);
+
+            //        Services.DbContext.QueuedEmails.Add(queuedEmail);
+            //        await Services.DbContext.SaveChangesAsync();
+            //    }
+            //}
 
             bool CopyDirectory2(DirectoryInfo source, DirectoryInfo target, bool overwrite = true)
             {

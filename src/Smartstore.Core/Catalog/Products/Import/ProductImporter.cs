@@ -42,19 +42,16 @@ namespace Smartstore.Core.DataExchange.Import
         };
 
         private readonly IFolderService _folderService;
-        private readonly DataExchangeSettings _dataExchangeSettings;
 
         public ProductImporter(
             ICommonServices services,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
-            IFolderService folderService,
-            DataExchangeSettings dataExchangeSettings)
+            IFolderService folderService)
             : base(services, localizedEntityService, storeMappingService, urlService)
         {
             _folderService = folderService;
-            _dataExchangeSettings = dataExchangeSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -568,7 +565,6 @@ namespace Smartstore.Core.DataExchange.Import
         {
             var cargo = await GetCargoData(context);
             var numberOfPictures = context.ExtraData.NumberOfPictures ?? int.MaxValue;
-            var downloadTimeout = TimeSpan.FromMinutes(_dataExchangeSettings.ImageDownloadTimeout);
             var displayOrder = -1;
 
             var productIds = batch
@@ -616,8 +612,8 @@ namespace Smartstore.Core.DataExchange.Import
                 if (downloadItems.Any(x => x.Url.HasValue()))
                 {
                     await context.DownloadManager.DownloadFilesAsync(
-                        downloadItems.Where(x => x.Url.HasValue() && !x.Success.HasValue),
-                        downloadTimeout,
+                        downloadItems.Where(x => x.Url.HasValue() && !x.Success),
+                        context.Log,
                         context.CancelToken);
 
                     var hasDuplicateFileNames = downloadItems
@@ -637,7 +633,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        if ((image.Success ?? false) && File.Exists(image.Path))
+                        if (image.Success && File.Exists(image.Path))
                         {
                             CacheDownloadItem(context, image);
 

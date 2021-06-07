@@ -1,24 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.DataExchange.Import
 {
     public partial class DataImportRequest
     {
-        public DataImportRequest(HttpContext httpContext, int profileId)
+        public DataImportRequest(int profileId)
         {
-            Guard.NotNull(httpContext, nameof(httpContext));
             Guard.NotZero(profileId, nameof(profileId));
 
-            HttpContext = httpContext;
             ProfileId = profileId;
             ProgressCallback = OnProgress;
         }
 
-        public HttpContext HttpContext { get; private set; }
         public int ProfileId { get; private set; }
 
         public bool HasPermission { get; set; }

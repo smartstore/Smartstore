@@ -72,7 +72,7 @@ namespace Smartstore.Core.DataExchange.Import
                 var context = ctx.ExecuteContext;
                 using var logger = new TraceLogger(logFile, false);
 
-                ctx.Log = context.Log = context.DownloadManager.Logger = logger;
+                ctx.Log = context.Log = logger;
 
                 if (!request.HasPermission && !await HasPermission())
                 {
@@ -209,13 +209,21 @@ namespace Smartstore.Core.DataExchange.Import
                 ctx.Log?.ErrorsAll(ex);
             }
 
-            try
+            if (ctx.ExecuteContext?.ClearCache ?? false)
             {
-                if (ctx.ExecuteContext.ClearCache)
+                try
                 {
                     await _services.Cache.ClearAsync();
                 }
+                catch (Exception ex)
+                {
+                    ctx.Log?.ErrorsAll(ex);
+                }
+            }
 
+            try
+            {
+                ctx.ExecuteContext.DownloadManager.Dispose();
                 ctx.Request.CustomData.Clear();
                 ctx.Results.Clear();
                 ctx.Log = null;
@@ -312,7 +320,7 @@ namespace Smartstore.Core.DataExchange.Import
                 ExtraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData),
                 Languages = await _languageService.GetAllLanguagesAsync(true),
                 Stores = _services.StoreContext.GetAllStores().AsReadOnly(),
-                DownloadManager = new DownloadManager(request.HttpContext.Request)
+                DownloadManager = new DownloadManager(TimeSpan.FromMinutes(_dataExchangeSettings.ImageDownloadTimeout))
             };
 
             // Relative paths for images always refer to the profile directory, not to its "Content" sub-directory.

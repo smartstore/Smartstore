@@ -15,10 +15,19 @@ namespace Smartstore.Core.Messaging
 {
     internal class CreateAttachmentsConsumer : IConsumer
     {
+        private readonly IUrlHelper _urlHelper;
+        private readonly PdfSettings _pdfSettings;
+
+        public CreateAttachmentsConsumer(IUrlHelper urlHelper, PdfSettings pdfSettings)
+        {
+            _urlHelper = urlHelper;
+            _pdfSettings = pdfSettings;
+        }
+
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public async Task HandleEventAsync(MessageQueuingEvent message, PdfSettings pdfSettings, IUrlHelper urlHelper)
+        public async Task HandleEventAsync(MessageQueuingEvent message)
         {
             var qe = message.QueuedEmail;
             var ctx = message.MessageContext;
@@ -26,8 +35,8 @@ namespace Smartstore.Core.Messaging
 
             var handledTemplates = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
             {
-                { "OrderPlaced.CustomerNotification", pdfSettings.AttachOrderPdfToOrderPlacedEmail },
-                { "OrderCompleted.CustomerNotification", pdfSettings.AttachOrderPdfToOrderCompletedEmail }
+                { "OrderPlaced.CustomerNotification", _pdfSettings.AttachOrderPdfToOrderPlacedEmail },
+                { "OrderCompleted.CustomerNotification", _pdfSettings.AttachOrderPdfToOrderCompletedEmail }
             };
 
             if (handledTemplates.TryGetValue(ctx.MessageTemplate.Name, out var shouldHandle) && shouldHandle)
@@ -36,7 +45,7 @@ namespace Smartstore.Core.Messaging
                 {
                     try
                     {
-                        var qea = await CreatePdfInvoiceAttachmentAsync(orderId, urlHelper);
+                        var qea = await CreatePdfInvoiceAttachmentAsync(orderId);
                         qe.Attachments.Add(qea);
                     }
                     catch (Exception ex)
@@ -47,29 +56,40 @@ namespace Smartstore.Core.Messaging
             }
         }
 
-        private async Task<QueuedEmailAttachment> CreatePdfInvoiceAttachmentAsync(int orderId, IUrlHelper urlHelper)
+        private async Task<QueuedEmailAttachment> CreatePdfInvoiceAttachmentAsync(int orderId)
         {
-            var path = urlHelper.Action("Print", "Order", new { id = orderId, pdf = true, area = "" });
-            var downloadManager = new DownloadManager(urlHelper.ActionContext.HttpContext.Request);
-            var fileResponse = await downloadManager.DownloadFileAsync(path, true, 5000);
+            var attachment = new QueuedEmailAttachment
+            {
+                StorageLocation = EmailAttachmentStorageLocation.Blob
+            };
 
-            if (fileResponse == null)
+            var path = _urlHelper.Action("Print", "Order", new { id = orderId, pdf = true, area = "" });
+
+            var success = await DownloadManager.DownloadFileAsync(async response =>
+            {
+                attachment.Name = response.FileName;
+                attachment.MimeType = response.ContentType;
+                attachment.MediaStorage = new MediaStorage
+                {
+                    // INFO: response.Stream.Length not supported.
+                    Data = await response.Stream.ToByteArrayAsync()
+                };
+
+                return attachment.MediaStorage.Data?.Length > 0;
+            }, 
+            path, _urlHelper.ActionContext.HttpContext.Request, 5000, true);
+
+            if (!success)
             {
                 throw new InvalidOperationException(T("Admin.System.QueuedEmails.ErrorEmptyAttachmentResult", path));
             }
 
-            if (fileResponse.ContentType != "application/pdf")
+            if (!attachment.MimeType.EqualsNoCase("application/pdf"))
             {
                 throw new InvalidOperationException(T("Admin.System.QueuedEmails.ErrorNoPdfAttachment"));
             }
 
-            return new QueuedEmailAttachment
-            {
-                StorageLocation = EmailAttachmentStorageLocation.Blob,
-                MediaStorage = new MediaStorage { Data = fileResponse.Data },
-                MimeType = fileResponse.ContentType,
-                Name = fileResponse.FileName
-            };
+            return attachment;
         }
     }
 }
