@@ -90,6 +90,7 @@ namespace Smartstore.Net
             bool sendAuthCookie = false,
             bool isLocal = false)
         {
+            // TODO: (mg) (core) I don't like the DownloadFileAsync method's signature at all! TBD with MC.
             Guard.NotEmpty(url, nameof(url));
 
             url = WebHelper.GetAbsoluteUrl(url, httpRequest);
@@ -151,46 +152,18 @@ namespace Smartstore.Net
         }
 
         /// <summary>
-        /// Gets a valid file name from an URL.
-        /// </summary>
-        /// <param name="url">URL.</param>
-        /// <returns>Valid file name, otherwise <c>null</c>.</returns>
-        public static string GetFileNameFromUrl(string url)
-        {
-            string localPath;
-            try
-            {
-                // Exclude query string parts!
-                localPath = new Uri(url).LocalPath;
-            }
-            catch
-            {
-                localPath = url;
-            }
-
-            var fileName = HttpUtility.UrlDecode(Path.GetFileName(localPath))
-                .ToValidFileName()
-                .NullEmpty();
-
-            return fileName;
-        }
-
-        /// <summary>
-        /// Starts asynchronous download of files and saves them to disk.
+        /// Starts asynchronous download of multiple files and saves them to disk.
         /// </summary>
         /// <param name="items">Items to be downloaded.</param>
-        /// <param name="downloadTimeout">The timespan to wait before the download request times out.</param>
         /// <param name="cancelToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         public async Task DownloadFilesAsync(IEnumerable<DownloadManagerItem> items, ILogger logger = null, CancellationToken cancelToken = default)
         {
+            // TODO: (mg) (core) Bad API design: pass ILogger in ctor.
             try
             {
-                IEnumerable<Task> downloadTasksQuery =
-                    from item in items
-                    select ProcessUrl(item, logger, cancelToken);
-
-                // Now execute the bunch.
-                List<Task> downloadTasks = downloadTasksQuery.ToList();
+                var downloadTasks = items
+                    .Select(x => ProcessUrl(x, logger, cancelToken))
+                    .ToList();
 
                 while (downloadTasks.Count > 0)
                 {
@@ -207,6 +180,28 @@ namespace Smartstore.Net
             {
                 logger?.ErrorsAll(ex);
             }
+        }
+
+        /// <summary>
+        /// Gets a valid file name from an URL.
+        /// </summary>
+        /// <param name="url">URL.</param>
+        /// <returns>Valid file name, otherwise <c>null</c>.</returns>
+        public static string GetFileNameFromUrl(string url)
+        {
+            // TODO: (mg) (core) DownloadManager.GetFileNameFromUrl() method is way too generic and does not belong here. Find another place (or TBD with MC).
+            string localPath = url;
+            if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
+            {
+                // Exclude query string parts!
+                localPath = uri.LocalPath;
+            }
+
+            var fileName = HttpUtility.UrlDecode(Path.GetFileName(localPath))
+                .ToValidFileName()
+                .NullEmpty();
+
+            return fileName;
         }
 
         private async Task ProcessUrl(DownloadManagerItem item, ILogger logger, CancellationToken cancelToken)
