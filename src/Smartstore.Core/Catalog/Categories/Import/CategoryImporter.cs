@@ -59,6 +59,9 @@ namespace Smartstore.Core.DataExchange.Import
 
             await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
 
+            // ===========================================================================
+            // Process categories.
+            // ===========================================================================
             var savedCategories = 0;
             try
             {
@@ -83,7 +86,9 @@ namespace Smartstore.Core.DataExchange.Import
             context.Result.NewRecords += batch.Count(x => x.IsNew && !x.IsTransient);
             context.Result.ModifiedRecords += batch.Count(x => !x.IsNew && !x.IsTransient);
 
-            // Process slugs.
+            // ===========================================================================
+            // Process SEO slugs.
+            // ===========================================================================
             if (segmenter.HasColumn("SeName", true) || batch.Any(x => x.IsNew || x.NameChanged))
             {
                 try
@@ -96,7 +101,9 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
+            // ===========================================================================
             // Process store mappings.
+            // ===========================================================================
             if (segmenter.HasColumn("StoreIds"))
             {
                 try
@@ -109,7 +116,9 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            // Localizations.
+            // ===========================================================================
+            // Process localizations.
+            // ===========================================================================
             try
             {
                 await ProcessLocalizationsAsync(context, batch, _localizableProperties);
@@ -119,7 +128,9 @@ namespace Smartstore.Core.DataExchange.Import
                 context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessLocalizationsAsync));
             }
 
+            // ===========================================================================
             // Process pictures.
+            // ===========================================================================
             if (segmenter.HasColumn("ImageUrl") && !segmenter.IsIgnored("PictureId"))
             {
                 try
@@ -135,6 +146,9 @@ namespace Smartstore.Core.DataExchange.Import
             // We can make the parent category assignment only after all the data has been processed and imported.
             if (segmenter.IsLastSegment)
             {
+                // ===========================================================================
+                // Process parent category mappings.
+                // ===========================================================================
                 if (segmenter.HasColumn("Id") && 
                     segmenter.HasColumn("ParentCategoryId") && 
                     !segmenter.IsIgnored("ParentCategoryId"))
