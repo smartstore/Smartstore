@@ -136,9 +136,9 @@ namespace Smartstore.Core.DataExchange.Import
                 case ImportEntityType.Product:
                     profile.KeyFieldNames = string.Join(",", ProductImporter.DefaultKeyFields);
                     break;
-                //case ImportEntityType.Category:
-                //    profile.KeyFieldNames = string.Join(",", CategoryImporter.DefaultKeyFields);
-                //    break;
+                case ImportEntityType.Category:
+                    profile.KeyFieldNames = string.Join(",", CategoryImporter.DefaultKeyFields);
+                    break;
                 //case ImportEntityType.Customer:
                 //    profile.KeyFieldNames = string.Join(",", CustomerImporter.DefaultKeyFields);
                 //    break;

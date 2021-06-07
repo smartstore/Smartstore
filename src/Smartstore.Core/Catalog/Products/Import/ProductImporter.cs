@@ -214,6 +214,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
+            // We can make the parent grouped product assignment only after all the data has been processed and imported.
             if (segmenter.IsLastSegment)
             {
                 // ===========================================================================
@@ -232,7 +233,7 @@ namespace Smartstore.Core.DataExchange.Import
                 await ProductPictureHelper.FixProductMainPictureIds(_db, context.UtcNow);
             }
 
-            await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Product>(context, batch));
+            await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Product>(context, batch), context.CancelToken);
         }
 
         protected virtual async Task<int> InternalProcessProductsAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
@@ -310,13 +311,10 @@ namespace Smartstore.Core.DataExchange.Import
 
                 row.Initialize(product, name ?? product.Name);
 
-                if (!row.IsNew && hasNameColumn)
+                if (!row.IsNew && hasNameColumn && !product.Name.EqualsNoCase(name))
                 {
-                    if (!product.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Perf: use this later for SeName updates.
-                        row.NameChanged = true;
-                    }
+                    // Perf: use this later for SeName updates.
+                    row.NameChanged = true;
                 }
 
                 row.SetProperty(context.Result, (x) => x.ProductTypeId, (int)ProductType.SimpleProduct);
