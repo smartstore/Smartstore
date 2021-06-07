@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import.Events;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -90,6 +92,34 @@ namespace Smartstore.Core.DataExchange.Import
                     context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessCustomerRolesAsync));
                 }
             }
+
+            // ===========================================================================
+            // Process generic attributes.
+            // ===========================================================================
+            try
+            {
+                await ProcessGenericAttributesAsync(context, batch);
+            }
+            catch (Exception ex)
+            {
+                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessGenericAttributesAsync));
+            }
+
+            // ===========================================================================
+            // Process avatars.
+            // ===========================================================================
+            if (_customerSettings.AllowCustomersToUploadAvatars)
+            {
+                try
+                {
+                    await ProcessAvatarsAsync(context, batch);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAvatarsAsync));
+                }
+            }
+
 
             //...
 
@@ -316,7 +346,163 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
+        protected virtual async Task<int> ProcessGenericAttributesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Customer>> batch)
+        {
+            var cargo = await GetCargoData(context);
 
+            foreach (var row in batch)
+            {
+                if (_taxSettings.EuVatEnabled)
+                    SetGenericAttribute<string>(SystemCustomerAttributeNames.VatNumber, row);
+
+                if (_customerSettings.StreetAddressEnabled)
+                    SetGenericAttribute<string>(SystemCustomerAttributeNames.StreetAddress, row);
+
+                if (_customerSettings.StreetAddress2Enabled)
+                    SetGenericAttribute<string>(SystemCustomerAttributeNames.StreetAddress2, row);
+
+                if (_customerSettings.CityEnabled)
+                    SetGenericAttribute<string>(SystemCustomerAttributeNames.City, row);
+
+                if (_customerSettings.ZipPostalCodeEnabled)
+                    SetGenericAttribute<string>(SystemCustomerAttributeNames.ZipPostalCode, row);
+
+                if (_customerSettings.CountryEnabled)
+                    SetGenericAttribute<int>(SystemCustomerAttributeNames.CountryId, row);
+
+                if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
+                    SetGenericAttribute<int>(SystemCustomerAttributeNames.StateProvinceId, row);
+
+                if (_customerSettings.PhoneEnabled)
+                    SetGenericAttribute<string>(SystemCustomerAttributeNames.Phone, row);
+
+                if (_customerSettings.FaxEnabled)
+                    SetGenericAttribute<string>(SystemCustomerAttributeNames.Fax, row);
+
+                // TODO: (mg) (core) ForumSettings required in CustomerImporter.
+                //if (_forumSettings.ForumsEnabled)
+                //    SetGenericAttribute<int>(SystemCustomerAttributeNames.ForumPostCount, row);
+
+                //if (_forumSettings.SignaturesEnabled)
+                //    SetGenericAttribute<string>(SystemCustomerAttributeNames.Signature, row);
+
+                var countryId = CountryCodeToId(row.GetDataValue<string>("CountryCode"), cargo);
+                var stateId = StateAbbreviationToId(countryId, row.GetDataValue<string>("StateAbbreviation"), cargo);
+
+                if (countryId.HasValue)
+                    SetGenericAttribute(SystemCustomerAttributeNames.CountryId, countryId.Value, row);
+
+                if (stateId.HasValue)
+                    SetGenericAttribute(SystemCustomerAttributeNames.StateProvinceId, stateId.Value, row);
+            }
+
+            var num = await _db.SaveChangesAsync(context.CancelToken);
+            return num;
+        }
+
+        protected virtual async Task<int> ProcessAvatarsAsync(ImportExecuteContext context, IEnumerable<ImportRow<Customer>> batch)
+        {
+            foreach (var row in batch)
+            {
+                var urlOrPath = row.GetDataValue<string>("AvatarPictureUrl");
+                if (urlOrPath.IsEmpty())
+                {
+                    continue;
+                }
+
+                var image = CreateDownloadItem(context, urlOrPath, 1);
+                if (image == null)
+                {
+                    continue;
+                }
+
+                // Download avatar.
+                if (image.Url.HasValue() && !image.Success)
+                {
+                    await context.DownloadManager.DownloadFilesAsync(new[] { image }, context.Log, context.CancelToken);
+                }
+
+                if (image.Success && File.Exists(image.Path))
+                {
+                    CacheDownloadItem(context, image);
+
+                    using var stream = File.OpenRead(image.Path);
+
+                    if (stream?.Length > 0)
+                    {
+                        var file = await _services.MediaService.GetFileByIdAsync(row.Entity.GenericAttributes.AvatarPictureId ?? 0, MediaLoadFlags.AsNoTracking);
+                        if (file != null)
+                        {
+                            var isEqualData = await _services.MediaService.FindEqualFileAsync(stream, new[] { file.File }, true);
+                            if (isEqualData.Success)
+                            {
+                                context.Result.AddInfo($"Found equal file for avatar '{image.FileName}'. Skipping file.", row.RowInfo, "AvatarPictureUrl");
+                                continue;
+                            }
+                        }
+
+                        // An avatar may not be assigned to several customers. A customer could otherwise delete the avatar of another.
+                        // Overwriting is probably too dangerous here, because we could overwrite the avatar of another customer, so better rename.
+                        var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Customers, image.FileName);
+                        var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
+                        if (saveFileResult.File.Id > 0)
+                        {
+                            SetGenericAttribute(SystemCustomerAttributeNames.AvatarPictureId, saveFileResult.File.Id, row);
+                        }
+                    }
+                }
+                else
+                {
+                    context.Result.AddInfo($"Download failed for avatar {image.Url}.", row.RowInfo, "AvatarPictureUrl");
+                }
+            }
+
+            var num = await _db.SaveChangesAsync(context.CancelToken);
+            return num;
+        }
+
+
+        private static int? CountryCodeToId(string code, ImporterCargoData cargo)
+        {
+            if (code.HasValue() && cargo.Countries.TryGetValue(code, out var countryId) && countryId != 0)
+            {
+                return countryId;
+            }
+
+            return null;
+        }
+
+        private static int? StateAbbreviationToId(int? countryId, string abbreviation, ImporterCargoData cargo)
+        {
+            if (countryId.HasValue && 
+                abbreviation.HasValue() &&
+                cargo.StateProvinces.TryGetValue(Tuple.Create(countryId.Value, abbreviation), out var stateId) && 
+                stateId != 0)
+            {
+                return stateId;
+            }
+
+            return null;
+        }
+
+        private static void SetGenericAttribute<TProp>(string key, ImportRow<Customer> row)
+        {
+            if (row.IsTransient)
+                return;
+
+            SetGenericAttribute(key, row.GetDataValue<TProp>(key), row);
+        }
+
+        private static void SetGenericAttribute<TProp>(string key, TProp value, ImportRow<Customer> row)
+        {
+            if (row.IsTransient)
+                return;
+
+            if (row.IsNew || value != null)
+            {
+                row.Entity.GenericAttributes.Set(key, value);
+            }
+        }
 
         private static void AddInfoForDeprecatedFields(ImportExecuteContext context)
         {
@@ -364,12 +550,31 @@ namespace Smartstore.Core.DataExchange.Import
                 .Select(x => new { x.Id, x.SystemName })
                 .ToListAsync(context.CancelToken);
 
+            var allCountries = await _db.Countries
+                .AsNoTracking()
+                .OrderBy(c => c.DisplayOrder)
+                .ThenBy(c => c.Name)
+                .ToListAsync(context.CancelToken);
+
+            var countries = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var country in allCountries)
+            {
+                countries[country.TwoLetterIsoCode] = country.Id;
+                countries[country.ThreeLetterIsoCode] = country.Id;
+            }
+
+            var stateProvinces = await _db.StateProvinces
+                .AsNoTracking()
+                .ToListAsync(context.CancelToken);
+
             var result = new ImporterCargoData
             {
                 AllowManagingCustomerRoles = allowManagingCustomerRoles,
                 AffiliateIds = affiliateIds,
                 CustomerNumbers = new HashSet<string>(customerNumbers, StringComparer.OrdinalIgnoreCase),
-                CustomerRoleIds = customerRoleIds.ToDictionarySafe(x => x.SystemName, x => x.Id, StringComparer.OrdinalIgnoreCase)
+                CustomerRoleIds = customerRoleIds.ToDictionarySafe(x => x.SystemName, x => x.Id, StringComparer.OrdinalIgnoreCase),
+                Countries = countries,
+                StateProvinces = stateProvinces.ToDictionarySafe(x => new Tuple<int, string>(x.CountryId, x.Abbreviation), x => x.Id)
             };
 
             context.CustomProperties[CARGO_DATA_KEY] = result;
@@ -385,6 +590,8 @@ namespace Smartstore.Core.DataExchange.Import
             public List<int> AffiliateIds { get; init; }
             public HashSet<string> CustomerNumbers { get; init; }
             public Dictionary<string, int> CustomerRoleIds { get; init; }
+            public Dictionary<string, int> Countries { get; init; }
+            public Dictionary<Tuple<int, string>, int> StateProvinces { get; init; }
         }
     }
 }

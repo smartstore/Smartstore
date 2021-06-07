@@ -308,7 +308,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
 
                     // Download image.
-                    if (image.Url.HasValue())
+                    if (image.Url.HasValue() && !image.Success)
                     {
                         await context.DownloadManager.DownloadFilesAsync(new[] { image }, context.Log, context.CancelToken);
                     }
