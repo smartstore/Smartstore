@@ -348,6 +348,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task<int> ProcessGenericAttributesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Customer>> batch)
         {
+            // TODO: (mg) (core) (perf) (low) Prefetch all generic attributes for whole batch and work against batch (to be implemented after initial release).
             var cargo = await GetCargoData(context);
 
             foreach (var row in batch)
