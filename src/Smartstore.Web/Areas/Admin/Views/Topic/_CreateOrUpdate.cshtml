@@ -14,7 +14,6 @@
                     <smart-label asp-for="SystemName" />
                 </div>
                 <div class="adminData">
-                    @* INFO: (mh) (core) Don't use editor tag helper if model type and resulting control kind is known *@
                     <input asp-for="SystemName" attr-readonly='(Model.IsSystemTopic, "readonly")' />
                     <span asp-validation-for="SystemName"></span>
                 </div>

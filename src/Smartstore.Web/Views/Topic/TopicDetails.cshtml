@@ -40,24 +40,21 @@
         });
 
         function OnAuthenticateSuccess(context) {
-            if (context.Authenticated)
-            {
+            if (context.Authenticated) {
                 $('#ph-title .page-title > *').html(context.Title);
-                if ($('#ph-title .page-title > *').text().length == 0)
-                {
+                if ($('#ph-title .page-title > *').text().length == 0) {
                     $('#ph-title').hide();
                 }
                 $('#ph-topic .page-body').html(context.Body);
                 $('#ph-password').hide();
                 $('#ph-topic').show();
-            }
-            else
-            {
+            } else {
                 $('#password-error').text(context.Error);
                 $('#ph-password #password').select().focus();
             }
         }
     </script>
+
     <div id="ph-password">
         <form sm-ajax method="post" asp-area="" asp-action="Authenticate" asp-controller="Topic"
               sm-onsuccess="OnAuthenticateSuccess"
