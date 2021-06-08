@@ -200,7 +200,8 @@
         </div>
 
         @(Html.LocalizedEditor<TopicModel, TopicLocalizedModel>("topic-info-localized",
-            @<div class="adminContent">
+        @<text>
+            <div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="Locales[item].ShortTitle" />
@@ -227,7 +228,7 @@
                         <smart-label asp-for="Locales[item].Intro" />
                     </div>
                     <div class="adminData wide">
-                        <textarea asp-for="Locales[item].Intro" rows="1" />
+                        <textarea asp-for="Locales[item].Intro" rows="1"></textarea>
                         <span asp-validation-for="Locales[item].Intro"></span>
                     </div>
                 </div>
@@ -241,8 +242,10 @@
                     </div>
                 </div>
             </div>
-            ,
-            @<div class="adminContent">
+        </text>
+        ,
+        @<text> 
+            <div class="adminContent">
 			    <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="ShortTitle" />
@@ -266,7 +269,7 @@
                         <smart-label asp-for="Intro" />
                     </div>
                     <div class="adminData wide">
-                        <textarea asp-for="Intro" rows="1" />
+                        <textarea asp-for="Intro" rows="1"></textarea>
                         <span asp-validation-for="Intro"></span>
                     </div>
                 </div>
@@ -280,18 +283,14 @@
                     </div>
                 </div>
             </div>
-        ))
+        </text>))
     </tab>
 
     <tab sm-title="@T("Admin.Common.SEO")">
 
-        @*
-        TODO: (mh) (core) This has worked when I've last checked. Now it's broken as soon as there is content in LocalizedEditor.
-        Seems like the output of > _AdminRoot.cshtml <zone name="scripts"> will be skipped then.
-        *@
-
         @(Html.LocalizedEditor<TopicModel, TopicLocalizedModel>("topic-seo-localized",
-            @<div class="adminContent">
+        @<text> 
+            <div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="Locales[item].MetaTitle" />
@@ -300,7 +299,7 @@
                         @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
                         <input type="hidden" id="@(Html.IdFor(model => model.Locales[item].LanguageId) + "_2")" />
 
-                        <textarea asp-for="Locales[item].MetaTitle" />
+                        <textarea asp-for="Locales[item].MetaTitle"></textarea>
                         <span asp-validation-for="Locales[item].MetaTitle"></span>
                     </div>
                 </div>
@@ -309,7 +308,7 @@
                         <smart-label asp-for="Locales[item].MetaDescription" />
                     </div>
                     <div class="adminData">
-                        <textarea asp-for="Locales[item].MetaDescription" />
+                        <textarea asp-for="Locales[item].MetaDescription"></textarea>
                         <span asp-validation-for="Locales[item].MetaDescription"></span>
                     </div>
                 </div>
@@ -332,14 +331,16 @@
                     </div>
                 </div>
             </div>
-            ,
-            @<div class="adminContent">
+        </text>
+        ,
+        @<text>
+            <div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="MetaTitle" />
                     </div>
                     <div class="adminData">
-                        <textarea asp-for="MetaTitle" />
+                        <textarea asp-for="MetaTitle"></textarea>
                         <span asp-validation-for="MetaTitle"></span>
                     </div>
                 </div>
@@ -348,7 +349,7 @@
                         <smart-label asp-for="MetaDescription" />
                     </div>
                     <div class="adminData">
-                        <textarea asp-for="MetaDescription" />
+                        <textarea asp-for="MetaDescription"></textarea>
                         <span asp-validation-for="MetaDescription"></span>
                     </div>
                 </div>
@@ -375,7 +376,7 @@
                     </div>
                 </div>
             </div>
-        ))
+        </text>))
     </tab>
 
     @if (Model.Id > 0)
