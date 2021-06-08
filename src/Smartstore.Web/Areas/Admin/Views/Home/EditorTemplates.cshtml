@@ -18,6 +18,36 @@
                 <smart-label asp-for="QuantityControlType" />
             </div>
             <div class="adminData">
+                <entity-picker button-id="ss"
+                               entity-type="Product"
+                               icon-css-class="fa fa-plus"
+                               max-items="10"
+                               caption="@T("Admin.Catalog.Categories.Products.AddNew")"
+                               on-selection-completed-handler="PickProducts_Completed" />
+
+                <script>
+                    function PickProducts_Completed(ids) {
+                        console.log(ids);
+                    }
+                </script>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Link" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Link" />
+                <span asp-validation-for="Link"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="QuantityControlType" />
+            </div>
+            <div class="adminData">
                 <editor asp-for="QuantityControlType" />
             </div>
         </div>
@@ -239,15 +269,6 @@
             <div class="adminData">
                 <editor asp-for="Long" />
                 <span asp-validation-for="Long"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="Link" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="Link" />
-                <span asp-validation-for="Link"></span>
             </div>
         </div>
         <div class="adminRow">

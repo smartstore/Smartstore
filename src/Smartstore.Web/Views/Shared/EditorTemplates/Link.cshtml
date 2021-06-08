@@ -110,14 +110,10 @@
         @if (allowedTypes.Contains(LinkType.Product))
         {
             <div class="input-group-append link-control" attr-class='(link.Type != LinkType.Product, "hide")' data-type="product">
-                @*TODO: (mh) (core) Implement EntityPicker when available*@
-                @*@(Html.SmartStore().EntityPicker()
-                    .HtmlAttribute("id", "lb-product-picker-" + rnd.ToString())
-                    .MaxItems(1)
-                    .AppendMode(false)
-                    .DialogTitle(T("Common.Entity.SelectProduct").Text.EncodeJsString('\'', false))
-                    .Caption(T("Common.Search").Text.EncodeJsString('\'', false))
-                    .OnSelectionCompleted("lbPickerSelectionCompleted" + rnd.ToString()))*@
+                <entity-picker max-items="1" 
+                               append-mode="false" 
+                               dialog-title=@T("Common.Entity.SelectProduct").JsValue
+                               caption=@T("Common.Search").JsValue />
             </div>
         }
 

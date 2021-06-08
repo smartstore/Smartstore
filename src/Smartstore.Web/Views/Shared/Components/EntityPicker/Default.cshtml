@@ -1,0 +1,35 @@
+﻿@using Smartstore.Utilities
+
+@model EntityPickerConfigModel
+
+@{
+    var buttonId = "entpicker-toggle-" + CommonHelper.GenerateRandomInteger();
+}
+
+<button id="@buttonId" type="button" class="btn btn-secondary">
+    <i sm-if="Model.IconCssClass.HasValue()" class="@Model.IconCssClass"></i>
+    <span sm-if="Model.Caption.HasValue()">@Model.Caption</span>
+</button>
+
+<script sm-target-zone="scripts" data-origin="EntityPicker">
+	$(function () {
+		$('#@buttonId').entityPicker({
+			entityType: '@Model.EntityType',
+			url: '@Model.DialogUrl',
+			caption: '@Html.Raw(Model.DialogTitle.NullEmpty() ?? Model.Caption)',
+			disableIf: '@Html.Raw(Model.DisableGroupedProducts ? "groupedproduct" : (Model.DisableBundleProducts ? "notsimpleproduct" : ""))',
+			disableIds: '@Html.Raw(Model.DisabledEntityIds == null ? "" : string.Join(",", Model.DisabledEntityIds))',
+			thumbZoomer: @Model.EnableThumbZoomer.ToString().ToLower(),
+			highligtSearchTerm: @Model.HighlightSearchTerm.ToString().ToLower(),
+			returnField: '@Html.Raw(Model.FieldName)',
+			delim: '@Html.Raw(Model.Delimiter)',
+			targetInput: @Html.Raw(Model.TargetInputSelector.HasValue() ? "'{0}'".FormatInvariant(Model.TargetInputSelector) : "null"),
+			selected: @Html.Raw(Model.Selected != null && Model.Selected.Length > 0 ? "[{0}]".FormatInvariant(string.Join(Model.Delimiter, Model.Selected)) : "null"),
+			appendMode: @Model.AppendMode.ToString().ToLower(),
+			maxItems: @Model.MaxItems,
+			onDialogLoading: @Html.Raw(Model.OnDialogLoadingHandlerName.HasValue() ? Model.OnDialogLoadingHandlerName : "null"),
+			onDialogLoaded: @Html.Raw(Model.OnDialogLoadedHandlerName.HasValue() ? Model.OnDialogLoadedHandlerName : "null"),
+			onSelectionCompleted: @Html.Raw(Model.OnSelectionCompletedHandlerName.HasValue() ? Model.OnSelectionCompletedHandlerName : "null")
+		});
+	});
+</script>

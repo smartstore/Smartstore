@@ -1,0 +1,109 @@
+﻿@model EntityPickerModel
+@*TODO: (mh) (core) Remove comment after review*@
+@*INFO: Couldn't work with <dialog> here because Taghelper wasn't resolved via AJAX-request & EntityPicker comes with own modal-content & modal-body classes*@
+<div id="entpicker-@(Model.EntityType)-dialog" class="modal fade entpicker" role="dialog" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-flex" role="document">
+        <form class="modal-content" method="POST" action="@Url.Action("Picker", "Entity", new { area = "" })">
+            <div class="modal-header flex-wrap">
+                <h5 class="modal-title align-self-center">&nbsp;</h5>
+
+                <input type="hidden" name="EntityType" value="@Model.EntityType" />
+                <input type="hidden" name="HighligtSearchTerm" value="@Model.HighlightSearchTerm.ToString()" />
+                <input type="hidden" name="ReturnField" value="@Model.ReturnField" />
+                <input type="hidden" name="MaxItems" value="@Model.MaxItems" />
+                <input type="hidden" name="Selected" value="@Model.Selected" />
+                <input type="hidden" name="DisableIf" value="@Model.DisableIf" />
+                <input type="hidden" name="DisableIds" value="@Model.DisableIds" />
+                <input type="hidden" name="PageIndex" value="@Model.PageIndex" />
+                <input type="hidden" name="LanguageId" value="@Model.LanguageId" />
+
+                @{ await EntitySearchFormAsync(); }
+
+            </div>
+            <div class="modal-body">
+                <div class="entpicker-list row px-2">
+                    @* Items per AJAX *@
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="footer-note text-muted">
+                    <span class="default" style="display: none">@T("Common.EntityPicker." + (Model.MaxItems == 1 ? "SinglePickNote" : "MultiPickNote"))</span>
+                    <span class="not-selectable" style="display: none">@T("Common.NotSelectable").</span>
+                </div>
+                <div class="ml-auto">
+                    <button type="button" class="btn btn-light btn-flat" data-dismiss="modal">@T("Common.Cancel")</button>
+                    <button type="button" class="btn btn-primary" disabled="disabled">@T("Common.Apply")</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@*INFO: (mh) (core) No sm-target-zone here, because this partials is loaded via AJAX*@
+<script>
+    $(function () {
+        $('#entpicker-@(Model.EntityType)-dialog').entityPicker('initDialog');
+	});
+</script>
+
+@{
+    async Task EntitySearchFormAsync()
+    {
+        <div class="control-group mr-2">
+            <div class="form-inline">
+                @if (Model.EntityType.EqualsNoCase("customer"))
+                {
+                    var availableSearchTypes = (IEnumerable<SelectListItem>)ViewBag.AvailableCustomerSearchTypes;
+
+                    <div class="input-group col mb-0">
+                        <label asp-for="CustomerSearchType" class="form-label text-truncate mr-2"></label>
+                        <select asp-for="CustomerSearchType" asp-items="availableSearchTypes"></select>
+                    </div>
+                }
+
+                <div class="input-group">
+                    <input asp-for="SearchTerm" class="entpicker-searchterm" placeholder="@T("Search.SearchTerm")" />
+                    <span class="input-group-append">
+                        <button type="button" class="btn btn-warning" name="SearchEntities" data-loading-text="@(T("Common.Loading"))&hellip;" title="@T("Admin.Common.Search")">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+
+                <button sm-if='Model.EntityType.EqualsNoCase("product")' type="button" class="btn btn-secondary ml-2" name="FilterEntities" data-toggle="button">
+                    <i class="fa fa-filter"></i>
+                </button>
+            </div>
+        </div>
+
+        if (Model.EntityType.EqualsNoCase("product"))
+        {
+            var availableCategories = (IEnumerable<SelectListItem>)ViewBag.AvailableCategories;
+            var availableManufacturers = (IEnumerable<SelectListItem>)ViewBag.AvailableManufacturers;
+            var availableStores = (IEnumerable<SelectListItem>)ViewBag.AvailableStores;
+            var availableProductTypes = (IEnumerable<SelectListItem>)ViewBag.AvailableProductTypes;
+
+            <div class="entpicker-filter form-row xs-gutters w-100 pt-2" style="display: none">
+                <div class="form-group col mb-0">
+                    <label asp-for="CategoryId" class="col-form-label text-truncate"></label>
+                    <select asp-for="CategoryId" asp-items="availableCategories" asp-placeholder="@T("Admin.Common.All")" class="form-control-sm"></select>
+                </div>
+
+                <div class="form-group col mb-0">
+                    <label asp-for="ManufacturerId" class="col-form-label text-truncate"></label>
+                    <select asp-for="ManufacturerId" asp-items="availableManufacturers" asp-placeholder="@T("Admin.Common.All")" class="form-control-sm"></select>
+                </div>
+
+                <div sm-if="availableStores.Count() > 1" class="form-group col mb-0">
+                    <label asp-for="StoreId" class="col-form-label text-truncate"></label>
+                    <select asp-for="StoreId" asp-items="availableStores" asp-placeholder="@T("Admin.Common.All")" class="form-control-sm"></select>
+                </div>
+
+                <div class="form-group col mb-0">
+                    <label asp-for="ProductTypeId" class="col-form-label text-truncate"></label>
+                    <select asp-for="ProductTypeId" asp-items="availableProductTypes" asp-placeholder="@T("Admin.Common.All")" class="form-control-sm"></select>
+                </div>
+            </div>
+        }
+    }
+}
