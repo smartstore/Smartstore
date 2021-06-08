@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import.Events;
@@ -120,9 +121,17 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-
-            //...
-
+            // ===========================================================================
+            // Process addresses.
+            // ===========================================================================
+            try
+            {
+                await ProcessAddressesAsync(context, batch);
+            }
+            catch (Exception ex)
+            {
+                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAddressesAsync));
+            }
 
             if (segmenter.IsLastSegment)
             {
@@ -420,13 +429,11 @@ namespace Smartstore.Core.DataExchange.Import
                 // Download avatar.
                 if (image.Url.HasValue() && !image.Success)
                 {
-                    await context.DownloadManager.DownloadFilesAsync(new[] { image }, context.Log, context.CancelToken);
+                    await context.DownloadManager.DownloadFilesAsync(new[] { image }, context.CancelToken);
                 }
 
-                if (image.Success && File.Exists(image.Path))
+                if (FileDownloadSucceeded(image, context))
                 {
-                    CacheDownloadItem(context, image);
-
                     using var stream = File.OpenRead(image.Path);
 
                     if (stream?.Length > 0)
@@ -462,6 +469,107 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
+        protected virtual async Task<int> ProcessAddressesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Customer>> batch)
+        {
+            var cargo = await GetCargoData(context);
+
+            foreach (var row in batch)
+            {
+                ImportAddress("BillingAddress.", row, context, cargo);
+                ImportAddress("ShippingAddress.", row, context, cargo);
+            }
+
+            var num = await _db.SaveChangesAsync(context.CancelToken);
+            return num;
+        }
+
+        private static void ImportAddress(
+            string fieldPrefix,
+            ImportRow<Customer> row,
+            ImportExecuteContext context,
+            ImporterCargoData cargo)
+        {
+            // Last name is mandatory for an address to be imported or updated.
+            if (!row.HasDataValue(fieldPrefix + "LastName"))
+            {
+                return;
+            }
+
+            Address address = null;
+
+            if (fieldPrefix == "BillingAddress.")
+            {
+                address = row.Entity.BillingAddress ?? new Address { CreatedOnUtc = context.UtcNow };
+            }
+            else if (fieldPrefix == "ShippingAddress.")
+            {
+                address = row.Entity.ShippingAddress ?? new Address { CreatedOnUtc = context.UtcNow };
+            }
+
+            var childRow = new ImportRow<Address>(row.Segmenter, row.DataRow, row.Position);
+            childRow.Initialize(address, row.EntityDisplayName);
+
+            childRow.SetProperty(context.Result, fieldPrefix + "Salutation", x => x.Salutation);
+            childRow.SetProperty(context.Result, fieldPrefix + "Title", x => x.Title);
+            childRow.SetProperty(context.Result, fieldPrefix + "FirstName", x => x.FirstName);
+            childRow.SetProperty(context.Result, fieldPrefix + "LastName", x => x.LastName);
+            childRow.SetProperty(context.Result, fieldPrefix + "Email", x => x.Email);
+            childRow.SetProperty(context.Result, fieldPrefix + "Company", x => x.Company);
+            childRow.SetProperty(context.Result, fieldPrefix + "City", x => x.City);
+            childRow.SetProperty(context.Result, fieldPrefix + "Address1", x => x.Address1);
+            childRow.SetProperty(context.Result, fieldPrefix + "Address2", x => x.Address2);
+            childRow.SetProperty(context.Result, fieldPrefix + "ZipPostalCode", x => x.ZipPostalCode);
+            childRow.SetProperty(context.Result, fieldPrefix + "PhoneNumber", x => x.PhoneNumber);
+            childRow.SetProperty(context.Result, fieldPrefix + "FaxNumber", x => x.FaxNumber);
+
+            childRow.SetProperty(context.Result, fieldPrefix + "CountryId", x => x.CountryId);
+            if (childRow.Entity.CountryId == null)
+            {
+                // Try with country code.
+                childRow.SetProperty(context.Result, fieldPrefix + "CountryCode", x => x.CountryId, converter: (val, ci) => CountryCodeToId(val.ToString(), cargo));
+            }
+
+            var countryId = childRow.Entity.CountryId;
+            if (countryId.HasValue)
+            {
+                if (row.HasDataValue(fieldPrefix + "StateProvinceId"))
+                {
+                    childRow.SetProperty(context.Result, fieldPrefix + "StateProvinceId", x => x.StateProvinceId);
+                }
+                else
+                {
+                    // Try with state abbreviation.
+                    childRow.SetProperty(context.Result, fieldPrefix + "StateAbbreviation", x => x.StateProvinceId, converter: (val, ci) => StateAbbreviationToId(countryId, val.ToString(), cargo));
+                }
+            }
+
+            if (!childRow.IsDirty)
+            {
+                // Not one single property could be set. Get out!
+                return;
+            }
+
+            if (address.Id == 0)
+            {
+                // Avoid importing two addresses if billing and shipping address are equal.
+                var appliedAddress = row.Entity.Addresses.FindAddress(address);
+                if (appliedAddress == null)
+                {
+                    appliedAddress = address;
+                    row.Entity.Addresses.Add(appliedAddress);
+                }
+
+                // Map address to customer.
+                if (fieldPrefix == "BillingAddress.")
+                {
+                    row.Entity.BillingAddress = appliedAddress;
+                }
+                else if (fieldPrefix == "ShippingAddress.")
+                {
+                    row.Entity.ShippingAddress = appliedAddress;
+                }
+            }
+        }
 
         private static int? CountryCodeToId(string code, ImporterCargoData cargo)
         {

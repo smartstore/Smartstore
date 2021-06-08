@@ -130,7 +130,6 @@ namespace Smartstore.Core.DataExchange.Import
                     : ImportFileType.Csv
             };
 
-            // TODO: (mg) (core) apply default key fields for new import profile.
             switch (entityType)
             {
                 case ImportEntityType.Product:
@@ -142,9 +141,9 @@ namespace Smartstore.Core.DataExchange.Import
                 case ImportEntityType.Customer:
                     profile.KeyFieldNames = string.Join(",", CustomerImporter.DefaultKeyFields);
                     break;
-                //case ImportEntityType.NewsLetterSubscription:
-                //    profile.KeyFieldNames = string.Join(",", NewsLetterSubscriptionImporter.DefaultKeyFields);
-                //    break;
+                case ImportEntityType.NewsLetterSubscription:
+                    profile.KeyFieldNames = string.Join(",", NewsletterSubscriptionImporter.DefaultKeyFields);
+                    break;
             }
 
             var folderName = SeoHelper.BuildSlug(name, true, false, false)

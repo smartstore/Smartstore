@@ -6,13 +6,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using Autofac;
+using Microsoft.Extensions.Logging;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
+using Smartstore.Http;
 using Smartstore.IO;
 using Smartstore.Net;
 using Smartstore.Utilities;
@@ -293,7 +294,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                     else
                     {
-                        item.FileName = DownloadManager.GetFileNameFromUrl(urlOrPath) ?? Path.GetRandomFileName();
+                        item.FileName = WebHelper.GetFileNameFromUrl(urlOrPath) ?? Path.GetRandomFileName();
                     }
 
                     item.Path = GetAbsolutePath(context.ImageDownloadDirectory, item.FileName);
@@ -324,11 +325,26 @@ namespace Smartstore.Core.DataExchange.Import
             }
         }
 
-        protected virtual void CacheDownloadItem(ImportExecuteContext context, DownloadManagerItem item)
+        protected virtual bool FileDownloadSucceeded(DownloadManagerItem item, ImportExecuteContext context)
         {
-            if (item.Success && item.Url.HasValue() && !_downloadedItems.ContainsKey(item.Url))
+            if (item.Success && File.Exists(item.Path))
             {
-                _downloadedItems[item.Url] = Path.GetFileName(item.Path);
+                // "Cache" URL to not download it again during this batch.
+                if (item.Url.HasValue() && !_downloadedItems.ContainsKey(item.Url))
+                {
+                    _downloadedItems[item.Url] = Path.GetFileName(item.Path);
+                }
+
+                return true;
+            }
+            else
+            {
+                if (item.ErrorMessage.HasValue())
+                {
+                    context.Log.Error(new Exception(item.ErrorMessage), item.ToString());
+                }
+
+                return false;
             }
         }
 

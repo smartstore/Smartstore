@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
@@ -243,6 +244,27 @@ namespace Smartstore.Http
             path = string.Format("{0}://{1}{2}", protocol, request.Host.Value, path);
 
             return path;
+        }
+
+        /// <summary>
+        /// Gets a valid file name from an URL.
+        /// </summary>
+        /// <param name="url">URL.</param>
+        /// <returns>Valid file name, otherwise <c>null</c>.</returns>
+        public static string GetFileNameFromUrl(string url)
+        {
+            string localPath = url;
+            if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
+            {
+                // Exclude query string parts!
+                localPath = uri.LocalPath;
+            }
+
+            var fileName = HttpUtility.UrlDecode(Path.GetFileName(localPath))
+                .ToValidFileName()
+                .NullEmpty();
+
+            return fileName;
         }
 
         /// <summary>

@@ -611,7 +611,6 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     await context.DownloadManager.DownloadFilesAsync(
                         downloadItems.Where(x => x.Url.HasValue() && !x.Success),
-                        context.Log,
                         context.CancelToken);
 
                     var hasDuplicateFileNames = downloadItems
@@ -631,10 +630,8 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        if (image.Success && File.Exists(image.Path))
+                        if (FileDownloadSucceeded(image, context))
                         {
-                            CacheDownloadItem(context, image);
-
                             using var stream = File.OpenRead(image.Path);
 
                             if (stream?.Length > 0)

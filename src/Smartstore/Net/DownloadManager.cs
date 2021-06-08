@@ -8,9 +8,7 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Smartstore.Http;
 using Smartstore.IO;
 
@@ -91,6 +89,8 @@ namespace Smartstore.Net
             bool isLocal = false)
         {
             // TODO: (mg) (core) I don't like the DownloadFileAsync method's signature at all! TBD with MC.
+            // RE: should be removed (disturbs here). Was once intended as a synchronous method. Callers must be refactored in this regard anyway.
+            // They should use DownloadFilesAsync or setup own download request (in case of CreatePdfInvoiceAttachmentAsync).
             Guard.NotEmpty(url, nameof(url));
 
             url = WebHelper.GetAbsoluteUrl(url, httpRequest);
@@ -133,7 +133,7 @@ namespace Smartstore.Net
 
                     if (fileName.IsEmpty())
                     {
-                        fileName = GetFileNameFromUrl(url);
+                        fileName = WebHelper.GetFileNameFromUrl(url);
                     }
 
                     var arg = new DownloadResponse
@@ -156,55 +156,25 @@ namespace Smartstore.Net
         /// </summary>
         /// <param name="items">Items to be downloaded.</param>
         /// <param name="cancelToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-        public async Task DownloadFilesAsync(IEnumerable<DownloadManagerItem> items, ILogger logger = null, CancellationToken cancelToken = default)
+        public async Task DownloadFilesAsync(IEnumerable<DownloadManagerItem> items, CancellationToken cancelToken = default)
         {
-            // TODO: (mg) (core) Bad API design: pass ILogger in ctor.
-            try
+            var downloadTasks = items
+                .Select(x => ProcessUrl(x, cancelToken))
+                .ToList();
+
+            while (downloadTasks.Count > 0)
             {
-                var downloadTasks = items
-                    .Select(x => ProcessUrl(x, logger, cancelToken))
-                    .ToList();
+                // Identify the first task that completes.
+                Task firstFinishedTask = await Task.WhenAny(downloadTasks);
 
-                while (downloadTasks.Count > 0)
-                {
-                    // Identify the first task that completes.
-                    Task firstFinishedTask = await Task.WhenAny(downloadTasks);
+                // Process only once.
+                downloadTasks.Remove(firstFinishedTask);
 
-                    // Process only once.
-                    downloadTasks.Remove(firstFinishedTask);
-
-                    await firstFinishedTask;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger?.ErrorsAll(ex);
+                await firstFinishedTask;
             }
         }
 
-        /// <summary>
-        /// Gets a valid file name from an URL.
-        /// </summary>
-        /// <param name="url">URL.</param>
-        /// <returns>Valid file name, otherwise <c>null</c>.</returns>
-        public static string GetFileNameFromUrl(string url)
-        {
-            // TODO: (mg) (core) DownloadManager.GetFileNameFromUrl() method is way too generic and does not belong here. Find another place (or TBD with MC).
-            string localPath = url;
-            if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
-            {
-                // Exclude query string parts!
-                localPath = uri.LocalPath;
-            }
-
-            var fileName = HttpUtility.UrlDecode(Path.GetFileName(localPath))
-                .ToValidFileName()
-                .NullEmpty();
-
-            return fileName;
-        }
-
-        private async Task ProcessUrl(DownloadManagerItem item, ILogger logger, CancellationToken cancelToken)
+        private async Task ProcessUrl(DownloadManagerItem item, CancellationToken cancelToken)
         {
             try
             {
@@ -239,25 +209,19 @@ namespace Smartstore.Net
                 else
                 {
                     item.Success = false;
-                    item.ErrorMessage = response.StatusCode.ToString();
+                    item.ErrorMessage = response.ReasonPhrase.HasValue()
+                        ? $"{response.StatusCode} ({response.ReasonPhrase})"
+                        : response.StatusCode.ToString();
                 }
             }
             catch (Exception ex)
             {
-                try
-                {
-                    item.Success = false;
-                    item.ErrorMessage = ex.ToAllMessages();
+                item.Success = false;
+                item.ErrorMessage = ex.ToAllMessages();
 
-                    if (ex.InnerException is WebException webExc)
-                    {
-                        item.ExceptionStatus = webExc.Status;
-                    }
-
-                    logger?.Error(ex, item.ToString());
-                }
-                catch
+                if (ex.InnerException is WebException webExc)
                 {
+                    item.ExceptionStatus = webExc.Status;
                 }
             }
         }
