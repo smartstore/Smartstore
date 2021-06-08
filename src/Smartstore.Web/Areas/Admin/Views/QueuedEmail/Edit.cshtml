@@ -13,32 +13,30 @@
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">
-				<i class="fa fa-check"></i>
-				<span>@T("Admin.Common.Save")</span>
-			</button>
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
-				<span>@T("Admin.Common.SaveContinue")</span>
-			</button>
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
             <button type="submit" name="requeue" value="requeue" class="btn btn-secondary">
-				<i class="fa fa-redo"></i>
-				<span>@T("Admin.System.QueuedEmails.Requeue")</span>
-			</button>
-			@if (Model.SendManually)
-			{
-				<button type="submit" name="sendnow" value="sendnow" class="btn btn-primary" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
-					<i class="fa fa-envelope"></i>
-					<span>@T("Admin.Common.SendNow")</span>
-				</button>
-			}
+                <i class="fa fa-redo"></i>
+                <span>@T("Admin.System.QueuedEmails.Requeue")</span>
+            </button>
+            @if (Model.SendManually)
+            {
+                <button type="submit" name="sendnow" value="sendnow" class="btn btn-primary" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
+                    <i class="fa fa-envelope"></i>
+                    <span>@T("Admin.Common.SendNow")</span>
+                </button>
+            }
             <button id="queuedEmail-delete" class="btn btn-danger">
-				<i class="far fa-trash-alt"></i>
-				<span>@T("Admin.Common.Delete")</span>
-			</button>
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="queuedEmail-delete" />
         </div>
     </div>
 
 	<partial name="_CreateOrUpdate" model="Model" />
 </form>
-
-@*TODO: (ms) (core) Wait for delete confirmation implementation to proceed with deletion*@
-@*@Html.DeleteConfirmation("queuedEmail-delete")*@

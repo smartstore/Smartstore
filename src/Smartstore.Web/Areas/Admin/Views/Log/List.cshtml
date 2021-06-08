@@ -11,12 +11,12 @@
             <i class="fa fa-fire"></i>
             @T("Admin.System.Log")
         </div>
-        @* TODO: (ms) (core) Wait until delete confirmation function has been implemented to proceed with deletion. *@
         <div class="options">
-            <button type="submit" name="clearall" value="clearall" class="btn btn-danger" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
+            <button type="submit" name="clearall" id="clearall" value="clearall" class="btn btn-danger">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.System.Log.ClearLog")</span>
             </button>
+            <confirm button-id="clearall" />
         </div>
     </div>
 </form>
