@@ -5,11 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Smartstore.Http;
 using Smartstore.IO;
 
 namespace Smartstore.Net
@@ -72,89 +69,19 @@ namespace Smartstore.Net
         }
 
         /// <summary>
-        /// Downloads a single file asynchronously.
+        /// Downloads a file asynchronously and saves it to disk.
         /// </summary>
-        /// <param name="process">Function to process the download response.</param>
-        /// <param name="url">The URL to download the file from (either a fully qualified URL or an app relative/absolute path).</param>
-        /// <param name="httpRequest">HTTP request.</param>
-        /// <param name="timeout">Timeout in milliseconds.</param>
-        /// <param name="sendAuthCookie">Specifies whether the authentication cookie should be sent along.</param>
-        /// <param name="isLocal">A value indicating whether the file is located on the local server.</param>
-        public static async Task<TResult> DownloadFileAsync<TResult>(
-            Func<DownloadResponse, Task<TResult>> process,
-            string url,
-            HttpRequest httpRequest,
-            int? timeout = null,
-            bool sendAuthCookie = false,
-            bool isLocal = false)
+        /// <param name="item">Information about the file to download.</param>
+        /// <param name="cancelToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        public Task DownloadFileAsync(DownloadManagerItem item, CancellationToken cancelToken = default)
         {
-            // TODO: (mg) (core) I don't like the DownloadFileAsync method's signature at all! TBD with MC.
-            // RE: should be removed (disturbs here). Was once intended as a synchronous method. Callers must be refactored in this regard anyway.
-            // They should use DownloadFilesAsync or setup own download request (in case of CreatePdfInvoiceAttachmentAsync).
-            Guard.NotEmpty(url, nameof(url));
-
-            url = WebHelper.GetAbsoluteUrl(url, httpRequest);
-            HttpWebRequest request;
-            TResult result = default;
-
-            if (isLocal)
-            {
-                request = await WebHelper.CreateHttpRequestForSafeLocalCallAsync(new Uri(url));
-            }
-            else
-            {
-                request = WebRequest.CreateHttp(url);
-                request.UserAgent = "Smartstore";
-            }
-
-            if (timeout.HasValue)
-            {
-                request.Timeout = timeout.Value;
-            }
-
-            if (sendAuthCookie)
-            {
-                request.SetAuthenticationCookie(httpRequest);
-                request.SetVisitorCookie(httpRequest);
-            }
-
-            using (var response = (HttpWebResponse)await request.GetResponseAsync())
-            using (var stream = response.GetResponseStream())
-            {
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    string fileName = null;
-                    var contentDisposition = response.Headers["Content-Disposition"];
-
-                    if (contentDisposition.HasValue())
-                    {
-                        fileName = new ContentDisposition(contentDisposition).FileName;
-                    }
-
-                    if (fileName.IsEmpty())
-                    {
-                        fileName = WebHelper.GetFileNameFromUrl(url);
-                    }
-
-                    var arg = new DownloadResponse
-                    {
-                        Stream = stream,
-                        FileName = fileName,
-                        ContentType = response.ContentType,
-                        ContentLength = response.ContentLength
-                    };
-
-                    result = await process(arg);
-                }
-            }
-
-            return result;
+            return ProcessUrl(item, cancelToken);
         }
 
         /// <summary>
         /// Starts asynchronous download of multiple files and saves them to disk.
         /// </summary>
-        /// <param name="items">Items to be downloaded.</param>
+        /// <param name="items">Information about the files to download.</param>
         /// <param name="cancelToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         public async Task DownloadFilesAsync(IEnumerable<DownloadManagerItem> items, CancellationToken cancelToken = default)
         {
@@ -236,37 +163,6 @@ namespace Smartstore.Net
         }
     }
 
-
-    public class DownloadResponse
-    {
-        /// <summary>
-        /// The stream that is used to read the body of the response from the server.
-        /// </summary>
-        /// <remarks>
-        /// <see cref="Stream.Length"/> not supported (throws NotSupportedException). Use <see cref="ContentLength"/> instead.
-        /// </remarks>
-        public Stream Stream { get; init; }
-
-        /// <summary>
-        /// The file name.
-        /// </summary>
-        public string FileName { get; init; }
-
-        /// <summary>
-        /// The content type of the response.
-        /// </summary>
-        public string ContentType { get; init; }
-
-        /// <summary>
-        /// The number of bytes returned by the request.
-        /// </summary>
-        public long ContentLength { get; init; }
-
-        public override string ToString()
-        {
-            return $"{FileName.NaIfEmpty()} ({ContentType}, {ContentLength} bytes)";
-        }
-    }
 
     public class DownloadManagerItem : ICloneable<DownloadManagerItem>, IEquatable<DownloadManagerItem>
     {

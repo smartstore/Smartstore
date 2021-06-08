@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -9,7 +11,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Events;
-using Smartstore.Net;
+using Smartstore.Http;
 
 namespace Smartstore.Core.Messaging
 {
@@ -58,33 +60,51 @@ namespace Smartstore.Core.Messaging
 
         private async Task<QueuedEmailAttachment> CreatePdfInvoiceAttachmentAsync(int orderId)
         {
-            var attachment = new QueuedEmailAttachment
-            {
-                StorageLocation = EmailAttachmentStorageLocation.Blob
-            };
+            QueuedEmailAttachment attachment = null;
+            var request = _urlHelper.ActionContext.HttpContext.Request;
+            var path = _urlHelper.Action("Print", "Order", new { id = orderId, pdf = true, area = string.Empty });
+            var url = WebHelper.GetAbsoluteUrl(path, request);
+            
+            var downloadRequest = WebRequest.CreateHttp(url);
+            downloadRequest.UserAgent = "Smartstore";
+            downloadRequest.Timeout = 5000;
+            downloadRequest.SetAuthenticationCookie(request);
+            downloadRequest.SetVisitorCookie(request);
 
-            var path = _urlHelper.Action("Print", "Order", new { id = orderId, pdf = true, area = "" });
-
-            var success = await DownloadManager.DownloadFileAsync(async response =>
+            using (var response = (HttpWebResponse)await downloadRequest.GetResponseAsync())
+            using (var stream = response.GetResponseStream())
             {
-                attachment.Name = response.FileName;
-                attachment.MimeType = response.ContentType;
-                attachment.MediaStorage = new MediaStorage
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    // INFO: response.Stream.Length not supported.
-                    Data = await response.Stream.ToByteArrayAsync()
-                };
+                    attachment = new QueuedEmailAttachment
+                    {
+                        StorageLocation = EmailAttachmentStorageLocation.Blob,
+                        MimeType = response.ContentType,
+                        MediaStorage = new MediaStorage
+                        {
+                            // INFO: stream.Length not supported here.
+                            Data = await stream.ToByteArrayAsync()
+                        }
+                    };
 
-                return attachment.MediaStorage.Data?.Length > 0;
-            }, 
-            path, _urlHelper.ActionContext.HttpContext.Request, 5000, true);
+                    var contentDisposition = response.Headers["Content-Disposition"];
+                    if (contentDisposition.HasValue())
+                    {
+                        attachment.Name = new ContentDisposition(contentDisposition).FileName;
+                    }
 
-            if (!success)
+                    if (attachment.Name.IsEmpty())
+                    {
+                        attachment.Name = WebHelper.GetFileNameFromUrl(url);
+                    }
+                }
+            }
+
+            if (attachment == null)
             {
                 throw new InvalidOperationException(T("Admin.System.QueuedEmails.ErrorEmptyAttachmentResult", path));
             }
-
-            if (!attachment.MimeType.EqualsNoCase("application/pdf"))
+            else if (!attachment.MimeType.EqualsNoCase("application/pdf"))
             {
                 throw new InvalidOperationException(T("Admin.System.QueuedEmails.ErrorNoPdfAttachment"));
             }

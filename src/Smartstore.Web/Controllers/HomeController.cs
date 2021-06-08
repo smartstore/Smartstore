@@ -54,6 +54,7 @@ using Smartstore.Core.Web;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine;
 using Smartstore.Events;
+using Smartstore.Http;
 using Smartstore.Imaging;
 using Smartstore.IO;
 using Smartstore.Net;
@@ -1017,7 +1018,7 @@ namespace Smartstore.Web.Controllers
             content.AppendLine("");
 
 
-            //var imageUrls = new[] 
+            //var imageUrls = new[]
             //{
             //    @"https://smartstore.com/media/3815/pagebuilder/page-builder.gif",
             //    @"https://smartstore.com/media/4820/content/Supermarket_Rabatte_1439x1080.jpg",
@@ -1027,17 +1028,21 @@ namespace Smartstore.Web.Controllers
             //    @"https://smartstore.com/media/1628/showcase/1628.jpg",
             //};
 
+            //var dm = new DownloadManager();
             //foreach (var imageUrl in imageUrls)
             //{
-            //    await DownloadManager.DownloadFileAsync(async dr =>
+            //    var fileName = WebHelper.GetFileNameFromUrl(imageUrl);
+            //    var item = new DownloadManagerItem
             //    {
-            //        var data = await dr.Stream.ToByteArrayAsync();
+            //        Url = imageUrl,
+            //        FileName = fileName,
+            //        Path = @"C:\Downloads\DownloadManager\" + fileName
+            //    };
 
-            //        await System.IO.File.WriteAllBytesAsync(@"C:\Downloads\DownloadManager\" + dr.FileName, data);
+            //    await dm.DownloadFileAsync(item);
 
-            //        return data != null && data.Length != 0;
-            //    },
-            //    imageUrl, Request);
+            //    var success = item.Success && System.IO.File.Exists(item.Path);
+            //    content.AppendLine($"{success} {item.StatusCode}: {item.FileName}... {item.Path}");
             //}
 
             //var downloadItems = imageUrls.Select(x =>
