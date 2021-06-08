@@ -1,0 +1,24 @@
+﻿@using Smartstore.Admin.Models.Topics
+
+@model TopicListModel
+
+<div sm-if="!Model.IsSingleStoreMode" class="form-group">
+    <smart-label asp-for="SearchStoreId" />
+    <editor asp-for="SearchStoreId" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SystemName" />
+    <input asp-for="SystemName" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="Title" />
+    <input asp-for="Title" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="RenderAsWidget" />
+    <editor asp-for="RenderAsWidget" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="WidgetZone" />
+    <editor asp-for="WidgetZone" />
+</div>

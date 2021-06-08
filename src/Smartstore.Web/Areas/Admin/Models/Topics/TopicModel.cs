@@ -127,6 +127,10 @@ namespace Smartstore.Admin.Models.Topics
 
         [LocalizedDisplay("Admin.ContentManagement.MenuLinks")]
         public Dictionary<string, string> MenuLinks { get; set; } = new();
+
+        public string ViewUrl { get; set; }
+
+        public string WidgetZoneValue { get; set; }
     }
 
     [LocalizedDisplay("Admin.ContentManagement.Topics.Fields.")]

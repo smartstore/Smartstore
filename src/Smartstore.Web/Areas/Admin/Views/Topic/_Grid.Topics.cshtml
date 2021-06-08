@@ -1,0 +1,54 @@
+﻿@using Smartstore.Admin.Models.Topics
+
+@model TopicModel
+
+@{
+    var parentModel = ViewData["Parent"] as TopicListModel;
+}
+
+
+<datagrid id="productattributes-grid">
+    <datasource read="@Url.Action("TopicList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting enabled="true" allow-unsort="true" allow-multisort="false">
+        <sort by="SystemName" descending="true" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <a href="@Url.Action("Create")" class="btn btn-primary">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")</span>
+            </a>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.Topics.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="SystemName" filterable="true">
+            <display-template>
+                <a :href="item.row.ViewUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Title" filterable="true" />
+        <column for="IsPasswordProtected" halign="center" readonly="true" />
+        <column for="IncludeInSitemap" halign="center" />
+        <column for="RenderAsWidget" halign="center" readonly="true" filterable="true" />
+        <column for="WidgetZone" halign="center" filterable="true">
+            <display-template>
+                <div style="word-break: break-all">
+                    {{ item.value }}
+                </div>
+            </display-template>
+        </column>
+        <column for="LimitedToStores" halign="center" />
+        <column for="Priority" halign="center" />
+    </columns>
+</datagrid>

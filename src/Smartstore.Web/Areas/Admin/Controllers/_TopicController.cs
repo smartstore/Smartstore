@@ -23,6 +23,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -34,14 +35,16 @@ namespace Smartstore.Admin.Controllers
         private readonly IAclService _aclService;
         private readonly ILinkResolver _linkResolver;
         private readonly IUrlService _urlService;
-        
+        private readonly IStoreContext _storeContext;
+
         public TopicController(
             SmartDbContext db,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IAclService aclService,
             ILinkResolver linkResolver,
-            IUrlService urlService)
+            IUrlService urlService,
+            IStoreContext storeContext)
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
@@ -49,11 +52,76 @@ namespace Smartstore.Admin.Controllers
             _aclService = aclService;
             _linkResolver = linkResolver;
             _urlService = urlService;
+            _storeContext = storeContext;
         }
 
         public IActionResult Index()
         {
             return RedirectToAction("List");
+        }
+
+        [Permission(Permissions.Cms.Topic.Read)]
+        public IActionResult List()
+        {
+            var model = new TopicListModel
+            {
+                IsSingleStoreMode = _storeContext.IsSingleStoreMode()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Cms.Topic.Read)]
+        public async Task<IActionResult> TopicList(GridCommand command, TopicListModel model)
+        {
+            var query = _db.Topics.AsNoTracking();
+
+            if (model.SystemName.HasValue())
+            {
+                query = query.Where(x => x.SystemName.Contains(model.SystemName));
+            }
+            
+            if (model.Title.HasValue())
+            {
+                query = query.Where(x => x.Title.Contains(model.Title) || x.ShortTitle.Contains(model.Title));
+            }
+
+            if (model.RenderAsWidget.HasValue)
+            {
+                query = query.Where(x => x.RenderAsWidget == model.RenderAsWidget.Value);
+            }
+
+            if (model.WidgetZone.HasValue())
+            {
+                query = query.Where(x => x.WidgetZone.Contains(model.WidgetZone));
+            }
+
+            query = query.ApplyGridCommand(command, false);
+
+            var topicItems = await query.ToPagedList(command.Page - 1, command.PageSize).LoadAsync();
+            var gridModel = new GridModel<TopicModel>
+            {
+                Rows = await topicItems.AsEnumerable().SelectAsync(async x => await PrepareTopicListModelAsync(x)).AsyncToList(),
+                Total = topicItems.TotalCount
+            };
+
+            return Json(gridModel);
+        }
+
+        private async Task<TopicModel> PrepareTopicListModelAsync(Topic topic)
+        {
+            var model = new TopicModel();
+            await MapperFactory.MapAsync(topic, model);
+            await PrepareTopicModelAsync(topic, model);
+
+            // TODO: (mh) (core) Maybe we need a DisplayTemplate for this.
+            model.WidgetZoneValue = topic.WidgetZone;
+            model.CookieType = (int?)topic.CookieType;
+            model.Body = string.Empty;                          // Otherwise maxJsonLength could be exceeded.
+            model.ViewUrl = Url.Action("Edit", "Topic", new { id = topic.Id });
+
+            return model;
         }
 
         [Permission(Permissions.Cms.Topic.Create)]
@@ -321,7 +389,6 @@ namespace Smartstore.Admin.Controllers
 
                     if (currentStoreIsAuthorized)
                     {
-                        // INFO: (mh) (core) Always use IStoreContext to read store entities (don't access db). They are heavily cached.
                         var store = Services.StoreContext.GetStoreById(Services.StoreContext.CurrentStore.Id);
                         if (store != null)
                         {
