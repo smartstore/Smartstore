@@ -1,0 +1,19 @@
+﻿@using Smartstore.Admin.Models.Export
+@model List<ExportProfileModel>
+@{
+    ViewBag.Title = T("Common.Export").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-list-alt"></i>
+        <span>@T("Common.Export")</span>
+    </div>
+    <div class="options">
+		<a href="javascript:void()" data-url="@Url.Action("Create")" class="btn btn-primary export-profile-button">
+			<i class="fa fa-plus"></i>
+			<span>@T("Admin.DataExchange.AddNewProfile")</span>
+		</a>
+    </div>
+</div>

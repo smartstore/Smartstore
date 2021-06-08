@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Autofac;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Data;
 using Smartstore.Engine;
 
 namespace Smartstore.Scheduling
@@ -14,22 +12,28 @@ namespace Smartstore.Scheduling
         /// Filters by <see cref="TaskExecutionInfo.TaskDescriptorId"/> and orders by <see cref="TaskExecutionInfo.StartedOnUtc"/>
         /// and Id, both descending.
         /// </summary>
-        public static IOrderedQueryable<TaskExecutionInfo> ApplyTaskFilter(this IQueryable<TaskExecutionInfo> query, int taskId, bool lastEntryOnly = false)
+        /// <param name="taskId">Filter by task identifier.</param>
+        /// <param name="lastInfoOnly">A value indicating whether to only return the last execution info per task.</param>
+        public static IOrderedQueryable<TaskExecutionInfo> ApplyTaskFilter(this IQueryable<TaskExecutionInfo> query, int taskId, bool lastInfoOnly = false)
         {
             if (taskId != 0)
             {
                 query = query.Where(x => x.TaskDescriptorId == taskId);
             }
 
-            if (lastEntryOnly)
+            if (lastInfoOnly)
             {
-                query =
-                    from th in query
-                    group th by th.TaskDescriptorId into grp
-                    select grp
+                var db = query.GetDbContext<SmartDbContext>();
+
+                query = query
+                    .Select(x => x.TaskDescriptorId)
+                    .Distinct()
+                    .SelectMany(key => db.TaskExecutionInfos
+                        .AsNoTracking()
+                        .Where(x => x.TaskDescriptorId == key)
                         .OrderByDescending(x => x.StartedOnUtc)
                         .ThenByDescending(x => x.Id)
-                        .FirstOrDefault();
+                        .Take(1));
             }
 
             return query
