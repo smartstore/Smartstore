@@ -99,7 +99,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// Specifies whether to center the dialog vertically. Default = false.
         /// </summary>
         [HtmlAttributeName(CenterAttributeName)]
-        public bool Center { get; set; }
+        public bool Center { get; set; } = true;
 
         /// <summary>
         /// Specifies whether to center the dialog content. Default = false.
