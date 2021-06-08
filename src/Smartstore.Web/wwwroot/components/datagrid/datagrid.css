@@ -212,18 +212,20 @@ input.form-control-plaintext {
   bottom: 0;
   width: 10px;
   opacity: 0;
+  transform: scaleX(0);
   cursor: col-resize;
-  transition: opacity 0.12s; }
+  transition: all 0.2s ease-in-out; }
   .dg-resize-handle:after {
     position: absolute;
     content: ' ';
-    width: 2px;
+    width: 3px;
     top: 0;
     bottom: 0;
-    left: 4px;
+    left: 3px;
     background-color: var(--dg-border-color); }
   thead:hover .dg-resize-handle {
-    opacity: 0.65; }
+    opacity: 0.65;
+    transform: scaleX(1); }
   .dg-resize-handle:hover,
   .dg-resizing .dg-resize-handle {
     opacity: 1 !important; }
