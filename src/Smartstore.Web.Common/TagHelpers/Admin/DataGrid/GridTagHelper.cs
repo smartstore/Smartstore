@@ -338,6 +338,12 @@ namespace Smartstore.Web.TagHelpers.Admin
                 paging = Paging?.ToPlainObject() ?? new { },
                 sorting = Sorting?.ToPlainObject() ?? new { },
                 filtering = Filtering?.ToPlainObject() ?? new { },
+
+                // Define reactive data properties required during (slot) rendering
+                showSearch = false,
+                numSearchFilters = 0,
+                dragging = new { active = false },
+                editing = new { active = false }
             };
 
             dict["data"] = data;

@@ -389,14 +389,10 @@ Vue.component("sm-datagrid", {
 
                 if (e.keyCode == 13) {
                     // Enter key pressed in input
-                    console.log(e);
                     self.read();
                 }
             });
         }
-
-        // Read data from server
-        this.read();
 
         $(this.$el).on("show.bs.dropdown", function (e) {
             // Append the dropdown menu to body to prevent overflow clipping
@@ -410,6 +406,11 @@ Vue.component("sm-datagrid", {
             var menu = $(e.target).data('dropdown-menu');
             menu.detach().appendTo(e.target);
         });
+
+        // Read data from server.
+        // Process initial read after a short delay, because something's wrong with numSearchFilters
+        // if we call immediately.
+        window.setTimeout(() => { this.read(); }, 10);
     },
 
     updated() {
