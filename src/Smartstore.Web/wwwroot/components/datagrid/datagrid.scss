@@ -480,7 +480,7 @@ $body-color: #393f46;
 }
 
 a.dg-page {
-    text-decoration: none;
+/*    text-decoration: none;
 
     &:hover {
         background-color: rgba(#000, 0.035);
@@ -488,7 +488,7 @@ a.dg-page {
 
     &:active {
         background-color: rgba(#000, 0.075);
-    }
+    }*/
 
     &.disabled {
         pointer-events: none;
@@ -497,20 +497,20 @@ a.dg-page {
 }
 
 .dg-page-refresh {
-    border-right: 1px solid $border;
+/*    border-right: 1px solid $border;
     width: 49px;
     text-align: center;
     padding-left: 0;
-    padding-right: 0;
+    padding-right: 0;*/
 }
 
 .dg-page-arrow {
-    padding-left: 6px;
-    padding-right: 6px;
+/*    padding-left: 6px;
+    padding-right: 6px;*/
 }
 
 .dg-page-number {
-    border: 1px solid transparent;
+/*    border: 1px solid transparent;
     border-top-width: 0;
     border-bottom-width: 0;
 
@@ -519,7 +519,7 @@ a.dg-page {
         background-color: #fff;
         border-color: rgba(#000, 0.15);
         border-color: $border;
-    }
+    }*/
 }
 
 .dg-page-size-chooser + .dropdown-menu {

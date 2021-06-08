@@ -1,20 +1,20 @@
 ﻿Vue.component("sm-datagrid-pager", {
     template: `
-        <div class="dg-pager d-flex flex-nowrap">
-            <a href="#" class="dg-page dg-page-refresh px-3" @click.prevent="refresh">
+        <div class="dg-pager d-flex flex-nowrap align-items-center p-1">
+            <a href="#" class="dg-page dg-page-refresh btn btn-light btn-icon btn-sm x-px-3" @click.prevent="refresh">
                 <i class="fa fa-sync-alt" :class="{ 'fa-spin text-success': $parent.isBusy }"></i>
             </a>
             
             <template v-if="totalPages > 1">
-                <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-fw fa-angle-double-left"></i></a>
-                <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-fw fa-angle-left"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm btn-icon" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-fw fa-angle-double-left"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm btn-icon" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-fw fa-angle-left"></i></a>
             
-                <a v-for="item in pageItems" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number d-none d-sm-inline" :class="{ active: item.active }">
+                <a v-for="item in pageItems" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number btn btn-light py-1 btn-sm d-none d-sm-inline" :class="{ active: item.active }">
                     {{ item.label || item.page }}
                 </a>
             
-                <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(currentPageIndex + 1)" :class="{ disabled: !hasNextPage }"><i class="fa fa-fw fa-angle-right"></i></a>
-                <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }"><i class="fa fa-fw fa-angle-double-right"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm btn-icon" @click.prevent="pageTo(currentPageIndex + 1)" :class="{ disabled: !hasNextPage }"><i class="fa fa-fw fa-angle-right"></i></a>
+                <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm btn-icon" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }"><i class="fa fa-fw fa-angle-double-right"></i></a>
             </template>
             
             <div v-if="rows.length > 0" class="ml-auto d-flex align-items-center">
@@ -23,7 +23,7 @@
                     <span>{{ firstItemIndex.toLocaleString() }}-{{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}</span>
                 </span>
                 <div v-if="paging.showSizeChooser && paging.availableSizes?.length" class="dropdown d-flex align-items-center border-left">
-                    <a href="#" class="dg-page dg-page-size-chooser dropdown-toggle text-truncate px-3" data-toggle="dropdown">
+                    <a href="#" class="dg-page dg-page-size-chooser btn btn-light btn-sm dropdown-toggle text-truncate px-3" data-toggle="dropdown">
                         <span class="fwm">{{ command.pageSize }}</span> pro Seite
                     </a>
                     <div class="dropdown-menu">
