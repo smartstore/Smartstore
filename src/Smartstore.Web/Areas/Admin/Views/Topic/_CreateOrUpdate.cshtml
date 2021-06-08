@@ -285,6 +285,12 @@
     </tab>
 
     <tab sm-title="@T("Admin.Common.SEO")">
+
+        @*
+        TODO: (mh) (core) This has worked when I've last checked. Now it's broken as soon as there is content in LocalizedEditor.
+        Seems like the output of > _AdminRoot.cshtml <zone name="scripts"> will be skipped then.
+        *@
+
         @(Html.LocalizedEditor<TopicModel, TopicLocalizedModel>("topic-seo-localized",
             @<div class="adminContent">
                 <div class="adminRow">
@@ -313,7 +319,7 @@
                         <smart-label asp-for="Locales[item].MetaKeywords" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="Locales[item].MetaKeywords"/>
+                        <input asp-for="Locales[item].MetaKeywords"/>
                         <span asp-validation-for="Locales[item].MetaKeywords"></span>
                     </div>
                 </div>
@@ -322,7 +328,7 @@
                         <smart-label asp-for="Locales[item].SeName" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="Locales[item].SeName" />
+                        <input asp-for="Locales[item].SeName" />
                         <span asp-validation-for="Locales[item].SeName"></span>
                     </div>
                 </div>
@@ -352,7 +358,7 @@
                         <smart-label asp-for="MetaKeywords" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="MetaKeywords" />
+                        <input asp-for="MetaKeywords" />
                         <span asp-validation-for="MetaKeywords"></span>
                     </div>
                 </div>
@@ -361,7 +367,7 @@
                         <smart-label asp-for="SeName" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="SeName" />
+                        <input asp-for="SeName" />
                         @if (Model.Id != 0)
                         {
                             @await Component.InvokeAsync("NamesPerEntity", new { entityName = "Topic", entityId = Model.Id })
