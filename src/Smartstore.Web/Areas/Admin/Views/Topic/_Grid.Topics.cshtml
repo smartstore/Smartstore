@@ -6,7 +6,7 @@
     var parentModel = ViewData["Parent"] as TopicListModel;
 }
 
-<datagrid id="productattributes-grid">
+<datagrid id="productattributes-grid" allow-resize="true" allow-column-reordering="true" allow-edit="true">
     <datasource read="@Url.Action("TopicList")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
@@ -18,8 +18,8 @@
                 <i class="fa fa-fw fa-filter"></i>
             </button>
         </toolbar-group>
-        <toolbar-group class="omega">
-            <a href="@Url.Action("Create")" class="btn btn-primary">
+        <toolbar-group>
+            <a href="@Url.Action("Create")" class="btn btn-primary btn-flat">
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Common.AddNew")</span>
             </a>
@@ -29,25 +29,25 @@
         <partial name="_Grid.Topics.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="SystemName" filterable="true">
+        <column for="SystemName" readonly="true" width="minmax(60px, 1.5fr)">
             <display-template>
                 <a :href="item.row.ViewUrl" class="text-truncate">
                     {{ item.value }}
                 </a>
             </display-template>
         </column>
-        <column for="Title" filterable="true" />
-        <column for="IsPasswordProtected" halign="center" readonly="true" />
-        <column for="IncludeInSitemap" halign="center" />
-        <column for="RenderAsWidget" halign="center" readonly="true" filterable="true" />
-        <column for="WidgetZone" halign="center" filterable="true">
+        <column for="Title" width="minmax(60px, 4fr)" />
+        <column for="WidgetZone" entity-member="WidgetZone" readonly="true" halign="center">
             <display-template>
-                <div style="word-break: break-all">
+                <div style="word-break: break-all" class="text-truncate">
                     {{ item.value }}
                 </div>
             </display-template>
         </column>
-        <column for="LimitedToStores" halign="center" />
+        <column for="IsPasswordProtected" readonly="true" halign="center" width="0.75fr" />
+        <column for="IncludeInSitemap" halign="center" width="0.75fr" />
+        <column for="RenderAsWidget" halign="center" readonly="true" width="0.75fr" />
+        <column for="LimitedToStores" readonly="true" halign="center" width="0.75fr" />
         <column for="Priority" halign="center" />
     </columns>
 </datagrid>
