@@ -30,7 +30,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string GroupableAttributeName = "groupable";
         const string ReorderableAttributeName = "reorderable";
         const string HideableAttributeName = "hideable";
-        const string NowrapAttributeName = "nowrap";
+        const string WrapAttributeName = "wrap";
         const string EntityMemberAttributeName = "entity-member";
         const string IconAttributeName = "icon";
         const string DefaultValueAttributeName = "default-value";
@@ -144,10 +144,10 @@ namespace Smartstore.Web.TagHelpers.Admin
         public bool ReadOnly { get; set; }
 
         /// <summary>
-        /// Prevents cell content wrapping. Default: <c>true</c>.
+        /// Allows cell content wrapping. Default: <c>false</c>.
         /// </summary>
-        [HtmlAttributeName(NowrapAttributeName)]
-        public bool Nowrap { get; set; } = true;
+        [HtmlAttributeName(WrapAttributeName)]
+        public bool Wrap { get; set; }
 
         /// <summary>
         /// The entity member/property name. Use this if the corresponding
@@ -207,7 +207,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 hideable = Hideable,
                 editable = !ReadOnly,
                 reorderable = Reorderable,
-                nowrap = Nowrap,
+                wrap = Wrap,
                 entityMember = EntityMember,
                 icon = Icon
             };

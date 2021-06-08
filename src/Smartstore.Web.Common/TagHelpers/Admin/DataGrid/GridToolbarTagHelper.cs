@@ -72,7 +72,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             if (Action == DataGridToolAction.ToggleSearchPanel)
             {
                 output.AppendCssClass("dg-search-toggle");
-                output.MergeAttribute("v-if", "grid.hasSearchPanel");
+                //output.MergeAttribute("v-if", "grid.hasSearchPanel"); // ??? Hmmm...
                 output.MergeAttribute("v-bind:class", "{ 'active': grid.showSearch }");
                 output.MergeAttribute("v-on:click", "grid.toggleSearch");
                 output.PostContent.AppendHtml("<span v-if='grid.numSearchFilters > 0' class='badge badge-pill badge-success dg-toolbar-badge'>{{ grid.numSearchFilters }}</span>");

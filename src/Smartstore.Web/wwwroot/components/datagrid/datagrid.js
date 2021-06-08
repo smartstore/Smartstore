@@ -557,7 +557,7 @@ Vue.component("sm-datagrid", {
 
         getCellClass(row, column) {
             const cssClass = {
-                'dg-cell-wrap': !column.nowrap,
+                'dg-cell-wrap': column.wrap,
                 'dg-cell-edit': this.isInlineEditCell(row, column)
             };
 
