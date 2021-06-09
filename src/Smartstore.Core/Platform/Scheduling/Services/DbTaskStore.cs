@@ -311,9 +311,9 @@ namespace Smartstore.Scheduling
 
         #region History
 
-        public virtual IQueryable<TaskExecutionInfo> GetExecutionInfoQuery()
+        public virtual IQueryable<TaskExecutionInfo> GetExecutionInfoQuery(bool tracked = true)
         {
-            return _db.TaskExecutionInfos;
+            return _db.TaskExecutionInfos.ApplyTracking(tracked);
         }
 
         public virtual TaskExecutionInfo CreateExecutionInfo(TaskDescriptor task)

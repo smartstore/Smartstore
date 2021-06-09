@@ -20,15 +20,18 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IExportProfileService _exportProfileService;
         private readonly IProviderManager _providerManager;
+        private readonly ITaskStore _taskStore;
 
         public ExportController(
             SmartDbContext db,
             IExportProfileService exportProfileService,
-            IProviderManager providerManager)
+            IProviderManager providerManager,
+            ITaskStore taskStore)
         {
             _db = db;
             _exportProfileService = exportProfileService;
             _providerManager = providerManager;
+            _taskStore = taskStore;
         }
 
         public IActionResult Index()
@@ -41,6 +44,7 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new List<ExportProfileModel>();
 
+            // TODO: (mg) (core) IExportProfileService.LoadAllExportProviders() should be implemented
             var providers = _providerManager.GetAllProviders<IExportProvider>()
                 .Where(x => x.Value != null && !x.Metadata.IsHidden)
                 .OrderBy(x => x.Metadata.FriendlyName)
@@ -49,12 +53,10 @@ namespace Smartstore.Admin.Controllers
             var profiles = await _db.ExportProfiles
                 .AsNoTracking()
                 .Include(x => x.Task)
-                .OrderBy(x => x.IsSystemProfile)
-                .ThenBy(x => x.Name)
+                .OrderBy(x => x.IsSystemProfile).ThenBy(x => x.Name)
                 .ToListAsync();
 
-            var lastExecutionInfos = (await _db.TaskExecutionInfos
-                .AsNoTracking()
+            var lastExecutionInfos = (await _taskStore.GetExecutionInfoQuery(false)
                 .ApplyCurrentMachineNameFilter()
                 .ApplyTaskFilter(0, true)
                 .ToListAsync())
@@ -87,7 +89,7 @@ namespace Smartstore.Admin.Controllers
             MiniMapper.Map(profile, model);
 
             var logFile = await _exportProfileService.GetLogFileAsync(profile);
-            var descriptor = provider.Metadata.ModuleDescriptor;
+            var moduleDescriptor = provider.Metadata.ModuleDescriptor;
 
             model.TaskName = profile.Task.Name.NaIfEmpty();
             model.IsTaskRunning = lastExecutionInfo?.IsRunning ?? false;

@@ -104,7 +104,7 @@ namespace Smartstore.Scheduling
         /// Creates and returns an <see cref="IQueryable{TaskExecutionInfo}"/> query instance used to query over <see cref="TaskExecutionInfo"/> object instances.
         /// </summary>
         /// <returns>The queryable</returns>
-        IQueryable<TaskExecutionInfo> GetExecutionInfoQuery();
+        IQueryable<TaskExecutionInfo> GetExecutionInfoQuery(bool tracked = true);
 
         /// <summary>
         /// Creates a fresh store specific <see cref="TaskExecutionInfo"/> instance.
