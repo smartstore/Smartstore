@@ -136,7 +136,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // .modal-content
             BuildContent(output);
 
-            if (RenderAtPageEnd)
+            if (RenderAtPageEnd && !ViewContext.HttpContext.Request.IsAjaxRequest())
             {
                 // Move output Html to new builder
                 var builder = new HtmlContentBuilder();
