@@ -75,7 +75,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Cms.Topic.Read)]
         public async Task<IActionResult> TopicList(GridCommand command, TopicListModel model)
         {
-            var query = _db.Topics.AsNoTracking();
+            var query = _db.Topics
+                .ApplyStoreFilter(model.SearchStoreId)
+                .AsNoTracking();
 
             if (model.SystemName.HasValue())
             {
@@ -119,6 +121,7 @@ namespace Smartstore.Admin.Controllers
             model.WidgetZoneValue = topic.WidgetZone;
             model.CookieType = (int?)topic.CookieType;
             model.Body = string.Empty;                          // Otherwise maxJsonLength could be exceeded.
+            model.Intro = string.Empty;                          // Otherwise grind may slow down
             model.ViewUrl = Url.Action("Edit", "Topic", new { id = topic.Id });
 
             return model;

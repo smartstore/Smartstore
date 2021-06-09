@@ -21,7 +21,7 @@
         <toolbar-group>
             <a href="@Url.Action("Create")" class="btn btn-primary btn-flat">
                 <i class="fa fa-plus"></i>
-                <span>@T("Admin.Common.AddNew")</span>
+                <span>@T("Admin.Common.AddNew")...</span>
             </a>
         </toolbar-group>
     </toolbar>
@@ -37,9 +37,9 @@
             </display-template>
         </column>
         <column for="Title" width="minmax(60px, 4fr)" />
-        <column for="WidgetZone" entity-member="WidgetZone" readonly="true" halign="center">
+        <column for="WidgetZoneValue" entity-member="WidgetZone" readonly="true" halign="center">
             <display-template>
-                <div style="word-break: break-all" class="text-truncate">
+                <div style="word-break: break-all;white-space:initial">
                     {{ item.value }}
                 </div>
             </display-template>
@@ -49,5 +49,10 @@
         <column for="RenderAsWidget" halign="center" readonly="true" width="0.75fr" />
         <column for="LimitedToStores" readonly="true" halign="center" width="0.75fr" />
         <column for="Priority" halign="center" />
+
+        <!-- Invisible columns -->
+        <column for="IsSystemTopic" halign="center" width="0.75fr" visible="false" />
+        <column for="IsPublished" halign="center" width="0.75fr" visible="false" />
+        <column for="HtmlId" halign="center" visible="false" />
     </columns>
 </datagrid>
