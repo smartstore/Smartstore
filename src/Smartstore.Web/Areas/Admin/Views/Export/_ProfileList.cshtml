@@ -20,6 +20,37 @@
 		@Html.Raw(T("Admin.DataExchange.Export.SystemProfileNote"))
 	</div>
     <div sm-if="hasProfiles" class="table-responsive">
-        TODO...
+		<table class="table admin-table export-profile-list profile-list">
+			<thead>
+				<tr>
+					<th class="text-center"></th>
+					<th>@T("Admin.DataExchange.Export.Name")</th>
+					<th>@T("Admin.DataExchange.Export.EntityType")</th>
+					<th class="text-center">@T("Admin.DataExchange.Export.FileExtension")</th>
+					<th class="text-center">@T("Admin.DataExchange.Export.ExportFiles")</th>
+					<th>@T("Admin.System.ScheduleTasks.LastStart")</th>
+					<th>@T("Admin.System.ScheduleTasks.NextRun")</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var profile in Model.OrderBy(x => x.Name))
+				{
+					<tr data-profile-id="@profile.Id" data-task-id="@profile.TaskId" attr-class='(profile.Enabled, "disabled")'>
+						<td class="text-center">
+							<img src="@profile.Provider.ThumbnailUrl" alt="@profile.Provider.FriendlyName" attr-class='(profile.Enabled, "o40")' />
+						</td>
+						<td>
+							<a asp-action="Edit" asp-route-id="@profile.Id"><strong>@profile.Name</strong></a>
+							<div class="muted">@profile.ProviderSystemName</div>
+						</td>
+						<td>
+							@profile.Provider.EntityTypeName.NaIfEmpty()
+						</td>
+						@*TODO...*@
+					</tr>
+				}
+			</tbody>
+		</table>
     </div>
 </div>

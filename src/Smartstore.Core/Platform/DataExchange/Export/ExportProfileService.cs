@@ -394,4 +394,39 @@ namespace Smartstore.Core.DataExchange.Export
             return allProviders;
         }
     }
+
+    // TODO: (mg) (core) remove test export providers later (required for porting backend's export section).
+    #region Export providers for testing
+
+    [SystemName("Exports.SmartStoreCategoryCsv")]
+    public class CategoryCsvExportProvider : ExportProviderBase
+    {
+        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
+    }
+
+    [SystemName("Exports.SmartStoreProductCsv")]
+    public class ProductCsvExportProvider : ExportProviderBase
+    {
+        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
+    }
+
+    [SystemName("Exports.SmartStoreManufacturerCsv")]
+    public class ManufacturerCsvExportProvider : ExportProviderBase
+    {
+        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
+    }
+
+    [SystemName("Exports.SmartStoreCustomerCsv")]
+    public class CustomerCsvExportProvider : ExportProviderBase
+    {
+        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
+    }
+
+    [SystemName("Feeds.GoogleMerchantCenterProductXml")]
+    public class GmcXmlExportProvider : ExportProviderBase
+    {
+        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
+    }
+
+    #endregion
 }

@@ -4,6 +4,7 @@ using Autofac;
 using Autofac.Builder;
 using Humanizer;
 using Smartstore.Caching.OutputCache;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
@@ -83,8 +84,8 @@ namespace Smartstore.Core.Bootstrapping
                 RegisterAsSpecificProvider<IShippingRateComputationMethod>(type, systemName, registration);
                 RegisterAsSpecificProvider<IWidget>(type, systemName, registration);
                 //RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
-                //RegisterAsSpecificProvider<IPaymentMethod>(type, systemName, registration);
-                //RegisterAsSpecificProvider<IExportProvider>(type, systemName, registration);
+                RegisterAsSpecificProvider<IPaymentMethod>(type, systemName, registration);
+                RegisterAsSpecificProvider<IExportProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IOutputCacheProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IMediaStorageProvider>(type, systemName, registration);
             }
