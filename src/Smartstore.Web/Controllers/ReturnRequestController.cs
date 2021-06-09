@@ -140,7 +140,6 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        [NonAction]
         protected async Task<SubmitReturnRequestModel> PrepareReturnRequestModelAsync(SubmitReturnRequestModel model, Order order)
         {
             Guard.NotNull(order, nameof(order));

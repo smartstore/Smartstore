@@ -103,7 +103,6 @@ namespace Smartstore.Web.Controllers
 
         #region Utilities
 
-        [NonAction]
         protected async Task<bool> ValidateAndSaveCartDataAsync(ProductVariantQuery query, List<string> warnings, bool useRewardPoints = false)
         {
             Guard.NotNull(query, nameof(query));
@@ -132,7 +131,6 @@ namespace Smartstore.Web.Controllers
             return isValid;
         }
 
-        [NonAction]
         protected async Task ParseAndSaveCheckoutAttributesAsync(List<OrganizedShoppingCartItem> cart, ProductVariantQuery query)
         {
             Guard.NotNull(cart, nameof(cart));

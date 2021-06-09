@@ -937,7 +937,6 @@ namespace Smartstore.Web.Controllers
 
         #region Utilities
 
-        [NonAction]
         protected async Task PrepareCustomerInfoModelAsync(CustomerInfoModel model, Customer customer, bool excludeProperties)
         {
             Guard.NotNull(model, nameof(model));
@@ -1119,7 +1118,6 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        [NonAction]
         protected async Task<CustomerOrderListModel> PrepareCustomerOrderListModelAsync(Customer customer, int orderPageIndex, int recurringPaymentPageIndex)
         {
             Guard.NotNull(customer, nameof(customer));
@@ -1196,7 +1194,6 @@ namespace Smartstore.Web.Controllers
             return model;
         }
 
-        [NonAction]
         protected async Task<List<Country>> GetAllCountriesAsync()
         {
             return await _db.Countries

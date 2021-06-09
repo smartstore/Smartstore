@@ -76,7 +76,6 @@ namespace Smartstore.Web.Controllers
         /// </summary>
         /// <param name="currentNodeId">Id of currently selected node/page from sm:pagedata meta tag.</param>
         /// <param name="targetNodeId">Id of the parent node to which should be navigated in the OffCanvasMenu (actually the node which was clicked).</param>
-        [NonAction]
         protected async Task<MenuModel> PrepareMenuModelAsync(string currentNodeId, string targetNodeId)
         {
             var menu = await _menuService.GetMenuAsync("Main");

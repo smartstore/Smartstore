@@ -29,7 +29,6 @@ namespace Smartstore.Web.Controllers
             _customerSettings = customerSettings;
         }
 
-        [NonAction]
         private IActionResult GetFileStreamResultFor(Download download, Stream stream)
         {
             if (stream == null || stream.Length == 0)
@@ -47,7 +46,6 @@ namespace Smartstore.Web.Controllers
             };
         }
 
-        [NonAction]
         private async Task<IActionResult> GetFileStreamResultForAsync(Download download)
         {
             return GetFileStreamResultFor(download, await _downloadService.OpenDownloadStreamAsync(download));

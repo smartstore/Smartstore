@@ -216,7 +216,6 @@ namespace Smartstore.Web.Controllers
         /// </summary>
         /// <param name="lines">Lines to add.</param>
         /// <param name="allow">Specifies whether new lines are Allows or Disallows.</param>
-        [NonAction]
         private static void AddRobotsLines(StringBuilder sb, IEnumerable<string> lines, bool allow)
         {
             // Append all lowercase variants (at least Google is case sensitive).

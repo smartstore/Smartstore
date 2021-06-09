@@ -37,7 +37,6 @@ namespace Smartstore.Web.Controllers
             _helper = helper;
         }
 
-        [NonAction]
         protected TopicModel PrepareTopicModel(Topic topic)
         {
             Guard.NotNull(topic, nameof(topic));

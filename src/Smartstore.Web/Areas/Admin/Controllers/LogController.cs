@@ -150,7 +150,6 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(List));
         }
 
-        [NonAction]
         private static string TruncateLoggerName(string loggerName)
         {
             if (loggerName.IndexOf('.') < 0)
@@ -171,7 +170,6 @@ namespace Smartstore.Admin.Controllers
             return name;
         }
 
-        [NonAction]
         private LogModel PrepareLogModel(Log log)
         {
             var model = new LogModel

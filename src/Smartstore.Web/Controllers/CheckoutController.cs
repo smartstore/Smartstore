@@ -61,7 +61,6 @@ namespace Smartstore.Web.Controllers
             _orderSettings = orderSettings;
         }
 
-        [NonAction]
         protected async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod)
         {
             var warnings = await paymentMethod.IsPaymentDataValidAsync();
@@ -85,7 +84,6 @@ namespace Smartstore.Web.Controllers
             return true;
         }
 
-        [NonAction]
         protected async Task<CheckoutAddressModel> PrepareCheckoutAddressModelAsync(bool shipping = false, int? selectedCountryId = null)
         {
             // Get existing addresses.

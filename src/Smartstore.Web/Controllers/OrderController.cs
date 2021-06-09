@@ -152,7 +152,6 @@ namespace Smartstore.Web.Controllers
             return PrintCore(listModel, pdf, "orders.pdf");
         }
 
-        [NonAction]
         private ActionResult PrintCore(List<OrderDetailsModel> model, bool pdf, string pdfFileName)
         {
             ViewBag.PdfMode = pdf;
@@ -267,7 +266,6 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        [NonAction]
         protected async Task<ShipmentDetailsModel> PrepareShipmentDetailsModelAsync(Shipment shipment)
         {
             Guard.NotNull(shipment, nameof(shipment));
