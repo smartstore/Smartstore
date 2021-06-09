@@ -37,33 +37,10 @@
 
 <script>
     $(function () {
-        @*// Filter toggler
-        $('.btn-toggle-filter').on('click', e => {
-            $('.grid-filter').slideToggle({ duration: 200, easing: 'ease-in-out' });
-        });
-
-        $('#btnSearch').on("click", e => {
-            e.preventDefault();
-            var grid = window["queuedEmails-grid"];
-            grid.paging.pageIndex = 1; // New search. Sets index to 1 to update table.
-            return false;
-        });
+        // TODO (ms) (core) Make this with class rules later.
+        //function onRowDataBound(e) {
+        //  if (e.dataItem.SentOn)
+        //      $(e.row).find('td').wrapInner('<span class="muted" />');
+        //}
     });
-
-    function onDataBinding(command) {
-        $.extend(command, {
-            SearchStartDate: $('#@Html.IdFor(model => model.SearchStartDate)').val(),
-			SearchEndDate: $('#@Html.IdFor(model => model.SearchEndDate)').val(),
-			SearchFromEmail: $('#@Html.IdFor(model => model.SearchFromEmail)').val(),
-			SearchToEmail: $('#@Html.IdFor(model => model.SearchToEmail)').val(),
-			SearchLoadNotSent: $('#@Html.IdFor(model => model.SearchLoadNotSent)').is(':checked'),
-        	SearchSendManually: $('#@Html.IdFor(model => model.SearchSendManually)').val(),
-			SearchMaxSentTries: $('#@Html.IdFor(model => model.SearchMaxSentTries)').val()
-        });
-	}*@
-    // TODO (ms) (core) Make this with class rules later.
-    //function onRowDataBound(e) {
-    //  if (e.dataItem.SentOn)
-    //      $(e.row).find('td').wrapInner('<span class="muted" />');
-    //}
 </script>

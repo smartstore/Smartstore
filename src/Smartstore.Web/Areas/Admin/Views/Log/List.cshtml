@@ -22,32 +22,3 @@
 </form>
 
 <partial name="_Grid.Logs" model="null" />
-
-<script sm-target-zone="scripts" data-origin="logs-list">
-    @*function onDataBinding(command) {
-        $.extend(command, {
-            CreatedOnFrom: $('#@Html.IdFor(model => model.CreatedOnFrom)').val(),
-            CreatedOnTo: $('#@Html.IdFor(model => model.CreatedOnTo)').val(),
-            Logger: $('#@Html.IdFor(model => model.Logger)').val(),
-            Message: $('#@Html.IdFor(model => model.Message)').val(),
-            LogLevelId: $('#@Html.IdFor(model => model.LogLevelId)').val()
-        });
-    }
-
-    $(function() {
-        $('#btnSearch').on("click", e => {
-            e.preventDefault();
-            var grid = window["log-grid"];
-            grid.paging.pageIndex = 1;
-            return false;
-        });
-
-        $("#@Html.IdFor(x => x.Message), #@Html.IdFor(x => x.Logger)").on("keydown", event => {
-            if (event.keyCode == 13) {
-                // On enter key pressed - submit/return form.
-                $("#btnSearch").click();
-                return false;
-            }
-        });
-    });*@
-</script>
