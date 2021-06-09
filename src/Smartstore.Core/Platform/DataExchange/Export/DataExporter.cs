@@ -163,7 +163,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             // The export directory is the "Content" subfolder. ZIP and LOG file are in the parent folder.
             var dir = await _exportProfileService.GetExportDirectoryAsync(profile, "Content", true);
-            var logFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, "log.txt"));
+            var logFile = await dir.Parent.GetFileAsync("log.txt");
 
             using (await AsyncLock.KeyedAsync(lockKey, null, cancelToken))
             using (var logger = new TraceLogger(logFile, false))
@@ -172,7 +172,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     ctx.Log = ctx.ExecuteContext.Log = logger;
                     ctx.ExportDirectory = ctx.ExecuteContext.ExportDirectory = dir;
-                    ctx.ZipFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, dir.Parent.Name.ToValidFileName() + ".zip"));
+                    ctx.ZipFile = await dir.Parent.GetFileAsync(dir.Parent.Name.ToValidFileName() + ".zip");
 
                     if (request?.Provider?.Value?.FileExtension?.HasValue() ?? false)
                     {
@@ -440,7 +440,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     context.FileIndex += 1;
                     context.FileName = profile.ResolveFileNamePattern(ctx.Store, context.FileIndex, context.MaxFileNameLength) + fileExtension;
-                    file = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.SubPath, context.FileName));
+                    file = await dir.GetFileAsync(context.FileName); 
 
                     if (profile.ExportRelatedData && ctx.Supports(ExportFeatures.UsesRelatedDataUnits))
                     {
@@ -482,7 +482,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                     var success = true;
                     var file = dataUnit.FileName.HasValue()
-                        ? await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.SubPath, dataUnit.FileName))
+                        ? await dir.GetFileAsync(dataUnit.FileName)
                         : null;
 
                     if (!dataUnit.RelatedType.HasValue)

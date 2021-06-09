@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -35,6 +36,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly ILocalizationService _localizationService;
         private readonly IUrlHelper _urlHelper;
         private readonly ITaskStore _taskStore;
+        private readonly IProviderManager _providerManager;
         private readonly DataExchangeSettings _dataExchangeSettings;
 
         public ExportProfileService(
@@ -44,6 +46,7 @@ namespace Smartstore.Core.DataExchange.Export
             ILocalizationService localizationService,
             IUrlHelper urlHelper,
             ITaskStore taskStore,
+            IProviderManager providerManager,
             DataExchangeSettings dataExchangeSettings)
         {
             _db = db;
@@ -52,6 +55,7 @@ namespace Smartstore.Core.DataExchange.Export
             _localizationService = localizationService;
             _urlHelper = urlHelper;
             _taskStore = taskStore;
+            _providerManager = providerManager;
             _dataExchangeSettings = dataExchangeSettings;
         }
 
@@ -379,6 +383,15 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 directory.FileSystem.ClearDirectory(directory, true, TimeSpan.Zero);
             }
+        }
+
+        public virtual IEnumerable<Provider<IExportProvider>> LoadAllExportProviders(int storeId = 0, bool includeHidden = true)
+        {
+            var allProviders = _providerManager.GetAllProviders<IExportProvider>(storeId)
+                .Where(x => x.Value != null && (includeHidden || !x.Metadata.IsHidden))
+                .OrderBy(x => x.Metadata.FriendlyName);
+
+            return allProviders;
         }
     }
 }

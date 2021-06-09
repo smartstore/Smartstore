@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -9,8 +10,11 @@ using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
+using Smartstore.IO;
 using Smartstore.Scheduling;
+using Smartstore.Utilities;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
@@ -19,18 +23,15 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IExportProfileService _exportProfileService;
-        private readonly IProviderManager _providerManager;
         private readonly ITaskStore _taskStore;
 
         public ExportController(
             SmartDbContext db,
             IExportProfileService exportProfileService,
-            IProviderManager providerManager,
             ITaskStore taskStore)
         {
             _db = db;
             _exportProfileService = exportProfileService;
-            _providerManager = providerManager;
             _taskStore = taskStore;
         }
 
@@ -44,15 +45,13 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new List<ExportProfileModel>();
 
-            // TODO: (mg) (core) IExportProfileService.LoadAllExportProviders() should be implemented
-            var providers = _providerManager.GetAllProviders<IExportProvider>()
-                .Where(x => x.Value != null && !x.Metadata.IsHidden)
-                .OrderBy(x => x.Metadata.FriendlyName)
+            var providers = _exportProfileService.LoadAllExportProviders(0, false)
                 .ToDictionarySafe(x => x.Metadata.SystemName);
 
             var profiles = await _db.ExportProfiles
                 .AsNoTracking()
                 .Include(x => x.Task)
+                .Include(x => x.Deployments)
                 .OrderBy(x => x.IsSystemProfile).ThenBy(x => x.Name)
                 .ToListAsync();
 
@@ -67,9 +66,14 @@ namespace Smartstore.Admin.Controllers
                 if (providers.TryGetValue(profile.ProviderSystemName, out var provider))
                 {
                     var profileModel = new ExportProfileModel();
-                    lastExecutionInfos.TryGetValue(profile.TaskId, out var lastExecutionInfo);
 
-                    await PrepareProfileModel(profileModel, profile, provider, lastExecutionInfo);
+                    lastExecutionInfos.TryGetValue(profile.TaskId, out var lastExecutionInfo);
+                    await PrepareProfileModelForList(profileModel, profile, provider, lastExecutionInfo);
+
+                    var fileDetailsModel = await CreateFileDetailsModel(profile, null);
+                    profileModel.FileCount = fileDetailsModel.FileCount;
+
+                    // TODO: (mg) (core) add Task model.
 
                     model.Add(profileModel);
                 }
@@ -79,8 +83,8 @@ namespace Smartstore.Admin.Controllers
         }
 
         #region Utilities
-
-        private async Task PrepareProfileModel(
+        
+        private async Task PrepareProfileModelForList(
             ExportProfileModel model,
             ExportProfile profile,
             Provider<IExportProvider> provider,
@@ -88,8 +92,9 @@ namespace Smartstore.Admin.Controllers
         {
             MiniMapper.Map(profile, model);
 
-            var logFile = await _exportProfileService.GetLogFileAsync(profile);
-            var moduleDescriptor = provider.Metadata.ModuleDescriptor;
+            var dir = await _exportProfileService.GetExportDirectoryAsync(profile, null, false);
+            var logFile = await dir.GetFileAsync("log.txt");
+            //var moduleDescriptor = provider.Metadata.ModuleDescriptor;
 
             model.TaskName = profile.Task.Name.NaIfEmpty();
             model.IsTaskRunning = lastExecutionInfo?.IsRunning ?? false;
@@ -103,8 +108,8 @@ namespace Smartstore.Admin.Controllers
                 EntityType = provider.Value.EntityType,
                 EntityTypeName = await Services.Localization.GetLocalizedEnumAsync(provider.Value.EntityType),
                 FileExtension = provider.Value.FileExtension,
-                // TODO: (mg) (core) missing ModuleDescriptor properties.
-                //ThumbnailUrl = GetThumbnailUrl(provider)
+                ThumbnailUrl = GetThumbnailUrl(provider),
+                // TODO: (mg) (core) PluginMediator required in ExportController.
                 //FriendlyName = _pluginMediator.GetLocalizedFriendlyName(provider.Metadata),
                 //Description = _pluginMediator.GetLocalizedDescription(provider.Metadata),
                 //Url = descriptor?.Url,
@@ -113,6 +118,156 @@ namespace Smartstore.Admin.Controllers
             };
         }
 
+        private async Task<ExportFileDetailsModel> CreateFileDetailsModel(ExportProfile profile, ExportDeployment deployment)
+        {
+            var model = new ExportFileDetailsModel
+            {
+                Id = deployment?.Id ?? profile.Id,
+                IsForDeployment = deployment != null
+            };
+
+            try
+            {
+                // Add export files.
+                var dir = await _exportProfileService.GetExportDirectoryAsync(profile, "Content", false);
+                var zipFile = await dir.Parent.GetFileAsync(dir.Parent.Name.ToValidFileName() + ".zip");
+                var resultInfo = XmlHelper.Deserialize<DataExportResult>(profile.ResultInfo);
+
+                if (deployment == null)
+                {
+                    await AddFileInfo(model.ExportFiles, zipFile);
+
+                    if (resultInfo.Files != null)
+                    {
+                        foreach (var fi in resultInfo.Files)
+                        {
+                            await AddFileInfo(model.ExportFiles, await dir.GetFileAsync(fi.FileName), fi);
+                        }
+                    }
+                }
+                else if (deployment.DeploymentType == ExportDeploymentType.FileSystem)
+                {
+                    if (resultInfo.Files != null)
+                    {
+                        var deploymentDir = await _exportProfileService.GetDeploymentDirectoryAsync(deployment);
+                        if (deploymentDir != null)
+                        {
+                            foreach (var fi in resultInfo.Files)
+                            {
+                                await AddFileInfo(model.ExportFiles, await deploymentDir.GetFileAsync(fi.FileName), fi);
+                            }
+                        }
+                    }
+                }
+
+                // Add public files.
+                var publicDeployment = deployment == null
+                    ? profile.Deployments.FirstOrDefault(x => x.DeploymentType == ExportDeploymentType.PublicFolder)
+                    : (deployment.DeploymentType == ExportDeploymentType.PublicFolder ? deployment : null);
+
+                if (publicDeployment != null)
+                {
+                    var currentStore = Services.StoreContext.CurrentStore;
+                    var deploymentDir = await _exportProfileService.GetDeploymentDirectoryAsync(deployment);
+                    if (deploymentDir != null)
+                    {
+                        // INFO: public folder is not cleaned up during export. We only have to show files that has been created during last export.
+                        // Otherwise the merchant might publish URLs of old export files.
+                        if (profile.CreateZipArchive)
+                        {                          
+                            var url = await _exportProfileService.GetDeploymentDirectoryUrlAsync(publicDeployment, currentStore);
+                            await AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(zipFile.Name), null, url);
+                        }
+                        else if (resultInfo.Files != null)
+                        {
+                            var stores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
+                            foreach (var fi in resultInfo.Files)
+                            {
+                                stores.TryGetValue(fi.StoreId, out var store);
+                                
+                                var url = await _exportProfileService.GetDeploymentDirectoryUrlAsync(publicDeployment, store ?? currentStore);
+                                await AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(fi.FileName), fi, url, store);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return model;
+        }
+
+        private async Task AddFileInfo(
+            List<ExportFileDetailsModel.FileInfo> fileInfos,
+            IFile file,
+            DataExportResult.ExportFileInfo fileInfo = null,
+            string publicUrl = null,
+            Store store = null)
+        {
+            if (!(file?.Exists ?? false))
+                return;
+
+            if (fileInfos.Any(x => x.File.Name == file.Name))
+                return;
+
+            var fi = new ExportFileDetailsModel.FileInfo
+            {
+                File = file,
+                DisplayOrder = file.Extension.EqualsNoCase(".zip") ? 0 : 1
+            };
+
+            if (fileInfo != null)
+            {
+                fi.RelatedType = fileInfo.RelatedType;
+
+                if (fileInfo.Label.HasValue())
+                {
+                    fi.Label = fileInfo.Label;
+                }
+                else
+                {
+                    fi.Label = T("Admin.Common.Data");
+
+                    if (fileInfo.RelatedType.HasValue)
+                    {
+                        fi.Label += " " + await Services.Localization.GetLocalizedEnumAsync(fileInfo.RelatedType.Value);
+                    }
+                }
+            }
+
+            if (store != null)
+            {
+                fi.StoreId = store.Id;
+                fi.StoreName = store.Name;
+            }
+
+            if (publicUrl.HasValue())
+            {
+                fi.FileUrl = publicUrl + fi.File.Name;
+            }
+
+            fileInfos.Add(fi);
+        }
+
+        private string GetThumbnailUrl(Provider<IExportProvider> provider)
+        {
+            string url = null;
+
+            // TODO: (mg) (core) PluginMediator required in ExportController.
+            url = "http://demo.smartstore.com/backend/Administration/Content/images/icon-plugin-default.png";
+            //if (provider != null)
+            //    url = _pluginMediator.GetIconUrl(provider.Metadata);
+
+            //if (url.IsEmpty())
+            //    url = _pluginMediator.GetDefaultIconUrl(null);
+
+            //url = Url.Content(url);
+
+            return url;
+        }
 
         #endregion
     }

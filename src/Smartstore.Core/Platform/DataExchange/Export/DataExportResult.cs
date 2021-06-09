@@ -39,7 +39,7 @@ namespace Smartstore.Core.DataExchange.Export
             public int StoreId { get; set; }
 
             /// <summary>
-            /// Name of file.
+            /// Name of the export file including file extension, e.g. "1-7-0001-ordercsvexport.csv".
             /// </summary>
             public string FileName { get; set; }
 

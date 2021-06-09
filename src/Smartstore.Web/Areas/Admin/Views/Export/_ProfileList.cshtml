@@ -1,0 +1,25 @@
+﻿@using Smartstore.Admin.Models.Export
+
+@model IEnumerable<ExportProfileModel>
+
+@{
+    var hasProfiles = Model.Any();
+    var isSystemProfiles = (bool)ViewData["IsSystemProfile"];
+}
+
+<div class="mb-5">
+    <div class="heading">
+        <h5 class="heading-title">
+            @T(isSystemProfiles ? "Admin.DataExchange.Export.SystemProfilesTitle" : "Admin.DataExchange.Export.UserProfilesTitle")
+        </h5>
+    </div>
+	<div sm-if="!hasProfiles" class="alert alert-info">
+        @T("Admin.DataExchange.Export.NoProfiles")
+    </div>
+	<div sm-if="hasProfiles && isSystemProfiles" class="alert alert-info">
+		@Html.Raw(T("Admin.DataExchange.Export.SystemProfileNote"))
+	</div>
+    <div sm-if="hasProfiles" class="table-responsive">
+        TODO...
+    </div>
+</div>

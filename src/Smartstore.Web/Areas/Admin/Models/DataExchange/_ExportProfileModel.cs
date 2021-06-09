@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Localization;
+using Smartstore.IO;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Export
@@ -89,28 +89,23 @@ namespace Smartstore.Admin.Models.Export
         public string PrimaryStoreCurrencyCode { get; set; }
         public int FileCount { get; set; }
 
-        public List<SelectListItem> AvailableProviders { get; set; }
-        public List<SelectListItem> AvailableEmailAccounts { get; set; }
-        public MultiSelectList AvailableCompletedEmailAddresses { get; set; }
-        public List<ProviderSelectItem> AvailableProfiles { get; set; }
-
         [LocalizedDisplay("Admin.DataExchange.Export.")]
         public class ProviderModel
         {
             [LocalizedDisplay("Common.Image")]
             public string ThumbnailUrl { get; set; }
 
-            [LocalizedDisplay("Common.Website")]
-            public string Url { get; set; }
+            //[LocalizedDisplay("Common.Website")]
+            //public string Url { get; set; }
 
             [LocalizedDisplay("Common.Provider")]
             public string FriendlyName { get; set; }
 
-            [LocalizedDisplay("Admin.Configuration.Plugins.Fields.Author")]
-            public string Author { get; set; }
+            //[LocalizedDisplay("Admin.Configuration.Plugins.Fields.Author")]
+            //public string Author { get; set; }
 
-            [LocalizedDisplay("Admin.Configuration.Plugins.Fields.Version")]
-            public string Version { get; set; }
+            //[LocalizedDisplay("Admin.Configuration.Plugins.Fields.Version")]
+            //public string Version { get; set; }
 
             [LocalizedDisplay("Common.Description")]
             public string Description { get; set; }
@@ -160,8 +155,8 @@ namespace Smartstore.Admin.Models.Export
             }
         }
 
-        public List<FileInfo> ExportFiles { get; set; }
-        public List<FileInfo> PublicFiles { get; set; }
+        public List<FileInfo> ExportFiles { get; set; } = new();
+        public List<FileInfo> PublicFiles { get; set; } = new();
 
         public bool IsForDeployment { get; set; }
 
@@ -171,21 +166,17 @@ namespace Smartstore.Admin.Models.Export
             public string StoreName { get; set; }
             public string Label { get; set; }
             public int DisplayOrder { get; set; }
-
             public RelatedEntityType? RelatedType { get; set; }
 
-            public string FilePath { get; set; }
+            public IFile File { get; set; }
             public string FileUrl { get; set; }
             public string FriendlyFileUrl { get; set; }
-
-            public string FileName { get; set; }
-            public string FileExtension { get; set; }
 
             public string FileRootPath
             {
                 get
                 {
-                    // TODO: (mg) (core) complete ExportProfileModel.
+                    // TODO: (mg) (core) complete ExportProfileModel (FileRootPath required).
                     var rootPath = "";
                     //var appPath = HttpRuntime.AppDomainAppPath;
 

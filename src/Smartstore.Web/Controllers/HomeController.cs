@@ -40,6 +40,7 @@ using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data;
+using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
@@ -994,10 +995,15 @@ namespace Smartstore.Web.Controllers
             //    dir.FileSystem.ClearDirectory(dir, true, TimeSpan.Zero);
             //}
 
-            var zipPath = dir.FileSystem.PathCombine(dir.Parent.SubPath, dir.Parent.Name.ToValidFileName() + ".zip");
+            var zipName = dir.Parent.Name.ToValidFileName() + ".zip";
+            var zipPath = dir.FileSystem.PathCombine(dir.Parent.SubPath, zipName);
             var zipFile = await dir.FileSystem.GetFileAsync(zipPath);
-            content.AppendLine($"{zipFile.Exists} {zipFile.Name}: {zipPath} {zipFile.PhysicalPath}");
-            //System.IO.Compression.ZipFile.CreateFromDirectory(dir.PhysicalPath, zipFile.PhysicalPath, System.IO.Compression.CompressionLevel.Fastest, false);
+            content.AppendLine($"zipFile1: {zipFile.Exists} {zipFile.Name}: {zipFile.PhysicalPath}");
+            var zipFile2 = await dir.Parent.GetFileAsync(zipName);
+            content.AppendLine($"zipFile2: {zipFile2.Exists} {zipFile2.Name}: {zipFile2.PhysicalPath}");
+            content.AppendLine("--------------------------------------------------------------");
+            content.AppendLine("");
+
 
             var contentRoot = Services.ApplicationContext.ContentRoot;
             var webRoot = Services.ApplicationContext.WebRoot;

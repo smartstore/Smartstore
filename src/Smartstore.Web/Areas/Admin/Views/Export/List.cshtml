@@ -9,7 +9,7 @@
 
 <div class="section-header">
     <div class="title">
-        <i class="fa fa-list-alt"></i>
+        <i class="fa fa-upload"></i>
         <span>@T("Common.Export")</span>
     </div>
     <div class="options">
@@ -18,4 +18,9 @@
 			<span>@T("Admin.DataExchange.AddNewProfile")</span>
 		</a>
     </div>
+</div>
+
+<div id="ExportProfileListContainer">
+    @{ await Html.RenderPartialAsync("_ProfileList", Model.Where(x => !x.IsSystemProfile), new ViewDataDictionary(ViewData) { { "IsSystemProfile", false } }); }
+    @{ await Html.RenderPartialAsync("_ProfileList", Model.Where(x => x.IsSystemProfile), new ViewDataDictionary(ViewData) { { "IsSystemProfile", true } }); }
 </div>

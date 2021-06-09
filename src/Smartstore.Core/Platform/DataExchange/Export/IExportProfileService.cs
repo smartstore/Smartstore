@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
@@ -73,5 +74,13 @@ namespace Smartstore.Core.DataExchange.Export
         /// <param name="profile">Export profile.</param>
         /// <param name="force">A value indicating whether to delete system profiles.</param>
         Task DeleteExportProfileAsync(ExportProfile profile, bool force = false);
+
+        /// <summary>
+        /// Loads all export providers.
+        /// </summary>
+        /// <param name="storeId">Filter providers that are only active for the store specified by this identifier.</param>
+        /// <param name="includeHidden">A value indicating whether to include hidden providers.</param>
+        /// <returns>Export providers.</returns>
+        IEnumerable<Provider<IExportProvider>> LoadAllExportProviders(int storeId = 0, bool includeHidden = true);
     }
 }
