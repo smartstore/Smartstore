@@ -21,6 +21,7 @@
              attr-class='(item.Selected, "selected")' 
              data-id="@item.Id" 
              data-returnvalue="@item.ReturnValue">
+
             <div sm-if="item.ImageUrl.HasValue()" class="col-auto">
                 <div class="entpicker-thumb">
                     <div class="img-center-container">
@@ -40,8 +41,7 @@
                     <div class="text-truncate">
                         @if (item.Published.HasValue)
                         {
-                            <i class="published @(item.Published.Value ? "fa fa-globe" : "far fa-eye-slash") xicon-active-@item.Published.Value.ToString().ToLower()" 
-                               title="@T("Common." + (item.Published.Value ? "Published" : "Unpublished"))"></i>
+                            <i class="published @(item.Published.Value ? "fa fa-globe" : "far fa-eye-slash")" title="@T("Common." + (item.Published.Value ? "Published" : "Unpublished"))"></i>
                         }
                         <span class="summary" title="@item.SummaryTitle">@item.Summary</span>
                     </div>

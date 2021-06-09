@@ -64,10 +64,9 @@ namespace Smartstore.Web.Controllers
                     .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
                     .ToList();
 
-                ViewBag.AvailableStores = Services.StoreContext.GetAllStores()
-                    .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
-                    .ToList();
+                ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems(Array.Empty<int>());
 
+                // TODO: (mh) (core) Build the select list in the view by calling Html.GetLocalizedEnumSelectList()
                 ViewBag.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();
             }
             else if (model.EntityType.EqualsNoCase("customer"))
@@ -78,6 +77,7 @@ namespace Smartstore.Web.Controllers
                     new SelectListItem { Text = "Email", Value = "Email" }
                 };
 
+                // TODO: (mh) (core) Obtain via CustomerSettings.CustomerNumberMethod class property, not by setting key!
                 if (Services.Settings.GetSettingByKey<CustomerNumberMethod>("CustomerSettings.CustomerNumberMethod") != CustomerNumberMethod.Disabled)
                 {
                     ViewBag.AvailableCustomerSearchTypes.Add(new SelectListItem { Text = T("Account.Fields.CustomerNumber"), Value = "CustomerNumber" });
@@ -100,6 +100,8 @@ namespace Smartstore.Web.Controllers
                 var selected = model.Selected.SplitSafe(",");
                 var returnSku = model.ReturnField.EqualsNoCase("sku");
 
+                // TODO: (mh) (core) Where is DbContextScope?
+
                 if (model.EntityType.EqualsNoCase("product"))
                 {
                     model.SearchTerm = model.SearchTerm.TrimSafe();
@@ -107,8 +109,8 @@ namespace Smartstore.Web.Controllers
                     var hasPermission = await Services.Permissions.AuthorizeAsync(Permissions.Catalog.Product.Read);
                     var disableIfNotSimpleProduct = disableIf.Contains("notsimpleproduct");
                     var disableIfGroupedProduct = disableIf.Contains("groupedproduct");
-                    var labelTextGrouped = T("Admin.Catalog.Products.ProductType.GroupedProduct.Label");
-                    var labelTextBundled = T("Admin.Catalog.Products.ProductType.BundledProduct.Label");
+                    var labelTextGrouped = T("Admin.Catalog.Products.ProductType.GroupedProduct.Label").Value;
+                    var labelTextBundled = T("Admin.Catalog.Products.ProductType.BundledProduct.Label").Value;
                     var sku = T("Products.Sku");
 
                     var fields = new List<string> { "name" };
@@ -172,9 +174,9 @@ namespace Smartstore.Web.Controllers
                     }
                     else
                     {
-                        var query = _catalogSearchService.PrepareQuery(searchQuery);
+                        var query = _catalogSearchService.PrepareQuery(searchQuery).AsNoTracking();
 
-                        products = query
+                        products = await query
                             .Select(x => new EntityPickerProduct
                             {
                                 Id = x.Id,
@@ -187,7 +189,7 @@ namespace Smartstore.Web.Controllers
                             .OrderBy(x => x.Name)
                             .Skip(skip)
                             .Take(model.PageSize)
-                            .ToList();
+                            .ToListAsync();
                     }
 
                     var fileIds = products
@@ -247,10 +249,17 @@ namespace Smartstore.Web.Controllers
                 }
                 else if (model.EntityType.EqualsNoCase("category"))
                 {
-                    var categories = await _db.Categories
+                    var categoryQuery = _db.Categories
+                        .AsNoTracking()
                         .ApplyStandardFilter(includeHidden: true)
-                        .Where(c => c.Name.Contains(model.SearchTerm) || c.FullName.Contains(model.SearchTerm))
-                        .ToListAsync();
+                        .AsQueryable();
+
+                    if (model.SearchTerm.HasValue())
+                    {
+                        categoryQuery = categoryQuery.Where(c => c.Name.Contains(model.SearchTerm) || c.FullName.Contains(model.SearchTerm));
+                    }
+
+                    var categories = await categoryQuery.ToListAsync();
                     
                     var fileIds = categories
                         .Select(x => x.MediaFileId ?? 0)
@@ -291,9 +300,10 @@ namespace Smartstore.Web.Controllers
                 else if (model.EntityType.EqualsNoCase("manufacturer"))
                 {
                     var manufacturers = await _db.Manufacturers
+                        .AsNoTracking()
                         .ApplyStandardFilter(includeHidden: true)
+                        .Where(c => c.Name.Contains(model.SearchTerm)) // TODO: (mh) (core) See above. Can be null or empty.
                         .ApplyPaging(model.PageIndex, model.PageSize)
-                        .Where(c => c.Name.Contains(model.SearchTerm))
                         .ToListAsync();
 
                     var fileIds = manufacturers
@@ -326,10 +336,9 @@ namespace Smartstore.Web.Controllers
                 }
                 else if (model.EntityType.EqualsNoCase("customer"))
                 {
-                    var registeredRole = _db.CustomerRoles
+                    var registeredRole = await _db.CustomerRoles
                         .AsNoTracking()
-                        .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
-                        .FirstOrDefault();
+                        .FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);
 
                     var registeredRoleId = registeredRole.Id;
                     var searchTermName = string.Empty;
@@ -350,7 +359,8 @@ namespace Smartstore.Web.Controllers
                     }
 
                     var customers = await _db.Customers
-                        .ApplySearchTermFilter(searchTermName)
+                        .AsNoTracking()
+                        .ApplySearchTermFilter(searchTermName) // TODO: (mh) (core) See above. Can be null or empty.
                         .ApplyIdentFilter(searchTermEmail, searchTermEmail, searchTermCustomerNumber)
                         .ApplyRolesFilter(new[] { registeredRoleId })
                         .ApplyPaging(model.PageIndex, model.PageSize)

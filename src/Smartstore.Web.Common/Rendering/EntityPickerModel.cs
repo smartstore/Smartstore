@@ -67,7 +67,7 @@ namespace Smartstore.Web.Rendering
         public int? MainPictureId { get; set; }
     }
 
-    public class EntityPickerConfigModel
+    public class EntityPickerConfigurationModel
     {
         public string EntityType { get; set; }
         public string TargetInputSelector { get; set; }

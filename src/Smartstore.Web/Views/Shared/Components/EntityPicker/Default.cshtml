@@ -1,9 +1,20 @@
 ﻿@using Smartstore.Utilities
 
-@model EntityPickerConfigModel
+@model EntityPickerConfigurationModel
 
 @{
     var buttonId = "entpicker-toggle-" + CommonHelper.GenerateRandomInteger();
+
+    var options = new
+    {
+        entityType = Model.EntityType,
+        url = Model.DialogUrl,
+        onDialogLoading = Model.OnDialogLoadingHandlerName,
+        onDialogLoaded = Model.OnDialogLoadedHandlerName,
+        onSelectionCompleted = Model.OnSelectionCompletedHandlerName,
+        // TODO: (mh) (core) Continue building options object. Pass it to entityPicker jQuery plugin by calling JsonConvert.Serialize(). 
+        // Configure the JSON settings in a way that null values are ignored. But don't do it here (see comment in corresponding TagHelper).
+    };
 }
 
 <button id="@buttonId" type="button" class="btn btn-secondary">

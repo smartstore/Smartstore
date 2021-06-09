@@ -8,6 +8,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("entity-picker", TagStructure = TagStructure.WithoutEndTag)]
     public class EntityPickerTagHelper : BaseFormTagHelper
     {
+        // TODO: (mh) (core) Move to Admin namespace.
         const string EntityTypeAttributeName = "entity-type";
         const string TargetInputSelectorAttributeName = "target-input-selector";
         const string CaptionAttributeName = "caption";
@@ -23,9 +24,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string AppendModeAttributeName = "append-mode";
         const string DelimiterAttributeName = "delimiter";
         const string FieldNameAttributeName = "field-name";
-        const string OnDialogLoadingAttributeName = "on-dialog-loading-handler";
-        const string OnDialogLoadedAttributeName = "on-dialog-loaded-handler";
-        const string OnSelectionCompletedAttributeName = "on-selection-completed-handler";
+        const string OnDialogLoadingAttributeName = "ondialogloading";
+        const string OnDialogLoadedAttributeName = "ondialogloaded";
+        const string OnSelectionCompletedAttributeName = "onselectioncompleted";
 
         /// <summary>
         /// Sets the entity type which shall be picked. Default = "product"
@@ -34,7 +35,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string EntityType { get; set; } = "product";
 
         // TODO: (mh) (core) Remove comment after review. 
-        // INFO: LanguageId was removed because it was never handeled and thus never used in classic code.
+        // INFO: LanguageId was removed because it was never handelled and thus never used in classic code.
         // Also it doesn't make sense setting the language for this control explicitly
 
         /// <summary>
@@ -74,7 +75,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public bool DisableBundleProducts { get; set; }
 
         /// <summary>
-        /// Whether to disable search for bundled products.
+        /// The ids of disabled entities.
         /// </summary>
         [HtmlAttributeName(DisabledEntityIdsAttributeName)]
         public int[] DisabledEntityIds { get; set; }
@@ -111,9 +112,12 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
+            // TODO: (mh) (core) Don't suppress output, BUILD output here (instead of relying on a view component).
+            // It's just a button and a tiny script.
+            
             output.SuppressOutput();
 
-            var model = new EntityPickerConfigModel
+            var model = new EntityPickerConfigurationModel
             {
                 AppendMode = AppendMode,
                 Caption = Caption,

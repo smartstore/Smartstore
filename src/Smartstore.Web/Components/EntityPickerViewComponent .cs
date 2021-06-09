@@ -12,7 +12,7 @@ namespace Smartstore.Web.Components
             _urlHelper = urlHelper;
         }
 
-        public IViewComponentResult Invoke(EntityPickerConfigModel model)
+        public IViewComponentResult Invoke(EntityPickerConfigurationModel model)
         {
             if (model == null)
             {

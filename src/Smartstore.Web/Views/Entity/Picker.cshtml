@@ -1,13 +1,18 @@
 ﻿@model EntityPickerModel
-@*TODO: (mh) (core) Remove comment after review*@
-@*INFO: Couldn't work with <dialog> here because Taghelper wasn't resolved via AJAX-request & EntityPicker comes with own modal-content & modal-body classes*@
+
+@{ 
+    // TODO: (mh) (core) Remove comment after review
+    // INFO: Couldn't work with <dialog> here because Taghelper wasn't resolved via AJAX-request & EntityPicker comes with own modal-content & modal - body classes
+        // RE: TBD with MC, we have to look into this. 
+}
+
 <div id="entpicker-@(Model.EntityType)-dialog" class="modal fade entpicker" role="dialog" aria-hidden="true" tabindex="-1">
     <div class="modal-dialog modal-flex" role="document">
         <form class="modal-content" method="POST" action="@Url.Action("Picker", "Entity", new { area = "" })">
             <div class="modal-header flex-wrap">
                 <h5 class="modal-title align-self-center">&nbsp;</h5>
 
-                <input type="hidden" name="EntityType" value="@Model.EntityType" />
+                <input type="hidden" asp-for="EntityType" /> @* TODO: (mh) (core) Continue asp-for="..." *@
                 <input type="hidden" name="HighligtSearchTerm" value="@Model.HighlightSearchTerm.ToString()" />
                 <input type="hidden" name="ReturnField" value="@Model.ReturnField" />
                 <input type="hidden" name="MaxItems" value="@Model.MaxItems" />
@@ -39,7 +44,7 @@
     </div>
 </div>
 
-@*INFO: (mh) (core) No sm-target-zone here, because this partials is loaded via AJAX*@
+@*INFO: (mh) (core) No sm-target-zone here, because this partials is loaded via AJAX (RE: but should run anyway. The TagHelper skips re-injection in AJAX requests)*@
 <script>
     $(function () {
         $('#entpicker-@(Model.EntityType)-dialog').entityPicker('initDialog');
@@ -62,7 +67,7 @@
                 }
 
                 <div class="input-group">
-                    <input asp-for="SearchTerm" class="entpicker-searchterm" placeholder="@T("Search.SearchTerm")" />
+                    <input asp-for="SearchTerm" class="entpicker-searchterm" placeholder="@Html.DisplayNameFor(x => x.SearchTerm)" />
                     <span class="input-group-append">
                         <button type="button" class="btn btn-warning" name="SearchEntities" data-loading-text="@(T("Common.Loading"))&hellip;" title="@T("Admin.Common.Search")">
                             <i class="fa fa-search"></i>
