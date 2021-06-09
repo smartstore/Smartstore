@@ -1,10 +1,6 @@
-﻿@model EntityPickerModel
+﻿@using Smartstore.Core.Catalog.Products
 
-@{ 
-    // TODO: (mh) (core) Remove comment after review
-    // INFO: Couldn't work with <dialog> here because Taghelper wasn't resolved via AJAX-request & EntityPicker comes with own modal-content & modal - body classes
-        // RE: TBD with MC, we have to look into this. 
-}
+@model EntityPickerModel
 
 <div id="entpicker-@(Model.EntityType)-dialog" class="modal fade entpicker" role="dialog" aria-hidden="true" tabindex="-1">
     <div class="modal-dialog modal-flex" role="document">
@@ -12,22 +8,21 @@
             <div class="modal-header flex-wrap">
                 <h5 class="modal-title align-self-center">&nbsp;</h5>
 
-                <input type="hidden" asp-for="EntityType" /> @* TODO: (mh) (core) Continue asp-for="..." *@
-                <input type="hidden" name="HighligtSearchTerm" value="@Model.HighlightSearchTerm.ToString()" />
-                <input type="hidden" name="ReturnField" value="@Model.ReturnField" />
-                <input type="hidden" name="MaxItems" value="@Model.MaxItems" />
-                <input type="hidden" name="Selected" value="@Model.Selected" />
-                <input type="hidden" name="DisableIf" value="@Model.DisableIf" />
-                <input type="hidden" name="DisableIds" value="@Model.DisableIds" />
-                <input type="hidden" name="PageIndex" value="@Model.PageIndex" />
-                <input type="hidden" name="LanguageId" value="@Model.LanguageId" />
+                <input type="hidden" asp-for="EntityType" />
+                <input type="hidden" asp-for="HighlightSearchTerm" />
+                <input type="hidden" asp-for="ReturnField" />
+                <input type="hidden" asp-for="MaxItems" />
+                <input type="hidden" asp-for="Selected" />
+                <input type="hidden" asp-for="DisableIf" />
+                <input type="hidden" asp-for="DisableIds" />
+                <input type="hidden" asp-for="PageIndex" />
 
                 @{ await EntitySearchFormAsync(); }
 
             </div>
             <div class="modal-body">
                 <div class="entpicker-list row px-2">
-                    @* Items per AJAX *@
+                     Items per AJAX 
                 </div>
             </div>
             <div class="modal-footer">
@@ -44,7 +39,6 @@
     </div>
 </div>
 
-@*INFO: (mh) (core) No sm-target-zone here, because this partials is loaded via AJAX (RE: but should run anyway. The TagHelper skips re-injection in AJAX requests)*@
 <script>
     $(function () {
         $('#entpicker-@(Model.EntityType)-dialog').entityPicker('initDialog');
@@ -67,7 +61,7 @@
                 }
 
                 <div class="input-group">
-                    <input asp-for="SearchTerm" class="entpicker-searchterm" placeholder="@Html.DisplayNameFor(x => x.SearchTerm)" />
+                    <input asp-for="SearchTerm" class="entpicker-searchterm" placeholder="@T("Search.SearchTerm")" />
                     <span class="input-group-append">
                         <button type="button" class="btn btn-warning" name="SearchEntities" data-loading-text="@(T("Common.Loading"))&hellip;" title="@T("Admin.Common.Search")">
                             <i class="fa fa-search"></i>
@@ -86,7 +80,7 @@
             var availableCategories = (IEnumerable<SelectListItem>)ViewBag.AvailableCategories;
             var availableManufacturers = (IEnumerable<SelectListItem>)ViewBag.AvailableManufacturers;
             var availableStores = (IEnumerable<SelectListItem>)ViewBag.AvailableStores;
-            var availableProductTypes = (IEnumerable<SelectListItem>)ViewBag.AvailableProductTypes;
+            var availableProductTypes = Html.GetLocalizedEnumSelectList(typeof(ProductType));
 
             <div class="entpicker-filter form-row xs-gutters w-100 pt-2" style="display: none">
                 <div class="form-group col mb-0">

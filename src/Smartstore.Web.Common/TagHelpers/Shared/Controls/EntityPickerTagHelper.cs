@@ -1,14 +1,18 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Newtonsoft.Json;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Widgets;
-using Smartstore.Web.Rendering;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    [OutputElementHint("button")]
     [HtmlTargetElement("entity-picker", TagStructure = TagStructure.WithoutEndTag)]
     public class EntityPickerTagHelper : BaseFormTagHelper
     {
-        // TODO: (mh) (core) Move to Admin namespace.
         const string EntityTypeAttributeName = "entity-type";
         const string TargetInputSelectorAttributeName = "target-input-selector";
         const string CaptionAttributeName = "caption";
@@ -28,15 +32,20 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string OnDialogLoadedAttributeName = "ondialogloaded";
         const string OnSelectionCompletedAttributeName = "onselectioncompleted";
 
+        private readonly IWidgetProvider _widgetProvider;
+        private readonly IUrlHelper _urlHelper;
+
+        public EntityPickerTagHelper(IWidgetProvider widgetProvider, IUrlHelper urlHelper)
+        {
+            _widgetProvider = widgetProvider;
+            _urlHelper = urlHelper;
+        }
+
         /// <summary>
         /// Sets the entity type which shall be picked. Default = "product"
         /// </summary>
         [HtmlAttributeName(EntityTypeAttributeName)]
         public string EntityType { get; set; } = "product";
-
-        // TODO: (mh) (core) Remove comment after review. 
-        // INFO: LanguageId was removed because it was never handelled and thus never used in classic code.
-        // Also it doesn't make sense setting the language for this control explicitly
 
         /// <summary>
         /// Sets the target input selector.
@@ -80,6 +89,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(DisabledEntityIdsAttributeName)]
         public int[] DisabledEntityIds { get; set; }
 
+
+        // TODO: (mh) (core) Check & add doku from here.
+
+        /// <summary>
+        /// The ids of selected entities. 
+        /// </summary>
         [HtmlAttributeName(SelectedAttributeName)]
         public string[] Selected { get; set; }
 
@@ -110,46 +125,68 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(OnSelectionCompletedAttributeName)]
         public string OnSelectionCompletedHandler { get; set; }
 
-        protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
+        protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
-            // TODO: (mh) (core) Don't suppress output, BUILD output here (instead of relying on a view component).
-            // It's just a button and a tiny script.
-            
-            output.SuppressOutput();
-
-            var model = new EntityPickerConfigurationModel
-            {
-                AppendMode = AppendMode,
-                Caption = Caption,
-                Delimiter = Delimiter,
-                DialogTitle = DialogTitle,
-                DisableBundleProducts = DisableBundleProducts,
-                DisabledEntityIds = DisabledEntityIds,
-                DisableGroupedProducts = DisableGroupedProducts,
-                EnableThumbZoomer = EnableThumbZoomer,
-                EntityType = EntityType,
-                FieldName = FieldName,
-                HighlightSearchTerm = HighlightSearchTerm,
-                IconCssClass = IconCssClass,
-                MaxItems = MaxItems,
-                OnDialogLoadedHandlerName = OnDialogLoadedHandler,
-                OnDialogLoadingHandlerName = OnDialogLoadingHandler,
-                OnSelectionCompletedHandlerName = OnSelectionCompletedHandler,
-                Selected = Selected,
-                TargetInputSelector = TargetInputSelector
-            };
-
             if (For != null)
             {
                 TargetInputSelector = "#" + HtmlHelper.GenerateIdFromName(For.Name);
             }
 
-            var widget = new ComponentWidgetInvoker("EntityPicker", new { model });
-            var partial = await widget.InvokeAsync(ViewContext);
+            var options = new
+            {
+                entityType = EntityType,
+                url = _urlHelper.Action("Picker", "Entity", new { area = "" }),
+                caption =  HtmlHelper.Encode(DialogTitle.NullEmpty() ?? Caption),
+                disableIf = DisableGroupedProducts ? "groupedproduct" : (DisableBundleProducts ? "notsimpleproduct" : null),
+                disableIds = DisabledEntityIds == null ? null : string.Join(",", DisabledEntityIds),
+                thumbZoomer = EnableThumbZoomer,
+                highligtSearchTerm = HighlightSearchTerm,
+                returnField = FieldName,
+                delim = Delimiter,
+                targetInput = TargetInputSelector.HasValue() ? $"'{TargetInputSelector}'" : null,
+                selected = Selected != null && Selected.Length > 0 ? $"[{string.Join(Delimiter, Selected)}]" : null,
+                appendMode = AppendMode,
+                maxItems = MaxItems,
+                onDialogLoading = OnDialogLoadingHandler,
+                onDialogLoaded = OnDialogLoadedHandler,
+                onSelectionCompleted = OnSelectionCompletedHandler
+            };
+
+            var buttonId = "entpicker-toggle-" + CommonHelper.GenerateRandomInteger();
+
+            var toogleButton = new TagBuilder("button");
+            toogleButton.Attributes.Add("id", buttonId);
+            toogleButton.Attributes.Add("type", "button");
+            toogleButton.AddCssClass("btn btn-secondary");
+
+            if (IconCssClass.HasValue())
+            {
+                toogleButton.InnerHtml.AppendHtml($"<i class='{ IconCssClass }'></i>");
+            }
+
+            if (Caption.HasValue())
+            {
+                toogleButton.InnerHtml.AppendHtml($"<span>{ Caption }</span>");
+            }
 
             output.TagMode = TagMode.StartTagAndEndTag;
-            output.TagName = null;
-            output.Content.SetHtmlContent(partial);
+            output.Content.AppendHtml(toogleButton);
+
+            var json = JsonConvert.SerializeObject(options, new JsonSerializerSettings
+            {
+                ContractResolver = SmartContractResolver.Instance,
+                Formatting = Formatting.None,
+                NullValueHandling = NullValueHandling.Ignore
+            });
+
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            sb.Append("<script data-origin='EntityPicker'>");
+            sb.Append("$(function () { $('#" + buttonId + "').entityPicker(");
+            sb.Append(json);
+            sb.Append("); });");
+            sb.Append("</script>");
+
+            _widgetProvider.RegisterHtml("scripts", new HtmlString(sb.ToString()));
         }
     }
 }

@@ -16,7 +16,6 @@ namespace Smartstore.Web.Rendering
         public string Selected { get; set; }
         public int PageIndex { get; set; }
         public int PageSize { get; set; } = 96;
-        public int LanguageId { get; set; }
 
         public List<SearchResultModel> SearchResult { get; set; }
 
@@ -65,34 +64,5 @@ namespace Smartstore.Web.Rendering
         public bool Published { get; set; }
         public int ProductTypeId { get; set; }
         public int? MainPictureId { get; set; }
-    }
-
-    public class EntityPickerConfigurationModel
-    {
-        public string EntityType { get; set; }
-        public string TargetInputSelector { get; set; }
-
-        public string Caption { get; set; }
-        public string IconCssClass { get; set; }
-
-        public string DialogTitle { get; set; }
-        public string DialogUrl { get; set; }
-
-        public bool DisableGroupedProducts { get; set; }
-        public bool DisableBundleProducts { get; set; }
-        public int[] DisabledEntityIds { get; set; }
-        public string[] Selected { get; set; }
-
-        public bool EnableThumbZoomer { get; set; }
-        public bool HighlightSearchTerm { get; set; }
-
-        public int MaxItems { get; set; }
-        public bool AppendMode { get; set; }
-        public string Delimiter { get; set; }
-        public string FieldName { get; set; }
-
-        public string OnDialogLoadingHandlerName { get; set; }
-        public string OnDialogLoadedHandlerName { get; set; }
-        public string OnSelectionCompletedHandlerName { get; set; }
     }
 }

@@ -15,6 +15,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Data;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Controllers
@@ -26,6 +27,7 @@ namespace Smartstore.Web.Controllers
         private readonly CatalogSettings _catalogSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly SearchSettings _searchSettings;
+        private readonly CustomerSettings _customerSettings;
         private readonly IMediaService _mediaService;
         private readonly ICategoryService _categoryService;
 
@@ -35,6 +37,7 @@ namespace Smartstore.Web.Controllers
             CatalogSettings catalogSettings,
             MediaSettings mediaSettings,
             SearchSettings searchSettings,
+            CustomerSettings customerSettings,
             IMediaService mediaService,
             ICategoryService categoryService)
         {
@@ -43,6 +46,7 @@ namespace Smartstore.Web.Controllers
             _catalogSettings = catalogSettings;
             _mediaSettings = mediaSettings;
             _searchSettings = searchSettings;
+            _customerSettings = customerSettings;
             _mediaService = mediaService;
             _categoryService = categoryService;
         }
@@ -65,9 +69,6 @@ namespace Smartstore.Web.Controllers
                     .ToList();
 
                 ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems(Array.Empty<int>());
-
-                // TODO: (mh) (core) Build the select list in the view by calling Html.GetLocalizedEnumSelectList()
-                ViewBag.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();
             }
             else if (model.EntityType.EqualsNoCase("customer"))
             {
@@ -77,8 +78,7 @@ namespace Smartstore.Web.Controllers
                     new SelectListItem { Text = "Email", Value = "Email" }
                 };
 
-                // TODO: (mh) (core) Obtain via CustomerSettings.CustomerNumberMethod class property, not by setting key!
-                if (Services.Settings.GetSettingByKey<CustomerNumberMethod>("CustomerSettings.CustomerNumberMethod") != CustomerNumberMethod.Disabled)
+                if (_customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
                 {
                     ViewBag.AvailableCustomerSearchTypes.Add(new SelectListItem { Text = T("Account.Fields.CustomerNumber"), Value = "CustomerNumber" });
                 }
@@ -94,14 +94,12 @@ namespace Smartstore.Web.Controllers
             try
             {
                 var form = Request.Form;
-                var languageId = model.LanguageId == 0 ? Services.WorkContext.WorkingLanguage.Id : model.LanguageId;
                 var disableIf = model.DisableIf.SplitSafe(",").Select(x => x.ToLower().Trim()).ToList();
                 var disableIds = model.DisableIds.SplitSafe(",").Select(x => x.ToInt()).ToList();
                 var selected = model.Selected.SplitSafe(",");
                 var returnSku = model.ReturnField.EqualsNoCase("sku");
 
-                // TODO: (mh) (core) Where is DbContextScope?
-
+                using var scope = new DbContextScope(Services.DbContext, autoDetectChanges: false, forceNoTracking: true);
                 if (model.EntityType.EqualsNoCase("product"))
                 {
                     model.SearchTerm = model.SearchTerm.TrimSafe();
@@ -117,12 +115,12 @@ namespace Smartstore.Web.Controllers
                     if (_searchSettings.SearchFields.Contains("sku"))
                     {
                         fields.Add("sku");
-                    }    
+                    }
                     if (_searchSettings.SearchFields.Contains("shortdescription"))
                     {
                         fields.Add("shortdescription");
                     }
-                        
+
                     var searchQuery = new CatalogSearchQuery(fields.ToArray(), model.SearchTerm)
                         .HasStoreId(model.StoreId);
 
@@ -260,7 +258,7 @@ namespace Smartstore.Web.Controllers
                     }
 
                     var categories = await categoryQuery.ToListAsync();
-                    
+
                     var fileIds = categories
                         .Select(x => x.MediaFileId ?? 0)
                         .Where(x => x != 0)
@@ -272,7 +270,7 @@ namespace Smartstore.Web.Controllers
                     model.SearchResult = await categories
                         .SelectAsync(async x =>
                         {
-                            var path = await _categoryService.GetCategoryPathAsync(x, languageId, "({0})");
+                            var path = await _categoryService.GetCategoryPathAsync(x, Services.WorkContext.WorkingLanguage.Id, "({0})");
                             var item = new EntityPickerModel.SearchResultModel
                             {
                                 Id = x.Id,
@@ -299,10 +297,17 @@ namespace Smartstore.Web.Controllers
                 }
                 else if (model.EntityType.EqualsNoCase("manufacturer"))
                 {
-                    var manufacturers = await _db.Manufacturers
+                    var manufacturerQuery = _db.Manufacturers
                         .AsNoTracking()
                         .ApplyStandardFilter(includeHidden: true)
-                        .Where(c => c.Name.Contains(model.SearchTerm)) // TODO: (mh) (core) See above. Can be null or empty.
+                        .AsQueryable();
+
+                    if (model.SearchTerm.HasValue())
+                    {
+                        manufacturerQuery = manufacturerQuery.Where(c => c.Name.Contains(model.SearchTerm));
+                    }
+
+                    var manufacturers = await manufacturerQuery
                         .ApplyPaging(model.PageIndex, model.PageSize)
                         .ToListAsync();
 
@@ -341,27 +346,28 @@ namespace Smartstore.Web.Controllers
                         .FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);
 
                     var registeredRoleId = registeredRole.Id;
-                    var searchTermName = string.Empty;
-                    var searchTermEmail = string.Empty;
-                    var searchTermCustomerNumber = string.Empty;
 
-                    if (model.CustomerSearchType.EqualsNoCase("Name"))
-                    {
-                        searchTermName = model.SearchTerm;
-                    }
-                    else if (model.CustomerSearchType.EqualsNoCase("Email"))
-                    {
-                        searchTermEmail = model.SearchTerm;
-                    }
-                    else if (model.CustomerSearchType.EqualsNoCase("CustomerNumber"))
-                    {
-                        searchTermCustomerNumber = model.SearchTerm;
-                    }
-
-                    var customers = await _db.Customers
+                    var customerQuery = _db.Customers
                         .AsNoTracking()
-                        .ApplySearchTermFilter(searchTermName) // TODO: (mh) (core) See above. Can be null or empty.
-                        .ApplyIdentFilter(searchTermEmail, searchTermEmail, searchTermCustomerNumber)
+                        .AsQueryable();
+
+                    if (model.SearchTerm.HasValue())
+                    {
+                        if (model.CustomerSearchType.EqualsNoCase("Name"))
+                        {
+                            customerQuery = customerQuery.ApplySearchTermFilter(model.SearchTerm);
+                        }
+                        else if (model.CustomerSearchType.EqualsNoCase("Email"))
+                        {
+                            customerQuery = customerQuery.ApplyIdentFilter(email: model.SearchTerm, userName: model.SearchTerm);
+                        }
+                        else if (model.CustomerSearchType.EqualsNoCase("CustomerNumber"))
+                        {
+                            customerQuery = customerQuery.ApplyIdentFilter(customerNumber: model.SearchTerm);
+                        }
+                    }
+
+                    var customers = await customerQuery
                         .ApplyRolesFilter(new[] { registeredRoleId })
                         .ApplyPaging(model.PageIndex, model.PageSize)
                         .ToListAsync();
