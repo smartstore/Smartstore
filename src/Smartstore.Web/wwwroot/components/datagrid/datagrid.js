@@ -410,7 +410,7 @@ Vue.component("sm-datagrid", {
         // Read data from server.
         // Process initial read after a short delay, because something's wrong with numSearchFilters
         // if we call immediately.
-        window.setTimeout(() => { this.read(); }, 10);
+        window.setTimeout(() => { this.read(); }, 50);
     },
 
     updated() {

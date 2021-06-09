@@ -465,6 +465,7 @@ $body-color: #393f46;
 // -----------------------------------------
 
 .dg-pager {
+    padding: 4px;
     background-color: var(--dg-pager-bg);
 }
 
@@ -482,15 +483,8 @@ $body-color: #393f46;
 }
 
 a.dg-page {
-/*    text-decoration: none;
-
-    &:hover {
-        background-color: rgba(#000, 0.035);
-    }
-
-    &:active {
-        background-color: rgba(#000, 0.075);
-    }*/
+    padding: 5px 10px;
+    font-weight: normal;
 
     &.disabled {
         pointer-events: none;
@@ -498,30 +492,21 @@ a.dg-page {
     }
 }
 
-.dg-page-refresh {
-/*    border-right: 1px solid $border;
-    width: 49px;
+.dg-page-refresh-wrapper {
+    border-right: 1px solid $border;
     text-align: center;
-    padding-left: 0;
-    padding-right: 0;*/
+    margin-right: 6px;
 }
 
-.dg-page-arrow {
-/*    padding-left: 6px;
-    padding-right: 6px;*/
+.dg-page-refresh {
+    margin-right: 6px;
+    margin-left: 2px;
 }
 
 .dg-page-number {
-/*    border: 1px solid transparent;
-    border-top-width: 0;
-    border-bottom-width: 0;
-
     &.active {
         pointer-events: none;
-        background-color: #fff;
-        border-color: rgba(#000, 0.15);
-        border-color: $border;
-    }*/
+    }
 }
 
 .dg-page-size-chooser + .dropdown-menu {
