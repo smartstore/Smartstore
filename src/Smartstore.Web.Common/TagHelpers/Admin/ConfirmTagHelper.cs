@@ -96,7 +96,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public ThemeColor? ButtonColor { get; set; }
 
         /// <summary>
-        /// Specifies whether to center the dialog vertically. Default = false.
+        /// Specifies whether to center the dialog vertically. Default = true.
         /// </summary>
         [HtmlAttributeName(CenterAttributeName)]
         public bool Center { get; set; } = true;
