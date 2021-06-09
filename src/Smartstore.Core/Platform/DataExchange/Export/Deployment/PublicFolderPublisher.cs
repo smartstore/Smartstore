@@ -28,8 +28,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             {
                 if (context?.ZipFile?.Exists ?? false)
                 {
-                    var zipPath = source.FileSystem.PathCombine(source.Parent.SubPath, context.ZipFile.Name);
-                    var zipFile = await source.FileSystem.GetFileAsync(zipPath);
+                    var zipFile = await source.GetFileAsync(context.ZipFile.Name);
 
                     using var stream = await zipFile.OpenReadAsync();
 

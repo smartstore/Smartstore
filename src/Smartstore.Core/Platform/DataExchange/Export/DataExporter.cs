@@ -959,7 +959,7 @@ namespace Smartstore.Core.DataExchange.Export
                 // Convention: must end with type name because that's how the import identifies the entity.
                 // Be careful in case of accidents with file names. They must not be too long.
                 var fileName = $"{ctx.Store.Id}-{context.FileIndex:D4}-{type}";
-                var file = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.SubPath, fileName + fileExtension));
+                var file = await dir.GetFileAsync(fileName + fileExtension);
 
                 if (file.Exists)
                 {
@@ -967,7 +967,7 @@ namespace Smartstore.Core.DataExchange.Export
                 }
 
                 fileName += fileExtension;
-                file = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.SubPath, fileName));
+                file = await dir.GetFileAsync(fileName);
 
                 result.Add(new ExportDataUnit
                 {
@@ -1301,7 +1301,7 @@ namespace Smartstore.Core.DataExchange.Export
                         unit.DataStream = null;
 
                         var unitFile = unit.FileName.HasValue()
-                            ? await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.SubPath, unit.FileName))
+                            ? await dir.GetFileAsync(unit.FileName)
                             : null;
 
                         if (context.Abort == DataExchangeAbortion.Hard)

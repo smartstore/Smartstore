@@ -336,7 +336,7 @@ namespace Smartstore.Core.DataExchange.Import
                 ExecuteContext = executeContext
             };
 
-            var logFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, "log.txt"));
+            var logFile = await dir.GetFileAsync("log.txt");
 
             return (context, logFile);
         }
