@@ -21,7 +21,7 @@
 			{
 				<div class="py-1">
 					<span class="badge @(file.RelatedType.HasValue ? "badge-secondary" : "badge-info")">
-						@*<fileicon file-extension="@file.File.Extension" />*@
+						<file-icon file-extension="@file.File.Extension" />
 						@(file.Label.HasValue() ? file.Label : file.File.Extension.EmptyNull().ToLower().TrimStart('.'))
 					</span>
 					<a href="@Url.Action("DownloadExportFile", new { id = Model.Id, name = file.File.Name, isDeployment = Model.IsForDeployment })" title="@ViewBag.DownloadString" download>

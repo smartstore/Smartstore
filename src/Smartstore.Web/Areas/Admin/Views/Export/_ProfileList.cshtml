@@ -48,7 +48,7 @@
 							@profile.Provider.EntityTypeName.NaIfEmpty()
 						</td>
 						<td class="text-center">
-							<file-icon file-extension="@profile.Provider.FileExtension" render-label="true" />
+							<file-icon file-extension="@profile.Provider.FileExtension" show-label="true" />
 						</td>
 						<td id="ExportFileCount@(profile.Id)" class="text-center">
 							<partial name="_ProfileFileCount" model="profile.FileCount" />

@@ -8,7 +8,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     public class FileIconTagHelper : TagHelper
     {
         const string FileExtensionAttributeName = "file-extension";
-        const string RenderLabelAttributeName = "render-label";
+        const string ShowLabelAttributeName = "show-label";
 
         /// <summary>
         /// Specifies the file extension.
@@ -17,10 +17,10 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string FileExtension { get; set; }
 
         /// <summary>
-        /// A value indicating whether to render the file extension also as a label.
+        /// A value indicating whether to show the file extension also as a label.
         /// </summary>
-        [HtmlAttributeName(RenderLabelAttributeName)]
-        public bool RenderLabel { get; set; }
+        [HtmlAttributeName(ShowLabelAttributeName)]
+        public bool ShowLabel { get; set; }
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
@@ -51,7 +51,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             var label = ext.NaIfEmpty().ToUpper();
 
-            if (RenderLabel && ext.IsEmpty())
+            if (ShowLabel && ext.IsEmpty())
             {
                 // No icon, just "n\a" label.
                 output.TagName = "span";
@@ -66,7 +66,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.AppendCssClass("fa-fw " + icon);
                 output.Attributes.Add("title", label);
 
-                if (RenderLabel)
+                if (ShowLabel)
                 {
                     var labelSpan = new TagBuilder("span");
                     labelSpan.AppendCssClass(ext.IsEmpty() ? "text-muted" : "ml-1");
