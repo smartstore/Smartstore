@@ -1,38 +1,35 @@
 ﻿@using System.Globalization
 @using Smartstore.Utilities
+@using Smartstore.Core.Stores
+
+@inject IStoreContext StoreContext
 
 @functions
 {
-    private string Value
+    private int[] SelectedIds
     {
         get
         {
-            if (ViewData.Model != null)
+            if (ViewData.Model is int[] ids)
             {
-                // Be careful with the conversion here because it's very vulnerable to errors.
-                if (ViewData.Model is int[])
-                {
-                    return string.Join(",", ViewData.Model);
-                }
-
+                return ids;
+            }
+            else if (ViewData.Model != null)
+            {
                 if (CommonHelper.TryConvert(ViewData.Model, typeof(string), CultureInfo.InvariantCulture, out object obj) && obj != null)
                 {
-                    return obj.ToString();
+                    return ((string)obj).ToIntArray();
                 }
             }
 
-            return null;
+            return Array.Empty<int>();
         }
     }
 }
 
 @{
-    var strValue = Value;
+    var items = StoreContext.GetAllStores().ToSelectListItems(SelectedIds);
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
-
-    attributes["data-select-url"] = Url.Action("AllStores", "Store", new { selectedIds = strValue, area = "Admin" });
-    attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
-    attributes.Merge("data-placeholder", T("Admin.Common.StoresAll").Value);
 }
 
-<select asp-for="@Model" class="form-control edit-control" attrs="attributes" data-editor="select"></select>
+<select asp-for="@Model" asp-items="items" asp-placeholder="@T("Admin.Common.StoresAll")" class="form-control edit-control" attrs="attributes" data-editor="select"></select>
