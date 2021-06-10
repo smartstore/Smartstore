@@ -40,7 +40,7 @@
     </modal-footer>
 </modal>
 
-<script>
+<script sm-target-zone="scripts" data-origin="Export.List">
     $(function() {
         var dialog = $('#export-profile-dialog');
 
@@ -50,8 +50,6 @@
 
             dialog.find('.modal-body').empty();
             dialog.find('.btn-primary').toggle(false);
-
-            
 
             dialog.modal();
             return false;
@@ -65,7 +63,6 @@
             var id = $(this).closest('.profile-row').attr('data-profile-id');
 
             fileDialog.find('.modal-body').empty();
-            
 
             dialog.modal();
             return false;

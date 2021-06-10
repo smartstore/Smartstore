@@ -4,7 +4,7 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
-    [HtmlTargetElement("fileicon", TagStructure = TagStructure.WithoutEndTag)]
+    [HtmlTargetElement("file-icon", Attributes = FileExtensionAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     public class FileIconTagHelper : TagHelper
     {
         const string FileExtensionAttributeName = "file-extension";
