@@ -32,14 +32,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string OnSelectionCompletedAttributeName = "onselectioncompleted";
 
         private readonly IWidgetProvider _widgetProvider;
-        private readonly IUrlHelper _urlHelper;
 
-        public EntityPickerTagHelper(IWidgetProvider widgetProvider, IUrlHelper urlHelper)
+        public EntityPickerTagHelper(IWidgetProvider widgetProvider)
         {
             _widgetProvider = widgetProvider;
-            _urlHelper = urlHelper;
         }
-
+        
         /// <summary>
         /// Sets the entity type which shall be picked. Default = "product"
         /// </summary>
@@ -130,20 +128,20 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 TargetInputSelector = "#" + HtmlHelper.GenerateIdFromName(For.Name);
             }
-
+            
             var options = new
             {
                 entityType = EntityType,
-                url = _urlHelper.Action("Picker", "Entity", new { area = "" }),
-                caption =  HtmlHelper.Encode(DialogTitle.NullEmpty() ?? Caption),
+                url = UrlHelper.Action("Picker", "Entity", new { area = string.Empty }),
+                caption =  (DialogTitle.NullEmpty() ?? Caption).HtmlEncode(),
                 disableIf = DisableGroupedProducts ? "groupedproduct" : (DisableBundleProducts ? "notsimpleproduct" : null),
-                disableIds = DisabledEntityIds == null ? null : string.Join(",", DisabledEntityIds),
+                disableIds = DisabledEntityIds == null ? null : string.Join(',', DisabledEntityIds),
                 thumbZoomer = EnableThumbZoomer,
                 highligtSearchTerm = HighlightSearchTerm,
                 returnField = FieldName,
                 delim = Delimiter,
-                targetInput = TargetInputSelector.HasValue() ? $"'{TargetInputSelector}'" : null,
-                selected = Selected != null && Selected.Length > 0 ? $"[{string.Join(Delimiter, Selected)}]" : null,
+                targetInput = TargetInputSelector,
+                selected = Selected,
                 appendMode = AppendMode,
                 maxItems = MaxItems,
                 onDialogLoading = OnDialogLoadingHandler,
@@ -153,24 +151,22 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             var buttonId = "entpicker-toggle-" + CommonHelper.GenerateRandomInteger();
 
-            var toogleButton = new TagBuilder("button");
-            toogleButton.Attributes.Add("id", buttonId);
-            toogleButton.Attributes.Add("type", "button");
-            toogleButton.AddCssClass("btn btn-secondary");
+            // INFO: (mh) (core) We talked about this in great detail!! Don't erase output just to replace it!!!
+            output.TagName = "button";
+            output.TagMode = TagMode.StartTagAndEndTag;
+            output.MergeAttribute("id", buttonId);
+            output.MergeAttribute("type", "button");
+            output.AppendCssClass("btn btn-secondary");
 
             if (IconCssClass.HasValue())
             {
-                toogleButton.InnerHtml.AppendHtml($"<i class='{ IconCssClass }'></i>");
+                output.Content.AppendHtml($"<i class='{ IconCssClass }'></i>");
             }
 
             if (Caption.HasValue())
             {
-                toogleButton.InnerHtml.AppendHtml($"<span>{ Caption }</span>");
+                output.Content.AppendHtml($"<span>{ Caption }</span>");
             }
-
-            output.TagName = null;
-            output.TagMode = TagMode.StartTagAndEndTag;
-            output.Content.AppendHtml(toogleButton);
 
             var json = JsonConvert.SerializeObject(options, new JsonSerializerSettings
             {
@@ -179,14 +175,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                 NullValueHandling = NullValueHandling.Ignore
             });
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
-            sb.Append("<script data-origin='EntityPicker'>");
-            sb.Append("$(function () { $('#" + buttonId + "').entityPicker(");
-            sb.Append(json);
-            sb.Append("); });");
-            sb.Append("</script>");
-
-            _widgetProvider.RegisterHtml("scripts", new HtmlString(sb.ToString()));
+            // INFO: (mh) (core) Don't render this init script in a zone, because we cannot be sure whether the request is AJAX or not.
+            // INFO: (mh) (core) Use pooled StringBuilder for large strings only
+            // INFO: (mh) (core) Built script string should be human-readable
+            output.PostElement.AppendHtmlLine(@$"<script data-origin='EntityPicker'>$(function() {{ $('#{buttonId}').entityPicker({json}); }})</script>");
         }
     }
 }
