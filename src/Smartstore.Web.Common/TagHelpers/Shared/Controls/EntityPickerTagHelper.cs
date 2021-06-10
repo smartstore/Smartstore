@@ -9,7 +9,6 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
-    [OutputElementHint("button")]
     [HtmlTargetElement("entity-picker", TagStructure = TagStructure.WithoutEndTag)]
     public class EntityPickerTagHelper : BaseFormTagHelper
     {
@@ -169,6 +168,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 toogleButton.InnerHtml.AppendHtml($"<span>{ Caption }</span>");
             }
 
+            output.TagName = null;
             output.TagMode = TagMode.StartTagAndEndTag;
             output.Content.AppendHtml(toogleButton);
 
