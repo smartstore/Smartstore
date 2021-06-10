@@ -39,7 +39,7 @@
         <column for="Title" width="minmax(60px, 4fr)" />
         <column for="WidgetZoneValue" entity-member="WidgetZone" readonly="true" halign="center">
             <display-template>
-                <div style="word-break: break-all;white-space:initial">
+                <div style="word-break: break-all; white-space: initial">
                     {{ item.value }}
                 </div>
             </display-template>
@@ -51,7 +51,7 @@
         <column for="Priority" halign="center" />
 
         <!-- Invisible columns -->
-        <column for="IsSystemTopic" halign="center" width="0.75fr" visible="false" />
+        <column for="IsSystemTopic" readonly="true" halign="center" width="0.75fr" visible="false" />
         <column for="IsPublished" halign="center" width="0.75fr" visible="false" />
         <column for="HtmlId" halign="center" visible="false" />
     </columns>
