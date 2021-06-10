@@ -106,8 +106,11 @@
         <column for="AvailableEndDateTimeUtc" visible="false" />
     </columns>
     <row-commands>
-        <a href="#" class="dropdown-item" v-on:click.prevent="item.activateEdit(item.row)">Bearbeiten</a>
-        <a href="#" class="dropdown-item" v-on:click.prevent="item.deleteRows(item.row)">Löschen</a>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        @* TODO: (core) Implement Product grid "clone" row command *@
+        <a datarow-action="DataRowAction.Custom" href="#">Kopieren</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
 

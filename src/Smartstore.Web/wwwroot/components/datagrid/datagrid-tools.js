@@ -1,6 +1,6 @@
 ﻿Vue.component("sm-datagrid-tools", {
     template: `
-        <div class="dg-cell dg-cell-header dg-tools justify-content-center dropdown">
+        <div class="dg-tools dropdown text-align-center border-left pl-1 ml-1">
             <a href="#" class="dg-tools-toggle btn btn-light btn-flat btn-icon btn-sm dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
                 <i class="fa fa-cog"></i>
             </a>
@@ -42,7 +42,7 @@
                             <option value="both">Oben & unten</option>
                         </select>
                     </label>
-                    <button type="button" class="btn btn-sm btn-block btn-secondary mt-2" @click="$parent.resetState()">
+                    <button type="button" class="btn btn-sm btn-block btn-secondary mt-2" @click="$parent.$parent.resetState()">
                         Zurücksetzen
                     </button>
                 </div>

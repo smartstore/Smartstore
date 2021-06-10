@@ -79,10 +79,10 @@ namespace Smartstore.Web.TagHelpers.Admin
         }
     }
 
-    [HtmlTargetElement("a", ParentTag = "toolbar")]
-    [HtmlTargetElement("a", ParentTag = "toolbar-group")]
-    [HtmlTargetElement("button", ParentTag = "toolbar")]
-    [HtmlTargetElement("button", ParentTag = "toolbar-group")]
+    [HtmlTargetElement("a", Attributes = ActionAttributeName, ParentTag = "toolbar")]
+    [HtmlTargetElement("a", Attributes = ActionAttributeName, ParentTag = "toolbar-group")]
+    [HtmlTargetElement("button", Attributes = ActionAttributeName, ParentTag = "toolbar")]
+    [HtmlTargetElement("button", Attributes = ActionAttributeName, ParentTag = "toolbar-group")]
     public class GridToolTagHelper : TagHelper
     {
         const string ActionAttributeName = "datagrid-action";
@@ -96,6 +96,8 @@ namespace Smartstore.Web.TagHelpers.Admin
             {
                 return;
             }
+
+            output.MergeAttribute("href", "#");
 
             if (Action == DataGridToolAction.ToggleSearchPanel)
             {

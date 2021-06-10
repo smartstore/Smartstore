@@ -5,10 +5,11 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    public enum DataGridRowAction
+    public enum DataRowAction
     {
-        Edit,
-        Delete
+        InlineEdit,
+        Delete,
+        Custom = 100
     }
 
     /// <summary>
@@ -49,6 +50,39 @@ namespace Smartstore.Web.TagHelpers.Admin
             div.Attributes.Add("class", "dg-commands-dropdown dropdown-menu dropdown-menu-right");
 
             output.WrapContentWith(div);
+        }
+    }
+
+    [HtmlTargetElement("a", Attributes = ActionAttributeName, ParentTag = "row-commands")]
+    public class GridRowCommandTagHelper : TagHelper
+    {
+        const string ActionAttributeName = "datarow-action";
+
+        [HtmlAttributeName(ActionAttributeName)]
+        public DataRowAction? Action { get; set; }
+
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            if (Action == null)
+            {
+                return;
+            }
+
+            if (!output.Attributes.ContainsName(":href") && !output.Attributes.ContainsName("v-bind:href"))
+            {
+                output.MergeAttribute("href", "#");
+            }
+            
+            output.AppendCssClass("dropdown-item");
+
+            if (Action == DataRowAction.InlineEdit)
+            {
+                output.MergeAttribute("v-on:click.prevent", "item.activateEdit(item.row)");
+            }
+            else if (Action == DataRowAction.Delete)
+            {
+                output.MergeAttribute("v-on:click.prevent", "item.deleteRows(item.row)");
+            }
         }
     }
 }

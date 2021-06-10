@@ -64,8 +64,8 @@ Vue.component("sm-datagrid", {
                     resetState }">
                 </slot>
 
-                <div v-if="paging.enabled && (paging.position === 'top' || paging.position === 'both')" class="dg-pager-wrapper border-bottom">
-                    <sm-datagrid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-datagrid-pager>
+                <div v-if="paging.position === 'top' || paging.position === 'both'" class="dg-pager-wrapper border-bottom">
+                    <sm-datagrid-pager v-bind="{ options, columns, paging, command, rows, total }"></sm-datagrid-pager>
                 </div>
                 <component :is="options.allowEdit ? 'form' : 'div'" ref="tableWrapper" class="dg-table-wrapper">
                     <table ref="table"
@@ -112,9 +112,7 @@ Vue.component("sm-datagrid", {
                                 <th class="dg-th">
                                     <div class="dg-cell dg-cell-header dg-cell-spacer">&nbsp;</div>
                                 </th>
-                                <th class="dg-th dg-col-pinned omega">
-                                    <sm-datagrid-tools :options="options" :columns="columns" :paging="paging"></sm-datagrid-tools>
-                                </th> 
+                                <th v-if="canEditRow || hasRowCommands" class="dg-th dg-col-pinned omega">&nbsp;</th> 
                             </tr>
                         </thead>
                         <tbody ref="tableBody" class="dg-tbody">
@@ -161,7 +159,7 @@ Vue.component("sm-datagrid", {
                                     </div>
 
                                 </td>
-                                <td class="dg-td" :style="{ 'grid-column': canEditRow || hasRowCommands ? 'span 1' : 'span 2' }">
+                                <td class="dg-td">
                                     <div class="dg-cell dg-cell-spacer"></div>
                                 </td>
                                 <td v-if="canEditRow || hasRowCommands" class="dg-td dg-col-pinned omega">
@@ -188,8 +186,8 @@ Vue.component("sm-datagrid", {
                         </tbody>
                     </table>
                 </component>
-                <div v-if="paging.enabled && (paging.position === 'bottom' || paging.position === 'both')" class="dg-pager-wrapper border-top">
-                    <sm-datagrid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10" :options="options" :columns="columns"></sm-datagrid-pager>
+                <div v-if="paging.position === 'bottom' || paging.position === 'both'" class="dg-pager-wrapper border-top">
+                    <sm-datagrid-pager v-bind="{ options, columns, paging, command, rows, total }"></sm-datagrid-pager>
                 </div>
 
                 <div v-show="isBusy" class="dg-blocker"></div>
@@ -629,10 +627,6 @@ Vue.component("sm-datagrid", {
             return cssClass;
         },
 
-        // #endregion
-
-        // #region Rendering
-
         getGridTemplateColumns() {
             let hasFraction = false;
             let result = this.columns
@@ -665,10 +659,16 @@ Vue.component("sm-datagrid", {
             result.push(hasFraction ? "0" : "auto");
 
             // Last grid tools / row commands column
-            result.push("48px");
+            if (this.canEditRow || this.hasRowCommands) {
+                result.push("48px");
+            }
 
             return result.join(' ');
         },
+
+        // #endregion
+
+        // #region Rendering
 
         getGridState() {
             return {

@@ -7,7 +7,7 @@
                 </a>
             </div>
             
-            <template v-if="totalPages > 1">
+            <template v-if="paging.enabled && totalPages > 1">
                 <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-double-left"></i></a>
                 <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-left"></i></a>
             
@@ -24,8 +24,8 @@
                     <span class="d-none d-lg-inline">Anzeigen der Elemente </span>
                     <span>{{ firstItemIndex.toLocaleString() }}-{{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}</span>
                 </span>
-                <div v-if="paging.showSizeChooser && paging.availableSizes?.length" class="dropdown d-flex align-items-center border-left pl-1 ml-3">
-                    <a href="#" class="dg-page dg-page-size-chooser btn btn-light btn-sm dropdown-toggle text-truncate px-3" data-toggle="dropdown">
+                <div v-if="paging.enabled && paging.showSizeChooser && paging.availableSizes?.length" class="dropdown d-flex align-items-center border-left pl-1 ml-2">
+                    <a href="#" class="dg-page dg-page-size-chooser btn btn-light btn-sm dropdown-toggle text-truncate px-2" data-toggle="dropdown">
                         <span class="fwm">{{ command.pageSize }}</span> pro Seite
                     </a>
                     <div class="dropdown-menu">
@@ -34,9 +34,7 @@
                 </div>
             </div>
 
-            <div>
-                <sm-datagrid-tools :options="options" :columns="columns" :paging="paging"></sm-datagrid-tools>
-            </div>
+            <sm-datagrid-tools v-bind="{ options, columns, paging }"></sm-datagrid-tools>
         </div>
     `,
 
@@ -47,7 +45,7 @@
         columns: Array,
         rows: Array,
         total: Number,
-        maxPagesToDisplay: Number
+        maxPagesToDisplay: { type: Number, required: false,  default: 10 },
     },
 
     computed: {

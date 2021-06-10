@@ -373,20 +373,6 @@ a.dg-page {
 span.dg-page {
   font-size: 13px; }
 
-.dg-tools {
-  padding: 0 !important;
-  overflow: visible;
-  cursor: auto !important;
-  font-weight: 400; }
-
-.dg-tools-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none !important;
-  width: 100%;
-  height: 100%; }
-
 .dg-tools-dropdown {
   min-width: 250px;
   width: auto;
