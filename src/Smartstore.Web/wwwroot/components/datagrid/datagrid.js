@@ -99,7 +99,7 @@ Vue.component("sm-datagrid", {
                                         :title="column.title ? null : column.name"
                                         v-on:click="onSort($event, column)">
                                         <i v-if="column.icon" class="dg-icon" :class="column.icon"></i>
-                                        <span class="dg-cell-value" :title="column.title">{{ column.title }}</span>
+                                        <span v-if="column.title" class="dg-cell-value" :title="column.title">{{ column.title }}</span>
                                         <i v-if="isSortedAsc(column)" class="fa fa-fw fa-sm fa-arrow-up mx-1"></i>
                                         <i v-if="isSortedDesc(column)" class="fa fa-fw fa-sm fa-arrow-down mx-1"></i>
                                     </div>
@@ -189,7 +189,7 @@ Vue.component("sm-datagrid", {
                     </table>
                 </component>
                 <div v-if="paging.enabled && (paging.position === 'bottom' || paging.position === 'both')" class="dg-pager-wrapper border-top">
-                    <sm-datagrid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-datagrid-pager>
+                    <sm-datagrid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10" :options="options" :columns="columns"></sm-datagrid-pager>
                 </div>
 
                 <div v-show="isBusy" class="dg-blocker"></div>

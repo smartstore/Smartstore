@@ -27,7 +27,7 @@
     <columns>
     @*TODO (ms) (core) think about additional (inital hidden) fields *@
         <column for="Id" visible="false" width="max-content" resizable="false" />
-        <column for="AttachmentsCount" sortable="false" icon="fa fa-paperclip" width="max-content" resizable="false" title="" />
+        <column for="AttachmentsCount" halign="center" sortable="false" icon="fa fa-paperclip" width="max-content" resizable="false" title="" />
         <column for="Subject" hideable="false">
             <display-template>
                 @*TODO (ms) (core) Have icons display send status*@
@@ -38,7 +38,7 @@
                 </a>
             </display-template>
         </column>
-        <column for="Priority" resizable="false" halign="center" valign="center" />
+        <column for="Priority" halign="center" valign="center" />
         <column for="EmailAccountName" width="300px" title="@T("Admin.System.QueuedEmails.Fields.From")" />
         <column for="SendManually" halign="center" valign="center" />
         <column for="SentTries" halign="center" valign="center" />

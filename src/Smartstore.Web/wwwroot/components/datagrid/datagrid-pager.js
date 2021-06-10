@@ -33,12 +33,18 @@
                     </div>
                 </div>
             </div>
+
+            <div>
+                <sm-datagrid-tools :options="options" :columns="columns" :paging="paging"></sm-datagrid-tools>
+            </div>
         </div>
     `,
 
     props: {
+        options: Object,
         paging: Object,
         command: Object,
+        columns: Array,
         rows: Array,
         total: Number,
         maxPagesToDisplay: Number
