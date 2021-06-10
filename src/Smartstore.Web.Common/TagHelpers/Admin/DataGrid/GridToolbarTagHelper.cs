@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers.Admin
@@ -47,23 +48,22 @@ namespace Smartstore.Web.TagHelpers.Admin
     [RestrictChildren("toolbar-group", "a", "button", "div", "zone")]
     public class GridToolbarTagHelper : TagHelper
     {
-        public override void Init(TagHelperContext context)
-        {
-            base.Init(context);
-            if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
-            {
-                parent.Toolbar = this;
-            }
-        }
-
-        [HtmlAttributeNotBound]
-        internal TagHelperContent Template { get; set; }
-
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            Template = new DefaultTagHelperContent();
-            (await output.GetChildContentAsync()).CopyTo(Template);
-            output.SuppressOutput();
+            var content = await output.GetChildContentAsync();
+            if (content.IsEmptyOrWhiteSpace)
+            {
+                output.SuppressOutput();
+                return;
+            }
+
+            output.TagName = "template";
+            output.Attributes.Add("v-slot:toolbar", "grid");
+
+            var div = new TagBuilder("div");
+            div.Attributes.Add("class", "dg-toolbar d-flex flex-nowrap");
+
+            output.WrapContentWith(div);
         }
     }
 
@@ -139,8 +139,6 @@ namespace Smartstore.Web.TagHelpers.Admin
             {
                 output.MergeAttribute("v-on:click.prevent", "grid.deleteSelectedRows");
             }
-
-            // TODO: (core) Add more actions
         }
     }
 }

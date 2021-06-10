@@ -1174,7 +1174,7 @@ Vue.component("sm-datagrid", {
 
             this.destroyValidator();
 
-            if (this.rows.length && this.rows[0] === this.editing.row) {
+            if (this.editing.insertMode && this.rows.length && this.rows[0] === this.editing.row) {
                 // Remove inserted row
                 this.rows.splice(0, 1);
             }

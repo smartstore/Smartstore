@@ -204,19 +204,10 @@ namespace Smartstore.Web.TagHelpers.Admin
         internal GridFilteringTagHelper Filtering { get; set; }
 
         [HtmlAttributeNotBound]
-        internal GridToolbarTagHelper Toolbar { get; set; }
-
-        [HtmlAttributeNotBound]
         internal List<GridColumnTagHelper> Columns { get; set; }
 
         [HtmlAttributeNotBound]
-        internal GridDetailViewTagHelper DetailView { get; set; }
-
-        [HtmlAttributeNotBound]
         internal GridSearchPanelTagHelper SearchPanel { get; set; }
-
-        [HtmlAttributeNotBound]
-        internal GridRowCommandsTagHelper RowCommands { get; set; }
 
         [HtmlAttributeNotBound]
         internal string KeyMemberName 
@@ -241,55 +232,16 @@ namespace Smartstore.Web.TagHelpers.Admin
                 cssClass += " " + CssClass;
             }
 
-            output.TagName = "div";
-            output.AppendCssClass(cssClass);
+            // Root wrapper div .datagrid-root
+            output.PreElement.AppendHtml($"<div class='{cssClass}'>");
+            output.PostElement.AppendHtml("</div>");
 
-            var component = new TagBuilder("sm-datagrid");
-            component.Attributes[":options"] = "options";
-            component.Attributes[":data-source"] = "dataSource";
-            component.Attributes[":columns"] = "columns";
-            component.Attributes[":paging"] = "paging";
-            component.Attributes[":sorting"] = "sorting";
-
-            // Generate toolbar slot
-            if (Toolbar?.Template != null && !Toolbar.Template.IsEmptyOrWhiteSpace)
-            {
-                var toolbar = new TagBuilder("div");
-                toolbar.Attributes["class"] = "dg-toolbar d-flex flex-nowrap";
-                toolbar.InnerHtml.AppendHtml(Toolbar.Template);
-
-                var slot = new TagBuilder("template");
-                slot.Attributes["v-slot:toolbar"] = "grid";
-                slot.InnerHtml.AppendHtml(toolbar);
-                component.InnerHtml.AppendHtml(slot);
-            }
-
-            // Generate search panel slot
-            if (SearchPanel?.Template != null && !SearchPanel.Template.IsEmptyOrWhiteSpace)
-            {
-                var slot = new TagBuilder("template");
-                slot.Attributes["v-slot:search"] = "grid";
-                slot.InnerHtml.AppendHtml(SearchPanel.Template);
-                component.InnerHtml.AppendHtml(slot);
-            }
-
-            // Generate detailview slot
-            if (DetailView?.Template != null && !DetailView.Template.IsEmptyOrWhiteSpace)
-            {
-                var slot = new TagBuilder("template");
-                slot.Attributes["v-slot:detailview"] = "item";
-                slot.InnerHtml.AppendHtml(DetailView.Template);
-                component.InnerHtml.AppendHtml(slot);
-            }
-
-            // Generate rowcommands slot
-            if (RowCommands?.Template != null && !RowCommands.Template.IsEmptyOrWhiteSpace)
-            {
-                var slot = new TagBuilder("template");
-                slot.Attributes["v-slot:rowcommands"] = "item";
-                slot.InnerHtml.AppendHtml(RowCommands.Template);
-                component.InnerHtml.AppendHtml(slot);
-            }
+            output.TagName = "sm-datagrid";
+            output.Attributes.Add(":options", "options");
+            output.Attributes.Add(":data-source", "dataSource");
+            output.Attributes.Add(":columns", "columns");
+            output.Attributes.Add(":paging", "paging");
+            output.Attributes.Add(":sorting", "sorting");
 
             // Generate column template slots
             foreach (var column in Columns)
@@ -299,7 +251,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     var displaySlot = new TagBuilder("template");
                     displaySlot.Attributes["v-slot:display-" + column.NormalizedMemberName] = "item";
                     displaySlot.InnerHtml.AppendHtml(column.DisplayTemplate);
-                    component.InnerHtml.AppendHtml(displaySlot);
+                    output.Content.AppendHtml(displaySlot);
                 }
 
                 if (AllowEdit && !column.ReadOnly && (column.EditTemplate == null || column.EditTemplate.IsEmptyOrWhiteSpace))
@@ -318,11 +270,9 @@ namespace Smartstore.Web.TagHelpers.Admin
                         //editorSlot.InnerHtml.AppendHtml(HtmlHelper.ValidationMessageFor(column.For));
                     }
                     
-                    component.InnerHtml.AppendHtml(editorSlot);
+                    output.Content.AppendHtml(editorSlot);
                 }
             }
-
-            output.Content.AppendHtml(component);
 
             output.PostElement.AppendHtmlLine(@$"<script>$(function() {{ window['{Id}'] = new Vue({GenerateVueJson()}); }})</script>");
         }

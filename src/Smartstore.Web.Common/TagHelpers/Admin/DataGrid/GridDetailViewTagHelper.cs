@@ -7,23 +7,17 @@ namespace Smartstore.Web.TagHelpers.Admin
     [HtmlTargetElement("detail-view", ParentTag = "datagrid")]
     public class GridDetailViewTagHelper : TagHelper
     {
-        public override void Init(TagHelperContext context)
-        {
-            base.Init(context);
-            if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
-            {
-                parent.DetailView = this;
-            }
-        }
-
-        [HtmlAttributeNotBound]
-        internal TagHelperContent Template { get; set; }
-
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            Template = new DefaultTagHelperContent();
-            (await output.GetChildContentAsync()).CopyTo(Template);
-            output.SuppressOutput();
+            var content = await output.GetChildContentAsync();
+            if (content.IsEmptyOrWhiteSpace)
+            {
+                output.SuppressOutput();
+                return;
+            }
+
+            output.TagName = "template";
+            output.Attributes.Add("v-slot:detailview", "item");
         }
     }
 }

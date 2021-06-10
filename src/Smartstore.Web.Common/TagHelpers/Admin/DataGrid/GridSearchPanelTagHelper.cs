@@ -24,14 +24,17 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         public string Width { get; set; } = "350px";
 
-        [HtmlAttributeNotBound]
-        internal TagHelperContent Template { get; set; }
-
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            Template = new DefaultTagHelperContent();
-            (await output.GetChildContentAsync()).CopyTo(Template);
-            output.SuppressOutput();
+            var content = await output.GetChildContentAsync();
+            if (content.IsEmptyOrWhiteSpace)
+            {
+                output.SuppressOutput();
+                return;
+            }
+
+            output.TagName = "template";
+            output.Attributes.Add("v-slot:search", "grid");
         }
     }
 }
