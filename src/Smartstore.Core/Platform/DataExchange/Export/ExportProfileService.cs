@@ -401,30 +401,38 @@ namespace Smartstore.Core.DataExchange.Export
     [SystemName("Exports.SmartStoreCategoryCsv")]
     public class CategoryCsvExportProvider : ExportProviderBase
     {
+        public override ExportEntityType EntityType => ExportEntityType.Category;
+        public override string FileExtension => "CSV";
         protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
     }
 
     [SystemName("Exports.SmartStoreProductCsv")]
     public class ProductCsvExportProvider : ExportProviderBase
     {
+        public override string FileExtension => "CSV";
         protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
     }
 
     [SystemName("Exports.SmartStoreManufacturerCsv")]
     public class ManufacturerCsvExportProvider : ExportProviderBase
     {
+        public override ExportEntityType EntityType => ExportEntityType.Manufacturer;
+        //public override string FileExtension => "CSV";
         protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
     }
 
     [SystemName("Exports.SmartStoreCustomerCsv")]
     public class CustomerCsvExportProvider : ExportProviderBase
     {
+        public override ExportEntityType EntityType => ExportEntityType.Customer;
+        public override string FileExtension => "CSV";
         protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
     }
 
     [SystemName("Feeds.GoogleMerchantCenterProductXml")]
     public class GmcXmlExportProvider : ExportProviderBase
     {
+        public override string FileExtension => "XML";
         protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
     }
 

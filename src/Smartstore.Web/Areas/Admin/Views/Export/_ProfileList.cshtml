@@ -36,7 +36,7 @@
 			<tbody>
 				@foreach (var profile in Model.OrderBy(x => x.Name))
 				{
-					<tr data-profile-id="@profile.Id" data-task-id="@profile.TaskId" attr-class='(profile.Enabled, "disabled")'>
+					<tr data-profile-id="@profile.Id" data-task-id="@profile.TaskId" class="profile-row" attr-class='(!profile.Enabled, "disabled")'>
 						<td class="text-center">
 							<img src="@profile.Provider.ThumbnailUrl" alt="@profile.Provider.FriendlyName" attr-class='(profile.Enabled, "o40")' />
 						</td>
@@ -47,7 +47,50 @@
 						<td>
 							@profile.Provider.EntityTypeName.NaIfEmpty()
 						</td>
-						@*TODO...*@
+						<td class="text-center">
+							<fileicon file-extension="@profile.Provider.FileExtension" render-label="true" />
+						</td>
+						<td id="ExportFileCount@(profile.Id)" class="text-center">
+							@{ await Html.RenderPartialAsync("_ProfileFileCount", profile.FileCount); }
+						</td>
+						<td>
+							<div class="last-run-info">
+								@*@{ await Html.RenderPartialAsync("~/Areas/Admin/Views/Task/_LastRun.cshtml", profile.TaskModel); }*@
+							</div>
+						</td>
+						<td class="progress-info">
+							<div class="next-run-info">
+								@*@{ await Html.RenderPartialAsync("~/Areas/Admin/Views/Task/_NextRun.cshtml", profile.TaskModel); }*@
+							</div>
+							<div class="task-progress text-muted" 
+								attr-class='(!profile.IsTaskRunning, "hide")'
+								data-task-id="@profile.TaskId" 
+								data-running="@profile.IsTaskRunning.ToString().ToLower()"></div>
+						</td>
+						<td class="omega" style="width: 200px;">
+							<button type="button" class="btn btn-block btn-sm btn-warning btn-run-task"
+								attr-class='(profile.IsTaskRunning || !profile.Enabled, "hide")'
+								data-url="@Url.Action("Execute", "Export", new { area = "Admin", id = profile.Id })" 
+								data-task-id="@profile.TaskId">
+									<i class="fa fa-play"></i>
+									<span>@T("Admin.System.ScheduleTasks.RunNow")</span>
+							</button>
+							@*TODO: (mg) (core) complete export profile list (admin task controller required)*@
+							<a asp-action="CancelJob" asp-controller="Customer" asp-route-id="@profile.TaskId" asp-area="Admin" 
+								class="btn btn-block btn-sm btn-secondary btn-cancel-task"
+								attr-class='(!profile.IsTaskRunning, "hide")'
+								data-task-id="@profile.TaskId"
+								onclick='return confirm2(@T("Admin.Common.AskToProceed").JsValue);'>
+									<span>@T("Common.Cancel")</span>
+							</a>
+							<a asp-action="DownloadLogFile" asp-route-id="@profile.Id"
+								target="LogFile"
+								class="btn btn-block btn-sm btn-secondary btn-log"
+								attr-class='(profile.IsTaskRunning || !profile.Enabled || !profile.LogFileExists, "d-none")'>
+									<i class="far fa-file-alt"></i>
+									<span>@T("Admin.Configuration.ActivityLog")</span>
+							</a>
+						</td>
 					</tr>
 				}
 			</tbody>

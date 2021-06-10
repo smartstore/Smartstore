@@ -6,13 +6,13 @@ namespace Smartstore.Core.DataExchange.Export
     public abstract class ExportProviderBase : IExportProvider
     {
         /// <inheritdoc/>
-        public ExportEntityType EntityType => ExportEntityType.Product;
+        public virtual ExportEntityType EntityType => ExportEntityType.Product;
 
         /// <inheritdoc/>
-        public string FileExtension => null;
+        public virtual string FileExtension => null;
 
         /// <inheritdoc/>
-        public ExportConfigurationInfo ConfigurationInfo => null;
+        public virtual ExportConfigurationInfo ConfigurationInfo => null;
 
         /// <inheritdoc/>
         public Task ExecuteAsync(ExportExecuteContext context, CancellationToken cancelToken = default)
