@@ -82,10 +82,7 @@ namespace Smartstore.Core.Checkout.Attributes
                                 attributeName = HttpUtility.HtmlEncode(attributeName);
                             }
 
-                            attributeStr = string.Format(
-                                "{0}: {1}",
-                                attributeName,
-                                HtmlUtils.ConvertPlainTextToHtml(currentValue.EmptyNull().Replace(":", "").HtmlEncode()));
+                            attributeStr = $"{attributeName}: {HtmlUtils.ConvertPlainTextToHtml(currentValue.EmptyNull().Replace(":", string.Empty).HtmlEncode())}";
                         }
                         else if (currentAttribute.AttributeControlType is AttributeControlType.FileUpload)
                         {
@@ -109,15 +106,8 @@ namespace Smartstore.Core.Checkout.Attributes
 
                                 if (allowHyperlinks)
                                 {
-                                    var downloadLink = string.Format(
-                                        "{0}download/getfileupload/?downloadId={1}",
-                                        _webHelper.GetStoreLocation(false),
-                                        download.DownloadGuid);
-
-                                    attributeText = string.Format(
-                                        "<a href=\"{0}\" class=\"fileuploadattribute\">{1}</a>",
-                                        downloadLink,
-                                        fileName);
+                                    var downloadLink = $"{_webHelper.GetStoreLocation()}download/getfileupload/?downloadId={download.DownloadGuid}";
+                                    attributeText = $"<a href='{downloadLink}' class='fileuploadattribute'>{fileName}</a>";
                                 }
                                 else
                                 {
@@ -130,17 +120,14 @@ namespace Smartstore.Core.Checkout.Attributes
                                     attributeName = HttpUtility.HtmlEncode(attributeName);
                                 }
 
-                                attributeStr = string.Format("{0}: {1}", attributeName, attributeText);
+                                attributeStr = $"{attributeName}: {attributeText}";
                             }
                         }
                         else
                         {
                             // Other attributes (textbox, datepicker...)
-                            attributeStr = string.Format(
-                                "{0}: {1}",
-                                currentAttribute.GetLocalized(a => a.Name, language),
-                                currentValue);
-
+                            attributeStr = $"{currentAttribute.GetLocalized(a => a.Name, language)}: {currentValue}";
+            
                             if (htmlEncode)
                             {
                                 attributeStr = HttpUtility.HtmlEncode(attributeStr);
@@ -154,10 +141,7 @@ namespace Smartstore.Core.Checkout.Attributes
                             var attributeValue = attributeValues.Where(x => x.Id == id).FirstOrDefault();
                             if (attributeValue != null)
                             {
-                                attributeStr = string.Format(
-                                    "{0}: {1}",
-                                    currentAttribute.GetLocalized(x => x.Name, language),
-                                    attributeValue.GetLocalized(x => x.Name, language));
+                                attributeStr = $"{currentAttribute.GetLocalized(x => x.Name, language)}: {attributeValue.GetLocalized(x => x.Name, language)}";
                                 
                                 if (renderPrices)
                                 {
@@ -165,7 +149,7 @@ namespace Smartstore.Core.Checkout.Attributes
                                     if (adjustment.Price > 0m)
                                     {
                                         var convertedAdjustment = _currencyService.ConvertToWorkingCurrency(adjustment.Price);
-                                        attributeStr += " [+{0}]".FormatInvariant(_currencyService.ApplyTaxFormat(convertedAdjustment).ToString());
+                                        attributeStr += $" [+{_currencyService.ApplyTaxFormat(convertedAdjustment).ToString()}]";
                                     }
                                 }
                             }
