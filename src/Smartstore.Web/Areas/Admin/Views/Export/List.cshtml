@@ -51,6 +51,32 @@
             dialog.find('.modal-body').empty();
             dialog.find('.btn-primary').toggle(false);
 
+			$(this).doAjax({
+				type: 'GET',
+				smallIcon: dialog.find('.modal-body'),
+				callbackSuccess: function (response) {
+					dialog.find('.modal-body').html(response);
+
+					$('select[name="ProviderSystemName"]').selectWrapper({
+						minimumResultsForSearch: 16,
+						templateResult: providerSelectItemFormatting,
+						templateSelection: providerSelectItemFormatting
+					});
+
+					toggleProviderDescription();
+
+					$('select[name="CloneProfileId"]').selectWrapper({
+						allowClear: true,
+						minimumResultsForSearch: 16,
+						templateResult: profileSelectItemFormatting,
+						templateSelection: profileSelectItemFormatting
+					});
+				},
+				callbackComplete: function () {
+					dialog.find('.btn-primary').toggle(true);
+				}
+			});
+
             dialog.modal();
             return false;
         });
@@ -63,10 +89,90 @@
             var id = $(this).closest('.profile-row').attr('data-profile-id');
 
             fileDialog.find('.modal-body').empty();
+			$({}).doAjax({
+				type: 'GET',
+				url: '@Url.Action("ProfileFileDetails")?deploymentId=0&profileId=' + id,
+				smallIcon: fileDialog.find('.modal-body'),
+				callbackSuccess: function (response) {
+					fileDialog.find('.modal-body').html(response);
+				}
+			});
 
             dialog.modal();
             return false;
         });
+
+		// Toggle provider description.
+		$(document).on('change', 'select[name="ProviderSystemName"]', toggleProviderDescription);
+
+
+		function toggleProviderDescription() {
+			dialog.find('.export-provider-description').hide();
+
+			var option = dialog.find('select[name="ProviderSystemName"]').find(':selected');
+			$('#ExportProviderDescription' + option.attr('data-id')).fadeIn('fast');
+		}
+
+		function providerSelectItemFormatting(item) {
+			try {
+				var option = $(item.element);
+
+				// item.element is undefined for selection formatting.
+				if (option.length === 0) {
+					option = $('select[name="ProviderSystemName"]').find('option[value="' + item.id + '"]');
+				}
+
+				var html = '<div class="form-row flex-nowrap align-items-center">';
+				var imageUrl = option.data('imageurl');
+
+				if (imageUrl) {
+					html += '<div class="col" style="max-width:48px; width:48px"><div class="img-center-container"><img class="img-fluid" src="' + imageUrl + '" /></div></div>';
+				}
+
+				html += '<div class="col">';
+				html += '<div class="fs-xs font-weight-medium" style="line-height:1.2">' + item.text + '</div>';
+				html += '<div class="text-muted fs-xs">' + option.attr('value') + '</div>';
+				html += '</div>';
+				html += '</div>';
+
+				return $(html);
+			}
+			catch (e) { }
+
+			return item.text;
+		}
+
+		function profileSelectItemFormatting(item) {
+			try {
+				var option = $(item.element);
+
+				// item.element is undefined for selection formatting.
+				if (option.length === 0) {
+					option = $('select[name="CloneProfileId"]').find('option[value="' + item.id + '"]');
+				}
+
+				var html = '<div class="form-row flex-nowrap align-items-center h-100">';
+				var imageUrl = option.data('imageurl');
+
+				if (imageUrl) {
+					html += '<div class="col" style="max-width:48px; width:48px"><div class="img-center-container"><img class="img-fluid" src="' + imageUrl + '" /></div></div>';
+				}
+
+				html += '<div class="col">';
+				html += '<div class="fs-xs font-weight-medium" style="line-height:1.2">' + item.text + '</div>';
+				if (option.attr('data-systemname')) {
+					html += '<div class="text-muted fs-xs">' + option.attr('data-systemname') + '</div>';
+				}
+				
+				html += '</div>';
+				html += '</div>';
+
+				return $(html);
+			}
+			catch (e) { }
+
+			return item.text;
+		}
 
     });
 </script>

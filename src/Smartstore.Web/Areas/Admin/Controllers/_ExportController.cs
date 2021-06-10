@@ -23,15 +23,18 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IExportProfileService _exportProfileService;
+        private readonly IProviderManager _providerManager;
         private readonly ITaskStore _taskStore;
 
         public ExportController(
             SmartDbContext db,
             IExportProfileService exportProfileService,
+            IProviderManager providerManager,
             ITaskStore taskStore)
         {
             _db = db;
             _exportProfileService = exportProfileService;
+            _providerManager = providerManager;
             _taskStore = taskStore;
         }
 
@@ -82,8 +85,86 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        [Permission(Permissions.Configuration.Export.Create)]
+        public async Task<IActionResult> Create()
+        {
+            var num = 0;
+            var providers = _exportProfileService.LoadAllExportProviders(0, false)
+                .ToDictionarySafe(x => x.Metadata.SystemName);
+
+            var profiles = await _db.ExportProfiles
+                .AsNoTracking()
+                .ApplyStandardFilter()
+                .ToListAsync();
+
+            var model = new ExportProfileModel();
+
+            ViewBag.Providers = providers.Values
+                .Select(x => new ExportProfileModel.ProviderSelectItem
+                {
+                    Id = ++num,
+                    SystemName = x.Metadata.SystemName,
+                    ImageUrl = GetThumbnailUrl(x),
+                    // TODO: (mg) (core) PluginMediator required in ExportController.
+                    //FriendlyName = _pluginMediator.GetLocalizedFriendlyName(x.Metadata),
+                    FriendlyName = x.Metadata.SystemName,
+                    //Description = _pluginMediator.GetLocalizedDescription(x.Metadata)
+                    Description = x.Metadata.SystemName
+                })
+                .ToList();
+
+            ViewBag.Profiles = profiles
+                .Select(x => new ExportProfileModel.ProviderSelectItem
+                {
+                    Id = x.Id,
+                    SystemName = x.ProviderSystemName,
+                    FriendlyName = x.Name,
+                    ImageUrl = GetThumbnailUrl(providers.Get(x.ProviderSystemName))
+                })
+                .ToList();
+
+            return PartialView(model);
+        }
+
+        [Permission(Permissions.Configuration.Export.Read)]
+        public async Task<IActionResult> ProfileFileDetails(int profileId, int deploymentId)
+        {
+            if (profileId != 0)
+            {
+                var profile = await _db.ExportProfiles
+                    .AsNoTracking()
+                    .ApplyStandardFilter()
+                    .FirstOrDefaultAsync(x => x.Id == profileId);
+
+                if (profile != null)
+                {
+                    var provider = _providerManager.GetProvider<IExportProvider>(profile.ProviderSystemName);
+                    if (provider != null && !provider.Metadata.IsHidden)
+                    {
+                        var model = await CreateFileDetailsModel(profile, null);
+                        return PartialView(model);
+                    }
+                }
+            }
+            else if (deploymentId != 0)
+            {
+                var deployment = await _db.ExportDeployments
+                    .AsNoTracking()
+                    .Include(x => x.Profile)
+                    .FirstOrDefaultAsync(x => x.Id == deploymentId);
+
+                if (deployment != null)
+                {
+                    var model = await CreateFileDetailsModel(deployment.Profile, deployment);
+                    return PartialView(model);
+                }
+            }
+
+            return new EmptyResult();
+        }
+
         #region Utilities
-        
+
         private async Task PrepareProfileModelForList(
             ExportProfileModel model,
             ExportProfile profile,
@@ -111,7 +192,9 @@ namespace Smartstore.Admin.Controllers
                 ThumbnailUrl = GetThumbnailUrl(provider),
                 // TODO: (mg) (core) PluginMediator required in ExportController.
                 //FriendlyName = _pluginMediator.GetLocalizedFriendlyName(provider.Metadata),
+                FriendlyName = provider.Metadata.SystemName,
                 //Description = _pluginMediator.GetLocalizedDescription(provider.Metadata),
+                Description = provider.Metadata.SystemName,
                 //Url = descriptor?.Url,
                 //Author = descriptor?.Author,
                 //Version = descriptor?.Version?.ToString()

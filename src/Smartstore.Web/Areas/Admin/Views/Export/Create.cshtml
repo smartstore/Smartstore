@@ -1,0 +1,59 @@
+﻿@using Smartstore.Admin.Models.Export
+
+@model ExportProfileModel
+
+@{
+    var providers = ViewBag.Providers as List<ExportProfileModel.ProviderSelectItem>;
+    var profiles = ViewBag.Profiles as List<ExportProfileModel.ProviderSelectItem>;
+}
+
+<div sm-if="!providers.Any()">
+    @T("Admin.DataExchange.Export.NoExportProvider")
+</div>
+<div sm-if="providers.Any()">
+    <form asp-action="Create" method="post" class="export-profile-form">
+        <div class="adminContent">
+            <div class="adminRow wide">
+                <div class="adminTitle">
+                    <smart-label asp-for="ProviderSystemName" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="ProviderSystemName" class="form-control form-control-lg select-customtemplate drop-customtemplate">
+                        @foreach (var provider in providers.OrderBy(x => x.FriendlyName))
+                        {
+                            <option value="@provider.SystemName" data-id="@provider.Id" data-imageurl="@provider.ImageUrl">@provider.FriendlyName</option>                         
+                        }
+                    </select>
+                </div>
+            </div>
+            @if (profiles.Any())
+            {
+                <div class="adminRow wide">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CloneProfileId" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="CloneProfileId" class="form-control form-control-lg select-customtemplate drop-customtemplate">
+                            <option>@T("Common.Unspecified")</option>
+							@foreach (var profile in profiles.OrderBy(x => x.FriendlyName))
+							{
+								<option value="@profile.Id" data-systemname="@profile.SystemName" data-imageurl="@profile.ImageUrl">@profile.FriendlyName</option>
+							}
+                        </select>
+                    </div>
+                </div>
+            }
+            <div class="adminRow wide">
+                <div class="adminTitle">
+                    &nbsp;
+                </div>
+                <div class="adminData">
+                    @foreach (var provider in providers.Where(x => x.Description.HasValue()))
+                    {
+                        <div id="ExportProviderDescription@(provider.Id)" class="export-provider-description text-muted">@provider.Description</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

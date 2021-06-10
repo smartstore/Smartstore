@@ -81,8 +81,6 @@ namespace Smartstore.Admin.Models.Export
         //public TaskModel TaskModel { get; set; }
 
         public int StoreCount { get; set; }
-        public string AllString { get; set; }
-        public string UnspecifiedString { get; set; }
         public bool LogFileExists { get; set; }
         public bool HasActiveProvider { get; set; }
         public string[] FileNamePatternDescriptions { get; set; }
