@@ -37,13 +37,7 @@
             </display-template>
         </column>
         <column for="Title" width="minmax(60px, 4fr)" />
-        <column for="WidgetZoneValue" entity-member="WidgetZone" readonly="true" halign="center">
-            <display-template>
-                <div style="word-break: break-all; white-space: initial">
-                    {{ item.value }}
-                </div>
-            </display-template>
-        </column>
+        <column for="WidgetZoneValue" entity-member="WidgetZone" readonly="true" wrap="true" />
         <column for="IsPasswordProtected" readonly="true" halign="center" width="0.75fr" />
         <column for="IncludeInSitemap" halign="center" width="0.75fr" />
         <column for="RenderAsWidget" halign="center" readonly="true" width="0.75fr" />
