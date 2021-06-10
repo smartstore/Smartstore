@@ -15,11 +15,36 @@ namespace Smartstore.Web.TagHelpers.Admin
     }
 
     /// <summary>
-    /// Template for the toolbar content as Vue slot template. Root object is called <c>grid</c>
-    /// and provides the following members: <c>selectedRows, selectedRowsCount, selectedRowKeys, hasSelection, hasSearchPanel, showSearch, command, rows, editing, submitChanges(), cancelEdit(), deleteSelected()</c>
+    /// Template for the toolbar content as Vue slot template. Passed object provides following members:
+    /// <code>
+    /// {
+    ///     options,
+    ///     dataSource,
+    ///     columns,
+    ///     paging,
+    ///     sorting,
+    ///     filtering,
+    ///     grid: {
+    ///         selectedRows,
+    ///         selectedRowsCount,
+    ///         selectedRowKeys, 
+    ///         hasSelection,
+    ///         hasSearchPanel,
+    ///         numSearchFilters,
+    ///         command,
+    ///         rows,
+    ///         editing,
+    ///         insertRow(),
+    ///         saveChanges(),
+    ///         cancelEdit(),
+    ///         deleteSelectedRows(),
+    ///         resetState()
+    ///     }
+    /// }
+    /// </code>
     /// </summary>
     [HtmlTargetElement("toolbar", ParentTag = "datagrid")]
-    [RestrictChildren("toolbar-group")]
+    [RestrictChildren("toolbar-group", "a", "button", "div", "zone")]
     public class GridToolbarTagHelper : TagHelper
     {
         public override void Init(TagHelperContext context)
@@ -44,6 +69,7 @@ namespace Smartstore.Web.TagHelpers.Admin
 
     [OutputElementHint("div")]
     [HtmlTargetElement("toolbar-group", ParentTag = "toolbar")]
+    [RestrictChildren("a", "button", "div", "zone")]
     public class GridToolbarGroupTagHelper : TagHelper
     {
         public override void Process(TagHelperContext context, TagHelperOutput output)
@@ -53,7 +79,9 @@ namespace Smartstore.Web.TagHelpers.Admin
         }
     }
 
+    [HtmlTargetElement("a", ParentTag = "toolbar")]
     [HtmlTargetElement("a", ParentTag = "toolbar-group")]
+    [HtmlTargetElement("button", ParentTag = "toolbar")]
     [HtmlTargetElement("button", ParentTag = "toolbar-group")]
     public class GridToolTagHelper : TagHelper
     {
@@ -73,8 +101,8 @@ namespace Smartstore.Web.TagHelpers.Admin
             {
                 output.AppendCssClass("dg-search-toggle");
                 //output.MergeAttribute("v-if", "grid.hasSearchPanel"); // ??? Hmmm...
-                output.MergeAttribute("v-bind:class", "{ 'active': grid.showSearch }");
-                output.MergeAttribute("v-on:click", "grid.toggleSearch");
+                output.MergeAttribute("v-bind:class", "{ 'active': options.showSearch }");
+                output.MergeAttribute("v-on:click", "options.showSearch = !options.showSearch");
                 output.PostContent.AppendHtml("<span v-if='grid.numSearchFilters > 0' class='badge badge-pill badge-success dg-toolbar-badge'>{{ grid.numSearchFilters }}</span>");
 
                 return;
@@ -104,12 +132,12 @@ namespace Smartstore.Web.TagHelpers.Admin
             if (Action == DataGridToolAction.DeleteSelectedRows || Action == DataGridToolAction.ReactToSelection)
             {
                 output.MergeAttribute("v-bind:class", "{ 'disabled': !grid.hasSelection }");
-                output.PostContent.AppendHtml("<span v-if='grid.hasSelection' class='fwm'>({{ grid.selectedRowsCount }})</span>");
+                output.PostContent.AppendHtml("<span v-if='grid.hasSelection' class='badge badge-success'>{{ grid.selectedRowsCount }}</span>");
             }
 
             if (Action == DataGridToolAction.DeleteSelectedRows)
             {
-                output.MergeAttribute("v-on:click.prevent", "grid.deleteSelected");
+                output.MergeAttribute("v-on:click.prevent", "grid.deleteSelectedRows");
             }
 
             // TODO: (core) Add more actions

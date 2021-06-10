@@ -20,11 +20,11 @@
             </template>
             
             <div v-if="rows.length > 0" class="ml-auto d-flex align-items-center">
-                <span class="dg-page text-muted mr-3 text-truncate d-none d-md-inline pl-2">
+                <span class="dg-page text-muted text-truncate d-none d-md-inline pl-2">
                     <span class="d-none d-lg-inline">Anzeigen der Elemente </span>
                     <span>{{ firstItemIndex.toLocaleString() }}-{{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}</span>
                 </span>
-                <div v-if="paging.showSizeChooser && paging.availableSizes?.length" class="dropdown d-flex align-items-center border-left pl-1">
+                <div v-if="paging.showSizeChooser && paging.availableSizes?.length" class="dropdown d-flex align-items-center border-left pl-1 ml-3">
                     <a href="#" class="dg-page dg-page-size-chooser btn btn-light btn-sm dropdown-toggle text-truncate px-3" data-toggle="dropdown">
                         <span class="fwm">{{ command.pageSize }}</span> pro Seite
                     </a>

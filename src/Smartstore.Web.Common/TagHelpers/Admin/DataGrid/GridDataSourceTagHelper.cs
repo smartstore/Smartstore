@@ -47,7 +47,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 read = Read,
                 insert = Insert,
                 update = Update,
-                deleteSelected = Delete
+                del = Delete
             };
         }
     }

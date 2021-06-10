@@ -34,6 +34,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string EntityMemberAttributeName = "entity-member";
         const string IconAttributeName = "icon";
         const string DefaultValueAttributeName = "default-value";
+        const string OnCellClassAttributeName = "oncellclass";
 
         public override void Init(TagHelperContext context)
         {
@@ -162,6 +163,14 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(IconAttributeName)]
         public string Icon { get; set; }
 
+        /// <summary>
+        /// Name of Javascript function to call for custom CSS class binding for a particular column cell (tbody > tr > td). 
+        /// The function should return a plain object that can be used in a Vue <c>v-bind:class</c> directive.
+        /// Function parameters: <c>this</c> = Grid component instance, <c>value</c>, <c>column</c>, <c>row</c>.
+        /// </summary>
+        [HtmlAttributeName(OnCellClassAttributeName)]
+        public string OnCellClass { get; set; }
+
         [HtmlAttributeNotBound]
         public TagHelperContent DisplayTemplate { get; set; }
 
@@ -209,7 +218,8 @@ namespace Smartstore.Web.TagHelpers.Admin
                 reorderable = Reorderable,
                 wrap = Wrap,
                 entityMember = EntityMember,
-                icon = Icon
+                icon = Icon,
+                onCellClass = OnCellClass
             };
         }
 
@@ -249,8 +259,24 @@ namespace Smartstore.Web.TagHelpers.Admin
     }
 
     /// <summary>
-    /// Custom display template for the cell content as Vue slot template. Root object is called <c>item</c>
-    /// and provides the following members: <c>value, row, rowIndex, column, columnIndex</c>
+    /// Custom display template for the cell content as Vue slot template. Passed object provides following members:
+    /// <code>
+    /// {
+    ///     options,
+    ///     dataSource,
+    ///     columns,
+    ///     paging,
+    ///     sorting,
+    ///     filtering,
+    ///     item: {
+    ///         value,
+    ///         row,
+    ///         rowIndex, 
+    ///         column,
+    ///         columnIndex
+    ///     }
+    /// }
+    /// </code>
     /// </summary>
     [HtmlTargetElement("display-template", ParentTag = "column")]
     public class DisplayTemplateTagHelper : TagHelper

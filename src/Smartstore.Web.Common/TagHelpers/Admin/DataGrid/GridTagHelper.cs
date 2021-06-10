@@ -22,7 +22,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     }
     
     [HtmlTargetElement("datagrid")]
-    [RestrictChildren("columns", "datasource", "paging", "toolbar", "sorting", "search-panel")]
+    [RestrictChildren("columns", "datasource", "paging", "toolbar", "sorting", "search-panel", "row-commands")]
     public class GridTagHelper : SmartTagHelper
     {
         const string BorderAttributeName = "border-style";
@@ -43,6 +43,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string OnDataBindingAttributeName = "ondatabinding";
         const string OnDataBoundAttributeName = "ondatabound";
         const string OnRowSelectedAttributeName = "onrowselected";
+        const string OnRowClassAttributeName = "onrowclass";
+        const string OnCellClassAttributeName = "oncellclass";
 
         public override void Init(TagHelperContext context)
         {
@@ -169,6 +171,22 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(OnRowSelectedAttributeName)]
         public string OnRowSelected { get; set; }
 
+        /// <summary>
+        /// Name of Javascript function to call for custom CSS class binding on row level (tbody > tr). 
+        /// The function should return a plain object that can be used in a Vue <c>v-bind:class</c> directive.
+        /// Function parameters: <c>this</c> = Grid component instance, <c>row</c>.
+        /// </summary>
+        [HtmlAttributeName(OnRowClassAttributeName)]
+        public string OnRowClass { get; set; }
+
+        /// <summary>
+        /// Name of Javascript function to call for custom global CSS class binding on cell level (tbody > tr > td). 
+        /// The function should return a plain object that can be used in a Vue <c>v-bind:class</c> directive.
+        /// Function parameters: <c>this</c> = Grid component instance, <c>value</c>, <c>column</c>, <c>row</c>.
+        /// </summary>
+        [HtmlAttributeName(OnCellClassAttributeName)]
+        public string OnCellClass { get; set; }
+
         #endregion
 
         #region Internal properties
@@ -196,6 +214,9 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         [HtmlAttributeNotBound]
         internal GridSearchPanelTagHelper SearchPanel { get; set; }
+
+        [HtmlAttributeNotBound]
+        internal GridRowCommandsTagHelper RowCommands { get; set; }
 
         [HtmlAttributeNotBound]
         internal string KeyMemberName 
@@ -231,7 +252,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             component.Attributes[":sorting"] = "sorting";
 
             // Generate toolbar slot
-            if (Toolbar?.Template?.IsEmptyOrWhiteSpace == false)
+            if (Toolbar?.Template != null && !Toolbar.Template.IsEmptyOrWhiteSpace)
             {
                 var toolbar = new TagBuilder("div");
                 toolbar.Attributes["class"] = "dg-toolbar d-flex flex-nowrap";
@@ -244,7 +265,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             }
 
             // Generate search panel slot
-            if (SearchPanel?.Template?.IsEmptyOrWhiteSpace == false)
+            if (SearchPanel?.Template != null && !SearchPanel.Template.IsEmptyOrWhiteSpace)
             {
                 var slot = new TagBuilder("template");
                 slot.Attributes["v-slot:search"] = "grid";
@@ -252,8 +273,8 @@ namespace Smartstore.Web.TagHelpers.Admin
                 component.InnerHtml.AppendHtml(slot);
             }
 
-            // Generate detail-view slot
-            if (DetailView?.Template?.IsEmptyOrWhiteSpace == false)
+            // Generate detailview slot
+            if (DetailView?.Template != null && !DetailView.Template.IsEmptyOrWhiteSpace)
             {
                 var slot = new TagBuilder("template");
                 slot.Attributes["v-slot:detailview"] = "item";
@@ -261,10 +282,19 @@ namespace Smartstore.Web.TagHelpers.Admin
                 component.InnerHtml.AppendHtml(slot);
             }
 
+            // Generate rowcommands slot
+            if (RowCommands?.Template != null && !RowCommands.Template.IsEmptyOrWhiteSpace)
+            {
+                var slot = new TagBuilder("template");
+                slot.Attributes["v-slot:rowcommands"] = "item";
+                slot.InnerHtml.AppendHtml(RowCommands.Template);
+                component.InnerHtml.AppendHtml(slot);
+            }
+
             // Generate column template slots
             foreach (var column in Columns)
             {
-                if (column.DisplayTemplate?.IsEmptyOrWhiteSpace == false)
+                if (column.DisplayTemplate != null && !column.DisplayTemplate.IsEmptyOrWhiteSpace)
                 {
                     var displaySlot = new TagBuilder("template");
                     displaySlot.Attributes["v-slot:display-" + column.NormalizedMemberName] = "item";
@@ -324,14 +354,17 @@ namespace Smartstore.Web.TagHelpers.Admin
                     allowEdit = AllowEdit,
                     hideHeader = HideHeader,
                     maxHeight = MaxHeight,
+                    showSearch = false,
                     searchPanelWidth = SearchPanel?.Width,
                     stateKey = Id,
                     preserveState = PreserveGridState,
                     version = Version,
-                    defaultDataRow = defaultDataRow,
+                    defaultDataRow,
                     onDataBinding = OnDataBinding,
                     onDataBound = OnDataBound,
-                    onRowSelected = OnRowSelected
+                    onRowSelected = OnRowSelected,
+                    onRowClass = OnRowClass,
+                    onCellClass = OnCellClass
                 },
                 dataSource = DataSource?.ToPlainObject(),
                 columns = Columns.Select(c => c.ToPlainObject()).ToList(),
@@ -340,7 +373,6 @@ namespace Smartstore.Web.TagHelpers.Admin
                 filtering = Filtering?.ToPlainObject() ?? new { },
 
                 // Define reactive data properties required during (slot) rendering
-                showSearch = false,
                 numSearchFilters = 0,
                 dragging = new { active = false },
                 editing = new { active = false }

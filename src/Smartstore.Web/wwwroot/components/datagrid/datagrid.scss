@@ -119,7 +119,7 @@ $body-color: #393f46;
 
     .dg-td {
         background-color: var(--dg-row-bg);
-        transition: background-color 0.1s ease-in-out;
+        //transition: background-color 0.1s ease-in-out;
         //overflow: hidden;
     }
 
@@ -289,7 +289,7 @@ $body-color: #393f46;
 
 .dg-table:not(.dg-resizing) .dg-sortable {
     cursor: pointer;
-    transition: background-color 0.1s ease-in-out;
+    //transition: background-color 0.1s ease-in-out;
 
     &:hover {
         background-color: rgba(#000, 0.035);

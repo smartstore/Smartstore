@@ -15,16 +15,16 @@
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
         <toolbar-group>
-            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
                 <i class="fa fa-fw fa-filter"></i>
             </button>
         </toolbar-group>
         <toolbar-group>
             @*<a v-if="!grid.editing.active" asp-action="Create" class="btn btn-primary btn-flat mr-auto">
-                    <i class="fa fa-plus"></i>
-                    <span>@T("Admin.Common.AddNew")...</span>
-                </a>*@
-            <button datagrid-action="DataGridToolAction.InsertRow" class="btn btn-primary btn-flat mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>*@
+            <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat mr-auto">
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Common.AddNew")...</span>
             </button>
@@ -33,20 +33,33 @@
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.SaveChanges")</span>
             </button>
-            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-secondary btn-flat mr-auto">
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
                 <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>
-        <toolbar-group class="omega">
+
+        <toolbar-group class="omega"></toolbar-group>
+
+        <toolbar-group class="border-right-0 mr-0 pr-0">
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
-            <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-secondary btn-flat">
-                <i class="far fa-upload"></i>
-                <span>Exportieren</span>
-            </button>
         </toolbar-group>
+
+        <zone name="datagrid_toolbar_after"></zone>
+        @* TODO: (mg) (core) Inject export dropdowns like this from modules *@
+        @*<toolbar-group class="border-right-0 border-left mr-0 pr-0 pl-2 ml-2">
+            <div class="dropdown">
+                <button v-bind:class="{ disabled: !grid.hasSelection }" type="button" class="btn btn-light btn-flat dropdown-toggle" data-toggle="dropdown" data-boundary="window">
+                    <i class="far fa-upload"></i>
+                    <span>Exportieren</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a href="#" class="dropdown-item">Hallo</a>
+                </div>
+            </div>
+        </toolbar-group>*@
     </toolbar>
     <search-panel>
         <partial name="_Grid.Products.Search" model="parentModel" />
@@ -92,8 +105,12 @@
         <column for="AvailableStartDateTimeUtc" visible="false" />
         <column for="AvailableEndDateTimeUtc" visible="false" />
     </columns>
+    <row-commands>
+        <a href="#" class="dropdown-item" v-on:click.prevent="item.activateEdit(item.row)">Bearbeiten</a>
+        <a href="#" class="dropdown-item" v-on:click.prevent="item.deleteRows(item.row)">Löschen</a>
+    </row-commands>
 </datagrid>
 
 <script sm-target-zone="scripts" data-origin="products-grid">
-    // ...
+
 </script>
