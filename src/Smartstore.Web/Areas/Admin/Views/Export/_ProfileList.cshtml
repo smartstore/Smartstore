@@ -8,7 +8,7 @@
 <div class="mb-5">
     <div class="heading">
         <h5 class="heading-title">
-            @T("Admin.DataExchange.Export." + (isSystemProfiles ? "SystemProfilesTitle" : "UserProfilesTitle"))
+			@T(isSystemProfiles ? "Admin.DataExchange.Export.SystemProfilesTitle" : "Admin.DataExchange.Export.UserProfilesTitle")
         </h5>
     </div>
 	<div sm-if="!hasProfiles" class="alert alert-info">
