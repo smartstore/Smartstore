@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
+using Smartstore.Web.Modelling.DataGrid;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
@@ -45,6 +46,13 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string OnRowSelectedAttributeName = "onrowselected";
         const string OnRowClassAttributeName = "onrowclass";
         const string OnCellClassAttributeName = "oncellclass";
+
+        private readonly IGridCommandStateStore _gridCommandStateStore;
+
+        public GridTagHelper(IGridCommandStateStore gridCommandStateStore)
+        {
+            _gridCommandStateStore = gridCommandStateStore;
+        }
 
         public override void Init(TagHelperContext context)
         {
@@ -274,16 +282,20 @@ namespace Smartstore.Web.TagHelpers.Admin
                 }
             }
 
-            output.PostElement.AppendHtmlLine(@$"<script>$(function() {{ window['{Id}'] = new Vue({GenerateVueJson()}); }})</script>");
+            GridCommand preservedCommandState = PreserveCommandState ? await _gridCommandStateStore.LoadStateAsync(Id) : null;
+
+            output.PostElement.AppendHtmlLine(@$"<script>$(function() {{ window['{Id}'] = new Vue({GenerateVueJson(preservedCommandState)}); }})</script>");
         }
 
-        private string GenerateVueJson()
+        private string GenerateVueJson(GridCommand command)
         {
             var modelType = Columns.FirstOrDefault()?.For?.Metadata?.ContainerType;
             var defaultDataRow = modelType != null && modelType.HasDefaultConstructor() 
                 ? Activator.CreateInstance(modelType) 
                 : null;
-            
+
+            var pathChanged = command == null || ViewContext.HttpContext.Request.RawUrl().EqualsNoCase(command.Path.EmptyNull());
+
             var dict = new Dictionary<string, object>
             {
                 { "el", "#" + Id }
@@ -318,9 +330,9 @@ namespace Smartstore.Web.TagHelpers.Admin
                 },
                 dataSource = DataSource?.ToPlainObject(),
                 columns = Columns.Select(c => c.ToPlainObject()).ToList(),
-                paging = Paging?.ToPlainObject() ?? new { },
-                sorting = Sorting?.ToPlainObject() ?? new { },
-                filtering = Filtering?.ToPlainObject() ?? new { },
+                paging = Paging?.ToPlainObject(command, pathChanged) ?? new { },
+                sorting = Sorting?.ToPlainObject(command) ?? new { },
+                filtering = Filtering?.ToPlainObject(command) ?? new { },
 
                 // Define reactive data properties required during (slot) rendering
                 numSearchFilters = 0,

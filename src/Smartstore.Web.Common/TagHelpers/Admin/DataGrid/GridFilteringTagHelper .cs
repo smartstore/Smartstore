@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Rules;
+using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -35,14 +36,14 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.SuppressOutput();
         }
 
-        internal object ToPlainObject()
+        internal object ToPlainObject(GridCommand command = null)
         {
             return new
             {
                 enabled = Enabled,
-                descriptors = Descriptors
-                    .Select(x => new { member = x.MemberName, op = x.Operator.ToString(), value = x.Value })
-                    .ToArray()
+                descriptors = command == null
+                    ? Descriptors.Select(x => x.ToPlainObject()).ToArray()
+                    : Descriptors.Select(x => x.ToPlainObject()).ToArray() // TODO: (core) Implement command filter preservation
             };
         }
     }
@@ -85,6 +86,11 @@ namespace Smartstore.Web.TagHelpers.Admin
         internal Type MemberType
         {
             get => For.Metadata.ModelType;
+        }
+
+        internal object ToPlainObject()
+        {
+            return new { member = MemberName, op = Operator.ToString(), value = Value };
         }
     }
 }

@@ -422,10 +422,9 @@ Vue.component("sm-datagrid", {
         this.hasEditableVisibleColumn = this.columns.some(this.isEditableVisibleColumn);
         this.hasRowCommands = !!(this.$scopedSlots.rowcommands);
 
-        // Read data from server.
-        // Process initial read after a short delay, because something's wrong with numSearchFilters
-        // if we call immediately.
-        window.setTimeout(() => { this.read(); }, 50);
+        // Read data from server. Process initial read after a short delay, 
+        // because something's wrong with numSearchFilters if we call immediately.
+        window.setTimeout(() => { this.read(true, true); }, 50);
     },
 
     updated() {
@@ -736,7 +735,7 @@ Vue.component("sm-datagrid", {
 
         // #region Commands
 
-        read(force) {
+        read(force, initial) {
             if (!force && this.isBusy)
                 return;
 
@@ -745,7 +744,11 @@ Vue.component("sm-datagrid", {
             self.isBusy = true;
 
             const input = document.querySelector('input[name=__RequestVerificationToken]');
-            const command = $.extend(true, { __RequestVerificationToken: input.value }, this.command);
+            const command = $.extend(true, { __RequestVerificationToken: input.value }, this.command, {
+                initialRequest: initial,
+                gridId: this.options.stateKey,
+                path: location.pathname + location.search
+            });
 
             // Fix sort descriptors (member --> entityMember)
             if (command.sorting) {
@@ -767,14 +770,13 @@ Vue.component("sm-datagrid", {
                             return x.length > 0 || (x.length === 1 && x[0]);
                         }
                         else if (_.isBoolean(x)) {
-                            console.log(x, "yooo");
                             return x;
                         }
 
                         return !!(x);
                     })
                     .length;
-                //console.log(this.numSearchFilters, filterObj);
+
                 $.extend(true, command, filterObj);
             }
 

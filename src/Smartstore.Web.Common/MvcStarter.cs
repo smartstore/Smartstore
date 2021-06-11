@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -32,6 +33,7 @@ using Smartstore.IO;
 using Smartstore.Net;
 using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.DataGrid;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Razor;
@@ -111,8 +113,11 @@ namespace Smartstore.Web
                 {
                     //o.EnableEndpointRouting = false;
                     // TODO: (core) AddModelBindingMessagesLocalizer
-                    // TODO: (core) Add model binders
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
+
+                    // TODO: (core) Add more model binders
+                    var complexBinderProvider = o.ModelBinderProviders.OfType<ComplexObjectModelBinderProvider>().First();
+                    o.ModelBinderProviders.Insert(0, new GridCommandModelBinderProvider(complexBinderProvider));
                 })
                 .AddRazorRuntimeCompilation(o =>
                 {
@@ -196,6 +201,7 @@ namespace Smartstore.Web
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<DefaultViewDataAccessor>().As<IViewDataAccessor>().InstancePerLifetimeScope();
+            builder.RegisterType<GridCommandStateStore>().As<IGridCommandStateStore>().InstancePerLifetimeScope();
             builder.RegisterType<StoreDependingSettingHelper>().AsSelf().InstancePerLifetimeScope();
 
             // Convenience: Register IUrlHelper as transient dependency.

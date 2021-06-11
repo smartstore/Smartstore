@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -48,14 +49,16 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.SuppressOutput();
         }
 
-        internal object ToPlainObject()
+        internal object ToPlainObject(GridCommand command = null)
         {
             return new
             {
                 enabled = Enabled,
                 allowUnsort = AllowUnsort,
                 allowMultiSort = MultiSort,
-                descriptors = Descriptors.Select(x => x.ToPlainObject()).ToArray()
+                descriptors = command == null 
+                    ? Descriptors.Select(x => x.ToPlainObject()).ToArray() 
+                    : command.Sorting.Select(x => new { member = x.Member, descending = x.Descending }).ToArray()
             };
         }
     }

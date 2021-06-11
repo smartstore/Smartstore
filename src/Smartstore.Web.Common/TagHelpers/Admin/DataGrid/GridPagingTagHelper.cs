@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -90,13 +91,19 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.SuppressOutput();
         }
 
-        internal object ToPlainObject()
+        internal object ToPlainObject(GridCommand command = null, bool pathChanged = true)
         {
+            var pageIndex = PageIndex;
+            if (command != null && !pathChanged)
+            {
+                pageIndex = command.Page;
+            }
+            
             return new
             {
                 enabled = Enabled,
                 pageSize = PageSize,
-                pageIndex = PageIndex,
+                pageIndex = pageIndex,
                 position = Position.ToString().ToLower(),
                 total = Total,
                 showSizeChooser = ShowSizeChooser,
