@@ -26,8 +26,8 @@ namespace Smartstore.Web.Bootstrapping
         {
             //// TODO: (core) Configure CookiePolicyOptions including GDPR consent stuff.
             //// TODO: (core) Update CookiePolicyOptions whenever store or other dependent settings change by calling this method from controller with current options.
-            ///
-            //options.CheckConsentNeeded = context => true;
+            
+            //options.CheckConsentNeeded = context => false;
             options.HttpOnly = HttpOnlyPolicy.None;
             options.ConsentCookie.Name = CookieNames.CookieConsent;
             options.MinimumSameSitePolicy = _privacySettings.SameSiteMode;

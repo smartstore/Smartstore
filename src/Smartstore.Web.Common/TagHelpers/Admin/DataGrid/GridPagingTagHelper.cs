@@ -91,19 +91,13 @@ namespace Smartstore.Web.TagHelpers.Admin
             output.SuppressOutput();
         }
 
-        internal object ToPlainObject(GridCommand command = null, bool pathChanged = true)
-        {
-            var pageIndex = PageIndex;
-            if (command != null && !pathChanged)
-            {
-                pageIndex = command.Page;
-            }
-            
+        internal object ToPlainObject(GridCommand command = null)
+        {   
             return new
             {
                 enabled = Enabled,
                 pageSize = PageSize,
-                pageIndex = pageIndex,
+                pageIndex = command?.Page ?? PageIndex,
                 position = Position.ToString().ToLower(),
                 total = Total,
                 showSizeChooser = ShowSizeChooser,

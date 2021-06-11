@@ -294,7 +294,11 @@ namespace Smartstore.Web.TagHelpers.Admin
                 ? Activator.CreateInstance(modelType) 
                 : null;
 
-            var pathChanged = command == null || ViewContext.HttpContext.Request.RawUrl().EqualsNoCase(command.Path.EmptyNull());
+            var pathChanged = command == null || !ViewContext.HttpContext.Request.RawUrl().EqualsNoCase(command.Path.EmptyNull());
+            if (pathChanged)
+            {
+                command = null;
+            }
 
             var dict = new Dictionary<string, object>
             {
@@ -330,7 +334,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 },
                 dataSource = DataSource?.ToPlainObject(),
                 columns = Columns.Select(c => c.ToPlainObject()).ToList(),
-                paging = Paging?.ToPlainObject(command, pathChanged) ?? new { },
+                paging = Paging?.ToPlainObject(command) ?? new { },
                 sorting = Sorting?.ToPlainObject(command) ?? new { },
                 filtering = Filtering?.ToPlainObject(command) ?? new { },
 

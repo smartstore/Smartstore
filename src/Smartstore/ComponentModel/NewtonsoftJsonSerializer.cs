@@ -28,7 +28,7 @@ namespace Smartstore.ComponentModel
                 ContractResolver = SmartContractResolver.Instance,
                 TypeNameHandling = TypeNameHandling.Objects,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                ObjectCreationHandling = ObjectCreationHandling.Replace,
+                ObjectCreationHandling = ObjectCreationHandling.Auto,
                 NullValueHandling = NullValueHandling.Ignore,
                 MaxDepth = 32
             };
