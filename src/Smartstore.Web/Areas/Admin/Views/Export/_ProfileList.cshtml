@@ -49,7 +49,7 @@
 							<file-icon file-extension="@profile.Provider.FileExtension" show-label="true" />
 						</td>
 						<td id="ExportFileCount@(profile.Id)" class="text-center">
-							<partial name="_ProfileFileCount" model="profile.FileCount" />
+							<partial name="ProfileFileCount" model="profile.FileCount" />
 						</td>
 						<td>
 							<div class="last-run-info">
@@ -69,27 +69,27 @@
 						</td>
                         <td class="omega" style="width: 200px;">
                             <button type="button" class="btn btn-block btn-sm btn-warning btn-run-task"
-                                    attr-class='(profile.IsTaskRunning || !profile.Enabled, "hide")'
-                                    data-url="@Url.Action("Execute", "Export", new { area = "Admin", id = profile.Id })"
-                                    data-task-id="@profile.TaskId">
-                                <i class="fa fa-play"></i>
-                                <span>@T("Admin.System.ScheduleTasks.RunNow")</span>
+								attr-class='(profile.IsTaskRunning || !profile.Enabled, "hide")'
+								data-url="@Url.Action("Execute", "Export", new { area = "Admin", id = profile.Id })"
+								data-task-id="@profile.TaskId">
+									<i class="fa fa-play"></i>
+									<span>@T("Admin.System.ScheduleTasks.RunNow")</span>
                             </button>
                             @*TODO: (mg) (core) Use confirm tag*@
                             @*TODO: (mg) (core) complete export profile list (admin task controller required)*@
                             <a asp-action="CancelJob" asp-controller="ScheduleTask" asp-route-id="@profile.TaskId" asp-area="Admin"
-                               class="btn btn-block btn-sm btn-secondary btn-cancel-task"
-                               attr-class='(!profile.IsTaskRunning, "hide")'
-                               data-task-id="@profile.TaskId"
-                               onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
-                                <span>@T("Common.Cancel")</span>
+								class="btn btn-block btn-sm btn-secondary btn-cancel-task"
+								attr-class='(!profile.IsTaskRunning, "hide")'
+								data-task-id="@profile.TaskId"
+								onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
+									<span>@T("Common.Cancel")</span>
                             </a>
                             <a asp-action="DownloadLogFile" asp-route-id="@profile.Id"
-                               target="LogFile"
-                               class="btn btn-block btn-sm btn-secondary btn-log"
-                               attr-class='(profile.IsTaskRunning || !profile.Enabled || !profile.LogFileExists, "d-none")'>
-                                <i class="far fa-file-alt"></i>
-                                <span>@T("Admin.Configuration.ActivityLog")</span>
+								target="LogFile"
+								class="btn btn-block btn-sm btn-secondary btn-log"
+								attr-class='(profile.IsTaskRunning || !profile.Enabled || !profile.LogFileExists, "d-none")'>
+									<i class="far fa-file-alt"></i>
+									<span>@T("Admin.Configuration.ActivityLog")</span>
                             </a>
                         </td>
 					</tr>

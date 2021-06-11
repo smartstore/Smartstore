@@ -940,6 +940,10 @@ namespace Smartstore.Web.Controllers
             //var product = await _db.Products.FindByIdAsync(1751, false);
             //var cart = await scs.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
+            var dt = DateTime.UtcNow.Subtract(TimeSpan.FromHours(4));
+            var dtConverted = Services.DateTimeHelper.ConvertToUserTime(dt, DateTimeKind.Utc);
+            content.AppendLine($"Humanize: {dtConverted} > {dtConverted.Humanize(false)}");
+
             var imProfile = await _db.ImportProfiles.FindByIdAsync(4, false);
             var imDir = await ips.GetImportDirectoryAsync(imProfile, "Content", true);
             content.AppendLine($"{imDir.Exists}: {imDir.Name}, {imDir.SubPath}, {imDir.PhysicalPath}");

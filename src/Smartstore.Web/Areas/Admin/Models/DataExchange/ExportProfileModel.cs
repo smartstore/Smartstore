@@ -70,14 +70,11 @@ namespace Smartstore.Admin.Models.Export
         public int? CloneProfileId { get; set; }
 
         public ProviderModel Provider { get; set; }
+        public ExportFilterModel Filter { get; set; }
+        public ExportProjectionModel Projection { get; set; }
+        public List<ExportDeploymentModel> Deployments { get; set; }
 
-        // TODO: (mg) (core) complete ExportProfileModel.
-        //public ExportFilterModel Filter { get; set; }
-
-        //public ExportProjectionModel Projection { get; set; }
-
-        //public List<ExportDeploymentModel> Deployments { get; set; }
-
+        // TODO: (mg) (core) complete ExportProfileModel (TaskModel required).
         //public TaskModel TaskModel { get; set; }
 
         public int StoreCount { get; set; }
@@ -169,23 +166,7 @@ namespace Smartstore.Admin.Models.Export
             public IFile File { get; set; }
             public string FileUrl { get; set; }
             public string FriendlyFileUrl { get; set; }
-
-            public string FileRootPath
-            {
-                get
-                {
-                    // TODO: (mg) (core) complete ExportProfileModel (FileRootPath required).
-                    var rootPath = "";
-                    //var appPath = HttpRuntime.AppDomainAppPath;
-
-                    //if (FilePath.StartsWith(appPath))
-                    //    rootPath = FilePath.Replace(appPath, "~/");
-
-                    //rootPath = rootPath.Replace('\\', '/');
-
-                    return rootPath;
-                }
-            }
+            public string FileRootPath { get; set; }
         }
     }
 
@@ -199,11 +180,10 @@ namespace Smartstore.Admin.Models.Export
             RuleFor(x => x.Limit).GreaterThanOrEqualTo(0);
             RuleFor(x => x.BatchSize).GreaterThanOrEqualTo(0);
 
-            // TODO: (mg) (core) complete ExportProfileModel.
-            //RuleFor(x => x.ExportRelatedData)
-            //    .Must(x => x == false)
-            //    .When(x => x.Projection?.AttributeCombinationAsProduct ?? false)
-            //    .WithMessage(T("Admin.DataExchange.Export.ExportRelatedData.Validate"));
+            RuleFor(x => x.ExportRelatedData)
+                .Must(x => x == false)
+                .When(x => x.Projection?.AttributeCombinationAsProduct ?? false)
+                .WithMessage(T("Admin.DataExchange.Export.ExportRelatedData.Validate"));
         }
     }
 }

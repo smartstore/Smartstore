@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dasync.Collections;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Export;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
+using Smartstore.Core.DataExchange.Export.Deployment;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
@@ -16,6 +20,7 @@ using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -25,17 +30,20 @@ namespace Smartstore.Admin.Controllers
         private readonly IExportProfileService _exportProfileService;
         private readonly IProviderManager _providerManager;
         private readonly ITaskStore _taskStore;
+        private readonly DataExchangeSettings _dataExchangeSettings;
 
         public ExportController(
             SmartDbContext db,
             IExportProfileService exportProfileService,
             IProviderManager providerManager,
-            ITaskStore taskStore)
+            ITaskStore taskStore,
+            DataExchangeSettings dataExchangeSettings)
         {
             _db = db;
             _exportProfileService = exportProfileService;
             _providerManager = providerManager;
             _taskStore = taskStore;
+            _dataExchangeSettings = dataExchangeSettings;
         }
 
         public IActionResult Index()
@@ -71,7 +79,7 @@ namespace Smartstore.Admin.Controllers
                     var profileModel = new ExportProfileModel();
 
                     lastExecutionInfos.TryGetValue(profile.TaskId, out var lastExecutionInfo);
-                    await PrepareProfileModelForList(profileModel, profile, provider, lastExecutionInfo);
+                    await PrepareProfileModel(profileModel, profile, provider, lastExecutionInfo, false);
 
                     var fileDetailsModel = await CreateFileDetailsModel(profile, null);
                     profileModel.FileCount = fileDetailsModel.FileCount;
@@ -83,6 +91,22 @@ namespace Smartstore.Admin.Controllers
             }
 
             return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Export.Read)]
+        public async Task<IActionResult> ProfileFileDetails(int profileId, int deploymentId)
+        {
+            var model = await CreateFileDetailsModel(profileId, deploymentId);
+
+            return model != null ? PartialView(model) : new EmptyResult();
+        }
+
+        [Permission(Permissions.Configuration.Export.Read)]
+        public async Task<IActionResult> ProfileFileCount(int profileId)
+        {
+            var model = await CreateFileDetailsModel(profileId, 0);
+
+            return model != null ? PartialView(model.FileCount) : new EmptyResult();
         }
 
         [Permission(Permissions.Configuration.Export.Create)]
@@ -126,50 +150,75 @@ namespace Smartstore.Admin.Controllers
             return PartialView(model);
         }
 
-        [Permission(Permissions.Configuration.Export.Read)]
-        public async Task<IActionResult> ProfileFileDetails(int profileId, int deploymentId)
+        [HttpPost]
+        [Permission(Permissions.Configuration.Export.Create)]
+        public async Task<IActionResult> Create(ExportProfileModel model)
         {
-            if (profileId != 0)
+            if (model.ProviderSystemName.HasValue())
             {
-                var profile = await _db.ExportProfiles
-                    .AsNoTracking()
-                    .ApplyStandardFilter()
-                    .FirstOrDefaultAsync(x => x.Id == profileId);
-
-                if (profile != null)
+                var provider = _providerManager.GetProvider<IExportProvider>(model.ProviderSystemName);
+                if (provider != null)
                 {
-                    var provider = _providerManager.GetProvider<IExportProvider>(profile.ProviderSystemName);
-                    if (provider != null && !provider.Metadata.IsHidden)
-                    {
-                        var model = await CreateFileDetailsModel(profile, null);
-                        return PartialView(model);
-                    }
-                }
-            }
-            else if (deploymentId != 0)
-            {
-                var deployment = await _db.ExportDeployments
-                    .AsNoTracking()
-                    .Include(x => x.Profile)
-                    .FirstOrDefaultAsync(x => x.Id == deploymentId);
+                    var profile = await _exportProfileService.InsertExportProfileAsync(provider, false, null, model.CloneProfileId ?? 0);
 
-                if (deployment != null)
-                {
-                    var model = await CreateFileDetailsModel(deployment.Profile, deployment);
-                    return PartialView(model);
+                    return RedirectToAction("Edit", new { id = profile.Id });
                 }
             }
 
-            return new EmptyResult();
+            NotifyError(T("Admin.Common.ProviderNotLoaded", model.ProviderSystemName.NaIfEmpty()));
+
+            return RedirectToAction("List");
+        }
+
+        [Permission(Permissions.Configuration.Export.Read)]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var profile = await _db.ExportProfiles
+                .AsNoTracking()
+                .ApplyStandardFilter()
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (profile == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            var provider = _providerManager.GetProvider<IExportProvider>(profile.ProviderSystemName);
+            if (provider == null || provider.Metadata.IsHidden)
+            {
+                return RedirectToAction("List");
+            }
+
+            var lastExecutionInfo = await _taskStore.GetLastExecutionInfoByTaskIdAsync(profile.TaskId);
+
+            var model = new ExportProfileModel();
+            await PrepareProfileModel(model, profile, provider, lastExecutionInfo, true);
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Export.Read)]
+        public async Task<IActionResult> ResolveFileNamePatternExample(int id, string pattern)
+        {
+            var profile = await _db.ExportProfiles.FindByIdAsync(id, false);
+
+            var resolvedPattern = profile.ResolveFileNamePattern(
+                Services.StoreContext.CurrentStore,
+                1,
+                _dataExchangeSettings.MaxFileNameLength,
+                pattern.EmptyNull());
+
+            return Content(resolvedPattern);
         }
 
         #region Utilities
 
-        private async Task PrepareProfileModelForList(
-            ExportProfileModel model,
-            ExportProfile profile,
+        private async Task PrepareProfileModel(
+            ExportProfileModel model, 
+            ExportProfile profile, 
             Provider<IExportProvider> provider,
-            TaskExecutionInfo lastExecutionInfo)
+            TaskExecutionInfo lastExecutionInfo,
+            bool createForEdit)
         {
             MiniMapper.Map(profile, model);
 
@@ -199,6 +248,165 @@ namespace Smartstore.Admin.Controllers
                 //Author = descriptor?.Author,
                 //Version = descriptor?.Version?.ToString()
             };
+
+            if (!createForEdit)
+            {
+                return;
+            }
+
+            var projection = XmlHelper.Deserialize<ExportProjection>(profile.Projection);
+            var filter = XmlHelper.Deserialize<ExportFilter>(profile.Filtering);
+
+            var language = Services.WorkContext.WorkingLanguage;
+            var store = Services.StoreContext.CurrentStore;
+            var stores = Services.StoreContext.GetAllStores();
+            var emailAccounts = await _db.EmailAccounts.AsNoTracking().ToListAsync();
+
+            var languages = await _db.Languages
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            var currencies = await _db.Currencies
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            model.StoreCount = stores.Count;
+            model.Offset = profile.Offset;
+            model.Limit = profile.Limit == 0 ? null : profile.Limit;
+            model.BatchSize = profile.BatchSize == 0 ? null : profile.BatchSize;
+            model.PerStore = profile.PerStore;
+            model.EmailAccountId = profile.EmailAccountId;
+            model.CompletedEmailAddresses = profile.CompletedEmailAddresses.SplitSafe(",").ToArray();
+            model.CreateZipArchive = profile.CreateZipArchive;
+            model.Cleanup = profile.Cleanup;
+            model.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            model.FileNamePatternExample = profile.ResolveFileNamePattern(store, 1, _dataExchangeSettings.MaxFileNameLength);
+
+            ViewBag.EmailAccounts = emailAccounts
+                .Select(x => new SelectListItem { Text = x.FriendlyName, Value = x.Id.ToString() })
+                .ToList();
+
+            ViewBag.CompletedEmailAddresses = new MultiSelectList(profile.CompletedEmailAddresses.SplitSafe(","));
+
+            // TODO: (mg) (core) check\test whether such ViewBag objects can really be used multiple times for different view controls.
+            ViewBag.Stores = stores
+                .Select(y => new SelectListItem { Text = y.Name, Value = y.Id.ToString() })
+                .ToList();
+
+            ViewBag.Languages = languages
+                .Select(y => new SelectListItem { Text = y.Name, Value = y.Id.ToString() })
+                .ToList();
+
+            ViewBag.Currencies = currencies
+                .Select(y => new SelectListItem { Text = y.Name, Value = y.Id.ToString() })
+                .ToList();
+
+            // Projection.
+            model.Projection = MiniMapper.Map<ExportProjection, ExportProjectionModel>(projection);
+            model.Projection.NumberOfPictures = projection.NumberOfMediaFiles;
+            model.Projection.AppendDescriptionText = projection.AppendDescriptionText.SplitSafe(",").ToArray();
+            model.Projection.CriticalCharacters = projection.CriticalCharacters.SplitSafe(",").ToArray();
+
+            if (profile.Projection.IsEmpty())
+            {
+                model.Projection.DescriptionMergingId = (int)ExportDescriptionMerging.Description;
+            }
+
+            // Filtering.
+            model.Filter = MiniMapper.Map<ExportFilter, ExportFilterModel>(filter);
+            // TODO: (mg) (core) 'Common.Unspecified' required for export filter languages.
+
+            // Deployment.
+            model.Deployments = await profile.Deployments.SelectAsync(async x =>
+            {
+                var deploymentModel = await CreateDeploymentModel(profile, x, null, false);
+
+                if (x.ResultInfo.HasValue())
+                {
+                    var resultInfo = XmlHelper.Deserialize<DataDeploymentResult>(x.ResultInfo);
+                    var lastExecution = Services.DateTimeHelper.ConvertToUserTime(resultInfo.LastExecutionUtc, DateTimeKind.Utc);
+
+                    deploymentModel.LastResult = new ExportDeploymentModel.LastResultInfo
+                    {
+                        Execution = lastExecution,
+                        ExecutionPretty = lastExecution.Humanize(false),
+                        Error = resultInfo.LastError
+                    };
+                }
+
+                return deploymentModel;
+            })
+            .ToListAsync();
+
+            //...
+        }
+
+        private async Task<ExportDeploymentModel> CreateDeploymentModel(
+            ExportProfile profile,
+            ExportDeployment deployment,
+            Provider<IExportProvider> provider,
+            bool forEdit)
+        {
+            var model = MiniMapper.Map<ExportDeployment, ExportDeploymentModel>(deployment);
+
+            model.EmailAddresses = deployment.EmailAddresses.SplitSafe(",").ToArray();
+            model.DeploymentTypeName = await Services.Localization.GetLocalizedEnumAsync(deployment.DeploymentType);
+            model.PublicFolderUrl = await _exportProfileService.GetDeploymentDirectoryUrlAsync(deployment);
+
+            if (forEdit)
+            {
+                model.CreateZip = profile.CreateZipArchive;
+                
+                ViewBag.DeploymentTypes = ExportDeploymentType.FileSystem.ToSelectList(false).ToList();
+                ViewBag.HttpTransmissionTypes = ExportHttpTransmissionType.SimplePost.ToSelectList(false).ToList();
+
+                if (provider != null)
+                {
+                    model.ThumbnailUrl = GetThumbnailUrl(provider);
+                }
+            }
+            else
+            {
+                model.FileCount = (await CreateFileDetailsModel(profile, deployment)).FileCount;
+            }
+
+            return model;
+        }
+
+        private async Task<ExportFileDetailsModel> CreateFileDetailsModel(int profileId, int deploymentId)
+        {
+            if (profileId != 0)
+            {
+                var profile = await _db.ExportProfiles
+                    .AsNoTracking()
+                    .ApplyStandardFilter()
+                    .FirstOrDefaultAsync(x => x.Id == profileId);
+
+                if (profile != null)
+                {
+                    var provider = _providerManager.GetProvider<IExportProvider>(profile.ProviderSystemName);
+                    if (provider != null && !provider.Metadata.IsHidden)
+                    {
+                        return await CreateFileDetailsModel(profile, null);
+                    }
+                }
+            }
+            else if (deploymentId != 0)
+            {
+                var deployment = await _db.ExportDeployments
+                    .AsNoTracking()
+                    .Include(x => x.Profile)
+                    .FirstOrDefaultAsync(x => x.Id == deploymentId);
+
+                if (deployment != null)
+                {
+                    return await CreateFileDetailsModel(deployment.Profile, deployment);
+                }
+            }
+
+            return null;
         }
 
         private async Task<ExportFileDetailsModel> CreateFileDetailsModel(ExportProfile profile, ExportDeployment deployment)
@@ -211,6 +419,8 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
+                var rootPath = (await Services.ApplicationContext.ContentRoot.GetDirectoryAsync(null)).PhysicalPath;
+
                 // Add export files.
                 var dir = await _exportProfileService.GetExportDirectoryAsync(profile, "Content", false);
                 var zipFile = await dir.Parent.GetFileAsync(dir.Parent.Name.ToValidFileName() + ".zip");
@@ -218,13 +428,13 @@ namespace Smartstore.Admin.Controllers
 
                 if (deployment == null)
                 {
-                    await AddFileInfo(model.ExportFiles, zipFile);
+                    await AddFileInfo(model.ExportFiles, zipFile, rootPath);
 
                     if (resultInfo.Files != null)
                     {
                         foreach (var fi in resultInfo.Files)
                         {
-                            await AddFileInfo(model.ExportFiles, await dir.GetFileAsync(fi.FileName), fi);
+                            await AddFileInfo(model.ExportFiles, await dir.GetFileAsync(fi.FileName), rootPath, null, fi);
                         }
                     }
                 }
@@ -237,7 +447,7 @@ namespace Smartstore.Admin.Controllers
                         {
                             foreach (var fi in resultInfo.Files)
                             {
-                                await AddFileInfo(model.ExportFiles, await deploymentDir.GetFileAsync(fi.FileName), fi);
+                                await AddFileInfo(model.ExportFiles, await deploymentDir.GetFileAsync(fi.FileName), rootPath, null, fi);
                             }
                         }
                     }
@@ -251,7 +461,7 @@ namespace Smartstore.Admin.Controllers
                 if (publicDeployment != null)
                 {
                     var currentStore = Services.StoreContext.CurrentStore;
-                    var deploymentDir = await _exportProfileService.GetDeploymentDirectoryAsync(deployment);
+                    var deploymentDir = await _exportProfileService.GetDeploymentDirectoryAsync(publicDeployment);
                     if (deploymentDir != null)
                     {
                         // INFO: public folder is not cleaned up during export. We only have to show files that has been created during last export.
@@ -259,7 +469,7 @@ namespace Smartstore.Admin.Controllers
                         if (profile.CreateZipArchive)
                         {                          
                             var url = await _exportProfileService.GetDeploymentDirectoryUrlAsync(publicDeployment, currentStore);
-                            await AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(zipFile.Name), null, url);
+                            await AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(zipFile.Name), rootPath, url);
                         }
                         else if (resultInfo.Files != null)
                         {
@@ -269,7 +479,7 @@ namespace Smartstore.Admin.Controllers
                                 stores.TryGetValue(fi.StoreId, out var store);
                                 
                                 var url = await _exportProfileService.GetDeploymentDirectoryUrlAsync(publicDeployment, store ?? currentStore);
-                                await AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(fi.FileName), fi, url, store);
+                                await AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(fi.FileName), rootPath, url, fi, store);
                             }
                         }
                     }
@@ -286,8 +496,9 @@ namespace Smartstore.Admin.Controllers
         private async Task AddFileInfo(
             List<ExportFileDetailsModel.FileInfo> fileInfos,
             IFile file,
-            DataExportResult.ExportFileInfo fileInfo = null,
+            string rootPath,
             string publicUrl = null,
+            DataExportResult.ExportFileInfo fileInfo = null,
             Store store = null)
         {
             if (!(file?.Exists ?? false))
@@ -299,7 +510,8 @@ namespace Smartstore.Admin.Controllers
             var fi = new ExportFileDetailsModel.FileInfo
             {
                 File = file,
-                DisplayOrder = file.Extension.EqualsNoCase(".zip") ? 0 : 1
+                DisplayOrder = file.Extension.EqualsNoCase(".zip") ? 0 : 1,
+                FileRootPath = file.PhysicalPath.Replace(rootPath, "~/").Replace('\\', '/')
             };
 
             if (fileInfo != null)
