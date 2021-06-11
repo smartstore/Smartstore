@@ -20,8 +20,8 @@
 </div>
 
 <div id="ExportProfileListContainer">
-    @{ await Html.RenderPartialAsync("_ProfileList", Model.Where(x => !x.IsSystemProfile), new ViewDataDictionary(ViewData) { { "IsSystemProfile", false } }); }
-    @{ await Html.RenderPartialAsync("_ProfileList", Model.Where(x => x.IsSystemProfile), new ViewDataDictionary(ViewData) { { "IsSystemProfile", true } }); }
+    <partial name="_ProfileList" model="Model.Where(x => !x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { { "IsSystemProfile", false } }' />
+    <partial name="_ProfileList" model="Model.Where(x => x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { { "IsSystemProfile", true } }' />
 </div>
 
 <modal id="export-profile-dialog" sm-render-at-page-end="true" sm-size="Large">
@@ -40,7 +40,7 @@
     </modal-footer>
 </modal>
 
-<script sm-target-zone="scripts" data-origin="Export.List">
+<script sm-target-zone="scripts" data-origin="ExportList">
     $(function() {
         var dialog = $('#export-profile-dialog');
 
@@ -104,7 +104,6 @@
 
 		// Toggle provider description.
 		$(document).on('change', 'select[name="ProviderSystemName"]', toggleProviderDescription);
-
 
 		function toggleProviderDescription() {
 			dialog.find('.export-provider-description').hide();
@@ -173,6 +172,5 @@
 
 			return item.text;
 		}
-
     });
 </script>

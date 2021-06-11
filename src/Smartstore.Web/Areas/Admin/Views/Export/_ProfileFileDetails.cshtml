@@ -12,31 +12,44 @@
 <div sm-if="!hasExportFiles && !hasPublicFiles" class="alert alert-info">
     @T("Common.NoFilesAvailable")
 </div>
-@if(hasExportFiles)
-{
-	<div class="mb-5">
-		@foreach (var grp in Model.ExportFiles.OrderBy(x => x.DisplayOrder).GroupBy(x => x.DisplayOrder))
+
+<div sm-if="hasExportFiles" class="mb-5">
+	@foreach (var grp in Model.ExportFiles.OrderBy(x => x.DisplayOrder).GroupBy(x => x.DisplayOrder))
+	{
+		foreach (var file in grp)
 		{
-			foreach (var file in grp)
-			{
-				<div class="py-1">
-					<span class="badge @(file.RelatedType.HasValue ? "badge-secondary" : "badge-info")">
-						<file-icon file-extension="@file.File.Extension" />
-						@(file.Label.HasValue() ? file.Label : file.File.Extension.EmptyNull().ToLower().TrimStart('.'))
-					</span>
-					<a href="@Url.Action("DownloadExportFile", new { id = Model.Id, name = file.File.Name, isDeployment = Model.IsForDeployment })" title="@ViewBag.DownloadString" download>
-						@file.FileRootPath
-					</a>
-				</div>
-			}
+			<div class="py-1">
+				<span class="badge @(file.RelatedType.HasValue ? "badge-secondary" : "badge-info")">
+					<file-icon file-extension="@file.File.Extension" />
+					@(file.Label.HasValue() ? file.Label : file.File.Extension.EmptyNull().ToLower().TrimStart('.'))
+				</span>
+				<a asp-action="DownloadExportFile" asp-route-id="@Model.Id" asp-route-name="@file.File.Name" asp-route-isDeployment="@Model.IsForDeployment" title="@ViewBag.DownloadString" download>
+					@file.FileRootPath
+				</a>
+			</div>
 		}
-	</div>
-}
+	}
+</div>
 
-
-<script>
+<script sm-target-zone="scripts" data-origin="ProfileFileDetails">
     $(function() {
-		// Button to copy URL to clipboard.
+		// copy url to clipboard button
+		$('.copy-to-clipboard').tooltip({
+			placement: 'bottom',
+			trigger: 'hover',
+			title: @T("Common.CopyToClipboard").JsValue
+		}).on("click", function () {
+			var self = $(this),
+				url = self.closest('.copy-to-clipboard-container').find('a').attr('href');
 
+			var succeeded = window.copyTextToClipboard(url);
+
+			self.attr('data-original-title', succeeded ? @T("Common.CopyToClipboard.Succeeded").JsValue : @T("Common.CopyToClipboard.Failed").JsValue)
+				.tooltip('show');
+
+			setTimeout(function () {
+				self.attr('data-original-title', @T("Common.CopyToClipboard").JsValue).tooltip('hide');
+			}, 2000);
+		});
 	});
 </script>

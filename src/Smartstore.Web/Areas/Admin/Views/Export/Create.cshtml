@@ -26,23 +26,22 @@
                     </select>
                 </div>
             </div>
-            @if (profiles.Any())
-            {
-                <div class="adminRow wide">
-                    <div class="adminTitle">
-                        <smart-label asp-for="CloneProfileId" />
-                    </div>
-                    <div class="adminData">
-                        <select asp-for="CloneProfileId" class="form-control form-control-lg select-customtemplate drop-customtemplate">
-                            <option>@T("Common.Unspecified")</option>
-							@foreach (var profile in profiles.OrderBy(x => x.FriendlyName))
-							{
-								<option value="@profile.Id" data-systemname="@profile.SystemName" data-imageurl="@profile.ImageUrl">@profile.FriendlyName</option>
-							}
-                        </select>
-                    </div>
+            
+            <div sm-if="profiles.Any()" class="adminRow wide">
+                <div class="adminTitle">
+                    <smart-label asp-for="CloneProfileId" />
                 </div>
-            }
+                <div class="adminData">
+                    <select asp-for="CloneProfileId" class="form-control form-control-lg select-customtemplate drop-customtemplate">
+                        <option>@T("Common.Unspecified")</option>
+						@foreach (var profile in profiles.OrderBy(x => x.FriendlyName))
+						{
+							<option value="@profile.Id" data-systemname="@profile.SystemName" data-imageurl="@profile.ImageUrl">@profile.FriendlyName</option>
+						}
+                    </select>
+                </div>
+            </div>
+            
             <div class="adminRow wide">
                 <div class="adminTitle">
                     &nbsp;
