@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Widgets;
 using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -31,13 +29,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string OnDialogLoadedAttributeName = "ondialogloaded";
         const string OnSelectionCompletedAttributeName = "onselectioncompleted";
 
-        private readonly IWidgetProvider _widgetProvider;
-
-        public EntityPickerTagHelper(IWidgetProvider widgetProvider)
-        {
-            _widgetProvider = widgetProvider;
-        }
-        
         /// <summary>
         /// Sets the entity type which shall be picked. Default = "product"
         /// </summary>
@@ -86,39 +77,63 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(DisabledEntityIdsAttributeName)]
         public int[] DisabledEntityIds { get; set; }
 
-
-        // TODO: (mh) (core) Check & add doku from here.
-
         /// <summary>
         /// The ids of selected entities. 
         /// </summary>
         [HtmlAttributeName(SelectedAttributeName)]
         public string[] Selected { get; set; }
 
+        /// <summary>
+        /// Whether to enable thumb zoomer.
+        /// </summary>
         [HtmlAttributeName(EnableThumbZoomerAttributeName)]
         public bool EnableThumbZoomer { get; set; }
 
+        /// <summary>
+        /// Whether to highlight search term in serach results. Default = true
+        /// </summary>
         [HtmlAttributeName(HighlightSearchTermAttributeName)]
         public bool HighlightSearchTerm { get; set; } = true;
 
+        /// <summary>
+        /// Maximum number of selectable items.
+        /// </summary>
         [HtmlAttributeName(MaxItemsAttributeName)]
         public int MaxItems { get; set; }
 
+        /// <summary>
+        /// Whether to append selected entity ids to already choosen entities. Default = true
+        /// </summary>
         [HtmlAttributeName(AppendModeAttributeName)]
         public bool AppendMode { get; set; } = true;
 
+        /// <summary>
+        /// The delemiter for choosen entity ids. Default = ","
+        /// </summary>
         [HtmlAttributeName(DelimiterAttributeName)]
         public string Delimiter { get; set; } = ",";
 
+        /// <summary>
+        /// FieldName of the input elemeent to paste the selected ids in. Default = "id"
+        /// </summary>
         [HtmlAttributeName(FieldNameAttributeName)]
         public string FieldName { get; set; } = "id";
 
+        /// <summary>
+        /// Name of the JavaScript function to call before the dialog is loaded.
+        /// </summary>
         [HtmlAttributeName(OnDialogLoadingAttributeName)]
         public string OnDialogLoadingHandler { get; set; }
 
+        /// <summary>
+        /// Name of the JavaScript function to call after the dialog is loaded.
+        /// </summary>
         [HtmlAttributeName(OnDialogLoadedAttributeName)]
         public string OnDialogLoadedHandler { get; set; }
 
+        /// <summary>
+        /// Name of the JavaScript function to call after the entity selection was done.
+        /// </summary>
         [HtmlAttributeName(OnSelectionCompletedAttributeName)]
         public string OnSelectionCompletedHandler { get; set; }
 
@@ -151,7 +166,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             var buttonId = "entpicker-toggle-" + CommonHelper.GenerateRandomInteger();
 
+            // TODO: (mh) (core) Remove comments.
             // INFO: (mh) (core) We talked about this in great detail!! Don't erase output just to replace it!!!
+            // RE: Another review was still on my TODO list.
             output.TagName = "button";
             output.TagMode = TagMode.StartTagAndEndTag;
             output.MergeAttribute("id", buttonId);
@@ -175,9 +192,6 @@ namespace Smartstore.Web.TagHelpers.Shared
                 NullValueHandling = NullValueHandling.Ignore
             });
 
-            // INFO: (mh) (core) Don't render this init script in a zone, because we cannot be sure whether the request is AJAX or not.
-            // INFO: (mh) (core) Use pooled StringBuilder for large strings only
-            // INFO: (mh) (core) Built script string should be human-readable
             output.PostElement.AppendHtmlLine(@$"<script data-origin='EntityPicker'>$(function() {{ $('#{buttonId}').entityPicker({json}); }})</script>");
         }
     }
