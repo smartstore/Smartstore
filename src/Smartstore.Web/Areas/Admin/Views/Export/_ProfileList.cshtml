@@ -75,7 +75,6 @@
 									<i class="fa fa-play"></i>
 									<span>@T("Admin.System.ScheduleTasks.RunNow")</span>
                             </button>
-                            @*TODO: (mg) (core) Use confirm tag*@
                             @*TODO: (mg) (core) complete export profile list (admin task controller required)*@
                             <a asp-action="CancelJob" asp-controller="ScheduleTask" asp-route-id="@profile.TaskId" asp-area="Admin"
 								class="btn btn-block btn-sm btn-secondary btn-cancel-task"
