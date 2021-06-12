@@ -166,9 +166,6 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             var buttonId = "entpicker-toggle-" + CommonHelper.GenerateRandomInteger();
 
-            // TODO: (mh) (core) Remove comments.
-            // INFO: (mh) (core) We talked about this in great detail!! Don't erase output just to replace it!!!
-            // RE: Another review was still on my TODO list.
             output.TagName = "button";
             output.TagMode = TagMode.StartTagAndEndTag;
             output.MergeAttribute("id", buttonId);
