@@ -1,4 +1,224 @@
-﻿const DATAGRID_CELL_MIN_WIDTH = 60;
+﻿// #region Script enhancements (move later)
+
+// TODO: (core) Move the extended String.prototype.format to smartstore.system.js once bundling is ready
+
+//String.prototype.format = function () {
+//    let s = this, args = arguments;
+//    return s.replace(formatRe, function (m, i) {
+//        return args[i];
+//    });
+//};
+
+Smartstore.globalization.formatDate = function (d, format) {
+    var g = Smartstore.globalization;
+    format = format || g.culture.dateTimeFormat.patterns.G;
+    let momentFormat= g.convertDatePatternToMomentFormat(format);
+    return moment(d).format(momentFormat);
+};
+
+Smartstore.globalization.formatNumber = function (value, format) {
+    function zeroPad(str, count, left) {
+        var l;
+        for (l = str.length; l < count; l += 1) {
+            str = (left ? ("0" + str) : (str + "0"));
+        }
+        return str;
+    };
+
+    function expandNumber (number, precision, formatInfo) {
+        var groupSizes = formatInfo.groupSizes,
+            curSize = groupSizes[0],
+            curGroupIndex = 1,
+            factor = Math.pow(10, precision),
+            rounded = Math.round(number * factor) / factor;
+
+        if (!isFinite(rounded)) {
+            rounded = number;
+        }
+        number = rounded;
+
+        var numberString = number + "",
+            right = "",
+            split = numberString.split(/e/i),
+            exponent = split.length > 1 ? parseInt(split[1], 10) : 0;
+        numberString = split[0];
+        split = numberString.split(".");
+        numberString = split[0];
+        right = split.length > 1 ? split[1] : "";
+
+        if (exponent > 0) {
+            right = zeroPad(right, exponent, false);
+            numberString += right.slice(0, exponent);
+            right = right.substr(exponent);
+        }
+        else if (exponent < 0) {
+            exponent = -exponent;
+            numberString = zeroPad(numberString, exponent + 1, true);
+            right = numberString.slice(-exponent, numberString.length) + right;
+            numberString = numberString.slice(0, -exponent);
+        }
+
+        if (precision > 0) {
+            right = formatInfo["."] +
+                ((right.length > precision) ? right.slice(0, precision) : zeroPad(right, precision));
+        }
+        else {
+            right = "";
+        }
+
+        var stringIndex = numberString.length - 1,
+            sep = formatInfo[","],
+            ret = "";
+
+        while (stringIndex >= 0) {
+            if (curSize === 0 || curSize > stringIndex) {
+                return numberString.slice(0, stringIndex + 1) + (ret.length ? (sep + ret + right) : right);
+            }
+            ret = numberString.slice(stringIndex - curSize + 1, stringIndex + 1) + (ret.length ? (sep + ret) : "");
+
+            stringIndex -= curSize;
+
+            if (curGroupIndex < groupSizes.length) {
+                curSize = groupSizes[curGroupIndex];
+                curGroupIndex++;
+            }
+        }
+
+        return numberString.slice(0, stringIndex + 1) + sep + ret + right;
+    };
+
+    var g = Smartstore.globalization;
+    var culture = g.culture;
+
+    if (!isFinite(value)) {
+        if (value === Infinity) {
+            return culture.numberFormat.positiveInfinity;
+        }
+        if (value === -Infinity) {
+            return culture.numberFormat.negativeInfinity;
+        }
+        return culture.numberFormat.NaN;
+    }
+    if (!format || format === "i") {
+        return culture.name.length ? value.toLocaleString() : value.toString();
+    }
+    format = format || "D";
+
+    var nf = culture.numberFormat,
+        number = Math.abs(value),
+        precision = -1,
+        pattern;
+    if (format.length > 1) precision = parseInt(format.slice(1), 10);
+
+    var current = format.charAt(0).toUpperCase(),
+        formatInfo,
+        patterns = g.patterns.numeric;
+
+    switch (current) {
+        case "D":
+            pattern = "n";
+            number = truncate(number);
+            if (precision !== -1) {
+                number = zeroPad("" + number, precision, true);
+            }
+            if (value < 0) number = "-" + number;
+            break;
+        case "N":
+            formatInfo = nf;
+        /* falls through */
+        case "C":
+            formatInfo = formatInfo || nf.currency;
+            patterns = g.patterns.currency;
+        /* falls through */
+        case "P":
+            formatInfo = formatInfo || nf.percent;
+            patterns = patterns || g.patterns.percent;
+            pattern = value < 0 ? patterns.negative[formatInfo.pattern[0]] : (patterns.positive[formatInfo.pattern[1]] || "n");
+            if (precision === -1) precision = formatInfo.decimals;
+            number = expandNumber(number * (current === "P" ? 100 : 1), precision, formatInfo);
+            break;
+        default:
+            throw "Bad number format specifier: " + current;
+    }
+
+    var patternParts = /n|\$|-|%/g,
+        ret = "";
+    for (; ;) {
+        var index = patternParts.lastIndex,
+            ar = patternParts.exec(pattern);
+
+        ret += pattern.slice(index, ar ? ar.index : pattern.length);
+
+        if (!ar) {
+            break;
+        }
+
+        switch (ar[0]) {
+            case "n":
+                ret += number;
+                break;
+            case "$":
+                ret += nf.currency.symbol;
+                break;
+            case "-":
+                // don't make 0 negative
+                if (/[1-9]/.test(number)) {
+                    ret += nf["-"];
+                }
+                break;
+            case "%":
+                ret += nf.percent.symbol;
+                break;
+        }
+    }
+
+    return ret;
+};
+
+String.prototype.format = function () {
+    function getType(o) {
+        if (o instanceof Date) {
+            return "date";
+        }
+        if (typeof o === "number") {
+            return "number";
+        }
+        return null;
+    }
+
+    let g = Smartstore.globalization;
+    let s = this, args = arguments;
+    
+    for (var i = 0, len = args.length; i < len; i++) {
+        let rg = new RegExp("\\{" + i + "(:([^\\}]+))?\\}", "gm");
+        let arg = args[i];
+        let type = getType(arg), formatter;
+
+        if (type === "number") {
+            formatter = g.formatNumber;
+        }
+        else if (type === "date") {
+            formatter = g.formatDate;
+        }
+
+        if (formatter) {
+            let match = rg.exec(s);
+            if (match) {
+                arg = formatter(arg, match[2]);
+            }
+        }
+
+        s = s.replace(rg, function () {
+            return arg;
+        });
+    }
+
+    return s;
+};
+
+// #endregion
+
+const DATAGRID_CELL_MIN_WIDTH = 60;
 
 const DATAGRID_VALIDATION_SETTINGS = {
     ignore: ":hidden, .dg-cell-selector-checkbox",
@@ -689,23 +909,23 @@ Vue.component("sm-datagrid", {
         },
 
         renderCellValue(value, column, row) {
-            const t = column.type;
+            const t = column.type, g = Smartstore.globalization;
 
             if (!value && column.nullable) {
                 return value;
             }
 
-            if (t === 'int') {
-                return Smartstore.globalization.formatNumber(value);
-            }
-            else if (t === 'float') {
-                return Smartstore.globalization.formatNumber(value, 'N2');
+            if (column.format) {
+                return column.format.format(value);
             }
             else if (t === 'date') {
-                return moment(value).format(column.format || 'L LTS');
+                return moment(value).format('L LTS');
             }
-            else if (column.format) {
-                return value.format(column.format);
+            else if (t === 'int') {
+                return g.formatNumber(value);
+            }
+            else if (t === 'float') {
+                return g.formatNumber(value, 'N2');
             }
 
             return value;

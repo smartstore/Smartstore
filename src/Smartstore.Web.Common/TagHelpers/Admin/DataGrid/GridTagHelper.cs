@@ -13,6 +13,8 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
+    // TODO: (core) Remove $('.t-grid.grid-preservestate').on('dataBound', ...) handler from smartstore.common.js
+
     [Flags]
     public enum DataGridBorderStyle
     {

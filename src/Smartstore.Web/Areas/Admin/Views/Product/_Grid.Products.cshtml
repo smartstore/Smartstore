@@ -94,8 +94,8 @@
         <column for="Sku" />
         <column for="Gtin" visible="false" />
         <column for="ManufacturerPartNumber" visible="false" />
-        <column for="Price" halign="flex-end" />
-        <column for="OldPrice" halign="flex-end" visible="false" />
+        <column for="Price" halign="flex-end" format="{0:N2}" />
+        <column for="OldPrice" halign="flex-end" format="{0:N2}" visible="false" />
         <column for="StockQuantity" halign="center" />
         <column for="MinStockQuantity" halign="center" visible="false" />
         <column for="LimitedToStores" visible="!parentModel.IsSingleStoreMode" readonly="true" halign="center" />
