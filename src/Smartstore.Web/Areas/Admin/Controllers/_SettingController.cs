@@ -12,6 +12,7 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -249,6 +250,32 @@ namespace Smartstore.Admin.Controllers
             await MapperFactory.MapAsync(model, catalogSettings);
 
             return NotifyAndRedirect("Catalog");
+        }
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public IActionResult DataExchange(DataExchangeSettings settings)
+        {
+            var model = new DataExchangeSettingsModel();
+            MiniMapper.Map(settings, model);
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [ValidateAntiForgeryToken]
+        [HttpPost, SaveSetting]
+        public IActionResult DataExchange(DataExchangeSettings settings, DataExchangeSettingsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return DataExchange(settings);
+            }
+
+            ModelState.Clear();
+            MiniMapper.Map(model, settings);
+
+            return NotifyAndRedirect("DataExchange");
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]

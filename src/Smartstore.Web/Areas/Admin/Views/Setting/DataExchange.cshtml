@@ -1,0 +1,63 @@
+﻿@model DataExchangeSettingsModel
+
+@{
+    ViewBag.Title = T("Admin.Common.DataExchange").Value;
+    Layout = "_SettingLayout";
+}
+
+<form asp-action="DataExchange">
+
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-exchange-alt"></i>
+            @T("Admin.Common.DataExchange")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MaxFileNameLength" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="MaxFileNameLength"></setting-editor>
+                <span asp-validation-for="MaxFileNameLength"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Common.Import")</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ImageImportFolder" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ImageImportFolder"></setting-editor>
+                <span asp-validation-for="ImageImportFolder"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ImageDownloadTimeout" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.ImageDownloadTimeout, null, new { postfix = T("Time.Minutes").Text })*@
+                <setting-editor asp-for="ImageDownloadTimeout"></setting-editor>
+                <span asp-validation-for="ImageDownloadTimeout"></span>
+            </div>
+        </div>
+    </div>
+</form>
