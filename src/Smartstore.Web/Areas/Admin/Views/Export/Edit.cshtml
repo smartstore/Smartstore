@@ -31,16 +31,13 @@
         <div class="options">
             @if (Model.HasActiveProvider)
             {
-                @*TODO: (mg) (core) Remove comments*@
-                @*INFO: Url resolution will be performed here by Url.Action thus no sm-if*@
-                @if (Model.Id != 0)
+                if (Model.Id != 0)
                 {
                     <button type="button" id="ProfileExportButton" class="btn btn-primary" data-url="@Url.Action("Execute", "Export", new { area = "Admin", id = Model.Id })">
                         <i class="fa fa-cogs"></i>
                         <span>@T("Common.Export")</span>
                     </button>
                 }
-                @*INFO: Taghelpers are used here > asp-action and asp-route-id thus no sm-if (Also URL resolution will allways be performed) *@
                 <a asp-action="Preview" asp-route-id="@Model.Id" class="btn btn-secondary">
                     <i class="far fa-eye"></i>
                     <span>@T("Admin.Common.Preview")</span>
@@ -82,8 +79,6 @@
                         <smart-label asp-for="Name" />
                     </div>
                     <div class="adminData">
-                        @* INFO: Don't use editor tag helper if model type and resulting control kind is known *@
-                        @*TODO: (mg) (core) Check all other properties in this view *@
                         <input asp-for="Name" />
                         <span asp-validation-for="Name"></span>
                     </div>
@@ -126,8 +121,7 @@
                         <span asp-validation-for="ExportRelatedData"></span>
                     </div>
                 </div>
-                <div sm-if="Model.TaskId > 0" class="adminRow">
-                    @*TODO: (mg) (core) Forgot mb-5 or was it left out on purpose? *@
+                <div sm-if="Model.TaskId > 0" class="adminRow mb-5">
                     <div class="adminTitle">
                         <smart-label asp-for="TaskId" />
                     </div>
@@ -208,7 +202,6 @@
             </div>
         </tab>
 
-        @*INFO: "No sm-ifs in taghelpers" is a general rule*@
         @if (Model.HasActiveProvider)
         {
             <tab sm-title="@T("Common.Partition")">
@@ -248,7 +241,7 @@
                             <smart-label asp-for="PerStore" />
                         </div>
                         <div class="adminData">
-                            <editor asp-for="PerStore" />
+                            <input asp-for="PerStore" />
                             <span asp-validation-for="PerStore"></span>
                         </div>
                     </div>
@@ -259,7 +252,6 @@
                 <div class="alert alert-info">
                     @T(hasFilter ? "Admin.DataExchange.Export.Filter.Note" : "Admin.DataExchange.Export.NoFiltering")
                 </div>
-                @*INFO: "No sm-ifs in taghelpers" is a general rule*@
                 @if (hasFilter)
                 {
                     <partial name="_Tab.Filter" model="Model" />
