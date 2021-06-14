@@ -365,6 +365,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     try
                     {
+                        // TODO: (mg) (core) I don't like the idea of transforming virtual fs back to physical. Why not call File() with stream?
                         return PhysicalFile(logFile.PhysicalPath, MediaTypeNames.Text.Plain);
                     }
                     catch (IOException)
@@ -522,9 +523,7 @@ namespace Smartstore.Admin.Controllers
             ViewBag.CompletedEmailAddresses = new MultiSelectList(profile.CompletedEmailAddresses.SplitSafe(","));
 
             // TODO: (mg) (core) check\test whether such ViewBag objects can really be used multiple times for different view controls.
-            ViewBag.Stores = stores
-                .Select(y => new SelectListItem { Text = y.Name, Value = y.Id.ToString() })
-                .ToList();
+            ViewBag.Stores = stores.ToSelectListItems();
 
             ViewBag.Languages = languages
                 .Select(y => new SelectListItem { Text = y.Name, Value = y.Id.ToString() })

@@ -171,6 +171,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (SmartTabSelection)
             {
                 classList.Add("tabs-autoselect");
+                // TODO: (core) Rethink SetSelectedTab in StateController (after we handle DataGrid states with model binders now).
                 output.Attributes.Add("data-tabselector-href", UrlHelper.Action("SetSelectedTab", "State", new { area = string.Empty }));
             }
 

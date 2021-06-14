@@ -24,7 +24,7 @@
             <smart-label asp-for="Filter.ProductType" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ProductType" asp-items="@ProductType.SimpleProduct.ToSelectList(false)" asp-placeholder="@T("Admin.Common.All")"></select>
+            <select asp-for="Filter.ProductType" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ProductType))" asp-placeholder="@T("Admin.Common.All")"></select>
             <span asp-validation-for="Filter.ProductType"></span>
         </div>
     </div>
@@ -42,7 +42,7 @@
             <smart-label asp-for="Filter.Visibility" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.Visibility" asp-items="@ProductVisibility.Full.ToSelectList(false)" asp-placeholder="@T("Admin.Common.All")"></select>
+            <select asp-for="Filter.Visibility" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ProductVisibility))" asp-placeholder="@T("Admin.Common.All")"></select>
             <span asp-validation-for="Filter.Visibility"></span>
         </div>
     </div>
