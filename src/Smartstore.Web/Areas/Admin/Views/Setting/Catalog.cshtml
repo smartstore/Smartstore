@@ -1,0 +1,922 @@
+﻿@using Smartstore.Core.Catalog
+@using Smartstore.Core.Catalog.Products 
+@using Smartstore.Core.Catalog.Pricing
+  
+@model CatalogSettingsModel
+
+@{
+    Layout = "_SettingLayout";
+    ViewBag.Title = T("Admin.Configuration.Settings.Catalog").Value;
+}
+
+<form asp-action="Catalog">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-book"></i>
+            @T("Admin.Configuration.Settings.Catalog")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <tabstrip id="catalogsettings-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Admin.Configuration.Settings.Catalog.MiscSettings")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="head">@T("Admin.CatalogSettings.Homepage")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowBestsellersOnHomepage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowBestsellersOnHomepage" data-toggler-for="#pnlNumberOfBestsellersOnHomepage"></setting-editor>
+                        <span asp-validation-for="ShowBestsellersOnHomepage"></span>
+                    </div>
+                </div>
+                <div id="pnlNumberOfBestsellersOnHomepage" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="NumberOfBestsellersOnHomepage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="NumberOfBestsellersOnHomepage"></setting-editor>
+                        <span asp-validation-for="NumberOfBestsellersOnHomepage"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowPopularProductTagsOnHomepage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowPopularProductTagsOnHomepage"></setting-editor>
+                        <span asp-validation-for="ShowPopularProductTagsOnHomepage"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Admin.CatalogSettings.ProductDisplay")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowBestsellersOnHomepage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductSku"></setting-editor>
+                        <span asp-validation-for="ShowProductSku"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowManufacturerPartNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowManufacturerPartNumber"></setting-editor>
+                        <span asp-validation-for="ShowManufacturerPartNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowGtin" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowGtin"></setting-editor>
+                        <span asp-validation-for="ShowGtin"></span>
+                    </div>
+                </div>
+                <div id="pnlDisplayWeight" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowWeight" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowWeight"></setting-editor>
+                        <span asp-validation-for="ShowWeight"></span>
+                    </div>
+                </div>
+                <div id="pnlDisplayDimensions" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowDimensions" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowDimensions"></setting-editor>
+                        <span asp-validation-for="ShowDimensions"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowDiscountSign" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowDiscountSign"></setting-editor>
+                        <span asp-validation-for="ShowDiscountSign"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowDefaultQuantityUnit" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowDefaultQuantityUnit"></setting-editor>
+                        <span asp-validation-for="ShowDefaultQuantityUnit"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowDefaultDeliveryTime" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowDefaultDeliveryTime"></setting-editor>
+                        <span asp-validation-for="ShowDefaultDeliveryTime"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DeliveryTimeIdForEmptyStock" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DeliveryTimeIdForEmptyStock"></setting-editor>
+                        <span asp-validation-for="DeliveryTimeIdForEmptyStock"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="HideProductDefaultPictures" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="HideProductDefaultPictures"></setting-editor>
+                        <span asp-validation-for="HideProductDefaultPictures"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Admin.CatalogSettings.Prices")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DisplayTextForZeroPrices" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DisplayTextForZeroPrices"></setting-editor>
+                        <span asp-validation-for="DisplayTextForZeroPrices"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PriceDisplayStyle" />
+                    </div>
+                    <div class="adminData">
+                        @*TODO: (mh) (core) What to do here?*@
+                        @*<setting-editor asp-for="PriceDisplayStyle"></setting-editor>*@
+                        <span asp-validation-for="PriceDisplayStyle"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="IgnoreDiscounts" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="IgnoreDiscounts" data-toggler-for="#pnlDiscounts" data-toggler-reverse="true"></setting-editor>
+                        <span asp-validation-for="IgnoreDiscounts"></span>
+                    </div>
+                </div>
+                <div id="pnlDiscounts" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ApplyPercentageDiscountOnTierPrice" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ApplyPercentageDiscountOnTierPrice"></setting-editor>
+                        <span asp-validation-for="ApplyPercentageDiscountOnTierPrice"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ApplyTierPricePercentageToAttributePriceAdjustments" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ApplyTierPricePercentageToAttributePriceAdjustments"></setting-editor>
+                        <span asp-validation-for="ApplyTierPricePercentageToAttributePriceAdjustments"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Admin.CatalogSettings.CompareProducts")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CompareProductsEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CompareProductsEnabled" data-toggler-for="#pnlCompareProducts"></setting-editor>
+                        <span asp-validation-for="CompareProductsEnabled"></span>
+                    </div>
+                </div>
+                <div id="pnlCompareProducts">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="IncludeShortDescriptionInCompareProducts" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="IncludeShortDescriptionInCompareProducts"></setting-editor>
+                            <span asp-validation-for="IncludeShortDescriptionInCompareProducts"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="IncludeFullDescriptionInCompareProducts" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="IncludeFullDescriptionInCompareProducts"></setting-editor>
+                            <span asp-validation-for="IncludeFullDescriptionInCompareProducts"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Common.Misc")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="EnableHtmlTextCollapser" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="EnableHtmlTextCollapser" data-toggler-for="#pnlHtmlTextCollapsedHeight"></setting-editor>
+                        <span asp-validation-for="EnableHtmlTextCollapser"></span>
+                    </div>
+                </div>
+                <div id="pnlHtmlTextCollapsedHeight" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="HtmlTextCollapsedHeight" />
+                    </div>
+                    <div class="adminData">
+                        @*TODO: (mh) (core) Postfix is missing*@
+                        @*@Html.SettingEditorFor(model => model.HtmlTextCollapsedHeight, null, new { postfix = T("Common.Pixel").Text })*@
+                        <setting-editor asp-for="HtmlTextCollapsedHeight"></setting-editor>
+                        <span asp-validation-for="HtmlTextCollapsedHeight"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MaxItemsToDisplayInCatalogMenu" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MaxItemsToDisplayInCatalogMenu"></setting-editor>
+                        <span asp-validation-for="MaxItemsToDisplayInCatalogMenu"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="IgnoreFeaturedProducts" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="IgnoreFeaturedProducts"></setting-editor>
+                        <span asp-validation-for="IgnoreFeaturedProducts"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.Catalog.ProductListSettings")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowProductsFromSubcategories" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductsFromSubcategories"></setting-editor>
+                        <span asp-validation-for="ShowProductsFromSubcategories"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="IncludeFeaturedProductsInNormalLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="IncludeFeaturedProductsInNormalLists" data-toggler-for="#pnlIncludeFeaturedProductsInSubPages"></setting-editor>
+                        <span asp-validation-for="IncludeFeaturedProductsInNormalLists"></span>
+                    </div>
+                </div>
+                <div id="pnlIncludeFeaturedProductsInSubPages" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="IncludeFeaturedProductsInSubPages" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="IncludeFeaturedProductsInSubPages"></setting-editor>
+                        <span asp-validation-for="IncludeFeaturedProductsInSubPages"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SubCategoryDisplayType" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SubCategoryDisplayType">
+                            <select asp-for="SubCategoryDisplayType" asp-items="Html.GetLocalizedEnumSelectList(typeof(SubCategoryDisplayType))"></select>
+                        </setting-editor>
+                        <span asp-validation-for="SubCategoryDisplayType"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowSubCategoriesInSubPages" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowSubCategoriesInSubPages"></setting-editor>
+                        <span asp-validation-for="ShowSubCategoriesInSubPages"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowDescriptionInSubPages" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowSubCategoriesInSubPages"></setting-editor>
+                        <span asp-validation-for="ShowDescriptionInSubPages"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowProductSorting" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowProductSorting"></setting-editor>
+                        <span asp-validation-for="AllowProductSorting"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DefaultViewMode" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DefaultViewMode">
+                            <select asp-for="DefaultViewMode" asp-items="ViewBag.AvailableDefaultViewModes"></select>
+                        </setting-editor>
+                        <span asp-validation-for="DefaultViewMode"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="GridStyleListColumnSpan" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="GridStyleListColumnSpan"></setting-editor>
+                        <span asp-validation-for="GridStyleListColumnSpan"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DefaultSortOrder" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DefaultSortOrder">
+                            <select asp-for="DefaultSortOrder" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductSortingEnum))"></select>
+                        </setting-editor>
+                        <span asp-validation-for="DefaultSortOrder"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowProductViewModeChanging" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowProductViewModeChanging"></setting-editor>
+                        <span asp-validation-for="AllowProductViewModeChanging"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DefaultProductListPageSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DefaultProductListPageSize"></setting-editor>
+                        <span asp-validation-for="DefaultProductListPageSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DefaultPageSizeOptions" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DefaultPageSizeOptions"></setting-editor>
+                        <span asp-validation-for="DefaultPageSizeOptions"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PriceDisplayType" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PriceDisplayType">
+                            <select asp-for="PriceDisplayType" asp-items="Html.GetLocalizedEnumSelectList(typeof(PriceDisplayType))"></select>
+                        </setting-editor>
+                        <span asp-validation-for="PriceDisplayType"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="HideCategoryDefaultPictures" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="HideCategoryDefaultPictures"></setting-editor>
+                        <span asp-validation-for="HideCategoryDefaultPictures"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Admin.Catalog.Products")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowShortDescriptionInGridStyleLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowShortDescriptionInGridStyleLists"></setting-editor>
+                        <span asp-validation-for="ShowShortDescriptionInGridStyleLists"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DeliveryTimesInLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DeliveryTimesInLists"></setting-editor>
+                        <span asp-validation-for="DeliveryTimesInLists"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowManufacturerInGridStyleLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowManufacturerInGridStyleLists"></setting-editor>
+                        <span asp-validation-for="ShowManufacturerInGridStyleLists"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowManufacturerLogoInLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowManufacturerLogoInLists"></setting-editor>
+                        <span asp-validation-for="ShowManufacturerLogoInLists"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowBasePriceInProductLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowBasePriceInProductLists"></setting-editor>
+                        <span asp-validation-for="ShowBasePriceInProductLists"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowProductOptionsInLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductOptionsInLists"></setting-editor>
+                        <span asp-validation-for="ShowProductOptionsInLists"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowColorSquaresInLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowColorSquaresInLists"></setting-editor>
+                        <span asp-validation-for="ShowColorSquaresInLists"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="HideBuyButtonInLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="HideBuyButtonInLists"></setting-editor>
+                        <span asp-validation-for="HideBuyButtonInLists"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LabelAsNewForMaxDays" />
+                    </div>
+                    <div class="adminData">
+                        @*TODO: (mh) (core) Postfix is missing*@
+                        @*@Html.SettingEditorFor(model => model.LabelAsNewForMaxDays, null, new { postfix = T("Time.Days").Text })*@
+                        <setting-editor asp-for="LabelAsNewForMaxDays"></setting-editor>
+                        <span asp-validation-for="LabelAsNewForMaxDays"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="head">@T("Common.Navigation")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowCategoryProductNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowCategoryProductNumber" data-toggler-for="#pnlShowCategoryProductNumberIncludingSubcategories"></setting-editor>
+                        <span asp-validation-for="ShowCategoryProductNumber"></span>
+                    </div>
+                </div>
+                <div id="pnlShowCategoryProductNumberIncludingSubcategories" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowCategoryProductNumberIncludingSubcategories" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowCategoryProductNumberIncludingSubcategories"></setting-editor>
+                        <span asp-validation-for="ShowCategoryProductNumberIncludingSubcategories"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CategoryBreadcrumbEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CategoryBreadcrumbEnabled"></setting-editor>
+                        <span asp-validation-for="CategoryBreadcrumbEnabled"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Admin.Catalog.ProductTags")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="NumberOfProductTags" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="NumberOfProductTags"></setting-editor>
+                        <span asp-validation-for="NumberOfProductTags"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.Catalog.ProductDetailSettings")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowProductCondition" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductCondition"></setting-editor>
+                        <span asp-validation-for="ShowProductCondition"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="RecentlyViewedProductsEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="RecentlyViewedProductsEnabled" data-toggler-for="#pnlRecentlyViewedProductsNumber"></setting-editor>
+                        <span asp-validation-for="RecentlyViewedProductsEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlRecentlyViewedProductsNumber">
+                    <div class="adminTitle">
+                        <smart-label asp-for="RecentlyViewedProductsNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="RecentlyViewedProductsNumber"></setting-editor>
+                        <span asp-validation-for="RecentlyViewedProductsNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="RecentlyAddedProductsEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="RecentlyAddedProductsEnabled" data-toggler-for="#pnlRecentlyAddedProductsNumber"></setting-editor>
+                        <span asp-validation-for="RecentlyAddedProductsEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlRecentlyAddedProductsNumber">
+                    <div class="adminTitle">
+                        <smart-label asp-for="RecentlyAddedProductsNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="RecentlyAddedProductsNumber"></setting-editor>
+                        <span asp-validation-for="RecentlyAddedProductsNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ProductsAlsoPurchasedEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ProductsAlsoPurchasedEnabled" data-toggler-for="#pnlProductsAlsoPurchasedNumber"></setting-editor>
+                        <span asp-validation-for="ProductsAlsoPurchasedEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlProductsAlsoPurchasedNumber">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ProductsAlsoPurchasedNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ProductsAlsoPurchasedNumber"></setting-editor>
+                        <span asp-validation-for="ProductsAlsoPurchasedNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DisplayAllImagesNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DisplayAllImagesNumber"></setting-editor>
+                        <span asp-validation-for="DisplayAllImagesNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowManufacturerInProductDetail" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowManufacturerInProductDetail" data-toggler-for="#pnlManufacturerPictures"></setting-editor>
+                        <span asp-validation-for="ShowManufacturerInProductDetail"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlManufacturerPictures">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowManufacturerPicturesInProductDetail" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowManufacturerPicturesInProductDetail"></setting-editor>
+                        <span asp-validation-for="ShowManufacturerPicturesInProductDetail"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DeliveryTimesInProductDetail" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DeliveryTimesInProductDetail"></setting-editor>
+                        <span asp-validation-for="DeliveryTimesInProductDetail"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="EnableDynamicPriceUpdate" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="EnableDynamicPriceUpdate"></setting-editor>
+                        <span asp-validation-for="EnableDynamicPriceUpdate"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BundleItemShowBasePrice" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="BundleItemShowBasePrice"></setting-editor>
+                        <span asp-validation-for="BundleItemShowBasePrice"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowVariantCombinationPriceAdjustment" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowVariantCombinationPriceAdjustment"></setting-editor>
+                        <span asp-validation-for="ShowVariantCombinationPriceAdjustment"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowLoginForPriceNote" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowLoginForPriceNote"></setting-editor>
+                        <span asp-validation-for="ShowLoginForPriceNote"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowLinkedAttributeValueQuantity" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowLinkedAttributeValueQuantity"></setting-editor>
+                        <span asp-validation-for="ShowLinkedAttributeValueQuantity"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowLinkedAttributeValueImage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowLinkedAttributeValueImage"></setting-editor>
+                        <span asp-validation-for="ShowLinkedAttributeValueImage"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowShareButton" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowShareButton" data-toggler-for="#pnlPageShareCode"></setting-editor>
+                        <span asp-validation-for="ShowShareButton"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlPageShareCode">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PageShareCode" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="PageShareCode" />
+                        <span asp-validation-for="PageShareCode"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.Catalog.UserSettings")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowProductReviewsInProductLists" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductReviewsInProductLists"></setting-editor>
+                        <span asp-validation-for="ShowProductReviewsInProductLists"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowProductReviewsInProductDetail" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductReviewsInProductDetail"></setting-editor>
+                        <span asp-validation-for="ShowProductReviewsInProductDetail"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ProductReviewsMustBeApproved" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ProductReviewsMustBeApproved"></setting-editor>
+                        <span asp-validation-for="ProductReviewsMustBeApproved"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowAnonymousUsersToReviewProduct" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowAnonymousUsersToReviewProduct"></setting-editor>
+                        <span asp-validation-for="AllowAnonymousUsersToReviewProduct"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="NotifyStoreOwnerAboutNewProductReviews" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="NotifyStoreOwnerAboutNewProductReviews"></setting-editor>
+                        <span asp-validation-for="NotifyStoreOwnerAboutNewProductReviews"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AskQuestionEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AskQuestionEnabled"></setting-editor>
+                        <span asp-validation-for="AskQuestionEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="EmailAFriendEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="EmailAFriendEnabled" data-toggler-for="#pnlAllowAnonymousUsersToEmailAFriend"></setting-editor>
+                        <span asp-validation-for="EmailAFriendEnabled"></span>
+                    </div>
+                </div>
+                <div id="pnlAllowAnonymousUsersToEmailAFriend">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="AllowAnonymousUsersToEmailAFriend" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="AllowAnonymousUsersToEmailAFriend"></setting-editor>
+                            <span asp-validation-for="AllowAnonymousUsersToEmailAFriend"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="AllowDifferingEmailAddressForEmailAFriend" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="AllowDifferingEmailAddressForEmailAFriend"></setting-editor>
+                            <span asp-validation-for="AllowDifferingEmailAddressForEmailAFriend"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Catalog.Manufacturers")">
+            <div class="adminContent">
+                <div class="adminRow" id="pnlShowManufacturersOnHomepage">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowManufacturersOnHomepage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowManufacturersOnHomepage" data-toggler-for="#pnlManufacturerItemsToDisplayOnHomepage"></setting-editor>
+                        <span asp-validation-for="ShowManufacturersOnHomepage"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlManufacturerItemsToDisplayOnHomepage">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ManufacturerItemsToDisplayOnHomepage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ManufacturerItemsToDisplayOnHomepage"></setting-editor>
+                        <span asp-validation-for="ManufacturerItemsToDisplayOnHomepage"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlShowManufacturersInOffCanvas">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowManufacturersInOffCanvas" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowManufacturersInOffCanvas" data-toggler-for="#pnlManufacturerItemsToDisplayInOffCanvas"></setting-editor>
+                        <span asp-validation-for="ShowManufacturersInOffCanvas"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlManufacturerItemsToDisplayInOffCanvas">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ManufacturerItemsToDisplayInOffCanvasMenu" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ManufacturerItemsToDisplayInOffCanvasMenu"></setting-editor>
+                        <span asp-validation-for="ManufacturerItemsToDisplayInOffCanvasMenu"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlShowManufacturerPictures">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowManufacturerPictures" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowManufacturerPictures"></setting-editor>
+                        <span asp-validation-for="ShowManufacturerPictures"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="HideManufacturerDefaultPictures" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="HideManufacturerDefaultPictures"></setting-editor>
+                        <span asp-validation-for="HideManufacturerDefaultPictures"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SortManufacturersAlphabetically" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SortManufacturersAlphabetically"></setting-editor>
+                        <span asp-validation-for="SortManufacturersAlphabetically"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+    </tabstrip>
+</form>

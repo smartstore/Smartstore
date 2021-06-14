@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -16,6 +18,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -26,19 +29,22 @@ namespace Smartstore.Admin.Controllers
         private readonly StoreDependingSettingHelper _storeDependingSettingHelper;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly Lazy<IMediaTracker> _mediaTracker;
+        private readonly Lazy<IMenuService> _menuService;
 
         public SettingController(
             SmartDbContext db,
             ILocalizedEntityService localizedEntityService,
             StoreDependingSettingHelper storeDependingSettingHelper,
             IDateTimeHelper dateTimeHelper,
-            Lazy<IMediaTracker> mediaTracker)
+            Lazy<IMediaTracker> mediaTracker,
+            Lazy<IMenuService> menuService)
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
             _storeDependingSettingHelper = storeDependingSettingHelper;
             _dateTimeHelper = dateTimeHelper;
             _mediaTracker = mediaTracker;
+            _menuService = menuService;
         }
 
         [LoadSetting(IsRootedModel = true)]
@@ -202,6 +208,46 @@ namespace Smartstore.Admin.Controllers
             await Services.SettingFactory.SaveSettingsAsync(securitySettings);
 
             return NotifyAndRedirect("GeneralCommon");
+        }
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> Catalog(CatalogSettings catalogSettings)
+        {
+            // TODO: (mh) (core) Implement & use mapping extensions.
+            var model = new CatalogSettingsModel();
+            await MapperFactory.MapAsync(catalogSettings, model);
+
+            ViewBag.AvailableDefaultViewModes = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
+                new SelectListItem { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
+            };
+            
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting]
+        public async Task<IActionResult> Catalog(CatalogSettings catalogSettings, CatalogSettingsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            ModelState.Clear();
+
+            // We need to clear the sitemap cache if MaxItemsToDisplayInCatalogMenu has changed.
+            if (catalogSettings.MaxItemsToDisplayInCatalogMenu != model.MaxItemsToDisplayInCatalogMenu)
+            {
+                // Clear cached navigation model.
+                await _menuService.Value.ClearCacheAsync("Main");
+            }
+
+            await MapperFactory.MapAsync(model, catalogSettings);
+
+            return NotifyAndRedirect("Catalog");
         }
 
         private ActionResult NotifyAndRedirect(string actionMethod)
