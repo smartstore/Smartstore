@@ -12,6 +12,7 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -248,6 +249,37 @@ namespace Smartstore.Admin.Controllers
             await MapperFactory.MapAsync(model, catalogSettings);
 
             return NotifyAndRedirect("Catalog");
+        }
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> RewardPoints(RewardPointsSettings rewardPointsSettings, int storeScope)
+        {
+            var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
+
+            // TODO: (mh) (core) Implement & use mapping extensions.
+            var model = new RewardPointsSettingsModel();
+            await MapperFactory.MapAsync(rewardPointsSettings, model);
+
+            model.PrimaryStoreCurrencyCode = store.PrimaryStoreCurrency.CurrencyCode;
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting]
+        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings, RewardPointsSettingsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            ModelState.Clear();
+            
+            await MapperFactory.MapAsync(model, settings);
+
+            return NotifyAndRedirect("RewardPoints");
         }
 
         private ActionResult NotifyAndRedirect(string actionMethod)

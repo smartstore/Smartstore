@@ -1,0 +1,138 @@
+﻿@model RewardPointsSettingsModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Settings.RewardPoints").Value;
+    Layout = "_SettingLayout";
+}
+
+<form asp-action="RewardPoints">
+
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-trophy"></i>
+            @T("Admin.Configuration.Settings.RewardPoints")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <div class="alert alert-info alert-dismissible">
+        @T("Admin.Configuration.Settings.RewardPoints.Description")
+        <button class="close" data-dismiss="alert">&times;</button>
+    </div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Enabled" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Enabled" data-toggler-for="#pnlRewardPointSettings"></setting-editor>
+                <span asp-validation-for="Enabled"></span>
+            </div>
+        </div>
+        <div id="pnlRewardPointSettings">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ExchangeRate" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="ExchangeRate">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">@T("Admin.Configuration.Settings.RewardPoints.ExchangeRate.Hint2")</span>
+                            </div>
+                            <editor asp-for="ExchangeRate" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                        </div>
+                    </setting-editor>
+                    <span asp-validation-for="ExchangeRate"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RoundDownRewardPoints" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="RoundDownRewardPoints"></setting-editor>
+                    <span asp-validation-for="RoundDownRewardPoints"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="admin-config-group">
+                    <div class="title">@T("Admin.Configuration.Settings.RewardPoints.Earning")</div>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="PointsForRegistration" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="PointsForRegistration"></setting-editor>
+                    <span asp-validation-for="PointsForRegistration"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="PointsForProductReview" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="PointsForProductReview"></setting-editor>
+                    <span asp-validation-for="PointsForProductReview"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="PointsForPurchases_Amount" />
+                </div>
+                <div class="adminData wide">
+                    <setting-editor asp-for="PointsForPurchases_Amount">
+                        <div class="form-row flex-nowrap">
+                            <div class="col-auto">
+                                <div class="form-control-plaintext fs-sm text-muted">@T("Admin.Configuration.Settings.RewardPoints.Earning.Hint1")</div>
+                            </div>
+                            <div class="col-auto">
+                                <editor asp-for="PointsForPurchases_Amount" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                            </div>
+                            <div class="col-auto">
+                                <div class=" form-control-plaintext fs-sm text-muted">@T("Admin.Configuration.Settings.RewardPoints.Earning.Hint2")</div>
+                            </div>
+                            <div class="col-auto">
+                                <input asp-for="PointsForPurchases_Points" />
+                            </div>
+                            <div class="col-auto">
+                                <div class=" form-control-plaintext fs-sm text-muted">@T("Admin.Configuration.Settings.RewardPoints.Earning.Hint3")</div>
+                            </div>
+                        </div>
+                    </setting-editor>
+                    <span asp-validation-for="PointsForPurchases_Amount"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="PointsForPurchases_Awarded" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="PointsForPurchases_Awarded"></setting-editor>
+                    <span asp-validation-for="PointsForPurchases_Awarded"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="PointsForPurchases_Canceled" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="PointsForPurchases_Canceled"></setting-editor>
+                    <span asp-validation-for="PointsForPurchases_Canceled"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
