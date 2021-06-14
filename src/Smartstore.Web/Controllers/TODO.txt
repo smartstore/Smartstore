@@ -1,5 +1,4 @@
-﻿EntityController
-ThemeController
+﻿ThemeController
 ExternalAuthenticationController (will be merged with IdentityController using stuff from SignInManager)
 WidgetController (for TabWidgets? Will probably be removed)
 

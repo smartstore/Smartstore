@@ -327,7 +327,7 @@ namespace Smartstore.Web.Rendering
             var metadata = metadataProvider.GetMetadataForType(enumType);
             if (!metadata.IsEnum || metadata.IsFlagsEnum)
             {
-                throw new ArgumentException("he type '{0}' is not supported. Type must be an {1} that does not have an associated {2}.".FormatCurrent(enumType.FullName, nameof(Enum).ToLowerInvariant(), nameof(FlagsAttribute)));
+                throw new ArgumentException("The type '{0}' is not supported. Type must be an {1} that does not have an associated {2}.".FormatCurrent(enumType.FullName, nameof(Enum).ToLowerInvariant(), nameof(FlagsAttribute)));
             }
             
             var localizationService = requestServices.GetService<ILocalizationService>();

@@ -1,9 +1,10 @@
 ﻿@using Smartstore.Admin.Models.Logging
-
+@using Smartstore.Core.Logging
+ 
 @model LogListModel
 
 @{ 
-    var availableLogLevels = Html.GetLocalizedEnumSelectList(typeof(Smartstore.Core.Logging.LogLevel)).Skip(1);
+    var availableLogLevels = Html.GetLocalizedEnumSelectList(typeof(LogLevel)).Skip(1);
 }
 
 <div class="form-group">
