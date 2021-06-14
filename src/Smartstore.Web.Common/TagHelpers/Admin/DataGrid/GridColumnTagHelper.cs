@@ -98,7 +98,8 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         /// <summary>
         /// Column value format string, e.g. "{0:N2}", "Value {0}" etc. 
-        /// Valid modifiers are: D[0-n], N[0-n], C[0-n], P[0-n]
+        /// Valid modifiers for numbers are: D[0-n], N[0-n], C[0-n], P[0-n].
+        /// Valid modifiers for datetimes are: TBD.
         /// </summary>
         [HtmlAttributeName(FormatAttributeName)]
         public string Format { get; set; }
