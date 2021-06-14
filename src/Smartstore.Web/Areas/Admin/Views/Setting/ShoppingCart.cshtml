@@ -1,0 +1,339 @@
+﻿@using Smartstore.Core.Checkout.Cart
+ 
+@model ShoppingCartSettingsModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Settings.ShoppingCart").Value;
+    Layout = "_SettingLayout";
+}
+
+<form asp-action="ShoppingCart">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-shopping-cart"></i>
+            @T("Admin.Configuration.Settings.ShoppingCart")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <tabstrip id="shoppingcart-settings-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Admin.Configuration.Settings.ShoppingCart.CartSettings")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DisplayCartAfterAddingProduct" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DisplayCartAfterAddingProduct"></setting-editor>
+                        <span asp-validation-for="DisplayCartAfterAddingProduct"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MaximumShoppingCartItems" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MaximumShoppingCartItems"></setting-editor>
+                        <span asp-validation-for="MaximumShoppingCartItems"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowProductImagesOnShoppingCart" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductImagesOnShoppingCart"></setting-editor>
+                        <span asp-validation-for="ShowProductImagesOnShoppingCart"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowProductBundleImagesOnShoppingCart" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductBundleImagesOnShoppingCart"></setting-editor>
+                        <span asp-validation-for="ShowProductBundleImagesOnShoppingCart"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DeliveryTimesInShoppingCart" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DeliveryTimesInShoppingCart"></setting-editor>
+                        <span asp-validation-for="DeliveryTimesInShoppingCart"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowShortDesc" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowShortDesc"></setting-editor>
+                        <span asp-validation-for="ShowShortDesc"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowBasePrice" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowBasePrice"></setting-editor>
+                        <span asp-validation-for="ShowBasePrice"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowWeight" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowWeight"></setting-editor>
+                        <span asp-validation-for="ShowWeight"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowLinkedAttributeValueQuantity" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowLinkedAttributeValueQuantity"></setting-editor>
+                        <span asp-validation-for="ShowLinkedAttributeValueQuantity"></span>
+                    </div>
+                </div>
+
+                <div class="adminRow">
+                    <div class="adminSeparator">
+                        <hr />
+                    </div>
+                </div>
+
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MiniShoppingCartEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MiniShoppingCartEnabled" data-toggler-for="#pnlShowProductImagesInMiniShoppingCart"></setting-editor>
+                        <span asp-validation-for="MiniShoppingCartEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlShowProductImagesInMiniShoppingCart">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowProductImagesInMiniShoppingCart" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductImagesInMiniShoppingCart"></setting-editor>
+                        <span asp-validation-for="ShowProductImagesInMiniShoppingCart"></span>
+                    </div>
+                </div>
+
+                <div class="adminRow">
+                    <div class="adminSeparator">
+                        <hr />
+                    </div>
+                </div>
+
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowDiscountBox" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowDiscountBox"></setting-editor>
+                        <span asp-validation-for="ShowDiscountBox"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowGiftCardBox" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowGiftCardBox"></setting-editor>
+                        <span asp-validation-for="ShowGiftCardBox"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CrossSellsNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CrossSellsNumber"></setting-editor>
+                        <span asp-validation-for="CrossSellsNumber"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.ShoppingCart.Checkout")">
+            <div class="adminContent mb-3">
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="head">@T("Admin.Configuration.Settings.ShoppingCart.OrderConfirmationPage")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowCommentBox" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowCommentBox"></setting-editor>
+                        <span asp-validation-for="ShowCommentBox"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="NewsLetterSubscription" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="NewsLetterSubscription">
+                            <select asp-for="NewsLetterSubscription" asp-items="Html.GetLocalizedEnumSelectList(typeof(CheckoutNewsLetterSubscription))"></select>
+                        </setting-editor>
+                        <span asp-validation-for="NewsLetterSubscription"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowConfirmOrderLegalHint" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowConfirmOrderLegalHint"></setting-editor>
+                        <span asp-validation-for="ShowConfirmOrderLegalHint"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowEsdRevocationWaiverBox" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowEsdRevocationWaiverBox"></setting-editor>
+                        <span asp-validation-for="ShowEsdRevocationWaiverBox"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ThirdPartyEmailHandOver" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ThirdPartyEmailHandOver">
+                            <select asp-for="ThirdPartyEmailHandOver" asp-items="Html.GetLocalizedEnumSelectList(typeof(CheckoutThirdPartyEmailHandOver))"></select>
+                        </setting-editor>
+                        <span asp-validation-for="ThirdPartyEmailHandOver"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ThirdPartyEmailHandOverTextLocalized">
+                @(Html.LocalizedEditor<ShoppingCartSettingsModel, ShoppingCartSettingsLocalizedModel>("setting-shopping-cart-localized",
+                @<div class="adminContent">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="Locales[item].ThirdPartyEmailHandOverLabel" />
+                        </div>
+                        <div class="adminData">
+                            @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                            <input type="hidden" asp-for="Locales[item].LanguageId" />
+
+                            <setting-editor asp-for="Locales[item].ThirdPartyEmailHandOverLabel"></setting-editor>
+                            <span asp-validation-for="Locales[item].ThirdPartyEmailHandOverLabel"></span>
+                        </div>
+                    </div>
+                </div>
+                ,
+                @<div class="adminContent">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ThirdPartyEmailHandOverLabel" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="ThirdPartyEmailHandOverLabel"></setting-editor>
+                            <span asp-validation-for="ThirdPartyEmailHandOverLabel"></span>
+                        </div>
+                    </div>
+                </div>
+                ))
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.ShoppingCart.WishlistSettings")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DisplayWishlistAfterAddingProduct" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DisplayWishlistAfterAddingProduct"></setting-editor>
+                        <span asp-validation-for="DisplayWishlistAfterAddingProduct"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowOutOfStockItemsToBeAddedToWishlist" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowOutOfStockItemsToBeAddedToWishlist"></setting-editor>
+                        <span asp-validation-for="AllowOutOfStockItemsToBeAddedToWishlist"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MaximumWishlistItems" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MaximumWishlistItems"></setting-editor>
+                        <span asp-validation-for="MaximumWishlistItems"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowProductImagesOnWishList" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductImagesOnWishList"></setting-editor>
+                        <span asp-validation-for="ShowProductImagesOnWishList"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowProductBundleImagesOnWishList" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowProductBundleImagesOnWishList"></setting-editor>
+                        <span asp-validation-for="ShowProductBundleImagesOnWishList"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="EmailWishlistEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="EmailWishlistEnabled" data-toggler-for="#pnlAllowAnonymousUsersToEmailWishlist"></setting-editor>
+                        <span asp-validation-for="EmailWishlistEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlAllowAnonymousUsersToEmailWishlist">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowAnonymousUsersToEmailWishlist" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowAnonymousUsersToEmailWishlist"></setting-editor>
+                        <span asp-validation-for="AllowAnonymousUsersToEmailWishlist"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+    </tabstrip>
+</form>
+
+<script sm-target-zone="scripts" data-origin="ShoppingCartSettings">
+    $(function() {
+        // toggle third party email hand over label text
+        $('#@Html.IdFor(model => model.ThirdPartyEmailHandOver)').on("change", function () {
+        	$('#ThirdPartyEmailHandOverTextLocalized').toggle($(this).val() !== '0');
+        }).trigger('change');
+    });
+</script>

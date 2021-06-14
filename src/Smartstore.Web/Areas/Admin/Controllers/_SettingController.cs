@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
@@ -307,6 +308,43 @@ namespace Smartstore.Admin.Controllers
             await MapperFactory.MapAsync(model, settings);
 
             return NotifyAndRedirect("RewardPoints");
+        }
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> ShoppingCart(int storeScope, ShoppingCartSettings settings)
+        {
+            var model = new ShoppingCartSettingsModel();
+            await MapperFactory.MapAsync(settings, model);
+
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.ThirdPartyEmailHandOverLabel = settings.GetLocalizedSetting(x => x.ThirdPartyEmailHandOverLabel, languageId, storeScope, false, false);
+            });
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [ValidateAntiForgeryToken]
+        [HttpPost, SaveSetting]
+        public async Task<IActionResult> ShoppingCart(int storeScope, ShoppingCartSettings settings, ShoppingCartSettingsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            ModelState.Clear();
+
+            await MapperFactory.MapAsync(model, settings);
+
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ThirdPartyEmailHandOverLabel, localized.ThirdPartyEmailHandOverLabel, localized.LanguageId, storeScope);
+            }
+
+            return NotifyAndRedirect("ShoppingCart");
         }
 
         private ActionResult NotifyAndRedirect(string actionMethod)
