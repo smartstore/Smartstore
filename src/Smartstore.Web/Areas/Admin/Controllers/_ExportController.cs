@@ -504,7 +504,6 @@ namespace Smartstore.Admin.Controllers
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
-            model.StoreCount = stores.Count;
             model.Offset = profile.Offset;
             model.Limit = profile.Limit == 0 ? null : profile.Limit;
             model.BatchSize = profile.BatchSize == 0 ? null : profile.BatchSize;
@@ -598,7 +597,6 @@ namespace Smartstore.Admin.Controllers
 
                     ViewBag.AttributeCombinationValueMerging = ExportAttributeValueMerging.AppendAllValuesToName.ToSelectList(false);
                     ViewBag.DescriptionMergings = ExportDescriptionMerging.Description.ToSelectList(false);
-                    ViewBag.ProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();
 
                     ViewBag.PriceTypes = PriceDisplayType.LowestPrice
                         .ToSelectList(false)
@@ -617,7 +615,7 @@ namespace Smartstore.Admin.Controllers
                             .Select(x =>
                             {
                                 var node = tree.SelectNodeById(x);
-                                var item = new SelectListItem { Value = x.ToString(), Text = node == null ? x.ToString() : _categoryService.GetCategoryPath(node) };
+                                var item = new SelectListItem { Selected = true, Value = x.ToString(), Text = node == null ? x.ToString() : _categoryService.GetCategoryPath(node) };
                                 return item;
                             })
                             .ToList();

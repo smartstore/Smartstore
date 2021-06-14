@@ -1,3 +1,164 @@
-﻿@model ExportProfileModel
+﻿@using Smartstore.Core.Catalog.Products
 
-<div>TODO: (mg) (core) export filter partial</div>
+@model ExportProfileModel
+
+@{
+    var stores = (List<SelectListItem>)ViewBag.Stores;
+}
+
+<div sm-if="Model.Provider.EntityType == ExportEntityType.Product" class="adminContent">
+    @{
+        var selectedCategories = (List<SelectListItem>)ViewBag.SelectedCategories;
+    }
+    <div sm-if="stores.Count > 1" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.StoreId" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.StoreId" />
+            <span asp-validation-for="Filter.StoreId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.ProductType" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.ProductType" asp-items="@ProductType.SimpleProduct.ToSelectList(false)" asp-placeholder="@T("Admin.Common.All")"></select>
+            <span asp-validation-for="Filter.ProductType"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.IsPublished" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.IsPublished" />
+            <span asp-validation-for="Filter.IsPublished"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.Visibility" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.Visibility" asp-items="@ProductVisibility.Full.ToSelectList(false)" asp-placeholder="@T("Admin.Common.All")"></select>
+            <span asp-validation-for="Filter.Visibility"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.IdMinimum" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.IdMinimum" />
+            <span asp-validation-for="Filter.IdMinimum"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.IdMaximum" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.IdMaximum" />
+            <span asp-validation-for="Filter.IdMaximum"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.PriceMinimum" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.PriceMinimum" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+            <span asp-validation-for="Filter.PriceMinimum"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.PriceMaximum" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.PriceMaximum" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+            <span asp-validation-for="Filter.PriceMaximum"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.AvailabilityMinimum" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.AvailabilityMinimum" />
+            <span asp-validation-for="Filter.AvailabilityMinimum"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.AvailabilityMaximum" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.AvailabilityMaximum" />
+            <span asp-validation-for="Filter.AvailabilityMaximum"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.WithoutCategories" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.WithoutCategories" />
+            <span asp-validation-for="Filter.WithoutCategories"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.CategoryIds" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.CategoryIds" 
+                asp-items="@selectedCategories" 
+                asp-placeholder="@T("Common.Unspecified")"
+                multiple="multiple"
+                data-select="True" 
+                data-select-lazy="True" 
+                data-select-url="@Url.Action("AllCategories", "Category", new { selectedIds = string.Join(",", selectedCategories.Select(x => x.Value)) })">                    
+            </select>
+            <span asp-validation-for="Filter.CategoryIds"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.WithoutManufacturers" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.WithoutManufacturers" />
+            <span asp-validation-for="Filter.WithoutManufacturers"></span>
+        </div>
+    </div>
+    <div id="FilterManufacturerIdContainer" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.ManufacturerId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.ManufacturerId" asp-items="@(List<SelectListItem>)ViewBag.Manufacturers" asp-placeholder="@T("Admin.Common.All")"></select>
+            <span asp-validation-for="Filter.ManufacturerId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.ProductTagId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.ProductTagId" asp-items="@(List<SelectListItem>)ViewBag.ProductTags" asp-placeholder="@T("Admin.Common.All")"></select>
+            <span asp-validation-for="Filter.ProductTagId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.FeaturedProducts" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.FeaturedProducts" />
+            <span asp-validation-for="Filter.FeaturedProducts"></span>
+        </div>
+    </div>
+</div>

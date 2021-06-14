@@ -78,7 +78,6 @@ namespace Smartstore.Admin.Models.Export
         // TODO: (mg) (core) complete ExportProfileModel (TaskModel required).
         //public TaskModel TaskModel { get; set; }
 
-        public int StoreCount { get; set; }
         public bool LogFileExists { get; set; }
         public bool HasActiveProvider { get; set; }
         public string[] FileNamePatternDescriptions { get; set; }
