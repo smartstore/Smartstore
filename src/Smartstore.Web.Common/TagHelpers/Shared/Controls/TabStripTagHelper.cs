@@ -171,7 +171,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (SmartTabSelection)
             {
                 classList.Add("tabs-autoselect");
-                output.Attributes.Add("data-tabselector-href", UrlHelper.Action("SetSelectedTab", "State"));
+                output.Attributes.Add("data-tabselector-href", UrlHelper.Action("SetSelectedTab", "State", new { area = string.Empty }));
             }
 
             if (isStacked)

@@ -53,14 +53,13 @@
 						</td>
 						<td>
 							<div class="last-run-info">
-								@*INFO: (mg) (core) use <partial> *@ 
-								@*@{ await Html.RenderPartialAsync("~/Areas/Admin/Views/Task/_LastRun.cshtml", profile.TaskModel); }*@
+								@*TODO: (mg) (core) complete export profile list (admin task controller required)*@
+								@*<partial name="~/Areas/Admin/Views/Task/_LastRun.cshtml" model="profile.TaskModel" />*@
 							</div>
 						</td>
 						<td class="progress-info">
                             <div class="next-run-info">
-                                @*INFO: (mg) (core) use <partial> *@
-                                @*@{ await Html.RenderPartialAsync("~/Areas/Admin/Views/Task/_NextRun.cshtml", profile.TaskModel); }*@
+								@*<partial name="~/Areas/Admin/Views/Task/_NextRun.cshtml" model="profile.TaskModel" />*@
                             </div>
 							<div class="task-progress text-muted" 
 								attr-class='(!profile.IsTaskRunning, "hide")'

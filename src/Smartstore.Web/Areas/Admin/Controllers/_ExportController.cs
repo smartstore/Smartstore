@@ -1,17 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Mime;
+using System.Text;
 using System.Threading.Tasks;
 using Humanizer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Export;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Export.Deployment;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
@@ -19,6 +32,7 @@ using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
@@ -27,6 +41,8 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IExportProfileService _exportProfileService;
+        private readonly ICategoryService _categoryService;
+        private readonly ITaskScheduler _taskScheduler;
         private readonly IProviderManager _providerManager;
         private readonly ITaskStore _taskStore;
         private readonly DataExchangeSettings _dataExchangeSettings;
@@ -34,12 +50,16 @@ namespace Smartstore.Admin.Controllers
         public ExportController(
             SmartDbContext db,
             IExportProfileService exportProfileService,
+            ICategoryService categoryService,
+            ITaskScheduler taskScheduler,
             IProviderManager providerManager,
             ITaskStore taskStore,
             DataExchangeSettings dataExchangeSettings)
         {
             _db = db;
             _exportProfileService = exportProfileService;
+            _categoryService = categoryService;
+            _taskScheduler = taskScheduler;
             _providerManager = providerManager;
             _taskStore = taskStore;
             _dataExchangeSettings = dataExchangeSettings;
@@ -172,28 +192,96 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Export.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var profile = await _db.ExportProfiles
-                .AsNoTracking()
-                .ApplyStandardFilter()
-                .FirstOrDefaultAsync(x => x.Id == id);
-
+            var (profile, provider) = await LoadProfileAndProvider(id);
             if (profile == null)
             {
                 return RedirectToAction("List");
             }
 
-            var provider = _providerManager.GetProvider<IExportProvider>(profile.ProviderSystemName);
-            if (provider == null || provider.Metadata.IsHidden)
+            var model = new ExportProfileModel();
+            var lastExecutionInfo = await _taskStore.GetLastExecutionInfoByTaskIdAsync(profile.TaskId);
+            await PrepareProfileModel(model, profile, provider, lastExecutionInfo, true);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [FormValueRequired("save", "save-continue"), ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [Permission(Permissions.Configuration.Export.Update)]
+        public async Task<IActionResult> Edit(ExportProfileModel model, bool continueEditing)
+        {
+            var (profile, provider) = await LoadProfileAndProvider(model.Id);
+            if (profile == null)
             {
                 return RedirectToAction("List");
             }
 
-            var lastExecutionInfo = await _taskStore.GetLastExecutionInfoByTaskIdAsync(profile.TaskId);
+            if (!ModelState.IsValid)
+            {
+                var lastExecutionInfo = await _taskStore.GetLastExecutionInfoByTaskIdAsync(profile.TaskId);
+                await PrepareProfileModel(model, profile, provider, lastExecutionInfo, true);
 
-            var model = new ExportProfileModel();
-            await PrepareProfileModel(model, profile, provider, lastExecutionInfo, true);
+                return View(model);
+            }
 
-            return View(model);
+            profile.Name = model.Name.NullEmpty() ?? provider.Metadata.FriendlyName.NullEmpty() ?? provider.Metadata.SystemName;
+            profile.FileNamePattern = model.FileNamePattern;
+            profile.FolderName = model.FolderName;
+            profile.Enabled = model.Enabled;
+            profile.ExportRelatedData = model.ExportRelatedData;
+            profile.Offset = model.Offset;
+            profile.Limit = model.Limit ?? 0;
+            profile.BatchSize = model.BatchSize ?? 0;
+            profile.PerStore = model.PerStore;
+            profile.CompletedEmailAddresses = string.Join(",", model.CompletedEmailAddresses ?? Array.Empty<string>());
+            profile.EmailAccountId = model.EmailAccountId ?? 0;
+            profile.CreateZipArchive = model.CreateZipArchive;
+            profile.Cleanup = model.Cleanup;
+
+            // Projection.
+            if (model.Projection != null)
+            {
+                var projection = MiniMapper.Map<ExportProjectionModel, ExportProjection>(model.Projection);
+                projection.NumberOfMediaFiles = model.Projection.NumberOfPictures;
+                projection.AppendDescriptionText = string.Join(",", model.Projection.AppendDescriptionText ?? Array.Empty<string>());
+                projection.RemoveCriticalCharacters = model.Projection.RemoveCriticalCharacters;
+                projection.CriticalCharacters = string.Join(",", model.Projection.CriticalCharacters ?? Array.Empty<string>());
+
+                profile.Projection = XmlHelper.Serialize(projection);
+            }
+
+            // Filtering.
+            if (model.Filter != null)
+            {
+                var filter = MiniMapper.Map<ExportFilterModel, ExportFilter>(model.Filter);
+                filter.StoreId = model.Filter.StoreId ?? 0;
+                filter.CategoryIds = model.Filter.CategoryIds?.Where(x => x != 0)?.ToArray() ?? Array.Empty<int>();
+
+                profile.Filtering = XmlHelper.Serialize(filter);
+            }
+
+            // Provider configuration.
+            profile.ProviderConfigData = null;
+            try
+            {
+                var configInfo = provider.Value.ConfigurationInfo;
+                if (configInfo != null && model.CustomProperties.ContainsKey("ProviderConfigData"))
+                {
+                    profile.ProviderConfigData = XmlHelper.Serialize(model.CustomProperties["ProviderConfigData"], configInfo.ModelType);
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            await _db.SaveChangesAsync();
+
+            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
+
+            return continueEditing 
+                ? RedirectToAction("Edit", new { id = profile.Id }) 
+                : RedirectToAction("List");
         }
 
         [Permission(Permissions.Configuration.Export.Read)]
@@ -209,6 +297,151 @@ namespace Smartstore.Admin.Controllers
 
             return Content(resolvedPattern);
         }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Export.Delete)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var (profile, _) = await LoadProfileAndProvider(id);
+            if (profile == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            try
+            {
+                await _exportProfileService.DeleteExportProfileAsync(profile);
+
+                NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+
+                return RedirectToAction("List");
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return RedirectToAction("Edit", new { id = profile.Id });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Export.Execute)]
+        public async Task<IActionResult> Execute(int id, string selectedIds)
+        {
+            // Permissions checked internally by DataExporter.
+            var (profile, provider) = await LoadProfileAndProvider(id);
+            if (profile == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            var taskParams = new Dictionary<string, string>
+            {
+                { TaskExecutor.CurrentCustomerIdParamName, Services.WorkContext.CurrentCustomer.Id.ToString() },
+                { TaskExecutor.CurrentStoreIdParamName, Services.StoreContext.CurrentStore.Id.ToString() }
+            };
+
+            if (selectedIds.HasValue())
+            {
+                taskParams.Add("SelectedIds", selectedIds);
+            }
+
+            await _taskScheduler.RunSingleTaskAsync(profile.TaskId, taskParams);
+
+            NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress.DataExportTask"));
+
+            return RedirectToReferrer(null, () => RedirectToAction("List"));
+        }
+
+        [Permission(Permissions.Configuration.Export.Read)]
+        public async Task<IActionResult> DownloadLogFile(int id)
+        {
+            var profile = await _db.ExportProfiles.FindByIdAsync(id, false);
+            if (profile != null)
+            {
+                var dir = await _exportProfileService.GetExportDirectoryAsync(profile, null, false);
+                var logFile = await dir.GetFileAsync("log.txt");
+                if (logFile.Exists)
+                {
+                    try
+                    {
+                        return PhysicalFile(logFile.PhysicalPath, MediaTypeNames.Text.Plain);
+                    }
+                    catch (IOException)
+                    {
+                        NotifyWarning(T("Admin.Common.FileInUse"));
+                    }
+                }
+            }
+
+            return RedirectToAction("List");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadExportFile(int id, string name, bool? isDeployment)
+        {
+            if (PathHelper.HasInvalidFileNameChars(name))
+            {
+                throw new BadHttpRequestException("Invalid file name: " + name.NaIfEmpty());
+            }
+
+            string message = null;
+            IFile file = null;
+
+            if (Services.Permissions.Authorize(Permissions.Configuration.Export.Read))
+            {
+                if (isDeployment ?? false)
+                {
+                    var deployment = await _db.ExportDeployments.FindByIdAsync(id, false);
+                    if (deployment != null)
+                    {
+                        var deploymentDir = await _exportProfileService.GetDeploymentDirectoryAsync(deployment);
+                        file = await deploymentDir?.GetFileAsync(name);
+                    }
+                }
+                else
+                {
+                    var profile = await _db.ExportProfiles.FindByIdAsync(id, false);
+                    if (profile != null)
+                    {
+                        var dir = await _exportProfileService.GetExportDirectoryAsync(profile, "Content");
+                        file = await dir.GetFileAsync(name);
+
+                        if (!(file?.Exists ?? false))
+                        {
+                            file = await dir.Parent.GetFileAsync(name);
+                        }
+                    }
+                }
+
+                if (file?.Exists ?? false)
+                {
+                    try
+                    {
+                        return PhysicalFile(file.PhysicalPath, MimeTypes.MapNameToMimeType(file.PhysicalPath), file.Name);
+                    }
+                    catch (IOException)
+                    {
+                        message = T("Admin.Common.FileInUse");
+                    }
+                }
+            }
+            else
+            {
+                message = T("Admin.AccessDenied.Description");
+            }
+
+            if (message.IsEmpty())
+            {
+                message = T("Admin.Common.ResourceNotFound");
+            }
+
+            return File(Encoding.UTF8.GetBytes(message), MediaTypeNames.Text.Plain, "DownloadExportFile.txt");
+        }
+
+        // TODO: (mg) (core) implement action methods Preview, PreviewList.
+        // TODO: (mg) (core) add ViewComponent for former child-action "InfoProfile".
+        // TODO: (mg) (core) implement action methods for Deployment.
 
         #region Utilities
 
@@ -339,14 +572,118 @@ namespace Smartstore.Admin.Controllers
             })
             .AsyncToList();
 
-            //...
+            // Provider.
+            if (provider != null)
+            {
+                model.Provider.Feature = provider.Metadata.ExportFeatures;
+
+                if (model.Provider.EntityType == ExportEntityType.Product)
+                {
+                    var manufacturers = await _db.Manufacturers
+                        .AsNoTracking()
+                        .ApplyStandardFilter(true)
+                        .ToListAsync();
+
+                    var productTags = await _db.ProductTags
+                        .AsNoTracking()
+                        .ToListAsync();
+
+                    ViewBag.Manufacturers = manufacturers
+                        .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
+                        .ToList();
+
+                    ViewBag.ProductTags = productTags
+                        .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
+                        .ToList();
+
+                    ViewBag.AttributeCombinationValueMerging = ExportAttributeValueMerging.AppendAllValuesToName.ToSelectList(false);
+                    ViewBag.DescriptionMergings = ExportDescriptionMerging.Description.ToSelectList(false);
+                    ViewBag.ProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();
+
+                    ViewBag.PriceTypes = PriceDisplayType.LowestPrice
+                        .ToSelectList(false)
+                        .Where(x => x.Value != ((int)PriceDisplayType.Hide).ToString())
+                        .ToList();
+
+                    ViewBag.AppendDescriptionTexts = new MultiSelectList(projection.AppendDescriptionText.SplitSafe(","));
+                    ViewBag.CriticalCharacters = new MultiSelectList(projection.CriticalCharacters.SplitSafe(","));
+
+                    if (model.Filter.CategoryIds?.Any() ?? false)
+                    {
+                        var tree = await _categoryService.GetCategoryTreeAsync(0, true);
+
+                        ViewBag.SelectedCategories = model.Filter.CategoryIds
+                            .Where(x => x != 0)
+                            .Select(x =>
+                            {
+                                var node = tree.SelectNodeById(x);
+                                var item = new SelectListItem { Value = x.ToString(), Text = node == null ? x.ToString() : _categoryService.GetCategoryPath(node) };
+                                return item;
+                            })
+                            .ToList();
+                    }
+                    else
+                    {
+                        ViewBag.SelectedCategories = new List<SelectListItem>();
+                    }
+                }
+                else if (model.Provider.EntityType == ExportEntityType.Customer)
+                {
+                    var countries = await _db.Countries
+                        .AsNoTracking()
+                        .ApplyStandardFilter(true)
+                        .ToListAsync();
+
+                    ViewBag.Countries = countries
+                        .Select(x => new SelectListItem { Text = x.GetLocalized(y => y.Name, language, true, false), Value = x.Id.ToString() })
+                        .ToList();
+                }
+                else if (model.Provider.EntityType == ExportEntityType.Order)
+                {
+                    ViewBag.OrderStatusChange = ExportOrderStatusChange.Processing.ToSelectList(false);
+                    ViewBag.OrderStates = OrderStatus.Pending.ToSelectList(false).ToList();
+                    ViewBag.PaymentStates = PaymentStatus.Pending.ToSelectList(false).ToList();
+                    ViewBag.ShippingStates = ShippingStatus.NotYetShipped.ToSelectList(false).ToList();
+                }
+                else if (model.Provider.EntityType == ExportEntityType.ShoppingCartItem)
+                {
+                    ViewBag.ShoppingCartTypes = ShoppingCartType.ShoppingCart.ToSelectList(false).ToList();
+                }
+
+                try
+                {
+                    var configInfo = provider.Value.ConfigurationInfo;
+                    if (configInfo != null)
+                    {
+                        model.Provider.ConfigurationWidget = configInfo.ConfigurationWidget;
+                        model.Provider.ConfigDataType = configInfo.ModelType;
+                        model.Provider.ConfigData = XmlHelper.Deserialize(profile.ProviderConfigData, configInfo.ModelType);
+
+                        if (configInfo.Initialize != null)
+                        {
+                            try
+                            {
+                                configInfo.Initialize(model.Provider.ConfigData);
+                            }
+                            catch (Exception ex)
+                            {
+                                NotifyWarning(ex.ToAllMessages());
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
+            }
         }
 
         private async Task<ExportDeploymentModel> CreateDeploymentModel(
             ExportProfile profile,
             ExportDeployment deployment,
             Provider<IExportProvider> provider,
-            bool forEdit)
+            bool createForEdit)
         {
             var model = MiniMapper.Map<ExportDeployment, ExportDeploymentModel>(deployment);
 
@@ -354,12 +691,21 @@ namespace Smartstore.Admin.Controllers
             model.DeploymentTypeName = await Services.Localization.GetLocalizedEnumAsync(deployment.DeploymentType);
             model.PublicFolderUrl = await _exportProfileService.GetDeploymentDirectoryUrlAsync(deployment);
 
-            if (forEdit)
+            if (createForEdit)
             {
                 model.CreateZip = profile.CreateZipArchive;
-                
+
                 ViewBag.DeploymentTypes = ExportDeploymentType.FileSystem.ToSelectList(false).ToList();
                 ViewBag.HttpTransmissionTypes = ExportHttpTransmissionType.SimplePost.ToSelectList(false).ToList();
+
+                if (ViewBag.EmailAccounts == null)
+                {
+                    var emailAccounts = await _db.EmailAccounts.AsNoTracking().ToListAsync();
+
+                    ViewBag.EmailAccounts = emailAccounts
+                        .Select(x => new SelectListItem { Text = x.FriendlyName, Value = x.Id.ToString() })
+                        .ToList();
+                }
 
                 if (provider != null)
                 {
@@ -378,18 +724,10 @@ namespace Smartstore.Admin.Controllers
         {
             if (profileId != 0)
             {
-                var profile = await _db.ExportProfiles
-                    .AsNoTracking()
-                    .ApplyStandardFilter()
-                    .FirstOrDefaultAsync(x => x.Id == profileId);
-
+                var (profile, provider) = await LoadProfileAndProvider(profileId);
                 if (profile != null)
                 {
-                    var provider = _providerManager.GetProvider<IExportProvider>(profile.ProviderSystemName);
-                    if (provider != null && !provider.Metadata.IsHidden)
-                    {
-                        return await CreateFileDetailsModel(profile, null);
-                    }
+                    return await CreateFileDetailsModel(profile, null);
                 }
             }
             else if (deploymentId != 0)
@@ -421,7 +759,7 @@ namespace Smartstore.Admin.Controllers
                 var rootPath = (await Services.ApplicationContext.ContentRoot.GetDirectoryAsync(null)).PhysicalPath;
 
                 // Add export files.
-                var dir = await _exportProfileService.GetExportDirectoryAsync(profile, "Content", false);
+                var dir = await _exportProfileService.GetExportDirectoryAsync(profile, "Content");
                 var zipFile = await dir.Parent.GetFileAsync(dir.Parent.Name.ToValidFileName() + ".zip");
                 var resultInfo = XmlHelper.Deserialize<DataExportResult>(profile.ResultInfo);
 
@@ -544,6 +882,28 @@ namespace Smartstore.Admin.Controllers
             }
 
             fileInfos.Add(fi);
+        }
+
+        public async Task<(ExportProfile Profile, Provider<IExportProvider> Provider)> LoadProfileAndProvider(int profileId)
+        {
+            if (profileId != 0)
+            {
+                var profile = await _db.ExportProfiles
+                    .AsNoTracking()
+                    .ApplyStandardFilter()
+                    .FirstOrDefaultAsync(x => x.Id == profileId);
+
+                if (profile != null)
+                {
+                    var provider = _providerManager.GetProvider<IExportProvider>(profile.ProviderSystemName);
+                    if (provider != null && !provider.Metadata.IsHidden)
+                    {
+                        return (profile, provider);
+                    }
+                }
+            }         
+
+            return (null, null);
         }
 
         private string GetThumbnailUrl(Provider<IExportProvider> provider)

@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -14,10 +18,6 @@ using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Checkout;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.ShoppingCart;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Smartstore.Web.Controllers
 {
@@ -528,25 +528,25 @@ namespace Smartstore.Web.Controllers
         {
             if (Services.WorkContext.CurrentCustomer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
-                return Content(string.Empty);
+                return new EmptyResult();
             }
 
             if (paymentMethodSystemName.IsEmpty())
             {
-                return new StatusCodeResult(404);
+                return new NotFoundResult();
             }
 
             // TODO: (ms) (core) Wait until any payment method has been implemented.
             var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
             if (paymentMethod == null)
             {
-                return new StatusCodeResult(404);
+                return new NotFoundResult();
             }
 
             var infoWidget = paymentMethod.Value.GetPaymentInfoWidget();
             if (infoWidget == null)
             {
-                return Content(string.Empty);
+                return new EmptyResult();
             }
 
             // TODO: (ms) (core) Test that invoke widget works as intended.

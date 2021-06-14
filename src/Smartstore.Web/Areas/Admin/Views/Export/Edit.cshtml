@@ -1,0 +1,334 @@
+﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Smartstore.Core.DataExchange
+
+@model ExportProfileModel
+
+@{
+    var hasFilter = Model.Provider.EntityType == ExportEntityType.Product ||
+        Model.Provider.EntityType == ExportEntityType.Customer ||
+        Model.Provider.EntityType == ExportEntityType.Order ||
+        Model.Provider.EntityType == ExportEntityType.NewsLetterSubscription ||
+        Model.Provider.EntityType == ExportEntityType.ShoppingCartItem;
+
+    var hasProjection = Model.Provider.EntityType == ExportEntityType.Product ||
+        Model.Provider.EntityType == ExportEntityType.Order ||
+        Model.Provider.EntityType == ExportEntityType.ShoppingCartItem;
+
+    var hasConfiguration = Model.Provider.ConfigurationWidget != null;
+
+	ViewBag.Title = T("Common.Profile") + " - " + T("Admin.Common.Edit");
+}
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ProviderSystemName" />
+
+    <div class="section-header">
+        <div class="title">
+            <img src="@Model.Provider.ThumbnailUrl" />
+            @ViewBag.Title - @Model.Name @Html.ActionLink("(" + T("Admin.Common.BackToList") + ")", "List")
+        </div>
+        <div class="options">
+			<button sm-if="Model.HasActiveProvider && Model.Id != 0" type="button" id="ProfileExportButton" class="btn btn-primary" 
+                data-url="@Url.Action("Execute", "Export", new { area = "Admin", id = Model.Id })">
+				    <i class="fa fa-cogs"></i>
+				    <span>@T("Common.Export")</span>
+			</button>
+            <a sm-if="Model.HasActiveProvider" asp-action="Preview" asp-route-id="@Model.Id" class="btn btn-secondary">
+				<i class="far fa-eye"></i>
+				<span>@T("Admin.Common.Preview")</span>
+            </a>
+            <a sm-if="Model.LogFileExists" asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
+				<i class="far fa-file-alt"></i>
+				<span>@T("Admin.Configuration.ActivityLog")</span>
+            </a>
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+	        <div sm-if="!Model.IsSystemProfile" class="d-inline-block">
+                <button type="submit" id="export-profile-delete" name="export-profile-delete" value="export-profile-delete" class="btn btn-danger">
+                    <i class="far fa-trash-alt"></i>
+                    <span>@T("Admin.Common.Delete")</span>
+                </button>
+                <confirm button-id="export-profile-delete" />
+            </div>
+        </div>
+    </div>
+
+    <div asp-validation-summary="ModelOnly" />
+
+    <tabstrip id="export-profile-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Name" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Name" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SystemName" />
+                    </div>
+                    <div class="adminData">
+				        <div class="form-control-plaintext">
+					        @Model.SystemName.NaIfEmpty()
+				        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="IsSystemProfile" />
+                    </div>
+                    <div class="adminData">
+				        <div class="form-control-plaintext">
+					        @T(Model.IsSystemProfile ? "Admin.Common.Yes" : "Admin.Common.No")
+				        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Enabled" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Enabled" />
+                        <span asp-validation-for="Enabled"></span>
+                    </div>
+                </div>
+                <div sm-if="Model.Provider.IsFileBasedExport && Model.Provider.Feature.HasFlag(ExportFeatures.UsesRelatedDataUnits)" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ExportRelatedData" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="ExportRelatedData" />
+                        <span asp-validation-for="ExportRelatedData"></span>
+                    </div>
+                </div>
+                <div sm-if="Model.TaskId > 0" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaskId" />
+                    </div>
+                    <div class="adminData">
+                        @*TODO: (mg) (core) complete export profile editing (MinimalTask view component required)*@
+                    </div>
+                </div>
+            </div>
+
+            <div sm-if="!Model.HasActiveProvider" class="alert alert-warning">
+                @T("Admin.Common.ProviderNotLoaded", Model.ProviderSystemName)
+            </div>
+            <div sm-if="Model.HasActiveProvider" class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Provider.FriendlyName" />
+                    </div>
+                    <div class="adminData">
+				        <div class="form-control-plaintext">
+					        @(Model.Provider.FriendlyName.NaIfEmpty()) (@(Model.ProviderSystemName.NaIfEmpty()))
+				        </div>
+                    </div>
+                </div>
+                <div sm-if="Model.Provider.Description.HasValue()" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Provider.Description" />
+                    </div>
+                    <div class="adminData">
+				        <div class="form-control-plaintext">
+					        @Html.Raw(Model.Provider.Description)
+				        </div>
+                    </div>
+                </div>
+                <div sm-if="Model.Provider.Url.HasValue()" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Provider.Url" />
+                    </div>
+                    <div class="adminData">
+				        <div class="form-control-plaintext">
+					        <a href="@Model.Provider.Url" target="PluginWebsiteWnd">@Model.Provider.Url</a>
+				        </div>
+                    </div>
+                </div>
+                <div sm-if="Model.Provider.Author.HasValue()" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Provider.Author" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Provider.Author" sm-plaintext="true" readonly />
+                    </div>
+                </div>
+                <div sm-if="Model.Provider.Version.HasValue()" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Provider.Version" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Provider.Version" sm-plaintext="true" readonly />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Provider.EntityTypeName" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Provider.EntityTypeName" sm-plaintext="true" readonly />
+                    </div>
+                </div>
+                <div sm-if="Model.Provider.FileExtension.HasValue()" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Provider.FileExtension" />
+                    </div>
+                    <div class="adminData">
+				        <div class="form-control-plaintext">
+					        <file-icon file-extension="@Model.Provider.FileExtension" show-label="true" />
+				        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+
+        <tab sm-if="Model.HasActiveProvider" sm-title="@T("Common.Partition")">
+	        <div class="alert alert-info">
+		        @Html.Raw(T("Admin.DataExchange.Export.Partition.Note"))
+	        </div>
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Offset" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Offset" />
+                        <span asp-validation-for="Offset"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Limit" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Limit" />
+                        <span asp-validation-for="Limit"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BatchSize" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="BatchSize" />
+                        <span asp-validation-for="BatchSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PerStore" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="PerStore" />
+                        <span asp-validation-for="PerStore"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+
+        <tab sm-if="Model.HasActiveProvider" sm-title="@T("Common.Filter")">
+		    <div class="alert alert-info">
+			    @T(hasFilter ? "Admin.DataExchange.Export.Filter.Note" : "Admin.DataExchange.Export.NoFiltering")
+		    </div>
+            <partial sm-if="hasFilter" name="_Tab.Filter" model="Model" />
+        </tab>
+
+        <tab sm-if="Model.HasActiveProvider" sm-title="@T("Common.Projection")">
+		    <div class="alert alert-info">
+			    @T(hasProjection ? "Admin.DataExchange.Export.Projection.Note" : "Admin.DataExchange.Export.NoProjection")
+		    </div>
+            <partial sm-if="hasProjection" name="_Tab.Projection" model="Model" />
+        </tab>
+
+        <tab sm-if="Model.HasActiveProvider" sm-title="@T("Admin.Configuration")">
+            <div id="ProviderConfigurationContainer">
+				<div class="alert alert-info">
+					@Html.Raw(hasConfiguration
+                        ? T("Admin.DataExchange.Export.Configuration.Note") 
+                        : T("Admin.DataExchange.Export.Configuration.NotRequired", Model.Provider.FriendlyName ?? Model.ProviderSystemName))
+				</div>
+                @if (hasConfiguration)
+                {
+                    <input type="hidden" for="CustomProperties[ProviderConfigData].__Type__" value="@Model.Provider.ConfigDataType.AssemblyQualifiedName" />
+
+                    try
+                    {
+                        @*Better not pass existing ModelState instance. Create new one and merge values.*@
+				        var configViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
+				        configViewData.TemplateInfo.HtmlFieldPrefix = "CustomProperties[ProviderConfigData]";
+                        configViewData.ModelState.Merge(ViewData.ModelState);
+                        await Model.Provider.ConfigurationWidget.InvokeAsync(ViewContext.Clone(configViewData));
+                        @*TODO: (mg) (core) test invoking of export provider configuration.*@
+                    }
+                    catch (Exception ex)
+                    {
+					    <div class="alert alert-danger">
+						    @T("Admin.Configuration.Plugins.UnknownError")
+					    </div>
+					    <pre>@ex.ToString()</pre>
+                    }
+                }
+            </div>
+        </tab>
+
+        <tab sm-if="Model.HasActiveProvider" sm-title="@T("Common.Deployment")">
+            <partial name="_Tab.Deployment" model="Model" />
+        </tab>
+    </tabstrip>
+</form>
+
+<script sm-target-zone="scripts" data-origin="ExportEdit">
+    $(function() {
+		// Toggle store projection (cannot be done with toggler because the control is another tab).
+		$('#@(Html.IdFor(x => x.PerStore))').on('change', function () {
+			$('#ProjectionStoreContainer').toggle(!$(this).is(':checked'));
+		}).trigger('change');
+
+		// Toggle product category filter (cannot be done with toggler because the control is nullable select).
+		$('#@(Html.IdFor(x => x.Filter.WithoutCategories))').on('change', function () {
+			$('#FilterCategoryIdsContainer').toggle(_.isEmpty($(this).val()));
+		}).trigger('change');
+
+		// Toggle product manufacturer filter (cannot be done with toggler because the control is nullable select).
+		$('#@(Html.IdFor(x => x.Filter.WithoutManufacturers))').on('change', function () {
+			$('#FilterManufacturerIdContainer').toggle(_.isEmpty($(this).val()));
+		}).trigger('change');
+
+		// Toggle completion email addresses.
+		$('#@(Html.IdFor(x => x.EmailAccountId))').on('change', function () {
+			$('#CompletedEmailAddressesContainer').toggle(!_.isEmpty($(this).val()));
+		}).trigger('change');
+
+		// Resolve file name pattern example.
+		$('#FileNamePatternExampleButton').on('click', function () {
+			var pattern = $('#@(Html.IdFor(x => x.FileNamePattern))').val();
+			$(this).doAjax({
+				type: 'GET',
+				url: '@Url.Action("ResolveFileNamePatternExample", new { id = Model.Id })' + '?pattern=' + encodeURIComponent(pattern),
+				callbackSuccess: function (response) {
+					$('#FileNamePatternExample').text(response);
+				}
+			});
+		});
+
+		// Execute export.
+		$('#ProfileExportButton').on('click', function (e) {
+			e.preventDefault();
+			$(this).doPostData({
+				ask: @(T("Admin.Common.AskToProceed").JsValue),
+                data: { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() }
+			});
+			return false;
+		});
+	});
+</script>

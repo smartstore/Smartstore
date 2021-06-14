@@ -20,7 +20,7 @@
 					<file-icon file-extension="@file.File.Extension" />
 					@(file.Label.HasValue() ? file.Label : file.File.Extension.EmptyNull().ToLower().TrimStart('.'))
 				</span>
-				<a asp-action="DownloadExportFile" asp-route-id="@Model.Id" asp-route-name="@file.File.Name" asp-route-isDeployment="@Model.IsForDeployment" download title="@downloadString">
+				<a asp-action="DownloadExportFile" asp-route-id="@Model.Id" asp-route-name="@file.File.Name" asp-route-isDeployment="@Model.IsForDeployment" title="@downloadString" download>
 					@file.FileRootPath
 				</a>
 			</div>

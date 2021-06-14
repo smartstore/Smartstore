@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FluentValidation;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Widgets;
 using Smartstore.IO;
 using Smartstore.Web.Modelling;
 
@@ -90,17 +91,17 @@ namespace Smartstore.Admin.Models.Export
             [LocalizedDisplay("Common.Image")]
             public string ThumbnailUrl { get; set; }
 
-            //[LocalizedDisplay("Common.Website")]
-            //public string Url { get; set; }
+            [LocalizedDisplay("Common.Website")]
+            public string Url { get; set; }
 
             [LocalizedDisplay("Common.Provider")]
             public string FriendlyName { get; set; }
 
-            //[LocalizedDisplay("Admin.Configuration.Plugins.Fields.Author")]
-            //public string Author { get; set; }
+            [LocalizedDisplay("Admin.Configuration.Plugins.Fields.Author")]
+            public string Author { get; set; }
 
-            //[LocalizedDisplay("Admin.Configuration.Plugins.Fields.Version")]
-            //public string Version { get; set; }
+            [LocalizedDisplay("Admin.Configuration.Plugins.Fields.Version")]
+            public string Version { get; set; }
 
             [LocalizedDisplay("Common.Description")]
             public string Description { get; set; }
@@ -119,7 +120,7 @@ namespace Smartstore.Admin.Models.Export
             [LocalizedDisplay("*SupportedFileTypes")]
             public string SupportedFileTypes { get; set; }
 
-            public string ConfigPartialViewName { get; set; }
+            public WidgetInvoker ConfigurationWidget { get; set; }
             public Type ConfigDataType { get; set; }
             public object ConfigData { get; set; }
             public ExportFeatures Feature { get; set; }
