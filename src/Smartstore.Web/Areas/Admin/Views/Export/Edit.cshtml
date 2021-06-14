@@ -26,22 +26,36 @@
     <div class="section-header">
         <div class="title">
             <img src="@Model.Provider.ThumbnailUrl" />
-            @ViewBag.Title - @Model.Name @Html.ActionLink("(" + T("Admin.Common.BackToList") + ")", "List")
+            <span>@ViewBag.Title - @Model.Name</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
-			<button sm-if="Model.HasActiveProvider && Model.Id != 0" type="button" id="ProfileExportButton" class="btn btn-primary" 
-                data-url="@Url.Action("Execute", "Export", new { area = "Admin", id = Model.Id })">
-				    <i class="fa fa-cogs"></i>
-				    <span>@T("Common.Export")</span>
-			</button>
-            <a sm-if="Model.HasActiveProvider" asp-action="Preview" asp-route-id="@Model.Id" class="btn btn-secondary">
-				<i class="far fa-eye"></i>
-				<span>@T("Admin.Common.Preview")</span>
-            </a>
-            <a sm-if="Model.LogFileExists" asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
-				<i class="far fa-file-alt"></i>
-				<span>@T("Admin.Configuration.ActivityLog")</span>
-            </a>
+            @if (Model.HasActiveProvider)
+            {
+                @*TODO: (mg) (core) Remove comments*@
+                @*INFO: Url resolution will be performed here by Url.Action thus no sm-if*@
+                @if (Model.Id != 0)
+                {
+                    <button type="button" id="ProfileExportButton" class="btn btn-primary" data-url="@Url.Action("Execute", "Export", new { area = "Admin", id = Model.Id })">
+                        <i class="fa fa-cogs"></i>
+                        <span>@T("Common.Export")</span>
+                    </button>
+                }
+                @*INFO: Taghelpers are used here > asp-action and asp-route-id thus no sm-if (Also URL resolution will allways be performed) *@
+                <a asp-action="Preview" asp-route-id="@Model.Id" class="btn btn-secondary">
+                    <i class="far fa-eye"></i>
+                    <span>@T("Admin.Common.Preview")</span>
+                </a>
+            }
+
+            @if (Model.LogFileExists)
+            {
+                <a asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
+                    <i class="far fa-file-alt"></i>
+                    <span>@T("Admin.Configuration.ActivityLog")</span>
+                </a>
+            }
+
             <button type="submit" name="save" value="save" class="btn btn-warning">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.Save")</span>
@@ -49,7 +63,7 @@
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
-	        <div sm-if="!Model.IsSystemProfile" class="d-inline-block">
+            <div sm-if="!Model.IsSystemProfile" class="d-inline-block">
                 <button type="submit" id="export-profile-delete" name="export-profile-delete" value="export-profile-delete" class="btn btn-danger">
                     <i class="far fa-trash-alt"></i>
                     <span>@T("Admin.Common.Delete")</span>
@@ -69,7 +83,9 @@
                         <smart-label asp-for="Name" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="Name" />
+                        @* INFO: Don't use editor tag helper if model type and resulting control kind is known *@
+                        @*TODO: (mg) (core) Check all other properties in this view *@
+                        <input asp-for="Name" />
                         <span asp-validation-for="Name"></span>
                     </div>
                 </div>
@@ -78,9 +94,9 @@
                         <smart-label asp-for="SystemName" />
                     </div>
                     <div class="adminData">
-				        <div class="form-control-plaintext">
-					        @Model.SystemName.NaIfEmpty()
-				        </div>
+                        <div class="form-control-plaintext">
+                            @Model.SystemName.NaIfEmpty()
+                        </div>
                     </div>
                 </div>
                 <div class="adminRow">
@@ -88,9 +104,9 @@
                         <smart-label asp-for="IsSystemProfile" />
                     </div>
                     <div class="adminData">
-				        <div class="form-control-plaintext">
-					        @T(Model.IsSystemProfile ? "Admin.Common.Yes" : "Admin.Common.No")
-				        </div>
+                        <div class="form-control-plaintext">
+                            @T(Model.IsSystemProfile ? "Admin.Common.Yes" : "Admin.Common.No")
+                        </div>
                     </div>
                 </div>
                 <div class="adminRow">
@@ -98,7 +114,7 @@
                         <smart-label asp-for="Enabled" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="Enabled" />
+                        <input asp-for="Enabled" />
                         <span asp-validation-for="Enabled"></span>
                     </div>
                 </div>
@@ -107,11 +123,12 @@
                         <smart-label asp-for="ExportRelatedData" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="ExportRelatedData" />
+                        <input asp-for="ExportRelatedData" />
                         <span asp-validation-for="ExportRelatedData"></span>
                     </div>
                 </div>
                 <div sm-if="Model.TaskId > 0" class="adminRow">
+                    @*TODO: (mg) (core) Forgot mb-5 or was it left out on purpose? *@
                     <div class="adminTitle">
                         <smart-label asp-for="TaskId" />
                     </div>
@@ -130,9 +147,9 @@
                         <smart-label asp-for="Provider.FriendlyName" />
                     </div>
                     <div class="adminData">
-				        <div class="form-control-plaintext">
-					        @(Model.Provider.FriendlyName.NaIfEmpty()) (@(Model.ProviderSystemName.NaIfEmpty()))
-				        </div>
+                        <div class="form-control-plaintext">
+                            @(Model.Provider.FriendlyName.NaIfEmpty()) (@(Model.ProviderSystemName.NaIfEmpty()))
+                        </div>
                     </div>
                 </div>
                 <div sm-if="Model.Provider.Description.HasValue()" class="adminRow">
@@ -140,9 +157,9 @@
                         <smart-label asp-for="Provider.Description" />
                     </div>
                     <div class="adminData">
-				        <div class="form-control-plaintext">
-					        @Html.Raw(Model.Provider.Description)
-				        </div>
+                        <div class="form-control-plaintext">
+                            @Html.Raw(Model.Provider.Description)
+                        </div>
                     </div>
                 </div>
                 <div sm-if="Model.Provider.Url.HasValue()" class="adminRow">
@@ -150,9 +167,9 @@
                         <smart-label asp-for="Provider.Url" />
                     </div>
                     <div class="adminData">
-				        <div class="form-control-plaintext">
-					        <a href="@Model.Provider.Url" target="PluginWebsiteWnd">@Model.Provider.Url</a>
-				        </div>
+                        <div class="form-control-plaintext">
+                            <a href="@Model.Provider.Url" target="PluginWebsiteWnd">@Model.Provider.Url</a>
+                        </div>
                     </div>
                 </div>
                 <div sm-if="Model.Provider.Author.HasValue()" class="adminRow">
@@ -184,106 +201,117 @@
                         <smart-label asp-for="Provider.FileExtension" />
                     </div>
                     <div class="adminData">
-				        <div class="form-control-plaintext">
-					        <file-icon file-extension="@Model.Provider.FileExtension" show-label="true" />
-				        </div>
+                        <div class="form-control-plaintext">
+                            <file-icon file-extension="@Model.Provider.FileExtension" show-label="true" />
+                        </div>
                     </div>
                 </div>
             </div>
         </tab>
 
-        <tab sm-if="Model.HasActiveProvider" sm-title="@T("Common.Partition")">
-	        <div class="alert alert-info">
-		        @Html.Raw(T("Admin.DataExchange.Export.Partition.Note"))
-	        </div>
-            <div class="adminContent">
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="Offset" />
+        @*INFO: "No sm-ifs in taghelpers" is a general rule*@
+        @if (Model.HasActiveProvider)
+        {
+            <tab sm-title="@T("Common.Partition")">
+                <div class="alert alert-info">
+                    @Html.Raw(T("Admin.DataExchange.Export.Partition.Note"))
+                </div>
+                <div class="adminContent">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="Offset" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="Offset" />
+                            <span asp-validation-for="Offset"></span>
+                        </div>
                     </div>
-                    <div class="adminData">
-                        <editor asp-for="Offset" />
-                        <span asp-validation-for="Offset"></span>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="Limit" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="Limit" />
+                            <span asp-validation-for="Limit"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="BatchSize" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="BatchSize" />
+                            <span asp-validation-for="BatchSize"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="PerStore" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="PerStore" />
+                            <span asp-validation-for="PerStore"></span>
+                        </div>
                     </div>
                 </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="Limit" />
-                    </div>
-                    <div class="adminData">
-                        <editor asp-for="Limit" />
-                        <span asp-validation-for="Limit"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="BatchSize" />
-                    </div>
-                    <div class="adminData">
-                        <editor asp-for="BatchSize" />
-                        <span asp-validation-for="BatchSize"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="PerStore" />
-                    </div>
-                    <div class="adminData">
-                        <editor asp-for="PerStore" />
-                        <span asp-validation-for="PerStore"></span>
-                    </div>
-                </div>
-            </div>
-        </tab>
+            </tab>
 
-        <tab sm-if="Model.HasActiveProvider" sm-title="@T("Common.Filter")">
-		    <div class="alert alert-info">
-			    @T(hasFilter ? "Admin.DataExchange.Export.Filter.Note" : "Admin.DataExchange.Export.NoFiltering")
-		    </div>
-            <partial sm-if="hasFilter" name="_Tab.Filter" model="Model" />
-        </tab>
-
-        <tab sm-if="Model.HasActiveProvider" sm-title="@T("Common.Projection")">
-		    <div class="alert alert-info">
-			    @T(hasProjection ? "Admin.DataExchange.Export.Projection.Note" : "Admin.DataExchange.Export.NoProjection")
-		    </div>
-            <partial sm-if="hasProjection" name="_Tab.Projection" model="Model" />
-        </tab>
-
-        <tab sm-if="Model.HasActiveProvider" sm-title="@T("Admin.Configuration")">
-            <div id="ProviderConfigurationContainer">
-				<div class="alert alert-info">
-					@Html.Raw(hasConfiguration
-                        ? T("Admin.DataExchange.Export.Configuration.Note") 
-                        : T("Admin.DataExchange.Export.Configuration.NotRequired", Model.Provider.FriendlyName ?? Model.ProviderSystemName))
-				</div>
-                @if (hasConfiguration)
+            <tab sm-title="@T("Common.Filter")">
+                <div class="alert alert-info">
+                    @T(hasFilter ? "Admin.DataExchange.Export.Filter.Note" : "Admin.DataExchange.Export.NoFiltering")
+                </div>
+                @*INFO: "No sm-ifs in taghelpers" is a general rule*@
+                @if (hasFilter)
                 {
-                    <input type="hidden" for="CustomProperties[ProviderConfigData].__Type__" value="@Model.Provider.ConfigDataType.AssemblyQualifiedName" />
-
-                    try
-                    {
-                        @*Better not pass existing ModelState instance. Create new one and merge values.*@
-				        var configViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
-				        configViewData.TemplateInfo.HtmlFieldPrefix = "CustomProperties[ProviderConfigData]";
-                        configViewData.ModelState.Merge(ViewData.ModelState);
-                        await Model.Provider.ConfigurationWidget.InvokeAsync(ViewContext.Clone(configViewData));
-                        @*TODO: (mg) (core) test invoking of export provider configuration.*@
-                    }
-                    catch (Exception ex)
-                    {
-					    <div class="alert alert-danger">
-						    @T("Admin.Configuration.Plugins.UnknownError")
-					    </div>
-					    <pre>@ex.ToString()</pre>
-                    }
+                    <partial name="_Tab.Filter" model="Model" />
                 }
-            </div>
-        </tab>
+            </tab>
 
-        <tab sm-if="Model.HasActiveProvider" sm-title="@T("Common.Deployment")">
-            <partial name="_Tab.Deployment" model="Model" />
-        </tab>
+            <tab sm-title="@T("Common.Projection")">
+                <div class="alert alert-info">
+                    @T(hasProjection ? "Admin.DataExchange.Export.Projection.Note" : "Admin.DataExchange.Export.NoProjection")
+                </div>
+                @if (hasProjection)
+                {
+                    <partial name="_Tab.Projection" model="Model" />
+                }
+            </tab>
+
+            <tab sm-title="@T("Admin.Configuration")">
+                <div id="ProviderConfigurationContainer">
+                    <div class="alert alert-info">
+                        @Html.Raw(hasConfiguration
+                            ? T("Admin.DataExchange.Export.Configuration.Note")
+                            : T("Admin.DataExchange.Export.Configuration.NotRequired", Model.Provider.FriendlyName ?? Model.ProviderSystemName))
+                    </div>
+                    @if (hasConfiguration)
+                    {
+                        <input type="hidden" for="CustomProperties[ProviderConfigData].__Type__" value="@Model.Provider.ConfigDataType.AssemblyQualifiedName" />
+
+                        try
+                        {
+                            @*Better not pass existing ModelState instance. Create new one and merge values.*@
+                            var configViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
+                            configViewData.TemplateInfo.HtmlFieldPrefix = "CustomProperties[ProviderConfigData]";
+                            configViewData.ModelState.Merge(ViewData.ModelState);
+                            await Model.Provider.ConfigurationWidget.InvokeAsync(ViewContext.Clone(configViewData));
+                            @*TODO: (mg) (core) test invoking of export provider configuration.*@
+                        }
+                        catch (Exception ex)
+                        {
+                            <div class="alert alert-danger">
+                                @T("Admin.Configuration.Plugins.UnknownError")
+                            </div>
+                            <pre>@ex.ToString()</pre>
+                        }
+                    }
+                </div>
+            </tab>
+
+            <tab sm-title="@T("Common.Deployment")">
+                <partial name="_Tab.Deployment" model="Model" />
+            </tab>
+        }
     </tabstrip>
 </form>
 

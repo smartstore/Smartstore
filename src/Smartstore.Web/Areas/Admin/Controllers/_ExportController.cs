@@ -388,7 +388,7 @@ namespace Smartstore.Admin.Controllers
             string message = null;
             IFile file = null;
 
-            if (Services.Permissions.Authorize(Permissions.Configuration.Export.Read))
+            if (await Services.Permissions.AuthorizeAsync(Permissions.Configuration.Export.Read))
             {
                 if (isDeployment ?? false)
                 {
