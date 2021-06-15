@@ -44,13 +44,13 @@ namespace Smartstore.Web.Modelling.Settings
             get => ViewData[ViewDataKey] as StoreDependingSettingData;
         }
 
-        public static bool IsOverrideChecked(object settings, string name, IFormCollection form)
+        public bool IsOverrideChecked(object settings, string name, IFormCollection form)
         {
             var key = settings.GetType().Name + "." + name;
             return IsOverrideChecked(key, form);
         }
 
-        private static bool IsOverrideChecked(string settingKey, IFormCollection form)
+        private bool IsOverrideChecked(string settingKey, IFormCollection form)
         {
             var rawOverrideKey = settingKey + "_OverrideForStore";
             if (form.ContainsKey(rawOverrideKey))
