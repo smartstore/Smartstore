@@ -76,9 +76,8 @@
                     resizable="false"
                     reorderable="false">
                 <display-template>
-                    <!-- TODO: (core) zoomable-thumb won't work in our new data grid. Fix it. -->
-                    <div v-if="item.row.Id > 0" class="x-zoomable-thumb-container d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; padding: 8px; left: 0; top: 0;">
-                        <img :alt="item.row.Id" :src="item.value" style="max-width: 42px; max-height: 32px" :class="{ 'x-zoomable-thumb': !item.row.NoThumb }" />
+                    <div v-if="item.row.Id > 0" class="d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; padding: 8px; left: 0; top: 0;">
+                        <img :alt="item.row.Id" :src="item.value" style="max-width: 42px; max-height: 32px" />
                     </div>
                 </display-template>
             </column>

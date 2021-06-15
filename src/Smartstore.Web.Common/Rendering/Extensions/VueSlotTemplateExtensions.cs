@@ -6,14 +6,22 @@ namespace Smartstore.Web.Rendering
 {
     public static class VueSlotTemplateExtensions
     {
+        // TODO: (mg) (core) Port other helpers: LabeledOrderNumber, LabeledCurrencyName
+
         public static IHtmlContent LabeledProductName(
-            this IHtmlHelper helper,
+            this IHtmlHelper _,
             string typeNameExpression = "item.row.ProductTypeName",
             string typeLabelHintExpression = "item.row.ProductTypeLabelHint",
             string urlExpression = "item.row.EditUrl",
             string linkTarget = null)
         {
-            var label = "<span class='mr-1 badge' :class=\"'badge-' + {0}\">{{{{ {1} }}}}</span>".FormatInvariant(typeLabelHintExpression, typeNameExpression);
+            var builder = new HtmlContentBuilder();
+
+            if (typeNameExpression.HasValue() && typeLabelHintExpression.HasValue())
+            {
+                var label = "<span class='mr-1 badge' :class=\"'badge-' + {0}\">{{{{ {1} }}}}</span>".FormatInvariant(typeLabelHintExpression, typeNameExpression);
+                builder.AppendHtml(label);
+            }
 
             var isLink = urlExpression.HasValue();
             var name = new TagBuilder(isLink ? "a" : "span");
@@ -29,14 +37,8 @@ namespace Smartstore.Web.Rendering
                 }
             }
 
-            if (typeNameExpression.IsEmpty() && typeLabelHintExpression.IsEmpty())
-            {
-                return name;
-            }
-
-            var builder = new HtmlContentBuilder();
-            builder.AppendHtml(label);
             builder.AppendHtml(name);
+
             return builder;
         }
     }

@@ -356,10 +356,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Shipping(int storeScope, ShippingSettings settings)
         {
             var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
-
-            // TODO: (mh) (core) Implement & use mapping extensions.
-            var model = new ShippingSettingsModel();
-            await MapperFactory.MapAsync(settings, model);
+            var model = await MapperFactory.MapAsync<ShippingSettings, ShippingSettingsModel>(settings);
 
             model.PrimaryStoreCurrencyCode = store.PrimaryStoreCurrency.CurrencyCode;
 
