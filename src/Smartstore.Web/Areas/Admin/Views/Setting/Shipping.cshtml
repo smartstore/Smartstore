@@ -1,0 +1,133 @@
+﻿@model ShippingSettingsModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Settings.Shipping").Value;
+    Layout = "_SettingLayout";
+}
+
+<form asp-action="Shipping">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-truck"></i>
+            @T("Admin.Configuration.Settings.Shipping")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+    
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="FreeShippingOverXEnabled" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="FreeShippingOverXEnabled" data-toggler-for="#pnlFreeShipping"></setting-editor>
+                <span asp-validation-for="FreeShippingOverXEnabled"></span>
+            </div>
+        </div>
+        <div id="pnlFreeShipping">
+            <div id="pnlValueOfX" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="FreeShippingOverXValue" />
+                </div>
+                <div class="adminData">
+                    @*TODO: (mh) (core) postfix is missing*@
+                    @*@Html.SettingEditorFor(model => model.FreeShippingOverXValue, null, new { postfix = Model.PrimaryStoreCurrencyCode })*@
+                    <setting-editor asp-for="FreeShippingOverXValue"></setting-editor>
+                    <span asp-validation-for="FreeShippingOverXValue"></span>
+                </div>
+            </div>
+            <div id="pnlValueOfXincltax" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="FreeShippingOverXIncludingTax" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="FreeShippingOverXIncludingTax"></setting-editor>
+                    <span asp-validation-for="FreeShippingOverXIncludingTax"></span>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="EstimateShippingEnabled" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="EstimateShippingEnabled"></setting-editor>
+                <span asp-validation-for="EstimateShippingEnabled"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DisplayShipmentEventsToCustomers" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DisplayShipmentEventsToCustomers"></setting-editor>
+                <span asp-validation-for="DisplayShipmentEventsToCustomers"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SkipShippingIfSingleOption" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="SkipShippingIfSingleOption"></setting-editor>
+                <span asp-validation-for="SkipShippingIfSingleOption"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ChargeOnlyHighestProductShippingSurcharge" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ChargeOnlyHighestProductShippingSurcharge"></setting-editor>
+                <span asp-validation-for="ChargeOnlyHighestProductShippingSurcharge"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShippingOriginAddress" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShippingOriginAddress">
+                    <div><editor asp-for="ShippingOriginAddress" /></div>
+                </setting-editor>
+            </div>
+        </div>
+    </div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Admin.Catalog.Products.Fields.DeliveryTime")</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DeliveryOnWorkweekDaysOnly" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DeliveryOnWorkweekDaysOnly"></setting-editor>
+                <span asp-validation-for="DeliveryOnWorkweekDaysOnly"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TodayShipmentHour" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="TodayShipmentHour">
+                    <select asp-for="TodayShipmentHour" asp-items="ViewBag.TodayShipmentHours" asp-placeholder="@T("Time.Hour")"></select>
+                </setting-editor>
+                <span asp-validation-for="TodayShipmentHour"></span>
+            </div>
+        </div>
+    </div>
+</form>
