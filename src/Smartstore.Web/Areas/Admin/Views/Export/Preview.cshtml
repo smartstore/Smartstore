@@ -1,0 +1,86 @@
+﻿@model ExportPreviewModel
+
+@{
+	ViewBag.Title = T("Common.Export") + " - " + T("Admin.Common.Preview");
+}
+
+<div class="section-header">
+	<div class="title">
+        <img src="@Url.Content(Model.ThumbnailUrl)" />
+        <span>@ViewBag.Title - @Model.Name</span>
+        <a asp-action="Edit" asp-route-id="@Model.Id">(@T("Common.Back"))</a>
+	</div>
+	<div class="options">
+		<form id="ProfileExportForm" asp-action="Execute" method="post">
+			<input type="hidden" asp-for="Id" />
+			<input type="hidden" name="SelectedIds" value="" />
+            @if (Model.LogFileExists)
+            {
+                <a asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
+                    <i class="far fa-file-alt"></i>
+                    <span>@T("Admin.Configuration.ActivityLog")</span>
+                </a>
+            }
+			<button type="button" id="ExportSelected" class="btn btn-secondary">
+				<i class="fa fa-cogs"></i>
+				<span>@T("Admin.Common.ExportSelected")</span>
+			</button>
+			<button type="button" id="ExportAll" class="btn btn-secondary">
+				<i class="fa fa-cogs"></i>
+				<span>@T("Admin.Common.ExportAll")</span>
+			</button>
+		</form>
+	</div>
+</div>
+
+<div class="preview-grid-container">
+	@if (Model.EntityType == ExportEntityType.Product)
+	{
+		<partial name="_Grid.Preview.Products" model="null" />
+	}
+	else if (Model.EntityType == ExportEntityType.Order)
+	{
+	}
+	else if (Model.EntityType == ExportEntityType.Category)
+	{
+	}
+	else if (Model.EntityType == ExportEntityType.Manufacturer)
+	{
+	}
+	else if (Model.EntityType == ExportEntityType.Customer)
+	{
+	}
+	else if (Model.EntityType == ExportEntityType.NewsLetterSubscription)
+	{
+	}
+	else if (Model.EntityType == ExportEntityType.ShoppingCartItem)
+	{		
+	}
+	else
+	{
+		<div class="alert alert-warning">
+			@T("Admin.DataExchange.Export.NoPreview")
+		</div>
+	}
+</div>
+
+<script sm-target-zone="scripts" data-origin="ExportPreview">
+	$(function() {
+		// Execute export.
+		$('#ExportAll, #ExportSelected').on('click', function (e) {
+			e.preventDefault();
+			var form = $('#ProfileExportForm');
+			var exportAll = $(this).attr('id') === 'ExportAll';
+
+			if (!exportAll && selectedIds.length === 0) {
+				displayNotification(@T("Admin.Common.NoEntriesSelected").JsValue, 'warning');
+				return false;
+			}
+
+			form.find('[name=SelectedIds]').val(exportAll ? '' : selectedIds.join(','));
+			form.submit();
+			return false;
+		});
+
+	});
+</script>

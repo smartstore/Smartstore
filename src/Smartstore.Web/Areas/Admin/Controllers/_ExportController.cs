@@ -17,14 +17,14 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Export.Deployment;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
@@ -33,6 +33,7 @@ using Smartstore.Scheduling;
 using Smartstore.Utilities;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.DataGrid;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
@@ -42,6 +43,7 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IExportProfileService _exportProfileService;
         private readonly ICategoryService _categoryService;
+        private readonly IDataExporter _dataExporter;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IProviderManager _providerManager;
         private readonly ITaskStore _taskStore;
@@ -60,6 +62,7 @@ namespace Smartstore.Admin.Controllers
             SmartDbContext db,
             IExportProfileService exportProfileService,
             ICategoryService categoryService,
+            IDataExporter dataExporter,
             ITaskScheduler taskScheduler,
             IProviderManager providerManager,
             ITaskStore taskStore,
@@ -68,6 +71,7 @@ namespace Smartstore.Admin.Controllers
             _db = db;
             _exportProfileService = exportProfileService;
             _categoryService = categoryService;
+            _dataExporter = dataExporter;
             _taskScheduler = taskScheduler;
             _providerManager = providerManager;
             _taskStore = taskStore;
@@ -368,7 +372,7 @@ namespace Smartstore.Admin.Controllers
             var profile = await _db.ExportProfiles.FindByIdAsync(id, false);
             if (profile != null)
             {
-                var dir = await _exportProfileService.GetExportDirectoryAsync(profile, null, false);
+                var dir = await _exportProfileService.GetExportDirectoryAsync(profile);
                 var logFile = await dir.GetFileAsync("log.txt");
                 if (logFile.Exists)
                 {
@@ -453,7 +457,217 @@ namespace Smartstore.Admin.Controllers
             return File(Encoding.UTF8.GetBytes(message), MediaTypeNames.Text.Plain, "DownloadExportFile.txt");
         }
 
-        // TODO: (mg) (core) implement action methods Preview, PreviewList.
+        [Permission(Permissions.Configuration.Export.Read)]
+        public async Task<IActionResult> Preview(int id)
+        {
+            var (profile, provider) = await LoadProfileAndProvider(id);
+            if (profile == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            if (!profile.Enabled)
+            {
+                NotifyInfo(T("Admin.DataExchange.Export.EnableProfileForPreview"));
+
+                return RedirectToAction("Edit", new { id = profile.Id });
+            }
+
+            var dir = await _exportProfileService.GetExportDirectoryAsync(profile);
+            var logFile = await dir.GetFileAsync("log.txt");
+
+            var model = new ExportPreviewModel
+            {
+                Id = profile.Id,
+                Name = profile.Name,
+                EntityType = provider.Value.EntityType,
+                ThumbnailUrl = GetThumbnailUrl(provider),
+                LogFileExists = logFile.Exists
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Export.Read)]
+        public async Task<IActionResult> PreviewList(GridCommand command, int id)
+        {
+            var (profile, provider) = await LoadProfileAndProvider(id);
+            if (profile == null)
+            {
+                return Json(null);
+            }
+
+            object gridModel = null;
+            var request = new DataExportRequest(profile, provider);
+            var previewResult = await _dataExporter.PreviewAsync(request, command.Page - 1);
+
+            var normalizedTotal = profile.Limit > 0 && previewResult.TotalRecords > profile.Limit
+                ? profile.Limit
+                : previewResult.TotalRecords;
+
+            if (provider.Value.EntityType == ExportEntityType.Product)
+            {
+                var rows = previewResult.Data
+                    .Select(x =>
+                    {
+                        var product = x.Entity as Product;
+                        return new ExportPreviewProductModel
+                        {
+                            Id = product.Id,
+                            ProductTypeId = product.ProductTypeId,
+                            ProductTypeName = product.GetProductTypeLabel(Services.Localization),
+                            ProductTypeLabelHint = product.ProductTypeLabelHint,
+                            Name = x.Name,
+                            Sku = x.Sku,
+                            Price = x.Price,
+                            Published = product.Published,
+                            StockQuantity = product.StockQuantity,
+                            AdminComment = x.AdminComment
+                        };
+                    })
+                    .ToList();
+
+                gridModel = new GridModel<ExportPreviewProductModel> { Rows = rows, Total = normalizedTotal };
+            }
+            else if (provider.Value.EntityType == ExportEntityType.Order)
+            {
+                var rows = previewResult.Data
+                    .Select(x => new ExportPreviewOrderModel
+                    {
+                        Id = x.Id,
+                        HasNewPaymentNotification = x.HasNewPaymentNotification,
+                        OrderNumber = x.OrderNumber,
+                        OrderStatus = x.OrderStatus,
+                        PaymentStatus = x.PaymentStatus,
+                        ShippingStatus = x.ShippingStatus,
+                        CustomerId = x.CustomerId,
+                        CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                        OrderTotal = x.OrderTotal,
+                        StoreName = (string)x.Store.Name
+                    })
+                    .ToList();
+
+                gridModel = new GridModel<ExportPreviewOrderModel> { Rows = rows, Total = normalizedTotal };
+            }
+            else if (provider.Value.EntityType == ExportEntityType.Category)
+            {
+                var rows = await previewResult.Data
+                    .SelectAsync(async x =>
+                    {
+                        var category = x.Entity as Category;
+                        return new ExportPreviewCategoryModel
+                        {
+                            Id = category.Id,
+                            Breadcrumb = await _categoryService.GetCategoryPathAsync(category, aliasPattern: "({0})"),
+                            FullName = x.FullName,
+                            Alias = x.Alias,
+                            Published = category.Published,
+                            DisplayOrder = category.DisplayOrder,
+                            LimitedToStores = category.LimitedToStores
+                        };
+                    })
+                    .AsyncToList();
+
+                gridModel = new GridModel<ExportPreviewCategoryModel> { Rows = rows, Total = normalizedTotal };
+            }
+            else if (provider.Value.EntityType == ExportEntityType.Manufacturer)
+            {
+                var rows = previewResult.Data
+                    .Select(x => new ExportPreviewManufacturerModel
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Published = x.Published,
+                        DisplayOrder = x.DisplayOrder,
+                        LimitedToStores = x.LimitedToStores
+                    })
+                    .ToList();
+
+                gridModel = new GridModel<ExportPreviewManufacturerModel> { Rows = rows, Total = normalizedTotal };
+            }
+            else if (provider.Value.EntityType == ExportEntityType.Customer)
+            {
+                var rows = previewResult.Data
+                    .Select(x =>
+                    {
+                        var customer = x.Entity as Customer;
+                        var customerRoles = x.CustomerRoles as List<dynamic>;
+                        var customerRolesString = string.Join(", ", customerRoles.Select(x => x.Name));
+
+                        return new ExportPreviewCustomerModel
+                        {
+                            Id = customer.Id,
+                            Active = customer.Active,
+                            CreatedOn = Services.DateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc),
+                            CustomerRoleNames = customerRolesString,
+                            Email = customer.Email,
+                            FullName = x._FullName,
+                            LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc),
+                            Username = customer.Username
+                        };
+                    })
+                    .ToList();
+
+                gridModel = new GridModel<ExportPreviewCustomerModel> { Rows = rows, Total = normalizedTotal };
+            }
+            else if (provider.Value.EntityType == ExportEntityType.NewsLetterSubscription)
+            {
+                var rows = previewResult.Data
+                    .Select(x =>
+                    {
+                        var subscription = x.Entity as NewsletterSubscription;
+                        return new ExportPreviewNewsletterSubscriptionModel
+                        {
+                            Id = subscription.Id,
+                            Active = subscription.Active,
+                            CreatedOn = Services.DateTimeHelper.ConvertToUserTime(subscription.CreatedOnUtc, DateTimeKind.Utc),
+                            Email = subscription.Email,
+                            StoreName = (string)x.Store.Name
+                        };
+                    })
+                    .ToList();
+
+                gridModel = new GridModel<ExportPreviewNewsletterSubscriptionModel> { Rows = rows, Total = normalizedTotal };
+            }
+            else if (provider.Value.EntityType == ExportEntityType.ShoppingCartItem)
+            {
+                var guest = T("Admin.Customers.Guest").Value;
+                var cartTypeName = await Services.Localization.GetLocalizedEnumAsync(ShoppingCartType.ShoppingCart);
+                var wishlistTypeName = await Services.Localization.GetLocalizedEnumAsync(ShoppingCartType.Wishlist);
+
+                var rows = previewResult.Data
+                    .Select(item =>
+                    {
+                        var cartItem = item.Entity as ShoppingCartItem;
+                        return new ExportPreviewShoppingCartItemModel
+                        {
+                            Id = cartItem.Id,
+                            ShoppingCartTypeId = cartItem.ShoppingCartTypeId,
+                            ShoppingCartTypeName = cartItem.ShoppingCartType == ShoppingCartType.Wishlist ? wishlistTypeName : cartTypeName,
+                            CustomerId = cartItem.CustomerId,
+                            CustomerEmail = cartItem.Customer.IsGuest() ? guest : cartItem.Customer.Email,
+                            ProductTypeId = cartItem.Product.ProductTypeId,
+                            ProductTypeName = cartItem.Product.GetProductTypeLabel(Services.Localization),
+                            ProductTypeLabelHint = cartItem.Product.ProductTypeLabelHint,
+                            Name = cartItem.Product.Name,
+                            Sku = cartItem.Product.Sku,
+                            Price = cartItem.Product.Price,
+                            Published = cartItem.Product.Published,
+                            StockQuantity = cartItem.Product.StockQuantity,
+                            AdminComment = cartItem.Product.AdminComment,
+                            CreatedOn = Services.DateTimeHelper.ConvertToUserTime(cartItem.CreatedOnUtc, DateTimeKind.Utc),
+                            StoreName = (string)item.Store.Name
+                        };
+                    })
+                    .ToList();
+
+                gridModel = new GridModel<ExportPreviewShoppingCartItemModel> { Rows = rows, Total = normalizedTotal };
+            }
+
+            return Json(gridModel);
+        }
+
         // TODO: (mg) (core) add ViewComponent for former child-action "InfoProfile".
         // TODO: (mg) (core) implement action methods for Deployment.
 
@@ -468,7 +682,7 @@ namespace Smartstore.Admin.Controllers
         {
             MiniMapper.Map(profile, model);
 
-            var dir = await _exportProfileService.GetExportDirectoryAsync(profile, null, false);
+            var dir = await _exportProfileService.GetExportDirectoryAsync(profile);
             var logFile = await dir.GetFileAsync("log.txt");
             //var moduleDescriptor = provider.Metadata.ModuleDescriptor;
 
