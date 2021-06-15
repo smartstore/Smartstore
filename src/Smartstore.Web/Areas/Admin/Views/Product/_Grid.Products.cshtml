@@ -85,10 +85,11 @@
         }
         <column for="Name" width="3fr" hideable="false">
             <display-template>
-                <span class="mr-1 badge" v-bind:class="'badge-' + item.row.ProductTypeLabelHint">{{ item.row.ProductTypeName }}</span>
+                @*<span class="mr-1 badge" v-bind:class="'badge-' + item.row.ProductTypeLabelHint">{{ item.row.ProductTypeName }}</span>
                 <a :href="item.row.EditUrl" class="text-truncate">
                     {{ item.value }}
-                </a>
+                </a>*@
+                @Html.LabeledProductName()
             </display-template>
         </column>
         <column for="Sku" />

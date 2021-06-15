@@ -240,19 +240,7 @@ const DATAGRID_VALIDATION_SETTINGS = {
     },
     success: function (error, input) {
         error.remove();
-    },
-    //invalidHandler: function () {
-    //    console.log("invalidHandler", arguments);
-    //},
-    //showErrors: function () {
-    //    console.log("showErrors", arguments);
-    //},
-    //highlight: function () {
-    //    console.log("highlight", arguments);
-    //},
-    //unhighlight: function () {
-    //    console.log("unhighlight", arguments);
-    //}
+    }
 };
 
 // https://dev.to/loilo92/an-approach-to-vuejs-template-variables-5aik
@@ -551,35 +539,13 @@ Vue.component("sm-datagrid", {
                         }
                     });
                 },
-                bindModel(editors) {
-                    const r = this.row;
-                    (editors || this.getEditors()).forEach(el => {
-                        if (el.name) {
-                            if (el.tagName.toLowerCase() === "input") {
-                                if (el.type !== "hidden") {
-                                    switch (el.type) {
-                                        case "checkbox":
-                                        case "radio":
-                                            r[el.name] = el.checked;
-                                            break;
-                                        case "number":
-                                        case "range":
-                                            r[el.name] = parseFloat(el.value);
-                                            break;
-                                        case "date": // TODO: (core) Bind input[type=date]
-                                        case "time": // TODO: (core) Bind input[type=time]
-                                        case "datetime": // TODO: (core) Bind input[type=time]
-                                        case "datetime-local": // TODO: (core) Bind input[type=time]
-                                        default:
-                                            r[el.name] = el.value;
-                                    }
-                                }
-                            }
-                            else {
-                                r[el.name] = el.value;
-                            }
-                        }
-                    });
+                bindModel() {
+                    if (!this.tr) return;
+                    let r = this.row;
+                    let form = $(this.tr).closest("form");
+                    let model = form.serializeToJSON();
+
+                    $.extend(r, model);
                 }
             }
         }
@@ -634,6 +600,7 @@ Vue.component("sm-datagrid", {
 
                 if (e.keyCode == 13) {
                     // Enter key pressed in input
+                    e.preventDefault();
                     self.read();
                 }
             });
