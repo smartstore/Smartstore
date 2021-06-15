@@ -60,13 +60,15 @@ namespace Smartstore.ComponentModel
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<TTo> MapAsync<TFrom, TTo>(TFrom from, dynamic parameters = null)
+        public async static Task<TTo> MapAsync<TFrom, TTo>(TFrom from, dynamic parameters = null)
             where TFrom : class
             where TTo : class, new()
         {
-            return GetMapper<TFrom, TTo>().MapAsync(
-                Guard.NotNull(from, nameof(from)), 
-                parameters);
+            Guard.NotNull(from, nameof(from));
+
+            var to = new TTo();
+            await GetMapper<TFrom, TTo>().MapAsync(from, to, parameters);
+            return to;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
