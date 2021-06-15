@@ -24,15 +24,18 @@ namespace Smartstore.Web.Models.Common
         [Required]
         [LocalizedDisplay("*FirstName")]
         public string FirstName { get; set; }
+        public bool FirstNameEnabled { get; set; }
 
         [Required]
         [LocalizedDisplay("*LastName")]
         public string LastName { get; set; }
+        public bool LastNameEnabled { get; set; }
 
         [Required]
         [LocalizedDisplay("*Email")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
+        public bool EmailEnabled { get; set; }
 
         [LocalizedDisplay("*EmailMatch")]
         [DataType(DataType.EmailAddress)]

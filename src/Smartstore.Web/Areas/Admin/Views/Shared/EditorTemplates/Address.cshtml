@@ -2,6 +2,9 @@
 
 <input type="hidden" asp-for="Id" />
 <input type="hidden" asp-for="TitleEnabled" />
+<input type="hidden" asp-for="FirstNameEnabled" />
+<input type="hidden" asp-for="LastNameEnabled" />
+<input type="hidden" asp-for="EmailEnabled" />
 <input type="hidden" asp-for="ValidateEmailAddress" />
 <input type="hidden" asp-for="CompanyEnabled" />
 <input type="hidden" asp-for="CompanyRequired" />
@@ -30,7 +33,7 @@
             <span asp-validation-for="Title"></span>
         </div>
     </div>
-    <div class="adminRow">
+    <div sm-if="Model.FirstNameEnabled" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="FirstName" />
         </div>
@@ -39,7 +42,7 @@
             <span asp-validation-for="FirstName"></span>
         </div>
     </div>
-    <div class="adminRow">
+    <div sm-if="Model.LastNameEnabled" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="LastName" />
         </div>
@@ -48,7 +51,7 @@
             <span asp-validation-for="LastName"></span>
         </div>
     </div>
-    <div class="adminRow">
+    <div sm-if="Model.EmailEnabled" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="Email" />
         </div>
