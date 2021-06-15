@@ -47,6 +47,15 @@ namespace Smartstore.Admin.Controllers
         private readonly ITaskStore _taskStore;
         private readonly DataExchangeSettings _dataExchangeSettings;
 
+        private static readonly IReadOnlyDictionary<ExportDeploymentType, string> DeploymentTypeIconClasses = new Dictionary<ExportDeploymentType, string>()
+        {
+            { ExportDeploymentType.FileSystem, "far fa-folder-open" },
+            { ExportDeploymentType.Email, "far fa-envelope" },
+            { ExportDeploymentType.Http, "fa fa-globe" },
+            { ExportDeploymentType.Ftp, "far fa-copy" },
+            { ExportDeploymentType.PublicFolder, "fa fa-unlock" },
+        };
+
         public ExportController(
             SmartDbContext db,
             IExportProfileService exportProfileService,
@@ -537,6 +546,8 @@ namespace Smartstore.Admin.Controllers
                 .Select(y => new SelectListItem { Text = y.Name, Value = y.Id.ToString() })
                 .ToList();
 
+            ViewBag.DeploymentTypeIconClasses = DeploymentTypeIconClasses;
+
             // Projection.
             model.Projection = MiniMapper.Map<ExportProjection, ExportProjectionModel>(projection);
             model.Projection.NumberOfPictures = projection.NumberOfMediaFiles;
@@ -597,9 +608,6 @@ namespace Smartstore.Admin.Controllers
                         .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
                         .ToList();
 
-                    ViewBag.AttributeCombinationValueMerging = ExportAttributeValueMerging.AppendAllValuesToName.ToSelectList(false);
-                    ViewBag.DescriptionMergings = ExportDescriptionMerging.Description.ToSelectList(false);
-
                     ViewBag.PriceTypes = PriceDisplayType.LowestPrice
                         .ToSelectList(false)
                         .Where(x => x.Value != ((int)PriceDisplayType.Hide).ToString())
@@ -637,10 +645,6 @@ namespace Smartstore.Admin.Controllers
                     ViewBag.Countries = countries
                         .Select(x => new SelectListItem { Text = x.GetLocalized(y => y.Name, language, true, false), Value = x.Id.ToString() })
                         .ToList();
-                }
-                else if (model.Provider.EntityType == ExportEntityType.Order)
-                {
-                    ViewBag.OrderStatusChange = ExportOrderStatusChange.Processing.ToSelectList(false);
                 }
 
                 try

@@ -1,3 +1,282 @@
 ﻿@model ExportProfileModel
 
-<div>TODO: (mg) (core) export deploymment partial</div>
+@{
+    var deploymentTypeIconClasses = (IReadOnlyDictionary<ExportDeploymentType, string>)ViewBag.DeploymentTypeIconClasses;
+}
+
+<div sm-if="!Model.Provider.IsFileBasedExport">
+    <div class="alert alert-info">
+        @Html.Raw(T("Admin.DataExchange.Export.NonFileBasedExport.Note"))
+    </div>
+    <input type="hidden" asp-for="FileNamePattern" />
+</div>
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="FolderName" />
+        </div>
+        <div class="adminData">
+            <input asp-for="FolderName" />
+            <span asp-validation-for="FolderName"></span>
+        </div>
+    </div>
+</div>
+<div sm-if="Model.Provider.IsFileBasedExport" class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="FileNamePattern" />
+        </div>
+        <div class="adminData">
+            <input asp-for="FileNamePattern" />
+            <span asp-validation-for="FileNamePattern"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            &nbsp;
+        </div>
+        <div class="adminData">
+			<div>
+				<button id="FileNamePatternExampleButton" type="button" class="btn btn-sm btn-secondary mr-3">
+					<i class="fa fa-sync"></i>
+					<span>@T("Admin.DataExchange.Export.Deployment.UpdateExampleFileName")</span>
+				</button>
+				<span id="FileNamePatternExample">@Model.FileNamePatternExample</span>
+			</div>
+			<div>
+				<div class="mt-2">
+					<button id="FileNamePatternDescriptionLink" type="button" class="btn btn-outline-light btn-sm font-weight-normal">
+                        <span>@T("Admin.DataExchange.Export.Deployment.ShowPlaceholder")</span>
+                        <i class="fa fa-chevron-down"></i>
+					</button>
+				</div>
+				<div id="FileNamePatternDescription" class="hide mt-2">
+					<div class="table-responsive">
+						<table class="table admin-table">
+							<thead>
+								<tr>
+									<th>@T("Admin.Common.Placeholder")</th>
+									<th>@T("Common.Description")</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>%Profile.Id%</td>
+									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(0)</td>
+								</tr>
+								<tr>
+									<td>%Profile.FolderName%</td>
+									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(1)</td>
+								</tr>
+								<tr>
+									<td>%Profile.SeoName%</td>
+									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(2)</td>
+								</tr>
+								<tr>
+									<td>%Store.Id%</td>
+									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(3)</td>
+								</tr>
+								<tr>
+									<td>%Store.SeoName%</td>
+									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(4)</td>
+								</tr>
+								<tr>
+									<td>%File.Index%</td>
+									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(5)</td>
+								</tr>
+								<tr>
+									<td>%Random.Number%</td>
+									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(6)</td>
+								</tr>
+								<tr>
+									<td>%Timestamp%</td>
+									<td>@Model.FileNamePatternDescriptions.ElementAtOrDefault(7)</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CreateZipArchive" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CreateZipArchive" />
+            <span asp-validation-for="CreateZipArchive"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="EmailAccountId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="EmailAccountId" asp-items="@(List<SelectListItem>)ViewBag.EmailAccounts" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="EmailAccountId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CompletedEmailAddresses" />
+        </div>
+        <div class="adminData">
+            <select asp-for="CompletedEmailAddresses" asp-items="@(MultiSelectList)ViewBag.CompletedEmailAddresses" multiple="multiple" data-tags="true"></select>
+            <span asp-validation-for="CompletedEmailAddresses"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Cleanup" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Cleanup" />
+            <span asp-validation-for="Cleanup"></span>
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.Provider.IsFileBasedExport">
+	<div class="admin-config-group">
+		<div class="title">@T("Admin.DataExchange.Export.Deployment.ProfilesTitle")</div>
+	</div>
+	<div class="alert alert-info">
+		@Html.Raw(T("Admin.DataExchange.Export.Deployment.Note"))
+	</div>
+	<div sm-if="!Model.Deployments.Any()" class="alert alert-info">
+		@T("Admin.DataExchange.Export.Deployment.NoProfiles")
+	</div>
+    <div sm-if="Model.Deployments.Any()" class="table-responsive">
+        <table id="export-deployment-list" class="table admin-table profile-list">
+			<thead>
+				<tr>
+					<th>@T("Admin.DataExchange.Export.Deployment.Name")</th>
+					<th>@T("Admin.DataExchange.Export.Deployment.PublishingTarget")</th>
+					<th class="text-center">@T("Common.Enabled")</th>
+					<th class="text-center">@T("Admin.DataExchange.Export.ExportFiles")</th>
+					<th>@T("Admin.Common.LastRun")</th>
+					<th>@T("Admin.Common.Actions")</th>
+				</tr>
+			</thead>
+            <tbody>
+                @foreach (var deployment in Model.Deployments)
+                {
+                    var result = deployment.LastResult;
+                    <tr data-deployment-id="@deployment.Id" attr-class='(!deployment.Enabled, "disabled")'>
+						<td>
+							<div>
+                                <a asp-action="EditDeployment" asp-route-id="@deployment.Id">@deployment.Name</a>
+							</div>
+							<div class="muted">
+                                <i class="@(deploymentTypeIconClasses.GetValueOrDefault(deployment.DeploymentType))"></i>
+                                <span>@deployment.DeploymentTypeName</span>
+							</div>
+						</td>
+                        <td>
+							@if (deployment.DeploymentType == ExportDeploymentType.FileSystem)
+                            {
+								@deployment.FileSystemPath.NaIfEmpty()
+                            }
+                            else if (deployment.DeploymentType == ExportDeploymentType.Email)
+                            {
+								@(string.Join(", ", deployment.EmailAddresses).NaIfEmpty())
+                            }
+                            else if (deployment.DeploymentType == ExportDeploymentType.Http || deployment.DeploymentType == ExportDeploymentType.Ftp)
+                            {
+								@deployment.Url.NaIfEmpty()
+                            }
+                            else if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
+                            {
+								@deployment.PublicFolderUrl.NaIfEmpty()
+                            }
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-fw icon-active-@deployment.Enabled.ToString().ToLower()"></i>
+                        </td>
+                        <td class="text-center">
+                            <partial name="ProfileFileCount" model="deployment.FileCount" />
+                        </td>
+                        <td>
+							@if (result == null)
+							{
+								<div class="muted">@T("Common.Never")</div>
+							}
+							else if (result.Succeeded)
+							{
+								<div><span>@(T("Admin.Common.SuccessfulOn")): </span><span>@result.Execution.ToString("g")</span></div>
+								<div class="muted">@result.ExecutionPretty</div>
+							}
+							else
+							{
+								<div>@result.Execution.ToString("g")</div>
+								<div class="text-danger"><strong>@T("Common.Error"): </strong> <span>@result.Error</span></div>
+							}                            
+                        </td>
+                        <td class="omega">
+							<button type="button" data-url="@Url.Action("DeleteDeployment", new { id = deployment.Id })" class="btn btn-sm btn-danger delete-deployment">
+								<span>@T("Common.Delete")</span>
+							</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+	<a asp-action="CreateDeployment" asp-route-id="@Model.Id" class="btn btn-warning">
+		<i class="fa fa-plus"></i>
+		<span>@T("Admin.DataExchange.AddNewProfile")</span>
+	</a>
+</div>
+
+<modal id="deployment-file-dialog" sm-render-at-page-end="true" sm-size="Large">
+	<modal-header sm-title="@T("Admin.DataExchange.Export.ExportFiles")"></modal-header>
+    <modal-body></modal-body>
+    <modal-footer>
+		<button class="btn btn-secondary btn-flat" data-dismiss="modal"><span>@T("Common.Cancel")</span></button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="scripts" data-origin="ExportDeployment">
+	$(function() {
+		// Toggle file name pattern descriptions.
+		$('#FileNamePatternDescriptionLink').on('click', function () {
+            var descriptions = $('#FileNamePatternDescription');
+            var isVisible = descriptions.is(':visible');
+
+            descriptions.slideToggle();
+            $(this).find('span').html(isVisible ? @T("Admin.DataExchange.Export.Deployment.ShowPlaceholder").JsValue : @T("Admin.DataExchange.Export.Deployment.HidePlaceholder").JsValue);
+            $(this).find('i').removeClass(isVisible ? 'fa-chevron-up' : 'fa-chevron-down').addClass(isVisible ? 'fa-chevron-down' : 'fa-chevron-up');
+		});
+
+		// Delete deployment.
+		$('#export-deployment-list').find('.delete-deployment').on('click', function () {
+			$(this).doPostData({
+                data: { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+				ask: @T("Admin.Common.AskToProceed").JsValue
+			});
+		});
+
+		// Show deployment file dialog.
+		$(document).on('click', '.export-file-count', function (e) {
+			e.preventDefault();
+			var fileDialog = $('#deployment-file-dialog');
+			var id = $(this).closest('tr').attr('data-deployment-id');
+
+			fileDialog.find('.modal-body').empty();
+
+			$({}).doAjax({
+				type: 'GET',
+				url: '@Url.Action("ProfileFileDetails")?profileId=0&deploymentId=' + id,
+				smallIcon: fileDialog.find('.modal-body'),
+				callbackSuccess: function (response) {
+					fileDialog.find('.modal-body').html(response);
+				}
+			});
+
+			fileDialog.modal('show');
+			return false;
+		});
+	});
+</script>

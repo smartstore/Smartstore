@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Pricing;
+﻿using System.ComponentModel.DataAnnotations;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Export

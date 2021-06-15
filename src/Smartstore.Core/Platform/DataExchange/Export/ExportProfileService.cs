@@ -407,6 +407,11 @@ namespace Smartstore.Core.DataExchange.Export
     }
 
     [SystemName("Exports.SmartStoreProductCsv")]
+    [ExportFeatures(Features =
+        ExportFeatures.UsesRelatedDataUnits |
+        ExportFeatures.CanOmitGroupedProducts |
+        ExportFeatures.CanProjectAttributeCombinations |
+        ExportFeatures.CanProjectDescription)]
     public class ProductCsvExportProvider : ExportProviderBase
     {
         public override string FileExtension => "CSV";
@@ -454,6 +459,15 @@ namespace Smartstore.Core.DataExchange.Export
     }
 
     [SystemName("Feeds.GoogleMerchantCenterProductXml")]
+    [ExportFeatures(Features =
+        ExportFeatures.CreatesInitialPublicDeployment |
+        ExportFeatures.CanOmitGroupedProducts |
+        ExportFeatures.CanProjectAttributeCombinations |
+        ExportFeatures.CanProjectDescription |
+        ExportFeatures.UsesSkuAsMpnFallback |
+        ExportFeatures.OffersBrandFallback |
+        ExportFeatures.UsesSpecialPrice |
+        ExportFeatures.UsesAttributeCombination)]
     public class GmcXmlExportProvider : ExportProviderBase
     {
         public override string FileExtension => "XML";

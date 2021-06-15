@@ -1,3 +1,239 @@
 ﻿@model ExportProfileModel
 
-<div>TODO: (mg) (core) export projection partial</div>
+<div class="adminContent">
+    <div id="ProjectionStoreContainer" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.StoreId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Projection.StoreId" asp-items="@(List<SelectListItem>)ViewBag.Stores" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="Projection.StoreId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.LanguageId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Projection.LanguageId" asp-items="@(List<SelectListItem>)ViewBag.Languages" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="Projection.LanguageId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.CurrencyId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Projection.CurrencyId" asp-items="@(List<SelectListItem>)ViewBag.Currencies" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="Projection.CurrencyId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.CustomerId" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Projection.CustomerId" />
+            <span asp-validation-for="Projection.CustomerId"></span>
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.Provider.EntityType == ExportEntityType.Product" class="adminContent">
+    <div sm-if="Model.Provider.Feature.HasFlag(ExportFeatures.CanProjectAttributeCombinations)">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Projection.AttributeCombinationAsProduct" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Projection.AttributeCombinationAsProduct" />
+                <span asp-validation-for="Projection.AttributeCombinationAsProduct"></span>
+            </div>
+        </div>
+        <div id="AttributeCombinationAddValuesToNameContainer" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Projection.AttributeCombinationValueMergingId" />
+            </div>
+            <div class="adminData">
+                <select asp-for="Projection.AttributeCombinationValueMergingId" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ExportAttributeValueMerging))"></select>
+                <span asp-validation-for="Projection.AttributeCombinationValueMergingId"></span>
+				<span class="d-block text-muted mt-1">
+					@T("Admin.DataExchange.Export.NotPreviewCompatible")
+				</span>
+            </div>
+        </div>
+    </div>
+    <div sm-if="Model.Provider.Feature.HasFlag(ExportFeatures.CanOmitGroupedProducts)">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Projection.NoGroupedProducts" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Projection.NoGroupedProducts" data-toggler-for="#OnlyIndividuallyVisibleAssociatedContainer" />
+                <span asp-validation-for="Projection.NoGroupedProducts"></span>
+            </div>
+        </div>
+        <div id="OnlyIndividuallyVisibleAssociatedContainer" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Projection.OnlyIndividuallyVisibleAssociated" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Projection.OnlyIndividuallyVisibleAssociated" />
+                <span asp-validation-for="Projection.OnlyIndividuallyVisibleAssociated"></span>
+				<span class="ml-3 text-muted" style="vertical-align: super;">
+					@T("Admin.DataExchange.Export.NotPreviewCompatible")
+				</span>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.PriceType" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Projection.PriceType" asp-items="@(List<SelectListItem>)ViewBag.PriceTypes" asp-placeholder="@T("Admin.Catalog.Products.Fields.Price")"></select>
+            <span asp-validation-for="Projection.PriceType"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.ConvertNetToGrossPrices" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Projection.ConvertNetToGrossPrices" />
+            <span asp-validation-for="Projection.ConvertNetToGrossPrices"></span>
+        </div>
+    </div>
+    <div sm-if="Model.Provider.Feature.HasFlag(ExportFeatures.OffersShippingTimeFallback)" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.ShippingTime" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Projection.ShippingTime" />
+            <span asp-validation-for="Projection.ShippingTime"></span>
+        </div>
+    </div>
+    <div sm-if="Model.Provider.Feature.HasFlag(ExportFeatures.OffersShippingCostsFallback)">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Projection.ShippingCosts" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Projection.ShippingCosts" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                <span asp-validation-for="Projection.ShippingCosts"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Projection.FreeShippingThreshold" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Projection.FreeShippingThreshold" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                <span asp-validation-for="Projection.FreeShippingThreshold"></span>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.NumberOfPictures" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Projection.NumberOfPictures" />
+            <span asp-validation-for="Projection.NumberOfPictures"></span>
+        </div>
+    </div>
+    <div sm-if="Model.Provider.Feature.HasFlag(ExportFeatures.CanIncludeMainPicture)" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.PictureSize" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Projection.PictureSize" />
+            <span asp-validation-for="Projection.PictureSize"></span>
+        </div>
+    </div>
+    <div sm-if="Model.Provider.Feature.HasFlag(ExportFeatures.OffersBrandFallback)" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.Brand" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Projection.Brand" />
+            <span asp-validation-for="Projection.Brand"></span>
+        </div>
+    </div>
+    <div sm-if="Model.Provider.Feature.HasFlag(ExportFeatures.CanProjectDescription)">
+        <div class="adminRow">
+			<div class="admin-config-group">
+				<div class="title">@T("Common.DetailDescription")</div>
+			</div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Projection.DescriptionMergingId" />
+            </div>
+            <div class="adminData">
+                <select asp-for="Projection.DescriptionMergingId" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ExportDescriptionMerging))"></select>
+                <span asp-validation-for="Projection.DescriptionMergingId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Projection.AppendDescriptionText" />
+            </div>
+            <div class="adminData">
+                <select asp-for="Projection.AppendDescriptionText" asp-items="@(MultiSelectList)ViewBag.AppendDescriptionTexts" multiple="multiple" data-tags="true"></select>
+                <span asp-validation-for="Projection.AppendDescriptionText"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Projection.RemoveCriticalCharacters" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Projection.RemoveCriticalCharacters" data-toggler-for="#pnlCriticalCharacters" />
+                <span asp-validation-for="Projection.RemoveCriticalCharacters"></span>
+            </div>
+        </div>
+        <div id="pnlCriticalCharacters" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Projection.CriticalCharacters" />
+            </div>
+            <div class="adminData">
+                <select asp-for="Projection.CriticalCharacters" asp-items="@(MultiSelectList)ViewBag.CriticalCharacters" multiple="multiple" data-tags="true"></select>
+                <span asp-validation-for="Projection.CriticalCharacters"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Projection.DescriptionToPlainText" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Projection.DescriptionToPlainText" />
+                <span asp-validation-for="Projection.DescriptionToPlainText"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.Provider.EntityType == ExportEntityType.Order" class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.OrderStatusChangeId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Projection.OrderStatusChangeId" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ExportOrderStatusChange))"></select>
+            <span asp-validation-for="Projection.OrderStatusChangeId"></span>
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.Provider.EntityType == ExportEntityType.ShoppingCartItem" class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Projection.NoBundleProducts" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Projection.NoBundleProducts" />
+            <span asp-validation-for="Projection.NoBundleProducts"></span>
+        </div>
+    </div>
+</div>
