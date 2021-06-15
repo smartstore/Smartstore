@@ -365,8 +365,8 @@ namespace Smartstore.Admin.Controllers
                 {
                     try
                     {
-                        // TODO: (mg) (core) I don't like the idea of transforming virtual fs back to physical. Why not call File() with stream?
-                        return PhysicalFile(logFile.PhysicalPath, MediaTypeNames.Text.Plain);
+                        var stream = await logFile.OpenReadAsync();
+                        return new FileStreamResult(stream, MediaTypeNames.Text.Plain);
                     }
                     catch (IOException)
                     {
@@ -419,7 +419,11 @@ namespace Smartstore.Admin.Controllers
                 {
                     try
                     {
-                        return PhysicalFile(file.PhysicalPath, MimeTypes.MapNameToMimeType(file.PhysicalPath), file.Name);
+                        var stream = await file.OpenReadAsync();
+                        return new FileStreamResult(stream, MimeTypes.MapNameToMimeType(file.PhysicalPath))
+                        {
+                            FileDownloadName = file.Name
+                        };
                     }
                     catch (IOException)
                     {
@@ -546,7 +550,6 @@ namespace Smartstore.Admin.Controllers
 
             // Filtering.
             model.Filter = MiniMapper.Map<ExportFilter, ExportFilterModel>(filter);
-            // TODO: (mg) (core) 'Common.Unspecified' required for export filter languages.
 
             // Deployment.
             model.Deployments = await profile.Deployments.SelectAsync(async x =>
@@ -638,13 +641,6 @@ namespace Smartstore.Admin.Controllers
                 else if (model.Provider.EntityType == ExportEntityType.Order)
                 {
                     ViewBag.OrderStatusChange = ExportOrderStatusChange.Processing.ToSelectList(false);
-                    ViewBag.OrderStates = OrderStatus.Pending.ToSelectList(false).ToList();
-                    ViewBag.PaymentStates = PaymentStatus.Pending.ToSelectList(false).ToList();
-                    ViewBag.ShippingStates = ShippingStatus.NotYetShipped.ToSelectList(false).ToList();
-                }
-                else if (model.Provider.EntityType == ExportEntityType.ShoppingCartItem)
-                {
-                    ViewBag.ShoppingCartTypes = ShoppingCartType.ShoppingCart.ToSelectList(false).ToList();
                 }
 
                 try

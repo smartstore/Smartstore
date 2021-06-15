@@ -429,6 +429,30 @@ namespace Smartstore.Core.DataExchange.Export
         protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
     }
 
+    [SystemName("Exports.SmartStoreOrderCsv")]
+    public class OrderCsvExportProvider : ExportProviderBase
+    {
+        public override ExportEntityType EntityType => ExportEntityType.Order;
+        public override string FileExtension => "CSV";
+        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
+    }
+
+    [SystemName("Exports.SmartStoreNewsSubscriptionCsv")]
+    public class SubscriberCsvExportProvider : ExportProviderBase
+    {
+        public override ExportEntityType EntityType => ExportEntityType.NewsLetterSubscription;
+        public override string FileExtension => "CSV";
+        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
+    }
+
+    [SystemName("Exports.SmartStoreShoppingCartItemCsv")]
+    public class ShoppingCartItemCsvExportProvider : ExportProviderBase
+    {
+        public override ExportEntityType EntityType => ExportEntityType.ShoppingCartItem;
+        public override string FileExtension => "CSV";
+        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
+    }
+
     [SystemName("Feeds.GoogleMerchantCenterProductXml")]
     public class GmcXmlExportProvider : ExportProviderBase
     {

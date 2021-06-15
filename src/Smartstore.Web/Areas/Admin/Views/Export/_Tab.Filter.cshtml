@@ -1,4 +1,8 @@
 ﻿@using Smartstore.Core.Catalog.Products
+@using Smartstore.Core.Checkout.Orders
+@using Smartstore.Core.Checkout.Payment
+@using Smartstore.Core.Checkout.Shipping
+@using Smartstore.Core.Checkout.Cart
 
 @model ExportProfileModel
 
@@ -120,7 +124,7 @@
                 multiple="multiple"
                 data-select="True" 
                 data-select-lazy="True" 
-                data-select-url="@Url.Action("AllCategories", "Category", new { selectedIds = string.Join(",", selectedCategories.Select(x => x.Value)) })">                    
+                data-select-url="@Url.Action("AllCategories", "Category", new { selectedIds = string.Join(",", selectedCategories.Select(x => x.Value)) })">
             </select>
             <span asp-validation-for="Filter.CategoryIds"></span>
         </div>
@@ -159,6 +163,282 @@
         <div class="adminData">
             <editor asp-for="Filter.FeaturedProducts" />
             <span asp-validation-for="Filter.FeaturedProducts"></span>
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.Provider.EntityType == ExportEntityType.Customer" class="adminContent">
+    @{
+        var countries = (List<SelectListItem>)ViewBag.Countries;
+    }
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.IsActiveCustomer" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.IsActiveCustomer" />
+            <span asp-validation-for="Filter.IsActiveCustomer"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.IsTaxExempt" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.IsTaxExempt" />
+            <span asp-validation-for="Filter.IsTaxExempt"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.CustomerRoleIds" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.CustomerRoleIds" />
+            <span asp-validation-for="Filter.CustomerRoleIds"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.BillingCountryIds" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.BillingCountryIds" asp-items="@(new MultiSelectList(countries, "Value", "Text"))" multiple="multiple"></select>
+            <span asp-validation-for="Filter.BillingCountryIds"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.ShippingCountryIds" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.ShippingCountryIds" asp-items="@(new MultiSelectList(countries, "Value", "Text"))" multiple="multiple"></select>
+            <span asp-validation-for="Filter.ShippingCountryIds"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.LastActivityFrom" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.LastActivityFrom" />
+            <span asp-validation-for="Filter.LastActivityFrom"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.LastActivityTo" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.LastActivityTo" />
+            <span asp-validation-for="Filter.LastActivityTo"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.HasSpentAtLeastAmount" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.HasSpentAtLeastAmount" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+            <span asp-validation-for="Filter.HasSpentAtLeastAmount"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.HasPlacedAtLeastOrders" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.HasPlacedAtLeastOrders" />
+            <span asp-validation-for="Filter.HasPlacedAtLeastOrders"></span>
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.Provider.EntityType == ExportEntityType.Order" class="adminContent">
+    <div sm-if="stores.Count > 1" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.StoreId" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.StoreId" />
+            <span asp-validation-for="Filter.StoreId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.CreatedFrom" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.CreatedFrom" />
+            <span asp-validation-for="Filter.CreatedFrom"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.CreatedTo" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.CreatedTo" />
+            <span asp-validation-for="Filter.CreatedTo"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.OrderStatusIds" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.OrderStatusIds" asp-items="@Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" multiple="multiple"></select>
+            <span asp-validation-for="Filter.OrderStatusIds"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.PaymentStatusIds" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.PaymentStatusIds" asp-items="@Html.GetLocalizedEnumSelectList(typeof(PaymentStatus))" multiple="multiple"></select>
+            <span asp-validation-for="Filter.PaymentStatusIds"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.ShippingStatusIds" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.ShippingStatusIds" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ShippingStatus))" multiple="multiple"></select>
+            <span asp-validation-for="Filter.ShippingStatusIds"></span>
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.Provider.EntityType == ExportEntityType.NewsLetterSubscription" class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.IsActiveSubscriber" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.IsActiveSubscriber" />
+            <span asp-validation-for="Filter.IsActiveSubscriber"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.CustomerRoleIds" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.CustomerRoleIds" />
+            <span asp-validation-for="Filter.CustomerRoleIds"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.WorkingLanguageId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.WorkingLanguageId" asp-items="@(List<SelectListItem>)ViewBag.Languages" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="Filter.WorkingLanguageId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.CreatedFrom" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.CreatedFrom" />
+            <span asp-validation-for="Filter.CreatedFrom"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.CreatedTo" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.CreatedTo" />
+            <span asp-validation-for="Filter.CreatedTo"></span>
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.Provider.EntityType == ExportEntityType.ShoppingCartItem" class="adminContent">
+    <div sm-if="stores.Count > 1" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.StoreId" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.StoreId" />
+            <span asp-validation-for="Filter.StoreId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.CreatedFrom" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.CreatedFrom" />
+            <span asp-validation-for="Filter.CreatedFrom"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.CreatedTo" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.CreatedTo" />
+            <span asp-validation-for="Filter.CreatedTo"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.IsActiveCustomer" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.IsActiveCustomer" />
+            <span asp-validation-for="Filter.IsActiveCustomer"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.IsTaxExempt" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.IsTaxExempt" />
+            <span asp-validation-for="Filter.IsTaxExempt"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.CustomerRoleIds" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.CustomerRoleIds" />
+            <span asp-validation-for="Filter.CustomerRoleIds"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.LastActivityFrom" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.LastActivityFrom" />
+            <span asp-validation-for="Filter.LastActivityFrom"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.LastActivityTo" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Filter.LastActivityTo" />
+            <span asp-validation-for="Filter.LastActivityTo"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Filter.ShoppingCartTypeId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="Filter.ShoppingCartTypeId" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ShoppingCartType))" asp-placeholder="@T("Admin.Common.All")"></select>
+            <span asp-validation-for="Filter.ShoppingCartTypeId"></span>
         </div>
     </div>
 </div>
