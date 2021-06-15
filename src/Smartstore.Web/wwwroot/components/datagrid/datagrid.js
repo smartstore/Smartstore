@@ -9,11 +9,65 @@
 //    });
 //};
 
-Smartstore.globalization.formatDate = function (d, format) {
-    var g = Smartstore.globalization;
+String.prototype.format = function () {
+    function getType(o) {
+        if (typeof o === "number") {
+            return "number";
+        }
+        if (o instanceof Date) {
+            return "date";
+        }
+        if (isNaN(o) && !isNaN(Date.parse(o))) {
+            return "date";
+        }
+        return null;
+    }
+
+    let g = Smartstore.globalization;
+    let s = this, args = arguments;
+
+    for (var i = 0, len = args.length; i < len; i++) {
+        let rg = new RegExp("\\{" + i + "(:([^\\}]+))?\\}", "gm");
+        let arg = args[i];
+        let type = getType(arg), formatter;
+
+        if (g) {
+            if (type === "number") {
+                formatter = g.formatNumber;
+            }
+            else if (type === "date") {
+                //console.log("Before formatDate", type, arg);
+                formatter = g.formatDate;
+            }
+
+            if (formatter) {
+                let match = rg.exec(s);
+                if (match) {
+                    arg = formatter(arg, match[2]);
+                }
+            }
+        }
+
+        s = s.replace(rg, function () {
+            return arg;
+        });
+    }
+
+    return s;
+};
+
+Smartstore.globalization.formatDate = function (value, format) {
+    let g = Smartstore.globalization;
     format = format || g.culture.dateTimeFormat.patterns.G;
-    let momentFormat= g.convertDatePatternToMomentFormat(format);
-    return moment(d).format(momentFormat);
+
+    if (format.length === 1) {
+        // Maybe pattern shortcut, like "G", "F", "d" etc.
+        let patterns = g.culture.dateTimeFormat.patterns;
+        format = patterns[format] || format;
+    }
+
+    let momentFormat = g.convertDatePatternToMomentFormat(format);
+    return moment(value).format(momentFormat);
 };
 
 Smartstore.globalization.formatNumber = function (value, format) {
@@ -173,47 +227,6 @@ Smartstore.globalization.formatNumber = function (value, format) {
     }
 
     return ret;
-};
-
-String.prototype.format = function () {
-    function getType(o) {
-        if (o instanceof Date) {
-            return "date";
-        }
-        if (typeof o === "number") {
-            return "number";
-        }
-        return null;
-    }
-
-    let g = Smartstore.globalization;
-    let s = this, args = arguments;
-    
-    for (var i = 0, len = args.length; i < len; i++) {
-        let rg = new RegExp("\\{" + i + "(:([^\\}]+))?\\}", "gm");
-        let arg = args[i];
-        let type = getType(arg), formatter;
-
-        if (type === "number") {
-            formatter = g.formatNumber;
-        }
-        else if (type === "date") {
-            formatter = g.formatDate;
-        }
-
-        if (formatter) {
-            let match = rg.exec(s);
-            if (match) {
-                arg = formatter(arg, match[2]);
-            }
-        }
-
-        s = s.replace(rg, function () {
-            return arg;
-        });
-    }
-
-    return s;
 };
 
 // #endregion

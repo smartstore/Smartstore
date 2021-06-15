@@ -97,9 +97,22 @@ namespace Smartstore.Web.TagHelpers.Admin
         public string Type { get; set; }
 
         /// <summary>
-        /// Column value format string, e.g. "{0:N2}", "Value {0}" etc. 
+        /// Column value format string, e.g. "{0:N2}", "{0:G}", "{0:L LT}", "Value {0}" etc. 
+        /// <para>
         /// Valid modifiers for numbers are: D[0-n], N[0-n], C[0-n], P[0-n].
-        /// Valid modifiers for datetimes are: TBD.
+        /// </para>
+        /// <para>
+        /// Valid modifiers for datetimes are:
+        /// </para>
+        /// <para>
+        /// Standard .NET-like format specifiers: D, F, G, M, T, Y, d, f, g, t, u
+        /// </para>
+        /// <para>
+        /// Custom .NET datetime format specifiers for date parts, like e.g. d, ddd, HH, m, yyyy etc.
+        /// </para>
+        /// <para>
+        /// Any valid moment.js format string, e.g. L, L LT, DD, YYYY etc.
+        /// </para>
         /// </summary>
         [HtmlAttributeName(FormatAttributeName)]
         public string Format { get; set; }
