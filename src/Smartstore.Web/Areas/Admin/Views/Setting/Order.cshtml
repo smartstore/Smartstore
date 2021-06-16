@@ -1,0 +1,228 @@
+﻿@using Smartstore.Core.Checkout.Orders
+ 
+@model OrderSettingsModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Settings.Order").Value;
+    Layout = "_SettingLayout";
+}
+
+<form asp-action="Order">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-chart-bar"></i>
+            @T("Admin.Configuration.Settings.Order")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="All"></div>
+
+    <tabstrip id="generalsettings-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Admin.Configuration.Settings.Order.OrderSettings")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="IsReOrderAllowed" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="IsReOrderAllowed"></setting-editor>
+                        <span asp-validation-for="IsReOrderAllowed"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="OrderTotalMinimum" />
+                    </div>
+                    <div class="adminData">
+                        @*TODO: (mh) (core) Postfix is missing*@
+                        @*@Html.SettingEditorFor(model => model.OrderTotalMinimum, null, new { postfix = Model.PrimaryStoreCurrencyCode })*@
+                        <setting-editor asp-for="OrderTotalMinimum"></setting-editor>
+                        <span asp-validation-for="OrderTotalMinimum"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="OrderTotalMaximum" />
+                    </div>
+                    <div class="adminData">
+                        @*TODO: (mh) (core) Postfix is missing*@
+                        @*@Html.SettingEditorFor(model => model.OrderTotalMaximum, null, new { postfix = Model.PrimaryStoreCurrencyCode })*@
+                        <setting-editor asp-for="OrderTotalMaximum"></setting-editor>
+                        <span asp-validation-for="OrderTotalMaximum"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MultipleOrderTotalRestrictionsExpandRange" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MultipleOrderTotalRestrictionsExpandRange"></setting-editor>
+                        <span asp-validation-for="MultipleOrderTotalRestrictionsExpandRange"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AnonymousCheckoutAllowed" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AnonymousCheckoutAllowed"></setting-editor>
+                        <span asp-validation-for="AnonymousCheckoutAllowed"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TermsOfServiceEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TermsOfServiceEnabled"></setting-editor>
+                        <span asp-validation-for="TermsOfServiceEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DisableOrderCompletedPage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DisableOrderCompletedPage"></setting-editor>
+                        <span asp-validation-for="DisableOrderCompletedPage"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="GiftCards_Activated_OrderStatusId" />
+                    </div>
+                    <div class="adminData">
+                        @*TODO: (mh) (core) Model validation fails if no value is selected. Probably global problem for nullable types in selects*@
+                        <setting-editor asp-for="GiftCards_Activated_OrderStatusId">
+                            <select asp-for="GiftCards_Activated_OrderStatusId" asp-items="@Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                        </setting-editor>
+                        <span asp-validation-for="GiftCards_Activated_OrderStatusId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="GiftCards_Deactivated_OrderStatusId" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="GiftCards_Deactivated_OrderStatusId">
+                            <select asp-for="GiftCards_Deactivated_OrderStatusId" asp-items="@Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                        </setting-editor>
+                        <span asp-validation-for="GiftCards_Deactivated_OrderStatusId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="OrderListPageSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="OrderListPageSize"></setting-editor>
+                        <span asp-validation-for="OrderListPageSize"></span>
+                    </div>
+                </div>
+                <div sm-if="Model.OrderIdent.HasValue" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="OrderIdent" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="OrderIdent"></setting-editor>
+                    </div>
+                </div>
+                <div sm-if="Model.StoreCount > 1" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DisplayOrdersOfAllStores" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DisplayOrdersOfAllStores"></setting-editor>
+                        <span asp-validation-for="DisplayOrdersOfAllStores"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.Order.ReturnRequestSettings")">
+            <div class="alert alert-info alert-dismissible">
+                @Html.Raw(T("Admin.Configuration.Settings.Order.ReturnRequestsDescription1"))
+                <br />
+                @Html.Raw(T("Admin.Configuration.Settings.Order.ReturnRequestsDescription2"))
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+
+            <div class="adminContent mb-3">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ReturnRequestsEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ReturnRequestsEnabled"></setting-editor>
+                        <span asp-validation-for="ReturnRequestsEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="NumberOfDaysReturnRequestAvailable" />
+                    </div>
+                    <div class="adminData">
+                        @*TODO: (mh) (core) Postfix is missing*@
+                        @*@Html.SettingEditorFor(model => model.NumberOfDaysReturnRequestAvailable, null, new { postfix = T("Time.Days").Text })*@
+                        <setting-editor asp-for="NumberOfDaysReturnRequestAvailable"></setting-editor>
+                        <span asp-validation-for="NumberOfDaysReturnRequestAvailable"></span>
+                    </div>
+                </div>
+            </div>
+
+            @(Html.LocalizedEditor<OrderSettingsModel, OrderSettingsLocalizedModel>("setting-order-localized",
+		    @<div class="adminContent">
+			    <div class="adminRow">
+				    <div class="adminTitle">
+					    <smart-label asp-for="Locales[item].ReturnRequestReasons" />
+				    </div>
+                    <div class="adminData">
+                        @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input type="hidden" asp-for="Locales[item].LanguageId" />
+
+                        <setting-editor asp-for="Locales[item].ReturnRequestReasons"></setting-editor>
+                        <span asp-validation-for="Locales[item].ReturnRequestReasons"></span>
+                    </div>
+			    </div>
+			    <div class="adminRow">
+				    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].ReturnRequestActions" />
+				    </div>
+				    <div class="adminData">
+                        <setting-editor asp-for="Locales[item].ReturnRequestActions"></setting-editor>
+                        <span asp-validation-for="Locales[item].ReturnRequestActions"></span>
+				    </div>
+			    </div>
+		    </div>
+		    ,
+		    @<div class="adminContent">
+			    <div class="adminRow">
+				    <div class="adminTitle">
+					    <smart-label asp-for="ReturnRequestReasons" />
+				    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ReturnRequestReasons"></setting-editor>
+                        <span asp-validation-for="ReturnRequestReasons"></span>
+                    </div>
+			    </div>
+			    <div class="adminRow">
+				    <div class="adminTitle">
+                        <smart-label asp-for="ReturnRequestActions" />
+				    </div>
+				    <div class="adminData">
+                        <setting-editor asp-for="ReturnRequestActions"></setting-editor>
+                        <span asp-validation-for="ReturnRequestActions"></span>
+				    </div>
+			    </div>
+		    </div>
+	    ))
+        </tab>
+    </tabstrip>
+</form>
