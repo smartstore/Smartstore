@@ -265,14 +265,14 @@ namespace Smartstore.Core.DataExchange.Export
             return ctx.Result;
         }
 
-        public virtual async Task<DataExportPreviewResult> PreviewAsync(DataExportRequest request, int pageIndex)
+        public virtual async Task<DataExportPreviewResult> PreviewAsync(DataExportRequest request, int pageIndex, int pageSize)
         {
             Guard.NotNull(request, nameof(request));
             Guard.NotNull(request.Profile, nameof(request.Profile));
 
             var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(5.0));
             var ctx = CreateExporterContext(request, true, cancellation.Token);
-            var skip = Math.Max(ctx.Request.Profile.Offset, 0) + (pageIndex * PageSize);
+            var skip = Math.Max(ctx.Request.Profile.Offset, 0) + (pageIndex * pageSize);
 
             var _ = await Init(ctx);
 
@@ -287,7 +287,7 @@ namespace Smartstore.Core.DataExchange.Export
             };
 
             var query = GetEntitiesQuery(ctx);
-            query = ApplyPaging(query, skip, PageSize, ctx);
+            query = ApplyPaging(query, skip, pageSize, ctx);
             var data = await query.ToListAsync(cancellation.Token);
 
             switch (ctx.Request.Provider.Value.EntityType)

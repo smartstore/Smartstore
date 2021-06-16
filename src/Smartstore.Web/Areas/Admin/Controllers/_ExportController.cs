@@ -500,7 +500,7 @@ namespace Smartstore.Admin.Controllers
 
             object gridModel = null;
             var request = new DataExportRequest(profile, provider);
-            var previewResult = await _dataExporter.PreviewAsync(request, command.Page - 1);
+            var previewResult = await _dataExporter.PreviewAsync(request, command.Page - 1, command.PageSize);
 
             var normalizedTotal = profile.Limit > 0 && previewResult.TotalRecords > profile.Limit
                 ? profile.Limit

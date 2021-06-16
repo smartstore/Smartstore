@@ -22,7 +22,8 @@ namespace Smartstore.Core.DataExchange.Export
         /// </summary>
         /// <param name="request">Contains request data for exporting.</param>
         /// <param name="pageIndex">The data page index.</param>
+        /// <param name="pageSize">The data ppage size.</param>
         /// <returns>Data export preview result.</returns>
-        Task<DataExportPreviewResult> PreviewAsync(DataExportRequest request, int pageIndex);
+        Task<DataExportPreviewResult> PreviewAsync(DataExportRequest request, int pageIndex, int pageSize);
     }
 }
