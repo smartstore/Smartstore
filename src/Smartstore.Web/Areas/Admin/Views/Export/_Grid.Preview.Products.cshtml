@@ -4,7 +4,7 @@
 	var parentModel = ViewData["Parent"] as ExportPreviewModel;
 }
 
-<datagrid id="export-grid-product" 
+<datagrid id="products-preview-grid" 
 		allow-resize="true" 
 		allow-column-reordering="true" 
 		allow-row-selection="true" 
@@ -24,7 +24,7 @@
         </toolbar-group>
 	</toolbar>
 	<columns>
-        <column for="Id" />
+        <column for="Id" halign="center" />
 		<column for="Name" width="3fr">
             <display-template>
                 @Html.LabeledProductName()

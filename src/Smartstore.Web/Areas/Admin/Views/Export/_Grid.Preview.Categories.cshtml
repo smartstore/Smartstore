@@ -1,10 +1,10 @@
-﻿@model ExportPreviewOrderModel
+﻿@model ExportPreviewCategoryModel
 
 @{
 	var parentModel = ViewData["Parent"] as ExportPreviewModel;
 }
 
-<datagrid id="orders-preview-grid" 
+<datagrid id="categories-preview-grid" 
 		allow-resize="true" 
 		allow-column-reordering="true" 
 		allow-row-selection="true" 
@@ -25,17 +25,11 @@
 	</toolbar>
 	<columns>
 		<column for="Id" halign="center" />
-		<column for="OrderNumber">
-            <display-template>
-                @Html.LabeledOrderNumber()
-            </display-template>
-		</column>
-		<column for="OrderStatus" />
-		<column for="PaymentStatus" />
-		<column for="ShippingStatus" />
-		<column for="CustomerId" halign="center" />
-		<column for="StoreName" />
-		<column for="CreatedOn" />
-		<column for="OrderTotal" halign="flex-end" format="{0:N2}" />
+		<column for="Breadcrumb" />
+		<column for="FullName" />
+		<column for="Alias" />
+		<column for="Published" halign="center" />
+		<column for="DisplayOrder" halign="center" />
+		<column for="LimitedToStores" halign="center" />
 	</columns>
 </datagrid>

@@ -692,7 +692,7 @@ namespace Smartstore.Core.DataExchange.Export
                 : null;
 
             result.Customer = ToDynamic(cartItem.Customer);
-            result.Product = ToDynamic(cartItem.Product, ctx);
+            result.Product = await ToDynamic(cartItem.Product, ctx);
 
             return result;
         }

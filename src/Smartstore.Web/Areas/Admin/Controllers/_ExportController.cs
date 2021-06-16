@@ -48,6 +48,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IProviderManager _providerManager;
         private readonly ITaskStore _taskStore;
         private readonly DataExchangeSettings _dataExchangeSettings;
+        private readonly CustomerSettings _customerSettings;
 
         private static readonly IReadOnlyDictionary<ExportDeploymentType, string> DeploymentTypeIconClasses = new Dictionary<ExportDeploymentType, string>()
         {
@@ -66,7 +67,8 @@ namespace Smartstore.Admin.Controllers
             ITaskScheduler taskScheduler,
             IProviderManager providerManager,
             ITaskStore taskStore,
-            DataExchangeSettings dataExchangeSettings)
+            DataExchangeSettings dataExchangeSettings,
+            CustomerSettings customerSettings)
         {
             _db = db;
             _exportProfileService = exportProfileService;
@@ -76,6 +78,7 @@ namespace Smartstore.Admin.Controllers
             _providerManager = providerManager;
             _taskStore = taskStore;
             _dataExchangeSettings = dataExchangeSettings;
+            _customerSettings = customerSettings;
         }
 
         public IActionResult Index()
@@ -482,7 +485,8 @@ namespace Smartstore.Admin.Controllers
                 Name = profile.Name,
                 EntityType = provider.Value.EntityType,
                 ThumbnailUrl = GetThumbnailUrl(provider),
-                LogFileExists = logFile.Exists
+                LogFileExists = logFile.Exists,
+                UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email
             };
 
             return View(model);
@@ -538,6 +542,7 @@ namespace Smartstore.Admin.Controllers
                     {
                         Id = x.Id,
                         HasNewPaymentNotification = x.HasNewPaymentNotification,
+                        EditUrl = Url.Action("Edit", "Order", new { id = x.Id }),
                         OrderNumber = x.OrderNumber,
                         OrderStatus = x.OrderStatus,
                         PaymentStatus = x.PaymentStatus,

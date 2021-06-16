@@ -10,6 +10,7 @@ namespace Smartstore.Admin.Models.Export
         public ExportEntityType EntityType { get; set; }
         public string ThumbnailUrl { get; set; }
         public bool LogFileExists { get; set; }
+        public bool UsernamesEnabled { get; set; }
     }
 
     [LocalizedDisplay("Admin.Catalog.Products.Fields.")]
@@ -45,6 +46,7 @@ namespace Smartstore.Admin.Models.Export
     public class ExportPreviewOrderModel : EntityModelBase
     {
         public bool HasNewPaymentNotification { get; set; }
+        public string EditUrl { get; set; }
 
         [LocalizedDisplay("*OrderNumber")]
         public string OrderNumber { get; set; }

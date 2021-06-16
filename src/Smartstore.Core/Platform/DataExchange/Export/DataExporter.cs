@@ -38,6 +38,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Batching;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
@@ -299,16 +300,16 @@ namespace Smartstore.Core.DataExchange.Export
                     data.Cast<Order>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.Manufacturer:
-                    data.Cast<Manufacturer>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
+                    data.Cast<Manufacturer>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.Category:
-                    data.Cast<Category>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
+                    data.Cast<Category>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.Customer:
-                    data.Cast<Customer>().Each(async x => result.Data.Add(await ToDynamic(x)));
+                    data.Cast<Customer>().Each(x => result.Data.Add(ToDynamic(x)));
                     break;
                 case ExportEntityType.NewsLetterSubscription:
-                    data.Cast<NewsletterSubscription>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
+                    data.Cast<NewsletterSubscription>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.ShoppingCartItem:
                     data.Cast<ShoppingCartItem>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
@@ -834,6 +835,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
             else if (entityType == ExportEntityType.ShoppingCartItem)
             {
+                // TODO: (mg) (core) Always 0 records because EntityTypeConfiguration of navigation properties is commented out!!
                 var query = _db.ShoppingCartItems
                     .AsNoTracking()
                     .Include(x => x.Customer)

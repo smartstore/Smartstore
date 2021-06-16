@@ -39,18 +39,23 @@
 	}
 	else if (Model.EntityType == ExportEntityType.Category)
 	{
+		<partial name="_Grid.Preview.Categories" model="null" view-data="gridViewData" />
 	}
 	else if (Model.EntityType == ExportEntityType.Manufacturer)
 	{
+		<partial name="_Grid.Preview.Manufacturers" model="null" view-data="gridViewData" />
 	}
 	else if (Model.EntityType == ExportEntityType.Customer)
 	{
+		<partial name="_Grid.Preview.Customers" model="null" view-data="gridViewData" />
 	}
 	else if (Model.EntityType == ExportEntityType.NewsLetterSubscription)
 	{
+		<partial name="_Grid.Preview.NewsletterSubscriptions" model="null" view-data="gridViewData" />
 	}
 	else if (Model.EntityType == ExportEntityType.ShoppingCartItem)
-	{		
+	{
+		<partial name="_Grid.Preview.ShoppingCartItems" model="null" view-data="gridViewData" />
 	}
 	else
 	{
