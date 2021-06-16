@@ -293,25 +293,25 @@ namespace Smartstore.Core.DataExchange.Export
             switch (ctx.Request.Provider.Value.EntityType)
             {
                 case ExportEntityType.Product:
-                    data.Cast<Product>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
+                    data.Cast<Product>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.Order:
-                    data.Cast<Order>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
+                    data.Cast<Order>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.Manufacturer:
-                    data.Cast<Manufacturer>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
+                    data.Cast<Manufacturer>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.Category:
-                    data.Cast<Category>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
+                    data.Cast<Category>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.Customer:
-                    data.Cast<Customer>().Each(x => result.Data.Add(ToDynamic(x)));
+                    data.Cast<Customer>().Each(async x => result.Data.Add(await ToDynamic(x)));
                     break;
                 case ExportEntityType.NewsLetterSubscription:
-                    data.Cast<NewsletterSubscription>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
+                    data.Cast<NewsletterSubscription>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.ShoppingCartItem:
-                    data.Cast<ShoppingCartItem>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
+                    data.Cast<ShoppingCartItem>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
             }
 
@@ -716,9 +716,10 @@ namespace Smartstore.Core.DataExchange.Export
             }
             else if (entityType == ExportEntityType.Order)
             {
-                var query = _db.Orders
-                    .AsNoTracking()
-                    .Where(x => x.StoreId == storeId);
+                var query = _db.Orders.AsNoTracking();
+
+                if (storeId > 0)
+                    query = query.Where(x => x.StoreId == storeId);
 
                 // That's actually wrong because it is a projection and not a filter.
                 if (ctx.Projection.CustomerId.HasValue)

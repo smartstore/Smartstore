@@ -1,6 +1,9 @@
 ﻿@model ExportPreviewModel
 
 @{
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+
 	ViewBag.Title = T("Common.Export") + " - " + T("Admin.Common.Preview");
 }
 
@@ -21,14 +24,6 @@
                     <span>@T("Admin.Configuration.ActivityLog")</span>
                 </a>
             }
-			<button type="button" id="ExportSelected" class="btn btn-secondary">
-				<i class="fa fa-cogs"></i>
-				<span>@T("Admin.Common.ExportSelected")</span>
-			</button>
-			<button type="button" id="ExportAll" class="btn btn-secondary">
-				<i class="fa fa-cogs"></i>
-				<span>@T("Admin.Common.ExportAll")</span>
-			</button>
 		</form>
 	</div>
 </div>
@@ -36,10 +31,11 @@
 <div class="preview-grid-container">
 	@if (Model.EntityType == ExportEntityType.Product)
 	{
-		<partial name="_Grid.Preview.Products" model="null" />
+		<partial name="_Grid.Preview.Products" model="null" view-data="gridViewData" />
 	}
 	else if (Model.EntityType == ExportEntityType.Order)
 	{
+		<partial name="_Grid.Preview.Orders" model="null" view-data="gridViewData" />
 	}
 	else if (Model.EntityType == ExportEntityType.Category)
 	{
@@ -77,10 +73,10 @@
 				return false;
 			}
 
+			// TODO: (mg) (core) find out how to get the selected entity IDs.
 			form.find('[name=SelectedIds]').val(exportAll ? '' : selectedIds.join(','));
 			form.submit();
 			return false;
 		});
-
 	});
 </script>

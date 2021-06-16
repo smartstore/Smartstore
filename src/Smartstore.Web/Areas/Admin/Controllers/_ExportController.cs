@@ -495,7 +495,7 @@ namespace Smartstore.Admin.Controllers
             var (profile, provider) = await LoadProfileAndProvider(id);
             if (profile == null)
             {
-                return Json(null);
+                throw new ArgumentException($"Cannot find export profile with ID {id}.");
             }
 
             object gridModel = null;
@@ -518,6 +518,7 @@ namespace Smartstore.Admin.Controllers
                             ProductTypeId = product.ProductTypeId,
                             ProductTypeName = product.GetProductTypeLabel(Services.Localization),
                             ProductTypeLabelHint = product.ProductTypeLabelHint,
+                            EditUrl = Url.Action("Edit", "Product", new { id = product.Id }),
                             Name = x.Name,
                             Sku = x.Sku,
                             Price = x.Price,

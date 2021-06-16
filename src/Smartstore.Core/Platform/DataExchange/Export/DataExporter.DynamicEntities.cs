@@ -605,8 +605,8 @@ namespace Smartstore.Core.DataExchange.Export
 
             result.OrderNumber = order.GetOrderNumber();
             result.OrderStatus = await _services.Localization.GetLocalizedEnumAsync(order.OrderStatus, ctx.LanguageId);
-            result.PaymentStatus = _services.Localization.GetLocalizedEnumAsync(order.PaymentStatus, ctx.LanguageId);
-            result.ShippingStatus = _services.Localization.GetLocalizedEnumAsync(order.ShippingStatus, ctx.LanguageId);
+            result.PaymentStatus = await _services.Localization.GetLocalizedEnumAsync(order.PaymentStatus, ctx.LanguageId);
+            result.ShippingStatus = await _services.Localization.GetLocalizedEnumAsync(order.ShippingStatus, ctx.LanguageId);
 
             result.Customer = null;
             result.BillingAddress = null;

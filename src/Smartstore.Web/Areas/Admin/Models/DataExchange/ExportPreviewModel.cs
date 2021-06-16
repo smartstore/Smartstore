@@ -20,6 +20,7 @@ namespace Smartstore.Admin.Models.Export
         [LocalizedDisplay("*ProductType")]
         public string ProductTypeName { get; set; }
         public string ProductTypeLabelHint { get; set; }
+        public string EditUrl { get; set; }
 
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }

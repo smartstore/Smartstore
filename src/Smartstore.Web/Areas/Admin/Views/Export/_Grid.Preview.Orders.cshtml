@@ -1,10 +1,10 @@
-﻿@model ExportPreviewProductModel
+﻿@model ExportPreviewOrderModel
 
 @{
 	var parentModel = ViewData["Parent"] as ExportPreviewModel;
 }
 
-<datagrid id="export-grid-product" 
+<datagrid id="export-grid-order" 
 		allow-resize="true" 
 		allow-column-reordering="true" 
 		allow-row-selection="true" 
@@ -24,16 +24,19 @@
         </toolbar-group>
 	</toolbar>
 	<columns>
-        <column for="Id" />
-		<column for="Name" width="3fr">
+		<column for="Id" />
+		<column for="OrderNumber">
+@*			// TODO: (mg) (core) add "LabeledOrderName" VueSlotTemplateExtension.
             <display-template>
-                @Html.LabeledProductName()
-            </display-template>
+                @Html.LabeledOrderName()
+            </display-template>*@
 		</column>
-		<column for="Sku" />
-		<column for="Price" halign="flex-end" format="{0:N2}" />
-		<column for="StockQuantity" halign="center" />
-		<column for="Published" halign="center" />
-		<column for="AdminComment" />
+		<column for="OrderStatus" />
+		<column for="PaymentStatus" />
+		<column for="ShippingStatus" />
+		<column for="CustomerId" halign="center" />
+		<column for="StoreName" />
+		<column for="CreatedOn" />
+		<column for="OrderTotal" halign="flex-end" format="{0:N2}" />
 	</columns>
 </datagrid>
