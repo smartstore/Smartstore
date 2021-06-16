@@ -16,7 +16,8 @@
                     <smart-label asp-for="ProviderSystemName" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="ProviderSystemName" class="form-control form-control-lg select-customtemplate drop-customtemplate">
+                    @*INFO: form-control class will be added automatcally by taghelper*@
+                    <select asp-for="ProviderSystemName" class="form-control-lg select-customtemplate drop-customtemplate">
                         @foreach (var provider in providers.OrderBy(x => x.FriendlyName))
                         {
                             <option value="@provider.SystemName" data-id="@provider.Id" data-imageurl="@provider.ImageUrl">@provider.FriendlyName</option>                         
@@ -30,7 +31,7 @@
                     <smart-label asp-for="CloneProfileId" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="CloneProfileId" class="form-control form-control-lg select-customtemplate drop-customtemplate">
+                    <select asp-for="CloneProfileId" class="form-control-lg select-customtemplate drop-customtemplate">
                         <option>@T("Common.Unspecified")</option>
 						@foreach (var profile in profiles.OrderBy(x => x.FriendlyName))
 						{
