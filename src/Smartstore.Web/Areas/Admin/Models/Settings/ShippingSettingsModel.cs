@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models

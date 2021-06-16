@@ -151,7 +151,6 @@ namespace Smartstore.Admin.Controllers
                     model.Password = null;
                 }
 
-                // TODO: (mh) (core) Implement & use mapping extensions.
                 var topic = await MapperFactory.MapAsync<TopicModel, Topic>(model);
 
                 if (model.WidgetZone != null)
@@ -192,12 +191,7 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction("List");
             }
 
-            // TODO: (mh) (core) Implement & use mapping extensions.
-            // TODO: (mh) (core) Research why the following call breaks.
-            //var model = await MapperFactory.MapAsync<Topic, TopicModel>(topic);
-
-            var model = new TopicModel();
-            await MapperFactory.MapAsync(topic, model);
+            var model = await MapperFactory.MapAsync<Topic, TopicModel>(topic);
             await PrepareTopicModelAsync(topic, model);
 
             model.WidgetZone = topic.WidgetZone.SplitSafe(",").ToArray();
@@ -268,7 +262,6 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                // TODO: (mh) (core) Implement & use mapping extensions.
                 await MapperFactory.MapAsync(model, topic);
 
                 if (model.WidgetZone != null)

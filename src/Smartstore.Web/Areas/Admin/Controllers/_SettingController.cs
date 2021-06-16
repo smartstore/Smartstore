@@ -222,9 +222,7 @@ namespace Smartstore.Admin.Controllers
         [LoadSetting]
         public async Task<IActionResult> Catalog(CatalogSettings catalogSettings)
         {
-            // TODO: (mh) (core) Implement & use mapping extensions.
-            var model = new CatalogSettingsModel();
-            await MapperFactory.MapAsync(catalogSettings, model);
+            var model = await MapperFactory.MapAsync<CatalogSettings, CatalogSettingsModel>(catalogSettings);
 
             ViewBag.AvailableDefaultViewModes = new List<SelectListItem>
             {
@@ -286,13 +284,10 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Read)]
         [LoadSetting]
-        public async Task<IActionResult> RewardPoints(RewardPointsSettings rewardPointsSettings, int storeScope)
+        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings, int storeScope)
         {
             var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
-
-            // TODO: (mh) (core) Implement & use mapping extensions.
-            var model = new RewardPointsSettingsModel();
-            await MapperFactory.MapAsync(rewardPointsSettings, model);
+            var model = await MapperFactory.MapAsync<RewardPointsSettings, RewardPointsSettingsModel>(settings);
 
             model.PrimaryStoreCurrencyCode = store.PrimaryStoreCurrency.CurrencyCode;
 
@@ -319,8 +314,7 @@ namespace Smartstore.Admin.Controllers
         [LoadSetting]
         public async Task<IActionResult> ShoppingCart(int storeScope, ShoppingCartSettings settings)
         {
-            var model = new ShoppingCartSettingsModel();
-            await MapperFactory.MapAsync(settings, model);
+            var model = await MapperFactory.MapAsync<ShoppingCartSettings, ShoppingCartSettingsModel>(settings);
 
             AddLocales(model.Locales, (locale, languageId) =>
             {
@@ -389,8 +383,6 @@ namespace Smartstore.Admin.Controllers
 
             if (originAddress != null)
             {
-                // TODO: (mh) (core) MapAsync will set unavailable boolean types to true.
-                //await MapperFactory.MapAsync(originAddress, model.ShippingOriginAddress);
                 MiniMapper.Map(originAddress, model.ShippingOriginAddress);
             }
 
