@@ -8,7 +8,7 @@
           allow-resize="true"
           allow-row-selection="true"
           allow-edit="true"
-          preserve-grid-state="true"
+          preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("ProductList")" delete="@Url.Action("ProductDelete")" update="@Url.Action("ProductUpdate")" insert="@Url.Action("ProductInsert")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
@@ -24,12 +24,12 @@
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Common.AddNew")...</span>
             </a>*@
-            <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat mr-auto">
+            <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Common.AddNew")...</span>
             </button>
 
-            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning btn-flat">
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.SaveChanges")</span>
             </button>
@@ -41,7 +41,7 @@
         <toolbar-group class="omega"></toolbar-group>
 
         <toolbar-group class="border-right-0 mr-0 pr-0">
-            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
@@ -112,6 +112,16 @@
         <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
+    <detail-view>
+        <div class="form-group pb-2">
+            <label>Name:</label>
+            <div>{{ item.row.Name }}</div>
+        </div>
+        <div class="form-group">
+            <label>Preis:</label>
+            <div>{{ item.row.Price }}</div>
+        </div>
+    </detail-view>
 </datagrid>
 
 <script sm-target-zone="scripts" data-origin="products-grid">

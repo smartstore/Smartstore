@@ -2,17 +2,12 @@
 
 // TODO: (core) Move the extended String.prototype.format to smartstore.system.js once bundling is ready
 
-//String.prototype.format = function () {
-//    let s = this, args = arguments;
-//    return s.replace(formatRe, function (m, i) {
-//        return args[i];
-//    });
-//};
-
 String.prototype.format = function () {
     function getType(o) {
-        if (typeof o === "number") {
-            return "number";
+        const t = typeof o;
+
+        if (t === "number" || t === "boolean") {
+            return t;
         }
         if (o instanceof Date) {
             return "date";
@@ -36,7 +31,6 @@ String.prototype.format = function () {
                 formatter = g.formatNumber;
             }
             else if (type === "date") {
-                //console.log("Before formatDate", type, arg);
                 formatter = g.formatDate;
             }
 
@@ -301,7 +295,8 @@ Vue.component("sm-datagrid", {
                                         </span>
                                     </label>
                                 </th>            
-                
+                                <th v-if="hasDetailView" class="dg-th dg-col-pinned alpha">&nbsp;</th> 
+
                                 <th v-for="(column, columnIndex) in columns" 
                                     class="dg-th dg-th-column"
                                     v-show="column.visible"
@@ -341,69 +336,81 @@ Vue.component("sm-datagrid", {
                                 <td class="dg-td text-muted text-center">
                                     <div class="dg-cell justify-content-center">Keine Daten</div>
                                 </td>
-                            </tr>
+                            </tr>                            
+                            
+                            <template v-for="(row, rowIndex) in rows">
+                                <tr class="dg-tr" :class="getDataRowClass(row, rowIndex)" :data-key="row[options.keyMemberName]" :key="'row-' + row[options.keyMemberName]">
 
-                            <tr v-for="(row, rowIndex) in rows"
-                                class="dg-tr"
-                                :class="getDataRowClass(row)"
-                                :data-key="row[options.keyMemberName]"
-                                :key="row[options.keyMemberName]">
-                                <td v-if="allowRowSelection" class="dg-td dg-col-pinned alpha">
-                                    <label class="dg-cell dg-cell-selector">
-                                        <span v-if="!isInlineEditRow(row) || !editing.insertMode" class="dg-cell-value">
-                                            <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" @change="onSelectRow($event, row)" />
-                                        </span>
-                                    </label>
-                                </td>             
-
-                                <td v-for="(column, columnIndex) in columns"
-                                    class="dg-td"
-                                    :class="getDataCellClass(row[column.member], column, row)"
-                                    v-show="column.visible"
-                                    :data-index="columnIndex"
-                                    :key="row[options.keyMemberName] + '-' + columnIndex"
-                                    @dblclick="onCellDblClick($event, row)">
-
-                                    <div class="dg-cell" :class="getCellClass(row, column)" :style="getCellStyles(row, column, false)">
-                                        <slot v-if="!isInlineEditCell(row, column)" :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
-                                            <span class="dg-cell-value">
-                                                <template v-if="column.type === 'boolean'">
-                                                    <i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i>
-                                                </template>
-                                                <template v-else>
-                                                    {{ renderCellValue(row[column.member], column, row) }}
-                                                </template>
+                                    <td v-if="allowRowSelection" class="dg-td dg-col-pinned alpha">
+                                        <label class="dg-cell dg-cell-selector">
+                                            <span v-if="!isInlineEditRow(row) || !editing.insertMode" class="dg-cell-value">
+                                                <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" @change="onSelectRow($event, row)" />
                                             </span>
-                                        </slot>
-                                        <slot v-if="isInlineEditCell(row, column)" :name="'edit-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
-                                        </slot>
-                                    </div>
+                                        </label>
+                                    </td>
+                                    <td v-if="hasDetailView" class="dg-td dg-td-detail dg-col-pinned alpha">
+                                        <div class="dg-cell dg-cell-detail-toggle justify-content-center px-2" @click="toggleDetailView(row)">
+                                            <i class="fa fa-chevron-right fa-sm" :class="{ 'fa-rotate-90': getRowDetailState(row) === true }"></i>
+                                        </div>
+                                    </td> 
 
-                                </td>
-                                <td class="dg-td">
-                                    <div class="dg-cell dg-cell-spacer"></div>
-                                </td>
-                                <td v-if="canEditRow || hasRowCommands" class="dg-td dg-col-pinned omega">
-                                    <div class="dg-cell dg-commands p-0">
-                                        <div v-if="hasRowCommands && (!editing.active || row != editing.row)" class="d-flex w-100 h-100 align-items-center justify-content-center dropdown">
-                                            <a href="#" class="dg-commands-toggle dropdown-toggle no-chevron btn btn-secondary btn-flat btn-icon btn-sm" data-toggle="dropdown" data-boundary="window">
-                                                <i class="fa fa-ellipsis-h"></i>
-                                            </a>
-                                            <slot name="rowcommands" v-bind="{ row, activateEdit, deleteRows }"></slot> 
+                                    <td v-for="(column, columnIndex) in columns"
+                                        class="dg-td"
+                                        :class="getDataCellClass(row[column.member], column, row)"
+                                        v-show="column.visible"
+                                        :data-index="columnIndex"
+                                        :key="row[options.keyMemberName] + '-' + columnIndex"
+                                        @dblclick="onCellDblClick($event, row)">
+
+                                        <div class="dg-cell" :class="getCellClass(row, column)" :style="getCellStyles(row, column, false)">
+                                            <slot v-if="!isInlineEditCell(row, column)" :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                                                <span class="dg-cell-value">
+                                                    <template v-if="column.type === 'boolean'">
+                                                        <i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i>
+                                                    </template>
+                                                    <template v-else>
+                                                        {{ renderCellValue(row[column.member], column, row) }}
+                                                    </template>
+                                                </span>
+                                            </slot>
+                                            <slot v-if="isInlineEditCell(row, column)" :name="'edit-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                                            </slot>
                                         </div>
 
-                                        <div v-if="editing.active && row == editing.row" class="dg-row-edit-commands btn-group-vertical">
-                                            <button @click="saveChanges()" class="btn btn-primary btn-sm btn-flat rounded-0" type="button" title="Änderungen speichern">
-                                                <i class="fa fa-check"></i>
-                                            </button>
-                                            <button @click="cancelEdit()" class="btn btn-secondary btn-sm btn-flat rounded-0" type="button" title="Abbrechen">
-                                                <i class="fa fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                                    </td>
+                                    <td class="dg-td">
+                                        <div class="dg-cell dg-cell-spacer"></div>
+                                    </td>
+                                    <td v-if="canEditRow || hasRowCommands" class="dg-td dg-col-pinned omega">
+                                        <div class="dg-cell dg-commands p-0">
+                                            <div v-if="hasRowCommands && (!editing.active || row != editing.row)" class="d-flex w-100 h-100 align-items-center justify-content-center dropdown">
+                                                <a href="#" class="dg-commands-toggle dropdown-toggle no-chevron btn btn-secondary btn-flat btn-icon btn-sm" data-toggle="dropdown" data-boundary="window">
+                                                    <i class="fa fa-ellipsis-h"></i>
+                                                </a>
+                                                <slot name="rowcommands" v-bind="{ row, activateEdit, deleteRows }"></slot> 
+                                            </div>
 
-                                </td>
-                            </tr>
+                                            <div v-if="editing.active && row == editing.row" class="dg-row-edit-commands btn-group-vertical">
+                                                <button @click="saveChanges()" class="btn btn-primary btn-sm btn-flat rounded-0" type="button" title="Änderungen speichern">
+                                                    <i class="fa fa-check"></i>
+                                                </button>
+                                                <button @click="cancelEdit()" class="btn btn-secondary btn-sm btn-flat rounded-0" type="button" title="Abbrechen">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </td>
+                                </tr>
+
+                                <tr v-if="hasDetailView && getRowDetailState(row) !== undefined" v-show="getRowDetailState(row) === true" class="dg-tr dg-tr-detail">
+                                    <td class="dg-td dg-td-detail" style="grid-column: 1 / -1">
+                                        <div class="dg-cell dg-cell-detail flex-column align-items-start">
+                                            <slot name="detailview" v-bind="{ row }"></slot>  
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </component>
@@ -452,12 +459,13 @@ Vue.component("sm-datagrid", {
         }
     },
 
-    data: function () {
+    data() {
         return {
             rows: [],
             total: 0,
             aggregates: [],
             selectedRows: {},
+            detailRows: {},
             originalState: {},
             isBusy: false,
             ready: false,
@@ -465,6 +473,7 @@ Vue.component("sm-datagrid", {
             numSearchFilters: 0,
             hasEditableVisibleColumn: false,
             hasRowCommands: false,
+            hasDetailView: false,
             dragging: {
                 active: false,
                 targetRect: null,
@@ -593,15 +602,18 @@ Vue.component("sm-datagrid", {
             var search = $(this.$el).find(".dg-search-body");
             search.on("change", "select", this.read);
             search.on("change", "input[type='checkbox'], input[type='radio']", this.read);
-            search.on("keydown", "textarea, input", e => {
+            search.on("keydown focusout", "textarea, input", e => {
                 if (e.target.type === 'checkbox' || e.target.type === 'radio') {
                     return;
                 }
-
-                if (e.keyCode == 13) {
-                    // Enter key pressed in input
+                if (e.type === "focusout" || (e.type === "keydown" && e.keyCode == 13)) {
                     e.preventDefault();
-                    self.read();
+                    const prevValue = $(e.target).data("prev-value");
+                    const handle = prevValue === undefined ? !!(e.target.value) : prevValue != e.target.value;
+                    if (handle) {
+                        $(e.target).data("prev-value", e.target.value);
+                        self.read();
+                    }
                 }
             });
         }
@@ -621,6 +633,7 @@ Vue.component("sm-datagrid", {
 
         this.hasEditableVisibleColumn = this.columns.some(this.isEditableVisibleColumn);
         this.hasRowCommands = !!(this.$scopedSlots.rowcommands);
+        this.hasDetailView = !!(this.$scopedSlots.detailview);
 
         // Read data from server. Process initial read after a short delay, 
         // because something's wrong with numSearchFilters if we call immediately.
@@ -782,9 +795,10 @@ Vue.component("sm-datagrid", {
             return style;
         },
 
-        getDataRowClass(row) {
+        getDataRowClass(row, rowIndex) {
             const cssClass = {
                 'active': this.isRowSelected(row),
+                'even': (rowIndex + 1) % 2 === 0,
                 'dg-edit-row': this.isInlineEditRow(row)
             };
 
@@ -849,6 +863,10 @@ Vue.component("sm-datagrid", {
                     }
                     return w;
                 });
+
+            if (this.hasDetailView) {
+                result.splice(0, 0, "max-content");
+            }
 
             if (this.allowRowSelection) {
                 result.splice(0, 0, "48px");
@@ -959,26 +977,7 @@ Vue.component("sm-datagrid", {
             }
 
             // Apply search filters to command
-            this.numSearchFilters = 0;
-            if (this.hasSearchPanel) {
-                const searchForm = $(this.$el).find(".dg-search-body");
-                const filterObj = searchForm.serializeToJSON();
-                this.numSearchFilters = Object.values(filterObj)
-                    .filter(x => {
-                        // TODO: (core) Make numSearchFilters detection smarter.
-                        if (_.isArray(x)) {
-                            return x.length > 0 || (x.length === 1 && x[0]);
-                        }
-                        else if (_.isBoolean(x)) {
-                            return x;
-                        }
-
-                        return !!(x);
-                    })
-                    .length;
-
-                $.extend(true, command, filterObj);
-            }
+            this._applySearchFilters(command);
 
             self.$emit("data-binding", command);
             
@@ -992,6 +991,7 @@ Vue.component("sm-datagrid", {
                 success(result) {
                     self.rows = result.rows !== undefined ? result.rows : result;
                     self.total = result.total || self.rows.length;
+                    self.detailRows = {};
 
                     if (self.totalPages > 0 && self.command.page > self.totalPages) {
                         // Fix "pageIndex > totalPages" by reloading
@@ -1529,6 +1529,49 @@ Vue.component("sm-datagrid", {
         // #endregion
 
         // #region Search
+
+        _applySearchFilters(command) {
+            this.numSearchFilters = 0;
+            if (this.hasSearchPanel) {
+                const form = $(this.$el).find(".dg-search-body");
+                const obj = form.serializeToJSON();
+                this.numSearchFilters = Object.keys(obj)
+                    .filter(key => {
+                        const o = obj[key];
+                        const el = form.find("[name='" + key + "']");
+                        let defaultValue = el.data("default");
+                        if (defaultValue === undefined) {
+                            defaultValue = "";
+                        }
+                        if (_.isArray(o)) {
+                            return o.length > 0 || (o.length === 1 && o[0]);
+                        }
+                        else if (el.is("input:checkbox")) {
+                            return _.isBoolean(defaultValue) ? o != defaultValue : o === true;
+                        }
+
+                        return o !== defaultValue;
+
+                    })
+                    .length;
+
+                $.extend(true, command, obj);
+            }
+        },
+
+        // #endregion
+
+        // #region Master/Details
+
+        toggleDetailView(row) {
+            const key = row[this.options.keyMemberName];
+            const entry = this.detailRows[key];
+            Vue.set(this.detailRows, key, entry === undefined ? true : !entry);
+        },
+
+        getRowDetailState(row) {
+            return this.detailRows[row[this.options.keyMemberName]];
+        }
 
         // #endregion
     }

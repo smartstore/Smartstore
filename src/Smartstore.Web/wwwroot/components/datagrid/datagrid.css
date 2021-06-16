@@ -86,7 +86,7 @@ input.form-control-plaintext {
     z-index: 1;
     user-select: none;
     overflow-x: hidden; }
-  .dg-table .dg-tbody > tr:nth-of-type(even) > td {
+  .dg-table .dg-tbody > tr.even > td {
     background-color: var(--dg-row-even-bg); }
   .dg-table .dg-tr.active,
   .dg-table .dg-tr.dg-edit-row {
@@ -98,7 +98,7 @@ input.form-control-plaintext {
 .dg-striped {
   --dg-row-even-bg: #fbfbfc; }
 
-.dg-hover > .dg-tbody > tr:hover:not(.dg-no-data) {
+.dg-hover > .dg-tbody > .dg.tr:hover:not(.dg-no-data, .dg-tr-detail) {
   --dg-row-bg: var(--dg-row-hover-color);
   --dg-row-even-bg: var(--dg-row-hover-color); }
 
@@ -135,20 +135,7 @@ input.form-control-plaintext {
 .dg-toolbar .btn {
   position: relative;
   padding-left: 0.6rem;
-  padding-right: 0.6rem;
-  /*    padding: 14px !important;
-    //font-size: 13px;
-    border-radius: 0 !important;
-    outline: 0 !important;
-    box-shadow: none !important;
-    border-width: 0 !important;
-    border-left: 1px solid var(--dg-border-color) !important;*/
-  /*    &:active, &.active {
-        box-shadow: inset 0 0 1px rgba(#000, 0.5), inset 0 3px 5px rgba(#000, 0.12) !important;
-    }*/
-  /*    &:first-child {
-        border-left: none !important;
-    }*/ }
+  padding-right: 0.6rem; }
   .dg-toolbar .btn.disabled {
     pointer-events: none; }
 
@@ -404,6 +391,9 @@ span.dg-page {
 
 .dg-column-toggle {
   max-width: 150px; }
+
+.dg-cell-detail-toggle > i {
+  cursor: pointer; }
 
 [dir=rtl] .dg-page-refresh {
   border-left: 1px solid #dee2e6;

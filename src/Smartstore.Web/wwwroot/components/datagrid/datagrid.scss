@@ -110,17 +110,11 @@ $body-color: #393f46;
     .dg-th,
     .dg-td {
         padding: 0;
-        //overflow: hidden;
-        //text-overflow: ellipsis;
-        //white-space: nowrap;
         position: relative;
-        //display: flex;
     }
 
     .dg-td {
         background-color: var(--dg-row-bg);
-        //transition: background-color 0.1s ease-in-out;
-        //overflow: hidden;
     }
 
     .dg-th {
@@ -133,7 +127,7 @@ $body-color: #393f46;
         overflow-x: hidden; // Removes annoying x-scrollbar
     }
 
-    .dg-tbody > tr:nth-of-type(even) > td {
+    .dg-tbody > tr.even > td {
         background-color: var(--dg-row-even-bg);
     }
 
@@ -152,7 +146,7 @@ $body-color: #393f46;
     --dg-row-even-bg: $even;
 }
 
-.dg-hover > .dg-tbody > tr:hover:not(.dg-no-data) {
+.dg-hover > .dg-tbody > .dg.tr:hover:not(.dg-no-data, .dg-tr-detail) {
     --dg-row-bg: var(--dg-row-hover-color);
     --dg-row-even-bg: var(--dg-row-hover-color);
 }
@@ -207,23 +201,10 @@ $body-color: #393f46;
     position: relative;
     padding-left: 0.6rem;
     padding-right: 0.6rem;
-    /*    padding: 14px !important;
-    //font-size: 13px;
-    border-radius: 0 !important;
-    outline: 0 !important;
-    box-shadow: none !important;
-    border-width: 0 !important;
-    border-left: 1px solid var(--dg-border-color) !important;*/
 
     &.disabled {
         pointer-events: none;
     }
-    /*    &:active, &.active {
-        box-shadow: inset 0 0 1px rgba(#000, 0.5), inset 0 3px 5px rgba(#000, 0.12) !important;
-    }*/
-    /*    &:first-child {
-        border-left: none !important;
-    }*/
 }
 
 .dg-toolbar-group {
@@ -603,6 +584,17 @@ span.dg-page {
 
 .dg-column-toggle {
     max-width: 150px;
+}
+
+
+// Master / Detail
+// -----------------------------------------
+
+.dg-cell-detail-toggle {
+    > i {
+        cursor: pointer;
+    }
+    //opacity: 0.5;
 }
 
 

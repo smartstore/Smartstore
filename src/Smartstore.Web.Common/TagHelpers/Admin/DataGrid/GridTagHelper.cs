@@ -25,7 +25,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     }
     
     [HtmlTargetElement("datagrid")]
-    [RestrictChildren("columns", "datasource", "paging", "toolbar", "sorting", "search-panel", "row-commands")]
+    [RestrictChildren("columns", "datasource", "paging", "toolbar", "sorting", "search-panel", "row-commands", "detail-view")]
     public class GridTagHelper : SmartTagHelper
     {
         const string BorderAttributeName = "border-style";
@@ -65,10 +65,10 @@ namespace Smartstore.Web.TagHelpers.Admin
         #region Public properties
 
         /// <summary>
-        /// DataGrid table border style. Default: <see cref="DataGridBorderStyle.HorizontalBorders"/>.
+        /// DataGrid table border style. Default: <see cref="DataGridBorderStyle.VerticalBorders"/>.
         /// </summary>
         [HtmlAttributeName(BorderAttributeName)]
-        public DataGridBorderStyle BorderStyle { get; set; } = DataGridBorderStyle.HorizontalBorders;
+        public DataGridBorderStyle BorderStyle { get; set; } = DataGridBorderStyle.VerticalBorders;
 
         /// <summary>
         /// Adds zebra-striping to any table row within tbody. Default: <c>true</c>.
