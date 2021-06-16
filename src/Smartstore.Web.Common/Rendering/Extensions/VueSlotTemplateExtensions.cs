@@ -53,8 +53,7 @@ namespace Smartstore.Web.Rendering
 
             if (hasNewPaymentNotificationExpression.HasValue())
             {
-                var requestServices = helper.ViewContext.HttpContext.RequestServices;
-                var localizationService = requestServices.GetService<ILocalizationService>();
+                var localizationService = helper.ViewContext.HttpContext.RequestServices.GetService<ILocalizationService>();
 
                 var label = new TagBuilder("span");
                 label.Attributes.Add("v-if", hasNewPaymentNotificationExpression);

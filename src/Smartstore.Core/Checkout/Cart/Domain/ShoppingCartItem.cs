@@ -16,15 +16,15 @@ namespace Smartstore.Core.Checkout.Cart
     {
         public void Configure(EntityTypeBuilder<ShoppingCartItem> builder)
         {
-            //builder.HasOne(x => x.Customer)
-            //    .WithMany(x => x.ShoppingCartItems)
-            //    .HasForeignKey(x => x.CustomerId)
-            //    .IsRequired(false);
-
-            //builder.HasOne(x => x.Product)
-            //    .WithMany()
-            //    .HasForeignKey(x => x.ProductId)
-            //    .IsRequired(false);
+            // TODO: (mg) (core) Check later whether Customer and Product nav definitions result in migration errors.
+            builder.HasOne(x => x.Customer)
+                .WithMany(x => x.ShoppingCartItems)
+                .HasForeignKey(x => x.CustomerId)
+                .IsRequired(false);
+            builder.HasOne(x => x.Product)
+                .WithMany()
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired(false);
 
             builder.HasOne(x => x.BundleItem)
                 .WithMany()

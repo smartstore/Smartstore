@@ -4,19 +4,35 @@
     var gridViewData = new ViewDataDictionary(ViewData);
     gridViewData["Parent"] = Model;
 
-	ViewBag.Title = T("Common.Export") + " - " + T("Admin.Common.Preview");
+    ViewBag.Title = T("Common.Export") + " - " + T("Admin.Common.Preview");
+
+    var entityType = Model.EntityType;
+    string gridId = null;
+
+    switch (Model.EntityType)
+    {
+        case ExportEntityType.Product:
+        case ExportEntityType.Order:
+        case ExportEntityType.Category:
+        case ExportEntityType.Manufacturer:
+        case ExportEntityType.Customer:
+        case ExportEntityType.NewsLetterSubscription:
+        case ExportEntityType.ShoppingCartItem:
+            gridId = Model.EntityType.ToString();
+            break;
+    }
 }
 
 <div class="section-header">
-	<div class="title">
+    <div class="title">
         <img src="@Url.Content(Model.ThumbnailUrl)" />
         <span>@ViewBag.Title - @Model.Name</span>
         <a asp-action="Edit" asp-route-id="@Model.Id">(@T("Common.Back"))</a>
-	</div>
-	<div class="options">
-		<form id="ProfileExportForm" asp-action="Execute" method="post">
-			<input type="hidden" asp-for="Id" />
-			<input type="hidden" name="SelectedIds" value="" />
+    </div>
+    <div class="options">
+        <form id="ProfileExportForm" asp-action="Execute" method="post">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" name="SelectedIds" value="" />
             @if (Model.LogFileExists)
             {
                 <a asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
@@ -24,45 +40,21 @@
                     <span>@T("Admin.Configuration.ActivityLog")</span>
                 </a>
             }
-		</form>
-	</div>
+        </form>
+    </div>
 </div>
 
 <div class="preview-grid-container">
-	@if (Model.EntityType == ExportEntityType.Product)
-	{
-		<partial name="_Grid.Preview.Products" model="null" view-data="gridViewData" />
-	}
-	else if (Model.EntityType == ExportEntityType.Order)
-	{
-		<partial name="_Grid.Preview.Orders" model="null" view-data="gridViewData" />
-	}
-	else if (Model.EntityType == ExportEntityType.Category)
-	{
-		<partial name="_Grid.Preview.Categories" model="null" view-data="gridViewData" />
-	}
-	else if (Model.EntityType == ExportEntityType.Manufacturer)
-	{
-		<partial name="_Grid.Preview.Manufacturers" model="null" view-data="gridViewData" />
-	}
-	else if (Model.EntityType == ExportEntityType.Customer)
-	{
-		<partial name="_Grid.Preview.Customers" model="null" view-data="gridViewData" />
-	}
-	else if (Model.EntityType == ExportEntityType.NewsLetterSubscription)
-	{
-		<partial name="_Grid.Preview.NewsletterSubscriptions" model="null" view-data="gridViewData" />
-	}
-	else if (Model.EntityType == ExportEntityType.ShoppingCartItem)
-	{
-		<partial name="_Grid.Preview.ShoppingCartItems" model="null" view-data="gridViewData" />
-	}
-	else
-	{
-		<div class="alert alert-warning">
-			@T("Admin.DataExchange.Export.NoPreview")
-		</div>
-	}
+    @if (gridId.HasValue())
+    {
+        <partial name="_Grid.Preview.@(gridId)" model="null" view-data="gridViewData" />
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            @T("Admin.DataExchange.Export.NoPreview")
+        </div>
+    }
 </div>
 
 <script sm-target-zone="scripts" data-origin="ExportPreview">
@@ -79,6 +71,18 @@
 			}
 
 			// TODO: (mg) (core) find out how to get the selected entity IDs.
+			// RE: (mg) (core)
+			// How to get datagrid Vue component instance:
+			const grid = $('#products-preview-grid').parent().data('datagrid');
+			// ...OR
+			grid = window['products-preview-grid'].$children[0];
+			// ...OR, because in this specific case the grid id may be unknown due to multiple grids
+			grid = $(this).closest('.datagrid-root').data('datagrid'); // Only works if button is INSIDE the grid (e.g. in toolbar)
+			// How to get selected rows:
+			const selectedRows = grid.selectedRows;
+			// Use Chrome console for full API ;-)
+			// Remove the "SelectedIds" hidden field, rely fully on datagrid component.
+
 			form.find('[name=SelectedIds]').val(exportAll ? '' : selectedIds.join(','));
 			form.submit();
 			return false;

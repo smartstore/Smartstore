@@ -502,7 +502,7 @@ namespace Smartstore.Admin.Controllers
                 throw new ArgumentException($"Cannot find export profile with ID {id}.");
             }
 
-            object gridModel = null;
+            IGridModel gridModel = null;
             var request = new DataExportRequest(profile, provider);
             var previewResult = await _dataExporter.PreviewAsync(request, command.Page - 1, command.PageSize);
 

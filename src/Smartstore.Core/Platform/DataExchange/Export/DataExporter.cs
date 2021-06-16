@@ -293,11 +293,12 @@ namespace Smartstore.Core.DataExchange.Export
 
             switch (ctx.Request.Provider.Value.EntityType)
             {
+                // INFO: (mg) (core) Any LINQ extension method with async body must be called asynchronously via Dasyn or our own async counterparts.
                 case ExportEntityType.Product:
-                    data.Cast<Product>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
+                    await data.Cast<Product>().EachAsync(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.Order:
-                    data.Cast<Order>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
+                    await data.Cast<Order>().EachAsync(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.Manufacturer:
                     data.Cast<Manufacturer>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
@@ -312,7 +313,7 @@ namespace Smartstore.Core.DataExchange.Export
                     data.Cast<NewsletterSubscription>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.ShoppingCartItem:
-                    data.Cast<ShoppingCartItem>().Each(async x => result.Data.Add(await ToDynamic(x, ctx)));
+                    await data.Cast<ShoppingCartItem>().EachAsync(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
             }
 
@@ -836,6 +837,7 @@ namespace Smartstore.Core.DataExchange.Export
             else if (entityType == ExportEntityType.ShoppingCartItem)
             {
                 // TODO: (mg) (core) Always 0 records because EntityTypeConfiguration of navigation properties is commented out!!
+                // RE: Uncommented again. Please test.
                 var query = _db.ShoppingCartItems
                     .AsNoTracking()
                     .Include(x => x.Customer)
