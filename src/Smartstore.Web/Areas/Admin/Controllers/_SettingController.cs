@@ -436,9 +436,8 @@ namespace Smartstore.Admin.Controllers
 
             foreach (var localized in model.Locales)
             {
-                // TODO: (mh) (core) Doesn't work.
-                //await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Name, localized.Name, localized.LanguageId);
-                //await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Description, localized.Description, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Name, localized.Name, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Description, localized.Description, localized.LanguageId);
             }
 
             await _db.SaveChangesAsync();
@@ -508,9 +507,8 @@ namespace Smartstore.Admin.Controllers
 
                 foreach (var localized in model.Locales)
                 {
-                    // TODO: (mh) (core) Doesn't work.
-                    //await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Name, localized.Name, localized.LanguageId);
-                    //await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Description, localized.Description, localized.LanguageId);
+                    await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Name, localized.Name, localized.LanguageId);
+                    await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Description, localized.Description, localized.LanguageId);
                 }
             }
 

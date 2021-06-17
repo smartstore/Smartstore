@@ -223,7 +223,7 @@ namespace Smartstore.Core.Localization
             T entity,
             Expression<Func<T, string>> keySelector,
             string value,
-            int languageId) where T : BaseEntity, ILocalizedEntity
+            int languageId) where T : class, ILocalizedEntity
         {
             return ApplyLocalizedValueAsync(entity, entity.Id, entity.GetEntityName(), keySelector, value, languageId);
         }
@@ -233,7 +233,7 @@ namespace Smartstore.Core.Localization
             T entity,
             Expression<Func<T, TPropType>> keySelector,
             TPropType value,
-            int languageId) where T : BaseEntity, ILocalizedEntity
+            int languageId) where T : class, ILocalizedEntity
         {
             return ApplyLocalizedValueAsync(entity, entity.Id, entity.GetEntityName(), keySelector, value, languageId);
         }

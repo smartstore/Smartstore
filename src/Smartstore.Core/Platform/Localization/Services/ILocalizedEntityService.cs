@@ -75,7 +75,7 @@ namespace Smartstore.Core.Localization
             T entity,
             Expression<Func<T, string>> keySelector,
             string value,
-            int languageId) where T : BaseEntity, ILocalizedEntity;
+            int languageId) where T : class, ILocalizedEntity;
 
         /// <summary>
         /// Applies a localized property value. The caller is responsible for database commit.
@@ -90,7 +90,7 @@ namespace Smartstore.Core.Localization
             T entity,
             Expression<Func<T, TPropType>> keySelector,
             TPropType value,
-            int languageId) where T : BaseEntity, ILocalizedEntity;
+            int languageId) where T : class, ILocalizedEntity;
 
         /// <summary>
         /// Applies a localized setting property value. The caller is responsible for database commit.
