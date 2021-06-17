@@ -1,0 +1,69 @@
+﻿@model CookieInfoModel
+
+<div asp-validation-summary="ModelOnly"></div>
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SelectedStoreIds" />
+        </div>
+        <div class="adminData">
+			<editor asp-for="SelectedStoreIds" />
+            <span asp-validation-for="SelectedStoreIds"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CookieType" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="CookieType" />
+            <span asp-validation-for="CookieType"></span>
+        </div>
+    </div>
+</div>
+
+@(Html.LocalizedEditor<CookieInfoModel, CookieInfoLocalizedModel>("ci-localized",
+	@<div class="adminContent">
+		<div class="adminRow">
+			<div class="adminTitle">
+				<smart-label asp-for="Locales[item].LanguageId" />
+			</div>
+			<div class="adminData">
+				<input type="hidden" asp-for="Locales[item].LanguageId" />
+				<input asp-for="Locales[item].Name" />
+                <span asp-validation-for="Locales[item].LanguageId"></span>
+			</div>
+		</div>
+		<div class="adminRow">
+			<div class="adminTitle">
+                <smart-label asp-for="Locales[item].Description" />
+			</div>
+            <div class="adminData wide">
+                <input asp-for="Locales[item].Description" />
+                <span asp-validation-for="Locales[item].Description"></span>
+            </div>
+		</div>
+	</div>
+	,
+	@<div class="adminContent">
+		<div class="adminRow">
+			<div class="adminTitle">
+				<smart-label asp-for="Name" />
+			</div>
+			<div class="adminData">
+				<input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+			</div>
+		</div>
+		<div class="adminRow">
+			<div class="adminTitle">
+                <smart-label asp-for="Description" />
+			</div>
+			<div class="adminData wide">
+                <input asp-for="Description" />
+                <span asp-validation-for="Description"></span>
+			</div>
+		</div>
+	</div>
+))

@@ -1,0 +1,824 @@
+﻿@using Smartstore.Core.Identity
+
+@model CustomerUserSettingsModel
+
+@{
+    Layout = "_SettingLayout";
+    ViewBag.Title = T("Admin.Configuration.Settings.CustomerUser").Value;
+}
+
+<form asp-action="CustomerUser">
+
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-users"></i>
+            @T("Admin.Configuration.Settings.CustomerUser")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="All"></div>
+
+    <tabstrip id="customersettings-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Admin.Configuration.Settings.CustomerUser.CustomerSettings")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CustomerLoginType" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CustomerLoginType"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CustomerLoginType"></span>
+                    </div>
+                </div>
+                <div id="pnlUsernamesEnabled">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CustomerSettings.AllowUsersToChangeUsernames" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CustomerSettings.AllowUsersToChangeUsernames"></setting-editor>
+                            <span asp-validation-for="CustomerSettings.AllowUsersToChangeUsernames"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="CustomerSettings.CheckUsernameAvailabilityEnabled" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="CustomerSettings.CheckUsernameAvailabilityEnabled"></setting-editor>
+                            <span asp-validation-for="CustomerSettings.CheckUsernameAvailabilityEnabled"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CustomerNameFormat" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CustomerNameFormat"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CustomerNameFormat"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CustomerNameFormatMaxLength" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CustomerNameFormatMaxLength"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CustomerNameFormatMaxLength"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CustomerNumberMethod" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CustomerNumberMethod"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CustomerNumberMethod"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlCustomerNumberVisibility">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CustomerNumberVisibility" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CustomerNumberVisibility"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CustomerNumberVisibility"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.UserRegistrationType" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.UserRegistrationType"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.UserRegistrationType"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.RegisterCustomerRoleId" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.RegisterCustomerRoleId"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.RegisterCustomerRoleId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.AllowCustomersToUploadAvatars" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.AllowCustomersToUploadAvatars"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.AllowCustomersToUploadAvatars"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.ShowCustomersLocation" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.ShowCustomersLocation"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.ShowCustomersLocation"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.ShowCustomersJoinDate" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.ShowCustomersJoinDate"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.ShowCustomersJoinDate"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.AllowViewingProfiles" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.AllowViewingProfiles"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.AllowViewingProfiles"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.NotifyNewCustomerRegistration" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.NotifyNewCustomerRegistration"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.NotifyNewCustomerRegistration"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.HideDownloadableProductsTab" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.HideDownloadableProductsTab"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.HideDownloadableProductsTab"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.HideBackInStockSubscriptionsTab" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.HideBackInStockSubscriptionsTab"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.HideBackInStockSubscriptionsTab"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.HideNewsletterBlock" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.HideNewsletterBlock"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.HideNewsletterBlock"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.StoreLastVisitedPage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.StoreLastVisitedPage"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.StoreLastVisitedPage"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.CustomerUser.CustomerFormFields")">
+            <div class="alert alert-info alert-dismissible">
+                @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.CustomerFormFields.Description"))
+                <button class="close" data-dismiss="alert">&times;</button>
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.GenderEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.GenderEnabled"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.GenderEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.TitleEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.TitleEnabled"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.TitleEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.FirstNameRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.FirstNameRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.FirstNameRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.LastNameRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.LastNameRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.LastNameRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.DateOfBirthEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.DateOfBirthEnabled"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.DateOfBirthEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CompanyEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CompanyEnabled" data-toggler-for="#pnlCompanyRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CompanyEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlCompanyRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CompanyRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CompanyRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CompanyRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.StreetAddressEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.StreetAddressEnabled" data-toggler-for="#pnlStreetAddressRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.StreetAddressEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlStreetAddressRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.StreetAddressRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.StreetAddressRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.StreetAddressRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.StreetAddress2Enabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.StreetAddress2Enabled" data-toggler-for="#pnlStreetAddress2Required"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.StreetAddress2Enabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlStreetAddress2Required">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.StreetAddress2Required" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.StreetAddress2Required"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.StreetAddress2Required"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.ZipPostalCodeEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.ZipPostalCodeEnabled" data-toggler-for="#pnlZipPostalCodeRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.ZipPostalCodeEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlZipPostalCodeRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.ZipPostalCodeRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.ZipPostalCodeRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.ZipPostalCodeRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CityEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CityEnabled" data-toggler-for="#pnlCityRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CityEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlCityRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CityRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CityRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CityRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.CountryEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.CountryEnabled" data-toggler-for="#pnlStateProvincEnabled"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.CountryEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlStateProvincEnabled">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.StateProvinceEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.StateProvinceEnabled" data-toggler-for="#pnlStateProvinceRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.StateProvinceEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlStateProvinceRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.StateProvinceRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.StateProvinceRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.StateProvinceRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.PhoneEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.PhoneEnabled" data-toggler-for="#pnlPhoneRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.PhoneEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlPhoneRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.PhoneRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.PhoneRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.PhoneRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.FaxEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.FaxEnabled" data-toggler-for="#pnlFaxRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.FaxEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlFaxRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.FaxRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.FaxRequired"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.FaxRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.NewsletterEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.NewsletterEnabled"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.NewsletterEnabled"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.CustomerUser.AddressFormFields")">
+            <div class="alert alert-info alert-dismissible">
+                @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.AddressFormFields.Description"))
+                <button class="close" data-dismiss="alert">&times;</button>
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.ValidateEmailAddress" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.ValidateEmailAddress"></setting-editor>
+                        <span asp-validation-for="AddressSettings.ValidateEmailAddress"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.SalutationEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.SalutationEnabled" data-toggler-for="#pnlAddressSettingsSalutations"></setting-editor>
+                        <span asp-validation-for="AddressSettings.SalutationEnabled"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pnlAddressSettingsSalutations">
+                @(Html.LocalizedEditor<CustomerUserSettingsModel, CustomerUserSettingsLocalizedModel>("setting-customer-localized",
+                    @<div class="adminContent pnlSalutations">
+                        <div class="adminRow">
+                            <div class="adminTitle">
+                                <smart-label asp-for="Locales[item].Salutations" />
+                            </div>
+                            <div class="adminData">
+                                @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                                <input type="hidden" asp-for="Locales[item].LanguageId" />
+
+                                <setting-editor asp-for="Locales[item].Salutations"></setting-editor>
+                                <span asp-validation-for="Locales[item].Salutations"></span>
+                            </div>
+                        </div>
+                    </div>
+                    ,
+                    @<div class="adminContent pnlSalutations">
+                        <div class="adminRow">
+                            <div class="adminTitle">
+                                <smart-label asp-for="AddressSettings.Salutations" />
+                            </div>
+                            <div class="adminData">
+                                <setting-editor asp-for="AddressSettings.Salutations"></setting-editor>
+                                <span asp-validation-for="AddressSettings.Salutations"></span>
+                            </div>
+                        </div>
+                    </div>
+                ))
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.TitleEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.TitleEnabled"></setting-editor>
+                        <span asp-validation-for="AddressSettings.TitleEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.CompanyEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.CompanyEnabled" data-toggler-for="#pnlAddressCompanyRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.CompanyEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlAddressCompanyRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.CompanyRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.CompanyRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.CompanyRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.StreetAddressEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.StreetAddressEnabled" data-toggler-for="#pnlAddressStreetAddressRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.StreetAddressEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlAddressStreetAddressRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.StreetAddressRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.StreetAddressRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.StreetAddressRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.StreetAddress2Enabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.StreetAddress2Enabled" data-toggler-for="#pnlAddressStreetAddress2Required"></setting-editor>
+                        <span asp-validation-for="AddressSettings.StreetAddress2Enabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlAddressStreetAddress2Required">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.StreetAddress2Required" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.StreetAddress2Required"></setting-editor>
+                        <span asp-validation-for="AddressSettings.StreetAddress2Required"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.ZipPostalCodeEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.ZipPostalCodeEnabled" data-toggler-for="#pnlAddressZipPostalCodeRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.ZipPostalCodeEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlAddressZipPostalCodeRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.ZipPostalCodeRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.ZipPostalCodeRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.ZipPostalCodeRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.CityEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.CityEnabled" data-toggler-for="#pnlAddressCityRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.CityEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlAddressCityRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.CityRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.CityRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.CityRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.CountryEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.CountryEnabled" data-toggler-for="#pnlAddressStateProvinceEnabled"></setting-editor>
+                        <span asp-validation-for="AddressSettings.CountryEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.CountryRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.CountryRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.CountryRequired"></span>
+                    </div>
+                </div>
+                <div id="pnlAddressStateProvinceEnabled">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="AddressSettings.StateProvinceEnabled" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="AddressSettings.StateProvinceEnabled"></setting-editor>
+                            <span asp-validation-for="AddressSettings.StateProvinceEnabled"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="AddressSettings.StateProvinceRequired" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="AddressSettings.StateProvinceRequired"></setting-editor>
+                            <span asp-validation-for="AddressSettings.StateProvinceRequired"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.PhoneEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.PhoneEnabled" data-toggler-for="#pnlAddressPhoneRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.PhoneEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlAddressPhoneRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.PhoneRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.PhoneRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.PhoneRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.FaxEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.FaxEnabled" data-toggler-for="#pnlAddressFaxRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.FaxEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlAddressFaxRequired">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AddressSettings.FaxRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AddressSettings.FaxRequired"></setting-editor>
+                        <span asp-validation-for="AddressSettings.FaxRequired"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.CustomerUser.Privacy")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PrivacySettings.StoreLastIpAddress" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PrivacySettings.StoreLastIpAddress"></setting-editor>
+                        <span asp-validation-for="PrivacySettings.StoreLastIpAddress"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PrivacySettings.DisplayGdprConsentOnForms" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PrivacySettings.DisplayGdprConsentOnForms"></setting-editor>
+                        <span asp-validation-for="PrivacySettings.DisplayGdprConsentOnForms"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PrivacySettings.FullNameOnContactUsRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PrivacySettings.FullNameOnContactUsRequired"></setting-editor>
+                        <span asp-validation-for="PrivacySettings.FullNameOnContactUsRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PrivacySettings.FullNameOnProductRequestRequired" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PrivacySettings.FullNameOnProductRequestRequired"></setting-editor>
+                        <span asp-validation-for="PrivacySettings.FullNameOnProductRequestRequired"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">
+                            Cookies
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PrivacySettings.EnableCookieConsent" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PrivacySettings.EnableCookieConsent" data-toggler-for="#pnlModalCookieConsent"></setting-editor>
+                        <span asp-validation-for="PrivacySettings.EnableCookieConsent"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlModalCookieConsent">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PrivacySettings.ModalCookieConsent" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PrivacySettings.ModalCookieConsent"></setting-editor>
+                        <span asp-validation-for="PrivacySettings.ModalCookieConsent"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PrivacySettings.SameSiteMode" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PrivacySettings.SameSiteMode"></setting-editor>
+                        <span asp-validation-for="PrivacySettings.SameSiteMode"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">&nbsp;</div>
+                    <div class="adminData wide">
+                        <div class="alert alert-info alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.Privacy.SameSiteMode.AdminInstruction"))
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">
+                            @T("Admin.Configuration.Settings.CustomerUser.Privacy.Cookies.RegisterCookieInfo.Title")
+                        </div>
+                        <div class="text-muted">
+                            @Html.Raw(T("Admin.Configuration.Settings.CustomerUser.Privacy.Cookies.AdminInstruction"))
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <partial name="_Grid.Cookies" model="null" />
+        </tab>
+        <tab sm-title="@T("Account.Fields.Password")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.DefaultPasswordFormat" />
+                    </div>
+                    <div class="adminData">
+                        @*Single store scope (no <setting-editor />)*@
+                        <select asp-for="CustomerSettings.DefaultPasswordFormat" asp-items="((PasswordFormat)Model.CustomerSettings.DefaultPasswordFormat).ToSelectList()"></select>
+                        <span asp-validation-for="CustomerSettings.DefaultPasswordFormat"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.PasswordMinLength" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.PasswordMinLength"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.PasswordMinLength"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.PasswordRequireDigit" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.PasswordRequireDigit"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.PasswordRequireDigit"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.PasswordRequireUppercase" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.PasswordRequireUppercase"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.PasswordRequireUppercase"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.PasswordRequireLowercase" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.PasswordRequireLowercase"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.PasswordRequireLowercase"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.PasswordRequiredUniqueChars" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.PasswordRequiredUniqueChars"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.PasswordRequiredUniqueChars"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerSettings.PasswordRequireNonAlphanumeric" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CustomerSettings.PasswordRequireNonAlphanumeric"></setting-editor>
+                        <span asp-validation-for="CustomerSettings.PasswordRequireNonAlphanumeric"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+    </tabstrip>
+</form>
+
+<script>
+    $(function () {
+        $('#@Html.IdFor(model => model.CustomerSettings.CustomerNumberMethod)').change(function () {
+        	$('#pnlCustomerNumberVisibility').toggle($(this).val() !== '@(CustomerNumberMethod.Disabled.ToString())');
+        }).trigger('change');
+
+        $('#@Html.IdFor(model => model.CustomerSettings.CustomerLoginType)').change(function () {
+            $('#pnlUsernamesEnabled').toggle($(this).val() !== '@(CustomerLoginType.Email.ToString())');
+        }).trigger('change');
+    });
+</script>

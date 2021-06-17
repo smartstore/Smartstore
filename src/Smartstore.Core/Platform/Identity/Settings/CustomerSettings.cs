@@ -5,39 +5,37 @@ namespace Smartstore.Core.Identity
     public class CustomerSettings : ISettings
     {
         /// <summary>
-        /// Gets or sets a value indicating the customer login type
+        /// Gets or sets a value indicating the customer login type.
         /// </summary>
         public CustomerLoginType CustomerLoginType { get; set; } = CustomerLoginType.UsernameOrEmail;
 
         /// <summary>
-        /// Gets or sets the customer number method
+        /// Gets or sets the customer number method.
         /// </summary>
         public CustomerNumberMethod CustomerNumberMethod { get; set; } = CustomerNumberMethod.Disabled;
 
         /// <summary>
-        /// Gets or sets the customer number visibility
+        /// Gets or sets the customer number visibility.
         /// </summary>
         public CustomerNumberVisibility CustomerNumberVisibility { get; set; } = CustomerNumberVisibility.None;
 
         /// <summary>
-        /// Gets or sets a value indicating whether users can check the availability of usernames (when registering or changing in 'My Account')
+        /// Gets or sets a value indicating whether users can check the availability of usernames (when registering or changing in 'My Account').
         /// </summary>
         public bool CheckUsernameAvailabilityEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether users are allowed to change their usernames
+        /// Gets or sets a value indicating whether users are allowed to change their usernames.
         /// </summary>
         public bool AllowUsersToChangeUsernames { get; set; }
 
-
-        // TODO: (mh) (core) Find a new place for these settings when porting admin area. Maybe another tab?
         /// <summary>
         /// Default password format for customers
         /// </summary>
         public PasswordFormat DefaultPasswordFormat { get; set; } = PasswordFormat.Hashed;
 
         /// <summary>
-        /// Gets or sets a customer password format (SHA1, MD5) when passwords are hashed
+        /// Gets or sets a customer password format (SHA1, MD5) when passwords are hashed.
         /// </summary>
         public string HashedPasswordFormat { get; set; } = "SHA1";
 

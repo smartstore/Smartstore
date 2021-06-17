@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Smartstore.Admin.Models;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
@@ -25,9 +23,12 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling.DataGrid;
 using Smartstore.Web.Modelling.Settings;
-using Smartstore.Web.Models.Common;
-using Smartstore.Web.Rendering;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -37,23 +38,29 @@ namespace Smartstore.Admin.Controllers
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly StoreDependingSettingHelper _storeDependingSettingHelper;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly ICookieConsentManager _cookieManager;
         private readonly Lazy<IMediaTracker> _mediaTracker;
         private readonly Lazy<IMenuService> _menuService;
+        private readonly PrivacySettings _privacySettings;
 
         public SettingController(
             SmartDbContext db,
             ILocalizedEntityService localizedEntityService,
             StoreDependingSettingHelper storeDependingSettingHelper,
             IDateTimeHelper dateTimeHelper,
+            ICookieConsentManager cookieManager,
             Lazy<IMediaTracker> mediaTracker,
-            Lazy<IMenuService> menuService)
+            Lazy<IMenuService> menuService,
+            PrivacySettings privacySettings)
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
             _storeDependingSettingHelper = storeDependingSettingHelper;
             _dateTimeHelper = dateTimeHelper;
+            _cookieManager = cookieManager;
             _mediaTracker = mediaTracker;
             _menuService = menuService;
+            _privacySettings = privacySettings;
         }
 
         [LoadSetting(IsRootedModel = true)]
@@ -255,6 +262,259 @@ namespace Smartstore.Admin.Controllers
             await MapperFactory.MapAsync(model, catalogSettings);
 
             return NotifyAndRedirect("Catalog");
+        }
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting(IsRootedModel = true)]
+        public async Task<IActionResult> CustomerUser(
+            int storeScope,
+            CustomerSettings customerSettings, 
+            AddressSettings addressSettings,
+            PrivacySettings privacySettings)
+        {
+            var model = new CustomerUserSettingsModel();
+
+            await MapperFactory.MapAsync(customerSettings, model.CustomerSettings);
+            await MapperFactory.MapAsync(addressSettings, model.AddressSettings);
+            await MapperFactory.MapAsync(privacySettings, model.PrivacySettings);
+
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.Salutations = addressSettings.GetLocalizedSetting(x => x.Salutations, languageId, storeScope, false, false);
+            });
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting(IsRootedModel = true)]
+        public async Task<IActionResult> CustomerUser(
+            CustomerUserSettingsModel model, 
+            int storeScope, 
+            CustomerSettings customerSettings,
+            AddressSettings addressSettings,
+            PrivacySettings privacySettings)
+        {
+            var ignoreKey = $"{nameof(model.CustomerSettings)}.{nameof(model.CustomerSettings.RegisterCustomerRoleId)}";
+
+            foreach (var key in ModelState.Keys.Where(x => x.EqualsNoCase(ignoreKey)))
+            {
+                ModelState[key].Errors.Clear();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            ModelState.Clear();
+
+            await MapperFactory.MapAsync(model.CustomerSettings, customerSettings);
+            await MapperFactory.MapAsync(model.AddressSettings, addressSettings);
+            await MapperFactory.MapAsync(model.PrivacySettings, privacySettings);
+
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(addressSettings, x => x.Salutations, localized.Salutations, localized.LanguageId, storeScope);
+            }
+
+            await _db.SaveChangesAsync();
+
+            return NotifyAndRedirect("CustomerUser");
+        }
+
+        public async Task<IActionResult> CookieInfoList(GridCommand command)
+        {
+            var data = await _cookieManager.GetAllCookieInfosAsync();
+            var systemCookies = string.Join(",", data.Select(x => x.Name).ToArray());
+
+            if (_privacySettings.CookieInfos.HasValue())
+            {
+                data.AddRange(JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos)
+                    .OrderBy(x => x.CookieType)
+                    .ThenBy(x => x.Name));
+            }
+
+            // TODO: (mh) (core) Remove test cookie
+            systemCookies += " ,Test";
+            data.Add(new CookieInfo {
+                CookieType = CookieType.Required,
+                Name = "Test",
+                Description = "Test"
+            });
+
+            var gridModel = new GridModel<CookieInfoModel>
+            {
+                Rows = data
+                    .Select(x =>
+                    {
+                        return new CookieInfoModel
+                        {
+                            CookieType = x.CookieType,
+                            Name = x.Name,
+                            Description = x.Description,
+                            IsPluginInfo = systemCookies.Contains(x.Name),
+                            CookieTypeName = x.CookieType.ToString()
+                        };
+                    })
+                    .ToList(),
+                Total = data.Count
+            };
+
+            return Json(gridModel);
+        }
+
+        public async Task<IActionResult> CookieInfoDelete(GridSelection selection)
+        {
+            var numDeleted = 0;
+            
+            // First deserialize setting.
+            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+            foreach(var name in selection.SelectedKeys)
+            {
+                ciList.Remove(x => x.Name.EqualsNoCase(name));
+                numDeleted++;
+            }
+            
+            // Now serialize again.
+            _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
+
+            // Save setting.
+            await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos, 0);
+
+            return Json(new { Success = true, Count = numDeleted });
+        }
+
+        public IActionResult CookieInfoCreatePopup()
+        {
+            var model = new CookieInfoModel();
+
+            AddLocales(model.Locales);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CookieInfoCreatePopup(CookieInfoModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // Deserialize
+            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+
+            if (ciList == null)
+                ciList = new List<CookieInfo>();
+
+            var cookieInfo = ciList
+                .Select(x => x)
+                .Where(x => x.Name.EqualsNoCase(model.Name))
+                .FirstOrDefault();
+
+            if (cookieInfo != null)
+            {
+                // Remove item if it's already there.
+                ciList.Remove(x => x.Name.EqualsNoCase(cookieInfo.Name));
+            }
+
+            cookieInfo = new CookieInfo
+            {
+                // TODO: Use MiniMapper
+                CookieType = model.CookieType,
+                Name = model.Name,
+                Description = model.Description,
+                SelectedStoreIds = model.SelectedStoreIds
+            };
+
+            ciList.Add(cookieInfo);
+
+            // Serialize
+            _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
+
+            // Now apply & save again.
+            await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos, 0);
+
+            foreach (var localized in model.Locales)
+            {
+                // TODO: (mh) (core) Doesn't work.
+                //await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Name, localized.Name, localized.LanguageId);
+                //await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Description, localized.Description, localized.LanguageId);
+            }
+
+            await _db.SaveChangesAsync();
+
+            return View(model);
+        }
+
+        public IActionResult CookieInfoEditPopup(string name)
+        {
+            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+            var cookieInfo = ciList
+                .Select(x => x)
+                .Where(x => x.Name.EqualsNoCase(name))
+                .FirstOrDefault();
+
+            if (cookieInfo == null)
+            {
+                NotifyError(T("Admin.Configuration.Settings.CustomerUser.Privacy.Cookies.CookieInfoNotFound"));
+                return View(new CookieInfoModel());
+            }
+
+            var model = new CookieInfoModel
+            {
+                CookieType = cookieInfo.CookieType,
+                Name = cookieInfo.Name,
+                Description = cookieInfo.Description,
+                SelectedStoreIds = cookieInfo.SelectedStoreIds
+            };
+
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.Name = cookieInfo.GetLocalized(x => x.Name, languageId, false, false);
+                locale.Description = cookieInfo.GetLocalized(x => x.Description, languageId, false, false);
+            });
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CookieInfoEditPopup(CookieInfoModel model)
+        {
+            var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+            var cookieInfo = ciList
+                .Select(x => x)
+                .Where(x => x.Name.EqualsNoCase(model.Name))
+                .FirstOrDefault();
+
+            if (cookieInfo == null)
+            {
+                NotifyError(T("Admin.Configuration.Settings.CustomerUser.Privacy.Cookies.CookieInfoNotFound"));
+                return View(new CookieInfoModel());
+            }
+
+            if (ModelState.IsValid)
+            {
+                cookieInfo.Name = model.Name;
+                cookieInfo.Description = model.Description;
+                cookieInfo.CookieType = model.CookieType;
+                cookieInfo.SelectedStoreIds = model.SelectedStoreIds;
+
+                ciList.Remove(x => x.Name.EqualsNoCase(cookieInfo.Name));
+                ciList.Add(cookieInfo);
+
+                _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
+
+                await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos, 0);
+
+                foreach (var localized in model.Locales)
+                {
+                    // TODO: (mh) (core) Doesn't work.
+                    //await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Name, localized.Name, localized.LanguageId);
+                    //await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Description, localized.Description, localized.LanguageId);
+                }
+            }
+
+            return View(model);
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]

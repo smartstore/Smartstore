@@ -1,0 +1,60 @@
+﻿@model CookieInfoModel
+
+<datagrid id="cookie-infos-grid"
+          allow-resize="true"
+          allow-edit="true"
+          allow-column-reordering="true"
+          key-member="Name"
+          onrowclass="cookieInfos_onRowClass">
+    <datasource read="@Url.Action("CookieInfoList")" delete="@Url.Action("CookieInfoDelete")"/>
+    <sorting allow-unsort="true" allow-multisort="false"></sorting>
+    <toolbar>
+        <toolbar-group>
+            <button id="add-cookie-info-button" data-toggle="modal" class="btn btn-primary btn-flat no-anims mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Common.AddNew")...</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" />
+        <column for="Description" width="3fr" />
+        <column for="CookieTypeName" width="0.75fr" />
+        <column for="IsPluginInfo" width="0.75fr" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="edit-cookie-infos">@T("Common.Edit")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="cookieInfos-grid">
+    $(function () {
+        $("#add-cookie-info-button").on("click", function (e) {
+            openPopup('@(Url.Action("CookieInfoCreatePopup", "Setting"))', false);
+            return false;
+        });
+
+        // TODO: (mh) (core) Won't be called...
+        $('.edit-cookie-infos').on('click', function (e) {
+            e.preventDefault();
+
+			var tr = $(this).closest('tr');
+			var name = tr.data("key");
+			var href = '@Url.Action("CookieInfoEditPopup", "Setting")?name=' + name;
+
+			openPopup(href, false);
+
+			return false;
+		});
+    });
+
+    function cookieInfos_onRowClass(row) {
+        if (row.IsPluginInfo) {
+            // TODO: (mh) (core) How to turn off edit buttons on row level?
+            //$(e.row).find('.t-button').addClass("d-none");
+            return { 'text-muted': !!(row) };
+		}
+    }
+</script>

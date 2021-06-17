@@ -151,6 +151,45 @@ namespace Smartstore.Core.Data.Migrations
                 "File attachments",
                 "Dateianhänge");
 
+            builder.Delete("Admin.Configuration.Settings.CustomerUser.MinDigitsInPassword");
+            builder.Delete("Admin.Configuration.Settings.CustomerUser.MinSpecialCharsInPassword");
+            builder.Delete("Admin.Configuration.Settings.CustomerUser.MinUppercaseCharsInPassword");
+            builder.Delete("Admin.Configuration.Settings.CustomerUser.MinDigitsInPassword.Hint");
+            builder.Delete("Admin.Configuration.Settings.CustomerUser.MinSpecialCharsInPassword.Hint");
+            builder.Delete("Admin.Configuration.Settings.CustomerUser.MinUppercaseCharsInPassword.Hint");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequireDigit",
+                "Passwort erfordert Ziffer",
+                "Password requires digit",
+                "Specifies that passwords must contain at least one digit.",
+                "Legt fest, dass Passwörter mindestens eine Ziffer enthalten müssen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequireUppercase",
+                "Passwort erfordert Großbuchstaben",
+                "Password requires uppercase",
+                "Specifies that passwords must contain at least one uppercase letter.",
+                "Legt fest, dass Passwörter mindestens einen Großbuchstaben enthalten müssen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequireLowercase",
+                "Passwort erfordert Kleinbuchstaben",
+                "Password requires lowercase",
+                "Specifies that passwords must contain at least one lowercase letter.",
+                "Legt fest, dass Passwörter mindestens einen Kleinbuchstaben enthalten müssen.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequiredUniqueChars",
+                "Password requires unique chars",
+                "Passwort erfordert eindeutige Zeichen",
+                "Specifies the minimum number of unique characters which a password must contain.",
+                "Legt die Mindestanzahl der eindeutigen Zeichen fest, die ein Passwort enthalten muss.");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequireNonAlphanumeric",
+                "Password requires special characters",
+                "Passwort erfordert Sonderzeichen",
+                "Specifies that passwords must contain at least one non alphanumeric character.",
+                "Legt fest, dass Passwörter mindestens ein nicht alphanumerisches Zeichen enthalten müssen.");
+
+            builder.AddOrUpdate("Account.Fields.Password", "Password management", "Passwortverwaltung");
+            
             #endregion
         }
 
