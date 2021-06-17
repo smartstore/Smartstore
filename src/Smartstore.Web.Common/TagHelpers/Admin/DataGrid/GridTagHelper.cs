@@ -264,12 +264,12 @@ namespace Smartstore.Web.TagHelpers.Admin
                     output.Content.AppendHtml(displaySlot);
                 }
 
-                if (AllowEdit && !column.ReadOnly && (column.EditTemplate == null || column.EditTemplate.IsEmptyOrWhiteSpace))
+                if (AllowEdit && !column.ReadOnly)
                 {
                     var editorSlot = new TagBuilder("template");
                     editorSlot.Attributes["v-slot:edit-" + column.NormalizedMemberName] = "item";
 
-                    if (column.EditTemplate?.IsEmptyOrWhiteSpace == false)
+                    if (column.EditTemplate != null && !column.EditTemplate.IsEmptyOrWhiteSpace)
                     {
                         editorSlot.InnerHtml.AppendHtml(column.EditTemplate);
                     }
