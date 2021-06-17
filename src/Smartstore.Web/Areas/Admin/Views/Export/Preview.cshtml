@@ -1,14 +1,12 @@
 ﻿@model ExportPreviewModel
 
 @{
+    ViewBag.Title = T("Common.Export") + " - " + T("Admin.Common.Preview");
+
     var gridViewData = new ViewDataDictionary(ViewData);
     gridViewData["Parent"] = Model;
 
-    ViewBag.Title = T("Common.Export") + " - " + T("Admin.Common.Preview");
-
-    var entityType = Model.EntityType;
     string gridId = null;
-
     switch (Model.EntityType)
     {
         case ExportEntityType.Product:
