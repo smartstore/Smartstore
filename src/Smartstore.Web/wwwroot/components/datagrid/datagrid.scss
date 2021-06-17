@@ -224,10 +224,6 @@ $body-color: #393f46;
     position: relative;
     padding-left: 0.6rem;
     padding-right: 0.6rem;
-
-    &.disabled {
-        pointer-events: none;
-    }
 }
 
 .dg-toolbar-group {
@@ -253,6 +249,11 @@ $body-color: #393f46;
     right: 2px;
     top: 2px !important;
     font-size: 10px;
+}
+
+.dg-commands-dropdown .disabled,
+.dg-toolbar .btn.disabled {
+    pointer-events: none;
 }
 
 

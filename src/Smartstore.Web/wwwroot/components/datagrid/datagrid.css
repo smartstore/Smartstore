@@ -150,8 +150,6 @@ input.form-control-plaintext {
   position: relative;
   padding-left: 0.6rem;
   padding-right: 0.6rem; }
-  .dg-toolbar .btn.disabled {
-    pointer-events: none; }
 
 .dg-toolbar-group {
   position: relative;
@@ -173,6 +171,10 @@ input.form-control-plaintext {
   right: 2px;
   top: 2px !important;
   font-size: 10px; }
+
+.dg-commands-dropdown .disabled,
+.dg-toolbar .btn.disabled {
+  pointer-events: none; }
 
 .dg-search {
   position: absolute;
