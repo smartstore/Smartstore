@@ -6,6 +6,7 @@ using System.Text.Unicode;
 using Autofac;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -21,6 +22,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
 using Newtonsoft.Json;
+using NUglify.JavaScript;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Localization.Routing;
@@ -196,6 +198,22 @@ namespace Smartstore.Web
             // Replace BsonTempDataSerializer that was registered by AddNewtonsoftJson()
             // with our own serializer which is capable of serializing more stuff.
             services.AddSingleton<TempDataSerializer, SmartTempDataSerializer>();
+
+            var cssBundlingSettings = new CssBundlingSettings { Minify = false };
+            var codeBundlingSettings = new CodeBundlingSettings { Minify = false };
+            var codeSettings = new CodeSettings { IgnoreAllErrors = false, MinifyCode = false, ScriptVersion = ScriptVersion.EcmaScript6, EvalLiteralExpressions = false, AmdSupport = true };
+            codeSettings.IgnoreErrorCollection.Add("JS1010");
+
+            services.AddWebOptimizer((IWebHostEnvironment)appContext.HostEnvironment, cssBundlingSettings, codeBundlingSettings, p => {
+                var asset = p.AddJavaScriptBundle("/bundle/js/datagrid.js", 
+                    "components/datagrid/datagrid.js",
+                    "components/datagrid/datagrid-pager.js",
+                    "components/datagrid/datagrid-tools.js",
+                    "js/smartstore.editortemplates.js")
+                .Concatenate()
+                //.MinifyJavaScript(codeSettings)
+                .FingerprintUrls();
+            });
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
@@ -248,6 +266,8 @@ namespace Smartstore.Web
                 }
 
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
+                app.UseWebOptimizer();
             });
 
             builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
