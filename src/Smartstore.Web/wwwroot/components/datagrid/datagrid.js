@@ -288,14 +288,14 @@ Vue.component("sm-datagrid", {
                         :style="getTableStyles()">
                         <thead v-show="!options.hideHeader" class="dg-thead" ref="tableHeader">
                             <tr ref="tableHeaderRow" class="dg-tr">
-                                <th v-if="allowRowSelection" class="dg-th dg-col-pinned alpha">
-                                    <label class="dg-cell dg-cell-header dg-cell-selector">
+                                <th v-if="allowRowSelection || hasDetailView" class="dg-th dg-col-selector dg-col-pinned alpha">
+
+                                    <label v-if="allowRowSelection" class="dg-cell dg-cell-header dg-cell-selector ml-auto">
                                         <span class="dg-cell-value">
                                             <input type="checkbox" class="dg-cell-selector-checkbox" ref="masterSelector" @change="onSelectAllRows($event)" />
                                         </span>
                                     </label>
                                 </th>            
-                                <th v-if="hasDetailView" class="dg-th dg-col-pinned alpha">&nbsp;</th> 
 
                                 <th v-for="(column, columnIndex) in columns" 
                                     class="dg-th dg-th-column"
@@ -325,7 +325,7 @@ Vue.component("sm-datagrid", {
                                         v-on:dblclick.stop.prevent="autoSizeColumn($event, column, columnIndex)">
                                     </div>
                                 </th> 
-                                <th class="dg-th">
+                                <th class="dg-th dg-hborder-0">
                                     <div class="dg-cell dg-cell-header dg-cell-spacer">&nbsp;</div>
                                 </th>
                                 <th v-if="canEditRow || hasRowCommands" class="dg-th dg-col-pinned omega">&nbsp;</th> 
@@ -341,18 +341,16 @@ Vue.component("sm-datagrid", {
                             <template v-for="(row, rowIndex) in rows">
                                 <tr class="dg-tr" :class="getDataRowClass(row, rowIndex)" :data-key="row[options.keyMemberName]" :key="'row-' + row[options.keyMemberName]">
 
-                                    <td v-if="allowRowSelection" class="dg-td dg-col-pinned alpha">
-                                        <label class="dg-cell dg-cell-selector">
+                                    <td v-if="allowRowSelection || hasDetailView" class="dg-td dg-col-selector dg-col-pinned alpha">
+                                        <div v-if="hasDetailView" class="dg-cell dg-cell-detail-toggle" :class="{ 'expanded': getRowDetailState(row) === true }" @click="toggleDetailView(row)">
+                                            <i class="fa fa-chevron-right fa-sm"></i>
+                                        </div>
+                                        <label v-if="allowRowSelection" class="dg-cell dg-cell-selector">
                                             <span v-if="!isInlineEditRow(row) || !editing.insertMode" class="dg-cell-value">
                                                 <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" @change="onSelectRow($event, row)" />
                                             </span>
                                         </label>
                                     </td>
-                                    <td v-if="hasDetailView" class="dg-td dg-td-detail dg-col-pinned alpha">
-                                        <div class="dg-cell dg-cell-detail-toggle justify-content-center px-2" @click="toggleDetailView(row)">
-                                            <i class="fa fa-chevron-right fa-sm" :class="{ 'fa-rotate-90': getRowDetailState(row) === true }"></i>
-                                        </div>
-                                    </td> 
 
                                     <td v-for="(column, columnIndex) in columns"
                                         class="dg-td"
@@ -378,7 +376,7 @@ Vue.component("sm-datagrid", {
                                         </div>
 
                                     </td>
-                                    <td class="dg-td">
+                                    <td class="dg-td dg-hborder-0">
                                         <div class="dg-cell dg-cell-spacer"></div>
                                     </td>
                                     <td v-if="canEditRow || hasRowCommands" class="dg-td dg-col-pinned omega">
@@ -780,6 +778,9 @@ Vue.component("sm-datagrid", {
                 'dg-table': true,
                 'dg-striped': this.options.striped,
                 'dg-hover': this.options.hover,
+                'dg-hborders': this.options.hborders,
+                'dg-vborders': this.options.vborders,
+                'dg-has-detailview': this.hasDetailView,
                 'dg-scrollable': this.isScrollable
             };
 
@@ -788,10 +789,6 @@ Vue.component("sm-datagrid", {
 
         getTableStyles() {
             const style = { 'grid-template-columns': this.getGridTemplateColumns() };
-
-            style['row-gap'] = this.options.vborders ? "1px" : "0";
-            style['column-gap'] = this.options.hborders ? "1px" : "0";
-
             return style;
         },
 
@@ -799,6 +796,7 @@ Vue.component("sm-datagrid", {
             const cssClass = {
                 'active': this.isRowSelected(row),
                 'even': (rowIndex + 1) % 2 === 0,
+                'expanded': this.getRowDetailState(row) === true,
                 'dg-edit-row': this.isInlineEditRow(row)
             };
 
@@ -864,12 +862,8 @@ Vue.component("sm-datagrid", {
                     return w;
                 });
 
-            if (this.hasDetailView) {
-                result.splice(0, 0, "max-content");
-            }
-
-            if (this.allowRowSelection) {
-                result.splice(0, 0, "48px");
+            if (this.allowRowSelection || this.hasDetailView) {
+                result.splice(0, 0, "minmax(max-content, 48px)");
             }
 
             // Spacer always 'auto' to fill remaining area

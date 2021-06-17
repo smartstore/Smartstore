@@ -113,14 +113,15 @@
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
     <detail-view>
-        <div class="form-group pb-2">
-            <label>Name:</label>
-            <div>{{ item.row.Name }}</div>
-        </div>
-        <div class="form-group">
-            <label>Preis:</label>
-            <div>{{ item.row.Price }}</div>
-        </div>
+        @*<div class="datagrid-root">
+            <sm-datagrid 
+                :options="{ keyMemberName: 'Id', vborders: true, hover: true, striped: true }" 
+                :data-source="{ read: '@Url.Action("ProductList")' }" 
+                :columns="[ { member: 'Name', name: 'Name', title: 'Name', visible: true } ]" 
+                :paging="{ enabled: true, pageSize: 5, pageIndex: 20 }" 
+                :sorting="{ enabled: true, descriptors: [] }">
+            </sm-datagrid>
+        </div>*@
     </detail-view>
 </datagrid>
 
