@@ -293,7 +293,6 @@ namespace Smartstore.Core.DataExchange.Export
 
             switch (ctx.Request.Provider.Value.EntityType)
             {
-                // INFO: (mg) (core) Any LINQ extension method with async body must be called asynchronously via Dasyn or our own async counterparts.
                 case ExportEntityType.Product:
                     await data.Cast<Product>().EachAsync(async x => result.Data.Add(await ToDynamic(x, ctx)));
                     break;
@@ -671,6 +670,8 @@ namespace Smartstore.Core.DataExchange.Export
             var activityTo = f.LastActivityTo.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.LastActivityTo.Value, timeZone) : null;
             IQueryable<BaseEntity> result = null;
 
+            // TODO: (mg) (core) check and test ALL export filters.
+            // Sometimes no data loaded. Difference to what preview grid in classic shows. Sometimes inconsistent paging in preview grid.
             if (entityType == ExportEntityType.Product)
             {
                 if (ctx.Request.ProductQuery != null)
@@ -742,7 +743,6 @@ namespace Smartstore.Core.DataExchange.Export
             else if (entityType == ExportEntityType.Customer)
             {
                 var query = _db.Customers
-                    .AsNoTracking()
                     .Include(x => x.BillingAddress)
                     .Include(x => x.ShippingAddress)
                     .Include(x => x.Addresses)
@@ -751,7 +751,8 @@ namespace Smartstore.Core.DataExchange.Export
                         .ThenInclude(x => x.StateProvince)
                     .Include(x => x.CustomerRoleMappings)
                         .ThenInclude(x => x.CustomerRole)
-                    .AsQueryable();
+                    .AsNoTracking()
+                    .AsNoCaching();
 
                 if (f.IsActiveCustomer.HasValue)
                     query = query.Where(x => x.Active == f.IsActiveCustomer.Value);
@@ -759,8 +760,10 @@ namespace Smartstore.Core.DataExchange.Export
                 if (f.IsTaxExempt.HasValue)
                     query = query.Where(x => x.IsTaxExempt == f.IsTaxExempt.Value);
 
-                if (f.CustomerRoleIds?.Any() ?? false)
-                    query = query.Where(x => x.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
+                // TODO: (mg) (core) exception in customer export query.
+                //System.ArgumentException: Expression of type 'System.Linq.IQueryable`1[System.Int32]' cannot be used for parameter of type 'System.Linq.IQueryable`1[....CustomerRoleMapping]'
+                //if (f.CustomerRoleIds?.Any() ?? false)
+                //    query = query.Where(x => x.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
 
                 if (f.BillingCountryIds?.Any() ?? false)
                     query = query.Where(x => x.BillingAddress != null && f.BillingCountryIds.Contains(x.BillingAddress.Id));
@@ -836,15 +839,15 @@ namespace Smartstore.Core.DataExchange.Export
             }
             else if (entityType == ExportEntityType.ShoppingCartItem)
             {
-                // TODO: (mg) (core) Always 0 records because EntityTypeConfiguration of navigation properties is commented out!!
-                // RE: Uncommented again. Please test.
+                // TODO: (mg) (core) inconsistent paging in cart item preview grid.
                 var query = _db.ShoppingCartItems
-                    .AsNoTracking()
                     .Include(x => x.Customer)
                     .ThenInclude(x => x.CustomerRoleMappings)
                     .ThenInclude(x => x.CustomerRole)
                     .Include(x => x.Product)
-                    .AsQueryable();
+                    .AsNoTracking()
+                    .AsNoCaching()
+                    .Where(x => x.Customer != null);
 
                 if (storeId > 0)
                     query = query.Where(x => x.StoreId == storeId);

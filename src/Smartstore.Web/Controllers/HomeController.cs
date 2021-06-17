@@ -52,6 +52,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
+using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine;
 using Smartstore.Events;
@@ -939,6 +940,21 @@ namespace Smartstore.Web.Controllers
             var customer = await _db.Customers.FindByIdAsync(2666330, false);
             //var product = await _db.Products.FindByIdAsync(1751, false);
             //var cart = await scs.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+
+            var query = _db.ShoppingCartItems
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole)
+                .Include(x => x.Product)
+                .AsNoTracking()
+                .AsNoCaching()
+                .Where(x => x.Customer != null && x.BundleItemId == null)
+                .OrderBy(x => x.Id);
+
+            var cartItems = await query.ToListAsync();
+            var firstItem = cartItems.First();
+            content.AppendLine($"Nav test cart items: product {firstItem.Product != null}, customer {firstItem.Customer != null}");
+
 
             var dt = DateTime.UtcNow.Subtract(TimeSpan.FromHours(4));
             var dtConverted = Services.DateTimeHelper.ConvertToUserTime(dt, DateTimeKind.Utc);

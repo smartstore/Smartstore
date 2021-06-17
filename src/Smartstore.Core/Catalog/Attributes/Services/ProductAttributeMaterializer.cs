@@ -314,6 +314,8 @@ namespace Smartstore.Core.Catalog.Attributes
 
         public virtual async Task<ProductVariantAttributeCombination> MergeWithCombinationAsync(Product product, ProductVariantAttributeSelection selection)
         {
+            Guard.NotNull(product, nameof(product));
+
             var combination = await FindAttributeCombinationAsync(product.Id, selection);
 
             if (combination != null && combination.IsActive)
