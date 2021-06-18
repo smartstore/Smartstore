@@ -337,6 +337,19 @@
         return result;
     }
 
+    g.formatDate = function (value, format) {
+        format = format || g.culture.dateTimeFormat.patterns.G;
+
+        if (format.length === 1) {
+            // Maybe pattern shortcut, like "G", "F", "d" etc.
+            let patterns = g.culture.dateTimeFormat.patterns;
+            format = patterns[format] || format;
+        }
+
+        let momentFormat = g.convertDatePatternToMomentFormat(format);
+        return moment(value).format(momentFormat);
+    }
+
     // formatNumber
     var formatNumber;
     (function () {
@@ -429,33 +442,48 @@
 
             var current = format.charAt(0).toUpperCase(),
                 formatInfo,
-                patterns = g.patterns.numeric;
+                patterns;
 
-            switch (current) {
-                case "D":
-                    pattern = "n";
-                    number = truncate(number);
-                    if (precision !== -1) {
-                        number = zeroPad("" + number, precision, true);
-                    }
-                    if (value < 0) number = "-" + number;
-                    break;
-                case "N":
-                    formatInfo = nf;
-                /* falls through */
-                case "C":
-                    formatInfo = formatInfo || nf.currency;
-                    patterns = g.patterns.currency;
-                /* falls through */
-                case "P":
-                    formatInfo = formatInfo || nf.percent;
-                    patterns = g.patterns.percent;
-                    pattern = value < 0 ? patterns.negative[formatInfo.pattern[0]] : (patterns.positive[formatInfo.pattern[1]] || "n");
-                    if (precision === -1) precision = formatInfo.decimals;
-                    number = expandNumber(number * (current === "P" ? 100 : 1), precision, formatInfo);
-                    break;
-                default:
-                    throw "Bad number format specifier: " + current;
+            if (current == "N" || current == "D") {
+                formatInfo = nf;
+                patterns = g.patterns.numeric;
+            }
+
+            if (current == "D") {
+                pattern = "n";
+                number = truncate(number);
+                if (precision !== -1) {
+                    number = zeroPad("" + number, precision, true);
+                }
+                if (value < 0) number = "-" + number;
+            }
+            else if (current == "C") {
+                formatInfo = nf.currency;
+                patterns = g.patterns.currency;
+            }
+            else if (current == "P") {
+                formatInfo = nf.percent;
+                patterns = g.patterns.percent;
+            }
+
+            if (!formatInfo || !patterns) {
+                throw "Bad number format specifier: " + current;
+            }
+
+            if (!pattern) {
+                if (value < 0 && patterns.negative) {
+                    pattern = patterns.negative[formatInfo.pattern[0]];
+                }
+                else if (value >= 0 && patterns.positive) {
+                    pattern = patterns.positive[formatInfo.pattern[1]];
+                }
+            }
+
+            pattern = pattern || "n";
+
+            if (current != "D") {
+                if (precision === -1) precision = formatInfo.decimals;
+                number = expandNumber(number * (current === "P" ? 100 : 1), precision, formatInfo);
             }
 
             var patternParts = /n|\$|-|%/g,

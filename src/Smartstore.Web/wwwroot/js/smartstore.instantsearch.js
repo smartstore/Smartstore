@@ -10,7 +10,7 @@
             return;
 
         var searchResult,
-            minLength = searchBox.data("minlength"),
+            minLength = searchBox.data("minlength"), 
             //showThumbs = searchBox.data("showthumbs"),
             url = searchBox.data("url");
 

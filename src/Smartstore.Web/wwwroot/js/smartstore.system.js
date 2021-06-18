@@ -33,13 +33,52 @@
         window.document.documentElement.classList.add("touchevents");
     }
 
-    var formatRe = /\{(\d+)\}/g;
-
     String.prototype.format = function () {
+        function getType(o) {
+            const t = typeof o;
+
+            if (t === "number" || t === "boolean") {
+                return t;
+            }
+            if (o instanceof Date) {
+                return "date";
+            }
+            if (isNaN(o) && !isNaN(Date.parse(o))) {
+                return "date";
+            }
+            return null;
+        }
+
+        let g = Smartstore.globalization;
         let s = this, args = arguments;
-        return s.replace(formatRe, function(m, i) {
-            return args[i];
-        });
+
+        for (var i = 0, len = args.length; i < len; i++) {
+            let rg = new RegExp("\\{" + i + "(:([^\\}]+))?\\}", "gm");
+            let arg = args[i];
+            let type = getType(arg), formatter;
+
+            if (g) {
+                if (type === "number") {
+                    formatter = g.formatNumber;
+                }
+                else if (type === "date") {
+                    formatter = g.formatDate;
+                }
+
+                if (formatter) {
+                    let match = rg.exec(s);
+                    if (match) {
+                        arg = formatter(arg, match[2]);
+                    }
+                }
+            }
+
+            s = s.replace(rg, function () {
+                return arg;
+            });
+        }
+
+        return s;
     };
 
     // define noop funcs for window.console in order

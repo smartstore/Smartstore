@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using NUglify.JavaScript;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
@@ -62,6 +63,8 @@ namespace Smartstore.Web.Bundling
                     asset.UseFileProvider(fileProvider);
                 }
             });
+
+            services.AddTransient<IConfigureOptions<WebOptimizerOptions>, BundlingConfigurer>();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
