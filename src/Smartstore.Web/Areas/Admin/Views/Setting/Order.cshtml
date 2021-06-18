@@ -42,9 +42,7 @@
                         <smart-label asp-for="OrderTotalMinimum" />
                     </div>
                     <div class="adminData">
-                        @*TODO: (mh) (core) Postfix is missing*@
-                        @*@Html.SettingEditorFor(model => model.OrderTotalMinimum, null, new { postfix = Model.PrimaryStoreCurrencyCode })*@
-                        <setting-editor asp-for="OrderTotalMinimum"></setting-editor>
+                        <setting-editor asp-for="OrderTotalMinimum" sm-postfix="@Model.PrimaryStoreCurrencyCode"></setting-editor>
                         <span asp-validation-for="OrderTotalMinimum"></span>
                     </div>
                 </div>
@@ -53,9 +51,7 @@
                         <smart-label asp-for="OrderTotalMaximum" />
                     </div>
                     <div class="adminData">
-                        @*TODO: (mh) (core) Postfix is missing*@
-                        @*@Html.SettingEditorFor(model => model.OrderTotalMaximum, null, new { postfix = Model.PrimaryStoreCurrencyCode })*@
-                        <setting-editor asp-for="OrderTotalMaximum"></setting-editor>
+                        <setting-editor asp-for="OrderTotalMaximum" sm-postfix="@Model.PrimaryStoreCurrencyCode"></setting-editor>
                         <span asp-validation-for="OrderTotalMaximum"></span>
                     </div>
                 </div>
@@ -169,9 +165,7 @@
                         <smart-label asp-for="NumberOfDaysReturnRequestAvailable" />
                     </div>
                     <div class="adminData">
-                        @*TODO: (mh) (core) Postfix is missing*@
-                        @*@Html.SettingEditorFor(model => model.NumberOfDaysReturnRequestAvailable, null, new { postfix = T("Time.Days").Text })*@
-                        <setting-editor asp-for="NumberOfDaysReturnRequestAvailable"></setting-editor>
+                        <setting-editor asp-for="NumberOfDaysReturnRequestAvailable" sm-postfix="@T("Time.Days")"></setting-editor>
                         <span asp-validation-for="NumberOfDaysReturnRequestAvailable"></span>
                     </div>
                 </div>

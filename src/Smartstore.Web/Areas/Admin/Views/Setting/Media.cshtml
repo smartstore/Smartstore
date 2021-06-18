@@ -57,9 +57,7 @@
                 <smart-label asp-for="MaxUploadFileSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.MaxUploadFileSize, null, new { postfix = "KB" })*@
-                <setting-editor asp-for="MaxUploadFileSize"></setting-editor>
+                <setting-editor asp-for="MaxUploadFileSize" sm-postfix="KB"></setting-editor>
                 <span asp-validation-for="MaxUploadFileSize"></span>
             </div>
         </div>
@@ -68,9 +66,7 @@
                 <smart-label asp-for="MaximumImageSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.MaximumImageSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="MaximumImageSize"></setting-editor>
+                <setting-editor asp-for="MaximumImageSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="MaximumImageSize"></span>
             </div>
         </div>
@@ -86,9 +82,7 @@
                 <smart-label asp-for="ProductThumbPictureSizeOnProductDetailsPage" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.ProductThumbPictureSizeOnProductDetailsPage, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="ProductThumbPictureSizeOnProductDetailsPage"></setting-editor>
+                <setting-editor asp-for="ProductThumbPictureSizeOnProductDetailsPage" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="ProductThumbPictureSizeOnProductDetailsPage"></span>
             </div>
         </div>
@@ -97,9 +91,7 @@
                 <smart-label asp-for="ProductThumbPictureSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.ProductThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="ProductThumbPictureSize"></setting-editor>
+                <setting-editor asp-for="ProductThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="ProductThumbPictureSize"></span>
             </div>
         </div>
@@ -108,9 +100,7 @@
                 <smart-label asp-for="ProductDetailsPictureSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.ProductDetailsPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="ProductDetailsPictureSize"></setting-editor>
+                <setting-editor asp-for="ProductDetailsPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="ProductDetailsPictureSize"></span>
             </div>
         </div>
@@ -119,9 +109,7 @@
                 <smart-label asp-for="AssociatedProductPictureSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.AssociatedProductPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="AssociatedProductPictureSize"></setting-editor>
+                <setting-editor asp-for="AssociatedProductPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="AssociatedProductPictureSize"></span>
             </div>
         </div>
@@ -130,9 +118,7 @@
                 <smart-label asp-for="BundledProductPictureSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.BundledProductPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="BundledProductPictureSize"></setting-editor>
+                <setting-editor asp-for="BundledProductPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="BundledProductPictureSize"></span>
             </div>
         </div>
@@ -141,9 +127,7 @@
                 <smart-label asp-for="MessageProductThumbPictureSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.MessageProductThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="MessageProductThumbPictureSize"></setting-editor>
+                <setting-editor asp-for="MessageProductThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="MessageProductThumbPictureSize"></span>
             </div>
         </div>
@@ -152,9 +136,7 @@
                 <smart-label asp-for="CategoryThumbPictureSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.CategoryThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="CategoryThumbPictureSize"></setting-editor>
+                <setting-editor asp-for="CategoryThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="CategoryThumbPictureSize"></span>
             </div>
         </div>
@@ -163,9 +145,7 @@
                 <smart-label asp-for="ManufacturerThumbPictureSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.ManufacturerThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="ManufacturerThumbPictureSize"></setting-editor>
+                <setting-editor asp-for="ManufacturerThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="ManufacturerThumbPictureSize"></span>
             </div>
         </div>
@@ -174,9 +154,7 @@
                 <smart-label asp-for="CartThumbPictureSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.CartThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="CartThumbPictureSize"></setting-editor>
+                <setting-editor asp-for="CartThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="CartThumbPictureSize"></span>
             </div>
         </div>
@@ -185,9 +163,7 @@
                 <smart-label asp-for="CartThumbBundleItemPictureSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.CartThumbBundleItemPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="CartThumbBundleItemPictureSize"></setting-editor>
+                <setting-editor asp-for="CartThumbBundleItemPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="CartThumbBundleItemPictureSize"></span>
             </div>
         </div>
@@ -196,9 +172,7 @@
                 <smart-label asp-for="MiniCartThumbPictureSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.MiniCartThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="MiniCartThumbPictureSize"></setting-editor>
+                <setting-editor asp-for="MiniCartThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="MiniCartThumbPictureSize"></span>
             </div>
         </div>
@@ -207,9 +181,7 @@
                 <smart-label asp-for="AvatarPictureSize" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.AvatarPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
-                <setting-editor asp-for="AvatarPictureSize"></setting-editor>
+                <setting-editor asp-for="AvatarPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
                 <span asp-validation-for="AvatarPictureSize"></span>
             </div>
         </div>

@@ -39,9 +39,7 @@
                     <smart-label asp-for="FreeShippingOverXValue" />
                 </div>
                 <div class="adminData">
-                    @*TODO: (mh) (core) postfix is missing*@
-                    @*@Html.SettingEditorFor(model => model.FreeShippingOverXValue, null, new { postfix = Model.PrimaryStoreCurrencyCode })*@
-                    <setting-editor asp-for="FreeShippingOverXValue"></setting-editor>
+                    <setting-editor asp-for="FreeShippingOverXValue" sm-postfix="@Model.PrimaryStoreCurrencyCode"></setting-editor>
                     <span asp-validation-for="FreeShippingOverXValue"></span>
                 </div>
             </div>

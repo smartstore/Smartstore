@@ -53,12 +53,7 @@
                 <smart-label asp-for="ImageDownloadTimeout" />
             </div>
             <div class="adminData">
-                @*TODO: (mh) (core) Postfix is missing*@
-                @*@Html.SettingEditorFor(model => model.ImageDownloadTimeout, null, new { postfix = T("Time.Minutes").Text })*@
-                <setting-editor asp-for="ImageDownloadTimeout">
-                    @* INFO: (mh) (core) We could do it this way also. Hmmm...?? *@
-                    <editor asp-for="ImageDownloadTimeout" sm-postfix="@T("Time.Minutes")" />
-                </setting-editor>
+                <setting-editor asp-for="ImageDownloadTimeout" sm-postfix="@T("Time.Minutes")"></setting-editor>
                 <span asp-validation-for="ImageDownloadTimeout"></span>
             </div>
         </div>

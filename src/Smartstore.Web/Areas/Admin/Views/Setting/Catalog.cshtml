@@ -273,9 +273,7 @@
                         <smart-label asp-for="HtmlTextCollapsedHeight" />
                     </div>
                     <div class="adminData">
-                        @*TODO: (mh) (core) Postfix is missing*@
-                        @*@Html.SettingEditorFor(model => model.HtmlTextCollapsedHeight, null, new { postfix = T("Common.Pixel").Text })*@
-                        <setting-editor asp-for="HtmlTextCollapsedHeight"></setting-editor>
+                        <setting-editor asp-for="HtmlTextCollapsedHeight" sm-postfix="@T("Common.Pixel")"></setting-editor>
                         <span asp-validation-for="HtmlTextCollapsedHeight"></span>
                     </div>
                 </div>
@@ -529,9 +527,7 @@
                         <smart-label asp-for="LabelAsNewForMaxDays" />
                     </div>
                     <div class="adminData">
-                        @*TODO: (mh) (core) Postfix is missing*@
-                        @*@Html.SettingEditorFor(model => model.LabelAsNewForMaxDays, null, new { postfix = T("Time.Days").Text })*@
-                        <setting-editor asp-for="LabelAsNewForMaxDays"></setting-editor>
+                        <setting-editor asp-for="LabelAsNewForMaxDays" sm-postfix="@T("Time.Days")"></setting-editor>
                         <span asp-validation-for="LabelAsNewForMaxDays"></span>
                     </div>
                 </div>

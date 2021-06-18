@@ -15,7 +15,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string EditorTagName = "setting-editor";
         const string TemplateAttributeName = "asp-template";
         const string ParentSelectorAttributeName = "parent-selector";
-        
+        const string PostfixAttributeName = "sm-postfix";
+
         /// <summary>
         /// Specifies the editor template which will be used to render the field.
         /// </summary>
@@ -28,6 +29,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(ParentSelectorAttributeName)]
         public string ParentSelector { get; set; }
 
+        /// <summary>
+        /// The text which will be displayed inside the input tag as a post fix.
+        /// </summary>
+        [HtmlAttributeName(PostfixAttributeName)]
+        public string Postfix { get; set; }
+
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             ProcessCoreAsync(context, output).Await();
@@ -38,7 +45,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             var content = await output.GetChildContentAsync();
             if (content.IsEmptyOrWhiteSpace)
             {
-                output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template));
+                output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, new { postfix = Postfix }));
             }
 
             var data = HtmlHelper.ViewData[StoreDependingSettingHelper.ViewDataKey] as StoreDependingSettingData;
