@@ -43,9 +43,7 @@
             <smart-label asp-for="Name" />
         </div>
         <div class="adminData">
-            <div class="form-control-plaintext">
-                @Model.Name
-            </div>
+            <input asp-for="Name" sm-plaintext="true" />
             <span asp-validation-for="Name"></span>
         </div>
     </div>
@@ -160,7 +158,8 @@
 </div>
 
 <script sm-target-zone="scripts" data-origin="ExportDeployment">
-	$(function() {
+    $(function () {
+        // TODO: (mg) (core) Where is selectWrapper and selectDeploymentType()?
         // Toggle deployment type.
         $('#@Html.IdFor(x => x.DeploymentType)').on('change', function () {
             var type = $(this).val();
