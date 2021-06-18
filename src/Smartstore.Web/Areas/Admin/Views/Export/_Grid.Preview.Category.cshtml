@@ -4,7 +4,7 @@
 	var parentModel = ViewData["Parent"] as ExportPreviewModel;
 }
 
-<datagrid id="categories-preview-grid" 
+<datagrid id="category-preview-grid" 
 		allow-resize="true" 
 		allow-column-reordering="true" 
 		allow-row-selection="true" 
@@ -12,16 +12,14 @@
 	<datasource read="@Url.Action("PreviewList", new { id = parentModel.Id })" />
 	<paging position="Bottom" show-size-chooser="true" />
 	<toolbar>
-        <toolbar-group class="border-right-0 mr-0 pr-0">
-            <button type="button" id="ExportSelected" class="btn btn-light btn-flat" v-bind:class="{ disabled: !grid.hasSelection }">
-				<i class="far fa-upload"></i>
-				<span>@T("Admin.Common.ExportSelected")</span>
-            </button>
-            <button type="button" id="ExportAll" class="btn btn-light btn-flat">
-				<i class="far fa-upload"></i>
-				<span>@T("Admin.Common.ExportAll")</span>
-            </button>
-        </toolbar-group>
+        <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" id="ExportSelected" class="btn btn-light btn-flat">
+			<i class="far fa-upload"></i>
+			<span>@T("Admin.Common.ExportSelected")</span>
+        </button>
+        <button type="button" id="ExportAll" class="btn btn-light btn-flat" v-bind:class="{ disabled: grid.rows.length == 0 }">
+			<i class="far fa-upload"></i>
+			<span>@T("Admin.Common.ExportAll")</span>
+        </button>
 	</toolbar>
 	<columns>
 		<column for="Id" halign="center" />

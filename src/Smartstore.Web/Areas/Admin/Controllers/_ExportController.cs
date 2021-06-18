@@ -677,6 +677,30 @@ namespace Smartstore.Admin.Controllers
         // TODO: (mg) (core) add ViewComponent for former child-action "InfoProfile".
         // TODO: (mg) (core) implement action methods for Deployment.
 
+        #region Deloyment
+
+        [Permission(Permissions.Configuration.Export.Update)]
+        public async Task<IActionResult> CreateDeployment(int id)
+        {
+            var (profile, provider) = await LoadProfileAndProvider(id);
+            if (profile == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            var model = await CreateDeploymentModel(profile, new ExportDeployment
+            {
+                ProfileId = id,
+                Enabled = true,
+                DeploymentType = ExportDeploymentType.FileSystem,
+                Name = profile.Name
+            }, provider, true);
+
+            return View(model);
+        }
+
+        #endregion
+
         #region Utilities
 
         private async Task PrepareProfileModel(
@@ -912,8 +936,7 @@ namespace Smartstore.Admin.Controllers
             {
                 model.CreateZip = profile.CreateZipArchive;
 
-                ViewBag.DeploymentTypes = ExportDeploymentType.FileSystem.ToSelectList(false).ToList();
-                ViewBag.HttpTransmissionTypes = ExportHttpTransmissionType.SimplePost.ToSelectList(false).ToList();
+                ViewBag.DeploymentTypeIconClasses = DeploymentTypeIconClasses;
 
                 if (ViewBag.EmailAccounts == null)
                 {

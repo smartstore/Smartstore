@@ -671,7 +671,8 @@ namespace Smartstore.Core.DataExchange.Export
             IQueryable<BaseEntity> result = null;
 
             // TODO: (mg) (core) check and test ALL export filters.
-            // Sometimes no data loaded. Difference to what preview grid in classic shows. Sometimes inconsistent paging in preview grid.
+            // Sometimes no data loaded. Difference to what preview grid in classic shows. Sometimes inconsistent paging in preview grid ("holes").
+            // Always ignore any caching here (use AsNoCaching()).
             if (entityType == ExportEntityType.Product)
             {
                 if (ctx.Request.ProductQuery != null)
@@ -760,10 +761,10 @@ namespace Smartstore.Core.DataExchange.Export
                 if (f.IsTaxExempt.HasValue)
                     query = query.Where(x => x.IsTaxExempt == f.IsTaxExempt.Value);
 
-                // TODO: (mg) (core) exception in customer export query.
+                // TODO: (mg) (core) data exporter exception when applying customer role filter.
                 //System.ArgumentException: Expression of type 'System.Linq.IQueryable`1[System.Int32]' cannot be used for parameter of type 'System.Linq.IQueryable`1[....CustomerRoleMapping]'
-                //if (f.CustomerRoleIds?.Any() ?? false)
-                //    query = query.Where(x => x.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
+                if (f.CustomerRoleIds?.Any() ?? false)
+                    query = query.Where(x => x.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
 
                 if (f.BillingCountryIds?.Any() ?? false)
                     query = query.Where(x => x.BillingAddress != null && f.BillingCountryIds.Contains(x.BillingAddress.Id));
@@ -832,6 +833,7 @@ namespace Smartstore.Core.DataExchange.Export
                 if (createdTo.HasValue)
                     query = query.Where(x => createdTo >= x.Subscription.CreatedOnUtc);
 
+                // TODO: (mg) (core) data exporter exception when applying customer role filter.
                 if (f.CustomerRoleIds?.Any() ?? false)
                     query = query.Where(x => x.Customer.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
 
@@ -871,6 +873,7 @@ namespace Smartstore.Core.DataExchange.Export
                 if (f.IsTaxExempt.HasValue)
                     query = query.Where(x => x.Customer.IsTaxExempt == f.IsTaxExempt.Value);
 
+                // TODO: (mg) (core) data exporter exception when applying customer role filter.
                 if (f.CustomerRoleIds?.Any() ?? false)
                     query = query.Where(x => x.Customer.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
 

@@ -4,7 +4,7 @@
 	var parentModel = ViewData["Parent"] as ExportPreviewModel;
 }
 
-<datagrid id="products-preview-grid" 
+<datagrid id="product-preview-grid" 
 		allow-resize="true" 
 		allow-column-reordering="true" 
 		allow-row-selection="true" 
@@ -12,7 +12,6 @@
 	<datasource read="@Url.Action("PreviewList", new { id = parentModel.Id })" />
 	<paging position="Bottom" show-size-chooser="true" />
 	<toolbar>
-		@* TODO: (mg) (core) Apply changes to other grids also *@
         <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" id="ExportSelected" class="btn btn-light btn-flat">
 			<i class="far fa-upload"></i>
 			<span>@T("Admin.Common.ExportSelected")</span>

@@ -154,6 +154,7 @@ namespace Smartstore.Admin.Models.Export
         public string StoreName { get; set; }
     }
 
+    [LocalizedDisplay("Admin.Catalog.Products.Fields.")]
     public class ExportPreviewShoppingCartItemModel : ExportPreviewProductModel
     {
         [LocalizedDisplay("Admin.DataExchange.Export.Filter.ShoppingCartTypeId")]

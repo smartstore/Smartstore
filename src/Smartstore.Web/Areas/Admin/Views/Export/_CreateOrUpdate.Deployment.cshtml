@@ -1,0 +1,175 @@
+﻿@model ExportDeploymentModel
+
+@{
+    var deploymentTypes = Html.GetLocalizedEnumSelectList(typeof(ExportDeploymentType));
+    var deploymentTypeIconClasses = (IReadOnlyDictionary<ExportDeploymentType, string>)ViewBag.DeploymentTypeIconClasses;
+    // Backward compatibility. Numeric values, not strings!
+    var fileSystemType = (int)ExportDeploymentType.FileSystem;
+    var publicFolderType = (int)ExportDeploymentType.PublicFolder;
+    var emailType = (int)ExportDeploymentType.Email;
+    var httpType = (int)ExportDeploymentType.Http;
+    var ftpType = (int)ExportDeploymentType.Ftp;
+}
+
+<div asp-validation-summary="ModelOnly" />
+<input type="hidden" asp-for="Id" />
+<input type="hidden" asp-for="ProfileId" />
+
+<div sm-if="!Model.CreateZip" id="ZipUsageNote" class="alert alert-info">
+	@Html.Raw(T("Admin.DataExchange.Export.Deployment.ZipUsageNote"))
+</div>
+
+<div id="deployment-container" class="adminContent">
+    <div class="adminRow deployment-all">
+        <div class="adminTitle">
+            <smart-label asp-for="DeploymentType" />
+        </div>
+        <div class="adminData">
+            <select asp-for="DeploymentType">
+                @foreach (var item in deploymentTypes)
+                {
+                    var type = (ExportDeploymentType)item.Value.ToInt();
+                    <option value="@item.Value"
+                            data-icon="@(deploymentTypeIconClasses.GetValueOrDefault(type))"
+                            attr-selected='(Model.DeploymentType == type, "selected")'>
+                        @item.Text</option>
+                }
+            </select>
+            <span asp-validation-for="DeploymentType"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-all">
+        <div class="adminTitle deployment-all">
+            <smart-label asp-for="Name" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @Model.Name
+            </div>
+            <span asp-validation-for="Name"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-all">
+        <div class="adminTitle">
+            <smart-label asp-for="Enabled" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Enabled" />
+            <span asp-validation-for="Enabled"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@fileSystemType">
+        <div class="adminTitle">
+            <smart-label asp-for="FileSystemPath" />
+        </div>
+        <div class="adminData">
+            <input asp-for="FileSystemPath" />
+            <span asp-validation-for="FileSystemPath"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@publicFolderType">
+        <div class="adminTitle">
+            <smart-label asp-for="SubFolder" />
+        </div>
+        <div class="adminData">
+            <input asp-for="SubFolder" />
+            <span asp-validation-for="SubFolder"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@emailType">
+        <div class="adminTitle">
+            <smart-label asp-for="EmailAccountId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="EmailAccountId" asp-items="@(List<SelectListItem>)ViewBag.EmailAccounts"></select>
+            <span asp-validation-for="EmailAccountId"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@emailType">
+        <div class="adminTitle">
+            <smart-label asp-for="EmailAddresses" />
+        </div>
+        <div class="adminData">
+            <select asp-for="EmailAddresses" asp-items="@new MultiSelectList(Model.EmailAddresses)" multiple="multiple" data-tags="true"></select>
+            <span asp-validation-for="EmailAddresses"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@emailType">
+        <div class="adminTitle">
+            <smart-label asp-for="EmailSubject" />
+        </div>
+        <div class="adminData">
+            <input asp-for="EmailSubject" />
+            <span asp-validation-for="EmailSubject"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@httpType deployment-@ftpType">
+        <div class="adminTitle">
+            <smart-label asp-for="Url" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Url" />
+            <span asp-validation-for="Url"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@httpType">
+        <div class="adminTitle">
+            <smart-label asp-for="HttpTransmissionType" />
+        </div>
+        <div class="adminData">
+            <select asp-for="HttpTransmissionType" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ExportHttpTransmissionType))"></select>
+            <span asp-validation-for="HttpTransmissionType"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@httpType deployment-@ftpType">
+        <div class="adminTitle">
+            <smart-label asp-for="Username" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Username" />
+            <span asp-validation-for="Username"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@httpType deployment-@ftpType">
+        <div class="adminTitle">
+            <smart-label asp-for="Password" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Password" attr-value='(Model.Password.HasValue(), Model.Password)' />
+            <span asp-validation-for="Password"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@ftpType">
+        <div class="adminTitle">
+            <smart-label asp-for="PassiveMode" />
+        </div>
+        <div class="adminData">
+            <input asp-for="PassiveMode" />
+            <span asp-validation-for="PassiveMode"></span>
+        </div>
+    </div>
+    <div class="adminRow deployment-@ftpType">
+        <div class="adminTitle">
+            <smart-label asp-for="UseSsl" />
+        </div>
+        <div class="adminData">
+            <input asp-for="UseSsl" />
+            <span asp-validation-for="UseSsl"></span>
+        </div>
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="ExportDeployment">
+	$(function() {
+        // Toggle deployment type.
+        $('#@Html.IdFor(x => x.DeploymentType)').on('change', function () {
+            var type = $(this).val();
+            var container = $('#deployment-container');
+
+			container.find('.adminRow:not(.deployment-all)').hide();
+			container.find('.deployment-' + type).show();
+
+            $('#ZipUsageNote').toggle(type === '@emailType' || type === '@httpType' || type === '@ftpType');
+        }).trigger('change');
+	});
+</script>

@@ -4,7 +4,7 @@
 	var parentModel = ViewData["Parent"] as ExportPreviewModel;
 }
 
-<datagrid id="orders-preview-grid" 
+<datagrid id="order-preview-grid" 
 		allow-resize="true" 
 		allow-column-reordering="true" 
 		allow-row-selection="true" 
@@ -34,6 +34,6 @@
         <column for="CustomerId" halign="center" />
         <column for="StoreName" />
         <column for="CreatedOn" />
-        <column for="OrderTotal" halign="flex-end" /> @* INFO: (mg) (core) Format {0:N2} is default for decimal and float *@
+        <column for="OrderTotal" halign="flex-end" />
     </columns>
 </datagrid>

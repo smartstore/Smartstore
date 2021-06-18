@@ -16,7 +16,6 @@
                     <smart-label asp-for="ProviderSystemName" />
                 </div>
                 <div class="adminData">
-                    @*INFO: form-control class will be added automatcally by taghelper*@
                     <select asp-for="ProviderSystemName" class="form-control-lg select-customtemplate drop-customtemplate">
                         @foreach (var provider in providers.OrderBy(x => x.FriendlyName))
                         {

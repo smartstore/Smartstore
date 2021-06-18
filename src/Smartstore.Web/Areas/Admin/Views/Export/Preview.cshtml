@@ -28,60 +28,52 @@
         <a asp-action="Edit" asp-route-id="@Model.Id">(@T("Common.Back"))</a>
     </div>
     <div class="options">
-        <form id="ProfileExportForm" asp-action="Execute" method="post">
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" name="SelectedIds" value="" />
-            @if (Model.LogFileExists)
-            {
-                <a asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
-                    <i class="far fa-file-alt"></i>
-                    <span>@T("Admin.Configuration.ActivityLog")</span>
-                </a>
-            }
-        </form>
+        @if (Model.LogFileExists)
+        {
+            <a asp-action="DownloadLogFile" asp-route-id="@Model.Id" class="btn btn-secondary" target="LogFile">
+                <i class="far fa-file-alt"></i>
+                <span>@T("Admin.Configuration.ActivityLog")</span>
+            </a>
+        }
     </div>
 </div>
 
-<div class="preview-grid-container">
-    @if (gridId.HasValue())
-    {
-        <partial name="_Grid.Preview.@(gridId)" model="null" view-data="gridViewData" />
-    }
-    else
-    {
-        <div class="alert alert-warning">
-            @T("Admin.DataExchange.Export.NoPreview")
-        </div>
-    }
-</div>
+<form id="ProfileExportForm" asp-action="Execute" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" name="SelectedIds" value="" />
+
+    <div class="preview-grid-container">
+        @if (gridId.HasValue())
+        {
+            <partial name="_Grid.Preview.@(gridId)" model="null" view-data="gridViewData" />
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                @T("Admin.DataExchange.Export.NoPreview")
+            </div>
+        }
+    </div>
+</form>
 
 <script sm-target-zone="scripts" data-origin="ExportPreview">
 	$(function() {
 		// Execute export.
 		$('#ExportAll, #ExportSelected').on('click', function (e) {
 			e.preventDefault();
+
+            var gridId = '@gridId.EmptyNull().ToLower()';
 			var form = $('#ProfileExportForm');
 			var exportAll = $(this).attr('id') === 'ExportAll';
+            var selectedIds = '';
 
-			if (!exportAll && selectedIds.length === 0) {
-				displayNotification(@T("Admin.Common.NoEntriesSelected").JsValue, 'warning');
-				return false;
-			}
-
-			// TODO: (mg) (core) find out how to get the selected entity IDs.
-			// RE: (mg) (core)
-			// How to get datagrid Vue component instance:
-			const grid = $('#products-preview-grid').parent().data('datagrid');
-			// ...OR
-			grid = window['products-preview-grid'].$children[0];
-			// ...OR, because in this specific case the grid id may be unknown due to multiple grids
-			grid = $(this).closest('.datagrid-root').data('datagrid'); // Only works if button is INSIDE the grid (e.g. in toolbar)
-			// How to get selected rows:
-			const selectedRows = grid.selectedRows;
-			// Use Chrome console for full API ;-)
-			// Remove the "SelectedIds" hidden field, rely fully on datagrid component.
-
-			form.find('[name=SelectedIds]').val(exportAll ? '' : selectedIds.join(','));
+            if (!exportAll) {
+                const grid = $('#' + gridId + '-preview-grid').parent().data('datagrid');
+                selectedIds = grid.selectedRowKeys.join(',');
+            }
+            
+			// TODO: (mg) (core) Remove the "SelectedIds" hidden field, rely fully on datagrid component.
+			form.find('[name=SelectedIds]').val(selectedIds);
 			form.submit();
 			return false;
 		});
