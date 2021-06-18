@@ -223,7 +223,7 @@
         }
     }
 
-    var Parallax = SmartStore.parallax = {
+    var Parallax = Smartstore.parallax = {
         init: function (options /*{ context: Element, selector: string}*/) {
             var opts = options || {};
             var ctx = $(opts.context || document.body);

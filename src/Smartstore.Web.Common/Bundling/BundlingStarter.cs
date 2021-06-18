@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using NUglify.JavaScript;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using WebOptimizer;
 
 namespace Smartstore.Web.Bundling
 {
@@ -52,6 +53,12 @@ namespace Smartstore.Web.Bundling
 
                 foreach (var asset in assetPipeline.Assets)
                 {
+                    if (asset.Items.ContainsKey("fileprovider") || asset.Items.ContainsKey("usecontentroot"))
+                    {
+                        // A custom file provider was added already, leave it alone.
+                        continue;
+                    }
+                    
                     asset.UseFileProvider(fileProvider);
                 }
             });

@@ -6,7 +6,7 @@
         // panel toggling
         function (ctx) {
             ctx.find('input[type=checkbox][data-toggler-for]').each(function (i, el) {
-                SmartStore.Admin.togglePanel(el, false);
+                Smartstore.Admin.togglePanel(el, false);
             });
         },
         // select2
@@ -17,7 +17,7 @@
         function (ctx) {
             ctx.find(".cph").tooltip({
                 selector: "a.hint",
-                placement: SmartStore.globalization.culture.isRTL ? "right" : "left",
+                placement: Smartstore.globalization.culture.isRTL ? "right" : "left",
                 trigger: 'hover',
                 delay: { show: 400, hide: 0 }
             });
@@ -30,13 +30,6 @@
                     .after('<span class="switch-toggle" data-on="' + window.Res['Common.On'] + '" data-off="' + window.Res['Common.Off'] + '"></span>')
                     .parent().on('click', function (e) { if ($(el).is('[readonly]')) { e.preventDefault(); } });
             });
-        },
-        // Telerik
-        function (ctx) {
-            Hacks.Telerik.handleButton(ctx.find(".t-button").filter(function (index) {
-                // reject .t-button that has a .t-group-indicator as parent
-                return !$(this).parent().hasClass("t-group-indicator");
-            }));
         },
         // btn-trigger
         function (ctx) {
@@ -52,7 +45,7 @@
         },
         // ColorPicker
         function (ctx) {
-            ctx.find(".sm-colorbox").colorpicker({ fallbackColor: false, color: false, align: SmartStore.globalization.culture.isRTL ? 'left' : 'right' });
+            ctx.find(".sm-colorbox").colorpicker({ fallbackColor: false, color: false, align: Smartstore.globalization.culture.isRTL ? 'left' : 'right' });
         },
         // RangeSlider
         function (ctx) {
@@ -124,7 +117,7 @@
 
         // Handle panel toggling
         $(document).on('change', 'input[type=checkbox][data-toggler-for]', function (e) {
-            SmartStore.Admin.togglePanel(e.target, true);
+            Smartstore.Admin.togglePanel(e.target, true);
         });
 
         // Tooltips
@@ -150,7 +143,7 @@
 
         // check overridden store settings
         $('.multi-store-override-option').each(function (i, el) {
-            SmartStore.Admin.checkOverriddenStoreValue(el);
+            Smartstore.Admin.checkOverriddenStoreValue(el);
         });
 
         // publish entity commit messages
@@ -164,10 +157,6 @@
                 });
             }
         });
-
-        // Because we restyled the grid, the filter dropdown does not position
-        // correctly anymore. We have to reposition it.
-        Hacks.Telerik.handleGridFilter();
 
         // sticky section-header
         var navbar = $("#navbar");

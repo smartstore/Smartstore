@@ -147,5 +147,5 @@
     });
 
     // provide main app namespace
-    window.SmartStore = {};
+    window.Smartstore = {};
 })(jQuery);

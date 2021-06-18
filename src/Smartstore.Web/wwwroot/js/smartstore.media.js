@@ -1,5 +1,5 @@
 
-SmartStore.media = (function () {
+Smartstore.media = (function () {
     var img = { name: "far fa-file-image", color: "#e77c00", mediaType: 'image' };
     var video = { name: "far fa-file-video", color: "#ff5722", mediaType: 'video' };
     var word = { name: "far fa-file-word", color: "#2b579a", mediaType: 'document' };

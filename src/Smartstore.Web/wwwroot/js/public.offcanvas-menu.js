@@ -326,7 +326,7 @@
     })();
 
     $(function () {
-        var ajaxMenu = SmartStore.AjaxMenu = new AjaxMenu('#menu-main', '#offcanvas-menu-container');
+        var ajaxMenu = Smartstore.AjaxMenu = new AjaxMenu('#menu-main', '#offcanvas-menu-container');
 
         // if viewport <lg 
         if (viewport.is('<lg')) {

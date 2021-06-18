@@ -122,7 +122,7 @@
                 e.preventDefault();
                 var fieldId = $(this).data('field-id');
 
-                SmartStore.media.openFileManager({
+                Smartstore.media.openFileManager({
                     el: this,
                     backdrop: false,
                     onSelect: function (files) {

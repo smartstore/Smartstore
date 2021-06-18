@@ -248,7 +248,7 @@
 						$imageBrowse.on('click.imageDialog', function (e) {
 							e.preventDefault();
 
-							SmartStore.media.openFileManager({
+							Smartstore.media.openFileManager({
 								el: this,
 								type: 'image',
 								backdrop: false,

@@ -193,7 +193,7 @@
             });
 
             // Lazy load thumbnails for video files.
-            SmartStore.media.lazyLoadThumbnails(list);
+            Smartstore.media.lazyLoadThumbnails(list);
 
             if (items.length > self.options.thumbsToShow) {
                 if (!isInitialized) {

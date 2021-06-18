@@ -1,6 +1,6 @@
 (function ($, window, document, undefined) {
 
-    // TODO: Implement ValidationAttributes in SmartStore.Validation namespace
+    // TODO: Implement ValidationAttributes in Smartstore.Validation namespace
 
     // FileExtensions validation
     $.validator.unobtrusive.adapters.add('fileextensions', ['extensions'], function (options) {

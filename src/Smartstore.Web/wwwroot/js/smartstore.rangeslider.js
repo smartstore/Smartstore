@@ -35,7 +35,7 @@
                 ratio = el.width() / range,
                 n = parseFloat(slider.val()) - min;
 
-            if (SmartStore.globalization.culture.isRTL) {
+            if (Smartstore.globalization.culture.isRTL) {
                 bubble.css('right', (n * ratio) + 'px').attr('data-placement', n > range / 2 ? 'right' : 'left');
             }
             else {
@@ -57,7 +57,7 @@
                 .text(fmt === '{0}' ? fmt.format(val) : eval(fmt.format(val)));
 
             if (self.initialized) {
-                var g = SmartStore.globalization,
+                var g = Smartstore.globalization,
                     nf = g.culture.numberFormat,
                     formatted = val.replace('.', nf["."]);
                 $(slider.data('target')).val(formatted).trigger('change');

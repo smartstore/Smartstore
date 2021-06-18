@@ -1,5 +1,5 @@
 ﻿/*
-*  Project: SmartStore KeyNav 
+*  Project: Smartstore KeyNav
 *  Origin: jQuery keySelection (https://github.com/christianvoigt/jquery-key-selection)
 *  Author: Copyright (c) 2014 Christian Voigt, customized by Murat Cakir, SmartStore AG
 */

@@ -22,7 +22,7 @@
 (function ($) {
     var assignableFiles = [];
     var assignableFileIds = "";
-    var dialog = SmartStore.Admin ? SmartStore.Admin.Media.fileConflictResolutionDialog : null;
+    var dialog = Smartstore.Admin ? Smartstore.Admin.Media.fileConflictResolutionDialog : null;
     var token = $('input[name="__RequestVerificationToken"]').val();
 
     $.fn.dropzoneWrapper = function (options) {
@@ -87,7 +87,7 @@
                 else {
                     
                     // Load thumbnail.
-                    SmartStore.media.lazyLoadThumbnails(fuContainer.find('.fu-thumb'));
+                    Smartstore.media.lazyLoadThumbnails(fuContainer.find('.fu-thumb'));
 
                     // Set current filename as fu-message on init.
                     fuContainer.find(".fu-message").removeClass("empty").html(fuContainer.find(".fu-filename").data("current-filename"));
@@ -349,7 +349,7 @@
 
                     // Open duplicate file handler dialog.
                     dialog.open({
-                        queue: SmartStore.Admin.Media.convertDropzoneFileQueue(dupeFiles),
+                        queue: Smartstore.Admin.Media.convertDropzoneFileQueue(dupeFiles),
                         callerId: elDropzone.find(".fu-fileupload").attr("id"),
                         onResolve: dupeFileHandlerCallback,
                         onComplete: dupeFileHandlerCompletedCallback,
@@ -574,7 +574,7 @@
                 if (!file.mime)
                     file.mime = file.type;
 
-                var icon = SmartStore.media.getIconHint(file);
+                var icon = Smartstore.media.getIconHint(file);
 
                 elIcon.attr("class", "file-icon show " + icon.name + (small ? " fa-2x" : " fa-4x")).css("color", icon.color);
 
@@ -941,9 +941,9 @@
 
     // Sets the preview image of a single file upload control after upload or selection (by MM plugin).
     function displaySingleFilePreview(file, fuContainer, options) {
-        var preview = SmartStore.media.getPreview(file, { iconCssClasses: "fa-4x" });
+        var preview = Smartstore.media.getPreview(file, { iconCssClasses: "fa-4x" });
         fuContainer.find('.fu-thumb').removeClass("empty").html(preview.thumbHtml);
-        SmartStore.media.lazyLoadThumbnails(fuContainer.find('.fu-thumb'));
+        Smartstore.media.lazyLoadThumbnails(fuContainer.find('.fu-thumb'));
 
         var id = file.downloadId ? file.downloadId : file.id;
 
@@ -973,13 +973,13 @@
             type = type.trim();
             var o = {};
             o[type[0] === '.' ? 'ext' : 'type'] = type;
-            icon = SmartStore.media.getIconHint(o);
+            icon = Smartstore.media.getIconHint(o);
             if (!icon.isFallback) {
                 break;
             }
         }
 
-        icon = icon || SmartStore.media.getIconHint({});
+        icon = icon || Smartstore.media.getIconHint({});
 
         var html = '<i class="file-icon show fa-2x ' + icon.name + '"></i>';
         fuContainer.find('.fu-thumb').addClass("empty").html(html);

@@ -52,6 +52,36 @@
 
   <ItemGroup>
     <None Include="compilerconfig.json" />
+    <None Include="wwwroot\lib\drift\Drift.js" />
+    <None Include="wwwroot\lib\drift\Drift.min.js" />
+    <None Include="wwwroot\lib\drift\LICENSE" />
+    <None Include="wwwroot\lib\roxyfm\css\main.scss" />
+    <None Include="wwwroot\lib\roxyfm\js\custom.js" />
+    <None Include="wwwroot\lib\roxyfm\js\directory.js" />
+    <None Include="wwwroot\lib\roxyfm\js\file.js" />
+    <None Include="wwwroot\lib\roxyfm\js\filetypes.js" />
+    <None Include="wwwroot\lib\roxyfm\js\jquery-2.1.1.min.js" />
+    <None Include="wwwroot\lib\roxyfm\js\jquery-dateFormat.min.js" />
+    <None Include="wwwroot\lib\roxyfm\js\jquery-ui-1.10.4.custom.min.js" />
+    <None Include="wwwroot\lib\roxyfm\js\main.js" />
+    <None Include="wwwroot\lib\roxyfm\js\utils.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\bg.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\ca.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\cs.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\cs1.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\da.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\de.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\en.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\es.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\fr.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\hu.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\it.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\nl.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\pl.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\pt.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\ru.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\sk.js" />
+    <None Include="wwwroot\lib\roxyfm\lang\tr.js" />
     <None Include="wwwroot\lib\fontastic\fonts\fontastic.svg" />
     <None Include="wwwroot\lib\fa5\scss\brands.scss" />
     <None Include="wwwroot\lib\fa5\scss\fontawesome.scss" />

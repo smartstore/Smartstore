@@ -1,4 +1,4 @@
-SmartStore.Admin.Media = (function () {
+Smartstore.Admin.Media = (function () {
 
     class FileConflictResolutionDialog {
         constructor() {
@@ -108,9 +108,9 @@ SmartStore.Admin.Media = (function () {
 
         // Private methods
         _refreshFileDisplay(el, file) {
-            var preview = SmartStore.media.getPreview(file, { iconCssClasses: "fa-4x" });
+            var preview = Smartstore.media.getPreview(file, { iconCssClasses: "fa-4x" });
             el.find(".file-preview").html(preview.thumbHtml);
-            SmartStore.media.lazyLoadThumbnails(el);
+            Smartstore.media.lazyLoadThumbnails(el);
 
             el.find(".file-name").text(file.name);
             el.find(".file-name").attr("title", file.name);
@@ -232,7 +232,7 @@ SmartStore.Admin.Media = (function () {
 
                 // Temp stub for resolving media type only
                 var stub = { ext: ext, mime: dzfile.type };
-                var mediaType = SmartStore.media.getIconHint(stub).mediaType;
+                var mediaType = Smartstore.media.getIconHint(stub).mediaType;
 
                 var file = {
                     thumbUrl: dzfile.dataURL ? dzfile.dataURL : null,

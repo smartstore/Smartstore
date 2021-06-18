@@ -11,7 +11,7 @@ function openModalWindow(modalId) {
 }
 
 // global Admin namespace
-SmartStore.Admin = {
+Smartstore.Admin = {
     modelTrees: {},
     checkboxCheck: function (obj, checked) {
         if (checked)
@@ -21,8 +21,8 @@ SmartStore.Admin = {
     },
     checkAllOverriddenStoreValue: function (obj) {
         $('.multi-store-override-option').each(function (i, el) {
-            SmartStore.Admin.checkboxCheck(el, obj.checked);
-            SmartStore.Admin.checkOverriddenStoreValue(el);
+            Smartstore.Admin.checkboxCheck(el, obj.checked);
+            Smartstore.Admin.checkOverriddenStoreValue(el);
         });
     },
     checkOverriddenStoreValue: function (el) {

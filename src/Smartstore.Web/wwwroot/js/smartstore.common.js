@@ -323,7 +323,7 @@
 
     // on document ready
     $(function () {
-        var rtl = SmartStore.globalization !== undefined ? SmartStore.globalization.culture.isRTL : false,
+        var rtl = Smartstore.globalization !== undefined ? Smartstore.globalization.culture.isRTL : false,
             win = $(window),
             body = $(document.body);
 

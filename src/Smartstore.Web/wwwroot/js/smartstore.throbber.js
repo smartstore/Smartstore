@@ -1,5 +1,5 @@
 ﻿/*
-*  Project: SmartStore Throbber
+*  Project: Smartstore Throbber
 *  Author: Murat Cakir, SmartStore AG
 */
 

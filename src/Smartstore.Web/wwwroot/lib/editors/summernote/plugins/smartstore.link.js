@@ -345,7 +345,7 @@
 						$fileBrowse.on('click.linkDialog', function (e) {
 							e.preventDefault();
 
-							SmartStore.media.openFileManager({
+							Smartstore.media.openFileManager({
 								el: this,
 								backdrop: false,
 								onSelect: function (files) {

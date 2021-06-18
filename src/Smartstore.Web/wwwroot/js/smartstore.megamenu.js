@@ -10,7 +10,7 @@
                 productRotatorAjaxUrl: ""
             };
 
-            var rtl = SmartStore.globalization.culture.isRTL,
+            var rtl = Smartstore.globalization.culture.isRTL,
                 marginX = rtl ? 'margin-right' : 'margin-left';
 
             settings = $.extend(defaults, settings);

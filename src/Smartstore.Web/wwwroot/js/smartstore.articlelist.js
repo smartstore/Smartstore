@@ -1,5 +1,5 @@
 ﻿/*
-*  Project: SmartStore Article List
+*  Project: Smartstore Article List
 *  Author: Murat Cakir, SmartStore AG
 */
 

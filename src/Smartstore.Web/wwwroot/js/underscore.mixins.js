@@ -201,7 +201,7 @@
                 unit = "KB";
             }
 
-            return (unit === 'KB' ? val : SmartStore.globalization.formatNumber(val, 'N')) + ' ' + unit;
+            return (unit === 'KB' ? val : Smartstore.globalization.formatNumber(val, 'N')) + ' ' + unit;
         },
 
         formatBitrate: function (bits) {
@@ -230,7 +230,7 @@
                 unit = "bit/s";
             }
 
-            return (format ? val : SmartStore.globalization.formatNumber(val, 'N')) + ' ' + unit;
+            return (format ? val : Smartstore.globalization.formatNumber(val, 'N')) + ' ' + unit;
         },
 
         formatTime: function (seconds) {

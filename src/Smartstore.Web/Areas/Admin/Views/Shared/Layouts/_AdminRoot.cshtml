@@ -30,10 +30,10 @@
     </zone>
 
     <zone name="head_scripts">
-        <script src="~/admin/bundles/js/common.js"></script>
+        <script src="~/bundle/js/jquery.js"></script>
         @* TODO: (core) Move serializeToJSON script to wwroot and include in bundle *@
         <script src="https://cdn.jsdelivr.net/npm/jquery-serializetojson@1.4.1/dist/jquery.serializeToJSON.min.js"></script>
-        <script src="~/lib/vue/vue.js"></script>
+        <script src="~/bundle/js/vue.js"></script>
     </zone>
 
     <link rel="shortcut icon" href="~/admin/favicon.ico?v=@SmartstoreVersion.CurrentVersion" />
@@ -57,16 +57,10 @@
     <zone name="aftercontent" />
 
     <zone name="scripts">
-        <script src="~/admin/bundles/js/admin.js"></script>
-        <script src="~/admin/bundles/js/charting.js"></script>
+        <script src="~/bundle/js/admin.js"></script>
+        <script src="~/bundle/js/datagrid.js"></script>
         <script src="~/lib/select2/js/i18n/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
         <script src="~/lib/moment/locale/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
-
-        @*<script src="~/components/datagrid/datagrid.js"></script>
-        <script src="~/components/datagrid/datagrid-pager.js"></script>
-        <script src="~/components/datagrid/datagrid-tools.js"></script>
-        <script src="~/js/smartstore.editortemplates.js"></script>*@
-        <script src="~/bundles/js/datagrid.js"></script>
     </zone>
     
     <zone name="end" />

@@ -1,5 +1,5 @@
 ﻿/*
-*  Project: SmartStore tree.
+*  Project: Smartstore tree.
 *  Author: Marcus Gesing, SmartStore AG.
 */
 ; (function ($, window, document, undefined) {
