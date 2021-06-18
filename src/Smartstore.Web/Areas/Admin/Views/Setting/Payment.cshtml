@@ -1,0 +1,41 @@
+﻿@using Smartstore.Core.Checkout.Payment
+
+@model PaymentSettingsModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Payment").Value;
+    Layout = "_SettingLayout";
+}
+
+<form asp-action="Payment">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-credit-card"></i>
+            @T("Admin.Configuration.Payment")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CapturePaymentReason" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="CapturePaymentReason">
+                    <select asp-for="CapturePaymentReason" asp-items="@Html.GetLocalizedEnumSelectList(typeof(CapturePaymentReason))" asp-placeholder="@T("Common.Unspecified")"></select>
+                </setting-editor>
+                <span asp-validation-for="CapturePaymentReason"></span>
+            </div>
+        </div>
+    </div>
+</form>

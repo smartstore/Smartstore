@@ -11,6 +11,7 @@ using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
@@ -844,6 +845,34 @@ namespace Smartstore.Admin.Controllers
             MiniMapper.Map(model, settings);
 
             return NotifyAndRedirect("DataExchange");
+        }
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public IActionResult Payment(PaymentSettings settings)
+        {
+            var model = new PaymentSettingsModel
+            {
+                CapturePaymentReason = settings.CapturePaymentReason
+            };
+            
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting]
+        public IActionResult Payment(PaymentSettings settings, PaymentSettingsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            ModelState.Clear();
+
+            settings.CapturePaymentReason = model.CapturePaymentReason;
+
+            return NotifyAndRedirect("Payment");
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
