@@ -1,0 +1,70 @@
+﻿@model CommonFacetSettingsModel
+
+@{
+    var fieldPrefix = ViewData.TemplateInfo.HtmlFieldPrefix;
+}
+
+<div sm-if='fieldPrefix != "CategoryFacet"' class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Disabled" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="Disabled"></setting-editor>
+            <span asp-validation-for="Disabled"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DisplayOrder" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="DisplayOrder"></setting-editor>
+            <span asp-validation-for="DisplayOrder"></span>
+        </div>
+    </div>
+    <div sm-if='fieldPrefix == "AvailabilityFacet"' class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IncludeNotAvailable" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="IncludeNotAvailable"></setting-editor>
+            <span asp-validation-for="IncludeNotAvailable"></span>
+        </div>
+    </div>
+</div>
+
+@if (Model.Locales.Count == 1)
+{
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Locales[0].Alias" />
+            </div>
+            <div class="adminData">
+                <input type="hidden" asp-for="Locales[0].LanguageId" />
+                <setting-editor asp-for="Locales[0].Alias"></setting-editor>
+                <span asp-validation-for="Locales[0].Alias"></span>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    // TODO: (mh) (core) This breaks with negative index -1
+    @(Html.LocalizedEditor<CommonFacetSettingsModel, CommonFacetSettingsLocalizedModel>(fieldPrefix + "-localized",
+	@<div class="adminContent">
+		<div class="adminRow">
+			<div class="adminTitle">
+				@*<smart-label asp-for="Locales[item].Alias" />*@
+			</div>
+            <div class="adminData">
+                @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                @*<input type="hidden" asp-for="Locales[item].LanguageId" />
+                <setting-editor asp-for="Locales[item].Alias"></setting-editor>
+                <span asp-validation-for="Locales[item].Alias"></span>*@
+            </div>
+		</div>
+	</div>
+	, null))
+}

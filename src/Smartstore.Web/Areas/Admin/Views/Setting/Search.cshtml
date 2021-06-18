@@ -1,0 +1,197 @@
+﻿@using Smartstore.Core.Catalog.Products
+
+@model SearchSettingsModel
+
+@{
+    Layout = "_SettingLayout";
+    ViewBag.Title = T("Search.Title").Value;
+}
+
+<form asp-action="Search">
+
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-search"></i>
+            @T("Search.Title")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="All"></div>
+
+    <tabstrip id="searchsettings-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Admin.Catalog")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SearchMode" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SearchMode">
+                            <select asp-for="SearchMode" asp-items="Model.AvailableSearchModes"></select>
+                        </setting-editor>
+                        <span asp-validation-for="SearchMode"></span>
+                    </div>
+                </div>
+                <div class="adminRow wildcard-note hide">
+                    <div class="adminTitle"></div>
+                    <div class="adminData">
+                        <div class="alert alert-warning">
+                            @T("Admin.Configuration.Settings.Search.WildcardSearchNote")
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SearchFields" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="SearchFields" asp-items='@new MultiSelectList(Model.AvailableSearchFields, "Value", "Text")' multiple="multiple"></select>
+                        <span asp-validation-for="SearchFields"></span>
+                    </div>
+                </div>
+                <div sm-if="Model.SearchFieldsNote.HasValue()" class="adminRow">
+                    <div>&nbsp;</div>
+                    <div>
+                        <div class="alert alert-info">
+                            @Html.Raw(Model.SearchFieldsNote)
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DefaultSortOrder" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DefaultSortOrder">
+                            <select asp-for="DefaultSortOrder" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ProductSortingEnum))"></select>
+                        </setting-editor>
+                        <span asp-validation-for="DefaultSortOrder"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SearchProductByIdentificationNumber" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SearchProductByIdentificationNumber"></setting-editor>
+                        <span asp-validation-for="SearchProductByIdentificationNumber"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Search.InstantSearch")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="InstantSearchEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="InstantSearchEnabled" data-toggler-for="#pnlInstantSearch"></setting-editor>
+                        <span asp-validation-for="InstantSearchEnabled"></span>
+                    </div>
+                </div>
+                <div id="pnlInstantSearch">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ShowProductImagesInInstantSearch" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="ShowProductImagesInInstantSearch"></setting-editor>
+                            <span asp-validation-for="ShowProductImagesInInstantSearch"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="InstantSearchNumberOfProducts" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="InstantSearchNumberOfProducts"></setting-editor>
+                            <span asp-validation-for="InstantSearchNumberOfProducts"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="InstantSearchTermMinLength" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="InstantSearchTermMinLength"></setting-editor>
+                            <span asp-validation-for="InstantSearchTermMinLength"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("Search.ResultFiltering")</div>
+                    </div>
+                </div>
+                <div sm-if="Model.IsMegaSearchInstalled" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="FilterMinHitCount" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="FilterMinHitCount"></setting-editor>
+                        <span asp-validation-for="FilterMinHitCount"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="FilterMaxChoicesCount" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="FilterMaxChoicesCount"></setting-editor>
+                        <span asp-validation-for="FilterMaxChoicesCount"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <tabstrip id="common-catalog-facets-settings" sm-nav-style="Material">
+                    <tab sm-title="@T("Search.Facet.Category")" sm-selected="true">
+                        <partial name="CommonFacet" model="Model.CategoryFacet" view-data="@CreateFacetViewData("CategoryFacet")" />
+                    </tab>
+                    <tab sm-title="@T("Search.Facet.Manufacturer")">
+                        <partial name="CommonFacet" model="Model.BrandFacet" view-data="@CreateFacetViewData("BrandFacet")" />
+                    </tab>
+                    <tab sm-title="@T("Search.Facet.Price")">
+                        <partial name="CommonFacet" model="Model.PriceFacet" view-data="@CreateFacetViewData("PriceFacet")" />
+                    </tab>
+                    <tab sm-title="@T("Search.Facet.Rating")">
+                        <partial name="CommonFacet" model="Model.RatingFacet" view-data="@CreateFacetViewData("RatingFacet")" />
+                    </tab>
+                    <tab sm-title="@T("Search.Facet.DeliveryTime")">
+                        <partial name="CommonFacet" model="Model.DeliveryTimeFacet" view-data="@CreateFacetViewData("DeliveryTimeFacet")" />
+                    </tab>
+                    <tab sm-title="@T("Search.Facet.Availability")">
+                        <partial name="CommonFacet" model="Model.AvailabilityFacet" view-data="@CreateFacetViewData("AvailabilityFacet")" />
+                    </tab>
+                    <tab sm-title="@T("Search.Facet.NewArrivals")">
+                        <partial name="CommonFacet" model="Model.NewArrivalsFacet" view-data="@CreateFacetViewData("NewArrivalsFacet")" />
+                    </tab>
+                </tabstrip>
+            </div>
+        </tab>
+
+        @*TODO: (mh) (core) Inject forum tab here*@
+    </tabstrip>
+</form>
+
+@functions
+{
+    private ViewDataDictionary CreateFacetViewData(string fieldPrefix)
+    {
+        // Do not change field prefix of this.ViewData.
+        var viewData = new ViewDataDictionary(ViewData);
+        viewData.TemplateInfo.HtmlFieldPrefix = fieldPrefix;
+        return viewData;
+    }
+}
+
