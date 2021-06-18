@@ -1,0 +1,338 @@
+﻿@model MediaSettingsModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Settings.Media").Value;
+    Layout = "_SettingLayout";
+}
+
+<form asp-action="Media">
+
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-image"></i>
+            @T("Admin.Configuration.Settings.Media")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AutoGenerateAbsoluteUrls" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AutoGenerateAbsoluteUrls"></setting-editor>
+                <span asp-validation-for="AutoGenerateAbsoluteUrls"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MakeFilesTransientWhenOrphaned" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="MakeFilesTransientWhenOrphaned"></setting-editor>
+                <span asp-validation-for="MakeFilesTransientWhenOrphaned"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DefaultPictureZoomEnabled" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DefaultPictureZoomEnabled"></setting-editor>
+                <span asp-validation-for="DefaultPictureZoomEnabled"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MaxUploadFileSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.MaxUploadFileSize, null, new { postfix = "KB" })*@
+                <setting-editor asp-for="MaxUploadFileSize"></setting-editor>
+                <span asp-validation-for="MaxUploadFileSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MaximumImageSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.MaximumImageSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="MaximumImageSize"></setting-editor>
+                <span asp-validation-for="MaximumImageSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">
+                    @T("Admin.Configuration.Settings.Media.ImageSizes")
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ProductThumbPictureSizeOnProductDetailsPage" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.ProductThumbPictureSizeOnProductDetailsPage, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="ProductThumbPictureSizeOnProductDetailsPage"></setting-editor>
+                <span asp-validation-for="ProductThumbPictureSizeOnProductDetailsPage"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ProductThumbPictureSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.ProductThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="ProductThumbPictureSize"></setting-editor>
+                <span asp-validation-for="ProductThumbPictureSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ProductDetailsPictureSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.ProductDetailsPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="ProductDetailsPictureSize"></setting-editor>
+                <span asp-validation-for="ProductDetailsPictureSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AssociatedProductPictureSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.AssociatedProductPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="AssociatedProductPictureSize"></setting-editor>
+                <span asp-validation-for="AssociatedProductPictureSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="BundledProductPictureSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.BundledProductPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="BundledProductPictureSize"></setting-editor>
+                <span asp-validation-for="BundledProductPictureSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MessageProductThumbPictureSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.MessageProductThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="MessageProductThumbPictureSize"></setting-editor>
+                <span asp-validation-for="MessageProductThumbPictureSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CategoryThumbPictureSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.CategoryThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="CategoryThumbPictureSize"></setting-editor>
+                <span asp-validation-for="CategoryThumbPictureSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ManufacturerThumbPictureSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.ManufacturerThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="ManufacturerThumbPictureSize"></setting-editor>
+                <span asp-validation-for="ManufacturerThumbPictureSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CartThumbPictureSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.CartThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="CartThumbPictureSize"></setting-editor>
+                <span asp-validation-for="CartThumbPictureSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CartThumbBundleItemPictureSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.CartThumbBundleItemPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="CartThumbBundleItemPictureSize"></setting-editor>
+                <span asp-validation-for="CartThumbBundleItemPictureSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MiniCartThumbPictureSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.MiniCartThumbPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="MiniCartThumbPictureSize"></setting-editor>
+                <span asp-validation-for="MiniCartThumbPictureSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AvatarPictureSize" />
+            </div>
+            <div class="adminData">
+                @*TODO: (mh) (core) Postfix is missing*@
+                @*@Html.SettingEditorFor(model => model.AvatarPictureSize, null, new { postfix = T("Common.Pixel").Text })*@
+                <setting-editor asp-for="AvatarPictureSize"></setting-editor>
+                <span asp-validation-for="AvatarPictureSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div colspan="2">
+                <div class="admin-config-group">
+                    <div class="title">
+                        @T("Admin.Configuration.Settings.Media.MediaTypes")
+                    </div>
+                    <div class="text-muted">
+                        @T("Admin.Configuration.Settings.Media.MediaTypesNotes")
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ImageTypes" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ImageTypes"></setting-editor>
+                <span asp-validation-for="ImageTypes"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="VideoTypes" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="VideoTypes"></setting-editor>
+                <span asp-validation-for="VideoTypes"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AudioTypes" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AudioTypes"></setting-editor>
+                <span asp-validation-for="AudioTypes"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DocumentTypes" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DocumentTypes"></setting-editor>
+                <span asp-validation-for="DocumentTypes"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TextTypes" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="TextTypes"></setting-editor>
+                <span asp-validation-for="TextTypes"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="BinTypes" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="BinTypes"></setting-editor>
+                <span asp-validation-for="BinTypes"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div colspan="2">
+                <div class="admin-config-group">
+                    <div class="title">
+                        @(T("Admin.Configuration.Settings.Media.MediaIsStoredIn"))&hellip;
+                    </div>
+                </div>
+                <div class="alert alert-warning">
+                    <p>
+                        @T("Admin.Configuration.Settings.Media.MoveMediaNote")
+                    </p>
+                    <p>
+                        @(T("Admin.Configuration.Settings.Media.CurrentStorageLocation")):
+                        <strong>@Model.StorageProvider</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="StorageProvider" />
+            </div>
+            <div class="adminData">
+                <select asp-for="StorageProvider" asp-items="ViewBag.AvailableStorageProvider"></select>
+
+                <button type="button" id="MoveMediaButton" class="btn btn-danger mt-3" data-url="@Url.Action("ChangeMediaStorage")">
+                    <i class="fa fa-fw fa-cogs"></i>
+                    <span>@(T("Admin.Common.MoveNow"))!</span>
+                </button>
+
+                <span asp-validation-for="StorageProvider"></span>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script sm-target-zone="Scripts" data-origin="MediaSettings">
+    $(function() {
+    	// Move media.
+    	$('#MoveMediaButton').click(function () {
+    		if (confirm(@T("Admin.Common.AskToProceed").JsValue)) {
+    			$.throbber.show({
+    				speed: 0,
+    				message: @T("Admin.Common.WaitProcessingMessage").JsValue
+    			});
+
+    			$(this).doPostData({
+                    data: {
+                        targetProvider: $('#@Html.IdFor(model => model.StorageProvider)').val(),
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    }
+    			});
+    		}
+    	});
+    });
+</script>

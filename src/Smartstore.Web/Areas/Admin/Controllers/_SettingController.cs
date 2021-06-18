@@ -19,6 +19,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
@@ -29,6 +30,7 @@ using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.DataGrid;
 using Smartstore.Web.Modelling.Settings;
@@ -48,6 +50,7 @@ namespace Smartstore.Admin.Controllers
         private readonly StoreDependingSettingHelper _storeDependingSettingHelper;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ICookieConsentManager _cookieManager;
+        private readonly IProviderManager _providerManager;
         private readonly Lazy<IMediaTracker> _mediaTracker;
         private readonly Lazy<IMenuService> _menuService;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
@@ -60,6 +63,7 @@ namespace Smartstore.Admin.Controllers
             StoreDependingSettingHelper storeDependingSettingHelper,
             IDateTimeHelper dateTimeHelper,
             ICookieConsentManager cookieManager,
+            IProviderManager providerManager,
             Lazy<IMediaTracker> mediaTracker,
             Lazy<IMenuService> menuService,
             Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper,
@@ -71,6 +75,7 @@ namespace Smartstore.Admin.Controllers
             _storeDependingSettingHelper = storeDependingSettingHelper;
             _dateTimeHelper = dateTimeHelper;
             _cookieManager = cookieManager;
+            _providerManager = providerManager;
             _mediaTracker = mediaTracker;
             _menuService = menuService;
             _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
@@ -846,6 +851,52 @@ namespace Smartstore.Admin.Controllers
             MiniMapper.Map(model, settings);
 
             return NotifyAndRedirect("DataExchange");
+        }
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> Media(MediaSettings mediaSettings)
+        {
+            var model = await MapperFactory.MapAsync<MediaSettings, MediaSettingsModel>(mediaSettings);
+
+            model.CurrentlyAllowedThumbnailSizes = mediaSettings.GetAllowedThumbnailSizes();
+
+            // Media storage provider.
+            var currentStorageProvider = Services.Settings.GetSettingByKey<string>("Media.Storage.Provider");
+            var provider = _providerManager.GetProvider<IMediaStorageProvider>(currentStorageProvider);
+
+            // TODO: (mh) (core) Use _pluginMediator when available.
+            //model.StorageProvider = provider != null ? _pluginMediator.GetLocalizedFriendlyName(provider.Metadata) : null;
+            model.StorageProvider = provider != null ? "TODO" : null;
+
+            // TODO: (mh) (core) Use _pluginMediator when available.
+            //model.AvailableStorageProvider = _providerManager.GetAllProviders<IMediaStorageProvider>()
+            //    .Where(x => !x.Metadata.SystemName.EqualsNoCase(currentStorageProvider))
+            //    .Select(x => new SelectListItem { Text = _pluginMediator.GetLocalizedFriendlyName(x.Metadata), Value = x.Metadata.SystemName })
+            //    .ToList();
+            
+            ViewBag.AvailableStorageProvider = _providerManager.GetAllProviders<IMediaStorageProvider>()
+                .Where(x => !x.Metadata.SystemName.EqualsNoCase(currentStorageProvider))
+                .Select(x => new SelectListItem { Text = "TODO", Value = x.Metadata.SystemName })
+                .ToList();
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, FormValueRequired("save")]
+        [SaveSetting(UpdateParameterFromStore = false)]
+        public async Task<IActionResult> Media(MediaSettings settings, MediaSettingsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            ModelState.Clear();
+            settings = await MapperFactory.MapAsync<MediaSettingsModel, MediaSettings>(model);
+
+            return NotifyAndRedirect("Media");
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
