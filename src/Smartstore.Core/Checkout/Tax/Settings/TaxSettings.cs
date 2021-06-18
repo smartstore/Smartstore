@@ -43,7 +43,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Gets or sets a value indicating whether customers are allowed to select tax display type
         /// </summary>
-        public bool AllowCustomersToSelectTaxDisplayType { get; set; }
+        public bool AllowCustomersToSelectTaxDisplayType { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether to hide zero tax

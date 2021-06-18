@@ -13,6 +13,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
@@ -873,6 +874,137 @@ namespace Smartstore.Admin.Controllers
             settings.CapturePaymentReason = model.CapturePaymentReason;
 
             return NotifyAndRedirect("Payment");
+        }
+
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [LoadSetting]
+        public async Task<IActionResult> Tax(int storeScope, TaxSettings settings)
+        {
+            var model = await MapperFactory.MapAsync<TaxSettings, TaxSettingsModel>(settings);
+            var taxCategories = await _db.TaxCategories
+                .AsNoTracking()
+                .ToListAsync();
+
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .Include(x => x.StateProvinces.OrderBy(x => x.DisplayOrder))
+                .ApplyStandardFilter(true)
+                .ToListAsync();
+
+            var shippingTaxCategories = new List<SelectListItem>();
+            var paymentMethodAdditionalFeeTaxCategories = new List<SelectListItem>();
+            var euVatShopCountries = new List<SelectListItem>();
+
+            foreach (var tc in taxCategories)
+            {
+                shippingTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id.ToString(), Selected = tc.Id == settings.ShippingTaxClassId });
+                paymentMethodAdditionalFeeTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id.ToString(), Selected = tc.Id == settings.PaymentMethodAdditionalFeeTaxClassId });
+            }
+
+            foreach (var c in countries)
+            {
+                euVatShopCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = c.Id == settings.EuVatShopCountryId });
+            }
+
+            ViewBag.ShippingTaxCategories = shippingTaxCategories;
+            ViewBag.PaymentMethodAdditionalFeeTaxCategories = paymentMethodAdditionalFeeTaxCategories;
+            ViewBag.EuVatShopCountries = euVatShopCountries;
+
+            // Default tax address.
+            var defaultAddress = settings.DefaultTaxAddressId > 0
+                ? await _db.Addresses.FindByIdAsync(settings.DefaultTaxAddressId, false)
+                : null;
+
+            if (defaultAddress != null)
+            {
+                MiniMapper.Map(defaultAddress, model.DefaultTaxAddress);
+            }
+
+            if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.DefaultTaxAddressId, storeScope))
+            {
+                _storeDependingSettingHelper.AddOverrideKey(settings, "DefaultTaxAddress");
+            }
+
+            foreach (var c in countries)
+            {
+                model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem
+                {
+                    Text = c.Name,
+                    Value = c.Id.ToString(),
+                    Selected = (defaultAddress != null && c.Id == defaultAddress.CountryId)
+                });
+            }
+
+            var states = defaultAddress != null && defaultAddress.Country != null
+                ? countries.FirstOrDefault(x => x.Id == defaultAddress.Country.Id).StateProvinces.ToList()
+                : new List<StateProvince>();
+
+            if (states.Any())
+            {
+                foreach (var s in states)
+                {
+                    model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == defaultAddress.StateProvinceId) });
+                }
+            }
+            else
+            {
+                model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem { Text = T("Admin.Address.OtherNonUS"), Value = "0" });
+            }
+
+            model.DefaultTaxAddress.CountryEnabled = true;
+            model.DefaultTaxAddress.StateProvinceEnabled = true;
+            model.DefaultTaxAddress.ZipPostalCodeEnabled = true;
+            model.DefaultTaxAddress.ZipPostalCodeRequired = true;
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost, SaveSetting]
+        public async Task<IActionResult> Tax(int storeScope, TaxSettings settings, TaxSettingsModel model)
+        {
+            var form = Request.Form;
+
+            // Note, model state is invalid here due to ShippingOriginAddress validation.
+            await MapperFactory.MapAsync(model, settings);
+
+            await _storeDependingSettingHelper.UpdateSettingsAsync(settings, form, storeScope, propertyName =>
+            {
+                // Skip to prevent the address from being recreated every time you save.
+                if (propertyName.EqualsNoCase(nameof(settings.DefaultTaxAddressId)))
+                    return null;
+
+                return propertyName;
+            });
+
+            // Special case DefaultTaxAddressId\DefaultTaxAddress.
+            if (storeScope == 0 || _storeDependingSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
+            {
+                var addressId = await Services.Settings.SettingExistsAsync(settings, x => x.DefaultTaxAddressId, storeScope) ? settings.DefaultTaxAddressId : 0;
+                var originAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
+
+                // Update ID manually (in case we're in multi-store configuration mode it'll be set to the shared one).
+                model.DefaultTaxAddress.Id = originAddress.Id == 0 ? 0 : addressId;
+                await MapperFactory.MapAsync(model.DefaultTaxAddress, originAddress);
+
+                if (originAddress.Id == 0)
+                {
+                    _db.Addresses.Add(originAddress);
+                    await _db.SaveChangesAsync();
+                }
+
+                settings.DefaultTaxAddressId = originAddress.Id;
+                await Services.Settings.ApplySettingAsync(settings, x => x.DefaultTaxAddressId, storeScope);
+            }
+            else
+            {
+                _db.Addresses.Remove(settings.DefaultTaxAddressId);
+                await Services.Settings.RemoveSettingAsync(settings, x => x.DefaultTaxAddressId, storeScope);
+            }
+
+            await _db.SaveChangesAsync();
+
+            return NotifyAndRedirect("Tax");
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
