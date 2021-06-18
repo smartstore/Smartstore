@@ -2,7 +2,7 @@
 
 // TODO: (core) Move the extended String.prototype.format to smartstore.system.js once bundling is ready
 
-String.prototype.format = function () {
+String.prototype.format = function () { 
     function getType(o) {
         const t = typeof o;
 

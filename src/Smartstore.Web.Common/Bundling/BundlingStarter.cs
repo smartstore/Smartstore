@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using NUglify.JavaScript;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
@@ -18,20 +19,41 @@ namespace Smartstore.Web.Bundling
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
-            var cssBundlingSettings = new CssBundlingSettings { Minify = false };
-            var codeBundlingSettings = new CodeBundlingSettings { Minify = false };
-            var codeSettings = new CodeSettings { IgnoreAllErrors = false, MinifyCode = false, ScriptVersion = ScriptVersion.EcmaScript6, EvalLiteralExpressions = false, AmdSupport = true };
+            var isProduction = appContext.HostEnvironment.IsProduction();
+
+            var cssBundlingSettings = new CssBundlingSettings 
+            { 
+                Minify = isProduction, 
+                Concatenate = isProduction,
+                AdjustRelativePaths = isProduction,
+            };
+            
+            var jsBundlingSettings = new CodeBundlingSettings 
+            { 
+                Minify = isProduction,
+                Concatenate = isProduction,
+                AdjustRelativePaths = isProduction,
+            };
+
+            var codeSettings = jsBundlingSettings.CodeSettings;
+            codeSettings.AmdSupport = true;
+            codeSettings.IgnoreAllErrors = true;
+            //codeSettings.ScriptVersion = ScriptVersion.EcmaScript6;
+            codeSettings.MinifyCode = isProduction;
             codeSettings.IgnoreErrorCollection.Add("JS1010");
 
-            services.AddWebOptimizer((IWebHostEnvironment)appContext.HostEnvironment, cssBundlingSettings, codeBundlingSettings, p => {
-                var asset = p.AddJavaScriptBundle("/bundle/js/datagrid.js",
-                    "components/datagrid/datagrid.js",
-                    "components/datagrid/datagrid-pager.js",
-                    "components/datagrid/datagrid-tools.js",
-                    "js/smartstore.editortemplates.js")
-                .Concatenate()
-                //.MinifyJavaScriptWithJsMin()
-                .FingerprintUrls();
+            var environment = (IWebHostEnvironment)appContext.HostEnvironment;
+            var fileProvider = new BundlingFileProvider(environment.WebRootFileProvider);
+            var publisher = new BundlePublisher();
+
+            services.AddWebOptimizer(environment, cssBundlingSettings, jsBundlingSettings, assetPipeline => 
+            {
+                publisher.RegisterBundles(appContext, assetPipeline);
+
+                foreach (var asset in assetPipeline.Assets)
+                {
+                    asset.UseFileProvider(fileProvider);
+                }
             });
         }
 
