@@ -28,14 +28,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*DefaultPictureZoomEnabled")]
         public bool DefaultPictureZoomEnabled { get; set; }
 
-        // (window || inner || lens)
-        [Obsolete]
-        [LocalizedDisplay("*PictureZoomType")]
-        public string PictureZoomType { get; set; }
-
-        [Obsolete]
-        public List<SelectListItem> AvailablePictureZoomTypes { get; set; }
-
         [LocalizedDisplay("*StorageProvider")]
         public string StorageProvider { get; set; }
         

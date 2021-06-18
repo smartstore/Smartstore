@@ -1055,7 +1055,7 @@ namespace Smartstore.Admin.Controllers
 
             await _db.SaveChangesAsync();
 
-            return NotifyAndRedirect("Tax");
+            return NotifyAndRedirect(nameof(Tax));
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]

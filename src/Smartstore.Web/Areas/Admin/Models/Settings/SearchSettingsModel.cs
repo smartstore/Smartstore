@@ -89,6 +89,7 @@ namespace Smartstore.Admin.Models
         public static int MaxInstantSearchItems => 16;
 
         // TODO: (mh) (core) Throws with "Cannot resolve parameter addRule"
+        // RE: Because "Func<string, bool>" is an unknown IoC dependency. We need to find a way to instantiate this class manually.
         public SearchSettingValidator(Localizer T/*, Func<string, bool> addRule*/)
         {
             //if (addRule("InstantSearchNumberOfProducts"))
