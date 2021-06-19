@@ -24,16 +24,15 @@
     <partial name="_ClientRes" />
 
     <zone name="head_stylesheets">
-        <link rel="stylesheet" href="~/admin/bundles/css/common.css" />
+        <link rel="stylesheet" href="~/bundle/css/admin-common.css" />
         <link rel="stylesheet" href="~/admin/bundles/css/theme.css" />
-        <link rel="stylesheet" href="~/components/datagrid/datagrid.css" />
+        <link rel="stylesheet" href="~/components/datagrid/datagrid.scss" />
     </zone>
 
     <zone name="head_scripts">
         <script src="~/bundle/js/jquery.js"></script>
-        @* TODO: (core) Move serializeToJSON script to wwroot and include in bundle *@
-        <script src="https://cdn.jsdelivr.net/npm/jquery-serializetojson@1.4.1/dist/jquery.serializeToJSON.min.js"></script>
         <script src="~/bundle/js/vue.js"></script>
+        <script src="~/js/smartstore.globalization.adapter.js"></script>
     </zone>
 
     <link rel="shortcut icon" href="~/admin/favicon.ico?v=@SmartstoreVersion.CurrentVersion" />
@@ -45,8 +44,6 @@
 
     <zone name="head_links"></zone>
     <zone name="head"></zone>
-
-    <script src="~/js/smartstore.globalization.adapter.js"></script>
 
     <mini-profiler />
 </head>

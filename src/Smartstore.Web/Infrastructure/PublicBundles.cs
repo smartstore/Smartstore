@@ -21,6 +21,17 @@ namespace Smartstore.Web.Infrastructure
             var lib = "/lib/";
             var js = "/js/";
 
+
+            /* Public Common CSS --> /bundle/css/site-common.css
+            -----------------------------------------------------*/
+            assetPipeline.RegisterCssBundle("/bundle/css/site-common.css",
+                lib + "fa5/css/all.css", // TODO: (core) Consider "fa-use-pro" theme variable somehow
+                lib + "fontastic/fontastic.css",
+                lib + "pnotify/css/pnotify.css",
+                lib + "pnotify/css/pnotify.mobile.css",
+                lib + "pnotify/css/pnotify.buttons.css");
+
+
             /* Public Main --> /bundle/js/site.js
             -----------------------------------------------------*/
             assetPipeline.RegisterJsBundle("/bundle/js/site.js",

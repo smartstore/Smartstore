@@ -64,6 +64,11 @@ namespace Smartstore.Web.Bundling
                 }
             });
 
+            services.AddNodeServices(o => 
+            {
+                // TODO: (core) Configure NodeServices?
+            });
+
             services.AddTransient<IConfigureOptions<WebOptimizerOptions>, BundlingConfigurer>();
         }
 

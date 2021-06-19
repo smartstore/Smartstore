@@ -16,15 +16,22 @@
     <partial name="_GoogleFonts" />
 
     <zone name="head_stylesheets">
-        <link rel="stylesheet" href="~/bundles/css/common.css" />
+        <link rel="stylesheet" href="~/bundle/css/site-common.css" />
         <link rel="stylesheet" href="~/bundles/css/theme.css" />
     </zone>
 
     <zone name="head_scripts">
         <script src="~/bundle/js/jquery.js"></script>
+        <script src="~/js/smartstore.globalization.adapter.js"></script>
     </zone>
 
-    <script src="~/js/smartstore.globalization.adapter.js"></script>
+    @if (Display.GetThemeVariable<bool>("fa-use-pro"))
+    {
+        @* Preload web font files to avoid FOIT (Flash of Invisible Text) and FOUT (Flash of Unstyled Text) *@
+        <link as="font" rel="preload" href="~/lib/fontastic/fonts/fontastic.woff" crossorigin />
+        <link as="font" rel="preload" href="~/lib/fa5/webfonts/fa-solid-900.woff2" crossorigin />
+        <link as="font" rel="preload" href="~/lib/fa5/webfonts/fa-regular-400.woff2" crossorigin />
+    }
 
     <zone name="head_canonical"></zone>
     <zone name="head_links"></zone>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine;
 using Smartstore.Web.Bundling;
 using WebOptimizer;
@@ -23,6 +24,17 @@ namespace Smartstore.Web.Infrastructure
             var adminJs = "/admin/js/";
             var components = "/components/";
 
+
+            /* Admin Common CSS --> /bundle/css/admin-common.css
+            -----------------------------------------------------*/
+            assetPipeline.RegisterCssBundle("/bundle/css/admin-common.css",
+                lib + "fontastic/fontastic.css",
+                lib + "fa5/css/all.css",
+                lib + "pnotify/css/pnotify.css",
+                lib + "pnotify/css/pnotify.mobile.css",
+                lib + "pnotify/css/pnotify.buttons.css");
+
+
             /* Admin Main --> /bundle/js/admin.js
             -----------------------------------------------------*/
             assetPipeline.RegisterJsBundle("/bundle/js/admin.js",
@@ -38,6 +50,7 @@ namespace Smartstore.Web.Infrastructure
                 lib + "jquery/jquery.validate.js",
                 lib + "jquery/jquery.validate.unobtrusive.js",
                 lib + "jquery/jquery.scrollTo.js",
+                lib + "jquery/jquery.serializeToJSON.min.js",
                 lib + "sortable/sortable.js",
                 lib + "sortable/jquery-sortable.js",
                 lib + "moment/moment.js",
@@ -84,11 +97,16 @@ namespace Smartstore.Web.Infrastructure
 
             /* DataGrid --> /bundle/js/datagrid.js
             -----------------------------------------------------*/
+            // Script
             assetPipeline.RegisterJsBundle("/bundle/js/datagrid.js",
                 components + "datagrid/datagrid.js",
                 components + "datagrid/datagrid-pager.js",
                 components + "datagrid/datagrid-tools.js");
+            // CSS
+            assetPipeline.CompileScssFiles(null, components + "datagrid/datagrid.scss").MinifyCss();
 
+            // TEST
+            assetPipeline.CompileScssFiles(null, lib + "bs4/scss/bootstrap.scss").MinifyCss();
 
             /* Summernote--> /bundle/js/summernote.js
 			------------------------------------------------------*/

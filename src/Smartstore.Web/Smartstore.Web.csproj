@@ -24,10 +24,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Remove="compilerconfig.json" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <None Remove="Areas\Admin\sitemap.xml" />
 	</ItemGroup>
 
@@ -51,7 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="compilerconfig.json" />
     <None Include="wwwroot\lib\drift\Drift.js" />
     <None Include="wwwroot\lib\drift\Drift.min.js" />
     <None Include="wwwroot\lib\drift\LICENSE" />

@@ -5,11 +5,15 @@ using Smartstore.Web.Bundling.Processors;
 using Smartstore;
 using NUglify.Css;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+using System.Collections.Concurrent;
 
 namespace Smartstore.Web.Bundling
 {
     public static class AssetPipelineExtensions
     {
+        private static FieldInfo _internalAssetsField = null;
+        
         /// <summary>
         /// Creates a JavaScript bundle on the specified route and adds configuration-aware processors (like minifier, concatenator etc.).
         /// Always call this method instead of WebOptimizer's "AddJavaScriptBundle()" to register a script bundle unless you intend to do some custom stuff.
@@ -23,7 +27,7 @@ namespace Smartstore.Web.Bundling
                 .AddResponseHeader("X-Content-Type-Options", "nosniff")
                 .Concatenate();
 
-            return bundle;
+            return WrapAsset(assetPipeline, bundle);
         }
 
         /// <summary>
@@ -38,10 +42,11 @@ namespace Smartstore.Web.Bundling
                 .AdjustRelativePaths()
                 .MinifyCss(new CssSettings { FixIE8Fonts = false, ColorNames = CssColor.Strict })
                 .Concatenate()
+                //.AutoPrefixCss()
                 .FingerprintUrls()
                 .AddResponseHeader("X-Content-Type-Options", "nosniff");
 
-            return bundle;
+            return WrapAsset(assetPipeline, bundle);
         }
 
         /// <summary>
@@ -72,6 +77,21 @@ namespace Smartstore.Web.Bundling
 
             asset.Processors.AddRange(processors);
             return asset;
+        }
+
+        private static SmartAsset WrapAsset(IAssetPipeline assetPipeline, IAsset asset)
+        {
+            var wrappedAsset = new SmartAsset(asset);
+            var internalAssets = GetInternalAssetsField(assetPipeline).GetValue(assetPipeline) as ConcurrentDictionary<string, IAsset>;
+
+            internalAssets.TryUpdate(asset.Route, wrappedAsset, asset);
+
+            return wrappedAsset;
+        }
+
+        private static FieldInfo GetInternalAssetsField(IAssetPipeline assetPipeline)
+        {
+            return _internalAssetsField ??= assetPipeline.GetType().GetField("_assets", BindingFlags.NonPublic | BindingFlags.Instance);
         }
     }
 }
