@@ -102,6 +102,7 @@ namespace Smartstore.Threading
                 if (_toRelease._key != null)
                 {
                     _toRelease.DecrementCount();
+
                     if (_toRelease._waiterCount == 0)
                     {
                         // Remove from dict if keyed lock
@@ -109,7 +110,12 @@ namespace Smartstore.Threading
                     }
                 }
 
-                _toRelease._semaphore.Release();
+                if (_toRelease._semaphore.CurrentCount == 0)
+                {
+                    _toRelease._semaphore.Release();
+                }
+
+                _toRelease._semaphore.Dispose();
             }
         }
     }
