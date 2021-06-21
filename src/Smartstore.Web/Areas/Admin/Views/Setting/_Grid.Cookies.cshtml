@@ -23,7 +23,7 @@
         <column for="IsPluginInfo" width="0.75fr" halign="center" />
     </columns>
     <row-commands>
-        <a datarow-action="DataRowAction.Custom" class="edit-cookie-infos" v-bind:class="{ disabled: item.row.IsPluginInfo }">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Custom" class="edit-cookie-infos" :data-key="item.row.Name" v-bind:class="{ disabled: item.row.IsPluginInfo }">@T("Common.Edit")</a>
         <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete" v-bind:class="{ disabled: item.row.IsPluginInfo }">@T("Common.Delete")</a>
     </row-commands>
@@ -36,24 +36,16 @@
             return false;
         });
 
-        // TODO: (mh) (core) Won't be called...
         $(document).on('click', '.edit-cookie-infos', function (e) {
             e.preventDefault();
-
-			var tr = $(this).closest('tr');
-			var name = tr.data("key");
-			var href = '@Url.Action("CookieInfoEditPopup", "Setting")?name=' + name;
-
+            var href = '@Url.Action("CookieInfoEditPopup", "Setting")?name=' + $(this).data("key");
 			openPopup(href, false);
-
 			return false;
 		});
     });
 
     function cookieInfos_onRowClass(row) {
         if (row.IsPluginInfo) {
-            // TODO: (mh) (core) How to turn off edit buttons on row level?
-            //$(e.row).find('.t-button').addClass("d-none");
             return { 'text-muted': !!(row) };
 		}
     }
