@@ -4,6 +4,7 @@
 
 @{
     var returnUrl = Model.ReturnUrl ?? Context.Request.RawUrl();
+    var showLine = false;
 }
 
 <div sm-if="!Model.Profiles.Any()" class="alert alert-info">
@@ -13,6 +14,7 @@
 <div sm-if="Model.Profiles.Any()" class="adminContent">
     @foreach (var profile in Model.Profiles)
     {
+        <hr sm-if="showLine" class="py-1" />
         <div class="adminRow info-profile">
             <div class="adminTitle">
                 <smart-label asp-for="Profiles" />
@@ -33,5 +35,7 @@
                 @*TODO: (mg) (core) complete export profile view component (MinimalTask view component required)*@
             </div>
         </div>
+
+        showLine = true;
     }
 </div>

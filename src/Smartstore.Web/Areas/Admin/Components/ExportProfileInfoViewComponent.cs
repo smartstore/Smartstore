@@ -8,11 +8,11 @@ using Smartstore.Web.Components;
 
 namespace Smartstore.Admin.Components
 {
-    public class ExportProfileViewComponent : SmartViewComponent
+    public class ExportProfileInfoViewComponent : SmartViewComponent
     {
         private readonly SmartDbContext _db;
 
-        public ExportProfileViewComponent(SmartDbContext db)
+        public ExportProfileInfoViewComponent(SmartDbContext db)
         {
             _db = db;
         }
