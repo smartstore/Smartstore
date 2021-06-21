@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine;
 using Smartstore.Web.Bundling;
+using Smartstore.Web.Bundling.Processors;
 using WebOptimizer;
 
 namespace Smartstore.Web.Infrastructure
@@ -106,7 +107,12 @@ namespace Smartstore.Web.Infrastructure
             assetPipeline.CompileScssFiles(null, components + "datagrid/datagrid.scss").MinifyCss();
 
             // TEST
-            assetPipeline.CompileScssFiles(null, lib + "bs4/scss/bootstrap.scss").MinifyCss();
+            assetPipeline.AddFiles("text/css; charset=UTF-8", lib + "bs4/scss/bootstrap.scss")
+                .AddSassProcessor()
+                .FingerprintUrls()
+                .AddResponseHeader("X-Content-Type-Options", "nosniff")
+                .MinifyCss();
+            //assetPipeline.CompileScssFiles(null, lib + "bs4/scss/bootstrap.scss").MinifyCss();
 
             /* Summernote--> /bundle/js/summernote.js
 			------------------------------------------------------*/

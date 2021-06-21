@@ -79,6 +79,28 @@ namespace Smartstore.Web.Bundling
             return asset;
         }
 
+        /// <summary>
+        /// Adds processors to the asset pipeline.
+        /// </summary>
+        public static IEnumerable<IAsset> AddProcessor(this IEnumerable<IAsset> assets, params IProcessor[] processors)
+        {
+            Guard.NotNull(assets, nameof(assets));
+
+            assets.Each(x => x.AddProcessor(processors));
+            return assets;
+        }
+
+        /// <summary>
+        /// Adds processors to the asset pipeline.
+        /// </summary>
+        public static IEnumerable<IAsset> AddSassProcessor(this IEnumerable<IAsset> assets)
+        {
+            Guard.NotNull(assets, nameof(assets));
+
+            assets.Each(x => x.AddProcessor(new SassProcessor(x)));
+            return assets;
+        }
+
         private static SmartAsset WrapAsset(IAssetPipeline assetPipeline, IAsset asset)
         {
             var wrappedAsset = new SmartAsset(asset);
