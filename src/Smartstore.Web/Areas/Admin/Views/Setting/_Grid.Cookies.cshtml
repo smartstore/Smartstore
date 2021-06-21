@@ -46,14 +46,14 @@
 		});
     });
 
-    $('#btnRefreshCookieInfos').click(function () {
-        window["cookie-infos-grid"].$root.$children[0].read();
+    $('#btnRefreshCookieInfos').on('click', function () {
+        window["cookie-infos-grid"].$children[0].read();
         return false;
     });
 
     function cookieInfos_onRowClass(row) {
         if (row.IsPluginInfo) {
-            return { 'text-muted': !!(row) };
+            return { 'text-muted': true };
 		}
     }
 </script>
