@@ -19,11 +19,11 @@
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
-            <button type="submit" id="export-deployment-delete" name="export-deployment-delete" value="export-deployment-delete" class="btn btn-danger">
+            <button type="submit" id="delete-deployment" name="delete-deployment" value="delete-deployment" class="btn btn-danger">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete")</span>
             </button>
-            <confirm button-id="export-deployment-delete" />
+            <confirm button-id="delete-deployment" action="DeleteDeployment" />
         </div>
     </div>
 

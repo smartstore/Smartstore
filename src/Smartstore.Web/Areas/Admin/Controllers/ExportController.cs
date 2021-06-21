@@ -38,7 +38,6 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
-    // TODO: (mg) (core) add ViewComponent for former child-action "InfoProfile".
     public class ExportController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
@@ -227,7 +226,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Export.Update)]
         public async Task<IActionResult> Edit(ExportProfileModel model, bool continueEditing)
         {
-            var (profile, provider) = await LoadProfileAndProvider(model.Id);
+            var (profile, provider) = await LoadProfileAndProvider(model.Id, true);
             if (profile == null)
             {
                 return RedirectToAction("List");
@@ -319,7 +318,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Export.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
-            var (profile, _) = await LoadProfileAndProvider(id);
+            var (profile, _) = await LoadProfileAndProvider(id, true);
             if (profile == null)
             {
                 return RedirectToAction("List");
@@ -712,8 +711,9 @@ namespace Smartstore.Admin.Controllers
             {
                 var deployment = MiniMapper.Map<ExportDeploymentModel, ExportDeployment>(model);
                 deployment.EmailAddresses = string.Join(",", model.EmailAddresses ?? Array.Empty<string>());
+                deployment.Id = 0;  // Route value > Model binding > MiniMapper > deployment.Id != 0 > SqlException!!
 
-                profile.Deployments.Add(deployment);
+                _db.ExportDeployments.Add(deployment);
 
                 await _db.SaveChangesAsync();
 
@@ -782,10 +782,11 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [FormValueRequired("delete-deployment")]
         [Permission(Permissions.Configuration.Export.Delete)]
         public async Task<IActionResult> DeleteDeployment(int id)
         {
-            var deployment = await _db.ExportDeployments.FindByIdAsync(id, false);
+            var deployment = await _db.ExportDeployments.FindByIdAsync(id, true);
             if (deployment == null)
             {
                 return RedirectToAction("List");
@@ -1230,12 +1231,12 @@ namespace Smartstore.Admin.Controllers
             fileInfos.Add(fi);
         }
 
-        public async Task<(ExportProfile Profile, Provider<IExportProvider> Provider)> LoadProfileAndProvider(int profileId)
+        public async Task<(ExportProfile Profile, Provider<IExportProvider> Provider)> LoadProfileAndProvider(int profileId, bool tracked = false)
         {
             if (profileId != 0)
             {
                 var profile = await _db.ExportProfiles
-                    .AsNoTracking()
+                    .ApplyTracking(tracked)
                     .ApplyStandardFilter()
                     .FirstOrDefaultAsync(x => x.Id == profileId);
 

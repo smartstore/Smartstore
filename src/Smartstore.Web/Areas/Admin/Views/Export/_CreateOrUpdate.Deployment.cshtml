@@ -124,7 +124,7 @@
             <smart-label asp-for="Username" />
         </div>
         <div class="adminData">
-            <input asp-for="Username" />
+            <input asp-for="Username" autocomplete="new-password" />
             <span asp-validation-for="Username"></span>
         </div>
     </div>
@@ -133,7 +133,7 @@
             <smart-label asp-for="Password" />
         </div>
         <div class="adminData">
-            <editor asp-for="Password" attr-value='(Model.Password.HasValue(), Model.Password)' />
+            <input asp-for="Password" type="password" autocomplete="new-password" class="password" attr-value='(Model.Password.HasValue(), Model.Password)' />
             <span asp-validation-for="Password"></span>
         </div>
     </div>

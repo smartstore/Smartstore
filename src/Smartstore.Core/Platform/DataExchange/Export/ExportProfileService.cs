@@ -360,8 +360,8 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             await _db.LoadCollectionAsync(profile, x => x.Deployments);
-            await _db.LoadReferenceAsync(profile, x => x.Task);
 
+            var taskId = profile.TaskId;
             var directory = await GetExportDirectoryAsync(profile);
             var deployments = profile.Deployments.Where(x => !x.IsTransientRecord()).ToList();
 
@@ -370,14 +370,15 @@ namespace Smartstore.Core.DataExchange.Export
                 _db.ExportDeployments.RemoveRange(deployments);
             }
 
-            if (profile.Task != null)
-            {
-                await _taskStore.DeleteTaskAsync(profile.Task);
-            }
-
             _db.ExportProfiles.Remove(profile);
 
             await _db.SaveChangesAsync();
+
+            var task = await _taskStore.GetTaskByIdAsync(taskId);
+            if (task != null)
+            {
+                await _taskStore.DeleteTaskAsync(profile.Task);
+            }
 
             if (directory.Exists)
             {
