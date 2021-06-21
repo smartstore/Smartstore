@@ -1,0 +1,37 @@
+﻿@using Smartstore.Admin.Models.Export
+
+@model ProfileInfoForProviderModel
+
+@{
+    var returnUrl = Model.ReturnUrl ?? Context.Request.RawUrl();
+}
+
+<div sm-if="!Model.Profiles.Any()" class="alert alert-info">
+	@Html.Raw(T("Admin.DataExchange.Export.NoProfilesForProvider", Model.ProviderSystemName, Url.Action("List", "Export", new { area = "Admin" })))
+</div>
+
+<div sm-if="Model.Profiles.Any()" class="adminContent">
+    @foreach (var profile in Model.Profiles)
+    {
+        <div class="adminRow info-profile">
+            <div class="adminTitle">
+                <smart-label asp-for="Profiles" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    <a asp-action="Edit" asp-controller="Export" asp-route-id="@profile.Id" asp-area="Admin">
+                        @profile.Name
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div sm-if="profile.TaskId.HasValue" class="adminRow">
+            <div class="adminTitle">
+                @Html.SmartLabel("ProfileTask" + profile.Id.ToString(), T("Common.Execution"))
+            </div>
+            <div class="adminData">
+                @*TODO: (mg) (core) complete export profile view component (MinimalTask view component required)*@
+            </div>
+        </div>
+    }
+</div>

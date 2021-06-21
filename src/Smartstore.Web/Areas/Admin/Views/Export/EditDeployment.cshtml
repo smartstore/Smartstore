@@ -1,0 +1,31 @@
+﻿@model ExportDeploymentModel
+
+@{
+	ViewBag.Title = T("Common.Publishing") + " - " + T("Admin.Common.Edit");
+}
+
+<form asp-action="EditDeployment">
+    <div class="section-header">
+        <div class="title">
+            <img src="@Model.ThumbnailUrl" />
+            <span>@ViewBag.Title - @Model.Name</span>
+            <a asp-action="Edit" asp-route-id="@Model.ProfileId">(@T("Common.Back"))</a>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <button type="submit" id="export-deployment-delete" name="export-deployment-delete" value="export-deployment-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="export-deployment-delete" />
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate.Deployment" />
+</form>

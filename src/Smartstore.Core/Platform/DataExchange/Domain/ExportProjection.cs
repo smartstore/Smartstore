@@ -93,7 +93,7 @@ namespace Smartstore.Core.DataExchange
         public int? NumberOfMediaFiles { get; set; }
 
         /// <summary>
-        /// The size ov exported pictures in pixel.
+        /// The size of exported pictures in pixel.
         /// </summary>
         public int PictureSize { get; set; }
 

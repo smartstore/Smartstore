@@ -38,6 +38,7 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
+    // TODO: (mg) (core) add ViewComponent for former child-action "InfoProfile".
     public class ExportController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
@@ -674,9 +675,6 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
-        // TODO: (mg) (core) add ViewComponent for former child-action "InfoProfile".
-        // TODO: (mg) (core) implement action methods for Deployment.
-
         #region Deloyment
 
         [Permission(Permissions.Configuration.Export.Update)]
@@ -697,6 +695,114 @@ namespace Smartstore.Admin.Controllers
             }, provider, true);
 
             return View(model);
+        }
+
+        [HttpPost]
+        [FormValueRequired("save", "save-continue"), ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [Permission(Permissions.Configuration.Export.Update)]
+        public async Task<IActionResult> CreateDeployment(ExportDeploymentModel model, bool continueEditing)
+        {
+            var (profile, _) = await LoadProfileAndProvider(model.ProfileId);
+            if (profile == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            if (ModelState.IsValid)
+            {
+                var deployment = MiniMapper.Map<ExportDeploymentModel, ExportDeployment>(model);
+                deployment.EmailAddresses = string.Join(",", model.EmailAddresses ?? Array.Empty<string>());
+
+                profile.Deployments.Add(deployment);
+
+                await _db.SaveChangesAsync();
+
+                return continueEditing ?
+                    RedirectToAction("EditDeployment", new { id = deployment.Id }) :
+                    RedirectToAction("Edit", new { id = profile.Id });
+            }
+
+            return await CreateDeployment(profile.Id);
+        }
+
+        [Permission(Permissions.Configuration.Export.Update)]
+        public async Task<IActionResult> EditDeployment(int id)
+        {
+            var deployment = await _db.ExportDeployments.FindByIdAsync(id, false);
+            if (deployment == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            var (profile, provider) = await LoadProfileAndProvider(deployment.ProfileId);
+            if (profile == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            var model = await CreateDeploymentModel(profile, deployment, provider, true);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [FormValueRequired("save", "save-continue"), ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [Permission(Permissions.Configuration.Export.Update)]
+        public async Task<IActionResult> EditDeployment(ExportDeploymentModel model, bool continueEditing)
+        {
+            var deployment = await _db.ExportDeployments.FindByIdAsync(model.Id, true);
+            if (deployment == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            var (profile, provider) = await LoadProfileAndProvider(deployment.ProfileId);
+            if (profile == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            if (ModelState.IsValid)
+            {
+                MiniMapper.Map(model, deployment);
+                deployment.EmailAddresses = string.Join(",", model.EmailAddresses ?? Array.Empty<string>());
+
+                await _db.SaveChangesAsync();
+
+                NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
+
+                return continueEditing ?
+                    RedirectToAction("EditDeployment", new { id = deployment.Id }) :
+                    RedirectToAction("Edit", new { id = profile.Id });
+            }
+
+            model = await CreateDeploymentModel(profile, deployment, provider, true);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Export.Delete)]
+        public async Task<IActionResult> DeleteDeployment(int id)
+        {
+            var deployment = await _db.ExportDeployments.FindByIdAsync(id, false);
+            if (deployment == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            var (profile, _) = await LoadProfileAndProvider(deployment.ProfileId);
+            if (profile == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            _db.ExportDeployments.Remove(deployment);
+            await _db.SaveChangesAsync();
+
+            NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+
+            return RedirectToAction("Edit", new { id = profile.Id });
         }
 
         #endregion

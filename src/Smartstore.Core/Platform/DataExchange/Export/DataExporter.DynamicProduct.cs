@@ -296,7 +296,10 @@ namespace Smartstore.Core.DataExchange.Export
             // Do not export combinations if a combination is exported as a product.
             if (productContext.Combinations != null && productContext.Combination == null)
             {
-                var pictureSize = ctx.Projection.PictureSize > 0 ? ctx.Projection.PictureSize : _mediaSettings.ProductDetailsPictureSize;
+                var pictureSize = ctx.Projection.PictureSize > 0 
+                    ? _mediaSettings.GetNextValidThumbnailSize(ctx.Projection.PictureSize)
+                    : _mediaSettings.ProductDetailsPictureSize;
+
                 var productMediaFiles = (await ctx.ProductBatchContext.ProductMediaFiles.GetOrLoadAsync(product.Id))
                     .ToDictionarySafe(x => x.MediaFileId, x => x);
 
@@ -402,7 +405,9 @@ namespace Smartstore.Core.DataExchange.Export
         private async Task<IEnumerable<ProductMediaFile>> ApplyMediaFiles(dynamic dynObject, Product product, DataExporterContext ctx, DynamicProductContext productContext)
         {
             IEnumerable<ProductMediaFile> mediaFiles = await ctx.ProductBatchContext.ProductMediaFiles.GetOrLoadAsync(product.Id);
-            var productPictureSize = ctx.Projection.PictureSize > 0 ? ctx.Projection.PictureSize : _mediaSettings.ProductDetailsPictureSize;
+            var productPictureSize = ctx.Projection.PictureSize > 0 
+                ? _mediaSettings.GetNextValidThumbnailSize(ctx.Projection.PictureSize)
+                : _mediaSettings.ProductDetailsPictureSize;
 
             if (productContext.Combination != null)
             {
@@ -465,7 +470,9 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (ctx.Supports(ExportFeatures.CanIncludeMainPicture))
             {
-                var imageQuery = ctx.Projection.PictureSize > 0 ? new ProcessImageQuery { MaxWidth = ctx.Projection.PictureSize } : null;
+                var imageQuery = ctx.Projection.PictureSize > 0 
+                    ? new ProcessImageQuery { MaxWidth = _mediaSettings.GetNextValidThumbnailSize(ctx.Projection.PictureSize) } 
+                    : null;
 
                 if (mediaFiles?.Any() ?? false)
                 {
