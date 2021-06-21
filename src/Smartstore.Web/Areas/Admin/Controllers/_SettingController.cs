@@ -400,6 +400,7 @@ namespace Smartstore.Admin.Controllers
 
             // Save setting.
             await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos, 0);
+            await _db.SaveChangesAsync();
 
             return Json(new { Success = true, Count = numDeleted });
         }
@@ -414,7 +415,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CookieInfoCreatePopup(CookieInfoModel model)
+        public async Task<IActionResult> CookieInfoCreatePopup(string btnId, string formId, CookieInfoModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -461,6 +462,10 @@ namespace Smartstore.Admin.Controllers
 
             await _db.SaveChangesAsync();
 
+            ViewBag.RefreshPage = true;
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
+
             return View(model);
         }
 
@@ -496,8 +501,12 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CookieInfoEditPopup(CookieInfoModel model)
+        public async Task<IActionResult> CookieInfoEditPopup(string btnId, string formId, CookieInfoModel model)
         {
+            ViewBag.RefreshPage = true;
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
+
             var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
             var cookieInfo = ciList
                 .Select(x => x)
@@ -529,6 +538,8 @@ namespace Smartstore.Admin.Controllers
                     await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Name, localized.Name, localized.LanguageId);
                     await _localizedEntityService.ApplyLocalizedValueAsync(cookieInfo, x => x.Description, localized.Description, localized.LanguageId);
                 }
+
+                await _db.SaveChangesAsync();
             }
 
             return View(model);

@@ -29,6 +29,8 @@
     </row-commands>
 </datagrid>
 
+<input type="submit" id="btnRefreshCookieInfos" name="btnRefreshCookieInfos" class="d-none" />
+
 <script sm-target-zone="scripts" data-origin="cookieInfos-grid">
     $(function () {
         $("#add-cookie-info-button").on("click", function (e) {
@@ -42,6 +44,11 @@
 			openPopup(href, false);
 			return false;
 		});
+    });
+
+    $('#btnRefreshCookieInfos').click(function () {
+        window["cookie-infos-grid"].$root.$children[0].read();
+        return false;
     });
 
     function cookieInfos_onRowClass(row) {
