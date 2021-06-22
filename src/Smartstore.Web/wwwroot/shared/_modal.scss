@@ -1,0 +1,235 @@
+/// <reference path="_variables-shared.scss" />
+/// <reference path="_mixins.scss" />
+/// <reference path="../bs4/scss/bootstrap.scss" />
+
+/*
+$modal-transition-duration: 0.4s;
+//$modal-transition-timing: cubic-bezier(0.25, 0.46, 0.45, 0.94); // easeOutQuad
+$modal-transition-timing: cubic-bezier(0.165, 0.84, 0.44, 1); // easeOutQuart
+//$modal-transition-timing: cubic-bezier(0.19, 1, 0.22, 1); // easeOutExpo
+*/
+
+$modal-transition-duration: 0.25s;
+$modal-transition-timing: ease-out;
+
+
+// FLEX MODAL
+// ------------------------------------------------------------
+
+/*.modal-backdrop.show {
+    backdrop-filter: blur(20px);
+}*/
+
+.modal-backdrop.fade {
+    // fade out
+    transition: opacity $modal-transition-duration $modal-transition-timing;
+    // fade in
+    &.show {
+        transition: opacity 0.15s ease-out;
+    }
+}
+
+.modal.fade {
+    .modal-dialog {
+		transition-property: opacity, transform;
+		transition-duration: $modal-transition-duration;
+		transition-timing-function: $modal-transition-timing;
+        transform: translate(0, 30px) scale(0.95, 0.95);
+        will-change: transform, opacity;
+    }
+
+    &.show .modal-dialog {
+        transform: translate(0, 0) scale(1, 1);
+        opacity: 1;
+    }
+}
+
+.modal-has-backdrop {
+	&.modal-open #page {
+		// fade in
+		filter: blur(2px);
+		transition: filter $modal-transition-duration $modal-transition-timing 0.15s;
+	}
+
+	&.modal-hiding #page {
+		// fade out
+		filter: blur(0);
+		transition: filter $modal-transition-duration $modal-transition-timing;
+	}
+}
+
+.modal-content {
+	iframe {
+		width: 100%;
+	}
+}
+
+.modal-title {
+	color: $gray-600;
+}
+
+.modal-dialog:not(.modal-flex) iframe {
+	min-height: 300px;
+}
+
+.modal-dialog-app > .modal-content {
+    border-radius: 0;
+
+    > .modal-body {
+        padding: 0;
+    }
+}
+
+.modal-closer {
+	position: absolute;
+	display: none;
+	font-size: 2.5rem;
+	padding: 0.5rem;
+	padding-top: 0;
+	top: 0;
+	right: 0;
+	line-height: 1;
+	text-decoration: none !important;
+	z-index: $zindex-modal-backdrop + 1;
+	transition: color 0.1s;
+
+	color: $gray-600;
+	&:hover {
+        color: inherit;
+	}
+
+	.modal[data-backdrop=true] > & {
+		$c: color-yiq($modal-backdrop-bg);
+		color: mix($c, $modal-backdrop-bg, 70%);
+		&:hover { color: $c; }
+	}
+}
+
+.modal-dialog.modal-flex {
+	position: fixed;
+	margin: 0;
+	width: auto;
+	height: auto;
+	max-width: none;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: 0;
+
+	@include media-breakpoint-up(md) {
+		left: 3%;
+		right: 3%;
+		top: 2%;
+		bottom: 2%;
+
+		&.modal-dialog-app {
+			right: 2.5rem;
+		}
+	}
+
+	@include media-breakpoint-up(xl) {
+		&.modal-dialog-app {
+			right: 3%;
+		}
+	}
+
+	&.modal-flex-sm {
+		@media (min-width: 800px) {
+			left: calc((100% / 2) - 400px);
+			right: calc((100% / 2) - 400px);
+		}
+	}
+
+	.modal-content {
+		max-height: none;
+		overflow-y: auto;
+		overflow-x: hidden;
+		display: flex;
+		flex-wrap: wrap;
+		flex-direction: column;
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+	}
+
+	.modal-body {
+		display: flex;
+		flex-basis: 0;
+		flex-grow: 1;
+		flex-direction: column;
+		overflow: auto;
+		max-width: 100%;
+		min-height: 1px;
+	}
+
+	.modal-flex-fill-area {
+		min-height: 100%;
+		flex: 1;
+	}
+}
+
+
+// Alert / Confirm / Prompt
+// ------------------------------------------------------------
+
+.modal.modal-box {
+	overflow-y: hidden;
+
+	.modal-header {
+		border-bottom-width: 1px;
+		padding-top: 0.75rem;
+		padding-bottom: 0.75rem;
+	}
+
+	.modal-footer > .btn {
+		min-width: 90px;
+		margin-left: 0.25rem;
+	}
+
+	&.fade .modal-dialog {
+		//transition-duration: 0.25s !important;
+	}
+
+	.modal-box-body {
+		align-items: start;
+		flex-wrap: wrap;
+
+		> div + .modal-box-input {
+			padding-top: 1rem;
+		}
+	}
+
+	.modal-box-message b {
+		font-weight: $font-weight-medium;
+	}
+
+	.modal-footer {
+		justify-content: flex-end;
+	}
+
+	.modal-box-center {
+		.modal-box-body {
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.modal-box-message {
+			text-align: center;
+		}
+
+		.modal-footer {
+			justify-content: center;
+		}
+	}
+}
+
+
+.close {
+    // "Fix" font-size
+    font-size: 1.5rem;
+	line-height: 16px;
+	font-weight: $font-weight-normal;
+	outline: 0 !important;
+}

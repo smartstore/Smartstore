@@ -7,6 +7,7 @@ using NUglify.Css;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace Smartstore.Web.Bundling
 {
@@ -47,6 +48,21 @@ namespace Smartstore.Web.Bundling
                 .AddResponseHeader("X-Content-Type-Options", "nosniff");
 
             return WrapAsset(assetPipeline, bundle);
+        }
+
+        /// <summary>
+        /// TODO: (core) Describe
+        /// </summary>
+        public static IAsset RegisterSassFile(this IAssetPipeline assetPipeline, string route)
+        {
+            var assets = Guard.NotNull(assetPipeline, nameof(assetPipeline))
+                .AddFiles("text/css; charset=UTF-8", new[] { route })
+                .AddSassProcessor()
+                .FingerprintUrls()
+                .AddResponseHeader("X-Content-Type-Options", "nosniff")
+                .MinifyCss(new CssSettings { FixIE8Fonts = false, ColorNames = CssColor.Strict });
+
+            return WrapAsset(assetPipeline, assets.FirstOrDefault());
         }
 
         /// <summary>

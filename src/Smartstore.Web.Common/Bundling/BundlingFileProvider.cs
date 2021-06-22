@@ -23,11 +23,21 @@ namespace Smartstore.Web.Bundling
 
         public IFileInfo GetFileInfo(string subpath)
         {
+            if (subpath.Contains("_alert"))
+            {
+                var yo = true;
+            }
+
             return _inner.GetFileInfo(subpath);
         }
 
         public IChangeToken Watch(string filter)
         {
+            if (filter.Contains("_alert"))
+            {
+                var yo = true;
+            }
+            
             return _inner.Watch(filter);
         }
     }

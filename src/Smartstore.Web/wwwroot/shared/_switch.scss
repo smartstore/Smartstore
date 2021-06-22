@@ -1,0 +1,99 @@
+/// <reference path="_variables-shared.scss" />
+/// <reference path="_mixins.scss" />
+/// <reference path="../bs4/scss/bootstrap.scss" />
+
+/* On/Off switch button
+-------------------------------------------------------------- */
+
+.switch {
+    @extend .col-form-label;
+}
+
+.switcher-sm > .switch {
+    @extend .col-form-label-sm;
+}
+
+.switch {
+    $h: $font-size-base * $line-height-base;
+    $h-sm: $font-size-sm * $line-height-sm;
+    $w: $h * 2;
+    $w-sm: $h-sm * 2;
+    --switcher-w: #{$w};
+    --switcher-h: #{$h};
+    --switch-size: calc(var(--switcher-h) - 4px);
+    --switch-bg-rgb: #{red($orange)}, #{green($orange)}, #{blue($orange)};
+    position: relative;
+    display: inline-block;
+    vertical-align: bottom;
+    margin: 0;
+    user-select: none;
+    box-sizing: content-box;
+    font-size: 0.725em !important;
+    width: var(--switcher-w);
+    height: var(--switcher-h);
+
+    &.switch-blue {
+        --switch-bg-rgb: #{red($blue)}, #{green($blue)}, #{blue($blue)};
+    }
+
+    .switcher-sm > & {
+        --switcher-w: #{$w-sm};
+        --switcher-h: #{$h-sm};
+    }
+
+    > .switch-toggle {
+        position: relative;
+        display: inline-block;
+        vertical-align: middle;
+        width: 100%;
+        height: 100%;
+        border-radius: $h;
+        background-color: $gray-200;
+        border: 1px solid rgba(#000, 0.15);
+        cursor: pointer;
+        transition: background-color 0.2s cubic-bezier(.54,1.85,.5,1), box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+
+        &:before {
+            // The circle (off)
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            content: ' ';
+            width: calc(var(--switch-size) - 2px);
+            height: calc(var(--switch-size) - 2px);
+            border-radius: 50%;
+            background-color: #fff;
+            box-shadow: 0 0 3px rgba(#000, 0.2);
+            transition: left 0.2s cubic-bezier(.54,1.85,.5,1);
+        }
+    }
+
+    > input[type=checkbox] {
+        position: absolute;
+        z-index: -1;
+        opacity: 0;
+        margin: 0;
+    }
+
+    > input[type=checkbox]:checked ~ .switch-toggle {
+        background-color: rgba(var(--switch-bg-rgb), 1);
+        border-color: rgba(var(--switch-bg-rgb), 1);
+
+        &:before {
+            // The circle (on)
+            left: calc(var(--switcher-w) - var(--switch-size) - 2px);
+        }
+    }
+
+    > input[type=checkbox]:focus ~ .switch-toggle {
+        box-shadow: 0 0 0 0.2rem rgba(var(--switch-bg-rgb), .25);
+    }
+
+    > input[type=checkbox]:disabled ~ .switch-toggle, 
+    > input[type=checkbox][readonly] ~ .switch-toggle {
+        opacity: $btn-disabled-opacity;
+        cursor: default;
+        border-color: transparent;
+        box-shadow: none !important;
+    }
+}

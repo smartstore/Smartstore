@@ -103,15 +103,17 @@ namespace Smartstore.Web.Infrastructure
                 components + "datagrid/datagrid.js",
                 components + "datagrid/datagrid-pager.js",
                 components + "datagrid/datagrid-tools.js");
-            // CSS
-            assetPipeline.CompileScssFiles(null, components + "datagrid/datagrid.scss").MinifyCss();
+            // Scss (Move as partial to main file later)
+            //assetPipeline.CompileScssFiles(null, components + "datagrid/datagrid.scss").MinifyCss();
+            assetPipeline.RegisterSassFile(components + "datagrid/datagrid.scss");
 
             // TEST
-            assetPipeline.AddFiles("text/css; charset=UTF-8", lib + "bs4/scss/bootstrap.scss")
-                .AddSassProcessor()
-                .FingerprintUrls()
-                .AddResponseHeader("X-Content-Type-Options", "nosniff")
-                .MinifyCss();
+            assetPipeline.RegisterSassFile(lib + "bs4/scss/bootstrap.scss");
+            //assetPipeline.AddFiles("text/css; charset=UTF-8", lib + "bs4/scss/bootstrap.scss")
+            //    .AddSassProcessor()
+            //    .FingerprintUrls()
+            //    .AddResponseHeader("X-Content-Type-Options", "nosniff")
+            //    .MinifyCss();
             //assetPipeline.CompileScssFiles(null, lib + "bs4/scss/bootstrap.scss").MinifyCss();
 
             /* Summernote--> /bundle/js/summernote.js
