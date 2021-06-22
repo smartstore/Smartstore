@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
@@ -55,7 +56,7 @@ namespace Smartstore.Web
             if (appContext.IsInstalled)
             {
                 // Configure Cookie Policy Options
-                services.AddSingleton<IConfigureOptions<CookiePolicyOptions>, CookiePolicyOptionsConfigurer>();
+                services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<CookiePolicyOptions>, CookiePolicyOptionsConfigurer>());
 
                 services.Configure<RazorViewEngineOptions>(o =>
                 {

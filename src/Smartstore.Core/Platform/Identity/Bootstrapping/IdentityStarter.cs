@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
@@ -25,7 +26,8 @@ namespace Smartstore.Core.Bootstrapping
                 .AddPasswordValidator<UserValidator>()
                 .AddSignInManager<SmartSignInManager>();
 
-            services.AddSingleton<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>();
+            services.TryAddEnumerable(
+                    ServiceDescriptor.Transient<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>());
 
             if (appContext.IsInstalled)
             {

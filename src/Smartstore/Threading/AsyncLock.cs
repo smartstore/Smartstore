@@ -109,7 +109,7 @@ namespace Smartstore.Threading
                         _keyedLocks.TryRemove(_toRelease._key, out _);
                     }
                 }
-
+                
                 if (_toRelease._semaphore.CurrentCount == 0)
                 {
                     _toRelease._semaphore.Release();

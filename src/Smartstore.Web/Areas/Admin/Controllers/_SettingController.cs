@@ -1,7 +1,13 @@
-﻿using FluentValidation;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Smartstore.Admin.Models;
 using Smartstore.ComponentModel;
@@ -35,12 +41,6 @@ using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.DataGrid;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Core.Bootstrapping;
-using Microsoft.AspNetCore.Identity;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -57,7 +57,8 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IMenuService> _menuService;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
         private readonly Lazy<IMediaMover> _mediaMover;
-        private readonly Lazy<IdentityOptionsConfigurer> _identityOptionsConfigurer;
+        private readonly Lazy<IConfigureOptions<IdentityOptions>> _identityOptionsConfigurer;
+        private readonly IOptions<IdentityOptions> _identityOptions;
         private readonly PrivacySettings _privacySettings;
 
         public SettingController(
@@ -72,7 +73,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IMenuService> menuService,
             Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper,
             Lazy<IMediaMover> mediaMover,
-            Lazy<IdentityOptionsConfigurer> identityOptionsConfigurer,
+            Lazy<IConfigureOptions<IdentityOptions>> identityOptionsConfigurer,
+            IOptions<IdentityOptions> identityOptions,
             PrivacySettings privacySettings)
         {
             _db = db;
@@ -87,6 +89,7 @@ namespace Smartstore.Admin.Controllers
             _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
             _mediaMover = mediaMover;
             _identityOptionsConfigurer = identityOptionsConfigurer;
+            _identityOptions = identityOptions;
             _privacySettings = privacySettings;
         }
 
@@ -343,7 +346,7 @@ namespace Smartstore.Admin.Controllers
             {
                 // Save customerSettings now so new values can be applied in IdentityOptionsConfigurer.
                 await Services.SettingFactory.SaveSettingsAsync(customerSettings, storeScope);
-                _identityOptionsConfigurer.Value.Configure(new IdentityOptions());
+                _identityOptionsConfigurer.Value.Configure(_identityOptions.Value);
             }
             
             await MapperFactory.MapAsync(model.AddressSettings, addressSettings);

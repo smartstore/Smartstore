@@ -5,7 +5,7 @@ using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public sealed class IdentityOptionsConfigurer : IConfigureOptions<IdentityOptions>
+    internal sealed class IdentityOptionsConfigurer : IConfigureOptions<IdentityOptions>
     {
         private readonly CustomerSettings _customerSettings;
 
