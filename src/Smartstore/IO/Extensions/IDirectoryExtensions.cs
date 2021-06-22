@@ -20,7 +20,9 @@ namespace Smartstore
                 return null;
             }
 
-            return directory.FileSystem.GetFile(directory.FileSystem.PathCombine(directory.SubPath, fileName));
+            var path = directory.FileSystem.PathCombine(directory.SubPath.EmptyNull(), fileName);
+
+            return directory.FileSystem.GetFile(path);
         }
 
         /// <summary>
@@ -38,7 +40,9 @@ namespace Smartstore
                 return null;
             }
 
-            return await directory.FileSystem.GetFileAsync(directory.FileSystem.PathCombine(directory.SubPath, fileName));
+            var path = directory.FileSystem.PathCombine(directory.SubPath.EmptyNull(), fileName);
+
+            return await directory.FileSystem.GetFileAsync(path);
         }
     }
 }

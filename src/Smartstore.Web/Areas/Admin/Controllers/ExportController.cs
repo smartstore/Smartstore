@@ -782,7 +782,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [FormValueRequired("delete-deployment")]
         [Permission(Permissions.Configuration.Export.Delete)]
         public async Task<IActionResult> DeleteDeployment(int id)
         {

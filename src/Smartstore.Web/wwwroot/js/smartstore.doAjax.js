@@ -47,8 +47,16 @@
         else if (_.isEmpty(options.ask)) {
             createAndSubmitForm();
         }
-        else if (confirm(options.ask)) {
-            createAndSubmitForm();
+        else {
+            confirm2({
+                message: options.ask,
+                icon: { type: 'question' },
+                callback: accepted => {
+                    if (accepted) {
+                        createAndSubmitForm();
+                    }
+                }
+            });
         }
 
         return this.each(function () { });
@@ -147,8 +155,16 @@
         if (_.isEmpty(opt.ask)) {
             doRequest(opt);
         }
-        else if (confirm(opt.ask)) {
-            doRequest(opt);
+        else {
+            confirm2({
+                message: options.ask,
+                icon: { type: 'question' },
+                callback: accepted => {
+                    if (accepted) {
+                        doRequest(opt);
+                    }
+                }
+            });
         }
     }
 

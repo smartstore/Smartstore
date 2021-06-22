@@ -110,6 +110,7 @@ namespace Smartstore.Core.DataExchange.Export
                 }
                 else if (deployment.DeploymentType == ExportDeploymentType.FileSystem && deployment.FileSystemPath.HasValue())
                 {
+                    // Any file system path is allowed.
                     var fullPath = deployment.FileSystemPath;
 
                     if (!PathHelper.IsAbsolutePhysicalPath(fullPath))
@@ -117,9 +118,13 @@ namespace Smartstore.Core.DataExchange.Export
                         fullPath = CommonHelper.MapPath(PathHelper.NormalizeRelativePath(fullPath));
                     }
 
-                    // 'fullPath' must exist for LocalFileSystem (otherwise exception).
                     if (!Directory.Exists(fullPath))
                     {
+                        if (!createIfNotExists)
+                        {
+                            return null;
+                        }
+
                         try
                         {
                             Directory.CreateDirectory(fullPath);
@@ -130,6 +135,7 @@ namespace Smartstore.Core.DataExchange.Export
                         }
                     }
 
+                    // 'fullPath' must exist for LocalFileSystem (otherwise exception)!
                     var root = new LocalFileSystem(fullPath);
 
                     return await root.GetDirectoryAsync(null);
@@ -360,8 +366,8 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             await _db.LoadCollectionAsync(profile, x => x.Deployments);
+            await _db.LoadReferenceAsync(profile, x => x.Task);
 
-            var taskId = profile.TaskId;
             var directory = await GetExportDirectoryAsync(profile);
             var deployments = profile.Deployments.Where(x => !x.IsTransientRecord()).ToList();
 
@@ -374,8 +380,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             await _db.SaveChangesAsync();
 
-            var task = await _taskStore.GetTaskByIdAsync(taskId);
-            if (task != null)
+            if (profile.Task != null)
             {
                 await _taskStore.DeleteTaskAsync(profile.Task);
             }

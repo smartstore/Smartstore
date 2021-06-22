@@ -113,7 +113,7 @@
             <span asp-validation-for="Filter.WithoutCategories"></span>
         </div>
     </div>
-    <div class="adminRow">
+    <div id="FilterCategoryIdsContainer" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="Filter.CategoryIds" />
         </div>
@@ -126,6 +126,7 @@
                 data-select-lazy="True" 
                 data-select-url="@Url.Action("AllCategories", "Category", new { selectedIds = string.Join(",", selectedCategories.Select(x => x.Value)) })">
             </select>
+            @*TODO: (mg) (core) Super stupid validation issue. Right clearing "x" sends empty string to server (which is absolutely ok) but is validated to "The value '' is invalid".*@
             <span asp-validation-for="Filter.CategoryIds"></span>
         </div>
     </div>
