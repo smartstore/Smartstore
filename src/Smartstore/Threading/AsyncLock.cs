@@ -115,7 +115,7 @@ namespace Smartstore.Threading
                     _toRelease._semaphore.Release();
                 }
 
-                _toRelease._semaphore.Dispose();
+                //_toRelease._semaphore.Dispose();
             }
         }
     }
