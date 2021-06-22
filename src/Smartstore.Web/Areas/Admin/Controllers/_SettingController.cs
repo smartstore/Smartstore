@@ -1337,6 +1337,20 @@ namespace Smartstore.Admin.Controllers
             return NotifyAndRedirect("Order");
         }
 
+        [Permission(Permissions.Configuration.Setting.Read)]
+        [HttpPost, LoadSetting]
+        public IActionResult TestSeoNameCreation(SeoSettings settings, GeneralCommonSettingsModel model)
+        {
+            // We always test against persisted settings.
+            var result = SeoHelper.BuildSlug(
+                model.SeoSettings.TestSeoNameCreation,
+                settings.ConvertNonWesternChars,
+                settings.AllowUnicodeCharsInUrls,
+                settings.SeoNameCharConversion);
+
+            return Content(result);
+        }
+
         private async Task UpdateLocalizedFacetSettingAsync(CommonFacetSettingsModel model, FacetGroupKind kind, bool clearCache, string scope = null)
         {
             foreach (var localized in model.Locales)
