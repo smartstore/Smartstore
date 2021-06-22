@@ -281,8 +281,6 @@ namespace Smartstore.Admin.Controllers
                 var path = qea.Path;
                 if (path[0] == '~' || path[0] == '/')
                 {
-                    // TODO: (mh) (core) How to replace VirtualPathUtility.ToAppRelative ???
-                    //path = CommonHelper.MapPath(VirtualPathUtility.ToAppRelative(path), false);
                     path = CommonHelper.MapPath(path, false);
                 }
 
