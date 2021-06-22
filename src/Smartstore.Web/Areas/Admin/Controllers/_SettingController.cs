@@ -39,6 +39,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Smartstore.Core.Bootstrapping;
+using Microsoft.AspNetCore.Identity;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -55,6 +57,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IMenuService> _menuService;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
         private readonly Lazy<IMediaMover> _mediaMover;
+        private readonly Lazy<IdentityOptionsConfigurer> _identityOptionsConfigurer;
         private readonly PrivacySettings _privacySettings;
 
         public SettingController(
@@ -69,6 +72,7 @@ namespace Smartstore.Admin.Controllers
             Lazy<IMenuService> menuService,
             Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper,
             Lazy<IMediaMover> mediaMover,
+            Lazy<IdentityOptionsConfigurer> identityOptionsConfigurer,
             PrivacySettings privacySettings)
         {
             _db = db;
@@ -82,6 +86,7 @@ namespace Smartstore.Admin.Controllers
             _menuService = menuService;
             _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
             _mediaMover = mediaMover;
+            _identityOptionsConfigurer = identityOptionsConfigurer;
             _privacySettings = privacySettings;
         }
 
@@ -331,7 +336,16 @@ namespace Smartstore.Admin.Controllers
 
             ModelState.Clear();
 
+            var updateIdentity = ShouldUpdateIdentityOptions(model.CustomerSettings, customerSettings);
             await MapperFactory.MapAsync(model.CustomerSettings, customerSettings);
+
+            if (updateIdentity)
+            {
+                // Save customerSettings now so new values can be applied in IdentityOptionsConfigurer.
+                await Services.SettingFactory.SaveSettingsAsync(customerSettings, storeScope);
+                _identityOptionsConfigurer.Value.Configure(new IdentityOptions());
+            }
+            
             await MapperFactory.MapAsync(model.AddressSettings, addressSettings);
             await MapperFactory.MapAsync(model.PrivacySettings, privacySettings);
 
@@ -343,6 +357,21 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             return NotifyAndRedirect("CustomerUser");
+        }
+
+        private bool ShouldUpdateIdentityOptions(CustomerUserSettingsModel.CustomerSettingsModel model, CustomerSettings settings) 
+        { 
+            if (model.PasswordMinLength != settings.PasswordMinLength 
+                || model.PasswordRequireDigit != settings.PasswordRequireDigit
+                || model.PasswordRequireUppercase != settings.PasswordRequireUppercase
+                || model.PasswordRequiredUniqueChars != settings.PasswordRequiredUniqueChars
+                || model.PasswordRequireLowercase != settings.PasswordRequireLowercase
+                || model.PasswordRequireNonAlphanumeric != settings.PasswordRequireNonAlphanumeric)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public async Task<IActionResult> CookieInfoList(GridCommand command)
@@ -411,9 +440,7 @@ namespace Smartstore.Admin.Controllers
         public IActionResult CookieInfoCreatePopup()
         {
             var model = new CookieInfoModel();
-
             AddLocales(model.Locales);
-
             return View(model);
         }
 
