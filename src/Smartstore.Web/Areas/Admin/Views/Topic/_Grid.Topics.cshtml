@@ -29,7 +29,7 @@
         <partial name="_Grid.Topics.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="SystemName" readonly="true" width="minmax(60px, 1.5fr)">
+        <column for="SystemName" readonly="true" width="minmax(60px, 1.5fr)" hideable="false">
             <display-template>
                 <a :href="item.row.ViewUrl" class="text-truncate">
                     {{ item.value }}
