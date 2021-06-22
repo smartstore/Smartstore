@@ -1,11 +1,9 @@
-﻿@using Smartstore.Admin.Models.Logging
-
-@{
+﻿@{
     ViewBag.Title = T("Admin.System.Log").Value;
     Assets.BodyAttributes.AppendCssClass("spa-layout");
 }
 
-<form method="post" asp-action="List">
+<form method="post">
     <div class="section-header">
         <div class="title">
             <i class="fa fa-fire"></i>
@@ -16,7 +14,7 @@
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.System.Log.ClearLog")</span>
             </button>
-            <confirm button-id="clearall" />
+            <confirm button-id="clearall" action="LogClear" message="@T("Admin.System.Log.ClearLog.Confirm")" />
         </div>
     </div>
 </form>

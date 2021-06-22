@@ -109,8 +109,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true, Count = numDeleted });
         }
 
-        [HttpPost, ActionName("List")]
-        [FormValueRequired("clearall")]
+        [HttpPost, FormValueRequired("clearall")]
         [Permission(Permissions.System.Log.Delete)]
         public async Task<IActionResult> LogClear()
         {

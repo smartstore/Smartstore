@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace Smartstore.Admin.Controllers
 {
     // TODO: (ms) (core) Implement missing action methods. (wip)
-    // DownloadAttachment, Edit/Edit (view), delete all, GoToEmailByNumber, Requeue, SendNow
+    // DownloadAttachment, Edit/Edit (view), GoToEmailByNumber, Requeue, SendNow
 
     public class QueuedEmailController : AdminControllerBase
     {
@@ -97,6 +97,23 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
+        [Permission(Permissions.System.Message.Delete)]
+        [HttpPost]
+        public async Task<IActionResult> Delete(QueuedEmailModel model)
+        {
+            var email = await _db.QueuedEmails.FindByIdAsync(model.Id);
+            if (email == null)
+            {
+                return RedirectToAction("List");
+            }
+
+            _db.QueuedEmails.Remove(email);
+            await _db.SaveChangesAsync();
+
+            NotifySuccess(T("Admin.System.QueuedEmails.Deleted"));
+            return RedirectToAction("List");
+        }
+
         [HttpPost]
         [Permission(Permissions.System.Message.Delete)]
         public async Task<IActionResult> QueuedEmailDelete(GridSelection selection)
@@ -115,6 +132,15 @@ namespace Smartstore.Admin.Controllers
                 Success = true,
                 Count = numDeleted
             });
+        }
+
+        [Permission(Permissions.System.Message.Delete)]
+        [HttpPost, FormValueRequired("delete-all")]
+        public async Task<IActionResult> DeleteAll()
+        {
+            var count = await _queuedEmailService.DeleteAllQueuedMailsAsync();
+            NotifySuccess(T("Admin.Common.RecordsDeleted", count));
+            return RedirectToAction("List");
         }
 
         [Permission(Permissions.System.Message.Read)]

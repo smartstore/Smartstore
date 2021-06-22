@@ -294,8 +294,31 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        [HttpPost, ActionName("Delete")]
+        [Permission(Permissions.Cms.Topic.Delete)]
+        public async Task<IActionResult> Delete(TopicModel model)
+        {
+            var topic = await _db.Topics.FindByIdAsync(model.Id);
+            if (topic == null)
+            {
+                return RedirectToAction(nameof(List));
+            }
+
+            if (topic.IsSystemTopic)
+            {
+                NotifyError(T("Admin.ContentManagement.Topics.CannotBeDeleted"));
+                return RedirectToAction(nameof(Edit), new { id = topic.Id });
+            }
+
+            _db.Topics.Remove(topic);
+            await _db.SaveChangesAsync();
+
+            NotifySuccess(T("Admin.ContentManagement.Topics.Deleted"));
+            return RedirectToAction(nameof(List));
+        }
+
         /// <summary>
-        /// (ajax) Gets a list of all available topics.
+        /// (AJAX) Gets a list of all available topics.
         /// </summary>
         /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
         /// <param name="selectedIds">Ids of selected entities.</param>

@@ -7,13 +7,14 @@
     ViewBag.Title = T("Admin.System.Log.ViewLogDetails").Value;
 }
 
-<form method="post" asp-action="DeleteConfirmed">
+<form method="post">
+    <input asp-for="Id" type="hidden" />
+
     <div class="section-header">
         <div class="title">
             <i class="fa fa-fire"></i>
             @T("Admin.System.Log.ViewLogDetails") <a asp-action="List">(@T("Admin.System.Log.BackToList"))</a>
         </div>
-        <input asp-for="Id" type="hidden" />
         <div class="options">
             <button type="submit" id="log-delete" class="btn btn-danger">
                 <i class="far fa-trash-alt"></i>
