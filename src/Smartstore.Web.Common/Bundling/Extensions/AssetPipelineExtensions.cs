@@ -113,7 +113,7 @@ namespace Smartstore.Web.Bundling
         {
             Guard.NotNull(assets, nameof(assets));
 
-            assets.Each(x => x.AddProcessor(new SassProcessor(x)));
+            assets.Each(x => x.AddProcessor(new SassProcessor()));
             return assets;
         }
 

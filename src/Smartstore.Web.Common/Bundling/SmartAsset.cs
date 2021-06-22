@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,11 +13,13 @@ using WebOptimizer;
 
 namespace Smartstore.Web.Bundling
 {
+    [DebuggerDisplay("{Route}")]
     public class SmartAsset : IAsset
     {
         private readonly object _lock = new();
         private readonly IAsset _inner;
-        private string[] _fixedSourceFiles;
+        private IEnumerable<string> _includedFiles;
+        private IEnumerable<string> _fixedSourceFiles;
 
         public SmartAsset(IAsset inner)
         {
@@ -59,14 +62,38 @@ namespace Smartstore.Web.Bundling
             }
         }
 
-        public Task<byte[]> ExecuteAsync(HttpContext context, IWebOptimizerOptions options)
+        public virtual IEnumerable<string> IncludedFiles
+        {
+            get => _includedFiles ?? SourceFiles;
+            set => _includedFiles = value;
+        }
+
+        public virtual Task<byte[]> ExecuteAsync(HttpContext context, IWebOptimizerOptions options)
         {
             return _inner.ExecuteAsync(context, options);
         }
 
-        public string GenerateCacheKey(HttpContext context)
+        public virtual string GenerateCacheKey(HttpContext context)
         {
-            return _inner.GenerateCacheKey(context);
+            var cacheKey = "asset:" + _inner.Route.ToLowerInvariant();
+
+            foreach (var processors in Processors)
+            {
+                try
+                {
+                    var processorKey = processors.CacheKey(context);
+                    if (processorKey.HasValue())
+                    {
+                        cacheKey += processors.CacheKey(context);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"CacheKey generation exception in {processors.GetType().FullName} processor", ex);
+                }
+            }
+
+            return cacheKey;
         }
 
         private static string TryFindMinFile(IApplicationContext appContext, IFileProvider fileProvider, string subpath)

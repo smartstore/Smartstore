@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -70,6 +71,11 @@ namespace Smartstore.Web.Bundling
             });
 
             services.AddTransient<IConfigureOptions<WebOptimizerOptions>, BundlingConfigurer>();
+        }
+
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        {
+            builder.RegisterDecorator<SmartAssetBuilder, IAssetBuilder>();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
