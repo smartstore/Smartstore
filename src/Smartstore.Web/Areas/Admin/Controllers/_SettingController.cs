@@ -54,6 +54,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IMediaTracker> _mediaTracker;
         private readonly Lazy<IMenuService> _menuService;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
+        private readonly Lazy<IMediaMover> _mediaMover;
         private readonly PrivacySettings _privacySettings;
 
         public SettingController(
@@ -67,6 +68,7 @@ namespace Smartstore.Admin.Controllers
             Lazy<IMediaTracker> mediaTracker,
             Lazy<IMenuService> menuService,
             Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper,
+            Lazy<IMediaMover> mediaMover,
             PrivacySettings privacySettings)
         {
             _db = db;
@@ -79,6 +81,7 @@ namespace Smartstore.Admin.Controllers
             _mediaTracker = mediaTracker;
             _menuService = menuService;
             _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
+            _mediaMover = mediaMover;
             _privacySettings = privacySettings;
         }
 
@@ -908,6 +911,22 @@ namespace Smartstore.Admin.Controllers
             settings = await MapperFactory.MapAsync<MediaSettingsModel, MediaSettings>(model);
 
             return NotifyAndRedirect("Media");
+        }
+
+        [Permission(Permissions.Configuration.Setting.Update)]
+        [HttpPost]
+        public async Task<IActionResult> ChangeMediaStorage(string targetProvider)
+        {
+            var currentStorageProvider = Services.Settings.GetSettingByKey<string>("Media.Storage.Provider");
+            var source = _providerManager.GetProvider<IMediaStorageProvider>(currentStorageProvider);
+            var target = _providerManager.GetProvider<IMediaStorageProvider>(targetProvider);
+
+            var success = await _mediaMover.Value.MoveAsync(source, target);
+
+            if (success)
+                NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+
+            return RedirectToAction("Media");
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
