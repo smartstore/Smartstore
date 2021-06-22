@@ -668,7 +668,16 @@ namespace Smartstore.Core.DataExchange.Export
 
             var activityFrom = f.LastActivityFrom.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.LastActivityFrom.Value, timeZone) : null;
             var activityTo = f.LastActivityTo.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.LastActivityTo.Value, timeZone) : null;
+            IQueryable<int> customerIdsByRolesQuery = null;
             IQueryable<BaseEntity> result = null;
+
+            if (f.CustomerRoleIds?.Any() ?? false)
+            {
+                customerIdsByRolesQuery = _db.CustomerRoleMappings
+                    .AsNoTracking()
+                    .Where(x => f.CustomerRoleIds.Contains(x.CustomerRoleId))
+                    .Select(x => x.CustomerId);
+            }
 
             // TODO: (mg) (core) check and test ALL export filters.
             // Sometimes no data loaded. Difference to what preview grid in classic shows. Sometimes inconsistent paging in preview grid ("holes").
@@ -761,11 +770,6 @@ namespace Smartstore.Core.DataExchange.Export
                 if (f.IsTaxExempt.HasValue)
                     query = query.Where(x => x.IsTaxExempt == f.IsTaxExempt.Value);
 
-                // TODO: (mg) (core) data exporter exception when applying customer role filter.
-                //System.ArgumentException: Expression of type 'System.Linq.IQueryable`1[System.Int32]' cannot be used for parameter of type 'System.Linq.IQueryable`1[....CustomerRoleMapping]'
-                if (f.CustomerRoleIds?.Any() ?? false)
-                    query = query.Where(x => x.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
-
                 if (f.BillingCountryIds?.Any() ?? false)
                     query = query.Where(x => x.BillingAddress != null && f.BillingCountryIds.Contains(x.BillingAddress.Id));
 
@@ -777,6 +781,9 @@ namespace Smartstore.Core.DataExchange.Export
 
                 if (activityTo.HasValue)
                     query = query.Where(x => activityTo >= x.LastActivityDateUtc);
+
+                if (customerIdsByRolesQuery != null)
+                    query = query.Where(x => customerIdsByRolesQuery.Contains(x.Id));
 
                 if (f.HasSpentAtLeastAmount.HasValue)
                 {
@@ -833,9 +840,8 @@ namespace Smartstore.Core.DataExchange.Export
                 if (createdTo.HasValue)
                     query = query.Where(x => createdTo >= x.Subscription.CreatedOnUtc);
 
-                // TODO: (mg) (core) data exporter exception when applying customer role filter.
-                if (f.CustomerRoleIds?.Any() ?? false)
-                    query = query.Where(x => x.Customer.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
+                if (customerIdsByRolesQuery != null)
+                    query = query.Where(x => customerIdsByRolesQuery.Contains(x.Customer.Id));
 
                 result = query.Select(x => x.Subscription);
             }
@@ -873,10 +879,6 @@ namespace Smartstore.Core.DataExchange.Export
                 if (f.IsTaxExempt.HasValue)
                     query = query.Where(x => x.Customer.IsTaxExempt == f.IsTaxExempt.Value);
 
-                // TODO: (mg) (core) data exporter exception when applying customer role filter.
-                if (f.CustomerRoleIds?.Any() ?? false)
-                    query = query.Where(x => x.Customer.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
-
                 if (activityFrom.HasValue)
                     query = query.Where(x => activityFrom <= x.Customer.LastActivityDateUtc);
 
@@ -893,6 +895,9 @@ namespace Smartstore.Core.DataExchange.Export
                     query = query.Where(x => x.Product.ProductTypeId != (int)ProductType.BundledProduct);
                 else
                     query = query.Where(x => x.BundleItemId == null);
+
+                if (customerIdsByRolesQuery != null)
+                    query = query.Where(x => customerIdsByRolesQuery.Contains(x.CustomerId));
 
                 result = query;
             }

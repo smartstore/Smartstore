@@ -941,7 +941,35 @@ namespace Smartstore.Web.Controllers
             //var product = await _db.Products.FindByIdAsync(1751, false);
             //var cart = await scs.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
-            var query = _db.ShoppingCartItems
+            var customerRoleIds = new[] { 1,2,5,6 };
+
+            var customerQuery = _db.Customers
+                .Include(x => x.BillingAddress)
+                .Include(x => x.ShippingAddress)
+                .Include(x => x.Addresses)
+                    .ThenInclude(x => x.Country)
+                .Include(x => x.Addresses)
+                    .ThenInclude(x => x.StateProvince)
+                .Include(x => x.CustomerRoleMappings)
+                    .ThenInclude(x => x.CustomerRole)
+                .AsNoTracking()
+                .AsNoCaching();
+
+            var customerIdsByRolesQuery = _db.CustomerRoleMappings
+                .AsNoTracking()
+                .Where(x => customerRoleIds.Contains(x.CustomerRoleId))
+                .Select(x => x.CustomerId);
+
+            customerQuery = customerQuery.Where(x => customerIdsByRolesQuery.Contains(x.Id));
+            var customers = await customerQuery.ToListAsync();
+            content.AppendLine($"Customers by role filter: {customers.Count}");
+            foreach (var c in customers)
+            {
+                content.AppendLine($"{c.Id}: {c.Email}");
+            }
+            content.AppendLine();
+
+            var cartItemQuery = _db.ShoppingCartItems
                 .Include(x => x.Customer)
                 .ThenInclude(x => x.CustomerRoleMappings)
                 .ThenInclude(x => x.CustomerRole)
@@ -951,24 +979,24 @@ namespace Smartstore.Web.Controllers
                 .Where(x => x.Customer != null && x.BundleItemId == null)
                 .OrderBy(x => x.Id);
 
-            var cartItems = await query.ToListAsync();
+            var cartItems = await cartItemQuery.ToListAsync();
             var firstItem = cartItems.First();
             content.AppendLine($"Nav test cart items: product {firstItem.Product != null}, customer {firstItem.Customer != null}");
 
 
-            var dt = DateTime.UtcNow.Subtract(TimeSpan.FromHours(4));
-            var dtConverted = Services.DateTimeHelper.ConvertToUserTime(dt, DateTimeKind.Utc);
-            content.AppendLine($"Humanize: {dtConverted} > {dtConverted.Humanize(false)}");
+            //var dt = DateTime.UtcNow.Subtract(TimeSpan.FromHours(4));
+            //var dtConverted = Services.DateTimeHelper.ConvertToUserTime(dt, DateTimeKind.Utc);
+            //content.AppendLine($"Humanize: {dtConverted} > {dtConverted.Humanize(false)}");
 
-            var imProfile = await _db.ImportProfiles.FindByIdAsync(4, false);
-            var imDir = await ips.GetImportDirectoryAsync(imProfile, "Content", true);
-            content.AppendLine($"{imDir.Exists}: {imDir.Name}, {imDir.SubPath}, {imDir.PhysicalPath}");
+            //var imProfile = await _db.ImportProfiles.FindByIdAsync(4, false);
+            //var imDir = await ips.GetImportDirectoryAsync(imProfile, "Content", true);
+            //content.AppendLine($"{imDir.Exists}: {imDir.Name}, {imDir.SubPath}, {imDir.PhysicalPath}");
 
-            var imFiles = await ips.GetImportFilesAsync(imProfile);
-            foreach (var imFile in imFiles)
-            {
-                content.AppendLine($"{imFile.File.Name} {imFile.RelatedType?.ToString()?.NaIfEmpty()}");
-            }
+            //var imFiles = await ips.GetImportFilesAsync(imProfile);
+            //foreach (var imFile in imFiles)
+            //{
+            //    content.AppendLine($"{imFile.File.Name} {imFile.RelatedType?.ToString()?.NaIfEmpty()}");
+            //}
 
             //var tenantRoot = Services.ApplicationContext.TenantRoot;
             //var downloadPath = tenantRoot.PathCombine(imDir.SubPath, "DownloadedImages");
@@ -979,31 +1007,31 @@ namespace Smartstore.Web.Controllers
             //    ? await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(imDir.Parent.SubPath, des.ImageImportFolder))
             //    : imDir.Parent;
 
-            var imageDownloadDirectory = await ips.GetImportDirectoryAsync(imProfile, @"Content\DownloadedImages", true);
-            var imageDirectory = des.ImageImportFolder.HasValue()
-                ? await ips.GetImportDirectoryAsync(imProfile, des.ImageImportFolder, false)
-                : imDir.Parent;
+            //var imageDownloadDirectory = await ips.GetImportDirectoryAsync(imProfile, @"Content\DownloadedImages", true);
+            //var imageDirectory = des.ImageImportFolder.HasValue()
+            //    ? await ips.GetImportDirectoryAsync(imProfile, des.ImageImportFolder, false)
+            //    : imDir.Parent;
 
-            content.AppendLine($"imageDownloadDirectory {imageDownloadDirectory.Exists}: {imageDownloadDirectory.Name}, {imageDownloadDirectory.SubPath}, {imageDownloadDirectory.PhysicalPath}");
-            content.AppendLine($"imageDirectory {imageDirectory.Exists}: {imageDirectory.Name}, {imageDirectory.SubPath}, {imageDirectory.PhysicalPath}");
+            //content.AppendLine($"imageDownloadDirectory {imageDownloadDirectory.Exists}: {imageDownloadDirectory.Name}, {imageDownloadDirectory.SubPath}, {imageDownloadDirectory.PhysicalPath}");
+            //content.AppendLine($"imageDirectory {imageDirectory.Exists}: {imageDirectory.Name}, {imageDirectory.SubPath}, {imageDirectory.PhysicalPath}");
 
-            var url = "https://smartstore.com/media/2286/pagebuilder/2286.png";
-            var localPath = new Uri(url).LocalPath;
-            var fileName1 = Path.GetFileName(localPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
-            var pathTest1 = imageDownloadDirectory.FileSystem.PathCombine(imageDownloadDirectory.PhysicalPath, fileName1).Replace('/', '\\');
+            //var url = "https://smartstore.com/media/2286/pagebuilder/2286.png";
+            //var localPath = new Uri(url).LocalPath;
+            //var fileName1 = Path.GetFileName(localPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
+            //var pathTest1 = imageDownloadDirectory.FileSystem.PathCombine(imageDownloadDirectory.PhysicalPath, fileName1).Replace('/', '\\');
 
-            var urlOrPath = "Content/DownloadedImages/my-image.jpg";
-            var fileName2 = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
-            var pathTest2 = imageDirectory.FileSystem.PathCombine(imageDirectory.PhysicalPath, urlOrPath).Replace('/', '\\');
-            content.AppendLine($"path test1: {fileName1} {pathTest1}");
-            content.AppendLine($"path test2: {fileName2} {pathTest2}");
+            //var urlOrPath = "Content/DownloadedImages/my-image.jpg";
+            //var fileName2 = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
+            //var pathTest2 = imageDirectory.FileSystem.PathCombine(imageDirectory.PhysicalPath, urlOrPath).Replace('/', '\\');
+            //content.AppendLine($"path test1: {fileName1} {pathTest1}");
+            //content.AppendLine($"path test2: {fileName2} {pathTest2}");
 
-            content.AppendLine("--------------------------------------------------------------");
-            content.AppendLine("");
-            var profile = await _db.ExportProfiles.FindByIdAsync(9, false);
-            var dir = await eps.GetExportDirectoryAsync(profile, "Content", true);
-            //var dir = await eps.GetExportDirectoryAsync(profile, null, true);
-            content.AppendLine($"{dir.Exists}: {dir.Name}, {dir.SubPath}, {dir.PhysicalPath}");
+            //content.AppendLine("--------------------------------------------------------------");
+            //content.AppendLine("");
+            //var profile = await _db.ExportProfiles.FindByIdAsync(9, false);
+            //var dir = await eps.GetExportDirectoryAsync(profile, "Content", true);
+            ////var dir = await eps.GetExportDirectoryAsync(profile, null, true);
+            //content.AppendLine($"{dir.Exists}: {dir.Name}, {dir.SubPath}, {dir.PhysicalPath}");
 
             //var root = Services.ApplicationContext.TenantRoot;
             //var dirName = new Regex(".*/ExportProfiles/?", RegexOptions.IgnoreCase | RegexOptions.Singleline).Replace(profile.FolderName, string.Empty);
@@ -1015,33 +1043,33 @@ namespace Smartstore.Web.Controllers
             //    dir.FileSystem.ClearDirectory(dir, true, TimeSpan.Zero);
             //}
 
-            var zipName = dir.Parent.Name.ToValidFileName() + ".zip";
-            var zipPath = dir.FileSystem.PathCombine(dir.Parent.SubPath, zipName);
-            var zipFile = await dir.FileSystem.GetFileAsync(zipPath);
-            content.AppendLine($"zipFile1: {zipFile.Exists} {zipFile.Name}: {zipFile.PhysicalPath}");
-            var zipFile2 = await dir.Parent.GetFileAsync(zipName);
-            content.AppendLine($"zipFile2: {zipFile2.Exists} {zipFile2.Name}: {zipFile2.PhysicalPath}");
-            content.AppendLine("--------------------------------------------------------------");
-            content.AppendLine("");
+            //var zipName = dir.Parent.Name.ToValidFileName() + ".zip";
+            //var zipPath = dir.FileSystem.PathCombine(dir.Parent.SubPath, zipName);
+            //var zipFile = await dir.FileSystem.GetFileAsync(zipPath);
+            //content.AppendLine($"zipFile1: {zipFile.Exists} {zipFile.Name}: {zipFile.PhysicalPath}");
+            //var zipFile2 = await dir.Parent.GetFileAsync(zipName);
+            //content.AppendLine($"zipFile2: {zipFile2.Exists} {zipFile2.Name}: {zipFile2.PhysicalPath}");
+            //content.AppendLine("--------------------------------------------------------------");
+            //content.AppendLine("");
 
 
-            var contentRoot = Services.ApplicationContext.ContentRoot;
-            var webRoot = Services.ApplicationContext.WebRoot;
+            //var contentRoot = Services.ApplicationContext.ContentRoot;
+            //var webRoot = Services.ApplicationContext.WebRoot;
             
-            ////var fullPath = @"C:\Downloads\Subfolder";
-            //var fullPath = @"~\App_Data\_temp\subfolder";
-            var subfolder = "SubFolder";
-            var webRootDir = await webRoot.GetDirectoryAsync(null);
-            var publicPath1 = webRoot.PathCombine(Core.DataExchange.Export.DataExporter.PublicDirectoryName, subfolder);
-            subfolder = null;
-            var publicPath2 = webRoot.PathCombine(Core.DataExchange.Export.DataExporter.PublicDirectoryName, subfolder);
-            var publicDir1 = await webRoot.GetDirectoryAsync(publicPath1);
-            var publicDir2 = await webRoot.GetDirectoryAsync(publicPath2);
-            content.AppendLine(publicDir1.PhysicalPath);
-            content.AppendLine(publicDir2.PhysicalPath);
+            //////var fullPath = @"C:\Downloads\Subfolder";
+            ////var fullPath = @"~\App_Data\_temp\subfolder";
+            //var subfolder = "SubFolder";
+            //var webRootDir = await webRoot.GetDirectoryAsync(null);
+            //var publicPath1 = webRoot.PathCombine(Core.DataExchange.Export.DataExporter.PublicDirectoryName, subfolder);
+            //subfolder = null;
+            //var publicPath2 = webRoot.PathCombine(Core.DataExchange.Export.DataExporter.PublicDirectoryName, subfolder);
+            //var publicDir1 = await webRoot.GetDirectoryAsync(publicPath1);
+            //var publicDir2 = await webRoot.GetDirectoryAsync(publicPath2);
+            //content.AppendLine(publicDir1.PhysicalPath);
+            //content.AppendLine(publicDir2.PhysicalPath);
 
-            content.AppendLine("--------------------------------------------------------------");
-            content.AppendLine("");
+            //content.AppendLine("--------------------------------------------------------------");
+            //content.AppendLine("");
 
 
             //var imageUrls = new[]
