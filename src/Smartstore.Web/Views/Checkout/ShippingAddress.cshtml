@@ -29,7 +29,6 @@
                 {
                     <div class="card card-body address-list-item">
                         <div class="address-item">
-                            @*TODO: (ms) (core) Implement SelectShippingAddress action*@
                             <button class="btn btn-warning btn-block select-shipping-address-button" onclick="setLocation('@Url.Action("SelectShippingAddress", new { addressId = item.Id })')">
                                 <span>@T("Checkout.ShipToThisAddress")</span>
                                 <i class="fa fa-angle-right"></i>
@@ -42,22 +41,18 @@
                                         <span class="bidi-embed">@item.LastName</span>
                                     </strong>
                                 </div>
-
                                 <div class="email">
                                     <span>@T("Address.Fields.Email"):</span>
                                     <span>@item.Email</span>
                                 </div>
-
                                 <div sm-if="item.PhoneEnabled" class="phone">
                                     <span>@T("Address.Fields.PhoneNumber"):</span>
                                     <span>@item.PhoneNumber</span>
                                 </div>
-
                                 <div sm-if="item.FaxEnabled && item.FaxNumber.HasValue()" class="fax">
                                     <span>@T("Address.Fields.FaxNumber"):</span>
                                     <span>@item.FaxNumber</span>
                                 </div>
-
                                 <div class="address">
                                     @Html.Raw(item.FormattedAddress)
                                 </div>

@@ -53,7 +53,6 @@ namespace Smartstore.Admin.Models.Messages
         [LocalizedDisplay("*SendManually")]
         public bool SendManually { get; set; }
 
-        // TODO: (ms) (core) Where's the resource for this?
         [LocalizedDisplay("*Attachments")]
         public int AttachmentsCount { get; set; }
 

@@ -29,7 +29,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// Gets a list of all available rule sets. 
+        /// (AJAX) Gets a list of all available rule sets. 
         /// </summary>
         /// <param name="selectedIds">Ids of selected entities.</param>
         /// <param name="RuleScope">Specifies the <see cref="RuleScope"/>.</param>

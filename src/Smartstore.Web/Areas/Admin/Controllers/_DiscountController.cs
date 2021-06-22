@@ -28,7 +28,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// Gets a list of all available discounts. 
+        /// (AJAX) Gets a list of all available discounts. 
         /// </summary>
         /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
         /// <param name="selectedIds">Ids of selected entities.</param>

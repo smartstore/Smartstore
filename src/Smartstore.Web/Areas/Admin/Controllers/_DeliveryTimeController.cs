@@ -33,7 +33,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// Gets a list of all available delivery times. 
+        /// (AJAX) Gets a list of all available delivery times. 
         /// </summary>
         /// <param name="selectedIds">Ids of selected entities.</param>
         /// <returns>List of all delivery times as JSON.</returns>

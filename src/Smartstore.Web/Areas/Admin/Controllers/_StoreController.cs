@@ -28,7 +28,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// Gets a list of all available stores. 
+        /// (AJAX) Gets a list of all available stores. 
         /// </summary>
         /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
         /// <param name="selectedIds">Ids of selected entities.</param>
@@ -53,6 +53,5 @@ namespace Smartstore.Admin.Controllers
 
             return new JsonResult(list.ToList());
         }
-
     }
 }
