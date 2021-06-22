@@ -847,15 +847,14 @@ namespace Smartstore.Core.DataExchange.Export
             }
             else if (entityType == ExportEntityType.ShoppingCartItem)
             {
-                // TODO: (mg) (core) inconsistent paging in cart item preview grid.
                 var query = _db.ShoppingCartItems
                     .Include(x => x.Customer)
-                    .ThenInclude(x => x.CustomerRoleMappings)
-                    .ThenInclude(x => x.CustomerRole)
+                        .ThenInclude(x => x.CustomerRoleMappings)
+                        .ThenInclude(x => x.CustomerRole)
                     .Include(x => x.Product)
                     .AsNoTracking()
                     .AsNoCaching()
-                    .Where(x => x.Customer != null);
+                    .Where(x => x.Customer != null && x.Product != null);
 
                 if (storeId > 0)
                     query = query.Where(x => x.StoreId == storeId);
