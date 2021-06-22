@@ -83,6 +83,15 @@
                     form.attr("action", formPostUrl);
                 }
 
+                // Add hidden input field with value of submit button in case of required form value.
+                if (submitButton.val()) {
+                    $("<input />")
+                        .attr("type", "hidden")
+                        .attr("name", submitButton.attr("name"))
+                        .attr("value", submitButton.val())
+                        .appendTo(form);
+                }
+                
                 form.submit();
 
                 // Close dialog.
