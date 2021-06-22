@@ -17,7 +17,7 @@ namespace Smartstore.Core.Messaging
         /// </summary>
         /// <param name="queuedEmails">Queued emails. Entities must be tracked.</param>
         /// <returns>Whether the operation succeeded</returns>
-        Task<bool> SendMailsAsync(IEnumerable<QueuedEmail> queuedEmails, CancellationToken cancelToken);
+        Task<bool> SendMailsAsync(IEnumerable<QueuedEmail> queuedEmails, CancellationToken cancelToken = default);
 
         // TODO: (MH) (core) This is only used in one ocasion. Use code there (QueuedEmailController > DownloadAttachment) directly. 
         /// <summary>
