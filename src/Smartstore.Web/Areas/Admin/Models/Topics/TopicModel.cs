@@ -79,6 +79,7 @@ namespace Smartstore.Admin.Models.Topics
         [LocalizedDisplay("*Intro")]
         public string Intro { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*Body")]
         public string Body { get; set; }
 
