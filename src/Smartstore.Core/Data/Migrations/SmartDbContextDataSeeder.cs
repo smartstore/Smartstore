@@ -161,20 +161,20 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete("Admin.Configuration.Settings.CustomerUser.MinUppercaseCharsInPassword.Hint");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequireDigit",
-                "Passwort erfordert Ziffer",
                 "Password requires digit",
+                "Passwort erfordert Ziffer",
                 "Specifies that passwords must contain at least one digit.",
                 "Legt fest, dass Passwörter mindestens eine Ziffer enthalten müssen.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequireUppercase",
-                "Passwort erfordert Großbuchstaben",
                 "Password requires uppercase",
+                "Passwort erfordert Großbuchstaben",
                 "Specifies that passwords must contain at least one uppercase letter.",
                 "Legt fest, dass Passwörter mindestens einen Großbuchstaben enthalten müssen.");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.CustomerUser.PasswordRequireLowercase",
-                "Passwort erfordert Kleinbuchstaben",
                 "Password requires lowercase",
+                "Passwort erfordert Kleinbuchstaben",
                 "Specifies that passwords must contain at least one lowercase letter.",
                 "Legt fest, dass Passwörter mindestens einen Kleinbuchstaben enthalten müssen.");
 

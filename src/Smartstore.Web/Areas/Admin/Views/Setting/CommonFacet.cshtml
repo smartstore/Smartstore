@@ -51,18 +51,17 @@
 }
 else
 {
-    // TODO: (mh) (core) This breaks with negative index -1
     @(Html.LocalizedEditor<CommonFacetSettingsModel, CommonFacetSettingsLocalizedModel>(fieldPrefix + "-localized",
 	@<div class="adminContent">
 		<div class="adminRow">
 			<div class="adminTitle">
-				@*<smart-label asp-for="Locales[item].Alias" />*@
+				<smart-label asp-for="Locales[item].Alias" />
 			</div>
             <div class="adminData">
                 @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
-                @*<input type="hidden" asp-for="Locales[item].LanguageId" />
+                <input type="hidden" asp-for="Locales[item].LanguageId" />
                 <setting-editor asp-for="Locales[item].Alias"></setting-editor>
-                <span asp-validation-for="Locales[item].Alias"></span>*@
+                <span asp-validation-for="Locales[item].Alias"></span>
             </div>
 		</div>
 	</div>

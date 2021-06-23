@@ -457,7 +457,7 @@ namespace Smartstore.Web.Rendering
                         {
                             builder.Item = tabs[i];
                             builder
-                                .Content(isMaster ? masterTemplate(helper.ViewData.Model) : localizedTemplate(i - 1))
+                                .Content(isMaster ? masterTemplate(helper.ViewData.Model) : localizedTemplate(hasMasterTemplate ? i - 1 : i))
                                 .HtmlAttributes("title", language.Name, !isMaster)
                                 .ContentHtmlAttributes(new
                                 {
