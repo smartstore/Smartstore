@@ -35,7 +35,12 @@ namespace Smartstore.Web.Infrastructure
                 lib + "pnotify/css/pnotify.buttons.css");
 
 
-            /* Admin Main --> /bundle/js/admin.js
+            /* Admin Main Sass theme --> /admin/theme.scss
+            -----------------------------------------------------*/
+            assetPipeline.RegisterSassFile("/admin/theme.scss");
+
+
+            /* Admin Main scripts --> /bundle/js/admin.js
             -----------------------------------------------------*/
             assetPipeline.RegisterJsBundle("/bundle/js/admin.js",
                 adminJs + "jquery-shims.js",
@@ -104,7 +109,7 @@ namespace Smartstore.Web.Infrastructure
                 components + "datagrid/datagrid-tools.js");
             // Scss (Move as partial to main file later)
             //assetPipeline.CompileScssFiles(null, components + "datagrid/datagrid.scss").MinifyCss();
-            assetPipeline.RegisterSassFile(components + "datagrid/datagrid.scss");
+            //assetPipeline.RegisterSassFile(components + "datagrid/datagrid.scss");
 
             // TEST
             assetPipeline.RegisterSassFile(lib + "bs4/scss/bootstrap.scss");

@@ -57,17 +57,28 @@ namespace Smartstore.IO
                 return other;
             }
 
+            if (other.Length > 2 && other.StartsWith("..") && (PathHelper.PathSeparators.Contains(other[2]))) 
+            {
+                // Combine relative path with Uri
+                //var root = "file://";
+                var u1 = new Uri("file://" + path.TrimStart(PathHelper.PathSeparators));
+                var u2 = new Uri(other, UriKind.Relative);
+                var u3 = new Uri(u1, u2);
+
+                return u3.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+            }
+
             string result;
 
             var index = path.LastIndexOfAny(PathHelper.PathSeparators);
 
             if (index != path.Length - 1)
             {
-                // If the first ends in a trailing slash e.g. "/Home/", assume it's a directory.
                 result = path + "/" + other;
             }
             else
             {
+                // If the first path ends in a trailing slash e.g. "/Home/", assume it's a directory.
                 result = path.Substring(0, index + 1) + other;
             }
 

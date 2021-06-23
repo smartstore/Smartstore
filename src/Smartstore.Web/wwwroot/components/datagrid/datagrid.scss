@@ -1,4 +1,5 @@
-﻿
+﻿/// <reference path="../../admin/theme.scss" />
+
 .spa-layout {
     #content {
         // TODO: (core) Move this selector enhancement with $content-padding-x (instead of 30px) to ported scss file
@@ -19,12 +20,12 @@ input.form-control-plaintext {
 // Common
 // -----------------------------------------
 
-$primary: #307abe; 
-$light: #f8f9fa;
+//$primary: #307abe; 
+//$light: #f8f9fa;
 $border: #dee2e6;
 $even: mix($light, #fff, 60%);
 $hover: darken(#f2f7fb, 0.5%);
-$body-color: #393f46;
+//$body-color: #393f46;
 
 .datagrid-root {
     --dg-border-color: #{$border};
