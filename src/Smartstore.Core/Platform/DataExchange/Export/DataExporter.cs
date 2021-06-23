@@ -270,10 +270,15 @@ namespace Smartstore.Core.DataExchange.Export
         {
             Guard.NotNull(request, nameof(request));
             Guard.NotNull(request.Profile, nameof(request.Profile));
+            Guard.NotNegative(pageIndex, nameof(pageIndex));
+            Guard.NotNegative(pageSize, nameof(pageSize));
 
             var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(5.0));
             var ctx = CreateExporterContext(request, true, cancellation.Token);
-            var skip = Math.Max(ctx.Request.Profile.Offset, 0) + (pageIndex * pageSize);
+
+            var limit = Math.Max(request.Profile.Limit, 0);
+            var take = limit > 0 && limit < pageSize ? limit : pageSize;
+            var skip = Math.Max(ctx.Request.Profile.Offset, 0) + (pageIndex * take);
 
             var _ = await Init(ctx);
 
@@ -288,7 +293,7 @@ namespace Smartstore.Core.DataExchange.Export
             };
 
             var query = GetEntitiesQuery(ctx);
-            query = ApplyPaging(query, skip, pageSize, ctx);
+            query = ApplyPaging(query, skip, take, ctx);
             var data = await query.ToListAsync(cancellation.Token);
 
             switch (ctx.Request.Provider.Value.EntityType)
@@ -679,9 +684,6 @@ namespace Smartstore.Core.DataExchange.Export
                     .Select(x => x.CustomerId);
             }
 
-            // TODO: (mg) (core) check and test ALL export filters.
-            // Sometimes no data loaded. Difference to what preview grid in classic shows. Sometimes inconsistent paging in preview grid ("holes").
-            // Always ignore any caching here (use AsNoCaching()).
             if (entityType == ExportEntityType.Product)
             {
                 if (ctx.Request.ProductQuery != null)
@@ -771,10 +773,10 @@ namespace Smartstore.Core.DataExchange.Export
                     query = query.Where(x => x.IsTaxExempt == f.IsTaxExempt.Value);
 
                 if (f.BillingCountryIds?.Any() ?? false)
-                    query = query.Where(x => x.BillingAddress != null && f.BillingCountryIds.Contains(x.BillingAddress.Id));
+                    query = query.Where(x => x.BillingAddress != null && f.BillingCountryIds.Contains(x.BillingAddress.CountryId ?? 0));
 
                 if (f.ShippingCountryIds?.Any() ?? false)
-                    query = query.Where(x => x.ShippingAddress != null && f.ShippingCountryIds.Contains(x.ShippingAddress.Id));
+                    query = query.Where(x => x.ShippingAddress != null && f.ShippingCountryIds.Contains(x.ShippingAddress.CountryId ?? 0));
 
                 if (activityFrom.HasValue)
                     query = query.Where(x => activityFrom <= x.LastActivityDateUtc);
@@ -829,7 +831,9 @@ namespace Smartstore.Core.DataExchange.Export
 
                 if (f.WorkingLanguageId.GetValueOrDefault() > 0)
                 {
-                    query = f.WorkingLanguageId == ctx.ShopMetadata[storeId].MasterLanguageId
+                    var masterLanguageId = ctx.ShopMetadata.Get(storeId)?.MasterLanguageId ?? 0;
+
+                    query = f.WorkingLanguageId == masterLanguageId
                         ? query.Where(x => x.Subscription.WorkingLanguageId == 0 || x.Subscription.WorkingLanguageId == f.WorkingLanguageId)
                         : query.Where(x => x.Subscription.WorkingLanguageId == f.WorkingLanguageId);
                 }
