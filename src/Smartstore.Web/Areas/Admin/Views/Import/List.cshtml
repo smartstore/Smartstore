@@ -1,0 +1,188 @@
+﻿@model ImportProfileListModel
+
+@{
+	var hasProfiles = Model.Profiles.Any();
+
+    ViewBag.Title = T("Common.Import").Value;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-download"></i>
+        <span>@T("Common.Import")</span>
+    </div>
+    <div class="options">
+		<a href="#" data-url="@Url.Action("Create")" class="btn btn-primary import-profile-button">
+			<i class="fa fa-plus"></i>
+			<span>@T("Admin.DataExchange.AddNewProfile")</span>
+		</a>
+    </div>
+</div>
+
+<div sm-if="!hasProfiles" class="alert alert-info">
+	@T("Admin.DataExchange.Import.NoProfiles")
+</div>
+<div sm-if="hasProfiles" class="table-responsive">
+    <table id="import-profile-list" class="table admin-table">
+		<thead>
+			<tr>
+				<th>@T("Admin.DataExchange.Import.Name")</th>
+				<th>@T("Admin.Common.Entity")</th>
+				<th>@T("Admin.Common.ImportFiles")</th>
+				<th>@T("Admin.DataExchange.Import.LastImportResult")</th>
+				<th>@T("Admin.System.ScheduleTasks.LastStart")</th>
+				<th>@T("Admin.System.ScheduleTasks.NextRun")</th>
+				<th>@T("Admin.Common.Actions")</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var profile in Model.Profiles)
+			{
+				<tr data-profile-id="@profile.Id" data-task-id="@profile.TaskId" attr-class='(!profile.Enabled, "disabled")'>
+					<td>
+						<a asp-action="Edit" asp-route-id="@profile.Id"><strong>@profile.Name</strong></a>
+					</td>
+					<td>
+						@profile.EntityTypeName
+					</td>
+					<td>
+						<ul sm-if="profile.ExistingFiles.Any()" class="fa-ul mb-0 ml-0">
+							@foreach (var file in profile.ExistingFiles.Where(x => !x.RelatedType.HasValue))
+							{
+								<li title="@file.File.Name">
+									<file-icon file-extension="@file.File.Extension" />
+									<a asp-action="DownloadImportFile" asp-route-id="@Model.Id" asp-route-name="@file.File.Name" download>
+										@file.File.Name
+									</a>
+								</li>
+							}
+						</ul>
+					</td>
+					<td id="ProfileImportResult@(profile.Id)">
+						@if (profile.ImportResult != null)
+						{
+							<partial name="ProfileImportResult" model="profile.ImportResult" />
+						}
+						else
+						{
+							<span class="muted">@string.Empty.NaIfEmpty()</span>
+						}
+					</td>
+					<td>
+						<div class="last-run-info">
+							@*TODO: (mg) (core) complete import profile list (admin task controller required)*@
+							@*<partial name="~/Areas/Admin/Views/Task/_LastRun.cshtml" model="profile.TaskModel" />*@
+						</div>
+					</td>
+					<td class="progress-info">
+                        <div class="next-run-info">
+							@*<partial name="~/Areas/Admin/Views/Task/_NextRun.cshtml" model="profile.TaskModel" />*@
+                        </div>
+						<div class="task-progress text-muted" 
+							attr-class='(!profile.IsTaskRunning, "hide")'
+							data-task-id="@profile.TaskId" 
+							data-running="@profile.IsTaskRunning.ToString().ToLower()"></div>
+					</td>
+					<td class="omega" style="width: 200px;">
+                        <button type="button" class="btn btn-block btn-sm btn-warning btn-run-task"
+							attr-class='(profile.IsTaskRunning || !profile.Enabled, "hide")'
+							data-url="@Url.Action("Execute", "Import", new { area = "Admin", id = profile.Id })"
+							data-task-id="@profile.TaskId">
+								<i class="fa fa-play"></i>
+								<span>@T("Admin.System.ScheduleTasks.RunNow")</span>
+                        </button>
+                        @*TODO: (mg) (core) complete import profile list (admin task controller required)*@
+                        <a asp-action="CancelJob" asp-controller="Task" asp-route-id="@profile.TaskId" asp-area="Admin"
+							class="btn btn-block btn-sm btn-secondary btn-cancel-task"
+							attr-class='(!profile.IsTaskRunning, "hide")'
+							data-task-id="@profile.TaskId"
+							onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
+								<span>@T("Common.Cancel")</span>
+                        </a>
+                        <a asp-action="DownloadLogFile" asp-route-id="@profile.Id"
+							target="LogFile"
+							class="btn btn-block btn-sm btn-secondary btn-log"
+							attr-class='(profile.IsTaskRunning || !profile.Enabled || !profile.LogFileExists, "d-none")'>
+								<i class="far fa-file-alt"></i>
+								<span>@T("Admin.Configuration.ActivityLog")</span>
+                        </a>
+					</td>
+				</tr>
+			}
+		</tbody>
+    </table>
+</div>
+
+<modal id="import-profile-dialog" sm-render-at-page-end="true" sm-size="Large">
+	<modal-header sm-title="@T("Admin.DataExchange.AddNewProfile")"></modal-header>
+    <modal-body>
+		<form asp-action="Create" method="post" class="import-profile-form">
+			<p class="text-muted">
+				@T("Admin.DataExchange.Import.ProfileCreationNote")
+			</p>
+			<div>
+				<div class="form-group">
+					<smart-label asp-for="EntityType" />
+					<select asp-for="EntityType" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ImportEntityType))"></select>
+				</div>
+				<div id="ImportFileUploadContainer">
+					<input type="hidden" name="TempFileName" />
+					<file-uploader 
+						file-uploader-name="ImportFileUploader"
+						upload-url='@Url.Action("FileUpload", new { id = Model.Id })'
+						type-filter=".csv,.xlsx,.txt,.tab"
+						display-browse-media-button="false"
+						display-remove-button="true"
+						display-remove-button-after-upload="true"
+						upload-text=@T("Admin.DataExchange.Import.FileUpload").JsValue
+						onuploadcompleted="onUploadCompleted" />
+				</div>
+				<div id="ImportFileList" class="hide">
+					&nbsp;
+				</div>
+			</div>
+		</form>
+	</modal-body>
+    <modal-footer>
+		<button class="btn btn-secondary btn-flat" data-dismiss="modal"><span>@T("Common.Cancel")</span></button>
+		<button class="btn btn-primary" disabled="disabled"><span>@T("Common.OK")</span></button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="scripts" data-origin="ImportList">
+    window['onUploadCompleted'] = function (file, data) {
+        if (!_.isEmpty(data.tempFile)) {
+			$('#import-profile-dialog').find('input[name=TempFileName]').val(data.tempFile);
+			$('#import-profile-dialog').find('.btn-primary').prop('disabled', false);
+		}
+		else if (!_.isEmpty(data.error)) {
+			$('#ImportFileList').html('<div class="alert alert-danger">' + data.error + '</div>').show();
+		}
+	}
+
+    $(function() {
+		// Show profile dialog.
+		$(document).on('click', '.import-profile-button', function (e) {
+			e.preventDefault();
+			$('#import-profile-dialog').modal();
+			return false;
+        });
+
+		// Submit dialog form.
+        $('#import-profile-dialog').on('click', '.btn-primary', function () {
+			$('#import-profile-dialog').find('.import-profile-form').submit();
+		});
+
+		// Start export task.
+		$(document).on('click', '.btn-run-task', function (e) {
+			e.preventDefault();
+            $(this).doPostData({
+                ask: @T("Admin.Common.AskToProceed").JsValue,
+				data: { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() }
+			});
+			return false;
+		});
+
+		@*TODO: (mg) (core) complete import profile list (task watcher required)*@
+    });
+</script>

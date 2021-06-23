@@ -75,7 +75,7 @@
 									<span>@T("Admin.System.ScheduleTasks.RunNow")</span>
                             </button>
                             @*TODO: (mg) (core) complete export profile list (admin task controller required)*@
-                            <a asp-action="CancelJob" asp-controller="ScheduleTask" asp-route-id="@profile.TaskId" asp-area="Admin"
+                            <a asp-action="CancelJob" asp-controller="Task" asp-route-id="@profile.TaskId" asp-area="Admin"
 								class="btn btn-block btn-sm btn-secondary btn-cancel-task"
 								attr-class='(!profile.IsTaskRunning, "hide")'
 								data-task-id="@profile.TaskId"

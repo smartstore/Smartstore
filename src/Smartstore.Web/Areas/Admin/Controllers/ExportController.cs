@@ -119,7 +119,8 @@ namespace Smartstore.Admin.Controllers
                     var fileDetailsModel = await CreateFileDetailsModel(profile, null);
                     profileModel.FileCount = fileDetailsModel.FileCount;
 
-                    // TODO: (mg) (core) add Task model.
+                    // TODO: (mg) (core) create task model for import profile list.
+                    //profileModel.TaskModel = _adminModelHelper.CreateScheduleTaskModel(profile.Task, lastExecutionInfo) ?? new TaskModel();
 
                     model.Add(profileModel);
                 }
