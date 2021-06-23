@@ -176,7 +176,13 @@ namespace Smartstore.Web.Modelling.Settings
             }
         }
 
-        public async Task GetOverrideKeyAsync(string formKey, string settingName, object settings, int storeId)
+        /// <summary>
+        /// Adds the form key of the control to the list of override setting keys which are used to determine which settings are overriden on store level.
+        /// </summary>
+        /// <param name="formKey">The key of the input element that represents the control.</param>
+        /// <param name="fullSettingName">Fully qualified name of the setting (e.g. SocalSettings.Facebook)</param>
+        /// <param name="storeId">Id of the configured store dependency.</param>
+        public async Task GetOverrideKeyAsync(string formKey, string fullSettingName, int storeId)
         {
             if (storeId <= 0)
             {
@@ -185,7 +191,7 @@ namespace Smartstore.Web.Modelling.Settings
             }
 
             var key = formKey;
-            if (await _settingService.GetSettingByKeyAsync<string>(string.Concat(settings.GetType().Name, ".", settingName), storeId: storeId) == null)
+            if (await _settingService.GetSettingByKeyAsync<string>(fullSettingName, storeId: storeId) == null)
             {
                 key = null;
             }
@@ -195,6 +201,18 @@ namespace Smartstore.Web.Modelling.Settings
                 var data = Data ?? new StoreDependingSettingData();
                 data.OverrideSettingKeys.Add(key);
             }
+        }
+
+        /// <summary>
+        /// Adds the form key of the control to the list of override setting keys which are used to determine which settings are overriden on store level.
+        /// </summary>
+        /// <param name="formKey">The key of the input element that represents the control.</param>
+        /// <param name="settingName">Name of the setting (will be concatenated with name of settings seperated by dot e.g. SocalSettings.Facebook)</param>
+        /// <param name="settings">Settings instance which contains the particular setting. (will be concatenated with name of settings seperated by dot e.g. SocalSettings.Facebook)</param>
+        /// <param name="storeId">Id of the configured store dependency.</param>
+        public async Task GetOverrideKeyAsync(string formKey, string settingName, object settings, int storeId)
+        {
+            await GetOverrideKeyAsync(formKey, string.Concat(settings.GetType().Name, ".", settingName), storeId);
         }
 
         /// <summary>
