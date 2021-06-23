@@ -93,6 +93,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     var childCalculation = await CalculateChildPriceAsync(linkedProduct, context, c =>
                     {
                         c.Quantity = 1;
+                        c.Options.IgnoreDiscounts = true;
                     });
 
                     // Add price of linked product to root final price (unit price * linked product quantity).
