@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;
+using System;
+using System.Threading.Tasks;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {

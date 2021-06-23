@@ -17,11 +17,9 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*SearchMode")]
         public SearchMode SearchMode { get; set; }
-        public List<SelectListItem> AvailableSearchModes { get; set; }
 
         [LocalizedDisplay("*SearchFields")]
         public List<string> SearchFields { get; set; }
-        public List<SelectListItem> AvailableSearchFields { get; set; } = new();
 
         [LocalizedDisplay("*InstantSearchEnabled")]
         public bool InstantSearchEnabled { get; set; }

@@ -601,24 +601,27 @@ namespace Smartstore.Admin.Controllers
             //MiniMapper.Map(fsettings, model.ForumSearchSettings);
             //model.ForumSearchSettings.AvailableDefaultSortOrders = fsettings.DefaultSortOrder.ToSelectList();
 
+            var availableSearchFields = new List<SelectListItem>();
+            var availableSearchModes = new List<SelectListItem>();
+
             if (!model.IsMegaSearchInstalled)
             {
                 model.SearchFieldsNote = T("Admin.Configuration.Settings.Search.SearchFieldsNote");
 
-                model.AvailableSearchFields = new List<SelectListItem>
+                availableSearchFields.AddRange(new[]
                 {
                     new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
                     new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-                };
+                });
 
-                model.AvailableSearchModes = searchSettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
+                availableSearchModes = searchSettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
 
                 // TODO: (mh) (core) Implement in forum module (by tab injection).
                 //model.ForumSearchSettings.AvailableSearchModes = fsettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
             }
             else
             {
-                model.AvailableSearchFields = new List<SelectListItem>
+                availableSearchFields.AddRange(new[]
                 {
                     new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
                     new SelectListItem { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
@@ -628,19 +631,25 @@ namespace Smartstore.Admin.Controllers
                     new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
                     new SelectListItem { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
                     new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
-                };
+                });
 
                 if (megaSearchPlusDescriptor != null)
                 {
-                    model.AvailableSearchFields.Add(new SelectListItem { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" });
-                    model.AvailableSearchFields.Add(new SelectListItem { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" });
+                    availableSearchFields.AddRange(new[]
+                    {
+                        new SelectListItem { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" },
+                        new SelectListItem { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" }
+                    });  
                 }
 
-                model.AvailableSearchModes = searchSettings.SearchMode.ToSelectList().ToList();
+                availableSearchModes = searchSettings.SearchMode.ToSelectList().ToList();
 
                 // TODO: (mh) (core) Implement in forum module (by tab injection).
                 //model.ForumSearchSettings.AvailableSearchModes = fsettings.SearchMode.ToSelectList().ToList();
             }
+
+            ViewBag.AvailableSearchFields = availableSearchFields;
+            ViewBag.AvailableSearchModes = availableSearchModes;
 
             // TODO: (mh) (core) Implement in forum module (by tab injection).
             //model.ForumSearchSettings.AvailableSearchFields = new List<SelectListItem>
@@ -776,7 +785,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Search(SearchSettingsModel model)
         {
             var form = Request.Form;
-            var storeScope = this.GetActiveStoreScopeConfiguration();
+            var storeScope = GetActiveStoreScopeConfiguration();
             var settings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
 
             // TODO: (mh) (core) TBD

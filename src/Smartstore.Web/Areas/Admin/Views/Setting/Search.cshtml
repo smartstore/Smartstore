@@ -35,7 +35,7 @@
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="SearchMode">
-                            <select asp-for="SearchMode" asp-items="Model.AvailableSearchModes"></select>
+                            <select asp-for="SearchMode" asp-items="ViewBag.AvailableSearchModes"></select>
                         </setting-editor>
                         <span asp-validation-for="SearchMode"></span>
                     </div>
@@ -53,7 +53,7 @@
                         <smart-label asp-for="SearchFields" />
                     </div>
                     <div class="adminData">
-                        <select asp-for="SearchFields" asp-items='@new MultiSelectList(Model.AvailableSearchFields, "Value", "Text")' multiple="multiple"></select>
+                        <select asp-for="SearchFields" asp-items='@new MultiSelectList(ViewBag.AvailableSearchFields, "Value", "Text")' multiple="multiple"></select>
                         <span asp-validation-for="SearchFields"></span>
                     </div>
                 </div>
