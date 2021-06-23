@@ -3,16 +3,6 @@
 @model string
 
 @{
-    <script src="~/bundle/js/codemirror.js" sm-target-zone="scripts"></script>
-    <link rel="stylesheet" href="~/bundle/css/codemirror.css" />
-
-    <script src="~/bundle/js/summernote.js" sm-target-zone="scripts"></script>
-    <link rel="stylesheet" href="~/lib/editors/summernote/summernote-bs4.css" />
-
-    // Find summernote localization file
-    <script src="~/Content/editors/summernote/lang/summernote-{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
-    <script src="~/Content/editors/summernote/plugins/lang/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
-
     var lazy = ViewData["lazy"].Convert<bool?>() ?? true;
     var id = Html.IdForModel();
     var html = ((string)ViewData.TemplateInfo.FormattedModelValue);
@@ -23,6 +13,18 @@
 
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
+
+<widget key="summernote" target-zone="scripts">
+    <script src="~/bundle/js/summernote.js"></script>
+    @* Find summernote localization file *@
+    <script src="~/Content/editors/summernote/lang/summernote-{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+    <script src="~/Content/editors/summernote/plugins/lang/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+</widget>
+
+<script src="~/bundle/js/codemirror.js" sm-key="codemirror" sm-target-zone="scripts"></script>
+
+<link rel="stylesheet" href="~/lib/editors/summernote/summernote-bs4.css" sm-key="summernote" sm-target-zone="head_stylesheets" />
+<link rel="stylesheet" href="~/bundle/css/codemirror.css" sm-key="codemirror" sm-target-zone="head_stylesheets" />
 
 @*TODO: (mh) (core) Implement RoxyFileManager > ProcessRequest.*@
 <div class="html-editor-root edit-control"
