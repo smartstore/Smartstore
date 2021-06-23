@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
@@ -212,7 +213,7 @@ namespace Smartstore.Admin.Controllers
             var (profile, provider) = await LoadProfileAndProvider(id);
             if (profile == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             var model = new ExportProfileModel();
@@ -230,7 +231,7 @@ namespace Smartstore.Admin.Controllers
             var (profile, provider) = await LoadProfileAndProvider(model.Id, true);
             if (profile == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             if (!ModelState.IsValid)
@@ -322,7 +323,7 @@ namespace Smartstore.Admin.Controllers
             var (profile, _) = await LoadProfileAndProvider(id, true);
             if (profile == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             try
@@ -349,7 +350,7 @@ namespace Smartstore.Admin.Controllers
             var (profile, provider) = await LoadProfileAndProvider(id);
             if (profile == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             var taskParams = new Dictionary<string, string>
@@ -374,21 +375,23 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> DownloadLogFile(int id)
         {
             var profile = await _db.ExportProfiles.FindByIdAsync(id, false);
-            if (profile != null)
+            if (profile == null)
             {
-                var dir = await _exportProfileService.GetExportDirectoryAsync(profile);
-                var logFile = await dir.GetFileAsync("log.txt");
-                if (logFile.Exists)
+                return NotFound();
+            }
+
+            var dir = await _exportProfileService.GetExportDirectoryAsync(profile);
+            var logFile = await dir.GetFileAsync("log.txt");
+            if (logFile.Exists)
+            {
+                try
                 {
-                    try
-                    {
-                        var stream = await logFile.OpenReadAsync();
-                        return new FileStreamResult(stream, MediaTypeNames.Text.Plain);
-                    }
-                    catch (IOException)
-                    {
-                        NotifyWarning(T("Admin.Common.FileInUse"));
-                    }
+                    var stream = await logFile.OpenReadAsync();
+                    return new FileStreamResult(stream, MediaTypeNames.Text.Plain);
+                }
+                catch (IOException)
+                {
+                    NotifyWarning(T("Admin.Common.FileInUse"));
                 }
             }
 
@@ -467,7 +470,7 @@ namespace Smartstore.Admin.Controllers
             var (profile, provider) = await LoadProfileAndProvider(id);
             if (profile == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             if (!profile.Enabled)
@@ -500,7 +503,7 @@ namespace Smartstore.Admin.Controllers
             var (profile, provider) = await LoadProfileAndProvider(id);
             if (profile == null)
             {
-                throw new ArgumentException($"Cannot find export profile with ID {id}.");
+                throw new BadHttpRequestException($"Cannot find export profile with ID {id}.", StatusCodes.Status404NotFound);
             }
 
             IGridModel gridModel = null;
@@ -683,7 +686,7 @@ namespace Smartstore.Admin.Controllers
             var (profile, provider) = await LoadProfileAndProvider(id);
             if (profile == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             var model = await CreateDeploymentModel(profile, new ExportDeployment
@@ -705,7 +708,7 @@ namespace Smartstore.Admin.Controllers
             var (profile, _) = await LoadProfileAndProvider(model.ProfileId);
             if (profile == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             if (ModelState.IsValid)
@@ -732,13 +735,13 @@ namespace Smartstore.Admin.Controllers
             var deployment = await _db.ExportDeployments.FindByIdAsync(id, false);
             if (deployment == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             var (profile, provider) = await LoadProfileAndProvider(deployment.ProfileId);
             if (profile == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             var model = await CreateDeploymentModel(profile, deployment, provider, true);
@@ -754,13 +757,13 @@ namespace Smartstore.Admin.Controllers
             var deployment = await _db.ExportDeployments.FindByIdAsync(model.Id, true);
             if (deployment == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             var (profile, provider) = await LoadProfileAndProvider(deployment.ProfileId);
             if (profile == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             if (ModelState.IsValid)
@@ -789,13 +792,13 @@ namespace Smartstore.Admin.Controllers
             var deployment = await _db.ExportDeployments.FindByIdAsync(id, true);
             if (deployment == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             var (profile, _) = await LoadProfileAndProvider(deployment.ProfileId);
             if (profile == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             _db.ExportDeployments.Remove(deployment);
