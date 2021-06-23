@@ -10,11 +10,11 @@ using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using WebOptimizer;
 
-namespace Smartstore.Web.Optimization
+namespace Smartstore.Web.Assets
 {
-    internal class BundlingStarter : StarterBase
+    internal class AssetStarter : StarterBase
     {
-        public BundlingStarter()
+        public AssetStarter()
         {
             RunAfter<MvcStarter>();
         }
@@ -45,7 +45,7 @@ namespace Smartstore.Web.Optimization
             codeSettings.IgnoreErrorCollection.Add("JS1010");
 
             var environment = (IWebHostEnvironment)appContext.HostEnvironment;
-            var fileProvider = new BundlingFileProvider(appContext.WebRoot);
+            var fileProvider = new AssetFileProvider(appContext.WebRoot);
             var publisher = new BundlePublisher();
 
             services.AddWebOptimizer(environment, cssBundlingSettings, jsBundlingSettings, assetPipeline => 
@@ -69,7 +69,7 @@ namespace Smartstore.Web.Optimization
                 // TODO: (core) Configure NodeServices?
             });
 
-            services.AddTransient<IConfigureOptions<WebOptimizerOptions>, BundlingConfigurer>();
+            services.AddTransient<IConfigureOptions<WebOptimizerOptions>, AssetConfigurer>();
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)

@@ -2,7 +2,7 @@
 using Smartstore.Engine;
 using WebOptimizer;
 
-namespace Smartstore.Web.Optimization
+namespace Smartstore.Web.Assets
 {
     public interface IBundleProvider
     {

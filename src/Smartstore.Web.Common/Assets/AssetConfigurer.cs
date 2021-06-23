@@ -6,9 +6,9 @@ using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using WebOptimizer;
 
-namespace Smartstore.Web.Optimization
+namespace Smartstore.Web.Assets
 {
-    internal class BundlingConfigurer : Disposable, IConfigureOptions<WebOptimizerOptions>
+    internal class AssetConfigurer : Disposable, IConfigureOptions<WebOptimizerOptions>
     {
         private readonly IApplicationContext _appContext;
         private readonly IOptionsMonitorCache<WebOptimizerOptions> _options;
@@ -16,7 +16,7 @@ namespace Smartstore.Web.Optimization
 
         private IDisposable _callback;
 
-        public BundlingConfigurer(
+        public AssetConfigurer(
             IApplicationContext appContext, 
             IOptionsMonitorCache<WebOptimizerOptions> options,
             ThemeSettings themeSettings)

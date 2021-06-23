@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NUglify.Css;
 using WebOptimizer;
 
-namespace Smartstore.Web.Optimization
+namespace Smartstore.Web.Assets
 {
     public static class AssetPipelineExtensions
     {   

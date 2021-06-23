@@ -11,7 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Smartstore.Engine;
 using WebOptimizer;
 
-namespace Smartstore.Web.Optimization
+namespace Smartstore.Web.Assets
 {
     [DebuggerDisplay("{Route}")]
     public class SmartAsset : IAsset

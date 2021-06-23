@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Engine;
-using Smartstore.Web.Optimization;
+using Smartstore.Web.Assets;
 using WebOptimizer;
 
 namespace Smartstore.Web.Infrastructure

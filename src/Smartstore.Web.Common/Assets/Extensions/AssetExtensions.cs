@@ -6,10 +6,10 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.WebUtilities;
 using Smartstore.ComponentModel;
-using Smartstore.Web.Optimization.Processors;
+using Smartstore.Web.Assets.Processors;
 using WebOptimizer;
 
-namespace Smartstore.Web.Optimization
+namespace Smartstore.Web.Assets
 {
     public static class AssetExtensions
     {

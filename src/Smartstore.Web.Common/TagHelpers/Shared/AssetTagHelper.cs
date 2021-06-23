@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Options;
-using Smartstore.Web.Optimization;
+using Smartstore.Web.Assets;
 using WebOptimizer;
 
 namespace Smartstore.Web.TagHelpers.Shared

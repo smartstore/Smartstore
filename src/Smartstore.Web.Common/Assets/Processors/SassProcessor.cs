@@ -19,7 +19,7 @@ using System.Diagnostics;
 using Smartstore.IO;
 using Smartstore.Engine;
 
-namespace Smartstore.Web.Optimization.Processors
+namespace Smartstore.Web.Assets.Processors
 {
     public class SassProcessor : IProcessor
     {

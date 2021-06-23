@@ -4,15 +4,13 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Smartstore.IO;
 
-namespace Smartstore.Web.Optimization
+namespace Smartstore.Web.Assets
 {
-    public class BundlingFileProvider : IFileProvider
+    public class AssetFileProvider : IFileProvider
     {
-        private static readonly ConcurrentDictionary<string, string> _minFiles = new(StringComparer.InvariantCultureIgnoreCase);
-
         private readonly IFileSystem _inner;
 
-        public BundlingFileProvider(IFileSystem inner)
+        public AssetFileProvider(IFileSystem inner)
         {
             _inner = Guard.NotNull(inner, nameof(inner));
         }
