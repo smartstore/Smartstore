@@ -378,28 +378,40 @@ namespace Smartstore.Admin.Models
         #endregion
     }
 
-    public partial class GeneralCommonSettingsValidator : AbstractValidator<GeneralCommonSettingsModel>
+    public partial class ContactDataSettingsValidator : AbstractValidator<GeneralCommonSettingsModel.ContactDataSettingsModel>
     {
-        public GeneralCommonSettingsValidator(Localizer T)
+        public ContactDataSettingsValidator()
         {
-            RuleFor(x => x.ContactDataSettings.CompanyEmailAddress).EmailAddress();
-            RuleFor(x => x.ContactDataSettings.ContactEmailAddress).EmailAddress();
-            RuleFor(x => x.ContactDataSettings.SupportEmailAddress).EmailAddress();
-            RuleFor(x => x.ContactDataSettings.WebmasterEmailAddress).EmailAddress();
+            RuleFor(x => x.CompanyEmailAddress).EmailAddress();
+            RuleFor(x => x.ContactEmailAddress).EmailAddress();
+            RuleFor(x => x.SupportEmailAddress).EmailAddress();
+            RuleFor(x => x.WebmasterEmailAddress).EmailAddress();
+        }
+    }
 
-            RuleFor(x => x.CaptchaSettings.ReCaptchaPublicKey)
+    public partial class CaptchaSettingsValidator : AbstractValidator<GeneralCommonSettingsModel.CaptchaSettingsModel>
+    {
+        public CaptchaSettingsValidator(Localizer T)
+        {
+            RuleFor(x => x.ReCaptchaPublicKey)
                 .NotEmpty()
-                .When(x => x.CaptchaSettings.Enabled)
+                .When(x => x.Enabled)
                 .WithMessage(T("Admin.Configuration.Settings.GeneralCommon.CaptchaEnabledNoKeys"));
 
-            RuleFor(x => x.CaptchaSettings.ReCaptchaPrivateKey)
+            RuleFor(x => x.ReCaptchaPrivateKey)
                 .NotEmpty()
-                .When(x => x.CaptchaSettings.Enabled)
+                .When(x => x.Enabled)
                 .WithMessage(T("Admin.Configuration.Settings.GeneralCommon.CaptchaEnabledNoKeys"));
+        }
+    }
 
-            RuleFor(x => x.SocialSettings.TwitterSite)
+    public partial class SocialSettingsValidator : AbstractValidator<GeneralCommonSettingsModel.SocialSettingsModel>
+    {
+        public SocialSettingsValidator(Localizer T)
+        {
+            RuleFor(x => x.TwitterSite)
                 .Must(x => x.StartsWith("@"))
-                .Unless(x => !x.SocialSettings.TwitterSite.HasValue())
+                .Unless(x => !x.TwitterSite.HasValue())
                 .WithMessage(T("Admin.Configuration.Settings.GeneralCommon.SocialSettings.TwitterSite.Error"));
         }
     }
