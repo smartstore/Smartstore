@@ -6,12 +6,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using NUglify.JavaScript;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using WebOptimizer;
 
-namespace Smartstore.Web.Bundling
+namespace Smartstore.Web.Optimization
 {
     internal class BundlingStarter : StarterBase
     {
@@ -46,7 +45,7 @@ namespace Smartstore.Web.Bundling
             codeSettings.IgnoreErrorCollection.Add("JS1010");
 
             var environment = (IWebHostEnvironment)appContext.HostEnvironment;
-            var fileProvider = new BundlingFileProvider(environment.WebRootFileProvider);
+            var fileProvider = new BundlingFileProvider(appContext.WebRoot);
             var publisher = new BundlePublisher();
 
             services.AddWebOptimizer(environment, cssBundlingSettings, jsBundlingSettings, assetPipeline => 

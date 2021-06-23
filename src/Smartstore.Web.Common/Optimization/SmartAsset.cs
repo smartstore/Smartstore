@@ -11,14 +11,13 @@ using Microsoft.Extensions.Hosting;
 using Smartstore.Engine;
 using WebOptimizer;
 
-namespace Smartstore.Web.Bundling
+namespace Smartstore.Web.Optimization
 {
     [DebuggerDisplay("{Route}")]
     public class SmartAsset : IAsset
     {
         private readonly object _lock = new();
         private readonly IAsset _inner;
-        private IEnumerable<string> _includedFiles;
         private IEnumerable<string> _fixedSourceFiles;
 
         public SmartAsset(IAsset inner)
@@ -62,15 +61,10 @@ namespace Smartstore.Web.Bundling
             }
         }
 
-        public virtual IEnumerable<string> IncludedFiles
+        public virtual async Task<byte[]> ExecuteAsync(HttpContext context, IWebOptimizerOptions options)
         {
-            get => _includedFiles ?? SourceFiles;
-            set => _includedFiles = value;
-        }
-
-        public virtual Task<byte[]> ExecuteAsync(HttpContext context, IWebOptimizerOptions options)
-        {
-            return _inner.ExecuteAsync(context, options);
+            var content = await _inner.ExecuteAsync(context, options);
+            return content;
         }
 
         public virtual string GenerateCacheKey(HttpContext context)

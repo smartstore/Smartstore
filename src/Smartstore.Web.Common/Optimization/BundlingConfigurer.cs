@@ -6,7 +6,7 @@ using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using WebOptimizer;
 
-namespace Smartstore.Web.Bundling
+namespace Smartstore.Web.Optimization
 {
     internal class BundlingConfigurer : Disposable, IConfigureOptions<WebOptimizerOptions>
     {

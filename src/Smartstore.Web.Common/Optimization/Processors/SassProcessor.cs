@@ -16,27 +16,20 @@ using SharpScss;
 using WebOptimizer;
 using WebOptimizer.Sass;
 using System.Diagnostics;
+using Smartstore.IO;
+using Smartstore.Engine;
 
-namespace Smartstore.Web.Bundling.Processors
+namespace Smartstore.Web.Optimization.Processors
 {
-    /// <summary>
-    /// Compiles Sass files
-    /// </summary>
     public class SassProcessor : IProcessor
     {
         private readonly WebOptimazerScssOptions _options;
 
-        /// <summary>
-        /// Gets the custom key that should be used when calculating the memory cache key.
-        /// </summary>
         public SassProcessor(WebOptimazerScssOptions options = null)
         {
             _options = options;
         }
 
-        /// <summary>
-        /// Executes the processor on the specified configuration.
-        /// </summary>
         public Task ExecuteAsync(IAssetContext context)
         {
             var content = new Dictionary<string, byte[]>();
@@ -45,8 +38,9 @@ namespace Smartstore.Web.Bundling.Processors
 
             foreach (string route in context.Content.Keys)
             {
-                var file = fileProvider.GetFileInfo(route);
-                var settings = new ScssOptions { InputFile = file.PhysicalPath };
+                //var file = fileProvider.GetFileInfo(route);
+                var fs = context.HttpContext.RequestServices.GetRequiredService<IApplicationContext>().WebRoot;
+                var settings = new ScssOptions { InputFile = route };
                 if (_options != null)
                 {
                     settings.IncludePaths.AddRange(_options.IncludePaths);
@@ -64,10 +58,7 @@ namespace Smartstore.Web.Bundling.Processors
 
                 settings.TryImport ??= (ref string file, string parentPath, out string scss, out string map) =>
                 {
-                    scss = string.Empty;
-                    map = null;
-
-                    return true;
+                    return OnTryImportSassFile(fs, ref file, parentPath, out scss, out map);
                 };
 
                 var watch = Stopwatch.StartNew();
@@ -75,10 +66,7 @@ namespace Smartstore.Web.Bundling.Processors
                 watch.Stop();
                 Debug.WriteLine($"LibSass time for {route}: {watch.ElapsedMilliseconds} ms.");
 
-                if (context.Asset is SmartAsset smartAsset)
-                {
-                    smartAsset.IncludedFiles = result.IncludedFiles;
-                }
+                context.Asset.SetIncludedFiles(result.IncludedFiles?.Concat(new[] { route }));
 
                 content[route] = result.Css.AsByteArray();
             }
@@ -88,9 +76,6 @@ namespace Smartstore.Web.Bundling.Processors
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Gets the custom key that should be used when calculating the memory cache key.
-        /// </summary>
         public string CacheKey(HttpContext context)
             => GenerateCacheKey(context);
 
@@ -98,6 +83,50 @@ namespace Smartstore.Web.Bundling.Processors
         {
             // TODO: (core) Vary by theme and store.
             return string.Empty;
+        }
+
+        private static bool OnTryImportSassFile(IFileSystem fs, ref string file, string parentPath, out string scss, out string map)
+        {
+            map = null;
+            scss = null;
+
+            if (!file.EndsWith(".scss", StringComparison.OrdinalIgnoreCase))
+            {
+                file += ".scss";
+            }
+
+            var parentDir = fs.GetDirectoryForFile(parentPath);
+            var importFile = fs.GetFile(fs.PathCombine(parentDir.SubPath, file));
+            if (!importFile.Exists && file[0] != '_')
+            {
+                if (file[0] == '_')
+                {
+                    return false;
+                }
+                else
+                {
+                    var slashIndex = file.LastIndexOf('/');
+                    if (slashIndex > -1)
+                    {
+                        file = file.Substring(0, slashIndex + 1) + "_" + file.Substring(slashIndex + 1);
+                    }
+                    else
+                    {
+                        file = "_" + file;
+                    }
+
+                    importFile = fs.GetFile(fs.PathCombine(parentDir.SubPath, file));
+                    if (!importFile.Exists)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            file = importFile.SubPath;
+            scss = importFile.ReadAllText();
+
+            return true;
         }
     }
 }

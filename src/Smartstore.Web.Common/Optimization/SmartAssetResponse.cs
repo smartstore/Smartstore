@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using WebOptimizer;
 
-namespace Smartstore.Web.Bundling
+namespace Smartstore.Web.Optimization
 {
     public class SmartAssetResponse : IAssetResponse
     {
         private byte[] _body;
-        private string _bodyHash;
+        private string _contentHash;
         
         public SmartAssetResponse()
         {
@@ -31,7 +31,7 @@ namespace Smartstore.Web.Bundling
             set
             {
                 _body = value;
-                _bodyHash = null;
+                _contentHash = null;
             }
         }
 
@@ -40,10 +40,10 @@ namespace Smartstore.Web.Bundling
         public IEnumerable<string> IncludedFiles { get; set; }
 
         [JsonIgnore]
-        public string BodyHash
+        public string ContentHash
         {
-            get => _bodyHash ??= (_body != null && _body.Length > 0 ? ComputeHash(_body) : string.Empty);
-            set => _bodyHash = value;
+            get => _contentHash ??= (_body != null && _body.Length > 0 ? ComputeHash(_body) : string.Empty);
+            set => _contentHash = value;
         }
 
         internal static string ComputeHash(byte[] content)

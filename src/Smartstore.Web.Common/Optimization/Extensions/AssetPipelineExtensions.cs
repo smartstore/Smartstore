@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using WebOptimizer;
-using Smartstore.Web.Bundling.Processors;
-using Smartstore;
-using NUglify.Css;
-using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Linq;
+using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using NUglify.Css;
+using WebOptimizer;
 
-namespace Smartstore.Web.Bundling
+namespace Smartstore.Web.Optimization
 {
     public static class AssetPipelineExtensions
-    {
+    {   
         private static FieldInfo _internalAssetsField = null;
         
         /// <summary>
@@ -65,57 +61,7 @@ namespace Smartstore.Web.Bundling
             return WrapAsset(assetPipeline, assets.FirstOrDefault());
         }
 
-        /// <summary>
-        /// Runs the DouglasCrockford JavaScript minifier on the content (instead of running NUglify).
-        /// </summary>
-        public static IAsset MinifyJavaScriptWithJsMin(this IAsset asset)
-        {
-            return Guard.NotNull(asset, nameof(asset)).AddProcessor(new CrockfordJsMinProcessor());
-        }
-
-        /// <summary>
-        /// Runs the DouglasCrockford JavaScript minifier on the content (instead of running NUglify).
-        /// </summary>
-        public static IEnumerable<IAsset> MinifyJavaScriptWithJsMin(this IEnumerable<IAsset> assets)
-        {
-            Guard.NotNull(assets, nameof(assets));
-
-            assets.Each(x => x.Processors.Add(new CrockfordJsMinProcessor()));
-            return assets;
-        }
-
-        /// <summary>
-        /// Adds processors to the asset pipeline.
-        /// </summary>
-        public static IAsset AddProcessor(this IAsset asset, params IProcessor[] processors)
-        {
-            Guard.NotNull(asset, nameof(asset));
-
-            asset.Processors.AddRange(processors);
-            return asset;
-        }
-
-        /// <summary>
-        /// Adds processors to the asset pipeline.
-        /// </summary>
-        public static IEnumerable<IAsset> AddProcessor(this IEnumerable<IAsset> assets, params IProcessor[] processors)
-        {
-            Guard.NotNull(assets, nameof(assets));
-
-            assets.Each(x => x.AddProcessor(processors));
-            return assets;
-        }
-
-        /// <summary>
-        /// Adds processors to the asset pipeline.
-        /// </summary>
-        public static IEnumerable<IAsset> AddSassProcessor(this IEnumerable<IAsset> assets)
-        {
-            Guard.NotNull(assets, nameof(assets));
-
-            assets.Each(x => x.AddProcessor(new SassProcessor()));
-            return assets;
-        }
+        #region Internal
 
         private static SmartAsset WrapAsset(IAssetPipeline assetPipeline, IAsset asset)
         {
@@ -131,5 +77,7 @@ namespace Smartstore.Web.Bundling
         {
             return _internalAssetsField ??= assetPipeline.GetType().GetField("_assets", BindingFlags.NonPublic | BindingFlags.Instance);
         }
+
+        #endregion
     }
 }

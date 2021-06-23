@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using WebOptimizer;
 
-namespace Smartstore.Web.Bundling
+namespace Smartstore.Web.Optimization
 {
     internal class SmartAssetBuilder : IAssetBuilder
     {
@@ -50,10 +50,10 @@ namespace Smartstore.Web.Bundling
             var content = await smartAsset.ExecuteAsync(context, options);
             var response = new SmartAssetResponse(content, cacheKey);
 
-            foreach (var name in context.Response.Headers.Keys)
-            {
-                response.Headers.Add(name, context.Response.Headers[name]);
-            }
+            //foreach (var name in context.Response.Headers.Keys)
+            //{
+            //    response.Headers.Add(name, context.Response.Headers[name]);
+            //}
 
             if (options.AllowEmptyBundle == false && (content == null || content.Length == 0))
             {
@@ -79,7 +79,8 @@ namespace Smartstore.Web.Bundling
                 var cacheOptions = new MemoryCacheEntryOptions();
                 cacheOptions.SetSlidingExpiration(TimeSpan.FromHours(24));
 
-                foreach (string file in asset.IncludedFiles)
+                var includedFiles = asset.GetIncludedFiles() ?? asset.SourceFiles;
+                foreach (string file in includedFiles)
                 {
                     cacheOptions.AddExpirationToken(asset.GetFileProvider(_env).Watch(file));
                 }

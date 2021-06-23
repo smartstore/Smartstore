@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using DouglasCrockford.JsMin;
 using WebOptimizer;
 
-namespace Smartstore.Web.Bundling.Processors
+namespace Smartstore.Web.Optimization.Processors
 {
     internal class CrockfordJsMinProcessor : Processor
     {
