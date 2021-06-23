@@ -10,7 +10,9 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Batching;
+using Smartstore.Http;
 using Smartstore.Net.Mail;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Messaging
 {
@@ -217,15 +219,14 @@ namespace Smartstore.Core.Messaging
                         var path = qea.Path;
                         if (path.HasValue())
                         {
-                            // TODO: (mh) (core) Do this right.
-                            //if (path[0] == '~' || path[0] == '/')
-                            //{
-                            //    path = CommonHelper.MapPath(VirtualPathUtility.ToAppRelative(path), false);
-                            //}
-                            //if (File.Exists(path))
-                            //{
-                            //    attachment = new MailAttachment(path, qea.MimeType) { Name = qea.Name };
-                            //}
+                            if (path[0] == '~' || path[0] == '/')
+                            {
+                                path = CommonHelper.MapPath(WebHelper.ToAppRelativePath(path), false);
+                            }
+                            if (File.Exists(path))
+                            {
+                                attachment = new MailAttachment(File.Open(path, FileMode.Open), qea.MimeType) { Name = qea.Name };
+                            }
                         }
                     }
                     else if (qea.StorageLocation == EmailAttachmentStorageLocation.FileReference)

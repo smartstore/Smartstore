@@ -7,6 +7,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Data.Batching;
+using Smartstore.Http;
 using Smartstore.Utilities;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
@@ -281,7 +282,7 @@ namespace Smartstore.Admin.Controllers
                 var path = qea.Path;
                 if (path[0] == '~' || path[0] == '/')
                 {
-                    path = CommonHelper.MapPath(path, false);
+                    path = CommonHelper.MapPath(WebHelper.ToAppRelativePath(path), false);
                 }
 
                 if (!System.IO.File.Exists(path))
