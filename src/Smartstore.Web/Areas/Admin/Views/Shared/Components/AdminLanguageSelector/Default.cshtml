@@ -1,0 +1,54 @@
+﻿@if (ViewBag.AvailableLanguages.Count > 1)
+{
+    <form id="form-languageselector" sm-ajax="true" class="hide"
+          asp-action="LanguageSelected" asp-controller="Common" 
+          sm-oncomplete="onLanguageChangedRequestCompleted">
+        <input type="hidden" name="customerlanguage" id="customerlanguage" value="@ViewBag.CurrentLanguage.Id" />
+    </form>
+
+    <li class="nav-item dropdown d-none d-md-block">
+        <a class="nav-link dropdown-toggle navbar-tool" href="javascript:void(0)" title='@ViewBag.CurrentLanguage.Name' data-toggle="dropdown">
+            <i class="icm icm-earth navbar-icon"></i>
+            <span class="pl-2">@ViewBag.CurrentLanguage.UniqueSeoCode.ToUpper()</span>
+        </a>
+        <div id="language-selector" class="dropdown-menu dropdown-menu-right">
+            @foreach (var language in ViewBag.AvailableLanguages)
+            {
+                <a href="javascript:void(0)" data-lang-id='@language.Id' class="dropdown-item" attr-class='(language.Id == ViewBag.CurrentLanguage.Id, "disabled")'>
+                    <img src='@Url.Content("~/images/flags/" + @language.FlagImageFileName)' alt="@language.Name" />
+                    @language.Name
+                </a>
+            }
+
+            <div class="dropdown-divider"></div>
+
+            <a asp-action="List" asp-controller="Language" class="dropdown-item manage-languages">
+                @T("Admin.Configuration.ManageLanguages")
+            </a>
+        </div>
+    </li>
+
+    <script sm-target-zone="scripts">
+        $(function() {
+			$("#language-selector > .dropdown-item:not(.disabled, .manage-languages)").on('click', function () {
+                var el = $(this);
+                var langId = el.data("lang-id");
+
+
+                console.log($("#customerlanguage").length);
+
+                $("#customerlanguage").val(langId);
+
+
+                console.log($("#customerlanguage").val());
+
+
+                $("#form-languageselector").submit();
+            });
+        });
+
+        function onLanguageChangedRequestCompleted() {
+            location.reload();
+        }
+    </script>
+}
