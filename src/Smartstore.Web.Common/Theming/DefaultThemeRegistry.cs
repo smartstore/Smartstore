@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Collections;
@@ -118,14 +119,39 @@ namespace Smartstore.Web.Theming
 
             manifest.BaseTheme = baseManifest;
             var added = _themes.TryAdd(manifest.ThemeName, manifest);
-            if (added && !isInit)
+            if (added)
             {
-                // post process
-                var children = GetChildrenOf(manifest.ThemeName, false);
-                foreach (var child in children)
+                // Post process
+                if (!isInit)
                 {
-                    child.BaseTheme = manifest;
-                    child.State = ThemeManifestState.Active;
+                    var children = GetChildrenOf(manifest.ThemeName, false);
+                    foreach (var child in children)
+                    {
+                        child.BaseTheme = manifest;
+                        child.State = ThemeManifestState.Active;
+                    }
+                }
+
+                // Create file provider
+                if (baseManifest == null)
+                {
+                    manifest.FileProvider = new PhysicalFileProvider(manifest.RootPath);
+                }
+                else
+                {
+                    var fileProviders = new List<IFileProvider>
+                    {
+                        new PhysicalFileProvider(manifest.RootPath)
+                    };
+
+                    while (baseManifest != null)
+                    {
+                        fileProviders.Add(new PhysicalFileProvider(baseManifest.RootPath));
+                        baseManifest = baseManifest.BaseTheme;
+                    }
+
+                    // Use CompositeFileProvider for theme inheritance
+                    manifest.FileProvider = new CompositeFileProvider(fileProviders);
                 }
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Smartstore.Engine.Modularity;
@@ -92,6 +93,11 @@ namespace Smartstore.Engine
         /// Gets a <see cref="IFileSystem"/> pointing at the path that contains all tenant files (App_Data/Tenants/{Tenant})
         /// </summary>
         IFileSystem TenantRoot { get; }
+
+        /// <summary>
+        /// Gets the composite <see cref="IFileProvider"/> implementation for static web assets (web root + theme files + module files).
+        /// </summary>
+        IFileProvider AssetFileProvider { get; }
 
         /// <summary>
         /// Gets the application temporary directory.

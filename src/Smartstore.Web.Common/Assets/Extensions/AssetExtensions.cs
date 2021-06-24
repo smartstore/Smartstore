@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.WebUtilities;
 using Smartstore.ComponentModel;
 using Smartstore.Web.Assets.Processors;
 using WebOptimizer;

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -39,7 +36,7 @@ namespace Smartstore.Web.Assets
 
             if (options.EnableMemoryCache == true && _cache.TryGetValue(cacheKey, out IAssetResponse value))
             {
-                // TODO: Log...
+                Logger.Debug("Serving asset '{0}' from memory cache.", asset.Route);
                 return value;
             }
             else if (options.EnableDiskCache == true)
@@ -66,8 +63,6 @@ namespace Smartstore.Web.Assets
             {
                 // TODO: Disk caching...
             }
-
-            // TODO: Log...
 
             return response;
         }

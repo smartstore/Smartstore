@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using Autofac;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Web.Assets;
 using WebOptimizer;
 
-namespace Smartstore.Web.Assets
+namespace Smartstore.Web.Bootstrapping
 {
     internal class AssetStarter : StarterBase
     {
@@ -45,7 +44,7 @@ namespace Smartstore.Web.Assets
             codeSettings.IgnoreErrorCollection.Add("JS1010");
 
             var environment = (IWebHostEnvironment)appContext.HostEnvironment;
-            var fileProvider = new AssetFileProvider(appContext.WebRoot);
+            var fileProvider = appContext.AssetFileProvider;
             var publisher = new BundlePublisher();
 
             services.AddWebOptimizer(environment, cssBundlingSettings, jsBundlingSettings, assetPipeline => 
@@ -81,7 +80,8 @@ namespace Smartstore.Web.Assets
         {
             builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
             {
-                app.UseWebOptimizer();
+                //app.UseWebOptimizer();
+                app.UseAssets();
             });
         }
     }

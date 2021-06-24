@@ -65,7 +65,7 @@
         transition: opacity .05s ease-in-out;
     }
 
-    &:not(:hover):not(.hover):not(:active):not(.active):not(:focus):not(.focus):not([disabled]):not(.disabled) {
+    &:not(:hover):not(:active):not(.active):not(:focus):not(.focus):not([disabled]):not(.disabled) {
         > i {
             //opacity: 0.6;
             color: lighten($body-color, 16%);

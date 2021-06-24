@@ -23,7 +23,7 @@ namespace Smartstore.Web.Theming
                 Configuration = directoryData.Configuration,
                 IsSymbolicLink = directoryData.IsSymbolicLink,
                 BaseThemeName = directoryData.BaseTheme,
-                FileProvider = new LocalFileSystem(directoryData.Directory.PhysicalPath),
+                RootPath = directoryData.Directory.PhysicalPath
             };
         }
 
@@ -60,14 +60,14 @@ namespace Smartstore.Web.Theming
                 var options = kvp.Value;
                 if (options == null || !options.Any())
                 {
-                    throw new SmartException("A 'Select' element must contain at least one 'Option' child element. Affected: '{0}' - element: {1}", _manifest.FileProvider.Root, kvp.Key);
+                    throw new SmartException("A 'Select' element must contain at least one 'Option' child element. Affected: '{0}' - element: {1}", _manifest.RootPath, kvp.Key);
                 }
 
                 foreach (var option in options)
                 {
                     if (option.IsEmpty())
                     {
-                        throw new SmartException("A select option cannot be empty. Affected: '{0}' - element: {1}", _manifest.FileProvider.Root, kvp.Key);
+                        throw new SmartException("A select option cannot be empty. Affected: '{0}' - element: {1}", _manifest.RootPath, kvp.Key);
                     }
 
                     selects.Add(kvp.Key, option);
@@ -109,7 +109,7 @@ namespace Smartstore.Web.Theming
 
             if (varType != ThemeVariableType.String && cfg.Value.IsEmpty())
             {
-                throw new SmartException("A value is required for non-string 'Var' elements. Affected: '{0}' - element: {1}", _manifest.FileProvider.Root, name);
+                throw new SmartException("A value is required for non-string 'Var' elements. Affected: '{0}' - element: {1}", _manifest.RootPath, name);
             }
 
             var info = new ThemeVariableInfo
@@ -134,7 +134,7 @@ namespace Smartstore.Web.Theming
                 var arr = type.Split('#');
                 if (arr.Length < 1 || arr[1].IsEmpty())
                 {
-                    throw new SmartException("The 'id' of a select element must be provided (pattern: Select#MySelect). Affected: '{0}' - element: {1}", _manifest.FileProvider.Root, name);
+                    throw new SmartException("The 'id' of a select element must be provided (pattern: Select#MySelect). Affected: '{0}' - element: {1}", _manifest.RootPath, name);
                 }
 
                 selectRef = arr[1];

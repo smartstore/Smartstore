@@ -23,25 +23,6 @@ namespace Smartstore.IO
         /// </summary>
         string Root { get; }
 
-        //// TODO: (core) Move IFileSystem.GetPublicUrl() to IMediaFileSystem
-        ///// <summary>
-        ///// Retrieves the public URL for a given file within the storage provider.
-        ///// </summary>
-        ///// <param name="subpath">The relative path within the storage provider.</param>
-        ///// <param name="forCloud">
-        ///// If <c>true</c> and the storage is in the cloud, returns the actual remote cloud URL to the resource.
-        ///// If <c>false</c>, retrieves an app relative URL to delegate further processing to the media middleware (which can handle remote files)
-        ///// </param>
-        ///// <returns>The public URL.</returns>
-        //string GetPublicUrl(string subpath, bool forCloud = false);
-
-        ///// <summary>
-        ///// Retrieves the path within the storage provider for a given public url.
-        ///// </summary>
-        ///// <param name="url">The virtual or public url of a file.</param>
-        ///// <returns>The storage path or <value>null</value> if the media is not in a correct format.</returns>
-        //string GetStoragePath(string url);
-
         /// <summary>
         /// Combines multiple path parts using '/' as directory separator char.
         /// </summary>

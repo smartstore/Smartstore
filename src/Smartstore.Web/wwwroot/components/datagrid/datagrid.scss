@@ -1,5 +1,9 @@
 ﻿/// <reference path="../../admin/theme.scss" />
 
+$dg-border: #dee2e6;
+$dg-even: mix($light, #fff, 60%);
+$dg-hover: darken(#f2f7fb, 0.5%);
+
 .spa-layout {
     #content {
         // TODO: (core) Move this selector enhancement with $content-padding-x (instead of 30px) to ported scss file
@@ -20,22 +24,15 @@ input.form-control-plaintext {
 // Common
 // -----------------------------------------
 
-//$primary: #307abe; 
-//$light: #f8f9fa;
-$border: #dee2e6;
-$even: mix($light, #fff, 60%);
-$hover: darken(#f2f7fb, 0.5%);
-//$body-color: #393f46;
-
 .datagrid-root {
-    --dg-border-color: #{$border};
+    --dg-border-color: #{$dg-border};
     --dg-header-bg: #{$light};
     --dg-pager-bg: #{$light};
     --dg-toolbar-bg: #{$light};
     --dg-row-bg: #fff;
     --dg-row-even-bg: #fff;
-    --dg-row-hover-color: #{$hover};
-    --dg-row-active-color: #{$hover};
+    --dg-row-hover-color: #{$dg-hover};
+    --dg-row-active-color: #{$dg-hover};
     --dg-cell-padding: 13px 16px;
     --dg-cell-align: center;
     --dg-cell-justify: flex-start;
@@ -143,7 +140,7 @@ $hover: darken(#f2f7fb, 0.5%);
 }
 
 .dg-striped {
-    --dg-row-even-bg: $even;
+    --dg-row-even-bg: $dg-even;
 }
 
 .dg-hover > .dg-tbody > .dg-tr:hover:not(.dg-no-data, .dg-tr-detail) {
@@ -503,11 +500,11 @@ $hover: darken(#f2f7fb, 0.5%);
 }
 
 .dg-pager-top {
-    border-bottom: 1px solid $border;
+    border-bottom: 1px solid $dg-border;
 }
 
 .dg-pager-bottom {
-    border-top: 1px solid $border;
+    border-top: 1px solid $dg-border;
 }
 
 .dg-page {
@@ -526,7 +523,7 @@ a.dg-page {
 }
 
 .dg-page-refresh-wrapper {
-    border-right: 1px solid $border;
+    border-right: 1px solid $dg-border;
     text-align: center;
     margin-right: 6px;
 }
@@ -646,7 +643,7 @@ span.dg-page {
 
 [dir=rtl] {
     .dg-page-refresh {
-        border-left: 1px solid $border;
+        border-left: 1px solid $dg-border;
         border-right: none;
     }
 

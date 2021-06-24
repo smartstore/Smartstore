@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.IO;
@@ -85,7 +86,13 @@ namespace Smartstore.Web.Theming
 
         #region Properties
 
-        public IFileSystem FileProvider
+        public string RootPath
+        {
+            get;
+            protected internal set;
+        }
+
+        public IFileProvider FileProvider
         {
             get;
             protected internal set;

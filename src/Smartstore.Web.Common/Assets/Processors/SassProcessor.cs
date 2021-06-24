@@ -35,12 +35,11 @@ namespace Smartstore.Web.Assets.Processors
             var content = new Dictionary<string, byte[]>();
             var env = context.HttpContext.RequestServices.GetService<IWebHostEnvironment>();
             var fileProvider = context.Asset.GetFileProvider(env);
+            var assetFileProvider = fileProvider as AssetFileProvider;
 
             foreach (string route in context.Content.Keys)
             {
-                //var file = fileProvider.GetFileInfo(route);
-                var fs = context.HttpContext.RequestServices.GetRequiredService<IApplicationContext>().WebRoot;
-                var settings = new ScssOptions { InputFile = route };
+                var settings = new ScssOptions { InputFile = assetFileProvider != null ? route : fileProvider.GetFileInfo(route).PhysicalPath };
                 if (_options != null)
                 {
                     settings.IncludePaths.AddRange(_options.IncludePaths);
@@ -56,10 +55,13 @@ namespace Smartstore.Web.Assets.Processors
                     settings.TryImport = _options.TryImport;
                 }
 
-                settings.TryImport ??= (ref string file, string parentPath, out string scss, out string map) =>
+                if (assetFileProvider != null)
                 {
-                    return OnTryImportSassFile(fs, ref file, parentPath, out scss, out map);
-                };
+                    settings.TryImport ??= (ref string file, string parentPath, out string scss, out string map) =>
+                    {
+                        return OnTryImportSassFile(assetFileProvider, ref file, parentPath, out scss, out map);
+                    };
+                }
 
                 var watch = Stopwatch.StartNew();
                 var result = Scss.ConvertToCss(context.Content[route].AsString(), settings);
@@ -85,7 +87,7 @@ namespace Smartstore.Web.Assets.Processors
             return string.Empty;
         }
 
-        private static bool OnTryImportSassFile(IFileSystem fs, ref string file, string parentPath, out string scss, out string map)
+        private static bool OnTryImportSassFile(AssetFileProvider fileProvider, ref string file, string parentPath, out string scss, out string map)
         {
             map = null;
             scss = null;
@@ -95,8 +97,9 @@ namespace Smartstore.Web.Assets.Processors
                 file += ".scss";
             }
 
-            var parentDir = fs.GetDirectoryForFile(parentPath);
-            var importFile = fs.GetFile(fs.PathCombine(parentDir.SubPath, file));
+            var parentDir = parentPath.Substring(0, Path.GetDirectoryName(parentPath).Length);
+            var subPath = fileProvider.PathCombine(parentDir, file);
+            var importFile = fileProvider.GetFileInfo(subPath);
             if (!importFile.Exists && file[0] != '_')
             {
                 if (file[0] == '_')
@@ -115,7 +118,8 @@ namespace Smartstore.Web.Assets.Processors
                         file = "_" + file;
                     }
 
-                    importFile = fs.GetFile(fs.PathCombine(parentDir.SubPath, file));
+                    subPath = fileProvider.PathCombine(parentDir, file);
+                    importFile = fileProvider.GetFileInfo(subPath);
                     if (!importFile.Exists)
                     {
                         return false;
@@ -123,8 +127,10 @@ namespace Smartstore.Web.Assets.Processors
                 }
             }
 
-            file = importFile.SubPath;
-            scss = importFile.ReadAllText();
+            file = subPath;
+
+            using var stream = importFile.CreateReadStream();
+            scss = stream.AsString();
 
             return true;
         }

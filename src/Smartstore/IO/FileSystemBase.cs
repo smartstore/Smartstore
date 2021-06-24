@@ -60,7 +60,6 @@ namespace Smartstore.IO
             if (other.Length > 2 && other.StartsWith("..") && (PathHelper.PathSeparators.Contains(other[2]))) 
             {
                 // Combine relative path with Uri
-                //var root = "file://";
                 var u1 = new Uri("file://" + path.TrimStart(PathHelper.PathSeparators));
                 var u2 = new Uri(other, UriKind.Relative);
                 var u3 = new Uri(u1, u2);

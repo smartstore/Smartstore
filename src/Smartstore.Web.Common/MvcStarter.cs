@@ -249,8 +249,6 @@ namespace Smartstore.Web
                 }
 
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
-
-                app.UseWebOptimizer();
             });
 
             builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
@@ -258,7 +256,7 @@ namespace Smartstore.Web
                 // TODO: (core) Set StaticFileOptions
                 app.UseStaticFiles(new StaticFileOptions 
                 { 
-                    FileProvider = appContext.WebRoot,
+                    FileProvider = appContext.AssetFileProvider,
                     ContentTypeProvider = MimeTypes.ContentTypeProvider
                 }); 
             });
