@@ -4,10 +4,10 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Hosting;
 using Smartstore.ComponentModel;
-using Smartstore.Web.Assets.Processors;
+using Smartstore.Web.Bundling.Processors;
 using WebOptimizer;
 
-namespace Smartstore.Web.Assets
+namespace Smartstore.Web.Bundling
 {
     public static class AssetExtensions
     {

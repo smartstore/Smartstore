@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Options;
-using Smartstore.Web.Assets;
+using Smartstore.Web.Bundling;
 using WebOptimizer;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -20,7 +20,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     /// Hooks JavaScript bundles up to the HTML page.
     /// </summary>
     [HtmlTargetElement("script", Attributes = SrcAttribute)]
-    public class ScriptAssetTagHelper : AssetTagHelper
+    public class ScriptAssetTagHelper : BundleTagHelper
     {
         const string SrcAttribute = "src";
         protected override string SourceAttributeName  => SrcAttribute;
@@ -48,7 +48,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("link", Attributes = "href, [rel=stylesheet]")]
     [HtmlTargetElement("link", Attributes = "href, [rel=preload]")]
     [HtmlTargetElement("link", Attributes = "href, [rel=prefetch]")]
-    public class LinkAssetTagHelper : AssetTagHelper
+    public class LinkAssetTagHelper : BundleTagHelper
     {
         const string HrefAttribute = "href";
         protected override string SourceAttributeName => HrefAttribute;
@@ -71,9 +71,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         }
     }
 
-    public abstract class AssetTagHelper : TagHelper
+    public abstract class BundleTagHelper : TagHelper
     {
-        public AssetTagHelper(
+        public BundleTagHelper(
             IAssetPipeline pipeline,
             IAssetBuilder builder,
             IWebHostEnvironment env,

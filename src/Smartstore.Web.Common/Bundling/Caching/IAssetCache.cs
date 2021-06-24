@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Smartstore.Web.Assets
+namespace Smartstore.Web.Bundling
 {
     /// <summary>
     /// A file system based caching mechanism for dynamically translated assets like Sass etc.

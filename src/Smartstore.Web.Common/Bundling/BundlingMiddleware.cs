@@ -7,16 +7,16 @@ using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using WebOptimizer;
 
-namespace Smartstore.Web.Assets
+namespace Smartstore.Web.Bundling
 {
-    internal class AssetMiddleware
+    internal class BundlingMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly IAssetPipeline _pipeline;
         private readonly ILogger _logger;
         private readonly IAssetBuilder _assetBuilder;
 
-        public AssetMiddleware(RequestDelegate next, IAssetPipeline pipeline, ILogger<AssetMiddleware> logger, IAssetBuilder assetBuilder)
+        public BundlingMiddleware(RequestDelegate next, IAssetPipeline pipeline, ILogger<BundlingMiddleware> logger, IAssetBuilder assetBuilder)
         {
             _next = next;
             _pipeline = pipeline;

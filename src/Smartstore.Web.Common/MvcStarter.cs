@@ -251,16 +251,6 @@ namespace Smartstore.Web
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
             });
 
-            builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
-            {
-                // TODO: (core) Set StaticFileOptions
-                app.UseStaticFiles(new StaticFileOptions 
-                { 
-                    FileProvider = appContext.AssetFileProvider,
-                    ContentTypeProvider = MimeTypes.ContentTypeProvider
-                }); 
-            });
-
             builder.Configure(StarterOrdering.FirstMiddleware, app =>
             {
                 // TODO: (core) Find decent ordering for MiniProfiler

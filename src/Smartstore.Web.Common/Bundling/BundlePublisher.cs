@@ -3,7 +3,7 @@ using System.Linq;
 using Smartstore.Engine;
 using WebOptimizer;
 
-namespace Smartstore.Web.Assets
+namespace Smartstore.Web.Bundling
 {
     internal class BundlePublisher
     {

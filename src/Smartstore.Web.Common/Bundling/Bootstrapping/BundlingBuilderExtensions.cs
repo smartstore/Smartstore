@@ -1,17 +1,17 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
-using Smartstore.Web.Assets;
+using Smartstore.Web.Bundling;
 using WebOptimizer;
 
 namespace Smartstore.Web.Bootstrapping
 {
-    public static class AssetBuilderExtensions
+    public static class BundlingBuilderExtensions
     {
         /// <summary>
         /// Adds asset & bundling middleware to the <see cref="IApplicationBuilder"/> request execution pipeline
         /// </summary>
-        public static IApplicationBuilder UseAssets(this IApplicationBuilder app)
+        public static IApplicationBuilder UseBundling(this IApplicationBuilder app)
         {
             Guard.NotNull(app, nameof(app));
 
@@ -21,7 +21,7 @@ namespace Smartstore.Web.Bootstrapping
                 throw new InvalidOperationException(msg);
             }
 
-            app.UseMiddleware<AssetMiddleware>();
+            app.UseMiddleware<BundlingMiddleware>();
 
             return app;
         }

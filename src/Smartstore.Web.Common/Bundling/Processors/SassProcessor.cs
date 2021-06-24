@@ -17,9 +17,8 @@ using WebOptimizer;
 using WebOptimizer.Sass;
 using System.Diagnostics;
 using Smartstore.IO;
-using Smartstore.Engine;
 
-namespace Smartstore.Web.Assets.Processors
+namespace Smartstore.Web.Bundling.Processors
 {
     public class SassProcessor : IProcessor
     {

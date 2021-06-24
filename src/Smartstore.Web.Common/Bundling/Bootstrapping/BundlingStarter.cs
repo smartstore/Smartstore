@@ -1,19 +1,21 @@
 ﻿using System;
 using Autofac;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Web.Assets;
+using Smartstore.IO;
+using Smartstore.Web.Bundling;
 using WebOptimizer;
 
 namespace Smartstore.Web.Bootstrapping
 {
-    internal class AssetStarter : StarterBase
+    internal class BundlingStarter : StarterBase
     {
-        public AssetStarter()
+        public BundlingStarter()
         {
             RunAfter<MvcStarter>();
         }
@@ -68,7 +70,7 @@ namespace Smartstore.Web.Bootstrapping
                 // TODO: (core) Configure NodeServices?
             });
 
-            services.AddTransient<IConfigureOptions<WebOptimizerOptions>, AssetConfigurer>();
+            services.AddTransient<IConfigureOptions<WebOptimizerOptions>, BundlingConfigurer>();
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
@@ -78,10 +80,20 @@ namespace Smartstore.Web.Bootstrapping
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
+            builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
+            {
+                // TODO: (core) Set StaticFileOptions
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = builder.ApplicationContext.AssetFileProvider,
+                    ContentTypeProvider = MimeTypes.ContentTypeProvider
+                });
+            });
+            
             builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
             {
                 //app.UseWebOptimizer();
-                app.UseAssets();
+                app.UseBundling();
             });
         }
     }

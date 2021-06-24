@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using WebOptimizer;
 
-namespace Smartstore.Web.Assets
+namespace Smartstore.Web.Bundling
 {
     public class SmartAssetResponse : IAssetResponse
     {

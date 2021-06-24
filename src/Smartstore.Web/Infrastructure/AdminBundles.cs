@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine;
-using Smartstore.Web.Assets;
+using Smartstore.Web.Bundling;
 using WebOptimizer;
 
 namespace Smartstore.Web.Infrastructure

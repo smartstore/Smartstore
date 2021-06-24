@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Smartstore.Web.Assets
+namespace Smartstore.Web.Bundling
 {
     public class CachedAssetEntry
     {
