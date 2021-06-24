@@ -6,8 +6,10 @@ using System.Data.Common;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Smartstore.Core.DataExchange.Csv;
 using Smartstore.Core.DataExchange.Excel;
+using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -78,6 +80,22 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             return -1;
+        }
+
+        public static async Task<(bool Success, string Error)> IsValidFileAsync(IFile file)
+        {
+            try
+            {
+                using var stream = await file.OpenReadAsync();
+
+                var table = FromFile(file.Name, stream, stream.Length, CsvConfiguration.ExcelFriendlyConfiguration, 0, 1);
+
+                return (table != null, null);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.ToAllMessages());
+            }
         }
 
         public static IDataTable FromFile(

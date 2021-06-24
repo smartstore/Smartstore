@@ -11,6 +11,21 @@
 <input type="hidden" asp-for="TempFileName" />
 <input type="hidden" asp-for="EntityType" />
 
+<script sm-target-zone="scripts" data-origin="ImportUpdate">
+	window['onUploadCompleted'] = function (file, data) {
+		$('#ImportFileListContainer').show();
+
+		if (!_.isEmpty(data.tempFile)) {
+			$('input[name=TempFileName]').val(data.tempFile);
+			$('#ImportFileList').html(data.tempFile);
+			$('#ImportFileUploadContainer').hide();		// Just one initial file to specify the file type.
+		}
+		else {
+			location.href = '@Url.Action("Edit", new { id = Model.Id })';
+		}
+	}
+</script>
+
 <div sm-if="Model.ExistingFiles.Count(x => !x.RelatedType.HasValue) > 1" class="alert alert-warning">
 	@T("Admin.DataExchange.Import.MultipleFilesSameFileTypeNote")
 </div>
@@ -200,7 +215,7 @@
 	configViewData.TemplateInfo.HtmlFieldPrefix = "CsvConfiguration";
 	configViewData.ModelState.Merge(ViewData.ModelState);
 
-    <partial name="CsvConfiguration" model="Model.CsvConfiguration" view-data="configViewData" />
+    <partial name="_CsvConfiguration" model="Model.CsvConfiguration" view-data="configViewData" />
 }
 
 @if (Model.ExistingFiles.Any(x => !x.RelatedType.HasValue))
@@ -210,19 +225,6 @@
 
 <script sm-target-zone="scripts" data-origin="ImportUpdate">
     var mappedProperties = [];
-
-	window['onUploadCompleted'] = function (file, data) {
-		$('#ImportFileListContainer').show();
-
-		if (!_.isEmpty(data.tempFile)) {
-			$('input[name=TempFileName]').val(data.tempFile);
-			$('#ImportFileList').html(data.tempFile);
-			$('#ImportFileUploadContainer').hide();		// Just one initial file to specify the file type.
-		}
-		else {
-			location.href = '@Url.Action("Edit", new { id = Model.Id })';
-		}
-	}
 
     $(function() {
         const maxMappingLableLength = 42;
@@ -480,7 +482,7 @@
 			try {
 				if (item.text.length > 0) {
 					var option = $(item.element);
-					var isLocalized = (item.id.indexOf(']', item.id.length - 1) !== -1),
+					var isLocalized = (item.id.indexOf(']', item.id.length - 1) !== -1);
 					var html = '';
 
 					if (option.length === 0) {

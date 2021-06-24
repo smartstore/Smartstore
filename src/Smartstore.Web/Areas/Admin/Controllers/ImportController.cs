@@ -136,7 +136,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Import.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var profile = await _db.ImportProfiles.FindByIdAsync(id, false);
+            var profile = await _db.ImportProfiles
+                .Include(x => x.Task)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+
             if (profile == null)
             {
                 return NotFound();
@@ -154,7 +158,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Import.Update)]
         public async Task<IActionResult> Edit(ImportProfileModel model, bool continueEditing, FormCollection form)
         {
-            var profile = await _db.ImportProfiles.FindByIdAsync(model.Id, true);
+            var profile = await _db.ImportProfiles
+                .Include(x => x.Task)
+                .FirstOrDefaultAsync(x => x.Id == model.Id);
+
             if (profile == null)
             {
                 return NotFound();
@@ -442,17 +449,21 @@ namespace Smartstore.Admin.Controllers
                 await tenantTempDir.FileSystem.TryDeleteFileAsync(fileName);
                 var targetFile = await tenantTempDir.GetFileAsync(fileName);
 
-                using var sourceStream = sourceFile.OpenReadStream();
-                using var targetStream = targetFile.OpenWrite();
-
-                await sourceStream.CopyToAsync(targetStream);
-
-                if (IsValidImportFile(targetFile, targetStream, out error))
+                using (var sourceStream = sourceFile.OpenReadStream())
+                using (var targetStream = targetFile.OpenWrite())
                 {
+                    await sourceStream.CopyToAsync(targetStream);
+                }
+
+                var (isValidFile, message) = await LightweightDataTable.IsValidFileAsync(targetFile);
+                if (isValidFile)
+                {
+                    success = true;
                     tempFile = fileName;
                 }
                 else
                 {
+                    error = message;
                     await tenantTempDir.FileSystem.TryDeleteFileAsync(fileName);
                 }
             }
@@ -474,13 +485,17 @@ namespace Smartstore.Admin.Controllers
                         var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
                         var targetFile = await dir.GetFileAsync(fileName);
 
-                        using var sourceStream = sourceFile.OpenReadStream();
-                        using var targetStream = targetFile.OpenWrite();
-
-                        await sourceStream.CopyToAsync(targetStream);
-
-                        if (IsValidImportFile(targetFile, targetStream, out error))
+                        using (var sourceStream = sourceFile.OpenReadStream())
+                        using (var targetStream = targetFile.OpenWrite())
                         {
+                            await sourceStream.CopyToAsync(targetStream);
+                        }
+
+                        var (isValidFile, message) = await LightweightDataTable.IsValidFileAsync(targetFile);
+                        if (isValidFile)
+                        {
+                            success = true;
+
                             var fileType = Path.GetExtension(fileName).EqualsNoCase(".xlsx") ? ImportFileType.Xlsx : ImportFileType.Csv;
                             if (fileType != profile.FileType)
                             {
@@ -491,6 +506,10 @@ namespace Smartstore.Admin.Controllers
                                     await _db.SaveChangesAsync();
                                 }
                             }
+                        }
+                        else
+                        {
+                            error = message;
                         }
                     }
                 }
@@ -702,24 +721,6 @@ namespace Smartstore.Admin.Controllers
             catch (Exception ex)
             {
                 NotifyError(ex, true, false);
-            }
-        }
-
-        private static bool IsValidImportFile(IFile file, Stream stream, out string error)
-        {
-            error = null;
-
-            try
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-
-                LightweightDataTable.FromFile(file.Name, stream, stream.Length, CsvConfiguration.ExcelFriendlyConfiguration, 0, 1);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                error = ex.ToAllMessages();
-                return false;
             }
         }
 
