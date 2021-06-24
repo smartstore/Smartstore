@@ -63,7 +63,7 @@ Vue.component("sm-datagrid", {
                             <tr ref="tableHeaderRow" class="dg-tr">
                                 <th v-if="allowRowSelection || hasDetailView" class="dg-th dg-col-selector dg-col-pinned alpha">
 
-                                    <label v-if="allowRowSelection" class="dg-cell dg-cell-header dg-cell-selector ml-auto">
+                                    <label v-if="allowRowSelection" class="dg-cell dg-cell-header dg-cell-selector w-100 ml-auto">
                                         <span class="dg-cell-value">
                                             <input type="checkbox" class="dg-cell-selector-checkbox" ref="masterSelector" @change="onSelectAllRows($event)" />
                                         </span>
@@ -118,7 +118,7 @@ Vue.component("sm-datagrid", {
                                         <div v-if="hasDetailView" class="dg-cell dg-cell-detail-toggle" :class="{ 'expanded': getRowDetailState(row) === true }" @click="toggleDetailView(row)">
                                             <i class="fa fa-chevron-right fa-sm"></i>
                                         </div>
-                                        <label v-if="allowRowSelection" class="dg-cell dg-cell-selector">
+                                        <label v-if="allowRowSelection" class="dg-cell dg-cell-selector w-100">
                                             <span v-if="!isInlineEditRow(row) || !editing.insertMode" class="dg-cell-value">
                                                 <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" @change="onSelectRow($event, row)" />
                                             </span>
