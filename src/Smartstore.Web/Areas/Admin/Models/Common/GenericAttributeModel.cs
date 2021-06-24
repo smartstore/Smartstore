@@ -14,7 +14,7 @@ namespace Smartstore.Admin.Models.Common
 
         public string EntityName { get; set; }
 
-        public int EntityId { get; set; }
+        public int AttributeEntityId { get; set; }
     }
 
     public partial class GenericAttributeValidator : AbstractValidator<GenericAttributeModel>

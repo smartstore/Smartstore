@@ -5,20 +5,19 @@
 <datagrid id="generic-attributes-grid"
           allow-resize="true"
           allow-row-selection="true"
-          allow-edit="true"
-          allow-column-reordering="true">
-    <datasource read="@Url.Action("GenericAttributesList", "Common", new { entityName = Model.EntityName, entityId = Model.EntityId })"
+          allow-edit="true">
+    <datasource read="@Url.Action("GenericAttributesList", "Common", new { entityName = Model.EntityName, entityId = Model.AttributeEntityId })"
                 delete="@Url.Action("GenericAttributeDelete", "Common", new { entityName = Model.EntityName })"
-                update="@Url.Action("GenericAttributeUpdate", "Common", new { entityName = Model.EntityName, entityId = Model.EntityId })"
-                insert="@Url.Action("GenericAttributeInsert", "Common", new { entityName = Model.EntityName, entityId = Model.EntityId })" />
+                update="@Url.Action("GenericAttributeUpdate", "Common", new { entityName = Model.EntityName, entityId = Model.AttributeEntityId })"
+                insert="@Url.Action("GenericAttributeInsert", "Common", new { entityName = Model.EntityName, entityId = Model.AttributeEntityId })" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
+    <paging enabled="true" />
     <toolbar>
         <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
             <i class="fa fa-plus"></i>
-            <span>@T("Admin.Common.AddNew")...</span>
+            <span>@T("Admin.Common.AddNew")</span>
         </button>
-        <toolbar-group class="omega"></toolbar-group>
-        <toolbar-group class="border-right-0 mr-0 pr-0">
+        <toolbar-group class="omega">
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
@@ -31,7 +30,6 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
-        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>

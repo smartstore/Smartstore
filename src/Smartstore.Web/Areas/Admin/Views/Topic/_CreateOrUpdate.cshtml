@@ -51,7 +51,7 @@
                     <smart-label asp-for="Password" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="Password" attr-value='(Model.Password.HasValue(), Model.Password)' />
+                    <input asp-for="Password" attr-value='(Model.Password.HasValue(), Model.Password)' />
                     <span asp-validation-for="Password"></span>
                 </div>
             </div>
@@ -383,7 +383,7 @@
     @if (Model.Id > 0)
     {
         <tab sm-title="@T("Admin.Common.GenericAttributes")">
-            <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel {  EntityName = "Topic", EntityId = Model.Id }' />
+            <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel {  EntityName = "Topic", AttributeEntityId = Model.Id }' />
         </tab>
     }
 </tabstrip>

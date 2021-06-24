@@ -116,7 +116,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
                         .Select(x => new GenericAttributeModel
                         {
                             Id = x.Id,
-                            EntityId = x.EntityId,
+                            AttributeEntityId = x.EntityId,
                             EntityName = x.KeyGroup,
                             Key = x.Key,
                             Value = x.Value
