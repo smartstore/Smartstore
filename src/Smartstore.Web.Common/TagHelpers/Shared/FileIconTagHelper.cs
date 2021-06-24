@@ -37,6 +37,10 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
+            // TODO: (mg) (core) Don't use StringBuilders in TagHelpers. TagHelpers are extremely (memory) efficient and fast out-of-the-box.
+            // Using StringBuilders here is sort of "sabotage" ;-). Instead: compose your HTML with "output.[Container].AppendHtml()" or call
+            // any of our convenient extension methods, e.g. output.Wrap(Content|Element)With() etc.
+
             using var psb = StringBuilderPool.Instance.Get(out var sb);
 
             if (ShowLabel && FileExtension.IsEmpty())
@@ -46,11 +50,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
             else
             {
-                var ext = FileExtension.EmptyNull();
-                if (ext.StartsWith('.'))
-                {
-                    ext = ext[1..];
-                }
+                var ext = FileExtension.EmptyNull().TrimStart('.');
 
                 var iconClass = ext.ToLowerInvariant() switch
                 {
@@ -87,7 +87,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (BadgeClass.HasValue())
             {
-                output.WrapHtmlInside($"<span class='badge {BadgeClass}'>", "</span>");
+                output.WrapHtmlInside($"<span class='badge{BadgeClass.LeftPad()}'>", "</span>");
             }
         }
     }

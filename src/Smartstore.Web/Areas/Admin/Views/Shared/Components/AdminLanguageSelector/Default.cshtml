@@ -33,16 +33,7 @@
 			$("#language-selector > .dropdown-item:not(.disabled, .manage-languages)").on('click', function () {
                 var el = $(this);
                 var langId = el.data("lang-id");
-
-
-                console.log($("#customerlanguage").length);
-
                 $("#customerlanguage").val(langId);
-
-
-                console.log($("#customerlanguage").val());
-
-
                 $("#form-languageselector").submit();
             });
         });
