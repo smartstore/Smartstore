@@ -1,5 +1,6 @@
 ﻿@using Smartstore.Admin.Models.Topics
-
+@using Smartstore.Admin.Models.Common
+ 
 @model TopicModel
 
 <div asp-validation-summary="ModelOnly"></div>
@@ -382,7 +383,7 @@
     @if (Model.Id > 0)
     {
         <tab sm-title="@T("Admin.Common.GenericAttributes")">
-            @*TODO: (mh) (core) Implement data grid.*@
+            <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel {  EntityName = "Topic", EntityId = Model.Id }' />
         </tab>
     }
 </tabstrip>
