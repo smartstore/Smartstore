@@ -136,10 +136,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Import.Read)]
         public async Task<IActionResult> Edit(int id)
         {
+            // INFO: (mg) (core) IIncludableQuery<T> has also extension method FindByIdAsync()
             var profile = await _db.ImportProfiles
                 .Include(x => x.Task)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FindByIdAsync(id, false);
 
             if (profile == null)
             {
@@ -160,7 +160,7 @@ namespace Smartstore.Admin.Controllers
         {
             var profile = await _db.ImportProfiles
                 .Include(x => x.Task)
-                .FirstOrDefaultAsync(x => x.Id == model.Id);
+                .FindByIdAsync(model.Id);
 
             if (profile == null)
             {
