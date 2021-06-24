@@ -61,10 +61,6 @@ namespace Smartstore.Admin.Models.Import
         public CsvConfigurationModel CsvConfiguration { get; set; }
         public ExtraDataModel ExtraData { get; set; } = new();
 
-        public List<ColumnMappingItemModel> ColumnMappings { get; set; }
-        public List<ColumnMappingItemModel> AvailableSourceColumns { get; set; }
-        public List<ColumnMappingItemModel> AvailableEntityProperties { get; set; }
-
         [LocalizedDisplay("Admin.DataExchange.Import.")]
         public class ExtraDataModel
         {

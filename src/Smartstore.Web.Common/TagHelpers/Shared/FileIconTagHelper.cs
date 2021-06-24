@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Web.Rendering;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -8,7 +7,9 @@ namespace Smartstore.Web.TagHelpers.Shared
     public class FileIconTagHelper : TagHelper
     {
         const string FileExtensionAttributeName = "file-extension";
+        const string LabelAttributeName = "label";
         const string ShowLabelAttributeName = "show-label";
+        const string BadgeClassAttributeName = "badge-class";
 
         /// <summary>
         /// Specifies the file extension.
@@ -17,63 +18,76 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string FileExtension { get; set; }
 
         /// <summary>
+        /// Specifies the label text. <see cref="FileExtension"/> by default.
+        /// </summary>
+        [HtmlAttributeName(LabelAttributeName)]
+        public string Label { get; set; }
+
+        /// <summary>
         /// A value indicating whether to show the file extension also as a label.
         /// </summary>
         [HtmlAttributeName(ShowLabelAttributeName)]
         public bool ShowLabel { get; set; }
 
+        /// <summary>
+        /// Specifies a badge class name, e.g. "badge-info".
+        /// </summary>
+        [HtmlAttributeName(BadgeClassAttributeName)]
+        public string BadgeClass { get; set; }
+
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            string icon = null;
-            var ext = FileExtension.EmptyNull();
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
 
-            if (ext.StartsWith('.'))
-            {
-                ext = ext[1..];
-            }
-
-            icon = ext.ToLowerInvariant() switch
-            {
-                "pdf" => "far fa-file-pdf",
-                "doc" or "docx" or "docm" or "odt" or "dot" or "dotx" or "dotm" => "far fa-file-word",
-                "xls" or "xlsx" or "xlsm" or "xlsb" or "ods" => "far fa-file-excel",
-                "csv" or "tab" => "fa fa-file-csv",
-                "ppt" or "pptx" or "pptm" or "ppsx" or "odp" or "potx" or "pot" or "potm" or "pps" or "ppsm" => "far fa-file-powerpoint",
-                "zip" or "rar" or "7z" => "far fa-file-archive",
-                "png" or "jpg" or "jpeg" or "bmp" or "psd" => "far fa-file-image",
-                "mp3" or "wav" or "ogg" or "wma" => "far fa-file-audio",
-                "mp4" or "mkv" or "wmv" or "avi" or "asf" or "mpg" or "mpeg" => "far fa-file-video",
-                "txt" => "far fa-file-alt",
-                "exe" => "fa fa-cog",
-                "xml" or "html" or "htm" => "far fa-file-code",
-                _ => "far fa-file",
-            };
-
-            var label = ext.NaIfEmpty().ToUpper();
-
-            if (ShowLabel && ext.IsEmpty())
+            if (ShowLabel && FileExtension.IsEmpty())
             {
                 // No icon, just "n\a" label.
-                output.TagName = "span";
-                output.TagMode = TagMode.StartTagAndEndTag;
-                output.AppendCssClass("text-muted");
-                output.Content.Append(string.Empty.NaIfEmpty());
+                sb.Append($"<span class='text-muted'>{string.Empty.NaIfEmpty()}</span>");
             }
             else
             {
-                output.TagName = "i";
-                output.TagMode = TagMode.StartTagAndEndTag;
-                output.AppendCssClass("fa-fw " + icon);
-                output.Attributes.Add("title", label);
+                var ext = FileExtension.EmptyNull();
+                if (ext.StartsWith('.'))
+                {
+                    ext = ext[1..];
+                }
+
+                var iconClass = ext.ToLowerInvariant() switch
+                {
+                    "pdf" => "far fa-file-pdf",
+                    "doc" or "docx" or "docm" or "odt" or "dot" or "dotx" or "dotm" => "far fa-file-word",
+                    "xls" or "xlsx" or "xlsm" or "xlsb" or "ods" => "far fa-file-excel",
+                    "csv" or "tab" => "fa fa-file-csv",
+                    "ppt" or "pptx" or "pptm" or "ppsx" or "odp" or "potx" or "pot" or "potm" or "pps" or "ppsm" => "far fa-file-powerpoint",
+                    "zip" or "rar" or "7z" => "far fa-file-archive",
+                    "png" or "jpg" or "jpeg" or "bmp" or "psd" => "far fa-file-image",
+                    "mp3" or "wav" or "ogg" or "wma" => "far fa-file-audio",
+                    "mp4" or "mkv" or "wmv" or "avi" or "asf" or "mpg" or "mpeg" => "far fa-file-video",
+                    "txt" => "far fa-file-alt",
+                    "exe" => "fa fa-cog",
+                    "xml" or "html" or "htm" => "far fa-file-code",
+                    _ => "far fa-file",
+                };
+
+                ext = ext.NaIfEmpty().ToUpper();
+
+                sb.Append($"<i class='fa-fw {iconClass}' title='{ext}'></i>");
 
                 if (ShowLabel)
                 {
-                    var labelSpan = new TagBuilder("span");
-                    labelSpan.AppendCssClass(ext.IsEmpty() ? "text-muted" : "ml-1");
-                    labelSpan.InnerHtml.Append(label.NaIfEmpty());
-
-                    output.PostElement.AppendHtml(labelSpan);
+                    sb.AppendFormat("<span class='ml-1{0}'>{1}</span>", 
+                        FileExtension.IsEmpty() ? " text-muted" : "",
+                        Label ?? ext);
                 }
+            }
+
+            output.TagName = null;
+            output.TagMode = TagMode.StartTagAndEndTag;
+            output.Content.SetHtmlContent(sb.ToString());
+
+            if (BadgeClass.HasValue())
+            {
+                output.WrapHtmlInside($"<span class='badge {BadgeClass}'>", "</span>");
             }
         }
     }
