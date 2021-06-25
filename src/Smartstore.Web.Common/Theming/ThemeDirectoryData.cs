@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml;
 using Smartstore.Collections;
 using Smartstore.IO;
 
@@ -10,9 +11,9 @@ namespace Smartstore.Web.Theming
 
         public IFile ConfigurationFile { get; set; }
 
-        public bool IsSymbolicLink { get; set; }
+        public XmlElement ConfigurationNode { get; set; }
 
-        public ThemeConfiguration Configuration { get; set; }
+        public bool IsSymbolicLink { get; set; }
 
         public string BaseTheme { get; set; }
 

@@ -24,7 +24,7 @@ namespace Smartstore.Web.Theming
         private readonly ConcurrentDictionary<EventThrottleKey, Timer> _eventQueue = new();
         private readonly bool _enableMonitoring;
 
-        private readonly Regex _fileFilterPattern = new(@"^\.(json|png|gif|jpg|jpeg|css|scss|js|cshtml|svg)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex _fileFilterPattern = new(@"^\.(config|json|png|gif|jpg|jpeg|css|scss|js|cshtml|svg)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private FileSystemWatcher _monitorFolders;
         private FileSystemWatcher _monitorFiles;
@@ -388,11 +388,11 @@ namespace Smartstore.Web.Theming
 
             var themeName = name.Substring(0, idx);
             var relativePath = name[(themeName.Length + 1)..].Replace('\\', '/');
-            var isConfigFile = relativePath.EqualsNoCase("theme.json");
+            var isConfigFile = relativePath.EqualsNoCase("theme.config");
 
             if (changeType == ThemeFileChangeType.Modified && !isConfigFile)
             {
-                // Monitor changes only for root theme.json
+                // Monitor changes only for root theme.config
                 return;
             }
 

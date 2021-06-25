@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using Microsoft.Extensions.FileProviders;
-using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.IO;
 
@@ -56,13 +56,19 @@ namespace Smartstore.Web.Theming
                 themeDirectory = new LocalDirectory(themeDirectory.SubPath, new DirectoryInfo(finalPathName), root);
             }
 
-            var themeConfigFile = root.GetFile(root.PathCombine(themeDirectory.Name, "theme.json"));
+            var themeConfigFile = root.GetFile(root.PathCombine(themeDirectory.Name, "theme.config"));
 
             if (themeConfigFile.Exists)
             {
-                var configuration = JsonConvert.DeserializeObject<ThemeConfiguration>(themeConfigFile.ReadAllText());
+                var doc = new XmlDocument();
+                using var stream = themeConfigFile.OpenRead();
+                doc.Load(stream);
 
-                var baseTheme = configuration.BaseTheme.TrimSafe().NullEmpty();
+                Guard.Against<SmartException>(doc.DocumentElement == null, "The theme configuration document must have a root element.");
+
+                var rootNode = doc.DocumentElement;
+
+                var baseTheme = rootNode.GetAttribute("baseTheme").TrimSafe().NullEmpty();
                 if (baseTheme != null && baseTheme.EqualsNoCase(themeDirectory.Name))
                 {
                     // Don't let theme base on itself!
@@ -73,8 +79,8 @@ namespace Smartstore.Web.Theming
                 {
                     Directory = themeDirectory,
                     ConfigurationFile = themeConfigFile,
+                    ConfigurationNode = rootNode,
                     IsSymbolicLink = isSymLink,
-                    Configuration = configuration,
                     BaseTheme = baseTheme
                 };
             }
@@ -102,12 +108,6 @@ namespace Smartstore.Web.Theming
         }
 
         public IFile ConfigurationFile
-        {
-            get;
-            protected internal set;
-        }
-
-        public ThemeConfiguration Configuration
         {
             get;
             protected internal set;

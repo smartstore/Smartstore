@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 using Smartstore.Collections;
 using Smartstore.IO;
 
@@ -20,7 +21,6 @@ namespace Smartstore.Web.Theming
             {
                 ThemeName = directoryData.Directory.Name,
                 ConfigurationFile = directoryData.ConfigurationFile,
-                Configuration = directoryData.Configuration,
                 IsSymbolicLink = directoryData.IsSymbolicLink,
                 BaseThemeName = directoryData.BaseTheme,
                 RootPath = directoryData.Directory.PhysicalPath
@@ -29,14 +29,14 @@ namespace Smartstore.Web.Theming
 
         public ThemeManifest Materialize()
         {
-            var cfg = _manifest.Configuration;
+            var root = _directoryData.ConfigurationNode;
 
-            _manifest.ThemeTitle = cfg.Title.NullEmpty() ?? _manifest.ThemeName;
-            _manifest.PreviewImagePath = cfg.PreviewImagePath.NullEmpty() ?? _directoryData.Directory.SubPath + "/preview.png";
-            _manifest.Description = cfg.Description.ToSafe();
-            _manifest.Author = cfg.Author.ToSafe();
-            _manifest.Url = cfg.Url.ToSafe();
-            _manifest.Version = cfg.Version.NullEmpty() ?? "1.0";
+            _manifest.ThemeTitle = root.GetAttribute("title").NullEmpty() ?? _manifest.ThemeName;
+            _manifest.PreviewImagePath = root.GetAttribute("previewImagePath").NullEmpty() ?? "images/preview.png";
+            _manifest.Description = root.GetAttribute("description").ToSafe();
+            _manifest.Author = root.GetAttribute("author").ToSafe();
+            _manifest.Url = root.GetAttribute("url").ToSafe();
+            _manifest.Version = root.GetAttribute("version").ToSafe().HasValue() ? root.GetAttribute("version") : "1.0";
 
             _manifest.Selects = MaterializeSelects();
             _manifest.Variables = MaterializeVariables();
@@ -47,30 +47,32 @@ namespace Smartstore.Web.Theming
         private Multimap<string, string> MaterializeSelects()
         {
             var selects = new Multimap<string, string>();
-            var cfg = _manifest.Configuration;
-            var cfgSelects = cfg.Selects;
+            var root = _directoryData.ConfigurationNode;
+            var xndSelects = root.SelectNodes(@"Selects/Select").Cast<XmlElement>();
 
-            if (cfgSelects == null)
+            foreach (var xel in xndSelects)
             {
-                return selects;
-            }
-
-            foreach (var kvp in cfgSelects)
-            {
-                var options = kvp.Value;
-                if (options == null || !options.Any())
+                string id = xel.GetAttribute("id").ToSafe();
+                if (id.IsEmpty() || selects.ContainsKey(id))
                 {
-                    throw new SmartException("A 'Select' element must contain at least one 'Option' child element. Affected: '{0}' - element: {1}", _manifest.RootPath, kvp.Key);
+                    throw new SmartException("A 'Select' element must contain a unique id. Affected: '{0}' - element: {1}", _manifest.RootPath, xel.OuterXml);
                 }
 
-                foreach (var option in options)
+                var xndOptions = xel.SelectNodes(@"Option").Cast<XmlElement>();
+                if (!xndOptions.Any())
                 {
+                    throw new SmartException("A 'Select' element must contain at least one 'Option' child element. Affected: '{0}' - element: {1}", _manifest.RootPath, xel.OuterXml);
+                }
+
+                foreach (var xelOption in xndOptions)
+                {
+                    string option = xelOption.InnerText;
                     if (option.IsEmpty())
                     {
-                        throw new SmartException("A select option cannot be empty. Affected: '{0}' - element: {1}", _manifest.RootPath, kvp.Key);
+                        throw new SmartException("A select option cannot be empty. Affected: '{0}' - element: {1}", _manifest.RootPath, xel.OuterXml);
                     }
 
-                    selects.Add(kvp.Key, option);
+                    selects.Add(id, option);
                 }
 
             }
@@ -81,19 +83,18 @@ namespace Smartstore.Web.Theming
         private IDictionary<string, ThemeVariableInfo> MaterializeVariables()
         {
             var vars = new Dictionary<string, ThemeVariableInfo>(StringComparer.OrdinalIgnoreCase);
-            var cfg = _manifest.Configuration;
-            var cfgVars = cfg.Variables;
+            var root = _directoryData.ConfigurationNode;
+            var xndVars = root.SelectNodes(@"Vars/Var").Cast<XmlElement>();
 
-            if (cfgVars == null)
+            foreach (var xel in xndVars)
             {
-                return vars;
-            }
-
-            foreach (var kvp in cfgVars)
-            {
-                var info = MaterializeVariable(kvp.Key, kvp.Value);
+                var info = MaterializeVariable(xel);
                 if (info != null && info.Name.HasValue())
                 {
+                    if (vars.ContainsKey(info.Name))
+                    {
+                        throw new SmartException("Duplicate variable name '{0}' in '{1}'. Variable names must be unique.", info.Name, _manifest.RootPath);
+                    }
                     vars.Add(info.Name, info);
                 }
             }
@@ -101,21 +102,29 @@ namespace Smartstore.Web.Theming
             return vars;
         }
 
-        private ThemeVariableInfo MaterializeVariable(string name, ThemeConfiguration.VariableConfiguration cfg)
+        private ThemeVariableInfo MaterializeVariable(XmlElement xel)
         {
-            string type = cfg.Type.NullEmpty() ?? "String";
+            string name = xel.GetAttribute("name");
+            string value = xel.InnerText;
 
-            var varType = ConvertVarType(type, name, out var selectRef);
-
-            if (varType != ThemeVariableType.String && cfg.Value.IsEmpty())
+            if (name.IsEmpty())
             {
-                throw new SmartException("A value is required for non-string 'Var' elements. Affected: '{0}' - element: {1}", _manifest.RootPath, name);
+                throw new SmartException("The name attribute is required for the 'Var' element. Affected: '{0}' - element: {1}", _manifest.RootPath, xel.OuterXml);
+            }
+
+            string type = xel.GetAttribute("type").ToSafe("String");
+
+            var varType = ConvertVarType(type, xel, out var selectRef);
+
+            if (varType != ThemeVariableType.String && value.IsEmpty())
+            {
+                throw new SmartException("A value is required for non-string 'Var' elements. Affected: '{0}' - element: {1}", _manifest.RootPath, xel.OuterXml);
             }
 
             var info = new ThemeVariableInfo
             {
                 Name = name,
-                DefaultValue = cfg.Value,
+                DefaultValue = value,
                 Type = varType,
                 SelectRef = selectRef,
                 Manifest = _manifest
@@ -124,17 +133,17 @@ namespace Smartstore.Web.Theming
             return info;
         }
 
-        private ThemeVariableType ConvertVarType(string type, string name, out string selectRef)
+        private ThemeVariableType ConvertVarType(string type, XmlElement affected, out string selectRef)
         {
-            var result = ThemeVariableType.String;
+            ThemeVariableType result = ThemeVariableType.String;
             selectRef = null;
 
             if (type.ToLower().StartsWith("select", StringComparison.CurrentCultureIgnoreCase))
             {
-                var arr = type.Split('#');
+                var arr = type.Split(new char[] { '#' });
                 if (arr.Length < 1 || arr[1].IsEmpty())
                 {
-                    throw new SmartException("The 'id' of a select element must be provided (pattern: Select#MySelect). Affected: '{0}' - element: {1}", _manifest.RootPath, name);
+                    throw new SmartException("The 'id' of a select element must be provided (pattern: Select#MySelect). Affected: '{0}' - element: {1}", _manifest.RootPath, affected.OuterXml);
                 }
 
                 selectRef = arr[1];
