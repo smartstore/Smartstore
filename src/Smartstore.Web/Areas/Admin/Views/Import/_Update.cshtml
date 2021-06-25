@@ -43,7 +43,7 @@
 					display-browse-media-button="false"
 					display-remove-button="false"
 					display-remove-button-after-upload="false"
-					upload-text=@T(Model.ExistingFiles.Any() ? "Admin.DataExchange.Import.AddAnotherFile" : "Admin.DataExchange.Import.FileUpload").JsValue
+					upload-text='@T(Model.ExistingFiles.Any() ? "Admin.DataExchange.Import.AddAnotherFile" : "Admin.DataExchange.Import.FileUpload")'
 					onuploadcompleted="onUploadCompleted" />
             </div>
         </div>
@@ -174,7 +174,7 @@
                 <smart-label asp-for="Skip" />
             </div>
             <div class="adminData">
-                <input asp-for="Skip" />
+                <editor asp-for="Skip" />
                 <span asp-validation-for="Skip"></span>
             </div>
         </div>
@@ -183,7 +183,7 @@
                 <smart-label asp-for="Take" />
             </div>
             <div class="adminData">
-                <input asp-for="Take" />
+                <editor asp-for="Take" />
                 <span asp-validation-for="Take"></span>
             </div>
         </div>
@@ -201,7 +201,7 @@
                 <smart-label asp-for="ExtraData.NumberOfPictures" />
             </div>
             <div class="adminData">
-                <input asp-for="ExtraData.NumberOfPictures" />
+                <editor asp-for="ExtraData.NumberOfPictures" />
                 <span asp-validation-for="ExtraData.NumberOfPictures"></span>
             </div>
         </div>

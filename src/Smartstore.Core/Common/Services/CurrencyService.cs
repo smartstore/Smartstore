@@ -59,6 +59,8 @@ namespace Smartstore.Core.Common.Services
 
         private Currency GetPrimaryCurrency(bool forExchange)
         {
+            // TODO: (mg) (core) migration of Store.PrimaryStoreCurrencyId to CurrencySettings.PrimaryCurrencyId required.
+            // Also Store.PrimaryExchangeRateCurrencyId to CurrencySettings.PrimaryExchangeCurrencyId.
             var currencyId = forExchange ? _currencySettings.PrimaryExchangeCurrencyId : _currencySettings.PrimaryCurrencyId;
             var currency = _db.Currencies.FindById(currencyId, false);
 

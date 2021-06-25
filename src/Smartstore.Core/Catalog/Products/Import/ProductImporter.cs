@@ -80,11 +80,11 @@ namespace Smartstore.Core.DataExchange.Import
             }
             else
             {
-                await ProcessProductsAsync(context);
+                await ProcessProductsAsync(context, scope);
             }
         }
 
-        protected virtual async Task ProcessProductsAsync(ImportExecuteContext context)
+        protected virtual async Task ProcessProductsAsync(ImportExecuteContext context, DbContextScope scope)
         {
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Product>();
@@ -97,7 +97,7 @@ namespace Smartstore.Core.DataExchange.Import
             var savedProducts = 0;
             try
             {
-                savedProducts = await InternalProcessProductsAsync(context, batch);
+                savedProducts = await InternalProcessProductsAsync(context, batch, scope);
             }
             catch (Exception ex)
             {
@@ -236,7 +236,7 @@ namespace Smartstore.Core.DataExchange.Import
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Product>(context, batch), context.CancelToken);
         }
 
-        protected virtual async Task<int> InternalProcessProductsAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
+        protected virtual async Task<int> InternalProcessProductsAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch, DbContextScope scope)
         {
             var cargo = await GetCargoData(context);
             var defaultTemplateId = cargo.TemplateViewPaths["Product"];
@@ -453,7 +453,10 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
+            // TODO: (mg) (core) examine. 'num' is always 0 even if written to database.
+            // scope.CommitAsync on the other hand works as expected. So we probably always have to use DbContextScope.CommitAsync.
+            //var num = await _db.SaveChangesAsync(context.CancelToken);
 
             // Get new product ids.
             // Required to assign associated products to their parent products.

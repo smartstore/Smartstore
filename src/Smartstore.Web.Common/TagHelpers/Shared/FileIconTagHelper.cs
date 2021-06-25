@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -37,16 +36,13 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            // TODO: (mg) (core) Don't use StringBuilders in TagHelpers. TagHelpers are extremely (memory) efficient and fast out-of-the-box.
-            // Using StringBuilders here is sort of "sabotage" ;-). Instead: compose your HTML with "output.[Container].AppendHtml()" or call
-            // any of our convenient extension methods, e.g. output.Wrap(Content|Element)With() etc.
-
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            output.TagName = null;
+            output.TagMode = TagMode.StartTagAndEndTag;
 
             if (ShowLabel && FileExtension.IsEmpty())
             {
                 // No icon, just "n\a" label.
-                sb.Append($"<span class='text-muted'>{string.Empty.NaIfEmpty()}</span>");
+                output.Content.AppendHtml($"<span class='text-muted'>{string.Empty.NaIfEmpty()}</span>");
             }
             else
             {
@@ -71,19 +67,15 @@ namespace Smartstore.Web.TagHelpers.Shared
 
                 ext = ext.NaIfEmpty().ToUpper();
 
-                sb.Append($"<i class='fa-fw {iconClass}' title='{ext}'></i>");
+                output.Content.AppendHtml($"<i class='fa-fw {iconClass}' title='{ext}'></i>");
 
                 if (ShowLabel)
                 {
-                    sb.AppendFormat("<span class='ml-1{0}'>{1}</span>", 
+                    output.Content.AppendHtml("<span class='ml-1{0}'>{1}</span>".FormatInvariant(
                         FileExtension.IsEmpty() ? " text-muted" : "",
-                        Label ?? ext);
+                        Label ?? ext));
                 }
             }
-
-            output.TagName = null;
-            output.TagMode = TagMode.StartTagAndEndTag;
-            output.Content.SetHtmlContent(sb.ToString());
 
             if (BadgeClass.HasValue())
             {

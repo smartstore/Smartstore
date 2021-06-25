@@ -28,15 +28,18 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IImportProfileService _importProfileService;
         private readonly ITaskStore _taskStore;
+        private readonly ITaskScheduler _taskScheduler;
 
         public ImportController(
             SmartDbContext db,
             IImportProfileService importProfileService,
-            ITaskStore taskStore)
+            ITaskStore taskStore,
+            ITaskScheduler taskScheduler)
         {
             _db = db;
             _importProfileService = importProfileService;
             _taskStore = taskStore;
+            _taskScheduler = taskScheduler;
         }
 
         public IActionResult Index()
@@ -96,33 +99,35 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Import.Create)]
         public async Task<IActionResult> Create(ImportProfileModel model)
         {
-            if (PathHelper.HasInvalidFileNameChars(model.TempFileName))
-            {
-                return BadRequest("Invalid file name.");
-            }
-
             try
             {
-                var root = Services.ApplicationContext.TenantRoot;
-                var tenantTempDir = Services.ApplicationContext.GetTenantTempDirectory();
-                var importFile = await tenantTempDir.GetFileAsync(model.TempFileName.EmptyNull());
-
-                if (importFile.Exists)
+                if (model.TempFileName.HasValue() && !PathHelper.HasInvalidFileNameChars(model.TempFileName))
                 {
-                    var profile = await _importProfileService.InsertImportProfileAsync(model.TempFileName, model.Name, model.EntityType);
-                    if (profile?.Id > 0)
+                    var root = Services.ApplicationContext.TenantRoot;
+                    var tenantTempDir = Services.ApplicationContext.GetTenantTempDirectory();
+                    var importFile = await tenantTempDir.GetFileAsync(model.TempFileName);
+
+                    if (importFile.Exists)
                     {
-                        var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
+                        var profile = await _importProfileService.InsertImportProfileAsync(model.TempFileName, model.Name, model.EntityType);
+                        if (profile?.Id > 0)
+                        {
+                            var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
 
-                        await root.CopyFileAsync(importFile.SubPath, root.PathCombine(dir.SubPath, importFile.Name), true);
-                        await root.TryDeleteFileAsync(importFile.SubPath);
+                            await root.CopyFileAsync(importFile.SubPath, root.PathCombine(dir.SubPath, importFile.Name), true);
+                            await root.TryDeleteFileAsync(importFile.SubPath);
 
-                        return RedirectToAction("Edit", new { id = profile.Id });
+                            return RedirectToAction("Edit", new { id = profile.Id });
+                        }
+                    }
+                    else
+                    {
+                        NotifyError(T("Admin.DataExchange.Import.MissingImportFile"));
                     }
                 }
                 else
                 {
-                    NotifyError(T("Admin.DataExchange.Import.MissingImportFile"));
+                    NotifyError("Invalid file name.");
                 }
             }
             catch (Exception ex)
@@ -136,7 +141,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Import.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            // INFO: (mg) (core) IIncludableQuery<T> has also extension method FindByIdAsync()
             var profile = await _db.ImportProfiles
                 .Include(x => x.Task)
                 .FindByIdAsync(id, false);
@@ -156,7 +160,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost]
         [FormValueRequired("save", "save-continue"), ParameterBasedOnFormName("save-continue", "continueEditing")]
         [Permission(Permissions.Configuration.Import.Update)]
-        public async Task<IActionResult> Edit(ImportProfileModel model, bool continueEditing, FormCollection form)
+        public async Task<IActionResult> Edit(ImportProfileModel model, bool continueEditing, IFormCollection form)
         {
             var profile = await _db.ImportProfiles
                 .Include(x => x.Task)
@@ -341,7 +345,9 @@ namespace Smartstore.Admin.Controllers
             }
 
             var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content");
-            await dir.FileSystem.TryDeleteFileAsync(name);
+            var subpath = dir.FileSystem.PathCombine(dir.SubPath, name);
+            
+            await dir.FileSystem.TryDeleteFileAsync(subpath);
 
             return RedirectToAction("Edit", new { id });
         }
@@ -376,46 +382,48 @@ namespace Smartstore.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> DownloadImportFile(int id, string name)
         {
-            if (PathHelper.HasInvalidFileNameChars(name))
-            {
-                return BadRequest("Invalid file name.");
-            }
-
             string message = null;
 
-            if (await Services.Permissions.AuthorizeAsync(Permissions.Configuration.Import.Read))
+            if (name.HasValue() && !PathHelper.HasInvalidFileNameChars(name))
             {
-                var profile = await _db.ImportProfiles.FindByIdAsync(id, false);
-                if (profile != null)
+                if (await Services.Permissions.AuthorizeAsync(Permissions.Configuration.Import.Read))
                 {
-                    var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content");
-                    var file = await dir.GetFileAsync(name);
-
-                    if (!file.Exists)
+                    var profile = await _db.ImportProfiles.FindByIdAsync(id, false);
+                    if (profile != null)
                     {
-                        file = await dir.Parent.GetFileAsync(name);
-                    }
+                        var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content");
+                        var file = await dir.GetFileAsync(name);
 
-                    if (file.Exists)
-                    {
-                        try
+                        if (!file.Exists)
                         {
-                            var stream = await file.OpenReadAsync();
-                            return new FileStreamResult(stream, MimeTypes.MapNameToMimeType(file.PhysicalPath))
+                            file = await dir.Parent.GetFileAsync(name);
+                        }
+
+                        if (file.Exists)
+                        {
+                            try
                             {
-                                FileDownloadName = file.Name
-                            };
-                        }
-                        catch (IOException)
-                        {
-                            message = T("Admin.Common.FileInUse");
+                                var stream = await file.OpenReadAsync();
+                                return new FileStreamResult(stream, MimeTypes.MapNameToMimeType(file.PhysicalPath))
+                                {
+                                    FileDownloadName = file.Name
+                                };
+                            }
+                            catch (IOException)
+                            {
+                                message = T("Admin.Common.FileInUse");
+                            }
                         }
                     }
+                }
+                else
+                {
+                    message = T("Admin.AccessDenied.Description");
                 }
             }
             else
             {
-                message = T("Admin.AccessDenied.Description");
+                message = "Invalid file name.";
             }
 
             if (message.IsEmpty())
@@ -525,6 +533,29 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(new { success, tempFile, error, name = sourceFile.FileName, ext = Path.GetExtension(sourceFile.FileName) });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Import.Execute)]
+        public async Task<IActionResult> Execute(int id)
+        {
+            var profile = await _db.ImportProfiles.FindByIdAsync(id, false);
+            if (profile == null)
+            {
+                return NotFound();
+            }
+
+            var taskParams = new Dictionary<string, string>
+            {
+                { TaskExecutor.CurrentCustomerIdParamName, Services.WorkContext.CurrentCustomer.Id.ToString() },
+                { TaskExecutor.CurrentStoreIdParamName, Services.StoreContext.CurrentStore.Id.ToString() }
+            };
+
+            await _taskScheduler.RunSingleTaskAsync(profile.TaskId, taskParams);
+
+            NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress.DataImportTask"));
+
+            return RedirectToReferrer(null, () => RedirectToAction("List"));
         }
 
         #region Utilities

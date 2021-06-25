@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,11 +59,10 @@ namespace Smartstore.Scheduling
         {
             taskParameters ??= new Dictionary<string, string>();
 
-            // User executes task in backend explicitly
+            // User executes task in backend explicitly.
             taskParameters["explicit"] = "true";
 
-            var qs = new QueryString();
-            taskParameters.Each(x => qs.Add(x.Key, x.Value));
+            var qs = QueryString.Create(taskParameters);
 
             return CallEndpoint(new Uri("{0}run/{1}{2}".FormatInvariant(BaseUrl, taskId, qs.ToString())));
         }

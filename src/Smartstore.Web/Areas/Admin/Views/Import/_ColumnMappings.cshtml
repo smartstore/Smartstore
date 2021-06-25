@@ -11,30 +11,24 @@
 }
 
 <div>
-	@* TODO: (mg) (core) Please no tables anymore for .adminContent. Use div counterparts. CSS will be removed later. *@
-	<table class="adminContent">
-		<tr class="adminSeparator">
-			<td>
-				<div class="admin-config-group">
-					<div class="title">@T("Admin.DataExchange.Import.ColumnMapping")</div>
-				</div>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<div class="alert alert-info">
-					@Html.Raw(T("Admin.DataExchange.ColumnMapping.Note"))
-				</div>
-				@if (columnMappings.Any())
-				{
-					<button id="ResetColumnMappings" type="button" class="btn btn-secondary btn-to-danger" data-url="@Url.Action("ResetColumnMappings", new { id = Model.Id })">
-						<i class="fa fa-sync"></i>
-						<span>@T("Admin.Common.Clear")</span>
-					</button>
-				}
-			</td>
-		</tr>
-	</table>
+	<div class="adminContent">
+		<div class="adminRow adminSeparator">
+			<div class="admin-config-group">
+				<div class="title">@T("Admin.DataExchange.Import.ColumnMapping")</div>
+			</div>
+		</div>
+		<div class="adminRow">
+			<div class="alert alert-info mb-0">
+				@Html.Raw(T("Admin.DataExchange.ColumnMapping.Note"))
+			</div>
+		</div>
+		<div sm-if="columnMappings.Any()" class="adminRow">
+			<button id="ResetColumnMappings" type="button" class="btn btn-secondary btn-to-danger" data-url="@Url.Action("ResetColumnMappings", new { id = Model.Id })">
+				<i class="fa fa-sync"></i>
+				<span>@T("Admin.Common.Clear")</span>
+			</button>
+		</div>
+	</div>
 </div>
 
 <div id="PropertyMappingTemplate" class="d-none">

@@ -66,28 +66,26 @@ namespace Smartstore.Core.DataExchange.Import
                 return;
 
             var (ctx, logFile) = await CreateImporterContext(request, profile, cancelToken);
+            using var logger = new TraceLogger(logFile, false);
+            ctx.Log = ctx.ExecuteContext.Log = logger;
 
             try
             {
-                var context = ctx.ExecuteContext;
-                using var logger = new TraceLogger(logFile, false);
-
-                ctx.Log = context.Log = logger;
-
                 if (!request.HasPermission && !await HasPermission())
                 {
                     throw new SmartException("You do not have permission to perform the selected import.");
                 }
 
+                var context = ctx.ExecuteContext;
                 var files = await _importProfileService.GetImportFilesAsync(profile, profile.ImportRelatedData);
-                var fileGroups = files.ToMultimap(x => x.RelatedType, x => x);
+                var fileGroups = files.ToMultimap(x => x.RelatedType?.ToString() ?? string.Empty, x => x);
 
                 ctx.Log.Info(CreateLogHeader(profile, fileGroups));
                 await _services.EventPublisher.PublishAsync(new ImportExecutingEvent(context), cancelToken);
 
                 foreach (var fileGroup in fileGroups)
                 {
-                    context.Result = ctx.Results[fileGroup.Key?.ToString()?.EmptyNull()] = new();
+                    context.Result = ctx.Results[fileGroup.Key] = new();
 
                     foreach (var file in fileGroup.Value)
                     {
@@ -226,7 +224,6 @@ namespace Smartstore.Core.DataExchange.Import
                 ctx.ExecuteContext.DownloadManager.Dispose();
                 ctx.Request.CustomData.Clear();
                 ctx.Results.Clear();
-                ctx.Log = null;
             }
             catch (Exception ex)
             {
@@ -313,6 +310,7 @@ namespace Smartstore.Core.DataExchange.Import
             var executeContext = new ImportExecuteContext(T("Admin.DataExchange.Import.ProgressInfo"), cancelToken)
             {
                 Request = request,
+                ProgressCallback = request.ProgressCallback,
                 UpdateOnly = profile.UpdateOnly,
                 KeyFieldNames = profile.KeyFieldNames.SplitSafe(",").ToArray(),
                 ImportDirectory = dir,
@@ -341,7 +339,7 @@ namespace Smartstore.Core.DataExchange.Import
             return (context, logFile);
         }
 
-        private string CreateLogHeader(ImportProfile profile, Multimap<RelatedEntityType?, ImportFile> files)
+        private string CreateLogHeader(ImportProfile profile, Multimap<string, ImportFile> files)
         {
             var executingCustomer = _services.WorkContext.CurrentCustomer;
 
@@ -355,7 +353,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             foreach (var fileGroup in files)
             {
-                var entityName = fileGroup.Key.HasValue ? fileGroup.Key.Value.ToString() : profile.EntityType.ToString();
+                var entityName = fileGroup.Key.NullEmpty() ?? profile.EntityType.ToString();
                 var fileNames = string.Join(", ", fileGroup.Value.Select(x => x.File.Name));
                 sb.AppendLine($"{entityName} files: {fileNames}");
             }

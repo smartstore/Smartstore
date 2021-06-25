@@ -73,7 +73,7 @@ namespace Smartstore.Core.DataExchange.Import
                     foreach (var file in files)
                     {
                         var importFile = new ImportFile(file);
-                        if (!includeRelatedFiles && !importFile.RelatedType.HasValue)
+                        if (!includeRelatedFiles && importFile.RelatedType.HasValue)
                         {
                             continue;
                         }
@@ -179,14 +179,14 @@ namespace Smartstore.Core.DataExchange.Import
 
             var directory = await GetImportDirectoryAsync(profile);
 
+            _db.ImportProfiles.Remove(profile);
+
+            await _db.SaveChangesAsync();
+
             if (profile.Task != null)
             {
                 await _taskStore.DeleteTaskAsync(profile.Task);
             }
-
-            _db.ImportProfiles.Remove(profile);
-
-            await _db.SaveChangesAsync();
 
             if (directory.Exists)
             {

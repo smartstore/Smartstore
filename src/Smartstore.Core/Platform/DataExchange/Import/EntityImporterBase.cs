@@ -170,7 +170,7 @@ namespace Smartstore.Core.DataExchange.Import
                 var storeIds = row.GetDataValue<List<int>>("StoreIds");
                 var hasStoreIds = storeIds?.Any() ?? false;
 
-                if (storeIds.Count == 1 && storeIds[0] == 0)
+                if (hasStoreIds && storeIds.Count == 1 && storeIds[0] == 0)
                 {
                     hasStoreIds = false;
                 }

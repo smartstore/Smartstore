@@ -15,6 +15,8 @@ using Smartstore.Core.Catalog.Products.Rules;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
+using Smartstore.Core.DataExchange;
+using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Search.Facets;
@@ -58,6 +60,8 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<ProductCloner>().As<IProductCloner>().InstancePerLifetimeScope();
             builder.RegisterType<ProductVariantQueryFactory>().As<IProductVariantQueryFactory>().InstancePerLifetimeScope();
             builder.RegisterType<ProductUrlHelper>().InstancePerLifetimeScope();
+            builder.RegisterType<ProductImporter>().Keyed<IEntityImporter>(ImportEntityType.Product).InstancePerLifetimeScope();
+            builder.RegisterType<CategoryImporter>().Keyed<IEntityImporter>(ImportEntityType.Category).InstancePerLifetimeScope();
 
             // Search.
             builder.RegisterType<CatalogSearchService>().As<ICatalogSearchService>().As<IXmlSitemapPublisher>().InstancePerLifetimeScope();

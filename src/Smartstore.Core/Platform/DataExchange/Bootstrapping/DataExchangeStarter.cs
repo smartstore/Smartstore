@@ -1,4 +1,6 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
+using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Engine;
@@ -17,6 +19,12 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<ImportProfileService>().As<IImportProfileService>().InstancePerLifetimeScope();
             builder.RegisterType<DataExporter>().As<IDataExporter>().InstancePerLifetimeScope();
             builder.RegisterType<DataImporter>().As<IDataImporter>().InstancePerLifetimeScope();
+
+            builder.Register<Func<ImportEntityType, IEntityImporter>>(c =>
+            {
+                var cc = c.Resolve<IComponentContext>();
+                return key => cc.ResolveKeyed<IEntityImporter>(key);
+            });
         }
     }
 }

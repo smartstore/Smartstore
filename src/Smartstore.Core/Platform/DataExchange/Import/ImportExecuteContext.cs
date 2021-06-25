@@ -117,7 +117,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// <summary>
         /// Gets or sets the result of the import.
         /// </summary>
-        public ImportResult Result { get; set; }
+        public ImportResult Result { get; set; } = new();
 
         /// <summary>
         /// Extra import configuration data.
@@ -165,7 +165,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// <param name="message">Output message.</param>
         public async Task SetProgressAsync(string message)
         {
-            if (ProgressCallback != null && message.HasValue())
+            if (message.HasValue())
             {
                 try
                 {

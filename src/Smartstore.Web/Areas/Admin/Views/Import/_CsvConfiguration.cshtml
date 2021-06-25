@@ -1,3 +1,67 @@
 ﻿@model CsvConfigurationModel
 
-@*// TODO: (mg) (core) complete CsvConfiguration partial*@
+@{
+    var showGroupCaption = ViewData["ShowGroupCaption"] != null && (bool)ViewData["ShowGroupCaption"];
+}
+
+<div class="adminContent">
+    <div sm-if="showGroupCaption" class="adminRow adminSeparator">
+        <div class="admin-config-group">
+            <div class="title">@T("Admin.Common.CsvConfiguration")</div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="QuoteAllFields" />
+        </div>
+        <div class="adminData">
+            <input asp-for="QuoteAllFields" />
+            <span asp-validation-for="QuoteAllFields"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="TrimValues" />
+        </div>
+        <div class="adminData">
+            <input asp-for="TrimValues" />
+            <span asp-validation-for="TrimValues"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SupportsMultiline" />
+        </div>
+        <div class="adminData">
+            <input asp-for="SupportsMultiline" />
+            <span asp-validation-for="SupportsMultiline"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Delimiter" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Delimiter" maxlength="2" />
+            <span asp-validation-for="Delimiter"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Quote" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Quote" maxlength="2" />
+            <span asp-validation-for="Quote"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Escape" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Escape" maxlength="2" />
+            <span asp-validation-for="Escape"></span>
+        </div>
+    </div>
+</div>

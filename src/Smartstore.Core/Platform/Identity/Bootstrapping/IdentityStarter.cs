@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Smartstore.Core.DataExchange;
+using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Rules;
@@ -75,6 +77,7 @@ namespace Smartstore.Core.Bootstrapping
             //builder.RegisterType<UserValidator>().As<IUserValidator<Customer>>().As<IPasswordValidator<Customer>>().InstancePerLifetimeScope();
             builder.RegisterType<GdprTool>().As<IGdprTool>().InstancePerLifetimeScope();
             builder.RegisterType<CookieConsentManager>().As<ICookieConsentManager>().InstancePerLifetimeScope();
+            builder.RegisterType<CustomerImporter>().Keyed<IEntityImporter>(ImportEntityType.Customer).InstancePerLifetimeScope();
 
             // Rules.
             builder.RegisterType<TargetGroupService>()
