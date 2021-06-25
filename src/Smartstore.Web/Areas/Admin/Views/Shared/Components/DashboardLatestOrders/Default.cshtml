@@ -1,0 +1,65 @@
+﻿@using Smartstore.Admin.Models.Orders
+@using Smartstore.Core.Checkout.Orders
+
+@model DashboardLatestOrdersModel
+
+<div class="report">
+    <div class="report-title-row">
+        <div class="report-title">@T("Admin.SalesReport.LatestOrders")</div>
+    </div>
+    <div class="table-responsive table-dashboard table-hover table-prevent-overflow">
+        <table class="table small">
+            <thead>
+                <tr>
+                    <th class="display-row" style="width: 30%">@T("Admin.Customers.Reports.BestBy.Fields.Customer")</th>
+                    <th class="display-row text-center px-3 d-none d-sm-table-cell" style="width: 10%">@T("Admin.Catalog.Categories.Products")</th>
+                    <th class="display-row text-right" style="width: 20%; padding-right: 2rem">@T("Common.Amount")</th>
+                    <th class="display-row d-none d-sm-table-cell" style="width: 20%;">@T("Account.CustomerOrders.OrderDate")</th>
+                    <th class="display-row" style="width: 20%">@T("Account.CustomerOrders.OrderStatus")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var x in Model.LatestOrders)
+                {
+                    <tr class="order-row" index="@x.OrderId">
+                        <td class="display-row" title="@x.CustomerDisplayName">
+                            <a asp-action="Edit" asp-controller="Cutomer" asp-route-id="@x.CustomerId">@x.CustomerDisplayName</a>
+                        </td>
+                        <td class="display-row text-center d-none d-sm-table-cell" title="@x.ProductsTotal">@x.ProductsTotal</td>
+                        <td class="display-row text-right" style="padding-right: 2rem" title="@x.TotalAmount @T("Tax.InclVAT")">@x.TotalAmount</td>
+                        <td class="display-row d-none d-sm-table-cell" title="@x.Created">@x.Created</td>
+
+                        @if (x.OrderState == OrderStatus.Pending)
+                        {
+                            <td class="display-row d-flex align-items-center" title="@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Pending")">
+                                <div class="bg-warning indicator"></div>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Pending")</a>
+                            </td>
+                        }
+                        else if (x.OrderState == OrderStatus.Processing)
+                        {
+                            <td class="display-row d-flex align-items-center" title="@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Processing")">
+                                <div class="bg-success indicator"></div>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Processing")</a>
+                            </td>
+                        }
+                        else if (x.OrderState == OrderStatus.Complete)
+                        {
+                            <td class="display-row d-flex align-items-center" title="@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Complete")">
+                                <div class="bg-primary indicator"></div>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Complete")</a>
+                            </td>
+                        }
+                        else if (x.OrderState == OrderStatus.Cancelled)
+                        {
+                            <td class="display-row d-flex align-items-center" title="@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Cancelled")">
+                                <div class="bg-danger indicator"></div>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Cancelled")</a>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
