@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "_AdminLayout";
-    //Assets.BodyAttributes.AppendCssClass("minimal-admin"); // TODO: (ms) (core) uncomment later
+    Assets.BodyAttributes.AppendCssClass("minimal-admin");
 }
 
 <div class="section-header">
@@ -14,13 +14,13 @@
     <zone name="admin_dashboard_top"></zone>
 
     <div class="report-incomplete-orders">
-        @*@{ Html.RenderAction("OrdersIncompleteDashboardReport", "Order"); }*@
+        @await Component.InvokeAsync("DashboardIncompleteOrders")
     </div>
     <div class="report-orders">
-        @*@{ Html.RenderAction("OrdersDashboardReport", "Order"); }*@
+        @await Component.InvokeAsync("DashboardOrders")
     </div>
     <div class="report-bestsellers">
-        @*@{ Html.RenderAction("BestsellersDashboardReport", "Order"); }*@
+        @await Component.InvokeAsync("DashboardBestsellers")
     </div>
     <div class="report-top-customers">
         @*@{ Html.RenderAction("TopCustomersDashboardReport", "Customer"); }*@
@@ -29,10 +29,10 @@
         @*@{ Html.RenderAction("RegisteredCustomersDashboardReport", "Customer"); }*@
     </div>
     <div class="report-latest-orders">
-        @*@{ Html.RenderAction("LatestOrdersDashboardReport", "Order"); }*@
+        @await Component.InvokeAsync("DashboardLatestOrders")
     </div>
     <div class="report-store-statistics">
-        @*@{ Html.RenderPartial("~/Administration/Views/Store/StoreDashboardReport.cshtml"); }*@
+        <partial name="~/Areas/Admin/Views/Store/StoreDashboardReport.cshtml" />
     </div>
     <div class="marketplace-feed">
         @await Component.InvokeAsync("MarketplaceFeed")
