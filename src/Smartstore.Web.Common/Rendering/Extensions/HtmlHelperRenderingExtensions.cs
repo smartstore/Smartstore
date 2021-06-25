@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Humanizer;
 using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -487,6 +488,38 @@ namespace Smartstore.Web.Rendering
 
             return HtmlString.Empty;
         }
+
+        #endregion
+
+        #region Misc
+
+        /// <summary>
+        /// Renderes labeled product for views (outside of grids).
+        /// </summary>
+        public static IHtmlContent LabeledProductName(this IHtmlHelper helper, int id, string name, string typeName, string typeLabelHint)
+        {
+            if (id == 0 && name.IsEmpty())
+                return null;
+
+            string namePart;
+
+            if (id != 0)
+            {
+                var services = helper.ViewContext.HttpContext.RequestServices;
+                var urlHelper = services.GetRequiredService<IUrlHelper>();
+                string url = urlHelper.Content("~/Admin/Product/Edit/");
+                namePart = $"<a href='{url}{id}' title='{name}'>{name}</a>";
+            }
+            else
+            {
+                namePart = $"<span>{helper.Encode(name)}</span>";
+            }
+
+            var builder = new HtmlContentBuilder();
+            builder.AppendHtml($"<span class='badge badge-{typeLabelHint} mr-1'>{typeName}</span>{namePart}");
+            return builder;
+        }
+
 
         #endregion
     }

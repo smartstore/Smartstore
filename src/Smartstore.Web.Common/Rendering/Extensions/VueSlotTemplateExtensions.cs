@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Localization;
 
@@ -9,6 +10,9 @@ namespace Smartstore.Web.Rendering
     {
         // TODO: (mg) (core) Port other helpers: LabeledCurrencyName
 
+        /// <summary>
+        /// Renderes labeled product for grids.
+        /// </summary>
         public static IHtmlContent LabeledProductName(
             this IHtmlHelper _,
             string typeNameExpression = "item.row.ProductTypeName",
