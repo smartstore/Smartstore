@@ -11,9 +11,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Utilities;
@@ -498,6 +496,8 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         public static IHtmlContent LabeledProductName(this IHtmlHelper helper, int id, string name, string typeName, string typeLabelHint)
         {
+            // TODO: (mh) (core) Please don't!! You cannot name this method "LabeledProductName", how should one distinct between both?
+            // This is EXTREMELY bad API design. TBD with MC.
             if (id == 0 && name.IsEmpty())
                 return null;
 
@@ -505,8 +505,7 @@ namespace Smartstore.Web.Rendering
 
             if (id != 0)
             {
-                var services = helper.ViewContext.HttpContext.RequestServices;
-                var urlHelper = services.GetRequiredService<IUrlHelper>();
+                var urlHelper = helper.ViewContext.HttpContext.RequestServices.GetRequiredService<IUrlHelper>();
                 string url = urlHelper.Content("~/Admin/Product/Edit/");
                 namePart = $"<a href='{url}{id}' title='{name}'>{name}</a>";
             }
