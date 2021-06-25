@@ -68,16 +68,16 @@ namespace Smartstore.Admin.Components
                 {
                     for (int j = 0; j < data.Amount.Length; j++)
                     {
-                        data.AmountFormatted[j] = Services.WorkContext.WorkingCurrency.AsMoney(data.Amount[j]).ToString();
+                        data.AmountFormatted[j] = Services.CurrencyService.PrimaryCurrency.AsMoney(data.Amount[j]).ToString();
                         data.QuantityFormatted[j] = data.Quantity[j].ToString("N0");
                     }
 
                     data.TotalAmount = data.Amount.Sum();
-                    data.TotalAmountFormatted = Services.WorkContext.WorkingCurrency.AsMoney(data.TotalAmount).ToString();
+                    data.TotalAmountFormatted = Services.CurrencyService.PrimaryCurrency.AsMoney(data.TotalAmount).ToString();
                 }
 
                 model[i].TotalAmount = model[i].DataSets.Sum(x => x.TotalAmount);
-                model[i].TotalAmountFormatted = Services.WorkContext.WorkingCurrency.AsMoney(model[i].TotalAmount).ToString();
+                model[i].TotalAmountFormatted = Services.CurrencyService.PrimaryCurrency.AsMoney(model[i].TotalAmount).ToString();
 
                 // Create labels for all dataPoints
                 for (int j = 0; j < model[i].Labels.Length; j++)
