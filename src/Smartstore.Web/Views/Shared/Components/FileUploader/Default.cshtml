@@ -8,19 +8,10 @@
 @inject MediaSettings MediaSettings
 
 @{
-// TODO: (mh) (core) This is for testing only. Use bundler when available. 
-//Assets.AppendScriptParts("~/bundles/fileuploader");
-    <script sm-target-zone="head_scripts" data-origin="client-res">
-        SmartStore = {}
-        SmartStore.Admin = {}
-    </script>
-    Assets.AppendScriptParts("~/lib/dropzone/dropzone.js");
-    Assets.AppendScriptParts("~/js/smartstore.media.js");
-    Assets.AppendScriptParts("~/admin/js/admin.media.js");
-    Assets.AppendScriptParts("~/js/smartstore.dropzoneWrapper.js");
-    
     var maxFilesSize = Model.MaxFileSize ?? MediaSettings.MaxUploadFileSize;
 }
+
+<script src="/bundle/js/fileuploader.js" sm-target-zone="scripts" sm-key="fileuploader"></script>
 
 <div attr-class='(Model.MultiFile || !Model.HasTemplatePreview, "dropzone-container")'>
     <div class="dropzone-target">
@@ -51,7 +42,7 @@
              data-upload-url="@Model.UploadUrl"
              data-accept="@Model.AcceptedFileExtensions"
              data-show-remove-after-upload="@Model.DisplayRemoveButtonAfterUpload.ToString().ToLower()">
-             
+
             <input type="hidden" id="@(Model.Name)-file" name="@(Model.Name)-file" />
 
             <div sm-if="Model.DisplayBrowseMediaButton" class="fu-buttons">
