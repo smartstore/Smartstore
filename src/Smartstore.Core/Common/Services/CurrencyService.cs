@@ -9,7 +9,6 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Common.Services

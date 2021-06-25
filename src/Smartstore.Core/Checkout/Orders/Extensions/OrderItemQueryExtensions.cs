@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Checkout.Orders;
@@ -87,7 +86,7 @@ namespace Smartstore
             int[] productIds = null,
             bool includeHidden = false)
         {
-            // TODO: (ms) Add more params to OrderItemQueryExtensions.ApplyProductFilter()
+            // TODO: (ms) (core) Add more params to OrderItemQueryExtensions.ApplyProductFilter()
             Guard.NotNull(query, nameof(query));
 
             var db = query.GetDbContext<SmartDbContext>();

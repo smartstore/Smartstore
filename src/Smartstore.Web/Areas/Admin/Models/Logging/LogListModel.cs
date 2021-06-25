@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Web.Modelling;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models.Logging
 {
@@ -23,7 +20,5 @@ namespace Smartstore.Admin.Models.Logging
 
         [LocalizedDisplay("*Logger")]
         public string Logger { get; set; }
-
-        public List<SelectListItem> AvailableLogLevels { get; set; } = new();
     }
 }

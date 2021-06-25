@@ -71,7 +71,7 @@
 
                     @if (hasLeftCol)
                     {
-                        <aside id="content-left" class="col-lg-3 mb-4 mb-lg-0@(hideLeftCol ? " d-none d-lg-block" : "")">
+                        <aside id="content-left" class="col-lg-3 mb-4 mb-lg-0" attr-class='(hideLeftCol, "d-none d-lg-block")'>
                             <zone name="aside_left_before"></zone>
                             <zone name="left"></zone>
                             <zone name="aside_left_after"></zone>
@@ -86,7 +86,7 @@
 
                     @if (hasRightCol)
                     {
-                        <aside id="content-right" class="col-lg-3 mt-4 mt-lg-0@(hideRightCol ? " d-none d-lg-block" : "")">
+                        <aside id="content-right" class="col-lg-3 mt-4 mt-lg-0" attr-class='(hideRightCol, "d-none d-lg-block")'>
                             <zone name="aside_right_before"></zone>
                             <zone name="right"></zone>
                             <zone name="aside_right_after"></zone>
