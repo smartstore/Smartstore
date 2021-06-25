@@ -25,20 +25,27 @@ namespace Smartstore.Admin.Components
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var model = new DashboardLatestOrdersModel();
-            var latestOrders = await _db.Orders.ApplyPaging(0, 7).ToListAsync();
+            var latestOrders = await _db.Orders
+                .AsNoTracking()
+                .Include(x => x.Customer).ThenInclude(x => x.CustomerRoleMappings).ThenInclude(x => x.CustomerRole)
+                .Include(x => x.OrderItems)
+                .OrderByDescending(x => x.CreatedOnUtc) // INFO: (mh) (core) !!!!!! Please analyze THOROUGHLY!!
+                .Take(7)
+                .ToListAsync();
             
             foreach (var order in latestOrders)
             {
                 model.LatestOrders.Add(
-                    new DashboardOrderModel(
-                        order.CustomerId,
-                        order.Customer.FindEmail() ?? order.Customer.FormatUserName(),
-                        order.OrderItems.Sum(x => x.Quantity),
-                        Services.WorkContext.WorkingCurrency.AsMoney(order.OrderTotal).ToString(),
-                        _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc).ToString("g"),
-                        order.OrderStatus,
-                        order.Id)
-                    );
+                    new DashboardOrderModel
+                    {
+                        CustomerId = order.CustomerId,
+                        CustomerDisplayName = order.Customer.FindEmail() ?? order.Customer.FormatUserName(),
+                        ProductsTotal = order.OrderItems.Sum(x => x.Quantity),
+                        TotalAmount = Services.CurrencyService.PrimaryCurrency.AsMoney(order.OrderTotal).ToString(),
+                        Created = _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc).ToString("g"),
+                        OrderState = order.OrderStatus,
+                        OrderId = order.Id
+                    });
             }
 
             return View(model);

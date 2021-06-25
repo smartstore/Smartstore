@@ -10,24 +10,6 @@ namespace Smartstore.Admin.Models.Orders
 
     public class DashboardOrderModel
     {
-        public DashboardOrderModel(
-            int customerId,
-            string customerDisplayName,
-            int productsTotal,
-            string totalAmount,
-            string created,
-            OrderStatus orderState,
-            int orderId)
-        {
-            CustomerId = customerId;
-            CustomerDisplayName = customerDisplayName;
-            ProductsTotal = productsTotal;
-            TotalAmount = totalAmount;
-            Created = created;
-            OrderState = orderState;
-            OrderId = orderId;
-        }
-
         public int CustomerId { get; set; }
         public string CustomerDisplayName { get; set; }
         public int ProductsTotal { get; set; }
