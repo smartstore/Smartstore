@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Orders;
-using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Content.Media;
@@ -30,14 +29,14 @@ namespace Smartstore.Admin.Components
             var reportByQuantity = await _db.OrderItems
                 .AsNoTracking()
                 .SelectAsBestsellersReportLine(ReportSorting.ByQuantityDesc)
-                .ToPagedList(0, pageSize)
-                .LoadAsync();
+                .Take(pageSize)
+                .ToListAsync();
 
             var reportByAmount = await _db.OrderItems
                 .AsNoTracking()
                 .SelectAsBestsellersReportLine(ReportSorting.ByAmountDesc)
-                .ToPagedList(0, pageSize)
-                .LoadAsync();
+                .Take(pageSize)
+                .ToListAsync();
 
             var model = new DashboardBestsellersModel
             {
@@ -48,7 +47,7 @@ namespace Smartstore.Admin.Components
             return View(model);
         }
 
-        private async Task<IList<BestsellersReportLineModel>> GetBestsellersBriefReportModelAsync(IPagedList<BestsellersReportLine> report, bool includeFiles = false)
+        private async Task<IList<BestsellersReportLineModel>> GetBestsellersBriefReportModelAsync(List<BestsellersReportLine> report, bool includeFiles = false)
         {
             var productIds = report.Select(x => x.ProductId).Distinct().ToArray();
             var products = await _db.Products
@@ -74,7 +73,7 @@ namespace Smartstore.Admin.Components
                 var m = new BestsellersReportLineModel
                 {
                     ProductId = x.ProductId,
-                    TotalAmount = Services.WorkContext.WorkingCurrency.AsMoney(x.TotalAmount).ToString(),
+                    TotalAmount = Services.CurrencyService.PrimaryCurrency.AsMoney(x.TotalAmount).ToString(),
                     TotalQuantity = x.TotalQuantity.ToString("N0")
                 };
 
