@@ -7,7 +7,10 @@ using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Store;
+using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Common.Services;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
@@ -20,10 +23,12 @@ namespace Smartstore.Admin.Controllers
     public class StoreController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
-        
-        public StoreController(SmartDbContext db)
+        private readonly ICatalogSearchService _catalogSearchService;
+
+        public StoreController(SmartDbContext db, ICatalogSearchService catalogSearchService)
         {
             _db = db;
+            _catalogSearchService = catalogSearchService;
         }
 
         public IActionResult Index()
@@ -58,37 +63,38 @@ namespace Smartstore.Admin.Controllers
             return new JsonResult(list.ToList());
         }
 
+        [SaveChanges(typeof(SmartDbContext), false)]
         [Permission(Permissions.Configuration.Store.ReadStats, false)]
         public async Task<JsonResult> StoreDashboardReportAsync()
         {
-            var allOrders = await _db.Orders.AsNoTracking().ToListAsync();
+            // INFO: (mh) (core) ???????????? Really?????!!!!! WTF!!!
+            var ordersQuery = _db.Orders.AsNoTracking();
             var registeredRole = await _db.CustomerRoles
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);
 
-            var registeredCustomers = await _db.Customers
+            var registeredCustomersQuery = _db.Customers
                 .AsNoTracking()
-                .ApplyRolesFilter(new[] { registeredRole.Id })
-                .ToListAsync();
+                .ApplyRolesFilter(new[] { registeredRole.Id });
 
-            var sumAllOrders = allOrders.Sum(x => (decimal?)x.OrderTotal) ?? 0;
+            var sumAllOrders = await ordersQuery.SumAsync(x => (decimal?)x.OrderTotal) ?? 0;
             var sumOpenCarts = await _db.ShoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.ShoppingCart);
             var sumWishlists = await _db.ShoppingCartItems.GetOpenCartTypeSubTotalAsync(ShoppingCartType.Wishlist);
 
             var model = new StoreDashboardReportModel
             {
-                ProductsCount = (await _db.Products.CountAsync()).ToString("N0"),
+                ProductsCount = (await _catalogSearchService.PrepareQuery(new CatalogSearchQuery()).CountAsync()).ToString("N0"),
                 CategoriesCount = (await _db.Categories.CountAsync()).ToString("N0"),
                 ManufacturersCount = (await _db.Manufacturers.CountAsync()).ToString("N0"),
                 AttributesCount = (await _db.ProductAttributes.CountAsync()).ToString("N0"),
-                AttributeCombinationsCount = (await _db.ProductVariantAttributeCombinations.CountAsync()).ToString("N0"),
-                MediaCount = (await _db.MediaFiles.CountAsync()).ToString("N0"),
-                CustomersCount = registeredCustomers.Count.ToString("N0"), 
-                OrdersCount = allOrders.Count.ToString("N0"),
-                Sales = Services.WorkContext.WorkingCurrency.AsMoney(sumAllOrders).ToString(),
+                AttributeCombinationsCount = (await _db.ProductVariantAttributeCombinations.CountAsync(x => x.IsActive)).ToString("N0"),
+                MediaCount = (await Services.MediaService.CountFilesAsync(new MediaSearchQuery { Deleted = false })).ToString("N0"),
+                CustomersCount = (await registeredCustomersQuery.CountAsync()).ToString("N0"),
+                OrdersCount = (await ordersQuery.CountAsync()).ToString("N0"),
+                Sales = Services.CurrencyService.PrimaryCurrency.AsMoney(sumAllOrders).ToString(),
                 OnlineCustomersCount = (await _db.Customers.ApplyOnlineCustomersFilter(15).CountAsync()).ToString("N0"),
-                CartsValue = Services.WorkContext.WorkingCurrency.AsMoney(sumOpenCarts).ToString(),
-                WishlistsValue = Services.WorkContext.WorkingCurrency.AsMoney(sumWishlists).ToString()
+                CartsValue = Services.CurrencyService.PrimaryCurrency.AsMoney(sumOpenCarts).ToString(),
+                WishlistsValue = Services.CurrencyService.PrimaryCurrency.AsMoney(sumWishlists).ToString()
             };
 
             return new JsonResult(new { model });

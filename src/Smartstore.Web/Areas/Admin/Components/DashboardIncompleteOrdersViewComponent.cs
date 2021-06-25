@@ -113,12 +113,12 @@ namespace Smartstore.Admin.Components
             foreach (var report in model)
             {
                 report.QuantityTotal = report.Quantity.ToString("N0");
-                report.AmountTotal = Services.WorkContext.WorkingCurrency.AsMoney(report.Amount).ToString();
+                report.AmountTotal = Services.CurrencyService.PrimaryCurrency.AsMoney(report.Amount).ToString();
                 for (int i = 0; i < report.Data.Count; i++)
                 {
                     var data = report.Data[i];
                     data.QuantityFormatted = data.Quantity.ToString("N0");
-                    data.AmountFormatted = Services.WorkContext.WorkingCurrency.AsMoney(data.Amount).ToString();
+                    data.AmountFormatted = Services.CurrencyService.PrimaryCurrency.AsMoney(data.Amount).ToString();
                 }
             }
 
@@ -136,7 +136,7 @@ namespace Smartstore.Admin.Components
                 year.Quantity++;
                 year.Amount += dataPoint.OrderTotal;
             }
-
+            
             // Today
             if (dataPoint.CreatedOn >= userTime.Date)
             {
