@@ -35,7 +35,7 @@
         @*@{ Html.RenderPartial("~/Administration/Views/Store/StoreDashboardReport.cshtml"); }*@
     </div>
     <div class="marketplace-feed">
-        @*@{ Html.RenderAction("MarketplaceFeed"); }*@
+        @await Component.InvokeAsync("MarketplaceFeed")
     </div>
 
     <zone name="admin_dashboard_bottom"></zone>
