@@ -29,7 +29,7 @@ namespace Smartstore.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            if(!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
             {
                 return Empty();
             }
@@ -108,6 +108,8 @@ namespace Smartstore.Admin.Components
                 }
             }
 
+            // TODO: (mh) (core) Never use WorkingCurrency in backend, only primary currency.
+            // TODO: (mh) (core) Don't use string, use Money in models where applicable.
             foreach (var report in model)
             {
                 report.QuantityTotal = report.Quantity.ToString("N0");

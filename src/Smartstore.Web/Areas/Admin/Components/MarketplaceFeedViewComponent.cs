@@ -5,7 +5,6 @@ using Smartstore.Core;
 using Smartstore.Web.Components;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.ServiceModel.Syndication;
@@ -18,9 +17,6 @@ namespace Smartstore.Admin.Components
     {
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var watch = new Stopwatch();
-            watch.Start();
-
             var result = await Services.Cache.GetAsync("admin:marketplacefeed", async () =>
             {
                 try
@@ -67,9 +63,6 @@ namespace Smartstore.Admin.Components
             {
                 ModelState.AddModelError(string.Empty, result.First().Summary);
             }
-
-            watch.Stop();
-            Debug.WriteLine("MarketplaceFeed >>> " + watch.ElapsedMilliseconds);
 
             return View(result);
         }
