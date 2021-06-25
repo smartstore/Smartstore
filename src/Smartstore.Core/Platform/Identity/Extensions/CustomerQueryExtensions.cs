@@ -169,7 +169,14 @@ namespace Smartstore.Core.Identity
 
             if (roleIds.Length > 0)
             {
-                query = query.Where(c => c.CustomerRoleMappings.Select(x => x.CustomerRoleId).Intersect(roleIds).Any());
+                var db = query.GetDbContext<SmartDbContext>();
+
+                var customerIdsByRolesQuery = db.CustomerRoleMappings
+                    .AsNoTracking()
+                    .Where(x => roleIds.Contains(x.CustomerRoleId))
+                    .Select(x => x.CustomerId);
+
+                query = query.Where(x => customerIdsByRolesQuery.Contains(x.Id));
             }
 
             return query;
