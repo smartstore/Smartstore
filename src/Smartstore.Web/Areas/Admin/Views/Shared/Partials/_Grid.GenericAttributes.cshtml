@@ -6,17 +6,26 @@
           allow-resize="true"
           allow-row-selection="true"
           allow-edit="true">
-    <datasource read="@Url.Action("GenericAttributesList", "Common", new { entityName = Model.EntityName, entityId = Model.AttributeEntityId })"
-                delete="@Url.Action("GenericAttributeDelete", "Common", new { entityName = Model.EntityName })"
-                update="@Url.Action("GenericAttributeUpdate", "Common", new { entityName = Model.EntityName, entityId = Model.AttributeEntityId })"
-                insert="@Url.Action("GenericAttributeInsert", "Common", new { entityName = Model.EntityName, entityId = Model.AttributeEntityId })" />
+    <datasource read="@Url.Action("GenericAttributesList", "GenericAttribute", new { entityName = Model.EntityName, entityId = Model.AttributeEntityId })"
+                delete="@Url.Action("GenericAttributeDelete", "GenericAttribute", new { entityName = Model.EntityName })"
+                update="@Url.Action("GenericAttributeUpdate", "GenericAttribute")"
+                insert="@Url.Action("GenericAttributeInsert", "GenericAttribute", new { entityName = Model.EntityName, entityId = Model.AttributeEntityId })" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <paging enabled="true" />
     <toolbar>
-        <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
-            <i class="fa fa-plus"></i>
-            <span>@T("Admin.Common.AddNew")</span>
-        </button>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
         <toolbar-group class="omega">
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
@@ -25,8 +34,8 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Key" width="400px" />
-        <column for="Value" />
+        <column for="Key" width="400px" hideable="false" />
+        <column for="Value" hideable="false" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
