@@ -456,6 +456,7 @@ namespace Smartstore.Core.DataExchange.Import
             var num = await scope.CommitAsync(context.CancelToken);
             // TODO: (mg) (core) examine. 'num' is always 0 even if written to database.
             // scope.CommitAsync on the other hand works as expected. So we probably always have to use DbContextScope.CommitAsync.
+            // RE: This is on purpose and has to do with DbContextScope --> deferCommit = true. Only scope.Commit() saves explicitly or the scope disposer.
             //var num = await _db.SaveChangesAsync(context.CancelToken);
 
             // Get new product ids.
