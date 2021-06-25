@@ -92,7 +92,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             var parents = cart.Where(x => x.ParentItemId is null);
 
-            // TODO: (ms) (core) to reduce db roundtrips -> load and filter children by parents (id and so on) into lists and try to get from db as batch request
+            // TODO: (mg) (core) to reduce db roundtrips -> load and filter children by parents (id and so on) into lists and try to get from db as batch request
             foreach (var parent in parents)
             {
                 var parentItem = new OrganizedShoppingCartItem(parent);
@@ -103,7 +103,7 @@ namespace Smartstore.Core.Checkout.Cart
                         && x.ShoppingCartTypeId == parent.ShoppingCartTypeId
                         && x.Product.CanBeBundleItem());
 
-                // TODO: (ms) (core) Reduce database roundtrips in OrganizeCartItemsAsync
+                // TODO: (mg) (core) Reduce database roundtrips in OrganizeCartItemsAsync
                 foreach (var child in children)
                 {
                     var childItem = new OrganizedShoppingCartItem(child);

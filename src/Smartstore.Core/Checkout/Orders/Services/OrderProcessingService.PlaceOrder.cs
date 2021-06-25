@@ -302,7 +302,7 @@ namespace Smartstore.Core.Checkout.Orders
             // Payment.
             if (!warnings.Any() && !skipPaymentWorkflow)
             {
-                // TODO: (ms) (core) Wait for implementation of any payment method.
+                // TODO: (mh) (core) Wait for implementation of any payment method.
                 //var isPaymentMethodActive = await _paymentService.IsPaymentMethodActiveAsync(paymentMethodSystemName, customer, cart, paymentRequest.StoreId);
                 //if (!isPaymentMethodActive)
                 //{

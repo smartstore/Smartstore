@@ -110,7 +110,7 @@ namespace Smartstore.Web.Components
             }
 
             // Shipping info
-            // TODO: (ms) (core) Re-implement when any payment method has been implemented
+            // TODO: (mh) (core) Re-implement when any payment method has been implemented
             model.RequiresShipping = false;// cart.IsShippingRequired();
             if (model.RequiresShipping)
             {
@@ -181,7 +181,7 @@ namespace Smartstore.Web.Components
             model.ShowConfirmOrderLegalHint = _shoppingCartSettings.ShowConfirmOrderLegalHint;
 
             // Cart total
-            // TODO: (ms) (core) Re-implement when any payment method has been implemented
+            // TODO: (mh) (core) Re-implement when any payment method has been implemented
             //var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 
             var cartTotal = new ShoppingCartTotal

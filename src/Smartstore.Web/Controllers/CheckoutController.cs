@@ -75,7 +75,7 @@ namespace Smartstore.Web.Controllers
                 return false;
             }
 
-            // TODO: (ms) (core) Wait for payment methods, check how to retrieve processPaymentRequest now.
+            // TODO: (mh) (core) Wait for payment methods, check how to retrieve processPaymentRequest now.
             //var paymentInfo = paymentMethod.GetPaymentInfo();
             //HttpContext.Session.TrySetObject<ProcessPaymentRequest>("OrderPaymentInfo", paymentInfo);
 
@@ -268,7 +268,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction(nameof(PaymentMethod));
             }
 
-            // TODO: (ms) (core) Wait with implementation until any provider for shipping rate computation has been implemented.
+            // TODO: (mh) (core) Wait with implementation until any provider for shipping rate computation has been implemented.
             //var response = _shippingService.GetShippingOptions(cart, customer.ShippingAddress, storeId: storeId);
             //var options = response.ShippingOptions;
             //var state = HttpContext.GetCheckoutState();
@@ -299,7 +299,7 @@ namespace Smartstore.Web.Controllers
             var model = new CheckoutShippingMethodModel();
             await cart.AsEnumerable().MapAsync(model);
 
-            // TODO: (ms) (core) Remove dummy shipping method model.
+            // TODO: (mh) (core) Remove dummy shipping method model.
             // This creates a dummy ShippingMethodModel. It is needed as long as no other shipping method is implemented.
             var methodModel = new CheckoutShippingMethodModel.ShippingMethodModel
             {
@@ -363,7 +363,7 @@ namespace Smartstore.Web.Controllers
             var shippingOptions = customer.GenericAttributes.OfferedShippingOptions;
             if (shippingOptions == null || !shippingOptions.Any())
             {
-                // TODO: (ms) (core) Remove dummy shipping option if at least one shipping option has been implemented.
+                // TODO: (mh) (core) Remove dummy shipping option if at least one shipping option has been implemented.
                 // Shipping option was not found in customer attributes. Load via shipping service.
                 //shippingOptions = _shippingService
                 //    .GetShippingOptions(cart, customer.ShippingAddress, shippingRateComputationMethodSystemName, storeId)
@@ -425,7 +425,7 @@ namespace Smartstore.Web.Controllers
             var model = new CheckoutPaymentMethodModel();
             await cart.AsEnumerable().MapAsync(model);
 
-            // TODO: (ms) (core) Remove test data later.
+            // TODO: (mh) (core) Remove test data later.
             model.PaymentMethods.Add(new CheckoutPaymentMethodModel.PaymentMethodModel()
             {
                 Name = "Super dummy payment",
@@ -499,7 +499,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction(nameof(PaymentMethod));
             }
 
-            // TODO: (ms) (core) Implement load payment method provider if at least one payment method provider is implemented.
+            // TODO: (mh) (core) Implement load payment method provider if at least one payment method provider is implemented.
             //var paymentMethodProvider = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethod, true, storeId);
             //if (paymentMethodProvider == null)
             //{
@@ -536,7 +536,7 @@ namespace Smartstore.Web.Controllers
                 return new NotFoundResult();
             }
 
-            // TODO: (ms) (core) Wait until any payment method has been implemented.
+            // TODO: (mh) (core) Wait until any payment method has been implemented.
             var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
             if (paymentMethod == null)
             {
@@ -549,7 +549,7 @@ namespace Smartstore.Web.Controllers
                 return new EmptyResult();
             }
 
-            // TODO: (ms) (core) Test that invoke widget works as intended.
+            // TODO: (mh) (core) Test that invoke widget works as intended.
             return Content(await this.InvokeWidgetAsync(infoWidget));
         }
 

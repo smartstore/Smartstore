@@ -94,10 +94,10 @@ namespace Smartstore.Core.Checkout.Shipping
             // Get attributes without product linkage > add attribute weight adjustment
             var attributesWeight = await query
                 .Where(x => x.ValueTypeId != (int)ProductVariantAttributeValueType.ProductLinkage)
-                // TODO: (ms) (core) Test possible SumAsync SQL projection failure (IIF)
+                // TODO: (mg) (core) Test possible SumAsync SQL projection failure (IIF)
                 .SumAsync(x => (decimal?)x.WeightAdjustment * (multipliedByQuantity ? x.Quantity : 1)) ?? decimal.Zero;
 
-            // TODO: (ms) (core) needs to be tested with NullResult
+            // TODO: (mg) (core) needs to be tested with NullResult
             // Get attributes with product linkage > add product weigth
             attributesWeight += await query
                 .Where(x => x.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage)

@@ -698,7 +698,7 @@ namespace Smartstore.Core.Installation
                 {
                     Name = "Delete guests",
                     CronExpression = "*/10 * * * *", // Every 10 minutes
-                    // TODO: (ms) (core) Use nameof(Type) once all tasks are ready.
+                    // TODO: (mh) (core) Use nameof(Type) once all tasks are ready.
 					Type = "DeleteGuestsTask",
                     Enabled = true,
                     StopOnError = false,

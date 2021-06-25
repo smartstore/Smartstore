@@ -138,7 +138,7 @@ namespace Smartstore.Domain
         /// <remarks>
         /// Tries to serialize <see cref="Multimap{int, object}"/> and throws a <see cref="JsonSerializationException"/> if not possible.
         /// </remarks>
-        // TODO: (ms) (core) Have MapUnkownElement applied with AsJson(), too
+        // TODO: (mg) (core) Have MapUnkownElement applied with AsJson(), too
         public string AsJson()
         {
             if (_rawAttributes.HasValue() && _isJson && !_dirty)

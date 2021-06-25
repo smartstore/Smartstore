@@ -2962,7 +2962,7 @@ namespace Smartstore.Core.Installation
             }
         }
 
-        // TODO: (ms) (core) Implement installation content for forum
+        // TODO: (mh) (core) Implement installation content for forum
         //protected override void Alter(IList<ForumGroup> entities)
         //{
         //    base.Alter(entities);
@@ -3195,7 +3195,7 @@ namespace Smartstore.Core.Installation
                 });
         }
 
-        // TODO: (ms) (core) Implement installation content for blogs, news and polls modules
+        // TODO: (mh) (core) Implement installation content for blogs, news and polls modules
 
         //protected override void Alter(IList<BlogPost> entities)
         //{

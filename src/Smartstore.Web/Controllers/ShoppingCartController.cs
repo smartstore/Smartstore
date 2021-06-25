@@ -1001,7 +1001,7 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> GetEstimateShipping(EstimateShippingModel shippingModel, ProductVariantQuery query)
         {
-            // TODO: (ms) (core) Testing when there are payment / shipping methods ready
+            // TODO: (mh) (core) Testing when there are payment / shipping methods ready
             var storeId = Services.StoreContext.CurrentStore.Id;
             var currency = Services.WorkContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);

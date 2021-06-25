@@ -12,7 +12,7 @@ namespace Smartstore.Core.Checkout.Shipping
     /// </summary>
     internal partial class CompositeShipmentTracker : IShipmentTracker
     {
-        // TODO: (ms) (core) Implement a shipment tracker for DHL!
+        // TODO: (mg) (core) Implement a shipment tracker for DHL!
         private static Type[] _trackerTypes = null;
         private readonly static object _lock = new();
 

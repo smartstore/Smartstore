@@ -34,7 +34,7 @@ namespace Smartstore.Admin.Controllers
             _exceptionFactory = exceptionFactory;
         }
 
-        // TODO: (ms) (core) Testing!
+        // TODO: (mh) (core) Testing!
         [HttpPost]
         [Permission(Permissions.Media.Upload)]
         [MaxMediaFileSize]

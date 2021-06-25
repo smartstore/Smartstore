@@ -6,7 +6,7 @@
 @inject IWebHelper WebHelper
 
 @{
-    // TODO: (ms) (core) Customers uploaded product variant file is lost after selecting any other variant option (in product details).
+    // TODO: (mh) (core) Customers uploaded product variant file is lost after selecting any other variant option (in product details).
     var storeUrl = WebHelper.GetStoreLocation(false);
     var controlId = Model.BuildControlId();
     var clientId = "upload" + CommonHelper.GenerateRandomInteger();

@@ -86,7 +86,7 @@ namespace Smartstore
             int[] productIds = null,
             bool includeHidden = false)
         {
-            // TODO: (ms) (core) Add more params to OrderItemQueryExtensions.ApplyProductFilter()
+            // TODO: (mh) (core) Add more params to OrderItemQueryExtensions.ApplyProductFilter()
             Guard.NotNull(query, nameof(query));
 
             var db = query.GetDbContext<SmartDbContext>();

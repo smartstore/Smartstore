@@ -53,7 +53,7 @@ namespace Smartstore.Web.Models.Checkout
             var storeId = _services.StoreContext.CurrentStore.Id;
             var customer = _services.WorkContext.CurrentCustomer;
 
-            // TODO: (ms) (core) Wait with implementation until any provider for shipping rate computation has been implemented.
+            // TODO: (mh) (core) Wait with implementation until any provider for shipping rate computation has been implemented.
             //var getShippingOptionResponse = _shippingService.GetShippingOptions(from.ToList(), customer.ShippingAddress, storeId: storeId);
             //if (!getShippingOptionResponse.Success)
             //{
@@ -82,11 +82,11 @@ namespace Smartstore.Web.Models.Checkout
             //        ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName,
             //    };
 
-            //    // TODO: (ms) (core) Wait with implmenentation until any provider for shipping rate computation has been implemented.
+            //    // TODO: (mh) (core) Wait with implmenentation until any provider for shipping rate computation has been implemented.
             //    //var provider = _shippingService.LoadActiveShippingRateComputationMethods(systemName: shippingOption.ShippingRateComputationMethodSystemName);
             //    //if (provider != null)
             //    //{
-            //    //    // TODO: (ms) (core) Wait for PluginMediator implementation
+            //    //    // TODO: (mh) (core) Wait for PluginMediator implementation
             //    //    //model.BrandUrl = _pluginMediator.GetBrandImageUrl(srcmProvider.Metadata);
             //    //}
 

@@ -59,7 +59,7 @@ namespace Smartstore.Web.Models.Checkout
             var customer = _services.WorkContext.CurrentCustomer;
 
             // Was shipping skipped.
-            // TODO: (ms) (core) Wait with implementation until any provider for shipping rate computation has been implemented.
+            // TODO: (mh) (core) Wait with implementation until any provider for shipping rate computation has been implemented.
             //var shippingOptions = _shippingService.GetShippingOptions(from.ToList(), customer.ShippingAddress, storeId: storeId).ShippingOptions;
 
             //if (!from.IsShippingRequired() || shippingOptions.Count <= 1 && _shippingSettings.SkipShippingIfSingleOption)
@@ -84,7 +84,7 @@ namespace Smartstore.Web.Models.Checkout
 
             //    var model = new CheckoutPaymentMethodModel.PaymentMethodModel
             //    {
-            //        // TODO: (ms) (core) Wait for plugin mediator implementation to retrieve localized payment method names.
+            //        // TODO: (mh) (core) Wait for plugin mediator implementation to retrieve localized payment method names.
             //        //Name = _pluginMediator.GetLocalizedFriendlyName(boundPaymentMethod.Metadata),
             //        //Description = _pluginMediator.GetLocalizedDescription(boundPaymentMethod.Metadata),
             //        PaymentWidgetInvoker = boundPaymentMethod.Value.GetPaymentInfoWidget(),
@@ -97,11 +97,11 @@ namespace Smartstore.Web.Models.Checkout
             //        model.FullDescription = paymentMethod.GetLocalized(x => x.FullDescription, _services.WorkContext.WorkingLanguage);
             //    }
 
-            //    // TODO: (ms) (core) Wait for PluginMediator implementation
+            //    // TODO: (mh) (core) Wait for PluginMediator implementation
             //    //model.BrandUrl = _pluginMediator.GetBrandImageUrl(boundPaymentMethod.Metadata);
 
             //    // Payment method additional fee.
-            //    // TODO: (ms) (core) Wait for implementation of any payment service and the respective 'GetAdditionalHandlingFee' method.
+            //    // TODO: (mh) (core) Wait for implementation of any payment service and the respective 'GetAdditionalHandlingFee' method.
             //    //decimal paymentMethodAdditionalFee = _paymentService.GetAdditionalHandlingFee(cart, boundPaymentMethod.Metadata.SystemName);
             //    decimal paymentMethodAdditionalFee = 0m;
             //    decimal rateBase = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentMethodAdditionalFee);
