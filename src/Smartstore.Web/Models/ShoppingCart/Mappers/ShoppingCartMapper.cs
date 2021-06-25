@@ -501,7 +501,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                 var selectedPaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
                 var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(selectedPaymentMethodSystemName);
 
-                // TODO: (ms) (core) Wait for PluginMediator.GetLocalizedFriendlyName implementation
+                // TODO: (mh) (core) Wait for PluginMediator.GetLocalizedFriendlyName implementation
                 //model.OrderReviewData.PaymentMethod = paymentMethod != null ? _pluginMediator.GetLocalizedFriendlyName(paymentMethod.Metadata) : "";
                 to.OrderReviewData.PaymentSummary = checkoutState.PaymentSummary;
                 to.OrderReviewData.IsPaymentSelectionSkipped = checkoutState.IsPaymentSelectionSkipped;

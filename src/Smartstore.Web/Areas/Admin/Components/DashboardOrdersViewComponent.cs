@@ -10,7 +10,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Web.Components;
 
-namespace Smartstore.Web.Areas.Admin.Components
+namespace Smartstore.Admin.Components
 {
     public class DashboardOrdersViewComponent : SmartViewComponent
     {

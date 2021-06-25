@@ -11,7 +11,7 @@ using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Models.Catalog;
 
-namespace Smartstore.Web.Areas.Admin.Models
+namespace Smartstore.Admin.Models
 {
     // TODO: (mh) (core) Remove model when not used anymore.
     public class EditorTemplatesTestModel : ModelBase, IQuantityInput//, ISeoModel

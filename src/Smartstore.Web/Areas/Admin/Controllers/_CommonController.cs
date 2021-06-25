@@ -1,26 +1,23 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Caching;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Data.Caching;
 using Smartstore.Web.Controllers;
 
-namespace Smartstore.Web.Areas.Admin.Controllers
+namespace Smartstore.Admin.Controllers
 {
     public class CommonController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
-        private readonly IGenericAttributeService _genericAttributeService;
         private readonly IRequestCache _requestCache;
         private readonly IDbCache _dbCache;
 
         // TODO: (mh) (core) dbCache cannot be resolved. Breaks...
-        public CommonController(SmartDbContext db, IGenericAttributeService genericAttributeService, IRequestCache requestCache/*, IDbCache dbCache*/)
+        public CommonController(SmartDbContext db, IRequestCache requestCache/*, IDbCache dbCache*/)
         {
             _db = db;
-            _genericAttributeService = genericAttributeService;
             _requestCache = requestCache;
             //_dbCache = dbCache;
         }
@@ -80,9 +77,5 @@ namespace Smartstore.Web.Areas.Admin.Controllers
                 }
             );
         }
-
-
-
-
     }
 }

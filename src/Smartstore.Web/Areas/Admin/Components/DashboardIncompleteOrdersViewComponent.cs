@@ -14,7 +14,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Web.Components;
 
-namespace Smartstore.Web.Areas.Admin.Components
+namespace Smartstore.Admin.Components
 {
     public class DashboardIncompleteOrdersViewComponent : SmartViewComponent
     {
@@ -29,7 +29,7 @@ namespace Smartstore.Web.Areas.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            if(! await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
+            if(!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
             {
                 return Empty();
             }

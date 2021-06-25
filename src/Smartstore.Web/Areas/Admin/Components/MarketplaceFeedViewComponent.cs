@@ -12,7 +12,7 @@ using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Smartstore.Web.Areas.Admin.Components
+namespace Smartstore.Admin.Components
 {
     public class MarketplaceFeedViewComponent : SmartViewComponent
     {

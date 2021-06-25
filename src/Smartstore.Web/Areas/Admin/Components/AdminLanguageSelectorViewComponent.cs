@@ -5,7 +5,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Web.Components;
 using System.Threading.Tasks;
 
-namespace Smartstore.Web.Areas.Admin.Components
+namespace Smartstore.Admin.Components
 {
     public class AdminLanguageSelectorViewComponent : SmartViewComponent
     {
