@@ -1,22 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.DependencyInjection;
 using SharpScss;
+using Smartstore.IO;
 using WebOptimizer;
 using WebOptimizer.Sass;
-using System.Diagnostics;
-using Smartstore.IO;
 
 namespace Smartstore.Web.Bundling.Processors
 {
@@ -34,10 +28,16 @@ namespace Smartstore.Web.Bundling.Processors
             var content = new Dictionary<string, byte[]>();
             var env = context.HttpContext.RequestServices.GetService<IWebHostEnvironment>();
             var fileProvider = context.Asset.GetFileProvider(env);
-            var assetFileProvider = fileProvider as AssetFileProvider;
+            var assetFileProvider = fileProvider as IAssetFileProvider;
 
             foreach (string route in context.Content.Keys)
             {
+                if (!route.EndsWith(".scss"))
+                {
+                    content[route] = context.Content[route];
+                    continue;
+                }
+                
                 var settings = new ScssOptions { InputFile = assetFileProvider != null ? route : fileProvider.GetFileInfo(route).PhysicalPath };
                 if (_options != null)
                 {
@@ -86,7 +86,7 @@ namespace Smartstore.Web.Bundling.Processors
             return string.Empty;
         }
 
-        private static bool OnTryImportSassFile(AssetFileProvider fileProvider, ref string file, string parentPath, out string scss, out string map)
+        private static bool OnTryImportSassFile(IAssetFileProvider fileProvider, ref string file, string parentPath, out string scss, out string map)
         {
             map = null;
             scss = null;

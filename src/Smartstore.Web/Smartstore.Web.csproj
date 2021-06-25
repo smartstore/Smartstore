@@ -62,9 +62,6 @@
     <None Update="Modules\placeholder.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Themes\Flex\grippy.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   
   <PropertyGroup>
@@ -132,6 +129,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Themes\FlexBlack\wwwroot\" />
+	  <Folder Include="Themes\FlexBlue\wwwroot\" />
 	  <Folder Include="wwwroot\lib\vue\" />
 	</ItemGroup>
 

@@ -18911,7 +18911,7 @@ select.is-invalid + .select2:not(.select2-container--open) .select2-dropdown, se
 }
 
 .slick-loading .slick-list {
-    background: #fff url("/Themes/Flex/Content/images/loading.gif") center center no-repeat
+    background: #fff url("/Themes/Flex/images/loading.gif") center center no-repeat
 }
 
 img.slick-loading {

@@ -57,7 +57,18 @@ namespace Smartstore.Web.Bundling
         }
 
         /// <summary>
-        /// Adds processors to the asset pipeline.
+        /// Adds Sass processor to the asset pipeline.
+        /// </summary>
+        public static IAsset AddSassProcessor(this IAsset asset)
+        {
+            Guard.NotNull(asset, nameof(asset));
+
+            asset.AddProcessor(new SassProcessor());
+            return asset;
+        }
+
+        /// <summary>
+        /// Adds Sass processor to the asset pipeline.
         /// </summary>
         public static IEnumerable<IAsset> AddSassProcessor(this IEnumerable<IAsset> assets)
         {

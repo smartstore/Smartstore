@@ -92,7 +92,10 @@ namespace Smartstore.Web.Theming
             protected internal set;
         }
 
-        public IFileProvider FileProvider
+        /// <summary>
+        /// The file provider that points to the wwwroot directory of the theme.
+        /// </summary>
+        public IFileProvider WebFileProvider
         {
             get;
             protected internal set;

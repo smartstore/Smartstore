@@ -255,8 +255,6 @@ namespace Smartstore.Caching
 
         public virtual IEnumerable<string> Keys(string pattern = "*")
         {
-            Guard.NotEmpty(pattern, nameof(pattern));
-
             var keys = _keys.AsParallel();
 
             if (pattern.IsEmpty() || pattern == "*")

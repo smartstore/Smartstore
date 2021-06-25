@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Diagnostics;
+using Smartstore.Utilities;
 using WebOptimizer;
 
 namespace Smartstore.Web.Bundling
@@ -12,14 +14,16 @@ namespace Smartstore.Web.Bundling
     internal class SmartAssetBuilder : IAssetBuilder
     {
         private readonly IAssetBuilder _inner;
-        private IMemoryCache _cache;
-        private IWebHostEnvironment _env;
+        private readonly IMemoryCache _cache;
+        private readonly IWebHostEnvironment _env;
+        private readonly IChronometer _chronometer;
 
-        public SmartAssetBuilder(IAssetBuilder inner, IMemoryCache cache, IWebHostEnvironment env)
+        public SmartAssetBuilder(IAssetBuilder inner, IMemoryCache cache, IWebHostEnvironment env, IChronometer chronometer)
         {
-            _inner = Guard.NotNull(inner, nameof(inner));
-            _cache = Guard.NotNull(cache, nameof(cache));
-            _env = Guard.NotNull(env, nameof(env));
+            _inner = inner;
+            _cache = cache;
+            _env = env;
+            _chronometer = chronometer;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -31,7 +35,7 @@ namespace Smartstore.Web.Bundling
                 return await _inner.BuildAsync(asset, context, options);
             }
 
-            string cacheKey = asset.GenerateCacheKey(context);
+            var cacheKey = BuildScopedCacheKey(asset.GenerateCacheKey(context));
             // TODO: Log errors
 
             if (options.EnableMemoryCache == true && _cache.TryGetValue(cacheKey, out IAssetResponse value))
@@ -44,7 +48,12 @@ namespace Smartstore.Web.Bundling
                 // TODO: Disk caching...
             }
 
-            var content = await smartAsset.ExecuteAsync(context, options);
+            byte[] content;
+            using (_chronometer.Step($"Bundle '{asset.Route}'"))
+            {
+                content = await smartAsset.ExecuteAsync(context, options);
+            }
+
             var response = new SmartAssetResponse(content, cacheKey);
 
             //foreach (var name in context.Response.Headers.Keys)
@@ -57,7 +66,7 @@ namespace Smartstore.Web.Bundling
                 return null;
             }
 
-            AddToCache(cacheKey, response, smartAsset, options);
+            AddToMemoryCache(cacheKey, response, smartAsset, options);
 
             if (options.EnableDiskCache == true)
             {
@@ -67,7 +76,7 @@ namespace Smartstore.Web.Bundling
             return response;
         }
 
-        private void AddToCache(string cacheKey, SmartAssetResponse response, SmartAsset asset, IWebOptimizerOptions options)
+        private void AddToMemoryCache(string cacheKey, SmartAssetResponse response, SmartAsset asset, IWebOptimizerOptions options)
         {
             if (options.EnableMemoryCache == true)
             {
@@ -83,5 +92,8 @@ namespace Smartstore.Web.Bundling
                 _cache.Set(cacheKey, response, cacheOptions);
             }
         }
+
+        private static string BuildScopedCacheKey(string key)
+            => "asset:" + key;
     }
 }

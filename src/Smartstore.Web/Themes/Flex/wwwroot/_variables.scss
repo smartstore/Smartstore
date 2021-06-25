@@ -1,0 +1,301 @@
+/// <reference path="theme.scss" />
+
+
+// Theme specific (non-bootstrap) variables
+// ========================================
+
+$boxed:                         false !default;
+$site-bg:                       $gray-100 !default;
+
+$btn-secondary-bg:				#fff !default;
+$btn-secondary-border:			$gray-400 !default;
+
+$header-bg:                     transparent !default;
+$header-color:                  $body-color !default;
+$header-color-muted:            $text-muted !default;
+$header-hover-bg:               rgba(#000, 0.03) !default;
+$header-border-color:           #ddd !default; 
+$header-inverse-color:          #fff !default;
+$header-inverse-color-muted:    rgba(#fff, 0.5) !default;
+$header-inverse-hover-bg:       rgba(#fff, 0.15) !default;
+$header-inverse-border-color:   rgba(#fff, 0.15) !default;
+$header-selected-color:         $warning !default;
+$header-inverse-selected-color: $header-selected-color !default;
+
+$menubar-bg:                    transparent !default;
+$shopbar-bg:                    transparent !default;
+$megamenu-bg:                   $gray-100 !default;
+$megamenu-navlink-font-size:    1rem !default;
+$megamenu-line-height:          1.8 !default;
+
+$menubar-color:                 lighten($header-color, 8%) !default;
+$menubar-inverse-color:         $header-inverse-color-muted !default;
+$shopbar-color:                 $header-color !default;
+$shopbar-color-muted:           rgba($shopbar-color, 0.5);
+$shopbar-inverse-color:         $header-inverse-color !default;
+$shopbar-inverse-color-muted:   rgba($shopbar-inverse-color, 0.5);
+$megamenu-color:                $header-color !default;
+$megamenu-inverse-color:        $header-inverse-color !default;
+
+$megamenu-dropdown-bg:          #fff !default;
+$megamenu-text-color:           $body-color !default;
+$megamenu-heading-color:        #222 !default;
+$megamenu-subitem-color:        #999 !default;
+$megamenu-rotator-bg:           rgba(255, 255, 255, 0.92) !default;
+
+$searchbox-pill:                true !default;
+$searchbox-bg-1:                $light !default;
+$searchbox-bg-2:                #fff !default;
+$searchbox-bg-3:                #fff !default;
+$searchbox-border-color:        rgba(0,0,0, 0.1) !default;
+$searchbox-border-active-color: rgba(0,0,0, 0.1) !default;
+$searchbox-hit-tag-color:       darken($warning, 10%) !default;
+
+$footer-bg:                     $gray-100 !default;
+$footer-color:                  $body-color !default;
+$footer-color-muted:            $text-muted !default;
+$footer-inverse-color:          #fff !default;
+$footer-inverse-color-muted:    rgba(#fff, 0.5) !default;
+
+$footer-social-bg:              #aaa !default;
+$footer-social-color:           #fff !default;
+
+$facet-control-size:			20px !default;
+
+$enable-rfs:                    true; // declared in _rfs.scss
+$rfs-spacers:                   () !default;
+$font-size-root-md:             16px !default;
+$font-size-root-sm:             16px !default;
+
+
+// Material tabs
+// ==============================================================
+
+$mtab-text-transform:		none;
+$mtab-font-weight:			$font-weight-medium;
+$mtab-color:				inherit;
+
+//
+// Checkout Steps
+// --------------------------------------------------
+
+$costep-border:                 #f2f2f2;
+$costep-bg:                     #fff; 
+$costep-color:                  #ccc;
+$costep-label-color:            $body-color;
+
+$costep-visited-border:         $costep-progress-color;
+$costep-visited-bg:             $costep-progress-color;
+$costep-visited-color:          rgba(#fff, 0.85);
+$costep-visited-label-color:    $costep-label-color;
+
+$costep-active-border:          $costep-visited-border;
+$costep-active-bg:              #fff;
+$costep-active-color:           $body-color;
+$costep-active-label-color:     $costep-label-color;
+
+
+// Bootstrap variable overrides
+// ========================================
+
+$enable-rounded:                true;
+$enable-shadows:                true;
+$enable-gradients:              false;
+$enable-transitions:            true;
+$enable-hover-media-query:      false;
+$enable-grid-classes:           true;
+
+$theme-color-interval:		8%;
+$yiq-contrasted-threshold:	164;
+$yiq-text-dark:				$gray-900;
+$yiq-text-light:			#fff;
+
+$spacer: 1.25rem;
+$spacers: ( 
+	6: ($spacer * 4.5)
+);
+
+$theme-colors: ( 
+	"gray": $gray-700 
+);
+
+$line-height-base:              1.5;
+$line-height-sm:                1.5;
+$line-height-lg:                (4 / 3);
+
+$lead-font-size:                1.125rem;
+$lead-font-weight:              $font-weight-light;
+$small-font-size:               90%;
+
+$display1-size:                 5.5rem;
+$display2-size:                 5rem;
+$display3-size:                 4.5rem;
+$display4-size:                 3rem;
+
+$display1-weight:               $font-weight-light;
+$display2-weight:               $font-weight-light;
+$display3-weight:               $font-weight-light;
+$display4-weight:               $font-weight-light;
+
+$btn-border-radius:             $border-radius;
+$btn-border-radius-lg:          $border-radius-lg;
+$btn-border-radius-sm:          $border-radius-sm;
+
+// Shadows
+
+$box-shadow-sm-var:             0 calc(1px * var(--shadow-color-yoffset, 1)) 1px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
+                                0 calc(2px * var(--shadow-color-yoffset, 1)) 4px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
+                                0 calc(3px * var(--shadow-color-yoffset, 1)) 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1));
+$box-shadow-var:                0 calc(1px * var(--shadow-color-yoffset, 1)) 2px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
+                                0 calc(3px * var(--shadow-color-yoffset, 1)) 6px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.08)), 
+                                0 calc(6px * var(--shadow-color-yoffset, 1)) 16px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.12));
+$box-shadow-lg-var:             0 calc(1px * var(--shadow-color-yoffset, 1)) 2px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
+                                0 calc(3px * var(--shadow-color-yoffset, 1)) 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
+                                0 calc(8px * var(--shadow-color-yoffset, 1)) 20px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1)), 
+                                0 calc(16px * var(--shadow-color-yoffset, 1)) 42px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.12));
+
+$box-shadow-sm:                 var(--box-shadow);
+$box-shadow:                    var(--box-shadow);
+$box-shadow-lg:                 var(--box-shadow);
+
+
+$input-box-shadow:              none;
+$input-focus-box-shadow:        none;
+$input-border-radius:           $btn-border-radius;
+$input-border-radius-lg:        $btn-border-radius-lg;
+$input-border-radius-sm:        $btn-border-radius-sm;
+
+// Equalize input vertical paddings with button paddings
+$input-btn-focus-width:			.25rem;
+$input-btn-focus-color:			rgba($primary, .25);
+$input-btn-focus-box-shadow:	0 0 0 $input-btn-focus-width $input-btn-focus-color;
+$input-btn-padding-x:			1rem;
+$input-btn-padding-y:			0.625rem;
+$input-btn-padding-x-sm:		0.75rem;
+$input-btn-padding-y-sm:		0.5rem;
+$input-btn-padding-x-lg:		1.5rem;
+$input-btn-padding-y-lg:		0.875rem;
+$input-btn-line-height:			1.5;
+$input-box-shadow:				none;
+$input-focus-box-shadow:		none;
+$input-focus-border-color:		lighten($primary, 30%);
+$input-transition:              none;
+$input-group-addon-bg:			$gray-100;
+
+
+$btn-font-weight:				$font-weight-medium;
+$btn-focus-width:				0;
+$btn-box-shadow:				inset 0 0 0 rgba(#fff, 0.15), 0 0 0 rgba(#000, 0.075);
+$btn-focus-box-shadow:			$input-btn-focus-box-shadow;
+$btn-active-box-shadow:			inset 0 3px 5px rgba(#000, .125);
+$btn-transition:				background-color .05s ease-in-out, border-color .05s ease-in-out, box-shadow .05s ease-in-out;
+$btn-disabled-opacity:			0.5;
+
+
+// Badge
+
+$badge-font-weight:             $font-weight-medium !default;
+
+
+// Dropdown
+
+$dropdown-box-shadow:			$box-shadow-lg-var;
+$dropdown-border-color:			$gray-300; 
+$dropdown-link-active-color:    $dropdown-link-hover-color;
+$dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 4%);
+
+
+// Modal
+
+$modal-inner-padding:               1.25rem;
+$modal-header-padding:              1.25rem;
+$modal-content-border-width:        0;
+$modal-content-border-radius:		$border-radius;
+$modal-backdrop-opacity:            .75;
+$modal-content-box-shadow-xs:       $box-shadow-var;
+$modal-content-box-shadow-sm-up:    $box-shadow-lg-var;
+
+
+// Popover
+
+$popover-box-shadow:			$dropdown-box-shadow;
+$popover-border-color:			$dropdown-border-color;
+
+
+// Pagination
+
+$pagination-color:					$body-color;
+$pagination-bg:						#fff;
+$pagination-border-color:			$gray-300;
+
+$pagination-hover-color:			$pagination-color;
+$pagination-hover-bg:				$gray-200;
+$pagination-hover-border-color:		$gray-300;
+
+$pagination-active-color:			$pagination-color;
+$pagination-active-bg:				transparent;
+$pagination-active-border-color:	$pagination-border-color;
+
+
+// List Group
+
+$list-group-bg:						#fff;
+$list-group-border-color:			rgba(#000, .125);
+
+$list-group-hover-bg:               $gray-100;
+$list-group-active-color:			$body-color;
+$list-group-active-bg:				$list-group-bg;
+$list-group-active-border-color:	$list-group-border-color;
+
+$list-group-disabled-color:         $gray-500;
+$list-group-disabled-bg:            $list-group-bg;
+
+$list-group-action-color:			$gray-700;
+$list-group-action-hover-color:     $list-group-action-color;
+
+$list-group-action-active-color:	$body-color;
+$list-group-action-active-bg:       $gray-200;
+
+
+// Nav
+
+$nav-tabs-link-active-color:		$gray-900;
+
+
+// Embeds (TODO: Use from v4.3 onwards)
+$embed-responsive-aspect-ratios: (
+  (21 9),
+  (16 9),
+  (16 10),
+  (4 3),
+  (1 1)
+);
+
+
+// Custom control
+
+$custom-control-indicator-checked-color:        #fff;
+$custom-control-indicator-checked-bg:           $blue;
+$custom-control-indicator-checked-disabled-bg:  rgba($blue, .5);
+
+
+// Breadcrumb
+
+$breadcrumb-padding-x:              0;
+$breadcrumb-padding-y:              0;
+$breadcrumb-bg:                     transparent;
+$breadcrumb-border-radius:          0;
+
+
+// Misc
+
+$card-deck-margin:                  10px;
+$alert-border-radius:               $border-radius;
+$product-price-color:               $body-color !default;
+$login-box-bg:                      $gray-100 !default;
+$cart-footer-bg:                    $gray-100 !default;
+$costep-progress-color:             $warning !default;
+$offcanvas-cart-footer:             $success !default;
+$art-active-bg-color:               #fff !default;
+$art-active-border-color:           rgba(0,0,0, 0) !default;
+$product-detail-addtocart-box-bg:   $gray-100 !default;

@@ -169,7 +169,7 @@ namespace Smartstore.Caching
         /// </para>
         /// </summary>
         /// <param name="pattern">Glob pattern</param>
-        /// <returns>Count of removed cache items</returns>
+        /// <returns>Number of removed cache items</returns>
         Task<long> RemoveByPatternAsync(string pattern);
 
         /// <summary>

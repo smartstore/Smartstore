@@ -35,12 +35,13 @@ namespace Smartstore.Web.Bundling
         {
             var bundle = Guard.NotNull(assetPipeline, nameof(assetPipeline))
                 .AddBundle(route, "text/css; charset=UTF-8", sourceFiles)
-                .EnforceFileExtensions(".css")
+                .EnforceFileExtensions(".css", ".scss")
+                .AddSassProcessor()
                 .AdjustRelativePaths()
                 .MinifyCss(new CssSettings { FixIE8Fonts = false, ColorNames = CssColor.Strict })
                 .Concatenate()
                 //.AutoPrefixCss()
-                .FingerprintUrls()
+                //.FingerprintUrls()
                 .AddResponseHeader("X-Content-Type-Options", "nosniff");
 
             return WrapAsset(assetPipeline, bundle);

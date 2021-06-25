@@ -149,7 +149,7 @@ namespace Smartstore.Core.Widgets
         {
             var fileName = "widgetzones.json";
             var fs = _appContext.AppDataRoot;
-            var cacheKey = CommonHelper.BuildScopedKey(fileName);
+            var cacheKey = _memoryCache.BuildScopedKey(fileName);
 
             var rawJson = await _memoryCache.GetOrCreateAsync(cacheKey, async entry => 
             {

@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.FileProviders;
 using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity
@@ -59,6 +60,15 @@ namespace Smartstore.Engine.Modularity
         /// Gets the file provider that references the module's root directory.
         /// </summary>
         public IFileSystem FileProvider
+        {
+            get;
+            protected internal set;
+        }
+
+        /// <summary>
+        /// Gets the file provider that references the module's wwwroot directory.
+        /// </summary>
+        public IFileProvider WebFileProvider
         {
             get;
             protected internal set;

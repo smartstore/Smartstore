@@ -1,0 +1,23 @@
+/// <reference path="theme.scss" />
+
+//
+// Print optimization
+// --------------------------------------------------
+
+@media print {
+    .menubar-section,
+    .megamenu-section,
+    .shopbar-col:not(.shop-logo),
+    #content-left,
+    #content-right,
+    .cart-row-actions,
+    footer
+    {
+        display: none !important;
+    }
+
+    .more-less {
+        max-height: none !important;
+        .btn-text-expander { display: none !important; }
+    }
+}

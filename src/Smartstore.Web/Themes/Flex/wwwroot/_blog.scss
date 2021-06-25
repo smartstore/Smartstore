@@ -1,0 +1,128 @@
+﻿/// <reference path="theme.scss" />
+
+//
+// Blog Styles
+// --------------------------------------------------
+
+.bloglist-item-root {
+    overflow: hidden;
+
+    &.unpublished {
+        opacity: 0.5;
+    }
+}
+
+.bloglist-item-header {
+    position: relative;
+    overflow: hidden;
+    width: 40%;
+}
+
+.bloglist-item-body {
+    position: relative;
+    width: 100%;
+
+    .has-image:not(.has-image-bg) & {
+        width: 60%;
+    }
+}
+
+.bloglist-item-img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.blog-summary > .bloglist-item-root:nth-child(n+4) {
+    display: none;
+}
+
+@include media-breakpoint-up(md) {
+    .blog-summary > .bloglist-item-root:nth-child(n+4) {
+        display: block;
+    }
+
+    .bloglist-item-header {
+        width: 100% !important;
+    }
+
+    .bloglist-item-body {
+        width: 100% !important;
+    }
+
+    .bloglist-item-img {
+        height: auto;
+    }
+}
+
+.blogpost-tags-overlay,
+.comments-overlay {
+    position: absolute;
+    z-index: 1;
+}
+
+.blogpost-tags-overlay {
+    top: 0;
+    left: 0;
+}
+
+.comments-overlay {
+    bottom: 0;
+    right: 0;
+}
+
+// comments
+.comment-item {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(#000, 0.12);
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.comment-list-title {
+    border-bottom-width: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+// tags
+.blogpost-tags .badge,
+.block-popular-blogtags .badge {
+    font-size: .875rem;
+}
+
+.has-section-bg {
+    .blogpost-date {
+        color: var(--section-color-4) !important;
+    }
+
+    .blogpost-title {
+        color: var(--section-color-1) !important;
+    }
+
+    .blogpost-intro {
+        color: var(--section-color-2) !important;
+    }
+}
+
+.has-image-bg {
+    .blogpost-date,
+    .blogpost-title,
+    .blogpost-intro {
+        color: #fff !important;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .has-tags:not(.has-image),
+    .has-section-bg.has-tags:not(.has-image-bg) {
+        .blogpost-tags-overlay {
+            position: relative;
+        }
+
+        .blogpost-text {
+            padding-top: 0 !important;
+        }
+    }
+}

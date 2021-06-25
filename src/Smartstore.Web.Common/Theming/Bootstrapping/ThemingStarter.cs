@@ -1,5 +1,5 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
+using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Events;
@@ -20,8 +20,9 @@ namespace Smartstore.Web.Bootstrapping
             builder.Register(x => new DefaultThemeRegistry(x.Resolve<IEventPublisher>(), x.Resolve<IApplicationContext>(), null, true))
                 .As<IThemeRegistry>()
                 .SingleInstance();
-            
+
             builder.RegisterType<DefaultThemeFileResolver>().As<IThemeFileResolver>().SingleInstance();
+            builder.RegisterType<DefaultThemeVariableService>().As<IThemeVariableService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultThemeContext>().As<IThemeContext>().InstancePerLifetimeScope();
             builder.RegisterType<RazorViewInvoker>().As<IRazorViewInvoker>().InstancePerLifetimeScope();
         }

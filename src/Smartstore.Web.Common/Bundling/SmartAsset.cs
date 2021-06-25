@@ -69,7 +69,7 @@ namespace Smartstore.Web.Bundling
 
         public virtual string GenerateCacheKey(HttpContext context)
         {
-            var cacheKey = "asset:" + _inner.Route.ToLowerInvariant();
+            var cacheKey = _inner.Route.ToLowerInvariant();
 
             foreach (var processors in Processors)
             {

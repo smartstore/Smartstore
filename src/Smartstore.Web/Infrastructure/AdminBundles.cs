@@ -37,7 +37,8 @@ namespace Smartstore.Web.Infrastructure
 
             /* Admin Main Sass theme --> /admin/theme.scss
             -----------------------------------------------------*/
-            assetPipeline.RegisterSassFile("/admin/theme.scss");
+            //assetPipeline.RegisterSassFile("/admin/theme.scss");
+            assetPipeline.RegisterCssBundle("/bundle/css/admin-theme.css", "/admin/theme.scss");
 
 
             /* Admin Main scripts --> /bundle/js/admin.js

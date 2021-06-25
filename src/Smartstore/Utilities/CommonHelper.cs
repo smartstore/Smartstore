@@ -19,8 +19,6 @@ namespace Smartstore.Utilities
 {
     public static partial class CommonHelper
     {
-        const string CacheRegionName = "Smartstore:";
-
         #region Deployment
 
         private static bool? _isDevEnvironment;
@@ -299,14 +297,6 @@ namespace Smartstore.Utilities
         #endregion
 
         #region Misc
-
-        /// <summary>
-        /// Build a scoped cache key by simply prepending "Smartstore:" to the given key.
-        /// </summary>
-        public static string BuildScopedKey(string key)
-        {
-            return key.HasValue() ? CacheRegionName + key : null;
-        }
 
         public static bool IsTruthy(object value)
         {

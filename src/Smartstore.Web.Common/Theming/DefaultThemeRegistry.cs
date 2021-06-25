@@ -135,23 +135,23 @@ namespace Smartstore.Web.Theming
                 // Create file provider
                 if (baseManifest == null)
                 {
-                    manifest.FileProvider = new PhysicalFileProvider(manifest.RootPath);
+                    manifest.WebFileProvider = new PhysicalFileProvider(Path.Combine(manifest.RootPath, "wwwroot"));
                 }
                 else
                 {
                     var fileProviders = new List<IFileProvider>
                     {
-                        new PhysicalFileProvider(manifest.RootPath)
+                        new PhysicalFileProvider(Path.Combine(manifest.RootPath, "wwwroot"))
                     };
 
                     while (baseManifest != null)
                     {
-                        fileProviders.Add(new PhysicalFileProvider(baseManifest.RootPath));
+                        fileProviders.Add(new PhysicalFileProvider(Path.Combine(baseManifest.RootPath, "wwwroot")));
                         baseManifest = baseManifest.BaseTheme;
                     }
 
                     // Use CompositeFileProvider for theme inheritance
-                    manifest.FileProvider = new CompositeFileProvider(fileProviders);
+                    manifest.WebFileProvider = new CompositeFileProvider(fileProviders);
                 }
             }
         }

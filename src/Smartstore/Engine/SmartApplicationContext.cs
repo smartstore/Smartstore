@@ -78,7 +78,6 @@ namespace Smartstore.Engine
             ThemesRoot = new LocalFileSystem(ContentRoot.MapPath("Themes"));
             ModulesRoot = new LocalFileSystem(ContentRoot.MapPath("Modules"));
             AppDataRoot = new LocalFileSystem(ContentRoot.MapPath("App_Data"));
-            AssetFileProvider = new AssetFileProvider(WebRoot);
 
             if (!AppDataRoot.DirectoryExists("Tenants"))
             {
@@ -130,7 +129,6 @@ namespace Smartstore.Engine
         public IFileSystem ModulesRoot { get; private set; }
         public IFileSystem AppDataRoot { get; private set; }
         public IFileSystem TenantRoot { get; private set; }
-        public IFileProvider AssetFileProvider { get; private set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IDirectory GetTempDirectory(string subDirectory = null)

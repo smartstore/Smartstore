@@ -3,12 +3,14 @@ using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.IO;
 using Smartstore.Web.Bundling;
+using Smartstore.Web.Theming;
 using WebOptimizer;
 
 namespace Smartstore.Web.Bootstrapping
@@ -20,8 +22,35 @@ namespace Smartstore.Web.Bootstrapping
             RunAfter<MvcStarter>();
         }
 
+        private static IFileProvider ResolveThemeFileProvider(string themeName, IApplicationContext appContext)
+        {
+            var themeRegistry = appContext.Services.Resolve<IThemeRegistry>();
+            return themeRegistry?.GetThemeManifest(themeName)?.WebFileProvider;
+        }
+
+        private static IFileProvider ResolveModuleFileProvider(string moduleName, IApplicationContext appContext)
+        {
+            return appContext.ModuleCatalog.GetModuleByName(moduleName, true)?.WebFileProvider;
+        }
+
+        private static IFileProvider ResolveAppFileProvider(string path, IApplicationContext appContext)
+        {
+            // TODO: (core) Implement ResolveAppFileProvider
+            return null;
+        }
+
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
+            // Configure & register asset file provider
+            var fileProvider = new AssetFileProvider(appContext.WebRoot);
+
+            fileProvider.AddFileProvider("themes/", ResolveThemeFileProvider);
+            fileProvider.AddFileProvider("modules/", ResolveModuleFileProvider);
+            fileProvider.AddFileProvider(".app/", ResolveAppFileProvider);
+
+            services.AddSingleton<IAssetFileProvider>(fileProvider);
+
+            // Configure bundling
             var isProduction = appContext.HostEnvironment.IsProduction();
 
             var cssBundlingSettings = new CssBundlingSettings 
@@ -46,7 +75,6 @@ namespace Smartstore.Web.Bootstrapping
             codeSettings.IgnoreErrorCollection.Add("JS1010");
 
             var environment = (IWebHostEnvironment)appContext.HostEnvironment;
-            var fileProvider = appContext.AssetFileProvider;
             var publisher = new BundlePublisher();
 
             services.AddWebOptimizer(environment, cssBundlingSettings, jsBundlingSettings, assetPipeline => 
@@ -80,20 +108,20 @@ namespace Smartstore.Web.Bootstrapping
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
+            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
+            {
+                //app.UseWebOptimizer();
+                app.UseBundling();
+            });
+
             builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
             {
                 // TODO: (core) Set StaticFileOptions
                 app.UseStaticFiles(new StaticFileOptions
                 {
-                    FileProvider = builder.ApplicationContext.AssetFileProvider,
+                    FileProvider = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IAssetFileProvider>(),
                     ContentTypeProvider = MimeTypes.ContentTypeProvider
                 });
-            });
-            
-            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
-            {
-                //app.UseWebOptimizer();
-                app.UseBundling();
             });
         }
     }
