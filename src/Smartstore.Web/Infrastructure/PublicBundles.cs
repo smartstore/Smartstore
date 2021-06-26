@@ -22,6 +22,17 @@ namespace Smartstore.Web.Infrastructure
             var js = "/js/";
 
 
+            /* (TEST) FLEX Sass theme --> /themes/flex.css
+            -----------------------------------------------------*/
+            // TODO: (core) Make dynamic registration for these in BundleMiddleware
+            assetPipeline.RegisterCssBundle("/themes/flex/theme.css", "/Themes/Flex/theme.scss");
+            assetPipeline.RegisterCssBundle("/themes/flex/theme-rtl.css", "/Themes/Flex/theme-rtl.scss");
+            assetPipeline.RegisterCssBundle("/themes/flex-black/theme.css", "/Themes/FlexBlack/theme.scss");
+            assetPipeline.RegisterCssBundle("/themes/flex-black/theme-rtl.css", "/Themes/FlexBlack/theme-rtl.scss");
+            assetPipeline.RegisterCssBundle("/themes/flex-blue/theme.css", "/Themes/FlexBlue/theme.scss");
+            assetPipeline.RegisterCssBundle("/themes/flex-blue/theme-rtl.css", "/Themes/FlexBlue/theme-rtl.scss");
+
+
             /* Public Common CSS --> /bundle/css/site-common.css
             -----------------------------------------------------*/
             assetPipeline.RegisterCssBundle("/bundle/css/site-common.css",

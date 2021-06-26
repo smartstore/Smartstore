@@ -21,6 +21,7 @@ namespace Smartstore.Web.Bootstrapping
                 .As<IThemeRegistry>()
                 .SingleInstance();
 
+            builder.RegisterType<ThemeVariableRepository>().AsSelf().InstancePerDependency();
             builder.RegisterType<DefaultThemeFileResolver>().As<IThemeFileResolver>().SingleInstance();
             builder.RegisterType<DefaultThemeVariableService>().As<IThemeVariableService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultThemeContext>().As<IThemeContext>().InstancePerLifetimeScope();

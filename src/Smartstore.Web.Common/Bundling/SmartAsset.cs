@@ -78,7 +78,7 @@ namespace Smartstore.Web.Bundling
                     var processorKey = processors.CacheKey(context);
                     if (processorKey.HasValue())
                     {
-                        cacheKey += processors.CacheKey(context);
+                        cacheKey += processorKey;
                     }
                 }
                 catch (Exception ex)

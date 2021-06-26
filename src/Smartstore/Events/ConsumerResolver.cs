@@ -7,18 +7,15 @@ namespace Smartstore.Events
 {
     public class ConsumerResolver : IConsumerResolver
     {
-        private readonly Work<IComponentContext> _container;
-
-        public ConsumerResolver(Work<IComponentContext> container)
+        public ConsumerResolver()
         {
-            _container = container;
         }
 
         public virtual IConsumer Resolve(ConsumerDescriptor descriptor)
         {
             if (descriptor.ModuleDescriptor == null || IsActiveForStore(descriptor.ModuleDescriptor))
             {
-                return _container.Value.ResolveKeyed<IConsumer>(descriptor.ContainerType);
+                return EngineContext.Current.Scope.ResolveKeyed<IConsumer>(descriptor.ContainerType);
             }
 
             return null;
@@ -26,7 +23,7 @@ namespace Smartstore.Events
 
         public virtual object ResolveParameter(ParameterInfo p, IComponentContext c = null)
         {
-            return (c ?? _container.Value).Resolve(p.ParameterType);
+            return (c ?? EngineContext.Current.Scope.RequestContainer).Resolve(p.ParameterType);
         }
 
         private bool IsActiveForStore(ModuleDescriptor module)

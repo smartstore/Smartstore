@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Engine;
+using Smartstore.IO;
 
-namespace Smartstore.IO
+namespace Smartstore.Web.Bundling
 {
     public interface IAssetFileProvider : IFileProvider
     {
         string PathCombine(params string[] paths);
+        IFileProvider ResolveFileProvider(ref string path);
     }
     
     public class AssetFileProvider : IAssetFileProvider
@@ -64,7 +66,7 @@ namespace Smartstore.IO
             _providers[pathPrefix] = resolver;
         }
 
-        protected virtual IFileProvider ResolveFileProvider(ref string path)
+        public virtual IFileProvider ResolveFileProvider(ref string path)
         {
             var path2 = path.TrimStart(PathHelper.PathSeparators);
             var index = path2.IndexOf('/');

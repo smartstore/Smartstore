@@ -113,7 +113,7 @@ namespace Smartstore.Web.Infrastructure
             //assetPipeline.RegisterSassFile(components + "datagrid/datagrid.scss");
 
             // TEST
-            assetPipeline.RegisterSassFile(lib + "bs4/scss/bootstrap.scss");
+            //assetPipeline.RegisterSassFile(lib + "bs4/scss/bootstrap.scss");
             //assetPipeline.AddFiles("text/css; charset=UTF-8", lib + "bs4/scss/bootstrap.scss")
             //    .AddSassProcessor()
             //    .FingerprintUrls()

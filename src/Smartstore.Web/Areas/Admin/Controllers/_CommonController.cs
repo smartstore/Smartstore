@@ -1,5 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Primitives;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
@@ -11,14 +13,14 @@ namespace Smartstore.Admin.Controllers
     public class CommonController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
-        private readonly IRequestCache _requestCache;
+        private readonly IMemoryCache _memCache;
         private readonly IDbCache _dbCache;
 
         // TODO: (mh) (core) dbCache cannot be resolved. Breaks...
-        public CommonController(SmartDbContext db, IRequestCache requestCache/*, IDbCache dbCache*/)
+        public CommonController(SmartDbContext db, IMemoryCache memCache/*, IDbCache dbCache*/)
         {
             _db = db;
-            _requestCache = requestCache;
+            _memCache = memCache;
             //_dbCache = dbCache;
         }
 
@@ -47,9 +49,11 @@ namespace Smartstore.Admin.Controllers
         [HttpPost]
         public IActionResult ClearCache()
         {
+            // Clear Smartstore inbuilt cache
             Services.Cache.Clear();
 
-            _requestCache.RemoveByPattern("*");
+            // Clear IMemoryCache Smartstore: region
+            _memCache.RemoveByPattern(_memCache.BuildScopedKey("*"));
 
             return new JsonResult
             (

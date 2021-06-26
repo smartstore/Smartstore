@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+using Smartstore.Web.Theming;
 using WebOptimizer;
 
 namespace Smartstore.Web.Bundling
@@ -15,36 +18,75 @@ namespace Smartstore.Web.Bundling
         private readonly IAssetPipeline _pipeline;
         private readonly ILogger _logger;
         private readonly IAssetBuilder _assetBuilder;
+        private readonly IThemeRegistry _themeRegistry;
 
-        public BundlingMiddleware(RequestDelegate next, IAssetPipeline pipeline, ILogger<BundlingMiddleware> logger, IAssetBuilder assetBuilder)
+        public BundlingMiddleware(
+            RequestDelegate next, 
+            IAssetPipeline pipeline, 
+            ILogger<BundlingMiddleware> logger, 
+            IAssetBuilder assetBuilder,
+            IThemeRegistry themeRegistry)
         {
             _next = next;
             _pipeline = pipeline;
             _logger = logger;
             _assetBuilder = assetBuilder;
+            _themeRegistry = themeRegistry;
         }
 
         public Task InvokeAsync(HttpContext context, IOptions<WebOptimizerOptions> options)
         {
-            var request = context.Request;
-            var path = request.Path.Value;
+            //var request = context.Request;
 
-            if (request.PathBase.HasValue)
-            {
-                var pathBase = request.PathBase.Value;
-                if (path.StartsWith(pathBase))
-                {
-                    path = path[pathBase.Length..];
-                }
-            }
+            //if (request.PathBase.HasValue)
+            //{
+            //    var pathBase = request.PathBase.Value;
+            //    if (route.StartsWith(pathBase))
+            //    {
+            //        route = route[pathBase.Length..];
+            //    }
+            //}
 
-            if (_pipeline.TryGetAssetFromRoute(path, out var asset))
+            if (TryGetAsset(context.Request.Path, out var asset))
             {
                 _logger.Debug("Request for asset '{0}' started.", context.Request.Path);
                 return HandleAssetAsync(context, asset, options.Value);
             }
 
             return _next(context);
+        }
+
+        private bool TryGetAsset(PathString path, out IAsset asset)
+        {
+            var route = path.Value;
+
+            if (_pipeline.TryGetAssetFromRoute(route, out asset))
+            {
+                return true;
+            }
+
+            //// TODO: (core) Complete dynamic registration for theme sass files
+            //if (path.StartsWithSegments("themes/", StringComparison.OrdinalIgnoreCase, out var remaining))
+            //{
+            //    var segments = remaining.Value.Trim('/').Tokenize('/').ToArray();
+            //    if (segments.Length > 1)
+            //    {
+            //        route = segments[1];
+            //        if (_pipeline.TryGetAssetFromRoute(route, out asset))
+            //        {
+            //            return true;
+            //        }
+
+            //        var themeName = segments[0];
+            //        var theme = _themeRegistry.GetThemeManifest(themeName);
+            //        if (theme != null)
+            //        {
+            //            asset = _pipeline.RegisterCssBundle("/themes/flex.css", $"/Themes/{themeName}/theme.scss");
+            //        }
+            //    }
+            //}
+
+            return false;
         }
 
         private async Task HandleAssetAsync(HttpContext context, IAsset asset, WebOptimizerOptions options)

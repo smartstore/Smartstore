@@ -37,7 +37,7 @@ namespace Smartstore.Web.Infrastructure
             /* File uploader --> /bundle/js/fileuploader.js
 			------------------------------------------------------*/
             assetPipeline.RegisterJsBundle("/bundle/js/fileuploader.js",
-                lib + "dropzone/js/dropzone.js",
+                lib + "dropzone/dropzone.js",
                 js + "smartstore.dropzoneWrapper.js");
 
 

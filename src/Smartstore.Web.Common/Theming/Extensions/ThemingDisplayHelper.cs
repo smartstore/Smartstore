@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Core.Stores;
 using Smartstore.Web.Theming;
 
 namespace Smartstore
@@ -24,8 +25,19 @@ namespace Smartstore
         {
             return displayHelper.HttpContext.GetItem("ThemeVariables", () =>
             {
-                // TODO: (core) Implement ThemingDisplayHelper.GetThemeVariables()
-                return new ExpandoObject();
+                var services = displayHelper.HttpContext.RequestServices;
+                var storeContext = services.GetService<IStoreContext>();
+                var themeManifest = displayHelper.GetThemeManifest();
+
+                if (storeContext == null || themeManifest == null)
+                {
+                    return new ExpandoObject();
+                }
+                else
+                {
+                    var repo = services.GetService<ThemeVariableRepository>();
+                    return repo.GetRawVariablesAsync(themeManifest.ThemeName, storeContext.CurrentStore.Id).Await();
+                }
             });
         }
 

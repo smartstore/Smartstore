@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using SharpScss;
+using Smartstore.Core.Stores;
 using Smartstore.IO;
+using Smartstore.Web.Theming;
 using WebOptimizer;
 using WebOptimizer.Sass;
 
@@ -80,10 +82,38 @@ namespace Smartstore.Web.Bundling.Processors
         public string CacheKey(HttpContext context)
             => GenerateCacheKey(context);
 
-        private string GenerateCacheKey(HttpContext context)
+        private static string GenerateCacheKey(HttpContext context)
         {
-            // TODO: (core) Vary by theme and store.
-            return string.Empty;
+            // TODO: (core) Does not work, because cache key is computed very early during parent request (the path is never themeable)
+            var cacheKey = string.Empty;
+
+            if (context.Request.Path.StartsWithSegments("/themes/", StringComparison.OrdinalIgnoreCase, out _)) 
+            {
+                // It's a themeable request
+                var qs = context.Request.Query;
+                var services = context.RequestServices;
+                var storeContext = services.GetRequiredService<IStoreContext>();
+                var themeContext = services.GetRequiredService<IThemeContext>();
+
+                // Required for Theme editing validation: See Admin.Controllers.ThemeController.ValidateSass()
+                if (qs.ContainsKey("theme"))
+                {
+                    themeContext.SetRequestTheme(qs["theme"].ToString());
+                }
+                if (qs.ContainsKey("storeId"))
+                {
+                    storeContext.SetRequestStore(qs["storeId"].ToString().ToInt());
+                }
+
+                cacheKey += "_" + themeContext.WorkingThemeName + "_" + storeContext.CurrentStore.Id;
+
+                if (context.Request.Query.ContainsKey("validate"))
+                {
+                    cacheKey += "_Validation";
+                }
+            }
+
+            return cacheKey;
         }
 
         private static bool OnTryImportSassFile(IAssetFileProvider fileProvider, ref string file, string parentPath, out string scss, out string map)

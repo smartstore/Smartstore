@@ -10,14 +10,8 @@ namespace Smartstore.Core.Content.Media
 {
     public class MediaStorageConfiguration : IMediaStorageConfiguration
     {
-        private readonly IApplicationContext _appContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
         public MediaStorageConfiguration(IApplicationContext appContext, IHttpContextAccessor httpContextAccessor)
         {
-            _appContext = appContext;
-            _httpContextAccessor = httpContextAccessor;
-
             IsCloudStorage = false;
             PublicPath = GetPublicPath(appContext);
             StoragePath = GetStoragePath(appContext, out var pathIsAbsolute);

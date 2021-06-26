@@ -80,13 +80,20 @@ namespace Smartstore.Web.Bundling
         {
             if (options.EnableMemoryCache == true)
             {
-                var cacheOptions = new MemoryCacheEntryOptions();
-                cacheOptions.SetSlidingExpiration(TimeSpan.FromHours(24));
+                var cacheOptions = new MemoryCacheEntryOptions()
+                    // Expire after 24 h
+                    .SetSlidingExpiration(TimeSpan.FromHours(24))
+                    // Do not remove due to memory pressure 
+                    .SetPriority(CacheItemPriority.NeverRemove);
 
                 var includedFiles = asset.GetIncludedFiles() ?? asset.SourceFiles;
                 foreach (string file in includedFiles)
                 {
-                    cacheOptions.AddExpirationToken(asset.GetFileProvider(_env).Watch(file));
+                    var changeToken = asset.GetFileProvider(_env).Watch(file);
+                    if (changeToken != null)
+                    {
+                        cacheOptions.AddExpirationToken(changeToken);
+                    }
                 }
 
                 _cache.Set(cacheKey, response, cacheOptions);

@@ -28,7 +28,7 @@ namespace Smartstore.Engine
             _rootContainer = rootContainer;
         }
 
-        private ILifetimeScope RequestContainer
+        public ILifetimeScope RequestContainer
         {
             [DebuggerStepThrough]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

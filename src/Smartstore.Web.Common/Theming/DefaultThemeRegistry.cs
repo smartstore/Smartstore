@@ -12,6 +12,7 @@ using Smartstore.Collections;
 using Smartstore.Engine;
 using Smartstore.Events;
 using Smartstore.IO;
+using Smartstore.Threading;
 
 namespace Smartstore.Web.Theming
 {
@@ -369,6 +370,8 @@ namespace Smartstore.Web.Theming
 
         private void OnThemeFileChanged(string name, string fullPath, ThemeFileChangeType changeType)
         {
+            ContextState.StartAsyncFlow();
+
             // Enable event throttling by allowing the very same event to be published only all 500 ms.
             var throttleKey = new EventThrottleKey(name, changeType);
             if (ShouldThrottleEvent(throttleKey))
@@ -465,6 +468,8 @@ namespace Smartstore.Web.Theming
 
         private void OnThemeFolderRenamed(string name, string fullPath, string oldName, string oldFullPath)
         {
+            ContextState.StartAsyncFlow();
+
             TryRemoveManifest(oldName);
 
             try
@@ -492,6 +497,8 @@ namespace Smartstore.Web.Theming
 
         private void OnThemeFolderDeleted(string name, string fullPath)
         {
+            ContextState.StartAsyncFlow();
+
             TryRemoveManifest(name);
 
             ThemeFolderDeleted?.Invoke(this, new ThemeFolderDeletedEventArgs

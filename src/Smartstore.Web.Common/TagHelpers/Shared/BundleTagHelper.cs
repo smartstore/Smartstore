@@ -110,7 +110,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
-            string pathBase = ViewContext.HttpContext.Request.PathBase.Value.NullEmpty();
+            var pathBase = ViewContext.HttpContext.Request.PathBase.Value.NullEmpty();
             if (pathBase != null && src.StartsWith(pathBase))
             {
                 src = src[pathBase.Length..];
@@ -118,7 +118,14 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (AssetPipeline.TryGetAssetFromRoute(src, out var asset))
             {
-                if (Options.EnableTagHelperBundling == true)
+                var enableBundling = Options.EnableTagHelperBundling == true;
+                if (!enableBundling && asset.SourceFiles.Any(x => x.EndsWith(".scss")))
+                {
+                    // Cannot disable bundling for bundles that contain sass files. 
+                    enableBundling = true;
+                }
+
+                if (enableBundling)
                 {
                     src = $"{pathBase}{asset.Route}";
 

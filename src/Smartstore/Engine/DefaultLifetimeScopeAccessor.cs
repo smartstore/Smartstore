@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using Autofac.Core.Lifetime;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Threading;
 using Smartstore.Utilities;
@@ -34,7 +35,7 @@ namespace Smartstore.Engine
                     scope = _httpContextAccessor.HttpContext?.GetServiceScope();
                     if (scope != null)
                     {
-                        scope.CurrentScopeEnding += (s, e) => _contextState.Remove();
+                        scope.CurrentScopeEnding += OnScopeEnding;
                     }
                     else
                     {
@@ -95,9 +96,14 @@ namespace Smartstore.Engine
                 ? _rootContainer.BeginLifetimeScope(ScopeTag)
                 : _rootContainer.BeginLifetimeScope(ScopeTag, configurationAction);
 
-            scope.CurrentScopeEnding += (s, e) => _contextState.Remove();
+            scope.CurrentScopeEnding += OnScopeEnding;
 
             return scope;
+        }
+
+        private void OnScopeEnding(object sender, LifetimeScopeEndingEventArgs args)
+        {
+            _contextState.Remove();
         }
     }
 }

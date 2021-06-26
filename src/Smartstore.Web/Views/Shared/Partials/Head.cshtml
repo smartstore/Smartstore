@@ -1,0 +1,11 @@
+﻿@{ 
+    var theme = Display.GetThemeManifest().ThemeName.Kebaberize();
+}
+
+<widget target-zone="head_stylesheets">
+    <link rel="stylesheet" href="~/themes/@(theme)/theme.css" />
+    @if (WorkContext.WorkingLanguage.Rtl)
+    {
+        <link rel="stylesheet" href="~/themes/@(theme)/theme-rtl.css" />
+    } 
+</widget>

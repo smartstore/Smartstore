@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,8 +24,6 @@ namespace Smartstore.Web
 {
     internal partial class WebCacheInvalidator : AsyncDbSaveHook<BaseEntity>, IConsumer
     {
-        // TODO: (core) Implement WebCacheInvalidator (formerly FrameworkCacheConsumer)
-
         #region Consts
 
         /// <summary>
@@ -48,6 +47,8 @@ namespace Smartstore.Web
         public const string CUSTOMERROLES_TAX_DISPLAY_TYPES_PATTERN_KEY = "web:customerroles:taxdisplaytypes*";
 
         #endregion
+
+        private readonly static ConcurrentDictionary<object, CancellationTokenSource> _themeVarCancelTokens = new();
 
         private readonly ICacheManager _cache;
         private readonly IMemoryCache _memCache;
@@ -116,31 +117,65 @@ namespace Smartstore.Web
 
             foreach (var scope in _themeScopes)
             {
-                _memCache.Remove(BuildThemeVarsCacheKey(scope.Item1 /* ThemeName */, scope.Item2 /* StoreId */));
+                var themeName = scope.Item1;
+                var storeId = scope.Item2;
+
+                // Remove theme vars from cache
+                _memCache.Remove(BuildThemeVarsCacheKey(themeName, storeId));
+
+                // Signal cancellation so that cached bundles can be busted from cache
+                CancelThemeVarsToken(themeName, storeId);
             }
 
             _themeScopes.Clear();
         }
 
-        //private static string BuildThemeVarsCacheKey(ThemeVariable entity)
-        //{
-        //    return BuildThemeVarsCacheKey(entity.Theme, entity.StoreId);
-        //}
-
-        internal static string BuildThemeVarsCacheKey(string themeName, int storeId)
+        internal static CancellationTokenSource GetThemeVarsToken(string theme, int storeId)
         {
-            var memCache = EngineContext.Current.Application.Services.Resolve<IMemoryCache>();
-            return BuildThemeVarsCacheKey(memCache, themeName, storeId);
+            return GetThemeVarsToken(BuildThemeVarsCacheKey(theme, storeId));
         }
 
-        internal static string BuildThemeVarsCacheKey(IMemoryCache memCache, string themeName, int storeId)
+        internal static CancellationTokenSource GetThemeVarsToken(object cacheKey)
+        {
+            if (_themeVarCancelTokens.TryGetValue(cacheKey, out var cts))
+            {
+                return cts;
+            }
+
+            cts = new CancellationTokenSource();
+            cts.Token.Register(() => _themeVarCancelTokens.TryRemove(cacheKey, out _));
+            _themeVarCancelTokens.TryAdd(cacheKey, cts);
+            return cts;
+        }
+
+        internal static void CancelThemeVarsToken(string theme, int storeId)
+        {
+            CancelThemeVarsToken(BuildThemeVarsCacheKey(theme, storeId));
+        }
+
+        internal static void CancelThemeVarsToken(object cacheKey)
+        {
+            if (_themeVarCancelTokens.TryRemove(cacheKey, out var cts))
+            {
+                cts.Cancel();
+                cts.Dispose();
+            }
+        }
+
+        internal static string BuildThemeVarsCacheKey(string theme, int storeId)
+        {
+            var memCache = EngineContext.Current.Application.Services.Resolve<IMemoryCache>();
+            return BuildThemeVarsCacheKey(memCache, theme, storeId);
+        }
+
+        internal static string BuildThemeVarsCacheKey(IMemoryCache memCache, string theme, int storeId)
         {
             if (storeId > 0)
             {
-                return memCache.BuildScopedKey(THEMEVARS_KEY.FormatInvariant(themeName, storeId));
+                return memCache.BuildScopedKey(THEMEVARS_KEY.FormatInvariant(theme, storeId));
             }
 
-            return memCache.BuildScopedKey(THEMEVARS_THEME_KEY.FormatInvariant(themeName));
+            return memCache.BuildScopedKey(THEMEVARS_THEME_KEY.FormatInvariant(theme));
         }
 
         #endregion

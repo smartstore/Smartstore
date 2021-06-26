@@ -10,7 +10,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Web.Theming
 {
-    internal class ThemeVariableRepository
+    public class ThemeVariableRepository
     {
         const string SassVarPrefix = "$";
 
@@ -80,6 +80,12 @@ namespace Smartstore.Web.Theming
                 string cacheKey = WebCacheInvalidator.BuildThemeVarsCacheKey(themeName, storeId);
                 return await _memCache.GetOrCreateAsync(cacheKey, async (entry) => 
                 {
+                    // Ensure that when this item is expired, any bundle depending on the token is also expired
+                    entry.RegisterPostEvictionCallback((key, value, reason, state) =>
+                    {
+                        WebCacheInvalidator.CancelThemeVarsToken(key);
+                    });
+
                     return await GetRawVariablesCoreAsync(themeName, storeId);
                 });
             }

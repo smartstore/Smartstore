@@ -10,6 +10,7 @@ using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.IO;
 using Smartstore.Web.Bundling;
+using Smartstore.Web.Bundling.Processors;
 using Smartstore.Web.Theming;
 using WebOptimizer;
 
@@ -33,12 +34,6 @@ namespace Smartstore.Web.Bootstrapping
             return appContext.ModuleCatalog.GetModuleByName(moduleName, true)?.WebFileProvider;
         }
 
-        private static IFileProvider ResolveAppFileProvider(string path, IApplicationContext appContext)
-        {
-            // TODO: (core) Implement ResolveAppFileProvider
-            return null;
-        }
-
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
             // Configure & register asset file provider
@@ -46,7 +41,7 @@ namespace Smartstore.Web.Bootstrapping
 
             fileProvider.AddFileProvider("themes/", ResolveThemeFileProvider);
             fileProvider.AddFileProvider("modules/", ResolveModuleFileProvider);
-            fileProvider.AddFileProvider(".app/", ResolveAppFileProvider);
+            fileProvider.AddFileProvider(".app/", new SassFileProvider(appContext));
 
             services.AddSingleton<IAssetFileProvider>(fileProvider);
 

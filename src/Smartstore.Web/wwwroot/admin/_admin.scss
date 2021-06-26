@@ -826,6 +826,23 @@ legend {
     }
 }
 
+// Handle action button toggling in tables & grids
+
+.admin-table tbody {
+    .omega {
+        text-align: right;
+    }
+
+    tr {
+        > .omega .btn {
+            visibility: hidden;
+        }
+
+        &:hover > .omega .btn {
+            visibility: visible;
+        }
+    }
+}
 
 //
 // Locale Editor

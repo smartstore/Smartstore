@@ -16,6 +16,7 @@ using Smartstore.Events;
 using Smartstore.Http;
 using Smartstore.IO;
 using Smartstore.Utilities;
+using Smartstore.Web.Bundling;
 
 namespace Smartstore.Web.Theming
 {
