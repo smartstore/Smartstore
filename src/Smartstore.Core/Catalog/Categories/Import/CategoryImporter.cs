@@ -42,7 +42,11 @@ namespace Smartstore.Core.DataExchange.Import
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             IFolderService folderService)
-            : base(services, localizedEntityService, storeMappingService, urlService)
+            : base(new DbContextScope(services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true),
+                  services, 
+                  localizedEntityService, 
+                  storeMappingService, 
+                  urlService)
         {
             _folderService = folderService;
         }
@@ -52,8 +56,6 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
-            using var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true);
-
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Category>();
 
@@ -261,7 +263,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await _scope.CommitAsync(context.CancelToken);
 
             // Get new category ids.
             // Required for parent category relationship.
@@ -360,7 +362,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await _scope.CommitAsync(context.CancelToken);
             return num;
         }
 
@@ -409,7 +411,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
-                num += await _db.SaveChangesAsync(context.CancelToken);
+                num += await _scope.CommitAsync(context.CancelToken);
             }
 
             return num;

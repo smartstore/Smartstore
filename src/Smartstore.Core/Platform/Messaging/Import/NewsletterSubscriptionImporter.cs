@@ -118,7 +118,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            await _services.DbContext.SaveChangesAsync(cancelToken);
+            await scope.CommitAsync(cancelToken);
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<NewsletterSubscription>(context, batch), cancelToken);
         }

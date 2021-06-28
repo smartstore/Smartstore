@@ -80,7 +80,7 @@ namespace Smartstore.Core.DataExchange.Import
                 var files = await _importProfileService.GetImportFilesAsync(profile, profile.ImportRelatedData);
                 var fileGroups = files.ToMultimap(x => x.RelatedType?.ToString() ?? string.Empty, x => x);
 
-                ctx.Log.Info(CreateLogHeader(profile, fileGroups));
+                logger.Info(CreateLogHeader(profile, fileGroups));
                 await _services.EventPublisher.PublishAsync(new ImportExecutingEvent(context), cancelToken);
 
                 foreach (var fileGroup in fileGroups)
@@ -149,7 +149,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
             catch (Exception ex)
             {
-                ctx?.Log?.ErrorsAll(ex);
+                logger.ErrorsAll(ex);
             }
             finally
             {

@@ -39,7 +39,11 @@ namespace Smartstore.Core.DataExchange.Import
             TaxSettings taxSettings,
             PrivacySettings privacySettings,
             DateTimeSettings dateTimeSettings)
-            : base(services, localizedEntityService, storeMappingService, urlService)
+            : base(new DbContextScope(services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true),
+                  services, 
+                  localizedEntityService, 
+                  storeMappingService, 
+                  urlService)
         {
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
@@ -52,8 +56,6 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
-            using var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true);
-
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Customer>();
 
@@ -292,7 +294,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await _scope.CommitAsync(context.CancelToken);
             return num;
         }
 
@@ -351,7 +353,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await _scope.CommitAsync(context.CancelToken);
             return num;
         }
 
@@ -406,7 +408,7 @@ namespace Smartstore.Core.DataExchange.Import
                     SetGenericAttribute(SystemCustomerAttributeNames.StateProvinceId, stateId.Value, row);
             }
 
-            var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await _scope.CommitAsync(context.CancelToken);
             return num;
         }
 
@@ -465,7 +467,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await _scope.CommitAsync(context.CancelToken);
             return num;
         }
 
@@ -479,7 +481,7 @@ namespace Smartstore.Core.DataExchange.Import
                 ImportAddress("ShippingAddress.", row, context, cargo);
             }
 
-            var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await _scope.CommitAsync(context.CancelToken);
             return num;
         }
 

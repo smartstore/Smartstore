@@ -12,6 +12,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Data;
 using Smartstore.Domain;
 using Smartstore.Http;
 using Smartstore.IO;
@@ -27,20 +28,23 @@ namespace Smartstore.Core.DataExchange.Import
         // share the same images, where multiple downloading is unnecessary.
         private readonly Dictionary<string, string> _downloadedItems = new();
 
-        protected ICommonServices _services;
+        protected DbContextScope _scope;
         protected SmartDbContext _db;
+        protected ICommonServices _services;
         protected ILocalizedEntityService _localizedEntityService;
         protected IStoreMappingService _storeMappingService;
         protected IUrlService _urlService;
 
         protected EntityImporterBase(
+            DbContextScope scope,
             ICommonServices services,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService)
         {
-            _services = services;
+            _scope = scope;
             _db = services.DbContext;
+            _services = services;
             _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _urlService = urlService;
@@ -50,9 +54,16 @@ namespace Smartstore.Core.DataExchange.Import
         }
 
         /// <inheritdoc/>
-        public Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
+        public async Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
-            return ProcessBatchAsync(context, cancelToken);
+            try
+            {
+                await ProcessBatchAsync(context, cancelToken);
+            }
+            finally
+            {
+                await _scope.DisposeAsync();
+            }
         }
 
         /// <summary>
@@ -145,7 +156,7 @@ namespace Smartstore.Core.DataExchange.Import
             if (shouldSave)
             {
                 // Commit whole batch at once.
-                return await _db.SaveChangesAsync(context.CancelToken);
+                return await _scope.CommitAsync(context.CancelToken);
             }
 
             return 0;
@@ -212,7 +223,7 @@ namespace Smartstore.Core.DataExchange.Import
             if (shouldSave)
             {
                 // Commit whole batch at once.
-                return await _db.SaveChangesAsync(context.CancelToken);
+                return await _scope.CommitAsync(context.CancelToken);
             }
 
             return 0;

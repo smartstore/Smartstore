@@ -49,7 +49,14 @@ namespace Smartstore.Core.DataExchange.Import
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             IFolderService folderService)
-            : base(services, localizedEntityService, storeMappingService, urlService)
+            // TODO: (mg) (core) no hook may run during an import. It messes up the import.
+            // "The property 'LocalizedProperty.Id' has a temporary value while attempting to change the entity's state to 'Deleted'."
+            // "Cannot insert duplicate key row in object 'dbo.UrlRecord' with unique index 'IX_UrlRecord_Slug'."
+            : base(new DbContextScope(services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true),
+                  services, 
+                  localizedEntityService, 
+                  storeMappingService, 
+                  urlService)
         {
             _folderService = folderService;
         }
@@ -61,8 +68,6 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
-            using var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true);
-
             if (context.File.RelatedType.HasValue)
             {
                 switch (context.File.RelatedType.Value)
@@ -80,11 +85,11 @@ namespace Smartstore.Core.DataExchange.Import
             }
             else
             {
-                await ProcessProductsAsync(context, scope);
+                await ProcessProductsAsync(context);
             }
         }
 
-        protected virtual async Task ProcessProductsAsync(ImportExecuteContext context, DbContextScope scope)
+        protected virtual async Task ProcessProductsAsync(ImportExecuteContext context)
         {
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Product>();
@@ -97,7 +102,7 @@ namespace Smartstore.Core.DataExchange.Import
             var savedProducts = 0;
             try
             {
-                savedProducts = await InternalProcessProductsAsync(context, batch, scope);
+                savedProducts = await InternalProcessProductsAsync(context, batch);
             }
             catch (Exception ex)
             {
@@ -236,7 +241,7 @@ namespace Smartstore.Core.DataExchange.Import
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Product>(context, batch), context.CancelToken);
         }
 
-        protected virtual async Task<int> InternalProcessProductsAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch, DbContextScope scope)
+        protected virtual async Task<int> InternalProcessProductsAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
         {
             var cargo = await GetCargoData(context);
             var defaultTemplateId = cargo.TemplateViewPaths["Product"];
@@ -453,11 +458,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            var num = await scope.CommitAsync(context.CancelToken);
-            // TODO: (mg) (core) examine. 'num' is always 0 even if written to database.
-            // scope.CommitAsync on the other hand works as expected. So we probably always have to use DbContextScope.CommitAsync.
-            // RE: This is on purpose and has to do with DbContextScope --> deferCommit = true. Only scope.Commit() saves explicitly or the scope disposer.
-            //var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await _scope.CommitAsync(context.CancelToken);
 
             // Get new product ids.
             // Required to assign associated products to their parent products.
@@ -515,7 +516,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await _scope.CommitAsync(context.CancelToken);
             return num;
         }
 
@@ -559,7 +560,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await _scope.CommitAsync(context.CancelToken);
             return num;
         }
 
@@ -683,7 +684,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            await _db.SaveChangesAsync(context.CancelToken);
+            await _scope.CommitAsync(context.CancelToken);
 
             void AddProductMediaFile(MediaFile file, Product product)
             {
@@ -783,7 +784,7 @@ namespace Smartstore.Core.DataExchange.Import
                         if (addedMissingTags)
                         {
                             // Tags must be saved and assigned an ID prior adding a mapping.
-                            await _db.SaveChangesAsync(context.CancelToken);
+                            await _scope.CommitAsync(context.CancelToken);
 
                             // Clear cached product per tag counts.
                             context.ClearCache = true;
@@ -805,7 +806,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _db.SaveChangesAsync(context.CancelToken);
+            var num = await _scope.CommitAsync(context.CancelToken);
             if (num > 0)
                 context.ClearCache = true;
         }
@@ -855,7 +856,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
-                num += await _db.SaveChangesAsync(context.CancelToken);
+                num += await _scope.CommitAsync(context.CancelToken);
             }
 
             return num;
@@ -919,7 +920,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
-                savedEntities = await _db.SaveChangesAsync(context.CancelToken);
+                savedEntities = await _scope.CommitAsync(context.CancelToken);
             }
             catch (Exception ex)
             {
@@ -1003,7 +1004,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
-                savedEntities = await _db.SaveChangesAsync(context.CancelToken);
+                savedEntities = await _scope.CommitAsync(context.CancelToken);
             }
             catch (Exception ex)
             {
@@ -1095,7 +1096,7 @@ namespace Smartstore.Core.DataExchange.Import
                     row.SetProperty(context.Result, (x) => x.RawAttributes);
                 }
 
-                savedEntities = await _db.SaveChangesAsync(context.CancelToken);
+                savedEntities = await _scope.CommitAsync(context.CancelToken);
             }
             catch (Exception ex)
             {
