@@ -266,6 +266,7 @@ namespace Smartstore.Web.Controllers
         {
             var download = await _db.Downloads
                 .AsNoTracking()
+                .Include(x => x.MediaFile)
                 .Where(x => x.DownloadGuid == downloadId)
                 .FirstOrDefaultAsync();
                 
