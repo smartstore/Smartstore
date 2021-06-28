@@ -38,7 +38,7 @@ namespace Smartstore.Core.Bootstrapping
                 return;
             }
 
-            var tasks = await taskStore.GetAllTasksAsync(true);
+            var tasks = await taskStore.GetAllTasksAsync(true, true);
             await taskStore.CalculateFutureSchedulesAsync(tasks, true /* isAppStart */);
 
             scheduler.Activate(

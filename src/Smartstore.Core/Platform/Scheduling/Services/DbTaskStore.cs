@@ -113,13 +113,18 @@ namespace Smartstore.Scheduling
             return _db.ReloadEntityAsync(task);
         }
 
-        public virtual Task<List<TaskDescriptor>> GetAllTasksAsync(bool includeDisabled = false)
+        public virtual Task<List<TaskDescriptor>> GetAllTasksAsync(bool includeDisabled = false, bool includeHidden = false)
         {
             var query = _db.TaskDescriptors.AsQueryable();
 
             if (!includeDisabled)
             {
                 query = query.Where(t => t.Enabled);
+            }
+
+            if (!includeHidden)
+            {
+                query = query.Where(t => !t.IsHidden);
             }
 
             query = query.OrderByDescending(t => t.Enabled);

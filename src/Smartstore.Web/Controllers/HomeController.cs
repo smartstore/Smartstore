@@ -941,48 +941,14 @@ namespace Smartstore.Web.Controllers
             //var product = await _db.Products.FindByIdAsync(1751, false);
             //var cart = await scs.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
-            var customerRoleIds = new[] { 1,2,5,6 };
+            var now = DateTime.UtcNow;
+            var dates = new[] { now.AddSeconds(60*60*4+66), now.AddSeconds(130) };
 
-            var customerQuery = _db.Customers
-                .Include(x => x.BillingAddress)
-                .Include(x => x.ShippingAddress)
-                .Include(x => x.Addresses)
-                    .ThenInclude(x => x.Country)
-                .Include(x => x.Addresses)
-                    .ThenInclude(x => x.StateProvince)
-                .Include(x => x.CustomerRoleMappings)
-                    .ThenInclude(x => x.CustomerRole)
-                .AsNoTracking()
-                .AsNoCaching();
-
-            var customerIdsByRolesQuery = _db.CustomerRoleMappings
-                .AsNoTracking()
-                .Where(x => customerRoleIds.Contains(x.CustomerRoleId))
-                .Select(x => x.CustomerId);
-
-            customerQuery = customerQuery.Where(x => customerIdsByRolesQuery.Contains(x.Id));
-            var customers = await customerQuery.ToListAsync();
-            content.AppendLine($"Customers by role filter: {customers.Count}");
-            foreach (var c in customers)
-            {
-                content.AppendLine($"{c.Id}: {c.Email}");
+            content.AppendLine($"now {now}");
+            foreach (var date in dates)
+            {               
+                content.AppendLine($"Humanize: {date} > {date.Humanize(true, now)}");
             }
-            content.AppendLine();
-
-            var cartItemQuery = _db.ShoppingCartItems
-                .Include(x => x.Customer)
-                .ThenInclude(x => x.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole)
-                .Include(x => x.Product)
-                .AsNoTracking()
-                .AsNoCaching()
-                .Where(x => x.Customer != null && x.BundleItemId == null)
-                .OrderBy(x => x.Id);
-
-            var cartItems = await cartItemQuery.ToListAsync();
-            var firstItem = cartItems.First();
-            content.AppendLine($"Nav test cart items: product {firstItem.Product != null}, customer {firstItem.Customer != null}");
-
 
             //var dt = DateTime.UtcNow.Subtract(TimeSpan.FromHours(4));
             //var dtConverted = Services.DateTimeHelper.ConvertToUserTime(dt, DateTimeKind.Utc);
@@ -1055,7 +1021,7 @@ namespace Smartstore.Web.Controllers
 
             //var contentRoot = Services.ApplicationContext.ContentRoot;
             //var webRoot = Services.ApplicationContext.WebRoot;
-            
+
             //////var fullPath = @"C:\Downloads\Subfolder";
             ////var fullPath = @"~\App_Data\_temp\subfolder";
             //var subfolder = "SubFolder";

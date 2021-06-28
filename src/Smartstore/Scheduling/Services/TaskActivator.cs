@@ -46,10 +46,10 @@ namespace Smartstore.Scheduling
             Guard.NotEmpty(normalizedTypeName, nameof(normalizedTypeName));
 
             var lazyTask = _componentContext.ResolveOptionalNamed<Lazy<ITask, TaskMetadata>>(normalizedTypeName);
-            if (lazyTask == null)
-            {
-                throw new TaskActivationException($"No task registered for '{normalizedTypeName}'.");
-            }
+            //if (lazyTask == null)
+            //{
+            //    throw new TaskActivationException($"No task registered for '{normalizedTypeName}'.");
+            //}
 
             return lazyTask?.Metadata?.Type;
         }

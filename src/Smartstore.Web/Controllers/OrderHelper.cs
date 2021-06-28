@@ -545,7 +545,7 @@ namespace Smartstore.Web.Controllers
                 {
                     Note = orderNote.FormatOrderNoteText(),
                     CreatedOn = createdOn,
-                    FriendlyCreatedOn = orderNote.CreatedOnUtc.Humanize()
+                    FriendlyCreatedOn = createdOn.Humanize(false)
                 });
             }
 

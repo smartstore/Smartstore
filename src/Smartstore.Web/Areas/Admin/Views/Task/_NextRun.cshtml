@@ -1,0 +1,14 @@
+﻿@model TaskModel
+
+@{
+	var neverRunning = !Model.NextRun.HasValue;
+}
+
+<div sm-if="neverRunning" class="muted">@T("Common.Never")</div>
+<span sm-if="!neverRunning && Model.IsOverdue" class="text-success">
+	<strong>@Model.NextRunPretty</strong>
+</span>
+<div sm-if="!neverRunning && !Model.IsOverdue">
+	<div>@Model.NextRun.Value.ToString("g")</div>
+	<div class="muted">@Model.NextRunPretty</div>
+</div>

@@ -45,10 +45,11 @@ namespace Smartstore.Scheduling
         Task ReloadTaskAsync(TaskDescriptor task);
 
         /// <summary>
-        /// Gets all tasks
+        /// Gets all tasks.
         /// </summary>
-        /// <param name="includeDisabled">A value indicating whether to load disabled tasks also</param>
-        Task<List<TaskDescriptor>> GetAllTasksAsync(bool includeDisabled = false);
+        /// <param name="includeDisabled">A value indicating whether to load disabled tasks also.</param>
+        /// <param name="includeHidden">A value indicating whether to load hidden tasks also.</param>
+        Task<List<TaskDescriptor>> GetAllTasksAsync(bool includeDisabled = false, bool includeHidden = false);
 
         /// <summary>
         /// Gets all currently pending tasks.

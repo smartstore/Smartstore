@@ -46,7 +46,7 @@ namespace Smartstore.Engine.Modularity
 
         public bool IsActiveModuleAssembly(Assembly assembly)
         {
-            return !_inactiveAssemblies.Contains(assembly);
+            return assembly != null && !_inactiveAssemblies.Contains(assembly);
         }
 
         public ModuleDescriptor GetModuleByAssembly(Assembly assembly, bool installedOnly = true)
