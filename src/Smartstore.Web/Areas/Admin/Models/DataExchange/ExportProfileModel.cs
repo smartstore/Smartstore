@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentValidation;
+using Smartstore.Admin.Models.Tasks;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
@@ -75,8 +76,7 @@ namespace Smartstore.Admin.Models.Export
         public ExportProjectionModel Projection { get; set; }
         public List<ExportDeploymentModel> Deployments { get; set; }
 
-        // TODO: (mg) (core) complete ExportProfileModel (TaskModel required).
-        //public TaskModel TaskModel { get; set; }
+        public TaskModel TaskModel { get; set; }
 
         public bool LogFileExists { get; set; }
         public bool HasActiveProvider { get; set; }

@@ -53,13 +53,12 @@
 						</td>
 						<td>
 							<div class="last-run-info">
-								@*TODO: (mg) (core) complete export profile list (admin task controller required)*@
-								@*<partial name="~/Areas/Admin/Views/Task/_LastRun.cshtml" model="profile.TaskModel" />*@
+								<partial name="~/Areas/Admin/Views/Task/_LastRun.cshtml" model="profile.TaskModel" />
 							</div>
 						</td>
 						<td class="progress-info">
                             <div class="next-run-info">
-								@*<partial name="~/Areas/Admin/Views/Task/_NextRun.cshtml" model="profile.TaskModel" />*@
+								<partial name="~/Areas/Admin/Views/Task/_NextRun.cshtml" model="profile.TaskModel" />
                             </div>
 							<div class="task-progress text-muted" 
 								attr-class='(!profile.IsTaskRunning, "hide")'
@@ -74,7 +73,6 @@
 									<i class="fa fa-play"></i>
 									<span>@T("Admin.System.ScheduleTasks.RunNow")</span>
                             </button>
-                            @*TODO: (mg) (core) complete export profile list (admin task controller required)*@
                             <a asp-action="CancelJob" asp-controller="Task" asp-route-id="@profile.TaskId" asp-area="Admin"
 								class="btn btn-block btn-sm btn-secondary btn-cancel-task"
 								attr-class='(!profile.IsTaskRunning, "hide")'

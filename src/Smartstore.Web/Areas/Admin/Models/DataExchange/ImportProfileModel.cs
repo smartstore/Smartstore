@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using FluentValidation;
+using Smartstore.Admin.Models.Tasks;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Localization;
@@ -46,8 +47,7 @@ namespace Smartstore.Admin.Models.Import
         public bool IsTaskRunning { get; set; }
         public bool IsTaskEnabled { get; set; }
 
-        // TODO: (mg) (core) complete ImportProfileModel (TaskModel required).
-        //public TaskModel TaskModel { get; set; }
+        public TaskModel TaskModel { get; set; }
 
         [LocalizedDisplay("*LastImportResult")]
         public SerializableImportResult ImportResult { get; set; }

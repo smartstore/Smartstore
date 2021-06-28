@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Export;
+using Smartstore.Admin.Models.Tasks;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -48,6 +48,7 @@ namespace Smartstore.Admin.Controllers
         private readonly ITaskScheduler _taskScheduler;
         private readonly IProviderManager _providerManager;
         private readonly ITaskStore _taskStore;
+        private readonly AdminModelHelper _adminModelHelper;
         private readonly DataExchangeSettings _dataExchangeSettings;
         private readonly CustomerSettings _customerSettings;
 
@@ -68,6 +69,7 @@ namespace Smartstore.Admin.Controllers
             ITaskScheduler taskScheduler,
             IProviderManager providerManager,
             ITaskStore taskStore,
+            AdminModelHelper adminModelHelper,
             DataExchangeSettings dataExchangeSettings,
             CustomerSettings customerSettings)
         {
@@ -78,6 +80,7 @@ namespace Smartstore.Admin.Controllers
             _taskScheduler = taskScheduler;
             _providerManager = providerManager;
             _taskStore = taskStore;
+            _adminModelHelper = adminModelHelper;
             _dataExchangeSettings = dataExchangeSettings;
             _customerSettings = customerSettings;
         }
@@ -119,9 +122,7 @@ namespace Smartstore.Admin.Controllers
 
                     var fileDetailsModel = await CreateFileDetailsModel(profile, null);
                     profileModel.FileCount = fileDetailsModel.FileCount;
-
-                    // TODO: (mg) (core) create task model for import profile list.
-                    //profileModel.TaskModel = _adminModelHelper.CreateScheduleTaskModel(profile.Task, lastExecutionInfo) ?? new TaskModel();
+                    profileModel.TaskModel = _adminModelHelper.CreateTaskModel(profile.Task, lastExecutionInfo) ?? new TaskModel();
 
                     model.Add(profileModel);
                 }
@@ -889,7 +890,6 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.CompletedEmailAddresses = new MultiSelectList(profile.CompletedEmailAddresses.SplitSafe(","));
 
-            // TODO: (mg) (core) check\test whether such ViewBag objects can really be used multiple times for different view controls.
             ViewBag.Stores = stores.ToSelectListItems();
 
             ViewBag.Languages = languages

@@ -47,8 +47,13 @@ namespace Smartstore.Admin.Models.Tasks
     {
         public TaskValidator(Localizer T)
         {
-            RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.CronExpression).Must(x => CronExpression.IsValid(x)).WithMessage(T("Admin.System.ScheduleTasks.InvalidCronExpression"));
+            RuleSet("TaskEditing", () =>
+            {
+                RuleFor(x => x.Name).NotEmpty();
+                RuleFor(x => x.CronExpression)
+                    .Must(x => CronExpression.IsValid(x))
+                    .WithMessage(T("Admin.System.ScheduleTasks.InvalidCronExpression"));
+            });
         }
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Import;
+using Smartstore.Admin.Models.Tasks;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Csv;
@@ -29,17 +30,20 @@ namespace Smartstore.Admin.Controllers
         private readonly IImportProfileService _importProfileService;
         private readonly ITaskStore _taskStore;
         private readonly ITaskScheduler _taskScheduler;
+        private readonly AdminModelHelper _adminModelHelper;
 
         public ImportController(
             SmartDbContext db,
             IImportProfileService importProfileService,
             ITaskStore taskStore,
-            ITaskScheduler taskScheduler)
+            ITaskScheduler taskScheduler,
+            AdminModelHelper adminModelHelper)
         {
             _db = db;
             _importProfileService = importProfileService;
             _taskStore = taskStore;
             _taskScheduler = taskScheduler;
+            _adminModelHelper = adminModelHelper;
         }
 
         public IActionResult Index()
@@ -72,8 +76,7 @@ namespace Smartstore.Admin.Controllers
                 lastExecutionInfos.TryGetValue(profile.TaskId, out var lastExecutionInfo);
                 await PrepareProfileModel(profileModel, profile, lastExecutionInfo, false);
 
-                // TODO: (mg) (core) create task model for import profile list.
-                //profileModel.TaskModel = _adminModelHelper.CreateScheduleTaskModel(profile.Task, lastExecutionInfo) ?? new TaskModel();
+                profileModel.TaskModel = _adminModelHelper.CreateTaskModel(profile.Task, lastExecutionInfo) ?? new TaskModel();
 
                 model.Profiles.Add(profileModel);
             }
