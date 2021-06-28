@@ -52,6 +52,7 @@ namespace Smartstore.Core.DataExchange.Import
             // TODO: (mg) (core) no hook may run during an import. It messes up the import.
             // "The property 'LocalizedProperty.Id' has a temporary value while attempting to change the entity's state to 'Deleted'."
             // "Cannot insert duplicate key row in object 'dbo.UrlRecord' with unique index 'IX_UrlRecord_Slug'."
+            // RE: (info) The IX_UrlRecord_Slug uniqueness violation is a known bug in IUrlService.
             : base(new DbContextScope(services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true),
                   services, 
                   localizedEntityService, 

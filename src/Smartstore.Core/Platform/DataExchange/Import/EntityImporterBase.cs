@@ -42,6 +42,9 @@ namespace Smartstore.Core.DataExchange.Import
             IStoreMappingService storeMappingService,
             IUrlService urlService)
         {
+            // TODO: (mg) (core) You cannot pass DbContextScope from derived entity, because then the lifetime
+            // of the scope is the lifetime of the derived importer instance. That's not how DbContextScope works:
+            // The constructor changes DbContext options, the disposer restores them. But where's the disposer here?
             _scope = scope;
             _db = services.DbContext;
             _services = services;
