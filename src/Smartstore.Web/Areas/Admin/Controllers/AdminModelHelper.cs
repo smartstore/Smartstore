@@ -9,6 +9,8 @@ using Smartstore.Scheduling;
 
 namespace Smartstore.Admin.Controllers
 {
+    // TODO: (mg) (core) API-Design --> Remove this class and use IMapper<TSource, TTarget> instead. You can pass any custom parameter to MapAsync() as dynamic now.
+    
     /// <summary>
     /// Helper to create view models for admin area.
     /// </summary>

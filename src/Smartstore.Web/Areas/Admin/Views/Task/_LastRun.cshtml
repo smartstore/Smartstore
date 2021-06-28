@@ -1,14 +1,15 @@
 ﻿@model TaskModel
 
 @{
-	var info = Model.LastExecutionInfo;
-	var hasError = info.Error.HasValue();
+    // TODO: (mg) (core) Model.LastExecutionInfo can be null. Null-Checks are missing completely.
+    var info = Model.LastExecutionInfo;
+    var hasError = info.Error.HasValue();
 }
 
-<div sm-if="!info.IsRunning && !info.FinishedOn.HasValue" class="muted">@T("Common.Never")</div>
+<div sm-if="!info.IsRunning && !info.FinishedOn.HasValue" class="text-muted">@T("Common.Never")</div>
 <div sm-if="info.Id != 0">
 	<div>@info.StartedOn.ToString("g")</div>
-	<div class="muted">@info.FinishedOnPretty</div>
+	<div class="text-muted">@info.FinishedOnPretty</div>
 	<div sm-if="info.Duration.HasValue()">
 		<span>@T("Common.Duration"): </span> <span class="muted">@info.Duration</span>
 	</div>

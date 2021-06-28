@@ -109,14 +109,10 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var lastRun = await this.InvokeViewAsync("_LastRun", model);
-            var nextRun = await this.InvokeViewAsync("_NextRun", model);
+            var lastRunHtml = await this.InvokeViewAsync("_LastRun", model);
+            var nextRunHtml = await this.InvokeViewAsync("_NextRun", model);
 
-            return Json(new
-            {
-                lastRunHtml = lastRun,
-                nextRunHtml = nextRun
-            });
+            return Json(new { lastRunHtml, nextRunHtml });
         }
 
         [Permission(Permissions.System.ScheduleTask.Execute)]

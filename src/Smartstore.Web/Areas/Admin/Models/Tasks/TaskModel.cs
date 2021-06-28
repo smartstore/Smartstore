@@ -5,6 +5,8 @@ using Smartstore.Core.Localization;
 using Smartstore.Scheduling;
 using Smartstore.Web.Modelling;
 
+// TODO: (mg) (core) Namespace should be Smartstore.Admin.Models.Scheduling (also: TaskController --> SchedulingController, Views/Scheduling etc.)
+
 namespace Smartstore.Admin.Models.Tasks
 {
     [LocalizedDisplay("Admin.System.ScheduleTasks.")]

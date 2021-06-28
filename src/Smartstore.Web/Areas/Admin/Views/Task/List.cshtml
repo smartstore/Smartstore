@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = T("Admin.System.ScheduleTasks").Value;
+	// TODO: (mg) (core) I want this to be a DataGrid, no plain table please. Add omega action buttons as proper row-commands. TBD with MC.
 }
 
 <div class="section-header">
@@ -27,6 +28,7 @@
 			@foreach (var task in Model)
 			{
 				var isRunning = task.LastExecutionInfo.IsRunning;
+				@* TODO: (mg) (core) attr-class cannot be used twice unfortunately. *@
 				<tr data-task-id="@task.Id" attr-class='(isRunning, "active-row")' attr-class='(!task.Enabled, "table-light")'>
 					<td>
 						<a href="@task.EditUrl">@task.Name</a>
@@ -73,7 +75,10 @@
 </div>
 
 <script sm-target-zone="scripts" data-origin="TaskList">
-    $(function() {
-		@*TODO: (mg) (core) complete task list (TaskWatcher required)*@
+	$(function () {
+		@*
+			TODO: (mg) (core) complete task list (TaskWatcher required).
+			(RE): all bundles are available already, so TaskWatcher is available too.
+		*@
 	});
 </script>
