@@ -23,7 +23,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         public string Template { get; set; }
 
         /// <summary>
-        /// Sets the parent selector. TODO: (mh) (core) describe why this must be set occasionally.
+        /// Sets the parent selector. Must be set if an editor template is used which renders more than only an input so the checkbox can be rendered at the correct location.
         /// </summary>
         [HtmlAttributeName(ParentSelectorAttributeName)]
         public string ParentSelector { get; set; }

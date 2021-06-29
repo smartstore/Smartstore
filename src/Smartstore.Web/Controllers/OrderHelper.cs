@@ -368,7 +368,6 @@ namespace Smartstore.Web.Controllers
                 model.DirectDebitIban = _encryptor.DecryptText(order.DirectDebitIban);
             }
 
-            // TODO: (mh) (core) Reimplement when pricing is ready.
             // Totals.
             var customerCurrency = await _db.Currencies
                 .AsNoTracking()

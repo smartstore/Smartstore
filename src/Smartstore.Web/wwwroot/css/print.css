@@ -698,6 +698,14 @@ th, td {
     margin-left: 30px;
 }
 
+.checkout-attributes > table {
+    width: auto;
+}
+
+.checkout-attributes td.attr-caption {
+    padding-right: 30px;
+}
+
 /* -------------------------------------------------------------- 
  	Order address & info
 -------------------------------------------------------------- */

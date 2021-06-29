@@ -181,7 +181,6 @@ namespace Smartstore.Web.Controllers
 
                 orderItemModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(orderItemModel.ProductSeName, orderItem);
 
-                // TODO: (mh) (core) Reconsider when pricing is available.
                 var customerCurrency = await _db.Currencies
                     .AsNoTracking()
                     .Where(x => x.CurrencyCode == order.CustomerCurrencyCode)
@@ -192,16 +191,13 @@ namespace Smartstore.Web.Controllers
                 {
                     case TaxDisplayType.ExcludingTax:
                         {
-                            // TODO: (mh) (core) _currencyService.ConvertToCurrency doesn't take a rate as paramter. 
-                            //var unitPriceExclTaxInCustomerCurrency = _currencyService.ConvertCurrency(orderItem.UnitPriceExclTax, order.CurrencyRate);
-                            //orderItemModel.UnitPrice = _priceFormatter.FormatPrice(unitPriceExclTaxInCustomerCurrency, true, order.CustomerCurrencyCode, language, false);
+                            var unitPriceExclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceExclTax, order.CurrencyRate, customerCurrency, true);
                             orderItemModel.UnitPrice = new Money(orderItem.UnitPriceExclTax, customerCurrency);
                         }
                         break;
                     case TaxDisplayType.IncludingTax:
                         {
-                            //var unitPriceInclTaxInCustomerCurrency = _currencyService.ConvertCurrency(orderItem.UnitPriceInclTax, order.CurrencyRate);
-                            //orderItemModel.UnitPrice = _priceFormatter.FormatPrice(unitPriceInclTaxInCustomerCurrency, true, order.CustomerCurrencyCode, language, true);
+                            var unitPriceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceInclTax, order.CurrencyRate, customerCurrency, true);
                             orderItemModel.UnitPrice = new Money(orderItem.UnitPriceInclTax, customerCurrency);
                         }
                         break;

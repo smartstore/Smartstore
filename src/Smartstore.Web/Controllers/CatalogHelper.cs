@@ -1344,8 +1344,6 @@ namespace Smartstore.Web.Controllers
 
             if (addShippingPrice > 0)
             {
-                // TODO: (mh) (core) Debug & Test!!!
-                //additionalShippingCosts = T("Common.AdditionalShippingSurcharge").Text.FormatInvariant(_priceFormatter.FormatPrice(addShippingPrice, true, false)) + ", ";
                 additionalShippingCosts = T("Common.AdditionalShippingSurcharge", addShippingPrice.ToString(true)) + ", ";
             }
 
@@ -1442,7 +1440,6 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        // TODO: (mh) (core) Check again when PricingChain is ready.
         protected async Task PrepareProductPriceModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
         {
             var customer = modelContext.Customer;
@@ -1601,9 +1598,7 @@ namespace Smartstore.Web.Controllers
                 var minimumCustomerEnteredPrice = _currencyService.ConvertFromPrimaryCurrency(product.MinimumCustomerEnteredPrice, currency);
                 var maximumCustomerEnteredPrice = _currencyService.ConvertFromPrimaryCurrency(product.MaximumCustomerEnteredPrice, currency);
 
-                // TODO: (mh) (core) CustomerEnteredPrice must also be Money?
                 model.AddToCart.CustomerEnteredPrice = minimumCustomerEnteredPrice.Amount;
-
                 model.AddToCart.CustomerEnteredPriceRange = T("Products.EnterProductPrice.Range",
                     _currencyService.ConvertToWorkingCurrency(minimumCustomerEnteredPrice),
                     _currencyService.ConvertToWorkingCurrency(maximumCustomerEnteredPrice));

@@ -8,7 +8,7 @@ namespace Smartstore.Web.Models.Customers
     public partial class CustomerRewardPointsModel : ModelBase
     {
         public List<RewardPointsHistoryModel> RewardPoints { get; set; } = new();
-        public Money RewardPointsBalance { get; set; } // TODO: (mh) (core) Put raw MONEY here
+        public Money RewardPointsBalance { get; set; }
         public string RewardPointsBalanceFormatted { get; set; }
 
         [LocalizedDisplay("RewardPoints.Fields.")]
