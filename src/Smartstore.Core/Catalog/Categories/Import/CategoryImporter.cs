@@ -157,6 +157,8 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
+            // TODO: (mg) (core) I don't like the fact that this event here is published WITHIN the current DbContextScope.
+            // Any consumer that accesses the db will also run in the same scope, which is a bad idea IMHO, but open to discussion ;-)
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Category>(context, batch), cancelToken);
         }
 
