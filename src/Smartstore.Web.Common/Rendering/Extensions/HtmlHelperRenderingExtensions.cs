@@ -493,12 +493,10 @@ namespace Smartstore.Web.Rendering
         #region Misc
 
         /// <summary>
-        /// Renderes labeled product for views (outside of grids).
+        /// Renderes badged product name including link to edit view. Not intended to be used in grids (use LabeledProductName there). 
         /// </summary>
-        public static IHtmlContent LabeledProductName(this IHtmlHelper helper, int id, string name, string typeName, string typeLabelHint)
+        public static IHtmlContent BadgedProductName(this IHtmlHelper helper, int id, string name, string typeName, string typeLabelHint)
         {
-            // TODO: (mh) (core) Please don't!! You cannot name this method "LabeledProductName", how should one distinct between both?
-            // This is EXTREMELY bad API design. TBD with MC.
             if (id == 0 && name.IsEmpty())
                 return null;
 

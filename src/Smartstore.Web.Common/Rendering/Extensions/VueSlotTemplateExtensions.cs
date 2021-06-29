@@ -11,7 +11,7 @@ namespace Smartstore.Web.Rendering
         // TODO: (mg) (core) Port other helpers: LabeledCurrencyName
 
         /// <summary>
-        /// Renderes labeled product for grids.
+        /// Renderes labeled product for grids including link to edit view. Not intened to be used outside of grids (use BadgedProductName there).
         /// </summary>
         public static IHtmlContent LabeledProductName(
             this IHtmlHelper _,
