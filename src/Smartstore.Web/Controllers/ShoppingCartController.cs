@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
@@ -47,6 +48,7 @@ namespace Smartstore.Web.Controllers
         private readonly IGiftCardService _giftCardService;
         private readonly IDownloadService _downloadService;
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly IProductCompareService _productCompareService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
@@ -56,6 +58,7 @@ namespace Smartstore.Web.Controllers
         private readonly MediaSettings _mediaSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
+        private readonly CatalogSettings _catalogSettings;
 
         public ShoppingCartController(
             SmartDbContext db,
@@ -69,6 +72,7 @@ namespace Smartstore.Web.Controllers
             IGiftCardService giftCardService,
             IDownloadService downloadService,
             IShoppingCartService shoppingCartService,
+            IProductCompareService productCompareService,
             IOrderCalculationService orderCalculationService,
             IShoppingCartValidator shoppingCartValidator,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
@@ -77,7 +81,8 @@ namespace Smartstore.Web.Controllers
             OrderSettings orderSettings,
             MediaSettings mediaSettings,
             CustomerSettings customerSettings,
-            RewardPointsSettings rewardPointsSettings)
+            RewardPointsSettings rewardPointsSettings,
+            CatalogSettings catalogSettings)
         {
             _db = db;
             _messageFactory = messageFactory;
@@ -90,6 +95,7 @@ namespace Smartstore.Web.Controllers
             _giftCardService = giftCardService;
             _downloadService = downloadService;
             _shoppingCartService = shoppingCartService;
+            _productCompareService = productCompareService;
             _orderCalculationService = orderCalculationService;
             _shoppingCartValidator = shoppingCartValidator;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
@@ -99,6 +105,7 @@ namespace Smartstore.Web.Controllers
             _mediaSettings = mediaSettings;
             _customerSettings = customerSettings;
             _rewardPointsSettings = rewardPointsSettings;
+            _catalogSettings = catalogSettings;
         }
 
         #region Utilities
@@ -218,10 +225,45 @@ namespace Smartstore.Web.Controllers
 
         #region Shopping cart
 
-        public IActionResult CartSummary()
+        [HttpPost]
+        public async Task<IActionResult> CartSummary(bool cart = false, bool wishlist = false, bool compare = false)
         {
-            // Stop annoying MiniProfiler report.
-            return new EmptyResult();
+            var cartEnabled = cart && await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart) && _shoppingCartSettings.MiniShoppingCartEnabled;
+            var wishlistEnabled = wishlist && await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
+            var compareEnabled = compare && _catalogSettings.CompareProductsEnabled;
+
+            int cartItemsCount = 0;
+            int wishlistItemsCount = 0;
+            int compareItemsCount = 0;
+
+            if (cartEnabled)
+            {
+                var shoppingCartItems = (await _shoppingCartService.GetCartItemsAsync(cartType: ShoppingCartType.ShoppingCart, storeId: Services.StoreContext.CurrentStore.Id))
+                    .Where(x => x.Item.ParentItemId == null); 
+
+                cartItemsCount = shoppingCartItems.Sum(x => (int?)x.Item.Quantity) ?? 0;
+            }
+
+            if (wishlistEnabled)
+            {
+                var wishlistItems = (await _shoppingCartService.GetCartItemsAsync(cartType: ShoppingCartType.Wishlist, storeId: Services.StoreContext.CurrentStore.Id))
+                    .Where(x => x.Item.ParentItemId == null);
+
+                wishlistItemsCount = wishlistItems.Sum(x => (int?)x.Item.Quantity) ?? 0;
+            }
+
+            if (compareEnabled)
+            {
+                compareItemsCount = await _productCompareService.CountComparedProductsAsync();
+            }
+
+            return Json(new
+            {
+                //CartSubTotal = subtotalFormatted,
+                CartItemsCount = cartItemsCount,
+                WishlistItemsCount = wishlistItemsCount,
+                CompareItemsCount = compareItemsCount
+            });
         }
 
         [RequireSsl]
