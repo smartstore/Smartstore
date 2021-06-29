@@ -48,7 +48,6 @@ namespace Smartstore.Admin.Controllers
         private readonly ITaskScheduler _taskScheduler;
         private readonly IProviderManager _providerManager;
         private readonly ITaskStore _taskStore;
-        private readonly AdminModelHelper _adminModelHelper;
         private readonly DataExchangeSettings _dataExchangeSettings;
         private readonly CustomerSettings _customerSettings;
 
@@ -69,7 +68,6 @@ namespace Smartstore.Admin.Controllers
             ITaskScheduler taskScheduler,
             IProviderManager providerManager,
             ITaskStore taskStore,
-            AdminModelHelper adminModelHelper,
             DataExchangeSettings dataExchangeSettings,
             CustomerSettings customerSettings)
         {
@@ -80,7 +78,6 @@ namespace Smartstore.Admin.Controllers
             _taskScheduler = taskScheduler;
             _providerManager = providerManager;
             _taskStore = taskStore;
-            _adminModelHelper = adminModelHelper;
             _dataExchangeSettings = dataExchangeSettings;
             _customerSettings = customerSettings;
         }
@@ -122,7 +119,7 @@ namespace Smartstore.Admin.Controllers
 
                     var fileDetailsModel = await CreateFileDetailsModel(profile, null);
                     profileModel.FileCount = fileDetailsModel.FileCount;
-                    profileModel.TaskModel = _adminModelHelper.CreateTaskModel(profile.Task, lastExecutionInfo) ?? new TaskModel();
+                    profileModel.TaskModel = await profile.Task.MapAsync(lastExecutionInfo);
 
                     model.Add(profileModel);
                 }

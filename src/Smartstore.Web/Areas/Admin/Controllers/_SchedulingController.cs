@@ -9,28 +9,27 @@ using Smartstore.Core.Security;
 using Smartstore.Scheduling;
 using Smartstore.Threading;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
+    // TODO: (mg) (core) missing system tasks: Cleanup temporary files, Delete guest customers.
     public class SchedulingController : AdminControllerBase
     {
         private readonly ITaskStore _taskStore;
         private readonly ITaskActivator _taskActivator;
         private readonly ITaskScheduler _taskScheduler;
-        private readonly AdminModelHelper _adminModelHelper;
         private readonly IAsyncState _asyncState;
 
         public SchedulingController(
             ITaskStore taskStore,
             ITaskActivator taskActivator,
             ITaskScheduler taskScheduler,
-            AdminModelHelper adminModelHelper,
             IAsyncState asyncState)
         {
             _taskStore = taskStore;
             _taskActivator = taskActivator;
             _taskScheduler = taskScheduler;
-            _adminModelHelper = adminModelHelper;
             _asyncState = asyncState;
         }
 
@@ -40,7 +39,13 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.ScheduleTask.Read)]
-        public async Task<IActionResult> List()
+        public IActionResult List()
+        {
+            return View();
+        }
+
+        [Permission(Permissions.System.ScheduleTask.Read)]
+        public async Task<IActionResult> TaskList()
         {
             var models = new List<TaskModel>();
             var moduleCatalog = Services.ApplicationContext.ModuleCatalog;
@@ -61,15 +66,18 @@ namespace Smartstore.Admin.Controllers
                 {
                     lastExecutionInfos.TryGetValue(task.Id, out var lastExecutionInfo);
 
-                    var model = _adminModelHelper.CreateTaskModel(task, lastExecutionInfo);
-                    if (model != null)
-                    {
-                        models.Add(model);
-                    }
+                    var model = await task.MapAsync(lastExecutionInfo);
+                    models.Add(model);
                 }
             }
 
-            return View(models);
+            var gridModel = new GridModel<TaskModel>
+            {
+                Rows = models,
+                Total = models.Count
+            };
+
+            return Json(gridModel);
         }
 
         [HttpPost]
@@ -103,12 +111,14 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> GetTaskRunInfo(int id /* taskId */)
         {
             // We better not check permission here.
-            var model = await _adminModelHelper.CreateTaskModelAsync(id);
-            if (model == null)
+            var lastExecutionInfo = await _taskStore.GetLastExecutionInfoByTaskIdAsync(id);
+            var task = lastExecutionInfo?.Task ?? await _taskStore.GetTaskByIdAsync(id);
+            if (task == null)
             {
                 return NotFound();
             }
 
+            var model = await task.MapAsync(lastExecutionInfo);
             var lastRunHtml = await this.InvokeViewAsync("_LastRun", model);
             var nextRunHtml = await this.InvokeViewAsync("_NextRun", model);
 

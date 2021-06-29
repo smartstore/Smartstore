@@ -1,7 +1,6 @@
 ﻿@model TaskModel
 
 @{
-    // TODO: (mg) (core) Model.LastExecutionInfo can be null. Null-Checks are missing completely.
     var info = Model.LastExecutionInfo;
     var hasError = info.Error.HasValue();
 }

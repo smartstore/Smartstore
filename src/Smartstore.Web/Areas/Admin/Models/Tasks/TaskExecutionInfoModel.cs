@@ -7,7 +7,7 @@ namespace Smartstore.Admin.Models.Scheduling
     [LocalizedDisplay("Admin.System.ScheduleTasks.")]
     public partial class TaskExecutionInfoModel : EntityModelBase
     {
-        public int ScheduleTaskId { get; set; }
+        public int TaskDescriptorId { get; set; }
         public bool IsRunning { get; set; }
 
         [LocalizedDisplay("*LastStart")]

@@ -35,12 +35,9 @@ namespace Smartstore.Admin.Models.Scheduling
         public string NextRunPretty { get; set; }
 
         public bool IsOverdue { get; set; }
+        public string ViewUrl { get; set; }
 
-        public string CancelUrl { get; set; }
-        public string EditUrl { get; set; }
-        public string ExecuteUrl { get; set; }
-
-        public TaskExecutionInfoModel LastExecutionInfo { get; set; }
+        public TaskExecutionInfoModel LastExecutionInfo { get; set; } = new();
     }
 
     public partial class TaskValidator : AbstractValidator<TaskModel>

@@ -1,15 +1,18 @@
 ﻿@model TaskModel
 
-@{
-	// TODO: (mg) (core) Don't overuse sm-if: this code here is less readable than the old one.
-	var neverRunning = !Model.NextRun.HasValue;
+@if (Model.NextRun.HasValue)
+{
+	if (Model.IsOverdue)
+	{
+		<span class="text-success"><strong>@Model.NextRunPretty</strong></span>
+	}
+	else
+	{
+		<div>@Model.NextRun.Value.ToString("g")</div>
+		<div class="text-muted">@Model.NextRunPretty</div>		
+	}
 }
-
-<div sm-if="neverRunning" class="text-muted">@T("Common.Never")</div>
-<span sm-if="!neverRunning && Model.IsOverdue" class="text-success">
-	<strong>@Model.NextRunPretty</strong>
-</span>
-<div sm-if="!neverRunning && !Model.IsOverdue">
-	<div>@Model.NextRun.Value.ToString("g")</div>
-	<div class="muted">@Model.NextRunPretty</div>
-</div>
+else
+{
+	<div class="text-muted">@T("Common.Never")</div>
+}

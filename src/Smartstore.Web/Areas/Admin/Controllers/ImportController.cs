@@ -30,20 +30,17 @@ namespace Smartstore.Admin.Controllers
         private readonly IImportProfileService _importProfileService;
         private readonly ITaskStore _taskStore;
         private readonly ITaskScheduler _taskScheduler;
-        private readonly AdminModelHelper _adminModelHelper;
 
         public ImportController(
             SmartDbContext db,
             IImportProfileService importProfileService,
             ITaskStore taskStore,
-            ITaskScheduler taskScheduler,
-            AdminModelHelper adminModelHelper)
+            ITaskScheduler taskScheduler)
         {
             _db = db;
             _importProfileService = importProfileService;
             _taskStore = taskStore;
             _taskScheduler = taskScheduler;
-            _adminModelHelper = adminModelHelper;
         }
 
         public IActionResult Index()
@@ -76,7 +73,7 @@ namespace Smartstore.Admin.Controllers
                 lastExecutionInfos.TryGetValue(profile.TaskId, out var lastExecutionInfo);
                 await PrepareProfileModel(profileModel, profile, lastExecutionInfo, false);
 
-                profileModel.TaskModel = _adminModelHelper.CreateTaskModel(profile.Task, lastExecutionInfo) ?? new TaskModel();
+                profileModel.TaskModel = await profile.Task.MapAsync(lastExecutionInfo);
 
                 model.Profiles.Add(profileModel);
             }

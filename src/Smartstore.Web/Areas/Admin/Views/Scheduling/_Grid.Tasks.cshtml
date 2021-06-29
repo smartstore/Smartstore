@@ -1,0 +1,34 @@
+﻿@model TaskModel
+
+<datagrid id="tasks-grid" 
+		allow-resize="true" 
+		allow-column-reordering="true" 
+		preserve-grid-state="true">
+	<datasource read="@Url.Action("TaskList")" />
+	<columns>
+        <column for="Name" hideable="false">
+            <display-template>
+                <a :href="item.row.ViewUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Enabled" halign="center">
+            <display-template>
+                <i v-if="item.row.Enabled" class="fa fa-fw icon-active-true"></i>
+                <i v-else class="fa fa-fw icon-active-false"></i>
+            </display-template>
+        </column>
+        <column for="CronExpression">
+            <display-template>
+                <div>{{ item.value }}</div>
+                <div v-if="item.row.CronDescription.length > 0" class="text-muted">{{ item.row.CronDescription }}</div>
+            </display-template>
+        </column>
+        @*TODO: (mg) (core) grid column LastRun *@
+        @*TODO: (mg) (core) grid column NextRun *@
+	</columns>
+    <row-commands>
+        @*TODO: (mg) (core) grid row-commands *@
+    </row-commands>
+</datagrid>
