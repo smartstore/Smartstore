@@ -67,6 +67,9 @@ namespace Smartstore.Admin.Controllers
                     lastExecutionInfos.TryGetValue(task.Id, out var lastExecutionInfo);
 
                     var model = await task.MapAsync(lastExecutionInfo);
+                    model.LastRunInfo = await this.InvokeViewAsync("_LastRun", model);
+                    model.NextRunInfo = await this.InvokeViewAsync("_NextRun", model);
+
                     models.Add(model);
                 }
             }

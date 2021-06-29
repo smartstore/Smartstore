@@ -1,77 +1,15 @@
 ﻿@{
     ViewBag.Title = T("Admin.System.ScheduleTasks").Value;
-	// TODO: (mg) (core) I want this to be a DataGrid, no plain table please. Add omega action buttons as proper row-commands. TBD with MC.
 }
 
 <div class="section-header">
     <div class="title">
 		<i class="far fa-clock"></i>
-        @T("Admin.System.ScheduleTasks")
+        <span>@T("Admin.System.ScheduleTasks")</span>
     </div>
 </div>
 
 <partial name="_Grid.Tasks" model="null" />
-
-@* 
-<div class="table-responsive">
-    <table class="table admin-table" id="schedule-tasks-grid">
-		<thead>
-			<tr>
-				<th>@T("Admin.System.ScheduleTasks.Name")</th>
-				<th class="text-center">@T("Admin.System.ScheduleTasks.Enabled")</th>
-				<th>@T("Admin.System.ScheduleTasks.CronExpression")</th>
-				<th style="min-width: 150px">@T("Admin.System.ScheduleTasks.LastStart")</th>
-				<th>@T("Admin.System.ScheduleTasks.NextRun")</th>
-				<th>&nbsp;</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var task in Model)
-			{
-				var isRunning = task.LastExecutionInfo.IsRunning;
-				// TODO: (mg) (core) attr-class cannot be used twice unfortunately.
-				<tr data-task-id="@task.Id" attr-class='(isRunning, "active-row")' attr-class='(!task.Enabled, "table-light")'>
-					<td>
-						<a asp-action="Edit" asp-controller="Scheduling" asp-route-id="@task.Id">@task.Name</a>
-					</td>
-					<td class="text-center">
-						<i class="fa fa-fw icon-active-@task.Enabled.ToString().ToLower()"></i>
-					</td>
-					<td>
-						<div>@task.CronExpression</div>
-						<div sm-if="task.CronDescription.HasValue()" class="text-muted">@task.CronDescription</div>
-					</td>
-					<td style="min-width: 300px">
-						<div class="last-run-info">
-							<partial name="_LastRun" model="task" />
-						</div>
-					</td>
-					<td style="min-width: 150px">
-                        <div class="next-run-info">
-							<partial name="_NextRun.cshtml" model="task" />
-                        </div>
-						<div class="task-progress text-muted" 
-							attr-class='(!isRunning, "hide")'
-							data-task-id="@task.Id" 
-							data-running="@isRunning.ToString().ToLower()"></div>
-					</td>
-					<td class="omega text-truncate">
-						<a asp-action="Edit" asp-controller="Scheduling" asp-route-id="@task.Id" class="btn btn-secondary btn-sm">@T("Common.Edit")</a>
-						<a asp-action="RunJob" asp-controller="Scheduling" asp-route-id="@task.Id" data-task-id="@task.Id" class="btn btn-success btn-sm btn-run-task" attr-class='(isRunning, "hide")'>
-							@T("Admin.System.ScheduleTasks.RunNow")
-						</a>
-						<a asp-action="CancelJob" asp-controller="Scheduling" asp-route-id="@task.Id" data-task-id="@task.Id" class="btn btn-danger btn-sm btn-cancel-task" 
-							attr-class='(!isRunning, "hide")'
-							onclick='return confirm(@T("Admin.Common.AreYouSure").JsValue);'>
-							@T("Common.Cancel")
-						</a>
-					</td>
-				</tr>
-			}
-		</tbody>
-    </table>
-</div>
- *@
 
 <script sm-target-zone="scripts" data-origin="TaskList">
 	$(function () {

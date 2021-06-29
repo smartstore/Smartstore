@@ -34,8 +34,16 @@ namespace Smartstore.Admin.Models.Scheduling
         public DateTime? NextRun { get; set; }
         public string NextRunPretty { get; set; }
 
+        [LocalizedDisplay("*NextRun")]
+        public string NextRunInfo { get; set; }
+
+        [LocalizedDisplay("*LastStart")]
+        public string LastRunInfo { get; set; }
+
         public bool IsOverdue { get; set; }
-        public string ViewUrl { get; set; }
+        public string EditUrl { get; set; }
+        public string ExecuteUrl { get; set; }
+        public string CancelUrl { get; set; }
 
         public TaskExecutionInfoModel LastExecutionInfo { get; set; } = new();
     }

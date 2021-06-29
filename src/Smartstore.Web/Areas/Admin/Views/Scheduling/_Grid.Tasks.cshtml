@@ -9,32 +9,47 @@
 	<columns>
         <column for="Name" hideable="false">
             <display-template>
-                <a :href="item.row.ViewUrl" class="text-truncate">
-                    {{ item.value }}
-                </a>
+                <a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a>
             </display-template>
         </column>
-        @* INFO: (mh) (core) Icon rendering for boolean columns is already baked in.  *@
         <column for="Enabled" halign="center"></column>
         <column for="CronExpression">
             <display-template>
-                <div>{{ item.value }}</div>
-                <div v-if="item.row.CronDescription.length > 0" class="text-muted">{{ item.row.CronDescription }}</div>
+                <div>
+                    <div>{{ item.value }}</div>
+                    <div v-if="item.row.CronDescription.length > 0" class="text-muted">{{ item.row.CronDescription }}</div>
+                </div>
             </display-template>
         </column>
-        @*TODO: (mg) (core) grid column LastRun *@
-        @*TODO: (mg) (core) grid column NextRun *@
+        <column for="LastRunInfo" width="300px">
+            <display-template>
+                <div class="last-run-info" v-html="item.value"></div>
+            </display-template>
+        </column>
+        <column for="NextRunInfo" width="300px">
+            <display-template>
+                <div class="next-run-info" v-html="item.value"></div>
+                <div class="task-progress text-muted" v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }" :data-running='item.row.LastExecutionInfo.IsRunning ? "true" : "false"'></div>
+            </display-template>
+        </column>
 	</columns>
     <row-commands>
-        @*TODO: (mg) (core) grid row-commands *@
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.ExecuteUrl" 
+            v-bind:class="{ hide: item.row.LastExecutionInfo.IsRunning }">
+            @T("Admin.System.ScheduleTasks.RunNow")</a>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.CancelUrl" 
+            v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }"
+            onclick='return confirm(@T("Admin.Common.AreYouSure").JsValue);'>
+            @T("Common.Cancel")</a>
     </row-commands>
 </datagrid>
 
 <script sm-target-zone="scripts" data-origin="tasks-grid">
     function tasksGrid_onRowClass(row) {
         return {
-            "active-row": false, // TODO: (mg) (core) Read task.LastExecutionInfo.IsRunning from serialized row somehow.
-            "table-light": !row.Enabled // TODO: (mg) (core) "table-light" seems wrong. Maybe "text-muted"?
+            "active-row": row.LastExecutionInfo.IsRunning,
+            "text-muted": !row.Enabled
         };
     }
 </script>

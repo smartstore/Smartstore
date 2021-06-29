@@ -79,7 +79,9 @@ namespace Smartstore.Admin.Models.Scheduling
             to.NextRunPretty = nextRunPretty;
             to.IsOverdue = isOverdue;
             to.NextRun = from.NextRunUtc.HasValue ? _dateTimeHelper.ConvertToUserTime(from.NextRunUtc.Value, DateTimeKind.Utc) : null;
-            to.ViewUrl = _urlHelper.Action("Edit", "Scheduling", new { id = from.Id });
+            to.EditUrl = _urlHelper.Action("Edit", "Scheduling", new { id = from.Id });
+            to.ExecuteUrl = _urlHelper.Action("RunJob", "Scheduling", new { id = from.Id });
+            to.CancelUrl = _urlHelper.Action("CancelJob", "Scheduling", new { id = from.Id });
 
             if (lastExecutionInfo != null)
             {
