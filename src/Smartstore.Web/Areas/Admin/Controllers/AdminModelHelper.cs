@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Humanizer;
 using Microsoft.AspNetCore.Mvc;
-using Smartstore.Admin.Models.Tasks;
+using Smartstore.Admin.Models.Scheduling;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Scheduling;
@@ -10,7 +10,7 @@ using Smartstore.Scheduling;
 namespace Smartstore.Admin.Controllers
 {
     // TODO: (mg) (core) API-Design --> Remove this class and use IMapper<TSource, TTarget> instead. You can pass any custom parameter to MapAsync() as dynamic now.
-    
+
     /// <summary>
     /// Helper to create view models for admin area.
     /// </summary>

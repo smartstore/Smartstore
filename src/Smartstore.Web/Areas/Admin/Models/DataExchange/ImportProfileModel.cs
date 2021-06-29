@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using FluentValidation;
-using Smartstore.Admin.Models.Tasks;
+using Smartstore.Admin.Models.Scheduling;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Localization;

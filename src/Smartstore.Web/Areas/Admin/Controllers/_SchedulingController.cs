@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Tasks;
+using Smartstore.Admin.Models.Scheduling;
 using Smartstore.Core.Security;
 using Smartstore.Scheduling;
 using Smartstore.Threading;
@@ -12,7 +12,7 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class TaskController : AdminControllerBase
+    public class SchedulingController : AdminControllerBase
     {
         private readonly ITaskStore _taskStore;
         private readonly ITaskActivator _taskActivator;
@@ -20,7 +20,7 @@ namespace Smartstore.Admin.Controllers
         private readonly AdminModelHelper _adminModelHelper;
         private readonly IAsyncState _asyncState;
 
-        public TaskController(
+        public SchedulingController(
             ITaskStore taskStore,
             ITaskActivator taskActivator,
             ITaskScheduler taskScheduler,

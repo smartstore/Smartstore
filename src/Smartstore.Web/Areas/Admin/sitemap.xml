@@ -138,7 +138,7 @@
             <siteMapNode id="system-log" iconClass="fa fa-fire" title="Log" resKey="Admin.System.Log" permissionNames="system.log" controller="Log" action="List" area="Admin" />
             <siteMapNode id="queued-emails" iconClass="fa fa-mail-bulk" title="Queued emails" resKey="Admin.System.QueuedEmails" permissionNames="system.message" controller="QueuedEmail" action="List" area="Admin" />
             <siteMapNode id="maintenance" iconClass="fa fa-database" title="Maintenance" resKey="Admin.System.Maintenance" permissionNames="system.maintenance" controller="Common" action="Maintenance" area="Admin" />
-            <siteMapNode id="scheduled tasks" iconClass="far fa-clock" title="Schedule tasks" resKey="Admin.System.ScheduleTasks" permissionNames="system.scheduletask" controller="Task" action="List" area="Admin" />
+            <siteMapNode id="scheduled tasks" iconClass="far fa-clock" title="Schedule tasks" resKey="Admin.System.ScheduleTasks" permissionNames="system.scheduletask" controller="Scheduling" action="List" area="Admin" />
             <siteMapNode id="seo-names" iconClass="fa fa-search" title="Search engine friendly names" resKey="Admin.System.SeNames" permissionNames="system.urlrecord" controller="UrlRecord" action="List" area="Admin" />
             <siteMapNode id="warnings" iconClass="fa fa-exclamation-triangle" title="Warnings" resKey="Admin.System.Warnings" permissionNames="system.maintenance" controller="Common" action="Warnings" area="Admin" />
             <siteMapNode id="system-info" iconClass="fa fa-info-circle" title="System information" resKey="Admin.System.SystemInfo" permissionNames="system.maintenance" controller="Common" action="SystemInfo" area="Admin" />

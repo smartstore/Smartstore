@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Admin.Models.Tasks
+namespace Smartstore.Admin.Models.Scheduling
 {
     [LocalizedDisplay("Admin.System.ScheduleTasks.")]
     public partial class TaskExecutionInfoModel : EntityModelBase
