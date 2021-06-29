@@ -325,9 +325,9 @@ namespace Smartstore.Web.Rendering
             var metadataProvider = requestServices.GetService<IModelMetadataProvider>();
             var metadata = metadataProvider.GetMetadataForType(enumType);
             // TODO: (mc) (core) Why aren't Flags allowed? It would work (and is needed) for CatalogSettings.PriceDisplayStyle.
-            if (!metadata.IsEnum || metadata.IsFlagsEnum)
+            if (!metadata.IsEnum)
             {
-                throw new ArgumentException($"The type '{enumType.FullName}' is not supported. Type must be an {nameof(Enum).ToLowerInvariant()} that does not have an associated {nameof(FlagsAttribute)}.");
+                throw new ArgumentException($"The type '{enumType.FullName}' is not supported. Type must be an {nameof(Enum).ToLowerInvariant()}..");
             }
             
             var localizationService = requestServices.GetService<ILocalizationService>();
