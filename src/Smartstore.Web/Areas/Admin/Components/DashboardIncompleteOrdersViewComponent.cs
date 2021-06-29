@@ -108,17 +108,16 @@ namespace Smartstore.Admin.Components
                 }
             }
 
-            // TODO: (mh) (core) Never use WorkingCurrency in backend, only primary currency.
             // TODO: (mh) (core) Don't use string, use Money in models where applicable.
             foreach (var report in model)
             {
                 report.QuantityTotal = report.Quantity.ToString("N0");
-                report.AmountTotal = Services.CurrencyService.PrimaryCurrency.AsMoney(report.Amount).ToString();
+                report.AmountTotal = Services.CurrencyService.PrimaryCurrency.AsMoney(report.Amount);
                 for (int i = 0; i < report.Data.Count; i++)
                 {
                     var data = report.Data[i];
                     data.QuantityFormatted = data.Quantity.ToString("N0");
-                    data.AmountFormatted = Services.CurrencyService.PrimaryCurrency.AsMoney(data.Amount).ToString();
+                    data.AmountFormatted = Services.CurrencyService.PrimaryCurrency.AsMoney(data.Amount);
                 }
             }
 

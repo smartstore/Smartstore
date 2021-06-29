@@ -1,4 +1,5 @@
-﻿using Smartstore.Web.Modelling;
+﻿using Smartstore.Core.Common;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Orders
 {
@@ -6,7 +7,7 @@ namespace Smartstore.Admin.Models.Orders
     public class BestsellersReportLineModel : ModelBase
     {
         [LocalizedDisplay("*TotalAmount")]
-        public string TotalAmount { get; set; }
+        public Money TotalAmount { get; set; }
 
         [LocalizedDisplay("*TotalQuantity")]
         public string TotalQuantity { get; set; }

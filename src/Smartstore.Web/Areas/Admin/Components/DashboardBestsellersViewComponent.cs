@@ -73,7 +73,7 @@ namespace Smartstore.Admin.Components
                 var m = new BestsellersReportLineModel
                 {
                     ProductId = x.ProductId,
-                    TotalAmount = Services.CurrencyService.PrimaryCurrency.AsMoney(x.TotalAmount).ToString(),
+                    TotalAmount = Services.CurrencyService.PrimaryCurrency.AsMoney(x.TotalAmount),
                     TotalQuantity = x.TotalQuantity.ToString("N0")
                 };
 

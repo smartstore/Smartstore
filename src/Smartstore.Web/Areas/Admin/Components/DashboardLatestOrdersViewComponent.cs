@@ -29,7 +29,7 @@ namespace Smartstore.Admin.Components
                 .AsNoTracking()
                 .Include(x => x.Customer).ThenInclude(x => x.CustomerRoleMappings).ThenInclude(x => x.CustomerRole)
                 .Include(x => x.OrderItems)
-                .OrderByDescending(x => x.CreatedOnUtc) // INFO: (mh) (core) !!!!!! Please analyze THOROUGHLY!!
+                .OrderByDescending(x => x.CreatedOnUtc)
                 .Take(7)
                 .ToListAsync();
             
@@ -41,7 +41,7 @@ namespace Smartstore.Admin.Components
                         CustomerId = order.CustomerId,
                         CustomerDisplayName = order.Customer.FindEmail() ?? order.Customer.FormatUserName(),
                         ProductsTotal = order.OrderItems.Sum(x => x.Quantity),
-                        TotalAmount = Services.CurrencyService.PrimaryCurrency.AsMoney(order.OrderTotal).ToString(),
+                        TotalAmount = Services.CurrencyService.PrimaryCurrency.AsMoney(order.OrderTotal),
                         Created = _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc).ToString("g"),
                         OrderState = order.OrderStatus,
                         OrderId = order.Id

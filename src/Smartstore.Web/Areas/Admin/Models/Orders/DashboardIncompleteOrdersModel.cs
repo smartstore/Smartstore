@@ -21,7 +21,7 @@ namespace Smartstore.Admin.Models.Orders
 
         public List<DashboardIncompleteOrdersData> Data { get; set; }
         public decimal Amount { get; set; }
-        public string AmountTotal { get; set; }
+        public Money AmountTotal { get; set; }
         public int Quantity { get; set; }
         public string QuantityTotal { get; set; }
     }
@@ -29,7 +29,7 @@ namespace Smartstore.Admin.Models.Orders
     public class DashboardIncompleteOrdersData
     {
         public decimal Amount { get; set; }
-        public string AmountFormatted { get; set; }
+        public Money AmountFormatted { get; set; }
         public int Quantity { get; set; }
         public string QuantityFormatted { get; set; }
     }
