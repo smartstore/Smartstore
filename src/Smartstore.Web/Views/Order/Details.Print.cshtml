@@ -72,7 +72,7 @@
                     @Html.Raw(parentItem.BundlePerItemShoppingCart ? item.Quantity.ToString() : "&nbsp;")
                 </td>
                 <td class="text-right">
-                    <span class="text-small">@Html.Raw(item.PriceWithDiscount.HasValue() ? item.PriceWithDiscount : "&nbsp;")</span>
+                    <span class="text-small">@Html.Raw(item.PriceWithDiscount > 0 ? item.PriceWithDiscount : "&nbsp;")</span>
                 </td>
                 <td>&nbsp;</td>
             </tr>
@@ -225,7 +225,7 @@
                             <td class="label">@T("Order.SubTotal"):</td>
                             <td class="value">@order.OrderSubtotal</td>
                         </tr>
-                        <tr sm-if="order.OrderSubTotalDiscount.HasValue()">
+                        <tr sm-if="order.OrderSubTotalDiscount != 0">
                             <td class="label">@T("Order.SubTotalDiscount"):</td>
                             <td class="value">@order.OrderSubTotalDiscount</td>
                         </tr>
@@ -233,7 +233,7 @@
                             <td class="label">@T("Order.Shipping"):</td>
                             <td class="value">@order.OrderShipping</td>
                         </tr>
-                        <tr sm-if="order.PaymentMethodAdditionalFee.HasValue()">
+                        <tr sm-if="order.PaymentMethodAdditionalFee != 0">
                             <td class="label">@T("Order.PaymentMethodAdditionalFee"):</td>
                             <td class="value">@order.PaymentMethodAdditionalFee</td>
                         </tr>
@@ -253,7 +253,7 @@
                             <td class="label">@T("Order.Tax"):</td>
                             <td class="value text-right">@order.Tax</td>
                         </tr>
-                        <tr sm-if="order.OrderTotalDiscount.HasValue()">
+                        <tr sm-if="order.OrderTotalDiscount != 0">
                             <td class="label">@T("Order.TotalDiscount"):</td>
                             <td class="value">@order.OrderTotalDiscount</td>
                         </tr>
@@ -273,11 +273,11 @@
                             <td class="label">@T("Order.RewardPoints", order.RedeemedRewardPoints):</td>
                             <td class="value">@order.RedeemedRewardPointsAmount</td>
                         </tr>
-                        <tr sm-if="order.CreditBalance.HasValue()">
+                        <tr sm-if="order.CreditBalance > 0">
                             <td class="label">@T("ShoppingCart.Totals.CreditBalance"):</td>
                             <td class="value">@order.CreditBalance</td>
                         </tr>
-                        <tr sm-if="order.OrderTotalRounding.HasValue()">
+                        <tr sm-if="order.OrderTotalRounding != 0">
                             <td class="label">@T("ShoppingCart.Totals.Rounding"):</td>
                             <td class="value">@order.OrderTotalRounding</td>
                         </tr>

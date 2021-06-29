@@ -207,8 +207,7 @@ namespace Smartstore.Web.Controllers
 
                     if (model.BundlePerItemShoppingCart)
                     {
-                        var priceWithDiscount = _currencyService.ConvertToExchangeRate(bid.PriceWithDiscount, order.CurrencyRate, customerCurrency);
-                        bundleItemModel.PriceWithDiscount = priceWithDiscount.ToString();
+                        bundleItemModel.PriceWithDiscount = _currencyService.ConvertToExchangeRate(bid.PriceWithDiscount, order.CurrencyRate, customerCurrency);
                     }
 
                     // Bundle item picture.
@@ -235,9 +234,7 @@ namespace Smartstore.Web.Controllers
                     {
                         var unitPriceExclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceExclTax, order.CurrencyRate, customerCurrency);
                         model.UnitPrice = unitPriceExclTaxInCustomerCurrency;
-
-                        var priceExclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.PriceExclTax, order.CurrencyRate, customerCurrency);
-                        model.SubTotal = priceExclTaxInCustomerCurrency.ToString();
+                        model.SubTotal = _currencyService.ConvertToExchangeRate(orderItem.PriceExclTax, order.CurrencyRate, customerCurrency);
                     }
                     break;
 
@@ -245,9 +242,7 @@ namespace Smartstore.Web.Controllers
                     {
                         var unitPriceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceInclTax, order.CurrencyRate, customerCurrency);
                         model.UnitPrice = unitPriceInclTaxInCustomerCurrency;
-
-                        var priceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.PriceInclTax, order.CurrencyRate, customerCurrency);
-                        model.SubTotal = priceInclTaxInCustomerCurrency.ToString();
+                        model.SubTotal = _currencyService.ConvertToExchangeRate(orderItem.PriceInclTax, order.CurrencyRate, customerCurrency);
                     }
                     break;
             }
@@ -385,25 +380,23 @@ namespace Smartstore.Web.Controllers
                 case TaxDisplayType.ExcludingTax:
                     {
                         // Order subtotal.
-                        var orderSubtotalExclTax = _currencyService.ConvertToExchangeRate(order.OrderSubtotalExclTax, order.CurrencyRate, customerCurrency);
-                        model.OrderSubtotal = orderSubtotalExclTax.ToString();
+                        model.OrderSubtotal = _currencyService.ConvertToExchangeRate(order.OrderSubtotalExclTax, order.CurrencyRate, customerCurrency);
 
                         // Discount (applied to order subtotal).
                         var orderSubTotalDiscountExclTax = _currencyService.ConvertToExchangeRate(order.OrderSubTotalDiscountExclTax, order.CurrencyRate, customerCurrency);
                         if (orderSubTotalDiscountExclTax > 0)
                         {
-                            model.OrderSubTotalDiscount = (orderSubTotalDiscountExclTax * -1).ToString();
+                            model.OrderSubTotalDiscount = orderSubTotalDiscountExclTax * -1;
                         }
 
                         // Order shipping.
-                        var orderShippingExclTax = _currencyService.ConvertToExchangeRate(order.OrderShippingExclTax, order.CurrencyRate, customerCurrency);
-                        model.OrderShipping = orderShippingExclTax.ToString();
+                        model.OrderShipping = _currencyService.ConvertToExchangeRate(order.OrderShippingExclTax, order.CurrencyRate, customerCurrency);
 
                         // Payment method additional fee.
                         var paymentMethodAdditionalFeeExclTax = _currencyService.ConvertToExchangeRate(order.PaymentMethodAdditionalFeeExclTax, order.CurrencyRate, customerCurrency);
                         if (paymentMethodAdditionalFeeExclTax != 0)
                         {
-                            model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeExclTax.ToString();
+                            model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeExclTax;
                         }
                     }
                     break;
@@ -411,25 +404,23 @@ namespace Smartstore.Web.Controllers
                 case TaxDisplayType.IncludingTax:
                     {
                         // Order subtotal.
-                        var orderSubtotalInclTax = _currencyService.ConvertToExchangeRate(order.OrderSubtotalInclTax, order.CurrencyRate, customerCurrency);
-                        model.OrderSubtotal = orderSubtotalInclTax.ToString();
+                        model.OrderSubtotal = _currencyService.ConvertToExchangeRate(order.OrderSubtotalInclTax, order.CurrencyRate, customerCurrency);
 
                         // Discount (applied to order subtotal).
                         var orderSubTotalDiscountInclTax = _currencyService.ConvertToExchangeRate(order.OrderSubTotalDiscountInclTax, order.CurrencyRate, customerCurrency);
                         if (orderSubTotalDiscountInclTax > 0)
                         {
-                            model.OrderSubTotalDiscount = (orderSubTotalDiscountInclTax * -1).ToString();
+                            model.OrderSubTotalDiscount = orderSubTotalDiscountInclTax * -1;
                         }
 
                         // Order shipping.
-                        var orderShippingInclTax = _currencyService.ConvertToExchangeRate(order.OrderShippingInclTax, order.CurrencyRate, customerCurrency);
-                        model.OrderShipping = orderShippingInclTax.ToString();
+                        model.OrderShipping = _currencyService.ConvertToExchangeRate(order.OrderShippingInclTax, order.CurrencyRate, customerCurrency);
 
                         // Payment method additional fee.
                         var paymentMethodAdditionalFeeInclTax = _currencyService.ConvertToExchangeRate(order.PaymentMethodAdditionalFeeInclTax, order.CurrencyRate, customerCurrency);
                         if (paymentMethodAdditionalFeeInclTax != 0)
                         {
-                            model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeInclTax.ToString();
+                            model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeInclTax;
                         }
                     }
                     break;
@@ -456,8 +447,7 @@ namespace Smartstore.Web.Controllers
                     displayTaxRates = taxSettings.DisplayTaxRates && order.TaxRatesDictionary.Count > 0;
                     displayTax = !displayTaxRates;
 
-                    var orderTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(order.OrderTax, order.CurrencyRate, customerCurrency);
-                    model.Tax = orderTaxInCustomerCurrency.ToString();
+                    model.Tax = _currencyService.ConvertToExchangeRate(order.OrderTax, order.CurrencyRate, customerCurrency);
 
                     foreach (var tr in order.TaxRatesDictionary)
                     {
@@ -481,7 +471,7 @@ namespace Smartstore.Web.Controllers
             var orderDiscountInCustomerCurrency = _currencyService.ConvertToExchangeRate(order.OrderDiscount, order.CurrencyRate, customerCurrency);
             if (orderDiscountInCustomerCurrency > 0)
             {
-                model.OrderTotalDiscount = (orderDiscountInCustomerCurrency * -1).ToString();
+                model.OrderTotalDiscount = orderDiscountInCustomerCurrency * -1;
             }
 
             // Gift cards.
@@ -507,23 +497,23 @@ namespace Smartstore.Web.Controllers
                 var usedAmount = _currencyService.ConvertToExchangeRate(order.RedeemedRewardPointsEntry.UsedAmount, order.CurrencyRate, customerCurrency);
 
                 model.RedeemedRewardPoints = -order.RedeemedRewardPointsEntry.Points;
-                model.RedeemedRewardPointsAmount = (usedAmount * -1).ToString();
+                model.RedeemedRewardPointsAmount = usedAmount * -1;
             }
 
             // Credit balance.
             if (order.CreditBalance > 0)
             {
                 var convertedCreditBalance = _currencyService.ConvertToExchangeRate(order.CreditBalance, order.CurrencyRate, customerCurrency);
-                model.CreditBalance = (convertedCreditBalance * -1).ToString();
+                model.CreditBalance = convertedCreditBalance * -1;
             }
 
             // Total.
             (var orderTotal, var roundingAmount) = await _orderService.GetOrderTotalInCustomerCurrencyAsync(order, customerCurrency);
-            model.OrderTotal = orderTotal.ToString();
+            model.OrderTotal = orderTotal;
 
             if (roundingAmount != 0)
             {
-                model.OrderTotalRounding = roundingAmount.ToString();
+                model.OrderTotalRounding = roundingAmount;
             }
 
             // Checkout attributes.

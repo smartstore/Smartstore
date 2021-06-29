@@ -101,7 +101,7 @@
                         </div>
                     </div>
                     <div class="cart-col cart-col-price">
-                        @if (item.PriceWithDiscount.HasValue())
+                        @if (item.PriceWithDiscount > 0)
                         {
                             <span class="price">@Html.Raw(item.PriceWithDiscount)</span>
                         }
@@ -268,7 +268,7 @@
                                 <td class="cart-summary-label">@T("Order.SubTotal"):</td>
                                 <td class="cart-summary-value">@Model.OrderSubtotal</td>
                             </tr>
-                            <tr sm-if="Model.OrderSubTotalDiscount.HasValue()" class="cart-summary-subtotaldiscount cart-summary-pos">
+                            <tr sm-if="Model.OrderSubTotalDiscount != 0" class="cart-summary-subtotaldiscount cart-summary-pos">
                                 <td class="cart-summary-label">@T("Order.SubTotalDiscount"):</td>
                                 <td class="cart-summary-value">@Model.OrderSubTotalDiscount</td>
                             </tr>
@@ -276,7 +276,7 @@
                                 <td class="cart-summary-label">@T("Order.Shipping"):</td>
                                 <td class="cart-summary-value">@Model.OrderShipping</td>
                             </tr>
-                            <tr sm-if="Model.PaymentMethodAdditionalFee.HasValue()" class="cart-summary-payfee cart-summary-neg">
+                            <tr sm-if="Model.PaymentMethodAdditionalFee != 0" class="cart-summary-payfee cart-summary-neg">
                                 <td class="cart-summary-label">@T("Order.PaymentMethodAdditionalFee"):</td>
                                 <td class="cart-summary-value">@Model.PaymentMethodAdditionalFee</td>
                             </tr>
@@ -294,7 +294,7 @@
                                 <td class="cart-summary-label">@T("Order.Tax"):</td>
                                 <td class="cart-summary-value">@Model.Tax</td>
                             </tr>
-                            <tr sm-if="Model.OrderTotalDiscount.HasValue()" class="cart-summary-totaldiscount cart-summary-pos">
+                            <tr sm-if="Model.OrderTotalDiscount != 0" class="cart-summary-totaldiscount cart-summary-pos">
                                 <td class="cart-summary-label">@T("Order.TotalDiscount"):</td>
                                 <td class="cart-summary-value">@Model.OrderTotalDiscount</td>
                             </tr>
@@ -317,11 +317,11 @@
                                 <td class="cart-summary-label">@T("Order.RewardPoints", Model.RedeemedRewardPoints):</td>
                                 <td class="cart-summary-value">@Model.RedeemedRewardPointsAmount</td>
                             </tr>
-                            <tr sm-if="Model.CreditBalance.HasValue()" class="cart-summary-credit-balance cart-summary-pos">
+                            <tr sm-if="Model.CreditBalance > 0" class="cart-summary-credit-balance cart-summary-pos">
                                 <td class="cart-summary-label">@T("ShoppingCart.Totals.CreditBalance"):</td>
                                 <td class="cart-summary-value">@Model.CreditBalance</td>
                             </tr>
-                            <tr sm-if="Model.OrderTotalRounding.HasValue()" class="cart-summary-totalrounding cart-summary-pos">
+                            <tr sm-if="Model.OrderTotalRounding != 0" class="cart-summary-totalrounding cart-summary-pos">
                                 <td class="cart-summary-label">@T("ShoppingCart.Totals.Rounding"):</td>
                                 <td class="cart-summary-value">@Model.OrderTotalRounding</td>
                             </tr>

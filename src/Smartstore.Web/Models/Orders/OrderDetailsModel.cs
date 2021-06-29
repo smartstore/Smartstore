@@ -12,37 +12,24 @@ namespace Smartstore.Web.Models.Orders
 {
     public partial class OrderDetailsModel : EntityModelBase
     {
-        // TODO: (mh) (core) The "Money" type is missing fucking EVERYWHERE.
-        
         public int StoreId { get; set; }
-
         public CompanyInformationSettings MerchantCompanyInfo { get; set; } = new();
         public string MerchantCompanyCountryName { get; set; }
-
         public string OrderNumber { get; set; }
         public bool DisplayPdfInvoice { get; set; }
         public bool RenderOrderNotes { get; set; }
-
         public DateTime CreatedOn { get; set; }
-
         public string OrderStatus { get; set; }
-
         public bool IsReOrderAllowed { get; set; }
-
         public bool IsReturnRequestAllowed { get; set; }
-
         public bool IsShippable { get; set; }
         public string ShippingStatus { get; set; }
         public AddressModel ShippingAddress { get; set; } = new();
         public string ShippingMethod { get; set; }
         public List<ShipmentBriefModel> Shipments { get; set; } = new();
-
         public AddressModel BillingAddress { get; set; } = new();
-
         public string VatNumber { get; set; }
-
         public string PaymentMethod { get; set; }
-
         public string PaymentMethodSystemName { get; set; }
 
         #region Offline payment data 
@@ -66,31 +53,28 @@ namespace Smartstore.Web.Models.Orders
         public bool DisplayPurchaseOrderNumber { get; set; }
         public string PurchaseOrderNumber { get; set; }
 
-        public string OrderSubtotal { get; set; }
-        public string OrderSubTotalDiscount { get; set; }
-        public string OrderShipping { get; set; }
-        public string PaymentMethodAdditionalFee { get; set; }
+        public Money OrderSubtotal { get; set; }
+        public Money OrderSubTotalDiscount { get; set; }
+        public Money OrderShipping { get; set; }
+        public Money PaymentMethodAdditionalFee { get; set; }
         public string CheckoutAttributeInfo { get; set; }
-        public string Tax { get; set; }
+        public Money Tax { get; set; }
         public List<TaxRate> TaxRates { get; set; } = new();
         public bool DisplayTax { get; set; }
         public bool DisplayTaxRates { get; set; }
-        public string OrderTotalDiscount { get; set; }
+        public Money OrderTotalDiscount { get; set; }
         public int RedeemedRewardPoints { get; set; }
-        public string RedeemedRewardPointsAmount { get; set; }
-        public string CreditBalance { get; set; }
-        public string OrderTotalRounding { get; set; }
-        public string OrderTotal { get; set; }
+        public Money RedeemedRewardPointsAmount { get; set; }
+        public Money CreditBalance { get; set; }
+        public Money OrderTotalRounding { get; set; }
+        public Money OrderTotal { get; set; }
         public string CustomerComment { get; set; }
         public int CustomerLanguageId { get; set; }
-
-        public List<GiftCard> GiftCards { get; set; } = new();
-
         public bool ShowSku { get; set; }
         public bool ShowProductImages { get; set; }
         public bool ShowProductBundleImages { get; set; }
         public int BundleThumbSize { get; set; }
-
+        public List<GiftCard> GiftCards { get; set; } = new();
         public List<OrderItemModel> Items { get; set; } = new();
         public List<OrderNote> OrderNotes { get; set; } = new();
 
@@ -105,14 +89,13 @@ namespace Smartstore.Web.Models.Orders
             public string ProductUrl { get; set; }
             public ProductType ProductType { get; set; }
             public Money UnitPrice { get; set; }
-            public string SubTotal { get; set; }
+            public Money SubTotal { get; set; }
             public int Quantity { get; set; }
             public string QuantityUnit { get; set; }
             public string AttributeInfo { get; set; }
             public bool BundlePerItemPricing { get; set; }
             public bool BundlePerItemShoppingCart { get; set; }
             public ImageModel Image { get; set; }
-
             public List<BundleItemModel> BundleItems { get; set; } = new();
         }
 
@@ -126,7 +109,7 @@ namespace Smartstore.Web.Models.Orders
             public bool VisibleIndividually { get; set; }
             public int Quantity { get; set; }
             public int DisplayOrder { get; set; }
-            public string PriceWithDiscount { get; set; }
+            public Money PriceWithDiscount { get; set; }
             public string AttributeInfo { get; set; }
             public bool HideThumbnail { get; set; }
         }
