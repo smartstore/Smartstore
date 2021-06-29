@@ -12,7 +12,6 @@
             }
         }
 
-        // INFO: (mh) (core) Money can't be used here as this will not be rendered by Razor but by Javascript.
         public string TotalAmountFormatted { get; set; }
         public decimal TotalAmount { get; set; }
         public int PercentageDelta { get; set; }

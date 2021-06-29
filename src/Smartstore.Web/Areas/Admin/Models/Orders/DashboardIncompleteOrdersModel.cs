@@ -20,6 +20,7 @@ namespace Smartstore.Admin.Models.Orders
         }
 
         public List<DashboardIncompleteOrdersData> Data { get; set; }
+        // INFO: (mh) (core) For future consideration: with the Money struct, any "Amount as decimal" property gets obsolete, because Money is a smart container for both raw amount and formatted string.
         public decimal Amount { get; set; }
         public Money AmountTotal { get; set; }
         public int Quantity { get; set; }
@@ -28,6 +29,7 @@ namespace Smartstore.Admin.Models.Orders
 
     public class DashboardIncompleteOrdersData
     {
+        // INFO: (mh) (core) Please see comment above
         public decimal Amount { get; set; }
         public Money AmountFormatted { get; set; }
         public int Quantity { get; set; }
