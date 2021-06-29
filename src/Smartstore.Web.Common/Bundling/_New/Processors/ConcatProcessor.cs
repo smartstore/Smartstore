@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Smartstore.Utilities;
 
@@ -9,6 +6,8 @@ namespace Smartstore.Web.Bundling.Processors
 {
     public class ConcatProcessor : BundleProcessor
     {
+        internal static readonly ConcatProcessor Instance = new();
+
         public override Task ProcessAsync(BundleContext context)
         {
             if (context.Content.Count > 1)

@@ -241,7 +241,7 @@ namespace Smartstore.Web.Bundling
 
             if (context.Content.Count > 1)
             {
-                await new ConcatProcessor().ProcessAsync(context);
+                await ConcatProcessor.Instance.ProcessAsync(context);
             }
 
             var combined = context.Content.FirstOrDefault();
