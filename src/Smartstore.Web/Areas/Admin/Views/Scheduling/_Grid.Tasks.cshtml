@@ -3,7 +3,8 @@
 <datagrid id="tasks-grid" 
 		allow-resize="true" 
 		allow-column-reordering="true" 
-		preserve-grid-state="true">
+		preserve-grid-state="true"
+        onrowclass="tasksGrid_onRowClass">
 	<datasource read="@Url.Action("TaskList")" />
 	<columns>
         <column for="Name" hideable="false">
@@ -13,12 +14,8 @@
                 </a>
             </display-template>
         </column>
-        <column for="Enabled" halign="center">
-            <display-template>
-                <i v-if="item.row.Enabled" class="fa fa-fw icon-active-true"></i>
-                <i v-else class="fa fa-fw icon-active-false"></i>
-            </display-template>
-        </column>
+        @* INFO: (mh) (core) Icon rendering for boolean columns is already baked in.  *@
+        <column for="Enabled" halign="center"></column>
         <column for="CronExpression">
             <display-template>
                 <div>{{ item.value }}</div>
@@ -32,3 +29,12 @@
         @*TODO: (mg) (core) grid row-commands *@
     </row-commands>
 </datagrid>
+
+<script sm-target-zone="scripts" data-origin="tasks-grid">
+    function tasksGrid_onRowClass(row) {
+        return {
+            "active-row": false, // TODO: (mg) (core) Read task.LastExecutionInfo.IsRunning from serialized row somehow.
+            "table-light": !row.Enabled // TODO: (mg) (core) "table-light" seems wrong. Maybe "text-muted"?
+        };
+    }
+</script>
