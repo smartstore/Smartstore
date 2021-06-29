@@ -1,5 +1,6 @@
 ﻿/*
 ** Ajax cart implementation
+ * TODO: (mc) (core) This script is obsolete. Everything was included in public.offcanvas-cart.js
 */
 ;
 var AjaxCart = (function ($, window, document, undefined) {

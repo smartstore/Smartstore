@@ -272,7 +272,6 @@ var ShopBar = (function ($) {
     });
 
     EventBroker.subscribe("ajaxcart.item.removing", function (msg, data) {
-        var tool = tools[data.type];
         ShopBar.showThrobber();
     });
 

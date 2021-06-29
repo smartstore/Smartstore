@@ -1,5 +1,7 @@
 ﻿;
 
+//TODO: (mc) (core) This script is obsolete.Everything was included in public.offcanvas-cart.js
+
 $(function () {
 
     var shopBar = $("#shopbar");
@@ -45,6 +47,7 @@ $(function () {
 var ShopBar = (function ($) {
 
     var shopBar = $("#shopbar");
+
     var tools = {
         "cart": $("#shopbar-cart"),
         "wishlist": $("#shopbar-wishlist"),

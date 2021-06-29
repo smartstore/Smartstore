@@ -111,4 +111,6 @@
             @await Component.InvokeAsync("OffCanvasCart")
         </div>
     </aside>
+    @*TODO: (mh) (core) This is problematic!!! Scripts are there before widget was rendered thus they won't become initialized correctly*@
+    <script src="~/js/public.offcanvas-cart.js"></script>
 </widget>
