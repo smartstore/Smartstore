@@ -53,11 +53,7 @@ namespace Smartstore.Core.DataExchange.Import
             // "The property 'LocalizedProperty.Id' has a temporary value while attempting to change the entity's state to 'Deleted'."
             // "Cannot insert duplicate key row in object 'dbo.UrlRecord' with unique index 'IX_UrlRecord_Slug'."
             // RE: (info) The IX_UrlRecord_Slug uniqueness violation is a known bug in IUrlService.
-            : base(new DbContextScope(services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true),
-                  services, 
-                  localizedEntityService, 
-                  storeMappingService, 
-                  urlService)
+            : base(services, localizedEntityService, storeMappingService, urlService)
         {
             _folderService = folderService;
         }
@@ -69,28 +65,30 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
+            using var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true);
+
             if (context.File.RelatedType.HasValue)
             {
                 switch (context.File.RelatedType.Value)
                 {
                     case RelatedEntityType.TierPrice:
-                        await ProcessTierPricesAsync(context);
+                        await ProcessTierPricesAsync(context, scope);
                         break;
                     case RelatedEntityType.ProductVariantAttributeValue:
-                        await ProcessAttributeValuesAsync(context);
+                        await ProcessAttributeValuesAsync(context, scope);
                         break;
                     case RelatedEntityType.ProductVariantAttributeCombination:
-                        await ProcessAttributeCombinationsAsync(context);
+                        await ProcessAttributeCombinationsAsync(context, scope);
                         break;
                 }
             }
             else
             {
-                await ProcessProductsAsync(context);
+                await ProcessProductsAsync(context, scope);
             }
         }
 
-        protected virtual async Task ProcessProductsAsync(ImportExecuteContext context)
+        protected virtual async Task ProcessProductsAsync(ImportExecuteContext context, DbContextScope scope)
         {
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Product>();
@@ -103,7 +101,7 @@ namespace Smartstore.Core.DataExchange.Import
             var savedProducts = 0;
             try
             {
-                savedProducts = await InternalProcessProductsAsync(context, batch);
+                savedProducts = await InternalProcessProductsAsync(context, scope, batch);
             }
             catch (Exception ex)
             {
@@ -140,7 +138,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 try
                 {
-                    await ProcessStoreMappingsAsync(context, batch);
+                    await ProcessStoreMappingsAsync(context, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -153,7 +151,7 @@ namespace Smartstore.Core.DataExchange.Import
             // ===========================================================================
             try
             {
-                await ProcessLocalizationsAsync(context, batch, _localizableProperties);
+                await ProcessLocalizationsAsync(context, scope, batch, _localizableProperties);
             }
             catch (Exception ex)
             {
@@ -167,7 +165,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 try
                 {
-                    await ProcessProductCategoriesAsync(context, batch);
+                    await ProcessProductCategoriesAsync(context, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -182,7 +180,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 try
                 {
-                    await ProcessProductManufacturersAsync(context, batch);
+                    await ProcessProductManufacturersAsync(context, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -197,7 +195,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 try
                 {
-                    await ProcessProductPicturesAsync(context, batch);
+                    await ProcessProductPicturesAsync(context, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -212,7 +210,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 try
                 {
-                    await ProcessProductTagsAsync(context, batch);
+                    await ProcessProductTagsAsync(context, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -230,7 +228,7 @@ namespace Smartstore.Core.DataExchange.Import
                     segmenter.HasColumn("ParentGroupedProductId") && 
                     !segmenter.IsIgnored("ParentGroupedProductId"))
                 {
-                    await ProcessGroupedProductsAsync(context);
+                    await ProcessGroupedProductsAsync(context, scope);
                 }
 
                 // ===========================================================================
@@ -242,7 +240,7 @@ namespace Smartstore.Core.DataExchange.Import
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Product>(context, batch), context.CancelToken);
         }
 
-        protected virtual async Task<int> InternalProcessProductsAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
+        protected virtual async Task<int> InternalProcessProductsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
         {
             var cargo = await GetCargoData(context);
             var defaultTemplateId = cargo.TemplateViewPaths["Product"];
@@ -459,7 +457,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            var num = await _scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
 
             // Get new product ids.
             // Required to assign associated products to their parent products.
@@ -477,7 +475,7 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
-        protected virtual async Task<int> ProcessProductCategoriesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
+        protected virtual async Task<int> ProcessProductCategoriesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
         {
             var cargo = await GetCargoData(context);
 
@@ -517,11 +515,11 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
             return num;
         }
 
-        protected virtual async Task<int> ProcessProductManufacturersAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
+        protected virtual async Task<int> ProcessProductManufacturersAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
         {
             var cargo = await GetCargoData(context);
 
@@ -561,11 +559,11 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
             return num;
         }
 
-        protected virtual async Task ProcessProductPicturesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
+        protected virtual async Task ProcessProductPicturesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
         {
             var cargo = await GetCargoData(context);
             var numberOfPictures = context.ExtraData.NumberOfPictures ?? int.MaxValue;
@@ -685,7 +683,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            await _scope.CommitAsync(context.CancelToken);
+            await scope.CommitAsync(context.CancelToken);
 
             void AddProductMediaFile(MediaFile file, Product product)
             {
@@ -709,7 +707,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
         }
 
-        protected virtual async Task ProcessProductTagsAsync(ImportExecuteContext context, IEnumerable<ImportRow<Product>> batch)
+        protected virtual async Task ProcessProductTagsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
         {
             var productIds = batch.Select(x => x.Entity.Id).ToArray();
             var tagsPerProduct = await _db.Products
@@ -785,7 +783,7 @@ namespace Smartstore.Core.DataExchange.Import
                         if (addedMissingTags)
                         {
                             // Tags must be saved and assigned an ID prior adding a mapping.
-                            await _scope.CommitAsync(context.CancelToken);
+                            await scope.CommitAsync(context.CancelToken);
 
                             // Clear cached product per tag counts.
                             context.ClearCache = true;
@@ -807,12 +805,15 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
+
             if (num > 0)
+            {
                 context.ClearCache = true;
+            }
         }
 
-        protected virtual async Task<int> ProcessGroupedProductsAsync(ImportExecuteContext context)
+        protected virtual async Task<int> ProcessGroupedProductsAsync(ImportExecuteContext context, DbContextScope scope)
         {
             var parentProductIds = context.GetCustomProperty<Dictionary<int, int>>(PARENT_PRODUCT_IDS_KEY);
             if (!parentProductIds.Any())
@@ -857,13 +858,13 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
-                num += await _scope.CommitAsync(context.CancelToken);
+                num += await scope.CommitAsync(context.CancelToken);
             }
 
             return num;
         }
 
-        protected virtual async Task ProcessTierPricesAsync(ImportExecuteContext context)
+        protected virtual async Task ProcessTierPricesAsync(ImportExecuteContext context, DbContextScope scope)
         {
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.TierPrice, _services.WorkContext.WorkingLanguage.Id);
             var segmenter = context.DataSegmenter;
@@ -921,7 +922,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
-                savedEntities = await _scope.CommitAsync(context.CancelToken);
+                savedEntities = await scope.CommitAsync(context.CancelToken);
             }
             catch (Exception ex)
             {
@@ -939,7 +940,7 @@ namespace Smartstore.Core.DataExchange.Import
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<TierPrice>(context, batch));
         }
 
-        protected virtual async Task ProcessAttributeValuesAsync(ImportExecuteContext context)
+        protected virtual async Task ProcessAttributeValuesAsync(ImportExecuteContext context, DbContextScope scope)
         {
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeValue, _services.WorkContext.WorkingLanguage.Id);
             var segmenter = context.DataSegmenter;
@@ -1005,7 +1006,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
-                savedEntities = await _scope.CommitAsync(context.CancelToken);
+                savedEntities = await scope.CommitAsync(context.CancelToken);
             }
             catch (Exception ex)
             {
@@ -1020,7 +1021,7 @@ namespace Smartstore.Core.DataExchange.Import
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<ProductVariantAttributeValue>(context, batch));
         }
 
-        protected virtual async Task ProcessAttributeCombinationsAsync(ImportExecuteContext context)
+        protected virtual async Task ProcessAttributeCombinationsAsync(ImportExecuteContext context, DbContextScope scope)
         {
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeCombination, _services.WorkContext.WorkingLanguage.Id);
             var segmenter = context.DataSegmenter;
@@ -1097,7 +1098,7 @@ namespace Smartstore.Core.DataExchange.Import
                     row.SetProperty(context.Result, (x) => x.RawAttributes);
                 }
 
-                savedEntities = await _scope.CommitAsync(context.CancelToken);
+                savedEntities = await scope.CommitAsync(context.CancelToken);
             }
             catch (Exception ex)
             {

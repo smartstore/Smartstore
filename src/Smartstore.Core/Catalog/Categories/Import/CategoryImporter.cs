@@ -42,11 +42,7 @@ namespace Smartstore.Core.DataExchange.Import
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             IFolderService folderService)
-            : base(new DbContextScope(services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true),
-                  services, 
-                  localizedEntityService, 
-                  storeMappingService, 
-                  urlService)
+            : base(services, localizedEntityService, storeMappingService, urlService)
         {
             _folderService = folderService;
         }
@@ -56,6 +52,8 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
+            using var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true);
+
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Category>();
 
@@ -67,7 +65,7 @@ namespace Smartstore.Core.DataExchange.Import
             var savedCategories = 0;
             try
             {
-                savedCategories = await ProcessCategoriesAsync(context, batch);
+                savedCategories = await ProcessCategoriesAsync(context, scope, batch);
             }
             catch (Exception ex)
             {
@@ -110,7 +108,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 try
                 {
-                    await ProcessStoreMappingsAsync(context, batch);
+                    await ProcessStoreMappingsAsync(context, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -123,7 +121,7 @@ namespace Smartstore.Core.DataExchange.Import
             // ===========================================================================
             try
             {
-                await ProcessLocalizationsAsync(context, batch, _localizableProperties);
+                await ProcessLocalizationsAsync(context, scope, batch, _localizableProperties);
             }
             catch (Exception ex)
             {
@@ -137,7 +135,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 try
                 {
-                    await ProcessPicturesAsync(context, batch);
+                    await ProcessPicturesAsync(context, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -155,14 +153,14 @@ namespace Smartstore.Core.DataExchange.Import
                     segmenter.HasColumn("ParentCategoryId") && 
                     !segmenter.IsIgnored("ParentCategoryId"))
                 {
-                    await ProcessParentMappingsAsync(context, batch);
+                    await ProcessParentMappingsAsync(context, scope, batch);
                 }
             }
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Category>(context, batch), cancelToken);
         }
 
-        protected virtual async Task<int> ProcessCategoriesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Category>> batch)
+        protected virtual async Task<int> ProcessCategoriesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Category>> batch)
         {
             var cargo = await GetCargoData(context);
             var defaultTemplateId = cargo.TemplateViewPaths["CategoryTemplate.ProductsInGridOrLines"];
@@ -263,7 +261,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            var num = await _scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
 
             // Get new category ids.
             // Required for parent category relationship.
@@ -281,7 +279,7 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
-        protected virtual async Task<int> ProcessPicturesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Category>> batch)
+        protected virtual async Task<int> ProcessPicturesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Category>> batch)
         {
             var cargo = await GetCargoData(context);
             var allFileIds = batch
@@ -362,11 +360,11 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
             return num;
         }
 
-        protected virtual async Task<int> ProcessParentMappingsAsync(ImportExecuteContext context, IEnumerable<ImportRow<Category>> batch)
+        protected virtual async Task<int> ProcessParentMappingsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Category>> batch)
         {
             var parentCategoryIds = context.GetCustomProperty<Dictionary<int, int>>(PARENT_CATEGORY_IDS_KEY);
             if (!parentCategoryIds.Any())
@@ -411,7 +409,7 @@ namespace Smartstore.Core.DataExchange.Import
                     }
                 }
 
-                num += await _scope.CommitAsync(context.CancelToken);
+                num += await scope.CommitAsync(context.CancelToken);
             }
 
             return num;

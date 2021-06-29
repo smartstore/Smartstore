@@ -39,11 +39,7 @@ namespace Smartstore.Core.DataExchange.Import
             TaxSettings taxSettings,
             PrivacySettings privacySettings,
             DateTimeSettings dateTimeSettings)
-            : base(new DbContextScope(services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true),
-                  services, 
-                  localizedEntityService, 
-                  storeMappingService, 
-                  urlService)
+            : base(services, localizedEntityService, storeMappingService, urlService)
         {
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
@@ -56,6 +52,8 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
+            using var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true);
+
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Customer>();
 
@@ -66,7 +64,7 @@ namespace Smartstore.Core.DataExchange.Import
             // ===========================================================================
             try
             {
-                await ProcessCustomersAsync(context, batch);
+                await ProcessCustomersAsync(context, scope, batch);
             }
             catch (Exception ex)
             {
@@ -88,7 +86,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 try
                 {
-                    await ProcessCustomerRolesAsync(context, batch);
+                    await ProcessCustomerRolesAsync(context, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -101,7 +99,7 @@ namespace Smartstore.Core.DataExchange.Import
             // ===========================================================================
             try
             {
-                await ProcessGenericAttributesAsync(context, batch);
+                await ProcessGenericAttributesAsync(context, scope, batch);
             }
             catch (Exception ex)
             {
@@ -115,7 +113,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 try
                 {
-                    await ProcessAvatarsAsync(context, batch);
+                    await ProcessAvatarsAsync(context, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -128,7 +126,7 @@ namespace Smartstore.Core.DataExchange.Import
             // ===========================================================================
             try
             {
-                await ProcessAddressesAsync(context, batch);
+                await ProcessAddressesAsync(context, scope, batch);
             }
             catch (Exception ex)
             {
@@ -143,7 +141,7 @@ namespace Smartstore.Core.DataExchange.Import
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Customer>(context, batch), cancelToken);
         }
 
-        protected virtual async Task<int> ProcessCustomersAsync(ImportExecuteContext context, IEnumerable<ImportRow<Customer>> batch)
+        protected virtual async Task<int> ProcessCustomersAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
         {
             var cargo = await GetCargoData(context);
             var currentCustomer = _services.WorkContext.CurrentCustomer;
@@ -294,11 +292,11 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             // Commit whole batch at once.
-            var num = await _scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
             return num;
         }
 
-        protected virtual async Task<int> ProcessCustomerRolesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Customer>> batch)
+        protected virtual async Task<int> ProcessCustomerRolesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
         {
             var cargo = await GetCargoData(context);
             if (!cargo.AllowManagingCustomerRoles)
@@ -353,11 +351,11 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
             return num;
         }
 
-        protected virtual async Task<int> ProcessGenericAttributesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Customer>> batch)
+        protected virtual async Task<int> ProcessGenericAttributesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
         {
             // TODO: (mg) (core) (perf) (low) Prefetch all generic attributes for whole batch and work against batch (to be implemented after initial release).
             var cargo = await GetCargoData(context);
@@ -408,11 +406,11 @@ namespace Smartstore.Core.DataExchange.Import
                     SetGenericAttribute(SystemCustomerAttributeNames.StateProvinceId, stateId.Value, row);
             }
 
-            var num = await _scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
             return num;
         }
 
-        protected virtual async Task<int> ProcessAvatarsAsync(ImportExecuteContext context, IEnumerable<ImportRow<Customer>> batch)
+        protected virtual async Task<int> ProcessAvatarsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
         {
             foreach (var row in batch)
             {
@@ -467,11 +465,11 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await _scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
             return num;
         }
 
-        protected virtual async Task<int> ProcessAddressesAsync(ImportExecuteContext context, IEnumerable<ImportRow<Customer>> batch)
+        protected virtual async Task<int> ProcessAddressesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
         {
             var cargo = await GetCargoData(context);
 
@@ -481,7 +479,7 @@ namespace Smartstore.Core.DataExchange.Import
                 ImportAddress("ShippingAddress.", row, context, cargo);
             }
 
-            var num = await _scope.CommitAsync(context.CancelToken);
+            var num = await scope.CommitAsync(context.CancelToken);
             return num;
         }
 

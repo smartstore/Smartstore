@@ -28,7 +28,6 @@ namespace Smartstore.Core.DataExchange.Import
         // share the same images, where multiple downloading is unnecessary.
         private readonly Dictionary<string, string> _downloadedItems = new();
 
-        protected DbContextScope _scope;
         protected SmartDbContext _db;
         protected ICommonServices _services;
         protected ILocalizedEntityService _localizedEntityService;
@@ -36,16 +35,11 @@ namespace Smartstore.Core.DataExchange.Import
         protected IUrlService _urlService;
 
         protected EntityImporterBase(
-            DbContextScope scope,
             ICommonServices services,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService)
         {
-            // TODO: (mg) (core) You cannot pass DbContextScope from derived entity, because then the lifetime
-            // of the scope is the lifetime of the derived importer instance. That's not how DbContextScope works:
-            // The constructor changes DbContext options, the disposer restores them. But where's the disposer here?
-            _scope = scope;
             _db = services.DbContext;
             _services = services;
             _localizedEntityService = localizedEntityService;
@@ -57,16 +51,9 @@ namespace Smartstore.Core.DataExchange.Import
         }
 
         /// <inheritdoc/>
-        public async Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
+        public Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
-            try
-            {
-                await ProcessBatchAsync(context, cancelToken);
-            }
-            finally
-            {
-                await _scope.DisposeAsync();
-            }
+            return ProcessBatchAsync(context, cancelToken);
         }
 
         /// <summary>
@@ -76,8 +63,17 @@ namespace Smartstore.Core.DataExchange.Import
         /// <param name="cancelToken">A cancellation token to cancel the import.</param>
         protected abstract Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default);
 
+        /// <summary>
+        /// Imports localized properties.
+        /// </summary>
+        /// <param name="context">Import execution context.</param>
+        /// <param name="scope">Scope for database commit.</param>
+        /// <param name="batch">Batch of source data.</param>
+        /// <param name="localizableProperties">Keys of localized properties to be included.</param>
+        /// <returns>The task result contains the number of state entries written to the database.</returns>
         protected virtual async Task<int> ProcessLocalizationsAsync<TEntity>(
             ImportExecuteContext context,
+            DbContextScope scope,
             IEnumerable<ImportRow<TEntity>> batch,
             IDictionary<string, Expression<Func<TEntity, string>>> localizableProperties)
             where TEntity : BaseEntity, ILocalizedEntity
@@ -159,14 +155,22 @@ namespace Smartstore.Core.DataExchange.Import
             if (shouldSave)
             {
                 // Commit whole batch at once.
-                return await _scope.CommitAsync(context.CancelToken);
+                return await scope.CommitAsync(context.CancelToken);
             }
 
             return 0;
         }
 
+        /// <summary>
+        /// Imports store mappings.
+        /// </summary>
+        /// <param name="context">Import execution context.</param>
+        /// <param name="scope">Scope for database commit.</param>
+        /// <param name="batch">Batch of source data.</param>
+        /// <returns>The task result contains the number of state entries written to the database.</returns>
         protected virtual async Task<int> ProcessStoreMappingsAsync<TEntity>(
             ImportExecuteContext context,
+            DbContextScope scope,
             IEnumerable<ImportRow<TEntity>> batch)
             where TEntity : BaseEntity, IStoreRestricted
         {
@@ -226,12 +230,19 @@ namespace Smartstore.Core.DataExchange.Import
             if (shouldSave)
             {
                 // Commit whole batch at once.
-                return await _scope.CommitAsync(context.CancelToken);
+                return await scope.CommitAsync(context.CancelToken);
             }
 
             return 0;
         }
 
+        /// <summary>
+        /// Imports URL records.
+        /// </summary>
+        /// <param name="context">Import execution context.</param>
+        /// <param name="batch">Batch of source data.</param>
+        /// <param name="entityName">Name of the entity for which the slugs are intended.</param>
+        /// <returns>The task result contains the number of state entries written to the database.</returns>
         protected virtual async Task<int> ProcessSlugsAsync<TEntity>(
             ImportExecuteContext context,
             IEnumerable<ImportRow<TEntity>> batch,
@@ -280,6 +291,13 @@ namespace Smartstore.Core.DataExchange.Import
             return await scope.CommitAsync(context.CancelToken);
         }
 
+        /// <summary>
+        /// Creates a download manager item.
+        /// </summary>
+        /// <param name="context">Import execution context.</param>
+        /// <param name="urlOrPath">URL or path to download.</param>
+        /// <param name="displayOrder">Display order of the item.</param>
+        /// <returns>Download manager item.</returns>
         protected virtual DownloadManagerItem CreateDownloadItem(ImportExecuteContext context, string urlOrPath, int displayOrder)
         {
             if (urlOrPath.IsEmpty())
@@ -339,6 +357,12 @@ namespace Smartstore.Core.DataExchange.Import
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the download succeeded.
+        /// </summary>
+        /// <param name="item">Download manager item.</param>
+        /// <param name="context">Import execution context.</param>
+        /// <returns>A value indicating whether the download succeeded.</returns>
         protected virtual bool FileDownloadSucceeded(DownloadManagerItem item, ImportExecuteContext context)
         {
             if (item.Success && File.Exists(item.Path))
@@ -362,6 +386,11 @@ namespace Smartstore.Core.DataExchange.Import
             }
         }
 
+        /// <summary>
+        /// Converts a raw import value and returns <c>null</c> for a value of zero.
+        /// </summary>
+        /// <param name="value">Import value.</param>
+        /// <param name="culture">Culture info.</param>
         protected static int? ZeroToNull(object value, CultureInfo culture)
         {
             if (CommonHelper.TryConvert(value, culture, out int result) && result > 0)
