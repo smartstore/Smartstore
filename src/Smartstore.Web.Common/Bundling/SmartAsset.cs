@@ -71,11 +71,11 @@ namespace Smartstore.Web.Bundling
         {
             var cacheKey = _inner.Route.ToLowerInvariant();
 
-            foreach (var processors in Processors)
+            foreach (var processor in Processors)
             {
                 try
                 {
-                    var processorKey = processors.CacheKey(context);
+                    var processorKey = processor.CacheKey(context);
                     if (processorKey.HasValue())
                     {
                         cacheKey += processorKey;
@@ -83,7 +83,7 @@ namespace Smartstore.Web.Bundling
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"CacheKey generation exception in {processors.GetType().FullName} processor", ex);
+                    throw new Exception($"CacheKey generation exception in {processor.GetType().FullName} processor", ex);
                 }
             }
 

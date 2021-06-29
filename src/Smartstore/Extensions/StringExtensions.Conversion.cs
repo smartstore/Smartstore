@@ -54,19 +54,17 @@ namespace Smartstore
             if (value.IsEmpty())
                 return value;
 
-            using (var md5 = MD5.Create())
-            {
-                byte[] data = encoding.GetBytes(value);
+            using var md5 = MD5.Create();
+            byte[] data = encoding.GetBytes(value);
 
-                if (toBase64)
-                {
-                    byte[] hash = md5.ComputeHash(data);
-                    return Convert.ToBase64String(hash);
-                }
-                else
-                {
-                    return md5.ComputeHash(data).ToHexString().ToLower();
-                }
+            if (toBase64)
+            {
+                byte[] hash = md5.ComputeHash(data);
+                return Convert.ToBase64String(hash);
+            }
+            else
+            {
+                return md5.ComputeHash(data).ToHexString().ToLower();
             }
         }
 

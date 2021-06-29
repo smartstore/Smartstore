@@ -349,7 +349,7 @@ namespace Smartstore
                 stream.Position = 0;
             }
 
-            using (StreamReader sr = new StreamReader(stream, encoding))
+            using (var sr = new StreamReader(stream, encoding))
             {
                 result = sr.ReadToEndAsync();
             }
