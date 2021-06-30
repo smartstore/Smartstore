@@ -1,5 +1,4 @@
 ﻿@using Smartstore.Core.Stores;
-@using Smartstore.Core.Identity;
 
 @{
     var currentCustomer = this.WorkContext.CurrentCustomer;
@@ -91,7 +90,7 @@
                         @T("Admin.Help.Forums")
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="@Url.Action("About", "Home", new { area = "Admin" })">
+                    <a class="dropdown-item" asp-action="About" asp-controller="Home">
                         <i class="fa fa-fw fa-info-circle"></i>
                         @T("Admin.Common.About")
                     </a>
@@ -99,7 +98,7 @@
             </li>
 
             <li sm-if="currentCustomer != null && currentCustomer.IsRegistered()" class="nav-item dropdown ml-md-3">
-                <a id="current-user" class="nav-link dropdown-toggle navbar-tool" data-toggle="dropdown" title="@userName" href='@Url.Action("Edit", "Customer", new { id = currentCustomer.Id, area = "Admin" })'>
+                <a id="current-user" class="nav-link dropdown-toggle navbar-tool" data-toggle="dropdown" title="@userName" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
                     @*<em class="fa-stack fa-lg">
                     <i class="fa fa-circle fa-stack-2x"></i>
                     <i class="icm icm-user navbar-icon" style="color: #3b50ce"></i>
@@ -107,11 +106,11 @@
                     <i class="icm icm-user navbar-icon"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="@Url.Action("Edit", "Customer", new { id = currentCustomer.Id, area = "Admin" })">
+                    <a class="dropdown-item" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
                         <i class="fa fa-fw fa-user"></i>
                         <span>@T("Admin.Header.Account")</span> <small class="muted">(@currentCustomer.Username.Truncate(40, "…"))</small>
                     </a>
-                    <a class="dropdown-item" href="@Url.RouteUrl("Logout")">
+                    <a class="dropdown-item" asp-route="Logout">
                         <i class="fal fa-fw fa-sign-out-alt"></i>
                         @T("Admin.Header.Logout")
                     </a>
@@ -121,8 +120,6 @@
         </ul>
     </div>
 </nav>
-
-@Html.AntiForgeryToken()
 
 <script sm-target-zone="scripts" data-origin="admin-navbar">
     @* TODO: (mh) (core) Move this to a js file *@
