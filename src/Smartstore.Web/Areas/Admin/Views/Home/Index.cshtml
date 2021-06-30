@@ -26,7 +26,7 @@
         @await Component.InvokeAsync("DashboardTopCustomers")
     </div>
     <div class="report-customer-registrations">
-        @*@{ Html.RenderAction("RegisteredCustomersDashboardReport", "Customer"); }*@
+        @await Component.InvokeAsync("DashboardRegisteredCustomers")
     </div>
     <div class="report-latest-orders">
         @await Component.InvokeAsync("DashboardLatestOrders")
