@@ -11,6 +11,11 @@ namespace Smartstore.Admin.Controllers
             return View();
         }
 
+        public IActionResult About()
+        {
+            return View();
+        }
+
         // TODO: (mh) (core) Remove when testing is done.
         public IActionResult EditorTemplates()
         {
