@@ -26,6 +26,7 @@ namespace Smartstore.Admin.Components
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var pageSize = 7;
+
             var reportByQuantity = await _db.Customers
                 .SelectAsTopCustomerReportLine(sorting: ReportSorting.ByQuantityDesc)
                 .Take(pageSize)

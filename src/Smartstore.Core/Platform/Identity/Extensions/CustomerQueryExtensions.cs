@@ -315,6 +315,11 @@ namespace Smartstore.Core.Identity
         {
             Guard.NotNull(query, nameof(query));
 
+            // TODO: (mh) (core) Bad API-design: a method named .SelectAs...() indicates that only projection
+            // is applied (...select new TopCustomerReportLine {}). But this method does also filtering. That is
+            // the ONE thing we wanted to avoid: monolithic code. This method needs a split-up: a filter part
+            // and a projection part. Details with MC.
+
             var orderStatusId = orderStatus.HasValue ? (int)orderStatus.Value : (int?)null;
             var paymentStatusId = paymentStatus.HasValue ? (int)paymentStatus.Value : (int?)null;
             var shippingStatusId = shippingStatus.HasValue ? (int)shippingStatus.Value : (int?)null;
