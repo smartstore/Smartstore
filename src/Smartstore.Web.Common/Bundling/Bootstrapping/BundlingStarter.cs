@@ -41,7 +41,7 @@ namespace Smartstore.Web.Bootstrapping
             bundleFileProvider.AddFileProvider(".app/", new SassFileProvider(appContext));
 
             builder.RegisterInstance<IBundleFileProvider>(bundleFileProvider);
-            builder.RegisterType<BundlingOptionsConfigurer>().As<IConfigureOptions<BundlingOptions>>().InstancePerDependency();
+            builder.RegisterType<BundlingOptionsConfigurer>().As<IConfigureOptions<BundlingOptions>>().SingleInstance();
 
             builder.RegisterType<BundleCollection>().As<IBundleCollection>().SingleInstance();
             builder.RegisterType<DefaultBundleBuilder>().As<IBundleBuilder>().SingleInstance();
