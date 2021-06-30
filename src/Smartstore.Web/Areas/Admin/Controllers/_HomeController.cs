@@ -8,9 +8,9 @@ namespace Smartstore.Admin.Controllers
 {
     public class HomeController : AdminControllerBase
     {
-        private readonly Lazy<IUserAgent> _userAgent;
+        private readonly IUserAgent _userAgent;
         
-        public HomeController(Lazy<IUserAgent> userAgent)
+        public HomeController(IUserAgent userAgent)
         {
             _userAgent = userAgent;
         }
@@ -29,9 +29,10 @@ namespace Smartstore.Admin.Controllers
         {
             if (ua.HasValue())
             {
-                _userAgent.Value.RawValue = ua;
+                _userAgent.RawValue = ua;
             }
-            return View(_userAgent.Value);
+
+            return View(_userAgent);
         }
 
 
