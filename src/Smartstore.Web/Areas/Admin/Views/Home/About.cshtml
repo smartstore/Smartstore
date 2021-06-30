@@ -1,6 +1,8 @@
 ﻿@{
     ViewBag.Title = T("Admin.Common.About").Value;
     string license = T("Admin.Common.License").Value;
+
+    // TODO: (mh) (core) Check all libraries and update their info!!! The removed ones are not used anymore. The commented ones need an update. Check other (new) packges we use and add them here.
 }
 
 <div class="section-header">
@@ -34,16 +36,7 @@
 
     <p>
         <ul class="work-list list-unstyled">
-            <li>
-                <div class="name">
-                    <a href="http://www.antlr.org/" rel="nofollow" target="AboutTargetWin">ANTLR</a>
-                </div>
-                <div class="copyright">
-                    Copyright ANTLR / Terence Parr 2018
-                </div>
-                @{ await BSDLicense(); }
-            </li>
-            <li>
+            @*<li>
                 <div class="name">
                     <a href="https://github.com/aspnet/AspNetWebStack" rel="nofollow" target="AboutTargetWin">ASP.NET MVC</a>
                 </div>
@@ -51,7 +44,7 @@
                     Copyright &copy; 2008-2018 Microsoft Corporation
                 </div>
                 @{ await MVCEULA(); }
-            </li>
+            </li>*@
             <li>
                 <div class="name">
                     <a href="http://autofac.org" rel="nofollow" target="AboutTargetWin">Autofac</a>
@@ -63,15 +56,6 @@
             </li>
             <li>
                 <div class="name">
-                    <a href=" https://github.com/Taritsyn/BundleTransformer" rel="nofollow" target="AboutTargetWin">Bundle Transformer</a>
-                </div>
-                <div class="copyright">
-                    Copyright Andrey Taritsyn 2018
-                </div>
-                @{ await Apache2License(); }
-            </li>
-            <li>
-                <div class="name">
                     <a href="https://summernote.org/" rel="nofollow" target="AboutTargetWin">summernote</a>
                 </div>
                 <div class="copyright">
@@ -79,7 +63,7 @@
                 </div>
                 @{ await MITLicense(); }
             </li>
-            <li>
+            @*<li>
                 <div class="name">
                     <a href="http://dotnetopenauth.net/" rel="nofollow" target="AboutTargetWin">DotNetOpenAuth</a>
                 </div>
@@ -87,8 +71,8 @@
                     Copyright &copy; 2018, Outercurve Foundation
                 </div>
                 @{ await MSPLLicense(); }
-            </li>
-            <li>
+            </li>*@
+            @*<li>
                 <div class="name">
                     <a href="https://github.com/aspnet/EntityFramework6" rel="nofollow" target="AboutTargetWin">Entity Framework</a>
                 </div>
@@ -96,8 +80,8 @@
                     Copyright &copy; 2012-2018 Microsoft Corporation
                 </div>
                 @{ await Apache2License(); }
-            </li>
-            <li>
+            </li>*@
+            @*<li>
                 <div class="name">
                     <a href="https://github.com/JanKallman/EPPlus" rel="nofollow" target="AboutTargetWin">EPPlus</a>
                 </div>
@@ -105,17 +89,17 @@
                     Copyright &copy; 2018 Jan Källman
                 </div>
                 @{ await LGPLLicense(); }
-            </li>
+            </li>*@
             <li>
                 <div class="name">
                     <a href="https://github.com/JeremySkinner/FluentValidation/" rel="nofollow" target="AboutTargetWin">Fluent Validation</a>
                 </div>
                 <div class="copyright">
-                    Copyright &copy; Jeremy Skinner 2008-2018
+                    Copyright &copy; Jeremy Skinner 2008-2021
                 </div>
                 @{ await Apache2License(); }
             </li>
-            <li>
+            @*<li>
                 <div class="name">
                     <a href="http://imageprocessor.org/" rel="nofollow" target="AboutTargetWin">ImageProcessor</a>
                 </div>
@@ -123,8 +107,8 @@
                     Copyright &copy; 2018 James Jackson-South
                 </div>
                 @{ await Apache2License(); }
-            </li>
-            <li>
+            </li>*@
+            @*<li>
                 <div class="name">
                     <a href="https://github.com/Taritsyn/JavaScriptEngineSwitcher" rel="nofollow" target="AboutTargetWin">JavaScriptEngineSwitcher</a>
                 </div>
@@ -132,22 +116,13 @@
                     Copyright Andrey Taritsyn 2018
                 </div>
                 @{ await Apache2License(); }
-            </li>
+            </li>*@
             <li>
                 <div class="name">
                     <a href="http://jquery.com/" rel="nofollow" target="AboutTargetWin">jQuery</a>
                 </div>
                 <div class="copyright">
                     Copyright &copy; 2010 <a href="http://jquery.com/" rel="nofollow" target="AboutTargetWin">John Resig</a>
-                </div>
-                @{ await MITLicense(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="https://github.com/flesler/jquery.scrollTo" rel="nofollow" target="AboutTargetWin">jQuery ScrollTo</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2007-2015 Ariel Flesler
                 </div>
                 @{ await MITLicense(); }
             </li>
@@ -177,15 +152,6 @@
                     Copyright (c) 2018 Linearicons.com
                 </div>
                 @{ await CreativeCommonsLicense(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="http://blogs.msdn.com/b/sqlservercompact/archive/2011/01/12/microsoft-sql-server-compact-4-0-is-available-for-download.aspx" rel="nofollow" target="AboutTargetWin">Microsoft SQL Server Compact 4.0</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2018 Microsoft Corporation
-                </div>
-                @{ await SqlCeEULA(); }
             </li>
             <li>
                 <div class="name">
@@ -244,19 +210,10 @@
             </li>
             <li>
                 <div class="name">
-                    <a href="http://www.telerik.com/" rel="nofollow" target="AboutTargetWin">Telerik MVC Extensions</a>
-                </div>
-                <div class="copyright">
-
-                </div>
-                @{ await GPLv3License(); }
-            </li>
-            <li>
-                <div class="name">
                     <a href="http://getbootstrap.com/" rel="nofollow" target="AboutTargetWin">Twitter Bootstrap</a>
                 </div>
                 <div class="copyright">
-                    Copyright &copy; 2018 Twitter, Inc.
+                    Copyright &copy; 2021 Twitter, Inc.
                 </div>
                 @{ await Apache2License(); }
             </li>
@@ -278,7 +235,7 @@
                 </div>
                 @{ await MITLicense(); }
             </li>
-            <li>
+            @*<li>
                 <div class="name">
                     <a href="http://wkhtmltopdf.org/" rel="nofollow" target="AboutTargetWin">wkhtmltopdf</a>
                 </div>
@@ -286,7 +243,7 @@
 
                 </div>
                 @{ await LGPLLicense(); }
-            </li>
+            </li>*@
         </ul>
     </p>
 </div>
