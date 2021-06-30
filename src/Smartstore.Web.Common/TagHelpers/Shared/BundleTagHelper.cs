@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -12,7 +10,6 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Options;
 using Smartstore.Web.Bundling;
-using WebOptimizer;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -26,18 +23,18 @@ namespace Smartstore.Web.TagHelpers.Shared
         protected override string SourceAttributeName  => SrcAttribute;
 
         public ScriptAssetTagHelper(
-            IAssetPipeline pipeline,
-            IAssetBuilder builder,
-            IWebHostEnvironment env,
-            IOptionsMonitor<WebOptimizerOptions> options)
-            : base(pipeline, builder, env, options)
+            IBundleCollection bundles,
+            IBundleCache bundleCache,
+            IOptionsMonitor<BundlingOptions> options,
+            IWebHostEnvironment env)
+            : base(bundles, bundleCache, options, env)
         {
         }
 
-        protected override IHtmlContent RenderAssetTag(IAsset asset, string path)
+        protected override IHtmlContent RenderAssetTag(BundleFile file)
         {
             var script = new TagBuilder("script");
-            script.Attributes.Add(SourceAttributeName, path);
+            script.Attributes.Add(SourceAttributeName, file.Path);
             return script;
         }
     }
@@ -54,19 +51,19 @@ namespace Smartstore.Web.TagHelpers.Shared
         protected override string SourceAttributeName => HrefAttribute;
 
         public LinkAssetTagHelper(
-            IAssetPipeline pipeline,
-            IAssetBuilder builder,
-            IWebHostEnvironment env,
-            IOptionsMonitor<WebOptimizerOptions> options)
-            : base(pipeline, builder, env, options)
+            IBundleCollection bundles,
+            IBundleCache bundleCache,
+            IOptionsMonitor<BundlingOptions> options,
+            IWebHostEnvironment env)
+            : base(bundles, bundleCache, options, env)
         {
         }
 
-        protected override IHtmlContent RenderAssetTag(IAsset asset, string path)
+        protected override IHtmlContent RenderAssetTag(BundleFile file)
         {
             var script = new TagBuilder("link");
             script.Attributes.Add("rel", "stylesheet");
-            script.Attributes.Add(SourceAttributeName, path);
+            script.Attributes.Add(SourceAttributeName, file.Path);
             return script;
         }
     }
@@ -74,15 +71,15 @@ namespace Smartstore.Web.TagHelpers.Shared
     public abstract class BundleTagHelper : TagHelper
     {
         public BundleTagHelper(
-            IAssetPipeline pipeline,
-            IAssetBuilder builder,
-            IWebHostEnvironment env,
-            IOptionsMonitor<WebOptimizerOptions> options)
+            IBundleCollection bundles,
+            IBundleCache bundleCache,
+            IOptionsMonitor<BundlingOptions> options,
+            IWebHostEnvironment env)
         {
-            AssetPipeline = pipeline;
-            AssetBuilder = builder;
-            HostEnvironment = env;
+            Bundles = bundles;
+            BundleCache = bundleCache;
             Options = options.CurrentValue;
+            HostEnvironment = env;
         }
 
         /// <summary>
@@ -94,13 +91,13 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeNotBound]
         public ViewContext ViewContext { get; set; }
 
+        protected IBundleCollection Bundles { get; }
+
+        protected IBundleCache BundleCache { get; }
+
+        protected BundlingOptions Options { get; }
+
         protected IWebHostEnvironment HostEnvironment { get; }
-
-        protected IAssetPipeline AssetPipeline { get; }
-
-        protected IAssetBuilder AssetBuilder { get; }
-
-        protected IWebOptimizerOptions Options { get; }
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
@@ -116,10 +113,12 @@ namespace Smartstore.Web.TagHelpers.Shared
                 src = src[pathBase.Length..];
             }
 
-            if (AssetPipeline.TryGetAssetFromRoute(src, out var asset))
+            var bundle = Bundles.GetBundleFor(src);
+
+            if (bundle != null)
             {
-                var enableBundling = Options.EnableTagHelperBundling == true;
-                if (!enableBundling && asset.SourceFiles.Any(x => x.EndsWith(".scss")))
+                var enableBundling = Options.EnableBundling == true;
+                if (!enableBundling && bundle.SourceFiles.Any(x => x.EndsWith(".scss")))
                 {
                     // Cannot disable bundling for bundles that contain sass files. 
                     enableBundling = true;
@@ -127,12 +126,13 @@ namespace Smartstore.Web.TagHelpers.Shared
 
                 if (enableBundling)
                 {
-                    src = $"{pathBase}{asset.Route}";
+                    src = $"{pathBase}{bundle.Route}";
 
-                    var response = await AssetBuilder.BuildAsync(asset, ViewContext.HttpContext, Options);
-                    if (response is SmartAssetResponse smartResponse && smartResponse.ContentHash.HasValue())
+                    var cacheKey = bundle.GetCacheKey(ViewContext.HttpContext, Options);
+                    var cachedResponse = await BundleCache.GetResponseAsync(cacheKey, bundle);
+                    if (cachedResponse != null && cachedResponse.ContentHash.HasValue())
                     {
-                        src += "?v=" + smartResponse.ContentHash;
+                        src += "?v=" + cachedResponse.ContentHash;
                     }
 
                     output.Attributes.SetAttribute(SourceAttributeName, src);
@@ -141,18 +141,18 @@ namespace Smartstore.Web.TagHelpers.Shared
                 {
                     output.SuppressOutput();
 
-                    var sourceFiles = asset.ExpandGlobPatterns(HostEnvironment);
+                    var files = bundle.EnumerateFiles(ViewContext.HttpContext, Options);
 
-                    foreach (var file in sourceFiles)
+                    foreach (var file in files)
                     {
-                        output.PostElement.AppendHtml(RenderAssetTag(asset, file));
+                        output.PostElement.AppendHtml(RenderAssetTag(file));
                         output.PostElement.AppendLine();
                     }
                 }
             }
         }
 
-        protected abstract IHtmlContent RenderAssetTag(IAsset asset, string path);
+        protected abstract IHtmlContent RenderAssetTag(BundleFile file);
 
         protected abstract string SourceAttributeName { get; }
 

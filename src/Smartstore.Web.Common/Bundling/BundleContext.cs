@@ -1,22 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
 
 namespace Smartstore.Web.Bundling
 {
+    [DebuggerDisplay("AssetContent: {Path}")]
     public class AssetContent
     {
         public string Path { get; init; }
         public DateTimeOffset LastModifiedUtc { get; init; }
         public string ContentType { get; init; }
+        public IFileProvider FileProvider { get; init; }
         public string Content { get; set; }
+
+        private bool? _isMinified;
         public bool IsMinified 
         { 
-            get
-            {
-                // TODO: Implement AssetContent.IsMinified
-                return false;
-            } 
+            get => _isMinified ??= RegularExpressions.IsMinFile.IsMatch(Path);
+            set => _isMinified = value;
         } 
     }
     

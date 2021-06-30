@@ -4,21 +4,21 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Theming;
 using Smartstore.Engine;
-using WebOptimizer;
+using Smartstore.Web.Bundling;
 
-namespace Smartstore.Web.Bundling
+namespace Smartstore.Web.Bootstrapping
 {
-    internal class BundlingConfigurer : Disposable, IConfigureOptions<WebOptimizerOptions>
+    internal class BundlingOptionsConfigurer : Disposable, IConfigureOptions<BundlingOptions>
     {
         private readonly IApplicationContext _appContext;
-        private readonly IOptionsMonitorCache<WebOptimizerOptions> _options;
+        private readonly IOptionsMonitorCache<BundlingOptions> _options;
         private readonly ThemeSettings _themeSettings;
 
         private IDisposable _callback;
 
-        public BundlingConfigurer(
-            IApplicationContext appContext, 
-            IOptionsMonitorCache<WebOptimizerOptions> options,
+        public BundlingOptionsConfigurer(
+            IApplicationContext appContext,
+            IOptionsMonitorCache<BundlingOptions> options,
             ThemeSettings themeSettings)
         {
             _appContext = appContext;
@@ -26,16 +26,16 @@ namespace Smartstore.Web.Bundling
             _themeSettings = themeSettings;
         }
 
-        public void Configure(WebOptimizerOptions options)
+        public void Configure(BundlingOptions options)
         {
-            // TODO: (mh) (core) Update WebOptimizerOptions whenever theme settings change by calling this method from controller with current options.
+            // TODO: (mh) (core) Update BundlingOptions whenever theme settings change by calling this method from controller with current options.
 
             _callback = _appContext.Configuration.GetReloadToken().RegisterChangeCallback(_ =>
             {
                 _options.TryRemove(Options.DefaultName);
             }, null);
 
-            var section = _appContext.Configuration.GetSection("WebOptimizer");
+            var section = _appContext.Configuration.GetSection("Bundling");
             section.Bind(options);
 
             var env = _appContext.HostEnvironment;
@@ -53,11 +53,13 @@ namespace Smartstore.Web.Bundling
                 diskCachingEnabled = _themeSettings.AssetCachingEnabled > 1;
             }
 
-            options.AllowEmptyBundle ??= false;
-            options.EnableCaching ??= !env.IsDevelopment();
+            options.EnableBundling ??= bundlingEnabled ?? !env.IsDevelopment();
+            options.EnableClientCache ??= !env.IsDevelopment();
             options.EnableMemoryCache ??= true;
-            options.EnableTagHelperBundling ??= bundlingEnabled ?? !env.IsDevelopment();
             options.EnableDiskCache ??= diskCachingEnabled ?? !env.IsDevelopment();
+            options.EnableMinification ??= bundlingEnabled ?? !env.IsDevelopment();
+            options.EnableAutoPrefixer ??= bundlingEnabled ?? !env.IsDevelopment();
+            options.FileProvider ??= _appContext.WebRoot;
             options.CacheDirectory = cacheDirectory.IsEmpty()
                 ? _appContext.TenantRoot.GetDirectory("AssetCache").PhysicalPath
                 : cacheDirectory;

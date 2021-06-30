@@ -29,6 +29,6 @@ namespace Smartstore.Web.Bundling
         /// <remarks>
         /// Enabling compression on HTTPS requests for remotely manipulable content may expose security problems.
         /// </remarks>
-        HttpsCompressionMode HttpsCompression { get; set; } = HttpsCompressionMode.Default;
+        public HttpsCompressionMode HttpsCompression { get; set; } = HttpsCompressionMode.Default;
     }
 }

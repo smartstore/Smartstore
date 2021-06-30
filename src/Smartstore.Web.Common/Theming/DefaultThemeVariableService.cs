@@ -28,7 +28,7 @@ namespace Smartstore.Web.Theming
         private readonly IThemeRegistry _themeRegistry;
         private readonly IRequestCache _requestCache;
         private readonly IEventPublisher _eventPublisher;
-        private readonly IAssetFileProvider _assetFileProvider;
+        private readonly IBundleFileProvider _assetFileProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DefaultThemeVariableService(
@@ -36,7 +36,7 @@ namespace Smartstore.Web.Theming
             IThemeRegistry themeRegistry,
             IRequestCache requestCache,
             IEventPublisher eventPublisher,
-            IAssetFileProvider assetFileProvider,
+            IBundleFileProvider assetFileProvider,
             IHttpContextAccessor httpContextAccessor)
         {
             _db = db;

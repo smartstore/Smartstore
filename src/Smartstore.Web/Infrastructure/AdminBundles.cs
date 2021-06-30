@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine;
 using Smartstore.Web.Bundling;
-using WebOptimizer;
 
 namespace Smartstore.Web.Infrastructure
 {
@@ -12,7 +8,7 @@ namespace Smartstore.Web.Infrastructure
     {
         public int Priority => 0;
 
-        public void RegisterBundles(IApplicationContext appContext, IAssetPipeline assetPipeline)
+        public void RegisterBundles(IApplicationContext appContext, IBundleCollection bundles)
         {
             if (!appContext.IsInstalled)
             {
@@ -24,31 +20,30 @@ namespace Smartstore.Web.Infrastructure
             var adminJs = "/admin/js/";
             var components = "/components/";
 
-
             /* Admin Common CSS --> /bundle/css/admin-common.css
             -----------------------------------------------------*/
-            assetPipeline.RegisterCssBundle("/bundle/css/admin-common.css",
+            bundles.Add(new StyleBundle("/bundle/css/admin-common.css").Include(
                 lib + "fontastic/fontastic.css",
                 lib + "fa5/css/all.css",
                 lib + "pnotify/css/pnotify.css",
                 lib + "pnotify/css/pnotify.mobile.css",
-                lib + "pnotify/css/pnotify.buttons.css");
+                lib + "pnotify/css/pnotify.buttons.css"));
 
 
             /* Admin Main Sass theme --> /admin/theme.scss
             -----------------------------------------------------*/
-            //assetPipeline.RegisterSassFile("/admin/theme.scss");
-            assetPipeline.RegisterCssBundle("/bundle/css/admin-theme.css", "/admin/theme.scss");
+            bundles.Add(new StyleBundle("/bundle/css/admin-theme.css").Include(
+                "/admin/theme.scss"));
 
 
             /* Admin Main scripts --> /bundle/js/admin.js
             -----------------------------------------------------*/
-            assetPipeline.RegisterJsBundle("/bundle/js/admin.js",
+            bundles.Add(new ScriptBundle("/bundle/js/admin.js").Include(
                 adminJs + "jquery-shims.js",
                 // Lib
                 lib + "underscore/underscore.js",
                 lib + "underscore/underscore.string.js",
-                lib + "jquery/jquery.addeasing.js", 
+                lib + "jquery/jquery.addeasing.js",
                 lib + "jquery-ui/effect.js",
                 lib + "jquery-ui/effect-transfer.js",
                 lib + "jquery-ui/position.js",
@@ -92,39 +87,27 @@ namespace Smartstore.Web.Infrastructure
                 // Admin
                 adminJs + "admin.common.js",
                 adminJs + "admin.media.js",
-                adminJs + "admin.globalinit.js");
+                adminJs + "admin.globalinit.js"));
 
 
             /* Chart.js --> /bundle/js/chart.js
             -----------------------------------------------------*/
-            assetPipeline.RegisterJsBundle("/bundle/js/chart.js",
-                lib + "Chart.js/Chart.js");
+            bundles.Add(new ScriptBundle("/bundle/js/chart.js").Include(
+                lib + "Chart.js/Chart.js"));
 
 
             /* DataGrid --> /bundle/js/datagrid.js
             -----------------------------------------------------*/
-            // Script
-            assetPipeline.RegisterJsBundle("/bundle/js/datagrid.js",
+            bundles.Add(new ScriptBundle("/bundle/js/datagrid.js").Include(
                 components + "datagrid/datagrid.js",
                 components + "datagrid/datagrid-pager.js",
-                components + "datagrid/datagrid-tools.js");
-            // Scss (Move as partial to main file later)
-            //assetPipeline.CompileScssFiles(null, components + "datagrid/datagrid.scss").MinifyCss();
-            //assetPipeline.RegisterSassFile(components + "datagrid/datagrid.scss");
+                components + "datagrid/datagrid-tools.js"));
 
-            // TEST
-            //assetPipeline.RegisterSassFile(lib + "bs4/scss/bootstrap.scss");
-            //assetPipeline.AddFiles("text/css; charset=UTF-8", lib + "bs4/scss/bootstrap.scss")
-            //    .AddSassProcessor()
-            //    .FingerprintUrls()
-            //    .AddResponseHeader("X-Content-Type-Options", "nosniff")
-            //    .MinifyCss();
-            //assetPipeline.CompileScssFiles(null, lib + "bs4/scss/bootstrap.scss").MinifyCss();
 
             /* Summernote--> /bundle/js/summernote.js
-			------------------------------------------------------*/
+            -----------------------------------------------------*/
             var summernote = "/lib/editors/summernote/";
-            assetPipeline.RegisterJsBundle("/bundle/js/summernote.js",
+            bundles.Add(new ScriptBundle("/bundle/js/summernote.js").Include(
                 summernote + "summernote-bs4.min.js",
                 summernote + "plugins/smartstore.image.js",
                 summernote + "plugins/smartstore.link.js",
@@ -133,14 +116,14 @@ namespace Smartstore.Web.Infrastructure
                 lib + "beautify/beautify.min.js",
                 lib + "beautify/beautify-css.min.js",
                 lib + "beautify/beautify-html.min.js",
-                summernote + "globalinit.js");
+                summernote + "globalinit.js"));
 
 
             /* CodeMirror (V 5.3.3) --> /bundle/js/codemirror.js
             -----------------------------------------------------*/
             var cm = "/lib/editors/CodeMirror/";
             // Script
-            assetPipeline.RegisterJsBundle("/bundle/js/codemirror.js",
+            bundles.Add(new ScriptBundle("/bundle/js/codemirror.js").Include(
                 cm + "codemirror.min.js",
                 cm + "addon/fold/xml-fold.min.js",
                 cm + "addon/hint/show-hint.min.js",
@@ -160,21 +143,21 @@ namespace Smartstore.Web.Infrastructure
                 cm + "mode/javascript/javascript.min.js",
                 cm + "mode/css/css.min.js",
                 cm + "mode/htmlmixed/htmlmixed.min.js",
-                cm + "mode/liquid/liquid.js");
+                cm + "mode/liquid/liquid.js"));
             // CSS
-            assetPipeline.RegisterCssBundle("/bundle/css/codemirror.css",
+            bundles.Add(new StyleBundle("/bundle/css/codemirror.css").Include(
                 cm + "codemirror.min.css",
                 cm + "codemirror.custom.css",
                 cm + "addon/hint/show-hint.min.css",
                 cm + "addon/display/fullscreen.css",
                 cm + "theme/eclipse.min.css",
-                cm + "mode/liquid/liquid.css");
+                cm + "mode/liquid/liquid.css"));
 
 
             /* Roxy File Manager--> /bundle/js/filemanager.js
 			------------------------------------------------------*/
             var roxy = "/lib/roxyfm/js/";
-            assetPipeline.RegisterJsBundle("/bundle/js/roxyfm.js",
+            bundles.Add(new StyleBundle("/bundle/js/roxyfm.js").Include(
                 roxy + "jquery-2.1.1.min.js",
                 roxy + "jquery-ui-1.10.4.custom.min.js",
                 roxy + "filetypes.js",
@@ -183,8 +166,7 @@ namespace Smartstore.Web.Infrastructure
                 roxy + "utils.js",
                 roxy + "file.js",
                 roxy + "directory.js",
-                roxy + "jquery-dateFormat.min.js");
-
+                roxy + "jquery-dateFormat.min.js"));
         }
     }
 }

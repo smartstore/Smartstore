@@ -328,7 +328,7 @@ namespace Smartstore
                 stream.Position = 0;
             }
 
-            using (StreamReader sr = new StreamReader(stream, encoding))
+            using (var sr = new StreamReader(stream, encoding))
             {
                 result = sr.ReadToEnd();
             }
@@ -336,13 +336,10 @@ namespace Smartstore
             return result;
         }
 
-        public static Task<string> AsStringAsync(this Stream stream, Encoding encoding)
+        public static async Task<string> AsStringAsync(this Stream stream, Encoding encoding)
         {
             if (encoding == null)
                 throw new ArgumentNullException(nameof(encoding));
-
-            // convert stream to string
-            Task<string> result;
 
             if (stream.CanSeek)
             {
@@ -351,10 +348,9 @@ namespace Smartstore
 
             using (var sr = new StreamReader(stream, encoding))
             {
-                result = sr.ReadToEndAsync();
+                var result = await sr.ReadToEndAsync();
+                return result;
             }
-
-            return result;
         }
 
         #endregion

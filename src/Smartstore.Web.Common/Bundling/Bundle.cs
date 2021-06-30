@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,13 +17,37 @@ using Smartstore.Web.Bundling.Processors;
 
 namespace Smartstore.Web.Bundling
 {
+    [DebuggerDisplay("BundleFile: {Path}")]
     public class BundleFile
     {
         public string Path { get; init; }
         public IFileInfo File { get; init; }
         public IFileProvider FileProvider { get; init; }
     }
-    
+
+    /// <summary>
+    /// Represents a script bundle that does Js minification.
+    /// </summary>
+    public class ScriptBundle : Bundle
+    {
+        public ScriptBundle(string route)
+            : base(route, "text/javascript", JsMinifyProcessor.Instance, ConcatProcessor.Instance)
+        {
+            ConcatenationToken = ";" + Environment.NewLine;
+        }
+    }
+
+    /// <summary>
+    /// Represents a stylesheet bundle that does CSS minification, URL rewrite & AutoPrefixing.
+    /// </summary>
+    public class StyleBundle : Bundle
+    {
+        public StyleBundle(string route)
+            : base(route, "text/css", SassProcessor.Instance, CssMinifyProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance)
+        {
+        }
+    }
+
     /// <summary>
     /// Represents a list of file references to be bundled together as a single resource.
     /// </summary>
@@ -164,13 +189,13 @@ namespace Smartstore.Web.Bundling
             Guard.NotNull(httpContext, nameof(httpContext));
             Guard.NotNull(options, nameof(options));
 
-            var cacheKey = "bundle:" + Route;
+            var cacheKey = Route;
 
             foreach (var processor in Processors)
             {
                 try
                 {
-                    var processorKey = processor.GetCacheKey(httpContext, options);
+                    var processorKey = processor.GetCacheKey(this, httpContext, options);
                     if (processorKey.HasValue())
                     {
                         cacheKey += processorKey;
@@ -226,7 +251,8 @@ namespace Smartstore.Web.Bundling
                 Content = content,
                 Path = bundleFile.Path,
                 ContentType = MimeTypes.MapNameToMimeType(bundleFile.Path),
-                LastModifiedUtc = bundleFile.File.LastModified
+                LastModifiedUtc = bundleFile.File.LastModified,
+                FileProvider = bundleFile.FileProvider
             };
         }
 
@@ -251,9 +277,10 @@ namespace Smartstore.Web.Bundling
                 Route = Route,
                 CreationDate = combined?.LastModifiedUtc ?? DateTimeOffset.UtcNow,
                 Content = combined?.Content,
-                ContentType = combined?.ContentType,
+                ContentType = ContentType,
                 FileProvider = context.Files.FirstOrDefault().FileProvider,
-                ProcessorCodes = context.ProcessorCodes.ToArray()
+                ProcessorCodes = context.ProcessorCodes.ToArray(),
+                IncludedFiles = context.IncludedFiles
             };
 
             return response;

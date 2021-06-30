@@ -16,6 +16,29 @@ namespace Smartstore.Web.Bundling
         private string _content;
         private string _contentHash;
 
+        public BundleResponse()
+        {
+        }
+
+        public BundleResponse(BundleResponse response)
+        {
+            Guard.NotNull(response, nameof(response));
+
+            CacheKey = response.CacheKey;
+            Route = response.Route;
+            ContentType = response.Content;
+            ContentHash = response.ContentHash;
+            CreationDate = response.CreationDate;
+            FileProvider = response.FileProvider;
+            ProcessorCodes = response.ProcessorCodes;
+            IncludedFiles = response.IncludedFiles;
+        }
+
+        /// <summary>
+        /// Gets or sets the bundle response cache key.
+        /// </summary>
+        public string CacheKey { get; set; }
+
         /// <summary>
         /// Gets or sets the bundle route.
         /// </summary>
@@ -56,7 +79,7 @@ namespace Smartstore.Web.Bundling
         public string[] ProcessorCodes { get; set; } = Array.Empty<string>();
 
         [JsonIgnore]
-        public IFileProvider FileProvider { get; init; }
+        public IFileProvider FileProvider { get; set; }
 
         internal static string ComputeHash(string content)
         {

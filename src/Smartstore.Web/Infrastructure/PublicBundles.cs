@@ -1,6 +1,6 @@
-﻿using Smartstore.Engine;
+﻿using System;
+using Smartstore.Engine;
 using Smartstore.Web.Bundling;
-using WebOptimizer;
 
 namespace Smartstore.Web.Infrastructure
 {
@@ -8,7 +8,7 @@ namespace Smartstore.Web.Infrastructure
     {
         public int Priority => 0;
 
-        public void RegisterBundles(IApplicationContext appContext, IAssetPipeline assetPipeline)
+        public void RegisterBundles(IApplicationContext appContext, IBundleCollection bundles)
         {
             if (!appContext.IsInstalled)
             {
@@ -18,31 +18,30 @@ namespace Smartstore.Web.Infrastructure
             var lib = "/lib/";
             var js = "/js/";
 
-
-            /* (TEST) FLEX Sass theme --> /themes/flex.css
+            /* (TEST) Sass themes --> /themes/[theme]/theme[-rtl].css
             -----------------------------------------------------*/
             // TODO: (core) Make dynamic registration for these in BundleMiddleware
-            assetPipeline.RegisterCssBundle("/themes/flex/theme.css", "/Themes/Flex/theme.scss");
-            assetPipeline.RegisterCssBundle("/themes/flex/theme-rtl.css", "/Themes/Flex/theme-rtl.scss");
-            assetPipeline.RegisterCssBundle("/themes/flex-black/theme.css", "/Themes/FlexBlack/theme.scss");
-            assetPipeline.RegisterCssBundle("/themes/flex-black/theme-rtl.css", "/Themes/FlexBlack/theme-rtl.scss");
-            assetPipeline.RegisterCssBundle("/themes/flex-blue/theme.css", "/Themes/FlexBlue/theme.scss");
-            assetPipeline.RegisterCssBundle("/themes/flex-blue/theme-rtl.css", "/Themes/FlexBlue/theme-rtl.scss");
+            bundles.Add(new StyleBundle("/themes/flex/theme.css").Include("/Themes/Flex/theme.scss"));
+            bundles.Add(new StyleBundle("/themes/flex/theme-rtl.css").Include("/Themes/Flex/theme-rtl.scss"));
+            bundles.Add(new StyleBundle("/themes/flex-black/theme.css").Include("/Themes/FlexBlack/theme.scss"));
+            bundles.Add(new StyleBundle("/themes/flex-black/theme-rtl.css").Include("/Themes/FlexBlack/theme-rtl.scss"));
+            bundles.Add(new StyleBundle("/themes/flex-blue/theme.css").Include("/Themes/FlexBlue/theme.scss"));
+            bundles.Add(new StyleBundle("/themes/flex-blue/theme-rtl.css").Include("/Themes/FlexBlue/theme-rtl.scss"));
 
 
             /* Public Common CSS --> /bundle/css/site-common.css
             -----------------------------------------------------*/
-            assetPipeline.RegisterCssBundle("/bundle/css/site-common.css",
+            bundles.Add(new StyleBundle("/bundle/css/site-common.css").Include(
                 lib + "fa5/css/all.css", // TODO: (core) Consider "fa-use-pro" theme variable somehow
                 lib + "fontastic/fontastic.css",
                 lib + "pnotify/css/pnotify.css",
                 lib + "pnotify/css/pnotify.mobile.css",
-                lib + "pnotify/css/pnotify.buttons.css");
+                lib + "pnotify/css/pnotify.buttons.css"));
 
 
             /* Public Main --> /bundle/js/site.js
             -----------------------------------------------------*/
-            assetPipeline.RegisterJsBundle("/bundle/js/site.js",
+            bundles.Add(new ScriptBundle("/bundle/js/site.js").Include(
                 // Vendors
                 lib + "underscore/underscore.js",
                 lib + "underscore/underscore.string.js",
@@ -96,7 +95,7 @@ namespace Smartstore.Web.Infrastructure
                 // TODO: (mh) (core) Uncomment when this problem is solved.
                 //js + "public.offcanvas-cart.js",
                 js + "public.offcanvas-menu.js",
-                js + "public.product.js");
+                js + "public.product.js"));
         }
     }
 }

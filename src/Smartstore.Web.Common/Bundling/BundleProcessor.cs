@@ -6,13 +6,13 @@ namespace Smartstore.Web.Bundling
 {
     public interface IBundleProcessor
     {
-        string GetCacheKey(HttpContext httpContext, BundlingOptions options);
+        string GetCacheKey(Bundle bundle, HttpContext httpContext, BundlingOptions options);
         Task ProcessAsync(BundleContext context);
     }
 
     public abstract class BundleProcessor : IBundleProcessor
     {
-        public string GetCacheKey(HttpContext httpContext, BundlingOptions options)
+        public virtual string GetCacheKey(Bundle bundle, HttpContext httpContext, BundlingOptions options)
             => string.Empty;
 
         public abstract Task ProcessAsync(BundleContext context);

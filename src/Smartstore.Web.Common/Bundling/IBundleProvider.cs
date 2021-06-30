@@ -1,12 +1,11 @@
 ﻿using System;
 using Smartstore.Engine;
-using WebOptimizer;
 
 namespace Smartstore.Web.Bundling
 {
     public interface IBundleProvider
     {
-        void RegisterBundles(IApplicationContext appContext, IAssetPipeline assetPipeline);
+        void RegisterBundles(IApplicationContext appContext, IBundleCollection bundles);
 
         int Priority { get; }
     }
