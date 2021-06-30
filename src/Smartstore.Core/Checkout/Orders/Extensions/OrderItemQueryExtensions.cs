@@ -157,7 +157,6 @@ namespace Smartstore
         {
             Guard.NotNull(query, nameof(query));
 
-            // Group by product ID.
             var selector = query
                 .GroupBy(x => x.ProductId)
                 .Select(x => new BestsellersReportLine

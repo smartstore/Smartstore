@@ -23,7 +23,7 @@
         @await Component.InvokeAsync("DashboardBestsellers")
     </div>
     <div class="report-top-customers">
-        @*@{ Html.RenderAction("TopCustomersDashboardReport", "Customer"); }*@
+        @await Component.InvokeAsync("DashboardTopCustomers")
     </div>
     <div class="report-customer-registrations">
         @*@{ Html.RenderAction("RegisteredCustomersDashboardReport", "Customer"); }*@
