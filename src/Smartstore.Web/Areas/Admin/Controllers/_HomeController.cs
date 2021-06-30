@@ -1,11 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Admin.Models;
+using Smartstore.Core.Web;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {
     public class HomeController : AdminControllerBase
     {
+        private readonly Lazy<IUserAgent> _userAgent;
+        
+        public HomeController(Lazy<IUserAgent> userAgent)
+        {
+            _userAgent = userAgent;
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -15,6 +24,16 @@ namespace Smartstore.Admin.Controllers
         {
             return View();
         }
+
+        public IActionResult UaTester(string ua = null)
+        {
+            if (ua.HasValue())
+            {
+                _userAgent.Value.RawValue = ua;
+            }
+            return View(_userAgent.Value);
+        }
+
 
         // TODO: (mh) (core) Remove when testing is done.
         public IActionResult EditorTemplates()
