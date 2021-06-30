@@ -20,9 +20,9 @@ namespace Smartstore.Web.Bundling
     {
         private readonly IMemoryCache _memCache;
         private readonly IBundleDiskCache _diskCache;
-        private readonly IOptions<BundlingOptions> _options;
+        private readonly IOptionsMonitor<BundlingOptions> _options;
 
-        public BundleCache(IMemoryCache memCache, IBundleDiskCache diskCache, IOptions<BundlingOptions> options)
+        public BundleCache(IMemoryCache memCache, IBundleDiskCache diskCache, IOptionsMonitor<BundlingOptions> options)
         {
             _memCache = memCache;
             _diskCache = diskCache;
@@ -33,7 +33,7 @@ namespace Smartstore.Web.Bundling
         {
             // Memory cache
             var memCacheKey = BuildScopedCacheKey(cacheKey);
-            if (_options.Value.EnableMemoryCache == true && _memCache.TryGetValue(memCacheKey, out BundleResponse response))
+            if (_options.CurrentValue.EnableMemoryCache == true && _memCache.TryGetValue(memCacheKey, out BundleResponse response))
             {
                 return response;
             }
@@ -45,7 +45,7 @@ namespace Smartstore.Web.Bundling
                 response = new BundleResponse(response);
                 if (response.FileProvider == null)
                 {
-                    response.FileProvider = bundle.FileProvider ?? _options.Value.FileProvider;
+                    response.FileProvider = bundle.FileProvider ?? _options.CurrentValue.FileProvider;
                 }
 
                 PutToMemoryCache(cacheKey, bundle, response);
@@ -63,7 +63,7 @@ namespace Smartstore.Web.Bundling
 
         private void PutToMemoryCache(string cacheKey, Bundle bundle, BundleResponse response)
         {
-            if (_options.Value.EnableMemoryCache == false)
+            if (_options.CurrentValue.EnableMemoryCache == false)
             {
                 return;
             }

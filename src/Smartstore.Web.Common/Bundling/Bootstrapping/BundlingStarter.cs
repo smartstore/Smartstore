@@ -56,12 +56,7 @@ namespace Smartstore.Web.Bootstrapping
                 app.UseMiddleware<BundleMiddleware>();
 
                 var bundles = app.ApplicationServices.GetRequiredService<IBundleCollection>();
-                var options = app.ApplicationServices.GetRequiredService<IOptions<BundlingOptions>>();
-
-                options.Value.FileProvider = app.ApplicationServices.GetRequiredService<IBundleFileProvider>();
-
                 var publisher = new BundlePublisher();
-
                 publisher.RegisterBundles(builder.ApplicationContext, bundles);
             });
 

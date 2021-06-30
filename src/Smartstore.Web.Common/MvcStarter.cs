@@ -56,7 +56,7 @@ namespace Smartstore.Web
             if (appContext.IsInstalled)
             {
                 // Configure Cookie Policy Options
-                services.TryAddEnumerable(ServiceDescriptor.Transient<IConfigureOptions<CookiePolicyOptions>, CookiePolicyOptionsConfigurer>());
+                services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<CookiePolicyOptions>, CookiePolicyOptionsConfigurer>());
 
                 services.Configure<RazorViewEngineOptions>(o =>
                 {

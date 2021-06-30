@@ -1,33 +1,37 @@
 ﻿using System;
+using Autofac;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Identity;
+using Smartstore.Engine;
 
 namespace Smartstore.Core.Bootstrapping
 {
     internal sealed class IdentityOptionsConfigurer : IConfigureOptions<IdentityOptions>
     {
-        private readonly CustomerSettings _customerSettings;
+        private readonly IApplicationContext _appContext;
 
-        public IdentityOptionsConfigurer(CustomerSettings customerSettings)
+        public IdentityOptionsConfigurer(IApplicationContext appContext)
         {
-            _customerSettings = customerSettings;
+            _appContext = appContext;
         }
 
         public void Configure(IdentityOptions options)
         {
+            var customerSettings = _appContext.Services.Resolve<CustomerSettings>();
+            
             var usr = options.User;
             usr.RequireUniqueEmail = false;
             // INFO: Add space to default list of allowed chars.
             usr.AllowedUserNameCharacters += ' ';
 
             var pwd = options.Password;
-            pwd.RequiredLength = _customerSettings.PasswordMinLength;
-            pwd.RequireDigit = _customerSettings.PasswordRequireDigit;
-            pwd.RequireUppercase = _customerSettings.PasswordRequireUppercase;
-            pwd.RequiredUniqueChars = _customerSettings.PasswordRequiredUniqueChars;
-            pwd.RequireLowercase = _customerSettings.PasswordRequireLowercase;
-            pwd.RequireNonAlphanumeric = _customerSettings.PasswordRequireNonAlphanumeric;
+            pwd.RequiredLength = customerSettings.PasswordMinLength;
+            pwd.RequireDigit = customerSettings.PasswordRequireDigit;
+            pwd.RequireUppercase = customerSettings.PasswordRequireUppercase;
+            pwd.RequiredUniqueChars = customerSettings.PasswordRequiredUniqueChars;
+            pwd.RequireLowercase = customerSettings.PasswordRequireLowercase;
+            pwd.RequireNonAlphanumeric = customerSettings.PasswordRequireNonAlphanumeric;
 
             var signIn = options.SignIn;
             signIn.RequireConfirmedAccount = false;

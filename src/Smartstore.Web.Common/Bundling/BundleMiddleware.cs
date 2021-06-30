@@ -17,6 +17,7 @@ namespace Smartstore.Web.Bundling
         private readonly IBundleCollection _collection;
         private readonly IBundleCache _bundleCache;
         private readonly IBundleBuilder _bundleBuilder;
+        private readonly IOptionsMonitor<BundlingOptions> _optionsMonitor;
         private readonly IThemeRegistry _themeRegistry;
         private readonly ILogger _logger;
 
@@ -25,6 +26,7 @@ namespace Smartstore.Web.Bundling
             IBundleCollection collection,
             IBundleCache bundleCache,
             IBundleBuilder bundleBuilder,
+            IOptionsMonitor<BundlingOptions> optionsMonitor,
             IThemeRegistry themeRegistry,
             ILogger<BundleMiddleware> logger)
         {
@@ -32,11 +34,12 @@ namespace Smartstore.Web.Bundling
             _collection = collection;
             _bundleCache = bundleCache;
             _bundleBuilder = bundleBuilder;
+            _optionsMonitor = optionsMonitor;
             _themeRegistry = themeRegistry;
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext httpContext, IOptions<BundlingOptions> bundlingOptions)
+        public async Task InvokeAsync(HttpContext httpContext)
         {
             if (!TryGetBundle(httpContext.Request.Path, out var bundle))
             {
@@ -46,7 +49,7 @@ namespace Smartstore.Web.Bundling
 
             _logger.Debug("Request for bundle '{0}' started.", bundle.Route);
 
-            var options = bundlingOptions.Value;
+            var options = _optionsMonitor.CurrentValue;
             var cacheKey = bundle.GetCacheKey(httpContext, options);
             var bundleResponse = await _bundleCache.GetResponseAsync(cacheKey, bundle);
 

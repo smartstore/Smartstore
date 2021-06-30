@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Http;
@@ -7,30 +8,33 @@ using Microsoft.Extensions.Options;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
+using Smartstore.Engine;
 using Smartstore.Net;
 
 namespace Smartstore.Web.Bootstrapping
 {
     internal class CookiePolicyOptionsConfigurer : IConfigureOptions<CookiePolicyOptions>
     {
+        private readonly IApplicationContext _appContext;
         private readonly IStoreContext _storeContext;
-        private readonly PrivacySettings _privacySettings;
 
-        public CookiePolicyOptionsConfigurer(IStoreContext storeContext, PrivacySettings privacySettings)
+        public CookiePolicyOptionsConfigurer(IApplicationContext appContext, IStoreContext storeContext)
         {
+            _appContext = appContext;
             _storeContext = storeContext;
-            _privacySettings = privacySettings;
         }
 
         public void Configure(CookiePolicyOptions options)
         {
             //// TODO: (core) Configure CookiePolicyOptions including GDPR consent stuff.
             //// TODO: (core) Update CookiePolicyOptions whenever store or other dependent settings change by calling this method from controller with current options.
-            
+
+            var privacySettings = _appContext.Services.Resolve<PrivacySettings>();
+
             //options.CheckConsentNeeded = context => false;
             options.HttpOnly = HttpOnlyPolicy.None;
             options.ConsentCookie.Name = CookieNames.CookieConsent;
-            options.MinimumSameSitePolicy = _privacySettings.SameSiteMode;
+            options.MinimumSameSitePolicy = privacySettings.SameSiteMode;
 
             // Whether to allow the use of cookies from SSL protected page on the other store pages which are not protected
             options.Secure = _storeContext.CurrentStore.SslEnabled ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.None;

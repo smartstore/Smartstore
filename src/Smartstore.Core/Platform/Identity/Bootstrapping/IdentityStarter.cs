@@ -29,7 +29,7 @@ namespace Smartstore.Core.Bootstrapping
                 .AddSignInManager<SmartSignInManager>();
 
             services.TryAddEnumerable(
-                    ServiceDescriptor.Transient<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>());
+                    ServiceDescriptor.Singleton<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>());
 
             if (appContext.IsInstalled)
             {

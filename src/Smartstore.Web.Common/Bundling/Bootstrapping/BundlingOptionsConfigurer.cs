@@ -11,18 +11,21 @@ namespace Smartstore.Web.Bootstrapping
     internal class BundlingOptionsConfigurer : Disposable, IConfigureOptions<BundlingOptions>
     {
         private readonly IApplicationContext _appContext;
-        private readonly IOptionsMonitorCache<BundlingOptions> _options;
+        private readonly IBundleFileProvider _fileProvider;
+        private readonly IOptionsMonitorCache<BundlingOptions> _optionsCache;
         private readonly ThemeSettings _themeSettings;
 
         private IDisposable _callback;
 
         public BundlingOptionsConfigurer(
             IApplicationContext appContext,
-            IOptionsMonitorCache<BundlingOptions> options,
+            IBundleFileProvider fileProvider,
+            IOptionsMonitorCache<BundlingOptions> optionsCache,
             ThemeSettings themeSettings)
         {
             _appContext = appContext;
-            _options = options;
+            _fileProvider = fileProvider;
+            _optionsCache = optionsCache;
             _themeSettings = themeSettings;
         }
 
@@ -32,7 +35,7 @@ namespace Smartstore.Web.Bootstrapping
 
             _callback = _appContext.Configuration.GetReloadToken().RegisterChangeCallback(_ =>
             {
-                _options.TryRemove(Options.DefaultName);
+                _optionsCache.TryRemove(Options.DefaultName);
             }, null);
 
             var section = _appContext.Configuration.GetSection("Bundling");
@@ -59,7 +62,7 @@ namespace Smartstore.Web.Bootstrapping
             options.EnableDiskCache ??= diskCachingEnabled ?? !env.IsDevelopment();
             options.EnableMinification ??= bundlingEnabled ?? !env.IsDevelopment();
             options.EnableAutoPrefixer ??= bundlingEnabled ?? !env.IsDevelopment();
-            options.FileProvider ??= _appContext.WebRoot;
+            options.FileProvider ??= _fileProvider;
             options.CacheDirectory = cacheDirectory.IsEmpty()
                 ? _appContext.TenantRoot.GetDirectory("AssetCache").PhysicalPath
                 : cacheDirectory;
