@@ -5,10 +5,12 @@
 
 @{
     var jsonData = JsonConvert.SerializeObject(Model);
+
+    Assets.AppendScriptParts(
+        "~/bundle/js/chart.js", 
+        "~/admin/js/admin.dashboard.js");
 }
 
-<script src="~/bundle/js/chart.js" sm-target-zone="scripts" sm-key="charting"></script>
-<script src="~/admin/js/admin.dashboard.js" sm-target-zone="scripts" sm-key="dashboard"></script>
 
 <div class="report chart-colors" id="customers-report">
     <div class="report-title-row">

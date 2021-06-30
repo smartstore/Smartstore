@@ -109,13 +109,11 @@ namespace Smartstore.Web.Areas.Admin.Components
 
             // TODO: (mh) (core) I don't get it. Codecomment says [...count for month before] but code says something else (something wierd...). 
             var registeredCountMonthBefore = await _db.Customers
-                .AsNoTracking()
                 .ApplyRegistrationFilter(beginningOfYear.AddDays(-56), utcNow.Date.AddDays(-28))
                 .ApplyRolesFilter(new[] { registeredRole.Id })
                 .CountAsync();
 
             var registeredCountYearBefore = await _db.Customers
-                .AsNoTracking()
                 .ApplyRegistrationFilter(beginningOfYear.AddYears(-1), utcNow.AddYears(-1))
                 .ApplyRolesFilter(new[] { registeredRole.Id })
                 .CountAsync();
