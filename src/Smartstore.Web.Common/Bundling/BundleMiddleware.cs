@@ -53,7 +53,8 @@ namespace Smartstore.Web.Bundling
             if (bundleResponse != null)
             {
                 _logger.Debug("Serving bundle '{0}' from cache.", bundle.Route);
-                await ServeBundleResponse(bundleResponse, bundle, httpContext, options);
+                await ServeBundleResponse(bundleResponse, httpContext, options);
+                return;
             }
 
             using (await AsyncLock.KeyedAsync("bm_" + cacheKey))
@@ -74,7 +75,7 @@ namespace Smartstore.Web.Bundling
                 await _bundleCache.PutResponseAsync(cacheKey, bundle, bundleResponse);
 
                 // Serve
-                await ServeBundleResponse(bundleResponse, bundle, httpContext, options);
+                await ServeBundleResponse(bundleResponse, httpContext, options);
             }
         }
 
@@ -113,7 +114,7 @@ namespace Smartstore.Web.Bundling
             return false;
         }
 
-        private async Task ServeBundleResponse(BundleResponse bundleResponse, Bundle bundle, HttpContext httpContext, BundlingOptions options)
+        private static ValueTask ServeBundleResponse(BundleResponse bundleResponse, HttpContext httpContext, BundlingOptions options)
         {
             var response = httpContext.Response;
             var contentHash = bundleResponse.ContentHash;
@@ -122,11 +123,11 @@ namespace Smartstore.Web.Bundling
 
             if (options.EnableClientCache == true)
             {
-                response.Headers[HeaderNames.CacheControl] = $"max-age=31536000"; // 1 year
+                response.Headers[HeaderNames.CacheControl] = "max-age=31536000"; // 1 year
 
                 if (httpContext.Request.Query.ContainsKey("v"))
                 {
-                    response.Headers[HeaderNames.CacheControl] += $",immutable";
+                    response.Headers[HeaderNames.CacheControl] += ",immutable";
                 }
             }
 
@@ -137,7 +138,7 @@ namespace Smartstore.Web.Bundling
                 if (IsConditionalGet(httpContext, contentHash))
                 {
                     response.StatusCode = 304;
-                    return;
+                    return ValueTask.CompletedTask;
                 }
             }
 
@@ -145,10 +146,10 @@ namespace Smartstore.Web.Bundling
             {
                 SetCompressionMode(httpContext, options);
                 var buffer = Encoding.UTF8.GetBytes(bundleResponse.Content);
-                await response.Body.WriteAsync(buffer.AsMemory(0, buffer.Length));
+                return response.Body.WriteAsync(buffer.AsMemory(0, buffer.Length));
             }
 
-            await Task.Delay(0);
+            return ValueTask.CompletedTask;
         }
 
         private static bool IsConditionalGet(HttpContext context, string contentHash)
