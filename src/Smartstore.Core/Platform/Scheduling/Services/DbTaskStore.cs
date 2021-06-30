@@ -79,8 +79,10 @@ namespace Smartstore.Scheduling
         public virtual Task<TaskDescriptor> GetTaskByIdAsync(int taskId)
         {
             if (taskId == 0)
-                return null;
-
+            {
+                return Task.FromResult<TaskDescriptor>(null);
+            }
+            
             return ExecuteWithRetry(() => _db.TaskDescriptors.FindByIdAsync(taskId).AsTask());
         }
 
@@ -336,6 +338,11 @@ namespace Smartstore.Scheduling
 
         public virtual Task<TaskExecutionInfo> GetExecutionInfoByIdAsync(int id)
         {
+            if (id == 0)
+            {
+                return Task.FromResult<TaskExecutionInfo>(null);
+            }
+
             return _db.TaskExecutionInfos.Include(x => x.Task).FindByIdAsync(id).AsTask();
         }
 

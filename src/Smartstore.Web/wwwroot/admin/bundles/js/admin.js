@@ -2148,7 +2148,7 @@ Smartstore.Admin = {
 			startWatching: function (opts) {
 				function poll() {
 					$.ajax({
-						cache: false, type: 'POST', global: false, url: opts.pollUrl, success: function (data) {
+						cache: false, type: 'POST', data: { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() }, global: false, url: opts.pollUrl, success: function (data) {
 							data = data || []; var runningElements = []; $.each(data, function (i, task) {
 								var el = $(opts.elementsSelector + '[data-task-id=' + task.id + ']'); if (el.length) {
 									runningElements.push(el[0]); if (el.data('running') && el.text()) { el.find('.text').text(task.message || opts.defaultProgressMessage); el.find('.percent').text(task.percent >> 0 ? task.percent + ' %' : ""); }

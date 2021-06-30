@@ -1,0 +1,199 @@
+﻿@using Smartstore.Core
+
+@model TaskModel
+
+@{
+    ViewBag.Title = T("Admin.System.ScheduleTasks.EditTask") + " - " + Model.Name;
+
+    var info = Model.LastExecutionInfo;
+    var returnUrl = ((string)ViewBag.ReturnUrl).NullEmpty();
+    var priorities = new[]
+    {
+        new SelectListItem { Value = "-1", Text = T("Admin.System.ScheduleTasks.Priority.Low") },
+        new SelectListItem { Value = "0", Text = T("Admin.System.ScheduleTasks.Priority.Normal") },
+        new SelectListItem { Value = "1", Text = T("Admin.System.ScheduleTasks.Priority.High") }
+    };
+}
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+    <div class="section-header">
+		<div class="title">
+			<i class="far fa-clock"></i>
+            <span>@ViewBag.Title</span>
+            <a href="@(returnUrl ?? Url.Action("List"))">(@T("Common.Back"))</a>
+		</div>
+        <div class="options">
+			<button type="submit" name="save" value="save" class="btn btn-primary">
+				<i class="fa fa-check"></i>
+				<span>@T("Admin.Common.Save")</span>
+			</button>
+			<button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+				<span>@T("Admin.Common.SaveContinue")</span>
+			</button>
+			<a sm-if="!Model.LastExecutionInfo.IsRunning" href="@Model.ExecuteUrl" class="btn btn-secondary btn-to-danger">
+				<i class="fa fa-play"></i>
+				<span>@T("Admin.System.ScheduleTasks.RunNow")</span>
+			</a>
+        </div>
+    </div>
+
+	<div asp-validation-summary="ModelOnly" />
+
+	<tabstrip id="task-edit" sm-nav-style="Material">
+		<tab sm-title="@T("Common.General")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Name" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Name" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="RunPerMachine" />
+                    </div>
+                    <div class="adminData">
+				        <div class="form-control-plaintext">
+					        @T(Model.RunPerMachine ? "Common.Yes" : "Common.No")
+				        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Enabled" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Enabled" />
+                        <span asp-validation-for="Enabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Priority" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="Priority" asp-items="@priorities"></select>
+                        <span asp-validation-for="Priority"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="StopOnError" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="StopOnError" />
+                        <span asp-validation-for="StopOnError"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LastExecutionInfo.StartedOn" />
+                    </div>
+                    <div class="adminData">
+				        <div sm-if="info.Id == 0" class="form-control-plaintext">@T("Common.Never")</div>
+                        <input sm-if="info.Id != 0" asp-for="LastExecutionInfo.StartedOn" sm-plaintext="true" readonly />
+                    </div>
+                </div>
+                <div sm-if="info.Duration.HasValue()" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LastExecutionInfo.Duration" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="LastExecutionInfo.Duration" sm-plaintext="true" readonly />
+                    </div>
+                </div>
+                <div sm-if="info.Error.HasValue()" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LastExecutionInfo.Error" />
+                    </div>
+                    <div class="adminData">
+					    <div class="form-control-plaintext">
+                            <pre class="prettyprint xlang-java mt-1 mb-0" style="max-height: 200px; white-space: pre-wrap;">
+                                @Model.LastExecutionInfo.Error
+                            </pre>
+					    </div>
+                    </div>
+                </div>
+                <div sm-if="info.Error.HasValue() && info.SucceededOn.HasValue && info.SucceededOn != info.FinishedOn" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LastExecutionInfo.SucceededOn" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="LastExecutionInfo.SucceededOn" sm-plaintext="true" readonly />
+                    </div>
+                </div>
+                <div sm-if="Model.NextRun.HasValue" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="NextRun" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="NextRun" sm-plaintext="true" readonly />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CronExpression" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="CronExpression" />
+                        <span asp-validation-for="CronExpression"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        &nbsp;
+                    </div>
+                    <div class="adminData text-muted">
+                        @Html.Raw(T("Admin.System.ScheduleTasks.CronHelp", Display.GenerateHelpUrl(HelpTopic.CronExpressions)))
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        &nbsp;
+                    </div>
+                    <div class="adminData">
+                        <div id="future-schedules"></div>
+                    </div>
+                </div>
+            </div>
+		</tab>
+		<tab sm-title="@T("Common.History")">
+            <div class="alert alert-info">
+                @Html.Raw((string)ViewBag.HistoryCleanupNote)
+            </div>
+
+		</tab>
+	</tabstrip>
+</form>
+
+<script sm-target-zone="scripts" data-origin="task-edit">
+	$(function () {
+		$('#@Html.IdFor(m => m.CronExpression)').on('input propertychange paste', function (e) {
+			getFutureSchedules.apply(this);
+		});
+
+		getFutureSchedules.apply($('#@Html.IdFor(m => m.CronExpression)')[0]);
+
+        function getFutureSchedules() {
+            var expression = $(this).val();
+
+            if (expression.length) {
+			    $.ajax({
+				    cache: false,
+				    type: 'POST',
+				    url: '@Url.Action("FutureSchedules")',
+				    data: { expression: expression, "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+				    success: function (data) {
+					    $('#future-schedules').html(data);
+				    }
+			    });
+            }
+        }
+	});
+</script>

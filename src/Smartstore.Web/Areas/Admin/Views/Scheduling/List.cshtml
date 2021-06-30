@@ -11,11 +11,37 @@
 
 <partial name="_Grid.Tasks" model="null" />
 
-<script sm-target-zone="scripts" data-origin="TaskList">
+<script sm-target-zone="scripts" data-origin="tasks-list">
 	$(function () {
-		@*
-			TODO: (mg) (core) complete task list (TaskWatcher required).
-			(RE): all bundles are available already, so TaskWatcher is available too.
-		*@
+		var token = $('input[name="__RequestVerificationToken"]').val();
+
+		Smartstore.Admin.TaskWatcher.startWatching({
+			context: $('#tasks-grid'),
+			elementsSelector: '.task-progress',
+			defaultProgressMessage: @T("Admin.System.ScheduleTasks.RunNow.IsRunning").JsValue,
+			pollUrl: '@Url.Action("GetRunningTasks")',
+			onTaskStarted: function (task, el) {
+				var tr = el.closest('tr');
+				tr.addClass('active-row');
+				tr.find('.btn-run-task').addClass('hide').next().removeClass('hide');
+				tr.find('.next-run-info').addClass('hide');
+			},
+			onTaskCompleted: function (taskId, el) {
+				var tr = el.closest('tr');
+				tr.removeClass('active-row').find('.btn-run-task').removeClass('hide').next().addClass('hide');
+
+				$.ajax({
+					cache: false,
+					global: false,
+					type: 'POST',
+					url: '@Url.Action("GetTaskRunInfo")',
+					data: { id: taskId, "__RequestVerificationToken": token },
+					success: function (data) {
+						tr.find('.next-run-info').html(data.nextRunHtml).removeClass("hide");
+						tr.find('.last-run-info').html(data.lastRunHtml);
+					}
+				});
+			}
+		});
 	});
 </script>

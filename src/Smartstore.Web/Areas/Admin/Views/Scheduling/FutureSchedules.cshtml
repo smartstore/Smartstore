@@ -1,0 +1,34 @@
+﻿@model IEnumerable<DateTime>
+
+@{
+	var error = (string)ViewBag.CronScheduleParseError;
+	var description = (string)ViewBag.Description;
+}
+
+<style>
+	.future-schedules { border-collapse: separate }
+	.future-schedules td { vertical-align: top; padding-bottom: 10px }
+	.future-schedules tr td:first-child { padding-right: 20px }
+</style>
+
+<div sm-if="error.HasValue()" class="text-danger"><span>@error</span></div>
+<div sm-if="error.IsEmpty()">
+	<h4>@T("Admin.System.ScheduleTasks.FutureSchedules")</h4>
+	<p sm-if="description.HasValue()" class="text-warning">@description</p>
+	<table class="future-schedules">
+		<tbody>
+			@foreach (var day in Model.ToLookup(x => x.Date))
+			{
+				<tr>
+					<td><strong>@day.Key.ToShortDateString().ReplaceNativeDigits()</strong></td>
+					<td>
+						@foreach (var time in day)
+						{
+							<div>@time.ToShortTimeString()</div>
+						}
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>

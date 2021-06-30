@@ -110,6 +110,7 @@ Smartstore.Admin = {
     },
     TaskWatcher: (function () {
         var interval;
+        var token = $('input[name="__RequestVerificationToken"]').val();
 
         return {
             startWatching: function (opts) {
@@ -117,6 +118,7 @@ Smartstore.Admin = {
                     $.ajax({
                         cache: false,
                         type: 'POST',
+                        data: { "__RequestVerificationToken": token },
                         global: false,
                         url: opts.pollUrl,
                         //dataType: 'json',

@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Scheduling;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Security;
 using Smartstore.Scheduling;
 using Smartstore.Threading;
@@ -20,17 +22,20 @@ namespace Smartstore.Admin.Controllers
         private readonly ITaskActivator _taskActivator;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IAsyncState _asyncState;
+        private readonly CommonSettings _commonSettings;
 
         public SchedulingController(
             ITaskStore taskStore,
             ITaskActivator taskActivator,
             ITaskScheduler taskScheduler,
-            IAsyncState asyncState)
+            IAsyncState asyncState,
+            CommonSettings commonSettings)
         {
             _taskStore = taskStore;
             _taskActivator = taskActivator;
             _taskScheduler = taskScheduler;
             _asyncState = asyncState;
+            _commonSettings = commonSettings;
         }
 
         public IActionResult Index()
@@ -174,8 +179,41 @@ namespace Smartstore.Admin.Controllers
             return RedirectToReferrer(returnUrl);
         }
 
+        [Permission(Permissions.System.ScheduleTask.Read)]
+        public async Task<IActionResult> Edit(int id /* taskId */, string returnUrl = "")
+        {
+            var lastExecutionInfo = await _taskStore.GetLastExecutionInfoByTaskIdAsync(id);
+            var task = lastExecutionInfo?.Task ?? await _taskStore.GetTaskByIdAsync(id);
+            var model = await task.MapAsync(lastExecutionInfo);
+
+            ViewBag.ReturnUrl = returnUrl;
+            ViewBag.HistoryCleanupNote = T("Admin.System.ScheduleTasks.HistoryCleanupNote").Value.FormatInvariant(
+                _commonSettings.MaxNumberOfScheduleHistoryEntries,
+                _commonSettings.MaxScheduleHistoryAgeInDays);
+
+            return View(model);
+        }
+
         // TODO: (mg) (core) POST TaskController.Edit\Create requires validation rule set.
         // [CustomizeValidator(RuleSet = "TaskEditing")]
+
+        [HttpPost]
+        [Permission(Permissions.System.ScheduleTask.Read)]
+        public IActionResult FutureSchedules(string expression)
+        {
+            try
+            {
+                var now = DateTime.Now;
+                var model = CronExpression.GetFutureSchedules(expression, now, now.AddYears(1), 20);
+                ViewBag.Description = CronExpression.GetFriendlyDescription(expression);
+                return PartialView(model);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.CronScheduleParseError = ex.Message;
+                return PartialView(Enumerable.Empty<DateTime>());
+            }
+        }
 
         private async Task<string> GetTaskMessage(TaskDescriptor task, string resourceKey)
         {

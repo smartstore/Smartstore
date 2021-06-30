@@ -29,16 +29,19 @@
         <column for="NextRunInfo" width="300px">
             <display-template>
                 <div class="next-run-info" v-html="item.value"></div>
-                <div class="task-progress text-muted" v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }" :data-running='item.row.LastExecutionInfo.IsRunning ? "true" : "false"'></div>
+                <div class="task-progress text-muted"
+                    v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }" 
+                    :data-task-id="item.row.Id" 
+                    :data-running='item.row.LastExecutionInfo.IsRunning ? "true" : "false"'></div>
             </display-template>
         </column>
 	</columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
-        <a datarow-action="DataRowAction.Custom" :href="item.row.ExecuteUrl" 
+        <a datarow-action="DataRowAction.Custom" :href="item.row.ExecuteUrl" class="btn-run-task" :data-task-id="item.row.Id"
             v-bind:class="{ hide: item.row.LastExecutionInfo.IsRunning }">
             @T("Admin.System.ScheduleTasks.RunNow")</a>
-        <a datarow-action="DataRowAction.Custom" :href="item.row.CancelUrl" 
+        <a datarow-action="DataRowAction.Custom" :href="item.row.CancelUrl" class="btn-cancel-task" :data-task-id="item.row.Id"
             v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }"
             onclick='return confirm(@T("Admin.Common.AreYouSure").JsValue);'>
             @T("Common.Cancel")</a>
