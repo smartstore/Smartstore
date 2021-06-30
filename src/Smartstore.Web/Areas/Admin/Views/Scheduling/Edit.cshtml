@@ -13,6 +13,8 @@
         new SelectListItem { Value = "0", Text = T("Admin.System.ScheduleTasks.Priority.Normal") },
         new SelectListItem { Value = "1", Text = T("Admin.System.ScheduleTasks.Priority.High") }
     };
+
+    var gridViewData = new ViewDataDictionary(this.ViewData) { { "Parent", Model } };
 }
 
 <form asp-action="Edit">
@@ -167,7 +169,7 @@
             <div class="alert alert-info">
                 @Html.Raw((string)ViewBag.HistoryCleanupNote)
             </div>
-
+            <partial name="_Grid.TaskExecutionInfos" model="null" view-data="gridViewData" />
 		</tab>
 	</tabstrip>
 </form>
@@ -188,7 +190,7 @@
 				    cache: false,
 				    type: 'POST',
 				    url: '@Url.Action("FutureSchedules")',
-				    data: { expression: expression, "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+				    data: { expression: expression },
 				    success: function (data) {
 					    $('#future-schedules').html(data);
 				    }

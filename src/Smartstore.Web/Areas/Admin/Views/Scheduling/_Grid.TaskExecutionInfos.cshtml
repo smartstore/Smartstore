@@ -1,0 +1,49 @@
+﻿@model TaskExecutionInfoModel
+
+@{
+	var parentModel = ViewData["Parent"] as TaskModel;
+}
+
+<datagrid id="task-execution-infos-grid" 
+		allow-resize="true" 
+		allow-column-reordering="true" 
+		preserve-grid-state="true">
+	<datasource read="@Url.Action("TaskExecutionInfoList", new { id = parentModel.Id })" delete="@Url.Action("DeleteHistoryEntry")" />
+	<columns>
+        <column for="StartedOn" title="@T("Common.ExecutedOn")" width="260px">
+            <display-template>
+                <div>
+					<div>{{ item.row.StartedOnString }}</div>
+					<div class="text-muted">{{ item.row.StartedOnPretty }}</div>
+				</div>
+            </display-template>
+        </column>
+        <column for="FinishedOn" title="@T("Common.FinishedOn")" width="260px">
+            <display-template>
+                <div>
+					<div>{{ item.row.FinishedOnString }}</div>
+					<div class="text-muted">{{ item.row.FinishedOnPretty }}</div>
+				</div>
+            </display-template>
+        </column>
+        <column for="Duration" width="260px"></column>
+        <column for="Succeeded" width="260px">
+            <display-template>
+				<div v-if="item.row.Succeeded">
+                    <i class="fa fa-fw icon-active-true"></i>
+                    <span class="ml-1">@T("Common.Succeeded")</span>
+                </div>
+				<div v-if="!item.row.Succeeded">
+                    <div class="text-danger font-weight-medium">@T("Common.Error"):</div>
+                    <pre class="prettyprint xlang-java mt-1 mb-0" style="max-height: 200px; white-space: pre-wrap;">
+                        <strong>@T("Common.Error"): </strong> <span>{{ item.row.Error }}</span>
+                    </pre>
+                </div>
+            </display-template>
+        </column>
+		<column for="MachineName"></column>
+	</columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>

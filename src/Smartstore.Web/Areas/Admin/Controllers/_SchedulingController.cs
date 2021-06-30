@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Scheduling;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Security;
 using Smartstore.Scheduling;
@@ -88,7 +89,7 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
-        [HttpPost]
+        [HttpPost, IgnoreAntiforgeryToken]
         public async Task<IActionResult> GetRunningTasks()
         {
             // We better not check permission here.
@@ -115,7 +116,7 @@ namespace Smartstore.Admin.Controllers
             return Json(models);
         }
 
-        [HttpPost]
+        [HttpPost, IgnoreAntiforgeryToken]
         public async Task<IActionResult> GetTaskRunInfo(int id /* taskId */)
         {
             // We better not check permission here.
@@ -197,7 +198,32 @@ namespace Smartstore.Admin.Controllers
         // TODO: (mg) (core) POST TaskController.Edit\Create requires validation rule set.
         // [CustomizeValidator(RuleSet = "TaskEditing")]
 
-        [HttpPost]
+        [Permission(Permissions.System.ScheduleTask.Read)]
+        public async Task<IActionResult> TaskExecutionInfoList(GridCommand command, int id /* taskId */)
+        {
+            var query = _taskStore.GetExecutionInfoQuery(false)
+                .ApplyTaskFilter(id)
+                .ApplyGridCommand(command);
+
+            var executionInfos = await query.ToPagedList(command.Page - 1, command.PageSize).LoadAsync();
+            var executionInfoMapper = MapperFactory.GetMapper<TaskExecutionInfo, TaskExecutionInfoModel>();
+
+            var rows = await executionInfos.SelectAsync(async x =>
+            {
+                var infoModel = new TaskExecutionInfoModel();
+                await executionInfoMapper.MapAsync(x, infoModel);
+                return infoModel;
+            })
+            .AsyncToList();
+
+            return Json(new GridModel<TaskExecutionInfoModel>
+            {
+                Rows = rows,
+                Total = executionInfos.TotalCount,
+            });
+        }
+
+        [HttpPost, IgnoreAntiforgeryToken]
         [Permission(Permissions.System.ScheduleTask.Read)]
         public IActionResult FutureSchedules(string expression)
         {

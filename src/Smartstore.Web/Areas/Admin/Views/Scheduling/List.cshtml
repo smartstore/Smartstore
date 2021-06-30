@@ -13,8 +13,6 @@
 
 <script sm-target-zone="scripts" data-origin="tasks-list">
 	$(function () {
-		var token = $('input[name="__RequestVerificationToken"]').val();
-
 		Smartstore.Admin.TaskWatcher.startWatching({
 			context: $('#tasks-grid'),
 			elementsSelector: '.task-progress',
@@ -35,7 +33,7 @@
 					global: false,
 					type: 'POST',
 					url: '@Url.Action("GetTaskRunInfo")',
-					data: { id: taskId, "__RequestVerificationToken": token },
+					data: { id: taskId },
 					success: function (data) {
 						tr.find('.next-run-info').html(data.nextRunHtml).removeClass("hide");
 						tr.find('.last-run-info').html(data.lastRunHtml);

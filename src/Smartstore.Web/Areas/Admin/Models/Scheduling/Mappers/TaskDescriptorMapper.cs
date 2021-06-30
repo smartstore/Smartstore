@@ -44,11 +44,11 @@ namespace Smartstore.Admin.Models.Scheduling
         protected override void Map(TaskDescriptor from, TaskModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override Task MapAsync(TaskDescriptor from, TaskModel to, dynamic parameters = null)
+        public override async Task MapAsync(TaskDescriptor from, TaskModel to, dynamic parameters = null)
         {
             if (from == null || to == null)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             var lastExecutionInfo = parameters?.LastExecutionInfo as TaskExecutionInfo;
@@ -86,10 +86,8 @@ namespace Smartstore.Admin.Models.Scheduling
             if (lastExecutionInfo != null)
             {
                 var executionInfoMapper = MapperFactory.GetMapper<TaskExecutionInfo, TaskExecutionInfoModel>();
-                executionInfoMapper.MapAsync(lastExecutionInfo, to.LastExecutionInfo, parameters);   
+                await executionInfoMapper.MapAsync(lastExecutionInfo, to.LastExecutionInfo, parameters);
             }
-
-            return Task.CompletedTask;
         }
     }
 }
