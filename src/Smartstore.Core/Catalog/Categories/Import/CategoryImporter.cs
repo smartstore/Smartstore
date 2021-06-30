@@ -52,113 +52,112 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
-            using var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true);
-
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Category>();
 
-            await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
-
-            // ===========================================================================
-            // Process categories.
-            // ===========================================================================
-            var savedCategories = 0;
-            try
+            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
-                savedCategories = await ProcessCategoriesAsync(context, scope, batch);
-            }
-            catch (Exception ex)
-            {
-                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessCategoriesAsync));
-            }
+                await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
 
-            if (savedCategories > 0)
-            {
-                // Hooks are disabled but category tree may have changed.
-                context.ClearCache = true;
-            }
-
-            // Reduce batch to saved (valid) categories.
-            // No need to perform import operations on errored categories.
-            batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
-
-            // Update result object.
-            context.Result.NewRecords += batch.Count(x => x.IsNew && !x.IsTransient);
-            context.Result.ModifiedRecords += batch.Count(x => !x.IsNew && !x.IsTransient);
-
-            // ===========================================================================
-            // Process SEO slugs.
-            // ===========================================================================
-            if (segmenter.HasColumn("SeName", true) || batch.Any(x => x.IsNew || x.NameChanged))
-            {
-                try
-                {
-                    await ProcessSlugsAsync(context, batch, typeof(Category).Name);
-                }
-                catch (Exception ex)
-                {
-                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessSlugsAsync));
-                }
-            }
-
-            // ===========================================================================
-            // Process store mappings.
-            // ===========================================================================
-            if (segmenter.HasColumn("StoreIds"))
-            {
-                try
-                {
-                    await ProcessStoreMappingsAsync(context, scope, batch);
-                }
-                catch (Exception ex)
-                {
-                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessStoreMappingsAsync));
-                }
-            }
-
-            // ===========================================================================
-            // Process localizations.
-            // ===========================================================================
-            try
-            {
-                await ProcessLocalizationsAsync(context, scope, batch, _localizableProperties);
-            }
-            catch (Exception ex)
-            {
-                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessLocalizationsAsync));
-            }
-
-            // ===========================================================================
-            // Process pictures.
-            // ===========================================================================
-            if (segmenter.HasColumn("ImageUrl") && !segmenter.IsIgnored("PictureId"))
-            {
-                try
-                {
-                    await ProcessPicturesAsync(context, scope, batch);
-                }
-                catch (Exception ex)
-                {
-                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessPicturesAsync));
-                }
-            }
-
-            // We can make the parent category assignment only after all the data has been processed and imported.
-            if (segmenter.IsLastSegment)
-            {
                 // ===========================================================================
-                // Process parent category mappings.
+                // Process categories.
                 // ===========================================================================
-                if (segmenter.HasColumn("Id") && 
-                    segmenter.HasColumn("ParentCategoryId") && 
-                    !segmenter.IsIgnored("ParentCategoryId"))
+                var savedCategories = 0;
+                try
                 {
-                    await ProcessParentMappingsAsync(context, scope, batch);
+                    savedCategories = await ProcessCategoriesAsync(context, scope, batch);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessCategoriesAsync));
+                }
+
+                if (savedCategories > 0)
+                {
+                    // Hooks are disabled but category tree may have changed.
+                    context.ClearCache = true;
+                }
+
+                // Reduce batch to saved (valid) categories.
+                // No need to perform import operations on errored categories.
+                batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
+
+                // Update result object.
+                context.Result.NewRecords += batch.Count(x => x.IsNew && !x.IsTransient);
+                context.Result.ModifiedRecords += batch.Count(x => !x.IsNew && !x.IsTransient);
+
+                // ===========================================================================
+                // Process SEO slugs.
+                // ===========================================================================
+                if (segmenter.HasColumn("SeName", true) || batch.Any(x => x.IsNew || x.NameChanged))
+                {
+                    try
+                    {
+                        await ProcessSlugsAsync(context, batch, typeof(Category).Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessSlugsAsync));
+                    }
+                }
+
+                // ===========================================================================
+                // Process store mappings.
+                // ===========================================================================
+                if (segmenter.HasColumn("StoreIds"))
+                {
+                    try
+                    {
+                        await ProcessStoreMappingsAsync(context, scope, batch);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessStoreMappingsAsync));
+                    }
+                }
+
+                // ===========================================================================
+                // Process localizations.
+                // ===========================================================================
+                try
+                {
+                    await ProcessLocalizationsAsync(context, scope, batch, _localizableProperties);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessLocalizationsAsync));
+                }
+
+                // ===========================================================================
+                // Process pictures.
+                // ===========================================================================
+                if (segmenter.HasColumn("ImageUrl") && !segmenter.IsIgnored("PictureId"))
+                {
+                    try
+                    {
+                        await ProcessPicturesAsync(context, scope, batch);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessPicturesAsync));
+                    }
+                }
+
+                // We can make the parent category assignment only after all the data has been processed and imported.
+                if (segmenter.IsLastSegment)
+                {
+                    // ===========================================================================
+                    // Process parent category mappings.
+                    // ===========================================================================
+                    if (segmenter.HasColumn("Id") &&
+                        segmenter.HasColumn("ParentCategoryId") &&
+                        !segmenter.IsIgnored("ParentCategoryId"))
+                    {
+                        await ProcessParentMappingsAsync(context, scope, batch);
+                    }
                 }
             }
 
-            // TODO: (mg) (core) I don't like the fact that this event here is published WITHIN the current DbContextScope.
-            // Any consumer that accesses the db will also run in the same scope, which is a bad idea IMHO, but open to discussion ;-)
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Category>(context, batch), cancelToken);
         }
 

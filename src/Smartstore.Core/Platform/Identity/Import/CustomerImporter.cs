@@ -52,90 +52,91 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
-            using var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true);
-
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Customer>();
 
-            await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
-
-            // ===========================================================================
-            // Process customers.
-            // ===========================================================================
-            try
+            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
-                await ProcessCustomersAsync(context, scope, batch);
-            }
-            catch (Exception ex)
-            {
-                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessCustomersAsync));
-            }
+                await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
 
-            // Reduce batch to saved (valid) records.
-            // No need to perform import operations on errored records.
-            batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
-
-            // Update result object.
-            context.Result.NewRecords += batch.Count(x => x.IsNew && !x.IsTransient);
-            context.Result.ModifiedRecords += batch.Count(x => !x.IsNew && !x.IsTransient);
-
-            // ===========================================================================
-            // Process customer roles.
-            // ===========================================================================
-            if (segmenter.HasColumn("CustomerRoleSystemNames"))
-            {
+                // ===========================================================================
+                // Process customers.
+                // ===========================================================================
                 try
                 {
-                    await ProcessCustomerRolesAsync(context, scope, batch);
+                    await ProcessCustomersAsync(context, scope, batch);
                 }
                 catch (Exception ex)
                 {
-                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessCustomerRolesAsync));
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessCustomersAsync));
                 }
-            }
 
-            // ===========================================================================
-            // Process generic attributes.
-            // ===========================================================================
-            try
-            {
-                await ProcessGenericAttributesAsync(context, scope, batch);
-            }
-            catch (Exception ex)
-            {
-                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessGenericAttributesAsync));
-            }
+                // Reduce batch to saved (valid) records.
+                // No need to perform import operations on errored records.
+                batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
 
-            // ===========================================================================
-            // Process avatars.
-            // ===========================================================================
-            if (_customerSettings.AllowCustomersToUploadAvatars)
-            {
+                // Update result object.
+                context.Result.NewRecords += batch.Count(x => x.IsNew && !x.IsTransient);
+                context.Result.ModifiedRecords += batch.Count(x => !x.IsNew && !x.IsTransient);
+
+                // ===========================================================================
+                // Process customer roles.
+                // ===========================================================================
+                if (segmenter.HasColumn("CustomerRoleSystemNames"))
+                {
+                    try
+                    {
+                        await ProcessCustomerRolesAsync(context, scope, batch);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessCustomerRolesAsync));
+                    }
+                }
+
+                // ===========================================================================
+                // Process generic attributes.
+                // ===========================================================================
                 try
                 {
-                    await ProcessAvatarsAsync(context, scope, batch);
+                    await ProcessGenericAttributesAsync(context, scope, batch);
                 }
                 catch (Exception ex)
                 {
-                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAvatarsAsync));
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessGenericAttributesAsync));
                 }
-            }
 
-            // ===========================================================================
-            // Process addresses.
-            // ===========================================================================
-            try
-            {
-                await ProcessAddressesAsync(context, scope, batch);
-            }
-            catch (Exception ex)
-            {
-                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAddressesAsync));
-            }
+                // ===========================================================================
+                // Process avatars.
+                // ===========================================================================
+                if (_customerSettings.AllowCustomersToUploadAvatars)
+                {
+                    try
+                    {
+                        await ProcessAvatarsAsync(context, scope, batch);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAvatarsAsync));
+                    }
+                }
 
-            if (segmenter.IsLastSegment)
-            {
-                AddInfoForDeprecatedFields(context);
+                // ===========================================================================
+                // Process addresses.
+                // ===========================================================================
+                try
+                {
+                    await ProcessAddressesAsync(context, scope, batch);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAddressesAsync));
+                }
+
+                if (segmenter.IsLastSegment)
+                {
+                    AddInfoForDeprecatedFields(context);
+                }
             }
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Customer>(context, batch), cancelToken);

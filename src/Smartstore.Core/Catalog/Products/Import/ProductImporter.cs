@@ -49,10 +49,6 @@ namespace Smartstore.Core.DataExchange.Import
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             IFolderService folderService)
-            // TODO: (mg) (core) no hook may run during an import. It messes up the import.
-            // "The property 'LocalizedProperty.Id' has a temporary value while attempting to change the entity's state to 'Deleted'."
-            // "Cannot insert duplicate key row in object 'dbo.UrlRecord' with unique index 'IX_UrlRecord_Slug'."
-            // RE: (info) The IX_UrlRecord_Slug uniqueness violation is a known bug in IUrlService.
             : base(services, localizedEntityService, storeMappingService, urlService)
         {
             _folderService = folderService;
@@ -65,176 +61,181 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
-            using var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true);
-
             if (context.File.RelatedType.HasValue)
             {
                 switch (context.File.RelatedType.Value)
                 {
                     case RelatedEntityType.TierPrice:
-                        await ProcessTierPricesAsync(context, scope);
+                        await ProcessTierPricesAsync(context);
                         break;
                     case RelatedEntityType.ProductVariantAttributeValue:
-                        await ProcessAttributeValuesAsync(context, scope);
+                        await ProcessAttributeValuesAsync(context);
                         break;
                     case RelatedEntityType.ProductVariantAttributeCombination:
-                        await ProcessAttributeCombinationsAsync(context, scope);
+                        await ProcessAttributeCombinationsAsync(context);
                         break;
                 }
             }
             else
             {
-                await ProcessProductsAsync(context, scope);
+                await ProcessProductsAsync(context);
             }
         }
 
-        protected virtual async Task ProcessProductsAsync(ImportExecuteContext context, DbContextScope scope)
+        protected virtual async Task ProcessProductsAsync(ImportExecuteContext context)
         {
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Product>();
 
-            await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
-
-            // ===========================================================================
-            // 1.) Import products.
-            // ===========================================================================
-            var savedProducts = 0;
-            try
+            // TODO: (mg) (core) this is wrong design. Hooks must not be running during an import. It messes up the import. An importer must not rely on hook execution.
+            // "The property 'LocalizedProperty.Id' has a temporary value while attempting to change the entity's state to 'Deleted'."
+            // "Cannot insert duplicate key row in object 'dbo.UrlRecord' with unique index 'IX_UrlRecord_Slug'."
+            // RE: (info) The IX_UrlRecord_Slug uniqueness violation is a known bug in IUrlService.
+            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
-                savedProducts = await InternalProcessProductsAsync(context, scope, batch);
-            }
-            catch (Exception ex)
-            {
-                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(InternalProcessProductsAsync));
-            }
+                await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
 
-            // Reduce batch to saved (valid) products.
-            // No need to perform import operations on errored products.
-            batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
-
-            // Update result object.
-            context.Result.NewRecords += batch.Count(x => x.IsNew);
-            context.Result.ModifiedRecords += Math.Max(0, savedProducts - context.Result.NewRecords);
-
-            // ===========================================================================
-            // 2.) Import SEO slugs.
-            // ===========================================================================
-            if (segmenter.HasColumn("SeName", true) || batch.Any(x => x.IsNew || x.NameChanged))
-            {
-                try
-                {
-                    await ProcessSlugsAsync(context, batch, typeof(Product).Name);
-                }
-                catch (Exception ex)
-                {
-                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessSlugsAsync));
-                }
-            }
-
-            // ===========================================================================
-            // 3.) Import store mappings.
-            // ===========================================================================
-            if (segmenter.HasColumn("StoreIds"))
-            {
-                try
-                {
-                    await ProcessStoreMappingsAsync(context, scope, batch);
-                }
-                catch (Exception ex)
-                {
-                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessStoreMappingsAsync));
-                }
-            }
-
-            // ===========================================================================
-            // 4.) Import localizations.
-            // ===========================================================================
-            try
-            {
-                await ProcessLocalizationsAsync(context, scope, batch, _localizableProperties);
-            }
-            catch (Exception ex)
-            {
-                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessLocalizationsAsync));
-            }
-
-            // ===========================================================================
-            // 5.) Import product category mappings.
-            // ===========================================================================
-            if (segmenter.HasColumn("CategoryIds"))
-            {
-                try
-                {
-                    await ProcessProductCategoriesAsync(context, scope, batch);
-                }
-                catch (Exception ex)
-                {
-                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductCategoriesAsync));
-                }
-            }
-
-            // ===========================================================================
-            // 6.) Import product manufacturer mappings.
-            // ===========================================================================
-            if (segmenter.HasColumn("ManufacturerIds"))
-            {
-                try
-                {
-                    await ProcessProductManufacturersAsync(context, scope, batch);
-                }
-                catch (Exception ex)
-                {
-                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductManufacturersAsync));
-                }
-            }
-
-            // ===========================================================================
-            // 7.) Import product picture mappings.
-            // ===========================================================================
-            if (segmenter.HasColumn("ImageUrls"))
-            {
-                try
-                {
-                    await ProcessProductPicturesAsync(context, scope, batch);
-                }
-                catch (Exception ex)
-                {
-                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductPicturesAsync));
-                }
-            }
-
-            // ===========================================================================
-            // 8.) Import product tag names.
-            // ===========================================================================
-            if (segmenter.HasColumn("TagNames"))
-            {
-                try
-                {
-                    await ProcessProductTagsAsync(context, scope, batch);
-                }
-                catch (Exception ex)
-                {
-                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductTagsAsync));
-                }
-            }
-
-            // We can make the parent grouped product assignment only after all the data has been processed and imported.
-            if (segmenter.IsLastSegment)
-            {
                 // ===========================================================================
-                // 9.) Map parent ID of inserted products.
+                // 1.) Import products.
                 // ===========================================================================
-                if (segmenter.HasColumn("Id") && 
-                    segmenter.HasColumn("ParentGroupedProductId") && 
-                    !segmenter.IsIgnored("ParentGroupedProductId"))
+                var savedProducts = 0;
+                try
                 {
-                    await ProcessGroupedProductsAsync(context, scope);
+                    savedProducts = await InternalProcessProductsAsync(context, scope, batch);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(InternalProcessProductsAsync));
+                }
+
+                // Reduce batch to saved (valid) products.
+                // No need to perform import operations on errored products.
+                batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
+
+                // Update result object.
+                context.Result.NewRecords += batch.Count(x => x.IsNew);
+                context.Result.ModifiedRecords += Math.Max(0, savedProducts - context.Result.NewRecords);
+
+                // ===========================================================================
+                // 2.) Import SEO slugs.
+                // ===========================================================================
+                if (segmenter.HasColumn("SeName", true) || batch.Any(x => x.IsNew || x.NameChanged))
+                {
+                    try
+                    {
+                        await ProcessSlugsAsync(context, batch, typeof(Product).Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessSlugsAsync));
+                    }
                 }
 
                 // ===========================================================================
-                // 10.) PostProcess: normalization.
-                // ===========================================================================          
-                await ProductPictureHelper.FixProductMainPictureIds(_db, context.UtcNow);
+                // 3.) Import store mappings.
+                // ===========================================================================
+                if (segmenter.HasColumn("StoreIds"))
+                {
+                    try
+                    {
+                        await ProcessStoreMappingsAsync(context, scope, batch);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessStoreMappingsAsync));
+                    }
+                }
+
+                // ===========================================================================
+                // 4.) Import localizations.
+                // ===========================================================================
+                try
+                {
+                    await ProcessLocalizationsAsync(context, scope, batch, _localizableProperties);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessLocalizationsAsync));
+                }
+
+                // ===========================================================================
+                // 5.) Import product category mappings.
+                // ===========================================================================
+                if (segmenter.HasColumn("CategoryIds"))
+                {
+                    try
+                    {
+                        await ProcessProductCategoriesAsync(context, scope, batch);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductCategoriesAsync));
+                    }
+                }
+
+                // ===========================================================================
+                // 6.) Import product manufacturer mappings.
+                // ===========================================================================
+                if (segmenter.HasColumn("ManufacturerIds"))
+                {
+                    try
+                    {
+                        await ProcessProductManufacturersAsync(context, scope, batch);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductManufacturersAsync));
+                    }
+                }
+
+                // ===========================================================================
+                // 7.) Import product picture mappings.
+                // ===========================================================================
+                if (segmenter.HasColumn("ImageUrls"))
+                {
+                    try
+                    {
+                        await ProcessProductPicturesAsync(context, scope, batch);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductPicturesAsync));
+                    }
+                }
+
+                // ===========================================================================
+                // 8.) Import product tag names.
+                // ===========================================================================
+                if (segmenter.HasColumn("TagNames"))
+                {
+                    try
+                    {
+                        await ProcessProductTagsAsync(context, scope, batch);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductTagsAsync));
+                    }
+                }
+
+                // We can make the parent grouped product assignment only after all the data has been processed and imported.
+                if (segmenter.IsLastSegment)
+                {
+                    // ===========================================================================
+                    // 9.) Map parent ID of inserted products.
+                    // ===========================================================================
+                    if (segmenter.HasColumn("Id") &&
+                        segmenter.HasColumn("ParentGroupedProductId") &&
+                        !segmenter.IsIgnored("ParentGroupedProductId"))
+                    {
+                        await ProcessGroupedProductsAsync(context, scope);
+                    }
+
+                    // ===========================================================================
+                    // 10.) PostProcess: normalization.
+                    // ===========================================================================          
+                    await ProductPictureHelper.FixProductMainPictureIds(_db, context.UtcNow);
+                }
             }
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Product>(context, batch), context.CancelToken);
@@ -864,254 +865,265 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
-        protected virtual async Task ProcessTierPricesAsync(ImportExecuteContext context, DbContextScope scope)
+        protected virtual async Task ProcessTierPricesAsync(ImportExecuteContext context)
         {
-            var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.TierPrice, _services.WorkContext.WorkingLanguage.Id);
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<TierPrice>();
+            var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.TierPrice, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
-            await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
-
-            try
+            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
-                foreach (var row in batch)
+                await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
+
+                try
                 {
-                    var id = row.GetDataValue<int>("Id");
-                    var tierPrice = await _db.TierPrices.FindByIdAsync(id, true, context.CancelToken);
-
-                    if (tierPrice == null)
+                    foreach (var row in batch)
                     {
-                        if (context.UpdateOnly)
+                        var id = row.GetDataValue<int>("Id");
+                        var tierPrice = await _db.TierPrices.FindByIdAsync(id, true, context.CancelToken);
+
+                        if (tierPrice == null)
                         {
-                            ++context.Result.SkippedRecords;
-                            continue;
+                            if (context.UpdateOnly)
+                            {
+                                ++context.Result.SkippedRecords;
+                                continue;
+                            }
+
+                            // ProductId is required for new tier prices.
+                            var productId = row.GetDataValue<int>("ProductId");
+                            if (productId == 0)
+                            {
+                                ++context.Result.SkippedRecords;
+                                context.Result.AddError("The 'ProductId' field is required for new tier prices. Skipping row.", row.RowInfo, "ProductId");
+                                continue;
+                            }
+
+                            tierPrice = new TierPrice
+                            {
+                                ProductId = productId
+                            };
                         }
 
-                        // ProductId is required for new tier prices.
-                        var productId = row.GetDataValue<int>("ProductId");
-                        if (productId == 0)
+                        row.Initialize(tierPrice, null);
+
+                        // Ignore ProductId field to avoid accidents.
+                        row.SetProperty(context.Result, (x) => x.StoreId);
+                        row.SetProperty(context.Result, (x) => x.CustomerRoleId);
+                        row.SetProperty(context.Result, (x) => x.Quantity);
+                        row.SetProperty(context.Result, (x) => x.Price);
+
+                        if (row.TryGetDataValue("CalculationMethod", out int calcMethod))
                         {
-                            ++context.Result.SkippedRecords;
-                            context.Result.AddError("The 'ProductId' field is required for new tier prices. Skipping row.", row.RowInfo, "ProductId");
-                            continue;
+                            tierPrice.CalculationMethod = (TierPriceCalculationMethod)calcMethod;
                         }
 
-                        tierPrice = new TierPrice
+                        if (row.IsTransient)
                         {
-                            ProductId = productId
-                        };
+                            _db.TierPrices.Add(tierPrice);
+                        }
                     }
 
-                    row.Initialize(tierPrice, null);
-
-                    // Ignore ProductId field to avoid accidents.
-                    row.SetProperty(context.Result, (x) => x.StoreId);
-                    row.SetProperty(context.Result, (x) => x.CustomerRoleId);
-                    row.SetProperty(context.Result, (x) => x.Quantity);
-                    row.SetProperty(context.Result, (x) => x.Price);
-
-                    if (row.TryGetDataValue("CalculationMethod", out int calcMethod))
-                    {
-                        tierPrice.CalculationMethod = (TierPriceCalculationMethod)calcMethod;
-                    }
-
-                    if (row.IsTransient)
-                    {
-                        _db.TierPrices.Add(tierPrice);
-                    }
+                    savedEntities = await scope.CommitAsync(context.CancelToken);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessTierPricesAsync));
                 }
 
-                savedEntities = await scope.CommitAsync(context.CancelToken);
+                batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
+
+                context.Result.NewRecords += batch.Count(x => x.IsNew);
+                context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
+
+                // TODO: (mg) (core) this is wrong design. An importer must NOT rely on a hook. Hooks must not be running during an import.
+                // Updating HasTierPrices property not necessary anymore.
+                // This is done by the TierPriceHook (minHookImportance is set to HookImportance.Important).
             }
-            catch (Exception ex)
-            {
-                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessTierPricesAsync));
-            }
-
-            batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
-
-            context.Result.NewRecords += batch.Count(x => x.IsNew);
-            context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
-
-            // Updating HasTierPrices property not necessary anymore.
-            // This is done by the TierPriceHook (minHookImportance is set to HookImportance.Important).
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<TierPrice>(context, batch));
         }
 
-        protected virtual async Task ProcessAttributeValuesAsync(ImportExecuteContext context, DbContextScope scope)
+        protected virtual async Task ProcessAttributeValuesAsync(ImportExecuteContext context)
         {
-            var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeValue, _services.WorkContext.WorkingLanguage.Id);
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<ProductVariantAttributeValue>();
+            var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeValue, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
-            await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
-
-            try
+            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
-                foreach (var row in batch)
+                await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
+
+                try
                 {
-                    var id = row.GetDataValue<int>("Id");
-                    var attributeValue = await _db.ProductVariantAttributeValues.FindByIdAsync(id, true, context.CancelToken);
-
-                    if (attributeValue == null)
+                    foreach (var row in batch)
                     {
-                        if (context.UpdateOnly)
+                        var id = row.GetDataValue<int>("Id");
+                        var attributeValue = await _db.ProductVariantAttributeValues.FindByIdAsync(id, true, context.CancelToken);
+
+                        if (attributeValue == null)
                         {
-                            ++context.Result.SkippedRecords;
-                            continue;
+                            if (context.UpdateOnly)
+                            {
+                                ++context.Result.SkippedRecords;
+                                continue;
+                            }
+
+                            // ProductVariantAttributeId is required for new attribute values.
+                            var pvaId = row.GetDataValue<int>("ProductVariantAttributeId");
+                            if (pvaId == 0)
+                            {
+                                ++context.Result.SkippedRecords;
+                                context.Result.AddError("The 'ProductVariantAttributeId' field is required for new attribute values. Skipping row.", row.RowInfo, "ProductVariantAttributeId");
+                                continue;
+                            }
+
+                            if (!row.HasDataValue("Name"))
+                            {
+                                ++context.Result.SkippedRecords;
+                                context.Result.AddError("The 'Name' field is required for new attribute values. Skipping row.", row.RowInfo, "Name");
+                                continue;
+                            }
+
+                            attributeValue = new ProductVariantAttributeValue
+                            {
+                                ProductVariantAttributeId = pvaId
+                            };
                         }
 
-                        // ProductVariantAttributeId is required for new attribute values.
-                        var pvaId = row.GetDataValue<int>("ProductVariantAttributeId");
-                        if (pvaId == 0)
-                        {
-                            ++context.Result.SkippedRecords;
-                            context.Result.AddError("The 'ProductVariantAttributeId' field is required for new attribute values. Skipping row.", row.RowInfo, "ProductVariantAttributeId");
-                            continue;
-                        }
+                        row.Initialize(attributeValue, null);
 
-                        if (!row.HasDataValue("Name"))
-                        {
-                            ++context.Result.SkippedRecords;
-                            context.Result.AddError("The 'Name' field is required for new attribute values. Skipping row.", row.RowInfo, "Name");
-                            continue;
-                        }
+                        // Ignore ProductVariantAttributeId field to avoid accidents.
+                        row.SetProperty(context.Result, (x) => x.Alias);
+                        row.SetProperty(context.Result, (x) => x.Name);
+                        row.SetProperty(context.Result, (x) => x.Color);
+                        row.SetProperty(context.Result, (x) => x.PriceAdjustment);
+                        row.SetProperty(context.Result, (x) => x.WeightAdjustment);
+                        row.SetProperty(context.Result, (x) => x.Quantity, 10000);
+                        row.SetProperty(context.Result, (x) => x.IsPreSelected);
+                        row.SetProperty(context.Result, (x) => x.DisplayOrder);
+                        row.SetProperty(context.Result, (x) => x.ValueTypeId);
+                        row.SetProperty(context.Result, (x) => x.LinkedProductId);
 
-                        attributeValue = new ProductVariantAttributeValue
+                        if (row.IsTransient)
                         {
-                            ProductVariantAttributeId = pvaId
-                        };
+                            _db.ProductVariantAttributeValues.Add(attributeValue);
+                        }
                     }
 
-                    row.Initialize(attributeValue, null);
-
-                    // Ignore ProductVariantAttributeId field to avoid accidents.
-                    row.SetProperty(context.Result, (x) => x.Alias);
-                    row.SetProperty(context.Result, (x) => x.Name);
-                    row.SetProperty(context.Result, (x) => x.Color);
-                    row.SetProperty(context.Result, (x) => x.PriceAdjustment);
-                    row.SetProperty(context.Result, (x) => x.WeightAdjustment);
-                    row.SetProperty(context.Result, (x) => x.Quantity, 10000);
-                    row.SetProperty(context.Result, (x) => x.IsPreSelected);
-                    row.SetProperty(context.Result, (x) => x.DisplayOrder);
-                    row.SetProperty(context.Result, (x) => x.ValueTypeId);
-                    row.SetProperty(context.Result, (x) => x.LinkedProductId);
-
-                    if (row.IsTransient)
-                    {
-                        _db.ProductVariantAttributeValues.Add(attributeValue);
-                    }
+                    savedEntities = await scope.CommitAsync(context.CancelToken);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAttributeValuesAsync));
                 }
 
-                savedEntities = await scope.CommitAsync(context.CancelToken);
-            }
-            catch (Exception ex)
-            {
-                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAttributeValuesAsync));
-            }
+                batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
 
-            batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
-
-            context.Result.NewRecords += batch.Count(x => x.IsNew);
-            context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
+                context.Result.NewRecords += batch.Count(x => x.IsNew);
+                context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
+            }
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<ProductVariantAttributeValue>(context, batch));
         }
 
-        protected virtual async Task ProcessAttributeCombinationsAsync(ImportExecuteContext context, DbContextScope scope)
+        protected virtual async Task ProcessAttributeCombinationsAsync(ImportExecuteContext context)
         {
-            var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeCombination, _services.WorkContext.WorkingLanguage.Id);
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<ProductVariantAttributeCombination>();
+            var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeCombination, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
-            await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
-
-            try
+            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
-                foreach (var row in batch)
+                await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
+
+                try
                 {
-                    var id = row.GetDataValue<int>("Id");
-                    var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(id, true, context.CancelToken);
-
-                    if (combination == null)
+                    foreach (var row in batch)
                     {
-                        foreach (var keyName in context.KeyFieldNames)
+                        var id = row.GetDataValue<int>("Id");
+                        var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(id, true, context.CancelToken);
+
+                        if (combination == null)
                         {
-                            var keyValue = row.GetDataValue<string>(keyName);
-                            if (keyValue.HasValue())
+                            foreach (var keyName in context.KeyFieldNames)
                             {
-                                switch (keyName)
+                                var keyValue = row.GetDataValue<string>(keyName);
+                                if (keyValue.HasValue())
                                 {
-                                    case "Sku":
-                                        combination = await _db.ProductVariantAttributeCombinations
-                                            .ApplySkuFilter(keyValue)
-                                            .FirstOrDefaultAsync(context.CancelToken);
-                                        break;
-                                    case "Gtin":
-                                        combination = await _db.ProductVariantAttributeCombinations
-                                            .ApplyGtinFilter(keyValue)
-                                            .FirstOrDefaultAsync(context.CancelToken);
-                                        break;
-                                    case "ManufacturerPartNumber":
-                                        combination = await _db.ProductVariantAttributeCombinations
-                                            .ApplyMpnFilter(keyValue)
-                                            .FirstOrDefaultAsync(context.CancelToken);
-                                        break;
+                                    switch (keyName)
+                                    {
+                                        case "Sku":
+                                            combination = await _db.ProductVariantAttributeCombinations
+                                                .ApplySkuFilter(keyValue)
+                                                .FirstOrDefaultAsync(context.CancelToken);
+                                            break;
+                                        case "Gtin":
+                                            combination = await _db.ProductVariantAttributeCombinations
+                                                .ApplyGtinFilter(keyValue)
+                                                .FirstOrDefaultAsync(context.CancelToken);
+                                            break;
+                                        case "ManufacturerPartNumber":
+                                            combination = await _db.ProductVariantAttributeCombinations
+                                                .ApplyMpnFilter(keyValue)
+                                                .FirstOrDefaultAsync(context.CancelToken);
+                                            break;
+                                    }
                                 }
+
+                                if (combination != null)
+                                    break;
                             }
-
-                            if (combination != null)
-                                break;
                         }
+
+                        if (combination == null)
+                        {
+                            // We do not insert records here to avoid inconsistent attribute combination data.
+                            ++context.Result.SkippedRecords;
+                            context.Result.AddError("The 'Id' or another key field is required. Inserting attribute combinations not supported. Skipping row.", row.RowInfo, "Id");
+                            continue;
+                        }
+
+                        row.Initialize(combination, null);
+
+                        // Ignore ProductId field to avoid accidents.
+                        row.SetProperty(context.Result, (x) => x.Sku);
+                        row.SetProperty(context.Result, (x) => x.Gtin);
+                        row.SetProperty(context.Result, (x) => x.ManufacturerPartNumber);
+                        row.SetProperty(context.Result, (x) => x.StockQuantity, 10000);
+                        row.SetProperty(context.Result, (x) => x.Price);
+                        row.SetProperty(context.Result, (x) => x.Length);
+                        row.SetProperty(context.Result, (x) => x.Width);
+                        row.SetProperty(context.Result, (x) => x.Height);
+                        row.SetProperty(context.Result, (x) => x.BasePriceAmount);
+                        row.SetProperty(context.Result, (x) => x.BasePriceBaseAmount);
+                        row.SetProperty(context.Result, (x) => x.AssignedMediaFileIds);
+                        row.SetProperty(context.Result, (x) => x.IsActive, true);
+                        row.SetProperty(context.Result, (x) => x.AllowOutOfStockOrders);
+                        row.SetProperty(context.Result, (x) => x.DeliveryTimeId);
+                        row.SetProperty(context.Result, (x) => x.QuantityUnitId);
+                        row.SetProperty(context.Result, (x) => x.RawAttributes);
                     }
 
-                    if (combination == null)
-                    {
-                        // We do not insert records here to avoid inconsistent attribute combination data.
-                        ++context.Result.SkippedRecords;
-                        context.Result.AddError("The 'Id' or another key field is required. Inserting attribute combinations not supported. Skipping row.", row.RowInfo, "Id");
-                        continue;
-                    }
-
-                    row.Initialize(combination, null);
-
-                    // Ignore ProductId field to avoid accidents.
-                    row.SetProperty(context.Result, (x) => x.Sku);
-                    row.SetProperty(context.Result, (x) => x.Gtin);
-                    row.SetProperty(context.Result, (x) => x.ManufacturerPartNumber);
-                    row.SetProperty(context.Result, (x) => x.StockQuantity, 10000);
-                    row.SetProperty(context.Result, (x) => x.Price);
-                    row.SetProperty(context.Result, (x) => x.Length);
-                    row.SetProperty(context.Result, (x) => x.Width);
-                    row.SetProperty(context.Result, (x) => x.Height);
-                    row.SetProperty(context.Result, (x) => x.BasePriceAmount);
-                    row.SetProperty(context.Result, (x) => x.BasePriceBaseAmount);
-                    row.SetProperty(context.Result, (x) => x.AssignedMediaFileIds);
-                    row.SetProperty(context.Result, (x) => x.IsActive, true);
-                    row.SetProperty(context.Result, (x) => x.AllowOutOfStockOrders);
-                    row.SetProperty(context.Result, (x) => x.DeliveryTimeId);
-                    row.SetProperty(context.Result, (x) => x.QuantityUnitId);
-                    row.SetProperty(context.Result, (x) => x.RawAttributes);
+                    savedEntities = await scope.CommitAsync(context.CancelToken);
+                }
+                catch (Exception ex)
+                {
+                    context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAttributeCombinationsAsync));
                 }
 
-                savedEntities = await scope.CommitAsync(context.CancelToken);
+                batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
+
+                context.Result.NewRecords += batch.Count(x => x.IsNew);
+                context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
+
+                // TODO: (mg) (core) this is wrong design. An importer must NOT rely on a hook. Hooks must not be running during an import.
+                // Updating LowestAttributeCombinationPrice property not necessary anymore.
+                // This is done by the ProductVariantAttributeCombinationHook (minHookImportance is set to HookImportance.Important).
             }
-            catch (Exception ex)
-            {
-                context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAttributeCombinationsAsync));
-            }
-
-            batch = batch.Where(x => x.Entity != null && !x.IsTransient).ToArray();
-
-            context.Result.NewRecords += batch.Count(x => x.IsNew);
-            context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
-
-            // Updating LowestAttributeCombinationPrice property not necessary anymore.
-            // This is done by the ProductVariantAttributeCombinationHook (minHookImportance is set to HookImportance.Important).
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<ProductVariantAttributeCombination>(context, batch));
         }
