@@ -35,50 +35,7 @@ namespace Smartstore.IO
 
             for (var i = 1; i < paths.Length; i++)
             {
-                result = Combine(result, paths[i]);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Combines two path parts
-        /// </summary>
-        private static string Combine(string path, string other = null)
-        {
-            if (string.IsNullOrWhiteSpace(other))
-            {
-                return path;
-            }
-
-            if (other.StartsWith('/') || other.StartsWith('\\'))
-            {
-                // "other" is already an app-rooted path. Return it as-is.
-                return other;
-            }
-
-            if (other.Length > 2 && other.StartsWith("..") && (PathHelper.PathSeparators.Contains(other[2]))) 
-            {
-                // Combine relative path with Uri
-                var u1 = new Uri("file://" + path.TrimStart(PathHelper.PathSeparators));
-                var u2 = new Uri(other, UriKind.Relative);
-                var u3 = new Uri(u1, u2);
-
-                return u3.GetComponents(UriComponents.Path, UriFormat.Unescaped);
-            }
-
-            string result;
-
-            var index = path.LastIndexOfAny(PathHelper.PathSeparators);
-
-            if (index != path.Length - 1)
-            {
-                result = path + "/" + other;
-            }
-            else
-            {
-                // If the first path ends in a trailing slash e.g. "/Home/", assume it's a directory.
-                result = path.Substring(0, index + 1) + other;
+                result = PathHelper.Combine(result, paths[i]);
             }
 
             return result;

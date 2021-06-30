@@ -6,7 +6,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace Smartstore.IO
 {
-    public static class PathHelper
+    public static class PathUtility
     {
         public static readonly char[] PathSeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
         public const string CurrentDirectoryToken = ".";
@@ -17,7 +17,7 @@ namespace Smartstore.IO
         private static readonly char[] _invalidFilterChars;
         private static readonly Regex _invalidCharsPattern;
 
-        static PathHelper()
+        static PathUtility()
         {
             _invalidPathChars = Path.GetInvalidPathChars();
             _invalidFileNameChars = Path.GetInvalidFileNameChars();
@@ -68,6 +68,51 @@ namespace Smartstore.IO
                 return path;
 
             return path.Replace('\\', '/').Trim('/');
+        }
+
+        /// <summary>
+        /// Combines two path parts.
+        /// </summary>
+        public static string Combine(string path, string other)
+        {
+            Guard.NotEmpty(path, nameof(path));
+
+            if (string.IsNullOrWhiteSpace(other))
+            {
+                return path;
+            }
+
+            if (other.StartsWith('/') || other.StartsWith('\\'))
+            {
+                // "other" is already an app-rooted path. Return it as-is.
+                return other;
+            }
+
+            if (other.Length > 2 && other.StartsWith("..") && (PathUtility.PathSeparators.Contains(other[2])))
+            {
+                // Combine relative path with Uri
+                var u1 = new Uri("file://" + path.TrimStart(PathUtility.PathSeparators));
+                var u2 = new Uri(other, UriKind.Relative);
+                var u3 = new Uri(u1, u2);
+
+                return u3.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+            }
+
+            string result;
+
+            var index = path.LastIndexOfAny(PathUtility.PathSeparators);
+
+            if (index != path.Length - 1)
+            {
+                result = path + "/" + other;
+            }
+            else
+            {
+                // If the first path ends in a trailing slash e.g. "/Home/", assume it's a directory.
+                result = path.Substring(0, index + 1) + other;
+            }
+
+            return result;
         }
 
         /// <summary>

@@ -58,7 +58,6 @@ namespace Smartstore.Web.Bootstrapping
 
             options.EnableBundling ??= bundlingEnabled ?? !env.IsDevelopment();
             options.EnableClientCache ??= !env.IsDevelopment();
-            options.EnableMemoryCache ??= true;
             options.EnableDiskCache ??= diskCachingEnabled ?? !env.IsDevelopment();
             options.EnableMinification ??= bundlingEnabled ?? !env.IsDevelopment();
             options.EnableAutoPrefixer ??= bundlingEnabled ?? !env.IsDevelopment();

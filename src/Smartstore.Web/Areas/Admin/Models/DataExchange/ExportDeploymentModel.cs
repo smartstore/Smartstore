@@ -106,7 +106,7 @@ namespace Smartstore.Admin.Models.Export
                         !x.EqualsNoCase("con") &&
                         x != "~/" &&
                         x != "~" &&
-                        !PathHelper.HasInvalidPathChars(x);
+                        !PathUtility.HasInvalidPathChars(x);
 
                     return isValidPath;
                 })

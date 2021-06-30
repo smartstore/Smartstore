@@ -399,7 +399,7 @@ namespace Smartstore.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> DownloadExportFile(int id, string name, bool? isDeployment)
         {
-            if (PathHelper.HasInvalidFileNameChars(name))
+            if (PathUtility.HasInvalidFileNameChars(name))
             {
                 throw new BadHttpRequestException("Invalid file name: " + name.NaIfEmpty());
             }

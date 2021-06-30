@@ -200,7 +200,7 @@ namespace Smartstore.Core.Content.Media.Imaging
                 throw new NotSupportedException($"Remote images cannot be processed: Path: {path}");
             }
 
-            if (!PathHelper.IsAbsolutePhysicalPath(path))
+            if (!PathUtility.IsAbsolutePhysicalPath(path))
             {
                 path = CommonHelper.MapPath(path);
             }

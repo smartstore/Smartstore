@@ -73,7 +73,7 @@ namespace Smartstore.Utilities
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 path = path
                     .TrimStart('~')
-                    .TrimStart(PathHelper.PathSeparators)
+                    .TrimStart(PathUtility.PathSeparators)
                     .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
                 var testPath = Path.Combine(baseDirectory, path);

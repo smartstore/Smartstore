@@ -36,7 +36,7 @@ namespace Smartstore.Core.Bootstrapping
 			//builder.Services.AddSingleton<IUrlHelper, SmartUrlHelper>();
 
 			builder.Services.TryAddEnumerable(
-					ServiceDescriptor.Singleton<IConfigureOptions<MvcOptions>, AppLocalizationMvcOptionsSetup>());
+					ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, AppLocalizationMvcOptionsSetup>());
 
 			return builder;
 		}

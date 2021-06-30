@@ -47,7 +47,7 @@ namespace Smartstore.Core.Content.Media
                 path = "App_Data/Tenants/" + DataSettings.Instance.TenantName + "/Media/";
             }
 
-            pathIsAbsolute = PathHelper.IsAbsolutePhysicalPath(path);
+            pathIsAbsolute = PathUtility.IsAbsolutePhysicalPath(path);
 
             return path;
         }

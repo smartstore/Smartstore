@@ -9,7 +9,6 @@ namespace Smartstore.Web.Bundling
 {
     public interface IBundleFileProvider : IFileProvider
     {
-        string PathCombine(params string[] paths);
         IFileProvider ResolveFileProvider(ref string path);
     }
     
@@ -36,11 +35,6 @@ namespace Smartstore.Web.Bundling
         public virtual IChangeToken Watch(string filter)
         {
             return ResolveFileProvider(ref filter).Watch(filter);
-        }
-
-        public virtual string PathCombine(params string[] paths)
-        {
-            return _webRoot.PathCombine(paths);
         }
 
         /// <summary>

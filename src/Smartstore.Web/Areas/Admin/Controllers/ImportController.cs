@@ -101,7 +101,7 @@ namespace Smartstore.Admin.Controllers
         {
             try
             {
-                if (model.TempFileName.HasValue() && !PathHelper.HasInvalidFileNameChars(model.TempFileName))
+                if (model.TempFileName.HasValue() && !PathUtility.HasInvalidFileNameChars(model.TempFileName))
                 {
                     var root = Services.ApplicationContext.TenantRoot;
                     var tenantTempDir = Services.ApplicationContext.GetTenantTempDirectory();
@@ -384,7 +384,7 @@ namespace Smartstore.Admin.Controllers
         {
             string message = null;
 
-            if (name.HasValue() && !PathHelper.HasInvalidFileNameChars(name))
+            if (name.HasValue() && !PathUtility.HasInvalidFileNameChars(name))
             {
                 if (await Services.Permissions.AuthorizeAsync(Permissions.Configuration.Import.Read))
                 {

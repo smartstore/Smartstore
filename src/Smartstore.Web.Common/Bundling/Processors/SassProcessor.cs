@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using SharpScss;
 using Smartstore.Core.Stores;
+using Smartstore.IO;
 using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Bundling.Processors
@@ -99,7 +100,7 @@ namespace Smartstore.Web.Bundling.Processors
             }
 
             var parentDir = parentPath.Substring(0, Path.GetDirectoryName(parentPath).Length);
-            var subPath = fileProvider.PathCombine(parentDir, file);
+            var subPath = PathHelper.Combine(parentDir, file);
             var importFile = fileProvider.GetFileInfo(subPath);
             if (!importFile.Exists && file[0] != '_')
             {
@@ -119,7 +120,7 @@ namespace Smartstore.Web.Bundling.Processors
                         file = "_" + file;
                     }
 
-                    subPath = fileProvider.PathCombine(parentDir, file);
+                    subPath = PathHelper.Combine(parentDir, file);
                     importFile = fileProvider.GetFileInfo(subPath);
                     if (!importFile.Exists)
                     {

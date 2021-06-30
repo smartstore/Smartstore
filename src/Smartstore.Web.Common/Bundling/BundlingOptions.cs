@@ -10,8 +10,6 @@ namespace Smartstore.Web.Bundling
 
         public bool? EnableClientCache { get; set; }
 
-        public bool? EnableMemoryCache { get; set; }
-
         public bool? EnableDiskCache { get; set; }
 
         public bool? EnableMinification { get; set; }

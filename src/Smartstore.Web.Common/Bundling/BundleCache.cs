@@ -33,7 +33,7 @@ namespace Smartstore.Web.Bundling
         {
             // Memory cache
             var memCacheKey = BuildScopedCacheKey(cacheKey);
-            if (_options.CurrentValue.EnableMemoryCache == true && _memCache.TryGetValue(memCacheKey, out BundleResponse response))
+            if (_memCache.TryGetValue(memCacheKey, out BundleResponse response))
             {
                 return response;
             }
@@ -63,11 +63,6 @@ namespace Smartstore.Web.Bundling
 
         private void PutToMemoryCache(string cacheKey, Bundle bundle, BundleResponse response)
         {
-            if (_options.CurrentValue.EnableMemoryCache == false)
-            {
-                return;
-            }
-            
             var cacheOptions = new MemoryCacheEntryOptions()
                 // Expire after 24 h
                 .SetSlidingExpiration(TimeSpan.FromHours(24))
@@ -85,8 +80,7 @@ namespace Smartstore.Web.Bundling
 
             cacheOptions.RegisterPostEvictionCallback((key, value, reason, state) =>
             {
-                // Fire & forget on purpose
-                _diskCache.RemoveResponseAsync(((BundleResponse)value).CacheKey);
+                _diskCache.RemoveResponseAsync(((BundleResponse)value).CacheKey).Await();
             });
 
             _memCache.Set(BuildScopedCacheKey(cacheKey), response, cacheOptions);
