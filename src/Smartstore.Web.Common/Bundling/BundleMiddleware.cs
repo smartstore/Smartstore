@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -62,23 +63,39 @@ namespace Smartstore.Web.Bundling
 
             using (await AsyncLock.KeyedAsync("bm_" + cacheKey))
             {
-                bundleResponse =
-                    // Double paranoia check
-                    await _bundleCache.GetResponseAsync(cacheKey, bundle) ??
-                    // Build
-                    await _bundleBuilder.BuildBundleAsync(bundle, httpContext, options);
+                // Double paranoia check
+                bundleResponse = await _bundleCache.GetResponseAsync(cacheKey, bundle);
 
-                if (bundleResponse == null)
+                if (bundleResponse != null)
                 {
-                    await _next(httpContext);
+                    await ServeBundleResponse(bundleResponse, httpContext, options);
                     return;
                 }
 
-                // Put to cache
-                await _bundleCache.PutResponseAsync(cacheKey, bundle, bundleResponse);
+                try
+                {
+                    // Build
+                    var watch = Stopwatch.StartNew();
+                    bundleResponse = await _bundleBuilder.BuildBundleAsync(bundle, httpContext, options);
+                    watch.Stop();
+                    Debug.WriteLine($"Bundle build time for {bundle.Route}: {watch.ElapsedMilliseconds} ms.");
 
-                // Serve
-                await ServeBundleResponse(bundleResponse, httpContext, options);
+                    if (bundleResponse == null)
+                    {
+                        await _next(httpContext);
+                        return;
+                    }
+
+                    // Put to cache
+                    await _bundleCache.PutResponseAsync(cacheKey, bundle, bundleResponse);
+
+                    // Serve
+                    await ServeBundleResponse(bundleResponse, httpContext, options);
+                }
+                catch (Exception ex)
+                {
+                    await ServerErrorResponse(ex, bundle, httpContext);
+                }
             }
         }
 
@@ -153,6 +170,17 @@ namespace Smartstore.Web.Bundling
             }
 
             return ValueTask.CompletedTask;
+        }
+
+        private static ValueTask ServerErrorResponse(Exception ex, Bundle bundle, HttpContext httpContext)
+        {
+            var response = httpContext.Response;
+            response.ContentType = bundle.ContentType;
+            response.StatusCode = 500;
+
+            var content = $"/*\n{ex.ToAllMessages()}\n*/";
+            var buffer = Encoding.UTF8.GetBytes(content);
+            return response.Body.WriteAsync(buffer.AsMemory(0, buffer.Length));
         }
 
         private static bool IsConditionalGet(HttpContext context, string contentHash)

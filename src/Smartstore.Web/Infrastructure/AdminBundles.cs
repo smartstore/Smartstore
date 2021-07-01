@@ -30,10 +30,10 @@ namespace Smartstore.Web.Infrastructure
                 lib + "pnotify/css/pnotify.buttons.css"));
 
 
-            /* Admin Main Sass theme --> /admin/theme.scss
+            /* Admin Main Sass theme --> /admin/theme[-rtl].scss
             -----------------------------------------------------*/
-            bundles.Add(new StyleBundle("/bundle/css/admin-theme.css").Include(
-                "/admin/theme.scss"));
+            bundles.Add(new StyleBundle("/bundle/css/admin-theme.css").Include("/admin/theme.scss"));
+            bundles.Add(new StyleBundle("/bundle/css/admin-theme-rtl.css").Include("/admin/theme-rtl.scss"));
 
 
             /* Admin Main scripts --> /bundle/js/admin.js
