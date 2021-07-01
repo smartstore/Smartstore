@@ -1,0 +1,53 @@
+﻿@model TaskModel
+
+@{
+	var returnUrl = (string)ViewBag.ReturnUrl;
+    var canRead = ViewBag.CanRead == true;
+    var canExecute = ViewBag.CanExecute == true;
+}
+
+<div class="d-inline-flex align-items-center py-1">
+    <span class="badge mr-1 @(Model.Enabled ? "badge-warning" : "badge-secondary")">@T(Model.Enabled ? "Common.Scheduled" : "Common.Unscheduled")</span>
+	@if (Model.Enabled)
+	{
+		<span class="mr-1">@T("Common.Rule"): </span>
+		<span class="text-muted">@(Model.CronDescription ?? Model.CronExpression)</span>
+		if (Model.NextRun.HasValue)
+		{
+			<span> - @T("Admin.System.ScheduleTasks.NextRun"): </span>
+			<span class="text-muted">@Model.NextRunPretty</span>
+		}
+	}
+	else
+	{
+		<span class="mr-1">@T("Admin.System.ScheduleTasks.LastStart"): </span>
+		<span class="text-muted">@(Model.LastExecutionInfo.FinishedOn.HasValue ? Model.LastExecutionInfo.FinishedOnPretty : T("Common.Never").Value)</span>
+	}
+	<div sm-if="canRead || canExecute" class="dropdown btn-actions ml-3">
+		<a href="#" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown">
+			<i class="fa fa-cog"></i>
+			<span>@T("Admin.Common.Actions")</span>
+		</a>
+		<div class="dropdown-menu">
+            @if (canRead)
+            {
+				<a asp-action="Edit" asp-route-id="@Model.Id" asp-route-returnUrl="@returnUrl" class="dropdown-item">
+					@if (Model.Enabled)
+                    {
+						<i class="fa fa-fw fa-edit"></i>
+						<span>@T("Admin.System.ScheduleTasks.EditTask")</span>
+                    }
+                    else
+                    {
+						<i class="far fa-fw fa-clock"></i>
+						<span>@T("Admin.System.ScheduleTasks.ScheduleExecution")</span>
+                    }
+				</a>
+            }
+			<a sm-if="canExecute" href="@Model.ExecuteUrl" class="dropdown-item" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
+				<i class="fa fa-fw fa-play"></i>
+				<span>@T("Admin.System.ScheduleTasks.RunNow")</span>
+			</a>
+		</div>
+	</div>
+</div>

@@ -2,4 +2,60 @@
 
 @model TaskModel
 
-@*TODO: (mg) (core)...*@
+@{
+    var widgetId = "minimal-task-widget-" + Model.Id;
+    var returnUrl = (string)ViewBag.ReturnUrl;
+    var canExecute = ViewBag.CanExecute == true;
+    var cancellable = ViewBag.Cancellable == true;
+    var reloadPage = ViewBag.ReloadPage == true;
+    var isRunning = Model.LastExecutionInfo.IsRunning;
+}
+
+<div id="@widgetId" class="minimal-task-widget form-row">
+	<div class="task-info col" attr-class='(isRunning, "hide")'>
+        <partial name="~/Areas/Admin/Views/Scheduling/_MinimalTaskWidget.cshtml" model="Model" />
+	</div>
+    <div class="task-progress text-muted col" attr-class='(!isRunning, "hide")' data-task-id="@Model.Id" data-running="@(isRunning ? "true" : "false")"></div>
+	<div sm-if="cancellable && canExecute" class="col-auto">
+		<a href="@Model.CancelUrl" data-task-id="@Model.Id" class="btn btn-sm btn-danger btn-cancel-task" attr-class='(!isRunning, "hide")' onclick="return confirm(@T("Admin.Common.AskToProceed").JsValue);">
+			@T("Common.Cancel")
+		</a>
+	</div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="minimal-task-@widgetId">
+	$(function () {
+		Smartstore.Admin.TaskWatcher.startWatching({
+			context: $('#@widgetId'),
+			elementsSelector: '.task-progress',
+			defaultProgressMessage: @T("Admin.System.ScheduleTasks.RunNow.IsRunning").JsValue,
+			pollUrl: '@Url.Action("GetRunningTasks", "Scheduling")',
+			onTaskStarted: function (task, el) {
+				el.prev().addClass('hide'); // .task-info
+				el.next().removeClass('hide'); // .btn-cancel-task
+			},
+			onTaskCompleted: function (taskId, el) {
+				el.prev().removeClass('hide'); // .task-info
+				el.next().addClass('hide'); // .btn-cancel-task
+
+				@if (reloadPage)
+				{
+					<text>location.href = '@returnUrl';</text>
+				}
+				else
+				{
+					<text>$.ajax({
+						cache: false,
+						global: false,
+						type: 'POST',
+						url: '@Url.Action("GetMinimalTaskWidget", "Scheduling")',
+						data: { taskId: taskId, returnUrl: '@returnUrl' },
+						success: function (data) {
+							el.prev().html(data);
+						}
+					});</text>
+				}
+			}
+		});
+	});
+</script>

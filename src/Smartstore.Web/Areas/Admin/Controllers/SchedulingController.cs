@@ -187,6 +187,11 @@ namespace Smartstore.Admin.Controllers
         {
             var lastExecutionInfo = await _taskStore.GetLastExecutionInfoByTaskIdAsync(id);
             var task = lastExecutionInfo?.Task ?? await _taskStore.GetTaskByIdAsync(id);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
             var model = await task.MapAsync(lastExecutionInfo);
 
             ViewBag.ReturnUrl = returnUrl;
@@ -290,6 +295,25 @@ namespace Smartstore.Admin.Controllers
             var numDeleted = await _taskStore.DeleteExecutionInfosByIdsAsync(selection.GetEntityIds());
 
             return Json(new { Success = true, Count = numDeleted });
+        }
+
+        [HttpPost, IgnoreAntiforgeryToken]
+        public async Task<IActionResult> MinimalTask(int taskId, string returnUrl /* mandatory on purpose */)
+        {
+            var lastExecutionInfo = await _taskStore.GetLastExecutionInfoByTaskIdAsync(taskId);
+            var task = lastExecutionInfo?.Task ?? await _taskStore.GetTaskByIdAsync(taskId);
+            if (task == null)
+            {
+                return new EmptyResult();
+            }
+
+            var model = await task.MapAsync(lastExecutionInfo);
+
+            ViewBag.CanRead = await Services.Permissions.AuthorizeAsync(Permissions.System.ScheduleTask.Read);
+            ViewBag.CanExecute = await Services.Permissions.AuthorizeAsync(Permissions.System.ScheduleTask.Execute);
+            ViewBag.ReturnUrl = returnUrl;
+
+            return PartialView(model);
         }
 
         private async Task<string> GetTaskMessage(TaskDescriptor task, string resourceKey)
