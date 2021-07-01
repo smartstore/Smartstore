@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
 
@@ -88,25 +89,12 @@ namespace Smartstore.IO
                 return other;
             }
 
-            string result;
-
-            if (other.Length > 2 && other.StartsWith("..") && (PathSeparators.Contains(other[2])))
+            if (other.Length > 2 && other.Contains("../"))
             {
-                // Combine relative path with Uri
-                var u1 = new Uri("file://" + path.TrimStart(PathSeparators));
-                var u2 = new Uri(other, UriKind.Relative);
-                var u3 = new Uri(u1, u2);
-
-                // Strip "file://"
-                result = u3.OriginalString[7..];
-                if (PathSeparators.Contains(path[0]))
-                {
-                    // Prepend the leading slash from path (if any)
-                    result = path[0] + result;
-                }
-
-                return result;
+                return MergePaths(path, other);
             }
+
+            string result;
 
             var index = path.LastIndexOfAny(PathSeparators);
 
@@ -118,6 +106,40 @@ namespace Smartstore.IO
             {
                 // If the first path ends in a trailing slash e.g. "/Home/", assume it's a directory.
                 result = path.Substring(0, index + 1) + other;
+            }
+
+            return result;
+        }
+
+        private static string MergePaths(string left, string right)
+        {
+            left = left.Replace('\\', '/');
+            right = NormalizeRelativePath(right);
+
+            var segments = left.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
+            var rightSegments = right.Tokenize('/');
+
+            foreach (var segment in rightSegments)
+            {
+                if (segment == "..")
+                {
+                    if (segments.Count == 0)
+                    {
+                        throw new InvalidOperationException($"Path '{right}' navigates above root '{left}'.");
+                    }
+                    segments.RemoveAt(segments.Count - 1);
+                }
+                else
+                {
+                    segments.Add(segment);
+                }
+            }
+            
+            var result = string.Join('/', segments);
+
+            if (left[0] == '/')
+            {
+                result = '/' + result;
             }
 
             return result;

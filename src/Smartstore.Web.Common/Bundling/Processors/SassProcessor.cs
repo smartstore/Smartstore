@@ -41,15 +41,21 @@ namespace Smartstore.Web.Bundling.Processors
                     };
                 }
 
-                var watch = Stopwatch.StartNew();
-                var result = Scss.ConvertToCss(asset.Content, sassOptions);
-                watch.Stop();
-                Debug.WriteLine($"LibSass time for {asset.Path}: {watch.ElapsedMilliseconds} ms.");
+                try
+                {
+                    var watch = Stopwatch.StartNew();
+                    var result = Scss.ConvertToCss(asset.Content, sassOptions);
+                    watch.Stop();
+                    Debug.WriteLine($"LibSass time for {asset.Path}: {watch.ElapsedMilliseconds} ms.");
 
-                context.IncludedFiles.AddRange(result.IncludedFiles);
+                    context.IncludedFiles.AddRange(result.IncludedFiles);
 
-                asset.Content = result.Css;
-                asset.IsMinified = context.Options.EnableMinification == true;
+                    asset.Content = result.Css;
+                    asset.IsMinified = context.Options.EnableMinification == true;
+                }
+                catch (Exception ex)
+                {
+                }
             }
 
             return Task.CompletedTask;
