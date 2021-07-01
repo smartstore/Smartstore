@@ -30,20 +30,21 @@
         </column>
         <column for="NextRunInfo" width="300px">
             <display-template>
-                <div class="next-run-info" v-html="item.value"></div>
-                <!-- TODO: (mg) (core) I assume that deep objects cannot be bound to Vue elements. Please test and verify later.  -->
-                <div class="task-progress text-muted"
-                     v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }"
-                     :data-task-id="item.row.Id"
-                     :data-running='item.row.LastExecutionInfo.IsRunning ? "true" : "false"'></div>
+                <div>
+                    <div class="next-run-info" v-html="item.value"></div>
+                    <div class="task-progress text-muted"
+                         v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }"
+                         :data-task-id="item.row.Id"
+                         :data-running='item.row.LastExecutionInfo.IsRunning ? "true" : "false"'></div>
+                </div>
             </display-template>
         </column>
 	</columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
-        <a v-if="!item.row.LastExecutionInfo.IsRunning" datarow-action="DataRowAction.Custom" :href="item.row.ExecuteUrl" class="btn-run-task" :data-task-id="item.row.Id">
+        <a v-bind:class="{ hide: item.row.LastExecutionInfo.IsRunning }" datarow-action="DataRowAction.Custom" :href="item.row.ExecuteUrl" class="btn-run-task" :data-task-id="item.row.Id">
             @T("Admin.System.ScheduleTasks.RunNow")</a>
-        <a v-if="item.row.LastExecutionInfo.IsRunning" datarow-action="DataRowAction.Custom" :href="item.row.CancelUrl" class="btn-cancel-task" :data-task-id="item.row.Id"
+        <a v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }" datarow-action="DataRowAction.Custom" :href="item.row.CancelUrl" class="btn-cancel-task" :data-task-id="item.row.Id"
             onclick='return confirm(@T("Admin.Common.AreYouSure").JsValue);'>
             @T("Common.Cancel")</a>
     </row-commands>
@@ -52,7 +53,7 @@
 <script sm-target-zone="scripts" data-origin="tasks-grid">
     function tasksGrid_onRowClass(row) {
         return {
-            "active-row": row.LastExecutionInfo.IsRunning, // TODO: (mg) (core) Does absolutely nothing!
+            "active-row": row.LastExecutionInfo.IsRunning, // TODO: (mg) (core) Check if active-row is still required. Formerly: IsRunning = always show grid buttons, !IsRunning = show buttons on-hover only.
             "text-muted": !row.Enabled // TODO: (mg) (core) No sufficient styling!
         };
     }

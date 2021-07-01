@@ -153,6 +153,13 @@ namespace Smartstore.Scheduling
         Task DeleteExecutionInfoAsync(TaskExecutionInfo info);
 
         /// <summary>
+        /// Deletes <see cref="TaskExecutionInfo"/> by identifier.
+        /// </summary>
+        /// <param name="ids"><see cref="TaskExecutionInfo"/> identifier.</param>
+        /// <returns>Number of deleted entries.</returns>
+        Task<int> DeleteExecutionInfosByIdsAsync(IEnumerable<int> ids);
+
+        /// <summary>
         /// Deletes old <see cref="TaskExecutionInfo"/> instances from the store.
         /// </summary>
         /// <returns>Number of deleted entries.</returns>

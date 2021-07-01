@@ -65,7 +65,7 @@
 						}
 						else
 						{
-							<span class="muted">@string.Empty.NaIfEmpty()</span>
+							<span class="text-muted">@string.Empty.NaIfEmpty()</span>
 						}
 					</td>
 					<td>
@@ -181,6 +181,42 @@
 			return false;
 		});
 
-		@*TODO: (mg) (core) complete import profile list (task watcher required)*@
+		Smartstore.Admin.TaskWatcher.startWatching({
+			context: $('#import-profile-list'),
+			elementsSelector: '.task-progress',
+			defaultProgressMessage: @T("Admin.System.ScheduleTasks.RunNow.IsRunning").JsValue,
+			pollUrl: '@Url.Action("GetRunningTasks", "Scheduling")',
+			onTaskStarted: function (task, el) {
+				var tr = el.closest('tr');
+				tr.find('.btn-run-task').addClass('hide');
+				tr.find('.btn-cancel-task').removeClass('hide');
+				tr.find('.btn-log').addClass('hide');
+				tr.find('.next-run-info').addClass('hide');
+			},
+			onTaskCompleted: function (taskId, el) {
+				var tr = el.closest('tr');
+				var profileId = tr.data('profile-id');
+
+				tr.find('.btn-run-task').removeClass('hide');
+				tr.find('.btn-cancel-task').addClass('hide');
+				tr.find('.btn-log').removeClass('hide');
+
+				$.ajax({
+					cache: false,
+					global: false,
+					type: 'POST',
+					url: '@Url.Action("GetTaskRunInfo", "Scheduling")',
+					data: { id: taskId },
+					success: function (data) {
+						tr.find('.next-run-info').html(data.nextRunHtml).removeClass('hide');
+						tr.find('.last-run-info').html(data.lastRunHtml);
+					}
+				});
+
+				$.get('@Url.Action("ProfileImportResult")?profileId=' + profileId, function (response) {
+					$('#ProfileImportResult' + profileId).html(response || '');
+				});
+			}
+		});
     });
 </script>

@@ -76,7 +76,7 @@ namespace Smartstore.Scheduling
             try
             {
                 normalizedTypeName = _taskActivator.GetNormalizedTypeName(task);
-                taskType = _taskActivator.GetTaskClrType(normalizedTypeName);
+                taskType = _taskActivator.GetTaskClrType(normalizedTypeName, true);
 
                 if (!_appContext.ModuleCatalog.IsActiveModuleAssembly(taskType?.Assembly))
                 {

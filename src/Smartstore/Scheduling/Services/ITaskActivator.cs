@@ -38,7 +38,12 @@ namespace Smartstore.Scheduling
         /// <summary>
         /// Resolves the CLR <see cref="Type"/> of a task.
         /// </summary>
-        Type GetTaskClrType(string normalizedTypeName);
+        /// <param name="normalizedTypeName">The normalized type name of the task.</param>
+        /// <param name="force">
+        /// When <c>true</c>, an <see cref="TaskActivationException"/> is thrown if the task specified by <paramref name="normalizedTypeName"/> cannot be resolved,
+        /// otherwise this method returns <c>null</c>.
+        /// </param>
+        Type GetTaskClrType(string normalizedTypeName, bool force = false);
 
         /// <summary>
         /// Instantiates an <see cref="ITask"/> implementation instance per DI.

@@ -41,16 +41,15 @@ namespace Smartstore.Scheduling
             });
         }
 
-        public virtual Type GetTaskClrType(string normalizedTypeName)
+        public virtual Type GetTaskClrType(string normalizedTypeName, bool force = false)
         {
             Guard.NotEmpty(normalizedTypeName, nameof(normalizedTypeName));
 
             var lazyTask = _componentContext.ResolveOptionalNamed<Lazy<ITask, TaskMetadata>>(normalizedTypeName);
-            // TODO: (mg) (core) Uncomment again when all tasks are up and running (??)
-            //if (lazyTask == null)
-            //{
-            //    throw new TaskActivationException($"No task registered for '{normalizedTypeName}'.");
-            //}
+            if (force && lazyTask == null)
+            {
+                throw new TaskActivationException($"No task registered for '{normalizedTypeName}'.");
+            }
 
             return lazyTask?.Metadata?.Type;
         }

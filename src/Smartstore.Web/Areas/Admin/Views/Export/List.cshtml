@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<div id="ExportProfileListContainer">
+<div id="export-profile-lists">
     <partial name="_ProfileList" model="Model.Where(x => !x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { { "IsSystemProfile", false } }' />
     <partial name="_ProfileList" model="Model.Where(x => x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { { "IsSystemProfile", true } }' />
 </div>
@@ -195,6 +195,45 @@
 			return false;
 		});
 
-		@*TODO: (mg) (core) complete export profile list (task watcher required)*@
+		Smartstore.Admin.TaskWatcher.startWatching({
+			context: $('#export-profile-lists'),
+			elementsSelector: '.task-progress',
+			defaultProgressMessage: @T("Admin.System.ScheduleTasks.RunNow.IsRunning").JsValue,
+			pollUrl: '@Url.Action("GetRunningTasks", "Scheduling")',
+			onTaskStarted: function (task, el) {
+				var tr = el.closest('tr');
+
+				tr.find('.btn-run-task').addClass('hide');
+				tr.find('.btn-cancel-task').removeClass('hide');
+				tr.find('.btn-log').addClass('hide');
+				tr.find('.next-run-info').addClass('hide');
+				
+				$('body, html').animate({ scrollTop: tr.offset().top - 70 }, 'slow');
+			},
+			onTaskCompleted: function (taskId, el) {
+				var tr = el.closest('tr');
+				var profileId = tr.data('profile-id');
+
+				tr.find('.btn-run-task').removeClass('hide');
+				tr.find('.btn-cancel-task').addClass('hide');
+				tr.find('.btn-log').removeClass('hide');
+
+				$.ajax({
+					cache: false,
+					global: false,
+					type: 'POST',
+					url: '@Url.Action("GetTaskRunInfo", "Scheduling")',
+					data: { id: taskId },
+					success: function (data) {
+						tr.find('.next-run-info').html(data.nextRunHtml).removeClass('hide');
+						tr.find('.last-run-info').html(data.lastRunHtml);
+					}
+				});
+
+				$.get('@Url.Action("ProfileFileCount")?profileId=' + profileId, function (response) {
+					$('#ExportFileCount' + profileId).html(response || '');
+				});
+			}
+		});
     });
 </script>

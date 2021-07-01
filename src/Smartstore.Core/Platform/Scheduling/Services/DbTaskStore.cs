@@ -417,6 +417,18 @@ namespace Smartstore.Scheduling
             return _db.SaveChangesAsync();
         }
 
+        public virtual async Task<int> DeleteExecutionInfosByIdsAsync(IEnumerable<int> ids)
+        {
+            if (ids?.Any() ?? false)
+            {
+                return await GetExecutionInfoQuery()
+                    .Where(x => ids.Contains(x.Id) && !x.IsRunning)
+                    .BatchDeleteAsync();
+            }
+
+            return 0;
+        }
+
         public virtual async Task<int> TrimExecutionInfosAsync(CancellationToken cancelToken = default)
         {
             var idsToDelete = new HashSet<int>();

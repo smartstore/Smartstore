@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Scheduling;
@@ -12,6 +13,7 @@ using Smartstore.Core.Security;
 using Smartstore.Scheduling;
 using Smartstore.Threading;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -195,32 +197,47 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        // TODO: (mg) (core) POST TaskController.Edit\Create requires validation rule set.
-        // [CustomizeValidator(RuleSet = "TaskEditing")]
-
-        [Permission(Permissions.System.ScheduleTask.Read)]
-        public async Task<IActionResult> TaskExecutionInfoList(GridCommand command, int id /* taskId */)
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.System.ScheduleTask.Update)]
+        public async Task<IActionResult> Edit([CustomizeValidator(RuleSet = "TaskEditing")] TaskModel model, bool continueEditing, string returnUrl = null)
         {
-            var query = _taskStore.GetExecutionInfoQuery(false)
-                .ApplyTaskFilter(id)
-                .ApplyGridCommand(command);
+            ViewBag.ReturnUrl = returnUrl;
 
-            var executionInfos = await query.ToPagedList(command.Page - 1, command.PageSize).LoadAsync();
-            var executionInfoMapper = MapperFactory.GetMapper<TaskExecutionInfo, TaskExecutionInfoModel>();
-
-            var rows = await executionInfos.SelectAsync(async x =>
+            if (!ModelState.IsValid)
             {
-                var infoModel = new TaskExecutionInfoModel();
-                await executionInfoMapper.MapAsync(x, infoModel);
-                return infoModel;
-            })
-            .AsyncToList();
-
-            return Json(new GridModel<TaskExecutionInfoModel>
+                return View(model);
+            }
+            
+            var task = await _taskStore.GetTaskByIdAsync(model.Id);
+            if (task == null)
             {
-                Rows = rows,
-                Total = executionInfos.TotalCount,
-            });
+                return NotFound();
+            }
+
+            task.Name = model.Name;
+            task.Enabled = model.Enabled;
+            task.StopOnError = model.StopOnError;
+            task.CronExpression = model.CronExpression;
+            task.Priority = model.Priority;
+            task.NextRunUtc = model.Enabled
+                ? _taskStore.GetNextSchedule(task)
+                : null;
+
+            await _taskStore.UpdateTaskAsync(task);
+
+            NotifySuccess(T("Admin.System.ScheduleTasks.UpdateSuccess"));
+
+            if (continueEditing)
+            {
+                return RedirectToAction("Edit", new { id = model.Id, returnUrl });
+            }
+            else if (returnUrl.HasValue())
+            {
+                return RedirectToReferrer(returnUrl, () => RedirectToAction("List"));
+            }
+
+            return RedirectToAction("List");
         }
 
         [HttpPost, IgnoreAntiforgeryToken]
@@ -239,6 +256,40 @@ namespace Smartstore.Admin.Controllers
                 ViewBag.CronScheduleParseError = ex.Message;
                 return PartialView(Enumerable.Empty<DateTime>());
             }
+        }
+
+        [Permission(Permissions.System.ScheduleTask.Read)]
+        public async Task<IActionResult> TaskExecutionInfoList(GridCommand command, int id /* taskId */)
+        {
+            var query = _taskStore.GetExecutionInfoQuery(false)
+                .ApplyTaskFilter(id)
+                .ApplyGridCommand(command);
+
+            var infos = await query.ToPagedList(command.Page - 1, command.PageSize).LoadAsync();
+            var infoMapper = MapperFactory.GetMapper<TaskExecutionInfo, TaskExecutionInfoModel>();
+
+            var rows = await infos.SelectAsync(async x =>
+            {
+                var infoModel = new TaskExecutionInfoModel();
+                await infoMapper.MapAsync(x, infoModel);
+                return infoModel;
+            })
+            .AsyncToList();
+
+            return Json(new GridModel<TaskExecutionInfoModel>
+            {
+                Rows = rows,
+                Total = infos.TotalCount,
+            });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.System.ScheduleTask.Delete)]
+        public async Task<IActionResult> DeleteExecutionInfos(GridSelection selection)
+        {
+            var numDeleted = await _taskStore.DeleteExecutionInfosByIdsAsync(selection.GetEntityIds());
+
+            return Json(new { Success = true, Count = numDeleted });
         }
 
         private async Task<string> GetTaskMessage(TaskDescriptor task, string resourceKey)

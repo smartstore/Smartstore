@@ -13,7 +13,6 @@
 
 <script sm-target-zone="scripts" data-origin="tasks-list">
 	$(function () {
-		var token = $('input[name="__RequestVerificationToken"]').val();
 		// TODO: (core) Check: does Vue auto-binding overwrite generated HTML in grid component, especially after grid refresh.
 		Smartstore.Admin.TaskWatcher.startWatching({
 			context: $('#tasks-grid'),

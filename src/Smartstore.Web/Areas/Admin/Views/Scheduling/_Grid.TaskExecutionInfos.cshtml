@@ -5,11 +5,22 @@
 }
 
 <datagrid id="task-execution-infos-grid" 
+        allow-row-selection="true"
 		allow-resize="true" 
 		allow-column-reordering="true" 
 		preserve-grid-state="true">
-	<datasource read="@Url.Action("TaskExecutionInfoList", new { id = parentModel.Id })" delete="@Url.Action("DeleteHistoryEntry")" />
+	<datasource read="@Url.Action("TaskExecutionInfoList", new { id = parentModel.Id })" delete="@Url.Action("DeleteExecutionInfos")" />
+    <paging position="Bottom" show-size-chooser="true" />
+	<toolbar>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+	</toolbar>
 	<columns>
+        <column for="Id" visible="false" resizable="false" />
         <column for="StartedOn" title="@T("Common.ExecutedOn")" width="260px">
             <display-template>
                 <div>
@@ -27,7 +38,7 @@
             </display-template>
         </column>
         <column for="Duration" width="260px"></column>
-        <column for="Succeeded" width="260px">
+        <column for="Succeeded" width="400px">
             <display-template>
 				<div v-if="item.row.Succeeded">
                     <i class="fa fa-fw icon-active-true"></i>
@@ -35,15 +46,19 @@
                 </div>
 				<div v-if="!item.row.Succeeded">
                     <div class="text-danger font-weight-medium">@T("Common.Error"):</div>
-                    <pre class="prettyprint xlang-java mt-1 mb-0" style="max-height: 200px; white-space: pre-wrap;">
-                        <strong>@T("Common.Error"): </strong> <span>{{ item.row.Error }}</span>
-                    </pre>
+                    <pre class="prettyprint xlang-java mt-1 mb-0" style="max-height: 200px; white-space: pre-wrap;">{{ item.row.Error }}</pre>
                 </div>
             </display-template>
         </column>
 		<column for="MachineName"></column>
 	</columns>
-    <row-commands>
-        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
-    </row-commands>
 </datagrid>
+
+@*TODO: (mg) (core) would be nice here to prevent a grid row from being selected.*@
+@*<script sm-target-zone="scripts" data-origin="task-execution-infos-grid">
+    function taskInfosGrid_onRowClass(row) {
+        return {
+            "disabled": row.IsRunning
+        };
+    }
+</script>*@
