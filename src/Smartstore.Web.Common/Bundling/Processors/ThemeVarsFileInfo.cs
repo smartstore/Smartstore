@@ -2,17 +2,20 @@
 using System.IO;
 using System.Text;
 using Microsoft.Extensions.FileProviders;
+using Smartstore.IO;
+using Smartstore.Utilities;
 using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Bundling.Processors
 {
-    internal class ThemeVarsFileInfo : IFileInfo
+    internal class ThemeVarsFileInfo : IFileInfo, IFileHashProvider
     {
         private readonly string _theme;
         private readonly int _storeId;
         private readonly ThemeVariableRepository _repo;
 
-        private Stream _stream;
+        private string _content;
+        private int? _contentHash;
 
         public ThemeVarsFileInfo(string name, string theme, int storeId, ThemeVariableRepository repo)
         {
@@ -40,7 +43,23 @@ namespace Smartstore.Web.Bundling.Processors
 
         public Stream CreateReadStream()
         {
-            if (_stream == null)
+            return GenerateStreamFromString(GetContent());
+        }
+
+        public int GetFileHash()
+        {
+            if (_contentHash == null)
+            {
+                var css = GetContent();
+                _contentHash = (int)XxHashUnsafe.ComputeHash(css);
+            }
+
+            return _contentHash.Value;
+        }
+
+        private string GetContent()
+        {
+            if (_content == null)
             {
                 var css = string.Empty;
                 if (_theme.HasValue())
@@ -48,10 +67,10 @@ namespace Smartstore.Web.Bundling.Processors
                     css = _repo.GetPreprocessorCssAsync(_theme, _storeId).Await();
                 }
 
-                _stream = GenerateStreamFromString(css);
+                _content = css;
             }
 
-            return _stream;
+            return _content;
         }
 
         private static Stream GenerateStreamFromString(string value)

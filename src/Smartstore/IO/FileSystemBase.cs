@@ -35,7 +35,7 @@ namespace Smartstore.IO
 
             for (var i = 1; i < paths.Length; i++)
             {
-                result = PathHelper.Combine(result, paths[i]);
+                result = PathUtility.Combine(result, paths[i]);
             }
 
             return result;

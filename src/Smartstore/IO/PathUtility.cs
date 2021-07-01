@@ -88,19 +88,27 @@ namespace Smartstore.IO
                 return other;
             }
 
-            if (other.Length > 2 && other.StartsWith("..") && (PathUtility.PathSeparators.Contains(other[2])))
+            string result;
+
+            if (other.Length > 2 && other.StartsWith("..") && (PathSeparators.Contains(other[2])))
             {
                 // Combine relative path with Uri
-                var u1 = new Uri("file://" + path.TrimStart(PathUtility.PathSeparators));
+                var u1 = new Uri("file://" + path.TrimStart(PathSeparators));
                 var u2 = new Uri(other, UriKind.Relative);
                 var u3 = new Uri(u1, u2);
 
-                return u3.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+                // Strip "file://"
+                result = u3.OriginalString[7..];
+                if (PathSeparators.Contains(path[0]))
+                {
+                    // Prepend the leading slash from path (if any)
+                    result = path[0] + result;
+                }
+
+                return result;
             }
 
-            string result;
-
-            var index = path.LastIndexOfAny(PathUtility.PathSeparators);
+            var index = path.LastIndexOfAny(PathSeparators);
 
             if (index != path.Length - 1)
             {

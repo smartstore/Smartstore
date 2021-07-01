@@ -62,7 +62,7 @@ namespace Smartstore.Web.Bundling
 
         public virtual IFileProvider ResolveFileProvider(ref string path)
         {
-            var path2 = path.TrimStart(PathHelper.PathSeparators);
+            var path2 = path.TrimStart(PathUtility.PathSeparators);
             var index = path2.IndexOf('/');
             var lenBase = 0;
 
@@ -88,7 +88,7 @@ namespace Smartstore.Web.Bundling
                         var provider = resolver(nextSegment, EngineContext.Current.Application);
                         if (provider != null)
                         {
-                            // Re-root path by stripping found segments
+                            // Rebase path by stripping found segments
                             path = path2[lenBase..];
                             return provider;
                         }

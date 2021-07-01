@@ -17,12 +17,12 @@ namespace Smartstore.Web.TagHelpers.Shared
     /// Hooks JavaScript bundles up to the HTML page.
     /// </summary>
     [HtmlTargetElement("script", Attributes = SrcAttribute)]
-    public class ScriptAssetTagHelper : BundleTagHelper
+    public class ScriptBundleTagHelper : BundleTagHelper
     {
         const string SrcAttribute = "src";
         protected override string SourceAttributeName  => SrcAttribute;
 
-        public ScriptAssetTagHelper(
+        public ScriptBundleTagHelper(
             IBundleCollection bundles,
             IBundleCache bundleCache,
             IOptionsMonitor<BundlingOptions> options,
@@ -45,12 +45,12 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("link", Attributes = "href, [rel=stylesheet]")]
     [HtmlTargetElement("link", Attributes = "href, [rel=preload]")]
     [HtmlTargetElement("link", Attributes = "href, [rel=prefetch]")]
-    public class LinkAssetTagHelper : BundleTagHelper
+    public class StyleBundleTagHelper : BundleTagHelper
     {
         const string HrefAttribute = "href";
         protected override string SourceAttributeName => HrefAttribute;
 
-        public LinkAssetTagHelper(
+        public StyleBundleTagHelper(
             IBundleCollection bundles,
             IBundleCache bundleCache,
             IOptionsMonitor<BundlingOptions> options,
@@ -128,7 +128,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 {
                     src = $"{pathBase}{bundle.Route}";
 
-                    var cacheKey = bundle.GetCacheKey(ViewContext.HttpContext, Options);
+                    var cacheKey = bundle.GetCacheKey(ViewContext.HttpContext);
                     var cachedResponse = await BundleCache.GetResponseAsync(cacheKey, bundle);
                     if (cachedResponse != null && cachedResponse.ContentHash.HasValue())
                     {

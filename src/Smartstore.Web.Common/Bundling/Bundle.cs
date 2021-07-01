@@ -184,30 +184,32 @@ namespace Smartstore.Web.Bundling
         /// <summary>
         /// Gets the cache key associated with this bundle.
         /// </summary>
-        public virtual string GetCacheKey(HttpContext httpContext, BundlingOptions options)
+        public virtual BundleCacheKey GetCacheKey(HttpContext httpContext)
         {
             Guard.NotNull(httpContext, nameof(httpContext));
-            Guard.NotNull(options, nameof(options));
 
-            var cacheKey = Route;
+            var fragments = new Dictionary<string, string>();
 
             foreach (var processor in Processors)
             {
                 try
                 {
-                    var processorKey = processor.GetCacheKey(this, httpContext, options);
-                    if (processorKey.HasValue())
-                    {
-                        cacheKey += processorKey;
-                    }
+                    processor.PopulateCacheKey(this, httpContext, fragments);
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"CacheKey generation failed in '{processor.GetType().FullName}' bundle processor.", ex);
+                    throw new SmartException($"CacheKey generation failed in '{processor.GetType().FullName}' bundle processor.", ex);
                 }
             }
 
-            return cacheKey;
+            var key = Route;
+
+            foreach (var fragment in fragments)
+            {
+                key += $"-{fragment.Key}-{fragment.Value.EmptyNull()}";
+            }
+
+            return new BundleCacheKey { Key = key, Fragments = fragments };
         }
 
         public virtual IEnumerable<BundleFile> EnumerateFiles(HttpContext httpContext, BundlingOptions options)
@@ -279,7 +281,7 @@ namespace Smartstore.Web.Bundling
                 Content = combined?.Content,
                 ContentType = ContentType,
                 FileProvider = context.Files.FirstOrDefault().FileProvider,
-                ProcessorCodes = context.ProcessorCodes.ToArray(),
+                ProcessorCodes = context.ProcessorCodes.Distinct().ToArray(),
                 IncludedFiles = context.IncludedFiles
             };
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -54,39 +55,37 @@ namespace Smartstore.Web.Bundling.Processors
             return Task.CompletedTask;
         }
 
-        public override string GetCacheKey(Bundle bundle, HttpContext httpContext, BundlingOptions options)
+        public override void PopulateCacheKey(Bundle bundle, HttpContext httpContext, IDictionary<string, string> values)
         {
-            // TODO: (core) Does not work, because cache key is computed very early during parent request (the path is never themeable)
-            var cacheKey = string.Empty;
-
-            if (bundle.Route.StartsWith("/themes/", StringComparison.OrdinalIgnoreCase))
+            if (!bundle.Route.StartsWith("/themes/", StringComparison.OrdinalIgnoreCase))
             {
-                // It's a themeable request
-                var qs = httpContext.Request.Query;
-                var services = httpContext.RequestServices;
-                var storeContext = services.GetRequiredService<IStoreContext>();
-                var themeContext = services.GetRequiredService<IThemeContext>();
-
-                // Required for theme editing validation: See Admin.Controllers.ThemeController.ValidateSass()
-                if (qs.ContainsKey("theme"))
-                {
-                    themeContext.SetRequestTheme(qs["theme"].ToString());
-                }
-                if (qs.ContainsKey("storeId"))
-                {
-                    storeContext.SetRequestStore(qs["storeId"].ToString().ToInt());
-                }
-
-                // TODO: (core) Resolve theme name from route, not from themeContext.WorkingThemeName
-                cacheKey += "_" + themeContext.WorkingThemeName + "_" + storeContext.CurrentStore.Id;
-
-                if (httpContext.Request.Query.ContainsKey("validate"))
-                {
-                    cacheKey += "_Validation";
-                }
+                return;
             }
 
-            return cacheKey;
+            // It's a themeable request
+            var qs = httpContext.Request.Query;
+            var services = httpContext.RequestServices;
+            var storeContext = services.GetRequiredService<IStoreContext>();
+            var themeContext = services.GetRequiredService<IThemeContext>();
+
+            // Required for theme editing validation: See Admin.Controllers.ThemeController.ValidateSass()
+            if (qs.ContainsKey("theme"))
+            {
+                themeContext.SetRequestTheme(qs["theme"].ToString());
+            }
+            if (qs.ContainsKey("storeId"))
+            {
+                storeContext.SetRequestStore(qs["storeId"].ToString().ToInt());
+            }
+
+            // TODO: (core) Resolve theme name from route, not from themeContext.WorkingThemeName
+            values["Theme"] = themeContext.WorkingThemeName;
+            values["StoreId"] = storeContext.CurrentStore.Id.ToString();
+
+            if (httpContext.Request.Query.ContainsKey("validate"))
+            {
+                values["Validation"] = "true";
+            }
         }
 
         private static bool OnTryImportSassFile(IBundleFileProvider fileProvider, ref string file, string parentPath, out string scss, out string map)
@@ -99,8 +98,8 @@ namespace Smartstore.Web.Bundling.Processors
                 file += ".scss";
             }
 
-            var parentDir = parentPath.Substring(0, Path.GetDirectoryName(parentPath).Length);
-            var subPath = PathHelper.Combine(parentDir, file);
+            var parentDir = parentPath.Substring(0, Path.GetDirectoryName(parentPath).Length + 1);
+            var subPath = PathUtility.Combine(parentDir, file);
             var importFile = fileProvider.GetFileInfo(subPath);
             if (!importFile.Exists && file[0] != '_')
             {
@@ -120,7 +119,7 @@ namespace Smartstore.Web.Bundling.Processors
                         file = "_" + file;
                     }
 
-                    subPath = PathHelper.Combine(parentDir, file);
+                    subPath = PathUtility.Combine(parentDir, file);
                     importFile = fileProvider.GetFileInfo(subPath);
                     if (!importFile.Exists)
                     {

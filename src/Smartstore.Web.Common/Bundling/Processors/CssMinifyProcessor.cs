@@ -7,7 +7,9 @@ namespace Smartstore.Web.Bundling.Processors
 {
     public class CssMinifyProcessor : BundleProcessor
     {
-        internal static string CssContentType = "text/css";
+        internal const string Code = "min";
+
+        internal static readonly string CssContentType = "text/css";
         internal static readonly CssMinifyProcessor Instance = new();
         private static readonly CssSettings Settings = new()
         {
@@ -18,7 +20,7 @@ namespace Smartstore.Web.Bundling.Processors
 
         public override Task ProcessAsync(BundleContext context)
         {
-            if (context.Options.EnableMinification == false)
+            if (context.Options.EnableMinification == false || context.ProcessorCodes.Contains(Code))
             {
                 return Task.CompletedTask;
             }
@@ -47,7 +49,7 @@ namespace Smartstore.Web.Bundling.Processors
             }
             else
             {
-                context.ProcessorCodes.Add("min");
+                context.ProcessorCodes.Add(Code);
             }
 
             return minResult;

@@ -40,6 +40,11 @@ namespace Smartstore.Web.Bundling
         public string CacheKey { get; set; }
 
         /// <summary>
+        /// Gets or sets the cache key fragments used to generate the cache key (e.g. theme name, store id etc.)
+        /// </summary>
+        public IDictionary<string, string> CacheKeyFragments { get; set; }
+
+        /// <summary>
         /// Gets or sets the bundle route.
         /// </summary>
         public string Route { get; set; }
@@ -76,6 +81,9 @@ namespace Smartstore.Web.Bundling
         /// </summary>
         public IEnumerable<string> IncludedFiles { get; set; }
 
+        /// <summary>
+        /// Codes of processors that have been applied.
+        /// </summary>
         public string[] ProcessorCodes { get; set; } = Array.Empty<string>();
 
         [JsonIgnore]

@@ -1,17 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace Smartstore.Web.Bundling
 {
+    public struct BundleCacheKey
+    {
+        public string Key { get; init; }
+        public IDictionary<string, string> Fragments { get; init; }
+        public static implicit operator string(BundleCacheKey key) => key.Key;
+        public static implicit operator BundleCacheKey(string key) => new() { Key = key, Fragments = new Dictionary<string, string>() };
+    }
+    
     public interface IBundleCache
     {
-        Task<BundleResponse> GetResponseAsync(string cacheKey, Bundle bundle);
+        Task<BundleResponse> GetResponseAsync(BundleCacheKey cacheKey, Bundle bundle);
 
-        Task PutResponseAsync(string cacheKey, Bundle bundle, BundleResponse response);
+        Task PutResponseAsync(BundleCacheKey cacheKey, Bundle bundle, BundleResponse response);
 
-        Task RemoveResponseAsync(string cacheKey);
+        Task RemoveResponseAsync(BundleCacheKey cacheKey);
 
         Task ClearAsync();
     }
@@ -29,8 +38,11 @@ namespace Smartstore.Web.Bundling
             _options = options;
         }
 
-        public async Task<BundleResponse> GetResponseAsync(string cacheKey, Bundle bundle)
+        public async Task<BundleResponse> GetResponseAsync(BundleCacheKey cacheKey, Bundle bundle)
         {
+            Guard.NotNull(cacheKey.Key, nameof(cacheKey.Key));
+            Guard.NotNull(bundle, nameof(bundle));
+            
             // Memory cache
             var memCacheKey = BuildScopedCacheKey(cacheKey);
             if (_memCache.TryGetValue(memCacheKey, out BundleResponse response))
@@ -54,14 +66,20 @@ namespace Smartstore.Web.Bundling
             return response;
         }
 
-        public async Task PutResponseAsync(string cacheKey, Bundle bundle, BundleResponse response)
+        public async Task PutResponseAsync(BundleCacheKey cacheKey, Bundle bundle, BundleResponse response)
         {
-            response.CacheKey = cacheKey;
+            Guard.NotNull(cacheKey.Key, nameof(cacheKey.Key));
+            Guard.NotNull(bundle, nameof(bundle));
+            Guard.NotNull(response, nameof(response));
+
+            response.CacheKey = cacheKey.Key;
+            response.CacheKeyFragments = cacheKey.Fragments;
+
             await _diskCache.PutResponseAsync(cacheKey, bundle, response);
             PutToMemoryCache(cacheKey, bundle, response);
         }
 
-        private void PutToMemoryCache(string cacheKey, Bundle bundle, BundleResponse response)
+        private void PutToMemoryCache(BundleCacheKey cacheKey, Bundle bundle, BundleResponse response)
         {
             var cacheOptions = new MemoryCacheEntryOptions()
                 // Expire after 24 h
@@ -86,7 +104,7 @@ namespace Smartstore.Web.Bundling
             _memCache.Set(BuildScopedCacheKey(cacheKey), response, cacheOptions);
         }
 
-        public async Task RemoveResponseAsync(string cacheKey)
+        public async Task RemoveResponseAsync(BundleCacheKey cacheKey)
         {
             await _diskCache.RemoveResponseAsync(cacheKey);
             _memCache.Remove(BuildScopedCacheKey(cacheKey));

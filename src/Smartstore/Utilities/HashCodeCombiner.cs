@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.FileProviders;
 using Smartstore.IO;
 
 namespace Smartstore.Utilities
@@ -160,6 +161,24 @@ namespace Smartstore.Utilities
                         Add(s);
                     }
                 }
+            }
+
+            return this;
+        }
+
+        public HashCodeCombiner Add(IFileInfo entry)
+        {
+            Guard.NotNull(entry, nameof(entry));
+
+            if (!entry.Exists)
+                return this;
+
+            Add(entry.PhysicalPath.ToLower());
+            Add(entry.LastModified);
+
+            if (!entry.IsDirectory)
+            {
+                Add(entry.Length.GetHashCode());
             }
 
             return this;

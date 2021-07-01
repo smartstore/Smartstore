@@ -6,13 +6,15 @@ namespace Smartstore.Web.Bundling.Processors
 {
     public class JsMinifyProcessor : BundleProcessor
     {
+        internal const string Code = "min";
+
         internal static string JsContentType = "text/javascript";
         internal static readonly JsMinifyProcessor Instance = new();
         private static readonly JsMinifier Minifier = new();
 
         public override Task ProcessAsync(BundleContext context)
         {
-            if (context.Options.EnableMinification == false)
+            if (context.Options.EnableMinification == false || context.ProcessorCodes.Contains(Code))
             {
                 return Task.CompletedTask;
             }
@@ -28,7 +30,7 @@ namespace Smartstore.Web.Bundling.Processors
                 {
                     var minResult = MinifyCore(asset, context);
                     asset.Content = minResult;
-                    context.ProcessorCodes.Add("min");
+                    context.ProcessorCodes.Add(Code);
                 }
                 catch (Exception ex)
                 {

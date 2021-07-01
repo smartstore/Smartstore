@@ -50,7 +50,7 @@ namespace Smartstore.Web.Bundling
             _logger.Debug("Request for bundle '{0}' started.", bundle.Route);
 
             var options = _optionsMonitor.CurrentValue;
-            var cacheKey = bundle.GetCacheKey(httpContext, options);
+            var cacheKey = bundle.GetCacheKey(httpContext);
             var bundleResponse = await _bundleCache.GetResponseAsync(cacheKey, bundle);
 
             if (bundleResponse != null)
