@@ -1,0 +1,180 @@
+﻿@using Smartstore.Admin.Models.Stores
+
+@model StoreModel
+
+<div asp-validation-summary="ModelOnly"></div>
+
+<input type="hidden" asp-for="Id" />
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="LogoMediaFileId" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="LogoMediaFileId" />
+            <span asp-validation-for="LogoMediaFileId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Name" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Name" />
+            <span asp-validation-for="Name"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Url" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Url" />
+            <span asp-validation-for="Url"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Hosts" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Hosts" />
+            <span asp-validation-for="Hosts"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ContentDeliveryNetwork" />
+        </div>
+        <div class="adminData">
+            <input asp-for="ContentDeliveryNetwork" />
+            <span asp-validation-for="ContentDeliveryNetwork"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PrimaryStoreCurrencyId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="PrimaryStoreCurrencyId" asp-items="Model.AvailableCurrencies"></select>
+            <span asp-validation-for="PrimaryStoreCurrencyId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PrimaryExchangeRateCurrencyId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="PrimaryExchangeRateCurrencyId" asp-items="Model.AvailableCurrencies"></select>
+            <span asp-validation-for="PrimaryExchangeRateCurrencyId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SslEnabled" />
+        </div>
+        <div class="adminData">
+            <input asp-for="SslEnabled" data-toggler-for="pnlSecureUrl" />
+            <span asp-validation-for="SslEnabled"></span>
+        </div>
+    </div>
+    <div id="pnlSecureUrl">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SecureUrl" />
+            </div>
+            <div class="adminData">
+                <input asp-for="SecureUrl" />
+                <span asp-validation-for="SecureUrl"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ForceSslForAllPages" />
+            </div>
+            <div class="adminData">
+                <input asp-for="ForceSslForAllPages" />
+                <span asp-validation-for="ForceSslForAllPages"></span>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="HtmlBodyId" />
+        </div>
+        <div class="adminData">
+            <input asp-for="HtmlBodyId" />
+            <span asp-validation-for="HtmlBodyId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DisplayOrder" />
+        </div>
+        <div class="adminData">
+            <input asp-for="DisplayOrder" />
+            <span asp-validation-for="DisplayOrder"></span>
+        </div>
+    </div>
+    <div sm-if="Model.Id > 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Id" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Id" sm-plaintext readonly />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="title">
+                Icons
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="FavIconMediaFileId" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="FavIconMediaFileId" />
+            <span asp-validation-for="FavIconMediaFileId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PngIconMediaFileId" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="PngIconMediaFileId" />
+            <span asp-validation-for="PngIconMediaFileId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AppleTouchIconMediaFileId" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="AppleTouchIconMediaFileId" />
+            <span asp-validation-for="AppleTouchIconMediaFileId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="MsTileImageMediaFileId" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="MsTileImageMediaFileId" />
+            <span asp-validation-for="MsTileImageMediaFileId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="MsTileColor" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="MsTileColor" />
+            <span asp-validation-for="MsTileColor"></span>
+        </div>
+    </div>
+</div>

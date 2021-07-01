@@ -1,0 +1,48 @@
+﻿@using Smartstore.Admin.Models.Stores
+
+@model StoreModel
+
+<datagrid id="stores-grid"
+          allow-resize="true"
+          allow-row-selection="false"
+          allow-edit="false">
+    <datasource read="@Url.Action("StoreList", "Store")" />
+    <sorting enabled="true" allow-unsort="true" allow-multisort="false">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="200px" hideable="false">
+            <display-template>
+                <a :href="item.row.ViewUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Url" width="300px">
+            <display-template>
+                <a :href="item.value" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Hosts" wrap="true">
+            <display-template>
+                @*TODO: (mh) (core) How to Html.Raw(...) ?*@
+                {{ item.value }}
+            </display-template>
+        </column>
+        <column for="PrimaryStoreCurrencyName" />
+        <column for="PrimaryExchangeRateCurrencyName" />
+        <column for="ContentDeliveryNetwork" />
+        <column for="SslEnabled" />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+</datagrid>
