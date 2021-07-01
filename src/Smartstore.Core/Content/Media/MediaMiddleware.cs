@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -17,15 +18,47 @@ using Smartstore.Net;
 
 namespace Smartstore.Core.Content.Media
 {
+    internal class MediaEndpoint
+    {
+        public RouteTemplate Template { get; init; }
+        public TemplateMatcher Matcher { get; init; }
+        public bool IsLegacy { get; init; }
+    }
+    
     public class MediaMiddleware
     {
-        private readonly IEventPublisher _eventPublisher;
+        private readonly RequestDelegate _next;
         private readonly IApplicationContext _appContext;
+        private readonly IEventPublisher _eventPublisher;
+        private readonly TemplateMatcher _matcher;
 
-        public MediaMiddleware(RequestDelegate next, IApplicationContext appContext, IEventPublisher eventPublisher)
+        public MediaMiddleware(
+            RequestDelegate next, 
+            IApplicationContext appContext, 
+            IEventPublisher eventPublisher,
+            IMediaStorageConfiguration mediaStorageConfiguration)
         {
+            _next = next;
             _appContext = appContext;
             _eventPublisher = eventPublisher;
+
+            // Match main URL pattern /{pub}/{id}/{path}[?{query}], e.g. '/media/234/{album}/myproduct.png?size=250'
+            var mediaPublicPath = mediaStorageConfiguration.PublicPath;
+            var template = TemplateParser.Parse(mediaPublicPath + "{id:int}/{**path}");
+            _matcher = new TemplateMatcher(template, new RouteValueDictionary());
+        }
+
+        private bool TryMatchRoute(PathString path, out RouteValueDictionary values)
+        {
+            values = new RouteValueDictionary();
+
+            if (_matcher.TryMatch(path, values))
+            {
+                return true;
+            }
+
+            values = null;
+            return false;
         }
 
         public async Task Invoke(
@@ -39,16 +72,22 @@ namespace Smartstore.Core.Content.Media
             Lazy<IEnumerable<IMediaHandler>> mediaHandlers,
             ILogger<MediaMiddleware> logger)
         {
-            var mediaFileId = context.GetRouteValueAs<int>("id");
-            var path = context.GetRouteValueAs<string>("path");
+            if (!TryMatchRoute(context.Request.Path, out var routeValues))
+            {
+                await _next(context);
+                return;
+            }
 
-            if (context.Request.Method != HttpMethods.Get && context.Request.Method != HttpMethods.Head)
+            var method = context.Request.Method;
+
+            if (method != HttpMethods.Get && method != HttpMethods.Head)
             {
                 await NotFound(null);
                 return;
             }
 
-            var method = context.Request.Method;
+            var mediaFileId = routeValues["id"].Convert<int>();
+            var path = routeValues["path"].Convert<string>();
 
             MediaFileInfo mediaFile = null;
             MediaPathData pathData = null;

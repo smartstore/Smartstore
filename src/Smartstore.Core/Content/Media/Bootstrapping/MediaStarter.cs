@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using Microsoft.AspNetCore.Builder;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Icons;
@@ -21,11 +22,12 @@ namespace Smartstore.Core.Bootstrapping
             RunAfter<TaskSchedulerStarter>();
         }
 
-        public override void MapRoutes(EndpointRoutingBuilder builder)
+        public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.MapRoutes(StarterOrdering.EarlyRoute, endpoints =>
+            // Run before bundling middleware
+            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 1, app =>
             {
-                endpoints.MapMedia();
+                app.UseMedia();
             });
         }
 

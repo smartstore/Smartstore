@@ -51,7 +51,7 @@ namespace Smartstore.Web.Bootstrapping
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 1, app =>
+            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
             {
                 app.UseMiddleware<BundleMiddleware>();
 

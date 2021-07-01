@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Net.Http.Headers;
 
 namespace Smartstore.Core.Content.Media
@@ -10,13 +14,57 @@ namespace Smartstore.Core.Content.Media
     /// </summary>
     public class MediaLegacyMiddleware
     {
-        public MediaLegacyMiddleware(RequestDelegate _)
+        private readonly RequestDelegate _next;
+        private readonly List<TemplateMatcher> _matchers = new(3);
+
+        public MediaLegacyMiddleware(RequestDelegate next, IMediaStorageConfiguration mediaStorageConfiguration)
         {
+            _next = next;
+            _matchers.AddRange(BuildTemplateMatchers(mediaStorageConfiguration.PublicPath));
+        }
+
+        private static IEnumerable<TemplateMatcher> BuildTemplateMatchers(string publicPath)
+        {
+            var endpoints = new[]
+            {
+                // Match legacy URL pattern /{pub}/uploaded/{path}[?{query}], e.g. '/media/uploaded/subfolder/image.png' 
+                publicPath + "uploaded/{**path}",
+
+                // Match legacy URL pattern /{pub}/{tenant=default}/uploaded/{path}[?{query}], e.g. '/media/default/uploaded/subfolder/image.png' 
+                publicPath + "{tenant:regex(^default$)}/uploaded/{**path}",
+
+                // Match legacy URL pattern /{pub}/image/{id}/{path}[?{query}], e.g. '/media/image/234/myproduct.png?size=250' 
+                publicPath + "image/{id:int}/{**path}"
+            };
+
+            return endpoints.Select(x => new TemplateMatcher(TemplateParser.Parse(x), new RouteValueDictionary()));
+        }
+
+        private bool TryMatchRoute(PathString path, out RouteValueDictionary values)
+        {
+            values = new RouteValueDictionary();
+
+            foreach (var matcher in _matchers)
+            {
+                if (matcher.TryMatch(path, values))
+                {
+                    return true;
+                }
+            }
+
+            values = null;
+            return false;
         }
 
         public async Task Invoke(HttpContext context, IMediaService mediaService, IMediaUrlGenerator mediaUrlGenerator)
         {
-            var path = context.GetRouteValueAs<string>("path");
+            if (!TryMatchRoute(context.Request.Path, out var routeValues))
+            {
+                await _next(context);
+                return;
+            }
+
+            var path = routeValues["path"].Convert<string>();
             if (path.IsEmpty())
             {
                 // Cannot operate without path
@@ -26,9 +74,9 @@ namespace Smartstore.Core.Content.Media
                 return;
             }
             
-            var mediaFileId = context.GetRouteValueAs<int?>("id");
+            var mediaFileId = routeValues["id"].Convert<int?>();
 
-            MediaFileInfo mediaFile = null;
+            MediaFileInfo mediaFile;
 
             if (mediaFileId.HasValue)
             {
