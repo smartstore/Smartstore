@@ -82,7 +82,7 @@ namespace Smartstore.Web.Bundling
 
         #region Init & Util
 
-        private static string ValidateRoute(string route)
+        protected virtual string ValidateRoute(string route)
         {
             if (route.IndexOfAny(new[] { '*', '[', '?' }) > -1)
             {
@@ -134,7 +134,7 @@ namespace Smartstore.Web.Bundling
         /// Source files that represent the contents of the bundle. 
         /// Globbing patterns are allowed.
         /// </summary>
-        public IEnumerable<string> SourceFiles 
+        public virtual IEnumerable<string> SourceFiles 
         {
             get => _sourceFiles.AsReadOnly();
         }
@@ -160,6 +160,15 @@ namespace Smartstore.Web.Bundling
         public Bundle AddProcessor(params IBundleProcessor[] processors)
         {
             Processors.AddRange(processors);
+            return this;
+        }
+
+        /// <summary>
+        /// Uses the given file provider for file access.
+        /// </summary>
+        public Bundle UseFileProvider(IFileProvider provider)
+        {
+            FileProvider = provider;
             return this;
         }
 

@@ -1,12 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
 using Smartstore.Engine;
 using Smartstore.Web.Bundling;
+using Smartstore.Web.Bundling.Processors;
 
 namespace Smartstore.Web.Infrastructure
 {
     internal class PublicBundles : IBundleProvider
     {
         public int Priority => 0;
+
+        private static IEnumerable<string> ResolveThemeSourceFiles(DynamicBundleContext context)
+        {
+            var theme = context.RouteValues["theme"] as string;
+            return new[] { $"/Themes/{theme}/theme.scss" };
+        }
+
+        private static IEnumerable<string> ResolveRtlThemeSourceFiles(DynamicBundleContext context)
+        {
+            var theme = context.RouteValues["theme"] as string;
+            return new[] { $"/Themes/{theme}/theme-rtl.scss" };
+        }
+
+        private static bool IsValidTheme(DynamicBundleContext context)
+        {
+            var theme = context.RouteValues["theme"] as string;
+            return context.ThemeRegistry.ContainsTheme(theme);
+        }
 
         public void RegisterBundles(IApplicationContext appContext, IBundleCollection bundles)
         {
@@ -18,15 +38,15 @@ namespace Smartstore.Web.Infrastructure
             var lib = "/lib/";
             var js = "/js/";
 
-            /* (TEST) Sass themes --> /themes/[theme]/theme[-rtl].css
+
+            /* Dynamic Sass themes --> /themes/[theme]/theme[-rtl].css
             -----------------------------------------------------*/
-            // TODO: (core) Make dynamic registration for these in BundleMiddleware
-            bundles.Add(new StyleBundle("/themes/flex/theme.css").Include("/Themes/Flex/theme.scss"));
-            bundles.Add(new StyleBundle("/themes/flex/theme-rtl.css").Include("/Themes/Flex/theme-rtl.scss"));
-            bundles.Add(new StyleBundle("/themes/flex-black/theme.css").Include("/Themes/FlexBlack/theme.scss"));
-            bundles.Add(new StyleBundle("/themes/flex-black/theme-rtl.css").Include("/Themes/FlexBlack/theme-rtl.scss"));
-            bundles.Add(new StyleBundle("/themes/flex-blue/theme.css").Include("/Themes/FlexBlue/theme.scss"));
-            bundles.Add(new StyleBundle("/themes/flex-blue/theme-rtl.css").Include("/Themes/FlexBlue/theme-rtl.scss"));
+            bundles.Add(new DynamicStyleBundle("/themes/{theme}/theme.css")
+                .WithConstraint(IsValidTheme)
+                .Include(ResolveThemeSourceFiles));
+            bundles.Add(new DynamicStyleBundle("/themes/{theme}/theme-rtl.css")
+                .WithConstraint(IsValidTheme)
+                .Include(ResolveRtlThemeSourceFiles));
 
 
             /* Public Common CSS --> /bundle/css/site-common.css

@@ -58,7 +58,7 @@ namespace Smartstore.Web.Theming
         public event EventHandler<ThemeFolderDeletedEventArgs> ThemeFolderDeleted;
         public event EventHandler<BaseThemeChangedEventArgs> BaseThemeChanged;
 
-        public bool ThemeManifestExists(string themeName)
+        public bool ContainsTheme(string themeName)
         {
             if (themeName.IsEmpty())
                 return false;
@@ -217,7 +217,7 @@ namespace Smartstore.Web.Theming
         {
             Guard.NotEmpty(themeName, nameof(themeName));
 
-            if (!ThemeManifestExists(themeName))
+            if (!ContainsTheme(themeName))
                 return Enumerable.Empty<ThemeManifest>();
 
             var derivedThemes = _themes.Values.Where(x => x.BaseThemeName != null && !x.ThemeName.EqualsNoCase(themeName));

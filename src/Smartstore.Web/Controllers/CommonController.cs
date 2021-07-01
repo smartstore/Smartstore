@@ -231,7 +231,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public IActionResult ChangeTheme(string themeName, string returnUrl = null)
         {
-            if (!_themeSettings.AllowCustomerToSelectTheme || (themeName.HasValue() && !_themeRegistry.ThemeManifestExists(themeName)))
+            if (!_themeSettings.AllowCustomerToSelectTheme || (themeName.HasValue() && !_themeRegistry.ContainsTheme(themeName)))
             {
                 return NotFound();
             }

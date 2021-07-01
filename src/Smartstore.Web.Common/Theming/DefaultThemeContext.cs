@@ -68,7 +68,7 @@ namespace Smartstore.Web.Theming
                 }
 
                 // ensure that theme exists
-                if (!_themeRegistry.ThemeManifestExists(theme))
+                if (!_themeRegistry.ContainsTheme(theme))
                 {
                     var manifest = _themeRegistry.GetThemeManifests().FirstOrDefault();
                     if (manifest == null)
@@ -102,7 +102,7 @@ namespace Smartstore.Web.Theming
                 if (!_themeSettings.AllowCustomerToSelectTheme)
                     return;
 
-                if (value.HasValue() && !_themeRegistry.ThemeManifestExists(value))
+                if (value.HasValue() && !_themeRegistry.ContainsTheme(value))
                     return;
 
                 _httpContext.SetUserThemeChoiceInCookie(value.NullEmpty());

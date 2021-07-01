@@ -64,7 +64,7 @@ namespace Smartstore.Web.Theming
         /// </summary>
         /// <param name="themeName">The theme name to check</param>
         /// <returns><c>true</c> if theme exists, <c>false</c> otherwise</returns>
-        bool ThemeManifestExists(string themeName);
+        bool ContainsTheme(string themeName);
 
         /// <summary>
         /// Registers a theme manifest

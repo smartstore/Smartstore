@@ -52,7 +52,7 @@ namespace Smartstore.Web.Theming
             if (themeName.IsEmpty())
                 return null;
 
-            if (!_themeRegistry.ThemeManifestExists(themeName))
+            if (!_themeRegistry.ContainsTheme(themeName))
                 return null;
 
             string key = string.Format(THEMEVARS_BY_THEME_KEY, themeName, storeId);
@@ -89,7 +89,7 @@ namespace Smartstore.Web.Theming
         public async Task<int> SaveThemeVariablesAsync(string themeName, int storeId, IDictionary<string, object> variables)
         {
             Guard.NotEmpty(themeName, nameof(themeName));
-            Guard.Against<ArgumentException>(!_themeRegistry.ThemeManifestExists(themeName), "The theme '{0}' does not exist in the registry.".FormatInvariant(themeName));
+            Guard.Against<ArgumentException>(!_themeRegistry.ContainsTheme(themeName), "The theme '{0}' does not exist in the registry.".FormatInvariant(themeName));
             Guard.NotNull(variables, nameof(variables));
 
             if (!variables.Any())

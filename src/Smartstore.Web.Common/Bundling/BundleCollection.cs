@@ -2,6 +2,10 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using Smartstore.Engine;
+using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Bundling
 {
@@ -13,9 +17,9 @@ namespace Smartstore.Web.Bundling
         /// <summary>
         /// Returns a bundle in the collection using the specified route.
         /// </summary>
-        /// <param name="route">The route of the bundle to return.</param>
+        /// <param name="path">The path/route of the bundle to return.</param>
         /// <returns>The bundle for the route or null if no bundle exists at the path.</returns>
-        Bundle GetBundleFor(string route);
+        Bundle GetBundleFor(PathString path);
 
         /// <summary>
         /// Gets all bundles in the collection as readonly list.
@@ -43,18 +47,64 @@ namespace Smartstore.Web.Bundling
 
     internal class BundleCollection : IBundleCollection
     {
-        private readonly ConcurrentDictionary<string, Bundle> _bundles = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, Bundle> _bundles = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, Bundle> _staticBundles = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, DynamicBundle> _dynamicBundles = new(StringComparer.OrdinalIgnoreCase);
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IApplicationContext _appContext;
+        private readonly IThemeRegistry _themeRegistry;
+        private readonly IOptionsMonitor<BundlingOptions> _options;
+
+        public BundleCollection(
+            IHttpContextAccessor httpContextAccessor, 
+            IApplicationContext appContext, 
+            IThemeRegistry themeRegistry,
+            IOptionsMonitor<BundlingOptions> options)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            _appContext = appContext;
+            _themeRegistry = themeRegistry;
+            _options = options;
+        }
 
         public IReadOnlyList<Bundle> Bundles
             => _bundles.Values.AsReadOnly();
 
-        public Bundle GetBundleFor(string route)
+        public Bundle GetBundleFor(PathString path)
         {
-            Guard.NotEmpty(route, nameof(route));
+            Guard.NotEmpty(path, nameof(path));
 
-            if (_bundles.TryGetValue(Bundle.NormalizeRoute(route), out var bundle))
+            path = Bundle.NormalizeRoute(path);
+
+            if (_staticBundles.TryGetValue(path, out var bundle))
             {
                 return bundle;
+            }
+
+            if (_dynamicBundles.Count > 0)
+            {
+                foreach (var dynamicBundle in _dynamicBundles.Values)
+                {
+                    if (dynamicBundle.TryMatchRoute(path, out var routeValues))
+                    {
+                        var dynamicBundleConext = new DynamicBundleContext
+                        {
+                            Path = path,
+                            RouteValues = routeValues,
+                            Bundle = dynamicBundle,
+                            HttpContext = _httpContextAccessor.HttpContext,
+                            ApplicationContext = _appContext,
+                            ThemeRegistry = _themeRegistry,
+                            BundlingOptions = _options.CurrentValue
+                        };
+                        
+                        if (dynamicBundle.IsStatisfiedByConstraints(dynamicBundleConext))
+                        {
+                            return new DynamicBundleMatch(dynamicBundleConext);
+                        }
+                    }
+                }
             }
 
             return null;
@@ -64,9 +114,18 @@ namespace Smartstore.Web.Bundling
         {
             Guard.NotNull(bundle, nameof(bundle));
 
-            if (!bundle.SourceFiles.Any())
+            if (bundle is DynamicBundle dynamicBundle)
             {
-                throw new ArgumentException($"The bundle '{bundle.Route}' must contain at least one source file.", nameof(bundle));
+                _dynamicBundles[dynamicBundle.Route] = dynamicBundle;
+            }
+            else
+            {
+                if (!bundle.SourceFiles.Any())
+                {
+                    throw new ArgumentException($"The bundle '{bundle.Route}' must contain at least one source file.", nameof(bundle));
+                }
+
+                _staticBundles[bundle.Route] = bundle;
             }
 
             _bundles[bundle.Route] = bundle;
@@ -74,12 +133,28 @@ namespace Smartstore.Web.Bundling
 
         public bool Remove(Bundle bundle)
         {
-            return _bundles.TryRemove(bundle.Route, out _);
+            Guard.NotNull(bundle, nameof(bundle));
+
+            var wasRemoved = _bundles.TryRemove(bundle.Route, out _);
+            if (wasRemoved)
+            {
+                if (bundle is DynamicBundle dynamicBundle)
+                {
+                    _dynamicBundles.TryRemove(dynamicBundle.Route, out _);
+                }
+                else
+                {
+                    _staticBundles.TryRemove(bundle.Route, out _);
+                }
+            }
+
+            return wasRemoved;
         }
 
         public void Clear()
         {
             _bundles.Clear();
+            _dynamicBundles.Clear();
         }
     }
 }
