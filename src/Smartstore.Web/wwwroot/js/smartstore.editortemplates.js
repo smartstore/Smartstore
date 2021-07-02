@@ -227,6 +227,7 @@
 
         Array.from(editControls).forEach(el => {
             var template = el.getAttribute("data-editor");
+
             switch (template) {
                 case "select":
                     initSelect(el);

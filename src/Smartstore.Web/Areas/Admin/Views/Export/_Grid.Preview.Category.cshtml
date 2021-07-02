@@ -7,8 +7,7 @@
 <datagrid id="category-preview-grid" 
 		allow-resize="true" 
 		allow-column-reordering="true" 
-		allow-row-selection="true" 
-		preserve-grid-state="true">
+		allow-row-selection="true">
 	<datasource read="@Url.Action("PreviewList", new { id = parentModel.Id })" />
 	<paging position="Bottom" show-size-chooser="true" />
 	<toolbar>
