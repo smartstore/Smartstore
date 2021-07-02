@@ -37,8 +37,8 @@ html[lang="cn"] {
 html[lang="fa"] {
 	@font-face {
 		font-family: 'Iranian Sans';
-		src:url('../../../Content/Fonts/irsans.ttf');
-		src:url('../../../Content/Fonts/irsansb.ttf');
+		src:url('/fonts/irsans.ttf');
+		src:url('/fonts/irsansb.ttf');
 	}
 	body {
 		font-family: 'Iranian Sans';

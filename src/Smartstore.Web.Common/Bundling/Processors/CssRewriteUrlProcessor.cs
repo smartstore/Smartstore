@@ -65,7 +65,15 @@ namespace Smartstore.Web.Bundling.Processors
             // Replace all urls with absolute urls
             return _rgUrl.Replace(content, ((match) => 
             {
-                return "url(\"" + RebaseUrlToAbsolute(asset, webPathBase, baseUrl, match.Groups["url"].Value) + "\")";
+                var url = match.Groups["url"].Value;
+                if (url.StartsWith("data:image"))
+                {
+                    return match.Value;
+                }
+                else
+                {
+                    return "url(\"" + RebaseUrlToAbsolute(asset, webPathBase, baseUrl, url) + "\")";
+                }
             }));
         }
 
@@ -75,7 +83,7 @@ namespace Smartstore.Web.Bundling.Processors
             if (string.IsNullOrWhiteSpace(url) || 
                 string.IsNullOrWhiteSpace(baseUrl) || 
                 url.StartsWith('/') ||
-                url.StartsWith("data:image"))
+                url.StartsWith("http"))
             {
                 return url;
             }

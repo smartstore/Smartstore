@@ -57,7 +57,7 @@ namespace Smartstore.Web.Bundling
     public class DynamicStyleBundle : DynamicBundle
     {
         public DynamicStyleBundle(string routeTemplate, object defaults = null)
-            : base(routeTemplate, defaults, "text/css", null, SassProcessor.Instance, CssMinifyProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance)
+            : base(routeTemplate, defaults, "text/css", null, SassProcessor.Instance, CssMinifyProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, AutoprefixerProcessor.Instance)
         {
         }
     }

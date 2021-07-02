@@ -43,7 +43,7 @@ namespace Smartstore.Web.Bundling
     public class StyleBundle : Bundle
     {
         public StyleBundle(string route)
-            : base(route, "text/css", SassProcessor.Instance, CssMinifyProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance)
+            : base(route, "text/css", SassProcessor.Instance, CssMinifyProcessor.Instance, CssRewriteUrlProcessor.Instance, ConcatProcessor.Instance, AutoprefixerProcessor.Instance)
         {
         }
     }

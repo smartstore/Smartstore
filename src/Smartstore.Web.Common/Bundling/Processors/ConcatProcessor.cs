@@ -6,6 +6,7 @@ namespace Smartstore.Web.Bundling.Processors
 {
     public class ConcatProcessor : BundleProcessor
     {
+        internal const string Code = "concat";
         internal static readonly ConcatProcessor Instance = new();
 
         public override Task ProcessAsync(BundleContext context)
@@ -30,6 +31,8 @@ namespace Smartstore.Web.Bundling.Processors
 
                 context.Content.Clear();
                 context.Content.Add(combinedAsset);
+
+                context.ProcessorCodes.Add(Code);
             }
 
             return Task.CompletedTask;
