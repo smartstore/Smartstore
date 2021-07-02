@@ -7,7 +7,7 @@
         onrowclass="tasksGrid_onRowClass">
 	<datasource read="@Url.Action("TaskList")" />
     @* TODO: (core) Change paging-Tag after DataGrid has been refactored due to pager-bar glitch *@
-    <paging enabled="true" position="Top" show-size-chooser="false" page-size="999999" />
+    <paging enabled="false" position="Top" />
 	<columns>
         <column for="Name" hideable="false">
             <display-template>
