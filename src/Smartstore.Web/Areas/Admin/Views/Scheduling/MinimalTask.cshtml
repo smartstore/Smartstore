@@ -31,7 +31,7 @@
 		<div class="dropdown-menu">
             @if (canRead)
             {
-				<a asp-action="Edit" asp-route-id="@Model.Id" asp-route-returnUrl="@returnUrl" class="dropdown-item">
+				<a asp-action="Edit" asp-controller="Scheduling" asp-area="Admin" asp-route-id="@Model.Id" asp-route-returnUrl="@returnUrl" class="dropdown-item">
 					@if (Model.Enabled)
                     {
 						<i class="fa fa-fw fa-edit"></i>

@@ -18,7 +18,6 @@ using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
-    // TODO: (mg) (core) missing system tasks: Cleanup temporary files, Delete guest customers.
     public class SchedulingController : AdminControllerBase
     {
         private readonly ITaskStore _taskStore;

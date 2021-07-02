@@ -1,22 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Smartstore.Caching.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Tasks;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Content.Media.Tasks;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Identity.Rules;
+using Smartstore.Core.Identity.Tasks;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Logging.Tasks;
 using Smartstore.Core.Messaging;
+using Smartstore.Core.Messaging.Tasks;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -2022,16 +2030,17 @@ namespace Smartstore.Core.Installation
             base.Alter(entities);
 
             entities.WithKey(x => x.Type)
-                .Alter("SmartStore.Services.Messages.QueuedMessagesSendTask, SmartStore.Services", x => x.Name = "E-Mail senden")
-                .Alter("SmartStore.Services.Messages.QueuedMessagesClearTask, SmartStore.Services", x => x.Name = "E-Mail Queue bereinigen")
-                .Alter("SmartStore.Services.Media.TransientMediaClearTask, SmartStore.Services", x => x.Name = "Temporäre Uploads bereinigen")
-                .Alter("SmartStore.Services.Customers.DeleteGuestsTask, SmartStore.Services", x => x.Name = "Gastbenutzer löschen")
-                .Alter("SmartStore.Services.Caching.ClearCacheTask, SmartStore.Services", x => x.Name = "Cache bereinigen")
-                .Alter("SmartStore.Services.Messages.QueuedMessagesSendTask, SmartStore.Services", x => x.Name = "E-Mail senden")
-                .Alter("SmartStore.Services.Directory.UpdateExchangeRateTask, SmartStore.Services", x => x.Name = "Wechselkurse aktualisieren")
-                .Alter("SmartStore.Services.Common.TempFileCleanupTask, SmartStore.Services", x => x.Name = "Temporäre Dateien bereinigen")
-                .Alter("SmartStore.Services.Customers.TargetGroupEvaluatorTask, SmartStore.Services", x => x.Name = "Zuordnungen von Kunden zu Kundengruppen aktualisieren")
-                .Alter("SmartStore.Services.Catalog.ProductRuleEvaluatorTask, SmartStore.Services", x => x.Name = "Zuordnungen von Produkten zu Warengruppen aktualisieren");
+                .Alter(nameof(QueuedMessagesSendTask), x => x.Name = "E-Mail senden")
+                .Alter(nameof(QueuedMessagesClearTask), x => x.Name = "E-Mail Queue bereinigen")
+                .Alter(nameof(DeleteGuestsTask), x => x.Name = "Gastbenutzer löschen")
+                .Alter(nameof(DeleteLogsTask), x => x.Name = "Ereignisse löschen")
+                .Alter(nameof(ClearCacheTask), x => x.Name = "Cache bereinigen")
+                .Alter(nameof(UpdateExchangeRateTask), x => x.Name = "Wechselkurse aktualisieren")
+                .Alter(nameof(TransientMediaClearTask), x => x.Name = "Temporäre Uploads bereinigen")
+                .Alter(nameof(TempFileCleanupTask), x => x.Name = "Temporäre Dateien bereinigen")
+                .Alter(nameof(RebuildXmlSitemapTask), x => x.Name = "XML-Sitemap erneuern")
+                .Alter(nameof(TargetGroupEvaluatorTask), x => x.Name = "Zuordnungen von Kunden zu Kundengruppen aktualisieren")
+                .Alter(nameof(ProductRuleEvaluatorTask), x => x.Name = "Zuordnungen von Produkten zu Warengruppen aktualisieren");
         }
 
         protected override void Alter(IList<SpecificationAttribute> entities)

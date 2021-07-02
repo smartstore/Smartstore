@@ -85,7 +85,7 @@
                 <smart-label asp-for="TaskId" />
             </div>
             <div class="adminData">
-                @*TODO: (mg) (core) complete export profile editing (MinimalTask view component required)*@
+                @await Component.InvokeAsync("MinimalTask", new { taskId = Model.TaskId, returnUrl = Context.Request.RawUrl(), reloadPage = true })
             </div>
         </div>
         <div sm-if="Model.ImportResult != null" class="adminRow">

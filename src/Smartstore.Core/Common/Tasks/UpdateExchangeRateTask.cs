@@ -3,13 +3,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Scheduling;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
+using Smartstore.Scheduling;
 
-namespace Smartstore.Core.Common.Services
+namespace Smartstore.Core.Common.Tasks
 {
     /// <summary>
     /// A task that periodically updates exchange rates.
@@ -20,20 +20,17 @@ namespace Smartstore.Core.Common.Services
         private readonly CurrencySettings _currencySettings;
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
-        private readonly ISettingService _settingService;
 
         public UpdateExchangeRateTask(
             ICurrencyService currencyService,
             CurrencySettings currencySettings,
             SmartDbContext db,
-            IStoreContext storeContext,
-            ISettingService settingService)
+            IStoreContext storeContext)
         {
             _currencyService = currencyService;
             _currencySettings = currencySettings;
             _db = db;
             _storeContext = storeContext;
-            _settingService = settingService;
         }
 
 		public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
@@ -47,7 +44,7 @@ namespace Smartstore.Core.Common.Services
             var currencyCodes = exchangeRates.Select(x => x.CurrencyCode).Distinct().ToArray();
             var currencies = await _db.Currencies
                 .Where(x => currencyCodes.Contains(x.CurrencyCode))
-                .ToDictionaryAsync(x => x.CurrencyCode, StringComparer.OrdinalIgnoreCase);
+                .ToDictionaryAsync(x => x.CurrencyCode, StringComparer.OrdinalIgnoreCase, cancelToken);
 
             foreach (var exchageRate in exchangeRates)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -11,20 +12,22 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Tasks;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Tasks;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Content.Topics;
+using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
+using Smartstore.Core.Identity.Tasks;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Logging.Tasks;
@@ -36,12 +39,9 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 using Smartstore.Engine;
+using Smartstore.Imaging;
 using Smartstore.IO;
 using Smartstore.Scheduling;
-using Smartstore.Imaging;
-using Smartstore.Core.Content.Menus;
-using Smartstore.Core.Data;
-using System.Diagnostics;
 
 namespace Smartstore.Core.Installation
 {
@@ -688,7 +688,6 @@ namespace Smartstore.Core.Installation
                 {
                     Name = "Send emails",
                     CronExpression = "* * * * *", // every Minute
-                    // INFO: (ms) (core) WTF??!!!!!!!!!!!!!
 					Type = nameof(QueuedMessagesSendTask),
                     Enabled = true,
                     StopOnError = false,
@@ -696,10 +695,17 @@ namespace Smartstore.Core.Installation
                 },
                 new TaskDescriptor
                 {
+                    Name = "Clear email queue",
+                    CronExpression = "0 2 * * *", // At 02:00
+					Type = nameof(QueuedMessagesClearTask),
+                    Enabled = true,
+                    StopOnError = false,
+                },
+                new TaskDescriptor
+                {
                     Name = "Delete guests",
                     CronExpression = "*/10 * * * *", // Every 10 minutes
-                    // TODO: (mh) (core) Use nameof(Type) once all tasks are ready.
-					Type = "DeleteGuestsTask",
+					Type = nameof(DeleteGuestsTask),
                     Enabled = true,
                     StopOnError = false,
                 },
@@ -738,17 +744,9 @@ namespace Smartstore.Core.Installation
                 },
                 new TaskDescriptor
                 {
-                    Name = "Clear email queue",
-                    CronExpression = "0 2 * * *", // At 02:00
-					Type = nameof(QueuedMessagesClearTask),
-                    Enabled = true,
-                    StopOnError = false,
-                },
-                new TaskDescriptor
-                {
                     Name = "Cleanup temporary files",
                     CronExpression = "30 3 * * *", // At 03:30
-					Type = "TempFileCleanupTask",
+					Type = nameof(TempFileCleanupTask),
                     Enabled = true,
                     StopOnError = false
                 },
@@ -1589,7 +1587,7 @@ namespace Smartstore.Core.Installation
             return SeoHelper.BuildSlug(name);
         }
 
-        protected Currency CreateCurrency(string locale, decimal rate = 1M, string formatting = "", bool published = false, int order = 1)
+        protected static Currency CreateCurrency(string locale, decimal rate = 1M, string formatting = "", bool published = false, int order = 1)
         {
             Currency currency = null;
             try
@@ -1617,7 +1615,7 @@ namespace Smartstore.Core.Installation
             return currency;
         }
 
-        protected string FormatAttributeJson(List<(int Attribute, object Value)> Attributes)
+        protected static string FormatAttributeJson(List<(int Attribute, object Value)> Attributes)
         {
             var selection = new ProductVariantAttributeSelection(string.Empty);
 

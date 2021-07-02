@@ -13,7 +13,7 @@
 
 <div id="@widgetId" class="minimal-task-widget form-row">
 	<div class="task-info col" attr-class='(isRunning, "hide")'>
-        <partial name="~/Areas/Admin/Views/Scheduling/_MinimalTaskWidget.cshtml" model="Model" />
+        <partial name="~/Areas/Admin/Views/Scheduling/MinimalTask.cshtml" model="Model" />
 	</div>
     <div class="task-progress text-muted col" attr-class='(!isRunning, "hide")' data-task-id="@Model.Id" data-running="@(isRunning ? "true" : "false")"></div>
 	<div sm-if="cancellable && canExecute" class="col-auto">
@@ -29,14 +29,14 @@
 			context: $('#@widgetId'),
 			elementsSelector: '.task-progress',
 			defaultProgressMessage: @T("Admin.System.ScheduleTasks.RunNow.IsRunning").JsValue,
-			pollUrl: '@Url.Action("GetRunningTasks", "Scheduling")',
+			pollUrl: '@Url.Action("GetRunningTasks", "Scheduling", new { area = "Admin" })',
 			onTaskStarted: function (task, el) {
-				el.prev().addClass('hide'); // .task-info
-				el.next().removeClass('hide'); // .btn-cancel-task
+				el.prev().addClass('hide');		// .task-info
+				el.next().removeClass('hide');	// .btn-cancel-task
 			},
 			onTaskCompleted: function (taskId, el) {
-				el.prev().removeClass('hide'); // .task-info
-				el.next().addClass('hide'); // .btn-cancel-task
+				el.prev().removeClass('hide');	// .task-info
+				el.next().addClass('hide');		// .btn-cancel-task
 
 				@if (reloadPage)
 				{
@@ -48,7 +48,7 @@
 						cache: false,
 						global: false,
 						type: 'POST',
-						url: '@Url.Action("GetMinimalTaskWidget", "Scheduling")',
+						url: '@Url.Action("MinimalTask", "Scheduling", new { area = "Admin" })',
 						data: { taskId: taskId, returnUrl: '@returnUrl' },
 						success: function (data) {
 							el.prev().html(data);
