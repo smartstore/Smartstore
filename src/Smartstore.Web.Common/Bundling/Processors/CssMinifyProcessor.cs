@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUglify;
 using NUglify.Css;
@@ -45,7 +46,7 @@ namespace Smartstore.Web.Bundling.Processors
 
             if (result.HasErrors)
             {
-                minResult = "/* \r\n" + result.Errors + " */\r\n" + asset.Content;
+                minResult = "/* \r\n" + string.Join("\r\n\r\n", result.Errors.Select(x => x.ToString())) + " */\r\n" + asset.Content;
             }
             else
             {

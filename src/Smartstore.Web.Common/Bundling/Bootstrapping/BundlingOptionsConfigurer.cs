@@ -11,7 +11,7 @@ namespace Smartstore.Web.Bootstrapping
     internal class BundlingOptionsConfigurer : Disposable, IConfigureOptions<BundlingOptions>
     {
         private readonly IApplicationContext _appContext;
-        private readonly IBundleFileProvider _fileProvider;
+        private readonly IAssetFileProvider _fileProvider;
         private readonly IOptionsMonitorCache<BundlingOptions> _optionsCache;
         private readonly ThemeSettings _themeSettings;
 
@@ -19,7 +19,7 @@ namespace Smartstore.Web.Bootstrapping
 
         public BundlingOptionsConfigurer(
             IApplicationContext appContext,
-            IBundleFileProvider fileProvider,
+            IAssetFileProvider fileProvider,
             IOptionsMonitorCache<BundlingOptions> optionsCache,
             ThemeSettings themeSettings)
         {

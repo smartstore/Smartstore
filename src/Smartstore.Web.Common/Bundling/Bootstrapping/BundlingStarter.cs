@@ -34,13 +34,13 @@ namespace Smartstore.Web.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             // Configure & register asset file provider
-            var bundleFileProvider = new BundleFileProvider(appContext.WebRoot);
+            var assetFileProvider = new AssetFileProvider(appContext.WebRoot);
 
-            bundleFileProvider.AddFileProvider("themes/", ResolveThemeFileProvider);
-            bundleFileProvider.AddFileProvider("modules/", ResolveModuleFileProvider);
-            bundleFileProvider.AddFileProvider(".app/", new SassFileProvider(appContext));
+            assetFileProvider.AddFileProvider("themes/", ResolveThemeFileProvider);
+            assetFileProvider.AddFileProvider("modules/", ResolveModuleFileProvider);
+            assetFileProvider.AddFileProvider(".app/", new SassFileProvider(appContext));
 
-            builder.RegisterInstance<IBundleFileProvider>(bundleFileProvider);
+            builder.RegisterInstance<IAssetFileProvider>(assetFileProvider);
             builder.RegisterType<BundlingOptionsConfigurer>().As<IConfigureOptions<BundlingOptions>>().SingleInstance();
 
             builder.RegisterType<BundleCollection>().As<IBundleCollection>().SingleInstance();
@@ -65,7 +65,7 @@ namespace Smartstore.Web.Bootstrapping
                 // TODO: (core) Set StaticFileOptions
                 app.UseStaticFiles(new StaticFileOptions
                 {
-                    FileProvider = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IBundleFileProvider>(),
+                    FileProvider = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IAssetFileProvider>(),
                     ContentTypeProvider = MimeTypes.ContentTypeProvider
                 });
             });

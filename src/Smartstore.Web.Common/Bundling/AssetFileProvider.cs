@@ -7,17 +7,17 @@ using Smartstore.IO;
 
 namespace Smartstore.Web.Bundling
 {
-    public interface IBundleFileProvider : IFileProvider
+    public interface IAssetFileProvider : IFileProvider
     {
         IFileProvider ResolveFileProvider(ref string path);
     }
     
-    public class BundleFileProvider : IBundleFileProvider
+    public class AssetFileProvider : IAssetFileProvider
     {
         private readonly IFileSystem _webRoot;
         private readonly Dictionary<string, Func<string, IApplicationContext, IFileProvider>> _providers = new(StringComparer.OrdinalIgnoreCase);
 
-        public BundleFileProvider(IFileSystem webRoot)
+        public AssetFileProvider(IFileSystem webRoot)
         {
             _webRoot = Guard.NotNull(webRoot, nameof(webRoot));
         }

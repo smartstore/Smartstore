@@ -26,7 +26,7 @@ namespace Smartstore.Web.Bundling.Processors
                 }
 
                 var fileProvider = asset.FileProvider;
-                var assetFileProvider = fileProvider as IBundleFileProvider;
+                var assetFileProvider = fileProvider as IAssetFileProvider;
                 var sassOptions = new ScssOptions
                 {
                     InputFile = assetFileProvider != null ? asset.Path : fileProvider.GetFileInfo(asset.Path).PhysicalPath,
@@ -89,7 +89,7 @@ namespace Smartstore.Web.Bundling.Processors
             }
         }
 
-        private static bool OnTryImportSassFile(IBundleFileProvider fileProvider, ref string file, string parentPath, out string scss, out string map)
+        private static bool OnTryImportSassFile(IAssetFileProvider fileProvider, ref string file, string parentPath, out string scss, out string map)
         {
             map = null;
             scss = null;

@@ -11,10 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.Theming;
-using Smartstore.Data.Caching;
 using Smartstore.Events;
 using Smartstore.Http;
-using Smartstore.IO;
 using Smartstore.Utilities;
 using Smartstore.Web.Bundling;
 
@@ -28,7 +26,7 @@ namespace Smartstore.Web.Theming
         private readonly IThemeRegistry _themeRegistry;
         private readonly IRequestCache _requestCache;
         private readonly IEventPublisher _eventPublisher;
-        private readonly IBundleFileProvider _assetFileProvider;
+        private readonly IAssetFileProvider _assetFileProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DefaultThemeVariableService(
@@ -36,7 +34,7 @@ namespace Smartstore.Web.Theming
             IThemeRegistry themeRegistry,
             IRequestCache requestCache,
             IEventPublisher eventPublisher,
-            IBundleFileProvider assetFileProvider,
+            IAssetFileProvider assetFileProvider,
             IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
