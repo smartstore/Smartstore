@@ -38,7 +38,6 @@
 
     <input asp-for="@Model"
            attrs="attributes"
-           type="number"
            class="form-control"
            placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
            min="@(GetMetadata<decimal?>("min"))"
