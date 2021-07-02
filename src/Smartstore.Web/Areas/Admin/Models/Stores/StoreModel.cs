@@ -28,6 +28,7 @@ namespace Smartstore.Admin.Models.Stores
 
         [LocalizedDisplay("*Hosts")]
         public string Hosts { get; set; }
+        public string[] HostList { get; set; }
 
         [LocalizedDisplay("*StoreLogo")]
         [UIHint("Media")]
@@ -83,16 +84,7 @@ namespace Smartstore.Admin.Models.Stores
         [LocalizedDisplay("*PrimaryStoreCurrencyId")]
         public string PrimaryStoreCurrencyName
         {
-            get
-            {
-                try
-                {
-                    return AvailableCurrencies.First(x => x.Value == PrimaryStoreCurrencyId.ToString()).Text;
-                }
-                catch { }
-
-                return null;
-            }
+            get => AvailableCurrencies.FirstOrDefault(x => x.Value == PrimaryStoreCurrencyId.ToString())?.Text;
         }
 
         [LocalizedDisplay("*PrimaryExchangeRateCurrencyId")]
@@ -101,16 +93,7 @@ namespace Smartstore.Admin.Models.Stores
         [LocalizedDisplay("*PrimaryExchangeRateCurrencyId")]
         public string PrimaryExchangeRateCurrencyName
         {
-            get
-            {
-                try
-                {
-                    return AvailableCurrencies.First(x => x.Value == PrimaryExchangeRateCurrencyId.ToString()).Text;
-                }
-                catch { }
-
-                return null;
-            }
+            get => AvailableCurrencies.FirstOrDefault(x => x.Value == PrimaryExchangeRateCurrencyId.ToString())?.Text;
         }
 
         public List<SelectListItem> AvailableCurrencies { get; set; } = new();

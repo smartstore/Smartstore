@@ -135,14 +135,12 @@ Vue.component("sm-datagrid", {
 
                                         <div class="dg-cell" :class="getCellClass(row, column)" :style="getCellStyles(row, column, false)">
                                             <slot v-if="!isInlineEditCell(row, column)" :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
-                                                <span class="dg-cell-value">
-                                                    <template v-if="column.type === 'boolean'">
-                                                        <i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i>
-                                                    </template>
-                                                    <template v-else>
-                                                        {{ renderCellValue(row[column.member], column, row) }}
-                                                    </template>
-                                                </span>
+                                                <template v-if="column.type === 'boolean'">
+                                                    <div class="dg-cell-value"><i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i></div>
+                                                </template>
+                                                <template v-else>
+                                                    <div class="dg-cell-value" v-html="renderCellValue(row[column.member], column, row)"></div>
+                                                </template>
                                             </slot>
                                             <slot v-if="isInlineEditCell(row, column)" :name="'edit-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
                                             </slot>
@@ -214,7 +212,7 @@ Vue.component("sm-datagrid", {
         paging: {
             type: Object,
             required: false,
-            default() { return { enabled: false, pageIndex: 1, pageSize: 25, position: "bottom" } }
+            default() { return { enabled: false, pageIndex: 1, pageSize: 25, showInfo: true, position: "bottom" } }
         },
 
         sorting: {

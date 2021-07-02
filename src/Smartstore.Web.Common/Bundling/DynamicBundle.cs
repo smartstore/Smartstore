@@ -81,12 +81,10 @@ namespace Smartstore.Web.Bundling
             routeTemplate = base.Route;
 
             Defaults = new RouteValueDictionary(defaults);
-            RouteTemplate = TemplateParser.Parse(routeTemplate);
-            TemplateMatcher = new TemplateMatcher(RouteTemplate, Defaults);
+            TemplateMatcher = new TemplateMatcher(TemplateParser.Parse(routeTemplate), Defaults);
         }
 
         public RouteValueDictionary Defaults { get; }
-        public RouteTemplate RouteTemplate { get; }
         public TemplateMatcher TemplateMatcher { get; }
 
         protected override string ValidateRoute(string route)

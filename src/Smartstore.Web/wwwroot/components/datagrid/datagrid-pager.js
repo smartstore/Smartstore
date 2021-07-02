@@ -20,7 +20,7 @@
             </template>
             
             <div v-if="rows.length > 0" class="ml-auto d-flex align-items-center">
-                <span class="dg-page text-muted text-truncate d-none d-md-inline pl-2">
+                <span v-if="paging.enabled && paging.showInfo" class="dg-page text-muted text-truncate d-none d-md-inline pl-2">
                     <span class="d-none d-lg-inline">Anzeigen der Elemente </span>
                     <span>{{ firstItemIndex.toLocaleString() }}-{{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}</span>
                 </span>

@@ -25,16 +25,17 @@ namespace Smartstore.Web.Bundling.Processors
             {
                 Browsers = new List<string> 
                 {
-                    "last 2 version",
-                    "> 1%",
-                    "Chrome >= 70",
-                    "Firefox >= 52",
-                    "Edge >= 17",
-                    "Explorer > 11",
-                    "iOS >= 11",
-                    "Safari >= 11",
+                    "last 1 version",
+                    "not dead",
+                    "> 0.2%",
+                    "Firefox ESR",
+                    "Chrome >= 80",
+                    "Firefox >= 78",
+                    "Edge >= 88",
+                    "iOS >= 14",
+                    "Safari >= 13",
                     "Android >= 4.4",
-                    "Opera >= 63"
+                    "Opera >= 75"
                 },
                 Cascade = false,
                 Add = true,
@@ -42,7 +43,9 @@ namespace Smartstore.Web.Bundling.Processors
                 Supports = true,
                 Flexbox = FlexboxMode.None,
                 Grid = GridMode.None,
-                IgnoreUnknownVersions = false
+                IgnoreUnknownVersions = false,
+                SourceMap = true,
+                InlineSourceMap = true
             };
 
             try

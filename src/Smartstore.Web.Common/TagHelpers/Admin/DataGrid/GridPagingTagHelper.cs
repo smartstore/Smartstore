@@ -21,6 +21,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string PositionAttributeName = "position";
         const string TotalAttributeName = "total";
         const string ShowChooserAttributeName = "show-size-chooser";
+        const string ShowInfoAttributeName = "show-info";
         const string SizesAttributeName = "available-sizes";
 
         private readonly AdminAreaSettings _adminAreaSettings;
@@ -42,6 +43,9 @@ namespace Smartstore.Web.TagHelpers.Admin
             }
         }
 
+        /// <summary>
+        /// Whether page number links should be rendered. Default: <c>true</c>.
+        /// </summary>
         [HtmlAttributeName(EnabledAttributeName)]
         public bool Enabled { get; set; } = true;
 
@@ -74,6 +78,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         public bool ShowSizeChooser { get; set; } = true;
 
         /// <summary>
+        /// Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(ShowInfoAttributeName)]
+        public bool ShowInfo { get; set; } = true;
+
+        /// <summary>
         /// Available page sizes to choose from.
         /// </summary>
         [HtmlAttributeName(SizesAttributeName)]
@@ -101,6 +111,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 position = Position.ToString().ToLower(),
                 total = Total,
                 showSizeChooser = ShowSizeChooser,
+                showInfo = ShowInfo,
                 availableSizes = AvailableSizes
             };
         }
