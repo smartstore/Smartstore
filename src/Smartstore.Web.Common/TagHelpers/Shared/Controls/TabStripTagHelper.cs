@@ -393,6 +393,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             div.GenerateId(tab.Id, "-");
             div.MergeAttribute("aria-labelledby", $"{div.Attributes["id"]}-tab");
+            div.MergeAttribute("data-tab-name", tab.Name);
 
             classList.Dispose();
             div.InnerHtml.SetHtmlContent(tab.TabInnerContent);
@@ -449,6 +450,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                             a.MergeAttribute("href", itemId);
                             a.MergeAttribute("data-ajax-url", url);
                             a.MergeAttribute("data-toggle", "tab");
+                            a.MergeAttribute("data-tab-name", tab.Name);
                         }
                         else
                         {
