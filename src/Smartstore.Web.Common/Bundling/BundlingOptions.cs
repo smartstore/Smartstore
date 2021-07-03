@@ -18,6 +18,8 @@ namespace Smartstore.Web.Bundling
 
         public bool? EnableAutoPrefixer { get; set; }
 
+        public bool AlwaysDisableAutoPrefixerInDevMode { get; set; } = true;
+
         public IFileProvider FileProvider { get; set; }
 
         /// <summary>

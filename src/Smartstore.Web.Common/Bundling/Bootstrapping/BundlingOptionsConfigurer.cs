@@ -54,6 +54,11 @@ namespace Smartstore.Web.Bootstrapping
                 diskCachingEnabled = themeSettings.AssetCachingEnabled > 1;
             }
 
+            if (options.EnableAutoPrefixer == null && options.AlwaysDisableAutoPrefixerInDevMode && env.IsDevelopment())
+            {
+                options.EnableAutoPrefixer = false;
+            }
+
             options.EnableBundling ??= bundlingEnabled ?? !env.IsDevelopment();
             options.EnableClientCache ??= !env.IsDevelopment();
             options.EnableDiskCache ??= diskCachingEnabled ?? !env.IsDevelopment();

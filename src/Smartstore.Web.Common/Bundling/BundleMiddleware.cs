@@ -76,7 +76,7 @@ namespace Smartstore.Web.Bundling
                 {
                     // Build
                     var watch = Stopwatch.StartNew();
-                    bundleResponse = await _bundleBuilder.BuildBundleAsync(bundle, httpContext, options);
+                    bundleResponse = await _bundleBuilder.BuildBundleAsync(bundle, cacheKey.Fragments, httpContext, options);
                     watch.Stop();
                     Debug.WriteLine($"Bundle build time for {bundle.Route}: {watch.ElapsedMilliseconds} ms.");
 

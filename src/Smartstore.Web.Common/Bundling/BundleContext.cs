@@ -25,9 +25,10 @@ namespace Smartstore.Web.Bundling
     
     public class BundleContext
     {
+        public Bundle Bundle { get; init; }
+        public IDictionary<string, string> Fragments { get; init; }
         public HttpContext HttpContext { get; init; }
         public BundlingOptions Options { get; init; }
-        public Bundle Bundle { get; init; }
         public IEnumerable<BundleFile> Files { get; init; }
         public IList<AssetContent> Content { get; } = new List<AssetContent>();
         public IList<string> ProcessorCodes { get; } = new List<string>();

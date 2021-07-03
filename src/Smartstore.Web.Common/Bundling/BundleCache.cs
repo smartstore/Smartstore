@@ -98,7 +98,9 @@ namespace Smartstore.Web.Bundling
 
             cacheOptions.RegisterPostEvictionCallback((key, value, reason, state) =>
             {
-                _diskCache.RemoveResponseAsync(((BundleResponse)value).CacheKey).Await();
+                var response = (BundleResponse)value;
+                var cacheKey = new BundleCacheKey { Key = response.CacheKey, Fragments = response.CacheKeyFragments };
+                _diskCache.RemoveResponseAsync(cacheKey).Await();
             });
 
             _memCache.Set(BuildScopedCacheKey(cacheKey), response, cacheOptions);

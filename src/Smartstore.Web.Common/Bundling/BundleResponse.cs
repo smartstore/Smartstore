@@ -25,8 +25,10 @@ namespace Smartstore.Web.Bundling
             Guard.NotNull(response, nameof(response));
 
             CacheKey = response.CacheKey;
+            CacheKeyFragments = response.CacheKeyFragments;
             Route = response.Route;
-            ContentType = response.Content;
+            Content = response.Content;
+            ContentType = response.ContentType;
             ContentHash = response.ContentHash;
             CreationDate = response.CreationDate;
             FileProvider = response.FileProvider;

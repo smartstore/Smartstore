@@ -46,7 +46,7 @@ namespace Smartstore.Web.Bundling
     public class DynamicScriptBundle : DynamicBundle
     {
         public DynamicScriptBundle(string routeTemplate, object defaults = null)
-            : base(routeTemplate, defaults, "text/javascript", null, JsMinifyProcessor.Instance, ConcatProcessor.Instance)
+            : base(routeTemplate, defaults, "application/javascript", null, JsMinifyProcessor.Instance, ConcatProcessor.Instance)
         {
             ConcatenationToken = ";" + Environment.NewLine;
         }

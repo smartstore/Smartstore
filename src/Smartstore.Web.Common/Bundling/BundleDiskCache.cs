@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.IO;
+using Smartstore.Threading;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.Bundling
 {
@@ -36,14 +38,6 @@ namespace Smartstore.Web.Bundling
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        //private IDirectory GetCacheDirectory()
-        //    => _fs.GetDirectory(DirName);
-
-        private static string ResolveBundleDirectoryName(BundleCacheKey cacheKey)
-        {
-            return PathUtility.SanitizeFileName(cacheKey.Key.Trim('/', '\\'));
-        }
-
         public async Task<BundleResponse> GetResponseAsync(BundleCacheKey cacheKey, Bundle bundle)
         {
             if (_options.CurrentValue.EnableDiskCache == false)
@@ -54,14 +48,55 @@ namespace Smartstore.Web.Bundling
             Guard.NotNull(cacheKey.Key, nameof(cacheKey.Key));
             Guard.NotNull(bundle, nameof(bundle));
 
-            var subpath = _fs.PathCombine(DirName, ResolveBundleDirectoryName(cacheKey));
+            var dir = GetCacheDirectory(cacheKey);
             
-            if (_fs.DirectoryExists(subpath))
+            if (dir.Exists)
             {
-                // ...
-            }
+                try
+                {
+                    var deps = await ReadFile(dir, "bundle.dependencies");
+                    var hash = await ReadFile(dir, "bundle.hash");
 
-            await Task.Delay(0);
+                    var (valid, parsedDeps, currentHash) = await TryValidate(bundle, deps, hash);
+
+                    if (!valid)
+                    {
+                        Logger.Debug("Invalidating cached bundle for '{0}' because it is not valid anymore.", bundle.Route);
+                        InvalidateAssetInternal(dir);
+                        return null;
+                    }
+
+                    var content = await ReadFile(dir, ResolveBundleContentFileName(bundle));
+                    if (content == null)
+                    {
+                        using (await AsyncLock.KeyedAsync(BuildLockKey(dir.Name)))
+                        {
+                            InvalidateAssetInternal(dir);
+                            return null;
+                        }
+                    }
+
+                    var pcodes = await ParseFileContent(await ReadFile(dir, "bundle.pcodes"));
+
+                    var response = new BundleResponse
+                    {
+                        Route = bundle.Route,
+                        CreationDate = dir.LastModified,
+                        Content = content,
+                        ContentType = bundle.ContentType,
+                        ProcessorCodes = pcodes.ToArray(),
+                        IncludedFiles = parsedDeps
+                    };
+
+                    Logger.Debug("Succesfully read bundle '{0}' from disk cache.", bundle.Route);
+
+                    return response;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Error while resolving bundle '{0}' from the disk cache.", bundle.Route);
+                }
+            }
 
             return null;
         }
@@ -77,17 +112,164 @@ namespace Smartstore.Web.Bundling
             Guard.NotNull(bundle, nameof(bundle));
             Guard.NotNull(response, nameof(response));
 
-            await Task.Delay(0);
+            var dir = GetCacheDirectory(cacheKey);
+
+            using (await AsyncLock.KeyedAsync(BuildLockKey(dir.Name)))
+            {
+                _fs.TryCreateDirectory(dir.SubPath);
+
+                try
+                {
+                    // Save main content file
+                    await CreateFileFromEntries(dir, ResolveBundleContentFileName(bundle), new[] { response.Content });
+
+                    // Save dependencies file
+                    var deps = response.IncludedFiles;
+                    await CreateFileFromEntries(dir, "bundle.dependencies", deps);
+
+                    // Save hash file
+                    var currentHash = GetFileHash(bundle, deps);
+                    await CreateFileFromEntries(dir, "bundle.hash", new[] { currentHash });
+
+                    // Save codes file
+                    await CreateFileFromEntries(dir, "bundle.pcodes", response.ProcessorCodes);
+
+                    Logger.Debug("Succesfully inserted bundle '{0}' to disk cache.", bundle.Route);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Error while inserting bundle '{0}' to disk cache.", bundle.Route);
+                    InvalidateAssetInternal(dir);
+                }
+            }
         }
 
         public Task RemoveResponseAsync(BundleCacheKey cacheKey)
         {
+            if (cacheKey.Key.HasValue())
+            {
+                InvalidateAssetInternal(GetCacheDirectory(cacheKey));
+            }
+
             return Task.CompletedTask;
         }
 
         public Task ClearAsync()
         {
+            _fs.TryDeleteDirectory(DirName);
             return Task.CompletedTask;
         }
+
+        #region Utils
+
+        /// <summary>
+        /// Checks whether bundle is up-to-date.
+        /// </summary>
+        public async Task<(bool valid, IEnumerable<string> parsedDeps, string currentHash)> TryValidate(Bundle bundle, string lastDeps, string lastHash)
+        {
+            bool valid = false;
+            IEnumerable<string> parsedDeps = null;
+            string currentHash = null;
+
+            try
+            {
+                if (lastDeps.HasValue() && lastHash.HasValue())
+                {
+                    parsedDeps = await ParseFileContent(lastDeps);
+
+                    // Check if dependency files hash matches the last saved hash
+                    currentHash = GetFileHash(bundle, parsedDeps);
+
+                    valid = lastHash == currentHash;
+                }
+            }
+            catch
+            {
+                valid = false;
+            }
+
+            return (valid, parsedDeps, currentHash);
+        }
+
+        private string GetFileHash(Bundle bundle, IEnumerable<string> files)
+        {
+            var fileProvider = bundle.FileProvider ?? _options.CurrentValue.FileProvider;
+            var combiner = HashCodeCombiner.Start();
+
+            foreach (var file in files)
+            {
+                var fileInfo = fileProvider.GetFileInfo(file);
+                if (fileInfo is IFileHashProvider hashProvider)
+                {
+                    combiner.Add(hashProvider.GetFileHash());
+                }
+                else
+                {
+                    combiner.Add(fileInfo);
+                }
+            }
+            
+            return combiner.CombinedHashString;
+        }
+
+        private bool InvalidateAssetInternal(IDirectory dir)
+            => _fs.TryDeleteDirectory(dir.SubPath);
+
+        private IDirectory GetCacheDirectory(BundleCacheKey cacheKey)
+            => _fs.GetDirectory(_fs.PathCombine(DirName, ResolveBundleDirectoryName(cacheKey)));
+
+        private static string ResolveBundleDirectoryName(BundleCacheKey cacheKey)
+            => PathUtility.SanitizeFileName(cacheKey.Key.Trim('/', '\\'));
+
+        private static string ResolveBundleContentFileName(Bundle bundle)
+            => $"bundle.{MimeTypes.MapMimeTypeToExtension(bundle.ContentType)}";
+
+        private static string BuildLockKey(string dirName)
+            => "BundleCache.Dir." + dirName;
+
+        private Task<string> ReadFile(IDirectory dir, string fileName)
+            => _fs.ReadAllTextAsync(_fs.PathCombine(dir.SubPath, fileName));
+
+        private async Task<IEnumerable<string>> ParseFileContent(string content)
+        {
+            var list = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (content.IsEmpty()) return list;
+
+            using var sr = new StringReader(content);
+            while (true)
+            {
+                var f = await sr.ReadLineAsync();
+                if (f != null && f.HasValue())
+                {
+                    list.Add(f);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return list;
+        }
+
+        private async Task CreateFileFromEntries(IDirectory dir, string fileName, IEnumerable<string> entries)
+        {
+            if (entries == null || !entries.Any())
+                return;
+
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            foreach (var f in entries)
+            {
+                sb.AppendLine(f);
+            }
+
+            var content = sb.ToString().TrimEnd();
+            if (content.HasValue())
+            {
+                await _fs.WriteAllTextAsync(_fs.PathCombine(dir.SubPath, fileName), content);
+            }
+        }
+
+        #endregion
     }
 }

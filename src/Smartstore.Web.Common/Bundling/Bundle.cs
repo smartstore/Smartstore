@@ -31,7 +31,7 @@ namespace Smartstore.Web.Bundling
     public class ScriptBundle : Bundle
     {
         public ScriptBundle(string route)
-            : base(route, "text/javascript", JsMinifyProcessor.Instance, ConcatProcessor.Instance)
+            : base(route, "application/javascript", JsMinifyProcessor.Instance, ConcatProcessor.Instance)
         {
             ConcatenationToken = ";" + Environment.NewLine;
         }

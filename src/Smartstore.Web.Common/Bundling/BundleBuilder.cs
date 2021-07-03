@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +12,7 @@ namespace Smartstore.Web.Bundling
 {
     public interface IBundleBuilder
     {
-        Task<BundleResponse> BuildBundleAsync(Bundle bundle, HttpContext httpContext, BundlingOptions options);
+        Task<BundleResponse> BuildBundleAsync(Bundle bundle, IDictionary<string, string> fragments, HttpContext httpContext, BundlingOptions options);
     }
 
     public class DefaultBundleBuilder : IBundleBuilder
@@ -24,7 +26,7 @@ namespace Smartstore.Web.Bundling
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public async Task<BundleResponse> BuildBundleAsync(Bundle bundle, HttpContext httpContext, BundlingOptions options)
+        public async Task<BundleResponse> BuildBundleAsync(Bundle bundle, IDictionary<string, string> fragments, HttpContext httpContext, BundlingOptions options)
         {
             Guard.NotNull(bundle, nameof(bundle));
             Guard.NotNull(httpContext, nameof(httpContext));
@@ -45,8 +47,9 @@ namespace Smartstore.Web.Bundling
 
             var context = new BundleContext
             {
-                HttpContext = httpContext,
                 Bundle = bundle,
+                Fragments = fragments,
+                HttpContext = httpContext,
                 Options = options,
                 Files = bundleFiles
             };
