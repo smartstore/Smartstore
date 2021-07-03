@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
@@ -67,6 +68,8 @@ namespace Smartstore.Web.Bundling
     /// </summary>
     public class DynamicBundle : Bundle
     {
+        private static readonly ConcurrentDictionary<string, string[]> _sourceFilesCache = new();
+        
         private readonly List<Func<DynamicBundleContext, bool>> _constraints = new();
         private readonly List<Func<DynamicBundleContext, IEnumerable<string>>> _resolvers = new();
 
@@ -133,8 +136,25 @@ namespace Smartstore.Web.Bundling
 
         internal virtual IEnumerable<string> ResolveSourceFiles(DynamicBundleContext context)
         {
-            // TODO: (core) make a cache for resolved files variied by route values.
-            return _resolvers.SelectMany(resolver => resolver(context));
+            if (context.RouteValues.Count == 0)
+            {
+                return _resolvers.SelectMany(resolver => resolver(context));
+            }
+
+            var cacheKey = BuildSourceFilesCacheKey(context.RouteValues);
+            return _sourceFilesCache.GetOrAdd(cacheKey, key 
+                => _resolvers.SelectMany(resolver => resolver(context)).ToArray());
+        }
+
+        private static string BuildSourceFilesCacheKey(RouteValueDictionary values)
+        {
+            var key = string.Empty;
+            foreach (var kvp in values)
+            {
+                key += kvp.Key + ':' + kvp.Value.ToString() + '_';
+            }
+
+            return key;
         }
     }
 }

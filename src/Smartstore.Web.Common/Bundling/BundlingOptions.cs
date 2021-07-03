@@ -6,6 +6,8 @@ namespace Smartstore.Web.Bundling
 {
     public class BundlingOptions
     {
+        internal bool Configured = false;
+
         public bool? EnableBundling { get; set; }
 
         public bool? EnableClientCache { get; set; }
@@ -15,8 +17,6 @@ namespace Smartstore.Web.Bundling
         public bool? EnableMinification { get; set; }
 
         public bool? EnableAutoPrefixer { get; set; }
-
-        public string CacheDirectory { get; set; }
 
         public IFileProvider FileProvider { get; set; }
 

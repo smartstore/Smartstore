@@ -9,7 +9,6 @@ namespace Smartstore.Web.Bundling.Processors
 {
     public class CssRewriteUrlProcessor : BundleProcessor
     {
-        internal const string Code = "urlrewrite";
         internal static readonly CssRewriteUrlProcessor Instance = new(true);
 
         private static readonly Regex _rgUrl = new(@"url\(['""]?(?<url>[^)]+?)['""]?\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -36,6 +35,8 @@ namespace Smartstore.Web.Bundling.Processors
             _inlineFiles = inlineFiles;
             _inlineMaxFileSize = inlineMaxFileSize;
         }
+
+        public override string Code => BundleProcessorCodes.UrlRewrite;
 
         public override Task ProcessAsync(BundleContext context)
         {

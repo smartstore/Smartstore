@@ -164,6 +164,49 @@ namespace Smartstore.Web.Bundling
         }
 
         /// <summary>
+        /// Removes a bundle processor by code from the processing pipeline.
+        /// </summary>
+        public Bundle RemoveProcessor(string processorCode)
+        {
+            if (processorCode.HasValue())
+            {
+                var processors = Processors.Where(x => x.Code == processorCode).ToArray();
+                processors.Each(x => Processors.Remove(x));
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Replaces the first processor with specified <paramref name="processorCode"/> with given <paramref name="replaceWith"/>.
+        /// </summary>
+        public Bundle ReplaceProcessor(string processorCode, IBundleProcessor replaceWith)
+        {
+            Guard.NotEmpty(processorCode, nameof(processorCode));
+            Guard.NotNull(replaceWith, nameof(replaceWith));
+
+            var processor = Processors.FirstOrDefault(x => x.Code == processorCode);
+
+            if (processor != null)
+            {
+                var index = Processors.IndexOf(processor);
+                Processors.Insert(index, replaceWith);
+                Processors.Remove(processor);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Clears bundle processor list.
+        /// </summary>
+        public Bundle ClearProcessors()
+        {
+            Processors.Clear();
+            return this;
+        }
+
+        /// <summary>
         /// Uses the given file provider for file access.
         /// </summary>
         public Bundle UseFileProvider(IFileProvider provider)

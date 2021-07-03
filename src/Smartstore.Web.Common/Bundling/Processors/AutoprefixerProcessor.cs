@@ -11,8 +11,9 @@ namespace Smartstore.Web.Bundling.Processors
 {
     public class AutoprefixerProcessor : BundleProcessor
     {
-        internal const string Code = "autoprefix";
         internal static readonly AutoprefixerProcessor Instance = new();
+
+        public override string Code => BundleProcessorCodes.Autoprefix;
 
         public override Task ProcessAsync(BundleContext context)
         {
@@ -43,9 +44,7 @@ namespace Smartstore.Web.Bundling.Processors
                 Supports = true,
                 Flexbox = FlexboxMode.None,
                 Grid = GridMode.None,
-                IgnoreUnknownVersions = false,
-                SourceMap = true,
-                InlineSourceMap = true
+                IgnoreUnknownVersions = false
             };
 
             try

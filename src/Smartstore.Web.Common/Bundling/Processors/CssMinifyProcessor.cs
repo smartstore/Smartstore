@@ -8,8 +8,6 @@ namespace Smartstore.Web.Bundling.Processors
 {
     public class CssMinifyProcessor : BundleProcessor
     {
-        internal const string Code = "min";
-
         internal static readonly string CssContentType = "text/css";
         internal static readonly CssMinifyProcessor Instance = new();
         private static readonly CssSettings Settings = new()
@@ -18,6 +16,8 @@ namespace Smartstore.Web.Bundling.Processors
             FixIE8Fonts = false,
             ColorNames = CssColor.Strict
         };
+
+        public override string Code => BundleProcessorCodes.Minify;
 
         public override Task ProcessAsync(BundleContext context)
         {
