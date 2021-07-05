@@ -83,7 +83,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         }
 
         /// <summary>
-        /// Makes sure this TagHelper runs before the built in ones.
+        /// Makes sure this TagHelper runs after UrlResolutionTagHelper but before WidgetTagHelper.
         /// </summary>
         public override int Order => 10;
 
@@ -101,8 +101,14 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
+            if (output.TagName == null)
+            {
+                // Something went wrong in a previous TagHelper. Get out.
+                return;
+            }
+
             var src = GetSourceValue(output);
-            if (src.IsEmpty())
+            if (src.IsEmpty() || src[0] == '~')
             {
                 return;
             }
