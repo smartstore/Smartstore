@@ -229,15 +229,10 @@ namespace Smartstore.Core.Catalog.Products
         private async Task ProcessPromotions(Product product, Product clone)
         {
             // Related products mappings.
-            // Join products to ignore deleted products.
-            var relatedProductsQuery =
-                from rp in _db.RelatedProducts.AsNoTracking()
-                join p in _db.Products.AsNoTracking() on rp.ProductId2 equals p.Id
-                where rp.ProductId1 == product.Id
-                orderby rp.DisplayOrder
-                select rp;
-
-            var relatedProducts = await relatedProductsQuery.ToListAsync();
+            var relatedProducts = await _db.RelatedProducts
+                .AsNoTracking()
+                .ApplyProductId1Filter(product.Id, true)
+                .ToListAsync();
 
             _db.RelatedProducts.AddRange(relatedProducts.Select(x => new RelatedProduct
             {
@@ -247,15 +242,10 @@ namespace Smartstore.Core.Catalog.Products
             }));
 
             // Cross-sell products mappings.
-            // Join products to ignore deleted products.
-            var crossSellProductsQuery =
-                from csp in _db.CrossSellProducts.AsNoTracking()
-                join p in _db.Products.AsNoTracking() on csp.ProductId2 equals p.Id
-                where csp.ProductId1 == product.Id
-                orderby csp.Id
-                select csp;
-
-            var crossSellProducts = await crossSellProductsQuery.ToListAsync();
+            var crossSellProducts = await _db.CrossSellProducts
+                .AsNoTracking()
+                .ApplyProductId1Filter(product.Id, true)
+                .ToListAsync();
 
             _db.CrossSellProducts.AddRange(crossSellProducts.Select(x => new CrossSellProduct
             {
