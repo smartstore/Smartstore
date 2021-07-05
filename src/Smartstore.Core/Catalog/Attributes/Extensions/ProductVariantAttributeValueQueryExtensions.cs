@@ -1,11 +1,17 @@
 ﻿using System.Linq;
-using Autofac.Features.ResolveAnything;
-using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
     public static partial class ProductVariantAttributeValueQueryExtensions
     {
+        private readonly static int[] _attributeListControlTypeIds = new[]
+        {
+            (int)AttributeControlType.DropdownList,
+            (int)AttributeControlType.RadioList,
+            (int)AttributeControlType.Checkboxes,
+            (int)AttributeControlType.Boxes
+        };
+
         /// <summary>
         /// Applies a filter for product variant attribute and sorts by <see cref="ProductVariantAttributeValue.DisplayOrder"/>.
         /// </summary>
@@ -24,6 +30,7 @@ namespace Smartstore.Core.Catalog.Attributes
             return query.OrderBy(x => x.DisplayOrder);
         }
 
+        // TODO: (mg) (core) remove this method again. It tempts to wrong usage.
         /// <summary>
         /// Applies a filter for product variant attribute values and sorts by <see cref="ProductVariantAttribute.DisplayOrder"/>, then by <see cref="ProductVariantAttributeValue.DisplayOrder"/>.
         /// </summary>
@@ -45,16 +52,26 @@ namespace Smartstore.Core.Catalog.Attributes
 
             if (listTypesOnly)
             {
-                var listTypes = new[]
-                {
-                    (int)AttributeControlType.DropdownList,
-                    (int)AttributeControlType.RadioList,
-                    (int)AttributeControlType.Checkboxes,
-                    (int)AttributeControlType.Boxes
-                };
-
-                query = query.Where(x => listTypes.Contains(x.ProductVariantAttribute.AttributeControlTypeId));
+                query = query.Where(x => _attributeListControlTypeIds.Contains(x.ProductVariantAttribute.AttributeControlTypeId));
             }
+
+            return query
+                .OrderBy(x => x.ProductVariantAttribute.DisplayOrder)
+                .ThenBy(x => x.DisplayOrder);
+        }
+
+        /// <summary>
+        /// Applies a filter for list control types and sorts by <see cref="ProductVariantAttribute.DisplayOrder"/>, 
+        /// then by <see cref="ProductVariantAttributeValue.DisplayOrder"/>.
+        /// Only product attributes of list types (e.g. dropdown list) can have assigned <see cref="ProductVariantAttributeValue"/> entities.
+        /// </summary>
+        /// <param name="query">Product variant attribute value query.</param>
+        /// <returns>Product variant attribute value query.</returns>
+        public static IOrderedQueryable<ProductVariantAttributeValue> ApplyListTypeFilter(this IQueryable<ProductVariantAttributeValue> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            query = query.Where(x => _attributeListControlTypeIds.Contains(x.ProductVariantAttribute.AttributeControlTypeId));
 
             return query
                 .OrderBy(x => x.ProductVariantAttribute.DisplayOrder)

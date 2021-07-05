@@ -928,296 +928,53 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var cs = Services.Resolve<ICurrencyService>();
-            var ocs = Services.Resolve<Core.Checkout.Orders.IOrderCalculationService>();
-            var scs = Services.Resolve<Core.Checkout.Cart.IShoppingCartService>();
-            var pcs = Services.Resolve<Core.Catalog.Pricing.IPriceCalculationService>();
-            var eps = Services.Resolve<Core.DataExchange.Export.IExportProfileService>();
-            var ips = Services.Resolve<Core.DataExchange.Import.IImportProfileService>();
-            var des = Services.Resolve<Core.DataExchange.DataExchangeSettings>();
-            var store = Services.StoreContext.CurrentStore;
-            var currency = Services.WorkContext.WorkingCurrency;
-            var customer = await _db.Customers.FindByIdAsync(2666330, false);
-            //var product = await _db.Products.FindByIdAsync(1751, false);
-            //var cart = await scs.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+            var customer = Services.WorkContext.CurrentCustomer;
+            var pam = Services.Resolve<IProductAttributeMaterializer>();
+            var scs = Services.Resolve<IShoppingCartService>();
+            var schs = Services.Resolve<IShippingService>();
+            var cart = await scs.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart);
+            var cartWeight = await schs.GetCartTotalWeightAsync(cart);
+            content.AppendLine("Cart weight: " + cartWeight.ToString());
 
-            var now = DateTime.UtcNow;
-            var dates = new[] { now.AddSeconds(60*60*4+66), now.AddSeconds(130) };
+            foreach (var item in cart)
+            {
+                var attributeValues = await pam.MaterializeProductVariantAttributeValuesAsync(item.Item.AttributeSelection);
+                var attributesInfo = string.Join(", ", attributeValues.Select(x => x.ProductVariantAttribute.ProductAttribute.Name + ":" + x.Name));
 
-            content.AppendLine($"now {now}");
-            foreach (var date in dates)
-            {               
-                content.AppendLine($"Humanize: {date} > {date.Humanize(true, now)}");
+                foreach (var kvp in item.Item.AttributeSelection.AttributesMap)
+                {
+                    content.AppendLine($"{kvp.Key}: " + string.Join(",", kvp.Value.Select(x => x.ToString())));
+                }
+
+                foreach (var child in item.ChildItems)
+                {
+                    var childAttributeValues = await pam.MaterializeProductVariantAttributeValuesAsync(child.Item.AttributeSelection);
+                    var childAttributesInfo = string.Join(", ", childAttributeValues.Select(x => x.ProductVariantAttribute.ProductAttribute.Name + ":" + x.Name));
+
+                    content.AppendLine(child.Item.Product.Name.PadRight(50) + ": " + childAttributesInfo);
+                }
             }
 
-            //var dt = DateTime.UtcNow.Subtract(TimeSpan.FromHours(4));
-            //var dtConverted = Services.DateTimeHelper.ConvertToUserTime(dt, DateTimeKind.Utc);
-            //content.AppendLine($"Humanize: {dtConverted} > {dtConverted.Humanize(false)}");
+            var selection = new ProductVariantAttributeSelection(string.Empty);
+            foreach (var item in cart)
+            {
+                foreach (var attribute in item.Item.AttributeSelection.AttributesMap)
+                {
+                    if (!attribute.Value.IsNullOrEmpty())
+                    {
+                        selection.AddAttribute(attribute.Key, attribute.Value);
+                    }
+                }
+            }
 
-            //var imProfile = await _db.ImportProfiles.FindByIdAsync(4, false);
-            //var imDir = await ips.GetImportDirectoryAsync(imProfile, "Content", true);
-            //content.AppendLine($"{imDir.Exists}: {imDir.Name}, {imDir.SubPath}, {imDir.PhysicalPath}");
-
-            //var imFiles = await ips.GetImportFilesAsync(imProfile);
-            //foreach (var imFile in imFiles)
-            //{
-            //    content.AppendLine($"{imFile.File.Name} {imFile.RelatedType?.ToString()?.NaIfEmpty()}");
-            //}
-
-            //var tenantRoot = Services.ApplicationContext.TenantRoot;
-            //var downloadPath = tenantRoot.PathCombine(imDir.SubPath, "DownloadedImages");
-            //await tenantRoot.TryCreateDirectoryAsync(downloadPath);
-            //var imageDownloadDirectory = await tenantRoot.GetDirectoryAsync(downloadPath);
-
-            //var imageDirectory = des.ImageImportFolder.HasValue()
-            //    ? await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(imDir.Parent.SubPath, des.ImageImportFolder))
-            //    : imDir.Parent;
-
-            //var imageDownloadDirectory = await ips.GetImportDirectoryAsync(imProfile, @"Content\DownloadedImages", true);
-            //var imageDirectory = des.ImageImportFolder.HasValue()
-            //    ? await ips.GetImportDirectoryAsync(imProfile, des.ImageImportFolder, false)
-            //    : imDir.Parent;
-
-            //content.AppendLine($"imageDownloadDirectory {imageDownloadDirectory.Exists}: {imageDownloadDirectory.Name}, {imageDownloadDirectory.SubPath}, {imageDownloadDirectory.PhysicalPath}");
-            //content.AppendLine($"imageDirectory {imageDirectory.Exists}: {imageDirectory.Name}, {imageDirectory.SubPath}, {imageDirectory.PhysicalPath}");
-
-            //var url = "https://smartstore.com/media/2286/pagebuilder/2286.png";
-            //var localPath = new Uri(url).LocalPath;
-            //var fileName1 = Path.GetFileName(localPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
-            //var pathTest1 = imageDownloadDirectory.FileSystem.PathCombine(imageDownloadDirectory.PhysicalPath, fileName1).Replace('/', '\\');
-
-            //var urlOrPath = "Content/DownloadedImages/my-image.jpg";
-            //var fileName2 = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
-            //var pathTest2 = imageDirectory.FileSystem.PathCombine(imageDirectory.PhysicalPath, urlOrPath).Replace('/', '\\');
-            //content.AppendLine($"path test1: {fileName1} {pathTest1}");
-            //content.AppendLine($"path test2: {fileName2} {pathTest2}");
-
-            //content.AppendLine("--------------------------------------------------------------");
-            //content.AppendLine("");
-            //var profile = await _db.ExportProfiles.FindByIdAsync(9, false);
-            //var dir = await eps.GetExportDirectoryAsync(profile, "Content", true);
-            ////var dir = await eps.GetExportDirectoryAsync(profile, null, true);
-            //content.AppendLine($"{dir.Exists}: {dir.Name}, {dir.SubPath}, {dir.PhysicalPath}");
-
-            //var root = Services.ApplicationContext.TenantRoot;
-            //var dirName = new Regex(".*/ExportProfiles/?", RegexOptions.IgnoreCase | RegexOptions.Singleline).Replace(profile.FolderName, string.Empty);
-            //var newName = root.CreateUniqueDirectoryName("ExportProfiles", dirName);
-            //content.AppendLine($"{dirName} -> {newName}");
-
-            //if (dir.Exists)
-            //{
-            //    dir.FileSystem.ClearDirectory(dir, true, TimeSpan.Zero);
-            //}
-
-            //var zipName = dir.Parent.Name.ToValidFileName() + ".zip";
-            //var zipPath = dir.FileSystem.PathCombine(dir.Parent.SubPath, zipName);
-            //var zipFile = await dir.FileSystem.GetFileAsync(zipPath);
-            //content.AppendLine($"zipFile1: {zipFile.Exists} {zipFile.Name}: {zipFile.PhysicalPath}");
-            //var zipFile2 = await dir.Parent.GetFileAsync(zipName);
-            //content.AppendLine($"zipFile2: {zipFile2.Exists} {zipFile2.Name}: {zipFile2.PhysicalPath}");
-            //content.AppendLine("--------------------------------------------------------------");
-            //content.AppendLine("");
-
-
-            //var contentRoot = Services.ApplicationContext.ContentRoot;
-            //var webRoot = Services.ApplicationContext.WebRoot;
-
-            //////var fullPath = @"C:\Downloads\Subfolder";
-            ////var fullPath = @"~\App_Data\_temp\subfolder";
-            //var subfolder = "SubFolder";
-            //var webRootDir = await webRoot.GetDirectoryAsync(null);
-            //var publicPath1 = webRoot.PathCombine(Core.DataExchange.Export.DataExporter.PublicDirectoryName, subfolder);
-            //subfolder = null;
-            //var publicPath2 = webRoot.PathCombine(Core.DataExchange.Export.DataExporter.PublicDirectoryName, subfolder);
-            //var publicDir1 = await webRoot.GetDirectoryAsync(publicPath1);
-            //var publicDir2 = await webRoot.GetDirectoryAsync(publicPath2);
-            //content.AppendLine(publicDir1.PhysicalPath);
-            //content.AppendLine(publicDir2.PhysicalPath);
-
-            //content.AppendLine("--------------------------------------------------------------");
-            //content.AppendLine("");
-
-
-            //var imageUrls = new[]
-            //{
-            //    @"https://smartstore.com/media/3815/pagebuilder/page-builder.gif",
-            //    @"https://smartstore.com/media/4820/content/Supermarket_Rabatte_1439x1080.jpg",
-            //    @"https://smartstore.com/media/4597/showcase/STIHL%20Preview.png",
-            //    @"https://smartstore.com/media/4593/showcase/Carlobolaget%20Preview.png",
-            //    @"https://smartstore.com/media/3663/showcase/3663.jpg",
-            //    @"https://smartstore.com/media/1628/showcase/1628.jpg",
-            //};
-
-            //var dm = new DownloadManager();
-            //foreach (var imageUrl in imageUrls)
-            //{
-            //    var fileName = WebHelper.GetFileNameFromUrl(imageUrl);
-            //    var item = new DownloadManagerItem
-            //    {
-            //        Url = imageUrl,
-            //        FileName = fileName,
-            //        Path = @"C:\Downloads\DownloadManager\" + fileName
-            //    };
-
-            //    await dm.DownloadFileAsync(item);
-
-            //    var success = item.Success && System.IO.File.Exists(item.Path);
-            //    content.AppendLine($"{success} {item.StatusCode}: {item.FileName}... {item.Path}");
-            //}
-
-            //var downloadItems = imageUrls.Select(x =>
-            //{
-            //    var fileName = DownloadManager.GetFileNameFromUrl(x);
-            //    return new DownloadManagerItem 
-            //    { 
-            //        Url = x,
-            //        FileName = fileName,
-            //        Path = @"C:\Downloads\DownloadManager\" + fileName
-            //    };
-            //})
-            //.ToList();
-            //var dm = new DownloadManager();
-            //await dm.DownloadFilesAsync(downloadItems);
-            //foreach (var item in downloadItems)
-            //{
-            //    var success = item.Success && System.IO.File.Exists(item.Path);
-            //    content.AppendLine($"{success} {item.StatusCode}: {item.FileName}... {item.Path}");
-            //}
-            //dm.Dispose();
-
+            content.AppendLine("-----------------------");
+            foreach (var kvp in selection.AttributesMap)
+            {
+                content.AppendLine($"{kvp.Key}: " + string.Join(",", kvp.Value.Select(x => x.ToString())));
+            }
 
             return Content(content.ToString());
             //return View();
-
-            //async Task CreateQueuedEmail()
-            //{
-            //    var uh = Services.Resolve<IUrlHelper>();
-            //    var pm = Services.Resolve<Engine.Modularity.IProviderManager>();
-            //    var dmsp = (DatabaseMediaStorageProvider)pm.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName).Value;
-
-            //    var pdfUrl = "https://s23.q4cdn.com/202968100/files/doc_downloads/test.pdf";
-            //    var attachment = new QueuedEmailAttachment
-            //    {
-            //        StorageLocation = EmailAttachmentStorageLocation.Blob
-            //    };
-
-            //    var errorMessage = await DownloadManager.DownloadFileAsync<string>(async dr =>
-            //    {
-            //        attachment.MimeType = dr.ContentType;
-            //        attachment.Name = dr.FileName;
-            //        attachment.MediaStorage = new MediaStorage
-            //        {
-            //            Data = await dr.Stream.ToByteArrayAsync()
-            //        };
-
-            //        //var storageItem = MediaStorageItem.FromStream(dr.Stream);
-            //        //await dmsp.ApplyBlobAsync(attachment, storageItem, true);
-
-            //        return null;
-            //    },
-            //    pdfUrl, uh.ActionContext.HttpContext.Request, 5000, false/*true*/);
-
-            //    if (errorMessage.IsEmpty())
-            //    {
-            //        var queuedEmail = new QueuedEmail
-            //        {
-            //            From = "from-me@web.de",
-            //            SendManually = true,
-            //            To = "to-other@web.de",
-            //            Subject = "Test mail",
-            //            Body = "Phosfluorescently evolve standardized manufactured products after sustainable products.",
-            //            CreatedOnUtc = DateTime.UtcNow,
-            //            EmailAccountId = 1
-            //        };
-
-            //        queuedEmail.Attachments.Add(attachment);
-
-            //        Services.DbContext.QueuedEmails.Add(queuedEmail);
-            //        await Services.DbContext.SaveChangesAsync();
-            //    }
-            //}
-
-            bool CopyDirectory2(DirectoryInfo source, DirectoryInfo target, bool overwrite = true)
-            {
-                if (target.FullName.EnsureEndsWith("\\").StartsWith(source.FullName.EnsureEndsWith("\\"), StringComparison.CurrentCultureIgnoreCase))
-                {
-                    // Cannot copy a folder into itself.
-                    return false;
-                }
-
-                var result = true;
-                foreach (FileInfo fi in source.GetFiles())
-                {
-                    try
-                    {
-                        fi.CopyTo(Path.Combine(target.ToString(), fi.Name), overwrite);
-                    }
-                    catch (Exception ex)
-                    {
-                        result = false;
-                        ex.Dump();
-                    }
-                }
-
-                foreach (DirectoryInfo sourceSubDir in source.GetDirectories())
-                {
-                    try
-                    {
-                        DirectoryInfo targetSubDir = target.CreateSubdirectory(sourceSubDir.Name);
-                        CopyDirectory2(sourceSubDir, targetSubDir, overwrite);
-                    }
-                    catch (Exception ex)
-                    {
-                        result = false;
-                        ex.Dump();
-                    }
-                }
-
-                return result;
-            }
-
-            async Task CopyDirectory(IO.IDirectory directory, IO.IDirectory rootDir)
-            {
-                var files = await directory.FileSystem.EnumerateFilesAsync(directory.SubPath).ToListAsync();
-                foreach (var file in files)
-                {
-                    var relativePathOld = GetRelativePathOld(file.PhysicalPath, rootDir.PhysicalPath);
-                    var relativePathNew = GetRelativePathNew(file, rootDir);
-                    var note = relativePathOld != relativePathNew ? " !!" : "";
-
-                    content.AppendLine($"file: {relativePathOld}... {relativePathNew}{note}");
-                }
-
-                var subdirs = await directory.FileSystem.EnumerateDirectoriesAsync(directory.SubPath).ToListAsync();
-                foreach (var subdir in subdirs)
-                {
-                    var relativePathOld = GetRelativePathOld(subdir.PhysicalPath, rootDir.PhysicalPath);
-                    var relativePathNew = GetRelativePathNew(subdir, rootDir);
-                    var note = relativePathOld != relativePathNew ? "!!" : "";
-
-                    content.AppendLine($"dir : {relativePathOld}... {relativePathNew}{note}");
-
-                    await CopyDirectory(subdir, rootDir);
-                }
-            }
-
-            string GetRelativePathOld(string path, string contentPhysicalPath)
-            {
-                var sourcePathLength = contentPhysicalPath.Length;
-                var relativePath = path[sourcePathLength..].Replace("\\", "/");
-
-                if (relativePath.StartsWith("/"))
-                {
-                    return relativePath[1..];
-                }
-
-                return relativePath;
-            }
-
-            string GetRelativePathNew(IFileEntry entry, IDirectory root)
-            {
-                return entry.SubPath[root.SubPath.Length..].TrimStart('/', '\\').Replace('\\', '/');
-            }
         }
     }
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
@@ -55,7 +54,7 @@ namespace Smartstore.Core.Catalog.Attributes.Rules
                         .Where(x => x.ProductVariantAttribute.ProductAttributeId == (int)objParentId &&
                             x.ProductVariantAttribute.ProductAttribute.AllowFiltering &&
                             x.ValueTypeId == (int)ProductVariantAttributeValueType.Simple)
-                        .ApplyValueFilter(null, true);
+                        .ApplyListTypeFilter();
 
                     while (true)
                     {

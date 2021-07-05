@@ -1086,7 +1086,7 @@ namespace Smartstore.Web.Controllers
                 {
                     if (getShippingOptionResponse.ShippingOptions.Any())
                     {
-                        var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId: storeId);
+                        var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId);
                         var shippingTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
 
                         foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)

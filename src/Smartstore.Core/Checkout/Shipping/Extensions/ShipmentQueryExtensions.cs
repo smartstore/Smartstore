@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Linq;
-using Smartstore.Core.Checkout.Shipping;
 
-namespace Smartstore
+namespace Smartstore.Core.Checkout.Shipping
 {
     /// <summary>
     /// Shipment query extensions
     /// </summary>
-    public static class ShipmentQueryExtensions
+    public static partial class ShipmentQueryExtensions
     {
         /// <summary>
         /// Applies date time filter to shipment query ordered by <see cref="Shipment.CreatedOnUtc"/>

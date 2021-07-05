@@ -72,7 +72,6 @@
                 selectedIds = grid.selectedRowKeys.join(',');
             }
             
-			// TODO: (mg) (core) Remove the "SelectedIds" hidden field, rely fully on datagrid component.
 			form.find('[name=SelectedIds]').val(selectedIds);
 			form.submit();
 			return false;

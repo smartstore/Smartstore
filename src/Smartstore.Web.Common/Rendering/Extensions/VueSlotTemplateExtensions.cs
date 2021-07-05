@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Localization;
 
@@ -11,7 +10,7 @@ namespace Smartstore.Web.Rendering
         // TODO: (mg) (core) Port other helpers: LabeledCurrencyName
 
         /// <summary>
-        /// Renderes labeled product for grids including link to edit view. Not intended to be used outside of grids (use BadgedProductName there).
+        /// Renderes labeled product for grids including link to the edit page. Not intended to be used outside of grids (use BadgedProductName there).
         /// </summary>
         public static IHtmlContent LabeledProductName(
             this IHtmlHelper _,
@@ -47,6 +46,14 @@ namespace Smartstore.Web.Rendering
             return builder;
         }
 
+        /// <summary>
+        /// Renders a labeled order number for grids including a link to the edit page. Not intended to be used outside of grids.
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="hasNewPaymentNotificationExpression">Row expression of HasNewPaymentNotification property.</param>
+        /// <param name="urlExpression">Row expression of the edit page URL.</param>
+        /// <param name="linkTarget">Value of the HTML target attribute.</param>
+        /// <returns>Labeled order number.</returns>
         public static IHtmlContent LabeledOrderNumber(
             this IHtmlHelper helper,
             string hasNewPaymentNotificationExpression = "item.row.HasNewPaymentNotification",

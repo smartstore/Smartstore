@@ -3,7 +3,7 @@ using Smartstore.Core.Messaging;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
-    public static class ShipmentMessageFactoryExtensions
+    public static partial class ShipmentMessageFactoryExtensions
     {
         /// <summary>
         /// Sends a shipment sent notification to the customer.

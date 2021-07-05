@@ -18,12 +18,12 @@ namespace Smartstore.Core.Catalog.Attributes
     public partial class ProductAttributeMaterializer : IProductAttributeMaterializer
     {
         // 0 = Attribute IDs
-        private const string ATTRIBUTES_BY_IDS_KEY = "materialized-attributes-{0}";
-        private const string ATTRIBUTES_PATTERN_KEY = "materialized-attributes-*";
+        private const string ATTRIBUTES_BY_IDS_KEY = "materialized-attributes:{0}";
+        private const string ATTRIBUTES_PATTERN_KEY = "materialized-attributes:*";
 
-        // 0 = Attribute value IDs
-        private const string ATTRIBUTEVALUES_BY_IDS_KEY = "materialized-attributevalues-{0}";
-        private const string ATTRIBUTEVALUES_PATTERN_KEY = "materialized-attributevalues-*";
+        // 0 = Attribute JSON
+        private const string ATTRIBUTEVALUES_BY_JSON_KEY = "materialized-attributevalues:byjson-{0}";
+        private const string ATTRIBUTEVALUES_PATTERN_KEY = "materialized-attributevalues:*";
 
         // 0 = ProductId, 1 = Attribute JSON
         private const string ATTRIBUTECOMBINATION_BY_IDJSON_KEY = "attributecombination:byjson-{0}-{1}";
@@ -68,15 +68,13 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             Guard.NotNull(selection, nameof(selection));
 
-            var ids = selection.AttributesMap
-                .Select(x => x.Key)
-                .ToArray();
+            var ids = selection.AttributesMap.Select(x => x.Key).ToArray();
             if (!ids.Any())
             {
                 return new List<ProductVariantAttribute>();
             }
 
-            var cacheKey = ATTRIBUTES_BY_IDS_KEY + string.Join(",", ids);
+            var cacheKey = ATTRIBUTES_BY_IDS_KEY.FormatInvariant(string.Join(",", ids));
 
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
@@ -96,55 +94,97 @@ namespace Smartstore.Core.Catalog.Attributes
             return result;
         }
 
+        //public virtual async Task<IList<ProductVariantAttributeValue>> MaterializeProductVariantAttributeValuesAsync_Old(ProductVariantAttributeSelection selection)
+        //{
+        //    Guard.NotNull(selection, nameof(selection));
+
+        //    var ids = selection.GetAttributeValueIds();
+        //    if (!ids.Any())
+        //    {
+        //        return new List<ProductVariantAttributeValue>();
+        //    }
+
+        //    var cacheKey = ATTRIBUTEVALUES_BY_IDS_KEY + string.Join(",", ids);
+
+        //    var result = await _requestCache.GetAsync(cacheKey, async () =>
+        //    {
+        //        // Only consider values of list control types. Otherwise for instance text entered in a text-box is misinterpreted as an attribute value id.
+        //        var query = _db.ProductVariantAttributeValues
+        //            .Include(x => x.ProductVariantAttribute)
+        //            .ThenInclude(x => x.ProductAttribute)
+        //            .AsNoTracking()
+        //            .ApplyValueFilter(ids);
+
+        //        return await query.ToListAsync();
+        //    });
+
+        //    // That's what the old ported code did:
+        //    //if (selection?.AttributesMap?.Any() ?? false)
+        //    //{
+        //    //    var pvaIds = selection.AttributesMap.Select(x => x.Key).ToArray();
+        //    //    if (pvaIds.Any())
+        //    //    {
+        //    //        var attributes = await _db.ProductVariantAttributes
+        //    //            .AsNoTracking()
+        //    //            .AsCaching(ProductAttributesCacheDuration)
+        //    //            .Where(x => pvaIds.Contains(x.Id))
+        //    //            .OrderBy(x => x.DisplayOrder)
+        //    //            .ToListAsync();
+
+        //    //        var valueIds = GetAttributeValueIds(attributes, selection).ToArray();
+
+        //    //        var values = await _db.ProductVariantAttributeValues
+        //    //            .AsNoTracking()
+        //    //            .AsCaching(ProductAttributesCacheDuration)
+        //    //            .ApplyValueFilter(valueIds)
+        //    //            .ToListAsync();
+
+        //    //        return values;
+        //    //    }
+        //    //}
+
+        //    return result;
+        //}
+
         // TODO: (mg) (core) Check DynamicEntityHelper return value handling of MaterializeProductVariantAttributeValuesAsync (now returns IList instead of ICollection).
         public virtual async Task<IList<ProductVariantAttributeValue>> MaterializeProductVariantAttributeValuesAsync(ProductVariantAttributeSelection selection)
         {
             Guard.NotNull(selection, nameof(selection));
 
-            var ids = selection.GetAttributeValueIds();
-            if (!ids.Any())
+            var attributeIds = selection.AttributesMap.Select(x => x.Key).ToArray();
+            if (!attributeIds.Any())
             {
                 return new List<ProductVariantAttributeValue>();
             }
 
-            var cacheKey = ATTRIBUTEVALUES_BY_IDS_KEY + string.Join(",", ids);
+            // AttributesMap can also contain numeric values of text fields that are not ProductVariantAttributeValue IDs!
+            // That is why it is important to also filter by list types because only list types (e.g. dropdown list)
+            // can have assigned ProductVariantAttributeValue entities.
+            var numericValues = selection.AttributesMap
+                .SelectMany(x => x.Value)
+                .Select(x => x.ToString())
+                .Where(x => x.HasValue())
+                .Select(x => x.ToInt())
+                .Where(x => x != 0)
+                .ToArray();
+            if (!numericValues.Any())
+            {
+                return new List<ProductVariantAttributeValue>();
+            }
 
+            var cacheKey = ATTRIBUTEVALUES_BY_JSON_KEY.FormatInvariant(selection.AsJson());
+            
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
-                // Only consider values of list control types. Otherwise for instance text entered in a text-box is misinterpreted as an attribute value id.
                 var query = _db.ProductVariantAttributeValues
                     .Include(x => x.ProductVariantAttribute)
                     .ThenInclude(x => x.ProductAttribute)
                     .AsNoTracking()
-                    .ApplyValueFilter(ids);
+                    .Where(x => attributeIds.Contains(x.ProductVariantAttributeId) && numericValues.Contains(x.Id))
+                    .ApplyListTypeFilter();
 
                 return await query.ToListAsync();
             });
-
-            // That's what the old ported code did:
-            //if (selection?.AttributesMap?.Any() ?? false)
-            //{
-            //    var pvaIds = selection.AttributesMap.Select(x => x.Key).ToArray();
-            //    if (pvaIds.Any())
-            //    {
-            //        var attributes = await _db.ProductVariantAttributes
-            //            .AsNoTracking()
-            //            .AsCaching(ProductAttributesCacheDuration)
-            //            .Where(x => pvaIds.Contains(x.Id))
-            //            .OrderBy(x => x.DisplayOrder)
-            //            .ToListAsync();
-
-            //        var valueIds = GetAttributeValueIds(attributes, selection).ToArray();
-
-            //        var values = await _db.ProductVariantAttributeValues
-            //            .AsNoTracking()
-            //            .AsCaching(ProductAttributesCacheDuration)
-            //            .ApplyValueFilter(valueIds)
-            //            .ToListAsync();
-
-            //        return values;
-            //    }
-            //}
 
             return result;
         }

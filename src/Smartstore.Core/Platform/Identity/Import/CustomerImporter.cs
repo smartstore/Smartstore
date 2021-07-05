@@ -390,7 +390,7 @@ namespace Smartstore.Core.DataExchange.Import
                 if (_customerSettings.FaxEnabled)
                     SetGenericAttribute<string>(SystemCustomerAttributeNames.Fax, row);
 
-                // TODO: (mg) (core) ForumSettings required in CustomerImporter.
+                // TODO: (mg) (core) complete CustomerImporter (ForumSettings required).
                 //if (_forumSettings.ForumsEnabled)
                 //    SetGenericAttribute<int>(SystemCustomerAttributeNames.ForumPostCount, row);
 

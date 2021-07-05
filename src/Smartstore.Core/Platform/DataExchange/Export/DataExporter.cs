@@ -1455,7 +1455,6 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (ctx.IsFileBasedExport && ctx.ZipFile.Exists)
             {
-                // TODO: (mg) (core) Verify download URL for export file (see below too).
                 var downloadUrl = _urlHelper.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, ctx.ZipFile.Name }, protocol);
                 body.AppendFormat("<p><a href='{0}' download>{1}</a></p>", downloadUrl, ctx.ZipFile.Name);
             }
@@ -1465,7 +1464,7 @@ namespace Smartstore.Core.DataExchange.Export
                 body.Append("<p>");
                 foreach (var file in ctx.Result.Files)
                 {
-                    var downloadUrl = _urlHelper.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, file.FileName }, protocol);
+                    var downloadUrl = _urlHelper.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, name = file.FileName }, protocol);
                     body.AppendFormat("<div><a href='{0}' download>{1}</a></div>", downloadUrl, file.FileName);
                 }
                 body.Append("</p>");

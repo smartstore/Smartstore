@@ -1,12 +1,11 @@
 ﻿using System.Linq;
-using Smartstore.Core.Checkout.Shipping;
 
-namespace Smartstore
+namespace Smartstore.Core.Checkout.Shipping
 {
     /// <summary>
     /// Get shipping option request extensions
     /// </summary>
-    public static class ShippingOptionRequestExtensions
+    public static partial class ShippingOptionRequestExtensions
     {
         /// <summary>
         /// Gets total width of <see cref="ShippingOptionRequest.Items"/>
