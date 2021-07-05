@@ -145,8 +145,7 @@ namespace Smartstore.Web.Controllers
 
             var selectedAttributes = new CheckoutAttributeSelection(string.Empty);
             var customer = cart.GetCustomer() ?? Services.WorkContext.CurrentCustomer;
-
-            var checkoutAttributes = await _checkoutAttributeMaterializer.GetValidCheckoutAttributesAsync(cart);
+            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(cart, Services.StoreContext.CurrentStore.Id);
 
             foreach (var attribute in checkoutAttributes)
             {

@@ -212,28 +212,6 @@ namespace Smartstore.Domain
             => _map.ContainsKey(attributeId) ? _map[attributeId] : null;
 
         /// <summary>
-        /// Gets attribute value identifiers.
-        /// </summary>
-        /// <param name="attributeId">Attribute identifier. <c>null</c> to get all value identifiers.</param>
-        /// <returns>Attribute value identifiers.</returns>
-        public int[] GetAttributeValueIds(int? attributeId = null)
-        {
-            var values = attributeId.HasValue
-                ? (_map.ContainsKey(attributeId.Value) ? _map[attributeId.Value] : Enumerable.Empty<object>())
-                : _map.SelectMany(x => x.Value);
-
-            var valueIds = values
-                .Select(x => x.ToString())
-                .Where(x => x.HasValue())   // Important, avoid exception when string is empty.
-                .Select(x => x.ToInt())
-                .Where(x => x != 0)
-                .Distinct()
-                .ToArray();
-
-            return valueIds;
-        }
-
-        /// <summary>
         /// Adds an attribute with possible multiple values to <see cref="AttributesMap"/>.
         /// </summary>
         /// <remarks>

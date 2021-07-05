@@ -1,18 +1,17 @@
 ﻿using System.Linq;
-using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Stores;
 
-namespace Smartstore
+namespace Smartstore.Core.Checkout.Attributes
 {
     /// <summary>
-    /// Checkout attribute query extensions
+    /// Checkout attribute query extensions.
     /// </summary>
-    public static class CheckoutAttributeQueryExtensions
+    public static partial class CheckoutAttributeQueryExtensions
     {
         /// <summary>
         /// Standard filter for checkout attributes.
         /// Applies store filter, may include hidden (<see cref="CheckoutAttribute.IsActive"/>) attributes 
-        /// and orders query by <see cref="CheckoutAttribute.DisplayOrder"/>.
+        /// and sorts by <see cref="CheckoutAttribute.DisplayOrder"/>.
         /// </summary>
         public static IOrderedQueryable<CheckoutAttribute> ApplyStandardFilter(
             this IQueryable<CheckoutAttribute> query, 

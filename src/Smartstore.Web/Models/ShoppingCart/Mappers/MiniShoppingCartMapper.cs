@@ -90,6 +90,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             Guard.NotNull(to, nameof(to));
 
             var customer = _services.WorkContext.CurrentCustomer;
+            var store = _services.StoreContext.CurrentStore;
 
             to.ShowProductImages = _shoppingCartSettings.ShowProductImagesInMiniShoppingCart;
             to.ThumbSize = _mediaSettings.MiniCartThumbPictureSize;
@@ -118,7 +119,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             //1. There is at least one checkout attribute that is reqired
             //2. Min order sub total is OK
 
-            var checkoutAttributes = await _checkoutAttributeMaterializer.GetValidCheckoutAttributesAsync(from);
+            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
             to.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired);
 
             // Products sort descending (recently added products)

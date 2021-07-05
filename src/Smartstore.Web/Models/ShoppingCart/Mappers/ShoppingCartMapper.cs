@@ -209,7 +209,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             #region Checkout attributes
 
-            var checkoutAttributes = await _checkoutAttributeMaterializer.GetValidCheckoutAttributesAsync(from);
+            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
 
             foreach (var attribute in checkoutAttributes)
             {

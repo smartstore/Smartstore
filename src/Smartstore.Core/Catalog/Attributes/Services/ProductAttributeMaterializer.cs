@@ -61,6 +61,14 @@ namespace Smartstore.Core.Catalog.Attributes
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        internal readonly static int[] AttributeListControlTypeIds = new[]
+        {
+            (int)AttributeControlType.DropdownList,
+            (int)AttributeControlType.RadioList,
+            (int)AttributeControlType.Checkboxes,
+            (int)AttributeControlType.Boxes
+        };
+
         // TODO: (mg) (core) Check whether IProductAttributeMaterializer.PrefetchProductVariantAttributes is still required.
         // Looks like it can be done by MaterializeProductVariantAttributeValuesAsync.
 
@@ -151,31 +159,33 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             Guard.NotNull(selection, nameof(selection));
 
-            var attributeIds = selection.AttributesMap.Select(x => x.Key).ToArray();
-            if (!attributeIds.Any())
-            {
-                return new List<ProductVariantAttributeValue>();
-            }
-
-            // AttributesMap can also contain numeric values of text fields that are not ProductVariantAttributeValue IDs!
-            // That is why it is important to also filter by list types because only list types (e.g. dropdown list)
-            // can have assigned ProductVariantAttributeValue entities.
-            var numericValues = selection.AttributesMap
-                .SelectMany(x => x.Value)
-                .Select(x => x.ToString())
-                .Where(x => x.HasValue())
-                .Select(x => x.ToInt())
-                .Where(x => x != 0)
-                .ToArray();
-            if (!numericValues.Any())
-            {
-                return new List<ProductVariantAttributeValue>();
-            }
-
             var cacheKey = ATTRIBUTEVALUES_BY_JSON_KEY.FormatInvariant(selection.AsJson());
             
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
+                var attributeIds = selection.AttributesMap.Select(x => x.Key).ToArray();
+                if (!attributeIds.Any())
+                {
+                    return new List<ProductVariantAttributeValue>();
+                }
+
+                // AttributesMap can also contain numeric values of text fields that are not ProductVariantAttributeValue IDs!
+                // That is why it is important to also filter by list types because only list types (e.g. dropdown list)
+                // can have assigned ProductVariantAttributeValue entities.
+                var numericValues = selection.AttributesMap
+                    .SelectMany(x => x.Value)
+                    .Select(x => x.ToString())
+                    .Where(x => x.HasValue())
+                    .Select(x => x.ToInt())
+                    .Where(x => x != 0)
+                    .Distinct()
+                    .ToArray();
+
+                if (!numericValues.Any())
+                {
+                    return new List<ProductVariantAttributeValue>();
+                }
+
                 var query = _db.ProductVariantAttributeValues
                     .Include(x => x.ProductVariantAttribute)
                     .ThenInclude(x => x.ProductAttribute)
