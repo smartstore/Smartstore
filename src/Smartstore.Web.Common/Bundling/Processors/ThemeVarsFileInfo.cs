@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.IO;
 using Smartstore.Utilities;
@@ -43,28 +44,28 @@ namespace Smartstore.Web.Bundling.Processors
 
         public Stream CreateReadStream()
         {
-            return GenerateStreamFromString(GetContent());
+            return GenerateStreamFromString(GetContentAsync().Await());
         }
 
-        public int GetFileHash()
+        public async Task<int> GetFileHashAsync()
         {
             if (_contentHash == null)
             {
-                var css = GetContent();
+                var css = await GetContentAsync();
                 _contentHash = (int)XxHashUnsafe.ComputeHash(css);
             }
 
             return _contentHash.Value;
         }
 
-        private string GetContent()
+        private async Task<string> GetContentAsync()
         {
             if (_content == null)
             {
                 var css = string.Empty;
                 if (_theme.HasValue())
                 {
-                    css = _repo.GetPreprocessorCssAsync(_theme, _storeId).Await();
+                    css = await _repo.GetPreprocessorCssAsync(_theme, _storeId);
                 }
 
                 _content = css;

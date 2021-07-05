@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Smartstore.IO
 {
@@ -7,6 +8,6 @@ namespace Smartstore.IO
     /// </summary>
     public interface IFileHashProvider
     {
-        int GetFileHash();
+        Task<int> GetFileHashAsync();
     }
 }

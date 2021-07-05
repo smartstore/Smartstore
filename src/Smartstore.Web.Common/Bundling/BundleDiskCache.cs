@@ -56,8 +56,9 @@ namespace Smartstore.Web.Bundling
                 {
                     var deps = await ReadFile(dir, "bundle.dependencies");
                     var hash = await ReadFile(dir, "bundle.hash");
+                    var pcodes = (await ParseFileContent(await ReadFile(dir, "bundle.pcodes"))).ToArray();
 
-                    var (valid, parsedDeps, currentHash) = await TryValidate(bundle, deps, hash);
+                    var (valid, parsedDeps, currentHash) = await TryValidate(bundle, deps, hash, pcodes);
 
                     if (!valid)
                     {
@@ -76,15 +77,13 @@ namespace Smartstore.Web.Bundling
                         }
                     }
 
-                    var pcodes = await ParseFileContent(await ReadFile(dir, "bundle.pcodes"));
-
                     var response = new BundleResponse
                     {
                         Route = bundle.Route,
                         CreationDate = dir.LastModified,
                         Content = content,
                         ContentType = bundle.ContentType,
-                        ProcessorCodes = pcodes.ToArray(),
+                        ProcessorCodes = pcodes,
                         IncludedFiles = parsedDeps
                     };
 
@@ -128,7 +127,7 @@ namespace Smartstore.Web.Bundling
                     await CreateFileFromEntries(dir, "bundle.dependencies", deps);
 
                     // Save hash file
-                    var currentHash = GetFileHash(bundle, deps);
+                    var currentHash = await GetFileHash(bundle, deps);
                     await CreateFileFromEntries(dir, "bundle.hash", new[] { currentHash });
 
                     // Save codes file
@@ -165,7 +164,7 @@ namespace Smartstore.Web.Bundling
         /// <summary>
         /// Checks whether bundle is up-to-date.
         /// </summary>
-        public async Task<(bool valid, IEnumerable<string> parsedDeps, string currentHash)> TryValidate(Bundle bundle, string lastDeps, string lastHash)
+        internal async Task<(bool valid, IEnumerable<string> parsedDeps, string currentHash)> TryValidate(Bundle bundle, string lastDeps, string lastHash, string[] pcodes)
         {
             bool valid = false;
             IEnumerable<string> parsedDeps = null;
@@ -175,12 +174,24 @@ namespace Smartstore.Web.Bundling
             {
                 if (lastDeps.HasValue() && lastHash.HasValue())
                 {
-                    parsedDeps = await ParseFileContent(lastDeps);
+                    // First check if pcodes match, this one is faster than file hash check.
+                    var enableMinification = _options.CurrentValue.EnableMinification == true;
+                    var enableAutoprefixer = bundle.ContentType == "text/css" ? _options.CurrentValue.EnableAutoPrefixer == true : false;
+                    var isMinified = pcodes.Contains(BundleProcessorCodes.Minify);
+                    var isAutoprefixed = pcodes.Contains(BundleProcessorCodes.Autoprefix);
 
-                    // Check if dependency files hash matches the last saved hash
-                    currentHash = GetFileHash(bundle, parsedDeps);
+                    valid = isMinified == enableMinification && isAutoprefixed == enableAutoprefixer;
 
-                    valid = lastHash == currentHash;
+                    if (valid)
+                    {
+                        // Check file hash only if pcodes did match
+                        parsedDeps = await ParseFileContent(lastDeps);
+
+                        // Check if dependency files hash matches the last saved hash
+                        currentHash = await GetFileHash(bundle, parsedDeps);
+
+                        valid = lastHash == currentHash;
+                    }
                 }
             }
             catch
@@ -191,7 +202,7 @@ namespace Smartstore.Web.Bundling
             return (valid, parsedDeps, currentHash);
         }
 
-        private string GetFileHash(Bundle bundle, IEnumerable<string> files)
+        private async Task<string> GetFileHash(Bundle bundle, IEnumerable<string> files)
         {
             var fileProvider = bundle.FileProvider ?? _options.CurrentValue.FileProvider;
             var combiner = HashCodeCombiner.Start();
@@ -201,7 +212,7 @@ namespace Smartstore.Web.Bundling
                 var fileInfo = fileProvider.GetFileInfo(file);
                 if (fileInfo is IFileHashProvider hashProvider)
                 {
-                    combiner.Add(hashProvider.GetFileHash());
+                    combiner.Add(await hashProvider.GetFileHashAsync());
                 }
                 else
                 {
@@ -230,7 +241,7 @@ namespace Smartstore.Web.Bundling
         private Task<string> ReadFile(IDirectory dir, string fileName)
             => _fs.ReadAllTextAsync(_fs.PathCombine(dir.SubPath, fileName));
 
-        private async Task<IEnumerable<string>> ParseFileContent(string content)
+        private static async Task<IEnumerable<string>> ParseFileContent(string content)
         {
             var list = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             if (content.IsEmpty()) return list;

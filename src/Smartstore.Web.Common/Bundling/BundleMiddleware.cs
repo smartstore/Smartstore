@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using Smartstore.Core;
 using Smartstore.Threading;
+using Smartstore.Web.Bundling.Processors;
 using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Bundling
@@ -40,7 +42,7 @@ namespace Smartstore.Web.Bundling
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext httpContext)
+        public async Task InvokeAsync(HttpContext httpContext, IWorkContext workContext)
         {
             if (!TryGetBundle(httpContext.Request.Path, out var bundle))
             {
@@ -50,17 +52,23 @@ namespace Smartstore.Web.Bundling
 
             _logger.Debug("Request for bundle '{0}' started.", bundle.Route);
 
-            var options = _optionsMonitor.CurrentValue;
             var cacheKey = bundle.GetCacheKey(httpContext);
-            var bundleResponse = await _bundleCache.GetResponseAsync(cacheKey, bundle);
+            var options = _optionsMonitor.CurrentValue;
 
+            if (cacheKey.IsValidationMode() && workContext.CurrentCustomer.IsAdmin())
+            {
+                await HandleValidation(cacheKey, bundle, httpContext, options);
+                return;
+            }
+
+            var bundleResponse = await _bundleCache.GetResponseAsync(cacheKey, bundle);
             if (bundleResponse != null)
             {
                 _logger.Debug("Serving bundle '{0}' from cache.", bundle.Route);
                 await ServeBundleResponse(bundleResponse, httpContext, options);
                 return;
             }
-
+            
             using (await AsyncLock.KeyedAsync("bm_" + cacheKey))
             {
                 // Double paranoia check
@@ -132,6 +140,27 @@ namespace Smartstore.Web.Bundling
             //}
 
             return false;
+        }
+
+        private async ValueTask HandleValidation(BundleCacheKey cacheKey, Bundle bundle, HttpContext httpContext, BundlingOptions options)
+        {
+            try
+            {
+                var clone = new Bundle(bundle);
+                clone.Processors.Clear();
+                clone.Processors.Add(SassProcessor.Instance);
+
+                var bundleResponse = await _bundleBuilder.BuildBundleAsync(clone, cacheKey.Fragments, httpContext, options);
+                var response = httpContext.Response;
+                var buffer = Encoding.UTF8.GetBytes(bundleResponse.Content);
+
+                response.ContentType = bundleResponse.ContentType;
+                await response.Body.WriteAsync(buffer.AsMemory(0, buffer.Length));
+            }
+            catch (Exception ex)
+            {
+                await ServerErrorResponse(ex, bundle, httpContext);
+            }
         }
 
         private static ValueTask ServeBundleResponse(BundleResponse bundleResponse, HttpContext httpContext, BundlingOptions options)

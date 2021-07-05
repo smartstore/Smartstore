@@ -63,6 +63,17 @@ namespace Smartstore.Web.Bundling
         {
         }
 
+        protected internal Bundle(Bundle other)
+        {
+            Route = other.Route;
+            ContentType = other.ContentType;
+            ConcatenationToken = other.ConcatenationToken;
+            FileProvider = other.FileProvider;
+
+            _sourceFiles.AddRange(other.SourceFiles);
+            Processors.AddRange(other.Processors);
+        }
+
         public Bundle(string route, string contentType, params IBundleProcessor[] processors)
             : this(route, contentType, null, processors)
         {
