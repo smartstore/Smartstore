@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Cart
@@ -9,17 +11,20 @@ namespace Smartstore.Core.Checkout.Cart
     [DebuggerDisplay("{CartType} for {Customer.Email} contains {Items.Length} items.")]
     public partial class ShoppingCart
     {
-        public ShoppingCart(OrganizedShoppingCartItem[] items)
+        public ShoppingCart(Customer customer, int storeId, IEnumerable<OrganizedShoppingCartItem> items)
         {
+            Guard.NotNull(customer, nameof(customer));
             Guard.NotNull(items, nameof(items));
 
-            Items = items;
+            Customer = customer;
+            StoreId = storeId;
+            Items = items.ToArray();
         }
 
         /// <summary>
         /// Array of cart items.
         /// </summary>
-        public OrganizedShoppingCartItem[] Items { get; private set; }
+        public OrganizedShoppingCartItem[] Items { get; }
 
         /// <summary>
         /// Shopping cart type.
@@ -29,11 +34,11 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Customer of the cart.
         /// </summary>
-        public Customer Customer { get; init; }
+        public Customer Customer { get; }
 
         /// <summary>
         /// Store identifier.
         /// </summary>
-        public int StoreId { get; init; }
+        public int StoreId { get; }
     }
 }

@@ -151,11 +151,9 @@ namespace Smartstore.Core.Checkout.Orders
 
                 if (paymentRequest.ShoppingCartItemIds.Any())
                 {
-                    cart = new ShoppingCart(cart.Items.Where(x => paymentRequest.ShoppingCartItemIds.Contains(x.Item.Id)).ToArray())
+                    cart = new ShoppingCart(cart.Customer, cart.StoreId, cart.Items.Where(x => paymentRequest.ShoppingCartItemIds.Contains(x.Item.Id)))
                     {
-                        Customer = cart.Customer,
-                        CartType = cart.CartType,
-                        StoreId = cart.StoreId
+                        CartType = cart.CartType
                     };
                 }
 

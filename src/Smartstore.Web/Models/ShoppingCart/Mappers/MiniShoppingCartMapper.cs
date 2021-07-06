@@ -109,11 +109,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             var batchContext = _productService.CreateProductBatchContext(from.Select(x => x.Item.Product).ToArray(), null, customer, false);
 
             // TODO: (mg) (core) refactor cart item model mapping.
-            var cart = new Core.Checkout.Cart.ShoppingCart(from.ToArray())
-            {
-                Customer = customer,
-                StoreId = store.Id
-            };
+            var cart = new Core.Checkout.Cart.ShoppingCart(customer, store.Id, from);
 
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, null, batchContext);
             var lineItems = subtotal.LineItems.ToDictionarySafe(x => x.Item.Item.Id);

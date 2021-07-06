@@ -444,11 +444,9 @@ namespace Smartstore.Core.Checkout.Cart
 
                 var organizedItems = await OrganizeCartItemsAsync(cartItems);
 
-                return new ShoppingCart(organizedItems.ToArray())
+                return new ShoppingCart(customer, storeId, organizedItems.ToArray())
                 {
                     CartType = cartType,
-                    Customer = customer,
-                    StoreId = storeId
                 };
             });
 
