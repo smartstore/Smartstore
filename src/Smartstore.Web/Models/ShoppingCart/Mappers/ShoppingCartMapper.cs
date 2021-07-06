@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
@@ -23,12 +29,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Utilities.Html;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+using Cart = Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
@@ -142,6 +143,9 @@ namespace Smartstore.Web.Models.ShoppingCart
             var setEstimateShippingDefaultAddress = parameters?.SetEstimateShippingDefaultAddress == true;
             var prepareAndDisplayOrderReviewData = parameters?.PrepareAndDisplayOrderReviewData == true;
 
+            // TODO: (mg) (core) refactor cart item model mapping.
+            var cart = new Cart.ShoppingCart(customer, store.Id, from);
+
             #region Simple properties
 
             to.MediaDimensions = _mediaSettings.CartThumbPictureSize;
@@ -182,7 +186,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             to.GiftCardBox.Display = _shoppingCartSettings.ShowGiftCardBox;
 
             // Reward points.
-            if (_rewardPointsSettings.Enabled && !from.IncludesMatchingItems(x => x.IsRecurring) && !customer.IsGuest())
+            if (_rewardPointsSettings.Enabled && !cart.IncludesMatchingItems(x => x.IsRecurring) && !customer.IsGuest())
             {
                 var rewardPointsBalance = customer.GetRewardPointsBalance();
                 var rewardPointsAmountBase = _orderCalculationService.ConvertRewardPointsToAmount(rewardPointsBalance);
@@ -199,7 +203,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             // Cart warnings.
             var warnings = new List<string>();
-            var cartIsValid = await _shoppingCartValidator.ValidateCartItemsAsync(from, warnings, validateCheckoutAttributes, customer.GenericAttributes.CheckoutAttributes);
+            var cartIsValid = await _shoppingCartValidator.ValidateCartAsync(cart, warnings, validateCheckoutAttributes);
             if (!cartIsValid)
             {
                 to.Warnings.AddRange(warnings);
@@ -209,7 +213,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             #region Checkout attributes
 
-            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
+            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(cart, store.Id);
 
             foreach (var attribute in checkoutAttributes)
             {
@@ -366,9 +370,9 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             if (prepareEstimateShippingIfEnabled)
             {
-                to.EstimateShipping.Enabled = _shippingSettings.EstimateShippingEnabled
-                    && from.Any()
-                    && from.IncludesMatchingItems(x => x.IsShippingEnabled);
+                to.EstimateShipping.Enabled = _shippingSettings.EstimateShippingEnabled &&
+                    from.Any() && 
+                    cart.IncludesMatchingItems(x => x.IsShippingEnabled);
 
                 if (to.EstimateShipping.Enabled)
                 {
@@ -436,10 +440,6 @@ namespace Smartstore.Web.Models.ShoppingCart
                 .ToArray();
 
             var batchContext = _productService.CreateProductBatchContext(allProducts, null, customer, false);
-
-            // TODO: (mg) (core) refactor cart item model mapping.
-            var cart = new Core.Checkout.Cart.ShoppingCart(customer, store.Id, from);
-
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, null, batchContext);
 
             dynamic itemParameters = new ExpandoObject();
@@ -474,7 +474,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                 }
 
                 // Shipping info.
-                if (from.IsShippingRequired())
+                if (cart.IsShippingRequired())
                 {
                     to.OrderReviewData.IsShippable = true;
 
@@ -513,20 +513,22 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             #endregion
 
-            var paymentTypes = new[] { PaymentMethodType.Button, PaymentMethodType.StandardAndButton };
             var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(
                 customer,
                 from.ToList(),
                 store.Id,
-                paymentTypes,
+                new[] { PaymentMethodType.Button, PaymentMethodType.StandardAndButton },
                 false);
 
             var bpmModel = new ButtonPaymentMethodModel();
 
             foreach (var boundPaymentMethod in boundPaymentMethods)
             {
-                if (from.IncludesMatchingItems(x => x.IsRecurring) && boundPaymentMethod.Value.RecurringPaymentType == RecurringPaymentType.NotSupported)
+                if (cart.IncludesMatchingItems(x => x.IsRecurring) &&
+                    boundPaymentMethod.Value.RecurringPaymentType == RecurringPaymentType.NotSupported)
+                {
                     continue;
+                }
 
                 var widgetInvoker = boundPaymentMethod.Value.GetPaymentInfoWidget();
                 bpmModel.Items.Add(widgetInvoker);

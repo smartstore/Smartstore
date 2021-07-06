@@ -14,6 +14,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
+using Cart = Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
@@ -57,6 +58,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             var item = from.Item;
             var product = from.Item.Product;
             var customer = item.Customer;
+            var store = _services.StoreContext.CurrentStore;
             var currency = _services.WorkContext.WorkingCurrency;
             var shoppingCartType = item.ShoppingCartType;
             var productSeName = await product.GetActiveSlugAsync();
@@ -207,17 +209,17 @@ namespace Smartstore.Web.Models.ShoppingCart
             }
 
             var itemWarnings = new List<string>();
-            var isValid = await ShoppingCartValidator.ValidateCartItemsAsync(new[] { from }, itemWarnings);
-            if (!isValid)
+            var itemCart = new Cart.ShoppingCart(customer, store.Id, new[] { from });
+
+            if (!await ShoppingCartValidator.ValidateCartAsync(itemCart, itemWarnings))
             {
                 to.Warnings.AddRange(itemWarnings);
             }
 
-            var cart = await ShoppingCartService.GetCartAsync(customer, shoppingCartType, _services.StoreContext.CurrentStore.Id);
-
             var attrWarnings = new List<string>();
-            isValid = await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart.Items, attrWarnings);
-            if (!isValid)
+            var cart = await ShoppingCartService.GetCartAsync(customer, shoppingCartType, store.Id);
+
+            if (!await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart.Items, attrWarnings))
             {
                 to.Warnings.AddRange(attrWarnings);
             }

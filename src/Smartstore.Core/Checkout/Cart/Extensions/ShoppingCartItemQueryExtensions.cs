@@ -2,16 +2,15 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 
-namespace Smartstore
+namespace Smartstore.Core.Checkout.Cart
 {
     /// <summary>
-    /// Shopping cart query extensions
+    /// Shopping cart item query extensions
     /// </summary>
-    public static class ShoppingCartQueryExtensions
+    public static partial class ShoppingCartItemQueryExtensions
     {
         /// <summary>        
         /// Applies standard filter for shopping cart item.

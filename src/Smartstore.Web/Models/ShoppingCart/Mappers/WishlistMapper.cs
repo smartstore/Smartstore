@@ -1,4 +1,9 @@
-﻿using Smartstore.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using System.Threading.Tasks;
+using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -6,11 +11,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
+using Cart = Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
@@ -63,18 +64,20 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             await base.MapAsync(from, to, null);
 
+            // TODO: (mg) (core) refactor cart item model mapping.
+            var cart = new Cart.ShoppingCart(from.First().Item.Customer, _services.StoreContext.CurrentStore.Id, from);
+
             to.IsEditable = parameters?.IsEditable == true;
             to.EmailWishlistEnabled = _shoppingCartSettings.EmailWishlistEnabled;
             to.DisplayAddToCart = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart);
 
-            var customer = from.FirstOrDefault().Item.Customer;
-            to.CustomerGuid = customer.CustomerGuid;
-            to.CustomerFullname = customer.GetFullName();
+            to.CustomerGuid = cart.Customer.CustomerGuid;
+            to.CustomerFullname = cart.Customer.GetFullName();
             to.ShowItemsFromWishlistToCartButton = _shoppingCartSettings.ShowItemsFromWishlistToCartButton;
 
-            // Cart warnings
+            // Cart warnings.
             var warnings = new List<string>();
-            var cartIsValid = await _shoppingCartValidator.ValidateCartItemsAsync(from, warnings);
+            var cartIsValid = await _shoppingCartValidator.ValidateCartAsync(cart, warnings);
             if (!cartIsValid)
             {
                 to.Warnings.AddRange(warnings);

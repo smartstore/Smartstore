@@ -69,7 +69,7 @@ namespace Smartstore.Core.Checkout.Attributes
             return values;
         }
 
-        public async Task<List<CheckoutAttribute>> GetCheckoutAttributesAsync(IEnumerable<OrganizedShoppingCartItem> cart, int storeId = 0)
+        public async Task<List<CheckoutAttribute>> GetCheckoutAttributesAsync(ShoppingCart cart, int storeId = 0)
         {
             Guard.NotNull(cart, nameof(cart));
 

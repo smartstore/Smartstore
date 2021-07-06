@@ -150,7 +150,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             // Applied gift cards.
             var appliedGiftCards = new List<AppliedGiftCard>();
-            if (!cart.Items.IncludesMatchingItems(x => x.IsRecurring))
+            if (!cart.IncludesMatchingItems(x => x.IsRecurring))
             {
                 var giftCards = await _giftCardService.GetValidGiftCardsAsync(store.Id, customer);
                 foreach (var gc in giftCards)
@@ -323,7 +323,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            if (!cart.Items.IsShippingRequired())
+            if (!cart.IsShippingRequired())
             {
                 return true;
             }

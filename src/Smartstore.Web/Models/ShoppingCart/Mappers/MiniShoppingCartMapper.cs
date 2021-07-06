@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Catalog;
@@ -15,10 +19,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Web.Models.Media;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Cart = Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
@@ -92,13 +93,16 @@ namespace Smartstore.Web.Models.ShoppingCart
             var customer = _services.WorkContext.CurrentCustomer;
             var store = _services.StoreContext.CurrentStore;
 
+            // TODO: (mg) (core) refactor cart item model mapping.
+            var cart = new Cart.ShoppingCart(customer, store.Id, from);
+
             to.ShowProductImages = _shoppingCartSettings.ShowProductImagesInMiniShoppingCart;
             to.ThumbSize = _mediaSettings.MiniCartThumbPictureSize;
             to.CurrentCustomerIsGuest = customer.IsGuest();
             to.AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed;
             to.DisplayMoveToWishlistButton = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
             to.ShowBasePrice = _shoppingCartSettings.ShowBasePrice;
-            to.TotalProducts = from.GetTotalQuantity();
+            to.TotalProducts = cart.GetTotalQuantity();
 
             if (!from.Any())
             {
@@ -108,9 +112,6 @@ namespace Smartstore.Web.Models.ShoppingCart
             var taxFormat = _currencyService.GetTaxFormat();
             var batchContext = _productService.CreateProductBatchContext(from.Select(x => x.Item.Product).ToArray(), null, customer, false);
 
-            // TODO: (mg) (core) refactor cart item model mapping.
-            var cart = new Core.Checkout.Cart.ShoppingCart(customer, store.Id, from);
-
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, null, batchContext);
             var lineItems = subtotal.LineItems.ToDictionarySafe(x => x.Item.Item.Id);
 
@@ -119,13 +120,13 @@ namespace Smartstore.Web.Models.ShoppingCart
             to.SubTotal = subtotalWithoutDiscount.WithPostFormat(taxFormat);
 
             // A customer should visit the shopping cart page before going to checkout if:
-            //1. There is at least one checkout attribute that is reqired
-            //2. Min order sub total is OK
+            // 1. There is at least one checkout attribute that is reqired
+            // 2. Min order sub total is OK
 
-            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
+            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(cart, store.Id);
             to.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired);
 
-            // Products sort descending (recently added products)
+            // Products sort descending (recently added products).
             foreach (var cartItem in from)
             {
                 var item = cartItem.Item;

@@ -211,7 +211,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             if (ctx.BundleItem == null)
             {
-                existingCartItem = cart.Items.FindItemInCart(ctx.CartType, ctx.Product, ctx.AttributeSelection, ctx.CustomerEnteredPrice)?.Item;
+                existingCartItem = cart.FindItemInCart(ctx.CartType, ctx.Product, ctx.AttributeSelection, ctx.CustomerEnteredPrice)?.Item;
             }
 
             // Add item to cart (if no warnings accured)
@@ -444,7 +444,7 @@ namespace Smartstore.Core.Checkout.Cart
 
                 var organizedItems = await OrganizeCartItemsAsync(cartItems);
 
-                return new ShoppingCart(customer, storeId, organizedItems.ToArray())
+                return new ShoppingCart(customer, storeId, organizedItems)
                 {
                     CartType = cartType,
                 };

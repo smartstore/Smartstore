@@ -123,8 +123,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Validate checkout attributes.
-            var checkoutAttributes = customer.GenericAttributes.CheckoutAttributes;
-            var isValid = await _shoppingCartValidator.ValidateCartItemsAsync(cart.Items, warnings, true, checkoutAttributes);
+            var isValid = await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true);
             if (isValid && _rewardPointsSettings.Enabled)
             {
                 // Reward points.
@@ -142,7 +141,7 @@ namespace Smartstore.Web.Controllers
 
             var selectedAttributes = new CheckoutAttributeSelection(string.Empty);
             var customer = cart.Customer ?? Services.WorkContext.CurrentCustomer;
-            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(cart.Items, Services.StoreContext.CurrentStore.Id);
+            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(cart, Services.StoreContext.CurrentStore.Id);
 
             foreach (var attribute in checkoutAttributes)
             {
@@ -1054,7 +1053,7 @@ namespace Smartstore.Web.Controllers
             model.EstimateShipping.StateProvinceId = shippingModel.StateProvinceId;
             model.EstimateShipping.ZipPostalCode = shippingModel.ZipPostalCode;
 
-            if (cart.Items.IncludesMatchingItems(x => x.IsShippingEnabled))
+            if (cart.IncludesMatchingItems(x => x.IsShippingEnabled))
             {
                 var shippingInfoUrl = Url.TopicAsync("ShippingInfo").ToString();
                 if (shippingInfoUrl.HasValue())
@@ -1344,7 +1343,7 @@ namespace Smartstore.Web.Controllers
 
             model.GiftCardBox.IsWarning = true;
 
-            if (!cart.Items.IncludesMatchingItems(x => x.IsRecurring))
+            if (!cart.IncludesMatchingItems(x => x.IsRecurring))
             {
                 if (giftCardCouponCode.HasValue())
                 {

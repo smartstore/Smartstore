@@ -31,12 +31,11 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Validates shopping cart for products not found (null), recurring and standard product mix-ups as well as checkout attributes.
         /// </summary>
-        /// <param name="cartItems">Shopping cart items of customer to validate.</param>
-        /// <param name="warnings">List of errors as string.</param>
-        /// <param name="validateCheckoutAttributes">A value indicating whether to validate the <see cref="CheckoutAttributeSelection"/>.</param>
-        /// <param name="attributeSelection"><see cref="CheckoutAttributeSelection"/> of customer. Cannot be null when <paramref name="validateCheckoutAttributes"/> is <c>true</c>, otherwise there is no attributes selection check.</param>
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="warnings">List of returned warnings.</param>
+        /// <param name="validateCheckoutAttributes">A value indicating whether to validate checkout attributes of <see cref="ShoppingCart.Customer"/>.</param>
         /// <returns><c>True</c> when all items as well as the <see cref="CheckoutAttributeSelection"/> are valid, otherwise <c>false</c>.</returns>
-        Task<bool> ValidateCartItemsAsync(IEnumerable<OrganizedShoppingCartItem> cartItems, IList<string> warnings, bool validateCheckoutAttributes = false, CheckoutAttributeSelection attributeSelection = null);
+        Task<bool> ValidateCartAsync(ShoppingCart cart, IList<string> warnings, bool validateCheckoutAttributes = false);
 
         /// <summary>
         /// Validates add to cart item for product errors, attribute selection errors, gift card info errors, missing required products, bundle item and child items errors.

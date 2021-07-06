@@ -23,7 +23,6 @@ namespace Smartstore.Core.Checkout.Cart
     {
         private readonly SmartDbContext _db;
         private readonly IAclService _aclService;
-        private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly ICurrencyService _currencyService;
         private readonly ShoppingCartSettings _cartSettings;
@@ -36,7 +35,6 @@ namespace Smartstore.Core.Checkout.Cart
         public ShoppingCartValidator(
             SmartDbContext db,
             IAclService aclService,
-            IWorkContext workContext,
             IStoreContext storeContext,
             ICurrencyService currencyService,
             ShoppingCartSettings cartSettings,
@@ -48,7 +46,6 @@ namespace Smartstore.Core.Checkout.Cart
         {
             _db = db;
             _aclService = aclService;
-            _workContext = workContext;
             _storeContext = storeContext;
             _currencyService = currencyService;
             _cartSettings = cartSettings;
@@ -121,25 +118,21 @@ namespace Smartstore.Core.Checkout.Cart
             return !currentWarnings.Any();
         }
 
-        public virtual async Task<bool> ValidateCartItemsAsync(
-            IEnumerable<OrganizedShoppingCartItem> cartItems,
-            IList<string> warnings,
-            bool validateCheckoutAttributes = false,
-            CheckoutAttributeSelection attributeSelection = null)
+        public virtual async Task<bool> ValidateCartAsync(ShoppingCart cart, IList<string> warnings, bool validateCheckoutAttributes = false)
         {
-            Guard.NotNull(cartItems, nameof(cartItems));
+            Guard.NotNull(cart, nameof(cart));
             Guard.NotNull(warnings, nameof(warnings));
 
             var currentWarnings = new List<string>();
 
-            var missingProduct = cartItems.Where(x => x.Item.Product is null).FirstOrDefault();
+            var missingProduct = cart.Items.Where(x => x.Item.Product is null).FirstOrDefault();
             if (missingProduct != null)
             {
                 currentWarnings.Add(T("ShoppingCart.CannotLoadProduct", missingProduct.Item.ProductId));
             }
 
-            var hasNonRecurringProducts = cartItems.IncludesMatchingItems(x => !x.IsRecurring);
-            var hasRecurringProducts = cartItems.IncludesMatchingItems(x => x.IsRecurring);
+            var hasNonRecurringProducts = cart.IncludesMatchingItems(x => !x.IsRecurring);
+            var hasRecurringProducts = cart.IncludesMatchingItems(x => x.IsRecurring);
 
             // Do not mix recurring and non-recurring products
             if (hasNonRecurringProducts && hasRecurringProducts)
@@ -150,41 +143,42 @@ namespace Smartstore.Core.Checkout.Cart
             // Validate recurring products
             if (hasRecurringProducts)
             {
-                var recurringCycleInfo = cartItems.GetRecurringCycleInfo(_localizationService);
+                var recurringCycleInfo = cart.GetRecurringCycleInfo(_localizationService);
                 if (recurringCycleInfo.ErrorMessage.HasValue())
                 {
                     currentWarnings.Add(recurringCycleInfo.ErrorMessage);
                 }
             }
 
-            // Validate checkout attributes if defined
-            if (validateCheckoutAttributes && attributeSelection != null)
+            // Validate checkout attributes if defined.
+            if (validateCheckoutAttributes)
             {
-                var existingAttributesQuery = _db.CheckoutAttributes.ApplyStoreFilter(_storeContext.CurrentStore.Id);
-                if (!cartItems.IsShippingRequired())
+                var checkoutAttributes = cart?.Customer?.GenericAttributes?.CheckoutAttributes;
+                if (checkoutAttributes != null)
                 {
-                    // No shipping required. Filter attributes which require shippable products
-                    existingAttributesQuery = existingAttributesQuery.Where(x => !x.ShippableProductRequired);
-                }
+                    var existingAttributesQuery = _db.CheckoutAttributes.ApplyStoreFilter(_storeContext.CurrentStore.Id);
+                    if (!cart.IsShippingRequired())
+                    {
+                        // No shipping required. Filter attributes which require shippable products.
+                        existingAttributesQuery = existingAttributesQuery.Where(x => !x.ShippableProductRequired);
+                    }
 
-                var selectedAttributes = (await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection));
-                var notSelectedAttributes = await existingAttributesQuery
-                    .Where(x => x.IsRequired && !selectedAttributes.Contains(x))
-                    .ToListAsync();
+                    var selectedAttributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(checkoutAttributes);
+                    var notSelectedAttributes = await existingAttributesQuery
+                        .Where(x => x.IsRequired && !selectedAttributes.Contains(x))
+                        .ToListAsync();
 
-                // Check for not selected attributes
-                foreach (var attribute in notSelectedAttributes)
-                {
-                    currentWarnings.Add(T(
-                        "ShoppingCart.SelectAttribute",
-                        attribute.TextPrompt.IsEmpty()
-                            ? attribute.GetLocalized(x => x.Name)
-                            : attribute.GetLocalized(x => x.TextPrompt)
-                        ));
+                    // Check for not selected attributes.
+                    foreach (var attribute in notSelectedAttributes)
+                    {
+                        var textPrompt = attribute.TextPrompt.IsEmpty() ? attribute.GetLocalized(x => x.Name) : attribute.GetLocalized(x => x.TextPrompt);
+                        currentWarnings.Add(T("ShoppingCart.SelectAttribute", textPrompt));
+                    }
                 }
             }
 
             warnings.AddRange(currentWarnings);
+
             return !currentWarnings.Any();
         }
 

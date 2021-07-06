@@ -117,11 +117,8 @@ namespace Smartstore.Web.Controllers
             customer.ResetCheckoutData(storeId);
 
             // Validate checkout attributes.
-            var checkoutAttributes = customer.GenericAttributes.CheckoutAttributes;
-
             var warnings = new List<string>();
-            var isValid = await _shoppingCartValidator.ValidateCartItemsAsync(cart.Items, warnings, true, checkoutAttributes);
-            if (!isValid)
+            if (!await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
             {
                 NotifyWarning(string.Join(Environment.NewLine, warnings.Take(3)));
                 return RedirectToRoute("ShoppingCart");
@@ -152,8 +149,7 @@ namespace Smartstore.Web.Controllers
                     ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList()
                 };
 
-                isValid = await _shoppingCartValidator.ValidateAddToCartItemAsync(ctx, cartItem.Item, cart.Items);
-                if (!isValid)
+                if (!await _shoppingCartValidator.ValidateAddToCartItemAsync(ctx, cartItem.Item, cart.Items))
                 {
                     warnings.AddRange(ctx.Warnings);
                     NotifyWarning(string.Join(Environment.NewLine, warnings.Take(3)));
@@ -162,6 +158,7 @@ namespace Smartstore.Web.Controllers
             }
 
             await _db.SaveChangesAsync();
+
             return RedirectToAction(nameof(BillingAddress));
         }
 
@@ -215,7 +212,7 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
             }
 
-            if (!cart.Items.IncludesMatchingItems(x => x.IsShippingEnabled))
+            if (!cart.IncludesMatchingItems(x => x.IsShippingEnabled))
             {
                 customer.ShippingAddress = null;
 
@@ -260,7 +257,7 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
             }
 
-            if (!cart.Items.IsShippingRequired())
+            if (!cart.IsShippingRequired())
             {
                 customer.GenericAttributes.SelectedShippingOption = null;
                 await customer.GenericAttributes.SaveChangesAsync();
@@ -335,7 +332,7 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
             }
 
-            if (!cart.Items.IsShippingRequired())
+            if (!cart.IsShippingRequired())
             {
                 customer.GenericAttributes.SelectedShippingOption = null;
                 await customer.GenericAttributes.SaveChangesAsync();

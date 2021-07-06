@@ -60,7 +60,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                 if (!paymentRequest.IsRecurringPayment)
                 {
-                    context.CartRequiresShipping = cart.Items.IsShippingRequired();
+                    context.CartRequiresShipping = cart.IsShippingRequired();
                 }
                 else
                 {
@@ -163,8 +163,7 @@ namespace Smartstore.Core.Checkout.Orders
                     return (warnings, cart);
                 }
 
-
-                await _shoppingCartValidator.ValidateCartItemsAsync(cart.Items, warnings, true, customer.GenericAttributes.CheckoutAttributes);
+                await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true);
                 if (warnings.Any())
                 {
                     return (warnings, cart);
@@ -244,7 +243,7 @@ namespace Smartstore.Core.Checkout.Orders
                     warnings.Add(T("Order.CountryNotAllowedForBilling", customer.BillingAddress.Country.Name));
                 }
 
-                if (cart.Items.IsShippingRequired())
+                if (cart.IsShippingRequired())
                 {
                     if (customer.ShippingAddress == null)
                     {
@@ -315,10 +314,10 @@ namespace Smartstore.Core.Checkout.Orders
             // Recurring or standard shopping cart?
             if (!warnings.Any() && !paymentRequest.IsRecurringPayment)
             {
-                isRecurringCart = cart.Items.ContainsRecurringItem();
+                isRecurringCart = cart.ContainsRecurringItem();
                 if (isRecurringCart)
                 {
-                    var recurringCycleInfo = cart.Items.GetRecurringCycleInfo(_localizationService);
+                    var recurringCycleInfo = cart.GetRecurringCycleInfo(_localizationService);
                     if (recurringCycleInfo.ErrorMessage.HasValue())
                     {
                         warnings.Add(recurringCycleInfo.ErrorMessage);
@@ -588,10 +587,10 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!pr.IsRecurringPayment)
             {
-                ctx.IsRecurringCart = ctx.Cart.Items.ContainsRecurringItem();
+                ctx.IsRecurringCart = ctx.Cart.ContainsRecurringItem();
                 if (ctx.IsRecurringCart)
                 {
-                    var cycleInfo = ctx.Cart.Items.GetRecurringCycleInfo(_localizationService);
+                    var cycleInfo = ctx.Cart.GetRecurringCycleInfo(_localizationService);
                     pr.RecurringCycleLength = cycleInfo.CycleLength ?? 0;
                     pr.RecurringCyclePeriod = cycleInfo.CyclePeriod ?? RecurringProductCyclePeriod.Days;
                     pr.RecurringTotalCycles = cycleInfo.TotalCycles ?? 0;
