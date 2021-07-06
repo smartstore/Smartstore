@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Core.Theming;
+using Smartstore.Engine;
 using Smartstore.Utilities;
 
 namespace Smartstore.Web.Theming
@@ -13,10 +17,22 @@ namespace Smartstore.Web.Theming
     {
         const string SassVarPrefix = "$";
 
-        private static readonly Regex _keyWhitelist = new Regex(@"^[a-zA-Z0-9_-]+$", RegexOptions.Compiled);
-        private static readonly Regex _valueBlacklist = new Regex(@"[:;]+", RegexOptions.Compiled);
-        private static readonly Regex _valueSassVars = new Regex(@"[$][a-zA-Z0-9_-]+", RegexOptions.Compiled);
+        /// <summary>
+        /// Key for ThemeVariables caching
+        /// </summary>
+        /// <remarks>
+        /// {0} : theme name
+        /// {1} : store identifier
+        /// </remarks>
+        const string THEMEVARS_KEY = "web:themevars-{0}-{1}";
+        const string THEMEVARS_THEME_KEY = "web:themevars-{0}";
+
+        private static readonly Regex _keyWhitelist = new(@"^[a-zA-Z0-9_-]+$", RegexOptions.Compiled);
+        private static readonly Regex _valueBlacklist = new(@"[:;]+", RegexOptions.Compiled);
+        private static readonly Regex _valueSassVars = new(@"[$][a-zA-Z0-9_-]+", RegexOptions.Compiled);
         //private static readonly Regex s_valueWhitelist = new Regex(@"^[#@]?[a-zA-Z0-9""' _\.,-]*$");
+
+        private static readonly ConcurrentDictionary<object, CancellationTokenSource> _cancelTokens = new();
 
         private readonly IThemeVariableService _themeVarService;
         private readonly IMemoryCache _memCache;
@@ -26,6 +42,53 @@ namespace Smartstore.Web.Theming
             _themeVarService = Guard.NotNull(themeVarService, nameof(themeVarService));
             _memCache = Guard.NotNull(memCache, nameof(memCache));
         }
+
+        #region Static (Cache and CancellationToken)
+
+        private string BuildCacheKey(string theme, int storeId)
+        {
+            if (storeId > 0)
+            {
+                return _memCache.BuildScopedKey(THEMEVARS_KEY.FormatInvariant(theme, storeId));
+            }
+
+            return _memCache.BuildScopedKey(THEMEVARS_THEME_KEY.FormatInvariant(theme));
+        }
+
+        private static string BuildTokenKey(string theme, int storeId)
+            => $"ThemeVarToken:{theme}:{storeId}";
+
+        internal static CancellationTokenSource GetToken(string theme, int storeId)
+            => GetToken(BuildTokenKey(theme, storeId));
+
+        private static CancellationTokenSource GetToken(object tokenKey)
+        {
+            if (_cancelTokens.TryGetValue(tokenKey, out var cts))
+            {
+                return cts;
+            }
+
+            cts = new CancellationTokenSource();
+            cts.Token.Register(() => _cancelTokens.TryRemove(tokenKey, out _));
+            _cancelTokens.TryAdd(tokenKey, cts);
+            return cts;
+        }
+
+        internal static void CancelToken(string theme, int storeId)
+        {
+            CancelToken(BuildTokenKey(theme, storeId));
+        }
+
+        private static void CancelToken(object tokenKey)
+        {
+            if (_cancelTokens.TryRemove(tokenKey, out var cts))
+            {
+                cts.Cancel();
+                cts.Dispose();
+            }
+        }
+
+        #endregion
 
         public async Task<string> GetPreprocessorCssAsync(string themeName, int storeId)
         {
@@ -65,7 +128,7 @@ namespace Smartstore.Web.Theming
             return result;
         }
 
-        public virtual async Task<ExpandoObject> GetRawVariablesAsync(string themeName, int storeId, bool skipCache = false)
+        public async Task<ExpandoObject> GetRawVariablesAsync(string themeName, int storeId, bool skipCache = false)
         {
             // TODO: (core) "skipCache" somehow replaces ThemeHelper.IsStyleValidationRequest(). Change the callers accordingly.
 
@@ -76,17 +139,36 @@ namespace Smartstore.Web.Theming
             }
             else
             {
-                string cacheKey = WebCacheInvalidator.BuildThemeVarsCacheKey(themeName, storeId);
+                var cacheKey = BuildCacheKey(themeName, storeId);
+                var tokenKey = BuildTokenKey(themeName, storeId);
+
                 return await _memCache.GetOrCreateAsync(cacheKey, async (entry) => 
                 {
                     // Ensure that when this item is expired, any bundle depending on the token is also expired
                     entry.RegisterPostEvictionCallback((key, value, reason, state) =>
                     {
-                        WebCacheInvalidator.CancelThemeVarsToken(key);
-                    });
+                        // Signal cancellation so that cached bundles can be busted from cache
+                        CancelToken(state);
+                    }, tokenKey);
 
                     return await GetRawVariablesCoreAsync(themeName, storeId);
                 });
+            }
+        }
+
+        public void RemoveFromCache(string themeName, int storeId = 0)
+        {
+            Guard.NotEmpty(themeName, nameof(themeName));
+            
+            var cacheKey = BuildCacheKey(themeName, storeId);
+
+            if (storeId > 0)
+            {
+                _memCache.Remove(cacheKey);
+            }
+            else
+            {
+                _memCache.RemoveByPattern(cacheKey + "*");
             }
         }
 

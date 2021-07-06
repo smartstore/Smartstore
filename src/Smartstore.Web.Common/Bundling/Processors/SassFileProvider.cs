@@ -48,7 +48,7 @@ namespace Smartstore.Web.Bundling.Processors
                 var services = EngineContext.Current.Scope;
                 var theme = services.Resolve<IThemeContext>().WorkingThemeName;
                 var storeId = services.Resolve<IStoreContext>().CurrentStore.Id;
-                var cts = WebCacheInvalidator.GetThemeVarsToken(theme, storeId);
+                var cts = ThemeVariableRepository.GetToken(theme, storeId);
 
                 return new CancellationChangeToken(cts.Token);
             }

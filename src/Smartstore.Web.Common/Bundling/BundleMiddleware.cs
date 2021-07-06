@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Core;
+using Smartstore.Net;
 using Smartstore.Threading;
 using Smartstore.Web.Bundling.Processors;
 using Smartstore.Web.Theming;
@@ -21,7 +22,6 @@ namespace Smartstore.Web.Bundling
         private readonly IBundleCache _bundleCache;
         private readonly IBundleBuilder _bundleBuilder;
         private readonly IOptionsMonitor<BundlingOptions> _optionsMonitor;
-        private readonly IThemeRegistry _themeRegistry;
         private readonly ILogger _logger;
 
         public BundleMiddleware(
@@ -30,7 +30,6 @@ namespace Smartstore.Web.Bundling
             IBundleCache bundleCache,
             IBundleBuilder bundleBuilder,
             IOptionsMonitor<BundlingOptions> optionsMonitor,
-            IThemeRegistry themeRegistry,
             ILogger<BundleMiddleware> logger)
         {
             _next = next;
@@ -38,13 +37,13 @@ namespace Smartstore.Web.Bundling
             _bundleCache = bundleCache;
             _bundleBuilder = bundleBuilder;
             _optionsMonitor = optionsMonitor;
-            _themeRegistry = themeRegistry;
             _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext httpContext, IWorkContext workContext)
         {
-            if (!TryGetBundle(httpContext.Request.Path, out var bundle))
+            var bundle = _collection.GetBundleFor(httpContext.Request.Path);
+            if (bundle == null)
             {
                 await _next(httpContext);
                 return;
@@ -103,45 +102,14 @@ namespace Smartstore.Web.Bundling
                 catch (Exception ex)
                 {
                     await ServerErrorResponse(ex, bundle, httpContext);
+                    _logger.Error(ex, $"Error while processing bundle '{bundle.Route}'.");
                 }
             }
         }
 
-        private bool TryGetBundle(PathString path, out Bundle bundle)
-        {
-            var route = path.Value;
-
-            bundle = _collection.GetBundleFor(route);
-
-            if (bundle != null)
-            {
-                return true;
-            }
-
-            //// TODO: (core) Complete dynamic registration for theme sass files
-            //if (path.StartsWithSegments("themes/", StringComparison.OrdinalIgnoreCase, out var remaining))
-            //{
-            //    var segments = remaining.Value.Trim('/').Tokenize('/').ToArray();
-            //    if (segments.Length > 1)
-            //    {
-            //        route = segments[1];
-            //        if (_pipeline.TryGetAssetFromRoute(route, out asset))
-            //        {
-            //            return true;
-            //        }
-
-            //        var themeName = segments[0];
-            //        var theme = _themeRegistry.GetThemeManifest(themeName);
-            //        if (theme != null)
-            //        {
-            //            asset = _pipeline.RegisterCssBundle("/themes/flex.css", $"/Themes/{themeName}/theme.scss");
-            //        }
-            //    }
-            //}
-
-            return false;
-        }
-
+        /// <summary>
+        /// The validation mode bypasses cache and always compiles Sass files to ensure validity.
+        /// </summary>
         private async ValueTask HandleValidation(BundleCacheKey cacheKey, Bundle bundle, HttpContext httpContext, BundlingOptions options)
         {
             try
@@ -151,11 +119,7 @@ namespace Smartstore.Web.Bundling
                 clone.Processors.Add(SassProcessor.Instance);
 
                 var bundleResponse = await _bundleBuilder.BuildBundleAsync(clone, cacheKey.Fragments, httpContext, options);
-                var response = httpContext.Response;
-                var buffer = Encoding.UTF8.GetBytes(bundleResponse.Content);
-
-                response.ContentType = bundleResponse.ContentType;
-                await response.Body.WriteAsync(buffer.AsMemory(0, buffer.Length));
+                await ServeBundleResponse(bundleResponse, httpContext, options, true);
             }
             catch (Exception ex)
             {
@@ -163,31 +127,34 @@ namespace Smartstore.Web.Bundling
             }
         }
 
-        private static ValueTask ServeBundleResponse(BundleResponse bundleResponse, HttpContext httpContext, BundlingOptions options)
+        private static ValueTask ServeBundleResponse(BundleResponse bundleResponse, HttpContext httpContext, BundlingOptions options, bool noCache = false)
         {
             var response = httpContext.Response;
             var contentHash = bundleResponse.ContentHash;
 
             response.ContentType = bundleResponse.ContentType;
 
-            if (options.EnableClientCache == true)
+            if (!noCache)
             {
-                response.Headers[HeaderNames.CacheControl] = "max-age=31536000"; // 1 year
-
-                if (httpContext.Request.Query.ContainsKey("v"))
+                if (options.EnableClientCache == true)
                 {
-                    response.Headers[HeaderNames.CacheControl] += ",immutable";
+                    response.Headers[HeaderNames.CacheControl] = "max-age=31536000"; // 1 year
+
+                    if (httpContext.Request.Query.ContainsKey("v"))
+                    {
+                        response.Headers[HeaderNames.CacheControl] += ",immutable";
+                    }
                 }
-            }
 
-            if (contentHash.HasValue())
-            {
-                response.Headers[HeaderNames.ETag] = $"\"{contentHash}\"";
-
-                if (IsConditionalGet(httpContext, contentHash))
+                if (contentHash.HasValue())
                 {
-                    response.StatusCode = 304;
-                    return ValueTask.CompletedTask;
+                    response.Headers[HeaderNames.ETag] = $"\"{contentHash}\"";
+
+                    if (IsConditionalGet(httpContext, contentHash))
+                    {
+                        response.StatusCode = 304;
+                        return ValueTask.CompletedTask;
+                    }
                 }
             }
 

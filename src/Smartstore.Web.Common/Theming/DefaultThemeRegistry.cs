@@ -153,6 +153,9 @@ namespace Smartstore.Web.Theming
 
                     // Use CompositeFileProvider for theme inheritance
                     manifest.WebFileProvider = new CompositeFileProvider(fileProviders);
+
+                    // INFO: (core) Falling back to base theme's file via "?base" is not supported anymore.
+                    // The full path must be specified instead, e.g. "/themes/flex/_variables.scss".
                 }
             }
         }
@@ -304,7 +307,7 @@ namespace Smartstore.Web.Theming
             {
                 Path = _root.Root,
                 InternalBufferSize = 32768, // // 32 instead of the default 8 KB,
-                Filter = "*.*",
+                Filter = "theme.config",
                 NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.LastWrite | NotifyFilters.FileName,
                 IncludeSubdirectories = true
             };
@@ -379,9 +382,6 @@ namespace Smartstore.Web.Theming
                 return;
             }
 
-            if (!_fileFilterPattern.IsMatch(Path.GetExtension(name)))
-                return;
-
             var idx = name.IndexOf('\\');
             if (idx < 0)
             {
@@ -393,62 +393,58 @@ namespace Smartstore.Web.Theming
             var relativePath = name[(themeName.Length + 1)..].Replace('\\', '/');
             var isConfigFile = relativePath.EqualsNoCase("theme.config");
 
-            if (changeType == ThemeFileChangeType.Modified && !isConfigFile)
+            if (!isConfigFile)
             {
-                // Monitor changes only for root theme.config
                 return;
             }
 
             BaseThemeChangedEventArgs baseThemeChangedArgs = null;
 
-            if (isConfigFile)
+            // config file changes always result in refreshing the corresponding theme manifest
+            //var dir = new DirectoryInfo(Path.GetDirectoryName(fullPath));
+            var dir = new LocalDirectory(themeName, new DirectoryInfo(Path.GetDirectoryName(fullPath)), _root);
+
+            string oldBaseThemeName = null;
+            var oldManifest = GetThemeManifest(dir.Name);
+            if (oldManifest != null)
             {
-                // config file changes always result in refreshing the corresponding theme manifest
-                //var dir = new DirectoryInfo(Path.GetDirectoryName(fullPath));
-                var dir = new LocalDirectory(themeName, new DirectoryInfo(Path.GetDirectoryName(fullPath)), _root);
+                oldBaseThemeName = oldManifest.BaseThemeName;
+            }
 
-                string oldBaseThemeName = null;
-                var oldManifest = GetThemeManifest(dir.Name);
-                if (oldManifest != null)
+            try
+            {
+                // FS watcher in conjunction with some text editors fires change events twice and locks the file.
+                // Let's wait max. 250ms till the lock is gone (hopefully).
+                var fi = new FileInfo(fullPath);
+                fi.WaitForUnlock(250);
+
+                var newManifest = ThemeManifest.Create(dir.Name, _root);
+                if (newManifest != null)
                 {
-                    oldBaseThemeName = oldManifest.BaseThemeName;
-                }
+                    AddThemeManifestInternal(newManifest, false);
 
-                try
-                {
-                    // FS watcher in conjunction with some text editors fires change events twice and locks the file.
-                    // Let's wait max. 250ms till the lock is gone (hopefully).
-                    var fi = new FileInfo(fullPath);
-                    fi.WaitForUnlock(250);
-
-                    var newManifest = ThemeManifest.Create(dir.Name, _root);
-                    if (newManifest != null)
+                    if (!oldBaseThemeName.EqualsNoCase(newManifest.BaseThemeName))
                     {
-                        AddThemeManifestInternal(newManifest, false);
-
-                        if (!oldBaseThemeName.EqualsNoCase(newManifest.BaseThemeName))
+                        baseThemeChangedArgs = new BaseThemeChangedEventArgs
                         {
-                            baseThemeChangedArgs = new BaseThemeChangedEventArgs
-                            {
-                                ThemeName = newManifest.ThemeName,
-                                BaseTheme = newManifest.BaseTheme?.ThemeName,
-                                OldBaseTheme = oldBaseThemeName
-                            };
-                        }
+                            ThemeName = newManifest.ThemeName,
+                            BaseTheme = newManifest.BaseTheme?.ThemeName,
+                            OldBaseTheme = oldBaseThemeName
+                        };
+                    }
 
-                        Logger.Debug("Changed theme manifest for '{0}'".FormatCurrent(name));
-                    }
-                    else
-                    {
-                        // something went wrong (most probably no 'theme.config'): remove the manifest
-                        TryRemoveManifest(dir.Name);
-                    }
+                    Logger.Debug("Changed theme manifest for '{0}'".FormatCurrent(name));
                 }
-                catch (Exception ex)
+                else
                 {
-                    Logger.Error(ex, "Could not touch theme manifest '{0}': {1}".FormatCurrent(name, ex.Message));
+                    // something went wrong (most probably no 'theme.config'): remove the manifest
                     TryRemoveManifest(dir.Name);
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Could not touch theme manifest '{0}': {1}".FormatCurrent(name, ex.Message));
+                TryRemoveManifest(dir.Name);
             }
 
             if (baseThemeChangedArgs != null)
