@@ -16,8 +16,8 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
-            var wishlist = await _shoppingCartService.GetCartItemsAsync(context.Customer, ShoppingCartType.Wishlist, context.Store.Id);
-            var productIds = wishlist
+            var wishlist = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.Wishlist, context.Store.Id);
+            var productIds = wishlist.Items
                 .Select(x => x.Item.ProductId)
                 .Distinct()
                 .ToArray();

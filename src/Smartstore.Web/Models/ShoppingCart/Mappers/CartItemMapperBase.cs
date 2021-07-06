@@ -213,10 +213,10 @@ namespace Smartstore.Web.Models.ShoppingCart
                 to.Warnings.AddRange(itemWarnings);
             }
 
-            var cart = await ShoppingCartService.GetCartItemsAsync(customer, shoppingCartType, _services.StoreContext.CurrentStore.Id);
+            var cart = await ShoppingCartService.GetCartAsync(customer, shoppingCartType, _services.StoreContext.CurrentStore.Id);
 
             var attrWarnings = new List<string>();
-            isValid = await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart, attrWarnings);
+            isValid = await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart.Items, attrWarnings);
             if (!isValid)
             {
                 to.Warnings.AddRange(attrWarnings);

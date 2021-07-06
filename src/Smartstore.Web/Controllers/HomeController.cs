@@ -932,11 +932,11 @@ namespace Smartstore.Web.Controllers
             var pam = Services.Resolve<IProductAttributeMaterializer>();
             var scs = Services.Resolve<IShoppingCartService>();
             var schs = Services.Resolve<IShippingService>();
-            var cart = await scs.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart);
-            var cartWeight = await schs.GetCartTotalWeightAsync(cart);
+            var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
+            var cartWeight = await schs.GetCartTotalWeightAsync(cart.Items);
             content.AppendLine("Cart weight: " + cartWeight.ToString());
 
-            foreach (var item in cart)
+            foreach (var item in cart.Items)
             {
                 var attributeValues = await pam.MaterializeProductVariantAttributeValuesAsync(item.Item.AttributeSelection);
                 var attributesInfo = string.Join(", ", attributeValues.Select(x => x.ProductVariantAttribute.ProductAttribute.Name + ":" + x.Name));
@@ -956,7 +956,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var selection = new ProductVariantAttributeSelection(string.Empty);
-            foreach (var item in cart)
+            foreach (var item in cart.Items)
             {
                 foreach (var attribute in item.Item.AttributeSelection.AttributesMap)
                 {

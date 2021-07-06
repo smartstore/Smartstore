@@ -24,8 +24,8 @@ namespace Smartstore.Core.Checkout.Cart
     public partial class ShoppingCartService : IShoppingCartService
     {
         // 0 = CustomerId, 1 = CartType, 2 = StoreId
-        const string CartItemsKey = "sm.cartitems-{0}-{1}-{2}";
-        const string CartItemsPatternKey = "sm.cartitems-*";
+        private const string CART_ITEMS_KEY = "shoppingcartitems:{0}-{1}-{2}";
+        private const string CART_ITEMS_PATTERN_KEY = "shoppingcartitems:*";
 
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
@@ -88,7 +88,9 @@ namespace Smartstore.Core.Checkout.Cart
             var result = new List<OrganizedShoppingCartItem>();
 
             if (cart.IsNullOrEmpty())
+            {
                 return result;
+            }
 
             var parents = cart.Where(x => x.ParentItemId is null);
 
@@ -166,7 +168,7 @@ namespace Smartstore.Core.Checkout.Cart
                 return false;
             }
 
-            var cartItems = await GetCartItemsAsync(ctx.Customer, ctx.CartType, ctx.StoreId.Value);
+            var cart = await GetCartAsync(ctx.Customer, ctx.CartType, ctx.StoreId.Value);
 
             // Adds required products automatically if it is enabled
             if (ctx.AutomaticallyAddRequiredProducts)
@@ -174,7 +176,7 @@ namespace Smartstore.Core.Checkout.Cart
                 var requiredProductIds = ctx.Product.ParseRequiredProductIds();
                 if (requiredProductIds.Any())
                 {
-                    var cartProductIds = cartItems.Select(x => x.Item.ProductId);
+                    var cartProductIds = cart.Items.Select(x => x.Item.ProductId);
                     var missingRequiredProductIds = requiredProductIds.Except(cartProductIds);
                     var missingRequiredProducts = await _db.Products.GetManyAsync(missingRequiredProductIds, false);
 
@@ -203,13 +205,13 @@ namespace Smartstore.Core.Checkout.Cart
             }
 
             // Checks whether required products are still missing
-            await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, cartItems, ctx.Warnings);
+            await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, cart.Items, ctx.Warnings);
 
             ShoppingCartItem existingCartItem = null;
 
             if (ctx.BundleItem == null)
             {
-                existingCartItem = cartItems.FindItemInCart(ctx.CartType, ctx.Product, ctx.AttributeSelection, ctx.CustomerEnteredPrice)?.Item;
+                existingCartItem = cart.Items.FindItemInCart(ctx.CartType, ctx.Product, ctx.AttributeSelection, ctx.CustomerEnteredPrice)?.Item;
             }
 
             // Add item to cart (if no warnings accured)
@@ -218,7 +220,7 @@ namespace Smartstore.Core.Checkout.Cart
                 // Product is already in cart, find existing item
                 var newQuantity = ctx.Quantity + existingCartItem.Quantity;
 
-                if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, existingCartItem, cartItems))
+                if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, existingCartItem, cart.Items))
                 {
                     return false;
                 }
@@ -233,7 +235,7 @@ namespace Smartstore.Core.Checkout.Cart
             }
             else
             {
-                if (!_cartValidator.ValidateItemsMaximumCartQuantity(ctx.CartType, cartItems.Count, ctx.Warnings))
+                if (!_cartValidator.ValidateItemsMaximumCartQuantity(ctx.CartType, cart.Items.Length, ctx.Warnings))
                 {
                     return false;
                 }
@@ -255,7 +257,7 @@ namespace Smartstore.Core.Checkout.Cart
                 };
 
                 // Validate shopping cart item
-                if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cartItems))
+                if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cart.Items))
                 {
                     return false;
                 }
@@ -273,7 +275,7 @@ namespace Smartstore.Core.Checkout.Cart
                 }
             }
 
-            _requestCache.RemoveByPattern(CartItemsPatternKey);
+            _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
 
             // If ctx.Product is a bundle product and the setting to automatically add bundle products is true, try to add all corresponding BundleItems.
 
@@ -357,7 +359,7 @@ namespace Smartstore.Core.Checkout.Cart
                 return false;
             }
 
-            _requestCache.RemoveByPattern(CartItemsPatternKey);
+            _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
 
             return !ctx.Warnings.Any();
         }
@@ -399,7 +401,7 @@ namespace Smartstore.Core.Checkout.Cart
             _db.ShoppingCartItems.RemoveRange(itemsToRemove);
             var deletedCount = await _db.SaveChangesAsync();
 
-            _requestCache.RemoveByPattern(CartItemsPatternKey);
+            _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
 
             if (removeInvalidCheckoutAttributes)
             {
@@ -426,40 +428,28 @@ namespace Smartstore.Core.Checkout.Cart
             return deletedCount;
         }
 
-        public virtual Task<List<OrganizedShoppingCartItem>> GetCartItemsAsync(
-            Customer customer = null,
-            ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
-            int storeId = 0)
+        public virtual Task<ShoppingCart> GetCartAsync(Customer customer = null, ShoppingCartType cartType = ShoppingCartType.ShoppingCart, int storeId = 0)
         {
             customer ??= _workContext.CurrentCustomer;
 
-            var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId);
+            var cacheKey = CART_ITEMS_KEY.FormatInvariant(customer.Id, (int)cartType, storeId);
+
             var result = _requestCache.Get(cacheKey, async () =>
             {
-                await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, false, x =>
-                {
-                    return x
-                        .Include(x => x.Product)
-                        .ThenInclude(x => x.ProductVariantAttributes);
-                });
-
+                await LoadCartItemCollection(customer);
                 var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId);
 
-                // Prefetch all product variant attributes
-                var allAttributes = new ProductVariantAttributeSelection(string.Empty);
-                var allAttributeMaps = cartItems.SelectMany(x => x.AttributeSelection.AttributesMap);
+                // Perf: Prefetch (load) all attribute values in any of the attribute definitions across all cart items (including any bundle part)
+                //await _productAttributeMaterializer.PrefetchProductVariantAttributesAsync(cartItems.Select(x => x.AttributeSelection));
 
-                foreach (var attribute in allAttributeMaps)
+                var organizedItems = await OrganizeCartItemsAsync(cartItems);
+
+                return new ShoppingCart(organizedItems.ToArray())
                 {
-                    if (allAttributes.AttributesMap.Contains(attribute))
-                        continue;
-
-                    allAttributes.AddAttribute(attribute.Key, attribute.Value);
-                }
-
-                await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(allAttributes);
-
-                return await OrganizeCartItemsAsync(cartItems);
+                    CartType = cartType,
+                    Customer = customer,
+                    StoreId = storeId
+                };
             });
 
             return result;
@@ -517,11 +507,14 @@ namespace Smartstore.Core.Checkout.Cart
         {
             Guard.NotNull(customer, nameof(customer));
 
-            var warnings = new List<string>();
+            await LoadCartItemCollection(customer);
 
+            var warnings = new List<string>();
             var cartItem = customer.ShoppingCartItems.FirstOrDefault(x => x.Id == cartItemId && x.ParentItemId == null);
             if (cartItem == null)
+            {
                 return warnings;
+            }
 
             if (resetCheckoutData)
             {
@@ -542,9 +535,9 @@ namespace Smartstore.Core.Checkout.Cart
                     AutomaticallyAddRequiredProducts = false,
                 };
 
-                var cartItems = await GetCartItemsAsync(customer, cartItem.ShoppingCartType, cartItem.StoreId);
+                var cart = await GetCartAsync(customer, cartItem.ShoppingCartType, cartItem.StoreId);
 
-                if (await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cartItems))
+                if (await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cart.Items))
                 {
                     cartItem.Quantity = newQuantity;
                     cartItem.UpdatedOnUtc = DateTime.UtcNow;
@@ -561,9 +554,18 @@ namespace Smartstore.Core.Checkout.Cart
                 await DeleteCartItemsAsync(new[] { cartItem }, resetCheckoutData, true);
             }
 
-            _requestCache.RemoveByPattern(CartItemsPatternKey);
+            _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
 
             return warnings;
+        }
+
+        private async Task LoadCartItemCollection(Customer customer, bool force = false)
+        {
+            await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, force, x =>
+            {
+                return x.Include(x => x.Product)
+                    .ThenInclude(x => x.ProductVariantAttributes);
+            });
         }
     }
 }

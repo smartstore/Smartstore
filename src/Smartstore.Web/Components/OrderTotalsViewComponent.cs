@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
@@ -11,8 +13,6 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.ShoppingCart;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Smartstore.Web.Components
 {
@@ -68,20 +68,20 @@ namespace Smartstore.Web.Components
             var customer = orderTotalsEvent.Customer ?? Services.WorkContext.CurrentCustomer;
             var storeId = orderTotalsEvent.StoreId ?? Services.StoreContext.CurrentStore.Id;
 
-            var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId);
+            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId);
             var model = new OrderTotalsModel
             {
                 IsEditable = isEditable
             };
 
-            if (!cart.Any())
+            if (!cart.Items.Any())
             {
                 return View(model);
             }
 
             model.Weight = decimal.Zero;
 
-            foreach (var cartItem in cart)
+            foreach (var cartItem in cart.Items)
             {
                 model.Weight += cartItem.Item.Product.Weight * cartItem.Item.Quantity;
             }
@@ -93,7 +93,7 @@ namespace Smartstore.Web.Components
             }
 
             // SubTotal
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart.Items);
             var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
 
             model.SubTotal = subTotalConverted;
@@ -114,7 +114,7 @@ namespace Smartstore.Web.Components
             model.RequiresShipping = false;// cart.IsShippingRequired();
             if (model.RequiresShipping)
             {
-                var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
+                var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart.Items);
                 if (shippingTotal.ShippingTotal.HasValue)
                 {
                     var shippingTotalConverted = _currencyService.ConvertFromPrimaryCurrency(shippingTotal.ShippingTotal.Value.Amount, currency);
@@ -128,7 +128,7 @@ namespace Smartstore.Web.Components
             }
 
             // Payment method fee
-            var paymentFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(cart, customer.GenericAttributes.SelectedPaymentMethod);
+            var paymentFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(cart.Items, customer.GenericAttributes.SelectedPaymentMethod);
             var paymentFeeTax = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentFee.Amount, customer: customer);
             if (paymentFeeTax.Price != 0m)
             {

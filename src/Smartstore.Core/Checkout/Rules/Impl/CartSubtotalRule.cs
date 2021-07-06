@@ -31,8 +31,8 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             // We must prevent the rule from indirectly calling itself. It would cause a stack overflow on cart page.
             using (await AsyncLock.KeyedAsync(lockKey))
             {
-                var cart = await _shoppingCartService.GetCartItemsAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
-                var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+                var cart = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
+                var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart.Items);
 
                 // Subtotal is always calculated for working currency. No new money struct required here.
                 // Currency values must be rounded here because otherwise unexpected results may occur.

@@ -42,7 +42,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="resetCheckoutData">Value indicating whether to reset checkout data.</param>
         /// <param name="removeInvalidCheckoutAttributes">Value indicating whether to remove checkout attributes that become invalid.</param>
         /// <param name="deleteChildCartItems">Value indicating whether to delete child items.</param>
-        /// <returns>Number of items deleted.</returns>
+        /// <returns>Number of deleted items.</returns>
         Task<int> DeleteCartItemsAsync(
             IEnumerable<ShoppingCartItem> cartItems, 
             bool resetCheckoutData = true, 
@@ -50,16 +50,13 @@ namespace Smartstore.Core.Checkout.Cart
             bool deleteChildCartItems = true);
 
         /// <summary>
-        /// Gets the customers shopping cart items async.
+        /// Gets a shopping cart for a customer.
         /// </summary>
         /// <param name="customer">Customer of cart. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="cartType">Shopping cart type.</param>
         /// <param name="storeId">Store identifier.</param>
-        /// <returns>List of error messages.</returns>
-        Task<List<OrganizedShoppingCartItem>> GetCartItemsAsync(
-            Customer customer = null, 
-            ShoppingCartType cartType = ShoppingCartType.ShoppingCart, 
-            int storeId = 0);
+        /// <returns>Shopping cart.</returns>
+        Task<ShoppingCart> GetCartAsync(Customer customer = null, ShoppingCartType cartType = ShoppingCartType.ShoppingCart, int storeId = 0);
 
         /// <summary>
         /// Migrates all cart items from one to another customer async.

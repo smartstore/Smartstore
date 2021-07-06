@@ -57,8 +57,8 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                 return false;
             }
 
-            var cart = await _shoppingCartService.GetCartItemsAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
-            var items = cart.Where(x => x.Item.ProductId == productId);
+            var cart = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
+            var items = cart.Items.Where(x => x.Item.ProductId == productId);
             if (!items.Any())
             {
                 return false;

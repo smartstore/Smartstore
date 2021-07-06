@@ -69,8 +69,11 @@ namespace Smartstore.Core.Catalog.Attributes
             (int)AttributeControlType.Boxes
         };
 
-        // TODO: (mg) (core) Check whether IProductAttributeMaterializer.PrefetchProductVariantAttributes is still required.
-        // Looks like it can be done by MaterializeProductVariantAttributeValuesAsync.
+        public virtual Task<int> PrefetchProductVariantAttributesAsync(IEnumerable<ProductVariantAttributeSelection> selections)
+        {
+            // TODO: (mg) (core) implement IProductAttributeMaterializer.PrefetchProductVariantAttributesAsync (really necessary?)
+            return Task.FromResult(0);
+        }
 
         public virtual async Task<IList<ProductVariantAttribute>> MaterializeProductVariantAttributesAsync(ProductVariantAttributeSelection selection)
         {

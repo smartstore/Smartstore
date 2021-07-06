@@ -15,8 +15,8 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
-            var cart = await _shoppingCartService.GetCartItemsAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
-            var productCount = cart.GetTotalQuantity();
+            var cart = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
+            var productCount = cart.Items.GetTotalQuantity();
 
             return expression.Operator.Match(productCount, expression.Value);
         }

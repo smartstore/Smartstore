@@ -204,8 +204,8 @@ namespace Smartstore.Core.Catalog.Discounts
             // Better not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
             if (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal)
             {
-                var cart =  await _cartService.Value.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-                if (cart.Any(x => x.Item?.Product != null && x.Item.Product.IsGiftCard))
+                var cart = await _cartService.Value.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+                if (cart.Items.Any(x => x.Item?.Product != null && x.Item.Product.IsGiftCard))
                 {
                     return Cached(false);
                 }

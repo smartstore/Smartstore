@@ -11,6 +11,13 @@ namespace Smartstore.Core.Catalog.Attributes
     public partial interface IProductAttributeMaterializer
     {
         /// <summary>
+        /// Prefetches & caches all passed attribute selection for the current request.
+        /// </summary>
+        /// <param name="selections">All attribute selections to prefetch.</param>
+        /// <returns>Number of fetched attributes.</returns>
+        //Task<int> PrefetchProductVariantAttributesAsync(IEnumerable<ProductVariantAttributeSelection> selections);
+
+        /// <summary>
         /// Gets a list of product variant attributes.
         /// </summary>
         /// <param name="selection">Attributes selection.</param>

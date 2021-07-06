@@ -42,9 +42,14 @@ namespace Smartstore.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            // Get customer shopping cart items
-            var cart = await _cartService.GetCartItemsAsync(Services.WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart, Services.StoreContext.CurrentStore.Id);
-            var products = await _productService.GetCrossSellProductsByShoppingCartAsync(cart, Convert.ToInt32(_shoppingCartSettings.CrossSellsNumber * 1.5));
+            // Get customer shopping cart.
+            var cart = await _cartService.GetCartAsync(Services.WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart, Services.StoreContext.CurrentStore.Id);
+            var cartProductIds = cart.Items
+                .Select(x => x.Item.ProductId)
+                .Distinct()
+                .ToArray();
+
+            var products = await _productService.GetCrossSellProductsByProductIdsAsync(cartProductIds, Convert.ToInt32(_shoppingCartSettings.CrossSellsNumber * 1.5));
 
             // ACL and store mapping
             products = await products

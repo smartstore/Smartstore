@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -157,10 +156,7 @@ namespace Smartstore.Core.Catalog.Products
             return map;
         }
 
-        public virtual async Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(
-            int[] productIds,
-            bool includeHidden = false,
-            bool tracked = false)
+        public virtual async Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(int[] productIds, bool includeHidden = false, bool tracked = false)
         {
             Guard.NotNull(productIds, nameof(productIds));
 
@@ -192,31 +188,28 @@ namespace Smartstore.Core.Catalog.Products
             return map;
         }
 
-        public virtual async Task<IList<Product>> GetCrossSellProductsByShoppingCartAsync(
-            IList<OrganizedShoppingCartItem> cart,
-            int numberOfProducts,
-            bool includeHidden = false)
+        public virtual async Task<IList<Product>> GetCrossSellProductsByProductIdsAsync(int[] productIds, int numberOfProducts, bool includeHidden = false)
         {
+            Guard.NotNull(productIds, nameof(productIds));
+
             var result = new List<Product>();
 
-            if (numberOfProducts == 0 || cart?.Count <= 0)
+            if (numberOfProducts == 0 || !productIds.Any())
             {
                 return result;
             }
 
-            var cartProductIds = new HashSet<int>(cart.Select(x => x.Item.ProductId));
-
             var query =
                 from csp in _db.CrossSellProducts.AsNoTracking()
                 join p in _db.Products on csp.ProductId2 equals p.Id
-                where cartProductIds.Contains(csp.ProductId1) && (includeHidden || p.Published)
+                where productIds.Contains(csp.ProductId1) && (includeHidden || p.Published)
                 orderby csp.Id
                 select csp;
 
             var csItems = await query.ToListAsync();
             var productIds1 = new HashSet<int>(csItems
                 .Select(x => x.ProductId2)
-                .Except(cartProductIds));
+                .Except(productIds));
 
             if (productIds1.Any())
             {

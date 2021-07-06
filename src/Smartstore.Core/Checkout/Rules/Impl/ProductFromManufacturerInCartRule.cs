@@ -21,8 +21,8 @@ namespace Smartstore.Core.Checkout.Rules.Impl
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
             var manufacturerIds = Enumerable.Empty<int>();
-            var cart = await _shoppingCartService.GetCartItemsAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
-            var productIds = cart.Select(x => x.Item.ProductId).ToArray();
+            var cart = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
+            var productIds = cart.Items.Select(x => x.Item.ProductId).ToArray();
 
             if (productIds.Any())
             {

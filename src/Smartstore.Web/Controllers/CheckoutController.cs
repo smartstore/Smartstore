@@ -102,9 +102,9 @@ namespace Smartstore.Web.Controllers
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
             var customer = Services.WorkContext.CurrentCustomer;
-            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
+            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
 
-            if (!cart.Any())
+            if (!cart.Items.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -120,14 +120,14 @@ namespace Smartstore.Web.Controllers
             var checkoutAttributes = customer.GenericAttributes.CheckoutAttributes;
 
             var warnings = new List<string>();
-            var isValid = await _shoppingCartValidator.ValidateCartItemsAsync(cart, warnings, true, checkoutAttributes);
+            var isValid = await _shoppingCartValidator.ValidateCartItemsAsync(cart.Items, warnings, true, checkoutAttributes);
             if (!isValid)
             {
                 NotifyWarning(string.Join(Environment.NewLine, warnings.Take(3)));
                 return RedirectToRoute("ShoppingCart");
             }
 
-            var validatingCartEvent = new ValidatingCartEvent(cart, warnings, customer);
+            var validatingCartEvent = new ValidatingCartEvent(cart.Items, warnings, customer);
             await Services.EventPublisher.PublishAsync(validatingCartEvent);
 
             if (validatingCartEvent.Result != null)
@@ -142,7 +142,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Validate each shopping cart item.
-            foreach (var cartItem in cart)
+            foreach (var cartItem in cart.Items)
             {
                 var ctx = new AddToCartContext
                 {
@@ -152,7 +152,7 @@ namespace Smartstore.Web.Controllers
                     ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList()
                 };
 
-                isValid = await _shoppingCartValidator.ValidateAddToCartItemAsync(ctx, cartItem.Item, cart);
+                isValid = await _shoppingCartValidator.ValidateAddToCartItemAsync(ctx, cartItem.Item, cart.Items);
                 if (!isValid)
                 {
                     warnings.AddRange(ctx.Warnings);
@@ -167,14 +167,15 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> BillingAddress()
         {
-            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
+            var customer = Services.WorkContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
 
-            if (cart.Count == 0)
+            if (!cart.Items.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }
 
-            if (Services.WorkContext.CurrentCustomer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
                 return new UnauthorizedResult();
             }
@@ -201,21 +202,20 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ShippingAddress()
         {
-            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
+            var customer = Services.WorkContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
 
-            if (!cart.Any())
+            if (!cart.Items.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }
-
-            var customer = Services.WorkContext.CurrentCustomer;
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
                 return new UnauthorizedResult();
             }
 
-            if (!cart.IncludesMatchingItems(x => x.IsShippingEnabled))
+            if (!cart.Items.IncludesMatchingItems(x => x.IsShippingEnabled))
             {
                 customer.ShippingAddress = null;
 
@@ -248,9 +248,9 @@ namespace Smartstore.Web.Controllers
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
             var customer = Services.WorkContext.CurrentCustomer;
-            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
+            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
 
-            if (cart.Count == 0)
+            if (!cart.Items.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -260,7 +260,7 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
             }
 
-            if (!cart.IsShippingRequired())
+            if (!cart.Items.IsShippingRequired())
             {
                 customer.GenericAttributes.SelectedShippingOption = null;
                 await customer.GenericAttributes.SaveChangesAsync();
@@ -297,7 +297,7 @@ namespace Smartstore.Web.Controllers
             //}
 
             var model = new CheckoutShippingMethodModel();
-            await cart.AsEnumerable().MapAsync(model);
+            await cart.Items.MapAsync(model);
 
             // TODO: (mh) (core) Remove dummy shipping method model.
             // This creates a dummy ShippingMethodModel. It is needed as long as no other shipping method is implemented.
@@ -322,21 +322,20 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> SelectShippingMethod(string shippingOption)
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
+            var customer = Services.WorkContext.CurrentCustomer;
 
-            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
-            if (!cart.Any())
+            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
+            if (!cart.Items.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }
-
-            var customer = Services.WorkContext.CurrentCustomer;
 
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
                 return new UnauthorizedResult();
             }
 
-            if (!cart.IsShippingRequired())
+            if (!cart.Items.IsShippingRequired())
             {
                 customer.GenericAttributes.SelectedShippingOption = null;
                 await customer.GenericAttributes.SaveChangesAsync();
@@ -406,9 +405,10 @@ namespace Smartstore.Web.Controllers
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
             var customer = Services.WorkContext.CurrentCustomer;
+            var language = Services.WorkContext.WorkingLanguage;
 
-            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
-            if (!cart.Any())
+            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
+            if (!cart.Items.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -419,32 +419,32 @@ namespace Smartstore.Web.Controllers
             }
 
             // Check whether payment workflow is required. We ignore reward points during cart total calculation.
-            Money? shoppingCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
+            Money? shoppingCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart.Items, false);
             var isPaymentWorkflowRequired = shoppingCartTotal.GetValueOrDefault() != decimal.Zero;
 
             var model = new CheckoutPaymentMethodModel();
-            await cart.AsEnumerable().MapAsync(model);
+            await cart.Items.MapAsync(model);
 
             // TODO: (mh) (core) Remove test data later.
-            model.PaymentMethods.Add(new CheckoutPaymentMethodModel.PaymentMethodModel()
+            model.PaymentMethods.Add(new CheckoutPaymentMethodModel.PaymentMethodModel
             {
                 Name = "Super dummy payment",
                 PaymentMethodSystemName = "Super dummy payments",
                 Selected = true,
                 BrandUrl = "test.de",
                 Description = "This is a test payment method.",
-                FullDescription = new("This is a test payment methods full description.", Services.WorkContext.WorkingLanguage, Services.WorkContext.WorkingLanguage),
+                FullDescription = new("This is a test payment methods full description.", language, language),
                 Fee = new(5, Services.StoreContext.CurrentStore.PrimaryStoreCurrency),
                 RequiresInteraction = false,
             });
-            model.PaymentMethods.Add(new CheckoutPaymentMethodModel.PaymentMethodModel()
+            model.PaymentMethods.Add(new CheckoutPaymentMethodModel.PaymentMethodModel
             {
                 Name = "Super dummy payment2",
                 PaymentMethodSystemName = "Super dummy payments2",
                 Selected = true,
                 BrandUrl = "test2.de",
                 Description = "This is a test payment method2.",
-                FullDescription = new("This is a test payment methods full description2.", Services.WorkContext.WorkingLanguage, Services.WorkContext.WorkingLanguage),
+                FullDescription = new("This is a test payment methods full description2.", language, language),
                 Fee = new(6, Services.StoreContext.CurrentStore.PrimaryStoreCurrency),
                 RequiresInteraction = false,
             });
@@ -482,8 +482,8 @@ namespace Smartstore.Web.Controllers
             var storeId = Services.StoreContext.CurrentStore.Id;
             var customer = Services.WorkContext.CurrentCustomer;
 
-            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
-            if (!cart.Any())
+            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
+            if (!cart.Items.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -555,19 +555,20 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Confirm()
         {
-            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
-            if (!cart.Any())
+            var customer = Services.WorkContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
+            if (!cart.Items.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }
 
-            if (Services.WorkContext.CurrentCustomer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
                 return new UnauthorizedResult();
             }
 
             var model = new CheckoutConfirmModel();
-            await cart.AsEnumerable().MapAsync(model);
+            await cart.Items.MapAsync(model);
 
             return View(model);
         }
@@ -577,9 +578,9 @@ namespace Smartstore.Web.Controllers
         {
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
-            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: store.Id);
+            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: store.Id);
 
-            if (!cart.Any())
+            if (!cart.Items.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -590,7 +591,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var warnings = new List<string>();
-            var validatingCartEvent = new ValidatingCartEvent(cart, warnings, customer);
+            var validatingCartEvent = new ValidatingCartEvent(cart.Items, warnings, customer);
             await Services.EventPublisher.PublishAsync(validatingCartEvent);
 
             if (validatingCartEvent.Result != null)
@@ -613,7 +614,7 @@ namespace Smartstore.Web.Controllers
                 if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest))
                 {
                     // Check whether payment workflow is required.
-                    var cartTotalBase = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
+                    var cartTotalBase = await _orderCalculationService.GetShoppingCartTotalAsync(cart.Items, false);
 
                     if (cartTotalBase.Total.HasValue && cartTotalBase.Total.Value == decimal.Zero 
                         || HttpContext.GetCheckoutState().IsPaymentSelectionSkipped)
