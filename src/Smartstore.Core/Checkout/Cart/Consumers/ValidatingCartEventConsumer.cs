@@ -30,7 +30,7 @@ namespace Smartstore.Core.Checkout.Cart
         public async Task HandleEventAsync(ValidatingCartEvent message)
         {
             // Order total validation.
-            var roleMappings = _workContext.CurrentImpersonator?.CustomerRoleMappings ?? message.Customer.CustomerRoleMappings;
+            var roleMappings = _workContext.CurrentImpersonator?.CustomerRoleMappings ?? message.Cart.Customer.CustomerRoleMappings;
             var result = await _orderProcessingService.ValidateOrderTotalAsync(message.Cart, roleMappings.Select(x => x.CustomerRole).ToArray());
 
             if (!result.IsAboveMinimum)

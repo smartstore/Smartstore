@@ -1,46 +1,33 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Cart.Events
 {
     /// <summary>
-    /// Represents a validating cart event
+    /// Represents a validating cart event.
     /// </summary>
     public class ValidatingCartEvent
     {
         /// <summary>
         /// Creates a new <see cref="ValidatingCartEvent"/>.
         /// </summary>
-        /// <param name="cart"><see cref="List{T}"/> of organized shopping cart items.</param>
-        /// <param name="warnings"><see cref="List{T}"/> of warnings as strings.</param>
-        /// <param name="customer">The current customer.</param>
-        /// <remarks>
-        /// Assign an <see cref="ActionResult"/> to <see cref="Result"/> to redirect the user, after the event has been completed.
-        /// </remarks>
-        public ValidatingCartEvent(
-            IList<OrganizedShoppingCartItem> cart,
-            IList<string> warnings,
-            Customer customer)
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="warnings">List of warnings.</param>
+        /// <remarks>Assign an <see cref="ActionResult"/> to <see cref="Result"/> to redirect the user, after the event has been completed.</remarks>
+        public ValidatingCartEvent(ShoppingCart cart, IList<string> warnings)
         {
             Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(cart.Customer, nameof(cart.Customer));
             Guard.NotNull(warnings, nameof(warnings));
-            Guard.NotNull(customer, nameof(customer));
 
             Cart = cart;
             Warnings = warnings;
-            Customer = customer;
         }
 
         /// <summary>
-        /// Gets the customer
+        /// Gets the shopping cart.
         /// </summary>
-        public Customer Customer { get; init; }
-
-        /// <summary>
-        /// Gets organized shopping cart items
-        /// </summary>
-        public IList<OrganizedShoppingCartItem> Cart { get; init; }
+        public ShoppingCart Cart { get; init; }
 
         /// <summary>
         /// Gets warnings

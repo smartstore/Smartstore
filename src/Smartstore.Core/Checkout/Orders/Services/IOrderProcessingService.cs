@@ -67,7 +67,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="cart">Shopping cart.</param>
         /// <param name="customerRoles">Customer roles to check against.</param>
         /// <returns>Validated order total.</returns>
-        Task<OrderTotalValidationResult> ValidateOrderTotalAsync(IList<OrganizedShoppingCartItem> cart, params CustomerRole[] customerRoles);
+        Task<OrderTotalValidationResult> ValidateOrderTotalAsync(ShoppingCart cart, params CustomerRole[] customerRoles);
 
         /// <summary>
         /// Adds a shipment to an order.
@@ -102,7 +102,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="initialOrder">Initial order for recurring payment, if any.</param>
         /// <param name="customer">Customer placing the order.</param>
         /// <returns>Warnings and validated card. Warnings are empty if the order can be placed.</returns>
-        Task<(IList<string> Warnings, IList<OrganizedShoppingCartItem> Cart)> ValidateOrderPlacementAsync(
+        Task<(IList<string> Warnings, ShoppingCart Cart)> ValidateOrderPlacementAsync(
             ProcessPaymentRequest paymentRequest,
             Order initialOrder = null,
             Customer customer = null);

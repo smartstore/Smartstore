@@ -481,7 +481,7 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            var subTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart.Items);
+            var subTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
 
             return Json(new
             {
@@ -1092,12 +1092,7 @@ namespace Smartstore.Web.Controllers
                                 Description = shippingOption.Description
                             };
 
-                            var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(
-                                cart.Items,
-                                shippingOption.Rate,
-                                shippingOption,
-                                shippingMethods);
-
+                            var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
                             var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount.Amount);
                             var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, currency);
                             soModel.Price = rate.WithPostFormat(shippingTaxFormat).ToString();
@@ -1262,13 +1257,13 @@ namespace Smartstore.Web.Controllers
                 if (isDiscountValid)
                 {
                     var discountApplied = true;
-                    var oldCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart.Items);
+                    var oldCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 
                     customer.GenericAttributes.DiscountCouponCode = discountCouponcode;
 
                     if (oldCartTotal.Total.HasValue)
                     {
-                        var newCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart.Items);
+                        var newCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
                         discountApplied = oldCartTotal.Total != newCartTotal.Total;
                     }
 

@@ -93,7 +93,7 @@ namespace Smartstore.Web.Components
             }
 
             // SubTotal
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart.Items);
+            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
             var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
 
             model.SubTotal = subTotalConverted;
@@ -114,7 +114,7 @@ namespace Smartstore.Web.Components
             model.RequiresShipping = false;// cart.IsShippingRequired();
             if (model.RequiresShipping)
             {
-                var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart.Items);
+                var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
                 if (shippingTotal.ShippingTotal.HasValue)
                 {
                     var shippingTotalConverted = _currencyService.ConvertFromPrimaryCurrency(shippingTotal.ShippingTotal.Value.Amount, currency);
@@ -128,7 +128,7 @@ namespace Smartstore.Web.Components
             }
 
             // Payment method fee
-            var paymentFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(cart.Items, customer.GenericAttributes.SelectedPaymentMethod);
+            var paymentFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(cart, customer.GenericAttributes.SelectedPaymentMethod);
             var paymentFeeTax = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentFee.Amount, customer: customer);
             if (paymentFeeTax.Price != 0m)
             {

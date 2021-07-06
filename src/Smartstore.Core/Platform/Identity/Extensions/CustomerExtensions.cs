@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Autofac;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Engine;
@@ -17,11 +16,8 @@ namespace Smartstore
         /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         public static bool IsInRole(this Customer customer, string roleSystemName, bool onlyActiveRoles = true)
         {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            if (string.IsNullOrEmpty(roleSystemName))
-                throw new ArgumentNullException(nameof(roleSystemName));
+            Guard.NotNull(customer, nameof(customer));
+            Guard.NotEmpty(roleSystemName, nameof(roleSystemName));
 
             foreach (var mapping in customer.CustomerRoleMappings)
             {

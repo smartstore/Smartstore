@@ -563,8 +563,8 @@ namespace Smartstore.Core.Checkout.Cart
         {
             await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, force, x =>
             {
-                return x.Include(x => x.Product)
-                    .ThenInclude(x => x.ProductVariantAttributes);
+                return x.Include(y => y.Product)
+                    .ThenInclude(y => y.ProductVariantAttributes);
             });
         }
     }

@@ -25,7 +25,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="includeCreditBalance">A value indicating whether to include credit balance.</param>
         /// <returns>Shopping cart total.</returns>
         Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
-            IList<OrganizedShoppingCartItem> cart,
+            ShoppingCart cart,
             bool includeRewardPoints = true,
             bool includePaymentFee = true,
             bool includeCreditBalance = true);
@@ -38,7 +38,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// If <c>null</c>, will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.</param>
         /// <param name="batchContext">The product batch context used to load all cart products in one go. Will be created internally if <c>null</c>.</param>
         /// <returns>Shopping cart subtotal.</returns>
-        Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null, ProductBatchContext batchContext = null);
+        Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(ShoppingCart cart, bool? includeTax = null, ProductBatchContext batchContext = null);
 
         /// <summary>
         /// Gets the shopping cart shipping total.
@@ -47,7 +47,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="includeTax">A value indicating whether the calculated price should include tax.
         /// If <c>null</c>, will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.</param>
         /// <returns>Shopping cart shipping total.</returns>
-        Task<ShoppingCartShippingTotal> GetShoppingCartShippingTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null);
+        Task<ShoppingCartShippingTotal> GetShoppingCartShippingTotalAsync(ShoppingCart cart, bool? includeTax = null);
 
         /// <summary>
         /// Gets the shopping cart tax total in the primary currency.
@@ -55,21 +55,21 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="cart">Shopping cart.</param>
         /// <param name="includePaymentFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
         /// <returns>The tax total amount in the primary currency and applied tax rates.</returns>
-        Task<(Money Price, TaxRatesDictionary TaxRates)> GetShoppingCartTaxTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includePaymentFee = true);
+        Task<(Money Price, TaxRatesDictionary TaxRates)> GetShoppingCartTaxTotalAsync(ShoppingCart cart, bool includePaymentFee = true);
 
         /// <summary>
         /// Gets a value indicating whether shipping is free.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
         /// <returns>A value indicating whether shipping is free.</returns>
-        Task<bool> IsFreeShippingAsync(IList<OrganizedShoppingCartItem> cart);
+        Task<bool> IsFreeShippingAsync(ShoppingCart cart);
 
         /// <summary>
         /// Gets the cart's additional shipping charge in the primary currency.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
         /// <returns>Additional shipping charge in the primary currency.</returns>
-        Task<Money> GetShoppingCartShippingChargeAsync(IList<OrganizedShoppingCartItem> cart);
+        Task<Money> GetShoppingCartShippingChargeAsync(ShoppingCart cart);
 
         /// <summary>
         /// Gets the cart's payment fee for in the primary currency.
@@ -77,7 +77,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="cart">Shopping cart.</param>
         /// <param name="paymentMethodSystemName">Payment method system name.</param>
         /// <returns>Additional payment method fee in the primary currency.</returns>
-        Task<Money> GetShoppingCartPaymentFeeAsync(IList<OrganizedShoppingCartItem> cart, string paymentMethodSystemName);
+        Task<Money> GetShoppingCartPaymentFeeAsync(ShoppingCart cart, string paymentMethodSystemName);
 
         /// <summary>
         /// Adjusts the shipping rate (free shipping, additional charges, discounts).
@@ -88,7 +88,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="shippingMethods">Shipping methods.</param>
         /// <returns>Adjusted shipping rate in the primary currency.</returns>
         Task<(Money Amount, Discount AppliedDiscount)> AdjustShippingRateAsync(
-            IList<OrganizedShoppingCartItem> cart,
+            ShoppingCart cart,
             Money shippingRate,
             ShippingOption shippingOption,
             IList<ShippingMethod> shippingMethods);

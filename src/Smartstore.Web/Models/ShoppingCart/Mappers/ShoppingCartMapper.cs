@@ -436,7 +436,15 @@ namespace Smartstore.Web.Models.ShoppingCart
                 .ToArray();
 
             var batchContext = _productService.CreateProductBatchContext(allProducts, null, customer, false);
-            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from.ToList(), null, batchContext);
+
+            // TODO: (mg) (core) refactor cart item model mapping.
+            var cart = new Core.Checkout.Cart.ShoppingCart(from.ToArray())
+            {
+                Customer = customer,
+                StoreId = store.Id
+            };
+
+            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, null, batchContext);
 
             dynamic itemParameters = new ExpandoObject();
             itemParameters.TaxFormat = _currencyService.GetTaxFormat();
@@ -509,7 +517,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             #endregion
 
-            var paymentTypes = new PaymentMethodType[] { PaymentMethodType.Button, PaymentMethodType.StandardAndButton };
+            var paymentTypes = new[] { PaymentMethodType.Button, PaymentMethodType.StandardAndButton };
             var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(
                 customer,
                 from.ToList(),

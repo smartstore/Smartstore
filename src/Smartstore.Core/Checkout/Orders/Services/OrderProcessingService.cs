@@ -369,7 +369,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
         }
 
-        public virtual async Task<OrderTotalValidationResult> ValidateOrderTotalAsync(IList<OrganizedShoppingCartItem> cart, params CustomerRole[] customerRoles)
+        public virtual async Task<OrderTotalValidationResult> ValidateOrderTotalAsync(ShoppingCart cart, params CustomerRole[] customerRoles)
         {
             Guard.NotNull(cart, nameof(cart));
 
@@ -389,7 +389,7 @@ namespace Smartstore.Core.Checkout.Orders
             var isAboveMin = true;
             var isBelowMax = true;
 
-            if (cart.Any() && (orderTotalMin > decimal.Zero || orderTotalMax > decimal.Zero))
+            if (cart.Items.Any() && (orderTotalMin > decimal.Zero || orderTotalMax > decimal.Zero))
             {
                 var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
 

@@ -108,7 +108,14 @@ namespace Smartstore.Web.Models.ShoppingCart
             var taxFormat = _currencyService.GetTaxFormat();
             var batchContext = _productService.CreateProductBatchContext(from.Select(x => x.Item.Product).ToArray(), null, customer, false);
 
-            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from.ToList(), null, batchContext);
+            // TODO: (mg) (core) refactor cart item model mapping.
+            var cart = new Core.Checkout.Cart.ShoppingCart(from.ToArray())
+            {
+                Customer = customer,
+                StoreId = store.Id
+            };
+
+            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, null, batchContext);
             var lineItems = subtotal.LineItems.ToDictionarySafe(x => x.Item.Item.Id);
 
             var currency = _services.WorkContext.WorkingCurrency;

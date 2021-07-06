@@ -24,10 +24,10 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Shopping cart type.
         /// </summary>
-        public ShoppingCartType CartType { get; init; }
+        public ShoppingCartType CartType { get; init; } = ShoppingCartType.ShoppingCart;
 
         /// <summary>
-        /// Customer.
+        /// Customer of the cart.
         /// </summary>
         public Customer Customer { get; init; }
 

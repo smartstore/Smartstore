@@ -127,7 +127,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("ShoppingCart");
             }
 
-            var validatingCartEvent = new ValidatingCartEvent(cart.Items, warnings, customer);
+            var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
             await Services.EventPublisher.PublishAsync(validatingCartEvent);
 
             if (validatingCartEvent.Result != null)
@@ -419,7 +419,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Check whether payment workflow is required. We ignore reward points during cart total calculation.
-            Money? shoppingCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart.Items, false);
+            Money? shoppingCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
             var isPaymentWorkflowRequired = shoppingCartTotal.GetValueOrDefault() != decimal.Zero;
 
             var model = new CheckoutPaymentMethodModel();
@@ -591,7 +591,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var warnings = new List<string>();
-            var validatingCartEvent = new ValidatingCartEvent(cart.Items, warnings, customer);
+            var validatingCartEvent = new ValidatingCartEvent(cart, warnings);
             await Services.EventPublisher.PublishAsync(validatingCartEvent);
 
             if (validatingCartEvent.Result != null)
@@ -614,7 +614,7 @@ namespace Smartstore.Web.Controllers
                 if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest))
                 {
                     // Check whether payment workflow is required.
-                    var cartTotalBase = await _orderCalculationService.GetShoppingCartTotalAsync(cart.Items, false);
+                    var cartTotalBase = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
 
                     if (cartTotalBase.Total.HasValue && cartTotalBase.Total.Value == decimal.Zero 
                         || HttpContext.GetCheckoutState().IsPaymentSelectionSkipped)
