@@ -45,11 +45,11 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets shopping cart total weight.
         /// </summary>
-        /// <param name="cart">The shopping cart.</param>
+        /// <param name="cart">Shopping cart.</param>
 		/// <param name="includeFreeShippingProducts">A value indicating whether to include products with free shipping.</param>
         /// <remarks>Includes <see cref="CheckoutAttribute"/> of the customer in the calculations, if available.</remarks>
         /// <returns>Shopping cart total weight.</returns>
-        Task<decimal> GetCartTotalWeightAsync(IList<OrganizedShoppingCartItem> cart, bool includeFreeShippingProducts = true);
+        Task<decimal> GetCartTotalWeightAsync(ShoppingCart cart, bool includeFreeShippingProducts = true);
 
         /// <summary>
         /// Creates a shipping option request.
@@ -58,7 +58,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <param name="shippingAddress">Shipping address.</param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns><see cref="ShippingOptionRequest"/>.</returns>
-        ShippingOptionRequest CreateShippingOptionRequest(IList<OrganizedShoppingCartItem> cart, Address shippingAddress, int storeId);
+        ShippingOptionRequest CreateShippingOptionRequest(ShoppingCart cart, Address shippingAddress, int storeId);
 
         /// <summary>
         /// Gets shipping options for a shipping option request.

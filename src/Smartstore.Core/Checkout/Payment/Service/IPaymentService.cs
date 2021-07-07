@@ -17,28 +17,21 @@ namespace Smartstore.Core.Checkout.Payment
         /// A payment method that meets these requirements appears in the checkout.
         /// </summary>
         /// <param name="systemName">System name of the payment provider.</param>
-        /// <param name="customer">Customer.</param>
         /// <param name="cart">Shopping cart.</param>
         /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
         /// <returns><c>True</c> payment method is active, otherwise <c>false</c>.</returns>
-        Task<bool> IsPaymentMethodActiveAsync(
-            string systemName,
-            Customer customer = null,
-            IList<OrganizedShoppingCartItem> cart = null,
-            int storeId = 0);
+        Task<bool> IsPaymentMethodActiveAsync(string systemName, ShoppingCart cart = null, int storeId = 0);
 
         /// <summary>
         /// Loads payment methods that are active, not filtered out and match applied rule sets.
         /// </summary>
-        /// <param name="customer">Customer.</param>
         /// <param name="cart">Shopping cart.</param>
         /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
         /// <param name="types">Filter payment methods by payment method types.</param>
         /// <param name="provideFallbackMethod">Provide a fallback payment method if there is no match.</param>
         /// <returns>Filtered payment methods.</returns>
         Task<IEnumerable<Provider<IPaymentMethod>>> LoadActivePaymentMethodsAsync(
-            Customer customer = null,
-            IList<OrganizedShoppingCartItem> cart = null,
+            ShoppingCart cart = null,
             int storeId = 0,
             PaymentMethodType[] types = null,
             bool provideFallbackMethod = true);

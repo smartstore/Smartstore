@@ -514,8 +514,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             #endregion
 
             var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(
-                customer,
-                from.ToList(),
+                cart,
                 store.Id,
                 new[] { PaymentMethodType.Button, PaymentMethodType.StandardAndButton },
                 false);

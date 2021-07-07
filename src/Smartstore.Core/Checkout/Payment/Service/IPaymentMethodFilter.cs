@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Identity;
 using Smartstore.Engine.Modularity;
@@ -22,23 +21,18 @@ namespace Smartstore.Core.Checkout.Payment
     public partial class PaymentFilterRequest
     {
         /// <summary>
-        /// The payment method to be checked
+        /// The payment method to be checked.
         /// </summary>
         public Provider<IPaymentMethod> PaymentMethod { get; set; }
 
         /// <summary>
-        /// The context shopping cart
+        /// The context shopping cart.
         /// </summary>
-        public IList<OrganizedShoppingCartItem> Cart { get; set; }
+        public ShoppingCart Cart { get; set; }
 
         /// <summary>
-        /// The context store identifier
+        /// The context store identifier.
         /// </summary>
         public int StoreId { get; set; }
-
-        /// <summary>
-        /// The context customer
-        /// </summary>
-        public Customer Customer { get; set; }
     }
 }

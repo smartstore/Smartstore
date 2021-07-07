@@ -12,7 +12,6 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
@@ -75,23 +74,18 @@ namespace Smartstore.Core.Checkout.Payment
 
         #endregion
 
-        public virtual async Task<bool> IsPaymentMethodActiveAsync(
-            string systemName,
-            Customer customer = null,
-            IList<OrganizedShoppingCartItem> cart = null,
-            int storeId = 0)
+        public virtual async Task<bool> IsPaymentMethodActiveAsync(string systemName, ShoppingCart cart = null, int storeId = 0)
         {
             Guard.NotEmpty(systemName, nameof(systemName));
 
-            var activePaymentMethods = await LoadActivePaymentMethodsAsync(customer, cart, storeId, null, false);
+            var activePaymentMethods = await LoadActivePaymentMethodsAsync(cart, storeId, null, false);
             var method = activePaymentMethods.FirstOrDefault(x => x.Metadata.SystemName == systemName);
 
             return method != null;
         }
 
         public virtual async Task<IEnumerable<Provider<IPaymentMethod>>> LoadActivePaymentMethodsAsync(
-            Customer customer = null,
-            IList<OrganizedShoppingCartItem> cart = null,
+            ShoppingCart cart = null,
             int storeId = 0,
             PaymentMethodType[] types = null,
             bool provideFallbackMethod = true)
@@ -99,8 +93,7 @@ namespace Smartstore.Core.Checkout.Payment
             var filterRequest = new PaymentFilterRequest
             {
                 Cart = cart,
-                StoreId = storeId,
-                Customer = customer
+                StoreId = storeId
             };
 
             var allFilters = GetAllPaymentMethodFilters();
@@ -124,7 +117,7 @@ namespace Smartstore.Core.Checkout.Payment
                         // Rule sets.
                         if (paymentMethods.TryGetValue(p.Metadata.SystemName, out var pm))
                         {
-                            if (!(await _cartRuleProvider.RuleMatchesAsync(pm)))
+                            if (!await _cartRuleProvider.RuleMatchesAsync(pm))
                             {
                                 return false;
                             }

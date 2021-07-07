@@ -56,7 +56,7 @@ namespace Smartstore.Core.Checkout.Payment
             => null;
 
         /// <inheritdoc/>
-        public virtual Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(IList<OrganizedShoppingCartItem> cart)
+        public virtual Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
             => Task.FromResult((decimal.Zero, false));
 
         /// <inheritdoc/>

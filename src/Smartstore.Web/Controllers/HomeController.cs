@@ -933,7 +933,7 @@ namespace Smartstore.Web.Controllers
             var scs = Services.Resolve<IShoppingCartService>();
             var schs = Services.Resolve<IShippingService>();
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
-            var cartWeight = await schs.GetCartTotalWeightAsync(cart.Items);
+            var cartWeight = await schs.GetCartTotalWeightAsync(cart);
             content.AppendLine("Cart weight: " + cartWeight.ToString());
 
             foreach (var item in cart.Items)

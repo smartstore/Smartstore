@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
@@ -86,7 +85,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
         /// <returns>The fixed fee or a percentage value. If UsePercentage is <c>true</c>, the fee is calculated as a percentage of the order total.</returns>
-        Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(IList<OrganizedShoppingCartItem> cart);
+        Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart);
 
         // TODO: (mg) (core) Provide raw payment form data required by IsPaymentDataValidAsync and GetPaymentSummaryAsync of IPaymentMethod somehow (was formerly a FormCollection).
 

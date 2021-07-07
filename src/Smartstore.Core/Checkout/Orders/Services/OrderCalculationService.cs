@@ -387,15 +387,15 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly Func<OrganizedShoppingCartItem, CartTaxingInfo> GetTaxingInfo = cartItem
             => (CartTaxingInfo)cartItem.CustomProperties[CART_TAXING_INFO_KEY];
 
-        private int GetTaxCategoryId(IList<OrganizedShoppingCartItem> cart, int defaultTaxCategoryId)
+        private int GetTaxCategoryId(ShoppingCart cart, int defaultTaxCategoryId)
         {
             if (_taxSettings.AuxiliaryServicesTaxingType == AuxiliaryServicesTaxType.HighestCartAmount)
             {
-                return cart.FirstOrDefault(x => GetTaxingInfo(x).HasHighestCartAmount)?.Item?.Product?.TaxCategoryId ?? defaultTaxCategoryId;
+                return cart.Items.FirstOrDefault(x => GetTaxingInfo(x).HasHighestCartAmount)?.Item?.Product?.TaxCategoryId ?? defaultTaxCategoryId;
             }
             else if (_taxSettings.AuxiliaryServicesTaxingType == AuxiliaryServicesTaxType.HighestTaxRate)
             {
-                return cart.FirstOrDefault(x => GetTaxingInfo(x).HasHighestTaxRate)?.Item?.Product?.TaxCategoryId ?? defaultTaxCategoryId;
+                return cart.Items.FirstOrDefault(x => GetTaxingInfo(x).HasHighestTaxRate)?.Item?.Product?.TaxCategoryId ?? defaultTaxCategoryId;
             }
 
             return defaultTaxCategoryId;
@@ -557,7 +557,7 @@ namespace Smartstore.Core.Checkout.Orders
             //else
             //{
 
-            var taxCategoryId = GetTaxCategoryId(cart.Items, _taxSettings.ShippingTaxClassId);
+            var taxCategoryId = GetTaxCategoryId(cart, _taxSettings.ShippingTaxClassId);
             var tax = await _taxCalculator.CalculateShippingTaxAsync(shippingTotal, includeTax, taxCategoryId, cart.Customer);
 
             return new CartShippingTotal
@@ -619,7 +619,7 @@ namespace Smartstore.Core.Checkout.Orders
                     //else
                     //{
 
-                    var taxCategoryId = GetTaxCategoryId(cart.Items, _taxSettings.ShippingTaxClassId);
+                    var taxCategoryId = GetTaxCategoryId(cart, _taxSettings.ShippingTaxClassId);
                     var tax = await _taxCalculator.CalculateShippingTaxAsync(shippingTotal, null, taxCategoryId, customer);
                     var taxRate = tax.Rate.Rate;
 
@@ -649,7 +649,7 @@ namespace Smartstore.Core.Checkout.Orders
                     //else
                     //{
 
-                    var taxCategoryId = GetTaxCategoryId(cart.Items, _taxSettings.PaymentMethodAdditionalFeeTaxClassId);
+                    var taxCategoryId = GetTaxCategoryId(cart, _taxSettings.PaymentMethodAdditionalFeeTaxClassId);
                     var tax = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentFee.Amount, null, taxCategoryId, customer);
                     var taxRate = tax.Rate.Rate;
 
@@ -923,7 +923,7 @@ namespace Smartstore.Core.Checkout.Orders
                 if (shippingRateComputationMethods.Count() == 1)
                 {
                     var shippingRateComputationMethod = shippingRateComputationMethods.First();
-                    var getShippingOptionRequest = _shippingService.CreateShippingOptionRequest(cart.Items, shippingAddress, cart.StoreId);
+                    var getShippingOptionRequest = _shippingService.CreateShippingOptionRequest(cart, shippingAddress, cart.StoreId);
                     var fixedRate = shippingRateComputationMethod.Value.GetFixedRate(getShippingOptionRequest);
 
                     if (fixedRate.HasValue)
@@ -945,7 +945,7 @@ namespace Smartstore.Core.Checkout.Orders
             var provider = _providerManager.GetProvider<IPaymentMethod>(paymentMethodSystemName);
             if (provider != null)
             {
-                var (fixedFeeOrPercentage, usePercentage) = await provider.Value.GetPaymentFeeInfoAsync(cart.Items);
+                var (fixedFeeOrPercentage, usePercentage) = await provider.Value.GetPaymentFeeInfoAsync(cart);
                 if (fixedFeeOrPercentage != decimal.Zero)
                 {
                     if (usePercentage)

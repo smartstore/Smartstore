@@ -1,27 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Cart
 {
     /// <summary>
-    /// Shopping cart extension methods
+    /// Shopping cart extension methods.
     /// </summary>
     public static class ShoppingCartItemExtensions
     {
-        /// <summary>
-        /// Gets customer of shopping cart.
-        /// </summary>
-        /// <returns>
-        /// <see cref="Customer"/> of <see cref="OrganizedShoppingCartItem"/> or <c>null</c> if cart is empty.
-        /// </returns>
-        public static Customer GetCustomer(this IList<OrganizedShoppingCartItem> cart)
-        {
-            Guard.NotNull(cart, nameof(cart));
-
-            return cart.Count > 0 ? cart[0].Item.Customer : null;
-        }
-
         /// <summary>
         /// Returns a filtered list of <see cref="ShoppingCartItem"/>s by <see cref="ShoppingCartType"/> and <paramref name="storeId"/>
         /// and sorts by <see cref="ShoppingCartItem.Id"/> descending.

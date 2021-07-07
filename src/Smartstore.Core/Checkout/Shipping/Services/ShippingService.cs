@@ -112,21 +112,20 @@ namespace Smartstore.Core.Checkout.Shipping
         {
             Guard.NotNull(cartItem, nameof(cartItem));
 
-            var weight = await GetCartWeight(new List<OrganizedShoppingCartItem> { cartItem }, multiplyByQuantity, true);
+            var weight = await GetCartWeight(new[] { cartItem }, multiplyByQuantity, true);
             return weight;
         }
 
-        public virtual async Task<decimal> GetCartTotalWeightAsync(IList<OrganizedShoppingCartItem> cart, bool includeFreeShippingProducts = true)
+        public virtual async Task<decimal> GetCartTotalWeightAsync(ShoppingCart cart, bool includeFreeShippingProducts = true)
         {
             Guard.NotNull(cart, nameof(cart));
 
-            var customer = cart.GetCustomer();
-            var cartWeight = await GetCartWeight(cart, true, includeFreeShippingProducts);
+            var cartWeight = await GetCartWeight(cart.Items, true, includeFreeShippingProducts);
 
             // Checkout attributes.
-            if (customer != null)
+            if (cart.Customer != null)
             {
-                var checkoutAttributes = customer.GenericAttributes.CheckoutAttributes;
+                var checkoutAttributes = cart.Customer.GenericAttributes.CheckoutAttributes;
                 if (checkoutAttributes.AttributesMap.Any())
                 {
                     var attributeValues = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributeValuesAsync(checkoutAttributes);
@@ -138,23 +137,20 @@ namespace Smartstore.Core.Checkout.Shipping
             return cartWeight;
         }
 
-        public virtual ShippingOptionRequest CreateShippingOptionRequest(IList<OrganizedShoppingCartItem> cart, Address shippingAddress, int storeId)
+        public virtual ShippingOptionRequest CreateShippingOptionRequest(ShoppingCart cart, Address shippingAddress, int storeId)
         {
-            var shippingItems = cart.Where(x => x.Item.IsShippingEnabled);
+            var shippingItems = cart.Items.Where(x => x.Item.IsShippingEnabled);
 
-            var request = new ShippingOptionRequest
+            return new ShippingOptionRequest
             {
                 StoreId = storeId,
-                Customer = cart.GetCustomer(),
+                Customer = cart.Customer,
                 ShippingAddress = shippingAddress,
                 CountryFrom = null,
                 StateProvinceFrom = null,
                 ZipPostalCodeFrom = string.Empty,
-
                 Items = new List<OrganizedShoppingCartItem>(shippingItems)
             };
-
-            return request;
         }
 
         public virtual ShippingOptionResponse GetShippingOptions(ShippingOptionRequest request, string allowedShippingRateComputationMethodSystemName = null)
@@ -216,21 +212,20 @@ namespace Smartstore.Core.Checkout.Shipping
             return result;
         }
 
-        private async Task<decimal> GetCartWeight(IList<OrganizedShoppingCartItem> cart, bool multiplyByQuantity, bool includeFreeShippingProducts)
+        private async Task<decimal> GetCartWeight(OrganizedShoppingCartItem[] cart, bool multiplyByQuantity, bool includeFreeShippingProducts)
         {
             // INFO: child elements (bundle items) are not taken into account when calculating the weight.
             // Therefore the total weight of a bundle should be specified at the bundled product.
 
-            var numberOfCartItems = cart?.Count ?? 0;
             var cartWeight = decimal.Zero;
             ProductVariantAttributeSelection selection = null;
 
             // Get all attribute selections in cart.
-            if (numberOfCartItems == 0)
+            if (cart.Length == 0)
             {
                 return decimal.Zero;
             }
-            else if (numberOfCartItems == 1)
+            else if (cart.Length == 1)
             {
                 if (IgnoreCartItem(cart[0]))
                 {

@@ -19,7 +19,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <returns>Shipping option response.</returns>
         public static ShippingOptionResponse GetShippingOptions(
             this IShippingService shippingService,
-            IList<OrganizedShoppingCartItem> cart,
+            ShoppingCart cart,
             Address shippingAddress,
             string allowedShippingRateComputationMethodSystemName = null,
             int storeId = 0)
