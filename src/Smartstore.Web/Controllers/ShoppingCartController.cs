@@ -525,7 +525,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Remove the cart item.
-            await _shoppingCartService.DeleteCartItemsAsync(new[] { cartItem.Item }, removeInvalidCheckoutAttributes: true);
+            await _shoppingCartService.DeleteCartItemAsync(cartItem.Item, true, true);
 
             // Get updated cart model.
             cart = await _shoppingCartService.GetCartAsync(customer, cartType, storeId);
@@ -817,7 +817,7 @@ namespace Smartstore.Web.Controllers
             if (_shoppingCartSettings.MoveItemsFromWishlistToCart && isValid)
             {
                 // No warnings (item is already in cart). Remove the item from origin.
-                await _shoppingCartService.DeleteCartItemsAsync(new[] { cartItem.Item });
+                await _shoppingCartService.DeleteCartItemAsync(cartItem.Item);
             }
 
             if (!isValid)
@@ -930,7 +930,7 @@ namespace Smartstore.Web.Controllers
 
                 if (_shoppingCartSettings.MoveItemsFromWishlistToCart && !customerGuid.HasValue && addToCartContext.Warnings.Count == 0)
                 {
-                    await _shoppingCartService.DeleteCartItemsAsync(new[] { cartItem.Item });
+                    await _shoppingCartService.DeleteCartItemAsync(cartItem.Item);
                 }
 
                 allWarnings.AddRange(addToCartContext.Warnings);                

@@ -1058,10 +1058,10 @@ namespace Smartstore.Core.Checkout.Orders
             // Clear shopping cart.
             if (!ctx.PaymentRequest.IsRecurringPayment && !ctx.PaymentRequest.IsMultiOrder)
             {
-                await _shoppingCartService.DeleteCartItemsAsync(ctx.Cart.Items.Select(x => x.Item), false);
+                await _shoppingCartService.DeleteCartAsync(ctx.Cart, false);
             }
 
-            // INFO: DeleteCartItemsAsync and CheckOrderStatus perform commits.
+            // INFO: CheckOrderStatusAsync always perform commits.
         }
 
         class PlaceOrderContext

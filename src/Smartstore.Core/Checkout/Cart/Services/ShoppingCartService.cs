@@ -364,68 +364,71 @@ namespace Smartstore.Core.Checkout.Cart
             return !ctx.Warnings.Any();
         }
 
-        public virtual async Task<int> DeleteCartItemsAsync(
-            IEnumerable<ShoppingCartItem> cartItems,
-            bool resetCheckoutData = true,
-            bool removeInvalidCheckoutAttributes = false,
-            bool deleteChildCartItems = true)
+        public virtual async Task<int> DeleteCartItemAsync(ShoppingCartItem cartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false)
         {
-            Guard.NotNull(cartItems, nameof(cartItems));
+            Guard.NotNull(cartItem, nameof(cartItem));
 
-            var childItems = new List<ShoppingCartItem>();
-            var cartItemIds = cartItems.Select(x => x.Id);
+            var customer = cartItem.Customer;
+            var storeId = cartItem.StoreId;
 
-            foreach (var item in cartItems)
+            _db.ShoppingCartItems.Remove(cartItem);
+
+            // Delete child cart items.
+            if (customer != null)
             {
-                var storeId = item.StoreId;
-                var customer = item.Customer;
+                var childItems = await _db.ShoppingCartItems
+                    .Where(x => x.CustomerId == customer.Id && x.ParentItemId != null && x.ParentItemId.Value == cartItem.Id && x.Id != cartItem.Id)
+                    .ToListAsync();
 
-                if (resetCheckoutData && customer != null)
-                {
-                    customer.ResetCheckoutData(storeId);
-                }
-
-                var customerChildItems = customer.ShoppingCartItems
-                    .Where(x => x.StoreId == storeId
-                        && x.ParentItemId != null
-                        && x.ShoppingCartTypeId == item.ShoppingCartTypeId
-                        && cartItemIds.Contains(x.ParentItemId.Value)
-                        && !cartItemIds.Contains(x.Id));
-
-                childItems.AddRange(customerChildItems);
+                _db.ShoppingCartItems.RemoveRange(childItems);
             }
 
-            var itemsToRemove = childItems.Distinct().ToList();
-            itemsToRemove.AddRange(cartItems);
-
-            _db.ShoppingCartItems.RemoveRange(itemsToRemove);
-            var deletedCount = await _db.SaveChangesAsync();
+            var num = await _db.SaveChangesAsync();
 
             _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
 
-            if (removeInvalidCheckoutAttributes)
+            if (resetCheckoutData)
             {
-                foreach (var item in cartItems)
-                {
-                    var customer = item.Customer;
-
-                    // Validate checkout attributes, removes attributes that require shipping (if cart does not require shipping)
-                    if (item.ShoppingCartType == ShoppingCartType.ShoppingCart && customer != null)
-                    {
-                        var attributeSelection = customer.GenericAttributes.CheckoutAttributes;
-                        var attributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection);
-                       
-                        var attributeIdsToRemove = attributes.Where(x => x.ShippableProductRequired).Select(x => x.Id);
-                        attributeSelection.RemoveAttributes(attributeIdsToRemove);
-
-                        customer.GenericAttributes.CheckoutAttributes = attributeSelection;
-                    }
-                }
-
-                await _db.SaveChangesAsync();
+                customer?.ResetCheckoutData(storeId);
             }
 
-            return deletedCount;
+            if (removeInvalidCheckoutAttributes && cartItem.ShoppingCartType == ShoppingCartType.ShoppingCart && customer != null)
+            {
+                await RemoveInvalidCheckoutAttributesAsync(customer, storeId);
+            }
+
+            return num;
+        }
+
+        public virtual async Task<int> DeleteCartAsync(ShoppingCart cart, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false)
+        {
+            Guard.NotNull(cart, nameof(cart));
+
+            var itemsToDelete = new List<ShoppingCartItem>(cart.Items.Select(x => x.Item));
+
+            // Delete child cart items.
+            foreach (var item in cart.Items)
+            {
+                itemsToDelete.AddRange(item.ChildItems.Select(x => x.Item));
+            }
+
+            _db.ShoppingCartItems.RemoveRange(itemsToDelete);
+
+            var num = await _db.SaveChangesAsync();
+
+            _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
+
+            if (resetCheckoutData)
+            {
+                cart.Customer.ResetCheckoutData(cart.StoreId);
+            }
+
+            if (removeInvalidCheckoutAttributes && cart.CartType == ShoppingCartType.ShoppingCart)
+            {
+                await RemoveInvalidCheckoutAttributesAsync(cart.Customer, cart.StoreId);
+            }
+
+            return num;
         }
 
         public virtual Task<ShoppingCart> GetCartAsync(Customer customer = null, ShoppingCartType cartType = ShoppingCartType.ShoppingCart, int storeId = 0)
@@ -459,25 +462,26 @@ namespace Smartstore.Core.Checkout.Cart
             Guard.NotNull(toCustomer, nameof(toCustomer));
 
             if (fromCustomer.Id == toCustomer.Id)
+            {
                 return false;
+            }
 
             var cartItems = await OrganizeCartItemsAsync(fromCustomer.ShoppingCartItems);
-            if (cartItems.IsNullOrEmpty())
+            if (!cartItems.Any())
+            {
                 return false;
+            }
 
-            var storeId = 0;
+            var result = true;
+            var firstItem = cartItems[0].Item;
+
             foreach (var cartItem in cartItems)
             {
-                if (storeId == 0)
-                {
-                    storeId = cartItem.Item.StoreId;
-                }
-
                 var ctx = new AddToCartContext
                 {
                     Product = cartItem.Item.Product,
                     RawAttributes = cartItem.Item.AttributeSelection.AsJson(),
-                    CustomerEnteredPrice = new Money(cartItem.Item.CustomerEnteredPrice, _primaryCurrency),
+                    CustomerEnteredPrice = new(cartItem.Item.CustomerEnteredPrice, _primaryCurrency),
                     Quantity = cartItem.Item.Quantity,
                     ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList(),
                     Customer = toCustomer,
@@ -487,18 +491,23 @@ namespace Smartstore.Core.Checkout.Cart
 
                 if (!await CopyAsync(ctx))
                 {
-                    return false;
+                    result = false;
                 }
             }
 
             if (fromCustomer != null && toCustomer != null)
             {
-                _eventPublisher.Publish(new MigrateShoppingCartEvent(fromCustomer, toCustomer, storeId));
+                _eventPublisher.Publish(new MigrateShoppingCartEvent(fromCustomer, toCustomer, firstItem.StoreId));
             }
 
-            var itemsToDelete = cartItems.Select(x => x.Item);
+            var cart = new ShoppingCart(fromCustomer, firstItem.StoreId, cartItems)
+            {
+                CartType = firstItem.ShoppingCartType
+            };
 
-            return await DeleteCartItemsAsync(itemsToDelete) - itemsToDelete.Count() == 0;
+            await DeleteCartAsync(cart);
+
+            return result;
         }
 
         public virtual async Task<IList<string>> UpdateCartItemAsync(Customer customer, int cartItemId, int newQuantity, bool resetCheckoutData)
@@ -549,7 +558,7 @@ namespace Smartstore.Core.Checkout.Cart
             }
             else
             {
-                await DeleteCartItemsAsync(new[] { cartItem }, resetCheckoutData, true);
+                await DeleteCartItemAsync(cartItem, resetCheckoutData, true);
             }
 
             _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
@@ -564,6 +573,36 @@ namespace Smartstore.Core.Checkout.Cart
                 return x.Include(y => y.Product)
                     .ThenInclude(y => y.ProductVariantAttributes);
             });
+        }
+
+        /// <summary>
+        /// Removes checkout attributes that require shipping, if the cart does not require shipping at all.
+        /// </summary>
+        protected virtual async Task<int> RemoveInvalidCheckoutAttributesAsync(Customer customer, int storeId)
+        {
+            var cart = await GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId);
+            if (!cart.IsShippingRequired())
+            {
+                var attributeSelection = customer.GenericAttributes.CheckoutAttributes;
+                var attributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection);
+
+                var attributeIdsToRemove = attributes
+                    .Where(x => x.ShippableProductRequired)
+                    .Select(x => x.Id)
+                    .Distinct()
+                    .ToArray();
+
+                if (attributeIdsToRemove.Any())
+                {
+                    attributeSelection.RemoveAttributes(attributeIdsToRemove);
+
+                    customer.GenericAttributes.CheckoutAttributes = attributeSelection;
+
+                    return await _db.SaveChangesAsync();
+                }
+            }
+
+            return 0;
         }
     }
 }

@@ -885,40 +885,6 @@ namespace Smartstore.Web.Controllers
             return Content("");
         }
 
-        public async Task<IActionResult> MsTest()
-        {
-            //var product = _db.Products.FindByIdAsync(4).Await();
-
-            //var taxRate = await _taxService.GetTaxRateAsync(product);
-
-            //var x = 10;
-            //    var xxx = await _db.OrderItems.SelectAlsoPurchasedProductIds(11).ToListAsync();
-
-            //    var aaa = 10;
-
-            //var customer = await _db.Customers.Where(x => x.Email == "admin@meinstore.de").FirstOrDefaultAsync();
-
-            //var xxxxxx = await _giftCardService.GetValidGiftCardsAsync(customer: customer);
-            //var sdsdsd = (GiftCardCouponCode)xxxxxx.FirstOrDefault().GiftCard.GiftCardCouponCode;
-            //var customerCart = await _cartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart);
-
-            //var xxxx = await _shippingService.GetCartTotalWeightAsync(customerCart);
-
-            //var sddsds = await _orderCalculationService.GetShoppingCartSubTotalAsync(customerCart);
-            //var xxx = await _orderCalculationService.GetShoppingCartTotalAsync(customerCart);
-            //var result = await _shippingService.GetCartTotalWeightAsync(customerCart);
-
-            // GetAllProviders throws....
-            //var shippingOptions = _shippingService.GetShippingOptions(customerCart, Services.WorkContext.CurrentCustomer.ShippingAddress);
-
-            //var rawCheckoutAttributes = Services.WorkContext.CurrentCustomer.GenericAttributes.CheckoutAttributes;
-            //var formatted = _checkoutAttributeFormatter.FormatAttributesAsync(new(rawCheckoutAttributes));
-
-            //var giftCards = await _giftCardService.GetValidGiftCardsAsync();
-
-            return Content("");
-        }
-
         #endregion
 
         //[Permission("MyTestPermission")]
@@ -954,6 +920,9 @@ namespace Smartstore.Web.Controllers
                     content.AppendLine(child.Item.Product.Name.PadRight(50) + ": " + childAttributesInfo);
                 }
             }
+
+            //var numDeleted = await scs.DeleteCartAsync(cart, true, true);
+            //content.AppendLine("Deleted cart items: " + numDeleted);
 
             var selection = new ProductVariantAttributeSelection(string.Empty);
             foreach (var item in cart.Items)

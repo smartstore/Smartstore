@@ -36,18 +36,28 @@ namespace Smartstore.Core.Checkout.Cart
         Task<bool> CopyAsync(AddToCartContext ctx);
 
         /// <summary>
-        /// Deletes shopping cart items async.
+        /// Deletes a shopping cart item  (including child items like bundle items).
         /// </summary>
-        /// <param name="cartItems">List of cart items to be removed.</param>
-        /// <param name="resetCheckoutData">Value indicating whether to reset checkout data.</param>
-        /// <param name="removeInvalidCheckoutAttributes">Value indicating whether to remove checkout attributes that become invalid.</param>
-        /// <param name="deleteChildCartItems">Value indicating whether to delete child items.</param>
-        /// <returns>Number of deleted items.</returns>
-        Task<int> DeleteCartItemsAsync(
-            IEnumerable<ShoppingCartItem> cartItems, 
-            bool resetCheckoutData = true, 
-            bool removeInvalidCheckoutAttributes = false, 
-            bool deleteChildCartItems = true);
+        /// <param name="cartItem">Shopping cart item to delete.</param>
+        /// <param name="resetCheckoutData">A value indicating whether to reset checkout data.</param>
+        /// <param name="removeInvalidCheckoutAttributes">
+        /// A value indicating whether to remove invalid checkout attributes.
+        /// For example removes checkout attributes that require shipping, if the cart does not require shipping at all.
+        /// </param>
+        /// <returns>Number of deleted shopping cart items.</returns>
+        Task<int> DeleteCartItemAsync(ShoppingCartItem cartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false);
+
+        /// <summary>
+        /// Deletes all shopping cart items in a cart (including child items like bundle items).
+        /// </summary>
+        /// <param name="cart">Shopping cart to delete.</param>
+        /// <param name="resetCheckoutData">A value indicating whether to reset checkout data.</param>
+        /// <param name="removeInvalidCheckoutAttributes">
+        /// A value indicating whether to remove invalid checkout attributes.
+        /// For example removes checkout attributes that require shipping, if the cart does not require shipping at all.
+        /// </param>
+        /// <returns>Number of deleted shopping cart items.</returns>
+        Task<int> DeleteCartAsync(ShoppingCart cart, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false);
 
         /// <summary>
         /// Gets a shopping cart for a customer.
@@ -63,7 +73,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         /// <param name="fromCustomer">From this customers cart.</param>
         /// <param name="toCustomer">To this customers cart.</param>       
-        /// <returns><c>True</c> if all the cart items were successfully added to the (other) cart; otherwise <c>false</c></returns>
+        /// <returns><c>True</c> when cart has been successfully migrated, otherwise <c>false</c>.</returns>
         Task<bool> MigrateCartAsync(Customer fromCustomer, Customer toCustomer);
 
         /// <summary>
