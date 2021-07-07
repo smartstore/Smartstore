@@ -25,18 +25,19 @@ namespace Smartstore.Web.Bundling
     
     internal class DynamicBundleMatch : Bundle
     {
-        private readonly DynamicBundleContext _context;
         private string[] _sourceFiles;
 
         public DynamicBundleMatch(DynamicBundleContext context)
             : base(context.Path, context.Bundle.ContentType, context.Bundle.FileProvider, context.Bundle.Processors.ToArray())
         {
-            _context = Guard.NotNull(context, nameof(context));
+            DynamicBundleContext = Guard.NotNull(context, nameof(context));
         }
+
+        public DynamicBundleContext DynamicBundleContext { get; }
 
         public override IEnumerable<string> SourceFiles
         {
-            get => _sourceFiles ??= _context.Bundle.ResolveSourceFiles(_context).ToArray();
+            get => _sourceFiles ??= DynamicBundleContext.Bundle.ResolveSourceFiles(DynamicBundleContext).ToArray();
         }
     }
 
@@ -53,7 +54,7 @@ namespace Smartstore.Web.Bundling
     }
 
     /// <summary>
-    /// Represents a dynamic stylesheet bundle that does CSS minification, URL rewrite & AutoPrefixing.
+    /// Represents a dynamic stylesheet bundle that does CSS minification, URL rewrite & Autoprefixing.
     /// </summary>
     public class DynamicStyleBundle : DynamicBundle
     {

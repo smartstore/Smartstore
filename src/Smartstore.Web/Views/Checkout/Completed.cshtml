@@ -5,8 +5,8 @@
 @{
     Layout = "_Checkout";
     Assets.PrependTitleParts(T("PageTitle.Checkout"));
-    Assets.AppendCssFileParts("no-offcanvas-cart");
-    Assets.PrependHeadScriptParts();
+    Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
+    Assets.AddMetaRobots();
 }
 
 <widget target-zone="order_progress">

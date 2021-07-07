@@ -6,7 +6,7 @@
 @{
     var jsonData = JsonConvert.SerializeObject(Model);
 
-    Assets.AppendScriptParts(
+    Assets.AppendScriptFiles(
         "~/bundle/js/chart.js", 
         "~/admin/js/admin.dashboard.js");
 }

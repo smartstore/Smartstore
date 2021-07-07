@@ -54,22 +54,22 @@ namespace Smartstore.Web.Bootstrapping
                 diskCachingEnabled = themeSettings.AssetCachingEnabled > 1;
             }
 
-            if (options.EnableAutoPrefixer == null && options.AlwaysDisableAutoPrefixerInDevMode && env.IsDevelopment())
+            if (options.EnableAutoprefixer == null && options.Autoprefixer.AlwaysDisableInDevMode && env.IsDevelopment())
             {
-                options.EnableAutoPrefixer = false;
+                options.EnableAutoprefixer = false;
             }
 
             options.EnableBundling ??= bundlingEnabled ?? !env.IsDevelopment();
             options.EnableClientCache ??= !env.IsDevelopment();
             options.EnableDiskCache ??= diskCachingEnabled ?? !env.IsDevelopment();
             options.EnableMinification ??= bundlingEnabled ?? !env.IsDevelopment();
-            options.EnableAutoPrefixer ??= bundlingEnabled ?? !env.IsDevelopment();
+            options.EnableAutoprefixer ??= bundlingEnabled ?? !env.IsDevelopment();
             options.FileProvider ??= _fileProvider;
 
             if (_prevOptions != null)
             {
                 // It's an appsettings.json change. Check if we need to invalidate the cache.
-                if (_prevOptions.EnableMinification != options.EnableMinification || _prevOptions.EnableAutoPrefixer != options.EnableAutoPrefixer)
+                if (_prevOptions.EnableMinification != options.EnableMinification || _prevOptions.EnableAutoprefixer != options.EnableAutoprefixer)
                 {
                     // Cannot pass in ctor --> circular dependency exception!
                     _appContext.Services.Resolve<IBundleCache>().ClearAsync().Await();

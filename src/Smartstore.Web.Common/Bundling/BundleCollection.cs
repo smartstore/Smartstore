@@ -19,7 +19,7 @@ namespace Smartstore.Web.Bundling
         /// </summary>
         /// <param name="path">The path/route of the bundle to return.</param>
         /// <returns>The bundle for the route or null if no bundle exists at the path.</returns>
-        Bundle GetBundleFor(PathString path);
+        Bundle GetBundleFor(string path);
 
         /// <summary>
         /// Gets all bundles in the collection as readonly list.
@@ -71,13 +71,13 @@ namespace Smartstore.Web.Bundling
         public IReadOnlyList<Bundle> Bundles
             => _bundles.Values.AsReadOnly();
 
-        public Bundle GetBundleFor(PathString path)
+        public Bundle GetBundleFor(string route)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotEmpty(route, nameof(route));
 
-            path = Bundle.NormalizeRoute(path);
+            route = Bundle.NormalizeRoute(route);
 
-            if (_staticBundles.TryGetValue(path, out var bundle))
+            if (_staticBundles.TryGetValue(route, out var bundle))
             {
                 return bundle;
             }
@@ -86,11 +86,11 @@ namespace Smartstore.Web.Bundling
             {
                 foreach (var dynamicBundle in _dynamicBundles.Values)
                 {
-                    if (dynamicBundle.TryMatchRoute(path, out var routeValues))
+                    if (dynamicBundle.TryMatchRoute(route, out var routeValues))
                     {
                         var dynamicBundleConext = new DynamicBundleContext
                         {
-                            Path = path,
+                            Path = route,
                             RouteValues = routeValues,
                             Bundle = dynamicBundle,
                             HttpContext = _httpContextAccessor.HttpContext,

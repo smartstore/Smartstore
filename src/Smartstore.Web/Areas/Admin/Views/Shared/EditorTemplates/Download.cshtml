@@ -85,7 +85,7 @@
         thumbUrl = await Url.MediaAsync(download.MediaFileId, MediaSettings.ProductThumbPictureSize);
     }
 
-    Assets.AppendScriptParts("~/admin/js/smartstore.download.js");
+    Assets.AppendScriptFiles("~/admin/js/smartstore.download.js");
 }
 
 <div id="@clientId" 

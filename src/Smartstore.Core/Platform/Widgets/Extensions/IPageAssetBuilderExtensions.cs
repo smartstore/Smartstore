@@ -55,40 +55,40 @@ namespace Smartstore.Core.Widgets
         public static void PrependCanonicalUrlParts(this IPageAssetBuilder builder, params string[] parts) => AddCanonicalUrlPartsInternal(builder, true, parts);
 
         /// <summary>
-        /// Appends foot script file parts to the currently rendered page (rendered in zone <c>scripts</c>).
+        /// Appends foot script files to the currently rendered page (rendered in zone <c>scripts</c>).
         /// </summary>
-        /// <param name="parts">The parts to append.</param>
-        public static void AppendScriptParts(this IPageAssetBuilder builder, params string[] parts) => AddScriptPartsInternal(builder, AssetLocation.Foot, false, parts);
+        /// <param name="urls">The urls to append.</param>
+        public static void AppendScriptFiles(this IPageAssetBuilder builder, params string[] urls) => builder.AddScriptFiles(urls, AssetLocation.Foot, false);
 
         /// <summary>
-        /// Prepends foot script file parts to the currently rendered page (rendered in zone <c>scripts</c>).
+        /// Prepends foot script files to the currently rendered page (rendered in zone <c>scripts</c>).
         /// </summary>
-        /// <param name="parts">The parts to prepend.</param>
-        public static void PrependScriptParts(this IPageAssetBuilder builder, params string[] parts) => AddScriptPartsInternal(builder, AssetLocation.Foot, true, parts);
+        /// <param name="urls">The urls to prepend.</param>
+        public static void PrependScriptFiles(this IPageAssetBuilder builder, params string[] urls) => builder.AddScriptFiles(urls, AssetLocation.Foot, true);
 
         /// <summary>
-        /// Appends head script file parts to the currently rendered page (rendered in zone <c>head_scripts</c>).
+        /// Appends head script files to the currently rendered page (rendered in zone <c>head_scripts</c>).
         /// </summary>
-        /// <param name="parts">The parts to append.</param>
-        public static void AppendHeadScriptParts(this IPageAssetBuilder builder, params string[] parts) => AddScriptPartsInternal(builder, AssetLocation.Head, false, parts);
+        /// <param name="urls">The urls to append.</param>
+        public static void AppendHeadScriptFiles(this IPageAssetBuilder builder, params string[] urls) => builder.AddScriptFiles(urls, AssetLocation.Head, false);
 
         /// <summary>
-        /// Prepends head script file parts to the currently rendered page (rendered in zone <c>head_scripts</c>).
+        /// Prepends head script files to the currently rendered page (rendered in zone <c>head_scripts</c>).
         /// </summary>
-        /// <param name="parts">The parts to prepend.</param>
-        public static void PrependHeadScriptParts(this IPageAssetBuilder builder, params string[] parts) => AddScriptPartsInternal(builder, AssetLocation.Head, true, parts);
+        /// <param name="urls">The urls to prepend.</param>
+        public static void PrependHeadScriptFiles(this IPageAssetBuilder builder, params string[] urls) => builder.AddScriptFiles(urls, AssetLocation.Head, true);
 
         /// <summary>
-        /// Appends CSS file parts to the currently rendered page (rendered in zone <c>head_stylesheets</c>).
+        /// Appends CSS files to the currently rendered page (rendered in zone <c>head_stylesheets</c>).
         /// </summary>
-        /// <param name="parts">The parts to append.</param>
-        public static void AppendCssFileParts(this IPageAssetBuilder builder, params string[] parts) => AddCssFilePartsInternal(builder, false, parts);
+        /// <param name="urls">The urls to append.</param>
+        public static void AppendCssFiles(this IPageAssetBuilder builder, params string[] urls) => builder.AddCssFiles(urls, false);
 
         /// <summary>
-        /// Prepends CSS file parts to the currently rendered page (rendered in zone <c>head_stylesheets</c>).
+        /// Prepends CSS files to the currently rendered page (rendered in zone <c>head_stylesheets</c>).
         /// </summary>
-        /// <param name="parts">The parts to prepend.</param>
-        public static void PrependCssFileParts(this IPageAssetBuilder builder, params string[] parts) => AddCssFilePartsInternal(builder, true, parts);
+        /// <param name="urls">The urls to prepend.</param>
+        public static void PrependCssFiles(this IPageAssetBuilder builder, params string[] urls) => builder.AddCssFiles(urls, true);
 
         /// <summary>
         /// Adds a meta robots tag to the head.
@@ -99,32 +99,10 @@ namespace Smartstore.Core.Widgets
             Guard.NotEmpty(content, nameof(content));
 
             var key = "meta_" + name + '_' + content;
-            AddHtmlContent(builder, 
+            builder.AddHtmlContent(
                 "head",
                 new HtmlString("<meta name=\"{0}\" content=\"{1}\" />".FormatInvariant(name, content)),
                 key);
-        }
-
-        /// <summary>
-        /// Adds custom html content to a target zone.
-        /// </summary>
-        /// <param name="targetZone">The zone name to render <paramref name="content"/> in.</param>
-        /// <param name="content">The html content to render.</param>
-        /// <param name="key">An optional key to ensure uniqueness within the target zone.</param>
-        /// <param name="prepend"><c>true</c> renders the <paramref name="content"/> before any zone content.</param>
-        public static void AddHtmlContent(this IPageAssetBuilder builder, string targetZone, IHtmlContent content, string key = null, bool prepend = false)
-        {
-            Guard.NotEmpty(targetZone, nameof(targetZone));
-            Guard.NotNull(content, nameof(content));
-
-            if (key.HasValue() && builder.WidgetProvider.ContainsWidget(targetZone, key))
-            {
-                return;
-            }
-
-            builder.WidgetProvider.RegisterWidget(
-                targetZone,
-                new HtmlWidgetInvoker(content) { Key = key, Prepend = prepend });
         }
 
         private static void AddCanonicalUrlPartsInternal(IPageAssetBuilder builder, bool prepend, params string[] parts)
@@ -138,47 +116,9 @@ namespace Smartstore.Core.Widgets
 
             foreach (var href in parts.Select(x => x.Trim()))
             {
-                AddHtmlContent(builder,
+                builder.AddHtmlContent(
                     zoneName,
                     new HtmlString("<link rel=\"canonical\" href=\"{0}\" />".FormatInvariant(href)),
-                    href,
-                    prepend);
-            }
-        }
-
-        private static void AddScriptPartsInternal(IPageAssetBuilder builder, AssetLocation location, bool prepend, params string[] parts)
-        {
-            if (parts.Length == 0)
-            {
-                return;
-            }
-
-            string zoneName = location == AssetLocation.Head ? "head_scripts" : "scripts";
-
-            foreach (var src in parts.Select(x => x.Trim()))
-            {
-                AddHtmlContent(builder,
-                    zoneName,
-                    new HtmlString("<script src=\"{0}\"></script>".FormatInvariant(builder.TryFindMinFile(src))),
-                    src,
-                    prepend);
-            }
-        }
-
-        private static void AddCssFilePartsInternal(IPageAssetBuilder builder, bool prepend, params string[] parts)
-        {
-            const string zoneName = "head_stylesheets";
-
-            if (parts.Length == 0)
-            {
-                return;
-            }
-
-            foreach (var href in parts.Select(x => x.Trim()))
-            {
-                AddHtmlContent(builder,
-                    zoneName,
-                    new HtmlString("<link href=\"{0}\" rel=\"stylesheet\" type=\"text/css\" />".FormatInvariant(builder.TryFindMinFile(href))),
                     href,
                     prepend);
             }

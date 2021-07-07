@@ -12,21 +12,23 @@ namespace Smartstore.Web.Bundling
 {
     public interface IBundleBuilder
     {
-        Task<BundleResponse> BuildBundleAsync(Bundle bundle, IDictionary<string, string> fragments, HttpContext httpContext, BundlingOptions options);
+        Task<BundleResponse> BuildBundleAsync(Bundle bundle, BundleCacheKey cacheKey, HttpContext httpContext, BundlingOptions options);
     }
 
     public class DefaultBundleBuilder : IBundleBuilder
     {
+        private readonly IBundleContextAccessor _bundleContextAccessor;
         private readonly IChronometer _chronometer;
 
-        public DefaultBundleBuilder(IChronometer chronometer)
+        public DefaultBundleBuilder(IBundleContextAccessor bundleContextAccessor, IChronometer chronometer)
         {
+            _bundleContextAccessor = bundleContextAccessor;
             _chronometer = chronometer;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public async Task<BundleResponse> BuildBundleAsync(Bundle bundle, IDictionary<string, string> fragments, HttpContext httpContext, BundlingOptions options)
+        public async Task<BundleResponse> BuildBundleAsync(Bundle bundle, BundleCacheKey cacheKey, HttpContext httpContext, BundlingOptions options)
         {
             Guard.NotNull(bundle, nameof(bundle));
             Guard.NotNull(httpContext, nameof(httpContext));
@@ -48,11 +50,13 @@ namespace Smartstore.Web.Bundling
             var context = new BundleContext
             {
                 Bundle = bundle,
-                Fragments = fragments,
+                CacheKey = cacheKey,
                 HttpContext = httpContext,
                 Options = options,
                 Files = bundleFiles
             };
+
+            _bundleContextAccessor.BundleContext = context;
 
             foreach (var bundleFile in bundleFiles)
             {
@@ -62,6 +66,8 @@ namespace Smartstore.Web.Bundling
             context.IncludedFiles.AddRange(context.Content.Select(x => x.Path));
 
             var response = await bundle.GenerateBundleResponseAsync(context);
+            _bundleContextAccessor.BundleContext = null;
+
             return response;
         }
     }

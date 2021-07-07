@@ -17,34 +17,22 @@ namespace Smartstore.Web.Bundling.Processors
 
         public override Task ProcessAsync(BundleContext context)
         {
-            if (context.Options.EnableAutoPrefixer == false || context.ProcessorCodes.Contains(Code))
+            if (context.Options.EnableAutoprefixer == false || context.ProcessorCodes.Contains(Code))
             {
                 return Task.CompletedTask;
             }
 
+            var apo = context.Options.Autoprefixer;
             var options = new ProcessingOptions
             {
-                Browsers = new List<string> 
-                {
-                    "last 1 version",
-                    "not dead",
-                    "> 0.2%",
-                    "Firefox ESR",
-                    "Chrome >= 80",
-                    "Firefox >= 78",
-                    "Edge >= 88",
-                    "iOS >= 14",
-                    "Safari >= 13",
-                    "Android >= 4.4",
-                    "Opera >= 75"
-                },
-                Cascade = false,
-                Add = true,
-                Remove = true,
-                Supports = true,
-                Flexbox = FlexboxMode.None,
-                Grid = GridMode.None,
-                IgnoreUnknownVersions = false
+                Browsers = apo.Browsers?.Count > 0 ? apo.Browsers : new List<string> { "defaults", "not IE 11" },
+                Cascade = apo.Cascade,
+                Add = apo.Add,
+                Remove = apo.Remove,
+                Supports = apo.Supports,
+                Flexbox = apo.Flexbox ? FlexboxMode.No2009 : FlexboxMode.None,
+                Grid = apo.Grid ? GridMode.NoAutoplace : GridMode.None,
+                IgnoreUnknownVersions = apo.IgnoreUnknownVersions
             };
 
             try
@@ -81,7 +69,7 @@ namespace Smartstore.Web.Bundling.Processors
         private void HandleError(AssetContent asset, string message)
         {
             var errorHeader = string.Concat(
-                "// AutoPrefixer error ======================================================================\r\n",
+                "// Autoprefixer error ======================================================================\r\n",
                 "/*\r\n",
                 message + "\r\n",
                 "*/\r\n",

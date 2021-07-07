@@ -38,7 +38,7 @@ namespace Smartstore.Web.Bundling
     }
 
     /// <summary>
-    /// Represents a stylesheet bundle that does CSS minification, URL rewrite & AutoPrefixing.
+    /// Represents a stylesheet bundle that does CSS minification, URL rewrite & Autoprefixing.
     /// </summary>
     public class StyleBundle : Bundle
     {

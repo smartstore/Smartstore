@@ -13,6 +13,7 @@ namespace Smartstore.Core.Bootstrapping
             services.AddScoped<IWidgetSelector, DefaultWidgetSelector>();
             services.AddScoped<IWidgetService, WidgetService>();
             services.AddScoped<IPageAssetBuilder, PageAssetBuilder>();
+            services.AddSingleton<IAssetTagGenerator, NullAssetTagGenerator>();
         }
     }
 }

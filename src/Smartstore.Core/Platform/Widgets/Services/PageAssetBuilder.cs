@@ -19,6 +19,7 @@ namespace Smartstore.Core.Widgets
     {
         private readonly IApplicationContext _appContext;
         private readonly Lazy<IUrlHelper> _urlHelper;
+        private readonly IAssetTagGenerator _assetTagGenerator;
         private readonly SeoSettings _seoSettings;
 
         private List<string> _titleParts;
@@ -31,13 +32,14 @@ namespace Smartstore.Core.Widgets
             IApplicationContext appContext,
             Lazy<IUrlHelper> urlHelper,
             IWidgetProvider widgetProvider,
+            IAssetTagGenerator assetTagGenerator,
             SeoSettings seoSettings,
             IStoreContext storeContext)
         {
-            // TODO: (core) IApplicationContext.WebRoot > StaticFileOptions.FileProvider (?)
             _appContext = appContext;
             _urlHelper = urlHelper;
             _seoSettings = seoSettings;
+            _assetTagGenerator = assetTagGenerator;
             WidgetProvider = widgetProvider;
 
             var htmlBodyId = storeContext.CurrentStore.HtmlBodyId;
@@ -53,16 +55,16 @@ namespace Smartstore.Core.Widgets
 
         public AttributeDictionary BodyAttributes { get; } = new();
 
-        public void AddTitleParts(IEnumerable<string> parts, bool prepend = false)
+        public virtual void AddTitleParts(IEnumerable<string> parts, bool prepend = false)
             => AddPartsInternal(ref _titleParts, parts, prepend);
 
-        public void AddMetaDescriptionParts(IEnumerable<string> parts, bool prepend = false)
+        public virtual void AddMetaDescriptionParts(IEnumerable<string> parts, bool prepend = false)
             => AddPartsInternal(ref _metaDescriptionParts, parts, prepend);
 
-        public void AddMetaKeywordParts(IEnumerable<string> parts, bool prepend = false)
+        public virtual void AddMetaKeywordParts(IEnumerable<string> parts, bool prepend = false)
             => AddPartsInternal(ref _metaKeywordParts, parts, prepend);
 
-        public void AddCanonicalUrlParts(IEnumerable<string> parts, bool prepend = false)
+        public virtual void AddCanonicalUrlParts(IEnumerable<string> parts, bool prepend = false)
         {
             const string zoneName = "head_canonical";
             
@@ -86,6 +88,59 @@ namespace Smartstore.Core.Widgets
                         });
                 }
             }
+        }
+
+        public virtual void AddScriptFiles(IEnumerable<string> urls, AssetLocation location, bool prepend = false)
+        {
+            if (urls == null || !urls.Any())
+            {
+                return;
+            }
+
+            string zoneName = location == AssetLocation.Head ? "head_scripts" : "scripts";
+
+            foreach (var src in urls.Select(x => x.Trim()))
+            {
+                var content = 
+                    _assetTagGenerator.GenerateScript(src) ??
+                    new HtmlString($"<script src=\"{TryFindMinFile(src)}\"></script>");
+
+                AddHtmlContent(zoneName, content, src, prepend);
+            }
+        }
+
+        public virtual void AddCssFiles(IEnumerable<string> urls, bool prepend = false)
+        {
+            const string zoneName = "head_stylesheets";
+
+            if (urls == null || !urls.Any())
+            {
+                return;
+            }
+
+            foreach (var href in urls.Select(x => x.Trim()))
+            {
+                var content =
+                    _assetTagGenerator.GenerateStylesheet(href) ??
+                    new HtmlString($"<link href=\"{TryFindMinFile(href)}\" rel=\"stylesheet\" type=\"text/css\" />");
+
+                AddHtmlContent(zoneName, content, href, prepend);
+            }
+        }
+
+        public virtual void AddHtmlContent(string targetZone, IHtmlContent content, string key = null, bool prepend = false)
+        {
+            Guard.NotEmpty(targetZone, nameof(targetZone));
+            Guard.NotNull(content, nameof(content));
+
+            if (key.HasValue() && WidgetProvider.ContainsWidget(targetZone, key))
+            {
+                return;
+            }
+
+            WidgetProvider.RegisterWidget(
+                targetZone,
+                new HtmlWidgetInvoker(content) { Key = key, Prepend = prepend });
         }
 
         public virtual IHtmlContent GetDocumentTitle(bool addDefaultTitle)

@@ -22,7 +22,6 @@ namespace Smartstore.Web.Bootstrapping
                 .SingleInstance();
 
             builder.RegisterType<ThemeVariableRepository>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<DefaultThemeFileResolver>().As<IThemeFileResolver>().SingleInstance();
             builder.RegisterType<DefaultThemeVariableService>().As<IThemeVariableService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultThemeContext>().As<IThemeContext>().InstancePerLifetimeScope();
             builder.RegisterType<RazorViewInvoker>().As<IRazorViewInvoker>().InstancePerLifetimeScope();

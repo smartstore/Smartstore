@@ -83,7 +83,7 @@ namespace Smartstore.Web.Bundling
                 {
                     // Build
                     var watch = Stopwatch.StartNew();
-                    bundleResponse = await _bundleBuilder.BuildBundleAsync(bundle, cacheKey.Fragments, httpContext, options);
+                    bundleResponse = await _bundleBuilder.BuildBundleAsync(bundle, cacheKey, httpContext, options);
                     watch.Stop();
                     Debug.WriteLine($"Bundle build time for {bundle.Route}: {watch.ElapsedMilliseconds} ms.");
 
@@ -118,7 +118,7 @@ namespace Smartstore.Web.Bundling
                 clone.Processors.Clear();
                 clone.Processors.Add(SassProcessor.Instance);
 
-                var bundleResponse = await _bundleBuilder.BuildBundleAsync(clone, cacheKey.Fragments, httpContext, options);
+                var bundleResponse = await _bundleBuilder.BuildBundleAsync(clone, cacheKey, httpContext, options);
                 await ServeBundleResponse(bundleResponse, httpContext, options, true);
             }
             catch (Exception ex)

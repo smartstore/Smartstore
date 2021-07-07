@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.IO;
@@ -42,11 +43,13 @@ namespace Smartstore.Web.Bootstrapping
 
             builder.RegisterInstance<IAssetFileProvider>(assetFileProvider);
             builder.RegisterType<BundlingOptionsConfigurer>().As<IConfigureOptions<BundlingOptions>>().SingleInstance();
+            builder.RegisterType<BundleContextAccessor>().As<IBundleContextAccessor>().SingleInstance();
 
             builder.RegisterType<BundleCollection>().As<IBundleCollection>().SingleInstance();
             builder.RegisterType<DefaultBundleBuilder>().As<IBundleBuilder>().SingleInstance();
             builder.RegisterType<BundleCache>().As<IBundleCache>().SingleInstance();
             builder.RegisterType<BundleDiskCache>().As<IBundleDiskCache>().SingleInstance();
+            builder.RegisterType<BundleTagGenerator>().As<IAssetTagGenerator>().InstancePerLifetimeScope();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

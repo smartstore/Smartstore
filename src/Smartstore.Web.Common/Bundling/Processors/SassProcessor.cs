@@ -58,35 +58,37 @@ namespace Smartstore.Web.Bundling.Processors
 
         public override void PopulateCacheKey(Bundle bundle, HttpContext httpContext, IDictionary<string, string> values)
         {
-            if (!bundle.Route.StartsWith("/themes/", StringComparison.OrdinalIgnoreCase))
+            if (bundle is not DynamicBundleMatch dynamicBundle || !dynamicBundle.DynamicBundleContext.RouteValues.ContainsKey("theme"))
             {
                 return;
             }
 
             // It's a themeable request
             var qs = httpContext.Request.Query;
+            var theme = dynamicBundle.DynamicBundleContext.RouteValues["theme"].Convert<string>();
+            var isThemeableRequest = httpContext.Request.Path == dynamicBundle.DynamicBundleContext.Path;
             var services = httpContext.RequestServices;
-            var storeContext = services.GetRequiredService<IStoreContext>();
             var themeContext = services.GetRequiredService<IThemeContext>();
-
-            // Required for theme editing validation: See Admin.Controllers.ThemeController.ValidateSass()
-            if (qs.ContainsKey("theme"))
+            var storeContext = services.GetRequiredService<IStoreContext>();
+            
+            if (isThemeableRequest)
             {
-                themeContext.SetRequestTheme(qs["theme"].ToString());
-            }
-            if (qs.ContainsKey("storeId"))
-            {
-                storeContext.SetRequestStore(qs["storeId"].ToString().ToInt());
+                themeContext.SetRequestTheme(theme);
+
+                if (qs.ContainsKey("storeId"))
+                {
+                    storeContext.SetRequestStore(qs["storeId"].ToString().ToInt());
+                }
+
+                if (qs.ContainsKey("validate"))
+                {
+                    // Required for theme editing validation: See DefaultThemeVariableService.SaveThemeVariablesAsync() --> ValidateSassAsync()
+                    values["Validation"] = "true";
+                }
             }
 
-            // TODO: (core) Resolve theme name from route, not from themeContext.WorkingThemeName
-            values["Theme"] = themeContext.WorkingThemeName;
+            values["Theme"] = theme;
             values["StoreId"] = storeContext.CurrentStore.Id.ToString();
-
-            if (httpContext.Request.Query.ContainsKey("validate"))
-            {
-                values["Validation"] = "true";
-            }
         }
 
         private static bool OnTryImportSassFile(IAssetFileProvider fileProvider, ref string file, string parentPath, out string scss, out string map)

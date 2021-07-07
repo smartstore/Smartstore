@@ -10,6 +10,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using Smartstore.Utilities;
+using Smartstore.Web.Bundling;
 
 namespace Smartstore.Web.Theming
 {
@@ -36,11 +37,13 @@ namespace Smartstore.Web.Theming
 
         private readonly IThemeVariableService _themeVarService;
         private readonly IMemoryCache _memCache;
+        private readonly IBundleContextAccessor _bundleContextAccessor;
 
-        public ThemeVariableRepository(IThemeVariableService themeVarService, IMemoryCache memCache)
+        public ThemeVariableRepository(IThemeVariableService themeVarService, IMemoryCache memCache, IBundleContextAccessor bundleContextAccessor)
         {
-            _themeVarService = Guard.NotNull(themeVarService, nameof(themeVarService));
-            _memCache = Guard.NotNull(memCache, nameof(memCache));
+            _themeVarService = themeVarService;
+            _memCache = memCache;
+            _bundleContextAccessor = bundleContextAccessor;
         }
 
         #region Static (Cache and CancellationToken)
@@ -95,19 +98,20 @@ namespace Smartstore.Web.Theming
             Guard.NotEmpty(themeName, nameof(themeName));
             Guard.IsPositive(storeId, nameof(storeId));
 
-            var variables = await GetVariablesAsync(themeName, storeId);
-            var css = Transform(variables);
+            var rawVars = await GetRawVariablesAsync(themeName, storeId);
+            var variables = BuildVariables(rawVars);
+            var css = GenerateSass(variables);
 
             return css;
         }
 
-        private async Task<IDictionary<string, string>> GetVariablesAsync(string themeName, int storeId)
+        internal IDictionary<string, string> BuildVariables(ExpandoObject rawVariables)
         {
+            Guard.NotNull(rawVariables, nameof(rawVariables));
+
             var result = new Dictionary<string, string>();
-
-            var rawVars = await GetRawVariablesAsync(themeName, storeId);
-
-            foreach (var v in rawVars)
+            
+            foreach (var v in rawVariables)
             {
                 string key = v.Key;
 
@@ -128,13 +132,17 @@ namespace Smartstore.Web.Theming
             return result;
         }
 
-        public async Task<ExpandoObject> GetRawVariablesAsync(string themeName, int storeId, bool skipCache = false)
+        public async Task<ExpandoObject> GetRawVariablesAsync(string themeName, int storeId)
         {
-            // TODO: (core) "skipCache" somehow replaces ThemeHelper.IsStyleValidationRequest(). Change the callers accordingly.
-
-            if (skipCache)
+            var validationMode = false;
+            if (_bundleContextAccessor.BundleContext != null)
             {
-                // Return uncached fresh data (the variables is not nuked yet)
+                validationMode = _bundleContextAccessor.BundleContext.CacheKey.IsValidationMode();
+            }
+
+            if (validationMode)
+            {
+                // Return uncached fresh data (the variables are not nuked yet)
                 return await GetRawVariablesCoreAsync(themeName, storeId);
             }
             else
@@ -156,6 +164,11 @@ namespace Smartstore.Web.Theming
             }
         }
 
+        private async Task<ExpandoObject> GetRawVariablesCoreAsync(string themeName, int storeId)
+        {
+            return (await _themeVarService.GetThemeVariablesAsync(themeName, storeId)) ?? new ExpandoObject();
+        }
+
         public void RemoveFromCache(string themeName, int storeId = 0)
         {
             Guard.NotEmpty(themeName, nameof(themeName));
@@ -172,20 +185,15 @@ namespace Smartstore.Web.Theming
             }
         }
 
-        private async Task<ExpandoObject> GetRawVariablesCoreAsync(string themeName, int storeId)
+        internal string GenerateSass(IDictionary<string, string> variables)
         {
-            return (await _themeVarService.GetThemeVariablesAsync(themeName, storeId)) ?? new ExpandoObject();
-        }
-
-        private static string Transform(IDictionary<string, string> parameters)
-        {
-            if (parameters.Count == 0)
+            if (variables == null || variables.Count == 0)
                 return string.Empty;
 
             var prefix = SassVarPrefix;
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
-            foreach (var parameter in parameters.Where(kvp => kvp.Value.HasValue()))
+            foreach (var parameter in variables.Where(kvp => kvp.Value.HasValue()))
             {
                 sb.AppendFormat("{0}{1}: {2};\n", prefix, parameter.Key, parameter.Value);
             }

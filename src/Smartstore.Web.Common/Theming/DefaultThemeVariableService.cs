@@ -155,7 +155,7 @@ namespace Smartstore.Web.Theming
                 var savedThemeVar = savedThemeVars.Get(v.Key);
                 if (savedThemeVar != null)
                 {
-                    if (value.IsEmpty() || String.Equals(info.DefaultValue, value, StringComparison.CurrentCultureIgnoreCase))
+                    if (value.IsEmpty() || string.Equals(info.DefaultValue, value, StringComparison.CurrentCultureIgnoreCase))
                     {
                         // it's either null or the default value, so delete
                         _db.ThemeVariables.Remove(savedThemeVar);
@@ -323,12 +323,11 @@ namespace Smartstore.Web.Theming
             }
 
             // TODO: (core) DefaultThemeVariableService.ValidateSassAsync() --> finalize theme.scss path/bundle convention and make sass validation run.
-            var virtualPath = "~/themes/{0}/theme.scss".FormatCurrent(manifest.ThemeName);
+            var virtualPath = $"~/themes/{manifest.ThemeName.ToLower()}/theme.css";
 
-            var url = "{0}?storeId={1}&theme={2}&validate=1".FormatInvariant(
+            var url = "{0}?storeId={1}&validate=1".FormatInvariant(
                 WebHelper.GetAbsoluteUrl(virtualPath, _httpContextAccessor.HttpContext?.Request),
-                storeId,
-                manifest.ThemeName);
+                storeId);
 
             var request = await WebHelper.CreateHttpRequestForSafeLocalCallAsync(new Uri(url));
             WebResponse response = null;
@@ -373,9 +372,9 @@ namespace Smartstore.Web.Theming
 
     class SaveThemeVariablesResult
     {
-        public List<ThemeVariable> Inserted { get; private set; } = new();
-        public List<ThemeVariable> Updated { get; private set; } = new();
-        public List<ThemeVariable> Deleted { get; private set; } = new();
+        public List<ThemeVariable> Inserted { get; } = new();
+        public List<ThemeVariable> Updated { get; } = new();
+        public List<ThemeVariable> Deleted { get; } = new();
 
         public int TouchedVariablesCount => Inserted.Count + Updated.Count + Deleted.Count;
     }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,23 +20,48 @@ namespace Smartstore.Web.Bundling.Processors
         private string _content;
         private int? _contentHash;
 
+        private ThemeVarsFileInfo(string name)
+        {
+            Name = name;
+            PhysicalPath = name;
+            LastModified = DateTimeOffset.UtcNow;
+        }
+
         public ThemeVarsFileInfo(string name, string theme, int storeId, ThemeVariableRepository repo)
+            : this(name)
         {
             Guard.NotNull(repo, nameof(repo));
 
             _theme = theme;
             _storeId = storeId;
             _repo = repo;
+        }
 
-            Name = name;
-            PhysicalPath = name;
+        public ThemeVarsFileInfo(ExpandoObject variables, ThemeVariableRepository repo)
+            : this(repo.BuildVariables(variables), repo)
+        {
+        }
+
+        public ThemeVarsFileInfo(IDictionary<string, string> variables, ThemeVariableRepository repo)
+            : this(repo.GenerateSass(variables), repo)
+        {
+        }
+
+        public ThemeVarsFileInfo(string content, ThemeVariableRepository repo)
+            : this("themevars.scss")
+        {
+            Guard.NotNull(content, nameof(content));
+            Guard.NotNull(repo, nameof(repo));
+
+            _content = content;
+            _repo = repo;
         }
 
         public bool Exists => true;
 
         public bool IsDirectory => false;
 
-        public DateTimeOffset LastModified => DateTimeOffset.MinValue;
+        public DateTimeOffset LastModified { get; }
 
         public long Length => CreateReadStream().Length;
 

@@ -127,7 +127,7 @@ namespace Smartstore.Web.Theming
                     var themeOverride = GetRequestTheme() ?? GetPreviewTheme();
                     if (themeOverride != null)
                     {
-                        // the theme to be used can be overwritten on request/session basis (e.g. for live preview, editing etc.)
+                        // The theme to be used can be overwritten on request/session basis (e.g. for live preview, editing etc.)
                         _currentTheme = _themeRegistry.GetThemeManifest(themeOverride);
                     }
                     else
@@ -145,7 +145,7 @@ namespace Smartstore.Web.Theming
         {
             try
             {
-                return (string)_httpContext?.GetRouteData()?.DataTokens[OverriddenThemeNameKey];
+                return _httpContext?.GetItem<string>(OverriddenThemeNameKey, forceCreation: false);
             }
             catch
             {
@@ -157,20 +157,20 @@ namespace Smartstore.Web.Theming
         {
             try
             {
-                var dataTokens = _httpContext?.GetRouteData()?.DataTokens;
+                var items = _httpContext?.Items;
 
-                if (dataTokens == null)
+                if (items == null)
                 {
                     return;
                 }
 
                 if (theme.HasValue())
                 {
-                    dataTokens[OverriddenThemeNameKey] = theme;
+                    items[OverriddenThemeNameKey] = theme;
                 }
-                else if (dataTokens.ContainsKey(OverriddenThemeNameKey))
+                else if (items.ContainsKey(OverriddenThemeNameKey))
                 {
-                    dataTokens.Remove(OverriddenThemeNameKey);
+                    items.Remove(OverriddenThemeNameKey);
                 }
 
                 _currentTheme = null;

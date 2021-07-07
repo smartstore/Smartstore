@@ -42,6 +42,29 @@ namespace Smartstore.Core.Widgets
         void AddMetaKeywordParts(IEnumerable<string> parts, bool prepend = false);
 
         /// <summary>
+        /// Adds script files to the currently rendered page.
+        /// </summary>
+        /// <param name="urls">The file urls to add.</param>
+        /// <param name="prepend"><c>true</c> to insert <paramref name="urls"/> at the beginning of the current list.</param>
+        void AddScriptFiles(IEnumerable<string> urls, AssetLocation location, bool prepend = false);
+
+        /// <summary>
+        /// Adds css files to the currently rendered page.
+        /// </summary>
+        /// <param name="urls">The file urls to add.</param>
+        /// <param name="prepend"><c>true</c> to insert <paramref name="urls"/> at the beginning of the current list.</param>
+        void AddCssFiles(IEnumerable<string> urls, bool prepend = false);
+
+        /// <summary>
+        /// Adds custom html content to a target zone.
+        /// </summary>
+        /// <param name="targetZone">The zone name to render <paramref name="content"/> in.</param>
+        /// <param name="content">The html content to render.</param>
+        /// <param name="key">An optional key to ensure uniqueness within the target zone.</param>
+        /// <param name="prepend"><c>true</c> renders the <paramref name="content"/> before any zone content.</param>
+        void AddHtmlContent(string targetZone, IHtmlContent content, string key = null, bool prepend = false);
+
+        /// <summary>
         /// Gets the document title which is composed of all current title parts
         /// separated by <see cref="SeoSettings.PageTitleSeparator"/>
         /// </summary>

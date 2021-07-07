@@ -157,22 +157,22 @@ namespace Smartstore.Core.Stores
 
         public int? GetRequestStore()
         {
-            return _actionContextAccessor.ActionContext?.RouteData?.DataTokens?.Get(OverriddenStoreIdKey)?.Convert<int?>();
+            return _actionContextAccessor.ActionContext?.HttpContext?.GetItem<int?>(OverriddenStoreIdKey, forceCreation: false);
         }
 
         public void SetRequestStore(int? storeId)
         {
-            var dataTokens = _actionContextAccessor.ActionContext?.RouteData?.DataTokens;
+            var items = _actionContextAccessor.ActionContext?.HttpContext?.Items;
 
-            if (dataTokens != null)
+            if (items != null)
             {
-                if (storeId.GetValueOrDefault() > 0)
+                if (storeId > 0)
                 {
-                    dataTokens[OverriddenStoreIdKey] = storeId.Value;
+                    items[OverriddenStoreIdKey] = storeId.Value;
                 }
-                else if (dataTokens.ContainsKey(OverriddenStoreIdKey))
+                else if (items.ContainsKey(OverriddenStoreIdKey))
                 {
-                    dataTokens.Remove(OverriddenStoreIdKey);
+                    items.Remove(OverriddenStoreIdKey);
                 }
 
                 _currentStore = null;

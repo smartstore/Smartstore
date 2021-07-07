@@ -1,15 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.Extensions.Options;
-using Smartstore.Web.Bundling;
+using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -22,20 +16,14 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string SrcAttribute = "src";
         protected override string SourceAttributeName  => SrcAttribute;
 
-        public ScriptBundleTagHelper(
-            IBundleCollection bundles,
-            IBundleCache bundleCache,
-            IOptionsMonitor<BundlingOptions> options,
-            IWebHostEnvironment env)
-            : base(bundles, bundleCache, options, env)
+        public ScriptBundleTagHelper(IAssetTagGenerator tagGenerator)
+            : base(tagGenerator)
         {
         }
 
-        protected override IHtmlContent RenderAssetTag(BundleFile file)
+        protected override IHtmlContent GenerateTag(string src)
         {
-            var script = new TagBuilder("script");
-            script.Attributes.Add(SourceAttributeName, file.Path);
-            return script;
+            return TagGenerator.GenerateScript(src);
         }
     }
 
@@ -50,36 +38,22 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string HrefAttribute = "href";
         protected override string SourceAttributeName => HrefAttribute;
 
-        public StyleBundleTagHelper(
-            IBundleCollection bundles,
-            IBundleCache bundleCache,
-            IOptionsMonitor<BundlingOptions> options,
-            IWebHostEnvironment env)
-            : base(bundles, bundleCache, options, env)
+        public StyleBundleTagHelper(IAssetTagGenerator tagGenerator)
+            : base(tagGenerator)
         {
         }
 
-        protected override IHtmlContent RenderAssetTag(BundleFile file)
+        protected override IHtmlContent GenerateTag(string src)
         {
-            var script = new TagBuilder("link");
-            script.Attributes.Add("rel", "stylesheet");
-            script.Attributes.Add(SourceAttributeName, file.Path);
-            return script;
+            return TagGenerator.GenerateStylesheet(src);
         }
     }
 
     public abstract class BundleTagHelper : TagHelper
     {
-        public BundleTagHelper(
-            IBundleCollection bundles,
-            IBundleCache bundleCache,
-            IOptionsMonitor<BundlingOptions> options,
-            IWebHostEnvironment env)
+        public BundleTagHelper(IAssetTagGenerator tagGenerator)
         {
-            Bundles = bundles;
-            BundleCache = bundleCache;
-            Options = options.CurrentValue;
-            HostEnvironment = env;
+            TagGenerator = tagGenerator;
         }
 
         /// <summary>
@@ -87,19 +61,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         public override int Order => 10;
 
-        [ViewContext]
-        [HtmlAttributeNotBound]
-        public ViewContext ViewContext { get; set; }
+        protected IAssetTagGenerator TagGenerator { get; }
 
-        protected IBundleCollection Bundles { get; }
-
-        protected IBundleCache BundleCache { get; }
-
-        protected BundlingOptions Options { get; }
-
-        protected IWebHostEnvironment HostEnvironment { get; }
-
-        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+        public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             if (output.TagName == null)
             {
@@ -108,57 +72,16 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             var src = GetSourceValue(output);
-            if (src.IsEmpty() || src[0] == '~')
+            var content = GenerateTag(src);
+
+            if (content != null)
             {
-                return;
-            }
-
-            var pathBase = ViewContext.HttpContext.Request.PathBase.Value.NullEmpty();
-            if (pathBase != null && src.StartsWith(pathBase))
-            {
-                src = src[pathBase.Length..];
-            }
-
-            var bundle = Bundles.GetBundleFor(src);
-
-            if (bundle != null)
-            {
-                var enableBundling = Options.EnableBundling == true;
-                if (!enableBundling && bundle.SourceFiles.Any(x => x.EndsWith(".scss")))
-                {
-                    // Cannot disable bundling for bundles that contain sass files. 
-                    enableBundling = true;
-                }
-
-                if (enableBundling)
-                {
-                    src = $"{pathBase}{bundle.Route}";
-
-                    var cacheKey = bundle.GetCacheKey(ViewContext.HttpContext);
-                    var cachedResponse = await BundleCache.GetResponseAsync(cacheKey, bundle);
-                    if (cachedResponse != null && cachedResponse.ContentHash.HasValue())
-                    {
-                        src += "?v=" + cachedResponse.ContentHash;
-                    }
-
-                    output.Attributes.SetAttribute(SourceAttributeName, src);
-                }
-                else
-                {
-                    output.SuppressOutput();
-
-                    var files = bundle.EnumerateFiles(ViewContext.HttpContext, Options);
-
-                    foreach (var file in files)
-                    {
-                        output.PostElement.AppendHtml(RenderAssetTag(file));
-                        output.PostElement.AppendLine();
-                    }
-                }
+                output.SuppressOutput();
+                output.PostElement.AppendHtml(content);
             }
         }
 
-        protected abstract IHtmlContent RenderAssetTag(BundleFile file);
+        protected abstract IHtmlContent GenerateTag(string src);
 
         protected abstract string SourceAttributeName { get; }
 
