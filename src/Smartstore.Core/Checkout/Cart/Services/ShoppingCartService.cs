@@ -83,50 +83,6 @@ namespace Smartstore.Core.Checkout.Cart
             }
         }
 
-        protected virtual async Task<List<OrganizedShoppingCartItem>> OrganizeCartItemsAsync(ICollection<ShoppingCartItem> cart)
-        {
-            var result = new List<OrganizedShoppingCartItem>();
-
-            if (cart.IsNullOrEmpty())
-            {
-                return result;
-            }
-
-            var parents = cart.Where(x => x.ParentItemId is null);
-
-            // TODO: (mg) (core) to reduce db roundtrips -> load and filter children by parents (id and so on) into lists and try to get from db as batch request
-            foreach (var parent in parents)
-            {
-                var parentItem = new OrganizedShoppingCartItem(parent);
-
-                var children = cart.Where(x => x.ParentItemId != null
-                        && x.ParentItemId == parent.Id
-                        && x.Id != parent.Id
-                        && x.ShoppingCartTypeId == parent.ShoppingCartTypeId
-                        && x.Product.CanBeBundleItem());
-
-                // TODO: (mg) (core) Reduce database roundtrips in OrganizeCartItemsAsync
-                foreach (var child in children)
-                {
-                    var childItem = new OrganizedShoppingCartItem(child);
-
-                    if (child.RawAttributes.HasValue()
-                        && (parent.Product?.BundlePerItemPricing ?? false)
-                        && child.BundleItem != null)
-                    {
-                        // Consider attribute combination prices of bundle items.
-                        await _productAttributeMaterializer.MergeWithCombinationAsync(child.Product, new ProductVariantAttributeSelection(child.RawAttributes));
-                    }
-
-                    parentItem.ChildItems.Add(childItem);
-                }
-
-                result.Add(parentItem);
-            }
-
-            return result;
-        }
-
         public virtual async Task<bool> AddToCartAsync(AddToCartContext ctx)
         {
             Guard.NotNull(ctx, nameof(ctx));
@@ -566,13 +522,43 @@ namespace Smartstore.Core.Checkout.Cart
             return warnings;
         }
 
-        private async Task LoadCartItemCollection(Customer customer, bool force = false)
+        protected virtual async Task<List<OrganizedShoppingCartItem>> OrganizeCartItemsAsync(ICollection<ShoppingCartItem> items)
         {
-            await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, force, x =>
+            var result = new List<OrganizedShoppingCartItem>();
+
+            if (items.IsNullOrEmpty())
             {
-                return x.Include(y => y.Product)
-                    .ThenInclude(y => y.ProductVariantAttributes);
-            });
+                return result;
+            }
+
+            // Bundle items that require merging of attribute combinations.
+            var mergeRequiringItems = new List<ShoppingCartItem>();
+            var childItemsMap = items.ToMultimap(x => x.ParentItemId ?? 0, x => x);
+
+            foreach (var parent in items.Where(x => x.ParentItemId == null))
+            {
+                var parentItem = new OrganizedShoppingCartItem(parent);
+
+                if (childItemsMap.TryGetValues(parent.Id, out var children))
+                {
+                    parentItem.ChildItems.AddRange(children.Select(x => new OrganizedShoppingCartItem(x)));
+
+                    if (parent.Product?.BundlePerItemPricing ?? false)
+                    {
+                        // Get cart items where we have to consider attribute combination prices of bundle items.
+                        mergeRequiringItems.AddRange(children.Where(x => x.RawAttributes.HasValue() && x.BundleItem != null));
+                    }
+                }
+
+                result.Add(parentItem);
+            }
+
+            if (mergeRequiringItems.Any())
+            {
+                await _productAttributeMaterializer.MergeWithCombinationAsync(mergeRequiringItems);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -603,6 +589,15 @@ namespace Smartstore.Core.Checkout.Cart
             }
 
             return 0;
+        }
+
+        private async Task LoadCartItemCollection(Customer customer, bool force = false)
+        {
+            await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, force, x =>
+            {
+                return x.Include(y => y.Product)
+                    .ThenInclude(y => y.ProductVariantAttributes);
+            });
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -66,8 +67,19 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         /// <param name="product">Product entity.</param>
         /// <param name="selection">Attribute selection.</param>
+        /// <param name="combination">The attribute combination to be merged. Loaded by <see cref="FindAttributeCombinationAsync"/> if <c>null</c>.</param>
         /// <returns>Found attribute combination or <c>null</c> if none was found.</returns>
-        Task<ProductVariantAttributeCombination> MergeWithCombinationAsync(Product product, ProductVariantAttributeSelection selection);
+        Task<ProductVariantAttributeCombination> MergeWithCombinationAsync(
+            Product product, 
+            ProductVariantAttributeSelection selection,
+            ProductVariantAttributeCombination combination = null);
+
+        /// <summary>
+        /// For each cart item, finds an attribute combination by attribute selection and applies its data to the product.
+        /// </summary>
+        /// <param name="cartItems">Cart items.</param>
+        /// <returns>Number of merged attribute combinations.</returns>
+        Task<int> MergeWithCombinationAsync(IEnumerable<ShoppingCartItem> cartItems);
 
         /// <summary>
         /// Returns informations about the availability of an attribute combination.

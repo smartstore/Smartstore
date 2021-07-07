@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
@@ -333,9 +334,7 @@ namespace Smartstore.Core.Catalog.Attributes
         }
 
         public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection)
-        {
-            // TODO: (core) (important) Save combination hash in table and always lookup by hash instead of iterating thru local data to find a match.
-            
+        {           
             if (productId == 0 || !(selection?.AttributesMap?.Any() ?? false))
             {
                 return null;
@@ -348,28 +347,27 @@ namespace Smartstore.Core.Catalog.Attributes
                 var combinations = await _db.ProductVariantAttributeCombinations
                     .AsNoTracking()
                     .Where(x => x.ProductId == productId)
-                    .Select(x => new { x.Id, x.RawAttributes })
+                    .Select(x => new ProductVariantAttributeCombination 
+                    { 
+                        Id = x.Id,
+                        RawAttributes = x.RawAttributes
+                    })
                     .ToListAsync();
 
-                foreach (var combination in combinations)
-                {
-                    if (selection.Equals(new ProductVariantAttributeSelection(combination.RawAttributes)))
-                    {
-                        return await _db.ProductVariantAttributeCombinations.FindByIdAsync(combination.Id);
-                    }
-                }
-
-                return null;
+                return await FindCombinationByAttributeSelection(selection, combinations);
             });
 
             return combination;
         }
 
-        public virtual async Task<ProductVariantAttributeCombination> MergeWithCombinationAsync(Product product, ProductVariantAttributeSelection selection)
+        public virtual async Task<ProductVariantAttributeCombination> MergeWithCombinationAsync(
+            Product product,
+            ProductVariantAttributeSelection selection,
+            ProductVariantAttributeCombination combination = null)
         {
             Guard.NotNull(product, nameof(product));
 
-            var combination = await FindAttributeCombinationAsync(product.Id, selection);
+            combination ??= await FindAttributeCombinationAsync(product.Id, selection);
 
             if (combination != null && combination.IsActive)
             {
@@ -381,6 +379,51 @@ namespace Smartstore.Core.Catalog.Attributes
             }
 
             return combination;
+        }
+
+        public virtual async Task<int> MergeWithCombinationAsync(IEnumerable<ShoppingCartItem> cartItems)
+        {
+            Guard.NotNull(cartItems, nameof(cartItems));
+
+            var productIds = cartItems
+                .Select(x => x.ProductId)
+                .Distinct()
+                .ToArray();
+
+            if (!productIds.Any())
+            {
+                return 0;
+            }
+
+            var allCombinations = await _db.ProductVariantAttributeCombinations
+                .AsNoTracking()
+                .Where(x => productIds.Contains(x.ProductId))
+                .Select(x => new ProductVariantAttributeCombination
+                {
+                    Id = x.Id, 
+                    ProductId = x.ProductId, 
+                    RawAttributes = x.RawAttributes
+                })
+                .ToListAsync();
+
+            var num = 0;
+            var combinationsMap = allCombinations.ToMultimap(x => x.ProductId, x => x);
+
+            foreach (var cartItem in cartItems)
+            {
+                if (cartItem.AttributeSelection.AttributesMap.Any() &&
+                    combinationsMap.TryGetValues(cartItem.ProductId, out var combinationsForProduct))
+                {
+                    var combination = await FindCombinationByAttributeSelection(cartItem.AttributeSelection, combinationsForProduct);
+                    if (combination != null)
+                    {
+                        await MergeWithCombinationAsync(cartItem.Product, cartItem.AttributeSelection, combination);
+                        ++num;
+                    }
+                }
+            }
+
+            return num;
         }
 
         public virtual async Task<CombinationAvailabilityInfo> IsCombinationAvailableAsync(
@@ -526,6 +569,22 @@ namespace Smartstore.Core.Catalog.Attributes
                 }
                 sb.Append($"{pvaId}:{idsStr}");
             }
+        }
+
+        private async Task<ProductVariantAttributeCombination> FindCombinationByAttributeSelection(
+            ProductVariantAttributeSelection selection,     
+            ICollection<ProductVariantAttributeCombination> attributeCombinationsLookup)
+        {
+            // TODO: (core) (important) Save combination hash in table and always lookup by hash instead of iterating thru local data to find a match.
+            foreach (var combination in attributeCombinationsLookup)
+            {
+                if (selection.Equals(combination.AttributeSelection))
+                {
+                    return await _db.ProductVariantAttributeCombinations.FindByIdAsync(combination.Id);
+                }
+            }
+
+            return null;
         }
     }
 }
