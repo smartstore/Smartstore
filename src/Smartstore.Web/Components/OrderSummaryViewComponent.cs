@@ -29,11 +29,9 @@ namespace Smartstore.Web.Components
                 customer ??= Services.WorkContext.CurrentCustomer;
                 storeId ??= Services.StoreContext.CurrentStore.Id;
 
-                model = new ShoppingCartModel();
-
                 var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, storeId.Value);
 
-                await cart.Items.MapAsync(model,
+                model = await cart.MapAsync(
                     isEditable: false,
                     prepareEstimateShippingIfEnabled: false,
                     prepareAndDisplayOrderReviewData: prepareAndDisplayOrderReviewData);

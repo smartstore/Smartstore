@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -23,20 +22,19 @@ using Cart = Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
-    public static partial class MiniShoppingCartMappingExtensions
+    public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this IEnumerable<OrganizedShoppingCartItem> entity, MiniShoppingCartModel model)
+        public static async Task MapAsync(this Cart.ShoppingCart cart, MiniShoppingCartModel model)
         {
-            await MapperFactory.MapAsync(entity, model, null);
+            await MapperFactory.MapAsync(cart, model, null);
         }
     }
 
-    public class MiniShoppingCartModelMapper : Mapper<IEnumerable<OrganizedShoppingCartItem>, MiniShoppingCartModel>
+    public class MiniShoppingCartModelMapper : Mapper<Cart.ShoppingCart, MiniShoppingCartModel>
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly IProductService _productService;
-        private readonly IMediaService _mediaService;
         private readonly ICurrencyService _currencyService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IOrderCalculationService _orderCalculationService;
@@ -52,7 +50,6 @@ namespace Smartstore.Web.Models.ShoppingCart
             SmartDbContext db,
             ICommonServices services,
             IProductService productService,
-            IMediaService mediaService,
             ICurrencyService currencyService,
             IPriceCalculationService priceCalculationService,
             IOrderCalculationService orderCalculationService,
@@ -68,7 +65,6 @@ namespace Smartstore.Web.Models.ShoppingCart
             _services = services;
             _productService = productService;
             _priceCalculationService = priceCalculationService;
-            _mediaService = mediaService;
             _currencyService = currencyService;
             _orderCalculationService = orderCalculationService;
             _productAttributeFormatter = productAttributeFormatter;
@@ -82,10 +78,10 @@ namespace Smartstore.Web.Models.ShoppingCart
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        protected override void Map(IEnumerable<OrganizedShoppingCartItem> from, MiniShoppingCartModel to, dynamic parameters = null)
+        protected override void Map(Cart.ShoppingCart from, MiniShoppingCartModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override async Task MapAsync(IEnumerable<OrganizedShoppingCartItem> from, MiniShoppingCartModel to, dynamic parameters = null)
+        public override async Task MapAsync(Cart.ShoppingCart from, MiniShoppingCartModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
@@ -93,26 +89,23 @@ namespace Smartstore.Web.Models.ShoppingCart
             var customer = _services.WorkContext.CurrentCustomer;
             var store = _services.StoreContext.CurrentStore;
 
-            // TODO: (mg) (core) refactor cart item model mapping.
-            var cart = new Cart.ShoppingCart(customer, store.Id, from);
-
             to.ShowProductImages = _shoppingCartSettings.ShowProductImagesInMiniShoppingCart;
             to.ThumbSize = _mediaSettings.MiniCartThumbPictureSize;
             to.CurrentCustomerIsGuest = customer.IsGuest();
             to.AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed;
             to.DisplayMoveToWishlistButton = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
             to.ShowBasePrice = _shoppingCartSettings.ShowBasePrice;
-            to.TotalProducts = cart.GetTotalQuantity();
+            to.TotalProducts = from.GetTotalQuantity();
 
-            if (!from.Any())
+            if (!from.Items.Any())
             {
                 return;
             }
 
             var taxFormat = _currencyService.GetTaxFormat();
-            var batchContext = _productService.CreateProductBatchContext(from.Select(x => x.Item.Product).ToArray(), null, customer, false);
+            var batchContext = _productService.CreateProductBatchContext(from.Items.Select(x => x.Item.Product).ToArray(), null, customer, false);
 
-            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, null, batchContext);
+            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
             var lineItems = subtotal.LineItems.ToDictionarySafe(x => x.Item.Item.Id);
 
             var currency = _services.WorkContext.WorkingCurrency;
@@ -123,11 +116,11 @@ namespace Smartstore.Web.Models.ShoppingCart
             // 1. There is at least one checkout attribute that is reqired
             // 2. Min order sub total is OK
 
-            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(cart, store.Id);
+            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
             to.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired);
 
             // Products sort descending (recently added products).
-            foreach (var cartItem in from)
+            foreach (var cartItem in from.Items)
             {
                 var item = cartItem.Item;
                 var product = cartItem.Item.Product;
@@ -186,7 +179,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
                         if (file?.MediaFile != null)
                         {
-                            var fileInfo = await _mediaService.GetFileByIdAsync(file.MediaFileId, MediaLoadFlags.AsNoTracking);
+                            var fileInfo = await _services.MediaService.GetFileByIdAsync(file.MediaFileId, MediaLoadFlags.AsNoTracking);
 
                             bundleItemModel.ImageModel = new ImageModel
                             {

@@ -1,26 +1,25 @@
-﻿using Smartstore.ComponentModel;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Smartstore.ComponentModel;
 using Smartstore.Core;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Cart = Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.Checkout
 {
-    public static partial class CheckoutShippingMethodMappingExtensions
+    public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this IEnumerable<OrganizedShoppingCartItem> entity, CheckoutShippingMethodModel model)
+        public static async Task MapAsync(this Cart.ShoppingCart cart, CheckoutShippingMethodModel model)
         {
-            await MapperFactory.MapAsync(entity, model, null);
+            await MapperFactory.MapAsync(cart, model, null);
         }
     }
 
-    public class CheckoutShippingMethodMapper : Mapper<IEnumerable<OrganizedShoppingCartItem>, CheckoutShippingMethodModel>
+    public class CheckoutShippingMethodMapper : Mapper<Cart.ShoppingCart, CheckoutShippingMethodModel>
     {
         private readonly ICommonServices _services;
         private readonly ICurrencyService _currencyService;
@@ -42,10 +41,10 @@ namespace Smartstore.Web.Models.Checkout
             _taxCalculator = taxCalculator;
         }
 
-        protected override void Map(IEnumerable<OrganizedShoppingCartItem> from, CheckoutShippingMethodModel to, dynamic parameters = null)
+        protected override void Map(Cart.ShoppingCart from, CheckoutShippingMethodModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override async Task MapAsync(IEnumerable<OrganizedShoppingCartItem> from, CheckoutShippingMethodModel to, dynamic parameters = null)
+        public override Task MapAsync(Cart.ShoppingCart from, CheckoutShippingMethodModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
@@ -122,6 +121,8 @@ namespace Smartstore.Web.Models.Checkout
                     shippingOptionToSelect.Selected = true;
                 }
             }
+
+            return Task.CompletedTask;
         }
     }
 }

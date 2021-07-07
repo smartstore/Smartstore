@@ -15,9 +15,9 @@ using Cart = Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
-    public static partial class WishlistMappingExtensions
+    public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this IEnumerable<OrganizedShoppingCartItem> entity,
+        public static async Task MapAsync(this Cart.ShoppingCart cart,
             WishlistModel model,
             bool isEditable = true,
             bool isOffcanvas = false)
@@ -26,7 +26,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             parameters.IsEditable = isEditable;
             parameters.IsOffcanvas = isOffcanvas;
 
-            await MapperFactory.MapAsync(entity, model, parameters);
+            await MapperFactory.MapAsync(cart, model, parameters);
         }
     }
 
@@ -49,41 +49,37 @@ namespace Smartstore.Web.Models.ShoppingCart
             _productAttributeFormatter = productAttributeFormatter;
         }
 
-        protected override void Map(IEnumerable<OrganizedShoppingCartItem> from, WishlistModel to, dynamic parameters = null)
+        protected override void Map(Cart.ShoppingCart from, WishlistModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override async Task MapAsync(IEnumerable<OrganizedShoppingCartItem> from, WishlistModel to, dynamic parameters = null)
+        public override async Task MapAsync(Cart.ShoppingCart from, WishlistModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
 
-            if (!from.Any())
+            if (!from.Items.Any())
             {
                 return;
             }
 
             await base.MapAsync(from, to, null);
 
-            // TODO: (mg) (core) refactor cart item model mapping.
-            var cart = new Cart.ShoppingCart(from.First().Item.Customer, _services.StoreContext.CurrentStore.Id, from);
-
             to.IsEditable = parameters?.IsEditable == true;
             to.EmailWishlistEnabled = _shoppingCartSettings.EmailWishlistEnabled;
             to.DisplayAddToCart = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart);
 
-            to.CustomerGuid = cart.Customer.CustomerGuid;
-            to.CustomerFullname = cart.Customer.GetFullName();
+            to.CustomerGuid = from.Customer.CustomerGuid;
+            to.CustomerFullname = from.Customer.GetFullName();
             to.ShowItemsFromWishlistToCartButton = _shoppingCartSettings.ShowItemsFromWishlistToCartButton;
 
             // Cart warnings.
             var warnings = new List<string>();
-            var cartIsValid = await _shoppingCartValidator.ValidateCartAsync(cart, warnings);
-            if (!cartIsValid)
+            if (!await _shoppingCartValidator.ValidateCartAsync(from, warnings))
             {
                 to.Warnings.AddRange(warnings);
             }
 
-            foreach (var cartItem in from)
+            foreach (var cartItem in from.Items)
             {
                 var model = new WishlistModel.WishlistItemModel
                 {
@@ -96,8 +92,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                 {
                     model.QuantityUnitName = null;
 
-                    var item = from.Where(c => c.Item.Id == model.Id).FirstOrDefault();
-
+                    var item = from.Items.Where(c => c.Item.Id == model.Id).FirstOrDefault();
                     if (item != null)
                     {
                         model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(

@@ -1,23 +1,23 @@
-﻿using Smartstore.ComponentModel;
+﻿using System.Threading.Tasks;
+using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Localization;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cart = Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.Checkout
 {
-    public static partial class CheckoutConfirmMappingExtensions
+    public static partial class ShoppingCartMappingExtensions
     {
-        public static Task MapAsync(this IEnumerable<OrganizedShoppingCartItem> entity, CheckoutConfirmModel model)
+        public static Task MapAsync(this Cart.ShoppingCart cart, CheckoutConfirmModel model)
         {
-            return MapperFactory.MapAsync(entity, model, null);
+            return MapperFactory.MapAsync(cart, model, null);
         }
     }
 
-    public class CheckoutConfirmMapper : Mapper<IEnumerable<OrganizedShoppingCartItem>, CheckoutConfirmModel>
+    public class CheckoutConfirmMapper : Mapper<Cart.ShoppingCart, CheckoutConfirmModel>
     {
         private readonly ICommonServices _services;
         private readonly OrderSettings _orderSettings;
@@ -38,7 +38,7 @@ namespace Smartstore.Web.Models.Checkout
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        protected override void Map(IEnumerable<OrganizedShoppingCartItem> from, CheckoutConfirmModel to, dynamic parameters = null)
+        protected override void Map(Cart.ShoppingCart from, CheckoutConfirmModel to, dynamic parameters = null)
         {
             Guard.NotNull(to, nameof(to));
             Guard.NotNull(from, nameof(from));

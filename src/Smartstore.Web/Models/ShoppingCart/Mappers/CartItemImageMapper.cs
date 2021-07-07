@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Dynamic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -8,14 +12,10 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Media;
-using System;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
-    public static partial class CartItemImageMappingExtensions
+    public static partial class ShoppingCartMappingExtensions
     {
         public static async Task MapAsync(this OrganizedShoppingCartItem entity, ImageModel model, int pictureSize, string productName)
         {

@@ -294,7 +294,7 @@ namespace Smartstore.Web.Controllers
             //}
 
             var model = new CheckoutShippingMethodModel();
-            await cart.Items.MapAsync(model);
+            await cart.MapAsync(model);
 
             // TODO: (mh) (core) Remove dummy shipping method model.
             // This creates a dummy ShippingMethodModel. It is needed as long as no other shipping method is implemented.
@@ -420,7 +420,7 @@ namespace Smartstore.Web.Controllers
             var isPaymentWorkflowRequired = shoppingCartTotal.GetValueOrDefault() != decimal.Zero;
 
             var model = new CheckoutPaymentMethodModel();
-            await cart.Items.MapAsync(model);
+            await cart.MapAsync(model);
 
             // TODO: (mh) (core) Remove test data later.
             model.PaymentMethods.Add(new CheckoutPaymentMethodModel.PaymentMethodModel
@@ -565,7 +565,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new CheckoutConfirmModel();
-            await cart.Items.MapAsync(model);
+            await cart.MapAsync(model);
 
             return View(model);
         }

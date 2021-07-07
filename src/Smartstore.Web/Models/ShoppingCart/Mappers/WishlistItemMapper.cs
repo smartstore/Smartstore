@@ -10,7 +10,7 @@ using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
-    public static partial class WishlistMappingExtensions
+    public static partial class ShoppingCartMappingExtensions
     {
         public static async Task MapAsync(this OrganizedShoppingCartItem entity, WishlistModel.WishlistItemModel model, dynamic parameters = null)
         {

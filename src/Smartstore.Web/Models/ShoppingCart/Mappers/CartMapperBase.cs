@@ -1,15 +1,15 @@
-﻿using Smartstore.ComponentModel;
+﻿using System.Threading.Tasks;
+using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cart = Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
-    public abstract class CartMapperBase<TModel> : Mapper<IEnumerable<OrganizedShoppingCartItem>, TModel>
+    public abstract class CartMapperBase<TModel> : Mapper<Cart.ShoppingCart, TModel>
        where TModel : CartModelBase
     {
         protected readonly ICommonServices _services;
@@ -32,8 +32,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             T = t;
         }
 
-
-        public override Task MapAsync(IEnumerable<OrganizedShoppingCartItem> from, TModel to, dynamic parameters = null)
+        public override Task MapAsync(Cart.ShoppingCart from, TModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));

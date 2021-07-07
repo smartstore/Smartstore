@@ -35,7 +35,26 @@ namespace Smartstore.Web.Models.ShoppingCart
 {
     public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this IEnumerable<OrganizedShoppingCartItem> entity,
+        public static async Task<ShoppingCartModel> MapAsync(this Cart.ShoppingCart cart,
+            bool isEditable = true,
+            bool validateCheckoutAttributes = false,
+            bool prepareEstimateShippingIfEnabled = true,
+            bool setEstimateShippingDefaultAddress = true,
+            bool prepareAndDisplayOrderReviewData = false)
+        {
+            var model = new ShoppingCartModel();
+
+            await cart.MapAsync(model,
+                isEditable,
+                validateCheckoutAttributes,
+                prepareEstimateShippingIfEnabled,
+                setEstimateShippingDefaultAddress,
+                prepareAndDisplayOrderReviewData);
+
+            return model;
+        }
+
+        public static async Task MapAsync(this Cart.ShoppingCart cart,
             ShoppingCartModel model,
             bool isEditable = true,
             bool validateCheckoutAttributes = false,
@@ -50,7 +69,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             parameters.SetEstimateShippingDefaultAddress = setEstimateShippingDefaultAddress;
             parameters.PrepareAndDisplayOrderReviewData = prepareAndDisplayOrderReviewData;
 
-            await MapperFactory.MapAsync(entity, model, parameters);
+            await MapperFactory.MapAsync(cart, model, parameters);
         }
     }
 
@@ -59,8 +78,6 @@ namespace Smartstore.Web.Models.ShoppingCart
         private readonly SmartDbContext _db;
         private readonly ITaxCalculator _taxCalculator;
         private readonly IProductService _productService;
-        private readonly IPriceCalculationService _priceCalculationService;
-        private readonly IMediaService _mediaService;
         private readonly IPaymentService _paymentService;
         private readonly IDiscountService _discountService;
         private readonly ICurrencyService _currencyService;
@@ -79,8 +96,6 @@ namespace Smartstore.Web.Models.ShoppingCart
             ICommonServices services,
             ITaxCalculator taxCalculator,
             IProductService productService,
-            IPriceCalculationService priceCalculationService,
-            IMediaService mediaService,
             IPaymentService paymentService,
             IDiscountService discountService,
             ICurrencyService currencyService,
@@ -102,8 +117,6 @@ namespace Smartstore.Web.Models.ShoppingCart
             _db = db;
             _taxCalculator = taxCalculator;
             _productService = productService;
-            _priceCalculationService = priceCalculationService;
-            _mediaService = mediaService;
             _paymentService = paymentService;
             _discountService = discountService;
             _currencyService = currencyService;
@@ -118,15 +131,15 @@ namespace Smartstore.Web.Models.ShoppingCart
             _rewardPointsSettings = rewardPointsSettings;
         }
 
-        protected override void Map(IEnumerable<OrganizedShoppingCartItem> from, ShoppingCartModel to, dynamic parameters = null)
+        protected override void Map(Cart.ShoppingCart from, ShoppingCartModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override async Task MapAsync(IEnumerable<OrganizedShoppingCartItem> from, ShoppingCartModel to, dynamic parameters = null)
+        public override async Task MapAsync(Cart.ShoppingCart from, ShoppingCartModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
 
-            if (!from.Any())
+            if (!from.Items.Any())
             {
                 return;
             }
@@ -142,9 +155,6 @@ namespace Smartstore.Web.Models.ShoppingCart
             var prepareEstimateShippingIfEnabled = parameters?.PrepareEstimateShippingIfEnabled == true;
             var setEstimateShippingDefaultAddress = parameters?.SetEstimateShippingDefaultAddress == true;
             var prepareAndDisplayOrderReviewData = parameters?.PrepareAndDisplayOrderReviewData == true;
-
-            // TODO: (mg) (core) refactor cart item model mapping.
-            var cart = new Cart.ShoppingCart(customer, store.Id, from);
 
             #region Simple properties
 
@@ -186,7 +196,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             to.GiftCardBox.Display = _shoppingCartSettings.ShowGiftCardBox;
 
             // Reward points.
-            if (_rewardPointsSettings.Enabled && !cart.IncludesMatchingItems(x => x.IsRecurring) && !customer.IsGuest())
+            if (_rewardPointsSettings.Enabled && !from.IncludesMatchingItems(x => x.IsRecurring) && !customer.IsGuest())
             {
                 var rewardPointsBalance = customer.GetRewardPointsBalance();
                 var rewardPointsAmountBase = _orderCalculationService.ConvertRewardPointsToAmount(rewardPointsBalance);
@@ -203,7 +213,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             // Cart warnings.
             var warnings = new List<string>();
-            var cartIsValid = await _shoppingCartValidator.ValidateCartAsync(cart, warnings, validateCheckoutAttributes);
+            var cartIsValid = await _shoppingCartValidator.ValidateCartAsync(from, warnings, validateCheckoutAttributes);
             if (!cartIsValid)
             {
                 to.Warnings.AddRange(warnings);
@@ -213,7 +223,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             #region Checkout attributes
 
-            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(cart, store.Id);
+            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(from, store.Id);
 
             foreach (var attribute in checkoutAttributes)
             {
@@ -247,7 +257,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
                         if (caValue.MediaFileId.HasValue && caValue.MediaFile != null)
                         {
-                            pvaValueModel.ImageUrl = _mediaService.GetUrl(caValue.MediaFile, _mediaSettings.VariantValueThumbPictureSize, null, false);
+                            pvaValueModel.ImageUrl = _services.MediaService.GetUrl(caValue.MediaFile, _mediaSettings.VariantValueThumbPictureSize, null, false);
                         }
 
                         caModel.Values.Add(pvaValueModel);
@@ -371,8 +381,8 @@ namespace Smartstore.Web.Models.ShoppingCart
             if (prepareEstimateShippingIfEnabled)
             {
                 to.EstimateShipping.Enabled = _shippingSettings.EstimateShippingEnabled &&
-                    from.Any() && 
-                    cart.IncludesMatchingItems(x => x.IsShippingEnabled);
+                    from.Items.Any() && 
+                    from.IncludesMatchingItems(x => x.IsShippingEnabled);
 
                 if (to.EstimateShipping.Enabled)
                 {
@@ -434,20 +444,20 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             #region Cart items
 
-            var allProducts = from
+            var allProducts = from.Items
                 .Select(x => x.Item.Product)
-                .Union(from.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
+                .Union(from.Items.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
                 .ToArray();
 
             var batchContext = _productService.CreateProductBatchContext(allProducts, null, customer, false);
-            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, null, batchContext);
+            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
 
             dynamic itemParameters = new ExpandoObject();
             itemParameters.TaxFormat = _currencyService.GetTaxFormat();
             itemParameters.BatchContext = batchContext;
             itemParameters.CartSubtotal = subtotal;
 
-            foreach (var cartItem in from)
+            foreach (var cartItem in from.Items)
             {
                 var model = new ShoppingCartModel.ShoppingCartItemModel();
 
@@ -474,7 +484,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                 }
 
                 // Shipping info.
-                if (cart.IsShippingRequired())
+                if (from.IsShippingRequired())
                 {
                     to.OrderReviewData.IsShippable = true;
 
@@ -514,7 +524,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             #endregion
 
             var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(
-                cart,
+                from,
                 store.Id,
                 new[] { PaymentMethodType.Button, PaymentMethodType.StandardAndButton },
                 false);
@@ -523,7 +533,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             foreach (var boundPaymentMethod in boundPaymentMethods)
             {
-                if (cart.IncludesMatchingItems(x => x.IsRecurring) &&
+                if (from.IncludesMatchingItems(x => x.IsRecurring) &&
                     boundPaymentMethod.Value.RecurringPaymentType == RecurringPaymentType.NotSupported)
                 {
                     continue;
