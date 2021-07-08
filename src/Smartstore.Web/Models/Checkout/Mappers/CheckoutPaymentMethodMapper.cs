@@ -9,6 +9,9 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Cart = Smartstore.Core.Checkout.Cart;
 
+// TODO: (mg) (core) I don't like the namespace alias "Cart". Please rename "Smartstore.Web.Models.ShoppingCart" namespace to "...Cart"
+// to avoid name collisions and remove all aliases.
+
 namespace Smartstore.Web.Models.Checkout
 {
     public static partial class ShoppingCartMappingExtensions
