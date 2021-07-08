@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
 
@@ -9,7 +8,7 @@ namespace Smartstore.IO
 {
     public static class PathUtility
     {
-        public static readonly char[] PathSeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        public static readonly char[] PathSeparators = (new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }).Distinct().ToArray();
         public const string CurrentDirectoryToken = ".";
         public const string ParentDirectoryToken = "..";
 
@@ -72,9 +71,31 @@ namespace Smartstore.IO
         }
 
         /// <summary>
-        /// Combines two path parts.
+        /// Combines multiple path parts using '/' as directory separator char.
         /// </summary>
-        public static string Combine(string path, string other)
+        /// <param name="paths">Path parts.</param>
+        /// <returns>Combined path</returns>
+        public static string Combine(params string[] paths)
+        {
+            if (paths.Length == 0)
+                return null;
+
+            var result = paths[0];
+
+            if (paths.Length == 1)
+            {
+                return result;
+            }   
+
+            for (var i = 1; i < paths.Length; i++)
+            {
+                result = InternalCombine(result, paths[i]);
+            }
+
+            return result;
+        }
+
+        private static string InternalCombine(string path, string other)
         {
             Guard.NotEmpty(path, nameof(path));
 
@@ -91,33 +112,21 @@ namespace Smartstore.IO
 
             if (other.Length > 2 && other.Contains("../"))
             {
-                return MergePaths(path, other);
+                return JoinPaths(path, other);
             }
-
-            string result;
 
             var index = path.LastIndexOfAny(PathSeparators);
-
-            if (index != path.Length - 1)
-            {
-                result = path + "/" + other;
-            }
-            else
-            {
-                // If the first path ends in a trailing slash e.g. "/Home/", assume it's a directory.
-                result = path.Substring(0, index + 1) + other;
-            }
+            var result = index != path.Length - 1
+                ? path + '/' + other
+                : path + other;
 
             return result;
         }
 
-        private static string MergePaths(string left, string right)
+        private static string JoinPaths(string left, string right)
         {
-            left = left.Replace('\\', '/');
-            right = NormalizeRelativePath(right);
-
-            var segments = left.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
-            var rightSegments = right.Tokenize('/');
+            var segments = left.Split(PathSeparators, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var rightSegments = right.Split(PathSeparators, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var segment in rightSegments)
             {
@@ -137,9 +146,14 @@ namespace Smartstore.IO
             
             var result = string.Join('/', segments);
 
-            if (left[0] == '/')
+            if (PathSeparators.Contains(left[0]))
             {
-                result = '/' + result;
+                result = left[0] + result;
+            }
+
+            if (PathSeparators.Contains(right[^1]))
+            {
+                result += right[^1];
             }
 
             return result;

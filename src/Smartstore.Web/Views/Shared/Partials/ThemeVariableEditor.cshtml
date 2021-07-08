@@ -1,0 +1,66 @@
+﻿@using Smartstore.Web.Theming
+@using Smartstore.Web.Models.Theming
+
+@model ThemeVariableModel
+
+@addTagHelper Smartstore.Web.TagHelpers.Admin.*, Smartstore.Web.Common
+
+@{
+    var info = Model.Info;
+    // TODO: (core) Implement NameForThemeVar() extension method (?)
+    var expression = "values[{0}]".FormatInvariant(info.Name);
+    var attrs = new AttributeDictionary
+    {
+        ["name"] = expression,
+        ["id"] = expression.SanitizeHtmlId()
+    };
+
+    var strValue = string.Empty;
+
+    if (Model.Value is string[] arrValue)
+    {
+        strValue = arrValue.Length > 0 ? arrValue[0] : Model.Value.ToString();
+    }
+    else
+    {
+        strValue = Model.Value.ToString();
+    }
+
+    var isDefault = strValue.EqualsNoCase(info.DefaultValue);
+    var isValidColor = info.Type == ThemeVariableType.Color
+        && ((strValue.HasValue() && ThemeVariableRepository.IsValidColor(strValue)) || (strValue.IsEmpty() && ThemeVariableRepository.IsValidColor(info.DefaultValue)));
+}
+
+@if (isValidColor)
+{
+    <colorbox attrs="attrs" value="@strValue" sm-default-color="@info.DefaultValue" />
+}
+else if (info.Type == ThemeVariableType.Boolean)
+{
+    <label class="switch">
+        <span class="switch-toggle"></span>
+        <input type="checkbox" attrs="attrs" attr-checked='(strValue.ToBool(), "checked")' />
+    </label>
+}
+else if (info.Type == ThemeVariableType.Select)
+{
+    var manifest = info.Manifest;
+    if (!manifest.Selects.ContainsKey(info.SelectRef))
+    {
+        throw new SmartException("A select list with id '{0}' was not specified. Please specify a 'Select' element with at least one 'Option' child.", info.SelectRef);
+    }
+
+    var selectList = from x in manifest.Selects[info.SelectRef]
+                    select new SelectListItem
+                    {
+                        Value = x,
+                        Text = x, // TODO: (mc) Localize
+                        Selected = x.EqualsNoCase(strValue)
+                    };
+
+    <select class="form-control" attrs="attrs" asp-items="selectList" asp-placeholder="@info.DefaultValue"></select>
+}
+else
+{
+    <input type="text" class="form-control" attrs="attrs" placeholder="@info.DefaultValue" attr-value='(!isDefault, strValue)' />
+}

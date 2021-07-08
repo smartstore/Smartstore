@@ -210,7 +210,7 @@ namespace Smartstore.Web.Theming
         /// We need this helper during theme configuration: we just can't render
         /// color pickers for color values containing var references or SASS functions.
         /// </remarks>
-        internal static bool IsValidColor(string value)
+        public static bool IsValidColor(string value)
         {
             if (value.IsEmpty())
             {

@@ -74,7 +74,7 @@ namespace Smartstore.Web.Bundling
 
                 foreach (var file in files)
                 {
-                    builder.AppendHtml(new HtmlString(tagTemplate.FormatInvariant(httpContext.Request.PathBase + file.Path)));
+                    builder.AppendHtml(tagTemplate.FormatInvariant(httpContext.Request.PathBase + file.Path));
                     builder.AppendLine();
                 }
 

@@ -25,20 +25,7 @@ namespace Smartstore.IO
         /// <inheritdoc/>
         public virtual string PathCombine(params string[] paths)
         {
-            if (paths.Length == 0)
-                return null;
-
-            var result = paths[0];
-
-            if (paths.Length == 1)
-                return result;
-
-            for (var i = 1; i < paths.Length; i++)
-            {
-                result = PathUtility.Combine(result, paths[i]);
-            }
-
-            return result;
+            return PathUtility.Combine(paths);
         }
 
         ///// <inheritdoc/>

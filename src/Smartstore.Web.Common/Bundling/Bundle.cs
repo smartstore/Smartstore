@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
+using Smartstore.Core.Widgets;
 using Smartstore.IO;
 using Smartstore.Web.Bundling.Processors;
 
@@ -357,7 +358,15 @@ namespace Smartstore.Web.Bundling
             
             if (!isPattern)
             {
-                path = TryFindMinFile(path, fileProvider, options);
+                if (options.EnableMinification == true)
+                {
+                    var assetBuilder = httpContext.RequestServices.GetService<IPageAssetBuilder>();
+                    if (assetBuilder != null)
+                    {
+                        path = assetBuilder.TryFindMinFile(path, fileProvider);
+                    }
+                }
+                
                 yield return new BundleFile
                 {
                     Path = path,
@@ -390,40 +399,6 @@ namespace Smartstore.Web.Bundling
                     }
                 }
             }
-        }
-
-        private static string TryFindMinFile(string path, IFileProvider fileProvider, BundlingOptions options)
-        {
-            if (options.EnableMinification == false)
-            {
-                // Return path as is in dev mode
-                return path;
-            }
-
-            return _minFiles.GetOrAdd(path, key => 
-            {
-                try
-                {
-                    var extension = Path.GetExtension(path);
-                    if (path.EndsWith(".min" + extension, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        // Is already a minified file, get out!
-                        return path;
-                    }
-
-                    var minPath = "{0}.min{1}".FormatInvariant(path.Substring(0, path.Length - extension.Length), extension);
-                    if (fileProvider.GetFileInfo(minPath).Exists)
-                    {
-                        return minPath;
-                    }
-
-                    return path;
-                }
-                catch
-                {
-                    return path;
-                }
-            });
         }
 
         #endregion

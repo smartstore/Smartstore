@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.FileProviders;
 using Smartstore.Core.Seo;
 
 namespace Smartstore.Core.Widgets
@@ -93,6 +94,7 @@ namespace Smartstore.Core.Widgets
         /// <paramref name="path"/> is returned as is.
         /// </summary>
         /// <param name="path">File path to check a minified version for.</param>
-        string TryFindMinFile(string path);
+        /// <param name="fileProvider">File provider to use for file resolution or <c>null</c> to use WebRoot file provider.</param>
+        string TryFindMinFile(string path, IFileProvider fileProvider = null);
     }
 }

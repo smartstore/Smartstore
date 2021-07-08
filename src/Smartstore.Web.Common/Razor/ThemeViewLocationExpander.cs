@@ -16,6 +16,7 @@ namespace Smartstore.Web.Razor
             {
                 return new[] 
                 {
+                    // TODO: (core) Apply theme hierarchy chain
                     $"/Themes/{theme}/Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension,
                     $"/Themes/{theme}/Views/Shared/{{0}}"  + RazorViewEngine.ViewExtension,
                 }

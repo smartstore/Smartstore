@@ -12,6 +12,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
 using Smartstore.Http;
+using Microsoft.Extensions.FileProviders;
 
 namespace Smartstore.Core.Widgets
 {
@@ -101,9 +102,9 @@ namespace Smartstore.Core.Widgets
 
             foreach (var src in urls.Select(x => x.Trim()))
             {
-                var content = 
+                var content =
                     _assetTagGenerator.GenerateScript(src) ??
-                    new HtmlString($"<script src=\"{TryFindMinFile(src)}\"></script>");
+                    new HtmlString($"<script src=\"{ResolveAssetUrl(src)}\"></script>");
 
                 AddHtmlContent(zoneName, content, src, prepend);
             }
@@ -122,10 +123,20 @@ namespace Smartstore.Core.Widgets
             {
                 var content =
                     _assetTagGenerator.GenerateStylesheet(href) ??
-                    new HtmlString($"<link href=\"{TryFindMinFile(href)}\" rel=\"stylesheet\" type=\"text/css\" />");
+                    new HtmlString($"<link href=\"{ResolveAssetUrl(href)}\" rel=\"stylesheet\" type=\"text/css\" />");
 
                 AddHtmlContent(zoneName, content, href, prepend);
             }
+        }
+
+        private string ResolveAssetUrl(string src)
+        {
+            if (!_appContext.HostEnvironment.IsDevelopment())
+            {
+                src = TryFindMinFile(src);
+            }
+
+            return _urlHelper.Value.Content(src);
         }
 
         public virtual void AddHtmlContent(string targetZone, IHtmlContent content, string key = null, bool prepend = false)
@@ -206,52 +217,43 @@ namespace Smartstore.Core.Widgets
             return new HtmlString(result?.AttributeEncode()?.NullEmpty() ?? _seoSettings.GetLocalizedSetting(x => x.MetaKeywords).Value);
         }
 
-        /// <summary>
-        /// Given an app relative path for a static script or css file, tries to locate
-        /// the minified version ([PathWithoutExtension].min.[Extension]) of this file in the same directory, but only if app
-        /// runs in production mode. If a minified file is found, then its path is returned, otherwise
-        /// <paramref name="path"/> is returned as is.
-        /// </summary>
-        /// <param name="path">File path to check a minified version for.</param>
-        public virtual string TryFindMinFile(string path)
+        public virtual string TryFindMinFile(string path, IFileProvider fileProvider = null)
         {
             Guard.NotEmpty(path, nameof(path));
             
-            if (!_appContext.HostEnvironment.IsDevelopment())
+            path = _minFiles.GetOrAdd(path, key =>
             {
-                path = _minFiles.GetOrAdd(path, key =>
+                try
                 {
-                    try
+                    if (!WebHelper.IsUrlLocalToHost(key))
                     {
-                        if (!WebHelper.IsUrlLocalToHost(key))
-                        {
-                            // No need to look for external files
-                            return key;
-                        }
-
-                        var extension = Path.GetExtension(key);
-                        if (key.EndsWith(".min" + extension, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            // Is already a MIN file, get out!
-                            return key;
-                        }
-
-                        var minPath = "{0}.min{1}".FormatInvariant(key.Substring(0, key.Length - extension.Length), extension);
-                        if (_appContext.WebRoot.FileExists(minPath.TrimStart('~', '/')))
-                        {
-                            return minPath;
-                        }
-
+                        // No need to look for external files
                         return key;
                     }
-                    catch
+
+                    var extension = Path.GetExtension(key);
+                    if (key.EndsWith(".min" + extension, StringComparison.InvariantCultureIgnoreCase))
                     {
+                        // Is already a MIN file, get out!
                         return key;
                     }
-                });
-            }
 
-            return _urlHelper.Value.Content(path);
+                    var minPath = "{0}.min{1}".FormatInvariant(key.Substring(0, key.Length - extension.Length), extension);
+                    fileProvider ??= _appContext.WebRoot;
+                    if (fileProvider.GetFileInfo(minPath.TrimStart('~', '/')).Exists)
+                    {
+                        return minPath;
+                    }
+
+                    return key;
+                }
+                catch
+                {
+                    return key;
+                }
+            });
+
+            return path;
         }
 
         #region Utils

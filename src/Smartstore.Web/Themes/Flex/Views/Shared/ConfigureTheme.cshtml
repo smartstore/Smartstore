@@ -1,0 +1,99 @@
+﻿@using Smartstore.Web.Theming
+@using Smartstore.Web.Models.Theming
+
+@model IDictionary<string, object>
+
+@addTagHelper Smartstore.Web.TagHelpers.Admin.*, Smartstore.Web.Common
+
+@{
+    Layout = null;
+}
+
+<tabstrip id="theme-flex-edit" sm-nav-style="Material" class="theme-edit">
+    <tab sm-title="@T("Common.General")">
+        <div class="adminContent">
+            @{ await ThemeVarEditor("gray-100", "Grayscale"); }
+            @{ await ThemeVarEditor("gray-200"); }
+            @{ await ThemeVarEditor("gray-300"); }
+            @{ await ThemeVarEditor("gray-400"); }
+            @{ await ThemeVarEditor("gray-500"); }
+            @{ await ThemeVarEditor("gray-600"); }
+            @{ await ThemeVarEditor("gray-700"); }
+            @{ await ThemeVarEditor("gray-800"); }
+            @{ await ThemeVarEditor("gray-900"); }
+
+            @{ await ThemeVarEditor("boxed", "Layout", T("Admin.ThemeVar.Boxed")); }
+            @{ await ThemeVarEditor("font-family-sans-serif"); }
+            @{ await ThemeVarEditor("font-size-sm"); }
+            @{ await ThemeVarEditor("shopbar-label"); }
+
+            @*@ThemeVarEditor("red", "Colors")
+            @ThemeVarEditor("orange")
+            @ThemeVarEditor("yellow")
+            @ThemeVarEditor("green")
+            @ThemeVarEditor("blue")
+            @ThemeVarEditor("bluegrey")
+            @ThemeVarEditor("indigo")
+            @ThemeVarEditor("teal")
+            @ThemeVarEditor("cyan")
+            @ThemeVarEditor("pink")
+            @ThemeVarEditor("purple")
+
+            @ThemeVarEditor("primary", "Brand Colors")
+            @ThemeVarEditor("secondary")
+            @ThemeVarEditor("warning")
+            @ThemeVarEditor("danger")
+            @ThemeVarEditor("info")
+            @ThemeVarEditor("success")
+            @ThemeVarEditor("light")
+            @ThemeVarEditor("dark")
+
+            @ThemeVarEditor("boxed", "Layout", T("Admin.ThemeVar.Boxed"))
+
+            @ThemeVarEditor("body-bg", "Site Colors")
+            @ThemeVarEditor("site-bg")
+            @ThemeVarEditor("body-color")
+            @ThemeVarEditor("yiq-text-dark")
+            @ThemeVarEditor("yiq-text-light")
+            @ThemeVarEditor("text-muted")
+            @ThemeVarEditor("link-color")
+
+            @ThemeVarEditor("btn-secondary-bg", "")
+            @ThemeVarEditor("btn-secondary-border")*@
+        </div>
+    </tab>
+    <tab sm-title="@T("Admin.Themes.Fonts")"></tab>
+    <tab sm-title="@T("Admin.Themes.Sections")"></tab>
+    <tab sm-title="@T("Admin.Themes.Components")"></tab>
+    <tab sm-title="@T("Admin.Themes.Misc")"></tab>
+</tabstrip>
+
+@{
+    async Task ThemeVarEditor(string varName, string groupName = null, string helpText = null)
+    {
+        var model = new ThemeVariableModel(Display.GetThemeManifest().Variables[varName], Model[varName]);
+
+        if (groupName != null)
+        {
+            <div class="adminRow">
+                <div class="admin-config-group">
+                    <div class="title">@groupName</div>
+                </div>
+            </div>
+        }
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                @*@Html.ThemeVarLabel(ThemeManifest.Variables[varName], helpText)*@
+                @(model.Info.Name)
+            </div>
+            <div class="adminData">
+                @*@Html.ThemeVarEditor(ThemeManifest.Variables[varName], Model[varName])*@
+                <partial name="ThemeVariableEditor" model="model" />
+            </div>
+            <div class="d-none d-xl-flex align-items-center">
+                @*@Html.ThemeVarChainInfo(ThemeManifest.Variables[varName])*@
+            </div>
+        </div>
+    }
+}
