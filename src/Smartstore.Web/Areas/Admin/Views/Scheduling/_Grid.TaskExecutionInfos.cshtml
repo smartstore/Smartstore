@@ -23,29 +23,29 @@
         <column for="Id" visible="false" resizable="false" />
         <column for="StartedOn" title="@T("Common.ExecutedOn")" width="260px">
             <display-template>
-                <div>
-					<div>{{ item.row.StartedOnString }}</div>
-					<div class="text-muted">{{ item.row.StartedOnPretty }}</div>
+                <div class="dg-cell-value">
+					<div class="text-truncate">{{ item.row.StartedOnString }}</div>
+					<div class="text-truncate text-muted">{{ item.row.StartedOnPretty }}</div>
 				</div>
             </display-template>
         </column>
         <column for="FinishedOn" title="@T("Common.FinishedOn")" width="260px">
             <display-template>
-                <div>
-					<div>{{ item.row.FinishedOnString }}</div>
-					<div class="text-muted">{{ item.row.FinishedOnPretty }}</div>
+                <div class="dg-cell-value">
+					<div class="text-truncate">{{ item.row.FinishedOnString }}</div>
+					<div class="text-truncatetext-muted">{{ item.row.FinishedOnPretty }}</div>
 				</div>
             </display-template>
         </column>
         <column for="Duration" width="260px"></column>
         <column for="Succeeded" width="400px">
             <display-template>
-				<div v-if="item.row.Succeeded">
+				<div v-if="item.row.Succeeded" class="dg-cell-value">
                     <i class="fa fa-fw icon-active-true"></i>
-                    <span class="ml-1">@T("Common.Succeeded")</span>
+                    <span class="ml-1 text-truncate">@T("Common.Succeeded")</span>
                 </div>
-				<div v-if="!item.row.Succeeded">
-                    <div class="text-danger font-weight-medium">@T("Common.Error"):</div>
+				<div v-if="!item.row.Succeeded" class="dg-cell-value">
+                    <div class="text-danger text-truncate font-weight-medium">@T("Common.Error"):</div>
                     <pre class="prettyprint xlang-java mt-1 mb-0" style="max-height: 200px; white-space: pre-wrap;">{{ item.row.Error }}</pre>
                 </div>
             </display-template>

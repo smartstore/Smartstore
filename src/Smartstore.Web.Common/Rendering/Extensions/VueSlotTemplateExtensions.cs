@@ -77,6 +77,7 @@ namespace Smartstore.Web.Rendering
 
             var isLink = urlExpression.HasValue();
             var name = new TagBuilder(isLink ? "a" : "span");
+            name.Attributes.Add("class", "text-truncate");
             name.InnerHtml.AppendHtml("{{ item.value }}");
 
             if (isLink)

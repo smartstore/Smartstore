@@ -97,7 +97,8 @@ namespace Smartstore.Admin.Controllers
             var ruleSets = await _db.RuleSets
                 .AsNoTracking()
                 .ApplyStandardFilter(null, false, true)
-                .ToPagedList(command.Page - 1, command.PageSize)
+                .ApplyGridCommand(command, false)
+                .ToPagedList(command)
                 .LoadAsync();
 
             var rows = await ruleSets.SelectAsync(async x =>

@@ -17,22 +17,22 @@
         <column for="Enabled" halign="center"></column>
         <column for="CronExpression">
             <display-template>
-                <div>
-                    <div>{{ item.value }}</div>
-                    <div v-if="item.row.CronDescription.length > 0" class="text-muted">{{ item.row.CronDescription }}</div>
+                <div class="dg-cell-value">
+                    <div class="text-truncate">{{ item.value }}</div>
+                    <div v-if="item.row.CronDescription.length > 0" class="text-truncate text-muted">{{ item.row.CronDescription }}</div>
                 </div>
             </display-template>
         </column>
         <column for="LastRunInfo" width="300px">
             <display-template>
-                <div class="last-run-info" v-html="item.value"></div>
+                <div class="last-run-info text-truncate" v-html="item.value"></div>
             </display-template>
         </column>
         <column for="NextRunInfo" width="300px">
             <display-template>
-                <div>
-                    <div class="next-run-info" v-html="item.value"></div>
-                    <div class="task-progress text-muted"
+                <div class="dg-cell-value">
+                    <div class="next-run-info text-truncate" v-html="item.value"></div>
+                    <div class="task-progress text-muted text-truncate"
                          v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }"
                          :data-task-id="item.row.Id"
                          :data-running='item.row.LastExecutionInfo.IsRunning ? "true" : "false"'></div>

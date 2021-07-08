@@ -71,7 +71,7 @@ namespace Smartstore.Admin.Controllers
                 query = query.Where(x => x.SendManually == model.SearchSendManually);
             }
 
-            var queuedEmails = await query.ToPagedList(command.Page - 1, command.PageSize).LoadAsync();
+            var queuedEmails = await query.ToPagedList(command).LoadAsync();
 
             var gridModel = new GridModel<QueuedEmailModel>
             {

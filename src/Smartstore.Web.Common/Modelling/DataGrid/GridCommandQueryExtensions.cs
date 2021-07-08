@@ -2,11 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using Smartstore.Collections;
 
 namespace Smartstore.Web.Modelling.DataGrid
 {
     public static class GridCommandQueryExtensions
     {
+        /// <summary>
+        /// Returns a paged list from a source sequence by applying the paging settings in <paramref name="command"/>.
+        /// </summary>
+        /// <param name="GridCommand">The grid command to apply paging from.</param>
+        /// <returns>Paged list</returns>
+        public static PagedList<T> ToPagedList<T>(this IEnumerable<T> source, GridCommand command)
+        {
+            return new PagedList<T>(source, command.Page - 1, command.PageSize);
+        }
+
         /// <summary>
         /// Applies a bound <see cref="GridCommand"/> specification to a query.
         /// </summary>

@@ -45,7 +45,7 @@ namespace Smartstore.Admin.Controllers
                     var attributes = _genericAttributeService
                         .GetAttributesForEntity(entityName, entityId).UnderlyingEntities
                         .AsQueryable()
-                        .ApplyGridCommand(command);
+                        .ApplyGridCommand(command, true);
 
                     attributesItems = attributes
                         .Where(x => x.StoreId == storeId || x.StoreId == 0)

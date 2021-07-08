@@ -277,7 +277,7 @@ namespace Smartstore.Admin.Controllers
                     .PrepareQuery(searchQuery)
                     .ApplyGridCommand(command, false);
 
-                products = await new PagedList<Product>(query, command.Page - 1, command.PageSize).LoadAsync();
+                products = await query.ToPagedList(command).LoadAsync();
             }
 
             var fileIds = products.AsEnumerable()

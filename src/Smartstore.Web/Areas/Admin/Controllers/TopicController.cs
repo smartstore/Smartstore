@@ -101,7 +101,7 @@ namespace Smartstore.Admin.Controllers
 
             query = query.ApplyGridCommand(command, false);
 
-            var topicItems = await query.ToPagedList(command.Page - 1, command.PageSize).LoadAsync();
+            var topicItems = await query.ToPagedList(command).LoadAsync();
             var gridModel = new GridModel<TopicModel>
             {
                 Rows = await topicItems.AsEnumerable().SelectAsync(async x => await PrepareTopicListModelAsync(x)).AsyncToList(),

@@ -82,7 +82,7 @@ namespace Smartstore.Admin.Controllers
                 .ApplyLevelFilter(logLevel)
                 .ApplyGridCommand(command, false);
 
-            var logItems = await query.ToPagedList(command.Page - 1, command.PageSize).LoadAsync();
+            var logItems = await query.ToPagedList(command).LoadAsync();
 
             var gridModel = new GridModel<LogModel>
             {

@@ -1,9 +1,20 @@
 ﻿@model RuleSetModel
+@*
+    INFO: (mg) (core) Tags containing text in custom datagrid display templates require "text-truncate" class ALL THE WAY DOWN.
+    The parent tag should be '.dg-cell-value' because this one already has text truncating expressions.
 
-<datagrid id="rules-grid" 
-        allow-resize="true" 
-        allow-column-reordering="true" 
-        preserve-grid-state="true">
+    - At least one grid column should be non-hídebale
+    - Don't try to port column sizes from old grid. The concept changed fundamentally. Sizes for boolean, numbers and dates
+      can be omitted: "auto" is default here and is always a perfect match.
+    - Only string column sizes need a manual adjustment because the grid cannot guess the potential length.
+      Default is: minmax(60px, 1fr). minmax(60px, 3fr) for example would make a column 3x wider than any other string column.
+*@
+
+<datagrid id="rules-grid"
+          allow-resize="true"
+          allow-column-reordering="true"
+          preserve-grid-state="true"
+          onrowclass="rulesGrid_onRowClass">
     <datasource read="@Url.Action("RuleList")" />
     <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
@@ -15,15 +26,21 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Name">
+        <column for="Name" hideable="false">
             <display-template>
-                <div>
-                    <div><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
-                    <div class="text-muted">{{ item.row.Description }}</div>
+                <div class="dg-cell-value">
+                    <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+                    <div class="text-muted text-truncate">{{ item.row.Description }}</div>
                 </div>
             </display-template>
         </column>
         <column for="ScopeName" width="300px" />
-        <column for="IsActive" halign="center" width="200px" />
+        <column for="IsActive" halign="center" />
     </columns>
 </datagrid>
+
+<script sm-target-zone="scripts" data-origin="rules-grid">
+    function rulesGrid_onRowClass(row) {
+        return { "text-muted": !row.IsActive };
+    }
+</script>

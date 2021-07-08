@@ -269,7 +269,7 @@ namespace Smartstore.Admin.Controllers
                 .ApplyTaskFilter(id)
                 .ApplyGridCommand(command);
 
-            var infos = await query.ToPagedList(command.Page - 1, command.PageSize).LoadAsync();
+            var infos = await query.ToPagedList(command).LoadAsync();
             var infoMapper = MapperFactory.GetMapper<TaskExecutionInfo, TaskExecutionInfoModel>();
 
             var rows = await infos.SelectAsync(async x =>
