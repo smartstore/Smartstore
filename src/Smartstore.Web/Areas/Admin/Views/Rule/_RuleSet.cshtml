@@ -1,5 +1,20 @@
 ﻿@model IRuleExpressionGroup
 
+@{
+    var orButton = ViewBag.ConditionsOrButton as string;
+    var andButton = ViewBag.ConditionsAndButton as string;
+}
+
 <div class="ruleset" data-ruleset-id="@Model.Id" data-refrule-id="@Model.RefRuleId">
-	TODO...
+    <div class="ruleset-header d-flex align-items-center justify-content-between">
+        <div class="ruleset-operator" data-url="@Url.Action("ChangeOperator")">
+            <input type="hidden" asp-for="LogicalOperator" />
+            <div class="ruleset-op-one align-items-center justify-content-stretch @(Model.LogicalOperator == LogicalRuleOperator.And ? "hide" : "d-flex")">
+                @Html.Raw(T("Admin.Rules.OneCondition", orButton))
+            </div>
+            <div class="ruleset-op-all align-items-center justify-content-stretch @(Model.LogicalOperator == LogicalRuleOperator.And ? "d-flex" : "hide")">
+                @Html.Raw(T("Admin.Rules.AllConditions", andButton))
+            </div>
+        </div>
+    </div>
 </div>

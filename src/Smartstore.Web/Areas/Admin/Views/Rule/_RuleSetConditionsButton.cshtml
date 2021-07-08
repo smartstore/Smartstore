@@ -1,0 +1,15 @@
+﻿@model RuleSetModel
+
+@{
+    var ruleOperator = (LogicalRuleOperator)ViewData["ruleOperator"];
+}
+
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-secondary btn-sm btn-flat font-weight-medium dropdown-toggle mx-1 px-1 no-chevron" data-toggle="dropdown">
+        <span class="logical-operator">@T(ruleOperator == LogicalRuleOperator.And ? "Admin.Rules.Operator.All" : "Admin.Rules.Operator.One")</span>
+    </button>
+    <div class="dropdown-menu logical-operator-chooser">
+        <a href="javascript:void(0)" class="dropdown-item" data-value="And">@T("Admin.Rules.Operator.All")</a>
+        <a href="javascript:void(0)" class="dropdown-item" data-value="Or" attr-class='(Model.Scope == RuleScope.Product, "disabled")'>@T("Admin.Rules.Operator.One")</a>
+    </div>
+</div>

@@ -209,6 +209,9 @@ namespace Smartstore.Admin.Controllers
                         })
                         .ToList();
                 }
+
+                ViewBag.ConditionsOrButton = await this.InvokeViewAsync("_RuleSetConditionsButton", model, new { ruleOperator = LogicalRuleOperator.Or });
+                ViewBag.ConditionsAndButton = await this.InvokeViewAsync("_RuleSetConditionsButton", model, new { ruleOperator = LogicalRuleOperator.And });
             }
         }
 
