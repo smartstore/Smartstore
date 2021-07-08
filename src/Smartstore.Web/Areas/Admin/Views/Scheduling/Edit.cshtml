@@ -28,7 +28,7 @@
             <a href="@(returnUrl ?? Url.Action("List"))">(@T("Common.Back"))</a>
 		</div>
         <div class="options">
-			<button type="submit" name="save" value="save" class="btn btn-primary">
+			<button type="submit" name="save" value="save" class="btn btn-warning">
 				<i class="fa fa-check"></i>
 				<span>@T("Admin.Common.Save")</span>
 			</button>
@@ -116,9 +116,8 @@
                     </div>
                     <div class="adminData">
 					    <div class="form-control-plaintext">
-                            <pre class="prettyprint xlang-java mt-1 mb-0" style="max-height: 200px; white-space: pre-wrap;">
-                                @Model.LastExecutionInfo.Error
-                            </pre>
+                            @*Avoid rendering of whitespace in pre-tags caused by linebreaks.*@
+                            <pre class="prettyprint xlang-java mt-1 mb-0" style="max-height: 200px; white-space: pre-wrap;">@Model.LastExecutionInfo.Error</pre>
 					    </div>
                     </div>
                 </div>

@@ -1,0 +1,44 @@
+﻿@model RuleSetModel
+
+@{
+    ViewBag.Title = T("Admin.Rules.EditRule") + " - " + Model.Name;
+}
+
+<form asp-action="Edit">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-filter"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+			@if (Model.Id != 0 && (Model.Scope == RuleScope.Customer || Model.Scope == RuleScope.Product))
+			{
+				<a id="btn-preview-ruleset" asp-action="Preview" asp-route-itemid="@Model.Id" class="btn btn-secondary">
+					<i class="far fa-eye"></i>
+					<span>@T("Admin.Common.Preview")</span>
+				</a>
+			}
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <confirm button-id="rule-delete" />
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" />
+</form>
+
+<script sm-target-zone="scripts" data-origin="rule-edit">
+	$(function () {
+		$('#btn-preview-ruleset').on('click', function (e) {
+			e.preventDefault();
+			openPopup($(this).attr('href'), true /* large */, true /* flex */);
+			return false;
+		});
+	});
+</script>

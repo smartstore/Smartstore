@@ -230,7 +230,7 @@ namespace Smartstore.Web.Rendering
 
             if (hint.HasValue())
             {
-                div.InnerHtml.AppendHtml(helper.Hint(hint));
+                div.InnerHtml.AppendHtml(helper.HintTooltip(hint));
             }
 
             return div;

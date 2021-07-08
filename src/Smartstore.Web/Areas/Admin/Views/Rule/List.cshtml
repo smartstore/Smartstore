@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Title = T("Common.Rules").Value;
+
+	Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-filter"></i>
+        @T("Common.Rules")
+    </div>
+</div>
+
+<partial name="_Grid.Rules" model="null" />

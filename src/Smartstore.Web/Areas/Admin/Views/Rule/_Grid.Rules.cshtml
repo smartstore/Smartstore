@@ -1,0 +1,29 @@
+﻿@model RuleSetModel
+
+<datagrid id="rules-grid" 
+        allow-resize="true" 
+        allow-column-reordering="true" 
+        preserve-grid-state="true">
+    <datasource read="@Url.Action("RuleList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")…</span>
+            </a>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name">
+            <display-template>
+                <div>
+                    <div><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+                    <div class="text-muted">{{ item.row.Description }}</div>
+                </div>
+            </display-template>
+        </column>
+        <column for="ScopeName" width="300px" />
+        <column for="IsActive" halign="center" width="200px" />
+    </columns>
+</datagrid>

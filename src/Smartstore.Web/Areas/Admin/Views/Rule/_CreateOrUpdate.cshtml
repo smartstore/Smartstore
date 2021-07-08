@@ -1,0 +1,142 @@
+﻿@model RuleSetModel
+
+@{
+    Assets.AppendScriptFiles("~/admin/js/smartstore.rules.js");
+
+    var scopes = ViewBag.Scopes as List<ExtendedSelectListItem>;
+
+    var assignedToDiscounts = ViewBag.AssignedToDiscounts as List<RuleSetAssignedToEntityModel>;
+    var assignedToShippingMethods = ViewBag.AssignedToShippingMethodsas as List<RuleSetAssignedToEntityModel>;
+    var assignedToPaymentMethods = ViewBag.AssignedToPaymentMethods as List<RuleSetAssignedToEntityModel>;
+    var assignedToCustomerRoles = ViewBag.AssignedToCustomerRoles as List<RuleSetAssignedToEntityModel>;
+    var assignedToCategories = ViewBag.AssignedToCategories as List<RuleSetAssignedToEntityModel>;
+
+    // TODO: (mg) (core) verify edit URLs
+    string discountSelector(RuleSetAssignedToEntityModel x) => $"<a href='{Url.Action("Edit", "Discount", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
+    string shippingSelector(RuleSetAssignedToEntityModel x) => $"<a href='{Url.Action("EditMethod", "Shipping", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
+    string paymentSelector(RuleSetAssignedToEntityModel x) => $"<a href='{Url.Action("Edit", "Payment", new { systemName = x.SystemName })}' title='{x.SystemName.HtmlEncode()}'>{x.Name.HtmlEncode()}</a>";
+    string customerRoleSelector(RuleSetAssignedToEntityModel x) => $"<a href='{Url.Action("Edit", "CustomerRole", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
+    string categorySelector(RuleSetAssignedToEntityModel x) => $"<a href='{Url.Action("Edit", "Category", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
+}
+
+<div asp-validation-summary="ModelOnly"></div>
+
+<input type="hidden" asp-for="Id" />
+<input type="hidden" asp-for="IsSubGroup" />
+<input type="hidden" asp-for="CreatedOnUtc" />
+<input type="hidden" asp-for="UpdatedOnUtc" />
+<input type="hidden" asp-for="LastProcessedOnUtc" />
+<input type="hidden" asp-for="RawRuleData" />
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Name" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Name" />
+            <span asp-validation-for="Name"></span>            
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Description" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Description" />
+            <span asp-validation-for="Description"></span>            
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IsActive" />
+        </div>
+        <div class="adminData">
+            <input asp-for="IsActive" />
+            <span asp-validation-for="IsActive"></span>            
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Scope" />
+        </div>
+        <div sm-if="Model.Id == 0" class="adminData">
+            <select asp-for="Scope">
+				@foreach (var item in scopes)
+				{
+                    <option value="@item.Value" attr-selected='(item.Selected, "selected")' data-description="@(item.Get<string>("Description"))">@item.Text</option>
+				}
+            </select>
+        </div>
+        <div sm-if="Model.Id != 0" class="adminData">
+            <input type="hidden" asp-for="Scope" />
+            <input asp-for="Scope" readonly="readonly" />
+        </div>
+    </div>
+    <div sm-if="assignedToDiscounts?.Any() ?? false" class="adminRow">
+        <div class="adminTitle">
+            @Html.SmartLabel("AssignedToDiscounts", T("Admin.Rules.RuleSet.AssignedObjects", T("Admin.Promotions.Discounts")), T("Admin.Rules.RuleSet.AssignedObjects.Hint"))
+        </div>
+        <div class="adminData form-control-plaintext wide">
+            @Html.Raw(string.Join(" · ", assignedToDiscounts.Select(discountSelector)))
+        </div>
+    </div>
+    <div sm-if="assignedToShippingMethods?.Any() ?? false" class="adminRow">
+        <div class="adminTitle">
+            @Html.SmartLabel("AssignedToShippingMethods", T("Admin.Rules.RuleSet.AssignedObjects", T("Admin.Configuration.Shipping.Methods")), T("Admin.Rules.RuleSet.AssignedObjects.Hint"))
+        </div>
+        <div class="adminData form-control-plaintext wide">
+            @Html.Raw(string.Join(" · ", assignedToShippingMethods.Select(shippingSelector)))
+        </div>
+    </div>
+    <div sm-if="assignedToPaymentMethods?.Any() ?? false" class="adminRow">
+        <div class="adminTitle">
+            @Html.SmartLabel("AssignedToPaymentMethods", T("Admin.Rules.RuleSet.AssignedObjects", T("Admin.Configuration.Payment.Methods")), T("Admin.Rules.RuleSet.AssignedObjects.Hint"))
+        </div>
+        <div class="adminData form-control-plaintext wide">
+            @Html.Raw(string.Join(" · ", assignedToPaymentMethods.Select(paymentSelector)))
+        </div>
+    </div>
+    <div sm-if="assignedToCustomerRoles?.Any() ?? false" class="adminRow">
+        <div class="adminTitle">
+            @Html.SmartLabel("AssignedToCustomerRoles", T("Admin.Rules.RuleSet.AssignedObjects", T("Admin.Customers.CustomerRoles")), T("Admin.Rules.RuleSet.AssignedObjects.Hint"))
+        </div>
+        <div class="adminData form-control-plaintext wide">
+            @Html.Raw(string.Join(" · ", assignedToCustomerRoles.Select(customerRoleSelector)))
+        </div>
+    </div>
+    <div sm-if="assignedToCategories?.Any() ?? false" class="adminRow">
+        <div class="adminTitle">
+            @Html.SmartLabel("AssignedToCategories", T("Admin.Rules.RuleSet.AssignedObjects", T("Admin.Catalog.Categories")), T("Admin.Rules.RuleSet.AssignedObjects.Hint"))
+        </div>
+        <div class="adminData form-control-plaintext wide">
+            @Html.Raw(string.Join(" · ", assignedToCategories.Select(categorySelector)))
+        </div>
+    </div>
+    <div sm-if="Model.Id == 0" class="adminRow">
+        <div class="adminTitle">
+            &nbsp;
+        </div>
+        <div class="adminData muted">
+            @T("Admin.Rules.SaveToCreateConditions")
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.Id != 0">
+    <h4 class="my-4">
+        @Html.Raw(T("Admin.Rules.TestConditions", "<a id='execute-rules' class='btn btn-sm btn-primary align-top' href='" + Url.Action("Execute") + "'>", "</a>"))
+    </h4>
+    <div id="excute-result" class="alert alert-warning hide"></div>
+
+    <div id="ruleset-root" class="ruleset-root" 
+         data-dirty="false"
+         data-scope="@((int)Model.Scope)" 
+         data-url-addgroup="@Url.Action("AddGroup")" 
+         data-url-deletegroup="@Url.Action("DeleteGroup")"
+         data-url-updaterules="@Url.Action("UpdateRules", new { ruleScope = (int)Model.Scope })"
+         data-url-addrule="@Url.Action("AddRule")"
+         data-url-deleterule="@Url.Action("DeleteRule")">
+         <partial name="_RuleSet" model="Model.ExpressionGroup" />
+    </div>
+</div>
