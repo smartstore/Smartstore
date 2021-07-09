@@ -2,7 +2,7 @@
 using Smartstore.Core.Widgets;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
     public partial class ButtonPaymentMethodModel : ModelBase
     {

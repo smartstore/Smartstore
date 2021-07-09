@@ -17,7 +17,7 @@ using Smartstore.Core.Localization.Routing;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Checkout;
 using Smartstore.Web.Models.Common;
-using Smartstore.Web.Models.ShoppingCart;
+using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.Web.Controllers
 {

@@ -12,7 +12,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
     public static partial class ShoppingCartMappingExtensions
     {

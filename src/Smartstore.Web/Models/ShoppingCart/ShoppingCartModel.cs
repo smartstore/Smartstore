@@ -7,7 +7,7 @@ using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering.Choices;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
     public partial class ShoppingCartModel : CartModelBase
     {

@@ -4,7 +4,7 @@ using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Security;
-using Smartstore.Web.Models.ShoppingCart;
+using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.Web.Components
 {

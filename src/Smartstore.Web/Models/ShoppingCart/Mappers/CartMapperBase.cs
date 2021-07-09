@@ -5,11 +5,10 @@ using Smartstore.Core.Catalog;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
-using Cart = Smartstore.Core.Checkout.Cart;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
-    public abstract class CartMapperBase<TModel> : Mapper<Cart.ShoppingCart, TModel>
+    public abstract class CartMapperBase<TModel> : Mapper<ShoppingCart, TModel>
        where TModel : CartModelBase
     {
         protected readonly ICommonServices _services;
@@ -32,7 +31,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             T = t;
         }
 
-        public override Task MapAsync(Cart.ShoppingCart from, TModel to, dynamic parameters = null)
+        public override Task MapAsync(ShoppingCart from, TModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));

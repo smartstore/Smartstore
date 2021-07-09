@@ -8,7 +8,7 @@ using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Media;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
     public abstract class CartModelBase : ModelBase
     {

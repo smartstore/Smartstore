@@ -5,19 +5,18 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Localization;
-using Cart = Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Web.Models.Checkout
 {
     public static partial class ShoppingCartMappingExtensions
     {
-        public static Task MapAsync(this Cart.ShoppingCart cart, CheckoutConfirmModel model)
+        public static Task MapAsync(this ShoppingCart cart, CheckoutConfirmModel model)
         {
             return MapperFactory.MapAsync(cart, model, null);
         }
     }
 
-    public class CheckoutConfirmMapper : Mapper<Cart.ShoppingCart, CheckoutConfirmModel>
+    public class CheckoutConfirmMapper : Mapper<ShoppingCart, CheckoutConfirmModel>
     {
         private readonly ICommonServices _services;
         private readonly OrderSettings _orderSettings;
@@ -38,7 +37,7 @@ namespace Smartstore.Web.Models.Checkout
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        protected override void Map(Cart.ShoppingCart from, CheckoutConfirmModel to, dynamic parameters = null)
+        protected override void Map(ShoppingCart from, CheckoutConfirmModel to, dynamic parameters = null)
         {
             Guard.NotNull(to, nameof(to));
             Guard.NotNull(from, nameof(from));

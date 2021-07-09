@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Identity;
-using Smartstore.Web.Models.ShoppingCart;
+using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.Web.Components
 {

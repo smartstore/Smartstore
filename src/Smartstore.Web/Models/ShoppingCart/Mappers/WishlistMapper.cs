@@ -11,13 +11,12 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Cart = Smartstore.Core.Checkout.Cart;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
     public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this Cart.ShoppingCart cart,
+        public static async Task MapAsync(this ShoppingCart cart,
             WishlistModel model,
             bool isEditable = true,
             bool isOffcanvas = false)
@@ -49,10 +48,10 @@ namespace Smartstore.Web.Models.ShoppingCart
             _productAttributeFormatter = productAttributeFormatter;
         }
 
-        protected override void Map(Cart.ShoppingCart from, WishlistModel to, dynamic parameters = null)
+        protected override void Map(ShoppingCart from, WishlistModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override async Task MapAsync(Cart.ShoppingCart from, WishlistModel to, dynamic parameters = null)
+        public override async Task MapAsync(ShoppingCart from, WishlistModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));

@@ -18,19 +18,18 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Web.Models.Media;
-using Cart = Smartstore.Core.Checkout.Cart;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
     public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this Cart.ShoppingCart cart, MiniShoppingCartModel model)
+        public static async Task MapAsync(this ShoppingCart cart, MiniShoppingCartModel model)
         {
             await MapperFactory.MapAsync(cart, model, null);
         }
     }
 
-    public class MiniShoppingCartModelMapper : Mapper<Cart.ShoppingCart, MiniShoppingCartModel>
+    public class MiniShoppingCartModelMapper : Mapper<ShoppingCart, MiniShoppingCartModel>
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
@@ -78,10 +77,10 @@ namespace Smartstore.Web.Models.ShoppingCart
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        protected override void Map(Cart.ShoppingCart from, MiniShoppingCartModel to, dynamic parameters = null)
+        protected override void Map(ShoppingCart from, MiniShoppingCartModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override async Task MapAsync(Cart.ShoppingCart from, MiniShoppingCartModel to, dynamic parameters = null)
+        public override async Task MapAsync(ShoppingCart from, MiniShoppingCartModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));

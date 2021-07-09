@@ -31,7 +31,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Components;
 using Smartstore.Web.Filters;
-using Smartstore.Web.Models.ShoppingCart;
+using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.Web.Controllers
 {

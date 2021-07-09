@@ -12,7 +12,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Models.ShoppingCart;
+using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.Web.Components
 {

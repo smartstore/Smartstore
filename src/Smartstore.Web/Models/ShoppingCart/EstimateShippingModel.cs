@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
     [LocalizedDisplay("ShoppingCart.EstimateShipping.")]
     public partial class EstimateShippingModel : ModelBase

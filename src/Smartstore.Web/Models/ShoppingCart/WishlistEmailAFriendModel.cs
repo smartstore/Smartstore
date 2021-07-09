@@ -3,7 +3,7 @@ using FluentValidation;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
     [LocalizedDisplay("Wishlist.EmailAFriend.")]
     public partial class WishlistEmailAFriendModel : ModelBase

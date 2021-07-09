@@ -14,9 +14,8 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
-using Cart = Smartstore.Core.Checkout.Cart;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
     public abstract class CartItemMapperBase<TModel> : Mapper<OrganizedShoppingCartItem, TModel>
        where TModel : CartEntityModelBase
@@ -209,7 +208,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             }
 
             var itemWarnings = new List<string>();
-            var itemCart = new Cart.ShoppingCart(customer, store.Id, new[] { from });
+            var itemCart = new ShoppingCart(customer, store.Id, new[] { from });
 
             if (!await ShoppingCartValidator.ValidateCartAsync(itemCart, itemWarnings))
             {

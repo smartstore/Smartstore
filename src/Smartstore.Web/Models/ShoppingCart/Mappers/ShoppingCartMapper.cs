@@ -29,13 +29,12 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Utilities.Html;
-using Cart = Smartstore.Core.Checkout.Cart;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
     public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task<ShoppingCartModel> MapAsync(this Cart.ShoppingCart cart,
+        public static async Task<ShoppingCartModel> MapAsync(this ShoppingCart cart,
             bool isEditable = true,
             bool validateCheckoutAttributes = false,
             bool prepareEstimateShippingIfEnabled = true,
@@ -54,7 +53,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             return model;
         }
 
-        public static async Task MapAsync(this Cart.ShoppingCart cart,
+        public static async Task MapAsync(this ShoppingCart cart,
             ShoppingCartModel model,
             bool isEditable = true,
             bool validateCheckoutAttributes = false,
@@ -131,10 +130,10 @@ namespace Smartstore.Web.Models.ShoppingCart
             _rewardPointsSettings = rewardPointsSettings;
         }
 
-        protected override void Map(Cart.ShoppingCart from, ShoppingCartModel to, dynamic parameters = null)
+        protected override void Map(ShoppingCart from, ShoppingCartModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override async Task MapAsync(Cart.ShoppingCart from, ShoppingCartModel to, dynamic parameters = null)
+        public override async Task MapAsync(ShoppingCart from, ShoppingCartModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));

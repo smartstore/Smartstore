@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Smartstore.Web.Models.Catalog;
 
-namespace Smartstore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.Cart
 {
     public partial class WishlistModel : CartModelBase
     {
