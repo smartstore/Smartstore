@@ -1,0 +1,8 @@
+﻿@model IDictionary<string, object>
+
+@{ 
+    // INFO: this is just a "proxy" template. Rendering the "ConfigureTheme" template here ensures
+    // that the view resolver will try to locate the file by walking up the theme hierarchy chain.
+}
+
+<partial name="ConfigureTheme" model="Model" />

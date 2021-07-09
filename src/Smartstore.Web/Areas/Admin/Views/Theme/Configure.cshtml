@@ -1,0 +1,69 @@
+﻿@model ConfigureThemeModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Themes.Title", Model.ThemeName);
+    string parsingError = (string)TempData["SassParsingError"];
+}
+
+<form asp-action="Configure" method="post">
+    <input type="hidden" name="theme" value="@Model.ThemeName" />
+    <div class="multi-store-scope well border px-0 py-2">
+        <div class="adminContent adminContent-boxed">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="StoreId"></smart-label>
+                </div>
+                <div class="adminData">
+                    <select asp-for="StoreId" asp-items="Model.AvailableStores" onchange="location.href='@(ViewData["ConfigureThemeUrl"])&storeId=' + this.value;"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-paint-brush"></i>
+            @ViewBag.Title <a asp-action="List" asp-route-storeId="@Model.StoreId">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before"></zone>
+
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <a href="#importvariables-window" data-toggle="modal" class="btn btn-secondary">
+                <i class="far fa-arrow-alt-circle-up"></i>
+                <span>@T("Common.Import")</span>
+            </a>
+            <a href="#exportvariables-window" data-toggle="modal" class="btn btn-secondary">
+                <i class="far fa-arrow-alt-circle-down"></i>
+                <span>@T("Common.Export")</span>
+            </a>
+            <button type="submit" class="btn btn-danger" name="reset-vars" value="reset-vars" onclick="return confirm('@T("Admin.Common.AskToProceed")')">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Reset")</span>
+            </button>
+
+            <zone name="admin_button_toolbar_after"></zone>
+        </div>
+    </div>
+
+    @if (parsingError.HasValue())
+    {
+        <div class="mb-5">
+            <h4 class="text-danger">@T("Admin.Configuration.Themes.Validation.ErrorReportTitle")</h4>
+            <pre>@parsingError</pre>
+            <a class="btn btn-danger" href='@Url.Action("Configure", new { theme = Model.ThemeName, storeId = Model.StoreId })'>
+                @T("Admin.Configuration.Themes.Validation.RestorePrevValues")
+            </a>
+        </div>
+    }
+
+    <div class="theme-editor">
+        @await Component.InvokeAsync("ConfigureTheme", new { theme = Model.ThemeName, storeId = Model.StoreId }) 
+    </div>
+</form>

@@ -1,5 +1,4 @@
 ﻿@using Smartstore.Web.Theming
-@using Smartstore.Web.Models.Theming
 
 @model IDictionary<string, object>
 
@@ -10,68 +9,197 @@
 }
 
 <tabstrip id="theme-flex-edit" sm-nav-style="Material" class="theme-edit">
-    <tab sm-title="@T("Common.General")">
+    <tab sm-title="@T("Common.General")" sm-selected="true">
         <div class="adminContent">
-            @{ await ThemeVarEditor("gray-100", "Grayscale"); }
-            @{ await ThemeVarEditor("gray-200"); }
-            @{ await ThemeVarEditor("gray-300"); }
-            @{ await ThemeVarEditor("gray-400"); }
-            @{ await ThemeVarEditor("gray-500"); }
-            @{ await ThemeVarEditor("gray-600"); }
-            @{ await ThemeVarEditor("gray-700"); }
-            @{ await ThemeVarEditor("gray-800"); }
-            @{ await ThemeVarEditor("gray-900"); }
+            @{
+                ThemeVarEditor("gray-100", "Grayscale");
+                ThemeVarEditor("gray-200");
+                ThemeVarEditor("gray-300");
+                ThemeVarEditor("gray-400");
+                ThemeVarEditor("gray-500");
+                ThemeVarEditor("gray-600");
+                ThemeVarEditor("gray-700");
+                ThemeVarEditor("gray-800");
+                ThemeVarEditor("gray-900");
 
-            @{ await ThemeVarEditor("boxed", "Layout", T("Admin.ThemeVar.Boxed")); }
-            @{ await ThemeVarEditor("font-family-sans-serif"); }
-            @{ await ThemeVarEditor("font-size-sm"); }
-            @{ await ThemeVarEditor("shopbar-label"); }
+                ThemeVarEditor("red", "Colors");
+                ThemeVarEditor("orange");
+                ThemeVarEditor("yellow");
+                ThemeVarEditor("green");
+                ThemeVarEditor("blue");
+                ThemeVarEditor("bluegrey");
+                ThemeVarEditor("indigo");
+                ThemeVarEditor("teal");
+                ThemeVarEditor("cyan");
+                ThemeVarEditor("pink");
+                ThemeVarEditor("purple");
 
-            @*@ThemeVarEditor("red", "Colors")
-            @ThemeVarEditor("orange")
-            @ThemeVarEditor("yellow")
-            @ThemeVarEditor("green")
-            @ThemeVarEditor("blue")
-            @ThemeVarEditor("bluegrey")
-            @ThemeVarEditor("indigo")
-            @ThemeVarEditor("teal")
-            @ThemeVarEditor("cyan")
-            @ThemeVarEditor("pink")
-            @ThemeVarEditor("purple")
+                ThemeVarEditor("primary", "Brand Colors");
+                ThemeVarEditor("secondary");
+                ThemeVarEditor("warning");
+                ThemeVarEditor("danger");
+                ThemeVarEditor("info");
+                ThemeVarEditor("success");
+                ThemeVarEditor("light");
+                ThemeVarEditor("dark");
 
-            @ThemeVarEditor("primary", "Brand Colors")
-            @ThemeVarEditor("secondary")
-            @ThemeVarEditor("warning")
-            @ThemeVarEditor("danger")
-            @ThemeVarEditor("info")
-            @ThemeVarEditor("success")
-            @ThemeVarEditor("light")
-            @ThemeVarEditor("dark")
+                ThemeVarEditor("boxed", "Layout", T("Admin.ThemeVar.Boxed"));
 
-            @ThemeVarEditor("boxed", "Layout", T("Admin.ThemeVar.Boxed"))
+                ThemeVarEditor("body-bg", "Site Colors");
+                ThemeVarEditor("site-bg");
+                ThemeVarEditor("body-color");
+                ThemeVarEditor("yiq-text-dark");
+                ThemeVarEditor("yiq-text-light");
+                ThemeVarEditor("text-muted");
+                ThemeVarEditor("link-color");
 
-            @ThemeVarEditor("body-bg", "Site Colors")
-            @ThemeVarEditor("site-bg")
-            @ThemeVarEditor("body-color")
-            @ThemeVarEditor("yiq-text-dark")
-            @ThemeVarEditor("yiq-text-light")
-            @ThemeVarEditor("text-muted")
-            @ThemeVarEditor("link-color")
-
-            @ThemeVarEditor("btn-secondary-bg", "")
-            @ThemeVarEditor("btn-secondary-border")*@
+                ThemeVarEditor("btn-secondary-bg", "");
+                ThemeVarEditor("btn-secondary-border");
+            }
         </div>
     </tab>
-    <tab sm-title="@T("Admin.Themes.Fonts")"></tab>
-    <tab sm-title="@T("Admin.Themes.Sections")"></tab>
-    <tab sm-title="@T("Admin.Themes.Components")"></tab>
-    <tab sm-title="@T("Admin.Themes.Misc")"></tab>
+    <tab sm-title="@T("Admin.Themes.Fonts")">
+        <div class="adminContent">
+            @{
+                ThemeVarEditor("font-family-sans-serif", "Typo");
+                ThemeVarEditor("font-family-monospace");
+                ThemeVarEditor("font-size-base");
+                ThemeVarEditor("font-size-lg");
+                ThemeVarEditor("font-size-sm");
+                ThemeVarEditor("font-size-xs");
+                ThemeVarEditor("font-weight-light");
+                ThemeVarEditor("font-weight-normal");
+                ThemeVarEditor("font-weight-medium");
+                ThemeVarEditor("font-weight-bold");
+
+                ThemeVarEditor("headings-font-family", "Headings");
+                ThemeVarEditor("headings-font-weight");
+                ThemeVarEditor("headings-line-height");
+                ThemeVarEditor("headings-color");
+                ThemeVarEditor("lead-font-weight");
+
+                ThemeVarEditor("h1-font-size", "Heading Sizes");
+                ThemeVarEditor("h2-font-size");
+                ThemeVarEditor("h3-font-size");
+                ThemeVarEditor("h4-font-size");
+                ThemeVarEditor("h5-font-size");
+                ThemeVarEditor("h6-font-size");
+            }
+
+            <div class="adminRow">
+                <div class="admin-config-group">
+                    <div class="title">Google Fonts</div>
+                </div>
+            </div>
+
+            <div class="adminRow">
+                <div class="alert alert-info w-100">
+                    @Html.Raw(T("Admin.Theme.GoogleFonts.Hint"))
+                </div>
+            </div>
+
+            @{
+                ThemeVarEditor("google-font-1");
+                ThemeVarEditor("google-font-2");
+                ThemeVarEditor("google-font-3");
+            }
+        </div>
+    </tab>
+    <tab sm-title="@T("Admin.Themes.Sections")">
+        <div class="adminContent">
+            @{
+                ThemeVarEditor("header-bg", "Header");
+                ThemeVarEditor("shopbar-label");
+
+                ThemeVarEditor("inverse-menubar", "");
+                ThemeVarEditor("menubar-bg");
+                ThemeVarEditor("menubar-color");
+                ThemeVarEditor("menubar-inverse-color");
+
+                ThemeVarEditor("inverse-shopbar", "");
+                ThemeVarEditor("shopbar-bg");
+                ThemeVarEditor("shopbar-color");
+                ThemeVarEditor("shopbar-inverse-color");
+
+                ThemeVarEditor("inverse-navbar", "");
+                ThemeVarEditor("megamenu-bg");
+                ThemeVarEditor("megamenu-color");
+                ThemeVarEditor("megamenu-inverse-color");
+                ThemeVarEditor("megamenu-line-height");
+
+                ThemeVarEditor("megamenu-dropdown-bg");
+                ThemeVarEditor("megamenu-heading-color");
+                ThemeVarEditor("megamenu-subitem-color");
+                ThemeVarEditor("megamenu-text-color");
+                ThemeVarEditor("megamenu-rotator-bg");
+
+                ThemeVarEditor("searchbox-pill", "Searchbox");
+                ThemeVarEditor("searchbox-bg-1");
+                ThemeVarEditor("searchbox-bg-2");
+                ThemeVarEditor("searchbox-bg-3");
+                ThemeVarEditor("searchbox-border-color");
+                ThemeVarEditor("searchbox-border-active-color");
+                ThemeVarEditor("search-button-style");
+                ThemeVarEditor("search-button-flat");
+                ThemeVarEditor("searchbox-hit-tag-color");
+
+                ThemeVarEditor("inverse-footer", "Footer");
+                ThemeVarEditor("footer-bg");
+                ThemeVarEditor("footer-color");
+                ThemeVarEditor("footer-color-muted");
+                ThemeVarEditor("footer-inverse-color");
+                ThemeVarEditor("footer-inverse-color-muted");
+                ThemeVarEditor("footer-social-bg");
+                ThemeVarEditor("footer-social-color");
+            }
+        </div>
+    </tab>
+    <tab sm-title="@T("Admin.Themes.Components")">
+        <div class="adminContent">
+            @{
+                ThemeVarEditor("card-border-radius", "Cards");
+                ThemeVarEditor("card-border-color");
+                ThemeVarEditor("card-cap-bg");
+                ThemeVarEditor("card-bg");
+
+                ThemeVarEditor("dropdown-bg", "Dropdowns");
+                ThemeVarEditor("dropdown-border-color");
+                ThemeVarEditor("dropdown-border-radius");
+                ThemeVarEditor("dropdown-divider-bg");
+                ThemeVarEditor("dropdown-box-shadow");
+                ThemeVarEditor("dropdown-link-color");
+                ThemeVarEditor("dropdown-link-hover-color");
+                ThemeVarEditor("dropdown-link-hover-bg");
+
+                ThemeVarEditor("table-bg", "Tables");
+                ThemeVarEditor("table-accent-bg");
+                ThemeVarEditor("table-hover-bg");
+                ThemeVarEditor("table-active-bg");
+                ThemeVarEditor("table-border-color");
+            }
+        </div>
+    </tab>
+    <tab sm-title="@T("Admin.Themes.Misc")">
+        <div class="adminContent">
+            @{
+                ThemeVarEditor("nav-tabs-active-link-color");
+                ThemeVarEditor("product-price-color");
+                ThemeVarEditor("product-detail-addtocart-box-bg");
+                ThemeVarEditor("login-box-bg");
+                ThemeVarEditor("cart-footer-bg");
+                ThemeVarEditor("costep-progress-color", null, T("Admin.ThemeVar.CostepPogressColor"));
+                ThemeVarEditor("offcanvas-cart-footer");
+                ThemeVarEditor("art-active-bg-color", null, T("Admin.ThemeVar.ArtActiveBgColor"));
+                ThemeVarEditor("art-active-border-color", null, T("Admin.ThemeVar.ArtActiveBorderColor"));
+            }
+        </div>
+    </tab>
 </tabstrip>
 
 @{
-    async Task ThemeVarEditor(string varName, string groupName = null, string helpText = null)
+    void ThemeVarEditor(string varName, string groupName = null, string helpText = null)
     {
-        var model = new ThemeVariableModel(Display.GetThemeManifest().Variables[varName], Model[varName]);
+        var themeVar = Display.GetThemeManifest().Variables[varName];
 
         if (groupName != null)
         {
@@ -84,15 +212,13 @@
 
         <div class="adminRow">
             <div class="adminTitle">
-                @*@Html.ThemeVarLabel(ThemeManifest.Variables[varName], helpText)*@
-                @(model.Info.Name)
+                @Html.ThemeVarLabel(themeVar, helpText)
             </div>
             <div class="adminData">
-                @*@Html.ThemeVarEditor(ThemeManifest.Variables[varName], Model[varName])*@
-                <partial name="ThemeVariableEditor" model="model" />
+                @Html.ThemeVarEditor(themeVar, Model[varName])
             </div>
             <div class="d-none d-xl-flex align-items-center">
-                @*@Html.ThemeVarChainInfo(ThemeManifest.Variables[varName])*@
+                @Html.ThemeVarChainInfo(themeVar)
             </div>
         </div>
     }

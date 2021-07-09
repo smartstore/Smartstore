@@ -30,8 +30,11 @@ namespace Smartstore
             if (sourceCookie == null)
                 return;
 
-            // TODO: (core) CopyCookie > How to obtain cookie Path (?)
-            var sendCookie = new Cookie(cookieName, sourceCookie, null, sourceHttpRequest.Host.Value);
+            var sendCookie = new Cookie(
+                cookieName, 
+                sourceCookie, 
+                sourceHttpRequest.PathBase.Value.NullEmpty(), 
+                sourceHttpRequest.Host.Host);
 
             if (webRequest.CookieContainer == null)
             {

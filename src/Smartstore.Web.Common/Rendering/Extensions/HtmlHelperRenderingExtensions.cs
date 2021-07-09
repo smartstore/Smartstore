@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Humanizer;
 using Microsoft.AspNetCore.Html;
@@ -208,6 +209,41 @@ namespace Smartstore.Web.Rendering
                 message,
                 tag,
                 htmlAttributes);
+        }
+
+        #endregion
+
+        #region ColorBox
+
+        public static IHtmlContent ColorBoxFor(this IHtmlHelper helper, ModelExpression expression, string defaultColor = null)
+        {
+            Guard.NotNull(expression, nameof(expression));
+
+            return ColorBox(helper, expression.Name, expression.Model?.ToString().EmptyNull(), defaultColor);
+        }
+
+        public static IHtmlContent ColorBoxFor<TModel>(this IHtmlHelper<TModel> helper, Expression<Func<TModel, string>> expression, string defaultColor = null)
+        {
+            Guard.NotNull(expression, nameof(expression));
+
+            return ColorBox(helper, helper.NameFor(expression), helper.ValueFor(expression), defaultColor);
+        }
+
+        public static IHtmlContent ColorBox(this IHtmlHelper helper, string name, string color, string defaultColor = null)
+        {
+            defaultColor = defaultColor.EmptyNull();
+            var isDefault = color.EqualsNoCase(defaultColor);
+
+            var builder = new HtmlContentBuilder();
+
+            builder.AppendHtml("<div class='input-group colorpicker-component sm-colorbox' data-fallback-color='{0}'>".FormatInvariant(defaultColor));
+
+            builder.AppendHtml(helper.TextBox(name, isDefault ? string.Empty : color, new { @class = "form-control colorval", placeholder = defaultColor }));
+            builder.AppendFormat("<div class='input-group-append input-group-addon'><div class='input-group-text'><i class='thecolor' style='{0}'>&nbsp;</i></div></div>", defaultColor.HasValue() ? "background-color: " + defaultColor : string.Empty);
+
+            builder.AppendHtml("</div>");
+
+            return builder;
         }
 
         #endregion

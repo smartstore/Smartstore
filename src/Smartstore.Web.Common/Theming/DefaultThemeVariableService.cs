@@ -330,6 +330,9 @@ namespace Smartstore.Web.Theming
                 storeId);
 
             var request = await WebHelper.CreateHttpRequestForSafeLocalCallAsync(new Uri(url));
+            request.SetAuthenticationCookie(_httpContextAccessor.HttpContext.Request);
+            request.SetVisitorCookie(_httpContextAccessor.HttpContext.Request);
+
             WebResponse response = null;
 
             try

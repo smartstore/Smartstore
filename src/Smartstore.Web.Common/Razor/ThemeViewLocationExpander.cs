@@ -14,13 +14,18 @@ namespace Smartstore.Web.Razor
         {
             if (context.Values.TryGetValue("theme", out var theme))
             {
-                return new[] 
+                var themeRegistry = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeRegistry>();
+                var manifest = themeRegistry.GetThemeManifest(theme);
+                var themeLocations = new List<string>(4);
+
+                while (manifest != null)
                 {
-                    // TODO: (core) Apply theme hierarchy chain
-                    $"/Themes/{theme}/Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension,
-                    $"/Themes/{theme}/Views/Shared/{{0}}"  + RazorViewEngine.ViewExtension,
+                    themeLocations.Add($"/Themes/{manifest.ThemeName}/Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
+                    themeLocations.Add($"/Themes/{manifest.ThemeName}/Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
+                    manifest = manifest.BaseTheme;
                 }
-                .Union(viewLocations);
+
+                return themeLocations.Union(viewLocations);
             }
             
             return viewLocations;
@@ -31,15 +36,19 @@ namespace Smartstore.Web.Razor
             var workContext = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IWorkContext>();
             if (workContext.IsAdminArea)
             {
-                // Backend is not themeable
-                return;
+                // TODO: (core) Find a way to make public partials themeable even when they are called from Admin area. Checking specific partial names is only a distress solution.
+                if (!context.ViewName.EqualsNoCase("ConfigureTheme"))
+                {
+                    // Backend is not themeable
+                    return;
+                }
             }
 
             var themeContext = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeContext>();
-            var workingTheme = themeContext.WorkingThemeName;
-            if (workingTheme.HasValue())
+            var currentTheme = themeContext.CurrentTheme;
+            if (currentTheme != null)
             {
-                context.Values["theme"] = themeContext.WorkingThemeName;
+                context.Values["theme"] = currentTheme.ThemeName;
             }
         }
     }

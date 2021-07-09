@@ -151,7 +151,7 @@ namespace Smartstore.Http
         {
             if (!string.IsNullOrEmpty(path) && path[0] == '~')
             {
-                var segment = new PathString(path.Substring(1));
+                var segment = new PathString(path[1..]);
                 var applicationPath = WebBasePath;
 
                 return applicationPath.Add(segment).Value;
@@ -240,7 +240,7 @@ namespace Smartstore.Http
                     : path;
             }
 
-            path = request.PathBase + path.EnsureStartsWith('/');
+            path = ToAbsolutePath(path).EnsureStartsWith('/'); // request.PathBase + path.EnsureStartsWith('/');
             path = string.Format("{0}://{1}{2}", protocol, request.Host.Value, path);
 
             return path;

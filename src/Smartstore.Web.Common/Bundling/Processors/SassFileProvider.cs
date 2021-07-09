@@ -28,7 +28,7 @@ namespace Smartstore.Web.Bundling.Processors
             {
                 var services = EngineContext.Current.Scope;
                 var repo = services.Resolve<ThemeVariableRepository>();
-                var theme = services.Resolve<IThemeContext>().WorkingThemeName;
+                var theme = services.Resolve<IThemeContext>().CurrentTheme.ThemeName;
                 var storeId = services.Resolve<IStoreContext>().CurrentStore.Id;
 
                 return new ThemeVarsFileInfo(subpath, theme, storeId, repo);
@@ -46,7 +46,7 @@ namespace Smartstore.Web.Bundling.Processors
             if (filter.StartsWith("themevars.scss"))
             {
                 var services = EngineContext.Current.Scope;
-                var theme = services.Resolve<IThemeContext>().WorkingThemeName;
+                var theme = services.Resolve<IThemeContext>().CurrentTheme.ThemeName;
                 var storeId = services.Resolve<IStoreContext>().CurrentStore.Id;
                 var cts = ThemeVariableRepository.GetToken(theme, storeId);
 
