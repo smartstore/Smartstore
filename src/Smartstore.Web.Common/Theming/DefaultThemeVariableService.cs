@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.AspNetCore.Http;
@@ -11,13 +9,19 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.Theming;
-using Smartstore.Events;
-using Smartstore.Http;
 using Smartstore.Utilities;
 using Smartstore.Web.Bundling;
+using Smartstore.Web.Bundling.Processors;
 
 namespace Smartstore.Web.Theming
 {
+    public class ThemeValidationResult
+    {
+        public bool IsValid => Exception == null;
+        public Exception Exception { get; set; }
+        public string Content { get; set; }
+    }
+
     public class DefaultThemeVariableService : IThemeVariableService
     {
         private const string THEMEVARS_BY_THEME_KEY = "Smartstore:themevars:theme-{0}-{1}";
@@ -25,66 +29,76 @@ namespace Smartstore.Web.Theming
         private readonly SmartDbContext _db;
         private readonly IThemeRegistry _themeRegistry;
         private readonly IRequestCache _requestCache;
-        private readonly IEventPublisher _eventPublisher;
-        private readonly IAssetFileProvider _assetFileProvider;
+        private readonly IBundleBuilder _bundleBuilder;
+        private readonly IBundleCollection _bundles;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DefaultThemeVariableService(
             SmartDbContext db,
             IThemeRegistry themeRegistry,
             IRequestCache requestCache,
-            IEventPublisher eventPublisher,
-            IAssetFileProvider assetFileProvider,
+            IBundleBuilder bundleBuilder,
+            IBundleCollection bundles,
             IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
             _themeRegistry = themeRegistry;
             _requestCache = requestCache;
-            _eventPublisher = eventPublisher;
-            _assetFileProvider = assetFileProvider;
+            _bundleBuilder = bundleBuilder;
+            _bundles = bundles;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<ExpandoObject> GetThemeVariablesAsync(string themeName, int storeId)
+        public virtual async Task<ExpandoObject> GetThemeVariablesAsync(string themeName, int storeId)
         {
-            if (themeName.IsEmpty())
+            if (themeName.IsEmpty() || !_themeRegistry.ContainsTheme(themeName))
+            {
                 return null;
-
-            if (!_themeRegistry.ContainsTheme(themeName))
-                return null;
+            }
 
             string key = string.Format(THEMEVARS_BY_THEME_KEY, themeName, storeId);
-            return await _requestCache.GetAsync(key, async () =>
+            var result = await _requestCache.GetAsync(key, async () =>
             {
-                var result = new ExpandoObject();
-                var dict = result as IDictionary<string, object>;
-
-                // First get all default (static) var values from manifest...
-                var manifest = _themeRegistry.GetThemeManifest(themeName);
-                manifest.Variables.Values.Each(v =>
-                {
-                    dict.Add(v.Name, v.DefaultValue);
-                });
-
-                // ...then merge with persisted runtime records
                 var dbVars = await _db.ThemeVariables
                     .AsNoTracking()
                     .Where(v => v.StoreId == storeId && v.Theme == themeName)
-                    .ToListAsync();
+                    .ToDictionaryAsync(x => x.Name, x => (object)x.Value);
 
-                dbVars.Each(v =>
-                {
-                    if (v.Value.HasValue() && dict.ContainsKey(v.Name))
-                    {
-                        dict[v.Name] = v.Value;
-                    }
-                });
-
-                return result;
+                return MergeThemeVariables(_themeRegistry.GetThemeManifest(themeName), dbVars);
             });
+
+            return result;
         }
 
-        public async Task<int> SaveThemeVariablesAsync(string themeName, int storeId, IDictionary<string, object> variables)
+        /// <summary>
+        /// Merges <paramref name="variables"/> with preconfigured variables from <paramref name="manifest"/>. 
+        /// </summary>
+        private ExpandoObject MergeThemeVariables(ThemeManifest manifest, IDictionary<string, object> variables)
+        {
+            Guard.NotNull(manifest, nameof(manifest));
+
+            var result = new ExpandoObject();
+            var dict = result as IDictionary<string, object>;
+
+            // First get all default (static) var values from manifest...
+            manifest.Variables.Values.Each(v =>
+            {
+                dict.Add(v.Name, v.DefaultValue);
+            });
+
+            // ...then merge with passed variables
+            foreach (var kvp in variables)
+            {
+                if (kvp.Value != null && dict.ContainsKey(kvp.Key))
+                {
+                    dict[kvp.Key] = kvp.Value;
+                }
+            }
+
+            return result;
+        }
+
+        public virtual async Task<int> SaveThemeVariablesAsync(string themeName, int storeId, IDictionary<string, object> variables)
         {
             Guard.NotEmpty(themeName, nameof(themeName));
             Guard.Against<ArgumentException>(!_themeRegistry.ContainsTheme(themeName), "The theme '{0}' does not exist in the registry.".FormatInvariant(themeName));
@@ -99,34 +113,72 @@ namespace Smartstore.Web.Theming
                 throw new ArgumentException("Theme '{0}' does not exist".FormatInvariant(themeName), nameof(themeName));
             }
 
-            // Get current for later restore on parse error
-            var currentVars = await GetThemeVariablesAsync(themeName, storeId);
+            // Validate before save and ensure that Sass compiler does not throw with updated variables
+            var mergedVariables = MergeThemeVariables(manifest, variables);
+            var validationResult = await ValidateThemeAsync(manifest, storeId, mergedVariables);
+            
+            if (!validationResult.IsValid)
+            {
+                throw new ThemeValidationException(validationResult.Exception.ToAllMessages(), variables);
+            }
 
             // Save
             var result = await SaveThemeVariablesInternal(manifest, storeId, variables);
 
-            if (result.TouchedVariablesCount > 0)
-            {
-                // Check for parsing error
-                string error = await ValidateSassAsync(manifest, storeId);
-                if (error.HasValue())
-                {
-                    // Restore previous vars
-                    try
-                    {
-                        await DeleteThemeVariablesInternal(themeName, storeId, false);
-                    }
-                    finally
-                    {
-                        // We do it here to absolutely ensure that this gets called
-                        await SaveThemeVariablesInternal(manifest, storeId, currentVars);
-                    }
+            return result.TouchedVariablesCount;
+        }
 
-                    throw new ThemeValidationException(error, variables);
-                }
+        /// <summary>
+        /// Validates the result SASS file by compiling the theme bundle using the given <paramref name="variables"/>.
+        /// </summary>
+        /// <param name="theme">Theme</param>
+        /// <param name="storeId">Stored Id</param>
+        /// <param name="variables">The variables to use for compilation.</param>
+        protected virtual async Task<ThemeValidationResult> ValidateThemeAsync(ThemeManifest theme, int storeId, IDictionary<string, object> variables)
+        {
+            Guard.NotNull(theme, nameof(theme));
+            Guard.NotNull(variables, nameof(variables));
+
+            var themeName = theme.ThemeName.ToLower();
+            var route = $"/themes/{themeName}/theme.css";
+            var bundle = _bundles.GetBundleFor(route);
+            var result = new ThemeValidationResult();
+
+            if (bundle == null)
+            {
+                return result;
             }
 
-            return result.TouchedVariablesCount;
+            var cacheKey = new BundleCacheKey
+            {
+                Key = route,
+                Fragments = new Dictionary<string, string>
+                {
+                    ["Theme"] = themeName,
+                    ["StoreId"] = storeId.ToString()
+                }
+            };
+
+            try
+            {
+                var clone = new Bundle(bundle);
+                clone.Processors.Clear();
+                clone.Processors.Add(SassProcessor.Instance);
+
+                var dataTokens = new Dictionary<string, object>
+                {
+                    ["ThemeVars"] = variables
+                };
+
+                var bundleResponse = await _bundleBuilder.BuildBundleAsync(clone, cacheKey, dataTokens);
+                result.Content = bundleResponse.Content;
+            }
+            catch (Exception ex)
+            {
+                result.Exception = ex;
+            }
+
+            return result;
         }
 
         private async Task<SaveThemeVariablesResult> SaveThemeVariablesInternal(ThemeManifest manifest, int storeId, IDictionary<string, object> variables)
@@ -201,7 +253,7 @@ namespace Smartstore.Web.Theming
             return result;
         }
 
-        public Task DeleteThemeVariablesAsync(string themeName, int storeId)
+        public virtual Task DeleteThemeVariablesAsync(string themeName, int storeId)
         {
             return DeleteThemeVariablesInternal(themeName, storeId);
         }
@@ -230,7 +282,7 @@ namespace Smartstore.Web.Theming
             }
         }
 
-        public Task<int> ImportVariablesAsync(string themeName, int storeId, string configurationXml)
+        public virtual Task<int> ImportVariablesAsync(string themeName, int storeId, string configurationXml)
         {
             Guard.NotEmpty(themeName, nameof(themeName));
             Guard.NotEmpty(configurationXml, nameof(configurationXml));
@@ -263,7 +315,7 @@ namespace Smartstore.Web.Theming
             return SaveThemeVariablesAsync(themeName, storeId, dict);
         }
 
-        public async Task<string> ExportVariablesAsync(string themeName, int storeId)
+        public virtual async Task<string> ExportVariablesAsync(string themeName, int storeId)
         {
             Guard.NotEmpty(themeName, nameof(themeName));
 
@@ -307,78 +359,13 @@ namespace Smartstore.Web.Theming
             return sb.ToString();
         }
 
-        /// <summary>
-        /// Validates the result SASS file by calling it's url.
-        /// </summary>
-        /// <param name="theme">Theme name</param>
-        /// <param name="storeId">Stored Id</param>
-        /// <returns>The error message when a parsing error occured, <c>null</c> otherwise</returns>
-        private async Task<string> ValidateSassAsync(ThemeManifest manifest, int storeId)
+        class SaveThemeVariablesResult
         {
-            string error = string.Empty;
+            public List<ThemeVariable> Inserted { get; } = new();
+            public List<ThemeVariable> Updated { get; } = new();
+            public List<ThemeVariable> Deleted { get; } = new();
 
-            if (_httpContextAccessor.HttpContext == null)
-            {
-                return error;
-            }
-
-            // TODO: (core) DefaultThemeVariableService.ValidateSassAsync() --> finalize theme.scss path/bundle convention and make sass validation run.
-            var virtualPath = $"~/themes/{manifest.ThemeName.ToLower()}/theme.css";
-
-            var url = "{0}?storeId={1}&validate=1".FormatInvariant(
-                WebHelper.GetAbsoluteUrl(virtualPath, _httpContextAccessor.HttpContext?.Request),
-                storeId);
-
-            var request = await WebHelper.CreateHttpRequestForSafeLocalCallAsync(new Uri(url));
-            request.SetAuthenticationCookie(_httpContextAccessor.HttpContext.Request);
-            request.SetVisitorCookie(_httpContextAccessor.HttpContext.Request);
-
-            WebResponse response = null;
-
-            try
-            {
-                response = await request.GetResponseAsync();
-            }
-            catch (WebException ex)
-            {
-                if (ex.Response is HttpWebResponse)
-                {
-                    var webResponse = (HttpWebResponse)ex.Response;
-                    var statusCode = webResponse.StatusCode;
-
-                    if (statusCode == HttpStatusCode.InternalServerError)
-                    {
-                        // Catch only 500, as this indicates a parsing error.
-                        var stream = webResponse.GetResponseStream();
-
-                        using var streamReader = new StreamReader(stream);
-                        // Read the content (the error message has been put there)
-                        error = await streamReader.ReadToEndAsync();
-                        streamReader.Close();
-                        stream.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                error = ex.Message;
-            }
-            finally
-            {
-                if (response != null)
-                    response.Close();
-            }
-
-            return error;
+            public int TouchedVariablesCount => Inserted.Count + Updated.Count + Deleted.Count;
         }
-    }
-
-    class SaveThemeVariablesResult
-    {
-        public List<ThemeVariable> Inserted { get; } = new();
-        public List<ThemeVariable> Updated { get; } = new();
-        public List<ThemeVariable> Deleted { get; } = new();
-
-        public int TouchedVariablesCount => Inserted.Count + Updated.Count + Deleted.Count;
     }
 }

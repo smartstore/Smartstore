@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,8 +36,8 @@ namespace Smartstore.Web.Bundling.Processors
             _repo = repo;
         }
 
-        public ThemeVarsFileInfo(ExpandoObject variables, ThemeVariableRepository repo)
-            : this(repo.BuildVariables(variables), repo)
+        public ThemeVarsFileInfo(IDictionary<string, object> rawVariables, ThemeVariableRepository repo)
+            : this(repo.BuildVariables(rawVariables), repo)
         {
         }
 

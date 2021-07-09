@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
@@ -17,9 +16,9 @@ namespace Smartstore.Web.Bundling
         /// <summary>
         /// Returns a bundle in the collection using the specified route.
         /// </summary>
-        /// <param name="path">The path/route of the bundle to return.</param>
+        /// <param name="route">The path/route of the bundle to return.</param>
         /// <returns>The bundle for the route or null if no bundle exists at the path.</returns>
-        Bundle GetBundleFor(string path);
+        Bundle GetBundleFor(string route);
 
         /// <summary>
         /// Gets all bundles in the collection as readonly list.

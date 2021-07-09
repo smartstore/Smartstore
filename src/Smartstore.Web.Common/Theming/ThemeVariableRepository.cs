@@ -8,9 +8,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Core.Theming;
-using Smartstore.Engine;
 using Smartstore.Utilities;
-using Smartstore.Web.Bundling;
 
 namespace Smartstore.Web.Theming
 {
@@ -37,13 +35,11 @@ namespace Smartstore.Web.Theming
 
         private readonly IThemeVariableService _themeVarService;
         private readonly IMemoryCache _memCache;
-        private readonly IBundleContextAccessor _bundleContextAccessor;
 
-        public ThemeVariableRepository(IThemeVariableService themeVarService, IMemoryCache memCache, IBundleContextAccessor bundleContextAccessor)
+        public ThemeVariableRepository(IThemeVariableService themeVarService, IMemoryCache memCache)
         {
             _themeVarService = themeVarService;
             _memCache = memCache;
-            _bundleContextAccessor = bundleContextAccessor;
         }
 
         #region Static (Cache and CancellationToken)
@@ -105,7 +101,7 @@ namespace Smartstore.Web.Theming
             return css;
         }
 
-        internal IDictionary<string, string> BuildVariables(ExpandoObject rawVariables)
+        internal IDictionary<string, string> BuildVariables(IDictionary<string, object> rawVariables)
         {
             Guard.NotNull(rawVariables, nameof(rawVariables));
 
@@ -132,39 +128,25 @@ namespace Smartstore.Web.Theming
             return result;
         }
 
-        public async Task<ExpandoObject> GetRawVariablesAsync(string themeName, int storeId)
+        public async Task<IDictionary<string, object>> GetRawVariablesAsync(string themeName, int storeId)
         {
-            var validationMode = false;
-            if (_bundleContextAccessor.BundleContext != null)
-            {
-                validationMode = _bundleContextAccessor.BundleContext.CacheKey.IsValidationMode();
-            }
+            var cacheKey = BuildCacheKey(themeName, storeId);
+            var tokenKey = BuildTokenKey(themeName, storeId);
 
-            if (validationMode)
+            return await _memCache.GetOrCreateAsync(cacheKey, async (entry) => 
             {
-                // Return uncached fresh data (the variables are not nuked yet)
-                return await GetRawVariablesCoreAsync(themeName, storeId);
-            }
-            else
-            {
-                var cacheKey = BuildCacheKey(themeName, storeId);
-                var tokenKey = BuildTokenKey(themeName, storeId);
-
-                return await _memCache.GetOrCreateAsync(cacheKey, async (entry) => 
+                // Ensure that when this item is expired, any bundle depending on the token is also expired
+                entry.RegisterPostEvictionCallback((key, value, reason, state) =>
                 {
-                    // Ensure that when this item is expired, any bundle depending on the token is also expired
-                    entry.RegisterPostEvictionCallback((key, value, reason, state) =>
-                    {
-                        // Signal cancellation so that cached bundles can be busted from cache
-                        CancelToken(state);
-                    }, tokenKey);
+                    // Signal cancellation so that cached bundles can be busted from cache
+                    CancelToken(state);
+                }, tokenKey);
 
-                    return await GetRawVariablesCoreAsync(themeName, storeId);
-                });
-            }
+                return await GetRawVariablesCoreAsync(themeName, storeId);
+            });
         }
 
-        private async Task<ExpandoObject> GetRawVariablesCoreAsync(string themeName, int storeId)
+        private async Task<IDictionary<string, object>> GetRawVariablesCoreAsync(string themeName, int storeId)
         {
             return (await _themeVarService.GetThemeVariablesAsync(themeName, storeId)) ?? new ExpandoObject();
         }

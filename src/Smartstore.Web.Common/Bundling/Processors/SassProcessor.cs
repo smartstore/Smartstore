@@ -79,12 +79,6 @@ namespace Smartstore.Web.Bundling.Processors
                 {
                     storeContext.SetRequestStore(qs["storeId"].ToString().ToInt());
                 }
-
-                if (qs.ContainsKey("validate"))
-                {
-                    // Required for theme editing validation: See DefaultThemeVariableService.SaveThemeVariablesAsync() --> ValidateSassAsync()
-                    values["Validation"] = "true";
-                }
             }
 
             values["Theme"] = theme;

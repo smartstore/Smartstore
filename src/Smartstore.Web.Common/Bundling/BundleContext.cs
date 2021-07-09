@@ -30,6 +30,7 @@ namespace Smartstore.Web.Bundling
         public HttpContext HttpContext { get; init; }
         public BundlingOptions Options { get; init; }
         public IEnumerable<BundleFile> Files { get; init; }
+        public IDictionary<string, object> DataTokens { get; } = new Dictionary<string, object>();
         public IList<AssetContent> Content { get; } = new List<AssetContent>();
         public IList<string> ProcessorCodes { get; } = new List<string>();
         public IList<string> IncludedFiles { get; } = new List<string>();

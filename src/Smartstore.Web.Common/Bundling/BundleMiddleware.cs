@@ -8,17 +8,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Core;
-using Smartstore.Net;
 using Smartstore.Threading;
-using Smartstore.Web.Bundling.Processors;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Bundling
 {
     internal class BundleMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IBundleCollection _collection;
+        private readonly IBundleCollection _bundles;
         private readonly IBundleCache _bundleCache;
         private readonly IBundleBuilder _bundleBuilder;
         private readonly IOptionsMonitor<BundlingOptions> _optionsMonitor;
@@ -26,14 +23,14 @@ namespace Smartstore.Web.Bundling
 
         public BundleMiddleware(
             RequestDelegate next,
-            IBundleCollection collection,
+            IBundleCollection bundles,
             IBundleCache bundleCache,
             IBundleBuilder bundleBuilder,
             IOptionsMonitor<BundlingOptions> optionsMonitor,
             ILogger<BundleMiddleware> logger)
         {
             _next = next;
-            _collection = collection;
+            _bundles = bundles;
             _bundleCache = bundleCache;
             _bundleBuilder = bundleBuilder;
             _optionsMonitor = optionsMonitor;
@@ -42,7 +39,7 @@ namespace Smartstore.Web.Bundling
 
         public async Task InvokeAsync(HttpContext httpContext, IWorkContext workContext)
         {
-            var bundle = _collection.GetBundleFor(httpContext.Request.Path);
+            var bundle = _bundles.GetBundleFor(httpContext.Request.Path);
             if (bundle == null)
             {
                 await _next(httpContext);
@@ -53,12 +50,6 @@ namespace Smartstore.Web.Bundling
 
             var cacheKey = bundle.GetCacheKey(httpContext);
             var options = _optionsMonitor.CurrentValue;
-
-            if (cacheKey.IsValidationMode() && workContext.CurrentCustomer.IsAdmin())
-            {
-                await HandleValidation(cacheKey, bundle, httpContext, options);
-                return;
-            }
 
             var bundleResponse = await _bundleCache.GetResponseAsync(cacheKey, bundle);
             if (bundleResponse != null)
@@ -83,7 +74,7 @@ namespace Smartstore.Web.Bundling
                 {
                     // Build
                     var watch = Stopwatch.StartNew();
-                    bundleResponse = await _bundleBuilder.BuildBundleAsync(bundle, cacheKey, httpContext, options);
+                    bundleResponse = await _bundleBuilder.BuildBundleAsync(bundle, cacheKey, null, httpContext, options);
                     watch.Stop();
                     Debug.WriteLine($"Bundle build time for {bundle.Route}: {watch.ElapsedMilliseconds} ms.");
 
@@ -104,26 +95,6 @@ namespace Smartstore.Web.Bundling
                     await ServerErrorResponse(ex, bundle, httpContext);
                     _logger.Error(ex, $"Error while processing bundle '{bundle.Route}'.");
                 }
-            }
-        }
-
-        /// <summary>
-        /// The validation mode bypasses cache and always compiles Sass files to ensure validity.
-        /// </summary>
-        private async ValueTask HandleValidation(BundleCacheKey cacheKey, Bundle bundle, HttpContext httpContext, BundlingOptions options)
-        {
-            try
-            {
-                var clone = new Bundle(bundle);
-                clone.Processors.Clear();
-                clone.Processors.Add(SassProcessor.Instance);
-
-                var bundleResponse = await _bundleBuilder.BuildBundleAsync(clone, cacheKey, httpContext, options);
-                await ServeBundleResponse(bundleResponse, httpContext, options, true);
-            }
-            catch (Exception ex)
-            {
-                await ServerErrorResponse(ex, bundle, httpContext);
             }
         }
 

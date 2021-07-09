@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Autofac;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Core.Stores;
@@ -28,10 +30,19 @@ namespace Smartstore.Web.Bundling.Processors
             {
                 var services = EngineContext.Current.Scope;
                 var repo = services.Resolve<ThemeVariableRepository>();
-                var theme = services.Resolve<IThemeContext>().CurrentTheme.ThemeName;
-                var storeId = services.Resolve<IStoreContext>().CurrentStore.Id;
+                var bundleContext = _appContext.Services.Resolve<IBundleContextAccessor>().BundleContext;
 
-                return new ThemeVarsFileInfo(subpath, theme, storeId, repo);
+                if (bundleContext != null && bundleContext.DataTokens.TryGetValue("ThemeVars", out var obj) && obj is IDictionary<string, object> themeVars)
+                {
+                    // ThemeVars already passed to bundler context. Apparently we're in validation mode.
+                    return new ThemeVarsFileInfo(themeVars, repo);
+                }
+                else
+                {
+                    var theme = services.Resolve<IThemeContext>().CurrentTheme.ThemeName;
+                    var storeId = _appContext.Services.Resolve<IStoreContext>().CurrentStore.Id;
+                    return new ThemeVarsFileInfo(subpath, theme, storeId,repo);
+                }
             }
             else if (subpath.StartsWith("moduleimports.scss"))
             {
