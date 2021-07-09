@@ -17,7 +17,7 @@
 	</div>
     <div class="task-progress text-muted col" attr-class='(!isRunning, "hide")' data-task-id="@Model.Id" data-running="@(isRunning ? "true" : "false")"></div>
 	<div sm-if="cancellable && canExecute" class="col-auto">
-		<a href="@Model.CancelUrl" data-task-id="@Model.Id" class="btn btn-sm btn-danger btn-cancel-task" attr-class='(!isRunning, "hide")' onclick="return confirm(@T("Admin.Common.AskToProceed").JsValue);">
+		<a href="@Model.CancelUrl" data-task-id="@Model.Id" class="btn btn-sm btn-danger btn-cancel-task confirm" attr-class='(!isRunning, "hide")'>
 			@T("Common.Cancel")
 		</a>
 	</div>

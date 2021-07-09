@@ -53,7 +53,7 @@ namespace Smartstore.Core.Localization
         public bool IsResourceNotFound { get; }
 
         /// <summary>
-        /// Returns a js encoded string which already contains delimiters.
+        /// Returns a js encoded string which already contains double quote delimiters.
         /// </summary>
         public IHtmlContent JsValue => new HtmlString(Value.EncodeJsString());
 

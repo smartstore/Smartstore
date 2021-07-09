@@ -91,10 +91,9 @@
 								<span>@T("Admin.System.ScheduleTasks.RunNow")</span>
                         </button>
                         <a asp-action="CancelJob" asp-controller="Scheduling" asp-route-id="@profile.TaskId" asp-area="Admin"
-							class="btn btn-block btn-sm btn-secondary btn-cancel-task"
+							class="btn btn-block btn-sm btn-secondary btn-cancel-task confirm"
 							attr-class='(!profile.IsTaskRunning, "hide")'
-							data-task-id="@profile.TaskId"
-							onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
+							data-task-id="@profile.TaskId">
 								<span>@T("Common.Cancel")</span>
                         </a>
                         <a asp-action="DownloadLogFile" asp-route-id="@profile.Id"

@@ -44,7 +44,7 @@
                     }
 				</a>
             }
-			<a sm-if="canExecute" href="@Model.ExecuteUrl" class="dropdown-item" onclick='return confirm(@T("Admin.Common.AskToProceed").JsValue);'>
+			<a sm-if="canExecute" href="@Model.ExecuteUrl" class="dropdown-item confirm">
 				<i class="fa fa-fw fa-play"></i>
 				<span>@T("Admin.System.ScheduleTasks.RunNow")</span>
 			</a>

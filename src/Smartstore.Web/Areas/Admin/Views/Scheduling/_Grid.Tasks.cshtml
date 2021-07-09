@@ -44,8 +44,8 @@
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
         <a v-bind:class="{ hide: item.row.LastExecutionInfo.IsRunning }" datarow-action="DataRowAction.Custom" :href="item.row.ExecuteUrl" class="btn-run-task" :data-task-id="item.row.Id">
             @T("Admin.System.ScheduleTasks.RunNow")</a>
-        <a v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }" datarow-action="DataRowAction.Custom" :href="item.row.CancelUrl" class="btn-cancel-task" :data-task-id="item.row.Id"
-            onclick='return confirm(@T("Admin.Common.AreYouSure").JsValue);'>
+        <a v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }" datarow-action="DataRowAction.Custom" :href="item.row.CancelUrl" class="btn-cancel-task confirm" :data-task-id="item.row.Id"
+            data-confirm-message="@T("Admin.Common.AreYouSure")">
             @T("Common.Cancel")</a>
     </row-commands>
 </datagrid>
