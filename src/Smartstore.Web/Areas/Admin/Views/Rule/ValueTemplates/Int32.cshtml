@@ -1,0 +1,33 @@
+﻿@model IRuleExpression
+
+@{
+    var metadata = Model.Descriptor.Metadata;
+    var id = "rule-value-" + Model.Id;
+    var min = metadata.Get("min") as int?;
+    var max = metadata.Get("max") as int?;
+    var step = metadata.Get("step") as int?;
+}
+
+<div class="numerictextbox-group flex-grow-1">
+@*TODO: (mh) (core) Reimplement with taghelper once available *@
+@*	@(Html.Telerik().IntegerTextBox()
+        .Name(id)
+        .EmptyMessage(T("Common.EnterValue"))
+        .ButtonTitleUp(T("Common.IncreaseValue"))
+        .ButtonTitleDown(T("Common.DecreaseValue"))
+        .MinValue(min)
+        .MaxValue(max)
+        .IncrementStep(step ?? 1)
+        .ClientEvents(x => x.OnChange("Smartstore.Admin.Rules.onRuleValueChanged"))
+        .Value(Model.Value as int?)
+	)*@
+    <input asp-for="@id"
+           value="@(Model.Value as int?)"
+           class="form-control"
+           type="number"
+           placeholder="@T("Common.EnterValue").Value"
+           min="@min"
+           max="@max"
+           step="@(step ?? 1)"
+           onchange="Smartstore.Admin.Rules.onRuleValueChanged()" />
+</div>

@@ -1,0 +1,7 @@
+﻿@model IRuleExpression
+
+@{
+    var id = "rule-value-" + Model.Id;
+}
+
+<input type="text" asp-for="@id" class="form-control" value="@Model.RawValue" />

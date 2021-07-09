@@ -1,0 +1,25 @@
+﻿@model IRuleExpression
+
+@{
+    var id = "rule-value-" + Model.Id;
+    var value = Model.Value as bool?;
+
+    var listItems = new List<SelectListItem>
+    {
+        new SelectListItem { Text = T("Common.Yes").ToString(), Value = "true", Selected = value.HasValue && value.Value },
+        new SelectListItem { Text = T("Common.No").ToString(), Value = "false", Selected = value.HasValue && !value.Value }
+    };
+
+    if (Model.Descriptor.RuleType.ClrType == typeof(bool?))
+    {
+        listItems.Insert(0, new SelectListItem { Text = T("Common.Unspecified").ToString(), Value = string.Empty, Selected = !value.HasValue });
+    }
+}
+
+<select asp-for="@id" asp-items="listItems" class="list-box"></select>
+
+<script sm-target-zone="scripts" data-origin="rule-values">
+	$(function () {
+        $('#@id').selectWrapper();
+	});
+</script>

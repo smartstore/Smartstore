@@ -1,3 +1,13 @@
+Smartstore.Admin.Rules = (function () {
+    return {
+        onRuleValueChanged: function () {
+            var ctx = $('#ruleset-root');
+            ctx.find('.ruleset-save:first').prop('disabled', false);
+            ctx.data('dirty', true);
+        }
+    };
+})();
+
 (function ($, window, document, undefined) {
 
     var root = $('#ruleset-root');
@@ -185,12 +195,12 @@
             .html('<span class="text-truncate">' + item.text() + '</span>')
             .attr('title', item.text());
         enableRuleValueControl(item);
-        onRuleValueChanged();
+        Smartstore.Admin.Rules.onRuleValueChanged();
     });
 
     // Change state of save rules button.
     $(document).on('change', ':input[name^="rule-value-"]', function () {
-        onRuleValueChanged();
+        Smartstore.Admin.Rules.onRuleValueChanged();
     });
 
     // Save rules.

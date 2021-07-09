@@ -1,0 +1,89 @@
+﻿@model IRuleExpression
+
+@{
+    var id = "rule-value-" + Model.Id;
+    var list = Model.Descriptor.SelectList;
+    var isMultiple = list?.Multiple ?? true;
+    var tags = list == null || list.Tags;
+    var values = Model.RawValue.SplitSafe(",");
+    var enteredValues = new string[0];
+    string remoteUrl = null;
+
+    if (list is RemoteRuleValueSelectList remoteList)
+    {
+        // Values are provided remotely.
+        remoteUrl = Url.Action("RuleOptions", "Rule", new { reason = RuleOptionsRequestReason.SelectListOptions, ruleId = Model.Id, rootRuleSetId = (int)ViewBag.RootRuleSetId });
+    }
+    else if (list is LocalRuleValueSelectList localList)
+    {
+        // Values entered by user but not included in predefined list.
+        enteredValues = values.Where(x => !localList.Options.Any(y => y.Value.EqualsNoCase(x))).OrderBy(x => x).ToArray();
+    }
+
+    var attributes = new AttributeDictionary
+    {
+        { "data-placeholder", T("Common.Unspecified").Value },
+        { "data-remote-url", remoteUrl },
+        { "data-tags", tags.ToString().ToLower() }
+    };
+    if (isMultiple)
+    {
+        attributes["multiple"] = "multiple";
+    }
+}
+
+<select asp-for="@id" attrs="attributes">
+    @if (remoteUrl.HasValue())
+    {
+        var selectedItems = Model.Metadata.TryGetValue("SelectedItems", out var objSelectedItems)
+            ? (Dictionary<string, RuleSelectItem>)objSelectedItems
+            : new Dictionary<string, RuleSelectItem>();
+
+        foreach (var value in values)
+        {
+            selectedItems.TryGetValue(value, out var selectedItem);
+            <option value="@value" selected="selected" attr-data-hint='(selectedItem?.Hint?.HasValue() ?? false, selectedItem?.Hint)'>
+            @(selectedItem?.Text.NullEmpty() ?? value)</option>
+        }
+    }
+    else if (list != null)
+    {
+        if (!values.Any() && !isMultiple)
+        {
+            <option></option>
+        }
+        foreach (var value in enteredValues)
+        {
+            <option value="@value" selected="selected">@value</option>
+        }
+        foreach (var grp in ((LocalRuleValueSelectList)list).Options.OrderBy(x => x.Group?.Order ?? 0).GroupBy(x => x.Group?.Name ?? ""))
+        {
+            if (grp.Key.HasValue())
+            {
+                @Html.Raw($"<optgroup label=\"{grp.Key}\">")
+            }
+            foreach (var option in grp)
+            {
+                <option value="@option.Value" attr-selected='(values.Contains(option.Value), "selected")'attr-data-hint='(option.Hint.HasValue(), option.Hint)'>
+                @(option.Text.NullEmpty() ?? option.Value)</option>
+            }
+            if (grp.Key.HasValue())
+            {
+                @Html.Raw("</optgroup>")
+            }
+        }
+    }
+    else
+    {
+        foreach (var value in values)
+        {
+            <option value="@value" selected="selected">@value</option>
+        }
+    }
+</select>
+
+<script sm-target-zone="scripts" data-origin="rule-values">
+	$(function () {
+        $('#@id').selectWrapper();
+	});
+</script>

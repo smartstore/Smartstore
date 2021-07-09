@@ -1,0 +1,21 @@
+﻿@model RuleSetModel
+
+@{
+	Layout = "_AdminPopupLayout";
+	ViewBag.Title = T("Admin.Common.Preview") + " - " + Model.Name;
+
+	Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+	var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+	var usernamesEnabled = (bool)ViewBag.UsernamesEnabled;
+	var displayProductPictures = (bool)ViewBag.DisplayProductPictures;
+}
+
+<div class="section-header">
+    <div class="title">
+        @ViewBag.Title
+    </div>
+</div>
+<div>
+	TODO: (mg) (core) complete rule preview.
+</div>

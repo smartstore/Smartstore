@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Smartstore.Admin.Models.Rule
+namespace Smartstore.Admin.Models.Rules
 {
     /// <summary>
     /// Represents a select list option for rules.

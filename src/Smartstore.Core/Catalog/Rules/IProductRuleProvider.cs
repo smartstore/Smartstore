@@ -1,12 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Catalog.Rules
 {
     /// <summary>
     /// Interface for a product rule provider.
     /// </summary>
-    public partial interface IProductRuleProvider
+    public partial interface IProductRuleProvider : IRuleProvider
     {
         /// <summary>
         /// Creates a rule expression group.

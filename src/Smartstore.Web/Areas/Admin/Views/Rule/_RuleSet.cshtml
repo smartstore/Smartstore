@@ -3,6 +3,7 @@
 @{
     var orButton = ViewBag.ConditionsOrButton as string;
     var andButton = ViewBag.ConditionsAndButton as string;
+    var ruleDescriptors = await Model.Provider.GetRuleDescriptorsAsync();
 }
 
 <div class="ruleset" data-ruleset-id="@Model.Id" data-refrule-id="@Model.RefRuleId">
@@ -14,6 +15,49 @@
             </div>
             <div class="ruleset-op-all align-items-center justify-content-stretch @(Model.LogicalOperator == LogicalRuleOperator.And ? "d-flex" : "hide")">
                 @Html.Raw(T("Admin.Rules.AllConditions", andButton))
+            </div>
+        </div>
+        <div sm-if="Model.RefRuleId == 0" class="d-flex align-items-center">
+            <button type="button" class="btn btn-light ruleset-save" title="@T("Admin.Rules.SaveConditions")" disabled>
+                <i class="fa fa-save"></i>
+            </button>
+        </div>
+    </div>
+    <div class="ruleset-body">
+        @foreach (var expression in Model.Expressions)
+        {
+            <partial name="@(expression is IRuleExpressionGroup ? "_RuleSet" : "_Rule")" model="expression" />
+        }
+    </div>
+    <div class="ruleset-footer">
+        <div class="row xs-gutters x-mt-3">
+            <div class="col-4 col-md-3 col-xl-2">
+                <select class="form-control r-add-rule">
+                    <option>@T("Admin.Rules.AddCondition")</option>
+                    @foreach (var grp in ruleDescriptors.GroupBy(x => x.GroupKey))
+                    {
+                        if (grp.Key.HasValue())
+                        {
+                            @Html.Raw("<optgroup label=\"{0}\">".FormatInvariant(T(grp.Key)))
+                        }
+                        foreach (var d in grp)
+                        {
+                            <option value="@d.Name">@(d.DisplayName.NullEmpty() ?? d.Name)</option>
+                        }
+                        if (grp.Key.HasValue())
+                        {
+                            @Html.Raw("</optgroup>")
+                        }
+                    }
+                </select>
+            </div>
+            <div sm-if="Model.Provider.Scope != RuleScope.Product" class="col-8 col-md-9 col-xl-10">
+                <button type="button" class="btn btn-outline-secondary btn-to-primary r-add-group">
+                    <span>@T("Admin.Rules.AddGroup")</span>
+                </button>
+                <button sm-if="Model.IsSubGroup" type="button" class="btn btn-outline-secondary btn-to-danger r-delete-group float-right">
+                    <span>@T("Admin.Rules.DeleteGroup")</span>
+                </button>
             </div>
         </div>
     </div>

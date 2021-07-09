@@ -4,8 +4,7 @@ using FluentValidation;
 using Smartstore.Core.Rules;
 using Smartstore.Web.Modelling;
 
-// TODO: (mg) (core) Don't use singular names for namespaces. Either pluralize or objectify. In this case: "Rules".
-namespace Smartstore.Admin.Models.Rule
+namespace Smartstore.Admin.Models.Rules
 {
     [LocalizedDisplay("Admin.Rules.RuleSet.Fields.")]
     public partial class RuleSetModel : EntityModelBase
