@@ -1,5 +1,7 @@
 ﻿@model IRuleExpression
 
+@inject ILocalizationService LocalizationService
+
 @{
     var resource = GetResourceFor(Model.Operator, false);
 }
@@ -32,6 +34,6 @@
             typeName,
             hint ? ".Hint" : string.Empty);
 
-        return Resolve<ILocalizationService>().GetResource(key, 0, false, typeName, hint);
+        return LocalizationService.GetResource(key, 0, false, typeName, hint);
     }
 }

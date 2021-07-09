@@ -38,7 +38,7 @@
                     {
                         if (grp.Key.HasValue())
                         {
-                            @Html.Raw("<optgroup label=\"{0}\">".FormatInvariant(T(grp.Key)))
+                            @:<optgroup label="@T(grp.Key)">
                         }
                         foreach (var d in grp)
                         {
@@ -46,7 +46,7 @@
                         }
                         if (grp.Key.HasValue())
                         {
-                            @Html.Raw("</optgroup>")
+                            @:</optgroup>
                         }
                     }
                 </select>

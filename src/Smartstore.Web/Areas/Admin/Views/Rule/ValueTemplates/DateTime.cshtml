@@ -23,6 +23,7 @@
     }
 }
 
+@* TODO: (mg) (core) Try to delegate to Html.Editor(..., "DateTime") instead of reinventing the wheel. *@
 <div class="date datetimepicker-group" id="@id-parent" data-date="@strValue" data-target-input="nearest" style="display: flex; flex-grow: 1;">
     <input asp-for="@id" value="@strValue" class="form-control datetimepicker-input" data-target="#@(id)-parent" data-format="@format" />
 	<div class="input-group-append input-group-addon" data-target="#@(id)-parent" data-toggle="datetimepicker">
@@ -32,6 +33,7 @@
 
 <script sm-target-zone="scripts" data-origin="rule-values">
     $(function () {
+        // TODO: (mg) (core) Double init! Scriptable editor templates are now initialized by global script smartstore.editortemplates.js.
         var dtPicker = $('#@(id)-parent');
         dtPicker.datetimepicker({ format: '@(format)', useCurrent: false, locale: moment.locale() });
         dtPicker.on('change.datetimepicker', Smartstore.Admin.Rules.onRuleValueChanged);

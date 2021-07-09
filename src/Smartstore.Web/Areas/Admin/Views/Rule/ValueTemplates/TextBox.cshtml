@@ -4,4 +4,8 @@
     var id = "rule-value-" + Model.Id;
 }
 
+@* 
+    TODO: (core) I don't think that this will work: asp-for expects a ModelExpression (Lambda), not a string. 
+    Please verify and change (apply id and name attrs manually) here and in all other value templates.
+*@
 <input type="text" asp-for="@id" class="form-control" value="@Model.RawValue" />

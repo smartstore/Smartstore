@@ -180,6 +180,7 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .Include(x => x.Rules)
                 .FindByIdAsync(id);
+
             if (ruleSet == null)
             {
                 return NotFound();
@@ -201,6 +202,7 @@ namespace Smartstore.Admin.Controllers
             var ruleSet = await _db.RuleSets
                 .Include(x => x.Rules)
                 .FindByIdAsync(model.Id);
+
             if (ruleSet == null)
             {
                 return NotFound();
@@ -325,12 +327,13 @@ namespace Smartstore.Admin.Controllers
                     .ToArray();
                 var files = (await Services.MediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
 
-                var model = new GridModel<ProductModel>
+                var model = new GridModel<ProductOverviewModel>
                 {
                     Total = searchResult.TotalHitsCount,
                     Rows = hits.Select(x =>
                     {
-                        var productModel = new ProductModel
+                        // INFO: (mg) (core) ProductOverviewModel is new
+                        var productModel = new ProductOverviewModel
                         {
                             Id = x.Id,
                             Sku = x.Sku,
