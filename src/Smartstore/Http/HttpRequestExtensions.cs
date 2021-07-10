@@ -115,6 +115,16 @@ namespace Smartstore
             return url;
         }
 
+        public static string UrlReferrer(this HttpRequest httpRequest)
+        {
+            if (httpRequest.Headers.TryGetValue(HeaderNames.Referer, out var value))
+            {
+                return value.ToString();
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Gets a value which indicates whether the HTTP connection uses secure sockets (HTTPS protocol). 
         /// Works with cloud's load balancers.

@@ -37,6 +37,8 @@ namespace Smartstore.Core.Web
 
         private bool? _isCurrentConnectionSecured;
         private IPAddress _ipAddress;
+        private bool _urlReferrerResolved;
+        private Uri _urlReferrer;
 
         public DefaultWebHelper(
             IHttpContextAccessor httpContextaccessor,
@@ -126,9 +128,21 @@ namespace Smartstore.Core.Web
             return (_ipAddress = (result ?? IPAddress.None));
         }
 
-        public virtual string GetUrlReferrer()
+        public virtual Uri GetUrlReferrer()
         {
-            return HttpContext?.Request?.Headers[HeaderNames.Referer] ?? string.Empty;
+            if (_urlReferrerResolved)
+            {
+                return _urlReferrer;
+            }
+            
+            var referrer = HttpContext?.Request?.UrlReferrer();
+            if (referrer.HasValue())
+            {
+                Uri.TryCreate(referrer, UriKind.RelativeOrAbsolute, out _urlReferrer);
+            }
+
+            _urlReferrerResolved = true;
+            return _urlReferrer;
         }
 
         public virtual string GetClientIdent()

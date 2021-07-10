@@ -33,9 +33,6 @@ namespace Smartstore.Web.Bootstrapping
 
         public void Configure(BundlingOptions options)
         {
-            // TODO: (mh) (core) Update BundlingOptions whenever theme settings change by calling this method from controller with current options.
-            // TODO: (core) Invalidate bundle cache whenever a corresponding ThemeSettings property change (in ThemeController)
-
             var section = _appContext.Configuration.GetSection("Bundling");
             section.Bind(options);
 

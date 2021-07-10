@@ -6,7 +6,7 @@ using Smartstore.Web.Modelling;
 namespace Smartstore.Admin.Models.Themes
 {
     [LocalizedDisplay("Admin.Configuration.Themes.Option.")]
-    public class ThemeListModel : ModelBase
+    public class ThemeListModel : TabbableModel
     {
         public List<SelectListItem> AvailableBundleOptimizationValues { get; set; } = new();
 

@@ -113,6 +113,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     }
 
     [HtmlTargetElement("script", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("style", Attributes = TargetZoneAttributeName)]
     [HtmlTargetElement("link", Attributes = TargetZoneAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     [HtmlTargetElement("meta", Attributes = TargetZoneAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     [HtmlTargetElement("div", Attributes = TargetZoneAttributeName)]

@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
@@ -28,7 +29,11 @@ namespace Smartstore.Web.Razor
 
         public SmartRazorPage()
         {
+        }
 
+        protected HttpRequest Request
+        {
+            get => Context.Request;
         }
 
         protected IDisplayHelper Display 

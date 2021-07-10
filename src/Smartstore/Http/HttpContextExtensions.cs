@@ -112,6 +112,35 @@ namespace Smartstore
             }
         }
 
+        public static IDisposable PreviewModeCookie(this HttpContext context)
+        {
+            var values = GetPreviewModeFromCookie(context);
+            var cookieName = CookieNames.PreviewModeOverride;
+            context.Items[cookieName] = values;
+
+            var disposable = new ActionDisposable(() =>
+            {
+                values = context.Items[cookieName] as MutableQueryCollection;
+
+                var responseCookies = context.Response.Cookies;
+
+                responseCookies.Delete(cookieName);
+                context.Items.Remove(cookieName);
+
+                if (values != null && values.Count > 0)
+                {
+                    responseCookies.Append(cookieName, values.ToString().TrimStart('?'), new CookieOptions
+                    {
+                        Expires = DateTime.UtcNow.AddMinutes(20),
+                        HttpOnly = true,
+                        IsEssential = true
+                    });
+                }
+            });
+
+            return disposable;
+        }
+
         public static MutableQueryCollection GetPreviewModeFromCookie(this HttpContext context)
         {
             var request = context?.Request;
@@ -137,33 +166,22 @@ namespace Smartstore
                 return;
             }
 
-            var cookies = context.Response.Cookies;
             var cookieName = CookieNames.PreviewModeOverride;
-            var cookie = GetPreviewModeFromCookie(context);
+            var values = context.Items[cookieName] as MutableQueryCollection;
 
-            if (value.HasValue())
+            if (values == null)
             {
-                cookie.Add(name, value, true);
-            }
-            else
-            {
-                cookie.Remove(name);
-            }
-
-            cookies.Delete(CookieNames.PreviewModeOverride);
-
-            if (cookie.Count == 0)
-            {
-                // Nothing to append
                 return;
             }
 
-            cookies.Append(cookieName, cookie.ToString().TrimStart('?'), new CookieOptions
+            if (value.HasValue())
             {
-                Expires = DateTime.UtcNow.AddMinutes(20),
-                HttpOnly = true,
-                IsEssential = true
-            });
+                values.Add(name, value, true);
+            }
+            else
+            {
+                values.Remove(name);
+            }
         }
     }
 }

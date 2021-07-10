@@ -21,7 +21,7 @@ namespace Smartstore.Core.Logging.Serilog
             using (LogContext.PushProperty("CustomerId", workContext.CurrentCustomer?.Id))
             using (LogContext.PushProperty("UserName", context.User.Identity.Name))
             using (LogContext.PushProperty("Url", webHelper.GetCurrentPageUrl(true)))
-            using (LogContext.PushProperty("Referrer", webHelper.GetUrlReferrer()))
+            using (LogContext.PushProperty("Referrer", webHelper.GetUrlReferrer()?.OriginalString))
             using (LogContext.PushProperty("HttpMethod", context?.Request.Method))
             using (LogContext.PushProperty("Ip", webHelper.GetClientIpAddress().ToString()))
             {

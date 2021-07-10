@@ -67,3 +67,65 @@
         @await Component.InvokeAsync("ConfigureTheme", new { theme = Model.ThemeName, storeId = Model.StoreId }) 
     </div>
 </form>
+
+<modal id="importvariables-window">
+    <modal-header sm-title="@T("Admin.Configuration.Themes.ImportVars")"></modal-header>
+    <modal-body>
+        <form enctype="multipart/form-data" method="post" asp-action="ImportVariables" asp-route-theme="@Model.ThemeName" asp-route-storeId="@Model.StoreId">
+            <p class="text-muted">
+                @T("Admin.Configuration.Themes.ImportVars.Note")
+            </p>
+            <div>
+                @T("Admin.Configuration.Themes.ImportVars.XmlFile"): <input type="file" id="importxmlfile" name="importxmlfile" />
+            </div>
+        </form>
+    </modal-body>
+    <modal-footer>
+        <button type="button" class="btn btn-secondary btn-flat" data-dismiss="modal">
+            <span>@T("Admin.Common.Cancel")</span>
+        </button>
+        <button id="importxmlsubmit" type="button" class="btn btn-primary">
+            <span>@T("Common.Import")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<modal id="exportvariables-window">
+    <modal-header sm-title="@T("Admin.Configuration.Themes.ExportVars")"></modal-header>
+    <modal-body>
+        <form method="post" asp-action="ExportVariables" asp-route-theme="@Model.ThemeName" asp-route-storeId="@Model.StoreId">
+            <p class="text-muted">
+                @T("Admin.Configuration.Themes.ExportVars.Note")
+            </p>
+            <div class="form-group m-0">
+                <label>@T("Admin.Configuration.Themes.ExportVars.ProfileName") </label>
+                <input type="text" class="form-control" name="exportprofilename" placeholder="@T("Common.Optional")" />
+            </div>
+        </form>
+    </modal-body>
+    <modal-footer>
+        <button type="button" class="btn btn-secondary btn-flat" data-dismiss="modal">
+            <span>@T("Admin.Common.Cancel")</span>
+        </button>
+        <button id="exportxmlsubmit" type="button" class="btn btn-primary">
+            <span>@T("Common.Export")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="scripts" data-origin="configure-theme">
+    $(function () {
+        // import
+        $('#importxmlsubmit').on('click', function (e) {
+            e.preventDefault();
+            $('#importvariables-window').find("form").submit();
+        });
+
+        // export
+        $('#exportxmlsubmit').on('click', function (e) {
+            e.preventDefault();
+            $('#exportvariables-window').modal('hide');
+            $('#exportvariables-window').find("form").submit();
+        });
+    });
+</script>

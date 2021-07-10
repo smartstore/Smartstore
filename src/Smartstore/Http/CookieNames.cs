@@ -71,6 +71,11 @@
         public static string PreviewModeOverride => Prefix + ".PreviewModeOverride";
 
         /// <summary>
+        /// Gets the PreviewToolOpen cookie name
+        /// </summary>
+        public static string PreviewToolOpen => Prefix + ".PreviewToolOpen";
+
+        /// <summary>
         /// Gets the UserThemeChoice cookie name
         /// </summary>
         public static string UserThemeChoice => Prefix + ".UserThemeChoice";

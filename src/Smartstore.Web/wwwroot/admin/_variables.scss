@@ -205,9 +205,9 @@ $component-active-bg: lighten($primary, 36%);
 $component-active-color: inherit;
 
 
-$modal-inner-padding: 1.25rem;
-$modal-header-padding: 1.25rem;
-$modal-content-border-width: 0;
+$modal-inner-padding: 1.125rem;
+$modal-header-padding: 1.125rem;
+$modal-content-border-width: 1px;
 $modal-content-border-radius: $border-radius;
 $modal-backdrop-opacity: .75;
 $modal-content-box-shadow-xs: $box-shadow-var;

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
@@ -10,10 +11,10 @@ namespace Smartstore.Core.Web
         HttpContext HttpContext { get; }
 
         /// <summary>
-        /// Get URL referrer
+        /// Gets URL referrer or <c>null</c> if Uri parsing fails.
         /// </summary>
         /// <returns>URL referrer</returns>
-        string GetUrlReferrer();
+        Uri GetUrlReferrer();
 
         /// <summary>
         /// Gets a unique client identifier

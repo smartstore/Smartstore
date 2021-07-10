@@ -191,7 +191,14 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt fest, dass Passwörter mindestens ein nicht alphanumerisches Zeichen enthalten müssen.");
 
             builder.AddOrUpdate("Account.Fields.Password", "Password management", "Passwortverwaltung");
-            
+
+            #endregion
+
+            #region Fixes
+
+            builder.AddOrUpdate("ActivityLog.ImportThemeVars", "Imported {0} variables for theme '{1}'.", "{0} Variablen für Theme '{1}' importiert.");
+            builder.AddOrUpdate("ActivityLog.ExportThemeVars", "Successfully exported theme '{0}'.", "Theme '{0}' erfolgreich exportiert.");
+
             #endregion
         }
 

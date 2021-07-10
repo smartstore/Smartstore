@@ -461,7 +461,7 @@ namespace Smartstore.Web.Controllers
                 await customer.GenericAttributes.SaveChangesAsync();
 
                 var referrer = Services.WebHelper.GetUrlReferrer();
-                if (referrer.EndsWith("/" + nameof(Confirm)))
+                if (referrer != null && referrer.OriginalString.EndsWith('/' + nameof(Confirm)))
                 {
                     return RedirectToAction(nameof(ShippingMethod));
                 }
