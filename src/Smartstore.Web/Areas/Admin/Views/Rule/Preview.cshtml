@@ -1,14 +1,22 @@
 ﻿@model RuleSetModel
 
 @{
-	Layout = "_AdminPopupLayout";
+    Layout = "_AdminPopupLayout";
 	ViewBag.Title = T("Admin.Common.Preview") + " - " + Model.Name;
 
 	Assets.BodyAttributes.AppendCssClass("spa-layout");
 
-	var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
-	var usernamesEnabled = (bool)ViewBag.UsernamesEnabled;
-	var displayProductPictures = (bool)ViewBag.DisplayProductPictures;
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+
+    string gridId = null;
+    switch (Model.Scope)
+    {
+        case RuleScope.Customer:
+        case RuleScope.Product:
+            gridId = Model.Scope.ToString();
+            break;
+    }
 }
 
 <div class="section-header">
@@ -17,5 +25,14 @@
     </div>
 </div>
 <div>
-	TODO: (mg) (core) complete rule preview.
+    @if (gridId.HasValue())
+    {
+        <partial name="_Grid.Preview.@(gridId)" model="null" view-data="gridViewData" />
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            @T("Common.NoPreview")
+        </div>
+    }
 </div>

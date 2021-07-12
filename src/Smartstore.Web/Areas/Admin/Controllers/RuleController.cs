@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Smartstore.Admin.Models.Catalog;
+using Smartstore.Admin.Models.Customers;
 using Smartstore.Admin.Models.Rules;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Discounts;
@@ -262,9 +263,9 @@ namespace Smartstore.Admin.Controllers
 
             var model = MiniMapper.Map<RuleSetEntity, RuleSetModel>(ruleSet);
 
-            ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
-            ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
-            ViewBag.DisplayProductPictures = _adminAreaSettings.DisplayProductPictures;
+            ViewData["IsSingleStoreMode"] = Services.StoreContext.IsSingleStoreMode();
+            ViewData["UsernamesEnabled"] = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+            ViewData["DisplayProductPictures"] = _adminAreaSettings.DisplayProductPictures;
 
             return View(model);
         }
@@ -288,13 +289,12 @@ namespace Smartstore.Admin.Controllers
                 var customers = provider.ProcessFilter(new[] { expression }, LogicalRuleOperator.And, command.Page - 1, command.PageSize);
                 var guestStr = T("Admin.Customers.Guest").Value;
 
-                // TODO: (mg) (core) CustomerModel required in RuleController.
-                var model = new GridModel<object/*CustomerModel*/>
+                var model = new GridModel<CustomerModel>
                 {
                     Total = customers.TotalCount,
                     Rows = customers.Select(x =>
                     {
-                        var customerModel = new /*CustomerModel*/
+                        var customerModel = new CustomerModel
                         {
                             Id = x.Id,
                             Active = x.Active,
@@ -302,7 +302,9 @@ namespace Smartstore.Admin.Controllers
                             Username = x.Username,
                             FullName = x.GetFullName(),
                             CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                            LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc)
+                            LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
+                            // TODO: (mg) (core) verify action URL (Customer.Edit).
+                            EditUrl = Url.Action("Edit, Customer", new { id = x.Id, area = "Admin" })
                         };
 
                         return customerModel;
@@ -332,7 +334,6 @@ namespace Smartstore.Admin.Controllers
                     Total = searchResult.TotalHitsCount,
                     Rows = hits.Select(x =>
                     {
-                        // INFO: (mg) (core) ProductOverviewModel is new
                         var productModel = new ProductOverviewModel
                         {
                             Id = x.Id,
@@ -345,7 +346,8 @@ namespace Smartstore.Admin.Controllers
                             Price = x.Price,
                             LimitedToStores = x.LimitedToStores,
                             UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc),
-                            CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
+                            CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                            EditUrl = Url.Action("Edit", "Product", new { id = x.Id, area = "Admin" })
                         };
 
                         files.TryGetValue(x.MainPictureId ?? 0, out var file);
@@ -632,7 +634,8 @@ namespace Smartstore.Admin.Controllers
                         Value = rawValue,
                         PageIndex = page ?? 0,
                         PageSize = 100,
-                        SearchTerm = term
+                        SearchTerm = term,
+                        Language = Services.WorkContext.WorkingLanguage
                     });
 
                     if (list.DataSource == "CartRule" || list.DataSource == "TargetGroup")
@@ -819,7 +822,8 @@ namespace Smartstore.Admin.Controllers
                     {
                         var options = await optionsProvider.GetOptionsAsync(new RuleOptionsContext(RuleOptionsRequestReason.SelectedDisplayNames, expression)
                         {
-                            PageSize = int.MaxValue
+                            PageSize = int.MaxValue,
+                            Language = Services.WorkContext.WorkingLanguage
                         });
 
                         expression.Metadata["SelectedItems"] = options.Options.ToDictionarySafe(

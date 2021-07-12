@@ -46,14 +46,15 @@
             var productOptions = await productOptionsProvider.GetOptionsAsync(new RuleOptionsContext(RuleOptionsRequestReason.SelectedDisplayNames, productRuleDescriptor)
             {
                 Value = productId,
-                PageSize = int.MaxValue
+                PageSize = int.MaxValue,
+                Language = WorkContext.WorkingLanguage
             });
             selectedProduct = productOptions.Options.FirstOrDefault(x => x.Value.EqualsNoCase(productId));
         }
     }
 }
 
-<select asp-for="@(id + "-ProductId")" data-placeholder="@T("Common.Unspecified")" data-remote-url="@remoteUrl">
+<select id="@(id)-ProductId" name="@(id)-ProductId" data-placeholder="@T("Common.Unspecified")" data-remote-url="@remoteUrl">
     @if (selectedProduct != null)
     {
         <option value="@selectedProduct.Value" selected="selected" attr-data-hint='(selectedProduct.Hint?.HasValue() ?? false, selectedProduct.Hint)'>
@@ -61,20 +62,7 @@
     }
 </select>
 <div class="numerictextbox-group flex-grow-1 ml-2" style="max-width: 140px;">
-@*TODO: (mh) (core) Reimplement with taghelper once available *@
-@*	@(Html.Telerik().IntegerTextBox()
-        .Name(id + "-MinQuantity")
-        .EmptyMessage(T("Common.EnterValue"))
-        .ButtonTitleUp(T("Common.IncreaseValue"))
-        .ButtonTitleDown(T("Common.DecreaseValue"))
-        .IncrementStep(1)
-        .MinValue(0)
-        .ClientEvents(x => x.OnChange("Smartstore.Admin.Rules.onRuleValueChanged"))
-        .EmptyMessage(fromStr)
-        .HtmlAttributes(new { title = fromStr })
-        .Value(minQuantity.HasValue() ? minQuantity.ToInt() : (int?)null))*@
-
-    <input asp-for="@(id + "-MinQuantity")"
+    <input id="@(id)-MinQuantity" name="@(id)-MinQuantity"
            attr-value='(minQuantity.HasValue(), minQuantity)'
            type="number"
            class="form-control"
@@ -85,19 +73,7 @@
            onchange="Smartstore.Admin.Rules.onRuleValueChanged()" />
 </div>
 <div class="numerictextbox-group flex-grow-1 ml-2 mr-2" style="max-width: 140px;">
-@*	@(Html.Telerik().IntegerTextBox()
-        .Name(id + "-MaxQuantity")
-        .EmptyMessage(T("Common.EnterValue"))
-        .ButtonTitleUp(T("Common.IncreaseValue"))
-        .ButtonTitleDown(T("Common.DecreaseValue"))
-        .IncrementStep(1)
-        .MinValue(0)
-        .ClientEvents(x => x.OnChange("Smartstore.Admin.Rules.onRuleValueChanged"))
-        .EmptyMessage(toStr)
-        .HtmlAttributes(new { title = toStr })
-        .Value(maxQuantity.HasValue() ? maxQuantity.ToInt() : (int?)null))*@
-
-    <input asp-for="@(id + "-MaxQuantity")"
+    <input id="@(id)-MaxQuantity" name="@(id)-MaxQuantity"
            attr-value='(maxQuantity.HasValue(), maxQuantity)'
            type="number"
            class="form-control"

@@ -12,21 +12,7 @@
         : (float?)null;
 }
 <div class="numerictextbox-group flex-grow-1">
-@*TODO: (mh) (core) Reimplement with taghelper once available *@
-@*	@(Html.Telerik().NumericTextBox<float>()
-        .Name(id)
-        .EmptyMessage(T("Common.EnterValue"))
-        .ButtonTitleUp(T("Common.IncreaseValue"))
-        .ButtonTitleDown(T("Common.DecreaseValue"))
-        .MinValue(min)
-        .MaxValue(max)
-        .IncrementStep(step ?? 1)
-        .DecimalDigits(4)
-        .ClientEvents(x => x.OnChange("Smartstore.Admin.Rules.onRuleValueChanged"))
-        .Value(value)
-	)*@
-
-    <input asp-for="@id"
+    <input id="@id" name="@id" 
            value="@value"
            class="form-control"
            placeholder="@T("Common.EnterValue").Value"

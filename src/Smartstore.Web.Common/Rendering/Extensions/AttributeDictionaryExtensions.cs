@@ -31,7 +31,7 @@ namespace Smartstore.Web.Rendering
                 {
                     if (replaceExisting || !attributes.ContainsKey(kvp.Key))
                     {
-                        attributes[kvp.Key] = kvp.Value.ToString();
+                        attributes[kvp.Key] = kvp.Value?.ToString();
                     }
                 }
             }

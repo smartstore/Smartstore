@@ -18,7 +18,7 @@ namespace Smartstore.Admin.Models.Logging
         [LocalizedDisplay("*LogLevel")]
         public int? LogLevelId { get; set; }
 
-        [LocalizedDisplay("*Logger")]
+        [LocalizedDisplay("Admin.System.Log.Fields.Logger")]
         public string Logger { get; set; }
     }
 }

@@ -1,14 +1,4 @@
 ﻿@model RuleSetModel
-@*
-    INFO: (mg) (core) Tags containing text in custom datagrid display templates require "text-truncate" class ALL THE WAY DOWN.
-    The parent tag should be '.dg-cell-value' because this one already has text truncating expressions.
-
-    - At least one grid column should be non-hídebale
-    - Don't try to port column sizes from old grid. The concept changed fundamentally. Sizes for boolean, numbers and dates
-      can be omitted: "auto" is default here and is always a perfect match.
-    - Only string column sizes need a manual adjustment because the grid cannot guess the potential length.
-      Default is: minmax(60px, 1fr). minmax(60px, 3fr) for example would make a column 3x wider than any other string column.
-*@
 
 <datagrid id="rules-grid"
           allow-resize="true"

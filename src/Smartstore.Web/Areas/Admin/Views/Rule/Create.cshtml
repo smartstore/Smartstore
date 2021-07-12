@@ -1,0 +1,26 @@
+﻿@model RuleSetModel
+
+@{
+    ViewBag.Title = T("Admin.Rules.AddRule").Value;
+}
+
+<form asp-action="Create">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-filter"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" />
+</form>

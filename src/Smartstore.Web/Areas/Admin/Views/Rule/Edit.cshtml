@@ -14,7 +14,7 @@
         <div class="options">
 			@if (Model.Id != 0 && (Model.Scope == RuleScope.Customer || Model.Scope == RuleScope.Product))
 			{
-				<a id="btn-preview-ruleset" asp-action="Preview" asp-route-itemid="@Model.Id" class="btn btn-secondary">
+				<a id="btn-preview-ruleset" asp-action="Preview" asp-route-id="@Model.Id" class="btn btn-secondary">
 					<i class="far fa-eye"></i>
 					<span>@T("Admin.Common.Preview")</span>
 				</a>
@@ -25,6 +25,10 @@
             </button>
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <button type="submit" id="rule-delete" name="rule-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
             </button>
             <confirm button-id="rule-delete" />
         </div>
