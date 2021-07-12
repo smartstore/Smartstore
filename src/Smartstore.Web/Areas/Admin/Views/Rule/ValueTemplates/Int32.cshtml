@@ -8,6 +8,7 @@
     var step = metadata.Get("step") as int?;
 }
 
+@* TODO: (mh) (core) Use NumericInput once available *@
 <div class="numerictextbox-group flex-grow-1">
     <input id="@id" name="@id" 
            value="@(Model.Value as int?)"
