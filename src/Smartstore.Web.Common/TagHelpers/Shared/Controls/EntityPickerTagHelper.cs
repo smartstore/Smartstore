@@ -114,7 +114,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string Delimiter { get; set; } = ",";
 
         /// <summary>
-        /// FieldName of the input elemeent to paste the selected ids in. Default = "id"
+        /// FieldName of the input element to paste the selected ids in. Default = "id"
         /// </summary>
         [HtmlAttributeName(FieldNameAttributeName)]
         public string FieldName { get; set; } = "id";

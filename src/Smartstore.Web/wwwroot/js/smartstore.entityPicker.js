@@ -180,8 +180,8 @@
                 url: opt.url,
                 beforeSend: function () {
                     btn.addClass('disabled').prop('disabled', true);
-                    if (_.isFunction(opt.onDialogLoading)) {
-                        return opt.onDialogLoading(dialog);
+                    if (_.isFunction(window[opt.onDialogLoading])) {
+                        return window[opt.onDialogLoading](dialog);
                     }
                 },
                 success: function (response) {
@@ -190,8 +190,8 @@
                 },
                 complete: function () {
                     btn.prop('disabled', false).removeClass('disabled');
-                    if (_.isFunction(opt.onDialogLoaded)) {
-                        opt.onDialogLoaded(dialog);
+                    if (_.isFunction(window[opt.onDialogLoaded])) {
+                        window[opt.onDialogLoaded](dialog);
                     }
                 },
                 error: ajaxErrorHandler
@@ -331,8 +331,8 @@
                     .trigger("change");
             }
 
-            if (_.isFunction(opts.onSelectionCompleted)) {
-                if (opts.onSelectionCompleted(selectedValues, selectedItems, dialog)) {
+            if (_.isFunction(window[opts.onSelectionCompleted])) {
+                if (window[opts.onSelectionCompleted](selectedValues, selectedItems, dialog)) {
                     dialog.modal('hide');
                 }
             }

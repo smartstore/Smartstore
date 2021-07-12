@@ -157,7 +157,7 @@
         }
         else {
             confirm2({
-                message: options.ask,
+                message: opt.ask,
                 icon: { type: 'question' },
                 callback: accepted => {
                     if (accepted) {

@@ -1,15 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -35,6 +35,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         // TODO: (mh) (core) Testing!
+        // TODO: (mh) (core) Fails when trying to add duplicate files. With: Could not determine JSON object type for type Smartstore.Threading.AsyncOut`1[System.String]. at Newtonsoft.Json.Linq.JValue.GetValueType(Nullable`1 current, Object value)
         [HttpPost]
         [Permission(Permissions.Media.Upload)]
         [MaxMediaFileSize]
