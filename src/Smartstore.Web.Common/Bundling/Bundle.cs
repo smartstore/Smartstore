@@ -29,6 +29,7 @@ namespace Smartstore.Web.Bundling
     /// <summary>
     /// Represents a script bundle that does Js minification.
     /// </summary>
+    [DebuggerDisplay("ScriptBundle: {Route}")]
     public class ScriptBundle : Bundle
     {
         public ScriptBundle(string route)
@@ -41,6 +42,7 @@ namespace Smartstore.Web.Bundling
     /// <summary>
     /// Represents a stylesheet bundle that does CSS minification, URL rewrite & Autoprefixing.
     /// </summary>
+    [DebuggerDisplay("StyleBundle: {Route}")]
     public class StyleBundle : Bundle
     {
         public StyleBundle(string route)
@@ -55,9 +57,9 @@ namespace Smartstore.Web.Bundling
     /// <remarks>
     /// A bundle is referenced statically via the <see cref="Route"/> property (i.e. Route = ~/bundle/js/public.js).
     /// </remarks>
+    [DebuggerDisplay("Bundle: {Route}")]
     public class Bundle
     {
-        private static readonly ConcurrentDictionary<string, string> _minFiles = new(StringComparer.InvariantCultureIgnoreCase);
         private readonly HashSet<string> _sourceFiles = new();
         
         protected Bundle()

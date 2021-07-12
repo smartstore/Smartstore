@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -22,7 +23,8 @@ namespace Smartstore.Web.Bundling
         public IThemeRegistry ThemeRegistry { get; init; }
         public BundlingOptions BundlingOptions { get; init; }
     }
-    
+
+    [DebuggerDisplay("DynamicBundle: {Route}")]
     internal class DynamicBundleMatch : Bundle
     {
         private string[] _sourceFiles;

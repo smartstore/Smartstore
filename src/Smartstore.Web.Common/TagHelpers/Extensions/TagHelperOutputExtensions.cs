@@ -119,7 +119,6 @@ namespace Smartstore.Web.TagHelpers
             output.PreElement.CopyTo(destination);
 
             // Copy Element (Tag and Attributes).
-            //CopyElement(output, destination, out var contentBuilder);
             CopyElement(output, destination, false);
 
             // Copy PostElement
@@ -166,6 +165,11 @@ namespace Smartstore.Web.TagHelpers
 
         private static void CopyElement(TagHelperOutput output, IHtmlContentBuilder destination, bool move = false)
         {
+            if (output.TagName == null)
+            {
+                return;
+            }
+            
             switch (output.TagMode)
             {
                 case TagMode.StartTagOnly:
