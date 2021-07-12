@@ -1,33 +1,38 @@
-﻿@model IRuleExpression
+﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
+
+@model IRuleExpression
 
 @{
     @* TODO: (mg) (core) Try to delegate to Html.Editor(..., "Decimal") instead of reinventing the wheel. *@
     var metadata = Model.Descriptor.Metadata;
     var id = "rule-value-" + Model.Id;
-    var min = metadata.Get("min") as decimal?;
+@*    var min = metadata.Get("min") as decimal?;
     var max = metadata.Get("max") as decimal?;
     var step = metadata.Get("step") as decimal?;
-    var postfix = metadata.Get("postfix") as string;
+    var postfix = metadata.Get("postfix") as string;*@
 
     var value = Model.Value != null
         ? Convert.ToDecimal(Model.Value, System.Globalization.CultureInfo.InvariantCulture)
         : decimal.Zero;
 
-@*    var htmlAttributes = new Dictionary<string, object>();
-    if (value.HasValue)
+    var htmlAttributes = new Dictionary<string, object>
     {
-        htmlAttributes["value"] = value.Value;
-    }
+		{ "value!", value },
+    };
 
-    var targetMetadata = new EmptyModelMetadataProvider();  // immutable
-
-    var dic = new ViewDataDictionary(targetMetadata, new ModelStateDictionary())
+    var viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
     {
 		{ "htmlAttributes", htmlAttributes },
-    };*@
+        { "min", metadata.Get("min") },
+        { "max", metadata.Get("max") },
+        { "step", metadata.Get("step") },
+        { "postfix", metadata.Get("postfix") }
+    };
 }
-@*@Html.Editor(id, "Decimal", id, dic)*@
-<div class="numerictextbox-group flex-grow-1">
+
+@Html.Editor(id, "Decimal", id, viewData)
+
+@*<div class="numerictextbox-group flex-grow-1">
     <input id="@id" name="@id" 
            value="@value"
            class="form-control"
@@ -37,4 +42,4 @@
            step="@(step ?? 1)"
            onchange="Smartstore.Admin.Rules.onRuleValueChanged()" />
     <span sm-if="postfix.HasValue()" class="numerictextbox-postfix">@postfix</span>
-</div>
+</div>*@

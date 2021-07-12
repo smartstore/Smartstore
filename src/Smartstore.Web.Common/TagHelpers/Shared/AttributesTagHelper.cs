@@ -51,7 +51,8 @@ namespace Smartstore.Web.TagHelpers.Shared
                     }
                     else
                     {
-                        output.MergeAttribute(attr.Key, attr.Value, false);
+                        //output.MergeAttribute(attr.Key, attr.Value, false);
+                        MergeAttribute(output, attr.Key, attr.Value);
                     }
                 }
             }
@@ -68,10 +69,23 @@ namespace Smartstore.Web.TagHelpers.Shared
                         }
                         else
                         {
-                            output.MergeAttribute(kvp.Key, kvp.Value.Value, false);
+                            //output.MergeAttribute(kvp.Key, kvp.Value.Value, false);
+                            MergeAttribute(output, kvp.Key, kvp.Value);
                         }
                     }
                 }
+            }
+        }
+
+        private static void MergeAttribute(TagHelperOutput output, string name, object value)
+        {
+            if (name?.EndsWith('!') ?? false)
+            {
+                output.MergeAttribute(name.TrimEnd('!'), value, true);
+            }
+            else
+            {
+                output.MergeAttribute(name, value, false);
             }
         }
     }
