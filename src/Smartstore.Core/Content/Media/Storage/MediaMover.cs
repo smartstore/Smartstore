@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Configuration;
@@ -15,7 +14,7 @@ namespace Smartstore.Core.Content.Media.Storage
 {
     public class MediaMover : IMediaMover
     {
-        private const int PAGE_SIZE = 250;
+        private const int PAGE_SIZE = 500;
 
         private readonly SmartDbContext _db;
         private readonly INotifier _notifier;
@@ -60,13 +59,12 @@ namespace Smartstore.Core.Content.Media.Storage
             var success = false;
             var utcNow = DateTime.UtcNow;
             var context = new MediaMoverContext(sender, receiver);
-
+            
             // We are about to process data in chunks but want to commit ALL at once after ALL chunks have been processed successfully.
             // AutoDetectChanges true required for newly inserted binary data.
-            using (var scope = new DbContextScope(ctx: _db, autoDetectChanges: true, retainConnection: true))
+            using (var scope = new DbContextScope(ctx: _db, autoDetectChanges: _db.DataProvider.CanStreamBlob ? false : null, retainConnection: true))
             {
-                //using (var transaction = await _db.Database.BeginTransactionAsync(cancelToken))
-                using (var transaction = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadUncommitted }, TransactionScopeAsyncFlowOption.Enabled))
+                using (var transaction = await _db.Database.BeginTransactionAsync(cancelToken))
                 {
                     try
                     {
@@ -98,20 +96,19 @@ namespace Smartstore.Core.Content.Media.Storage
 
                         if (!cancelToken.IsCancellationRequested)
                         {
-                            //await transaction.CommitAsync(cancelToken);
-                            transaction.Complete();
+                            await transaction.CommitAsync(cancelToken);
                             success = true;
                         }
                         else
                         {
                             success = false;
-                            //await transaction.RollbackAsync(CancellationToken.None);
+                            await transaction.RollbackAsync(CancellationToken.None);
                         }
                     }
                     catch (Exception exception)
                     {
                         success = false;
-                        //await transaction.RollbackAsync(cancelToken);
+                        await transaction.RollbackAsync(cancelToken);
 
                         _notifier.Error(exception);
                         Logger.Error(exception);

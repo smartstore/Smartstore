@@ -12,11 +12,10 @@ namespace Smartstore.Data
     public class SqlBlobStream : Stream
     {
         private readonly DatabaseFacade _database;
-        private readonly DbConnection _connection;
+        private DbCommand _command;
         private DbDataReader _reader;
         private long? _length;
         private long _dataIndex;
-        private bool _openedConnection;
 
         public SqlBlobStream(
             DatabaseFacade database,
@@ -37,7 +36,6 @@ namespace Smartstore.Data
             PkColumnValue = pkColumnValue;
 
             _database = database;
-            _connection = database.GetDbConnection();
         }
 
         private void EnsureOpen()
@@ -45,29 +43,33 @@ namespace Smartstore.Data
             if (_reader != null)
                 return;
 
-            if (_connection.State != ConnectionState.Open)
-            {
-                _connection.Open();
-                _openedConnection = true;
-            }
+            var connection = _database.GetDbConnection();
 
-            using var command = _connection.CreateCommand();
+            _command = connection.CreateCommand();
 
-            PrimaryKey = command.CreateParameter();
-            PrimaryKey.ParameterName = "@" + PkColumnName;
-            PrimaryKey.Value = PkColumnValue;
-            
-            command.Connection = _connection;
-            command.CommandType = CommandType.Text;
-            command.CommandText = $"SELECT {BlobColumnName} FROM {TableName} WHERE {PrimaryKey.ParameterName[1..]} = {PrimaryKey.Value}";
-            command.Parameters.Add(PrimaryKey);
+            var parameter = _command.CreateParameter();
+            parameter.ParameterName = "@" + PkColumnName;
+            parameter.Value = PkColumnValue;
+
+            _command.CommandType = CommandType.Text;
+            _command.CommandText = $"SELECT {BlobColumnName} FROM {TableName} WHERE {parameter.ParameterName[1..]} = {parameter.Value}";
+            _command.Parameters.Add(parameter);
 
             if (_database.CurrentTransaction != null)
             {
-                command.Transaction = _database.CurrentTransaction.GetDbTransaction();
+                _command.Transaction = _database.CurrentTransaction.GetDbTransaction();
             }
 
-            _reader = command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection);
+            var commandTimeout = _database.GetCommandTimeout();
+            if (commandTimeout.HasValue)
+            {
+                _command.CommandTimeout = commandTimeout.Value;
+            }
+
+            // Open connection if closed
+            _database.OpenConnection();
+
+            _reader = _command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.SingleResult);
             if (!_reader.Read())
             {
                 throw new DataException($"Blob [{TableName}].[{BlobColumnName}] with id '{PrimaryKey.Value}' does not exist.");
@@ -183,13 +185,14 @@ namespace Smartstore.Data
                 _reader = null;
             }
 
-            if (_connection != null && _openedConnection)
+            if (_command != null)
             {
-                if (_connection.State == ConnectionState.Open)
-                {
-                    _connection.Close();
-                }  
+                _command.Parameters.Clear();
+                _command.Dispose();
+                _command = null;
             }
+
+            _database.CloseConnection();
 
             _dataIndex = 0;
             PrimaryKey = null;
@@ -205,11 +208,14 @@ namespace Smartstore.Data
                 _reader = null;
             }
 
-            if (_connection != null && _openedConnection)
+            if (_command != null)
             {
-                if (_connection.State == ConnectionState.Open)
-                    await _connection.CloseAsync();
+                _command.Parameters.Clear();
+                await _command.DisposeAsync();
+                _command = null;
             }
+
+            await _database.CloseConnectionAsync();
 
             _dataIndex = 0;
             PrimaryKey = null;

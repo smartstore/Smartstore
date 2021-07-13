@@ -205,15 +205,11 @@ namespace Smartstore.Core.Content.Media.Storage
                 // Let target store data (into a file for example)
                 await target.ReceiveAsync(context, mediaFile, await OpenReadAsync(mediaFile));
 
-                // Remove blob from DB
-                try
-                {
-                    mediaFile.MediaStorageId = null;
-                    mediaFile.MediaStorage = null;
-                    // Remove with stub entity
-                    _db.MediaStorage.Remove(new MediaStorage { Id = mediaFile.MediaStorageId.Value });
-                }
-                catch { }
+                // Remove blob from DB with stub entity
+                _db.MediaStorage.Remove(new MediaStorage { Id = mediaFile.MediaStorageId.Value });
+
+                mediaFile.MediaStorageId = null;
+                //mediaFile.MediaStorage = null;
             }
         }
 
@@ -236,7 +232,7 @@ namespace Smartstore.Core.Content.Media.Storage
         {
             if (succeeded && context.AffectedFiles.Any() && _db.DataProvider.CanShrink)
             {
-                // SHrink database after sending/removing at least one blob.
+                // Shrink database after sending/removing at least one blob.
                 return _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
             }
             

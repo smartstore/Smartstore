@@ -947,7 +947,7 @@ namespace Smartstore.Admin.Controllers
 
             // TODO: (mh) (core) Use _pluginMediator when available.
             //model.StorageProvider = provider != null ? _pluginMediator.GetLocalizedFriendlyName(provider.Metadata) : null;
-            model.StorageProvider = provider != null ? "TODO" : null;
+            model.StorageProvider = provider?.Metadata?.FriendlyName;
 
             // TODO: (mh) (core) Use _pluginMediator when available.
             //model.AvailableStorageProvider = _providerManager.GetAllProviders<IMediaStorageProvider>()
@@ -957,7 +957,7 @@ namespace Smartstore.Admin.Controllers
             
             ViewBag.AvailableStorageProvider = _providerManager.GetAllProviders<IMediaStorageProvider>()
                 .Where(x => !x.Metadata.SystemName.EqualsNoCase(currentStorageProvider))
-                .Select(x => new SelectListItem { Text = "TODO", Value = x.Metadata.SystemName })
+                .Select(x => new SelectListItem { Text = x.Metadata.FriendlyName, Value = x.Metadata.SystemName })
                 .ToList();
 
             return View(model);
