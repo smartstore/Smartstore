@@ -24,9 +24,10 @@ namespace Smartstore.Core.Rules
             Guard.NotNull(entity, nameof(entity));
 
             selectedRuleSetIds ??= Array.Empty<int>();
+
             var updated = false;
             var allRuleSets = await _db.RuleSets
-                .AsQueryable() // Prevent ambigous ext method call
+                .AsQueryable() // Prevent ambiguous extension method call.
                 .Where(x => !x.IsSubGroup)
                 .ToDictionaryAsync(x => x.Id);
 

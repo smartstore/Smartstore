@@ -1,0 +1,40 @@
+﻿@model CustomerRoleModel
+
+<datagrid id="customer-roles-grid" 
+		allow-resize="true" 
+		allow-column-reordering="true" 
+		preserve-grid-state="true"
+        onrowclass="rolesGrid_onRowClass">
+	<datasource read="@Url.Action("RolesList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")…</span>
+            </a>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="SystemName" />
+        <column for="Active" halign="center" />
+        <column for="TaxExempt" halign="center" />
+        <column for="FreeShipping" halign="center" />
+        <column for="IsSystemRole" halign="center" />
+        <column for="OrderTotalMinimum" halign="flex-end" visible="false" />
+        <column for="OrderTotalMaximum" halign="flex-end" visible="false" />
+    </columns>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="roles-grid">
+    function rolesGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.Active
+        };
+    }
+</script>

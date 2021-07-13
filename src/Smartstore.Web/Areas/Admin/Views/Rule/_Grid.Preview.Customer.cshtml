@@ -19,7 +19,7 @@
 		<column for="Id" halign="center" />
 		<column for="Email" hideable="false">
             <display-template>
-                <a :href="item.row.EditUrl" class="text-truncate" target="_blank">{{ item.value }}</a>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate" target="_blank">{{ item.value }}</a></div>
             </display-template>
 		</column>
 		@if (usernamesEnabled)

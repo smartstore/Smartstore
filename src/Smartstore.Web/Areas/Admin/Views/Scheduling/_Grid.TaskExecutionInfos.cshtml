@@ -21,7 +21,7 @@
 	</toolbar>
 	<columns>
         <column for="Id" visible="false" resizable="false" />
-        <column for="StartedOn" title="@T("Common.ExecutedOn")" width="260px">
+        <column for="StartedOn" title="@T("Common.ExecutedOn")" width="1fr">
             <display-template>
                 <div class="dg-cell-value">
 					<div class="text-truncate">{{ item.row.StartedOnString }}</div>
@@ -29,7 +29,7 @@
 				</div>
             </display-template>
         </column>
-        <column for="FinishedOn" title="@T("Common.FinishedOn")" width="260px">
+        <column for="FinishedOn" title="@T("Common.FinishedOn")" width="1fr">
             <display-template>
                 <div class="dg-cell-value">
 					<div class="text-truncate">{{ item.row.FinishedOnString }}</div>
@@ -37,8 +37,8 @@
 				</div>
             </display-template>
         </column>
-        <column for="Duration" width="260px"></column>
-        <column for="Succeeded" width="400px">
+        <column for="Duration" />
+        <column for="Succeeded" width="2fr" hideable="false">
             <display-template>
 				<div v-if="item.row.Succeeded" class="dg-cell-value">
                     <i class="fa fa-fw icon-active-true"></i>
@@ -50,7 +50,7 @@
                 </div>
             </display-template>
         </column>
-		<column for="MachineName"></column>
+		<column for="MachineName" />
 	</columns>
 </datagrid>
 
