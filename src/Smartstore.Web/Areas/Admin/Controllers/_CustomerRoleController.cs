@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Admin.Models.Customers;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -21,7 +22,6 @@ using Smartstore.Data;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
-using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
@@ -210,7 +210,17 @@ namespace Smartstore.Admin.Controllers
                     var mapper = MapperFactory.GetMapper<CustomerRoleModel, CustomerRole>();
                     await mapper.MapAsync(model, customerRole);
 
-                    //...
+                    await _roleStore.UpdateAsync(customerRole, default);
+
+                    // INFO: cached permission tree removed by PermissionRoleMappingHook.
+                    await UpdatePermissionRoleMappings(customerRole, form);
+
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), customerRole.Name);
+                    NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
+
+                    return continueEditing 
+                        ? RedirectToAction("Edit", new { id = customerRole.Id }) 
+                        : RedirectToAction("List");
                 }
             }
             catch (Exception ex)
@@ -221,6 +231,44 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("Edit", new { id = customerRole.Id });
         }
 
+        [HttpPost]
+        [Permission(Permissions.Customer.Role.Delete)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var customerRole = await _roleStore.FindByIdAsync(id.ToString(), default);
+            if (customerRole == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                await _roleStore.DeleteAsync(customerRole, default);
+
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), customerRole.Name);
+                NotifySuccess(T("Admin.Customers.CustomerRoles.Deleted"));
+
+                return RedirectToAction("List");
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex.Message);
+                return RedirectToAction("Edit", new { id = customerRole.Id });
+            }
+        }
+
+        //[Permission(Permissions.Customer.Role.Read)]
+        //public async Task<IActionResult> CustomerRoleMappingsList(GridCommand command, int id)
+        //{
+
+        //    var gridModel = new GridModel<CustomerRoleMappingModel>
+        //    {
+        //        Rows = rows,
+        //        Total = customerRoles.TotalCount
+        //    };
+
+        //    return Json(gridModel);
+        //}
 
         private async Task PrepareViewBag(CustomerRoleModel model, CustomerRole role)
         {
@@ -249,6 +297,71 @@ namespace Smartstore.Admin.Controllers
                 : TaxDisplayType.IncludingTax.ToSelectList(false).ToList();
 
             ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+        }
+
+        private async Task<int> UpdatePermissionRoleMappings(CustomerRole role, IFormCollection form)
+        {
+            await _db.LoadCollectionAsync(role, x => x.PermissionRoleMappings);
+
+            var save = false;
+            var permissionKey = "permission-";
+            var existingMappings = role.PermissionRoleMappings.ToDictionarySafe(x => x.PermissionRecordId, x => x);
+
+            var mappings = form.Keys.Where(x => x.StartsWith(permissionKey))
+                .Select(x =>
+                {
+                    var id = x[permissionKey.Length..].ToInt();
+                    bool? allow = null;
+                    var value = form[x].ToString().EmptyNull();
+                    if (value.StartsWith("2"))
+                    {
+                        allow = true;
+                    }
+                    else if (value.StartsWith("1"))
+                    {
+                        allow = false;
+                    }
+
+                    return new { id, allow };
+                })
+                .ToDictionary(x => x.id, x => x.allow);
+
+            foreach (var item in mappings)
+            {
+                if (existingMappings.TryGetValue(item.Key, out var mapping))
+                {
+                    if (item.Value.HasValue)
+                    {
+                        if (mapping.Allow != item.Value.Value)
+                        {
+                            mapping.Allow = item.Value.Value;
+                            save = true;
+                        }
+                    }
+                    else
+                    {
+                        _db.PermissionRoleMappings.Remove(mapping);
+                        save = true;
+                    }
+                }
+                else if (item.Value.HasValue)
+                {
+                    _db.PermissionRoleMappings.Add(new PermissionRoleMapping
+                    {
+                        Allow = item.Value.Value,
+                        PermissionRecordId = item.Key,
+                        CustomerRoleId = role.Id
+                    });
+                    save = true;
+                }
+            }
+
+            if (save)
+            {
+                return await _db.SaveChangesAsync();
+            }
+
+            return 0;
         }
     }
 }

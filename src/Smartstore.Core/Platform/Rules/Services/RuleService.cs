@@ -25,6 +25,12 @@ namespace Smartstore.Core.Rules
 
             selectedRuleSetIds ??= Array.Empty<int>();
 
+            if (!selectedRuleSetIds.Any() && !entity.RuleSets.Any())
+            {
+                // Nothing to do.
+                return false;
+            }
+
             var updated = false;
             var allRuleSets = await _db.RuleSets
                 .AsQueryable() // Prevent ambiguous extension method call.

@@ -134,7 +134,7 @@ namespace Smartstore.Core.Identity
 					}
 				}
 
-				await _db.SaveChangesAsync();
+				await _db.SaveChangesAsync(cancelToken);
 			}
 		}
 

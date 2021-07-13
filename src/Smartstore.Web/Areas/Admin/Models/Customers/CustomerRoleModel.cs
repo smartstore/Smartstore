@@ -9,7 +9,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Web.Models.Customers
+namespace Smartstore.Admin.Models.Customers
 {
     [LocalizedDisplay("Admin.Customers.CustomerRoles.Fields.")]
     public class CustomerRoleModel : EntityModelBase
@@ -91,10 +91,7 @@ namespace Smartstore.Web.Models.Customers
             MiniMapper.Map(from, to);
 
             // TODO: (mg) (core) test mapping CustomerRoleModel > CustomerRole.
-            if (from.SelectedRuleSetIds?.Any() ?? false)
-            {
-                await _ruleService.ApplyRuleSetMappingsAsync(to, from.SelectedRuleSetIds);
-            }
+            await _ruleService.ApplyRuleSetMappingsAsync(to, from.SelectedRuleSetIds);
         }
     }
 }

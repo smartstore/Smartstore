@@ -193,7 +193,7 @@ namespace Smartstore.Core.Security
                 {
                     var tree = GetPermissionTree(role);
 
-                    if (AuthorizeCore(tree, permissionSystemName, allowByChildPermission))
+                    if (AuthorizeInternal(tree, permissionSystemName, allowByChildPermission))
                     {
                         return true;
                     }
@@ -229,7 +229,7 @@ namespace Smartstore.Core.Security
                 {
                     var tree = await GetPermissionTreeAsync(role);
 
-                    if (AuthorizeCore(tree.Permissions, permissionSystemName, allowByChildPermission))
+                    if (AuthorizeInternal(tree.Permissions, permissionSystemName, allowByChildPermission))
                     {
                         return true;
                     }
@@ -509,7 +509,7 @@ namespace Smartstore.Core.Security
 
         #region Utilities
 
-        private static bool AuthorizeCore(TreeNode<IPermissionNode> tree, string permissionSystemName, bool allowByChildPermission)
+        private static bool AuthorizeInternal(TreeNode<IPermissionNode> tree, string permissionSystemName, bool allowByChildPermission)
         {
             var node = tree.SelectNodeById(permissionSystemName);
             if (node == null)
