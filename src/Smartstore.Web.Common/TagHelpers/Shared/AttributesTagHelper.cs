@@ -51,8 +51,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     }
                     else
                     {
-                        //output.MergeAttribute(attr.Key, attr.Value, false);
-                        MergeAttribute(output, attr.Key, attr.Value);
+                        output.MergeAttribute(attr.Key, attr.Value, false);
                     }
                 }
             }
@@ -69,24 +68,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                         }
                         else
                         {
-                            //output.MergeAttribute(kvp.Key, kvp.Value.Value, false);
-                            MergeAttribute(output, kvp.Key, kvp.Value.Value);
+                            output.MergeAttribute(kvp.Key, kvp.Value.Value, false);
                         }
                     }
                 }
-            }
-        }
-
-        private static void MergeAttribute(TagHelperOutput output, string name, object value)
-        {
-            if (name?.EndsWith('!') ?? false)
-            {
-                // TBD: (mg) (core) What is this for? I don't get it.
-                output.MergeAttribute(name.TrimEnd('!'), value, true);
-            }
-            else
-            {
-                output.MergeAttribute(name, value, false);
             }
         }
     }

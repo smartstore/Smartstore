@@ -3,25 +3,32 @@
 @{
     var id = "rule-value-" + Model.Id;
     var format = (Model.Descriptor.Metadata.Get("DateTimeFormat") as string).NullEmpty() ?? "L LT";
-    var pickTime = format == "L LT";
-    var timeOnly = format == "LT";
-    var iconClass = timeOnly ? "fa-clock" : "fa-calendar-alt";
+    var iconClass = format == "LT" ? "fa-clock" : "fa-calendar-alt";
 
     DateTime? value = null;
     if (Model.Value != null)
     {
         value = Convert.ToDateTime(Model.Value, System.Globalization.CultureInfo.CurrentCulture);
-        // INFO: value handling is incompatible here with DateTime editor template (see also issue #256).
-        // Rule values are explicitly converted to UTC when saved. This is important for accurate results of rule database queries.
+        // INFO: value handling and input tag are incompatible with the default DateTime editor template (see also issue #256).
+        // Rule values are explicitly converted to UTC when saved (important for accurate results of rule database queries).
         value = value.ToLocalTime();
     }
 
     var strValue = string.Empty;
     if (value.HasValue && value.Value > DateTime.MinValue)
     {
-        strValue = timeOnly
-            ? value.Value.ToShortTimeString()
-            : (pickTime ? value.Value.ToString() : value.Value.ToShortDateString());
+        if (format == "LT")
+        {
+            strValue = value.Value.ToShortTimeString();
+        }
+        else if (format == "L")
+        {
+            strValue = value.Value.ToShortDateString();
+        }
+        else
+        {
+            strValue = value.Value.ToString();
+        }
     }
 }
 

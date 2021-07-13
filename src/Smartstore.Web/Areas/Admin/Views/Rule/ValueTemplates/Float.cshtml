@@ -13,6 +13,7 @@
 }
 
 @* TODO: (mh) (core) Use NumericInput once available *@
+@*INFO: onRuleValueChanged (enables save button) called by handler in smartstore.rules.js.*@
 <div class="numerictextbox-group flex-grow-1">
     <input id="@id" name="@id"
            value="@value"
@@ -20,6 +21,5 @@
            placeholder="@T("Common.EnterValue").Value"
            min="@min"
            max="@max"
-           step="@(step ?? 1)"
-           onchange="Smartstore.Admin.Rules.onRuleValueChanged()" />
+           step="@(step ?? 1)" />
 </div>

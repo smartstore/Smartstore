@@ -3,26 +3,11 @@
 @model IRuleExpression
 
 @{
-    @* TODO: (mg) (core) Try to delegate to Html.Editor(..., "Decimal") instead of reinventing the wheel. *@
     var metadata = Model.Descriptor.Metadata;
     var id = "rule-value-" + Model.Id;
-@*    var min = metadata.Get("min") as decimal?;
-    var max = metadata.Get("max") as decimal?;
-    var step = metadata.Get("step") as decimal?;
-    var postfix = metadata.Get("postfix") as string;*@
-
-    var value = Model.Value != null
-        ? Convert.ToDecimal(Model.Value, System.Globalization.CultureInfo.InvariantCulture)
-        : decimal.Zero;
-
-    var htmlAttributes = new Dictionary<string, object>
-    {
-		{ "value!", value },
-    };
 
     var viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
     {
-		{ "htmlAttributes", htmlAttributes },
         { "min", metadata.Get("min") },
         { "max", metadata.Get("max") },
         { "step", metadata.Get("step") },
@@ -31,16 +16,5 @@
 }
 
 @* TODO: (mh) (core) Use NumericInput once available *@
-@Html.Editor(id, "Decimal", id, viewData)
-
-@*<div class="numerictextbox-group flex-grow-1">
-    <input id="@id" name="@id" 
-           value="@value"
-           class="form-control"
-           placeholder="@T("Common.EnterValue").Value"
-           min="@min"
-           max="@max"
-           step="@(step ?? 1)"
-           onchange="Smartstore.Admin.Rules.onRuleValueChanged()" />
-    <span sm-if="postfix.HasValue()" class="numerictextbox-postfix">@postfix</span>
-</div>*@
+@*INFO: onRuleValueChanged (enables save button) called by handler in smartstore.rules.js.*@
+@Html.Editor("Value", "Decimal", id, viewData)

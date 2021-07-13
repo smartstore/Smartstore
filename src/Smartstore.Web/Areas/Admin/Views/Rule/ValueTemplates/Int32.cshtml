@@ -1,22 +1,19 @@
-﻿@model IRuleExpression
+﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
+
+@model IRuleExpression
 
 @{
     var metadata = Model.Descriptor.Metadata;
     var id = "rule-value-" + Model.Id;
-    var min = metadata.Get("min") as int?;
-    var max = metadata.Get("max") as int?;
-    var step = metadata.Get("step") as int?;
+
+    var viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
+    {
+        { "min", metadata.Get("min") },
+        { "max", metadata.Get("max") },
+        { "step", metadata.Get("step") }
+    };
 }
 
 @* TODO: (mh) (core) Use NumericInput once available *@
-<div class="numerictextbox-group flex-grow-1">
-    <input id="@id" name="@id" 
-           value="@(Model.Value as int?)"
-           class="form-control"
-           type="number"
-           placeholder="@T("Common.EnterValue").Value"
-           min="@min"
-           max="@max"
-           step="@(step ?? 1)"
-           onchange="Smartstore.Admin.Rules.onRuleValueChanged()" />
-</div>
+@*INFO: onRuleValueChanged (enables save button) called by handler in smartstore.rules.js.*@
+@Html.Editor("Value", "Int32", id, viewData)
