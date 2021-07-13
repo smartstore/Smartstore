@@ -14,11 +14,13 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Data;
+using Smartstore.Scheduling;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
@@ -30,15 +32,21 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IRoleStore _roleStore;
+        private readonly Lazy<ITaskStore> _taskStore;
+        private readonly Lazy<ITaskScheduler> _taskScheduler;
         private readonly CustomerSettings _customerSettings;
         
         public CustomerRoleController(
             SmartDbContext db,
             IRoleStore roleStore,
+            Lazy<ITaskStore> taskStore,
+            Lazy<ITaskScheduler> taskScheduler,
             CustomerSettings customerSettings)
         {
             _db = db;
             _roleStore = roleStore;
+            _taskStore = taskStore;
+            _taskScheduler = taskScheduler;
             _customerSettings = customerSettings;
         }
 
@@ -257,18 +265,75 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        //[Permission(Permissions.Customer.Role.Read)]
-        //public async Task<IActionResult> CustomerRoleMappingsList(GridCommand command, int id)
-        //{
+        [Permission(Permissions.Customer.Role.Read)]
+        public async Task<IActionResult> CustomerRoleMappingsList(GridCommand command, int id)
+        {
+            var customerRoleMappings = await _db.CustomerRoleMappings
+                .AsNoTracking()
+                .ApplyStandardFilter(new[] { id })
+                .ApplyGridCommand(command, false)
+                .ToPagedList(command)
+                .LoadAsync();
 
-        //    var gridModel = new GridModel<CustomerRoleMappingModel>
-        //    {
-        //        Rows = rows,
-        //        Total = customerRoles.TotalCount
-        //    };
+            var customerRole = await _roleStore.FindByIdAsync(id.ToString(), default);
+            var isGuestRole = customerRole.SystemName.EqualsNoCase(SystemCustomerRoleNames.Guests);
+            var emailFallbackStr = isGuestRole ? T("Admin.Customers.Guest").Value : string.Empty;
 
-        //    return Json(gridModel);
-        //}
+            var rows = customerRoleMappings.Select(x =>
+            {
+                var mappingModel = new CustomerRoleMappingModel
+                {
+                    Id = x.Id,
+                    Active = x.Customer.Active,
+                    CustomerId = x.CustomerId,
+                    Email = x.Customer.Email.NullEmpty() ?? emailFallbackStr,
+                    Username = x.Customer.Username,
+                    FullName = x.Customer.GetFullName(),
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.Customer.CreatedOnUtc, DateTimeKind.Utc),
+                    LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(x.Customer.LastActivityDateUtc, DateTimeKind.Utc),
+                    IsSystemMapping = x.IsSystemMapping
+                };
+
+                return mappingModel;
+            })
+            .ToList();
+
+            var gridModel = new GridModel<CustomerRoleMappingModel>
+            {
+                Rows = rows,
+                Total = customerRoleMappings.TotalCount
+            };
+
+            return Json(gridModel);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Customer.Role.Update)]
+        public async Task<IActionResult> ApplyRules(int id)
+        {
+            var customerRole = await _roleStore.FindByIdAsync(id.ToString(), default);
+            if (customerRole == null)
+            {
+                return NotFound();
+            }
+
+            var task = await _taskStore.Value.GetTaskByTypeAsync<TargetGroupEvaluatorTask>();
+            if (task != null)
+            {
+                await _taskScheduler.Value.RunSingleTaskAsync(task.Id, new Dictionary<string, string>
+                {
+                    { "CustomerRoleIds", customerRole.Id.ToString() }
+                });
+
+                NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
+            }
+            else
+            {
+                NotifyError(T("Admin.System.ScheduleTasks.TaskNotFound", nameof(TargetGroupEvaluatorTask)));
+            }
+
+            return RedirectToAction("Edit", new { id = customerRole.Id });
+        }
 
         private async Task PrepareViewBag(CustomerRoleModel model, CustomerRole role)
         {
