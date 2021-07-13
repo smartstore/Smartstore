@@ -14,7 +14,7 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             Guard.NotNull(query, nameof(query));
 
-            if (productVariantAttributeId == 0)
+            if (productVariantAttributeId != 0)
             {
                 query = query.Where(x => x.ProductVariantAttributeId == productVariantAttributeId);
             }
