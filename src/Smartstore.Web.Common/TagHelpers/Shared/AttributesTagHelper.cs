@@ -70,7 +70,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                         else
                         {
                             //output.MergeAttribute(kvp.Key, kvp.Value.Value, false);
-                            MergeAttribute(output, kvp.Key, kvp.Value);
+                            MergeAttribute(output, kvp.Key, kvp.Value.Value);
                         }
                     }
                 }
@@ -81,6 +81,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             if (name?.EndsWith('!') ?? false)
             {
+                // TBD: (mg) (core) What is this for? I don't get it.
                 output.MergeAttribute(name.TrimEnd('!'), value, true);
             }
             else
