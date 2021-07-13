@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
+using Smartstore.Core.Web;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
@@ -181,26 +182,29 @@ namespace Smartstore.Core.Stores
 
         public int? GetPreviewStore()
         {
-            try
+            var previewCookie = _httpContextAccessor.HttpContext?.RequestServices?.GetService<IPreviewModeCookie>();
+            if (previewCookie != null)
             {
-                var cookie = _httpContextAccessor.HttpContext.GetPreviewModeFromCookie();
-                if (cookie != null)
-                {
-                    return cookie[OverriddenStoreIdKey].ToString().Convert<int?>();
-                }
+                return previewCookie.GetOverride(OverriddenStoreIdKey)?.ToString()?.Convert<int?>();
+            }
 
-                return null;
-            }
-            catch
-            {
-                return null;
-            }
+            return null;
         }
 
         public void SetPreviewStore(int? storeId)
         {
-            _httpContextAccessor.HttpContext.SetPreviewModeValueInCookie(OverriddenStoreIdKey, storeId.HasValue ? storeId.Value.ToString() : null);
-            _currentStore = null;
+            var previewCookie = _httpContextAccessor.HttpContext?.RequestServices?.GetService<IPreviewModeCookie>();
+            if (previewCookie != null)
+            {
+                if (storeId == null)
+                {
+                    previewCookie.RemoveOverride(OverriddenStoreIdKey);
+                }
+                else
+                {
+                    previewCookie.SetOverride(OverriddenStoreIdKey, storeId.Value.ToString());
+                }
+            }
         }
 
         private IDisposable GetOrCreateDbContext(out SmartDbContext db)

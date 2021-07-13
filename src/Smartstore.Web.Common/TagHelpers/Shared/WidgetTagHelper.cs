@@ -20,7 +20,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             _widgetProvider = widgetProvider;
         }
 
-        public override int Order => 1000;
+        public override int Order => int.MaxValue;
 
         /// <summary>
         /// The target zone name to inject this widget to.

@@ -79,13 +79,13 @@ namespace Smartstore.Core.Widgets
         public static void PrependHeadScriptFiles(this IPageAssetBuilder builder, params string[] urls) => builder.AddScriptFiles(urls, AssetLocation.Head, true);
 
         /// <summary>
-        /// Appends CSS files to the currently rendered page (rendered in zone <c>head_stylesheets</c>).
+        /// Appends CSS files to the currently rendered page (rendered in zone <c>stylesheets</c>).
         /// </summary>
         /// <param name="urls">The urls to append.</param>
         public static void AppendCssFiles(this IPageAssetBuilder builder, params string[] urls) => builder.AddCssFiles(urls, false);
 
         /// <summary>
-        /// Prepends CSS files to the currently rendered page (rendered in zone <c>head_stylesheets</c>).
+        /// Prepends CSS files to the currently rendered page (rendered in zone <c>stylesheets</c>).
         /// </summary>
         /// <param name="urls">The urls to prepend.</param>
         public static void PrependCssFiles(this IPageAssetBuilder builder, params string[] urls) => builder.AddCssFiles(urls, true);

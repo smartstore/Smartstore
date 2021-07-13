@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Security;
+using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.Theming
@@ -19,16 +20,16 @@ namespace Smartstore.Web.Theming
 
         class PreviewModeFilter : IResultFilter
         {
-            private readonly IThemeContext _themeContext;
+            private readonly IPreviewModeCookie _previewCookie;
             private readonly ICommonServices _services;
             private readonly IWidgetProvider _widgetProvider;
 
             public PreviewModeFilter(
-                IThemeContext themeContext,
+                IPreviewModeCookie previewCookie,
                 ICommonServices services,
                 IWidgetProvider widgetProvider)
             {
-                _themeContext = themeContext;
+                _previewCookie = previewCookie;
                 _services = services;
                 _widgetProvider = widgetProvider;
             }
@@ -38,16 +39,13 @@ namespace Smartstore.Web.Theming
                 if (!context.Result.IsHtmlViewResult())
                     return;
 
-                var theme = _themeContext.GetPreviewTheme();
-                var storeId = _services.StoreContext.GetPreviewStore();
-
-                if (theme == null && storeId == null)
+                if (_previewCookie.AllOverrideKeys.Count == 0)
                     return;
 
                 if (!_services.Permissions.Authorize(Permissions.Configuration.Theme.Read))
                     return;
 
-                _widgetProvider.RegisterWidget("end", new ComponentWidgetInvoker("PreviewTool", null));
+                _widgetProvider.RegisterWidget("body_end_html_tag_before", new ComponentWidgetInvoker("PreviewTool", null));
             }
 
             public void OnResultExecuted(ResultExecutedContext context)

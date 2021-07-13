@@ -19,28 +19,26 @@
     var toolOpen = (bool)ViewBag.ToolOpen;
 }
 
-<style type="text/css" data-origin="preview-tool">
+<style type="text/css" sm-target-zone="stylesheets" data-origin="preview-tool">
     .previewmode-wrapper {
         position: fixed;
-        left: -250px;
+        right: -250px;
         top: 150px;
         width: 250px;
-        transition: left 0.25s ease-out;
+        transition: right 0.25s ease-out;
         transition-delay: 0.12s;
         z-index: 1000;
     }
 
     .previewmode-wrapper.open {
-        left: 0;
+        right: 0;
     }
 
     #previewmode {
         position: relative;
         z-index: 100;
-        background: #fff;
-        color: #333;
+        background: var(--gray-800);
         opacity: 0;
-        box-shadow: 0px 0px 4px 0px rgba(51, 51, 51, 0.2);
         transition: opacity 0.25s ease-out;
         transition-delay: 0.12s;
     }
@@ -51,7 +49,7 @@
 
     .previewmode-switcher {
         position: absolute;
-        right: -40px;
+        left: -40px;
         z-index: 101;
         top: 0;
         box-sizing: border-box;
@@ -60,11 +58,7 @@
         text-align: center;
         width: 40px;
         height: 40px;
-        background: #f1da91;
-        color: #222 !important;
-        border: 1px solid rgba(0,0,0, 0.15);
-        border-bottom-right-radius: 5px;
-        border-top-right-radius: 5px;
+        background: var(--gray-800);
         opacity: 1;
         transition: all 0.12s ease-in;
         transition-delay: 0.25s;
@@ -72,7 +66,7 @@
 
     .open .previewmode-switcher {
         opacity: 0;
-        right: 0;
+        left: 0;
         z-index: 99;
         transition-delay: 0s;
     }
@@ -83,61 +77,54 @@
 
     .previewmode-title {
         margin-top: 0;
-        text-transform: uppercase;
         padding-bottom: 12px;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid var(--gray-700);
     }
 
     #previewmode .close {
-        font-size: 20px;
-        font-weight: bold;
-    }
-
-    #previewmode .btn {
-        text-transform: uppercase;
-    }
-
-    #previewmode select {
-        border-radius: 0;
-    }
-
-    #previewmode .btn-applytheme {
-        margin-bottom: 1px;
+        line-height: 10px;
+        text-shadow: none;
+        font-weight: normal;
     }
 </style>
 
 <div class="previewmode-wrapper" attr-class='(toolOpen, "open")'>
-    <div id="previewmode">
+    <div id="previewmode" class="rounded-left shadow-lg shadow-dark text-white">
         <form asp-controller="Theme" asp-action="PreviewTool" asp-area="Admin" method="post">
             <input type="hidden" name="returnUrl" value="@Context.Request.RawUrl()" />
-            <div class="p-3">
-                <button type="button" class="close toggle-preview">×</button>
+            <div class="p-2">
+                <button type="button" class="close toggle-preview text-white mt-1">&times;</button>
                 <h4 class="previewmode-title">@T("Admin.Configuration.Themes.PreviewMode")</h4>
 
                 <label class="previewmode-label">@T("Admin.Configuration.Themes.Theme"):</label>
-                <select name="theme" id="select-theme" asp-items="themes" class="form-control noskin"></select>
+                <select name="theme" id="select-theme" asp-items="themes" class="form-control form-control-sm bg-light noskin"></select>
 
                 <label class="previewmode-label mt-2">@T("Admin.Common.Store"):</label>
-                <select name="storeId" id="select-store" asp-items="stores" class="form-control noskin"></select>
+                <select name="storeId" id="select-store" asp-items="stores" class="form-control form-control-sm bg-light noskin"></select>
+
+                <div class="row xs-gutters mt-3">
+                    <div class="col-6">
+                        <button type="submit" name="PreviewMode.Apply" value="@T("Common.Apply")" class="btn btn-sm btn-block btn-applytheme @(disableApply ? "btn-clear" : "btn-warning")" attr-disabled='(disableApply, "disabled")'>
+                            <span class="small">@T("Common.Apply")</span>
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button type="submit" name="PreviewMode.Exit" title="@T("Admin.Configuration.Themes.ExitPreviewMode")" value="@T("Admin.Configuration.Themes.ExitPreviewMode")" class="btn btn-danger btn-sm btn-block btn-exitpreview">
+                            <i class="far fa-fw fa-eye-slash"></i>
+                            <span class="small">@T("Common.Exit")</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-
-            <button type="submit" name="PreviewMode.Apply" value="@T("Common.Apply")" class="btn btn-primary btn-block rounded-0 btn-applytheme" attr-disabled='(disableApply, "disabled")'>
-                @T("Common.Apply")
-            </button>
-
-            <button type="submit" name="PreviewMode.Exit" value="@T("Admin.Configuration.Themes.ExitPreviewMode")" class="btn btn-danger btn-block mt-0 rounded-0 btn-exitpreview">
-                <i class="far fa-fw fa-eye-slash"></i>
-                <span>@T("Admin.Configuration.Themes.ExitPreviewMode")</span>
-            </button>
         </form>
     </div>
 
-    <a class="previewmode-switcher toggle-preview" href="#" title="@T("Admin.Configuration.Themes.PreviewMode")">
-        <i class="far fa-eye fa-fw fa-lg"></i>
+    <a class="previewmode-switcher toggle-preview rounded-left shadow-lg text-white" href="#" title="@T("Admin.Configuration.Themes.PreviewMode")">
+        <i class="far fa-eye fa-fw x-fa-lg"></i>
     </a>
 </div>
 
-<script data-origin="preview-tool">
+<script sm-target-zone="scripts" data-origin="preview-tool">
     $(function () {
         $('.toggle-preview').on('click', function (e) {
             e.preventDefault();
@@ -146,6 +133,6 @@
             return false;
         });
 
-        $('#select-theme', '#select-store').on('change', function () { this.form.submit(); });
+        $('#select-theme, #select-store').on('change', function () { this.form.submit(); });
     });
 </script>

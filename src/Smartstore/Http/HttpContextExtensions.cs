@@ -3,8 +3,6 @@ using System.Threading.Tasks;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Smartstore.Collections;
-using Smartstore.Net;
 using Smartstore.Utilities;
 
 namespace Smartstore
@@ -109,78 +107,6 @@ namespace Smartstore
                 {
                     return default;
                 }
-            }
-        }
-
-        public static IDisposable PreviewModeCookie(this HttpContext context)
-        {
-            var values = GetPreviewModeFromCookie(context);
-            var cookieName = CookieNames.PreviewModeOverride;
-            context.Items[cookieName] = values;
-
-            var disposable = new ActionDisposable(() =>
-            {
-                values = context.Items[cookieName] as MutableQueryCollection;
-
-                var responseCookies = context.Response.Cookies;
-
-                responseCookies.Delete(cookieName);
-                context.Items.Remove(cookieName);
-
-                if (values != null && values.Count > 0)
-                {
-                    responseCookies.Append(cookieName, values.ToString().TrimStart('?'), new CookieOptions
-                    {
-                        Expires = DateTime.UtcNow.AddMinutes(20),
-                        HttpOnly = true,
-                        IsEssential = true
-                    });
-                }
-            });
-
-            return disposable;
-        }
-
-        public static MutableQueryCollection GetPreviewModeFromCookie(this HttpContext context)
-        {
-            var request = context?.Request;
-
-            if (request != null)
-            {
-                var cookieValue = request.Cookies[CookieNames.PreviewModeOverride].NullEmpty();
-                if (cookieValue != null)
-                {
-                    return new MutableQueryCollection('?' + cookieValue);
-                }
-            }
-
-            return new MutableQueryCollection();
-        }
-
-        public static void SetPreviewModeValueInCookie(this HttpContext context, string name, string value)
-        {
-            Guard.NotEmpty(name, nameof(name));
-
-            if (context == null)
-            {
-                return;
-            }
-
-            var cookieName = CookieNames.PreviewModeOverride;
-            var values = context.Items[cookieName] as MutableQueryCollection;
-
-            if (values == null)
-            {
-                return;
-            }
-
-            if (value.HasValue())
-            {
-                values.Add(name, value, true);
-            }
-            else
-            {
-                values.Remove(name);
             }
         }
     }

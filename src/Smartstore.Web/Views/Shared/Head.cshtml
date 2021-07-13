@@ -2,7 +2,7 @@
     var theme = Display.GetThemeManifest().ThemeName.ToLower();
 }
 
-<widget target-zone="head_stylesheets">
+<widget target-zone="stylesheets">
     <link rel="stylesheet" href="~/themes/@(theme)/theme.css" />
     @if (WorkContext.WorkingLanguage.Rtl)
     {

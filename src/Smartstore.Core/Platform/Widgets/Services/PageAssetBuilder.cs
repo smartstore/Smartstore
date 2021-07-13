@@ -112,7 +112,7 @@ namespace Smartstore.Core.Widgets
 
         public virtual void AddCssFiles(IEnumerable<string> urls, bool prepend = false)
         {
-            const string zoneName = "head_stylesheets";
+            const string zoneName = "stylesheets";
 
             if (urls == null || !urls.Any())
             {

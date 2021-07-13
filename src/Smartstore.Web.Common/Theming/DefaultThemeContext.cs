@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Smartstore.Core;
-using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
+using Smartstore.Core.Web;
 
 namespace Smartstore.Web.Theming
 {
@@ -15,6 +14,7 @@ namespace Smartstore.Web.Theming
         private readonly IWorkContext _workContext;
         private readonly ThemeSettings _themeSettings;
         private readonly IThemeRegistry _themeRegistry;
+        private readonly IPreviewModeCookie _previewCookie;
         private readonly HttpContext _httpContext;
 
         private bool _themeIsCached;
@@ -26,11 +26,13 @@ namespace Smartstore.Web.Theming
             IWorkContext workContext,
             ThemeSettings themeSettings,
             IThemeRegistry themeRegistry,
+            IPreviewModeCookie previewCookie,
             IHttpContextAccessor httpContextAccessor)
         {
             _workContext = workContext;
             _themeSettings = themeSettings;
             _themeRegistry = themeRegistry;
+            _previewCookie = previewCookie;
             _httpContext = httpContextAccessor.HttpContext;
         }
 
@@ -182,31 +184,18 @@ namespace Smartstore.Web.Theming
 
         public string GetPreviewTheme()
         {
-            try
-            {
-                var cookie = _httpContext.GetPreviewModeFromCookie();
-                if (cookie != null)
-                {
-                    return cookie[OverriddenThemeNameKey].ToString().NullEmpty();
-                }
-
-                return null;
-            }
-            catch
-            {
-                return null;
-            }
+            return _previewCookie.GetOverride(OverriddenThemeNameKey);
         }
 
         public void SetPreviewTheme(string theme)
         {
-            try
+            if (theme.HasValue())
             {
-                _httpContext.SetPreviewModeValueInCookie(OverriddenThemeNameKey, theme);
-                _currentTheme = null;
+                _previewCookie.SetOverride(OverriddenThemeNameKey, theme);
             }
-            catch 
-            { 
+            else
+            {
+                _previewCookie.RemoveOverride(OverriddenThemeNameKey);
             }
         }
     }

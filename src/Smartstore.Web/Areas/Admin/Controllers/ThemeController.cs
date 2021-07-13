@@ -369,11 +369,8 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            using (HttpContext.PreviewModeCookie())
-            {
-                _themeContext.SetPreviewTheme(theme);
-                Services.StoreContext.SetPreviewStore(storeId);
-            }
+            _themeContext.SetPreviewTheme(theme);
+            Services.StoreContext.SetPreviewStore(storeId);
 
             if (returnUrl.IsEmpty())
             {
@@ -394,11 +391,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Theme.Update)]
         public IActionResult PreviewToolPost(string theme, int storeId, string returnUrl)
         {
-            using (HttpContext.PreviewModeCookie())
-            {
-                _themeContext.SetPreviewTheme(theme);
-                Services.StoreContext.SetPreviewStore(storeId);
-            }
+            _themeContext.SetPreviewTheme(theme);
+            Services.StoreContext.SetPreviewStore(storeId);
 
             return RedirectToReferrer(returnUrl);
         }
@@ -410,11 +404,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Theme.Read)]
         public IActionResult ExitPreview()
         {
-            using (HttpContext.PreviewModeCookie())
-            {
-                _themeContext.SetPreviewTheme(null);
-                Services.StoreContext.SetPreviewStore(null);
-            }
+            _themeContext.SetPreviewTheme(null);
+            Services.StoreContext.SetPreviewStore(null);
 
             var returnUrl = (string)TempData["PreviewModeReturnUrl"];
             return RedirectToReferrer(returnUrl);
