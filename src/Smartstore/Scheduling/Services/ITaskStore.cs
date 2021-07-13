@@ -195,7 +195,8 @@ namespace Smartstore.Scheduling
         {
             Guard.NotNull(taskType, nameof(taskType));
 
-            return store.GetTaskByTypeAsync(taskType.AssemblyQualifiedNameWithoutVersion());
+            var type = taskType.GetAttribute<TaskNameAttribute>(false)?.Name ?? taskType.Name;
+            return store.GetTaskByTypeAsync(type);
         }
 
         public static async Task<bool> TryDeleteTaskAsync<T>(this ITaskStore store) where T : ITask

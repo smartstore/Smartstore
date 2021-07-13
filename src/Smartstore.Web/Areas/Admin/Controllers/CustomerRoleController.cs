@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Customers;
@@ -31,20 +32,20 @@ namespace Smartstore.Admin.Controllers
     public class CustomerRoleController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
-        private readonly IRoleStore _roleStore;
+        private readonly RoleManager<CustomerRole> _roleManager;
         private readonly Lazy<ITaskStore> _taskStore;
         private readonly Lazy<ITaskScheduler> _taskScheduler;
         private readonly CustomerSettings _customerSettings;
         
         public CustomerRoleController(
             SmartDbContext db,
-            IRoleStore roleStore,
+            RoleManager<CustomerRole> roleStore,
             Lazy<ITaskStore> taskStore,
             Lazy<ITaskScheduler> taskScheduler,
             CustomerSettings customerSettings)
         {
             _db = db;
-            _roleStore = roleStore;
+            _roleManager = roleStore;
             _taskStore = taskStore;
             _taskScheduler = taskScheduler;
             _customerSettings = customerSettings;
@@ -59,7 +60,7 @@ namespace Smartstore.Admin.Controllers
         /// <returns>List of all customer roles as JSON.</returns>
         public async Task<IActionResult> AllCustomerRoles(string label, string selectedIds, bool? includeSystemRoles)
         {
-            var query = _roleStore.Roles.AsNoTracking();
+            var query = _roleManager.Roles.AsNoTracking();
             
             if (!(includeSystemRoles ?? true))
             {
@@ -116,17 +117,16 @@ namespace Smartstore.Admin.Controllers
         {
             var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
 
-            var customerRoles = await _roleStore.Roles
+            var customerRoles = await _roleManager.Roles
                 .AsNoTracking()
                 .ApplyStandardFilter(true)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await customerRoles.SelectAsync(async x =>
+            var rows = await customerRoles.SelectAsync(x =>
             {
-                var model = await mapper.MapAsync(x);
-                return model;
+                return mapper.MapAsync(x);
             })
             .AsyncToList();
 
@@ -159,15 +159,17 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var mapper = MapperFactory.GetMapper<CustomerRoleModel, CustomerRole>();
-                var customerRole = await mapper.MapAsync(model);
+                var role = await mapper.MapAsync(model);
+    
+                await _roleManager.CreateAsync(role);
 
-                await _roleStore.CreateAsync(customerRole, default);
+                // TBD: (mg) (core) What about _ruleStorage.ApplyRuleSetMappings(customerRole, model.SelectedRuleSetIds)?
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomerRole, T("ActivityLog.AddNewCustomerRole"), customerRole.Name);
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomerRole, T("ActivityLog.AddNewCustomerRole"), role.Name);
                 NotifySuccess(T("Admin.Customers.CustomerRoles.Added"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", new { id = customerRole.Id }) 
+                    ? RedirectToAction("Edit", new { id = role.Id }) 
                     : RedirectToAction("List");
             }
 
@@ -177,16 +179,16 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Role.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var customerRole = await _roleStore.FindByIdAsync(id.ToString(), default);
-            if (customerRole == null)
+            var role = await _roleManager.FindByIdAsync(id.ToString());
+            if (role == null)
             {
                 return NotFound();
             }
 
             var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
-            var model = await mapper.MapAsync(customerRole);
+            var model = await mapper.MapAsync(role);
 
-            await PrepareViewBag(model, customerRole);
+            await PrepareViewBag(model, role);
 
             return View(model);
         }
@@ -195,8 +197,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Role.Update)]
         public async Task<IActionResult> Edit(CustomerRoleModel model, bool continueEditing, IFormCollection form)
         {
-            var customerRole = await _roleStore.FindByIdAsync(model.Id.ToString(), default);
-            if (customerRole == null)
+            var role = await _roleManager.FindByIdAsync(model.Id.ToString());
+            if (role == null)
             {
                 return NotFound();
             }
@@ -205,29 +207,29 @@ namespace Smartstore.Admin.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    if (customerRole.IsSystemRole && !model.Active)
+                    if (role.IsSystemRole && !model.Active)
                     {
                         throw new SmartException(T("Admin.Customers.CustomerRoles.Fields.Active.CantEditSystem"));
                     }
 
-                    if (customerRole.IsSystemRole && !customerRole.SystemName.EqualsNoCase(model.SystemName))
+                    if (role.IsSystemRole && !role.SystemName.EqualsNoCase(model.SystemName))
                     {
                         throw new SmartException(T("Admin.Customers.CustomerRoles.Fields.SystemName.CantEditSystem"));
                     }
 
                     var mapper = MapperFactory.GetMapper<CustomerRoleModel, CustomerRole>();
-                    await mapper.MapAsync(model, customerRole);
+                    await mapper.MapAsync(model, role);
 
-                    await _roleStore.UpdateAsync(customerRole, default);
+                    await _roleManager.UpdateAsync(role);
 
                     // INFO: cached permission tree removed by PermissionRoleMappingHook.
-                    await UpdatePermissionRoleMappings(customerRole, form);
+                    await UpdatePermissionRoleMappings(role, form);
 
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), customerRole.Name);
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), role.Name);
                     NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
 
                     return continueEditing 
-                        ? RedirectToAction("Edit", new { id = customerRole.Id }) 
+                        ? RedirectToAction("Edit", new { id = role.Id }) 
                         : RedirectToAction("List");
                 }
             }
@@ -236,24 +238,24 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id = customerRole.Id });
+            return RedirectToAction("Edit", new { id = role.Id });
         }
 
         [HttpPost]
         [Permission(Permissions.Customer.Role.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
-            var customerRole = await _roleStore.FindByIdAsync(id.ToString(), default);
-            if (customerRole == null)
+            var role = await _roleManager.FindByIdAsync(id.ToString());
+            if (role == null)
             {
                 return NotFound();
             }
 
             try
             {
-                await _roleStore.DeleteAsync(customerRole, default);
+                await _roleManager.DeleteAsync(role);
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), customerRole.Name);
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), role.Name);
                 NotifySuccess(T("Admin.Customers.CustomerRoles.Deleted"));
 
                 return RedirectToAction("List");
@@ -261,7 +263,7 @@ namespace Smartstore.Admin.Controllers
             catch (Exception ex)
             {
                 NotifyError(ex.Message);
-                return RedirectToAction("Edit", new { id = customerRole.Id });
+                return RedirectToAction("Edit", new { id = role.Id });
             }
         }
 
@@ -275,8 +277,8 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var customerRole = await _roleStore.FindByIdAsync(id.ToString(), default);
-            var isGuestRole = customerRole.SystemName.EqualsNoCase(SystemCustomerRoleNames.Guests);
+            var role = await _roleManager.FindByIdAsync(id.ToString());
+            var isGuestRole = role.SystemName.EqualsNoCase(SystemCustomerRoleNames.Guests);
             var emailFallbackStr = isGuestRole ? T("Admin.Customers.Guest").Value : string.Empty;
 
             var rows = customerRoleMappings.Select(x =>
@@ -311,8 +313,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Role.Update)]
         public async Task<IActionResult> ApplyRules(int id)
         {
-            var customerRole = await _roleStore.FindByIdAsync(id.ToString(), default);
-            if (customerRole == null)
+            var role = await _roleManager.FindByIdAsync(id.ToString());
+            if (role == null)
             {
                 return NotFound();
             }
@@ -322,7 +324,7 @@ namespace Smartstore.Admin.Controllers
             {
                 await _taskScheduler.Value.RunSingleTaskAsync(task.Id, new Dictionary<string, string>
                 {
-                    { "CustomerRoleIds", customerRole.Id.ToString() }
+                    { "CustomerRoleIds", role.Id.ToString() }
                 });
 
                 NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
@@ -332,7 +334,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(T("Admin.System.ScheduleTasks.TaskNotFound", nameof(TargetGroupEvaluatorTask)));
             }
 
-            return RedirectToAction("Edit", new { id = customerRole.Id });
+            return RedirectToAction("Edit", new { id = role.Id });
         }
 
         private async Task PrepareViewBag(CustomerRoleModel model, CustomerRole role)
@@ -346,6 +348,7 @@ namespace Smartstore.Admin.Controllers
                 if (!showRuleApplyButton)
                 {
                     // Ignore deleted customers.
+                    // TODO: (mg) (core) Somehow this does not reflect the original query (?). Please check.
                     showRuleApplyButton = await _db.CustomerRoleMappings
                         .AsNoTracking()
                         .Where(x => x.CustomerRoleId == role.Id && x.Customer != null)

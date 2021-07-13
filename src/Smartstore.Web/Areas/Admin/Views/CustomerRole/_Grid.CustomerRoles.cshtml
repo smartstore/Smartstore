@@ -1,11 +1,14 @@
 ﻿@model CustomerRoleModel
 
-<datagrid id="customer-roles-grid" 
-		allow-resize="true" 
-		allow-column-reordering="true" 
-		preserve-grid-state="true"
-        onrowclass="rolesGrid_onRowClass">
-	<datasource read="@Url.Action("RolesList")" />
+@* TODO: (mg) (core) This grid should be orderable, also many other grids that display potentially larger datasets (> 50) *@
+@* TODO: (mg) (core) This grid should be editable (only simple direct-mappable columns like Active, TaxExempt, FreeShipping etc.) *@
+
+<datagrid id="customer-roles-grid"
+          allow-resize="true"
+          allow-column-reordering="true"
+          preserve-grid-state="true"
+          onrowclass="rolesGrid_onRowClass">
+    <datasource read="@Url.Action("RolesList")" />
     <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
         <toolbar-group>
