@@ -183,27 +183,30 @@ namespace Smartstore.Core.Content.Media.Storage
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
             // store data into file
-            if (stream != null && stream.Length > 0)
+            if (stream != null)
             {
-                var filePath = GetPath(mediaFile);
-
-                if (!await _fileSystem.FileExistsAsync(filePath))
+                using (stream)
                 {
-                    // TBD: (mc) We only save the file if it doesn't exist yet.
-                    // This should save time and bandwidth in the case where the target
-                    // is a cloud based file system (like Azure BLOB).
-                    // In such a scenario it'd be advisable to copy the files manually
-                    // with other - maybe more performant - tools before performing the provider switch.
-
-                    // Create directory if it does not exist yet
-                    await _fileSystem.TryCreateDirectoryAsync(Path.GetDirectoryName(filePath));
-
-                    using (stream)
+                    if (stream.Length > 0)
                     {
-                        await _fileSystem.SaveStreamAsync(filePath, stream);
-                    }
+                        var filePath = GetPath(mediaFile);
 
-                    context.AffectedFiles.Add(filePath);
+                        if (!await _fileSystem.FileExistsAsync(filePath))
+                        {
+                            // TBD: (mc) We only save the file if it doesn't exist yet.
+                            // This should save time and bandwidth in the case where the target
+                            // is a cloud based file system (like Azure BLOB).
+                            // In such a scenario it'd be advisable to copy the files manually
+                            // with other - maybe more performant - tools before performing the provider switch.
+
+                            // Create directory if it does not exist yet
+                            await _fileSystem.TryCreateDirectoryAsync(Path.GetDirectoryName(filePath));
+
+                            await _fileSystem.SaveStreamAsync(filePath, stream, true);
+
+                            context.AffectedFiles.Add(filePath);
+                        }
+                    }
                 }
             }
         }

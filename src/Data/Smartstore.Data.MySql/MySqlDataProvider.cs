@@ -140,7 +140,7 @@ namespace Smartstore.Data.MySql
 
         public override Stream OpenBlobStream(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
-            return new SqlBlobStream(Database.GetDbConnection(), tableName, blobColumnName, pkColumnName, pkColumnValue);
+            return new SqlBlobStream(Database, tableName, blobColumnName, pkColumnName, pkColumnValue);
         }
 
         public override DbParameter CreateParameter()

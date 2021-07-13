@@ -3,24 +3,29 @@ using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Smartstore.Data
 {
     public class SqlBlobStream : Stream
     {
+        private readonly DatabaseFacade _database;
         private readonly DbConnection _connection;
         private DbDataReader _reader;
         private long? _length;
         private long _dataIndex;
+        private bool _openedConnection;
 
         public SqlBlobStream(
-            DbConnection connection,
+            DatabaseFacade database,
             string tableName,
             string blobColumnName,
             string pkColumnName,
             object pkColumnValue)
         {
-            Guard.NotNull(connection, nameof(connection));
+            Guard.NotNull(database, nameof(database));
             Guard.NotEmpty(tableName, nameof(tableName));
             Guard.NotEmpty(blobColumnName, nameof(blobColumnName));
             Guard.NotEmpty(pkColumnName, nameof(pkColumnName));
@@ -31,7 +36,8 @@ namespace Smartstore.Data
             PkColumnName = pkColumnName;
             PkColumnValue = pkColumnValue;
 
-            _connection = connection;
+            _database = database;
+            _connection = database.GetDbConnection();
         }
 
         private void EnsureOpen()
@@ -42,6 +48,7 @@ namespace Smartstore.Data
             if (_connection.State != ConnectionState.Open)
             {
                 _connection.Open();
+                _openedConnection = true;
             }
 
             using var command = _connection.CreateCommand();
@@ -49,11 +56,16 @@ namespace Smartstore.Data
             PrimaryKey = command.CreateParameter();
             PrimaryKey.ParameterName = "@" + PkColumnName;
             PrimaryKey.Value = PkColumnValue;
-
+            
             command.Connection = _connection;
             command.CommandType = CommandType.Text;
             command.CommandText = $"SELECT {BlobColumnName} FROM {TableName} WHERE {PrimaryKey.ParameterName[1..]} = {PrimaryKey.Value}";
             command.Parameters.Add(PrimaryKey);
+
+            if (_database.CurrentTransaction != null)
+            {
+                command.Transaction = _database.CurrentTransaction.GetDbTransaction();
+            }
 
             _reader = command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection);
             if (!_reader.Read())
@@ -171,10 +183,12 @@ namespace Smartstore.Data
                 _reader = null;
             }
 
-            if (_connection != null)
+            if (_connection != null && _openedConnection)
             {
                 if (_connection.State == ConnectionState.Open)
+                {
                     _connection.Close();
+                }  
             }
 
             _dataIndex = 0;
@@ -191,7 +205,7 @@ namespace Smartstore.Data
                 _reader = null;
             }
 
-            if (_connection != null)
+            if (_connection != null && _openedConnection)
             {
                 if (_connection.State == ConnectionState.Open)
                     await _connection.CloseAsync();

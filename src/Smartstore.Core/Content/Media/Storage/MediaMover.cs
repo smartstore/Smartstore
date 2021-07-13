@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Configuration;
@@ -14,7 +15,7 @@ namespace Smartstore.Core.Content.Media.Storage
 {
     public class MediaMover : IMediaMover
     {
-        private const int PAGE_SIZE = 50;
+        private const int PAGE_SIZE = 250;
 
         private readonly SmartDbContext _db;
         private readonly INotifier _notifier;
@@ -64,7 +65,8 @@ namespace Smartstore.Core.Content.Media.Storage
             // AutoDetectChanges true required for newly inserted binary data.
             using (var scope = new DbContextScope(ctx: _db, autoDetectChanges: true, retainConnection: true))
             {
-                using (var transaction = await _db.Database.BeginTransactionAsync(cancelToken))
+                //using (var transaction = await _db.Database.BeginTransactionAsync(cancelToken))
+                using (var transaction = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.ReadUncommitted }, TransactionScopeAsyncFlowOption.Enabled))
                 {
                     try
                     {
@@ -96,19 +98,20 @@ namespace Smartstore.Core.Content.Media.Storage
 
                         if (!cancelToken.IsCancellationRequested)
                         {
-                            await transaction.CommitAsync(cancelToken);
+                            //await transaction.CommitAsync(cancelToken);
+                            transaction.Complete();
                             success = true;
                         }
                         else
                         {
                             success = false;
-                            await transaction.RollbackAsync(CancellationToken.None);
+                            //await transaction.RollbackAsync(CancellationToken.None);
                         }
                     }
                     catch (Exception exception)
                     {
                         success = false;
-                        await transaction.RollbackAsync(cancelToken);
+                        //await transaction.RollbackAsync(cancelToken);
 
                         _notifier.Error(exception);
                         Logger.Error(exception);

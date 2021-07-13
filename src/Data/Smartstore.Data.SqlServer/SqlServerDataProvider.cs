@@ -217,7 +217,7 @@ namespace Smartstore.Data.SqlServer
 
         public override Stream OpenBlobStream(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
-            return new SqlBlobStream(Database.GetDbConnection(), tableName, blobColumnName, pkColumnName, pkColumnValue);
+            return new SqlBlobStream(Database, tableName, blobColumnName, pkColumnName, pkColumnValue);
         }
 
         public override bool IsTransientException(Exception ex)
