@@ -29,13 +29,16 @@ namespace Smartstore.Admin.Controllers
     public class CustomerRoleController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
+        private readonly IRoleStore _roleStore;
         private readonly CustomerSettings _customerSettings;
         
         public CustomerRoleController(
             SmartDbContext db,
+            IRoleStore roleStore,
             CustomerSettings customerSettings)
         {
             _db = db;
+            _roleStore = roleStore;
             _customerSettings = customerSettings;
         }
 
@@ -48,7 +51,7 @@ namespace Smartstore.Admin.Controllers
         /// <returns>List of all customer roles as JSON.</returns>
         public async Task<IActionResult> AllCustomerRoles(string label, string selectedIds, bool? includeSystemRoles)
         {
-            var query = _db.CustomerRoles.AsNoTracking();
+            var query = _roleStore.Roles.AsNoTracking();
             
             if (!(includeSystemRoles ?? true))
             {
@@ -105,7 +108,7 @@ namespace Smartstore.Admin.Controllers
         {
             var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
 
-            var customerRoles = await _db.CustomerRoles
+            var customerRoles = await _roleStore.Roles
                 .AsNoTracking()
                 .ApplyStandardFilter(true)
                 .ApplyGridCommand(command, false)
@@ -150,8 +153,7 @@ namespace Smartstore.Admin.Controllers
                 var mapper = MapperFactory.GetMapper<CustomerRoleModel, CustomerRole>();
                 var customerRole = await mapper.MapAsync(model);
 
-                _db.Add(customerRole);
-                await _db.SaveChangesAsync();
+                await _roleStore.CreateAsync(customerRole, default);
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomerRole, T("ActivityLog.AddNewCustomerRole"), customerRole.Name);
                 NotifySuccess(T("Admin.Customers.CustomerRoles.Added"));
@@ -167,9 +169,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Role.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var customerRole = await _db.CustomerRoles
-                .Include(x => x.RuleSets)
-                .FindByIdAsync(id, false);
+            var customerRole = await _roleStore.FindByIdAsync(id.ToString(), default);
             if (customerRole == null)
             {
                 return NotFound();
@@ -187,9 +187,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Role.Update)]
         public async Task<IActionResult> Edit(CustomerRoleModel model, bool continueEditing, IFormCollection form)
         {
-            var customerRole = await _db.CustomerRoles
-                .Include(x => x.RuleSets)
-                .FindByIdAsync(model.Id, true);
+            var customerRole = await _roleStore.FindByIdAsync(model.Id.ToString(), default);
             if (customerRole == null)
             {
                 return NotFound();
@@ -209,8 +207,10 @@ namespace Smartstore.Admin.Controllers
                         throw new SmartException(T("Admin.Customers.CustomerRoles.Fields.SystemName.CantEditSystem"));
                     }
 
-                    //...
+                    var mapper = MapperFactory.GetMapper<CustomerRoleModel, CustomerRole>();
+                    await mapper.MapAsync(model, customerRole);
 
+                    //...
                 }
             }
             catch (Exception ex)
@@ -224,6 +224,8 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareViewBag(CustomerRoleModel model, CustomerRole role)
         {
+            Guard.NotNull(model, nameof(model));
+
             if (role != null)
             {
                 var showRuleApplyButton = model.SelectedRuleSetIds.Any();
