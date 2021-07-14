@@ -832,7 +832,7 @@ Vue.component("sm-datagrid", {
                         data: selection,
                         global: true,
                         success(result) {
-                            if (result.Success) {
+                            if (result.success) {
                                 self.selectedRows = {};
                                 displayNotification("{0} Datensätze erfolgreich gelöscht.".format(result.Count || numRows), "success");
                                 self.$emit("deleted-rows", rowKeys);

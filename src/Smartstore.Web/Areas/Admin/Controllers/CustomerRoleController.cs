@@ -160,12 +160,8 @@ namespace Smartstore.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var role = MiniMapper.Map<CustomerRoleModel, CustomerRole>(model);
-                await _ruleService.ApplyRuleSetMappingsAsync(role, model.SelectedRuleSetIds);
-    
+                var role = MiniMapper.Map<CustomerRoleModel, CustomerRole>(model);   
                 await _roleManager.CreateAsync(role);
-
-                // TODO: (mg) (core) test mapping CustomerRoleModel > CustomerRole.
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomerRole, T("ActivityLog.AddNewCustomerRole"), role.Name);
                 NotifySuccess(T("Admin.Customers.CustomerRoles.Added"));
@@ -294,14 +290,58 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteSelected(GridSelection selection)
+        {
+            var success = false;
+
+            if (await Services.Permissions.AuthorizeAsync(Permissions.Customer.Role.Update))
+            {
+                var role = await _roleManager.FindByIdAsync(selection?.SelectedKeys?.FirstOrDefault());
+                if (role != null)
+                {
+                    try
+                    {
+                        await _roleManager.DeleteAsync(role);
+                        success = true;
+
+                        Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), role.Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        NotifyError(ex.Message);
+                    }
+                }
+            }
+            else
+            {
+                NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(Permissions.Customer.Role.Delete));
+            }
+
+            return Json(new { success });
+        }
+
         [Permission(Permissions.Customer.Role.Read)]
         public async Task<IActionResult> CustomerRoleMappingsList(GridCommand command, int id)
         {
-            // TODO: (mg) (core) sorting cannot work here (column names do not match property names)
-            var customerRoleMappings = await _db.CustomerRoleMappings
+            var query = _db.CustomerRoleMappings
                 .AsNoTracking()
                 .Include(x => x.Customer)
-                .ApplyStandardFilter(new[] { id })
+                .Where(x => x.CustomerRoleId == id && x.Customer != null)
+                .Select(x => new CustomerRoleMappingModel
+                {
+                    Id = x.Id,
+                    Active = x.Customer.Active,
+                    CustomerId = x.CustomerId,
+                    Email = x.Customer.Email,
+                    Username = x.Customer.Username,
+                    FullName = x.Customer.FullName,
+                    CreatedOn = x.Customer.CreatedOnUtc,
+                    LastActivityDate = x.Customer.LastActivityDateUtc,
+                    IsSystemMapping = x.IsSystemMapping
+                });
+
+            var rows = await query
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -310,30 +350,18 @@ namespace Smartstore.Admin.Controllers
             var isGuestRole = role.SystemName.EqualsNoCase(SystemCustomerRoleNames.Guests);
             var emailFallbackStr = isGuestRole ? T("Admin.Customers.Guest").Value : string.Empty;
 
-            var rows = customerRoleMappings.Select(x =>
+            foreach (var row in rows)
             {
-                var mappingModel = new CustomerRoleMappingModel
-                {
-                    Id = x.Id,
-                    Active = x.Customer.Active,
-                    CustomerId = x.CustomerId,
-                    Email = x.Customer.Email.NullEmpty() ?? emailFallbackStr,
-                    Username = x.Customer.Username,
-                    FullName = x.Customer.GetFullName(),
-                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.Customer.CreatedOnUtc, DateTimeKind.Utc),
-                    LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(x.Customer.LastActivityDateUtc, DateTimeKind.Utc),
-                    IsSystemMapping = x.IsSystemMapping,
-                    EditUrl = Url.Action("Edit", "Customer", new { id = x.CustomerId, area = "Admin"})
-                };
-
-                return mappingModel;
-            })
-            .ToList();
+                row.Email = row.Email.NullEmpty() ?? emailFallbackStr;
+                row.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(row.CreatedOn, DateTimeKind.Utc);
+                row.LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(row.LastActivityDate, DateTimeKind.Utc);
+                row.EditUrl = Url.Action("Edit", "Customer", new { id = row.CustomerId, area = "Admin" });
+            }
 
             var gridModel = new GridModel<CustomerRoleMappingModel>
             {
                 Rows = rows,
-                Total = customerRoleMappings.TotalCount
+                Total = rows.TotalCount
             };
 
             return Json(gridModel);
