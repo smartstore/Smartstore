@@ -61,14 +61,12 @@ namespace Smartstore.Admin.Models.Customers
         }
     }
 
-    public class CustomerRoleMapper : IMapper<CustomerRole, CustomerRoleModel>, IMapper<CustomerRoleModel, CustomerRole>
+    public class CustomerRoleMapper : IMapper<CustomerRole, CustomerRoleModel>
     {
-        private readonly IRuleService _ruleService;
         private readonly IUrlHelper _urlHelper;
 
-        public CustomerRoleMapper(IRuleService ruleService, IUrlHelper urlHelper)
+        public CustomerRoleMapper(IUrlHelper urlHelper)
         {
-            _ruleService = ruleService;
             _urlHelper = urlHelper;
         }
 
@@ -84,14 +82,6 @@ namespace Smartstore.Admin.Models.Customers
             }
 
             return Task.CompletedTask;
-        }
-
-        public async Task MapAsync(CustomerRoleModel from, CustomerRole to, dynamic parameters = null)
-        {
-            MiniMapper.Map(from, to);
-
-            // TODO: (mg) (core) test mapping CustomerRoleModel > CustomerRole.
-            await _ruleService.ApplyRuleSetMappingsAsync(to, from.SelectedRuleSetIds);
         }
     }
 }

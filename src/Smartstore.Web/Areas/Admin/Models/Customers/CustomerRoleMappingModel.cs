@@ -7,6 +7,7 @@ namespace Smartstore.Admin.Models.Customers
     public class CustomerRoleMappingModel : EntityModelBase
     {
         public int CustomerId { get; set; }
+        public string EditUrl { get; set; }
 
         [LocalizedDisplay("*Active")]
         public bool Active { get; set; }

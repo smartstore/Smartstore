@@ -1,0 +1,20 @@
+﻿@model TreeNode<IPermissionNode>
+
+@{
+    var permissionTree = (PermissionTree)ViewBag.PermissionTree;
+}
+
+<ul>
+    @foreach (var child in Model.Children)
+    {
+        <li data-name="permission-@child.Value.PermissionRecordId"
+            data-value="@(child.Value.Allow.HasValue ? (child.Value.Allow.Value ? 2 : 1) : 0)"
+            data-label="@(permissionTree.GetDisplayName(child))"
+            title="@child.Value.SystemName">
+            @if (child.HasChildren)
+            {
+                <partial name="_PermissionNode" model="child" />
+            }
+        </li>
+    }
+</ul>

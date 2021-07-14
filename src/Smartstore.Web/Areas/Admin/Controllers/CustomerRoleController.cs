@@ -33,6 +33,7 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly RoleManager<CustomerRole> _roleManager;
+        private readonly IRuleService _ruleService;
         private readonly Lazy<ITaskStore> _taskStore;
         private readonly Lazy<ITaskScheduler> _taskScheduler;
         private readonly CustomerSettings _customerSettings;
@@ -40,6 +41,7 @@ namespace Smartstore.Admin.Controllers
         public CustomerRoleController(
             SmartDbContext db,
             RoleManager<CustomerRole> roleStore,
+            IRuleService ruleService,
             Lazy<ITaskStore> taskStore,
             Lazy<ITaskScheduler> taskScheduler,
             CustomerSettings customerSettings)
@@ -47,6 +49,7 @@ namespace Smartstore.Admin.Controllers
             _db = db;
             _roleManager = roleStore;
             _taskStore = taskStore;
+            _ruleService = ruleService;
             _taskScheduler = taskScheduler;
             _customerSettings = customerSettings;
         }
@@ -119,7 +122,6 @@ namespace Smartstore.Admin.Controllers
 
             var customerRoles = await _roleManager.Roles
                 .AsNoTracking()
-                .ApplyStandardFilter(true)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -158,12 +160,12 @@ namespace Smartstore.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var mapper = MapperFactory.GetMapper<CustomerRoleModel, CustomerRole>();
-                var role = await mapper.MapAsync(model);
+                var role = MiniMapper.Map<CustomerRoleModel, CustomerRole>(model);
+                await _ruleService.ApplyRuleSetMappingsAsync(role, model.SelectedRuleSetIds);
     
                 await _roleManager.CreateAsync(role);
 
-                // TBD: (mg) (core) What about _ruleStorage.ApplyRuleSetMappings(customerRole, model.SelectedRuleSetIds)?
+                // TODO: (mg) (core) test mapping CustomerRoleModel > CustomerRole.
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomerRole, T("ActivityLog.AddNewCustomerRole"), role.Name);
                 NotifySuccess(T("Admin.Customers.CustomerRoles.Added"));
@@ -193,6 +195,39 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> InlineEdit(CustomerRoleModel model)
+        {
+            var success = false;
+
+            if (await Services.Permissions.AuthorizeAsync(Permissions.Customer.Role.Update))
+            {
+                var role = await _roleManager.FindByIdAsync(model.Id.ToString());
+                if (role != null)
+                {
+                    Validate(model, role);
+
+                    if (ModelState.IsValid)
+                    {
+                        MiniMapper.Map(model, role);
+
+                        var result = await _roleManager.UpdateAsync(role);
+                        success = result.Succeeded;
+                    }
+                    else
+                    {
+                        var modelStateErrors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage);
+                        NotifyError(string.Join(Environment.NewLine, modelStateErrors));
+                    }
+                }
+            }
+            else
+            {
+                NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(Permissions.Customer.Role.Update));
+            }
+
+            return Json(new { success });
+        }
+
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         [Permission(Permissions.Customer.Role.Update)]
         public async Task<IActionResult> Edit(CustomerRoleModel model, bool continueEditing, IFormCollection form)
@@ -203,22 +238,14 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            try
+            Validate(model, role);
+
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                try
                 {
-                    if (role.IsSystemRole && !model.Active)
-                    {
-                        throw new SmartException(T("Admin.Customers.CustomerRoles.Fields.Active.CantEditSystem"));
-                    }
-
-                    if (role.IsSystemRole && !role.SystemName.EqualsNoCase(model.SystemName))
-                    {
-                        throw new SmartException(T("Admin.Customers.CustomerRoles.Fields.SystemName.CantEditSystem"));
-                    }
-
-                    var mapper = MapperFactory.GetMapper<CustomerRoleModel, CustomerRole>();
-                    await mapper.MapAsync(model, role);
+                    MiniMapper.Map(model, role);
+                    await _ruleService.ApplyRuleSetMappingsAsync(role, model.SelectedRuleSetIds);
 
                     await _roleManager.UpdateAsync(role);
 
@@ -228,14 +255,14 @@ namespace Smartstore.Admin.Controllers
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), role.Name);
                     NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
 
-                    return continueEditing 
-                        ? RedirectToAction("Edit", new { id = role.Id }) 
+                    return continueEditing
+                        ? RedirectToAction("Edit", new { id = role.Id })
                         : RedirectToAction("List");
                 }
-            }
-            catch (Exception ex)
-            {
-                NotifyError(ex);
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
             }
 
             return RedirectToAction("Edit", new { id = role.Id });
@@ -270,8 +297,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Role.Read)]
         public async Task<IActionResult> CustomerRoleMappingsList(GridCommand command, int id)
         {
+            // TODO: (mg) (core) sorting cannot work here (column names do not match property names)
             var customerRoleMappings = await _db.CustomerRoleMappings
                 .AsNoTracking()
+                .Include(x => x.Customer)
                 .ApplyStandardFilter(new[] { id })
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
@@ -293,7 +322,8 @@ namespace Smartstore.Admin.Controllers
                     FullName = x.Customer.GetFullName(),
                     CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.Customer.CreatedOnUtc, DateTimeKind.Utc),
                     LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(x.Customer.LastActivityDateUtc, DateTimeKind.Utc),
-                    IsSystemMapping = x.IsSystemMapping
+                    IsSystemMapping = x.IsSystemMapping,
+                    EditUrl = Url.Action("Edit", "Customer", new { id = x.CustomerId, area = "Admin"})
                 };
 
                 return mappingModel;
@@ -348,10 +378,10 @@ namespace Smartstore.Admin.Controllers
                 if (!showRuleApplyButton)
                 {
                     // Ignore deleted customers.
-                    // TODO: (mg) (core) Somehow this does not reflect the original query (?). Please check.
                     showRuleApplyButton = await _db.CustomerRoleMappings
                         .AsNoTracking()
-                        .Where(x => x.CustomerRoleId == role.Id && x.Customer != null)
+                        .Include(x => x.Customer)
+                        .Where(x => x.CustomerRoleId == role.Id && x.IsSystemMapping && x.Customer != null)
                         .AnyAsync();
                 }
 
@@ -361,8 +391,8 @@ namespace Smartstore.Admin.Controllers
             }
 
             ViewBag.TaxDisplayTypes = model.TaxDisplayType.HasValue
-                ? ((TaxDisplayType)model.TaxDisplayType.Value).ToSelectList().ToList()
-                : TaxDisplayType.IncludingTax.ToSelectList(false).ToList();
+                ? ((TaxDisplayType)model.TaxDisplayType.Value).ToSelectList()
+                : TaxDisplayType.IncludingTax.ToSelectList(false);
 
             ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
         }
@@ -430,6 +460,21 @@ namespace Smartstore.Admin.Controllers
             }
 
             return 0;
+        }
+
+        private void Validate(CustomerRoleModel model, CustomerRole role)
+        {
+            if (role.IsSystemRole)
+            {
+                if (!model.Active)
+                {
+                    ModelState.AddModelError(nameof(model.Active), T("Admin.Customers.CustomerRoles.Fields.Active.CantEditSystem"));
+                }
+                if (!role.SystemName.EqualsNoCase(model.SystemName))
+                {
+                    ModelState.AddModelError(nameof(model.SystemName), T("Admin.Customers.CustomerRoles.Fields.SystemName.CantEditSystem"));
+                }
+            }
         }
     }
 }

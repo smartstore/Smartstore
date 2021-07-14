@@ -1,0 +1,180 @@
+﻿@model CustomerRoleModel
+
+@{
+    var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
+    var permissionTree = (PermissionTree)ViewBag.PermissionTree;
+
+    var roleMappingsViewData = new ViewDataDictionary(ViewData);
+    roleMappingsViewData["Parent"] = Model;
+}
+
+<div asp-validation-summary="ModelOnly"></div>
+<input type="hidden" asp-for="Id" />
+<input type="hidden" asp-for="IsSystemRole" />
+
+<tabstrip id="customerrole-edit" sm-nav-style="Material">
+	<tab sm-title="@T("Common.General")" sm-selected="true">
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Name" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SystemName" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="SystemName" />
+                    <span asp-validation-for="SystemName"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Active" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Active" />
+                    <span asp-validation-for="Active"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="FreeShipping" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="FreeShipping" />
+                    <span asp-validation-for="FreeShipping"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="OrderTotalMinimum" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="OrderTotalMinimum" sm-postfix="@primaryStoreCurrencyCode" />
+                    <span asp-validation-for="OrderTotalMinimum"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="OrderTotalMaximum" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="OrderTotalMaximum" sm-postfix="@primaryStoreCurrencyCode" />
+                    <span asp-validation-for="OrderTotalMaximum"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="TaxDisplayType" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="TaxDisplayType" asp-items="@(SelectList)ViewBag.TaxDisplayTypes" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                    <span asp-validation-for="TaxDisplayType"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="TaxExempt" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="TaxExempt" />
+                    <span asp-validation-for="TaxExempt"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IsSystemRole" />
+                </div>
+                <div class="adminData">
+                    <div class="form-control-plaintext">
+                        @T(Model.IsSystemRole ? "Admin.Common.Yes" : "Admin.Common.No")
+                    </div>
+                    <span asp-validation-for="IsSystemRole"></span>
+                </div>
+            </div>
+        </div>
+	</tab>
+	<tab sm-title="@T("Admin.Configuration.ACL")">
+        @if (Model.Id > 0)
+        {
+            if (permissionTree?.Permissions?.HasChildren ?? false)
+            {
+                <p>
+                    <button id="expand-collapse-all" type="button" class="btn btn-sm btn-secondary">
+                        <span>@T("Common.ExpandCollapseAll")</span>
+                    </button>
+                </p>
+                <div id="permission-tree" class="tree">
+                    <partial name="_PermissionNode" model="permissionTree.Permissions" />
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    @T("Admin.System.Warnings.NoPermissionsDefined")
+                </div>
+            }
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                @T("Admin.SaveBeforeEdit")
+            </div>
+        }
+	</tab>
+	<tab sm-title="@T("Admin.Customers")">
+        @if (Model.Id > 0)
+        {
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SelectedRuleSetIds" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="SelectedRuleSetIds" />
+                        <span asp-validation-for="SelectedRuleSetIds"></span>
+                    </div>
+                </div>
+            </div>
+            <div sm-if="Model.SelectedRuleSetIds.Any()" class="alert alert-info">
+                @T("Admin.CustomerRoleMapping.RoleMappingListDescription")
+            </div>
+            <partial name="_Grid.RoleMappings" model="null" view-data="roleMappingsViewData" />
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                @T("Admin.SaveBeforeEdit")
+            </div>            
+        }
+	</tab>
+</tabstrip>
+
+<script sm-target-zone="scripts" data-origin="customer-role-edit">
+    $(function() {
+        // Init permission tree.
+        $('#permission-tree').tree('init', {
+            nodeState: 'on-off',
+            stateTitles: [@T("Common.Allow").JsValue, @T("Common.Deny").JsValue, @T("Admin.Permissions.AllowInherited").JsValue, @T("Admin.Permissions.DenyInherited").JsValue]
+        });
+
+        // Expand\collapse all.
+        $('#expand-collapse-all').on('click', function () {
+            $('#permission-tree').tree('expandAll');
+        });
+
+        // Reapply rules.
+        $('#reapply-rules').on('click', function () {
+            $(this).doPostData({
+                ask: @(T("Admin.Common.AskToProceed").JsValue),
+                data: { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() }
+            });
+        });
+    });
+</script>

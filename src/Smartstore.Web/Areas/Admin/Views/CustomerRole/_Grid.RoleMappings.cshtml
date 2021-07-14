@@ -1,0 +1,45 @@
+﻿@model CustomerRoleMappingModel
+
+@{
+    var parentModel = ViewData["Parent"] as CustomerRoleModel;
+    var usernamesEnabled = (bool)ViewBag.UsernamesEnabled;
+    var showRuleApplyButton = (bool)ViewBag.ShowRuleApplyButton;
+}
+
+<datagrid id="role-mappings-grid"
+          allow-resize="true"
+          allow-column-reordering="true"
+          preserve-grid-state="true">
+    <datasource read="@Url.Action("CustomerRoleMappingsList", new { id = parentModel.Id })" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="IsSystemMapping" />
+    </sorting>
+    @if (showRuleApplyButton)
+    {
+        <toolbar>
+            <toolbar-group>
+                <button type="button" id="reapply-rules" class="btn btn-primary btn-flat" data-url="@Url.Action("ApplyRules", new { id = parentModel.Id })">
+                    <i class="fa fa-play"></i>
+                    <span>@T("Admin.Rules.ReapplyRules")</span>
+                </button>
+            </toolbar-group>
+        </toolbar>
+    }
+    <columns>
+        <column for="Email" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+		@if (usernamesEnabled)
+		{
+			<column for="Username" />
+		}
+		<column for="FullName" />
+		<column for="Active" halign="center" />
+		<column for="CreatedOn" />
+		<column for="LastActivityDate" />
+        <column for="IsSystemMapping" halign="center" />
+    </columns>
+</datagrid>
