@@ -1,0 +1,53 @@
+﻿@model dynamic
+
+@using Smartstore.Utilities
+
+@{ 
+    var model = CommonHelper.ToExpando(Model);
+    var isTheme = model.isTheme == true;
+    string dialogTitle = isTheme ? T("Admin.Packaging.UploadTheme") : T("Admin.Packaging.UploadPlugin");
+    string dialogInfo = isTheme ? T("Admin.Packaging.Dialog.ThemeInfo") : T("Admin.Packaging.Dialog.PluginInfo");
+}
+
+<modal id="uploadpackage-window" sm-size="Large">
+    <modal-header sm-title="@dialogTitle"></modal-header>
+    <modal-body>
+        <div class="alert alert-info">
+            @Html.Raw(dialogInfo)
+        </div>
+        <div class="adminContent fu-container">
+            <div class="dropzone-container">
+                <div class="fu-thumb"></div>
+
+                <file-uploader upload-url="@Url.Action("UploadPackage", "Packaging")"
+                               file-uploader-name="packagefile"
+                               type-filter=".nupkg"
+                               has-template-preview="true"
+                               upload-text="@T("Admin.Packaging.Dialog.Upload")"
+                               onuploadcompleted="packager_onUploadCompleted" />
+            </div>
+            <div class="fu-progress">
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </modal-body>
+    <modal-footer>
+        <a href="javascript:return void" class="btn btn-secondary" data-dismiss="modal">
+            <span>@T("Common.Cancel")</span>
+        </a>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="scripts" data-origin="UploadPackage">
+    window['packager_onUploadCompleted'] = function (file, response) {
+        if (response.message) {
+            $("#uploadpackage-window").modal("hide");
+            displayNotification(response.message, response.success ? "success" : "error");
+        }
+        else if (response.returnUrl) {
+            location.href = response.returnUrl;
+        }
+	};
+</script>

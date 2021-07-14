@@ -29,6 +29,11 @@ namespace Smartstore.Engine.Modularity
         public string Group { get; internal set; }
 
         /// <summary>
+        /// Gets or sets module author name
+        /// </summary>
+        public string Author { get; set; }
+
+        /// <summary>
         /// Module installer runtime type.
         /// </summary>
         public Type ModuleClrType { get; set; }
