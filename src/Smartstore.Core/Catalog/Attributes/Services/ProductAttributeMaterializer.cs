@@ -70,10 +70,60 @@ namespace Smartstore.Core.Catalog.Attributes
             (int)AttributeControlType.Boxes
         };
 
-        public virtual Task<int> PrefetchProductVariantAttributesAsync(IEnumerable<ProductVariantAttributeSelection> selections)
+        public virtual async Task<int> PrefetchProductVariantAttributesAsync(IEnumerable<ProductVariantAttributeSelection> selections)
         {
-            // TODO: (mg) (core) implement IProductAttributeMaterializer.PrefetchProductVariantAttributesAsync (really necessary?)
-            return Task.FromResult(0);
+            Guard.NotNull(selections, nameof(selections));
+
+            if (!selections.Any())
+            {
+                return 0;
+            }
+
+            // Determine uncached attributes.
+            var alreadyCollectedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var infos = new List<AttributeSelectionInfo>();
+
+            foreach (var selection in selections.Where(x => x.AttributesMap.Any()))
+            {
+                var key = ATTRIBUTEVALUES_BY_JSON_KEY.FormatInvariant(selection.AsJson());
+                if (!alreadyCollectedKeys.Contains(key) && !_requestCache.Contains(key))
+                {
+                    infos.Add(new AttributeSelectionInfo(selection, key));
+                    alreadyCollectedKeys.Add(key);
+                }
+            }
+
+            var allAttributeIds = infos.SelectMany(x => x.AttributeIds)
+                .Distinct()
+                .ToArray();
+
+            var allNumericValues = infos.SelectMany(x => x.NumericValues)
+                .Distinct()
+                .ToArray();
+
+            // Load all values in one go.
+            var attributeValues = await LoadAttributeValuesAsync(allAttributeIds, allNumericValues);
+            var attributeValuesMap = attributeValues.ToDictionarySafe(x => x.Id);
+
+            // Create a single cache entry for each passed attribute selection.
+            foreach (var info in infos)
+            {
+                var cachedValues = new List<ProductVariantAttributeValue>();
+
+                // Ensure value id order in cached result list is correct.
+                foreach (var numericValue in info.NumericValues)
+                {
+                    if (attributeValuesMap.TryGetValue(numericValue, out var value))
+                    {
+                        cachedValues.Add(value);
+                    }
+                }
+
+                // Put it in cache.
+                _requestCache.Put(info.ValuesCacheKey, cachedValues);
+            }
+
+            return infos.Count;
         }
 
         public virtual async Task<IList<ProductVariantAttribute>> MaterializeProductVariantAttributesAsync(ProductVariantAttributeSelection selection)
@@ -168,36 +218,9 @@ namespace Smartstore.Core.Catalog.Attributes
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
                 var attributeIds = selection.AttributesMap.Select(x => x.Key).ToArray();
-                if (!attributeIds.Any())
-                {
-                    return new List<ProductVariantAttributeValue>();
-                }
+                var numericValues = GetNumericValues(selection);
 
-                // AttributesMap can also contain numeric values of text fields that are not ProductVariantAttributeValue IDs!
-                // That is why it is important to also filter by list types because only list types (e.g. dropdown list)
-                // can have assigned ProductVariantAttributeValue entities.
-                var numericValues = selection.AttributesMap
-                    .SelectMany(x => x.Value)
-                    .Select(x => x.ToString())
-                    .Where(x => x.HasValue())
-                    .Select(x => x.ToInt())
-                    .Where(x => x != 0)
-                    .Distinct()
-                    .ToArray();
-
-                if (!numericValues.Any())
-                {
-                    return new List<ProductVariantAttributeValue>();
-                }
-
-                var query = _db.ProductVariantAttributeValues
-                    .Include(x => x.ProductVariantAttribute)
-                    .ThenInclude(x => x.ProductAttribute)
-                    .AsNoTracking()
-                    .Where(x => attributeIds.Contains(x.ProductVariantAttributeId) && numericValues.Contains(x.Id))
-                    .ApplyListTypeFilter();
-
-                return await query.ToListAsync();
+                return await LoadAttributeValuesAsync(attributeIds, numericValues);
             });
 
             return result;
@@ -571,6 +594,26 @@ namespace Smartstore.Core.Catalog.Attributes
             }
         }
 
+        protected virtual async Task<List<ProductVariantAttributeValue>> LoadAttributeValuesAsync(int[] attributeIds, int[] numericValues)
+        {
+            if (!attributeIds.Any() || !numericValues.Any())
+            {
+                return new List<ProductVariantAttributeValue>();
+            }
+
+            // ProductVariantAttributeSelection can also contain numeric values of text fields that are not ProductVariantAttributeValue IDs!
+            // That is why it is important to also filter by list types because only list types (e.g. dropdown list)
+            // can have assigned ProductVariantAttributeValue entities.
+
+            return await _db.ProductVariantAttributeValues
+                .Include(x => x.ProductVariantAttribute)
+                .ThenInclude(x => x.ProductAttribute)
+                .AsNoTracking()
+                .Where(x => attributeIds.Contains(x.ProductVariantAttributeId) && numericValues.Contains(x.Id))
+                .ApplyListTypeFilter()
+                .ToListAsync();
+        }
+
         private async Task<ProductVariantAttributeCombination> FindCombinationByAttributeSelection(
             ProductVariantAttributeSelection selection,     
             ICollection<ProductVariantAttributeCombination> attributeCombinationsLookup)
@@ -585,6 +628,34 @@ namespace Smartstore.Core.Catalog.Attributes
             }
 
             return null;
+        }
+
+        private static int[] GetNumericValues(ProductVariantAttributeSelection selection)
+        {
+            return selection.AttributesMap
+                .SelectMany(x => x.Value)
+                .Select(x => x.ToString())
+                .Where(x => x.HasValue())
+                .Select(x => x.ToInt())
+                .Where(x => x != 0)
+                .Distinct()
+                .ToArray();
+        }
+
+        class AttributeSelectionInfo
+        {
+            public AttributeSelectionInfo(ProductVariantAttributeSelection selection, string valuesCacheKey)
+            {
+                Selection = selection;
+                ValuesCacheKey = valuesCacheKey;
+                AttributeIds = selection.AttributesMap.Select(x => x.Key).ToArray();
+                NumericValues = GetNumericValues(selection);
+            }
+
+            public string ValuesCacheKey { get; }
+            public ProductVariantAttributeSelection Selection { get; }
+            public int[] AttributeIds { get; }
+            public int[] NumericValues { get; }
         }
     }
 }
