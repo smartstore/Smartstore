@@ -14,6 +14,7 @@
                 delete="@Url.Action("TierPriceDelete")"
                 update="@Url.Action("TierPriceUpdate")"
                 insert="@Url.Action("TierPriceInsert", new { productId = parentModel.Id })" />
+    <paging position="Bottom" page-index="1" show-size-chooser="false" />
     <sorting enabled="true" allow-multisort="true"></sorting>
     <toolbar>
         <toolbar-group>
@@ -37,11 +38,11 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Quantity" halign="center" width="1fr" />
+        <column for="Quantity" halign="center" width="1fr" hideable="false" />
         @*TODO: (mh) (core) Use format ? *@
-        <column for="Price1" halign="flex-end" width="2fr" />
+        <column for="Price1" halign="flex-end" width="2fr" entity-member="Price" />
         <column for="CalculationMethod" width="2fr" />
-        <column for="Store" width="2fr" />
-        <column for="CustomerRole" width="2fr" />
+        <column for="Store" width="2fr" entity-member="StoreId" />
+        <column for="CustomerRole" width="2fr" entity-member="CustomerRoleId"/>
     </columns>
 </datagrid>

@@ -11,15 +11,16 @@
     <datasource read="@Url.Action("RelatedProductList", new { productId = parentModel.Id })"
                 delete="@Url.Action("RelatedProductDelete")"
                 update="@Url.Action("RelatedProductUpdate")" />
-    <sorting allow-unsort="true" allow-multisort="false"></sorting>
+    @*TODO: (mh) (core) To make this grid sortable RelatedProduct entity must be enhanced to hold referenced product *@
+    @*<sorting allow-unsort="true" allow-multisort="false"></sorting>*@
     <toolbar>
         <toolbar-group>
             <button id="pick-related-products" type="button" class="btn btn-primary btn-flat no-anims">
                 <i class="fa fa-plus"></i>
                 <span>@T("Common.AddNew")</span>
             </button>
-            <button type="button" 
-                    id="btnCreateMutuallyRelatedProducts" 
+            <button type="button"
+                    id="btnCreateMutuallyRelatedProducts"
                     data-url="@Url.Action("CreateAllMutuallyRelatedProducts", new { productId = parentModel.Id })"
                     data-ask="@T("Admin.Common.AskCreateMutuallyAssociations")"
                     class="btn btn-light btn-flat">

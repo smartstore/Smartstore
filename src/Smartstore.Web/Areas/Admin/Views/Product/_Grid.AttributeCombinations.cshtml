@@ -10,6 +10,7 @@
           onrowclass="attributeCombinations_onRowClass">
     <datasource read="@Url.Action("ProductVariantAttributeCombinationList", new { productId = parentModel.Id })"
                 delete="@Url.Action("ProductVariantAttributeCombinationDelete")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="false" />
     <sorting enabled="true"></sorting>
     <toolbar>
         <toolbar-group>
@@ -38,7 +39,7 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="AttributesXml" hideable="false" width="4fr">
+        <column for="AttributesXml" hideable="false" width="4fr" sortable="false">
             <display-template>
                 <div class="flex-row flex-column-reverse">
                     <a href="#" class="text-truncate grid-edit-attribute-combination" :data-key="item.row.Id" v-html="item.value"></a>
@@ -51,7 +52,7 @@
             </display-template>
         </column>
         <column for="IsActive" halign="center" width="1fr" />
-        <column for="ProductUrl" halign="center" width="1fr">
+        <column for="ProductUrl" halign="center" width="1fr" sortable="false">
             <display-template>
                 <a :href="item.row.ProductUrl" target="_blank" class="text-truncate">
                     {{ item.row.ProductUrlTitle }}
@@ -65,6 +66,8 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-attribute-combination" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
 
@@ -94,7 +97,6 @@
             return false;
         });
 
-        // TODO: (mh) (core)
         $(document).on('click', '#btnCreateAllCombinations, #btnDeleteAllCombinations', function () {
 			var token = $('input[name="__RequestVerificationToken"]').val();
             $(this).doAjax({

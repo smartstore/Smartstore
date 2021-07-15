@@ -319,9 +319,6 @@ namespace Smartstore.Admin.Models.Catalog
 
             [LocalizedDisplay("Common.DisplayOrder")]
             public int DisplayOrder { get; set; }
-
-            //public IList<SelectListItem> AvailableAttributes { get; set; }
-            //public IList<SelectListItem> AvailableOptions { get; set; }
         }
 
         [LocalizedDisplay("Admin.Catalog.Products.Manufacturers.Fields.")]
@@ -389,11 +386,12 @@ namespace Smartstore.Admin.Models.Catalog
         public partial class AssociatedProductModel : EntityModelBase
         {
             [LocalizedDisplay("Admin.Catalog.Products.AssociatedProducts.Fields.Product")]
-            public string ProductName { get; set; }
+            public string Name { get; set; }
 
             [LocalizedDisplay("*ProductType")]
             public string ProductTypeName { get; set; }
             public string ProductTypeLabelHint { get; set; }
+            public string EditUrl { get; set; }
 
             [LocalizedDisplay("Common.DisplayOrder")]
             public int DisplayOrder { get; set; }

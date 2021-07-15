@@ -4,13 +4,14 @@
     var parentModel = ViewData["Parent"] as ProductModel;
 }
 
-<datagrid id="specificationattributes-grid" 
-          allow-resize="true" 
-          allow-row-selection="true" 
+<datagrid id="specificationattributes-grid"
+          allow-resize="true"
+          allow-row-selection="true"
           allow-edit="true">
     <datasource read="@Url.Action("ProductSpecAttrList", new { productId = parentModel.Id })"
                 delete="@Url.Action("ProductSpecAttrDelete")"
                 update="@Url.Action("ProductSpecAttrUpdate")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="false" />
     <sorting enabled="true"></sorting>
     <toolbar>
         <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
@@ -28,8 +29,8 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="SpecificationAttributeName" hideable="false" readonly="true" width="4fr" />
-        <column for="SpecificationAttributeOptionName" halign="center" width="2fr">
+        <column for="SpecificationAttributeName" hideable="false" readonly="true" width="4fr" entity-member="SpecificationAttributeOption.SpecificationAttribute.Name" />
+        <column for="SpecificationAttributeOptionName" halign="center" width="2fr" entity-member="SpecificationAttributeOption.Name">
             <edit-template>
                 <select name="SpecificationAttributeOptionId"
                         id="SpecificationAttributeOptionId"
@@ -44,4 +45,9 @@
         <column for="ShowOnProductPage" halign="center" width="1fr" />
         <column for="DisplayOrder" halign="center" width="1fr" />
     </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
 </datagrid>

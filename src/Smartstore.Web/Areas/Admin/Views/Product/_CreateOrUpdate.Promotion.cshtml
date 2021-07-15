@@ -1,12 +1,15 @@
 ﻿@model ProductModel
 
-@{ 
+@{
     var gridViewData = new ViewDataDictionary(this.ViewData);
     @if (Model.Id > 0)
     {
         gridViewData["Parent"] = Model;
     }
 }
+
+@*INFO: (mh) (core) Entities are switched. RelatedProducts are labeled with Cross-Selling & CrossSells are labeled with Checkout-Selling*@
+@*TODO: (mh) (core) Fix this somehow*@
 
 <div>
     <h4>@T("Admin.Catalog.Products.RelatedProducts")</h4>

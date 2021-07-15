@@ -12,6 +12,7 @@
                 delete="@Url.Action("ProductCategoryDelete")"
                 update="@Url.Action("ProductCategoryUpdate")"
                 insert="@Url.Action("ProductCategoryInsert", new { productId = parentModel.Id })" />
+    <paging position="Bottom" page-index="1" show-size-chooser="false" />
     <sorting enabled="true"></sorting>
     <toolbar>
         <toolbar-group>
@@ -35,13 +36,18 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Category" hideable="false" width="4fr">
+        <column for="Category" hideable="false" width="4fr" entity-member="Category.Name">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate" v-html="item.value"></a>
             </display-template>
         </column>
         <column for="IsFeaturedProduct" halign="center" width="1fr" />
         <column for="DisplayOrder" halign="center" width="1fr" />
-        <column for="IsSystemMapping" halign="center" width="1fr" />
+        <column for="IsSystemMapping" halign="center" width="1fr" readonly />
     </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
 </datagrid>

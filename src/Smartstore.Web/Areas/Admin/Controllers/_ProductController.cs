@@ -1260,23 +1260,26 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> AssociatedProductList(GridCommand command, int productId)
         {
-            // TODO: (mh) (core) Apply grid command.
             var model = new GridModel<ProductModel.AssociatedProductModel>();
             var searchQuery = new CatalogSearchQuery().HasParentGroupedProduct(productId);
             var query = _catalogSearchService.PrepareQuery(searchQuery);
-            var associatedProducts = await query.OrderBy(p => p.DisplayOrder).ToListAsync();
+            var associatedProducts = await query
+                .OrderBy(p => p.DisplayOrder)
+                .ApplyGridCommand(command)
+                .ToListAsync();
 
             var associatedProductsModel = associatedProducts.Select(x =>
             {
                 return new ProductModel.AssociatedProductModel
                 {
                     Id = x.Id,
-                    ProductName = x.Name,
+                    Name = x.Name,
                     ProductTypeName = x.GetProductTypeLabel(_localizationService),
                     ProductTypeLabelHint = x.ProductTypeLabelHint,
                     DisplayOrder = x.DisplayOrder,
                     Sku = x.Sku,
-                    Published = x.Published
+                    Published = x.Published,
+                    EditUrl = Url.Action("Edit", "Product", new { id = x.Id })
                 };
             })
             .ToList();
@@ -1374,7 +1377,7 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .ApplyBundledProductsFilter(new[] { productId }, true)
                 .Include(x => x.Product)
-                .ApplyGridCommand(command)
+                .ApplyGridCommand(command)      
                 .ToListAsync();
             
             var bundleItemsModel = bundleItems.Select(x =>
@@ -1718,8 +1721,6 @@ namespace Smartstore.Admin.Controllers
 
                     return psaModel;
                 })
-                .OrderBy(x => x.DisplayOrder)
-                .ThenBy(x => x.SpecificationAttributeId)
                 .ToList();
 
             model.Rows = productSpecModel;
@@ -1837,12 +1838,12 @@ namespace Smartstore.Admin.Controllers
 
             var tierPricesModel = product.TierPrices
                 .AsQueryable()
+                .Include(x => x.CustomerRole)
+                .OrderBy(x => x.StoreId)
+                .ThenBy(x => x.Quantity)
+                .ThenBy(x => x.CustomerRoleId)
                 .ApplyGridCommand(command)
                 .ToList()
-                // TODO: (mh) (core) No default ordering when grid sorting is allowed?
-                //.OrderBy(x => x.StoreId)
-                //.ThenBy(x => x.Quantity)
-                //.ThenBy(x => x.CustomerRoleId)
                 .Select(x =>
                 {
                     var tierPriceModel = new ProductModel.TierPriceModel
@@ -2151,6 +2152,7 @@ namespace Smartstore.Admin.Controllers
             var values = await _db.ProductVariantAttributeValues
                 .AsNoTracking()
                 .ApplyProductAttributeFilter(productVariantAttributeId)
+                .ApplyGridCommand(command)
                 .ToListAsync();
 
             gridModel.Rows = await values.SelectAsync(async x =>
@@ -2196,7 +2198,7 @@ namespace Smartstore.Admin.Controllers
                 return model;
             }).AsyncToList();
 
-            gridModel.Total = values.Count();
+            gridModel.Total = values.Count;
 
             return Json(gridModel);
         }

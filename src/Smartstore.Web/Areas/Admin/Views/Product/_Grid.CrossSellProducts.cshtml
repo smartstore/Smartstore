@@ -11,7 +11,9 @@
     <datasource read="@Url.Action("CrossSellProductList", new { productId = parentModel.Id })"
                 delete="@Url.Action("CrossSellProductDelete")"
                 update="@Url.Action("CrossSellProductUpdate")" />
-    <sorting allow-unsort="true" allow-multisort="false"></sorting>
+    <paging position="Bottom" page-index="1" show-size-chooser="false" />
+    @*TODO: (mh) (core) To make this grid sortable CrossSellProduct entity must be enhanced to hold referenced product *@
+    @*<sorting allow-unsort="true" allow-multisort="false"></sorting>*@
     <toolbar>
         <toolbar-group>
             <button id="pick-crosssell-products" type="button" class="btn btn-primary btn-flat no-anims">
@@ -42,7 +44,7 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Product2Name" hideable="false" width="4fr" readonly>
+        <column for="Product2Name" hideable="false" width="4fr" readonly entity-member="">
             <display-template>
                 @Html.LabeledProductName()
             </display-template>
@@ -50,6 +52,11 @@
         <column for="Product2Sku" width="2fr" readonly />
         <column for="Product2Published" halign="center" width="1fr" readonly />
     </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
 </datagrid>
 
 @*INFO: (mh) (core) Must be hidden element as it can't be placed directly in the toolbar because of included javascript. Will be called by javascript. *@
