@@ -1,0 +1,90 @@
+﻿@model ProductModel
+
+@(Html.LocalizedEditor<ProductModel, ProductLocalizedModel>("product-seo-localized",
+    @<text>
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Locales[item].MetaTitle" />
+                </div>
+                <div class="adminData">
+                    @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                    <input type="hidden" id="@Model.Locales[item].LanguageId" />
+                    <input asp-for="Locales[item].MetaTitle" />
+                    <span asp-validation-for="Locales[item].MetaTitle"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Locales[item].MetaDescription" />
+                </div>
+                <div class="adminData">
+                    <textarea asp-for="Locales[item].MetaDescription"></textarea>
+                    <span asp-validation-for="Locales[item].MetaDescription"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Locales[item].MetaKeywords" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Locales[item].MetaKeywords"/>
+                    <span asp-validation-for="Locales[item].MetaKeywords"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Locales[item].SeName" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Locales[item].SeName" />
+                    <span asp-validation-for="Locales[item].SeName"></span>
+                </div>
+            </div>
+        </div>
+    </text>
+    ,
+    @<text>
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="MetaTitle" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="MetaTitle" />
+                    <span asp-validation-for="MetaTitle"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="MetaDescription" />
+                </div>
+                <div class="adminData">
+                    <textarea asp-for="MetaDescription"></textarea>
+                    <span asp-validation-for="MetaDescription"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="MetaKeywords" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="MetaKeywords" />
+                    <span asp-validation-for="MetaKeywords"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SeName" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="SeName" />
+                    @if (Model.Id != 0)
+                    {
+                        @await Component.InvokeAsync("NamesPerEntity", new { entityName = "Product", entityId = Model.Id })
+                    }
+                    <span asp-validation-for="SeName"></span>
+                </div>
+            </div>
+        </div>
+    </text>))

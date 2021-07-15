@@ -1,0 +1,86 @@
+﻿@model ProductModel
+
+@if (Model.Id == 0)
+{
+    <div class="alert alert-danger">
+        @T("Admin.Catalog.Products.Pictures.SaveBeforeEdit")
+    </div>
+    return;
+}
+
+<div class="adminContent mb-5">
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="head">@T("Common.Options")</div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="HasPreviewPicture" />
+        </div>
+        <div class="adminData">
+            <input asp-for="HasPreviewPicture" />
+            <span asp-validation-for="HasPreviewPicture"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="head">@T("Admin.Catalog.Products.Pictures.AddNew")</div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminData wide">
+            @*TODO: (mh) (core) Remove comment after review*@
+            @*INFO: Editor taghelper can't be used because Model.ProductMediaFiles can't be casted into string *@
+            @*@{
+                var attrs = new AttributeDictionary {
+                    { "entityId", Model.Id.ToString() },
+                    { "entityType", "Product" },
+                    { "transientUpload", "false"},
+                    { "album", "catalog"},
+                    { "multifile", "true"},
+                    { "deleteUrl", Url.Action("ProductPictureDelete", "Product", "Admin")},
+                    { "sortUrl", Url.Action("SortPictures", "Product", "Admin")},
+                    { "entityAssignmentUrl", Url.Action("ProductMediaFilesAdd", "Product", "Admin")},
+                    { "uploadedFiles", Model.ProductMediaFiles as IEnumerable<IMediaFile>},
+                    { "typeFilter", "image,video" }
+                };
+            }
+
+            <editor asp-for="AddPictureModel.PictureId" attrs="attrs" />*@
+
+            @Html.EditorFor(model => model.AddPictureModel.PictureId, new
+            {
+                entityId = Model.Id,
+                entityType = "Product",
+                transientUpload = false,
+                album = "catalog",
+                multifile = true,
+                deleteUrl = Url.Action("ProductPictureDelete", "Product", "Admin"),
+                sortUrl = Url.Action("SortPictures", "Product", "Admin"),
+                entityAssignmentUrl = Url.Action("ProductMediaFilesAdd", "Product", "Admin"),
+                uploadedFiles = Model.ProductMediaFiles as IEnumerable<IMediaFile>,
+                typeFilter = "image,video"
+            })
+            <span asp-validation-for="AddPictureModel.PictureId"></span>
+        </div>
+    </div>
+</div>
+
+<script sm-target-zone="Scripts" data-origin="product-pictures">
+    $(function () {
+        Smartstore.media.lazyLoadThumbnails($(".preview-container"));
+
+        // Set MainPictureId for product
+        $(document).on("click", ".set-main-picture", function (e) {
+            var el = $(this).closest('.dz-image-preview');
+            var previewContainer = $(this).closest(".preview-container");
+
+            // Insert choosen media file at beginning of the list
+            el.insertBefore(previewContainer.find('.dz-image-preview').first());
+            previewContainer.trigger("sort", { item: el });
+
+            return false;
+        });
+    });
+</script>

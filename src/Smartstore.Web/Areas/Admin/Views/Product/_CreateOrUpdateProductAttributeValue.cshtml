@@ -1,0 +1,212 @@
+﻿@using Smartstore.Core.Catalog.Attributes
+
+@model ProductModel.ProductVariantAttributeValueModel
+
+<div asp-validation-summary="ModelOnly"></div>
+
+<input type="hidden" asp-for="Id" />
+<input type="hidden" asp-for="ProductVariantAttributeId" />
+<input type="hidden" asp-for="IsListTypeAttribute" />
+
+<script sm-target-zone="Scripts" data-origin="attribute-value-popup">
+	$(function () {
+		$('#@Html.IdFor(model => model.ValueTypeId)').change(function () {
+			var selectedValueTypeId = $('#@Html.IdFor(model => model.ValueTypeId)').val();
+
+			if (selectedValueTypeId == '@((int)ProductVariantAttributeValueType.Simple)') {
+				$('#group-linked-product').hide();
+				$('#group-quantity').hide();
+				$('#group-price-adjustment').show();
+				$('#group-weight-adjustment').show();
+			}
+			else if (selectedValueTypeId == '@((int)ProductVariantAttributeValueType.ProductLinkage)') {
+				$('#group-linked-product').show();
+				$('#group-quantity').show();
+				$('#group-price-adjustment').hide();
+				$('#group-weight-adjustment').hide();
+			}
+		}).trigger('change');
+
+        // TODO: (mh) (core) Test this!
+		$('#RemoveProductLinkageButton').on('click', function () {
+			$('#linked-product-name').val('');
+			$('#@Html.IdFor(model => model.LinkedProductId)').val('0');
+			toggleLinkageButtons();
+		});
+
+		toggleLinkageButtons();
+	});
+
+    // TODO: (mh) (core) Test this!
+	function PickLinkedProduct_Completed(ids, selectedItems, dialog) {
+		$('#linked-product-name').val(selectedItems[0].name);
+		return true;
+	}
+
+    // TODO: (mh) (core) Test this!
+	function toggleLinkageButtons() {
+		var unlinked = ($('#@Html.IdFor(model => model.LinkedProductId)').val() === '0');
+		$('#AddProductLinkageButton').toggle(unlinked);
+		$('#RemoveProductLinkageButton').toggle(!unlinked);
+	}
+</script>
+
+<div class="adminContent mb-3">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ValueTypeId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="ValueTypeId" asp-items="((ProductVariantAttributeValueType)Model.ValueTypeId).ToSelectList()"></select>
+            <span asp-validation-for="ValueTypeId"></span>
+        </div>
+    </div>
+    <div class="adminRow" id="group-linked-product">
+        <div class="adminTitle">
+            <smart-label asp-for="LinkedProductId" />
+        </div>
+        <div class="adminData">
+            <input type="hidden" asp-for="LinkedProductId" />
+
+            <div class="input-group">
+                <input type="text" class="form-control" id="linked-product-name" placeholder="@T("Common.Unspecified")" value="@Model.LinkedProductName" readonly>
+                <div class="input-group-append">
+                    <button type="button" id="RemoveProductLinkageButton" class="btn btn-outline-secondary btn-to-danger">
+                        <i class="fa fa-times"></i>
+                        <span>@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.UnlinkProduct")</span>
+                    </button>
+                    <entity-picker asp-for="LinkedProductId"
+                                   icon-css-class="fa fa-link"
+                                   id="AddProductLinkageButton"
+                                   max-items="1"
+                                   append-mode="false"
+                                   disabled-entity-ids="new[] { Model.ProductId }"
+                                   dialog-title=@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.LinkedProduct.AddNew").JsValue
+                                   caption=@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.LinkProduct").JsValue
+                                   onselectioncompleted="PickLinkedProduct_Completed"
+                                   class="btn btn-outline-secondary" />
+                </div>
+            </div>
+
+            <span asp-validation-for="LinkedProductId"></span>
+        </div>
+    </div>
+    <div class="adminRow" id="group-quantity">
+        <div class="adminTitle">
+            <smart-label asp-for="Quantity" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Quantity" />
+            <span asp-validation-for="Quantity"></span>
+        </div>
+    </div>
+</div>
+
+@(Html.LocalizedEditor<ProductModel.ProductVariantAttributeValueModel, ProductModel.ProductVariantAttributeValueLocalizedModel>("productattributevalue-localized",
+    @<text>
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Locales[item].Name" />
+                </div>
+                <div class="adminData">
+                    @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                    <input type="hidden" asp-for="Locales[item].LanguageId" />
+                    <input asp-for="Locales[item].Name" />
+                    <span asp-validation-for="Locales[item].Name"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Locales[item].Alias" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Locales[item].Alias" />
+                    <span asp-validation-for="Locales[item].Alias"></span>
+                </div>
+            </div>
+        </div>
+    </text>,
+    @<text>
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Name" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Alias" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Alias" />
+                    <span asp-validation-for="Alias"></span>
+                </div>
+            </div>
+        </div>
+    </text>
+))
+
+<div class="adminContent">
+    @if (Model.IsListTypeAttribute)
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PictureId" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="PictureId" />
+                <span asp-validation-for="PictureId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Color" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Color" />
+                <span asp-validation-for="Color"></span>
+            </div>
+        </div>
+    }
+    <div class="adminRow" id="group-price-adjustment">
+        <div class="adminTitle">
+            <smart-label asp-for="PriceAdjustment" />
+        </div>
+        <div class="adminData">
+            <input asp-for="PriceAdjustment" />
+            <span asp-validation-for="PriceAdjustment"></span>
+        </div>
+    </div>
+    <div class="adminRow" id="group-weight-adjustment">
+        <div class="adminTitle">
+            <smart-label asp-for="WeightAdjustment" />
+        </div>
+        <div class="adminData">
+            <input asp-for="WeightAdjustment" />
+            <span asp-validation-for="WeightAdjustment"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IsPreSelected" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="IsPreSelected" />
+            <span asp-validation-for="IsPreSelected"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DisplayOrder" />
+        </div>
+        <div class="adminData">
+            <input asp-for="DisplayOrder" />
+            <span asp-validation-for="DisplayOrder"></span>
+        </div>
+    </div>
+</div>

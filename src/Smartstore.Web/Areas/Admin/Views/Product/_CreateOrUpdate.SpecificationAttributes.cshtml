@@ -1,0 +1,151 @@
+﻿@model ProductModel
+
+@if (Model.Id == 0)
+{
+    <div class="alert alert-danger">
+        @T("Admin.Catalog.Products.SpecificationAttributes.SaveBeforeEdit")
+    </div>
+    return;
+}
+
+@if (ViewBag.AvailableAttributes.Count == 0)
+{
+    <div class="alert alert-danger">
+        @T("Admin.Catalog.Products.SpecificationAttributes.NoAttributes")
+    </div>
+    return;
+}
+
+<div class="adminContent mb-5">
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="head">@T("Admin.Catalog.Products.SpecificationAttributes.AddNew")</div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AddSpecificationAttributeModel.SpecificationAttributeId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="AddSpecificationAttributeModel.SpecificationAttributeId" asp-items="ViewBag.AvailableAttributes"></select>
+            <span asp-validation-for="AddSpecificationAttributeModel.SpecificationAttributeId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AddSpecificationAttributeModel.SpecificationAttributeOptionId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="AddSpecificationAttributeModel.SpecificationAttributeOptionId" asp-items="ViewBag.AvailableOptions"></select>
+            <span asp-validation-for="AddSpecificationAttributeModel.SpecificationAttributeOptionId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AddSpecificationAttributeModel.AllowFiltering" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="AddSpecificationAttributeModel.AllowFiltering" />
+            <span asp-validation-for="AddSpecificationAttributeModel.AllowFiltering"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AddSpecificationAttributeModel.ShowOnProductPage" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="AddSpecificationAttributeModel.ShowOnProductPage" />
+            <span asp-validation-for="AddSpecificationAttributeModel.ShowOnProductPage"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AddSpecificationAttributeModel.DisplayOrder" />
+        </div>
+        <div class="adminData">
+            <input asp-for="AddSpecificationAttributeModel.DisplayOrder" />
+            <span asp-validation-for="AddSpecificationAttributeModel.DisplayOrder"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            &nbsp;
+        </div>
+        <div class="adminData">
+            <button type="button" name="addProductSpec" id="addProductSpec" class="btn btn-primary">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Catalog.Products.SpecificationAttributes.AddButton")</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script sm-target-zone="Scripts" data-origin="product-specification-attributes">
+    $(function () {
+        var token = $('input[name="__RequestVerificationToken"]').val();
+
+        $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeId)").on('change', function() {
+            var selectedItem = $(this).val();
+            var ddlSpecOptions = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeOptionId)")
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetOptionsByAttributeId", "SpecificationAttribute"))",
+                data: { "attributeId": selectedItem },
+                success: function (data) {
+                    ddlSpecOptions.html('');
+                    $.each(data, function(id, option) {
+                        ddlSpecOptions.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                    ddlSpecOptions.trigger("change");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve specification options.')
+                }
+            });
+        });
+
+        $(document).on("click", "#addProductSpec", (function () {
+            var specificationAttributeOptionId = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeOptionId)").val();
+            var allowFiltering = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.AllowFiltering)").val();
+            var showOnProductPage = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.ShowOnProductPage)").val();
+            var displayOrder = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.DisplayOrder)").val();
+
+            $('#addProductSpec').attr('disabled', true);
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.Action("ProductSpecificationAttributeAdd", "Product"))",
+                data: {
+                    "specificationAttributeOptionId": specificationAttributeOptionId,
+                    "allowFiltering": allowFiltering,
+                    "showOnProductPage": showOnProductPage,
+                    "displayOrder": displayOrder,
+                    "productId": @Model.Id,
+                    "__RequestVerificationToken": token
+                },
+                success: function (data) {
+                    $('#addProductSpec').attr('disabled', false);
+                    if (data.success) {
+                        window["specificationattributes-grid"].$children[0].read();
+                    }
+                    else {
+                        displayNotification(data.message, 'warning');
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to add specification attribute.')
+                    $('#addProductSpec').attr('disabled', false);
+                }
+            });
+        }));
+    });
+</script>
+
+@{
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<partial name="_Grid.SpecificationAttributes" model="null" view-data="gridViewData" />

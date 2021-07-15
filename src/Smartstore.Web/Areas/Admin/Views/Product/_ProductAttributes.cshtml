@@ -1,0 +1,81 @@
+﻿@using Smartstore.Core.Catalog.Attributes
+
+@model ProductVariantAttributeCombinationModel
+
+@{
+    async Task ControlsCheckboxesAndRadios(ProductVariantAttributeCombinationModel.ProductVariantAttributeModel attribute, string controlId)
+    {
+        var type = attribute.AttributeControlType == AttributeControlType.Checkboxes ? "checkbox" : "radio";
+
+        foreach (var pvaValue in attribute.Values)
+        {
+            <div class="custom-control custom-@type custom-control-inline">
+                <input type="@type" id="@controlId-@pvaValue.Id" name="@controlId" class="custom-control-input" value="@pvaValue.Id" attr-checked='(pvaValue.IsPreSelected, "checked")' />
+                <label class="custom-control-label" for="@controlId-@pvaValue.Id">@pvaValue.Name</label>
+            </div>
+        }
+    }
+
+    async Task ControlsOthers(ProductVariantAttributeCombinationModel.ProductVariantAttributeModel attribute, string controlId)
+    {
+        var type = attribute.AttributeControlType == AttributeControlType.Checkboxes ? "checkbox" : "radio";
+
+        if (attribute.AttributeControlType == AttributeControlType.DropdownList)
+        {
+            <select name="@controlId" id="@controlId" class="form-control">
+                <option sm-if="!attribute.IsRequired" value="0">---</option>
+                
+                @foreach (var pvaValue in attribute.Values)
+                {
+                    <option attr-selected='(pvaValue.IsPreSelected, "selected")' value="@pvaValue.Id">@pvaValue.Name</option>
+                }
+            </select>
+        }
+        else if (attribute.AttributeControlType == AttributeControlType.TextBox)
+        {
+            <input type="text" class="form-control" id="@controlId" name="@controlId" />
+        }
+        else if (attribute.AttributeControlType == AttributeControlType.MultilineTextbox)
+        {
+            <textarea class="form-control" id="@controlId" name="@controlId" rows="2"></textarea>
+        }
+        else if (attribute.AttributeControlType == AttributeControlType.Datepicker)
+        {
+            <triple-date-picker day-name="@(controlId + "-day")" 
+                                month-name="@(controlId + "-month")" 
+                                year-name="@(controlId + "-year")" 
+                                begin-year="@DateTime.Now.Year"
+                                end-year="@(DateTime.Now.Year + 1)" />
+        }
+        else if (attribute.AttributeControlType == AttributeControlType.FileUpload)
+        {
+            <input type="file" id="@controlId" name="@controlId" />
+        }
+    }
+}
+
+@if (Model.ProductVariantAttributes.Count > 0)
+{
+    foreach (var attribute in Model.ProductVariantAttributes)
+    {
+        var controlId = attribute.GetControlId(Model.ProductId, 0);
+
+        <div class="form-group last-mb-0" attr-class='(attribute.IsRequired, "required")'>
+            <label for="@controlId">
+                @(attribute.TextPrompt.HasValue() ? attribute.TextPrompt : attribute.Name)
+            </label>
+            <div class="controls">
+                @if (attribute.AttributeControlType == AttributeControlType.Checkboxes
+                 || attribute.AttributeControlType == AttributeControlType.RadioList
+                 || attribute.AttributeControlType == AttributeControlType.Boxes)
+                {
+                    await ControlsCheckboxesAndRadios(attribute, controlId);
+                }
+                else
+                {
+                    await ControlsOthers(attribute, controlId);
+                }
+            </div>
+        </div>
+    }
+}

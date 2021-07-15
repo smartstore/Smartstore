@@ -1,0 +1,21 @@
+﻿@model ProductModel.ProductVariantAttributeValueModel
+@{
+    Layout = "_AdminPopupLayout";
+    ViewBag.Title = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.AddNew").Value;
+}
+
+<form asp-action="ProductAttributeValueCreatePopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+    <div class="section-header">
+        <div class="title">
+            @ViewBag.Title
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-primary">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdateProductAttributeValue" model="Model" />
+</form>

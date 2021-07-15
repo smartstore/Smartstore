@@ -1,0 +1,25 @@
+﻿@model ProductModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.Products.AddNew").Value;
+}
+
+<form asp-action="Create" method="post" id="product-form">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Catalog.Products.AddNew")
+            <a asp-action="List">(@T("Admin.Catalog.Products.BackToList"))</a>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-primary entity-commit-trigger" data-commit-type="product" data-commit-action="insert" data-commit-id="@Model.Id">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary entity-commit-trigger" data-commit-type="product" data-commit-action="insert" data-commit-id="@Model.Id">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" model="Model" />
+</form>

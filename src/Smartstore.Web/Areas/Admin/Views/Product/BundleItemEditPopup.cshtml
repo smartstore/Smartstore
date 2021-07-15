@@ -1,0 +1,224 @@
+﻿@model ProductBundleItemModel
+
+@{
+    Layout = "_AdminPopupLayout";
+}
+
+<form asp-action="BundleItemEditPopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ProductId" />
+    <input type="hidden" asp-for="BundleProductId" />
+
+    <div class="section-header">
+        <div class="title">@ViewBag.Title</div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save-continue" value="save-continue" class="btn btn-secondary">
+                @T("Admin.Common.SaveContinue")
+            </button>
+        </div>
+    </div>
+
+    <script>
+		$(function() {
+			@foreach (var attr in Model.Attributes)
+			{
+				<text>
+				$('#attribute_@attr.Id').selectWrapper();
+				</text>
+			}
+		});
+    </script>
+
+    <tabstrip id="bundleitem-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Common.General")" sm-selected="true">
+            <div id="BundleItemsLocalizedContainer">
+                @(Html.LocalizedEditor<ProductBundleItemModel, ProductBundleItemLocalizedModel>("productbundleitem-localized",
+					@<text>
+                        <div class="adminContent">
+						    <div class="adminRow">
+							    <div class="adminTitle">
+								    <smart-label asp-for="Locales[item].Name" />
+							    </div>
+							    <div class="adminData">
+								    @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                                    <input asp-for="Locales[item].LanguageId" type="hidden" />
+                                    <input asp-for="Locales[item].Name" />
+                                    <span asp-validation-for="Locales[item].Name"></span>
+							    </div>
+						    </div>
+						    <div class="adminRow">
+							    <div class="adminTitle">
+                                    <smart-label asp-for="Locales[item].ShortDescription" />
+							    </div>
+                                <div class="adminData">
+                                    <input asp-for="Locales[item].ShortDescription" />
+                                    <span asp-validation-for="Locales[item].ShortDescription"></span>
+                                </div>
+						    </div>
+					    </div>
+                    </text>
+                    ,
+                    @<text>
+                        <div class="adminContent">
+                            <div class="adminRow">
+                                <div class="adminTitle">
+                                    <smart-label asp-for="Name" />
+                                </div>
+                                <div class="adminData">
+                                    <input asp-for="Name" />
+                                    <span asp-validation-for="Name"></span>
+                                </div>
+                            </div>
+                            <div class="adminRow">
+                                <div class="adminTitle">
+                                    <smart-label asp-for="ShortDescription" />
+                                </div>
+                                <div class="adminData">
+                                    <input asp-for="ShortDescription" />
+                                    <span asp-validation-for="ShortDescription"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </text>
+                ))
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Quantity" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Quantity" />
+                        <span asp-validation-for="Quantity"></span>
+                    </div>
+                </div>
+                @if (Model.IsPerItemPricing)
+                {
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="Discount" />
+                        </div>
+                        <div class="adminData">
+                            <input asp-for="Discount" />
+                            <span asp-validation-for="Discount"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="DiscountPercentage" />
+                        </div>
+                        <div class="adminData">
+                            <input asp-for="DiscountPercentage" />
+                            <span asp-validation-for="DiscountPercentage"></span>
+                        </div>
+                    </div>
+                }
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="HideThumbnail" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="HideThumbnail" />
+                        <span asp-validation-for="HideThumbnail"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Visible" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Visible" />
+                        <span asp-validation-for="Visible"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Published" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Published" />
+                        <span asp-validation-for="Published"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DisplayOrder" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="DisplayOrder" />
+                        <span asp-validation-for="DisplayOrder"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CreatedOn" />
+                    </div>
+                    <div class="adminData">
+                        <div class="form-control-plaintext">
+                            @Html.DisplayFor(model => model.CreatedOn)
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="UpdatedOn" />
+                    </div>
+                    <div class="adminData">
+                        <div class="form-control-plaintext">
+                            @Html.DisplayFor(model => model.UpdatedOn)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Catalog.Products.BundleItems.Attributes")">
+            
+            <div sm-if="Model.Attributes.Count == 0" class="alert alert-warning">
+                @T("Admin.Catalog.Products.BundleItems.Fields.FilterAttributes.NoneNote")
+            </div>
+
+            <div sm-if="Model.Attributes.Count > 0" class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="FilterAttributes" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="FilterAttributes" data-toggler-for="#pnlAttributeFilters" />
+                        <span asp-validation-for="FilterAttributes"></span>
+                    </div>
+                </div>
+                <div id="pnlAttributeFilters">
+                    @foreach (var attribute in Model.Attributes)
+                    {
+                        //TODO: (mh) (core) How to do this?
+                        @*<div class="adminRow">
+                            <div class="adminTitle">
+                                <smart-label asp-for="attribute.AttributeControlId" sm-text="@attribute.Name" />
+                            </div>
+                            <div class="adminData">
+                                @Html.DropDownList(attribute.AttributeControlId, attribute.Values, null, new { multiple = "multiple", @class = "form-control" })
+                            </div>
+                        </div>
+                        <div sm-if="attribute.PreSelect.Count > 0" class="adminRow">
+                            <div class="adminTitle">
+                                <smart-label asp-for="attribute.PreSelectControlId" 
+                                             sm-text="@T("Admin.Catalog.Products.BundleItems.Fields.FilterPreSelect")"
+                                             sm-hint="@T("Admin.Catalog.Products.BundleItems.Fields.FilterPreSelect.Hint")" />
+                            </div>
+                            <div class="adminData">
+                                @Html.DropDownList(attribute.PreSelectControlId, attribute.PreSelect, new { @class = "form-control" })
+                            </div>
+                        </div>*@
+                    }
+                </div>
+            </div>
+        </tab>
+    </tabstrip>
+</form>

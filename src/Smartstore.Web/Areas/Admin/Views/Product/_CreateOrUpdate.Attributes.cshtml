@@ -1,0 +1,73 @@
+﻿@model ProductModel
+
+<div>
+    <h4 class="mb-4">@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes")</h4>
+
+    @if (Model.Id > 0)
+    {
+        if (Model.NumberOfAvailableProductAttributes > 0)
+        {
+            var gridViewData = new ViewDataDictionary(this.ViewData);
+            gridViewData["Parent"] = Model;
+        
+            <partial name="_Grid.ProductVariantAttribute" model="null" view-data="gridViewData" />
+
+            <div class="mt-4">
+                <div class="adminContent">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="AttributeChoiceBehaviour" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="AttributeChoiceBehaviour"/>
+                            <span asp-validation-for="AttributeChoiceBehaviour"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger">
+                @T("Admin.Catalog.Products.ProductVariantAttributes.NoAttributesAvailable")
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            @T("Admin.Catalog.Products.ProductVariantAttributes.SaveBeforeEdit")
+        </div>
+    }
+</div>
+
+<div class="mt-5">
+    <h4 class="mb-4">@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations")</h4>
+
+    @if (Model.Id > 0)
+    {
+        if (Model.NumberOfAvailableProductAttributes > 0)
+        {
+            <div class="alert alert-info mb-3">
+                @T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.Description")
+            </div>
+
+            var gridViewData = new ViewDataDictionary(this.ViewData);
+            gridViewData["Parent"] = Model;
+
+            <partial name="_Grid.AttributeCombinations" model="null" view-data="gridViewData" />
+        }
+        else
+        {
+            <div class="alert alert-danger">
+                @T("Admin.Catalog.Products.ProductVariantAttributes.NoAttributesAvailable")
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            @T("Admin.Catalog.Products.ProductVariantAttributes.SaveBeforeEdit")
+        </div>
+    }
+</div>

@@ -1,0 +1,122 @@
+﻿@using Smartstore.Core.Catalog.Products
+
+@model ProductModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.Products.EditProductDetails").Value;
+}
+
+<div asp-action="Edit" method="post" id="product-form">
+    <div class="section-header">
+        <div class="title">
+            @if (Model.PictureThumbnailUrl.HasValue())
+            {
+                // TODO: (mh) (consider using ImageModel)
+                <img src="@Url.Content(Model.PictureThumbnailUrl)" />
+            }
+            @T("Admin.Catalog.Products.EditProductDetails") - <span title="@Model.Name">@Model.Name.Truncate(45, "...")</span>
+            <a asp-action="List">(@T("Admin.Catalog.Products.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before"></zone>
+
+            <button type="submit" name="preview" value="preview" onclick="javascript:openWindow('@Model.ProductUrl', 1000, 600, true); return false;" class="btn btn-secondary">
+                <i class="far fa-eye"></i>
+                <span>@T("Admin.Common.Preview")</span>
+            </button>
+            <button type="submit" value="save" class="btn btn-warning entity-commit-trigger" data-commit-type="product" data-commit-action="update" data-commit-id="@Model.Id">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" value="save-continue" class="btn btn-secondary entity-commit-trigger" data-commit-type="product" data-commit-action="update" data-commit-id="@Model.Id">
+                @T("Admin.Common.SaveContinue")
+            </button>
+            <a href="#copyproduct-window" data-toggle="modal" class="btn btn-secondary">
+                <i class="far fa-copy"></i>
+                <span>@T("Admin.Catalog.Products.Copy")</span>
+            </a>
+            <button type="submit" id="product-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="product-delete" />
+
+            <zone name="admin_button_toolbar_after"></zone>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" model="Model" />
+</div>
+
+@*TODO: (mh) (core) Implement copy product window*@
+
+@*TODO: (mh) (core) Implement CopyAttributeOptionsDialog*@
+
+<script sm-target-zone="Scripts" data-origin="">
+    // TODO: (mh) (core) Test every single function call in here!!!
+    $(function() {
+		// Copy product form submission.
+        $(document).on('click', "#copyproduct", function (e) {
+            e.preventDefault();
+            $('#copyproduct-window').find('form').submit();
+            return false;
+        });
+
+    	// Show modal dialog to copy attribute options.
+        $(document).on('change', '#productvariantattributes-grid select[id^=OptionsSetsChoice]', function (e) {
+        	e.stopPropagation();
+
+        	var select = $(e.currentTarget),
+				form = $('#CopyOptionsForm'),
+				valueCount = parseInt(select.attr('data-valcount')),
+				productVariantAttributeId = select.attr('id').replace('OptionsSetsChoice', '');
+
+        	form.find('input[name=productVariantAttributeId]').val(productVariantAttributeId);
+        	form.find('input[name=optionsSetId]').val(select.val());
+
+        	if (valueCount > 0) {
+        		var hint = $('#CopyOptionsHintTemplate').text().replace('{0}', select.find(':selected').text());
+        		$('#CopyOptionsHint').text(hint);
+
+        		$('#CopyAttributeOptionsDialog').modal('show');
+        	}
+        	else {
+        		$('#btnCopyAttributeOptions').trigger('click');
+        	}
+        });
+
+    	// Copy attribute options
+        $(document).on('click', '#btnCopyAttributeOptions', function () {
+        	$('#CopyOptionsForm').doAjax({
+        		type: 'POST',
+        		callbackSuccess: function () {
+        			$('#productvariantattributes-grid').data('tGrid').ajaxRequest();
+        		}
+        	});
+        });
+
+		// Bundle per item pricing
+        $(document).on('change', '#@Html.IdFor(model => model.BundlePerItemPricing)', function () {
+        	bundlePerItemPricing($(this).is(':checked'));
+        });
+
+		bundlePerItemPricing(@((Model.ProductTypeId == (int)ProductType.BundledProduct && Model.BundlePerItemPricing).ToString().ToLower()));
+
+        function bundlePerItemPricing(isActive) {
+        	$('#TierPriceContainer').toggle(!isActive);
+        	$('#group-prices').find('.base-price').toggle(!isActive);
+        	$('a[href="#tab-discounts"]').parent().toggle(!isActive);
+        }
+
+		// Bundle per item in shopping cart
+        $(document).on('change', '#@Html.IdFor(model => model.BundlePerItemShoppingCart)', function () {
+        	bundlePerItemShoppingCart($(this).is(':checked'));
+        });
+
+		bundlePerItemShoppingCart(@((Model.ProductTypeId == (int)ProductType.BundledProduct && Model.BundlePerItemShoppingCart).ToString().ToLower()));
+
+        function bundlePerItemShoppingCart(isActive) {
+        	$('a[href="#tab-inventory"]').parent().toggle(!isActive);
+        }
+    });
+</script>

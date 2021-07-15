@@ -93,5 +93,28 @@ namespace Smartstore.Web.Rendering
 
             return builder;
         }
+
+        /// <summary>
+        /// Renders a labeled variant attribute value name including link icon and color square for grids. Not intended to be used outside of grids.
+        /// </summary>
+        /// <returns>Labeled variant attribute value name</returns>
+        public static IHtmlContent VariantAttributeValueName(this IHtmlHelper _)
+        {
+            var builder = new HtmlContentBuilder();
+
+            var icon = "<i :class='item.row.TypeNameClass' :title='item.row.TypeName'></i>";
+            builder.AppendHtml(icon);
+
+            var colorSpan = new TagBuilder("span");
+            colorSpan.Attributes.Add("v-if", "item.row.HasColor");
+            colorSpan.Attributes.Add("class", "color-container");
+            colorSpan.InnerHtml.AppendHtml("<span class='color' :style='{ background: item.row.Color }'>&nbsp;</span>");
+            builder.AppendHtml(colorSpan);
+
+            var quantityInfo = "<span>{{ item.value }} {{ item.row.QuantityInfo }}</span>";
+            builder.AppendHtml(quantityInfo);
+
+            return builder;
+        }
     }
 }

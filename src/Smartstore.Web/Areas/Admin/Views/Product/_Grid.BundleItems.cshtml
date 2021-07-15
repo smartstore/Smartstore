@@ -1,0 +1,114 @@
+﻿@model ProductModel.BundleItemModel
+
+@{
+    var parentModel = ViewData["Parent"] as ProductModel;
+}
+
+<datagrid id="bundleitems-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          onrowclass="bundleItems_onRowClass">
+    <datasource read="@Url.Action("BundleItemList", new { productId = parentModel.Id })"
+                delete="@Url.Action("BundleItemDelete")" />
+    <sorting enabled="true"></sorting>
+    <toolbar>
+        <toolbar-group>
+            <button id="pick-bundle-item-products" type="button" class="btn btn-primary btn-flat no-anims">
+                <i class="fa fa-plus"></i>
+                <span>@T("Common.AddNew")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="ProductName" hideable="false" width="4fr" readonly>
+            <display-template>
+                @Html.LabeledProductName()
+            </display-template>
+        </column>
+        <column for="Sku" width="1fr" />
+        <column for="Quantity" halign="center" width="1fr" />
+        <column for="Discount" halign="center" width="1fr" />
+        <column for="Visible" halign="center" width="1fr" />
+        <column for="Published" halign="center" width="1fr" />
+        <column for="DisplayOrder" halign="center" width="1fr" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="grid-edit-bundle-part" :data-key="item.row.Id">@T("Common.Edit")</a>
+    </row-commands>
+</datagrid>
+
+<entity-picker icon-css-class="fa fa-plus"
+               caption='@T("Common.AddNew")'
+               dialog-title='@T("Admin.Catalog.Products.BundleItems.AddNew")'
+               onselectioncompleted="PickBundleItems_Completed"
+               disable-bundle-products="true"
+               disable-grouped-products="true"
+               class="bundle-item-product-picker"
+               style="display:none" />
+
+<input type="submit" id="btnRefreshBundleItems" name="btnRefreshBundleItems" class="d-none" />
+
+<script sm-target-zone="scripts" data-origin="bundleItems-grid">
+    var token = "";
+
+    $(function () {
+        token = $('input[name="__RequestVerificationToken"]').val();
+
+        // Call hidden entity picker.
+        $(document).on("click", "#pick-bundle-item-products", function (e) {
+            $(".bundle-item-product-picker").trigger("click");
+            return false;
+        });
+
+        // Open popup on edit click.
+        $(document).on('click', '.grid-edit-bundle-part', function (e) {
+            e.preventDefault();
+
+            var id = $(this).data("key");
+            var href = '@Url.Content("~/Admin/Product/BundleItemEditPopup/")' + id + '?btnId=btnRefreshBundleItems&formId=product-form';
+            openPopup(href);
+			return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefreshBundleItems', function () {
+            window["bundleitems-grid"].$children[0].read();
+            return false;
+        });
+    });
+
+    function bundleItems_onRowClass(row) {
+        if (!row.Published) {
+            return { 'text-muted': true };
+        }
+    }
+
+    function PickBundleItems_Completed(ids) {
+        $({}).doAjax({
+            type: 'POST',
+            url: '@Url.Action("BundleItemAdd")',
+            data: {
+                "productId": @parentModel.Id,
+                "selectedProductIds": ids,
+                "__RequestVerificationToken": token
+            },
+            callbackSuccess: function () {
+                window["bundleitems-grid"].$children[0].read();
+            }
+        });
+        return true;
+    };
+</script>

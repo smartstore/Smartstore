@@ -1,0 +1,12 @@
+﻿@using Smartstore.Core.Catalog.Attributes
+
+@{
+    var controlTypeList = AttributeControlType.DropdownList.ToSelectList();
+}
+
+<select name="AttributeControlType" id="AttributeControlType" class="form-control edit-control" data-editor="select">
+    @foreach (var item in controlTypeList)
+    {
+        <option value="@item.Value">@item.Text</option>
+    }
+</select>

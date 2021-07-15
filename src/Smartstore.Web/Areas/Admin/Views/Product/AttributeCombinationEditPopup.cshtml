@@ -1,0 +1,22 @@
+﻿@model ProductVariantAttributeCombinationModel
+
+@{
+    Layout = "_AdminPopupLayout";
+    ViewBag.Title = T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.EditTitle").Value;
+}
+
+<form asp-action="AttributeCombinationEditPopup" asp-route-productId="@Model.ProductId" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+    <div class="section-header">
+        <div class="title">
+            @ViewBag.Title
+        </div>
+        <div class="options">
+            <button type="submit" id="save" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdateAttributeCombinationPopup" model="Model" />
+</form>

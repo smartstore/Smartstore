@@ -1,0 +1,23 @@
+﻿@model ProductModel
+
+@if (Model.Id == 0)
+{
+    <p class="text-muted">
+        @T("Admin.Catalog.Products.AssociatedProducts.SaveBeforeEdit")
+    </p>
+    return;
+}
+
+@{
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="alert alert-info">
+    <ul>
+        <li>@T("Admin.Catalog.Products.AssociatedProducts.Note1")</li>
+        <li>@T("Admin.Catalog.Products.AssociatedProducts.Note2")</li>
+    </ul>
+</div>
+
+<partial name="_Grid.AssociatedProducts" model="null" view-data="gridViewData" />

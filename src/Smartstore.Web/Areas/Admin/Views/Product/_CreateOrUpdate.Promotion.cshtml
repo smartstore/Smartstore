@@ -1,0 +1,42 @@
+﻿@model ProductModel
+
+@{ 
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    @if (Model.Id > 0)
+    {
+        gridViewData["Parent"] = Model;
+    }
+}
+
+<div>
+    <h4>@T("Admin.Catalog.Products.RelatedProducts")</h4>
+    @if (Model.Id > 0)
+    {
+        <div class="mt-4">
+            <partial name="_Grid.RelatedProducts" model="null" view-data="gridViewData" />
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            @T("Admin.Catalog.Products.RelatedProducts.SaveBeforeEdit")
+        </div>
+    }
+</div>
+
+<div class="mt-5">
+    <h4>@T("Admin.Catalog.Products.CrossSells")</h4>
+
+    @if (Model.Id > 0)
+    {
+        <div class="mt-4">
+            <partial name="_Grid.CrossSellProducts" model="null" view-data="gridViewData" />
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            @T("Admin.Catalog.Products.CrossSells.SaveBeforeEdit")
+        </div>
+    }
+</div>

@@ -1,0 +1,234 @@
+﻿@using Smartstore.Core.Catalog.Products
+ 
+@model ProductModel
+
+<div class="adminContent" id="group-downloads">
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="head">@T("Common.Download")</div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IsDownload" />
+        </div>
+        <div class="adminData">
+            <input asp-for="IsDownload" data-toggler-for="#pnlIsDownload" />
+            <span asp-validation-for="IsDownload"></span>
+        </div>
+    </div>
+    <div id="pnlIsDownload">
+
+        @if (Model.DownloadId == null)
+        {
+            @*If there is no download yet, show download template*@
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DownloadId" />
+                </div>
+                <div class="adminData">
+                    @*TODO: (mh) (core) Lets test before moving on*@
+                    @*@Html.EditorFor(model => model.DownloadId, new { entityId = Model.Id, entityName = nameof(Product) })*@
+                    <editor asp-for="DownloadId" attrs='new AttributeDictionary { { "entityId", Model.Id.ToString() }, { "entityName", nameof(Product) } }'/>
+                    <span asp-validation-for="DownloadId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DownloadFileVersion" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="DownloadFileVersion" placeholder="@T("Common.Download.Version.Placeholder")" />
+                    <span asp-validation-for="DownloadFileVersion"></span>
+                </div>
+            </div>
+        }
+        else
+        {
+            // Else show file preview and make version info readonly.
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DownloadId" />
+                </div>
+                <div class="adminData">
+                    @if (!Model.CurrentDownload.UseDownloadUrl)
+                    {
+                        // TODO: (mh) (core) Why??? and How? :-)
+                        @*var mediaService = this.Services.MediaService;
+                        var currentFile = Model.CurrentDownload?.MediaFile != null ? mediaService.GetFileById((int)Model.CurrentDownload?.MediaFile.Id) : null;
+
+                        <div style="max-width: 150px; max-height: 150px" class="mb-3">
+                            <a href="@Model.CurrentDownload.DownloadUrl" class="filename" title="@(Model.CurrentDownload?.MediaFile?.Name)" target="_blank">
+                                @Html.MediaThumbnail(currentFile, MediaSettings.ThumbnailSizeMd, new { @class = "img-fluid justify-content-start my-2" })
+                            </a>
+                        </div>*@
+                    }
+                    else
+                    {
+                        <a href="@Model.CurrentDownload.DownloadUrl" class="form-control-plaintext text-truncate" title="@Model.CurrentDownload.DownloadUrl" target="_blank">
+                            @Model.CurrentDownload.DownloadUrl
+                        </a>
+                    }
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DownloadFileVersion" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="DownloadFileVersion" readonly />
+                    <span asp-validation-for="DownloadFileVersion"></span>
+                </div>
+            </div>
+        }
+
+        @if (Model.DownloadId != null)
+        {
+            <div class="adminRow">
+                <div class="admin-config-group">
+                    <div class="head">@T("Common.Download.Versions")</div>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="NewVersionDownloadId" />
+                </div>
+                <div class="adminData">
+                    @*@Html.EditorFor(model => model.NewVersionDownloadId, new { entityId = Model.Id, entityName = nameof(Product) })*@
+                    <editor asp-for="NewVersionDownloadId" attrs='new AttributeDictionary { { "entityId", Model.Id.ToString() }, { "entityName", nameof(Product) } }' />
+                    <span asp-validation-for="NewVersionDownloadId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="NewVersion" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="NewVersion" placeholder="@T("Common.Download.Version.Placeholder")" />
+                    <span asp-validation-for="NewVersion"></span>
+                </div>
+            </div>
+            <div sm-if="Model.DownloadVersions.Count > 0" class="adminRow">
+                <div class="adminTitle">&nbsp;</div>
+                <div class="adminData">
+                    <table class="table download-versions">
+                        <thead>
+                            <tr>
+                                <th scope="col">@T("Common.Download.Version")</th>
+                                <th scope="col">@T("Common.Download")</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var download in Model.DownloadVersions)
+                            {
+                                <tr>
+                                    <th scope="row">
+                                        <div class="form-control-plaintext">
+                                            @download.FileVersion
+                                        </div>
+                                    </th>
+                                    <td>
+                                        <div class="form-control-plaintext text-truncate" style="min-width: 180px; max-width: 180px">
+                                            <a href="@download.DownloadUrl" class="filename" title="@download.FileName" target="_blank">
+                                                @download.FileName
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td align="right">
+                                        <a href="#" data-download-id="@download.DownloadId" class="btn btn-outline-secondary btn-sm btn-icon add-changelog-btn" title="@T("Admin.Catalog.Products.Download.AddChangelog")">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        <a data-url="@Url.Action("DeleteDownloadVersion", "Product", new { downloadId = download.DownloadId, productId = Model.Id })"
+                                            class="delete-download-version btn btn-outline-secondary btn-to-danger btn-sm btn-icon" title="@T("Common.Download.Delete")">
+                                            <i class="far fa-trash-alt"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="head">@T("Common.Options")</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UnlimitedDownloads" />
+            </div>
+            <div class="adminData">
+                <input asp-for="UnlimitedDownloads" data-toggler-for="#pnlMaxNumberOfDownloads" data-toggler-reverse="true" />
+                <span asp-validation-for="UnlimitedDownloads"></span>
+            </div>
+        </div>
+        <div class="adminRow" id="pnlMaxNumberOfDownloads">
+            <div class="adminTitle">
+                <smart-label asp-for="MaxNumberOfDownloads" />
+            </div>
+            <div class="adminData">
+                <input asp-for="MaxNumberOfDownloads" />
+                <span asp-validation-for="MaxNumberOfDownloads"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DownloadExpirationDays" />
+            </div>
+            <div class="adminData">
+                <input asp-for="DownloadExpirationDays" />
+                <span asp-validation-for="DownloadExpirationDays"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DownloadActivationTypeId" />
+            </div>
+            <div class="adminData">
+                @Html.DropDownListFor(model => model.DownloadActivationTypeId, ((DownloadActivationType)Model.DownloadActivationTypeId).ToSelectList())
+                <span asp-validation-for="DownloadActivationTypeId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="HasUserAgreement" />
+            </div>
+            <div class="adminData">
+                <input asp-for="HasUserAgreement" data-toggler-for="#pnlUserAgreementText" />
+                <span asp-validation-for="HasUserAgreement"></span>
+            </div>
+        </div>
+        <div class="adminRow" id="pnlUserAgreementText">
+            <div class="adminTitle">
+                <smart-label asp-for="UserAgreementText" />
+            </div>
+            <div class="adminData wide">
+                <editor asp-for="UserAgreementText" />
+                <span asp-validation-for="UserAgreementText"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="HasSampleDownload" />
+            </div>
+            <div class="adminData">
+                <input asp-for="HasSampleDownload" data-toggler-for="#pnlSampleDownloadFile" />
+                <span asp-validation-for="HasSampleDownload"></span>
+            </div>
+        </div>
+        <div class="adminRow" id="pnlSampleDownloadFile">
+            <div class="adminTitle">
+                <smart-label asp-for="SampleDownloadId" />
+            </div>
+            <div class="adminData">
+                <input asp-for="OldSampleDownloadId" type="hidden" />
+                <editor asp-for="SampleDownloadId" />
+                <span asp-validation-for="SampleDownloadId"></span>
+            </div>
+        </div>
+    </div>
+</div>

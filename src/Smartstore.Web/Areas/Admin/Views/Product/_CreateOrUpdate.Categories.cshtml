@@ -1,0 +1,23 @@
+﻿@model ProductModel
+
+@if (Model.Id == 0)
+{
+    <div class="alert alert-danger">
+        @T("Admin.Catalog.Products.Categories.SaveBeforeEdit")
+    </div>
+    return;
+}
+
+@if (Model.NumberOfAvailableCategories > 0)
+{
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
+
+    <partial name="_Grid.Categories" model="null" view-data="gridViewData" />
+}
+else
+{
+    <div class="alert alert-danger">
+        @T("Admin.Catalog.Products.Categories.NoCategoriesAvailable")
+    </div>
+}

@@ -202,7 +202,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.System.ScheduleTask.Update)]
         public async Task<IActionResult> Edit([CustomizeValidator(RuleSet = "TaskEditing")] TaskModel model, bool continueEditing, string returnUrl = null)
         {

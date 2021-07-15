@@ -811,7 +811,7 @@
     </tabstrip>
 </form>
 
-<script>
+<script sm-target-zone="Scripts" data-origin="customer-user-settings">
     $(function () {
         $('#@Html.IdFor(model => model.CustomerSettings.CustomerNumberMethod)').change(function () {
         	$('#pnlCustomerNumberVisibility').toggle($(this).val() !== '@(CustomerNumberMethod.Disabled.ToString())');

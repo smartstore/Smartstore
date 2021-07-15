@@ -63,7 +63,7 @@ namespace Smartstore.Admin.Models.Catalog
         public decimal Price { get; set; }
 
         [LocalizedDisplay("*OldPrice")]
-        public decimal OldPrice { get; set; }
+        public decimal? OldPrice { get; set; }
 
         [LocalizedDisplay("*SpecialPrice")]
         public decimal? SpecialPrice { get; set; }
@@ -77,16 +77,16 @@ namespace Smartstore.Admin.Models.Catalog
         public DateTime? SpecialPriceEndDateTimeUtc { get; set; }
 
         [LocalizedDisplay("*Weight")]
-        public decimal Weight { get; set; }
+        public decimal? Weight { get; set; }
 
         [LocalizedDisplay("*Length")]
-        public decimal Length { get; set; }
+        public decimal? Length { get; set; }
 
         [LocalizedDisplay("*Width")]
-        public decimal Width { get; set; }
+        public decimal? Width { get; set; }
 
         [LocalizedDisplay("*Height")]
-        public decimal Height { get; set; }
+        public decimal? Height { get; set; }
 
         [LocalizedDisplay("*AvailableStartDateTime")]
         [AdditionalMetadata("pickTime", true)]
