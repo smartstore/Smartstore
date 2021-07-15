@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Primitives;
-using Smartstore.Caching;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Data.Caching;
@@ -14,14 +15,11 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IMemoryCache _memCache;
-        private readonly IDbCache _dbCache;
 
-        // TODO: (mh) (core) dbCache cannot be resolved. Breaks...
-        public CommonController(SmartDbContext db, IMemoryCache memCache/*, IDbCache dbCache*/)
+        public CommonController(SmartDbContext db, IMemoryCache memCache)
         {
             _db = db;
             _memCache = memCache;
-            //_dbCache = dbCache;
         }
 
         public async Task<IActionResult> LanguageSelected(int customerlanguage)
@@ -36,21 +34,26 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
-        [HttpPost]
+        public IActionResult RestartApplication(string returnUrl = null)
+        {
+            ViewBag.ReturnUrl = returnUrl ?? Services.WebHelper.GetUrlReferrer()?.PathAndQuery;
+            return View();
+        }
+
+        [Permission(Permissions.System.Maintenance.Execute)]
+        [HttpPost, IgnoreAntiforgeryToken]
         public IActionResult RestartApplication()
         {
-            // TODO: (mh) (core) This must be tested in production environment. In VS _hostApplicationLifetime.StopApplication() just stops without restarting on next request.
             Services.WebHelper.RestartAppDomain();
-
-            return new JsonResult(null);
+            return new EmptyResult();
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
         [HttpPost]
-        public IActionResult ClearCache()
+        public async Task<IActionResult> ClearCache()
         {
             // Clear Smartstore inbuilt cache
-            Services.Cache.Clear();
+            await Services.Cache.ClearAsync();
 
             // Clear IMemoryCache Smartstore: region
             _memCache.RemoveByPattern(_memCache.BuildScopedKey("*"));
@@ -67,10 +70,13 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.System.Maintenance.Execute)]
         [HttpPost]
-        public ActionResult ClearDatabaseCache()
+        public async Task<IActionResult> ClearDatabaseCache()
         {
-            // TODO: (mh) (core) Uncomment when dbCache can be resolved.
-            //_dbCache.Clear();
+            var dbCache = _db.GetInfrastructure<IServiceProvider>().GetService<IDbCache>();
+            if (dbCache != null)
+            {
+                await dbCache.ClearAsync();
+            }
 
             return new JsonResult
             (

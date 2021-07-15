@@ -1,0 +1,61 @@
+﻿@{ 
+    Layout = "_AdminBareLayout";
+
+    string returnUrl = ViewBag.ReturnUrl ?? Url.Action("Index", "Home", new { area = "Admin" });
+    string postUrl = Url.Action("RestartApplication");
+    string pingUrl = Url.Content("~/taskscheduler/noop");
+    string pathBase = Request.PathBase.Value.NullEmpty() ?? "/";
+}
+
+<style sm-target-zone="stylesheets" data-origin="RestartApplication">
+    .throbber-content {
+        font-weight: 400 !important;
+    }
+</style>
+
+<script sm-target-zone="scripts" data-origin="RestartApplication">
+    $(function () {
+        let interval;
+        let restartInProgress = toBool(_.getCookie(".Smart.RestartingApp"));
+
+        function restartApplication() {
+            $.ajax({
+                type: "POST",
+                cache: false,
+                url: "@postUrl",
+                complete() {
+                    // Set cookie with 1 min. expiration
+                    _.setCookie(".Smart.RestartingApp", "true", "@pathBase", new Date(Date.now() + 60000));
+                    interval = setInterval(checkAlive, 500);
+                }
+            });
+        }
+
+        function checkAlive() {
+            $.ajax({
+                type: "GET",
+                cache: false,
+                url: "@pingUrl",
+                success() {
+                    clearInterval(interval);
+                    _.setCookie(".Smart.RestartingApp", null);
+                    location.replace("@returnUrl");
+                }
+            });
+        }
+
+        $.throbber.show({
+            message: @T("Admin.Header.RestartApplication.Progress").JsValue,
+            speed: 0,
+            white: true,
+            callback() {
+                if (restartInProgress) {
+                    interval = setInterval(checkAlive, 1000);
+                }
+                else {
+                    restartApplication();
+                }
+            }
+        });
+    });
+</script>

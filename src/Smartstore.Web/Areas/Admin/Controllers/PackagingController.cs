@@ -88,7 +88,9 @@ namespace Smartstore.Controllers
                 if (!isTheme)
                 {
                     message = T("Admin.Packaging.InstallSuccess").Value;
-                    Services.WebHelper.RestartAppDomain();
+                    // TODO: (core) Hmmm? Restart here or not?
+                    //Services.WebHelper.RestartAppDomain();
+                    //return RedirectToAction("RestartApplication", "Common", new { returnUrl });
                 }
                 else
                 {

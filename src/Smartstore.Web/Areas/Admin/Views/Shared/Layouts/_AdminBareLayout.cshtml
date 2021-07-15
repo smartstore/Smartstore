@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_AdminRoot";
+    Assets.BodyAttributes.AppendCssClass("popup bare");
+}
+
+<div id="page">
+    <div class="page-main">
+        <div id="content">
+            <div class="cph">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="Notifications" />
