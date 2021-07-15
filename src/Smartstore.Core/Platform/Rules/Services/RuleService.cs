@@ -25,6 +25,8 @@ namespace Smartstore.Core.Rules
 
             selectedRuleSetIds ??= Array.Empty<int>();
 
+            await _db.LoadCollectionAsync(entity, x => x.RuleSets);
+
             if (!selectedRuleSetIds.Any() && !entity.RuleSets.Any())
             {
                 // Nothing to do.
@@ -90,6 +92,8 @@ namespace Smartstore.Core.Rules
                 return null;
             }
 
+            await _db.LoadCollectionAsync(ruleSet, x => x.Rules);
+
             var group = visitor.VisitRuleSet(ruleSet);
 
             var expressions = await ruleSet.Rules
@@ -109,6 +113,8 @@ namespace Smartstore.Core.Rules
                 // TODO: ErrHandling (ruleSet is for a different scope)
                 return null;
             }
+
+            await _db.LoadCollectionAsync(ruleSet, x => x.Rules);
 
             var group = visitor.VisitRuleSet(ruleSet);
             if (refRule != null)

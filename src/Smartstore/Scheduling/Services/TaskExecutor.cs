@@ -116,6 +116,12 @@ namespace Smartstore.Scheduling
                 //// TODO: (core) Uncomment job.Run and remove Task.Delay()
                 //await job.Run(ctx, cts.Token);
                 await Task.Delay(1, cts.Token);
+
+                // Remove me later... just for testing:
+                //if (normalizedTypeName == "TargetGroupEvaluatorTask")
+                //    await job.Run(ctx, cts.Token);
+                //else
+                //    await Task.Delay(1, cts.Token);
             }
             catch (Exception ex)
             {

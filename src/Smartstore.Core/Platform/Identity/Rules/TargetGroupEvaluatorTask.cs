@@ -58,6 +58,7 @@ namespace Smartstore.Core.Identity.Rules
                 // Insert new customer role mappings.
                 var roles = await _db.CustomerRoles
                     .Include(x => x.RuleSets)
+                    .ThenInclude(x => x.Rules)
                     .AsNoTracking()
                     .Where(x => x.Active && x.RuleSets.Any(y => y.IsActive))
                     .ToListAsync(cancelToken);
