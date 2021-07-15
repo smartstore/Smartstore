@@ -157,6 +157,7 @@ namespace Smartstore.Scheduling
             try
             {
                 // TODO: (core) DefaultTaskScheduler.CallEndpoint produces "System.Net.WebException: The operation has timed out" when testing long running tasks.
+                // RE: just don't wait for completion (no await). It's safe, because this class is singleton and rather low-level.
                 using var response = await req.GetResponseAsync();
                 Interlocked.Exchange(ref _errCount, 0);
             }

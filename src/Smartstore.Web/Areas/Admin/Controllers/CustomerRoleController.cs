@@ -390,7 +390,7 @@ namespace Smartstore.Admin.Controllers
             var task = await _taskStore.Value.GetTaskByTypeAsync<TargetGroupEvaluatorTask>();
             if (task != null)
             {
-                await _taskScheduler.Value.RunSingleTaskAsync(task.Id, new Dictionary<string, string>
+                _ = _taskScheduler.Value.RunSingleTaskAsync(task.Id, new Dictionary<string, string>
                 {
                     { "CustomerRoleIds", role.Id.ToString() }
                 });

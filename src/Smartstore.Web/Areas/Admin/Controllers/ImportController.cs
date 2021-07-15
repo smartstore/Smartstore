@@ -551,7 +551,7 @@ namespace Smartstore.Admin.Controllers
                 { TaskExecutor.CurrentStoreIdParamName, Services.StoreContext.CurrentStore.Id.ToString() }
             };
 
-            await _taskScheduler.RunSingleTaskAsync(profile.TaskId, taskParams);
+            _ = _taskScheduler.RunSingleTaskAsync(profile.TaskId, taskParams);
 
             NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress.DataImportTask"));
 

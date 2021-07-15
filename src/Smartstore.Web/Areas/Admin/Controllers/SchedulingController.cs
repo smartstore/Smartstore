@@ -144,7 +144,7 @@ namespace Smartstore.Admin.Controllers
                 { TaskExecutor.CurrentStoreIdParamName, Services.StoreContext.CurrentStore.Id.ToString() }
             };
 
-            await _taskScheduler.RunSingleTaskAsync(id, taskParams);
+            _ = _taskScheduler.RunSingleTaskAsync(id, taskParams);
 
             // The most tasks are completed rather quickly. Wait a while...
             Thread.Sleep(200);
