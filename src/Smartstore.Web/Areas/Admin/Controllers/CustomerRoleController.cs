@@ -171,6 +171,8 @@ namespace Smartstore.Admin.Controllers
                     : RedirectToAction("List");
             }
 
+            await PrepareViewBag(model, null);
+
             return View(model);
         }
 
@@ -263,7 +265,12 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            return RedirectToAction("Edit", new { id = role.Id });
+            var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
+            await mapper.MapAsync(role, model);
+
+            await PrepareViewBag(model, role);
+
+            return View(model);
         }
 
         [HttpPost]
