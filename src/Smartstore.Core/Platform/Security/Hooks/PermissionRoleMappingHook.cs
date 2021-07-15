@@ -24,7 +24,7 @@ namespace Smartstore.Core.Security
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            await _cache.RemoveAsync(PermissionService.PERMISSION_TREE_PATTERN_KEY);
+            await _cache.RemoveByPatternAsync(PermissionService.PERMISSION_TREE_PATTERN_KEY);
         }
     }
 }

@@ -161,7 +161,7 @@ namespace Smartstore.Core.Security
 
             foreach (var roleId in roleIds)
             {
-                await _cache.RemoveByPatternAsync(PERMISSION_TREE_KEY.FormatInvariant(roleId));
+                await _cache.RemoveAsync(PERMISSION_TREE_KEY.FormatInvariant(roleId));
             }
         }
 

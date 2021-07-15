@@ -275,7 +275,7 @@ namespace Smartstore.Core.Catalog.Categories
                 await ProcessCategory(scope, referenceCategory);
             }
 
-            _cache.RemoveByPattern(StoreMappingService.STOREMAPPING_SEGMENT_PATTERN);
+            await _cache.RemoveByPatternAsync(StoreMappingService.STOREMAPPING_SEGMENT_PATTERN);
 
             return (affectedCategories, affectedProducts);
 

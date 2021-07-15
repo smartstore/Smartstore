@@ -234,6 +234,8 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
+            await _db.LoadCollectionAsync(role, x => x.PermissionRoleMappings, true);
+
             Validate(model, role);
 
             if (ModelState.IsValid)
@@ -243,10 +245,10 @@ namespace Smartstore.Admin.Controllers
                     MiniMapper.Map(model, role);
                     await _ruleService.ApplyRuleSetMappingsAsync(role, model.SelectedRuleSetIds);
 
-                    await _roleManager.UpdateAsync(role);
-
                     // INFO: cached permission tree removed by PermissionRoleMappingHook.
-                    await UpdatePermissionRoleMappings(role, form);
+                    ApplyPermissionRoleMappings(role, form);
+
+                    await _roleManager.UpdateAsync(role);
 
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), role.Name);
                     NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
@@ -425,11 +427,8 @@ namespace Smartstore.Admin.Controllers
             ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
         }
 
-        private async Task<int> UpdatePermissionRoleMappings(CustomerRole role, IFormCollection form)
+        private void ApplyPermissionRoleMappings(CustomerRole role, IFormCollection form)
         {
-            await _db.LoadCollectionAsync(role, x => x.PermissionRoleMappings);
-
-            var save = false;
             var permissionKey = "permission-";
             var existingMappings = role.PermissionRoleMappings.ToDictionarySafe(x => x.PermissionRecordId, x => x);
 
@@ -461,13 +460,11 @@ namespace Smartstore.Admin.Controllers
                         if (mapping.Allow != item.Value.Value)
                         {
                             mapping.Allow = item.Value.Value;
-                            save = true;
                         }
                     }
                     else
                     {
                         _db.PermissionRoleMappings.Remove(mapping);
-                        save = true;
                     }
                 }
                 else if (item.Value.HasValue)
@@ -478,16 +475,8 @@ namespace Smartstore.Admin.Controllers
                         PermissionRecordId = item.Key,
                         CustomerRoleId = role.Id
                     });
-                    save = true;
                 }
             }
-
-            if (save)
-            {
-                return await _db.SaveChangesAsync();
-            }
-
-            return 0;
         }
 
         private void Validate(CustomerRoleModel model, CustomerRole role)
