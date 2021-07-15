@@ -69,9 +69,11 @@ namespace Smartstore.Admin.Models.Catalog
         public decimal? SpecialPrice { get; set; }
 
         [LocalizedDisplay("*SpecialPriceStartDateTimeUtc")]
+        [AdditionalMetadata("pickTime", true)]
         public DateTime? SpecialPriceStartDateTimeUtc { get; set; }
 
         [LocalizedDisplay("*SpecialPriceEndDateTimeUtc")]
+        [AdditionalMetadata("pickTime", true)]
         public DateTime? SpecialPriceEndDateTimeUtc { get; set; }
 
         [LocalizedDisplay("*Weight")]
@@ -87,18 +89,22 @@ namespace Smartstore.Admin.Models.Catalog
         public decimal Height { get; set; }
 
         [LocalizedDisplay("*AvailableStartDateTime")]
+        [AdditionalMetadata("pickTime", true)]
         public DateTime? AvailableStartDateTimeUtc { get; set; }
 
         [LocalizedDisplay("*AvailableEndDateTime")]
+        [AdditionalMetadata("pickTime", true)]
         public DateTime? AvailableEndDateTimeUtc { get; set; }
 
         [LocalizedDisplay("*Published")]
         public bool Published { get; set; }
 
         [LocalizedDisplay("Common.CreatedOn")]
+        [AdditionalMetadata("pickTime", true)]
         public DateTime? CreatedOn { get; set; }
 
         [LocalizedDisplay("Common.UpdatedOn")]
+        [AdditionalMetadata("pickTime", true)]
         public DateTime? UpdatedOn { get; set; }
 
         [LocalizedDisplay("Admin.Common.Store.LimitedTo")]

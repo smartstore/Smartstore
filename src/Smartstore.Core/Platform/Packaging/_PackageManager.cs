@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Smartstore.Core.Packaging
@@ -16,7 +17,7 @@ namespace Smartstore.Core.Packaging
             throw new NotImplementedException();
         }
 
-        public Task<PackagingResult> BuildModulePackageAsync(string pluginName)
+        public Task<PackagingResult> BuildModulePackageAsync(string moduleName)
         {
             throw new NotImplementedException();
         }

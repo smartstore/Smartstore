@@ -18,16 +18,16 @@
     {
         get
         {
-            if (ViewData.ContainsKey("pickTime"))
+            if (TryGetMetadata<bool>("pickTime", out var result))
             {
-                return ViewData["pickTime"].Convert<bool>();
+                return result;
             }
-            else if (ViewData.ContainsKey("pickTimeFieldIds"))
+            else if (TryGetMetadata<List<string>>("pickTimeFieldIds", out var ids))
             {
-                var ids = ViewData["pickTimeFieldIds"] as List<string>;
                 var id = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
                 return ids.Contains(id);
             }
+
             return false;
         }
     }
@@ -38,9 +38,9 @@
         {
             var cls = "input-group date datetimepicker-group flex-nowrap";
 
-            if (ViewData.ContainsKey("size"))
+            if (TryGetMetadata<string>("size", out var size))
             {
-                cls += " input-group-" + ViewData["size"].Convert<string>();
+                cls += " input-group-" + size;
             }
 
             return cls;

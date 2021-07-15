@@ -7,7 +7,7 @@
     Assets.BodyAttributes.AppendCssClass("spa-layout");
 }
 
-<form method="post" asp-action="List" style="overflow-y: scroll">
+<form method="post" asp-action="List">
     <div class="section-header">
         <div class="title">
             <i class="fa fa-cube"></i>
@@ -28,11 +28,9 @@
             <zone name="admin_button_toolbar_after" />
         </div>
     </div>
-
-    @* TODO: (core) Port search form here *@
 </form>
 
-@{ 
+@{
     var gridViewData = new ViewDataDictionary(this.ViewData);
     gridViewData["Parent"] = Model;
 }

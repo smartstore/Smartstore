@@ -140,7 +140,7 @@ input.form-control-plaintext {
 }
 
 .dg-striped {
-    --dg-row-even-bg: $dg-even;
+    --dg-row-even-bg: #{$dg-even};
 }
 
 .dg-hover > .dg-tbody > .dg-tr:hover:not(.dg-no-data, .dg-tr-detail) {
@@ -455,19 +455,6 @@ input.form-control-plaintext {
         border-color: $primary;
     }
 
-    .dg-cell-edit {
-        padding: 0 4px;
-        justify-content: center !important;
-        align-items: center !important;
-        overflow: visible;
-        flex-flow: column;
-    }
-
-    .numerictextbox-group {
-        flex-grow: 0 !important;
-        width: 100%;
-    }
-
     .field-validation-valid {
         display: none;
     }
@@ -488,6 +475,24 @@ input.form-control-plaintext {
         text-overflow: ellipsis;
         --shadow-color-intensity: 0.75 !important;
     }
+}
+
+.dg-cell-edit {
+    padding: 0 4px;
+    justify-content: center !important;
+    //align-items: center !important;
+    align-items: stretch !important;
+    overflow: visible;
+    flex-flow: column;
+}
+
+.dg-cell-edit-controls {
+    display: flex;
+    justify-content: center;
+
+    > .select2 {
+        width: 100%;
+    } 
 }
 
 
@@ -617,7 +622,7 @@ span.dg-page {
     width: 100%;
     height: 100%;
 
-    > button {
+    > .btn {
         height: 50%;
         padding: 0 !important;
         > i {

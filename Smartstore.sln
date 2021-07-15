@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.SqlServer",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.MySql", "src\Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj", "{253DECF2-2ECA-4A90-955B-9299CCEC1363}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smartstore.Web.Tests", "test\Smartstore.Web.Tests\Smartstore.Web.Tests.csproj", "{EAA90B11-ED40-4AB1-8027-45226471F9EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Web.Tests", "test\Smartstore.Web.Tests\Smartstore.Web.Tests.csproj", "{EAA90B11-ED40-4AB1-8027-45226471F9EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

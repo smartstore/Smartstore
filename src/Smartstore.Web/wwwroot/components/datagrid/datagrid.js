@@ -1,7 +1,7 @@
 ﻿const DATAGRID_CELL_MIN_WIDTH = 60;
 
 const DATAGRID_VALIDATION_SETTINGS = {
-    ignore: ":hidden, .dg-cell-selector-checkbox",
+    ignore: ":hidden, .dg-cell-selector-checkbox, .btn",
     errorPlacement: function (error, input) {
         input.closest('.dg-cell-edit').append(error.addClass("input-validation shadow shadow-danger shadow-sm"));
     },
@@ -62,7 +62,6 @@ Vue.component("sm-datagrid", {
                         <thead v-show="!options.hideHeader" class="dg-thead" ref="tableHeader">
                             <tr ref="tableHeaderRow" class="dg-tr">
                                 <th v-if="allowRowSelection || hasDetailView" class="dg-th dg-col-selector dg-col-pinned alpha">
-
                                     <label v-if="allowRowSelection" class="dg-cell dg-cell-header dg-cell-selector w-100 ml-auto">
                                         <span class="dg-cell-value">
                                             <input type="checkbox" class="dg-cell-selector-checkbox" ref="masterSelector" @change="onSelectAllRows($event)" />
@@ -142,8 +141,12 @@ Vue.component("sm-datagrid", {
                                                     <div class="dg-cell-value" v-html="renderCellValue(row[column.member], column, row)"></div>
                                                 </template>
                                             </slot>
-                                            <slot v-if="isInlineEditCell(row, column)" :name="'edit-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
-                                            </slot>
+                                            <template v-if="isInlineEditCell(row, column)">
+                                                <div class="dg-cell-edit-controls">
+                                                    <slot :name="'edit-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                                                    </slot>
+                                                </div>
+                                            </template>
                                         </div>
 
                                     </td>
@@ -160,12 +163,12 @@ Vue.component("sm-datagrid", {
                                             </div>
 
                                             <div v-if="editing.active && row == editing.row" class="dg-row-edit-commands btn-group-vertical">
-                                                <button @click="saveChanges()" class="btn btn-primary btn-sm btn-flat rounded-0" type="button" title="Änderungen speichern">
+                                                <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-sm btn-flat rounded-0" title="Änderungen speichern">
                                                     <i class="fa fa-check"></i>
-                                                </button>
-                                                <button @click="cancelEdit()" class="btn btn-secondary btn-sm btn-flat rounded-0" type="button" title="Abbrechen">
+                                                </a>
+                                                <a href="#" @click.prevent.stop="cancelEdit()" class="btn btn-secondary btn-sm btn-flat rounded-0" title="Abbrechen">
                                                     <i class="fa fa-times"></i>
-                                                </button>
+                                                </a>
                                             </div>
                                         </div>
 
@@ -302,11 +305,11 @@ Vue.component("sm-datagrid", {
                                             el.checked = v;
                                             break;
                                         default:
-                                            // TODO: (core) datetimepicker will not update! Investigate!
                                             if (v !== undefined && v !== null) {
-                                                el.value = v;
+                                                el.value = el.matches(".datetimepicker-input")
+                                                    ? Smartstore.globalization.formatDate(v)
+                                                    : v;
                                             }
-                                                
                                     }
                                 }
                             }
@@ -359,7 +362,7 @@ Vue.component("sm-datagrid", {
         // Put to data so we can access the component instance from outside
         $(this.$el.parentNode).data("datagrid", this);
 
-        // Handle sticky columuns on resize
+        // Handle sticky columns on resize
         const resizeObserver = new ResizeObserver(entries => {
             const tableWrapper = entries[0].target;
             self.isScrollable = tableWrapper.offsetWidth < tableWrapper.scrollWidth;
@@ -385,6 +388,9 @@ Vue.component("sm-datagrid", {
                     }
                 }
             });
+
+            // Apply jQuery validate
+            search.validate();
         }
 
         $(this.$el).on("show.bs.dropdown", function (e) {
@@ -634,7 +640,7 @@ Vue.component("sm-datagrid", {
                 });
 
             if (this.allowRowSelection || this.hasDetailView) {
-                result.splice(0, 0, "minmax(max-content, 48px)");
+                result.splice(0, 0, "minmax(48px, max-content)");
             }
 
             // Spacer always 'auto' to fill remaining area
@@ -1034,6 +1040,10 @@ Vue.component("sm-datagrid", {
                 const diffX = pageX - self.resizeX;
                 const width = self.resizeHeader.offsetWidth + diffX;
 
+                // Check if table is scrollable after resize
+                const tableWrapper = self.$refs.tableWrapper;
+                self.isScrollable = tableWrapper.offsetWidth < tableWrapper.scrollWidth;
+
                 self.resizeX = pageX;
 
                 if (width < DATAGRID_CELL_MIN_WIDTH) {
@@ -1139,7 +1149,7 @@ Vue.component("sm-datagrid", {
                 return;
             }
 
-            this.destroyValidator();
+            this.destroyRowValidator();
 
             if (this.editing.insertMode && this.rows.length && this.rows[0] === this.editing.row) {
                 // Remove inserted row
@@ -1171,6 +1181,8 @@ Vue.component("sm-datagrid", {
             this.$nextTick(() => {
                 // Initialize editor plugins
                 window.initializeEditControls(editing.tr);
+
+                this.createRowValidator();
 
                 // Handle auto-focus
                 var elFocus = $(editing.td || editing.tr).find('.dg-cell-edit :input:visible');
@@ -1218,30 +1230,48 @@ Vue.component("sm-datagrid", {
             }
         },
 
-        destroyValidator() {
-            var validator = $(this.$refs.tableWrapper).data("validator");
+        createRowValidator() {
+            this.destroyRowValidator();
+
+            const form = $(this.$refs.tableWrapper);
+            if (!form.is('form')) {
+                return null;
+            }
+
+            $.validator.unobtrusive.parse(form);
+            let validator = form.validate();
+            $.extend(validator.settings, DATAGRID_VALIDATION_SETTINGS);
+
+            return validator;
+        },
+
+        destroyRowValidator() {
+            const form = $(this.$refs.tableWrapper);
+            if (!form.is('form')) {
+                return;
+            }
+
+            const validator = form.data("validator");
             if (validator) {
                 validator.hideErrors();
                 validator.destroy();
-            }
-        },
-
-        validateForm() {
-            var form = $(this.$refs.tableWrapper);
-            if (!form.is('form')) {
-                return false;
             }
 
             form
                 .removeData("validator")
                 .removeData("unobtrusiveValidation")
                 .off(".validate");
+        },
 
-            $.validator.unobtrusive.parse(form);
-            var validator = form.validate();
-            $.extend(validator.settings, DATAGRID_VALIDATION_SETTINGS);
+        validateRowForm() {
+            const validator = $(this.$refs.tableWrapper).data("validator");
+            //const validator = this.createRowValidator();
 
-            return validator.form();
+            if (validator) {
+                return validator.form();
+            }
+
+            return false;
         },
 
         saveChanges() {
@@ -1254,7 +1284,7 @@ Vue.component("sm-datagrid", {
                 return;
             }
 
-            if (!this.validateForm()) {
+            if (!this.validateRowForm()) {
                 return;
             }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NuGet.Packaging;
+//using NuGet.Packaging;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Packaging
@@ -16,8 +16,8 @@ namespace Smartstore.Core.Packaging
         public static string BuildPackageId(string extensionName, string extensionType)
             => GetExtensionPrefix(extensionType) + extensionName;
 
-        internal static bool IsTheme(this IPackageMetadata package)
-            => IsTheme(package.Id);
+        //internal static bool IsTheme(this IPackageMetadata package)
+        //    => IsTheme(package.Id);
 
         public static bool IsTheme(this PackageInfo info)
             => IsTheme(info.Id);
