@@ -145,7 +145,7 @@ namespace Smartstore.Scheduling
             // If passed uri is null, we always assume a poll action.
             uri ??= new Uri(BaseUrl + "poll");
 
-            var req = await WebHelper.CreateHttpRequestForSafeLocalCallAsync(uri);
+            var req = await WebHelper.CreateHttpWebRequestForSafeLocalCallAsync(uri);
             req.Method = "POST";
             req.ContentType = "text/plain";
             req.ContentLength = 0;

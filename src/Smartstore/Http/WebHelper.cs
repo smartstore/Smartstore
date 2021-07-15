@@ -344,7 +344,7 @@ namespace Smartstore.Http
             return result;
         }
 
-        public static async Task<HttpWebRequest> CreateHttpRequestForSafeLocalCallAsync(Uri requestUri)
+        public static async Task<HttpWebRequest> CreateHttpWebRequestForSafeLocalCallAsync(Uri requestUri)
         {
             Guard.NotNull(requestUri, nameof(requestUri));
 
