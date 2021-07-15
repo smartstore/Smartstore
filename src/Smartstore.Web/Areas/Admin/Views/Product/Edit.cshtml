@@ -6,7 +6,7 @@
     ViewBag.Title = T("Admin.Catalog.Products.EditProductDetails").Value;
 }
 
-<div asp-action="Edit" method="post" id="product-form">
+<form asp-action="Edit" method="post" id="product-form">
     <div class="section-header">
         <div class="title">
             @if (Model.PictureThumbnailUrl.HasValue())
@@ -46,7 +46,7 @@
     </div>
 
     <partial name="_CreateOrUpdate" model="Model" />
-</div>
+</form>
 
 @*TODO: (mh) (core) Implement copy product window*@
 
