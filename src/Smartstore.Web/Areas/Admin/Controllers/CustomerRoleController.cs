@@ -306,6 +306,7 @@ namespace Smartstore.Admin.Controllers
 
             if (await Services.Permissions.AuthorizeAsync(Permissions.Customer.Role.Update))
             {
+                // TODO: (mg) (core) Why deleting only the first one?!! What for?! Either delete all or delete nothing.
                 var role = await _roleManager.FindByIdAsync(selection?.SelectedKeys?.FirstOrDefault());
                 if (role != null)
                 {

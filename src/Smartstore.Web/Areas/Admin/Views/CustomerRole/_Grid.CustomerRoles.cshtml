@@ -7,6 +7,7 @@
           allow-column-reordering="true"
           preserve-grid-state="true"
           onrowclass="rolesGrid_onRowClass">
+    @* TODO: (mg) (core) Convention please: RoleList (singular), RoleInsert, RoleUpdate, RoleDelete *@
     <datasource read="@Url.Action("RolesList")" update="@Url.Action("InlineEdit")" delete="@Url.Action("DeleteSelected")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
@@ -25,6 +26,7 @@
         <a datarow-action="DataRowAction.Delete" v-bind:class="{ disabled: item.row.IsSystemRole }">@T("Common.Delete")</a>
     </row-commands>
     <columns>
+        @* INFO: (mg) (core) You can map a model property to an entity property with entity-member attribute, e.g. <column for="CreatedOn" entity-member="CreatedOnUtc" /> *@
         <column for="Id" visible="false" resizable="false" />
         <column for="Name" readonly="true" hideable="false">
             <display-template>
