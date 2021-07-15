@@ -104,7 +104,7 @@ namespace Smartstore.Admin.Controllers
                     o.dupe = true;
                     o.errMessage = dex.Message;
 
-                    var newPath = await _mediaService.CheckUniqueFileNameAsync(filePath);
+                    (await _mediaService.CheckUniqueFileNameAsync(filePath)).Out(out var newPath);
                     o.uniquePath = newPath;
                     o.createdOn = dupe.CreatedOn.ToString();
                     o.lastUpdated = dupe.LastModified.ToString();
