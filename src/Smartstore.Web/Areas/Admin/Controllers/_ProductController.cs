@@ -2043,13 +2043,11 @@ namespace Smartstore.Admin.Controllers
             var pva = new ProductVariantAttribute
             {
                 ProductId = productId,
-                // Use ProductAttribute property (not ProductAttributeId) because appropriate property is stored in it.
-                ProductAttributeId = int.Parse(model.ProductAttribute),
+                ProductAttributeId = model.ProductAttributeId,
                 TextPrompt = model.TextPrompt,
                 CustomData = model.CustomData,
                 IsRequired = model.IsRequired,
-                // Use AttributeControlType property (not AttributeControlTypeId) because appropriate property is stored in it.
-                AttributeControlTypeId = int.Parse(model.AttributeControlType),
+                AttributeControlTypeId = model.AttributeControlTypeId,
                 DisplayOrder = model.DisplayOrder1
             };
 
@@ -2072,13 +2070,11 @@ namespace Smartstore.Admin.Controllers
         {
             var pva = await _db.ProductVariantAttributes.FindByIdAsync(model.Id);
 
-            // Use ProductAttribute property (not ProductAttributeId) because appropriate property is stored in it.
-            pva.ProductAttributeId = int.Parse(model.ProductAttribute);
+            pva.ProductAttributeId = model.ProductAttributeId;
             pva.TextPrompt = model.TextPrompt;
             pva.CustomData = model.CustomData;
             pva.IsRequired = model.IsRequired;
-            // Use AttributeControlType property (not AttributeControlTypeId) because appropriate property is stored in it.
-            pva.AttributeControlTypeId = int.Parse(model.AttributeControlType);
+            pva.AttributeControlTypeId = model.AttributeControlTypeId;
             pva.DisplayOrder = model.DisplayOrder1;
 
             try

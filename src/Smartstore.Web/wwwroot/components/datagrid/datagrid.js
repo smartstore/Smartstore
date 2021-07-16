@@ -151,7 +151,7 @@ Vue.component("sm-datagrid", {
 
                                     </td>
                                     <td class="dg-td dg-hborder-0">
-                                        <div class="dg-cell dg-cell-spacer"></div>
+                                        <div class="dg-cell dg-cell-spacer">&nbsp;</div>
                                     </td>
                                     <td v-if="canEditRow || hasRowCommands" class="dg-td dg-col-pinned omega">
                                         <div class="dg-cell dg-commands p-0">
@@ -314,8 +314,9 @@ Vue.component("sm-datagrid", {
                                 }
                             }
                             else {
-                                if (v !== undefined && v!== null)
+                                if (v !== undefined && v !== null) {
                                     el.value = v;
+                                }   
                             }
                         }
                     });
@@ -1152,10 +1153,8 @@ Vue.component("sm-datagrid", {
 
             this.destroyRowValidator();
 
-            if (this.editing.insertMode && this.rows.length && this.rows[0] === this.editing.row) {
-                // Remove inserted row
-                this.rows.splice(0, 1);
-            }
+            // AJAXified select2 tend to irritate Vue
+            $(this.editing.tr).find(".select2").remove();
 
             this.editing.active = false;
             this.editing.row = {};

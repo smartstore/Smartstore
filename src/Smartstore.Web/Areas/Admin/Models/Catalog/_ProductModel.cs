@@ -504,10 +504,10 @@ namespace Smartstore.Admin.Models.Catalog
         public class ProductVariantAttributeModel : EntityModelBase
         {
             public int ProductId { get; set; }
-            public int ProductAttributeId { get; set; }
-
-            [UIHint("ProductAttribute")]
+            
             [LocalizedDisplay("*Attribute")]
+            [UIHint("ProductAttribute")]
+            public int ProductAttributeId { get; set; }
             public string ProductAttribute { get; set; }
 
             [LocalizedDisplay("*TextPrompt")]
@@ -521,8 +521,8 @@ namespace Smartstore.Admin.Models.Catalog
 
             [LocalizedDisplay("Admin.Catalog.Attributes.AttributeControlType")]
             [UIHint("AttributeControlType")]
-            public string AttributeControlType { get; set; }
             public int AttributeControlTypeId { get; set; }
+            public string AttributeControlType { get; set; }
 
             // We don't name it DisplayOrder to avoid model binding conflicts with product property.
             [LocalizedDisplay("Common.DisplayOrder")]

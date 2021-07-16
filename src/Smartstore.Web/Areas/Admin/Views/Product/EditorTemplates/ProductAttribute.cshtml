@@ -1,7 +1,9 @@
-﻿<select name="ProductAttribute"
-        id="ProductAttribute"
+﻿@model int
+
+<select asp-for="@Model"
         class="form-control edit-control"
         data-editor="select"
-        style="min-width: 200px"
+        v-bind:data-select-selected-id="item.value"
+        v-bind:data-select-init-text="item.row.ProductAttribute"
         data-select-url='@Url.Action("AllProductAttributes", "ProductAttribute")'>
 </select>

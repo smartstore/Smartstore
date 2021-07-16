@@ -48,13 +48,14 @@
 
 <datagrid id="productvariantattributes-grid"
           allow-resize="true"
-          allow-row-selection="true"
+          allow-row-selection="false"
           allow-edit="true">
     <datasource read="@Url.Action("ProductVariantAttributeList", new { productId = parentModel.Id })"
                 delete="@Url.Action("ProductVariantAttributeDelete")"
                 update="@Url.Action("ProductVariantAttributeUpdate")"
                 insert="@Url.Action("ProductVariantAttributeInsert", new { productId = parentModel.Id })" />
     <sorting enabled="true"></sorting>
+    <paging enabled="false" />
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
@@ -77,8 +78,18 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="ProductAttribute" hideable="false" width="4fr" />
-        <column for="AttributeControlType" width="2fr" />
+        <column for="ProductAttributeId" hideable="false" width="4fr">
+            @* INFO: (mh) (core) This is the way it has to be done. Bind to raw id field, but display friendly name. Also take a look at corresponding editor templates (Vue bindings). *@
+            @* INFO: (mh) (core) Apply this concept to all other grid colums with dropdowns. *@
+            <display-template>
+                <div class="dg-cell-value">{{ item.row.ProductAttribute }}</div>
+            </display-template>
+        </column>
+        <column for="AttributeControlTypeId" width="2fr">
+            <display-template>
+                <div class="dg-cell-value">{{ item.row.AttributeControlType }}</div>
+            </display-template>
+        </column>
         <column for="TextPrompt" halign="center" width="2fr" />
         <column for="CustomData" halign="center" width="2fr" />
         <column for="IsRequired" halign="center" width="1fr" />
