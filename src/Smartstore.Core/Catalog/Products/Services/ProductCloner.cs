@@ -109,6 +109,7 @@ namespace Smartstore.Core.Catalog.Products
                 clone.CreatedOnUtc = utcNow;
                 clone.UpdatedOnUtc = utcNow;
 
+                // TODO: (mh) (core) This doesn't work. No categories, manufacturers etc. in cloned products.
                 // Category mappings.
                 clone.ProductCategories.AddRange(product.ProductCategories.Select(x => new ProductCategory
                 {
