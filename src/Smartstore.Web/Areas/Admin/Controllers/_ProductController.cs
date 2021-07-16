@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -334,6 +335,7 @@ namespace Smartstore.Admin.Controllers
                 productModel.ProductTypeName = x.GetProductTypeLabel(_localizationService);
                 productModel.UpdatedOn = _dateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc);
                 productModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                productModel.CopyProductModel.Name = T("Admin.Common.CopyOf", x.Name);
 
                 return productModel;
             });
@@ -840,6 +842,38 @@ namespace Smartstore.Admin.Controllers
         public static CrossSellProduct FindCrossSellProduct(List<CrossSellProduct> source, int productId1, int productId2)
         {
             return source.Where(x => x.ProductId1 == productId1 && x.ProductId2 == productId2).FirstOrDefault();
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Product.Create)]
+        public async Task<IActionResult> CopyProduct(ProductModel model)
+        {
+            var copyModel = model.CopyProductModel;
+            try
+            {
+                Product newProduct = null;
+                var product = await _db.Products.FindByIdAsync(copyModel.Id, false);
+                
+                for (var i = 1; i <= copyModel.NumberOfCopies; ++i)
+                {
+                    var newName = copyModel.NumberOfCopies > 1 ? $"{copyModel.Name} {i}" : copyModel.Name;
+                    newProduct = await _productCloner.CloneProductAsync(product, newName, copyModel.Published);
+                }
+
+                if (newProduct != null)
+                {
+                    NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+
+                    return RedirectToAction("Edit", new { id = newProduct.Id });
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                NotifyError(ex.ToAllMessages());
+            }
+
+            return RedirectToAction("Edit", new { id = copyModel.Id });
         }
 
         #endregion

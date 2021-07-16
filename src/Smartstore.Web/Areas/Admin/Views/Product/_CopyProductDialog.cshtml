@@ -1,0 +1,70 @@
+﻿@model ProductModel
+
+<modal id="copyproduct-window" sm-render-at-page-end="true" sm-size="Large">
+    <modal-header sm-title="@T("Admin.Catalog.Products.Copy")"></modal-header>
+    <modal-body>
+        <form asp-action="CopyProduct" id="copyproduct-form" method="POST">
+            <input type="hidden" asp-for="CopyProductModel.Id" />
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CopyProductModel.NumberOfCopies" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="CopyProductModel.NumberOfCopies" />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CopyProductModel.Name" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="CopyProductModel.Name" />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CopyProductModel.Published" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="CopyProductModel.Published" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </modal-body>
+    <modal-footer>
+        <button id="copyproduct" type="button" class="btn btn-primary">
+            <i class="far fa-copy"></i>
+            <span>@T("Admin.Catalog.Products.Copy")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="Scripts" data-origin="copyproduct-window">
+    $(function () {
+        // Clone row values from product grid into dialog model.
+        $(document).on('click', ".copy-product-command", function (e) {
+            e.preventDefault();
+
+            var $el = $(this);
+            $('#copyproduct-form #@Html.IdFor(x => x.CopyProductModel.Id)').val($el.data("copy-product-id"));
+            $('#copyproduct-form #@Html.IdFor(x => x.CopyProductModel.Name)').val($el.data("copy-product-name"));
+            $('#copyproduct-form #@Html.IdFor(x => x.CopyProductModel.NumberOfCopies)').val(1);
+
+            var $elPublished = $('#copyproduct-form #@Html.IdFor(x => x.CopyProductModel.Published)');
+            if (!$elPublished.is(':checked')) {
+                $elPublished.trigger("click");
+            }
+
+            return false;
+        });
+
+		// Copy product form submission.
+        $(document).on('click', "#copyproduct", function (e) {
+            e.preventDefault();
+            $('#copyproduct-form').submit();
+            return false;
+        });
+    });
+</script>

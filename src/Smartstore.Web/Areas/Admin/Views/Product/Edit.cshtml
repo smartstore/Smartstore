@@ -53,18 +53,11 @@
     <partial name="_CopyAttributeOptionsDialog" />
 }
 
-@*TODO: (mh) (core) Implement copy product window*@
+<partial name="_CopyProductDialog" model="Model" />
 
 <script sm-target-zone="Scripts" data-origin="product-edit">
-    // TODO: (mh) (core) Test every single function call in here!!!
     $(function() {
-		// Copy product form submission.
-        $(document).on('click', "#copyproduct", function (e) {
-            e.preventDefault();
-            $('#copyproduct-window').find('form').submit();
-            return false;
-        });
-
+        // TODO: (mh) (core) Test every single function call from here!!!
 		// Bundle per item pricing
         $(document).on('change', '#@Html.IdFor(model => model.BundlePerItemPricing)', function () {
         	bundlePerItemPricing($(this).is(':checked'));

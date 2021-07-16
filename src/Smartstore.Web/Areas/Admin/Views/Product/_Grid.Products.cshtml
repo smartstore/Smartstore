@@ -103,8 +103,14 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
-        @* TODO: (core) Implement Product grid "clone" row command *@
-        <a datarow-action="DataRowAction.Custom" href="#">Kopieren</a>
+        <a datarow-action="DataRowAction.Custom" 
+           class="copy-product-command"
+           href="#copyproduct-window" 
+           data-toggle="modal" 
+           :data-copy-product-id="item.row.Id"
+           :data-copy-product-name="item.row.CopyProductModel.Name">
+            @T("Common.Copy")
+        </a>
         <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
@@ -121,6 +127,4 @@
     </detail-view>
 </datagrid>
 
-<script sm-target-zone="scripts" data-origin="products-grid">
-
-</script>
+<partial name="_CopyProductDialog" model="null" />

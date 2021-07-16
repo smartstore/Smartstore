@@ -112,6 +112,8 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("Admin.Common.CustomerRole.LimitedTo")]
         public bool SubjectToAcl { get; set; }
+
+        public CopyProductModel CopyProductModel { get; set; } = new();
     }
 
     public partial class ProductOverviewModelValidator : SmartValidator<ProductOverviewModel>
