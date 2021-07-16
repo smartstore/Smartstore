@@ -410,20 +410,26 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
   \*------------------------------------*/
     .select2-selection--multiple {
         min-height: $s2bs-input-height-base;
-        padding: 0;
-        height: auto;
+        display: flex;
+        padding: 0.2rem;
 
         .select2-selection__rendered {
             box-sizing: border-box;
             display: block;
             line-height: $s2bs-line-height-base;
             list-style: none;
-            margin: 0;
             overflow: hidden;
-            padding: 0;
             width: 100%;
             text-overflow: ellipsis;
             white-space: nowrap;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0;
+            align-items: center;
+            justify-content: flex-start;
         }
 
         .select2-selection__placeholder {
@@ -431,33 +437,31 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             float: left;
             margin-top: 5px;
         }
-        /**
-     * Make Multi Select2's choices match Bootstrap 3's default button styles.
-     */
+        // Make Multi Select2's choices match Bootstrap 4's default button styles.
         .select2-selection__choice {
             color: $s2bs-input-color;
             background: $s2bs-btn-default-bg;
             background: $gray-100;
-            border: 1px solid $s2bs-btn-default-border;
+            border: 1px solid rgba(#000, 0.05);
             border-radius: 2px; // $s2bs-selection-choice-border-radius;
             cursor: default;
-            float: left;
-            margin: ($s2bs-padding-base-vertical) 0 0 $s2bs-padding-base-horizontal/2;
-            transform: translateY(-1px);
             padding: 0 $s2bs-padding-base-vertical;
+            display: flex;
+            align-items: center;
+            margin: 0.2rem;
+            line-height: 1.7;
         }
-        /**
-     * Minus 2px borders.
-     */
+        // Minus 2px borders.
         .select2-search--inline {
             .select2-search__field {
                 background: transparent;
                 padding: 0 $s2bs-padding-base-horizontal;
-                height: calc(#{$s2bs-input-height-base} - #{$border-width * 2});
                 line-height: $s2bs-line-height-base;
                 margin-top: 0;
                 width: 100% !important;
                 min-width: 5em;
+                padding: 0 0.5rem;
+                float: none;
             }
         }
 
@@ -472,12 +476,14 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
                 color: $s2bs-remove-choice-hover-color;
             }
         }
-        /**
-     * Clear the selection.
-     */
+        // Clear the selection.
         .select2-selection__clear {
             margin-top: $s2bs-padding-base-vertical;
             margin-right: $s2bs-padding-base-horizontal;
+            float: none;
+            position: absolute;
+            right: 0;
+            top: 0;
         }
     }
     /**
@@ -512,23 +518,21 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     .form-group-sm & .select2-selection--multiple {
         min-height: $s2bs-input-height-small;
         border-radius: $s2bs-border-radius-small;
+        padding: 0.125rem;
 
         .select2-selection__choice {
             font-size: $s2bs-font-size-small;
-            line-height: $s2bs-line-height-small;
-            margin: ($s2bs-padding-small-vertical*1.25) 0 0 ($s2bs-padding-small-horizontal/2);
-            padding: 0 $s2bs-padding-small-vertical;
+            line-height: inherit;
         }
 
         .select2-search--inline .select2-search__field {
             padding: 0 $s2bs-padding-small-horizontal;
             font-size: $s2bs-font-size-small;
-            line-height: $s2bs-line-height-small;
-            height: $s2bs-input-height-small;
         }
 
         .select2-selection__clear {
-            margin-top: $s2bs-padding-small-vertical;
+            margin-top: $s2bs-padding-small-vertical/2;
+            margin-right: 0.5rem;
         }
     }
 
@@ -540,7 +544,6 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         font-size: $s2bs-font-size-large;
         height: $s2bs-input-height-large;
         line-height: $s2bs-line-height-large;
-        //padding: $s2bs-padding-large-vertical $s2bs-padding-large-horizontal + $s2bs-caret-width-large*3 $s2bs-padding-large-vertical $s2bs-padding-large-horizontal;
         padding-top: $s2bs-padding-large-vertical;
         padding-right: calc(#{$s2bs-input-height-large} + #{$s2bs-caret-width-large*2});
         padding-bottom: $s2bs-padding-large-vertical;
@@ -561,29 +564,16 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
         .select2-selection__choice {
             font-size: $s2bs-font-size-large;
-            line-height: $s2bs-line-height-large;
             border-radius: $s2bs-selection-choice-border-radius;
-            margin: ($s2bs-padding-large-vertical*1.125) 0 0 ($s2bs-padding-large-horizontal/4);
-            padding: 0 $s2bs-padding-large-vertical;
         }
 
         .select2-search--inline .select2-search__field {
             padding: 0 ($s2bs-padding-large-horizontal/4);
             font-size: $s2bs-font-size-large;
-            height: $s2bs-input-height-large;
-            line-height: $s2bs-line-height-large;
-        }
-
-        .select2-selection__clear {
-            margin-top: $s2bs-padding-large-vertical;
         }
     }
-    /*.form-control-lg + .select2-container--open select2-selection,
-	.input-group-lg & .select2-container--open .select2-selection {
-		@include dropdown-arrow;
-	}*/
     /*------------------------------------*\
-      #SMNET SPECIFIC STYLES
+      Smartstore specific styles
 	\*------------------------------------*/
     &.select2-container--open .select2-selection {
         background-color: $s2sm-shade-bg;
