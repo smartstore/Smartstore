@@ -38,11 +38,22 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Quantity" halign="center" width="1fr" hideable="false" />
-        @*TODO: (mh) (core) Use format ? *@
-        <column for="Price1" halign="flex-end" width="2fr" entity-member="Price" />
-        <column for="CalculationMethod" width="2fr" />
-        <column for="Store" width="2fr" entity-member="StoreId" />
-        <column for="CustomerRole" width="2fr" entity-member="CustomerRoleId"/>
+        <column for="Quantity" halign="center" hideable="false" width="minmax(100px, auto)" />
+        <column for="Price1" halign="flex-end" entity-member="Price" />
+        <column for="CalculationMethodId" width="1fr" entity-member="CalculationMethod">
+            <display-template>
+                <div class="dg-cell-value">{{ item.row.CalculationMethod }}</div>
+            </display-template>
+        </column>
+        <column for="StoreId" width="1fr">
+            <display-template>
+                <div class="dg-cell-value">{{ item.row.Store }}</div>
+            </display-template>
+        </column>
+        <column for="CustomerRoleId" width="1fr">
+            <display-template>
+                <div class="dg-cell-value">{{ item.row.CustomerRole }}</div>
+            </display-template>
+        </column>
     </columns>
 </datagrid>

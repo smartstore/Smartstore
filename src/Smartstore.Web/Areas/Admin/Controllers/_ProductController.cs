@@ -755,7 +755,7 @@ namespace Smartstore.Admin.Controllers
             var productCategory = new ProductCategory
             {
                 ProductId = productId,
-                CategoryId = int.Parse(model.Category), // Use Category property (not CategoryId) because appropriate property is stored in it.
+                CategoryId = model.CategoryId,
                 IsFeaturedProduct = model.IsFeaturedProduct,
                 DisplayOrder = model.DisplayOrder
             };
@@ -787,10 +787,9 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ProductCategoryUpdate(ProductModel.ProductCategoryModel model)
         {
             var productCategory = await _db.ProductCategories.FindByIdAsync(model.Id);
-            var categoryChanged = int.Parse(model.Category) != productCategory.CategoryId;
+            var categoryChanged = model.CategoryId != productCategory.CategoryId;
 
-            // Use Category property (not CategoryId) because appropriate property is stored in it.
-            productCategory.CategoryId = int.Parse(model.Category);
+            productCategory.CategoryId = model.CategoryId;
             productCategory.IsFeaturedProduct = model.IsFeaturedProduct;
             productCategory.DisplayOrder = model.DisplayOrder;
 
@@ -799,9 +798,9 @@ namespace Smartstore.Admin.Controllers
                 if (categoryChanged)
                 {
                     var mru = new TrimmedBuffer<string>(
-                    _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories,
-                    model.Category,
-                    _catalogSettings.MostRecentlyUsedCategoriesMaxSize);
+                        _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories,
+                        model.Category,
+                        _catalogSettings.MostRecentlyUsedCategoriesMaxSize);
 
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories = mru.ToString();
                 }
@@ -877,7 +876,7 @@ namespace Smartstore.Admin.Controllers
             var productManufacturer = new ProductManufacturer
             {
                 ProductId = productId,
-                ManufacturerId = int.Parse(model.Manufacturer), // Use Manufacturer property (not ManufacturerId) because appropriate property is stored in it.
+                ManufacturerId = model.ManufacturerId,
                 IsFeaturedProduct = model.IsFeaturedProduct,
                 DisplayOrder = model.DisplayOrder
             };
@@ -909,10 +908,8 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ProductManufacturerUpdate(ProductModel.ProductManufacturerModel model)
         {
             var productManufacturer = await _db.ProductManufacturers.FindByIdAsync(model.Id);
-            var manufacturerChanged = int.Parse(model.Manufacturer) != productManufacturer.ManufacturerId;
-
-            // Use Manufacturer property (not ManufacturerId) because appropriate property is stored in it.
-            productManufacturer.ManufacturerId = int.Parse(model.Manufacturer);
+            var manufacturerChanged = model.ManufacturerId != productManufacturer.ManufacturerId;
+            productManufacturer.ManufacturerId = model.ManufacturerId;
             productManufacturer.IsFeaturedProduct = model.IsFeaturedProduct;
             productManufacturer.DisplayOrder = model.DisplayOrder;
 
@@ -921,9 +918,9 @@ namespace Smartstore.Admin.Controllers
                 if (manufacturerChanged)
                 {
                     var mru = new TrimmedBuffer<string>(
-                    _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers,
-                    model.Manufacturer,
-                    _catalogSettings.MostRecentlyUsedManufacturersMaxSize);
+                        _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers,
+                        model.Manufacturer,
+                        _catalogSettings.MostRecentlyUsedManufacturersMaxSize);
 
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers = mru.ToString();
                 }
@@ -1199,28 +1196,22 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.TierPrices)
                 .FindByIdAsync(productId, false);
 
+            var store = Services.StoreContext.GetStoreById(model.StoreId);
+
             var tierPrice = new TierPrice
             {
                 ProductId = product.Id,
-                // Use Store property (not Store propertyId) because appropriate property is stored in it.
-                StoreId = model.Store.ToInt(),
-                // Use CustomerRole property (not CustomerRoleId) because appropriate property is stored in it.
-                CustomerRoleId = model.CustomerRole.IsNumeric() && int.Parse(model.CustomerRole) != 0 ? int.Parse(model.CustomerRole) : null,
+                StoreId = model.StoreId,
+                CustomerRoleId = model.CustomerRoleId,
                 Quantity = model.Quantity,
                 Price = model.Price1 ?? 0,
-                CalculationMethod = model.CalculationMethod == null ? TierPriceCalculationMethod.Fixed : (TierPriceCalculationMethod)int.Parse(model.CalculationMethod)
+                CalculationMethod = (TierPriceCalculationMethod)model.CalculationMethodId
             };
 
             try
             {
                 _db.TierPrices.Add(tierPrice);
                 await _db.SaveChangesAsync();
-
-                // TODO: (mh) (core) Remove comment after review.
-                // Info: This will be taken care of in TierPriceHook.
-                // Update "HasTierPrices" property.
-                //_productService.UpdateHasTierPricesProperty(product);
-
                 return Json(new { success = true });
             }
             catch (Exception ex)
@@ -1236,13 +1227,11 @@ namespace Smartstore.Admin.Controllers
         {
             var tierPrice = await _db.TierPrices.FindByIdAsync(model.Id);
 
-            // Use Store property (not Store propertyId) because appropriate property is stored in it.
-            tierPrice.StoreId = model.Store.ToInt();
-            // Use CustomerRole property (not CustomerRoleId) because appropriate property is stored in it.
-            tierPrice.CustomerRoleId = model.CustomerRole.IsNumeric() && int.Parse(model.CustomerRole) != 0 ? int.Parse(model.CustomerRole) : null;
+            tierPrice.StoreId = model.StoreId;
+            tierPrice.CustomerRoleId = model.CustomerRoleId;
             tierPrice.Quantity = model.Quantity;
             tierPrice.Price = model.Price1 ?? 0;
-            tierPrice.CalculationMethod = model.CalculationMethod == null ? TierPriceCalculationMethod.Fixed : (TierPriceCalculationMethod)int.Parse(model.CalculationMethod);
+            tierPrice.CalculationMethod = (TierPriceCalculationMethod)model.CalculationMethodId;
 
             try
             {
@@ -1766,6 +1755,7 @@ namespace Smartstore.Admin.Controllers
 
             var attributes = await _db.ProductVariantAttributes
                 .AsNoTracking()
+                .Include(x => x.ProductAttribute)
                 .ApplyProductFilter(new[] { bundleItem.ProductId })
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();

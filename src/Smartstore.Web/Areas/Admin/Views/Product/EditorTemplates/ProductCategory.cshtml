@@ -1,6 +1,9 @@
-﻿<select name="Category"
-        id="Category"
+﻿@model int
+
+<select asp-for="@Model"
         class="form-control edit-control"
         data-editor="select"
+        v-bind:data-select-selected-id="item.value"
+        v-bind:data-select-init-text="item.row.Category"
         data-select-url='@Url.Action("AllCategories", "Category")'>
 </select>

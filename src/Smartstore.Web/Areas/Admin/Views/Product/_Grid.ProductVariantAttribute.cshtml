@@ -37,8 +37,6 @@
     </toolbar>
     <columns>
         <column for="ProductAttributeId" hideable="false" width="4fr">
-            @* INFO: (mh) (core) This is the way it has to be done. Bind to raw id field, but display friendly name. Also take a look at corresponding editor templates (Vue bindings). *@
-            @* INFO: (mh) (core) Apply this concept to all other grid colums with dropdowns. *@
             <display-template>
                 <div class="dg-cell-value">{{ item.row.ProductAttribute }}</div>
             </display-template>

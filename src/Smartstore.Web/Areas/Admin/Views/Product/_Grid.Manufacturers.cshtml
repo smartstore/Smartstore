@@ -4,8 +4,6 @@
     var parentModel = ViewData["Parent"] as ProductModel;
 }
 
-@*TODO: (mh) (core) Update doesn't inititialize select box correctly*@
-
 <datagrid id="productmanufacturers-grid"
           allow-resize="true"
           allow-row-selection="true"
@@ -38,9 +36,9 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Manufacturer" hideable="false" width="4fr" entity-member="Manufacturer.Name">
+        <column for="ManufacturerId" hideable="false" width="4fr" entity-member="Manufacturer.Name">
             <display-template>
-                <a :href="item.row.EditUrl" class="text-truncate" v-html="item.value"></a>
+                <a :href="item.row.EditUrl" class="text-truncate" v-html="item.row.Manufacturer"></a>
             </display-template>
         </column>
         <column for="IsFeaturedProduct" halign="center" width="1fr" />

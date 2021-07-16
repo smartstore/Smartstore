@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -276,8 +275,6 @@ namespace Smartstore.Admin.Models.Catalog
 
         public AddProductSpecificationAttributeModel AddSpecificationAttributeModel { get; set; }
 
-        public CopyProductModel CopyProductModel { get; set; } = new();
-
         //BasePrice
         [LocalizedDisplay("*BasePriceEnabled")]
         public bool BasePriceEnabled { get; set; }
@@ -326,11 +323,11 @@ namespace Smartstore.Admin.Models.Catalog
         public class ProductManufacturerModel : EntityModelBase
         {
             public int ProductId { get; set; }
-            public int ManufacturerId { get; set; }
             public string EditUrl { get; set; }
 
             [LocalizedDisplay("*Manufacturer")]
             [UIHint("ProductManufacturer")]
+            public int ManufacturerId { get; set; }
             public string Manufacturer { get; set; }
 
             [LocalizedDisplay("*IsFeaturedProduct")]
@@ -455,11 +452,11 @@ namespace Smartstore.Admin.Models.Catalog
         public class ProductCategoryModel : EntityModelBase
         {
             public int ProductId { get; set; }
-            public int CategoryId { get; set; }
             public string EditUrl { get; set; }
 
             [LocalizedDisplay("Admin.Catalog.Products.Categories.Fields.Category")]
             [UIHint("ProductCategory")]
+            public int CategoryId { get; set; }
             public string Category { get; set; }
             public string[] CategoryList { get; set; }
 
@@ -480,13 +477,13 @@ namespace Smartstore.Admin.Models.Catalog
 
             [LocalizedDisplay("*CustomerRole")]
             [UIHint("TierPriceCustomer")]
-            public string CustomerRole { get; set; }
             public int CustomerRoleId { get; set; }
+            public string CustomerRole { get; set; }
 
             [LocalizedDisplay("*Store")]
             [UIHint("TierPriceStore")]
-            public string Store { get; set; }
             public int StoreId { get; set; }
+            public string Store { get; set; }
 
             [LocalizedDisplay("*Quantity")]
             public int Quantity { get; set; }
@@ -497,8 +494,8 @@ namespace Smartstore.Admin.Models.Catalog
 
             [LocalizedDisplay("*CalculationMethod")]
             [UIHint("TierPriceCalculationMethod")]
-            public string CalculationMethod { get; set; }
             public int CalculationMethodId { get; set; }
+            public string CalculationMethod { get; set; }
         }
 
         [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Fields.")]
