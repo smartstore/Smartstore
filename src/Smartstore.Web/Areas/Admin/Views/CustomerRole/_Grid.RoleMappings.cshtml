@@ -10,7 +10,7 @@
           allow-resize="true"
           allow-column-reordering="true"
           preserve-grid-state="true">
-    <datasource read="@Url.Action("CustomerRoleMappingsList", new { id = parentModel.Id })" />
+    <datasource read="@Url.Action("CustomerRoleMappingList", new { id = parentModel.Id })" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="IsSystemMapping" />

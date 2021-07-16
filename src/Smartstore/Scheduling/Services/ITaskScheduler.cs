@@ -55,6 +55,9 @@ namespace Smartstore.Scheduling
         /// </summary>
         /// <param name="taskId">Unique id of the task to run.</param>
         /// <param name="taskParameters">Optional task parameters.</param>
+        /// <remarks>
+        /// It's safe to call this method without waiting for completion (no await).
+        /// </remarks>
         Task RunSingleTaskAsync(int taskId, IDictionary<string, string> taskParameters = null);
 
         /// <summary>

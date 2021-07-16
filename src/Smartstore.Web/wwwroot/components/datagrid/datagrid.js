@@ -839,8 +839,7 @@ Vue.component("sm-datagrid", {
                         data: selection,
                         global: true,
                         success(result) {
-                            // TBD/INFO: (mg) (core) You can't change this without checking whether other delete actions follow this convention.
-                            if (result.Success || result.success) {
+                            if (result.Success) {
                                 self.selectedRows = {};
                                 displayNotification("{0} Datensätze erfolgreich gelöscht.".format(result.Count || numRows), "success");
                                 self.$emit("deleted-rows", rowKeys);

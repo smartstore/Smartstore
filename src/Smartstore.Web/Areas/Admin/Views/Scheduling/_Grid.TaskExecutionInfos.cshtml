@@ -9,7 +9,7 @@
 		allow-resize="true" 
 		allow-column-reordering="true" 
 		preserve-grid-state="true">
-	<datasource read="@Url.Action("TaskExecutionInfoList", new { id = parentModel.Id })" delete="@Url.Action("DeleteExecutionInfos")" />
+	<datasource read="@Url.Action("TaskExecutionInfoList", new { id = parentModel.Id })" delete="@Url.Action("TaskExecutionInfoDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
 	<toolbar>
         <toolbar-group class="omega">
@@ -53,12 +53,3 @@
 		<column for="MachineName" />
 	</columns>
 </datagrid>
-
-@*TODO: (mg) (core) would be nice here to prevent a grid row from being selected.*@
-@*<script sm-target-zone="scripts" data-origin="task-execution-infos-grid">
-    function taskInfosGrid_onRowClass(row) {
-        return {
-            "disabled": row.IsRunning
-        };
-    }
-</script>*@

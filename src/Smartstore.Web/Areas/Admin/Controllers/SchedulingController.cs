@@ -288,7 +288,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.System.ScheduleTask.Delete)]
-        public async Task<IActionResult> DeleteExecutionInfos(GridSelection selection)
+        public async Task<IActionResult> TaskExecutionInfoDelete(GridSelection selection)
         {
             var numDeleted = await _taskStore.DeleteExecutionInfosByIdsAsync(selection.GetEntityIds());
 

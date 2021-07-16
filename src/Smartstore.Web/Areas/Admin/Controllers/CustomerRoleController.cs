@@ -21,6 +21,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Data;
+using Smartstore.Data.Batching;
 using Smartstore.Scheduling;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
@@ -40,14 +41,14 @@ namespace Smartstore.Admin.Controllers
         
         public CustomerRoleController(
             SmartDbContext db,
-            RoleManager<CustomerRole> roleStore,
+            RoleManager<CustomerRole> roleManager,
             IRuleService ruleService,
             Lazy<ITaskStore> taskStore,
             Lazy<ITaskScheduler> taskScheduler,
             CustomerSettings customerSettings)
         {
             _db = db;
-            _roleManager = roleStore;
+            _roleManager = roleManager;
             _taskStore = taskStore;
             _ruleService = ruleService;
             _taskScheduler = taskScheduler;
@@ -116,7 +117,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Customer.Role.Read)]
-        public async Task<IActionResult> RolesList(GridCommand command)
+        public async Task<IActionResult> RoleList(GridCommand command)
         {
             var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
 
@@ -193,7 +194,7 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> InlineEdit(CustomerRoleModel model)
+        public async Task<IActionResult> RoleUpdate(CustomerRoleModel model)
         {
             var success = false;
 
@@ -299,40 +300,8 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> DeleteSelected(GridSelection selection)
-        {
-            var success = false;
-
-            if (await Services.Permissions.AuthorizeAsync(Permissions.Customer.Role.Update))
-            {
-                // TODO: (mg) (core) Why deleting only the first one?!! What for?! Either delete all or delete nothing.
-                var role = await _roleManager.FindByIdAsync(selection?.SelectedKeys?.FirstOrDefault());
-                if (role != null)
-                {
-                    try
-                    {
-                        await _roleManager.DeleteAsync(role);
-                        success = true;
-
-                        Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), role.Name);
-                    }
-                    catch (Exception ex)
-                    {
-                        NotifyError(ex.Message);
-                    }
-                }
-            }
-            else
-            {
-                NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(Permissions.Customer.Role.Delete));
-            }
-
-            return Json(new { success });
-        }
-
         [Permission(Permissions.Customer.Role.Read)]
-        public async Task<IActionResult> CustomerRoleMappingsList(GridCommand command, int id)
+        public async Task<IActionResult> CustomerRoleMappingList(GridCommand command, int id)
         {
             var query = _db.CustomerRoleMappings
                 .AsNoTracking()
