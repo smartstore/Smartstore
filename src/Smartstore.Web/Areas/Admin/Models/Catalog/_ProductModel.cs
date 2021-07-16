@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -527,20 +528,19 @@ namespace Smartstore.Admin.Models.Catalog
             // We don't name it DisplayOrder to avoid model binding conflicts with product property.
             [LocalizedDisplay("Common.DisplayOrder")]
             public int DisplayOrder1 { get; set; }
+
+            [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")]
             public string EditUrl { get; set; }
             public string EditText { get; set; }
-            public string OptionsSets { get; set; }
+            public List<object> OptionSets { get; set; } = new();
             public int ValueCount { get; set; }
         }
 
         public class ProductVariantAttributeValueListModel : ModelBase
         {
             public int ProductId { get; set; }
-
             public string ProductName { get; set; }
-
             public int ProductVariantAttributeId { get; set; }
-
             public string ProductVariantAttributeName { get; set; }
         }
 
@@ -670,6 +670,8 @@ namespace Smartstore.Admin.Models.Catalog
         public ProductModelValidator(SmartDbContext db)
         {
             CopyFromEntityRules<Product>(db);
+
+            // TODO: (mh) (core) Identify missing validation rules (spare required & string length entity annoations)
         }
     }
 

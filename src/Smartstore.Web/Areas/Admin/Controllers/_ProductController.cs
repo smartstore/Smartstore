@@ -2020,8 +2020,10 @@ namespace Smartstore.Admin.Controllers
                         if (x.ProductAttribute.ProductAttributeOptionsSets.Any())
                         {
                             var optionsSets = new StringBuilder($"<option>{T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions")}</option>");
-                            x.ProductAttribute.ProductAttributeOptionsSets.Each(set => optionsSets.Append($"<option value=\"{set.Id}\">{set.Name}</option>"));
-                            pvaModel.OptionsSets = optionsSets.ToString();
+                            pvaModel.OptionSets.Add(new { Id = "", Name = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions").Value });
+                            x.ProductAttribute.ProductAttributeOptionsSets.Each(set => {
+                                pvaModel.OptionSets.Add(new { set.Id, set.Name });
+                            });
                         }
                     }
 

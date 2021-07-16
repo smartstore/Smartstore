@@ -11,7 +11,7 @@
         <div class="title">
             @if (Model.PictureThumbnailUrl.HasValue())
             {
-                // TODO: (mh) (consider using ImageModel)
+                // TODO: (mh) (core) (consider using ImageModel)
                 <img src="@Url.Content(Model.PictureThumbnailUrl)" />
             }
             @T("Admin.Catalog.Products.EditProductDetails") - <span title="@Model.Name">@Model.Name.Truncate(45, "...")</span>
@@ -48,11 +48,14 @@
     <partial name="_CreateOrUpdate" model="Model" />
 </form>
 
+@if (Model.Id != 0 && Model.NumberOfAvailableProductAttributes > 0)
+{
+    <partial name="_CopyAttributeOptionsDialog" />
+}
+
 @*TODO: (mh) (core) Implement copy product window*@
 
-@*TODO: (mh) (core) Implement CopyAttributeOptionsDialog*@
-
-<script sm-target-zone="Scripts" data-origin="">
+<script sm-target-zone="Scripts" data-origin="product-edit">
     // TODO: (mh) (core) Test every single function call in here!!!
     $(function() {
 		// Copy product form submission.
@@ -60,39 +63,6 @@
             e.preventDefault();
             $('#copyproduct-window').find('form').submit();
             return false;
-        });
-
-    	// Show modal dialog to copy attribute options.
-        $(document).on('change', '#productvariantattributes-grid select[id^=OptionsSetsChoice]', function (e) {
-        	e.stopPropagation();
-
-        	var select = $(e.currentTarget),
-				form = $('#CopyOptionsForm'),
-				valueCount = parseInt(select.attr('data-valcount')),
-				productVariantAttributeId = select.attr('id').replace('OptionsSetsChoice', '');
-
-        	form.find('input[name=productVariantAttributeId]').val(productVariantAttributeId);
-        	form.find('input[name=optionsSetId]').val(select.val());
-
-        	if (valueCount > 0) {
-        		var hint = $('#CopyOptionsHintTemplate').text().replace('{0}', select.find(':selected').text());
-        		$('#CopyOptionsHint').text(hint);
-
-        		$('#CopyAttributeOptionsDialog').modal('show');
-        	}
-        	else {
-        		$('#btnCopyAttributeOptions').trigger('click');
-        	}
-        });
-
-    	// Copy attribute options
-        $(document).on('click', '#btnCopyAttributeOptions', function () {
-        	$('#CopyOptionsForm').doAjax({
-        		type: 'POST',
-        		callbackSuccess: function () {
-        			$('#productvariantattributes-grid').data('tGrid').ajaxRequest();
-        		}
-        	});
         });
 
 		// Bundle per item pricing

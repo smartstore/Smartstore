@@ -4,48 +4,6 @@
     var parentModel = ViewData["Parent"] as ProductModel;
 }
 
-<script sm-target-zone="Scripts" data-origin="grid-product-variant-attribute">
-
-    /*TODO: (mh) (core) Implement option sets correctly */
-    function onProductVariantAttributeEdit(e) {
-        if (e.mode == "edit") {
-            $('#AttributeControlType')
-                .data('select-selected-id', e.dataItem['AttributeControlTypeId'])
-                .data('select-init-text', e.dataItem['AttributeControlType'])
-                .val(e.dataItem['AttributeControlTypeId'])
-                .trigger('change');
-
-            $('#ProductAttribute')
-                .data('select-selected-id', e.dataItem['ProductAttributeId'])
-                .data('select-init-text', e.dataItem['ProductAttribute'])
-                .val(e.dataItem['ProductAttributeId'])
-                .trigger('change');
-        }
-
-        var id = parseInt(e.dataItem['Id']);
-
-        if (id === 0) {
-            $(e.form).find('#IsRequired').prop('checked', true);
-        }
-        else {
-            var optionsSetsChoice = $('#OptionsSetsContainer' + id);
-
-            if (optionsSetsChoice.find('option').length > 0) {
-                $('#EditOptionsLink' + id).hide();
-                optionsSetsChoice.show();
-                $('#OptionsSetsChoice' + id).selectWrapper();
-            }
-        }
-    }
-
-    function onProductVariantAttributeRowDataBound(e) {
-        var id = parseInt(e.dataItem['Id']);
-
-        $('#EditOptionsLink' + id).show();
-        $('#OptionsSetsContainer' + id).hide();
-    }
-</script>
-
 <datagrid id="productvariantattributes-grid"
           allow-resize="true"
           allow-row-selection="false"
@@ -90,23 +48,28 @@
                 <div class="dg-cell-value">{{ item.row.AttributeControlType }}</div>
             </display-template>
         </column>
-        <column for="TextPrompt" halign="center" width="2fr" />
-        <column for="CustomData" halign="center" width="2fr" />
-        <column for="IsRequired" halign="center" width="1fr" />
-        <column for="DisplayOrder1" halign="center" width="1fr" />
-        <column for="EditUrl" halign="center" width="1fr" x-readonly="true" title="">    
+        <column for="TextPrompt" width="2fr" visible="false" />
+        <column for="CustomData" width="2fr" visible="false" />
+        <column for="IsRequired" halign="center" />
+        <column for="DisplayOrder1" halign="center" />
+        <column for="EditUrl" width="2fr">
             <display-template>
                 <a :href="item.row.EditUrl">
                     {{ item.row.EditText }}
                 </a>
-                <div :id="'OptionsSetsContainer' + item.row.Id" style='display:none'>
-                    <select class='form-control' :id="'OptionsSetsChoice' + item.row.Id" :data-valcount='item.row.ValueCount' v-html="item.row.OptionsSets">
-                        {{ item.row.OptionsSets }}
-                        @*<option v-for="xxx in item.row.OptionsSets" v-bind:value="xxx.key">{{ xxx.value }}</option>*@
+            </display-template>
+            <edit-template>
+                <div v-if="item.row.OptionSets.length > 0" :id="'OptionsSetsContainer' + item.row.Id">
+                    <select class='form-control' :id="'OptionsSetsChoice' + item.row.Id" :data-valcount='item.row.ValueCount'>
+                        <option v-for="o in item.row.OptionSets" v-bind:value="o.Id">{{ o.Name }}</option>
                     </select>
                 </div>
-            </display-template>
+            </edit-template>
         </column>
     </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
 </datagrid>
-
