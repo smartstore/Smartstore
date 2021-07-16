@@ -32,7 +32,7 @@
     }
 
     &.selected {
-        background-color: lighten($blue, 30%);
+        background-color: darken(#f2f7fb, 0.5%);
         outline: 1px solid lighten($blue, 25%);
     }
 
