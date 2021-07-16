@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Humanizer;
 using Microsoft.AspNetCore.Html;
@@ -410,6 +409,16 @@ namespace Smartstore.Web.Rendering
 
         #region LocalizedEditor
 
+        public static IHtmlContent TestEditor<TModel>(this IHtmlHelper<TModel> helper, Func<TModel, HelperResult> template)
+        {
+            return template(helper.ViewData.Model).ToHtmlString();
+        }
+
+        public static IHtmlContent TestEditor2<TModel>(this IHtmlHelper<TModel> helper, Func<TModel, HelperResult> template)
+        {
+            return template(helper.ViewData.Model);
+        }
+
         public static IHtmlContent LocalizedEditor<TModel, TLocalizedModelLocal>(this IHtmlHelper<TModel> helper,
             string name,
             Func<int, HelperResult> localizedTemplate,
@@ -417,6 +426,9 @@ namespace Smartstore.Web.Rendering
             where TModel : ILocalizedModel<TLocalizedModelLocal>
             where TLocalizedModelLocal : ILocalizedLocaleModel
         {
+            // INFO: We cannot rely on HelperResult's deferred rendering strategy here, because then client validation rules
+            // are missing in the output. Instead we immediately render the content to an HtmlString instance.
+            
             var locales = helper.ViewData.Model.Locales;
             var hasMasterTemplate = masterTemplate != null;
 
@@ -448,7 +460,8 @@ namespace Smartstore.Web.Rendering
                     tabs.Add(new TabItem
                     {
                         Selected = true,
-                        Text = localizationService.GetResource("Admin.Common.Standard")
+                        Text = localizationService.GetResource("Admin.Common.Standard"),
+                        Content = masterTemplate(helper.ViewData.Model).ToHtmlString()
                     });
                 }
 
@@ -463,7 +476,8 @@ namespace Smartstore.Web.Rendering
                     {
                         Selected = !hasMasterTemplate && i == 0,
                         Text = language.Name,
-                        ImageUrl = "~/images/flags/" + language.FlagImageFileName
+                        ImageUrl = "~/images/flags/" + language.FlagImageFileName,
+                        Content = localizedTemplate(i).ToHtmlString()
                     });
                 }
 
@@ -492,7 +506,6 @@ namespace Smartstore.Web.Rendering
                         {
                             builder.Item = tabs[i];
                             builder
-                                .Content(isMaster ? masterTemplate(helper.ViewData.Model) : localizedTemplate(hasMasterTemplate ? i - 1 : i))
                                 .HtmlAttributes("title", language.Name, !isMaster)
                                 .ContentHtmlAttributes(new
                                 {
@@ -517,7 +530,7 @@ namespace Smartstore.Web.Rendering
             }
             else if (hasMasterTemplate)
             {
-                return masterTemplate(helper.ViewData.Model);
+                return masterTemplate(helper.ViewData.Model).ToHtmlString();
             }
 
             return HtmlString.Empty;
