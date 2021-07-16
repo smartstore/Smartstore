@@ -62,6 +62,9 @@ namespace Smartstore.Core.Catalog.Attributes
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        /// <summary>
+        /// All attribute control types to which <see cref="ProductVariantAttributeValue"/> entities can be assigned.
+        /// </summary>
         internal readonly static int[] AttributeListControlTypeIds = new[]
         {
             (int)AttributeControlType.DropdownList,
@@ -86,6 +89,7 @@ namespace Smartstore.Core.Catalog.Attributes
             foreach (var selection in selections.Where(x => x.AttributesMap.Any()))
             {
                 var key = ATTRIBUTEVALUES_BY_JSON_KEY.FormatInvariant(selection.AsJson());
+
                 if (!alreadyCollectedKeys.Contains(key) && !_requestCache.Contains(key))
                 {
                     infos.Add(new AttributeSelectionInfo(selection, key));
@@ -97,12 +101,12 @@ namespace Smartstore.Core.Catalog.Attributes
                 .Distinct()
                 .ToArray();
 
-            var allNumericValues = infos.SelectMany(x => x.NumericValues)
+            var allValues = infos.SelectMany(x => x.Values)
                 .Distinct()
                 .ToArray();
 
             // Load all values in one go.
-            var attributeValues = await LoadAttributeValuesAsync(allAttributeIds, allNumericValues);
+            var attributeValues = await LoadAttributeValuesAsync(allAttributeIds, allValues);
             var attributeValuesMap = attributeValues.ToDictionarySafe(x => x.Id);
 
             // Create a single cache entry for each passed attribute selection.
@@ -111,11 +115,11 @@ namespace Smartstore.Core.Catalog.Attributes
                 var cachedValues = new List<ProductVariantAttributeValue>();
 
                 // Ensure value id order in cached result list is correct.
-                foreach (var numericValue in info.NumericValues)
+                foreach (var value in info.Values)
                 {
-                    if (attributeValuesMap.TryGetValue(numericValue, out var value))
+                    if (attributeValuesMap.TryGetValue(value, out var attributeValue))
                     {
-                        cachedValues.Add(value);
+                        cachedValues.Add(attributeValue);
                     }
                 }
 
@@ -156,58 +160,6 @@ namespace Smartstore.Core.Catalog.Attributes
             return result;
         }
 
-        //public virtual async Task<IList<ProductVariantAttributeValue>> MaterializeProductVariantAttributeValuesAsync_Old(ProductVariantAttributeSelection selection)
-        //{
-        //    Guard.NotNull(selection, nameof(selection));
-
-        //    var ids = selection.GetAttributeValueIds();
-        //    if (!ids.Any())
-        //    {
-        //        return new List<ProductVariantAttributeValue>();
-        //    }
-
-        //    var cacheKey = ATTRIBUTEVALUES_BY_IDS_KEY + string.Join(",", ids);
-
-        //    var result = await _requestCache.GetAsync(cacheKey, async () =>
-        //    {
-        //        // Only consider values of list control types. Otherwise for instance text entered in a text-box is misinterpreted as an attribute value id.
-        //        var query = _db.ProductVariantAttributeValues
-        //            .Include(x => x.ProductVariantAttribute)
-        //            .ThenInclude(x => x.ProductAttribute)
-        //            .AsNoTracking()
-        //            .ApplyValueFilter(ids);
-
-        //        return await query.ToListAsync();
-        //    });
-
-        //    // That's what the old ported code did:
-        //    //if (selection?.AttributesMap?.Any() ?? false)
-        //    //{
-        //    //    var pvaIds = selection.AttributesMap.Select(x => x.Key).ToArray();
-        //    //    if (pvaIds.Any())
-        //    //    {
-        //    //        var attributes = await _db.ProductVariantAttributes
-        //    //            .AsNoTracking()
-        //    //            .AsCaching(ProductAttributesCacheDuration)
-        //    //            .Where(x => pvaIds.Contains(x.Id))
-        //    //            .OrderBy(x => x.DisplayOrder)
-        //    //            .ToListAsync();
-
-        //    //        var valueIds = GetAttributeValueIds(attributes, selection).ToArray();
-
-        //    //        var values = await _db.ProductVariantAttributeValues
-        //    //            .AsNoTracking()
-        //    //            .AsCaching(ProductAttributesCacheDuration)
-        //    //            .ApplyValueFilter(valueIds)
-        //    //            .ToListAsync();
-
-        //    //        return values;
-        //    //    }
-        //    //}
-
-        //    return result;
-        //}
-
         // TODO: (mg) (core) Check DynamicEntityHelper return value handling of MaterializeProductVariantAttributeValuesAsync (now returns IList instead of ICollection).
         public virtual async Task<IList<ProductVariantAttributeValue>> MaterializeProductVariantAttributeValuesAsync(ProductVariantAttributeSelection selection)
         {
@@ -218,9 +170,9 @@ namespace Smartstore.Core.Catalog.Attributes
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
                 var attributeIds = selection.AttributesMap.Select(x => x.Key).ToArray();
-                var numericValues = GetNumericValues(selection);
+                var values = GetIntegerValues(selection);
 
-                return await LoadAttributeValuesAsync(attributeIds, numericValues);
+                return await LoadAttributeValuesAsync(attributeIds, values);
             });
 
             return result;
@@ -594,9 +546,9 @@ namespace Smartstore.Core.Catalog.Attributes
             }
         }
 
-        protected virtual async Task<List<ProductVariantAttributeValue>> LoadAttributeValuesAsync(int[] attributeIds, int[] numericValues)
+        protected virtual async Task<List<ProductVariantAttributeValue>> LoadAttributeValuesAsync(int[] attributeIds, int[] valueIds)
         {
-            if (!attributeIds.Any() || !numericValues.Any())
+            if (!attributeIds.Any() || !valueIds.Any())
             {
                 return new List<ProductVariantAttributeValue>();
             }
@@ -609,7 +561,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 .Include(x => x.ProductVariantAttribute)
                 .ThenInclude(x => x.ProductAttribute)
                 .AsNoTracking()
-                .Where(x => attributeIds.Contains(x.ProductVariantAttributeId) && numericValues.Contains(x.Id))
+                .Where(x => attributeIds.Contains(x.ProductVariantAttributeId) && valueIds.Contains(x.Id))
                 .ApplyListTypeFilter()
                 .ToListAsync();
         }
@@ -630,7 +582,12 @@ namespace Smartstore.Core.Catalog.Attributes
             return null;
         }
 
-        private static int[] GetNumericValues(ProductVariantAttributeSelection selection)
+        /// <summary>
+        /// Gets all integer values of an attribute selection that are not 0.
+        /// Usually these are <see cref="ProductVariantAttributeValue.Id"/> but can 
+        /// (depending on <see cref="AttributeControlType"/>) also be other numeric values of text fields.
+        /// </summary>
+        private static int[] GetIntegerValues(ProductVariantAttributeSelection selection)
         {
             return selection.AttributesMap
                 .SelectMany(x => x.Value)
@@ -649,13 +606,13 @@ namespace Smartstore.Core.Catalog.Attributes
                 Selection = selection;
                 ValuesCacheKey = valuesCacheKey;
                 AttributeIds = selection.AttributesMap.Select(x => x.Key).ToArray();
-                NumericValues = GetNumericValues(selection);
+                Values = GetIntegerValues(selection);
             }
 
             public string ValuesCacheKey { get; }
             public ProductVariantAttributeSelection Selection { get; }
             public int[] AttributeIds { get; }
-            public int[] NumericValues { get; }
+            public int[] Values { get; }
         }
     }
 }

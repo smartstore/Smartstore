@@ -398,8 +398,8 @@ namespace Smartstore.Core.Checkout.Cart
                 await LoadCartItemCollection(customer);
                 var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId);
 
-                // Perf: Prefetch (load) all attribute values in any of the attribute definitions across all cart items (including any bundle part)
-                //await _productAttributeMaterializer.PrefetchProductVariantAttributesAsync(cartItems.Select(x => x.AttributeSelection));
+                // Perf: Prefetch (load) all attribute values in any of the attribute definitions across all cart items (including any bundle part).
+                await _productAttributeMaterializer.PrefetchProductVariantAttributesAsync(cartItems.Select(x => x.AttributeSelection));
 
                 var organizedItems = await OrganizeCartItemsAsync(cartItems);
 

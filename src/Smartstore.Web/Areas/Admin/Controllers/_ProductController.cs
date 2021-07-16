@@ -2553,9 +2553,8 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => x.ProductId == product.Id)
                 .ApplyGridCommand(command)
                 .ToListAsync();
-            
-            // TODO: (mg) (core) Evaluate & implement if required.
-            //_productAttributeParser.PrefetchProductVariantAttributes(allCombinations.Select(x => x.AttributesXml));
+
+            await _productAttributeMaterializer.PrefetchProductVariantAttributesAsync(allCombinations.Select(x => x.AttributeSelection));
 
             var productVariantAttributesModel = await allCombinations.SelectAsync(async x =>
             {
