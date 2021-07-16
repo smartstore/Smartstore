@@ -23,6 +23,7 @@ namespace Smartstore.Core.Checkout.Cart
     {
         private readonly SmartDbContext _db;
         private readonly IAclService _aclService;
+        private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly ICurrencyService _currencyService;
         private readonly ShoppingCartSettings _cartSettings;
@@ -35,6 +36,7 @@ namespace Smartstore.Core.Checkout.Cart
         public ShoppingCartValidator(
             SmartDbContext db,
             IAclService aclService,
+            IWorkContext workContext,
             IStoreContext storeContext,
             ICurrencyService currencyService,
             ShoppingCartSettings cartSettings,
@@ -46,6 +48,7 @@ namespace Smartstore.Core.Checkout.Cart
         {
             _db = db;
             _aclService = aclService;
+            _workContext = workContext;
             _storeContext = storeContext;
             _currencyService = currencyService;
             _cartSettings = cartSettings;
@@ -191,7 +194,7 @@ namespace Smartstore.Core.Checkout.Cart
             var warnings = new List<string>();
 
             await ValidateProductAsync(cartItem, warnings, ctx.StoreId);
-            await ValidateProductAttributesAsync(cartItem, cartItems, warnings);
+            await this.ValidateProductAttributesAsync(cartItem, cartItems, warnings);
             ValidateGiftCardInfo(cartItem, warnings);
             await ValidateRequiredProductsAsync(ctx.Product, cartItems, warnings);
 
@@ -427,21 +430,27 @@ namespace Smartstore.Core.Checkout.Cart
             return !currentWarnings.Any();
         }
 
-        public virtual async Task<bool> ValidateProductAttributesAsync(ShoppingCartItem cartItem, IEnumerable<OrganizedShoppingCartItem> cartItems, IList<string> warnings)
+        public virtual async Task<bool> ValidateProductAttributesAsync(
+            Product product,
+            ProductVariantAttributeSelection selection,
+            int storeId,
+            IList<string> warnings,
+            int quantity = 1,
+            Customer customer = null,
+            ProductBundleItem bundleItem = null,
+            ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
+            IEnumerable<OrganizedShoppingCartItem> cartItems = null)
         {
-            Guard.NotNull(cartItem, nameof(cartItem));
-            Guard.NotNull(warnings, nameof(warnings));
+            customer ??= _workContext.CurrentCustomer;
+            cartItems ??= Enumerable.Empty<OrganizedShoppingCartItem>();
 
-            var product = cartItem.Product;
-            var bundleItem = cartItem.BundleItem;
-            var selection = cartItem.AttributeSelection;
             var currentWarnings = new List<string>();
 
             // Check if the product is a bundle. Since bundles have no attributes, the customer has nothing to select.
             if (product.ProductType == ProductType.BundledProduct ||
                 (bundleItem?.BundleProduct != null && !bundleItem.BundleProduct.BundlePerItemPricing))
             {
-                if (cartItem.RawAttributes.HasValue())
+                if (selection.AttributesMap.Any())
                 {
                     warnings.Add(T("ShoppingCart.Bundle.NoAttributes"));
                 }
@@ -494,9 +503,9 @@ namespace Smartstore.Core.Checkout.Cart
                     }
                 }
 
-                if (!found
-                    && (bundleItem?.FilterAttributes ?? false)
-                    && !bundleItem.AttributeFilters.Any(x => x.AttributeId == existingAttribute.ProductAttributeId))
+                if (!found &&
+                    (bundleItem?.FilterAttributes ?? false) &&
+                    !bundleItem.AttributeFilters.Any(x => x.AttributeId == existingAttribute.ProductAttributeId))
                 {
                     // Attribute is filtered out by bundle item. It cannot be selected by the customer.
                     found = true;
@@ -523,7 +532,7 @@ namespace Smartstore.Core.Checkout.Cart
             }
 
             var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
-            
+
             var productLinkageValues = attributeValues
                 .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
                 .ToArray();
@@ -547,19 +556,19 @@ namespace Smartstore.Core.Checkout.Cart
                     {
                         ProductId = linkedProduct.Id,
                         Product = linkedProduct,
-                        ShoppingCartType = cartItem.ShoppingCartType,
-                        Customer = cartItem.Customer,
-                        StoreId = cartItem.StoreId,
-                        Quantity = cartItem.Quantity * value.Quantity
+                        ShoppingCartType = cartType,
+                        Customer = customer,
+                        StoreId = storeId,
+                        Quantity = quantity * value.Quantity
                     };
 
                     var ctx = new AddToCartContext
                     {
                         Product = linkedProduct,
-                        Customer = cartItem.Customer,
-                        CartType = cartItem.ShoppingCartType,
-                        StoreId = cartItem.StoreId,
-                        Quantity = cartItem.Quantity * value.Quantity
+                        Customer = customer,
+                        CartType = cartType,
+                        StoreId = storeId,
+                        Quantity = quantity * value.Quantity
                     };
 
                     // Get product linkage warnings.

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Identity;
@@ -73,13 +74,28 @@ namespace Smartstore.Core.Checkout.Cart
         Task<bool> ValidateProductAsync(ShoppingCartItem cartItem, IList<string> warnings, int? storeId = null, int? quantity = null);
 
         /// <summary>
-        /// Validates product attribute selection and variant combinations.
+        /// Validates selected product attributes.
         /// </summary>
-        /// <param name="cartItem">The cart item with product and attribute selection informations.</param>
-        /// <param name="cartItems">The entire shopping cart items.</param>
-        /// <param name="warnings">List of errors as sting.</param>
-        /// <returns><c>True</c> when products and their attribute selections are valid, otherwise <c>false</c>.</returns>
-        Task<bool> ValidateProductAttributesAsync(ShoppingCartItem cartItem, IEnumerable<OrganizedShoppingCartItem> cartItems, IList<string> warnings);
+        /// <param name="product">Product.</param>
+        /// <param name="selection">Selected attributes.</param>
+        /// <param name="storeId">Store identifier.</param>
+        /// <param name="warnings">List of returned warnings.</param>
+        /// <param name="quantity">Product quantity.</param>
+        /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
+        /// <param name="bundleItem">Product bundle item (if any).</param>/// 
+        /// <param name="cartType">Shopping cart type.</param>
+        /// <param name="cartItems">Entire shopping cart (if any).</param>
+        /// <returns><c>True</c> if selected attributes are valid, otherwise <c>false</c>.</returns>
+        Task<bool> ValidateProductAttributesAsync(
+            Product product,
+            ProductVariantAttributeSelection selection,
+            int storeId,
+            IList<string> warnings,
+            int quantity = 1,
+            Customer customer = null,
+            ProductBundleItem bundleItem = null,
+            ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
+            IEnumerable<OrganizedShoppingCartItem> cartItems = null);
 
         /// <summary>
         /// Validates the product on all required products.
