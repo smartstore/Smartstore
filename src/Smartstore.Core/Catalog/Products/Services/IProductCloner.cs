@@ -10,7 +10,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Copies a product.
         /// </summary>
-        /// <param name="product">Product to copy.</param>
+        /// <param name="product">Product to copy. Important: Pass the entity tracked as the navigation properties must be available in order to be copied.</param>
         /// <param name="cloneName">The product name of the copied product.</param>
         /// <param name="isPublished">A value indicating whether to publish the copied product.</param>
         /// <param name="copyAssociatedProducts">A value indicating whether to copy associated products.</param>

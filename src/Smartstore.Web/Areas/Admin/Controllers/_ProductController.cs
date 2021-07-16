@@ -687,7 +687,8 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 Product newProduct = null;
-                var product = await _db.Products.FindByIdAsync(copyModel.Id, false);
+                // Lets just load this untracked as nearly all navigation properties are needed to copy successfully.
+                var product = await _db.Products.FindByIdAsync(copyModel.Id);
                 
                 for (var i = 1; i <= copyModel.NumberOfCopies; ++i)
                 {
