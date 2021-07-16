@@ -64,7 +64,7 @@ namespace Smartstore.Scheduling
 
             var qs = QueryString.Create(taskParameters);
 
-            return CallEndpoint(new Uri("{0}run/{1}{2}".FormatInvariant(BaseUrl, taskId, qs.ToString())));
+            return CallEndpoint(new Uri("{0}run/{1}{2}".FormatInvariant(BaseUrl, taskId, qs.ToString())), false);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -134,10 +134,10 @@ namespace Smartstore.Scheduling
 
         private void DoPoll(object state)
         {
-            _ = CallEndpoint((Uri)state);
+            _ = CallEndpoint((Uri)state, true);
         }
 
-        private async Task CallEndpoint(Uri uri)
+        private async Task CallEndpoint(Uri uri, bool isPoll)
         {
             if (_shuttingDown || _errCount >= 10)
                 return;
@@ -149,7 +149,7 @@ namespace Smartstore.Scheduling
             req.Method = "POST";
             req.ContentType = "text/plain";
             req.ContentLength = 0;
-            req.Timeout = 10000; // 10 sec.
+            //req.Timeout = 10000; // 10 sec.
 
             string authToken = await CreateAuthToken();
             req.Headers.Add(AuthTokenName, authToken);
@@ -161,46 +161,49 @@ namespace Smartstore.Scheduling
             }
             catch (Exception ex)
             {
-                HandleException(ex, uri);
+                HandleException(ex, uri, out var isTimeout);
 
-                Interlocked.Increment(ref _errCount);
-                if (_errCount >= 10)
+                if (isPoll || !isTimeout)
                 {
-                    // 10 failed attempts in succession. Stop the timer!
-                    _timer?.Change(Timeout.Infinite, 0);
-                    Logger.Info("Stopping TaskScheduler poll timer. Too many failed requests in succession.");
+                    Interlocked.Increment(ref _errCount);
+                    if (_errCount >= 10)
+                    {
+                        // 10 failed attempts in succession. Stop the timer!
+                        _timer?.Change(Timeout.Infinite, 0);
+                        Logger.Info("Stopping TaskScheduler poll timer. Too many failed requests in succession.");
+                    }
                 }
             }
         }
 
-        private void HandleException(Exception exception, Uri uri)
+        private void HandleException(Exception exception, Uri uri, out bool isTimeout)
         {
             string msg = "Error while calling TaskScheduler endpoint '{0}'.".FormatInvariant(uri.OriginalString);
+            var wex = exception as WebException;
 
-            if (exception is WebException wex && wex.Response == null)
+            isTimeout = wex?.Status == WebExceptionStatus.Timeout;
+
+            if (wex == null)
             {
-                if (wex.Response == null)
-                {
-                    Logger.Error(wex, msg);
-                }
-                else
-                {
-                    using var response = wex.Response as HttpWebResponse;
-                    if (response != null)
-                    {
-                        var statusCode = (int)response.StatusCode;
-                        if (statusCode < 500)
-                        {
-                            // Any internal server error (>= 500) already handled by middleware
-                            msg += " HTTP {0}, {1}".FormatCurrent(statusCode, response.StatusDescription);
-                            Logger.Error(msg);
-                        }
-                    }
-                }
+                Logger.Error(exception, msg);
+            }
+            else if (wex.Response == null)
+            {
+                Logger.Error(wex, msg);
             }
             else
             {
-                Logger.Error(exception, msg);
+                using var response = wex.Response as HttpWebResponse;
+                if (response != null)
+                {
+                    var statusCode = (int)response.StatusCode;
+                    if (statusCode < 500)
+                    {
+                        // Any internal server error (>= 500) already handled by middleware
+                        msg += " HTTP {0}, {1}".FormatCurrent(statusCode, response.StatusDescription);
+                        Logger.Error(msg);
+                    }
+                }
             }
         }
 

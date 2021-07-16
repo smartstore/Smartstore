@@ -478,7 +478,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         }
         // Clear the selection.
         .select2-selection__clear {
-            margin-top: $s2bs-padding-base-vertical;
+            margin-top: $s2bs-padding-base-vertical/2;
             margin-right: $s2bs-padding-base-horizontal;
             float: none;
             position: absolute;
