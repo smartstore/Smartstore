@@ -53,7 +53,7 @@
                         <smart-label asp-for="SearchFields" />
                     </div>
                     <div class="adminData">
-                        <select asp-for="SearchFields" asp-items='@new MultiSelectList(ViewBag.AvailableSearchFields, "Value", "Text")' multiple="multiple"></select>
+                        <select asp-for="SearchFields" asp-items='new MultiSelectList(ViewBag.AvailableSearchFields, "Value", "Text")' multiple="multiple"></select>
                         <span asp-validation-for="SearchFields"></span>
                     </div>
                 </div>
@@ -71,7 +71,7 @@
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="DefaultSortOrder">
-                            <select asp-for="DefaultSortOrder" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ProductSortingEnum))"></select>
+                            <select asp-for="DefaultSortOrder" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductSortingEnum))"></select>
                         </setting-editor>
                         <span asp-validation-for="DefaultSortOrder"></span>
                     </div>

@@ -74,7 +74,7 @@
                     <smart-label asp-for="TaxDisplayType" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="TaxDisplayType" asp-items="@(SelectList)ViewBag.TaxDisplayTypes" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                    <select asp-for="TaxDisplayType" asp-items="ViewBag.TaxDisplayTypes" asp-placeholder="@T("Common.PleaseSelect")"></select>
                     <span asp-validation-for="TaxDisplayType"></span>
                 </div>
             </div>

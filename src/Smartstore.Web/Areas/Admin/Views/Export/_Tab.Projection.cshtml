@@ -6,7 +6,7 @@
             <smart-label asp-for="Projection.StoreId" />
         </div>
         <div class="adminData">
-            <select asp-for="Projection.StoreId" asp-items="@(List<SelectListItem>)ViewBag.Stores" asp-placeholder="@T("Common.Unspecified")"></select>
+            <select asp-for="Projection.StoreId" asp-items="ViewBag.Stores" asp-placeholder="@T("Common.Unspecified")"></select>
             <span asp-validation-for="Projection.StoreId"></span>
         </div>
     </div>
@@ -15,7 +15,7 @@
             <smart-label asp-for="Projection.LanguageId" />
         </div>
         <div class="adminData">
-            <select asp-for="Projection.LanguageId" asp-items="@(List<SelectListItem>)ViewBag.Languages" asp-placeholder="@T("Common.Unspecified")"></select>
+            <select asp-for="Projection.LanguageId" asp-items="ViewBag.Languages" asp-placeholder="@T("Common.Unspecified")"></select>
             <span asp-validation-for="Projection.LanguageId"></span>
         </div>
     </div>
@@ -24,7 +24,7 @@
             <smart-label asp-for="Projection.CurrencyId" />
         </div>
         <div class="adminData">
-            <select asp-for="Projection.CurrencyId" asp-items="@(List<SelectListItem>)ViewBag.Currencies" asp-placeholder="@T("Common.Unspecified")"></select>
+            <select asp-for="Projection.CurrencyId" asp-items="ViewBag.Currencies" asp-placeholder="@T("Common.Unspecified")"></select>
             <span asp-validation-for="Projection.CurrencyId"></span>
         </div>
     </div>
@@ -55,7 +55,7 @@
                 <smart-label asp-for="Projection.AttributeCombinationValueMergingId" />
             </div>
             <div class="adminData">
-                <select asp-for="Projection.AttributeCombinationValueMergingId" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ExportAttributeValueMerging))"></select>
+                <select asp-for="Projection.AttributeCombinationValueMergingId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ExportAttributeValueMerging))"></select>
                 <span asp-validation-for="Projection.AttributeCombinationValueMergingId"></span>
 				<span class="d-block text-muted mt-1">
 					@T("Admin.DataExchange.Export.NotPreviewCompatible")
@@ -91,7 +91,7 @@
             <smart-label asp-for="Projection.PriceType" />
         </div>
         <div class="adminData">
-            <select asp-for="Projection.PriceType" asp-items="@(List<SelectListItem>)ViewBag.PriceTypes" asp-placeholder="@T("Admin.Catalog.Products.Fields.Price")"></select>
+            <select asp-for="Projection.PriceType" asp-items="ViewBag.PriceTypes" asp-placeholder="@T("Admin.Catalog.Products.Fields.Price")"></select>
             <span asp-validation-for="Projection.PriceType"></span>
         </div>
     </div>
@@ -171,7 +171,7 @@
                 <smart-label asp-for="Projection.DescriptionMergingId" />
             </div>
             <div class="adminData">
-                <select asp-for="Projection.DescriptionMergingId" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ExportDescriptionMerging))"></select>
+                <select asp-for="Projection.DescriptionMergingId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ExportDescriptionMerging))"></select>
                 <span asp-validation-for="Projection.DescriptionMergingId"></span>
             </div>
         </div>
@@ -180,7 +180,7 @@
                 <smart-label asp-for="Projection.AppendDescriptionText" />
             </div>
             <div class="adminData">
-                <select asp-for="Projection.AppendDescriptionText" asp-items="@(MultiSelectList)ViewBag.AppendDescriptionTexts" multiple="multiple" data-tags="true"></select>
+                <select asp-for="Projection.AppendDescriptionText" asp-items="(MultiSelectList)ViewBag.AppendDescriptionTexts" multiple="multiple" data-tags="true"></select>
                 <span asp-validation-for="Projection.AppendDescriptionText"></span>
             </div>
         </div>
@@ -198,7 +198,7 @@
                 <smart-label asp-for="Projection.CriticalCharacters" />
             </div>
             <div class="adminData">
-                <select asp-for="Projection.CriticalCharacters" asp-items="@(MultiSelectList)ViewBag.CriticalCharacters" multiple="multiple" data-tags="true"></select>
+                <select asp-for="Projection.CriticalCharacters" asp-items="(MultiSelectList)ViewBag.CriticalCharacters" multiple="multiple" data-tags="true"></select>
                 <span asp-validation-for="Projection.CriticalCharacters"></span>
             </div>
         </div>
@@ -220,7 +220,7 @@
             <smart-label asp-for="Projection.OrderStatusChangeId" />
         </div>
         <div class="adminData">
-            <select asp-for="Projection.OrderStatusChangeId" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ExportOrderStatusChange))"></select>
+            <select asp-for="Projection.OrderStatusChangeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ExportOrderStatusChange))"></select>
             <span asp-validation-for="Projection.OrderStatusChangeId"></span>
         </div>
     </div>

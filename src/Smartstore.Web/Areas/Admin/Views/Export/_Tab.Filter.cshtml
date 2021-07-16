@@ -28,7 +28,7 @@
             <smart-label asp-for="Filter.ProductType" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ProductType" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ProductType))" asp-placeholder="@T("Admin.Common.All")"></select>
+            <select asp-for="Filter.ProductType" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductType))" asp-placeholder="@T("Admin.Common.All")"></select>
             <span asp-validation-for="Filter.ProductType"></span>
         </div>
     </div>
@@ -46,7 +46,7 @@
             <smart-label asp-for="Filter.Visibility" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.Visibility" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ProductVisibility))" asp-placeholder="@T("Admin.Common.All")"></select>
+            <select asp-for="Filter.Visibility" asp-items="Html.GetLocalizedEnumSelectList(typeof(ProductVisibility))" asp-placeholder="@T("Admin.Common.All")"></select>
             <span asp-validation-for="Filter.Visibility"></span>
         </div>
     </div>
@@ -144,7 +144,7 @@
             <smart-label asp-for="Filter.ManufacturerId" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ManufacturerId" asp-items="@(List<SelectListItem>)ViewBag.Manufacturers" asp-placeholder="@T("Admin.Common.All")"></select>
+            <select asp-for="Filter.ManufacturerId" asp-items="ViewBag.Manufacturers" asp-placeholder="@T("Admin.Common.All")"></select>
             <span asp-validation-for="Filter.ManufacturerId"></span>
         </div>
     </div>
@@ -153,7 +153,7 @@
             <smart-label asp-for="Filter.ProductTagId" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ProductTagId" asp-items="@(List<SelectListItem>)ViewBag.ProductTags" asp-placeholder="@T("Admin.Common.All")"></select>
+            <select asp-for="Filter.ProductTagId" asp-items="ViewBag.ProductTags" asp-placeholder="@T("Admin.Common.All")"></select>
             <span asp-validation-for="Filter.ProductTagId"></span>
         </div>
     </div>
@@ -288,7 +288,7 @@
             <smart-label asp-for="Filter.OrderStatusIds" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.OrderStatusIds" asp-items="@Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" multiple="multiple"></select>
+            <select asp-for="Filter.OrderStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" multiple="multiple"></select>
             <span asp-validation-for="Filter.OrderStatusIds"></span>
         </div>
     </div>
@@ -297,7 +297,7 @@
             <smart-label asp-for="Filter.PaymentStatusIds" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.PaymentStatusIds" asp-items="@Html.GetLocalizedEnumSelectList(typeof(PaymentStatus))" multiple="multiple"></select>
+            <select asp-for="Filter.PaymentStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(PaymentStatus))" multiple="multiple"></select>
             <span asp-validation-for="Filter.PaymentStatusIds"></span>
         </div>
     </div>
@@ -306,7 +306,7 @@
             <smart-label asp-for="Filter.ShippingStatusIds" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ShippingStatusIds" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ShippingStatus))" multiple="multiple"></select>
+            <select asp-for="Filter.ShippingStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(ShippingStatus))" multiple="multiple"></select>
             <span asp-validation-for="Filter.ShippingStatusIds"></span>
         </div>
     </div>
@@ -336,7 +336,7 @@
             <smart-label asp-for="Filter.WorkingLanguageId" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.WorkingLanguageId" asp-items="@(List<SelectListItem>)ViewBag.Languages" asp-placeholder="@T("Common.Unspecified")"></select>
+            <select asp-for="Filter.WorkingLanguageId" asp-items="ViewBag.Languages" asp-placeholder="@T("Common.Unspecified")"></select>
             <span asp-validation-for="Filter.WorkingLanguageId"></span>
         </div>
     </div>
@@ -438,7 +438,7 @@
             <smart-label asp-for="Filter.ShoppingCartTypeId" />
         </div>
         <div class="adminData">
-            <select asp-for="Filter.ShoppingCartTypeId" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ShoppingCartType))" asp-placeholder="@T("Admin.Common.All")"></select>
+            <select asp-for="Filter.ShoppingCartTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ShoppingCartType))" asp-placeholder="@T("Admin.Common.All")"></select>
             <span asp-validation-for="Filter.ShoppingCartTypeId"></span>
         </div>
     </div>

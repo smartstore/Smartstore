@@ -2,8 +2,4 @@
 
 @model int
 
-@{
-    var controlTypeList = AttributeControlType.DropdownList.ToSelectList();
-}
-
-<select asp-for="@Model" asp-items="@controlTypeList" class="form-control edit-control" data-editor="select"></select>
+<select asp-for="@Model" asp-items="AttributeControlType.DropdownList.ToSelectList()" class="form-control edit-control" data-editor="select"></select>

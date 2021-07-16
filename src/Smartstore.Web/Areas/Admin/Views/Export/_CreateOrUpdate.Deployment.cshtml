@@ -79,7 +79,7 @@
             <smart-label asp-for="EmailAccountId" />
         </div>
         <div class="adminData">
-            <select asp-for="EmailAccountId" asp-items="@(List<SelectListItem>)ViewBag.EmailAccounts"></select>
+            <select asp-for="EmailAccountId" asp-items="ViewBag.EmailAccounts"></select>
             <span asp-validation-for="EmailAccountId"></span>
         </div>
     </div>
@@ -88,7 +88,7 @@
             <smart-label asp-for="EmailAddresses" />
         </div>
         <div class="adminData">
-            <select asp-for="EmailAddresses" asp-items="@new MultiSelectList(Model.EmailAddresses)" multiple="multiple" data-tags="true"></select>
+            <select asp-for="EmailAddresses" asp-items="new MultiSelectList(Model.EmailAddresses)" multiple="multiple" data-tags="true"></select>
             <span asp-validation-for="EmailAddresses"></span>
         </div>
     </div>
@@ -115,7 +115,7 @@
             <smart-label asp-for="HttpTransmissionType" />
         </div>
         <div class="adminData">
-            <select asp-for="HttpTransmissionType" asp-items="@Html.GetLocalizedEnumSelectList(typeof(ExportHttpTransmissionType))"></select>
+            <select asp-for="HttpTransmissionType" asp-items="Html.GetLocalizedEnumSelectList(typeof(ExportHttpTransmissionType))"></select>
             <span asp-validation-for="HttpTransmissionType"></span>
         </div>
     </div>
