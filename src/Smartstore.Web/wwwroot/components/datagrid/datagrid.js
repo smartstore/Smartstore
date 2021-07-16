@@ -1156,6 +1156,12 @@ Vue.component("sm-datagrid", {
 
             this.destroyRowValidator();
 
+            // TODO: (mc) (core) Evaluate if this can really be deleted. Problem: Cancel button doesn't remove inserted line anymore...
+            //if (this.editing.insertMode && this.rows.length && this.rows[0] === this.editing.row) {
+            //    // Remove inserted row
+            //    this.rows.splice(0, 1);
+            //}
+
             // AJAXified select2 tend to irritate Vue
             $(this.editing.tr).find(".select2").remove();
 
