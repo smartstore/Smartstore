@@ -1130,6 +1130,10 @@ Vue.component("sm-datagrid", {
         },
 
         activateEdit(row, tr, td) {
+            if (this.editing.active && this.editing.tr === tr) {
+                return;
+            }
+
             if (!this.canEditRow) {
                 return;
             }
