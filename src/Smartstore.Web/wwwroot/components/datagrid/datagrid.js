@@ -816,7 +816,7 @@ Vue.component("sm-datagrid", {
 
             const self = this;
             const message = numRows === 1
-                ? "Sollen der Datensatz wirklich unwiderruflich gelöscht werden?"
+                ? "Soll der Datensatz wirklich unwiderruflich gelöscht werden?"
                 : "Sollen die gewählten {0} Datensätze wirklich unwiderruflich gelöscht werden?".format(numRows);
 
             confirm2({
@@ -839,7 +839,7 @@ Vue.component("sm-datagrid", {
                         data: selection,
                         global: true,
                         success(result) {
-                            if (result.Success) {
+                            if (result.Success || result.success) {
                                 self.selectedRows = {};
                                 displayNotification("{0} Datensätze erfolgreich gelöscht.".format(result.Count || numRows), "success");
                                 self.$emit("deleted-rows", rowKeys);
