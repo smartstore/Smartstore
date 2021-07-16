@@ -430,10 +430,16 @@ namespace Smartstore.Core.Checkout.Cart
         public virtual async Task<bool> ValidateProductAttributesAsync(ShoppingCartItem cartItem, IEnumerable<OrganizedShoppingCartItem> cartItems, IList<string> warnings)
         {
             Guard.NotNull(cartItem, nameof(cartItem));
+            Guard.NotNull(warnings, nameof(warnings));
 
-            // Check if the product is a bundle. Since bundles have no attributes, the customer has nothing to select
-            if (cartItem.Product.ProductType == ProductType.BundledProduct
-                || cartItem.BundleItem?.BundleProduct != null && !cartItem.BundleItem.BundleProduct.BundlePerItemPricing)
+            var product = cartItem.Product;
+            var bundleItem = cartItem.BundleItem;
+            var selection = cartItem.AttributeSelection;
+            var currentWarnings = new List<string>();
+
+            // Check if the product is a bundle. Since bundles have no attributes, the customer has nothing to select.
+            if (product.ProductType == ProductType.BundledProduct ||
+                (bundleItem?.BundleProduct != null && !bundleItem.BundleProduct.BundlePerItemPricing))
             {
                 if (cartItem.RawAttributes.HasValue())
                 {
@@ -443,60 +449,63 @@ namespace Smartstore.Core.Checkout.Cart
                 return true;
             }
 
-            // Get selected product variant attributes and check for product errors
-            var selectedAttributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(cartItem.AttributeSelection);
+            // Get selected product variant attributes and check for product errors.
+            var selectedAttributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(selection);
             foreach (var attribute in selectedAttributes)
             {
-                if (attribute.Product == null || attribute.Product.Id != cartItem.Product.Id)
+                if (attribute.Product == null || attribute.Product.Id != product.Id)
                 {
                     warnings.Add(T("ShoppingCart.AttributeError"));
                     return false;
                 }
             }
 
-            await _db.LoadCollectionAsync(cartItem.Product, x => x.ProductVariantAttributes, false, q => q.Include(x => x.ProductAttribute));
+            await _db.LoadCollectionAsync(product, x => x.ProductVariantAttributes, false, q => q.Include(x => x.ProductAttribute));
 
-            var currentWarnings = new List<string>();
-
-            // Get existing product variant attributes
-            foreach (var existingAttribute in cartItem.Product.ProductVariantAttributes)
+            // Get existing product variant attributes.
+            foreach (var existingAttribute in product.ProductVariantAttributes)
             {
                 if (!existingAttribute.IsRequired)
+                {
                     continue;
+                }
 
                 var found = false;
-                // Selected product attributes
-                foreach (var selectedAttribute in selectedAttributes)
-                {
-                    if (selectedAttribute.Id == existingAttribute.Id)
-                    {
-                        var values = cartItem.AttributeSelection.GetAttributeValues(selectedAttribute.Id)
-                            .Select(x => x.ToString())
-                            .ToList();
 
-                        found = values.Find(x => x.HasValue()).HasValue();
+                foreach (var attribute in selectedAttributes)
+                {
+                    if (attribute.Id == existingAttribute.Id)
+                    {
+                        var values = selection.GetAttributeValues(attribute.Id) ?? Enumerable.Empty<object>();
+                        foreach (var value in values)
+                        {
+                            var strValue = value?.ToString().EmptyNull();
+                            if (strValue.HasValue())
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
 
                         if (found)
+                        {
                             break;
+                        }
                     }
                 }
 
-                // If attribute is filtered out by bundle item, it cannot be selected by the customer
                 if (!found
-                    && (cartItem.BundleItem?.FilterAttributes ?? false)
-                    && !cartItem.BundleItem.AttributeFilters.Any(x => x.AttributeId == existingAttribute.ProductAttributeId))
+                    && (bundleItem?.FilterAttributes ?? false)
+                    && !bundleItem.AttributeFilters.Any(x => x.AttributeId == existingAttribute.ProductAttributeId))
                 {
+                    // Attribute is filtered out by bundle item. It cannot be selected by the customer.
                     found = true;
                 }
 
                 if (!found)
                 {
-                    currentWarnings.Add(T(
-                        "ShoppingCart.SelectAttribute",
-                        existingAttribute.TextPrompt.IsEmpty()
-                            ? existingAttribute.ProductAttribute.GetLocalized(x => x.Name)
-                            : existingAttribute.GetLocalized(x => x.TextPrompt)
-                        ));
+                    var prompt = existingAttribute.TextPrompt.NullEmpty() ?? existingAttribute.ProductAttribute.GetLocalized(x => x.Name);
+                    currentWarnings.Add(T("ShoppingCart.SelectAttribute", prompt));
                 }
             }
 
@@ -506,74 +515,67 @@ namespace Smartstore.Core.Checkout.Cart
                 return false;
             }
 
-            // Checks whether there is an active selected attribute combination
-            if (cartItem.AttributeSelection.AttributesMap.Any())
+            // Checks whether there is an active selected attribute combination.
+            var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
+            if (combination != null && !combination.IsActive)
             {
-                var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(cartItem.Product.Id, cartItem.AttributeSelection);
-                if (combination != null && !combination.IsActive)
-                {
-                    currentWarnings.Add(T("ShoppingCart.NotAvailable"));
-                }
+                currentWarnings.Add(T("ShoppingCart.NotAvailable"));
             }
 
-            var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(cartItem.AttributeSelection);
-
-            var linkedProductIds = attributeValues
+            var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
+            
+            var productLinkageValues = attributeValues
                 .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                .ToArray();
+
+            var linkedProductIds = productLinkageValues
                 .Select(x => x.LinkedProductId)
-                .Distinct();
+                .Where(x => x != 0)
+                .Distinct()
+                .ToArray();
 
-            // Get products linked to attributes
-            var linkedProducts = await _db.Products.GetManyAsync(linkedProductIds);
+            var linkedProducts = linkedProductIds.Any()
+                ? await _db.Products.AsNoTracking().Where(x => linkedProductIds.Contains(x.Id)).ToDictionaryAsync(x => x.Id)
+                : new Dictionary<int, Product>();
 
-            // Filter products which could not be loaded
-            var notFoundProductIds = linkedProductIds.Except(linkedProducts.Select(x => x.Id));
-            foreach (var productId in notFoundProductIds)
+            // Validate each linked product, create shopping cart item from linked product and run validation.
+            foreach (var value in productLinkageValues)
             {
-                currentWarnings.Add(T("ShoppingCart.ProductLinkageProductNotLoading", productId));
-            }
-
-            // Validate each linkedProduct, create shopping cart item from linkedProduct and run validation
-            foreach (var linkedProductId in linkedProductIds)
-            {
-                var linkedProduct = linkedProducts.FirstOrDefault(x => x.Id == linkedProductId);
-                var linkedAttributeValue = attributeValues.FirstOrDefault(x => x.LinkedProductId == linkedProductId);
-
-                if (linkedProduct == null || linkedAttributeValue == null)
+                if (linkedProducts.TryGetValue(value.LinkedProductId, out var linkedProduct))
                 {
-                    currentWarnings.Add(T("ShoppingCart.ProductLinkageProductNotLoading", linkedProductId));
-                    continue;
+                    var item = new ShoppingCartItem
+                    {
+                        ProductId = linkedProduct.Id,
+                        Product = linkedProduct,
+                        ShoppingCartType = cartItem.ShoppingCartType,
+                        Customer = cartItem.Customer,
+                        StoreId = cartItem.StoreId,
+                        Quantity = cartItem.Quantity * value.Quantity
+                    };
+
+                    var ctx = new AddToCartContext
+                    {
+                        Product = linkedProduct,
+                        Customer = cartItem.Customer,
+                        CartType = cartItem.ShoppingCartType,
+                        StoreId = cartItem.StoreId,
+                        Quantity = cartItem.Quantity * value.Quantity
+                    };
+
+                    // Get product linkage warnings.
+                    await ValidateAddToCartItemAsync(ctx, item, cartItems);
+
+                    foreach (var linkageWarning in ctx.Warnings)
+                    {
+                        currentWarnings.Add(T("ShoppingCart.ProductLinkageAttributeWarning",
+                            value.ProductVariantAttribute.ProductAttribute.GetLocalized(x => x.Name),
+                            value.GetLocalized(x => x.Name),
+                            linkageWarning));
+                    }
                 }
-
-                var item = new ShoppingCartItem
+                else
                 {
-                    ProductId = linkedProduct.Id,
-                    Product = linkedProduct,
-                    ShoppingCartType = cartItem.ShoppingCartType,
-                    Customer = cartItem.Customer,
-                    StoreId = cartItem.StoreId,
-                    Quantity = cartItem.Quantity * linkedAttributeValue.Quantity
-                };
-
-                var ctx = new AddToCartContext
-                {
-                    Product = linkedProduct,
-                    Customer = cartItem.Customer,
-                    CartType = cartItem.ShoppingCartType,
-                    StoreId = cartItem.StoreId,
-                    Quantity = cartItem.Quantity * linkedAttributeValue.Quantity
-                };
-
-                // Get product linkage warnings
-                await ValidateAddToCartItemAsync(ctx, item, cartItems);
-                foreach (var linkageWarning in ctx.Warnings)
-                {
-                    currentWarnings.Add(
-                        T("ShoppingCart.ProductLinkageAttributeWarning",
-                            linkedAttributeValue.ProductVariantAttribute.ProductAttribute.GetLocalized(x => x.Name),
-                            linkedAttributeValue.GetLocalized(x => x.Name),
-                            linkageWarning)
-                        );
+                    currentWarnings.Add(T("ShoppingCart.ProductLinkageProductNotLoading", value.LinkedProductId));
                 }
             }
 

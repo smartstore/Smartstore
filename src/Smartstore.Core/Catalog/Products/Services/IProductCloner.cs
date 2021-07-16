@@ -15,6 +15,9 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="isPublished">A value indicating whether to publish the copied product.</param>
         /// <param name="copyAssociatedProducts">A value indicating whether to copy associated products.</param>
         /// <returns>The copied product.</returns>
+        /// <remarks>
+        /// The caller is responsible for fast retrieval (eager loading) of product navigation properties.
+        /// </remarks>
         Task<Product> CloneProductAsync(
             Product product,
             string cloneName,

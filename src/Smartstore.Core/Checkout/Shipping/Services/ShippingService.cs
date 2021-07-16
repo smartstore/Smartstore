@@ -279,27 +279,27 @@ namespace Smartstore.Core.Checkout.Shipping
                 // Add attributes weight.
                 foreach (var pair in item.Item.AttributeSelection.AttributesMap)
                 {
-                    var numericValues = pair.Value
+                    var integerValues = pair.Value
                         .Select(x => x.ToString())
                         .Where(x => x.HasValue())
                         .Select(x => x.ToInt())
                         .Where(x => x != 0)
                         .ToArray();
 
-                    foreach (var numericValue in numericValues)
+                    foreach (var value in integerValues)
                     {
-                        if (attributeValuesDic.TryGetValue(CreateAttributeKey(pair.Key, numericValue), out var value))
+                        if (attributeValuesDic.TryGetValue(CreateAttributeKey(pair.Key, value), out var attributeValue))
                         {
-                            if (value.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                            if (attributeValue.ValueType == ProductVariantAttributeValueType.ProductLinkage)
                             {
-                                if (linkedProducts.TryGetValue(value.LinkedProductId, out var linkedProduct) && linkedProduct.IsShippingEnabled)
+                                if (linkedProducts.TryGetValue(attributeValue.LinkedProductId, out var linkedProduct) && linkedProduct.IsShippingEnabled)
                                 {
-                                    itemWeight += linkedProduct.Weight * value.Quantity;
+                                    itemWeight += linkedProduct.Weight * attributeValue.Quantity;
                                 }
                             }
                             else
                             {
-                                itemWeight += value.WeightAdjustment;
+                                itemWeight += attributeValue.WeightAdjustment;
                             }
                         }
                     }
