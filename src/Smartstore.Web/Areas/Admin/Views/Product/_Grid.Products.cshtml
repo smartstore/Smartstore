@@ -20,15 +20,10 @@
             </button>
         </toolbar-group>
         <toolbar-group>
-            @*<a v-if="!grid.editing.active" asp-action="Create" class="btn btn-primary btn-flat mr-auto">
+            <a asp-action="Create" class="btn btn-primary btn-flat no-anims mr-auto">
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Common.AddNew")...</span>
-            </a>*@
-            <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
-                <i class="fa fa-plus"></i>
-                <span>@T("Admin.Common.AddNew")...</span>
-            </button>
-
+            </a>
             <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.SaveChanges")</span>

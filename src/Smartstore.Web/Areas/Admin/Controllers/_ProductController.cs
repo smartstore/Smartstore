@@ -199,7 +199,7 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        [HttpPost, IgnoreAntiforgeryToken] // TODO: (core) Why is posted _RequestVerificationToken not valid?
+        [HttpPost]
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductList(GridCommand command, ProductListModel model)
         {
@@ -345,7 +345,7 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
-        [HttpPost, IgnoreAntiforgeryToken] // TODO: (core) Why is posted _RequestVerificationToken not valid?
+        [HttpPost]
         [Permission(Permissions.Catalog.Product.Delete)]
         public async Task<IActionResult> ProductDelete(GridSelection selection)
         {
@@ -354,9 +354,10 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var products = await _db.Products.GetManyAsync(ids, true);
-                // TODO: (core) Actually delete!
-                numDeleted = products.Count;
+                numDeleted = await _db.Products
+                    .AsQueryable()
+                    .Where(x => ids.Contains(x.Id))
+                    .BatchDeleteAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -376,7 +377,8 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("List");
         }
 
-        [HttpPost, IgnoreAntiforgeryToken] // TODO: (core) Why is posted _RequestVerificationToken not valid?
+        // TODO: (mc) (core) Remove if not needed anymore.
+        [HttpPost]
         [Permission(Permissions.Catalog.Product.Update)]
         public async Task<IActionResult> ProductUpdate(ProductOverviewModel model)
         {   
@@ -406,7 +408,8 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        [HttpPost, IgnoreAntiforgeryToken]
+        // TODO: (mc) (core) Remove if not needed anymore.
+        [HttpPost]
         [Permission(Permissions.Catalog.Product.Create)]
         public async Task<IActionResult> ProductInsert(ProductOverviewModel model)
         {
@@ -438,6 +441,51 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
+        [HttpPost, ActionName("List")]
+        [FormValueRequired("go-to-product-by-sku")]
+        [Permission(Permissions.Catalog.Product.Read)]
+        public async Task<IActionResult> GoToSku(ProductListModel model)
+        {
+            var sku = model.GoDirectlyToSku;
+
+            if (sku.HasValue())
+            {
+                var product = await _db.Products
+                    .AsNoTracking()
+                    .ApplySkuFilter(sku)
+                    .FirstOrDefaultAsync();
+
+                if (product != null)
+                {
+                    return RedirectToAction("Edit", "Product", new { id = product.Id });
+                }
+
+                var combination = await _db.ProductVariantAttributeCombinations
+                    .AsNoTracking()
+                    .Where(x => x.Sku == sku)
+                    .FirstOrDefaultAsync();
+
+                if (combination != null)
+                {
+                    if (combination.Product == null)
+                    {
+                        NotifyWarning(T("Products.NotFound", combination.ProductId));
+                    }
+                    else if (combination.Product.Deleted)
+                    {
+                        NotifyWarning(T("Products.Deleted", combination.ProductId));
+                    }
+                    else
+                    {
+                        return RedirectToAction("Edit", "Product", new { id = combination.Product.Id });
+                    }
+                }
+            }
+
+            // Not found.
+            return RedirectToAction("List");
+        }
+
         [Permission(Permissions.Catalog.Product.Create)]
         public async Task<IActionResult> Create()
         {
@@ -450,7 +498,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         [Permission(Permissions.Catalog.Product.Create)]
-        public async Task<IActionResult> Create(ProductModel model, bool continueEditing, FormCollection form)
+        public async Task<IActionResult> Create(ProductModel model, bool continueEditing, IFormCollection form)
         {
             if (model.DownloadFileVersion.HasValue() && model.DownloadId != null)
             {
@@ -2864,12 +2912,6 @@ namespace Smartstore.Admin.Controllers
         #endregion
 
         #region Low stock reports
-
-        // TODO: (mh) (core) Finish the job.
-
-        #endregion
-
-        #region Bulk editing
 
         // TODO: (mh) (core) Finish the job.
 
