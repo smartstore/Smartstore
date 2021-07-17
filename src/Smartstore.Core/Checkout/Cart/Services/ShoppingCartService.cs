@@ -100,13 +100,13 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     await _db.LoadCollectionAsync(ctx.Product, x => x.ProductVariantAttributes, false);
 
-                    var (Selection, Warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(
+                    var (selection, warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(
                         ctx.VariantQuery,
                         ctx.Product.ProductVariantAttributes,
                         ctx.Product.Id,
                         ctx.BundleItemId);
 
-                    ctx.RawAttributes = Selection.AttributesMap.Any() ? Selection.AsJson() : string.Empty;
+                    ctx.RawAttributes = selection.AttributesMap.Any() ? selection.AsJson() : string.Empty;
                 }
 
                 // Check context for bundle item errors

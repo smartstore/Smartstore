@@ -822,38 +822,34 @@ namespace Smartstore.Admin.Controllers
             ProductVariantQuery query)
         {
             // TODO: (mh) (core) Analyze and eager-load.
-            var product = await _db.Products.FindByIdAsync(productId);
+            var product = await _db.Products
+                .Include(x => x.ProductVariantAttributes)
+                .ThenInclude(x => x.ProductAttribute)
+                .FindByIdAsync(productId);
+
             if (product == null)
             {
                 return RedirectToAction("List", "Product");
             }
 
-            var warnings = new List<string>();
-            var variantAttributes = _db.ProductVariantAttributes.ApplyProductFilter(new[] { product.Id });
+            var (selection, warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, product.ProductVariantAttributes, product.Id, 0);
 
-            // INFO: (mh) (core) Old code
-            //var attributeXml = query.CreateSelectedAttributesXml(product.Id, 0, variantAttributes, _productAttributeParser, _localizationService,
-            //    _downloadService, _catalogSettings, this.Request, warnings);
+            await _shoppingCartValidator.ValidateProductAttributesAsync(
+                product,
+                selection,
+                Services.StoreContext.CurrentStore.Id,
+                warnings);
 
-            //warnings.AddRange(_shoppingCartService.GetShoppingCartItemAttributeWarnings(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, product, attributeXml));
-
-            // TODO: (mh) (core) What a fucked up mess! Nothing can be found easily...
-            //var selection = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, variantAttributes, product.Id, 0);
-
-            //var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart);
-            //await _shoppingCartValidator.ValidateProductAttributesAsync(new ShoppingCartItem { Product = product, AttributeSelection = selection.Selection }, cart.Items, warnings);
-
-            // TODO: (mh) (core) Lets try this again when the code abaove was implemented correctly.
-            //if (_productAttributeParser.FindProductVariantAttributeCombination(product.Id, attributeXml) != null)
-            //{
-            //    warnings.Add(_localizationService.GetResource("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CombiExists"));
-            //}
+            if (_productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection) != null)
+            {
+                warnings.Add(T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CombiExists"));
+            }
 
             if (warnings.Count == 0)
             {
                 var combination = await MapperFactory.MapAsync<ProductVariantAttributeCombinationModel, ProductVariantAttributeCombination>(model);
                 // TODO: (mh) (core) Lets try this again when the code above was implemented correctly.
-                //combination.RawAttributes = attributeXml;
+                combination.RawAttributes = selection.AsJson();
                 combination.SetAssignedMediaIds(model.AssignedPictureIds);
 
                 _db.ProductVariantAttributeCombinations.Add(combination);
@@ -963,39 +959,42 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> CombinationExistenceNote(int productId, ProductVariantQuery query)
         {
-            var warnings = new List<string>();
-            var attributes = await _db.ProductVariantAttributes.ApplyProductFilter(new[] { productId }).ToListAsync();
+            var product = await _db.Products
+                .Include(x => x.ProductVariantAttributes)
+                .ThenInclude(x => x.ProductAttribute)
+                .FindByIdAsync(productId);
 
-            // TODO: (mh) (core) Do this right!
-            var exists = false;
-            //var attributeXml = query.CreateSelectedAttributesXml(productId, 0, attributes, _productAttributeParser,
-            //    _localizationService, _downloadService, _catalogSettings, Request, warnings);
+            if (product == null)
+            {
+                return new JsonResult(new { Message = T("Products.NotFound", productId), HasWarning = true });
+            }
 
-            //var exists = _productAttributeParser.FindProductVariantAttributeCombination(productId, attributeXml) != null;
-            //if (!exists)
-            //{
-            //    var product = await _db.Products.FindByIdAsync(productId, false);
-            //    if (product != null)
-            //    {
-            //        warnings.AddRange(_shoppingCartService.GetShoppingCartItemAttributeWarnings(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, product, attributeXml));
-            //    }
-            //}
+            var (selection, warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, product.ProductVariantAttributes, product.Id, 0);
+            var exists = _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection) != null;
 
-            if (warnings.Count > 0)
+            if (!exists)
+            {
+                await _shoppingCartValidator.ValidateProductAttributesAsync(
+                    product,
+                    selection,
+                    Services.StoreContext.CurrentStore.Id,
+                    warnings);
+            }
+
+            if (warnings.Any())
             {
                 return new JsonResult(new { Message = warnings[0], HasWarning = true });
             }
 
-            return new JsonResult(
-                new
-                {
-                    Message = T(exists ?
-                        "Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CombiExists" :
-                        "Admin.Catalog.Products.Variants.ProductVariantAttributes.AttributeCombinations.CombiNotExists"
-                    ),
-                    HasWarning = exists
-                }
-            );
+            var message = T(exists
+                ? "Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CombiExists"
+                : "Admin.Catalog.Products.Variants.ProductVariantAttributes.AttributeCombinations.CombiNotExists");
+
+            return new JsonResult(new
+            {
+                Message = message,
+                HasWarning = exists
+            });
         }
 
         #endregion
