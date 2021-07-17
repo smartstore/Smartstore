@@ -580,13 +580,14 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> GoToSku(ProductListModel model)
         {
+            // INFO: (mh) (core) This is a bad port!
             var sku = model.GoDirectlyToSku;
 
             if (sku.HasValue())
             {
                 var product = await _db.Products
-                    .AsNoTracking()
                     .ApplySkuFilter(sku)
+                    .Select(x => new { x.Id })
                     .FirstOrDefaultAsync();
 
                 if (product != null)
@@ -596,23 +597,13 @@ namespace Smartstore.Admin.Controllers
 
                 var combination = await _db.ProductVariantAttributeCombinations
                     .AsNoTracking()
-                    .Where(x => x.Sku == sku)
+                    .ApplySkuFilter(sku)
+                    .Select(x => new { x.ProductId, ProductDeleted = x.Product.Deleted })
                     .FirstOrDefaultAsync();
 
                 if (combination != null)
                 {
-                    if (combination.Product == null)
-                    {
-                        NotifyWarning(T("Products.NotFound", combination.ProductId));
-                    }
-                    else if (combination.Product.Deleted)
-                    {
-                        NotifyWarning(T("Products.Deleted", combination.ProductId));
-                    }
-                    else
-                    {
-                        return RedirectToAction("Edit", "Product", new { id = combination.Product.Id });
-                    }
+                    return RedirectToAction("Edit", "Product", new { id = combination.ProductId });
                 }
             }
 
