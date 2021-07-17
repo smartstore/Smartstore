@@ -829,7 +829,7 @@ namespace Smartstore.Admin.Controllers
 
             if (product == null)
             {
-                return RedirectToAction("List", "Product");
+                return NotFound();
             }
 
             var (selection, warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, product.ProductVariantAttributes, product.Id, 0);
