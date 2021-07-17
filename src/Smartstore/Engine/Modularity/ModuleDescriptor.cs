@@ -4,34 +4,50 @@ using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity
 {
-    public class ModuleDescriptor
+    public class ModuleDescriptor : IExtensionDescriptor
     {
         private string _resourceRootKey;
+
+        string IExtensionDescriptor.Name 
+            => SystemName;
+
+        ExtensionType IExtensionDescriptor.ExtensionType 
+            => ExtensionType.Module;
 
         /// <summary>
         /// Gets or sets the system name
         /// </summary>
-        public string SystemName { get; set; }
+        public string SystemName { get; init; }
 
-        /// <summary>
-        /// Gets or sets the friendly name
-        /// </summary>
-        public string FriendlyName { get; set; }
+        /// <inheritdoc/>
+        public string Location { get; init; }
 
-        /// <summary>
-        /// Gets the plugin description
-        /// </summary>
-        public string Description { get; set; }
+        /// <inheritdoc/>
+        public string PhysicalPath { get; init; }
 
-        /// <summary>
-        /// Gets the module group name
-        /// </summary>
-        public string Group { get; internal set; }
+        /// <inheritdoc/>
+        public string FriendlyName { get; init; }
 
-        /// <summary>
-        /// Gets or sets module author name
-        /// </summary>
-        public string Author { get; set; }
+        /// <inheritdoc/>
+        public string Description { get; init; }
+
+        /// <inheritdoc/>
+        public string Group { get; init; }
+
+        /// <inheritdoc/>
+        public string Author { get; init; }
+
+        /// <inheritdoc/>
+        public string WebSite { get; init; }
+
+        /// <inheritdoc/>
+        public string Tags { get; init; }
+
+        /// <inheritdoc/>
+        public SemanticVersion Version { get; init; }
+
+        /// <inheritdoc/>
+        public SemanticVersion MinAppVersion { get; init; }
 
         /// <summary>
         /// Module installer runtime type.
