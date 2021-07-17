@@ -18,6 +18,7 @@ using Smartstore.Data;
 using Smartstore.Diagnostics;
 using Smartstore.Domain;
 using Smartstore.Data.Hooks;
+using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -70,6 +71,12 @@ namespace Smartstore.Core.Catalog.Products
                 x => x.MetaTitle,
                 x => x.BundleTitleText
             };
+
+            var entry = _db.Entry(product);
+            if (entry.State == EfState.Detached)
+            {
+                entry.State = EfState.Unchanged;
+            }
 
             var clone = new Product();
             var utcNow = DateTime.UtcNow;
