@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading.Tasks;
-using Dasync.Collections;
+//using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -139,6 +139,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
+                // TODO: (mh) (core) Never batch-delete attributes in regular action method, because Hooks won't run.
                 numDeleted = await _db.ProductSpecificationAttributes
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
@@ -157,14 +158,19 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ProductVariantAttributeList(GridCommand command, int productId)
         {
             var model = new GridModel<ProductModel.ProductVariantAttributeModel>();
+
             var productVariantAttributes = await _db.ProductVariantAttributes
                 .ApplyProductFilter(new[] { productId })
+                .Include(x => x.ProductVariantAttributeValues)
+                .Include(x => x.ProductAttribute)
+                .ThenInclude(x => x.ProductAttributeOptionsSets)
                 .ApplyGridCommand(command)
                 .ToListAsync();
 
             var productVariantAttributesModel = await productVariantAttributes
                 .SelectAsync(async x =>
                 {
+                    // TODO: (mh) (core) This is shit. TBD with MC.
                     var attr = await _db.ProductAttributes.FindByIdAsync(x.ProductAttributeId);
 
                     var pvaModel = new ProductModel.ProductVariantAttributeModel
@@ -189,9 +195,11 @@ namespace Smartstore.Admin.Controllers
 
                         if (x.ProductAttribute.ProductAttributeOptionsSets.Any())
                         {
+                            // TODO: (mh) (core) This is total shit. TBD with MC.
                             var optionsSets = new StringBuilder($"<option>{T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions")}</option>");
                             pvaModel.OptionSets.Add(new { Id = "", Name = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions").Value });
-                            x.ProductAttribute.ProductAttributeOptionsSets.Each(set => {
+                            x.ProductAttribute.ProductAttributeOptionsSets.Each(set => 
+                            {
                                 pvaModel.OptionSets.Add(new { set.Id, set.Name });
                             });
                         }
@@ -270,6 +278,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
+                // TODO: (mh) (core) No BatchDelete please.
                 numDeleted = await _db.ProductVariantAttributes
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
@@ -283,7 +292,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> CopyAttributeOptions(int productVariantAttributeId, int optionsSetId, bool deleteExistingValues)
         {
-            var pva = await _db.ProductVariantAttributes.FindByIdAsync(productVariantAttributeId, false);
+            var pva = await _db.ProductVariantAttributes
+                // INFO: (mh) (core) BE CAREFUL with untracked entities if your code obviously accesses nav props (in _productAttributeService.CopyAttributeOptionsAsync)!!!!!
+                .Include(x => x.ProductVariantAttributeValues)
+                .FindByIdAsync(productVariantAttributeId, false);
 
             if (pva == null)
             {
@@ -316,7 +328,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ProductAttributeValueList(int productVariantAttributeId, GridCommand command)
         {
             var gridModel = new GridModel<ProductModel.ProductVariantAttributeValueModel>();
-            var pva = await _db.ProductVariantAttributes.FindByIdAsync(productVariantAttributeId, false);
+
             var values = await _db.ProductVariantAttributeValues
                 .AsNoTracking()
                 .ApplyProductAttributeFilter(productVariantAttributeId)
@@ -325,7 +337,7 @@ namespace Smartstore.Admin.Controllers
 
             gridModel.Rows = await values.SelectAsync(async x =>
             {
-                var linkedProduct = await _db.Products.FindByIdAsync(x.LinkedProductId);
+                var linkedProduct = await _db.Products.FindByIdAsync(x.LinkedProductId, false);
 
                 var model = new ProductModel.ProductVariantAttributeValueModel
                 {
@@ -535,7 +547,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> ProductAttributeValueEditPopup(string btnId, string formId, ProductModel.ProductVariantAttributeValueModel model)
         {
-            var pvav = await _db.ProductVariantAttributeValues.FindByIdAsync(model.Id);
+            var pvav = await _db.ProductVariantAttributeValues
+                .Include(x => x.ProductVariantAttribute)
+                .FindByIdAsync(model.Id);
+
             if (pvav == null)
             {
                 return RedirectToAction("List", "Product");
@@ -582,6 +597,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
+                // TODO: (mh) (core) No BatchDelete please.
                 numDeleted = await _db.ProductVariantAttributeValues
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
@@ -608,13 +624,12 @@ namespace Smartstore.Admin.Controllers
         private async Task PrepareProductAttributeCombinationModelAsync(
             ProductVariantAttributeCombinationModel model,
             ProductVariantAttributeCombination entity,
-            Product product, bool formatAttributes = false)
+            Product product, 
+            bool formatAttributes = false)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
-
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
+            // INFO: (mh) (core) Pleeease!!!?
+            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(product, nameof(product));
 
             var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId);
 
@@ -663,6 +678,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (attribute.ShouldHaveValues())
                 {
+                    // TODO: (mh) (core) I think you can eager-load this list in main query above (?)
                     var pvaValues = await _db.ProductVariantAttributeValues
                         .AsNoTracking()
                         .ApplyProductAttributeFilter(attribute.Id)
@@ -691,7 +707,7 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.MediaFile)
                 .ToListAsync())
                 .Select(x => x.MediaFile)
-                .ToList(); ;
+                .ToList();
 
             foreach (var file in files)
             {
@@ -717,9 +733,11 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new GridModel<ProductVariantAttributeCombinationModel>();
             var customer = _workContext.CurrentCustomer;
-            var product = await _db.Products.FindByIdAsync(productId);
+            var product = await _db.Products.FindByIdAsync(productId, false);
             var productUrlTitle = T("Common.OpenInShop");
             var productSeName = await product.GetActiveSlugAsync();
+
+            // TODO: (mh) (core) This needs to be a paged list. How are you gonna fetch TotalCount otherwise?
             var allCombinations = await _db.ProductVariantAttributeCombinations
                 .AsNoTracking()
                 .Where(x => x.ProductId == product.Id)
@@ -754,11 +772,13 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
+                // TODO: (mh) (core) No BatchDelete please.
                 numDeleted = await _db.ProductBundleItem
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
                     .BatchDeleteAsync();
 
+                // TODO: (mh) (core) Hää?
                 foreach (var id in ids)
                 {
                     var pvac = await _db.ProductVariantAttributeCombinations.FindByIdAsync(id);
@@ -776,6 +796,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> AttributeCombinationCreatePopup(string btnId, string formId, int productId)
         {
+            // TODO: (mh) (core) Analyze and eager-load.
             var product = await _db.Products.FindByIdAsync(productId);
             if (product == null)
             {
@@ -800,6 +821,7 @@ namespace Smartstore.Admin.Controllers
             ProductVariantAttributeCombinationModel model,
             ProductVariantQuery query)
         {
+            // TODO: (mh) (core) Analyze and eager-load.
             var product = await _db.Products.FindByIdAsync(productId);
             if (product == null)
             {
@@ -854,12 +876,14 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> AttributeCombinationEditPopup(int id, string btnId, string formId)
         {
+            // TODO: (mh) (core) Analyze and eager-load (?)
             var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(id, false);
             if (combination == null)
             {
                 return RedirectToAction("List", "Product");
             }
 
+            // TODO: (mh) (core) Analyze and eager-load (?)
             var product = await _db.Products.FindByIdAsync(combination.ProductId, false);
             if (product == null)
             {
@@ -905,8 +929,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> CreateAllAttributeCombinations(ProductVariantAttributeCombinationModel model, int productId)
         {
-            var product = await _db.Products.FindByIdAsync(productId, false);
-            if (product == null)
+            var hasProduct = await _db.Products.AnyAsync(x => x.Id == productId);
+            if (!hasProduct)
             {
                 throw new ArgumentException(T("Products.NotFound", productId));
             }
@@ -920,15 +944,16 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> DeleteAllAttributeCombinations(ProductVariantAttributeCombinationModel model, int productId)
         {
-            var product = await _db.Products.FindByIdAsync(productId, false);
-            if (product == null)
+            var hasProduct = await _db.Products.AnyAsync(x => x.Id == productId);
+            if (!hasProduct)
             {
                 throw new ArgumentException(T("Products.NotFound", productId));
             }
 
+            // TODO: (mh) (core) No BatchDelete please.
             await _db.ProductVariantAttributeCombinations
                 .AsQueryable()
-                .Where(x => x.ProductId == product.Id)
+                .Where(x => x.ProductId == productId)
                 .BatchDeleteAsync();
 
             return Json(string.Empty);

@@ -48,6 +48,8 @@ namespace Smartstore.Admin.Controllers
 {
     public partial class ProductController : AdminControllerBase
     {
+        // TODO: (mh) (core) Make some uncommon fields here Lazy<>
+        // TODO: (mh) (core) Split to more files. This file is till too large.
         private readonly SmartDbContext _db;
         private readonly IProductService _productService;
         private readonly ICategoryService _categoryService;
@@ -377,70 +379,6 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("List");
         }
 
-        // TODO: (mc) (core) Remove if not needed anymore.
-        [HttpPost]
-        [Permission(Permissions.Catalog.Product.Update)]
-        public async Task<IActionResult> ProductUpdate(ProductOverviewModel model)
-        {   
-            var product = await _db.Products.FindByIdAsync(model.Id);
-
-            product.Name = model.Name;
-            product.Sku = model.Sku;
-            product.Price = model.Price;
-            product.StockQuantity = model.StockQuantity;
-            product.Published = model.Published;
-            product.ManufacturerPartNumber = model.ManufacturerPartNumber;
-            product.Gtin = model.Gtin;
-            product.MinStockQuantity = model.MinStockQuantity;
-            product.OldPrice = model.OldPrice ?? 0;
-            product.AvailableStartDateTimeUtc = model.AvailableStartDateTimeUtc;
-            product.AvailableEndDateTimeUtc = model.AvailableEndDateTimeUtc;
-
-            try
-            {
-                await _db.SaveChangesAsync();
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                NotifyError(ex.GetInnerMessage());
-                return Json(new { success = false });
-            }
-        }
-
-        // TODO: (mc) (core) Remove if not needed anymore.
-        [HttpPost]
-        [Permission(Permissions.Catalog.Product.Create)]
-        public async Task<IActionResult> ProductInsert(ProductOverviewModel model)
-        {
-            var product = new Product 
-            {
-                Name = model.Name,
-                Sku = model.Sku,
-                Price = model.Price,
-                StockQuantity = model.StockQuantity,
-                Published = model.Published,
-                ManufacturerPartNumber = model.ManufacturerPartNumber,
-                Gtin = model.Gtin,
-                MinStockQuantity = model.MinStockQuantity,
-                OldPrice = model.OldPrice ?? 0,
-                AvailableStartDateTimeUtc = model.AvailableStartDateTimeUtc,
-                AvailableEndDateTimeUtc = model.AvailableEndDateTimeUtc
-            };
-
-            try
-            {
-                _db.Products.Add(product);
-                await _db.SaveChangesAsync();
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                NotifyError(ex.GetInnerMessage());
-                return Json(new { success = false });
-            }
-        }
-
         [Permission(Permissions.Catalog.Product.Create)]
         public async Task<IActionResult> Create()
         {
@@ -521,6 +459,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> Edit(int id)
         {
+            // TODO: (mh) (core) Please CAREFULLY analyze which navigation properties are always accessed during model preparation and eager load them.
             var product = await _db.Products.FindByIdAsync(id);
             if (product == null)
             {
@@ -556,6 +495,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Update)]
         public async Task<IActionResult> Edit(ProductModel model, bool continueEditing, IFormCollection form)
         {
+            // TODO: (mh) (core) Please CAREFULLY analyze which navigation properties are always accessed during model preparation and eager load them.
             var product = await _db.Products.FindByIdAsync(model.Id);
             if (product == null)
             {
@@ -608,6 +548,8 @@ namespace Smartstore.Admin.Controllers
                     return Content("A unique tab name has to specified (route parameter: tabName)");
                 }
 
+                // TODO: (mh) (core) Please CAREFULLY analyze which navigation properties are always accessed during model preparation and eager load them.
+                // INFO: (mh) (core) Loading an untracked product but accessing nav properties in PrepareProductModelAsync will NOT work.
                 var product = await _db.Products.FindByIdAsync(id, false);
                 var model = await MapperFactory.MapAsync<Product, ProductModel>(product);
 
@@ -723,6 +665,8 @@ namespace Smartstore.Admin.Controllers
             var model = new GridModel<ProductModel.ProductCategoryModel>();
             var productCategories = await _categoryService.GetProductCategoriesByProductIdsAsync(new[] { productId }, true);
 
+            // TODO: (mh) (core) Applying a GridCommand to a resultset is shitty. The methos above needs refactoring. TBD with MC.
+
             var productCategoriesModel = await productCategories
                 .AsQueryable()
                 .ApplyGridCommand(command)
@@ -764,7 +708,6 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 _db.ProductCategories.Add(productCategory);
-                await _db.SaveChangesAsync();
 
                 var mru = new TrimmedBuffer<string>(
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories,
@@ -825,6 +768,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
+                // TODO: (mh) (core) Never batch-delete categories in regular action method, because Hooks won't run.
                 numDeleted = await _db.ProductCategories
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
@@ -844,6 +788,8 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new GridModel<ProductModel.ProductManufacturerModel>();
             var productManufacturers = await _manufacturerService.GetProductManufacturersByProductIdsAsync(new[] { productId }, true);
+
+            // TODO: (mh) (core) Applying a GridCommand to a resultset is shitty. The methos above needs refactoring. TBD with MC.
 
             var productManufacturersModel = productManufacturers
                 .AsQueryable()
@@ -885,7 +831,6 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 _db.ProductManufacturers.Add(productManufacturer);
-                await _db.SaveChangesAsync();
 
                 var mru = new TrimmedBuffer<string>(
                     _workContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedManufacturers,
@@ -945,6 +890,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
+                // TODO: (mh) (core) Never batch-delete manufacturers in regular action method, because Hooks won't run.
                 numDeleted = await _db.ProductManufacturers
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
@@ -982,8 +928,8 @@ namespace Smartstore.Admin.Controllers
                         // Add all relevant data of product picture to response.
                         dynamic file = new
                         {
-                            DisplayOrder = productPicture.DisplayOrder,
-                            MediaFileId = productPicture.MediaFileId,
+                            productPicture.DisplayOrder,
+                            productPicture.MediaFileId,
                             EntityMediaId = productPicture.Id
                         };
 
@@ -1102,6 +1048,7 @@ namespace Smartstore.Admin.Controllers
             var model = new GridModel<ProductModel.TierPriceModel>();
             var product = await _db.Products
                 .Include(x => x.TierPrices)
+                .ThenInclude(x => x.CustomerRole)
                 .FindByIdAsync(productId, false);
 
             string allRolesString = T("Admin.Catalog.Products.TierPrices.Fields.CustomerRole.AllRoles");
@@ -1130,9 +1077,11 @@ namespace Smartstore.Admin.Controllers
                 stores = _services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
             }
 
+            // TODO: (mh) (core) You can't "Include" anything in plain LINQ, only in EF-Linq.
+            // TODO: (mh) (core) You shouldn't apply GridCommands to resultsets.
+            // INFO: (mh) (core) You MUST learn to distinct between queries and lists. They are totally different things.
             var tierPricesModel = product.TierPrices
                 .AsQueryable()
-                .Include(x => x.CustomerRole)
                 .OrderBy(x => x.StoreId)
                 .ThenBy(x => x.Quantity)
                 .ThenBy(x => x.CustomerRoleId)
@@ -1193,15 +1142,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditTierPrice)]
         public async Task<IActionResult> TierPriceInsert(ProductModel.TierPriceModel model, int productId)
         {
-            var product = await _db.Products
-                .Include(x => x.TierPrices)
-                .FindByIdAsync(productId, false);
-
-            var store = Services.StoreContext.GetStoreById(model.StoreId);
-
             var tierPrice = new TierPrice
             {
-                ProductId = product.Id,
+                ProductId = productId,
                 StoreId = model.StoreId,
                 CustomerRoleId = model.CustomerRoleId,
                 Quantity = model.Quantity,
@@ -1255,6 +1198,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
+                // TODO: (mh) (core) Never batch-delete TierPrices in regular action method, because Hooks won't run.
                 numDeleted = await _db.TierPrices
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
@@ -1285,7 +1229,7 @@ namespace Smartstore.Admin.Controllers
         [NonAction]
         protected async Task UpdateDataOfProductDownloadsAsync(ProductModel model)
         {
-            var testVersions = (new string[] { model.DownloadFileVersion, model.NewVersion }).Where(x => x.HasValue());
+            var testVersions = (new [] { model.DownloadFileVersion, model.NewVersion }).Where(x => x.HasValue());
             var saved = false;
             foreach (var testVersion in testVersions)
             {
@@ -1439,7 +1383,9 @@ namespace Smartstore.Admin.Controllers
                 if (product.LimitedToStores)
                 {
                     var storeMappings = await _storeMappingService.GetStoreMappingCollectionAsync(nameof(Product), new[] { product.Id });
-                    if (storeMappings.FirstOrDefault(x => x.StoreId == _services.StoreContext.CurrentStore.Id) == null)
+                    var currentStoreId = _services.StoreContext.CurrentStore.Id;
+
+                    if (storeMappings.FirstOrDefault(x => x.StoreId == currentStoreId) == null)
                     {
                         var storeMapping = storeMappings.FirstOrDefault();
                         if (storeMapping != null)
@@ -1459,8 +1405,8 @@ namespace Smartstore.Admin.Controllers
                 // Downloads.
                 var productDownloads = await _db.Downloads
                     .AsNoTracking()
-                    .ApplyEntityFilter(nameof(Product), product.Id)
-                    .Where(x => !string.IsNullOrEmpty(x.FileVersion))
+                    .ApplyEntityFilter(product)
+                    .ApplyVersionFilter(string.Empty) // INFO: (mh) (core) You need to "look around" more carefully.
                     .ToListAsync();
                 
                 model.DownloadVersions = productDownloads
@@ -1565,7 +1511,7 @@ namespace Smartstore.Admin.Controllers
             // Do not pre-select a tax category that is not stored.
             if (product != null && product.TaxCategoryId == 0)
             {
-                ViewBag.AvailableTaxCategories.Insert(0, new SelectListItem { Text = T("Common.PleaseSelect"), Value = "", Selected = true });
+                ViewBag.AvailableTaxCategories.Insert(0, new SelectListItem { Text = T("Common.PleaseSelect"), Value = string.Empty, Selected = true });
             }
 
             // Delivery times.
@@ -1599,10 +1545,10 @@ namespace Smartstore.Admin.Controllers
             // BasePrice aka PAnGV
             var measureUnitKeys = await _db.MeasureWeights.AsNoTracking().OrderBy(x => x.DisplayOrder).Select(x => x.SystemKeyword).ToListAsync();
             var measureDimensionKeys = await _db.MeasureDimensions.AsNoTracking().OrderBy(x => x.DisplayOrder).Select(x => x.SystemKeyword).ToListAsync();
-            var measureUnits = measureUnitKeys.Concat(measureDimensionKeys).ToList();
+            var measureUnits = new HashSet<string>(measureUnitKeys.Concat(measureDimensionKeys), StringComparer.OrdinalIgnoreCase);
 
             // Don't forget biz import!
-            if (product != null && !setPredefinedValues && product.BasePriceMeasureUnit.HasValue() && !measureUnits.Exists(u => u.EqualsNoCase(product.BasePriceMeasureUnit)))
+            if (product != null && !setPredefinedValues && product.BasePriceMeasureUnit.HasValue())
             {
                 measureUnits.Add(product.BasePriceMeasureUnit);
             }
@@ -1614,11 +1560,12 @@ namespace Smartstore.Admin.Controllers
                 {
                     Text = mu,
                     Value = mu,
-                    Selected = product != null && !setPredefinedValues && mu.Equals(product.BasePriceMeasureUnit, StringComparison.OrdinalIgnoreCase)
+                    Selected = product != null && !setPredefinedValues && mu.EqualsNoCase(product.BasePriceMeasureUnit)
                 });
             }
 
             // Specification attributes.
+            // TODO: (mh) (core) We can't do this!!! The list can be very large. This needs to be AJAXified. TBD with MC.
             var specificationAttributes = await _db.SpecificationAttributes
                 .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)
@@ -1813,6 +1760,7 @@ namespace Smartstore.Admin.Controllers
         {
             var form = Request.Form;
 
+            // TODO: (mh) (core) No BatchDelete please, because Hooks won't run.
             await _db.ProductBundleItemAttributeFilter
                 .AsQueryable()
                 .Where(x => x.BundleItemId == bundleItem.Id)
@@ -1827,7 +1775,7 @@ namespace Smartstore.Admin.Controllers
 
                 foreach (var valueId in form[key].ToString().SplitSafe(","))
                 {
-                    var attributeFilter = new ProductBundleItemAttributeFilter()
+                    var attributeFilter = new ProductBundleItemAttributeFilter
                     {
                         BundleItemId = bundleItem.Id,
                         AttributeId = attributeId,
@@ -1844,6 +1792,7 @@ namespace Smartstore.Admin.Controllers
 
         private async Task<bool> IsBundleItemAsync(int productId)
         {
+            // TODO: (mh) (core) IsBundleItemAsync does not belong here.
             if (productId == 0)
             {
                 return false;
@@ -1870,6 +1819,7 @@ namespace Smartstore.Admin.Controllers
                 model.LoadedTabs = new string[] { "Info" };
             }
 
+            // TODO: (mh) (core) API-Design: please describe the purpose of the return value.
             var nameChanged = false;
 
             foreach (var tab in model.LoadedTabs)
