@@ -10,9 +10,9 @@ namespace Smartstore
     public static class ThemingDisplayHelper
     {
         /// <summary>
-        /// Gets the manifest of the current active theme
+        /// Gets the descriptor of the current active theme
         /// </summary>
-        public static ThemeManifest GetThemeManifest(this IDisplayHelper displayHelper)
+        public static ThemeDescriptor GetThemeDescriptor(this IDisplayHelper displayHelper)
         {
             return displayHelper.Resolve<IThemeContext>().CurrentTheme;
         }
@@ -27,16 +27,16 @@ namespace Smartstore
             {
                 var services = displayHelper.HttpContext.RequestServices;
                 var storeContext = services.GetService<IStoreContext>();
-                var themeManifest = displayHelper.GetThemeManifest();
+                var themeDescriptor = displayHelper.GetThemeDescriptor();
 
-                if (storeContext == null || themeManifest == null)
+                if (storeContext == null || themeDescriptor == null)
                 {
                     return new ExpandoObject();
                 }
                 else
                 {
                     var repo = services.GetService<ThemeVariableRepository>();
-                    return repo.GetRawVariablesAsync(themeManifest.ThemeName, storeContext.CurrentStore.Id).Await();
+                    return repo.GetRawVariablesAsync(themeDescriptor.ThemeName, storeContext.CurrentStore.Id).Await();
                 }
             });
         }

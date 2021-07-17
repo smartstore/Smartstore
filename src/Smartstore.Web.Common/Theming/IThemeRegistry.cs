@@ -19,7 +19,7 @@ namespace Smartstore.Web.Theming
         public ThemeFileChangeType ChangeType { get; set; }
     }
 
-    public class ThemeFolderRenamedEventArgs : EventArgs
+    public class ThemeDirectoryRenamedEventArgs : EventArgs
     {
         public string FullPath { get; set; }
         public string Name { get; set; }
@@ -27,7 +27,7 @@ namespace Smartstore.Web.Theming
         public string OldName { get; set; }
     }
 
-    public class ThemeFolderDeletedEventArgs : EventArgs
+    public class ThemeDirectoryDeletedEventArgs : EventArgs
     {
         public string FullPath { get; set; }
         public string Name { get; set; }
@@ -46,18 +46,18 @@ namespace Smartstore.Web.Theming
     public partial interface IThemeRegistry
     {
         /// <summary>
-        /// Gets all registered theme manifests
+        /// Gets the descriptors of all registered themes.
         /// </summary>
         /// <param name="includeHidden">Specifies whether inactive themes should also be included in the result list</param>
-        /// <returns>A collection of manifests</returns>
-        ICollection<ThemeManifest> GetThemeManifests(bool includeHidden = false);
+        /// <returns>A collection of <see cref="ThemeDescriptor"/> instances.</returns>
+        ICollection<ThemeDescriptor> GetThemeDescriptors(bool includeHidden = false);
 
         /// <summary>
-        /// Gets a single theme manifest by theme name
+        /// Gets a single theme descriptor by theme name
         /// </summary>
-        /// <param name="themeName">The name of the theme to get a manifest for</param>
-        /// <returns>A <c>ThemeManifest</c> instance or <c>null</c>, if theme is not registered</returns>
-        ThemeManifest GetThemeManifest(string themeName);
+        /// <param name="themeName">The name of the theme to get a descriptor for</param>
+        /// <returns>A <see cref="ThemeDescriptor"/> instance or <c>null</c> if the theme is not registered.</returns>
+        ThemeDescriptor GetThemeDescriptor(string themeName);
 
         /// <summary>
         /// Gets a value indicating whether a theme is registered
@@ -67,11 +67,11 @@ namespace Smartstore.Web.Theming
         bool ContainsTheme(string themeName);
 
         /// <summary>
-        /// Registers a theme manifest
+        /// Registers a theme descriptor.
         /// </summary>
-        /// <param name="manifest">The theme manifest to register</param>
+        /// <param name="descriptor">The theme descriptor to register</param>
         /// <remarks>If an equal theme exists already, it gets removed first.</remarks>
-        void AddThemeManifest(ThemeManifest manifest);
+        void AddThemeDescriptor(ThemeDescriptor descriptor);
 
         /// <summary>
         /// Gets a value indicating whether a theme is a child of another theme
@@ -89,14 +89,14 @@ namespace Smartstore.Web.Theming
         /// </summary>
         /// <param name="themeName">The name of the theme to get the children for</param>
         /// <param name="deep">When <c>true</c>, the method gets all child themes in the hierarchy chain, otherwise it only returns direct children.</param>
-        /// <returns>The manifests of matching themes</returns>
-        IEnumerable<ThemeManifest> GetChildrenOf(string themeName, bool deep = true);
+        /// <returns>The descriptors of matching themes</returns>
+        IEnumerable<ThemeDescriptor> GetChildrenOf(string themeName, bool deep = true);
 
         /// <summary>
         /// Starts/resumes raising file system events
         /// </summary>
         /// <param name="force">
-        /// When <c>true</c>, monitoring gets started regardless of the global setting (web.config > appSettings > sm:MonitorThemesFolder),
+        /// When <c>true</c>, monitoring gets started regardless of the global setting (appsettings.json > Smartstore > MonitorThemesFolder),
         /// otherwise this method does nothing when the setting is <c>false</c>.
         /// </param>
         void StartMonitoring(bool force);
@@ -107,7 +107,7 @@ namespace Smartstore.Web.Theming
         void StopMonitoring();
 
         /// <summary>
-        /// Clears all parsed theme manifests and reloads them
+        /// Clears all parsed theme descriptors and reloads them.
         /// </summary>
         void ReloadThemes();
 
@@ -118,14 +118,14 @@ namespace Smartstore.Web.Theming
         event EventHandler<ThemeFileChangedEventArgs> ThemeFileChanged;
 
         /// <summary>
-        /// Event raised when a theme folder has been renamed.
+        /// Event raised when a theme directory has been renamed.
         /// </summary>
-        event EventHandler<ThemeFolderRenamedEventArgs> ThemeFolderRenamed;
+        event EventHandler<ThemeDirectoryRenamedEventArgs> ThemeDirectoryRenamed;
 
         /// <summary>
-        /// Event raised when a theme folder has been deleted.
+        /// Event raised when a theme directory has been deleted.
         /// </summary>
-        event EventHandler<ThemeFolderDeletedEventArgs> ThemeFolderDeleted;
+        event EventHandler<ThemeDirectoryDeletedEventArgs> ThemeDirectoryDeleted;
 
         /// <summary>
         /// Event raised when a theme's base theme changes.

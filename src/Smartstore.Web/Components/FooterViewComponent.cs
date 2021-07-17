@@ -52,7 +52,7 @@ namespace Smartstore.Web.Components
             var taxInfo = T(taxDisplayType == TaxDisplayType.IncludingTax ? "Tax.InclVAT" : "Tax.ExclVAT");
             var availableStoreThemes = !_themeSettings.AllowCustomerToSelectTheme
                 ? new List<StoreThemeModel>()
-                : _themeRegistry.GetThemeManifests()
+                : _themeRegistry.GetThemeDescriptors()
                     .Select(x =>
                     {
                         return new StoreThemeModel

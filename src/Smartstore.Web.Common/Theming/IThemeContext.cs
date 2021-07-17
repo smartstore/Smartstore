@@ -11,9 +11,9 @@
         string WorkingThemeName { get; set; }
 
         /// <summary>
-        /// Gets or sets the manifest of the current working theme while respecting any request or session scoped override.
+        /// Gets or sets the descriptor of the current working theme while respecting any request or session scoped override.
         /// </summary>
-        ThemeManifest CurrentTheme { get; }
+        ThemeDescriptor CurrentTheme { get; }
 
         /// <summary>
         /// Gets the theme override for the current request

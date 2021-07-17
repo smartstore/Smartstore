@@ -21,7 +21,7 @@ namespace Smartstore.Web.Theming
         private readonly IEventPublisher _eventPublisher;
         private readonly IApplicationContext _appContext;
         private readonly IFileSystem _root;
-        private readonly ConcurrentDictionary<string, ThemeManifest> _themes = new(StringComparer.InvariantCultureIgnoreCase);
+        private readonly ConcurrentDictionary<string, ThemeDescriptor> _themes = new(StringComparer.InvariantCultureIgnoreCase);
         private readonly ConcurrentDictionary<EventThrottleKey, Timer> _eventQueue = new();
         private readonly bool _enableMonitoring;
 
@@ -54,8 +54,8 @@ namespace Smartstore.Web.Theming
         #region IThemeRegistry
 
         public event EventHandler<ThemeFileChangedEventArgs> ThemeFileChanged;
-        public event EventHandler<ThemeFolderRenamedEventArgs> ThemeFolderRenamed;
-        public event EventHandler<ThemeFolderDeletedEventArgs> ThemeFolderDeleted;
+        public event EventHandler<ThemeDirectoryRenamedEventArgs> ThemeDirectoryRenamed;
+        public event EventHandler<ThemeDirectoryDeletedEventArgs> ThemeDirectoryDeleted;
         public event EventHandler<BaseThemeChangedEventArgs> BaseThemeChanged;
 
         public bool ContainsTheme(string themeName)
@@ -63,25 +63,25 @@ namespace Smartstore.Web.Theming
             if (themeName.IsEmpty())
                 return false;
 
-            if (_themes.TryGetValue(themeName, out var manifest))
+            if (_themes.TryGetValue(themeName, out var descriptor))
             {
-                return manifest.State == ThemeManifestState.Active;
+                return descriptor.State == ThemeDescriptorState.Active;
             }
 
             return false;
         }
 
-        public ThemeManifest GetThemeManifest(string themeName)
+        public ThemeDescriptor GetThemeDescriptor(string themeName)
         {
-            if (themeName.HasValue() && _themes.TryGetValue(themeName, out var manifest))
+            if (themeName.HasValue() && _themes.TryGetValue(themeName, out var descriptor))
             {
-                return manifest;
+                return descriptor;
             }
 
             return null;
         }
 
-        public ICollection<ThemeManifest> GetThemeManifests(bool includeHidden = false)
+        public ICollection<ThemeDescriptor> GetThemeDescriptors(bool includeHidden = false)
         {
             var allThemes = _themes.Values;
 
@@ -91,68 +91,68 @@ namespace Smartstore.Web.Theming
             }
             else
             {
-                return allThemes.Where(x => x.State == ThemeManifestState.Active).AsReadOnly();
+                return allThemes.Where(x => x.State == ThemeDescriptorState.Active).AsReadOnly();
             }
         }
 
-        public void AddThemeManifest(ThemeManifest manifest)
+        public void AddThemeDescriptor(ThemeDescriptor descriptor)
         {
-            AddThemeManifestInternal(manifest, false);
+            AddThemeDescriptorInternal(descriptor, false);
         }
 
-        private void AddThemeManifestInternal(ThemeManifest manifest, bool isInit)
+        private void AddThemeDescriptorInternal(ThemeDescriptor descriptor, bool isInit)
         {
-            Guard.NotNull(manifest, nameof(manifest));
+            Guard.NotNull(descriptor, nameof(descriptor));
 
             if (!isInit)
             {
-                TryRemoveManifest(manifest.ThemeName);
+                TryRemoveDescriptor(descriptor.ThemeName);
             }
 
-            ThemeManifest baseManifest = null;
-            if (manifest.BaseThemeName != null)
+            ThemeDescriptor baseDescriptor = null;
+            if (descriptor.BaseThemeName != null)
             {
-                if (!_themes.TryGetValue(manifest.BaseThemeName, out baseManifest))
+                if (!_themes.TryGetValue(descriptor.BaseThemeName, out baseDescriptor))
                 {
-                    manifest.State = ThemeManifestState.MissingBaseTheme;
+                    descriptor.State = ThemeDescriptorState.MissingBaseTheme;
                 }
             }
 
-            manifest.BaseTheme = baseManifest;
-            var added = _themes.TryAdd(manifest.ThemeName, manifest);
+            descriptor.BaseTheme = baseDescriptor;
+            var added = _themes.TryAdd(descriptor.ThemeName, descriptor);
             if (added)
             {
                 // Post process
                 if (!isInit)
                 {
-                    var children = GetChildrenOf(manifest.ThemeName, false);
+                    var children = GetChildrenOf(descriptor.ThemeName, false);
                     foreach (var child in children)
                     {
-                        child.BaseTheme = manifest;
-                        child.State = ThemeManifestState.Active;
+                        child.BaseTheme = descriptor;
+                        child.State = ThemeDescriptorState.Active;
                     }
                 }
 
                 // Create file provider
-                if (baseManifest == null)
+                if (baseDescriptor == null)
                 {
-                    manifest.WebFileProvider = new PhysicalFileProvider(Path.Combine(manifest.RootPath, "wwwroot"));
+                    descriptor.WebFileProvider = new PhysicalFileProvider(Path.Combine(descriptor.RootPath, "wwwroot"));
                 }
                 else
                 {
                     var fileProviders = new List<IFileProvider>
                     {
-                        new PhysicalFileProvider(Path.Combine(manifest.RootPath, "wwwroot"))
+                        new PhysicalFileProvider(Path.Combine(descriptor.RootPath, "wwwroot"))
                     };
 
-                    while (baseManifest != null)
+                    while (baseDescriptor != null)
                     {
-                        fileProviders.Add(new PhysicalFileProvider(Path.Combine(baseManifest.RootPath, "wwwroot")));
-                        baseManifest = baseManifest.BaseTheme;
+                        fileProviders.Add(new PhysicalFileProvider(Path.Combine(baseDescriptor.RootPath, "wwwroot")));
+                        baseDescriptor = baseDescriptor.BaseTheme;
                     }
 
                     // Use CompositeFileProvider for theme inheritance
-                    manifest.WebFileProvider = new CompositeFileProvider(fileProviders);
+                    descriptor.WebFileProvider = new CompositeFileProvider(fileProviders);
 
                     // INFO: (core) Falling back to base theme's file via "?base" is not supported anymore.
                     // The full path must be specified instead, e.g. "/themes/flex/_variables.scss".
@@ -160,7 +160,7 @@ namespace Smartstore.Web.Theming
             }
         }
 
-        private bool TryRemoveManifest(string themeName)
+        private bool TryRemoveDescriptor(string themeName)
         {
             bool result;
 
@@ -175,7 +175,7 @@ namespace Smartstore.Web.Theming
                 foreach (var child in children)
                 {
                     child.BaseTheme = null;
-                    child.State = ThemeManifestState.MissingBaseTheme;
+                    child.State = ThemeDescriptorState.MissingBaseTheme;
                     _eventPublisher.Publish(new ThemeTouchedEvent(child.ThemeName));
                 }
             }
@@ -195,7 +195,7 @@ namespace Smartstore.Web.Theming
                 return false;
             }
 
-            var current = GetThemeManifest(themeName);
+            var current = GetThemeDescriptor(themeName);
             if (current == null)
                 return false;
 
@@ -216,12 +216,12 @@ namespace Smartstore.Web.Theming
             return false;
         }
 
-        public IEnumerable<ThemeManifest> GetChildrenOf(string themeName, bool deep = true)
+        public IEnumerable<ThemeDescriptor> GetChildrenOf(string themeName, bool deep = true)
         {
             Guard.NotEmpty(themeName, nameof(themeName));
 
             if (!ContainsTheme(themeName))
-                return Enumerable.Empty<ThemeManifest>();
+                return Enumerable.Empty<ThemeDescriptor>();
 
             var derivedThemes = _themes.Values.Where(x => x.BaseThemeName != null && !x.ThemeName.EqualsNoCase(themeName));
             if (!deep)
@@ -248,7 +248,7 @@ namespace Smartstore.Web.Theming
             {
                 try
                 {
-                    var dirData = ThemeManifest.CreateThemeDirectoryData(dir, _root);
+                    var dirData = ThemeDescriptor.CreateThemeDirectoryData(dir, _root);
                     if (dirData != null)
                     {
                         dirDatas.Add(dirData);
@@ -279,20 +279,20 @@ namespace Smartstore.Web.Theming
                 throw;
             }
 
-            // Create theme manifests
+            // Create theme descriptor
             foreach (var dirData in sortedThemeDirs)
             {
                 try
                 {
-                    var manifest = ThemeManifest.Create(dirData);
-                    if (manifest != null)
+                    var descriptor = ThemeDescriptor.Create(dirData);
+                    if (descriptor != null)
                     {
-                        AddThemeManifestInternal(manifest, true);
+                        AddThemeDescriptorInternal(descriptor, true);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex, "Unable to create manifest for theme '{0}'".FormatCurrent(dirData.Directory.Name));
+                    Logger.Error(ex, "Unable to create descriptor for theme '{0}'".FormatCurrent(dirData.Directory.Name));
                 }
             }
         }
@@ -400,15 +400,15 @@ namespace Smartstore.Web.Theming
 
             BaseThemeChangedEventArgs baseThemeChangedArgs = null;
 
-            // config file changes always result in refreshing the corresponding theme manifest
+            // config file changes always result in refreshing the corresponding theme descriptor
             //var dir = new DirectoryInfo(Path.GetDirectoryName(fullPath));
             var dir = new LocalDirectory(themeName, new DirectoryInfo(Path.GetDirectoryName(fullPath)), _root);
 
             string oldBaseThemeName = null;
-            var oldManifest = GetThemeManifest(dir.Name);
-            if (oldManifest != null)
+            var oldDescriptor = GetThemeDescriptor(dir.Name);
+            if (oldDescriptor != null)
             {
-                oldBaseThemeName = oldManifest.BaseThemeName;
+                oldBaseThemeName = oldDescriptor.BaseThemeName;
             }
 
             try
@@ -418,33 +418,33 @@ namespace Smartstore.Web.Theming
                 var fi = new FileInfo(fullPath);
                 fi.WaitForUnlock(250);
 
-                var newManifest = ThemeManifest.Create(dir.Name, _root);
-                if (newManifest != null)
+                var newDescriptor = ThemeDescriptor.Create(dir.Name, _root);
+                if (newDescriptor != null)
                 {
-                    AddThemeManifestInternal(newManifest, false);
+                    AddThemeDescriptorInternal(newDescriptor, false);
 
-                    if (!oldBaseThemeName.EqualsNoCase(newManifest.BaseThemeName))
+                    if (!oldBaseThemeName.EqualsNoCase(newDescriptor.BaseThemeName))
                     {
                         baseThemeChangedArgs = new BaseThemeChangedEventArgs
                         {
-                            ThemeName = newManifest.ThemeName,
-                            BaseTheme = newManifest.BaseTheme?.ThemeName,
+                            ThemeName = newDescriptor.ThemeName,
+                            BaseTheme = newDescriptor.BaseTheme?.ThemeName,
                             OldBaseTheme = oldBaseThemeName
                         };
                     }
 
-                    Logger.Debug("Changed theme manifest for '{0}'".FormatCurrent(name));
+                    Logger.Debug("Changed theme descriptor for '{0}'".FormatCurrent(name));
                 }
                 else
                 {
-                    // something went wrong (most probably no 'theme.config'): remove the manifest
-                    TryRemoveManifest(dir.Name);
+                    // something went wrong (most probably no 'theme.config'): remove the descriptor
+                    TryRemoveDescriptor(dir.Name);
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Could not touch theme manifest '{0}': {1}".FormatCurrent(name, ex.Message));
-                TryRemoveManifest(dir.Name);
+                Logger.Error(ex, "Could not touch theme descriptor '{0}': {1}".FormatCurrent(name, ex.Message));
+                TryRemoveDescriptor(dir.Name);
             }
 
             if (baseThemeChangedArgs != null)
@@ -466,23 +466,23 @@ namespace Smartstore.Web.Theming
         {
             ContextState.StartAsyncFlow();
 
-            TryRemoveManifest(oldName);
+            TryRemoveDescriptor(oldName);
 
             try
             {
-                var newManifest = GetThemeManifest(name);
-                if (newManifest != null)
+                var newDescriptor = GetThemeDescriptor(name);
+                if (newDescriptor != null)
                 {
-                    AddThemeManifestInternal(newManifest, false);
-                    Logger.Debug("Changed theme manifest for '{0}'".FormatCurrent(name));
+                    AddThemeDescriptorInternal(newDescriptor, false);
+                    Logger.Debug("Changed theme descriptor for '{0}'".FormatCurrent(name));
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Could not touch theme manifest '{0}'".FormatCurrent(name));
+                Logger.Error(ex, "Could not touch theme descriptor '{0}'".FormatCurrent(name));
             }
 
-            ThemeFolderRenamed?.Invoke(this, new ThemeFolderRenamedEventArgs
+            ThemeDirectoryRenamed?.Invoke(this, new ThemeDirectoryRenamedEventArgs
             {
                 FullPath = fullPath,
                 Name = name,
@@ -495,9 +495,9 @@ namespace Smartstore.Web.Theming
         {
             ContextState.StartAsyncFlow();
 
-            TryRemoveManifest(name);
+            TryRemoveDescriptor(name);
 
-            ThemeFolderDeleted?.Invoke(this, new ThemeFolderDeletedEventArgs
+            ThemeDirectoryDeleted?.Invoke(this, new ThemeDirectoryDeletedEventArgs
             {
                 FullPath = fullPath,
                 Name = name

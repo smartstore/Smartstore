@@ -15,7 +15,7 @@ namespace Smartstore.Web.Theming
         {
             Guard.NotNull(info, "info");
 
-            var resKey = "ThemeVar.{0}.{1}".FormatInvariant(info.Manifest.ThemeName, info.Name);
+            var resKey = "ThemeVar.{0}.{1}".FormatInvariant(info.ThemeDescriptor.ThemeName, info.Name);
             var services = helper.ViewContext.HttpContext.RequestServices;
             var langId = services.GetRequiredService<IWorkContext>().WorkingLanguage.Id;
             var locService = services.GetRequiredService<ILocalizationService>();
@@ -48,10 +48,10 @@ namespace Smartstore.Web.Theming
 
             var currentTheme = helper.ViewContext.HttpContext.RequestServices.GetRequiredService<IThemeContext>().CurrentTheme;
 
-            if (currentTheme != info.Manifest)
+            if (currentTheme != info.ThemeDescriptor)
             {
                 // the variable is inherited from a base theme: display an info badge
-                var chainInfo = "<span class='themevar-chain-info'><i class='fa fa-link fa-flip-horizontal'></i><span class='pl-1'>{0}</span></span>".FormatCurrent(info.Manifest.ThemeName);
+                var chainInfo = "<span class='themevar-chain-info'><i class='fa fa-link fa-flip-horizontal'></i><span class='pl-1'>{0}</span></span>".FormatCurrent(info.ThemeDescriptor.ThemeName);
                 return new HtmlString(chainInfo);
             }
 
@@ -86,13 +86,13 @@ namespace Smartstore.Web.Theming
             }
             else if (info.Type == ThemeVariableType.Select)
             {
-                var manifest = info.Manifest;
-                if (!manifest.Selects.ContainsKey(info.SelectRef))
+                var descriptor = info.ThemeDescriptor;
+                if (!descriptor.Selects.ContainsKey(info.SelectRef))
                 {
                     throw new SmartException("A select list with id '{0}' was not specified. Please specify a 'Select' element with at least one 'Option' child.", info.SelectRef);
                 }
 
-                var selectList = from x in manifest.Selects[info.SelectRef]
+                var selectList = from x in descriptor.Selects[info.SelectRef]
                                  select new SelectListItem
                                  {
                                      Value = x,

@@ -52,16 +52,16 @@ namespace Smartstore.Web.Theming
         public string SelectRef { get; internal set; }
 
         /// <summary>
-        /// Gets the theme manifest the variable belongs to
+        /// Gets the theme descriptor the variable belongs to
         /// </summary>
-        public ThemeManifest Manifest { get; internal set; }
+        public ThemeDescriptor ThemeDescriptor { get; internal set; }
 
 
         protected override void OnDispose(bool disposing)
         {
             if (disposing)
             {
-                Manifest = null;
+                ThemeDescriptor = null;
             }
         }
     }

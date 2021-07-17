@@ -20,7 +20,7 @@ namespace Smartstore.Admin.Models.Themes
 
         [LocalizedDisplay("*DefaultDesktopTheme")]
         public string DefaultTheme { get; set; }
-        public List<ThemeManifestModel> Themes { get; set; } = new();
+        public List<ThemeDescriptorModel> Themes { get; set; } = new();
 
         [LocalizedDisplay("*AllowCustomerToSelectTheme")]
         public bool AllowCustomerToSelectTheme { get; set; }

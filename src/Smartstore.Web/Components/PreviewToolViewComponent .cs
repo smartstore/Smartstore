@@ -37,7 +37,7 @@ namespace Smartstore.Web.Components
             var themeSettings = await Services.SettingFactory.LoadSettingsAsync<ThemeSettings>(currentStore.Id);
             var cookie = Request.Cookies[CookieNames.PreviewToolOpen];
 
-            ViewBag.Themes = (from m in _themeRegistry.GetThemeManifests(false)
+            ViewBag.Themes = (from m in _themeRegistry.GetThemeDescriptors(false)
                               select new SelectListItem
                               {
                                   Value = m.ThemeName,

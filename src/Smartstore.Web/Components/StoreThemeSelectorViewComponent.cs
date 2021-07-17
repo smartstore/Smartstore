@@ -25,7 +25,7 @@ namespace Smartstore.Web.Components
             if (!_themeSettings.AllowCustomerToSelectTheme)
                 return Empty();
 
-            var currentTheme = _themeRegistry.GetThemeManifest(_themeContext.WorkingThemeName);
+            var currentTheme = _themeRegistry.GetThemeDescriptor(_themeContext.WorkingThemeName);
 
             ViewBag.CurrentStoreTheme = new StoreThemeModel
             {
@@ -34,7 +34,7 @@ namespace Smartstore.Web.Components
             };
 
             ViewBag.AvailableStoreThemes = _themeRegistry
-                .GetThemeManifests()
+                .GetThemeDescriptors()
                 .Select(x =>
                 {
                     return new StoreThemeModel

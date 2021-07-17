@@ -88,30 +88,30 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        private IList<ThemeManifestModel> GetThemes(ThemeSettings themeSettings, bool includeHidden = true)
+        private IList<ThemeDescriptorModel> GetThemes(ThemeSettings themeSettings, bool includeHidden = true)
         {
-            var themes = from m in _themeRegistry.GetThemeManifests(includeHidden)
-                         select PrepareThemeManifestModel(m, themeSettings);
+            var themes = from m in _themeRegistry.GetThemeDescriptors(includeHidden)
+                         select PrepareThemeDescriptorModel(m, themeSettings);
 
-            var sortedThemes = themes.ToArray().SortTopological(StringComparer.OrdinalIgnoreCase).Cast<ThemeManifestModel>();
+            var sortedThemes = themes.ToArray().SortTopological(StringComparer.OrdinalIgnoreCase).Cast<ThemeDescriptorModel>();
 
             return sortedThemes.OrderByDescending(x => x.IsActive).ToList();
         }
 
-        protected virtual ThemeManifestModel PrepareThemeManifestModel(ThemeManifest manifest, ThemeSettings themeSettings)
+        protected virtual ThemeDescriptorModel PrepareThemeDescriptorModel(ThemeDescriptor descriptor, ThemeSettings themeSettings)
         {
-            var model = new ThemeManifestModel
+            var model = new ThemeDescriptorModel
             {
-                Name = manifest.ThemeName,
-                BaseTheme = manifest.BaseThemeName,
-                Title = manifest.ThemeTitle,
-                Description = manifest.Description,
-                Author = manifest.Author,
-                Url = manifest.Url,
-                Version = manifest.Version,
-                PreviewImageUrl = $"~/themes/{manifest.ThemeName}/{manifest.PreviewImagePath.Trim('/')}",
-                IsActive = themeSettings.DefaultTheme == manifest.ThemeName,
-                State = manifest.State,
+                Name = descriptor.ThemeName,
+                BaseTheme = descriptor.BaseThemeName,
+                Title = descriptor.ThemeTitle,
+                Description = descriptor.Description,
+                Author = descriptor.Author,
+                Url = descriptor.Url,
+                Version = descriptor.Version,
+                PreviewImageUrl = $"~/themes/{descriptor.ThemeName}/{descriptor.PreviewImagePath.Trim('/')}",
+                IsActive = themeSettings.DefaultTheme == descriptor.ThemeName,
+                State = descriptor.State,
             };
 
             //model.IsConfigurable = HostingEnvironment.VirtualPathProvider.FileExists("{0}{1}/Views/Shared/ConfigureTheme.cshtml".FormatInvariant(manifest.Location.EnsureEndsWith("/"), manifest.ThemeName));

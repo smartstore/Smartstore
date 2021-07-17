@@ -4,7 +4,7 @@ using Smartstore.Web.Theming;
 
 namespace Smartstore.Admin.Models.Themes
 {
-    public class ThemeManifestModel : ITopologicSortable<string>
+    public class ThemeDescriptorModel : ITopologicSortable<string>
     {
         public string Name { get; set; }
 
@@ -26,7 +26,7 @@ namespace Smartstore.Admin.Models.Themes
 
         public bool IsActive { get; set; }
 
-        public ThemeManifestState State { get; set; }
+        public ThemeDescriptorState State { get; set; }
 
         string ITopologicSortable<string>.Key => Name;
 

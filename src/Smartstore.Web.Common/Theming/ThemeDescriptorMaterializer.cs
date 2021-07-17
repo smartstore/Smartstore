@@ -3,21 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using Smartstore.Collections;
-using Smartstore.IO;
 
 namespace Smartstore.Web.Theming
 {
-    internal class ThemeManifestMaterializer
+    internal class ThemeDescriptorMaterializer
     {
-        private readonly ThemeManifest _manifest;
+        private readonly ThemeDescriptor _descriptor;
         private readonly ThemeDirectoryData _directoryData;
 
-        public ThemeManifestMaterializer(ThemeDirectoryData directoryData)
+        public ThemeDescriptorMaterializer(ThemeDirectoryData directoryData)
         {
             Guard.NotNull(directoryData, nameof(directoryData));
 
             _directoryData = directoryData;
-            _manifest = new ThemeManifest
+            _descriptor = new ThemeDescriptor
             {
                 ThemeName = directoryData.Directory.Name,
                 ConfigurationFile = directoryData.ConfigurationFile,
@@ -27,21 +26,21 @@ namespace Smartstore.Web.Theming
             };
         }
 
-        public ThemeManifest Materialize()
+        public ThemeDescriptor Materialize()
         {
             var root = _directoryData.ConfigurationNode;
 
-            _manifest.ThemeTitle = root.GetAttribute("title").NullEmpty() ?? _manifest.ThemeName;
-            _manifest.PreviewImagePath = root.GetAttribute("previewImagePath").NullEmpty() ?? "images/preview.png";
-            _manifest.Description = root.GetAttribute("description").ToSafe();
-            _manifest.Author = root.GetAttribute("author").ToSafe();
-            _manifest.Url = root.GetAttribute("url").ToSafe();
-            _manifest.Version = root.GetAttribute("version").ToSafe().HasValue() ? root.GetAttribute("version") : "1.0";
+            _descriptor.ThemeTitle = root.GetAttribute("title").NullEmpty() ?? _descriptor.ThemeName;
+            _descriptor.PreviewImagePath = root.GetAttribute("previewImagePath").NullEmpty() ?? "images/preview.png";
+            _descriptor.Description = root.GetAttribute("description").ToSafe();
+            _descriptor.Author = root.GetAttribute("author").ToSafe();
+            _descriptor.Url = root.GetAttribute("url").ToSafe();
+            _descriptor.Version = root.GetAttribute("version").ToSafe().HasValue() ? root.GetAttribute("version") : "1.0";
 
-            _manifest.Selects = MaterializeSelects();
-            _manifest.Variables = MaterializeVariables();
+            _descriptor.Selects = MaterializeSelects();
+            _descriptor.Variables = MaterializeVariables();
 
-            return _manifest;
+            return _descriptor;
         }
 
         private Multimap<string, string> MaterializeSelects()
@@ -55,13 +54,13 @@ namespace Smartstore.Web.Theming
                 string id = xel.GetAttribute("id").ToSafe();
                 if (id.IsEmpty() || selects.ContainsKey(id))
                 {
-                    throw new SmartException("A 'Select' element must contain a unique id. Affected: '{0}' - element: {1}", _manifest.RootPath, xel.OuterXml);
+                    throw new SmartException("A 'Select' element must contain a unique id. Affected: '{0}' - element: {1}", _descriptor.RootPath, xel.OuterXml);
                 }
 
                 var xndOptions = xel.SelectNodes(@"Option").Cast<XmlElement>();
                 if (!xndOptions.Any())
                 {
-                    throw new SmartException("A 'Select' element must contain at least one 'Option' child element. Affected: '{0}' - element: {1}", _manifest.RootPath, xel.OuterXml);
+                    throw new SmartException("A 'Select' element must contain at least one 'Option' child element. Affected: '{0}' - element: {1}", _descriptor.RootPath, xel.OuterXml);
                 }
 
                 foreach (var xelOption in xndOptions)
@@ -69,7 +68,7 @@ namespace Smartstore.Web.Theming
                     string option = xelOption.InnerText;
                     if (option.IsEmpty())
                     {
-                        throw new SmartException("A select option cannot be empty. Affected: '{0}' - element: {1}", _manifest.RootPath, xel.OuterXml);
+                        throw new SmartException("A select option cannot be empty. Affected: '{0}' - element: {1}", _descriptor.RootPath, xel.OuterXml);
                     }
 
                     selects.Add(id, option);
@@ -93,7 +92,7 @@ namespace Smartstore.Web.Theming
                 {
                     if (vars.ContainsKey(info.Name))
                     {
-                        throw new SmartException("Duplicate variable name '{0}' in '{1}'. Variable names must be unique.", info.Name, _manifest.RootPath);
+                        throw new SmartException("Duplicate variable name '{0}' in '{1}'. Variable names must be unique.", info.Name, _descriptor.RootPath);
                     }
                     vars.Add(info.Name, info);
                 }
@@ -109,7 +108,7 @@ namespace Smartstore.Web.Theming
 
             if (name.IsEmpty())
             {
-                throw new SmartException("The name attribute is required for the 'Var' element. Affected: '{0}' - element: {1}", _manifest.RootPath, xel.OuterXml);
+                throw new SmartException("The name attribute is required for the 'Var' element. Affected: '{0}' - element: {1}", _descriptor.RootPath, xel.OuterXml);
             }
 
             string type = xel.GetAttribute("type").ToSafe("String");
@@ -118,7 +117,7 @@ namespace Smartstore.Web.Theming
 
             if (varType != ThemeVariableType.String && value.IsEmpty())
             {
-                throw new SmartException("A value is required for non-string 'Var' elements. Affected: '{0}' - element: {1}", _manifest.RootPath, xel.OuterXml);
+                throw new SmartException("A value is required for non-string 'Var' elements. Affected: '{0}' - element: {1}", _descriptor.RootPath, xel.OuterXml);
             }
 
             var info = new ThemeVariableInfo
@@ -127,7 +126,7 @@ namespace Smartstore.Web.Theming
                 DefaultValue = value,
                 Type = varType,
                 SelectRef = selectRef,
-                Manifest = _manifest
+                ThemeDescriptor = _descriptor
             };
 
             return info;
@@ -143,7 +142,7 @@ namespace Smartstore.Web.Theming
                 var arr = type.Split(new char[] { '#' });
                 if (arr.Length < 1 || arr[1].IsEmpty())
                 {
-                    throw new SmartException("The 'id' of a select element must be provided (pattern: Select#MySelect). Affected: '{0}' - element: {1}", _manifest.RootPath, affected.OuterXml);
+                    throw new SmartException("The 'id' of a select element must be provided (pattern: Select#MySelect). Affected: '{0}' - element: {1}", _descriptor.RootPath, affected.OuterXml);
                 }
 
                 selectRef = arr[1];

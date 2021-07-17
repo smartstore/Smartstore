@@ -15,14 +15,14 @@ namespace Smartstore.Web.Razor
             if (context.Values.TryGetValue("theme", out var theme))
             {
                 var themeRegistry = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeRegistry>();
-                var manifest = themeRegistry.GetThemeManifest(theme);
+                var descriptor = themeRegistry.GetThemeDescriptor(theme);
                 var themeLocations = new List<string>(4);
 
-                while (manifest != null)
+                while (descriptor != null)
                 {
-                    themeLocations.Add($"/Themes/{manifest.ThemeName}/Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
-                    themeLocations.Add($"/Themes/{manifest.ThemeName}/Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
-                    manifest = manifest.BaseTheme;
+                    themeLocations.Add($"/Themes/{descriptor.ThemeName}/Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
+                    themeLocations.Add($"/Themes/{descriptor.ThemeName}/Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
+                    descriptor = descriptor.BaseTheme;
                 }
 
                 return themeLocations.Union(viewLocations);

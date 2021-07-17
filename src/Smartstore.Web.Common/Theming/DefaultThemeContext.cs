@@ -20,7 +20,7 @@ namespace Smartstore.Web.Theming
         private bool _themeIsCached;
         private string _cachedThemeName;
 
-        private ThemeManifest _currentTheme;
+        private ThemeDescriptor _currentTheme;
 
         public DefaultThemeContext(
             IWorkContext workContext,
@@ -72,14 +72,14 @@ namespace Smartstore.Web.Theming
                 // ensure that theme exists
                 if (!_themeRegistry.ContainsTheme(theme))
                 {
-                    var manifest = _themeRegistry.GetThemeManifests().FirstOrDefault();
-                    if (manifest == null)
+                    var descriptor = _themeRegistry.GetThemeDescriptors().FirstOrDefault();
+                    if (descriptor == null)
                     {
                         // no active theme in system. Throw!
                         throw Error.Application("At least one theme must be in active state, but the theme registry does not contain a valid theme package.");
                     }
 
-                    theme = manifest.ThemeName;
+                    theme = descriptor.ThemeName;
                     if (isUserSpecific)
                     {
                         // the customer chosen theme does not exists (anymore). Invalidate it!
@@ -120,7 +120,7 @@ namespace Smartstore.Web.Theming
             }
         }
 
-        public virtual ThemeManifest CurrentTheme
+        public virtual ThemeDescriptor CurrentTheme
         {
             get
             {
@@ -130,11 +130,11 @@ namespace Smartstore.Web.Theming
                     if (themeOverride != null)
                     {
                         // The theme to be used can be overwritten on request/session basis (e.g. for live preview, editing etc.)
-                        _currentTheme = _themeRegistry.GetThemeManifest(themeOverride);
+                        _currentTheme = _themeRegistry.GetThemeDescriptor(themeOverride);
                     }
                     else
                     {
-                        _currentTheme = _themeRegistry.GetThemeManifest(WorkingThemeName);
+                        _currentTheme = _themeRegistry.GetThemeDescriptor(WorkingThemeName);
                     }
 
                 }

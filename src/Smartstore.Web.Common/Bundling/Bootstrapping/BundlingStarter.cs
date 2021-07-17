@@ -24,7 +24,7 @@ namespace Smartstore.Web.Bootstrapping
         private static IFileProvider ResolveThemeFileProvider(string themeName, IApplicationContext appContext)
         {
             var themeRegistry = appContext.Services.Resolve<IThemeRegistry>();
-            return themeRegistry?.GetThemeManifest(themeName)?.WebFileProvider;
+            return themeRegistry?.GetThemeDescriptor(themeName)?.WebFileProvider;
         }
 
         private static IFileProvider ResolveModuleFileProvider(string moduleName, IApplicationContext appContext)

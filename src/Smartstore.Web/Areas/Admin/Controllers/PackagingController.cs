@@ -66,13 +66,13 @@ namespace Smartstore.Controllers
 
                     if (isTheme)
                     {
-                        // Create manifest.
+                        // Create descriptor.
                         if (packageInfo != null)
                         {
-                            var manifest = ThemeManifest.Create(packageInfo.ExtensionDescriptor.Id, appContext.ThemesRoot);
-                            if (manifest != null)
+                            var descriptor = ThemeDescriptor.Create(packageInfo.ExtensionDescriptor.Id, appContext.ThemesRoot);
+                            if (descriptor != null)
                             {
-                                _themeRegistry.AddThemeManifest(manifest);
+                                _themeRegistry.AddThemeDescriptor(descriptor);
                             }
                         }
 

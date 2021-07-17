@@ -64,24 +64,24 @@ namespace Smartstore.Web.Theming
                     .Where(v => v.StoreId == storeId && v.Theme == themeName)
                     .ToDictionaryAsync(x => x.Name, x => (object)x.Value);
 
-                return MergeThemeVariables(_themeRegistry.GetThemeManifest(themeName), dbVars);
+                return MergeThemeVariables(_themeRegistry.GetThemeDescriptor(themeName), dbVars);
             });
 
             return result;
         }
 
         /// <summary>
-        /// Merges <paramref name="variables"/> with preconfigured variables from <paramref name="manifest"/>. 
+        /// Merges <paramref name="variables"/> with preconfigured variables from <paramref name="descriptor"/>. 
         /// </summary>
-        private ExpandoObject MergeThemeVariables(ThemeManifest manifest, IDictionary<string, object> variables)
+        private ExpandoObject MergeThemeVariables(ThemeDescriptor descriptor, IDictionary<string, object> variables)
         {
-            Guard.NotNull(manifest, nameof(manifest));
+            Guard.NotNull(descriptor, nameof(descriptor));
 
             var result = new ExpandoObject();
             var dict = result as IDictionary<string, object>;
 
-            // First get all default (static) var values from manifest...
-            manifest.Variables.Values.Each(v =>
+            // First get all default (static) var values from descriptor...
+            descriptor.Variables.Values.Each(v =>
             {
                 dict.Add(v.Name, v.DefaultValue);
             });
@@ -107,15 +107,15 @@ namespace Smartstore.Web.Theming
             if (!variables.Any())
                 return 0;
 
-            var manifest = _themeRegistry.GetThemeManifest(themeName);
-            if (manifest == null)
+            var descriptor = _themeRegistry.GetThemeDescriptor(themeName);
+            if (descriptor == null)
             {
                 throw new ArgumentException("Theme '{0}' does not exist".FormatInvariant(themeName), nameof(themeName));
             }
 
             // Validate before save and ensure that Sass compiler does not throw with updated variables
-            var mergedVariables = MergeThemeVariables(manifest, variables);
-            var validationResult = await ValidateThemeAsync(manifest, storeId, mergedVariables);
+            var mergedVariables = MergeThemeVariables(descriptor, variables);
+            var validationResult = await ValidateThemeAsync(descriptor, storeId, mergedVariables);
             
             if (!validationResult.IsValid)
             {
@@ -123,7 +123,7 @@ namespace Smartstore.Web.Theming
             }
 
             // Save
-            var result = await SaveThemeVariablesInternal(manifest, storeId, variables);
+            var result = await SaveThemeVariablesInternal(descriptor, storeId, variables);
 
             return result.TouchedVariablesCount;
         }
@@ -134,7 +134,7 @@ namespace Smartstore.Web.Theming
         /// <param name="theme">Theme</param>
         /// <param name="storeId">Stored Id</param>
         /// <param name="variables">The variables to use for compilation.</param>
-        protected virtual async Task<ThemeValidationResult> ValidateThemeAsync(ThemeManifest theme, int storeId, IDictionary<string, object> variables)
+        protected virtual async Task<ThemeValidationResult> ValidateThemeAsync(ThemeDescriptor theme, int storeId, IDictionary<string, object> variables)
         {
             Guard.NotNull(theme, nameof(theme));
             Guard.NotNull(variables, nameof(variables));
@@ -181,14 +181,14 @@ namespace Smartstore.Web.Theming
             return result;
         }
 
-        private async Task<SaveThemeVariablesResult> SaveThemeVariablesInternal(ThemeManifest manifest, int storeId, IDictionary<string, object> variables)
+        private async Task<SaveThemeVariablesResult> SaveThemeVariablesInternal(ThemeDescriptor descriptor, int storeId, IDictionary<string, object> variables)
         {
             var result = new SaveThemeVariablesResult();
-            var infos = manifest.Variables;
+            var infos = descriptor.Variables;
 
             var unsavedVars = new List<string>();
             var savedThemeVars = await _db.ThemeVariables
-                .Where(v => v.StoreId == storeId && v.Theme == manifest.ThemeName)
+                .Where(v => v.StoreId == storeId && v.Theme == descriptor.ThemeName)
                 .ToDictionaryAsync(x => x.Name);
 
             bool touched = false;
@@ -233,7 +233,7 @@ namespace Smartstore.Web.Theming
                         unsavedVars.Add(v.Key);
                         savedThemeVar = new ThemeVariable
                         {
-                            Theme = manifest.ThemeName,
+                            Theme = descriptor.ThemeName,
                             Name = v.Key,
                             Value = value,
                             StoreId = storeId
@@ -324,7 +324,7 @@ namespace Smartstore.Web.Theming
             if (vars == null || !vars.Any())
                 return null;
 
-            var infos = _themeRegistry.GetThemeManifest(themeName).Variables;
+            var infos = _themeRegistry.GetThemeDescriptor(themeName).Variables;
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
 

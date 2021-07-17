@@ -8,21 +8,21 @@ using Smartstore.IO;
 
 namespace Smartstore.Web.Theming
 {
-    public enum ThemeManifestState
+    public enum ThemeDescriptorState
     {
         MissingBaseTheme = -1,
         Active = 0
     }
 
-    public class ThemeManifest : ComparableObject<ThemeManifest>, IDisposable
+    public class ThemeDescriptor : ComparableObject<ThemeDescriptor>, IDisposable
     {
-        internal ThemeManifest()
+        internal ThemeDescriptor()
         {
         }
 
         #region Methods
 
-        public static ThemeManifest Create(string themeName, IFileSystem root)
+        public static ThemeDescriptor Create(string themeName, IFileSystem root)
         {
             Guard.NotEmpty(themeName, nameof(themeName));
 
@@ -35,14 +35,14 @@ namespace Smartstore.Web.Theming
             return null;
         }
 
-        internal static ThemeManifest Create(ThemeDirectoryData directoryData)
+        internal static ThemeDescriptor Create(ThemeDirectoryData directoryData)
         {
             Guard.NotNull(directoryData, nameof(directoryData));
 
-            var materializer = new ThemeManifestMaterializer(directoryData);
-            var manifest = materializer.Materialize();
+            var materializer = new ThemeDescriptorMaterializer(directoryData);
+            var descriptor = materializer.Materialize();
 
-            return manifest;
+            return descriptor;
         }
 
         internal static ThemeDirectoryData CreateThemeDirectoryData(IDirectory themeDirectory, IFileSystem root)
@@ -147,7 +147,7 @@ namespace Smartstore.Web.Theming
             internal set;
         }
 
-        public ThemeManifest BaseTheme
+        public ThemeDescriptor BaseTheme
         {
             get;
             internal set;
@@ -203,7 +203,7 @@ namespace Smartstore.Web.Theming
                             Type = baseVar.Type,
                             SelectRef = baseVar.SelectRef,
                             DefaultValue = localVar.Value.DefaultValue,
-                            Manifest = localVar.Value.Manifest
+                            ThemeDescriptor = localVar.Value.ThemeDescriptor
                         };
                     }
                     else
@@ -263,18 +263,18 @@ namespace Smartstore.Web.Theming
             internal set => _selects = value;
         }
 
-        private ThemeManifestState _state;
-        public ThemeManifestState State
+        private ThemeDescriptorState _state;
+        public ThemeDescriptorState State
         {
             get
             {
-                if (_state == ThemeManifestState.Active)
+                if (_state == ThemeDescriptorState.Active)
                 {
                     // Active state does not mean, that it actually IS active: check state of base themes!
                     var baseTheme = BaseTheme;
                     while (baseTheme != null)
                     {
-                        if (baseTheme.State != ThemeManifestState.Active)
+                        if (baseTheme.State != ThemeDescriptorState.Active)
                         {
                             return baseTheme.State;
                         }
@@ -318,7 +318,7 @@ namespace Smartstore.Web.Theming
             }
         }
 
-        ~ThemeManifest()
+        ~ThemeDescriptor()
         {
             Dispose(false);
         }
