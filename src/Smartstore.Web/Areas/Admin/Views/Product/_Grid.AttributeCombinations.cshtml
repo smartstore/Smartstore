@@ -6,11 +6,12 @@
 
 <datagrid id="attributecombinations-grid"
           allow-resize="true"
-          allow-row-selection="true"
+          allow-row-selection="true" max-height="800px"
           onrowclass="attributeCombinations_onRowClass">
     <datasource read="@Url.Action("ProductVariantAttributeCombinationList", new { productId = parentModel.Id })"
                 delete="@Url.Action("ProductVariantAttributeCombinationDelete")" />
-    <paging position="Bottom" page-index="1" show-size-chooser="false" />
+    @*TODO: (mc) (core) Position seems to have no effect. Neither Top nor Both works.*@
+    <paging position="Both" page-index="1" />
     <sorting enabled="true"></sorting>
     <toolbar>
         <toolbar-group>
@@ -24,14 +25,14 @@
                 <i class="fa fa-tasks"></i>
                 <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CreateAllCombinations")</span>
             </button>
-            <button type="button" id="btnDeleteAllCombinations" class="btn btn-light btn-flat mr-auto"
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button type="button" id="btnDeleteAllCombinations" class="btn btn-light btn-flat mr-auto" v-if="grid.rows.length > 0"
                     data-url='@Url.Action("DeleteAllAttributeCombinations", new { productId = parentModel.Id })'
                     data-ask="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AskToDeleteAll")">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.DeleteAllCombinations")</span>
             </button>
-        </toolbar-group>
-        <toolbar-group class="omega">
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
