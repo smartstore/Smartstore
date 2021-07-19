@@ -38,6 +38,7 @@ namespace Smartstore.Admin.Controllers
             var relatedProductsModel = await relatedProducts
                 .SelectAsync(async x =>
                 {
+                    // TODO: (mh) (core) (perf) Load all products in one go (projected)
                     var product2 = await _db.Products.FindByIdAsync(x.ProductId2, false);
 
                     return new ProductModel.RelatedProductModel()
@@ -89,6 +90,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
+                // TODO: (mh) (core) No Batch-Delete please
                 numDeleted = await _db.RelatedProducts
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
@@ -113,6 +115,7 @@ namespace Smartstore.Admin.Controllers
 
             foreach (var product in products)
             {
+                // TODO: (mh) (core) (perf) Load all products to a multimap in one go
                 var existingRelations = await _db.RelatedProducts
                     .ApplyProductId1Filter(productId)
                     .ToListAsync();
