@@ -52,7 +52,7 @@ namespace Smartstore.Core.Rules
                 else if (entity.RuleSets.Any(x => x.Id == ruleSetId))
                 {
                     entity.RuleSets.Remove(allRuleSets[ruleSetId]);
-                    updated = false;
+                    updated = true;
                 }
             }
 

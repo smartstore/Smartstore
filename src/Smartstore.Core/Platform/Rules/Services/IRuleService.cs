@@ -10,10 +10,10 @@ namespace Smartstore.Core.Rules
     {
         /// <summary>
         /// Applies given <paramref name="selectedRuleSetIds"/> to <paramref name="entity"/>.
-        /// The caller is responsible for db commit.
+        /// The caller is responsible for database commit.
         /// </summary>
         /// <param name="entity">The entity to apply rulesets to.</param>
-        /// <param name="selectedRuleSetIds">Rulesets to apply.</param>
+        /// <param name="selectedRuleSetIds">Identifiers of rulesets to apply.</param>
         /// <returns><c>true</c> if a database commit is required. <c>false</c> if nothing changed.</returns>
         Task<bool> ApplyRuleSetMappingsAsync<T>(T entity, int[] selectedRuleSetIds) where T : BaseEntity, IRulesContainer;
 

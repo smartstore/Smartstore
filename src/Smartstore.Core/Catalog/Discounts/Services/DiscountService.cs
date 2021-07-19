@@ -12,6 +12,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
+using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
@@ -224,6 +225,44 @@ namespace Smartstore.Core.Catalog.Discounts
                 _discountValidityCache[cacheKey] = value;
                 return value;
             }
+        }
+
+        public virtual async Task<bool> ApplyDiscountsAsync<T>(T entity, int[] selectedDiscountIds, DiscountType type)
+            where T : BaseEntity, IDiscountable
+        {
+            Guard.NotNull(entity, nameof(entity));
+
+            selectedDiscountIds ??= Array.Empty<int>();
+
+            await _db.LoadCollectionAsync(entity, x => x.AppliedDiscounts);
+
+            if (!selectedDiscountIds.Any() && !entity.AppliedDiscounts.Any())
+            {
+                // Nothing to do.
+                return false;
+            }
+
+            var updated = false;
+            var discounts = (await GetAllDiscountsAsync(type, null, true)).ToDictionary(x => x.Id);
+
+            foreach (var discountId in discounts.Keys)
+            {
+                if (selectedDiscountIds.Contains(discountId))
+                {
+                    if (!entity.AppliedDiscounts.Any(x => x.Id == discountId))
+                    {
+                        entity.AppliedDiscounts.Add(discounts[discountId]);
+                        updated = true;
+                    }
+                }
+                else if (entity.AppliedDiscounts.Any(x => x.Id == discountId))
+                {
+                    entity.AppliedDiscounts.Remove(discounts[discountId]);
+                    updated = true;
+                }
+            }
+
+            return updated;
         }
 
         protected virtual async Task<bool> CheckDiscountLimitationsAsync(Discount discount, Customer customer)

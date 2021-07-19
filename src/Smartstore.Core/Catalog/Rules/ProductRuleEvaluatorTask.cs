@@ -62,6 +62,7 @@ namespace Smartstore.Core.Catalog.Rules
                 // Insert new product category mappings.
                 var categoryQuery = _db.Categories
                     .Include(x => x.RuleSets)
+                    .ThenInclude(x => x.Rules)
                     .AsNoTracking();
 
                 if (categoryIds != null)
@@ -87,7 +88,7 @@ namespace Smartstore.Core.Catalog.Rules
                         if (cancelToken.IsCancellationRequested)
                             return;
 
-                        var expressionGroup = await _ruleService.CreateExpressionGroupAsync(ruleSet, (IRuleVisitor)_productRuleProvider);
+                        var expressionGroup = await _ruleService.CreateExpressionGroupAsync(ruleSet, _productRuleProvider);
                         if (expressionGroup is SearchFilterExpression expression)
                         {
                             pageIndex = -1;

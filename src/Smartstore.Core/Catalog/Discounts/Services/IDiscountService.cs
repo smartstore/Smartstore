@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
+using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
@@ -28,5 +29,15 @@ namespace Smartstore.Core.Catalog.Discounts
         /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
         /// <returns><c>true</c>discount requirements are met, otherwise <c>false</c>.</returns>
         Task<bool> IsDiscountValidAsync(Discount discount, Customer customer, string couponCodeToValidate, Store store = null);
+
+        /// <summary>
+        /// Applies given <paramref name="selectedDiscountIds"/> to <paramref name="entity"/>.
+        /// The caller is responsible for database commit.
+        /// </summary>
+        /// <param name="entity">The entity to apply discounts to.</param>
+        /// <param name="selectedDiscountIds">Identifiers of discounts to apply.</param>
+        /// <param name="type">The discount type.</param>
+        /// <returns><c>true</c> if a database commit is required. <c>false</c> if nothing changed.</returns>
+        Task<bool> ApplyDiscountsAsync<T>(T entity, int[] selectedDiscountIds, DiscountType type) where T : BaseEntity, IDiscountable;
     }
 }

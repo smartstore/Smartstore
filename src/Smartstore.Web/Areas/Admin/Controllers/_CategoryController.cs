@@ -14,6 +14,7 @@ using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -21,6 +22,7 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Scheduling;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
@@ -38,6 +40,8 @@ namespace Smartstore.Admin.Controllers
         private readonly IRuleService _ruleService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IAclService _aclService;
+        private readonly Lazy<ITaskStore> _taskStore;
+        private readonly Lazy<ITaskScheduler> _taskScheduler;
         private readonly CatalogSettings _catalogSettings;
 
         public CategoryController(
@@ -50,6 +54,8 @@ namespace Smartstore.Admin.Controllers
             IRuleService ruleService,
             IStoreMappingService storeMappingService,
             IAclService aclService,
+            Lazy<ITaskStore> taskStore,
+            Lazy<ITaskScheduler> taskScheduler,
             CatalogSettings catalogSettings)
         {
             _db = db;
@@ -61,6 +67,8 @@ namespace Smartstore.Admin.Controllers
             _ruleService = ruleService;
             _storeMappingService = storeMappingService;
             _aclService = aclService;
+            _taskStore = taskStore;
+            _taskScheduler = taskScheduler;
             _catalogSettings = catalogSettings;
         }
 
@@ -221,15 +229,7 @@ namespace Smartstore.Admin.Controllers
 
                 await ApplyLocales(model, category);
 
-                var discounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToCategories, null, true);
-                foreach (var discount in discounts)
-                {
-                    if (model?.SelectedDiscountIds.Contains(discount.Id) ?? false)
-                    {
-                        category.AppliedDiscounts.Add(discount);
-                    }
-                }
-
+                await _discountService.ApplyDiscountsAsync(category, model?.SelectedDiscountIds, DiscountType.AssignedToCategories);
                 await _ruleService.ApplyRuleSetMappingsAsync(category, model.SelectedRuleSetIds);
                 await _storeMappingService.ApplyStoreMappingsAsync(category, model.SelectedStoreIds);
                 await _aclService.ApplyAclMappingsAsync(category, model.SelectedCustomerRoleIds);
@@ -285,7 +285,123 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [Permission(Permissions.Catalog.Category.Update)]
+        public async Task<IActionResult> Edit(CategoryModel model, bool continueEditing, IFormCollection form)
+        {
+            var category = await _db.Categories
+                .Include(x => x.AppliedDiscounts)
+                .Include(x => x.RuleSets)
+                .FindByIdAsync(model.Id);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                var mapper = MapperFactory.GetMapper<CategoryModel, Category>();
+                await mapper.MapAsync(model, category);
+
+                var validateSlugResult = await category.ValidateSlugAsync(category.Name, true, 0);
+                await _urlService.ApplySlugAsync(validateSlugResult);
+                model.SeName = validateSlugResult.Slug;
+
+                await ApplyLocales(model, category);
+                await _discountService.ApplyDiscountsAsync(category, model?.SelectedDiscountIds, DiscountType.AssignedToCategories);
+                await _ruleService.ApplyRuleSetMappingsAsync(category, model.SelectedRuleSetIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(category, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(category, model.SelectedCustomerRoleIds);
+
+                await _db.SaveChangesAsync();
+
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, category, form));
+
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCategory, T("ActivityLog.EditCategory"), category.Name);
+                NotifySuccess(T("Admin.Catalog.Categories.Updated"));
+
+                return continueEditing 
+                    ? RedirectToAction("Edit", category.Id) 
+                    : RedirectToAction("Index");
+            }
+
+            await PrepareViewBag(model, null);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Category.Delete)]
+        public async Task<IActionResult> Delete(int id, string deleteType)
+        {
+            var category = await _db.Categories.FindByIdAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            await _categoryService.DeleteCategoryAsync(category, deleteType.EqualsNoCase("deletechilds"));
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCategory, T("ActivityLog.DeleteCategory"), category.Name);
+            NotifySuccess(T("Admin.Catalog.Categories.Deleted"));
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ActionName("Edit"), FormValueRequired("inherit-acl-into-children")]
+        [Permission(Permissions.Catalog.Category.Update)]
+        public async Task<IActionResult> InheritAclIntoChildren(CategoryModel model)
+        {
+            await _categoryService.InheritAclIntoChildrenAsync(model.Id, false, true, false);
+
+            return RedirectToAction("Edit", "Category", new { id = model.Id });
+        }
+
+        [HttpPost]
+        [ActionName("Edit"), FormValueRequired("inherit-stores-into-children")]
+        [Permission(Permissions.Catalog.Category.Update)]
+        public async Task<IActionResult> InheritStoresIntoChildren(CategoryModel model)
+        {
+            await _categoryService.InheritStoresIntoChildrenAsync(model.Id, false, true, false);
+
+            return RedirectToAction("Edit", "Category", new { id = model.Id });
+        }
+
+        #region Products
+
         //...
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Category.Update)]
+        public async Task<IActionResult> ApplyRules(int id)
+        {
+            var category = await _db.Categories.FindByIdAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            var task = await _taskStore.Value.GetTaskByTypeAsync<ProductRuleEvaluatorTask>();
+            if (task != null)
+            {
+                _ = _taskScheduler.Value.RunSingleTaskAsync(task.Id, new Dictionary<string, string>
+                {
+                    { "CategoryIds", category.Id.ToString() }
+                });
+
+                NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress"));
+            }
+            else
+            {
+                NotifyError(T("Admin.System.ScheduleTasks.TaskNotFound", nameof(ProductRuleEvaluatorTask)));
+            }
+
+            return RedirectToAction("Edit", new { id = category.Id });
+        }
+
+        #endregion
 
         private async Task PrepareViewBag(CategoryModel model, Category category)
         {

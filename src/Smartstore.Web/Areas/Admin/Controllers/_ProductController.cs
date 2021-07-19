@@ -2058,20 +2058,7 @@ namespace Smartstore.Admin.Controllers
             p.BasePriceMeasureUnit = m.BasePriceMeasureUnit;
 
             // Discounts.
-            var allDiscounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToSkus, null, true);
-            foreach (var discount in allDiscounts)
-            {
-                if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
-                {
-                    if (!product.AppliedDiscounts.Any(d => d.Id == discount.Id))
-                        product.AppliedDiscounts.Add(discount);
-                }
-                else
-                {
-                    if (product.AppliedDiscounts.Any(d => d.Id == discount.Id))
-                        product.AppliedDiscounts.Remove(discount);
-                }
-            }
+            await _discountService.ApplyDiscountsAsync(product, model.SelectedDiscountIds, DiscountType.AssignedToSkus);
         }
 
         protected void UpdateProductAttributes(Product product, ProductModel model)
