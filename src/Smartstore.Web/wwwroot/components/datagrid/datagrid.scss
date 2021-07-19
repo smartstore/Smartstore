@@ -248,6 +248,10 @@ input.form-control-plaintext {
     font-size: 10px;
 }
 
+.dg-commands-toggle {
+    display: flex;
+}
+
 .dg-commands-dropdown .disabled,
 .dg-toolbar .btn.disabled {
     pointer-events: none;

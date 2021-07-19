@@ -155,14 +155,14 @@ Vue.component("sm-datagrid", {
                                     </td>
                                     <td v-if="canEditRow || hasRowCommands" class="dg-td dg-col-pinned omega">
                                         <div class="dg-cell dg-commands p-0">
-                                            <div v-if="hasRowCommands && (!editing.active || row != editing.row)" class="d-flex w-100 h-100 align-items-center justify-content-center dropdown">
-                                                <a href="#" class="dg-commands-toggle dropdown-toggle no-chevron btn btn-secondary btn-flat btn-icon btn-sm" data-toggle="dropdown" data-boundary="window">
+                                            <div v-show="hasRowCommands && (!editing.active || row != editing.row)" class="dg-commands-toggle w-100 h-100 align-items-center justify-content-center dropdown">
+                                                <a href="#" class="dg-commands-toggle-button dropdown-toggle no-chevron btn btn-secondary btn-flat btn-icon btn-sm" data-toggle="dropdown" data-boundary="window">
                                                     <i class="fa fa-ellipsis-h"></i>
                                                 </a>
                                                 <slot name="rowcommands" v-bind="{ row, activateEdit, deleteRows }"></slot> 
                                             </div>
 
-                                            <div v-if="editing.active && row == editing.row" class="dg-row-edit-commands btn-group-vertical">
+                                            <div v-show="editing.active && row == editing.row" class="dg-row-edit-commands btn-group-vertical">
                                                 <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-sm btn-flat rounded-0" title="Änderungen speichern">
                                                     <i class="fa fa-check"></i>
                                                 </a>
@@ -1316,11 +1316,13 @@ Vue.component("sm-datagrid", {
                 data: data,
                 global: true,
                 success(result) {
-                    // TODO: (core) More stuff?
-                    if (result.success) {
+                    if (result.Success || result.success) {
                         self.$emit("saved-changes", editing.row);
                         self.read(true);
                         self.cancelEdit();
+                    }
+                    else {
+                        self.isBusy = false;
                     }
                 },
                 error() {
