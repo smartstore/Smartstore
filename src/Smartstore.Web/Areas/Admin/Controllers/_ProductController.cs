@@ -683,6 +683,16 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditCategory)]
         public async Task<IActionResult> ProductCategoryInsert(ProductModel.ProductCategoryModel model, int productId)
         {
+            var alreadyAssigned = await _db.ProductCategories
+                .AsNoTracking()
+                .AnyAsync(x => x.CategoryId == model.CategoryId && x.ProductId == productId);
+
+            if (alreadyAssigned)
+            {
+                NotifyError(T("Admin.Catalog.Products.Categories.NoDuplicatesAllowed"));
+                return Json(new { success = false });
+            }
+
             var productCategory = new ProductCategory
             {
                 ProductId = productId,
@@ -716,6 +726,16 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditCategory)]
         public async Task<IActionResult> ProductCategoryUpdate(ProductModel.ProductCategoryModel model)
         {
+            var alreadyAssigned = await _db.ProductCategories
+                .AsNoTracking()
+                .AnyAsync(x => x.CategoryId == model.CategoryId && x.ProductId == model.ProductId);
+
+            if (alreadyAssigned)
+            {
+                NotifyError(T("Admin.Catalog.Products.Categories.NoDuplicatesAllowed"));
+                return Json(new { success = false });
+            }
+
             var productCategory = await _db.ProductCategories.FindByIdAsync(model.Id);
             var categoryChanged = model.CategoryId != productCategory.CategoryId;
 
@@ -806,6 +826,16 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditManufacturer)]
         public async Task<IActionResult> ProductManufacturerInsert(ProductModel.ProductManufacturerModel model, int productId)
         {
+            var alreadyAssigned = await _db.ProductManufacturers
+                .AsNoTracking()
+                .AnyAsync(x => x.ManufacturerId == model.ManufacturerId && x.ProductId == productId);
+
+            if (alreadyAssigned)
+            {
+                NotifyError(T("Admin.Catalog.Products.Manufacturers.NoDuplicatesAllowed"));
+                return Json(new { success = false });
+            }
+
             var productManufacturer = new ProductManufacturer
             {
                 ProductId = productId,
@@ -839,6 +869,16 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditManufacturer)]
         public async Task<IActionResult> ProductManufacturerUpdate(ProductModel.ProductManufacturerModel model)
         {
+            var alreadyAssigned = await _db.ProductManufacturers
+                .AsNoTracking()
+                .AnyAsync(x => x.ManufacturerId == model.ManufacturerId && x.ProductId == model.ProductId);
+
+            if (alreadyAssigned)
+            {
+                NotifyError(T("Admin.Catalog.Products.Manufacturers.NoDuplicatesAllowed"));
+                return Json(new { success = false });
+            }
+
             var productManufacturer = await _db.ProductManufacturers.FindByIdAsync(model.Id);
             var manufacturerChanged = model.ManufacturerId != productManufacturer.ManufacturerId;
             productManufacturer.ManufacturerId = model.ManufacturerId;
