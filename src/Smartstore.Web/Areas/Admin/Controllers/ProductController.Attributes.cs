@@ -742,7 +742,8 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .Where(x => x.ProductId == product.Id)
                 .ApplyGridCommand(command)
-                .ToListAsync();
+                .ToPagedList(command)
+                .LoadAsync();
 
             await _productAttributeMaterializer.PrefetchProductVariantAttributesAsync(allCombinations.Select(x => x.AttributeSelection));
 
@@ -759,7 +760,7 @@ namespace Smartstore.Admin.Controllers
             .AsyncToList();
 
             model.Rows = productVariantAttributesModel;
-            model.Total = allCombinations.Count;
+            model.Total = await allCombinations.GetTotalCountAsync();
 
             return Json(model);
         }
