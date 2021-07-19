@@ -1156,8 +1156,6 @@ Vue.component("sm-datagrid", {
 
             this.destroyRowValidator();
 
-            // TODO: (mc) (core) Evaluate if this can really be deleted. Problem: Cancel button doesn't remove inserted line anymore...
-            // RE: It does! Can't just remove this, it's important! Where? How to reproduce?
             if (this.editing.insertMode && this.rows.length && this.rows[0] === this.editing.row) {
                 // Remove inserted row
                 this.rows.splice(0, 1);
