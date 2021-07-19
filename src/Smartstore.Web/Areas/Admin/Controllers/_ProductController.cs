@@ -6,7 +6,6 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using AngleSharp.Common;
-using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -683,9 +682,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditCategory)]
         public async Task<IActionResult> ProductCategoryInsert(ProductModel.ProductCategoryModel model, int productId)
         {
-            var alreadyAssigned = await _db.ProductCategories
-                .AsNoTracking()
-                .AnyAsync(x => x.CategoryId == model.CategoryId && x.ProductId == productId);
+            var alreadyAssigned = await _db.ProductCategories.AnyAsync(x => x.CategoryId == model.CategoryId && x.ProductId == productId);
 
             if (alreadyAssigned)
             {
@@ -726,9 +723,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditCategory)]
         public async Task<IActionResult> ProductCategoryUpdate(ProductModel.ProductCategoryModel model)
         {
-            var alreadyAssigned = await _db.ProductCategories
-                .AsNoTracking()
-                .AnyAsync(x => x.CategoryId == model.CategoryId && x.ProductId == model.ProductId);
+            var alreadyAssigned = await _db.ProductCategories.AnyAsync(x => x.CategoryId == model.CategoryId && x.ProductId == model.ProductId);
 
             if (alreadyAssigned)
             {
@@ -826,9 +821,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditManufacturer)]
         public async Task<IActionResult> ProductManufacturerInsert(ProductModel.ProductManufacturerModel model, int productId)
         {
-            var alreadyAssigned = await _db.ProductManufacturers
-                .AsNoTracking()
-                .AnyAsync(x => x.ManufacturerId == model.ManufacturerId && x.ProductId == productId);
+            var alreadyAssigned = await _db.ProductManufacturers.AnyAsync(x => x.ManufacturerId == model.ManufacturerId && x.ProductId == productId);
 
             if (alreadyAssigned)
             {
@@ -869,9 +862,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditManufacturer)]
         public async Task<IActionResult> ProductManufacturerUpdate(ProductModel.ProductManufacturerModel model)
         {
-            var alreadyAssigned = await _db.ProductManufacturers
-                .AsNoTracking()
-                .AnyAsync(x => x.ManufacturerId == model.ManufacturerId && x.ProductId == model.ProductId);
+            var alreadyAssigned = await _db.ProductManufacturers.AnyAsync(x => x.ManufacturerId == model.ManufacturerId && x.ProductId == model.ProductId);
 
             if (alreadyAssigned)
             {
