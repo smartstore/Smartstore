@@ -133,13 +133,11 @@ namespace Smartstore.Admin.Controllers
             })
             .AsyncToList();
 
-            var gridModel = new GridModel<CustomerRoleModel>
+            return Json(new GridModel<CustomerRoleModel>
             {
                 Rows = rows,
                 Total = customerRoles.TotalCount
-            };
-
-            return Json(gridModel);
+            });
         }
 
         [Permission(Permissions.Customer.Role.Create)]

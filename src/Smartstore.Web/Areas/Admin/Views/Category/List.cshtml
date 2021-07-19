@@ -1,0 +1,32 @@
+﻿@model CategoryListModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.Categories.Manage").Value;
+
+	Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-sitemap"></i>
+        <span>@ViewBag.Title</span>
+
+		<div class="btn-group ml-2 align-top">
+			<a class="btn btn-outline-secondary btn-sm tooltip-toggle active" style="cursor:default" href="javascript:void(0)">
+				<i class="fa fa-bars"></i>
+			</a>
+			<a asp-action="Tree" class="btn btn-outline-secondary btn-sm tooltip-toggle" title="@T("Admin.Catalog.Categories.SwitchToTreeView")">
+				<i class="fa fa-sitemap"></i>
+			</a>
+		</div>
+    </div>
+    <div class="options">
+		<zone name="admin_button_toolbar_before" />
+		<zone name="admin_button_toolbar_after" />
+    </div>
+</div>
+
+<partial name="_Grid.Categories" model="null" view-data="gridViewData" />

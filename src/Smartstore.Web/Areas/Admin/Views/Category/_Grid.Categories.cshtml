@@ -1,0 +1,54 @@
+﻿@model CategoryModel
+
+@{
+    var parentModel = ViewData["Parent"] as CategoryListModel;
+    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+}
+
+<datagrid id="categories-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("CategoryList")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false"></sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")…</span>
+            </a>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.Categories.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" halign="center" visible="false" />
+        <column for="Name" hideable="false">
+            <display-template>
+                <div class="dg-cell-value">
+                    <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+                    <div class="text-muted text-truncate">{{ item.row.Breadcrumb }}</div>
+                </div>
+            </display-template>
+        </column>
+        <column for="FullName" />
+        <column for="Alias" />
+        <column for="Published" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+		@if (!isSingleStoreMode)
+		{
+			<column for="LimitedToStores" halign="center" />
+		}
+        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
+        <column for="ShowOnHomePage" halign="center" visible="false" />
+    </columns>
+</datagrid>

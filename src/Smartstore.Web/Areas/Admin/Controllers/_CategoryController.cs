@@ -3,13 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dasync.Collections;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Logging;
+using Smartstore.Core.Rules;
+using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
+using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -18,32 +32,36 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IProductService _productService;
         private readonly ICategoryService _categoryService;
+        private readonly IUrlService _urlService;
+        private readonly ILocalizedEntityService _localizedEntityService;
+        private readonly IDiscountService _discountService;
+        private readonly IRuleService _ruleService;
+        private readonly IStoreMappingService _storeMappingService;
+        private readonly IAclService _aclService;
         private readonly CatalogSettings _catalogSettings;
 
         public CategoryController(
             SmartDbContext db,
             IProductService productService,
             ICategoryService categoryService,
+            IUrlService urlService,
+            ILocalizedEntityService localizedEntityService,
+            IDiscountService discountService,
+            IRuleService ruleService,
+            IStoreMappingService storeMappingService,
+            IAclService aclService,
             CatalogSettings catalogSettings)
         {
             _db = db;
             _productService = productService;
             _categoryService = categoryService;
+            _urlService = urlService;
+            _localizedEntityService = localizedEntityService;
+            _discountService = discountService;
+            _ruleService = ruleService;
+            _storeMappingService = storeMappingService;
+            _aclService = aclService;
             _catalogSettings = catalogSettings;
-        }
-
-        public IActionResult Index()
-        {
-            // TODO: (mh) (core) How to do this?
-            string customerChoice = null;
-            //var customerChoice = _genericAttributeService.Value.GetAttribute<string>("Customer", _workContext.CurrentCustomer.Id, "AdminCategoriesType");
-
-            if (customerChoice != null && customerChoice.Equals("Tree"))
-            {
-                return RedirectToAction("Tree");
-            }
-
-            return RedirectToAction("List");
         }
 
         /// <summary>
@@ -106,6 +124,261 @@ namespace Smartstore.Admin.Controllers
             }
 
             return new JsonResult(data);
+        }
+
+        public IActionResult Index()
+        {
+            if (Services.WorkContext.CurrentCustomer.GenericAttributes.TryGetEntity("AdminCategoriesType", 0, out var categoriesType) &&
+                categoriesType.Value.EqualsNoCase("Tree"))
+            {
+                return RedirectToAction("Tree");
+            }
+
+            return RedirectToAction("List");
+        }
+
+        [Permission(Permissions.Catalog.Category.Read)]
+        public async Task<IActionResult> List()
+        {
+            await UpdateAdminCategoriesType("List");
+
+            var model = new CategoryListModel();
+
+            ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Catalog.Category.Read)]
+        public async Task<IActionResult> Tree()
+        {
+            await UpdateAdminCategoriesType("Tree");
+
+            ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
+            ViewBag.CanEdit = Services.Permissions.Authorize(Permissions.Catalog.Category.Update);
+
+            return View();
+        }
+
+        [Permission(Permissions.Catalog.Category.Read)]
+        public async Task<IActionResult> CategoryList(GridCommand command, CategoryListModel model)
+        {
+            var mapper = MapperFactory.GetMapper<Category, CategoryModel>();
+            var query = _db.Categories.AsNoTracking();
+
+            if (model.SearchCategoryName.HasValue())
+            {
+                query = query.Where(x => x.Name.Contains(model.SearchCategoryName) || x.FullName.Contains(model.SearchCategoryName));
+            }
+            if (model.SearchAlias.HasValue())
+            {
+                query = query.Where(x => x.Alias.Contains(model.SearchAlias));
+            }
+
+            var categories = await query
+                .ApplyStandardFilter(true, null, model.SearchStoreId)
+                .ApplyGridCommand(command, false)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var rows = await categories.SelectAsync(x => mapper.MapAsync(x)).AsyncToList();
+
+            return Json(new GridModel<CategoryModel>
+            {
+                Rows = rows,
+                Total = categories.TotalCount
+            });
+        }
+
+        [Permission(Permissions.Catalog.Category.Create)]
+        public async Task<IActionResult> Create()
+        {
+            var model = new CategoryModel
+            {
+                Published = true
+            };
+
+            AddLocales(model.Locales);
+            await PrepareViewBag(model, null);
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [Permission(Permissions.Catalog.Category.Create)]
+        public async Task<IActionResult> Create(CategoryModel model, bool continueEditing, IFormCollection form)
+        {
+            if (ModelState.IsValid)
+            {
+                var mapper = MapperFactory.GetMapper<CategoryModel, Category>();
+                var category = await mapper.MapAsync(model);
+
+                await _db.SaveChangesAsync();
+
+                var validateSlugResult = await category.ValidateSlugAsync(category.Name, true, 0);
+                await _urlService.ApplySlugAsync(validateSlugResult);
+                model.SeName = validateSlugResult.Slug;
+
+                await ApplyLocales(model, category);
+
+                var discounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToCategories, null, true);
+                foreach (var discount in discounts)
+                {
+                    if (model?.SelectedDiscountIds.Contains(discount.Id) ?? false)
+                    {
+                        category.AppliedDiscounts.Add(discount);
+                    }
+                }
+
+                await _ruleService.ApplyRuleSetMappingsAsync(category, model.SelectedRuleSetIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(category, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(category, model.SelectedCustomerRoleIds);
+
+                await _db.SaveChangesAsync();
+
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, category, form));
+
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCategory, T("ActivityLog.AddNewCategory"), category.Name);
+                NotifySuccess(T("Admin.Catalog.Categories.Added"));
+
+                return continueEditing 
+                    ? RedirectToAction("Edit", new { id = category.Id }) 
+                    : RedirectToAction("Index");
+            }
+
+            await PrepareViewBag(model, null);
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Catalog.Category.Read)]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var category = await _db.Categories
+                .Include(x => x.AppliedDiscounts)
+                .Include(x => x.RuleSets)
+                .FindByIdAsync(id, false);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            var mapper = MapperFactory.GetMapper<Category, CategoryModel>();
+            var model = await mapper.MapAsync(category);
+
+            AddLocales(model.Locales, async (locale, languageId) =>
+            {
+                locale.Name = category.GetLocalized(x => x.Name, languageId, false, false);
+                locale.FullName = category.GetLocalized(x => x.FullName, languageId, false, false);
+                locale.Description = category.GetLocalized(x => x.Description, languageId, false, false);
+                locale.BottomDescription = category.GetLocalized(x => x.BottomDescription, languageId, false, false);
+                locale.BadgeText = category.GetLocalized(x => x.BadgeText, languageId, false, false);
+                locale.MetaKeywords = category.GetLocalized(x => x.MetaKeywords, languageId, false, false);
+                locale.MetaDescription = category.GetLocalized(x => x.MetaDescription, languageId, false, false);
+                locale.MetaTitle = category.GetLocalized(x => x.MetaTitle, languageId, false, false);
+                locale.SeName = await category.GetActiveSlugAsync(languageId, false, false);
+            });
+
+            await PrepareViewBag(model, category);
+
+            return View(model);
+        }
+
+        //...
+
+        private async Task PrepareViewBag(CategoryModel model, Category category)
+        {
+            if (category != null)
+            {
+                var parentCategoryBreadcrumb = string.Empty;
+                var showRuleApplyButton = model.SelectedRuleSetIds.Any();
+
+                if (!showRuleApplyButton)
+                {
+                    // Ignore deleted categories.
+                    showRuleApplyButton = await _db.ProductCategories
+                        .AsNoTracking()
+                        .Include(x => x.Category)
+                        .Where(x => x.CategoryId == category.Id && x.IsSystemMapping && x.Category != null)
+                        .AnyAsync();
+                }
+
+                if (model.ParentCategoryId.HasValue)
+                {
+                    var parentCategory = await _categoryService.GetCategoryTreeAsync(model.ParentCategoryId.Value, true);
+                    if (parentCategory != null)
+                    {
+                        parentCategoryBreadcrumb = _categoryService.GetCategoryPath(parentCategory);
+                    }
+                    else
+                    {
+                        model.ParentCategoryId = 0;
+                    }
+                }
+
+                ViewBag.ShowRuleApplyButton = showRuleApplyButton;
+                ViewBag.ParentCategoryBreadcrumb = parentCategoryBreadcrumb;
+            }
+
+            var categoryTemplates = await _db.CategoryTemplates
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            ViewBag.CategoryTemplates = categoryTemplates
+                .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
+                .ToList();
+
+            ViewBag.DefaultViewModes = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
+                new SelectListItem { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
+            };
+
+            ViewBag.BadgeStyles = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "0", Text = "Secondary", Selected = model.BadgeStyle == 0 },
+                new SelectListItem { Value = "1", Text = "Primary", Selected = model.BadgeStyle == 1 },
+                new SelectListItem { Value = "2", Text = "Success", Selected = model.BadgeStyle == 2 },
+                new SelectListItem { Value = "3", Text = "Info", Selected = model.BadgeStyle == 3 },
+                new SelectListItem { Value = "4", Text = "Warning", Selected = model.BadgeStyle == 4 },
+                new SelectListItem { Value = "5", Text = "Danger", Selected = model.BadgeStyle == 5 },
+                new SelectListItem { Value = "6", Text = "Light", Selected = model.BadgeStyle == 6 },
+                new SelectListItem { Value = "7", Text = "Dark", Selected = model.BadgeStyle == 7 }
+            };
+        }
+
+        private async Task ApplyLocales(CategoryModel model, Category category)
+        {
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.Name, localized.Name, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.FullName, localized.FullName, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.Description, localized.Description, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.BottomDescription, localized.BottomDescription, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.BadgeText, localized.BadgeText, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.MetaKeywords, localized.MetaKeywords, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
+
+                var validateSlugResult = await category.ValidateSlugAsync(localized.Name, false, localized.LanguageId);
+                await _urlService.ApplySlugAsync(validateSlugResult);
+            }
+        }
+
+        private Task UpdateAdminCategoriesType(string value)
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            customer.GenericAttributes.TryGetEntity("AdminCategoriesType", 0, out var categoriesType);
+
+            if (categoriesType == null || !categoriesType.Value.EqualsNoCase(value))
+            {
+                customer.GenericAttributes.Set("AdminCategoriesType", value);
+                _db.SaveChangesAsync();
+            }
+
+            return Task.CompletedTask;
         }
     }
 }
