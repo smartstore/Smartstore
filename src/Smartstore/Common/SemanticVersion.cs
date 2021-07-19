@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace Smartstore
 {
@@ -9,6 +10,7 @@ namespace Smartstore
     /// A semantic version implementation.
     /// Conforms with v2.0.0 of http://semver.org
     /// </summary>
+    [JsonConverter(typeof(SemanticVersionJsonConverter))]
     public class SemanticVersion : IComparable<SemanticVersion>, IComparable
     {
         private static readonly Regex ParseEx =
@@ -524,6 +526,34 @@ namespace Smartstore
         public static bool operator <=(SemanticVersion left, SemanticVersion right)
         {
             return Equals(left, right) || Compare(left, right) < 0;
+        }
+    }
+
+    internal sealed class SemanticVersionJsonConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+            => typeof(SemanticVersion).IsAssignableFrom(objectType);
+
+        public override bool CanRead
+            => true;
+
+        public override bool CanWrite
+            => false;
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            reader.Read();
+            if (reader.TokenType == JsonToken.String)
+            {
+                return (SemanticVersion)reader.Value.ToString();
+            }
+            
+            return null;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            serializer.Serialize(writer, value.ToString());
         }
     }
 }

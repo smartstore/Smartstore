@@ -4,26 +4,15 @@ using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity
 {
-    public class ModuleDescriptor : IExtensionDescriptor
+    public class ModuleDescriptor : IExtensionDescriptor, IExtensionLocation
     {
-        private string _resourceRootKey;
+        #region IExtensionDescriptor
 
         string IExtensionDescriptor.Name 
             => SystemName;
 
         ExtensionType IExtensionDescriptor.ExtensionType 
             => ExtensionType.Module;
-
-        /// <summary>
-        /// Gets or sets the system name
-        /// </summary>
-        public string SystemName { get; init; }
-
-        /// <inheritdoc/>
-        public string Location { get; init; }
-
-        /// <inheritdoc/>
-        public string PhysicalPath { get; init; }
 
         /// <inheritdoc/>
         public string FriendlyName { get; init; }
@@ -48,6 +37,28 @@ namespace Smartstore.Engine.Modularity
 
         /// <inheritdoc/>
         public SemanticVersion MinAppVersion { get; init; }
+
+        #endregion
+
+        #region IExtensionLocation
+
+        /// <inheritdoc/>
+        public string Path { get; init; }
+
+        /// <inheritdoc/>
+        public string PhysicalPath { get; init; }
+
+        /// <inheritdoc/>
+        public IFileProvider WebFileProvider { get; protected internal set; }
+
+        #endregion
+
+        private string _resourceRootKey;
+
+        /// <summary>
+        /// Gets or sets the system name
+        /// </summary>
+        public string SystemName { get; init; }
 
         /// <summary>
         /// Module installer runtime type.
@@ -80,20 +91,7 @@ namespace Smartstore.Engine.Modularity
         /// <summary>
         /// Gets the file provider that references the module's root directory.
         /// </summary>
-        public IFileSystem FileProvider
-        {
-            get;
-            protected internal set;
-        }
-
-        /// <summary>
-        /// Gets the file provider that references the module's wwwroot directory.
-        /// </summary>
-        public IFileProvider WebFileProvider
-        {
-            get;
-            protected internal set;
-        }
+        public IFileSystem FileProvider { get; protected internal set; }
 
         /// <summary>
         /// Gets or sets the root key of string resources.

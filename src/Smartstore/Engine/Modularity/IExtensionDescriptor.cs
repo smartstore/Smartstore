@@ -11,7 +11,7 @@ namespace Smartstore.Engine.Modularity
     public interface IExtensionDescriptor
     {
         /// <summary>
-        /// (System) name of extension. Also reflects the directory name under <see cref="Location"/>.
+        /// (System) name of extension. Also reflects the directory name under <see cref="Path"/>.
         /// </summary>
         string Name { get; }
 
@@ -19,16 +19,6 @@ namespace Smartstore.Engine.Modularity
         /// Type of extension (module or theme)
         /// </summary>
         ExtensionType ExtensionType { get; }
-
-        /// <summary>
-        /// Base path, "/Themes" or "/Modules"
-        /// </summary>
-        string Location { get; }
-
-        /// <summary>
-        /// The full physical path of the extension directory.
-        /// </summary>
-        string PhysicalPath { get; }
 
         /// <summary>
         /// Optional friendly name of extension
