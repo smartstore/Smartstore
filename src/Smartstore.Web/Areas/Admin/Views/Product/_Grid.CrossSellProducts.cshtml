@@ -53,13 +53,10 @@
         <column for="Product2Published" halign="center" width="1fr" readonly />
     </columns>
     <row-commands>
-        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
-        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
 
-@*INFO: (mh) (core) Must be hidden element as it can't be placed directly in the toolbar because of included javascript. Will be called by javascript. *@
 <entity-picker icon-css-class="fa fa-plus"
                caption='@T("Admin.Common.Search")'
                dialog-title='@T("Admin.Catalog.CrossSells.AddNew")'

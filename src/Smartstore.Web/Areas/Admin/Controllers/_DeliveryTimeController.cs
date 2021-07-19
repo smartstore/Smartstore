@@ -41,6 +41,7 @@ namespace Smartstore.Admin.Controllers
         {
             var deliveryTimes = await _db.DeliveryTimes
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
             var selectedArr = selectedIds.ToIntArray();

@@ -16,12 +16,12 @@
                 <tr>
                     @if (line.SplitToPair(out name, out value, separatorValues))
                     {
-                        <td class="column-name">@name:</td>
-                        <td class="column-value">@value</td>
+                        <td class="column-name">@Html.Raw(name):</td>
+                        <td class="column-value">@Html.Raw(value)</td>
                     }
                     else
                     {
-                        <td colspan="2">@line</td>
+                        <td colspan="2">@Html.Raw(line)</td>
                     }
                 </tr>
             }

@@ -516,17 +516,13 @@ namespace Smartstore.Admin.Controllers
                 var nameChanged = await MapModelToProductAsync(model, product, form);
                 await UpdateDataOfExistingProductAsync(product, model, true, nameChanged);
 
-                // TODO: (mh) (core) Remove comment after review.
-                // INFO: Obsolete as this will be taken care of in ProductHook.
-                //_productService.UpdateHasDiscountsApplied(product);
-
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditProduct, T("ActivityLog.EditProduct"), product.Name);
 
                 NotifySuccess(T("Admin.Catalog.Products.Updated"));
                 return continueEditing ? RedirectToAction("Edit", new { id = product.Id }) : RedirectToAction("List");
             }
 
-            // If we got this far, something failed, redisplay form.
+            // If we got this far something failed. Redisplay form.
             await PrepareProductModelAsync(model, product, false, true);
 
             return View(model);
@@ -611,7 +607,6 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("List");
         }
 
-
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Create)]
         public async Task<IActionResult> CopyProduct(ProductModel model)
@@ -620,7 +615,7 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 Product newProduct = null;
-                // Lets just load this untracked as nearly all navigation properties are needed to copy successfully.
+                // Lets just load this untracked as nearly all navigation properties are needed in order to copy successfully.
                 var product = await _db.Products.FindByIdAsync(copyModel.Id);
                 
                 for (var i = 1; i <= copyModel.NumberOfCopies; ++i)
@@ -1136,7 +1131,7 @@ namespace Smartstore.Admin.Controllers
             var tierPrice = new TierPrice
             {
                 ProductId = productId,
-                StoreId = model.StoreId,
+                StoreId = model.StoreId ?? 0,
                 CustomerRoleId = model.CustomerRoleId,
                 Quantity = model.Quantity,
                 Price = model.Price1 ?? 0,
@@ -1162,7 +1157,7 @@ namespace Smartstore.Admin.Controllers
         {
             var tierPrice = await _db.TierPrices.FindByIdAsync(model.Id);
 
-            tierPrice.StoreId = model.StoreId;
+            tierPrice.StoreId = model.StoreId ?? 0;
             tierPrice.CustomerRoleId = model.CustomerRoleId;
             tierPrice.Quantity = model.Quantity;
             tierPrice.Price = model.Price1 ?? 0;
@@ -1397,7 +1392,7 @@ namespace Smartstore.Admin.Controllers
                 var productDownloads = await _db.Downloads
                     .AsNoTracking()
                     .ApplyEntityFilter(product)
-                    .ApplyVersionFilter(string.Empty) // INFO: (mh) (core) You need to "look around" more carefully.
+                    .ApplyVersionFilter(string.Empty)
                     .ToListAsync();
                 
                 model.DownloadVersions = productDownloads

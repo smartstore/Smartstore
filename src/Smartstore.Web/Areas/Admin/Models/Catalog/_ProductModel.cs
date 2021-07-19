@@ -477,12 +477,12 @@ namespace Smartstore.Admin.Models.Catalog
 
             [LocalizedDisplay("*CustomerRole")]
             [UIHint("TierPriceCustomer")]
-            public int CustomerRoleId { get; set; }
+            public int? CustomerRoleId { get; set; }
             public string CustomerRole { get; set; }
 
             [LocalizedDisplay("*Store")]
             [UIHint("TierPriceStore")]
-            public int StoreId { get; set; }
+            public int? StoreId { get; set; }
             public string Store { get; set; }
 
             [LocalizedDisplay("*Quantity")]
@@ -678,6 +678,14 @@ namespace Smartstore.Admin.Models.Catalog
         {
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Quantity).GreaterThanOrEqualTo(1).When(x => x.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage);
+        }
+    }
+
+    public partial class TierPriceModelValidator : SmartValidator<ProductModel.TierPriceModel>
+    {
+        public TierPriceModelValidator()
+        {
+            RuleFor(x => x.Quantity).GreaterThanOrEqualTo(1);
         }
     }
 

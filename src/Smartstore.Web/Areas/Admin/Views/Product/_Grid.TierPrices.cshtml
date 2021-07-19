@@ -4,9 +4,8 @@
     var parentModel = ViewData["Parent"] as ProductModel;
 }
 
-@*TODO: (mh) (core) Include script > How to onedit???*@
-
 <datagrid id="tierprices-grid"
+          max-height="800px"
           allow-resize="true"
           allow-row-selection="true"
           allow-edit="true">
@@ -56,4 +55,9 @@
             </display-template>
         </column>
     </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
 </datagrid>

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
-using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Orders
 {
