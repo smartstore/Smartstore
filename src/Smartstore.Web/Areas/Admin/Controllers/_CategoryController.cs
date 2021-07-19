@@ -96,7 +96,7 @@ namespace Smartstore.Admin.Controllers
                 selected = selectedArr.Contains(c.Id)
             });
 
-            // INFO: Call AsyncToList() to avoid upcoming conflicts with EF.
+            // Call AsyncToList() to avoid upcoming conflicts with EF.
             var mainList = await query.AsyncToList();
 
             var mruList = new TrimmedBuffer<string>(
@@ -491,7 +491,7 @@ namespace Smartstore.Admin.Controllers
             if (categoriesType == null || !categoriesType.Value.EqualsNoCase(value))
             {
                 customer.GenericAttributes.Set("AdminCategoriesType", value);
-                _db.SaveChangesAsync();
+                return _db.SaveChangesAsync();
             }
 
             return Task.CompletedTask;
