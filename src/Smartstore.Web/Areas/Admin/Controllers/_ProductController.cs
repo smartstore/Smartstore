@@ -257,11 +257,14 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                // TODO: (mh) (core) Never batch-delete categories in regular action method, because Hooks won't run.
-                numDeleted = await _db.ProductCategories
-                    .AsQueryable()
+                var toDelete = await _db.ProductCategories
                     .Where(x => ids.Contains(x.Id))
-                    .BatchDeleteAsync();
+                    .ToListAsync();
+
+                numDeleted = toDelete.Count;
+
+                _db.ProductCategories.RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -395,11 +398,14 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                // TODO: (mh) (core) Never batch-delete manufacturers in regular action method, because Hooks won't run.
-                numDeleted = await _db.ProductManufacturers
-                    .AsQueryable()
+                var toDelete = await _db.ProductManufacturers
                     .Where(x => ids.Contains(x.Id))
-                    .BatchDeleteAsync();
+                    .ToListAsync();
+
+                numDeleted = toDelete.Count;
+
+                _db.ProductManufacturers.RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -703,11 +709,14 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                // TODO: (mh) (core) Never batch-delete TierPrices in regular action method, because Hooks won't run.
-                numDeleted = await _db.TierPrices
-                    .AsQueryable()
+                var toDelete = await _db.TierPrices
                     .Where(x => ids.Contains(x.Id))
-                    .BatchDeleteAsync();
+                    .ToListAsync();
+
+                numDeleted = toDelete.Count;
+
+                _db.TierPrices.RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });

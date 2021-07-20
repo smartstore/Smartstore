@@ -33,7 +33,6 @@ namespace Smartstore.Admin.Controllers
 {
     public partial class ProductController : AdminControllerBase
     {
-
         #region Product list / create / edit / delete
 
         public IActionResult Index()
@@ -218,10 +217,15 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                numDeleted = await _db.Products
+                var toDelete = await _db.Products
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
-                    .BatchDeleteAsync();
+                    .ToListAsync();
+
+                numDeleted = toDelete.Count;
+
+                _db.Products.RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -485,7 +489,6 @@ namespace Smartstore.Admin.Controllers
                 if (newProduct != null)
                 {
                     NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
-
                     return RedirectToAction("Edit", new { id = newProduct.Id });
                 }
             }
@@ -901,11 +904,12 @@ namespace Smartstore.Admin.Controllers
         {
             var form = Request.Form;
 
-            // TODO: (mh) (core) No BatchDelete please, because Hooks won't run.
-            await _db.ProductBundleItemAttributeFilter
-                .AsQueryable()
+            var toDelete = await _db.ProductBundleItemAttributeFilter
                 .Where(x => x.BundleItemId == bundleItem.Id)
-                .BatchDeleteAsync();
+                .ToListAsync();
+
+            _db.ProductBundleItemAttributeFilter.RemoveRange(toDelete);
+            await _db.SaveChangesAsync();
 
             var allFilterKeys = form.Keys.Where(x => x.HasValue() && x.StartsWith(ProductBundleItemAttributeModel.AttributeControlPrefix));
 

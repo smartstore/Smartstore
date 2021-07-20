@@ -139,11 +139,15 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                // TODO: (mh) (core) Never batch-delete attributes in regular action method, because Hooks won't run.
-                numDeleted = await _db.ProductSpecificationAttributes
+                var toDelete = await _db.ProductSpecificationAttributes
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
-                    .BatchDeleteAsync();
+                    .ToListAsync();
+
+                numDeleted = toDelete.Count;
+
+                _db.ProductSpecificationAttributes.RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -278,11 +282,15 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                // TODO: (mh) (core) No BatchDelete please.
-                numDeleted = await _db.ProductVariantAttributes
+                var toDelete = await _db.ProductVariantAttributes
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
-                    .BatchDeleteAsync();
+                    .ToListAsync();
+
+                numDeleted = toDelete.Count;
+
+                _db.ProductVariantAttributes.RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -597,11 +605,15 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                // TODO: (mh) (core) No BatchDelete please.
-                numDeleted = await _db.ProductVariantAttributeValues
+                var toDelete = await _db.ProductVariantAttributeValues
                     .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
-                    .BatchDeleteAsync();
+                    .ToListAsync();
+
+                numDeleted = toDelete.Count;
+
+                _db.ProductVariantAttributeValues.RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -791,21 +803,13 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                // TODO: (mh) (core) No BatchDelete please.
-                numDeleted = await _db.ProductBundleItem
-                    .AsQueryable()
+                var toDelete = await _db.ProductVariantAttributeCombinations
                     .Where(x => ids.Contains(x.Id))
-                    .BatchDeleteAsync();
+                    .ToListAsync();
 
-                // TODO: (mh) (core) Hää?
-                foreach (var id in ids)
-                {
-                    var pvac = await _db.ProductVariantAttributeCombinations.FindByIdAsync(id);
-                    var productId = pvac.ProductId;
+                numDeleted = toDelete.Count;
 
-                    _db.ProductVariantAttributeCombinations.Remove(pvac);
-                }
-
+                _db.ProductVariantAttributeCombinations.RemoveRange(toDelete);
                 await _db.SaveChangesAsync();
             }
 
@@ -964,11 +968,13 @@ namespace Smartstore.Admin.Controllers
                 throw new ArgumentException(T("Products.NotFound", productId));
             }
 
-            // TODO: (mh) (core) No BatchDelete please.
-            await _db.ProductVariantAttributeCombinations
+            var toDelete = await _db.ProductVariantAttributeCombinations
                 .AsQueryable()
                 .Where(x => x.ProductId == productId)
-                .BatchDeleteAsync();
+                .ToListAsync();
+
+            _db.ProductVariantAttributeCombinations.RemoveRange(toDelete);
+            await _db.SaveChangesAsync();
 
             return Json(string.Empty);
         }
