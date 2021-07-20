@@ -14,7 +14,11 @@
                 update="@Url.Action("TierPriceUpdate")"
                 insert="@Url.Action("TierPriceInsert", new { productId = parentModel.Id })" />
     <paging position="Bottom" page-index="1" show-size-chooser="false" />
-    <sorting enabled="true" allow-multisort="true"></sorting>
+    <sorting enabled="true" allow-multisort="true">
+        <sort by="StoreId" />
+        <sort by="Quantity" />
+        <sort by="CustomerRoleId" />
+    </sorting>
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
@@ -57,7 +61,6 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
-        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>

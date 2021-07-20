@@ -13,7 +13,6 @@
                 update="@Url.Action("ProductCategoryUpdate")"
                 insert="@Url.Action("ProductCategoryInsert", new { productId = parentModel.Id })" />
     <paging position="Bottom" page-index="1" show-size-chooser="false" />
-    <sorting enabled="true"></sorting>
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
@@ -41,9 +40,9 @@
                 <a :href="item.row.EditUrl" class="text-truncate" v-html="item.row.Category"></a>
             </display-template>
         </column>
-        <column for="IsFeaturedProduct" halign="center" width="1fr" />
-        <column for="DisplayOrder" halign="center" width="1fr" />
-        <column for="IsSystemMapping" halign="center" width="1fr" readonly />
+        <column for="IsFeaturedProduct" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+        <column for="IsSystemMapping" halign="center" readonly />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>

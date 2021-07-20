@@ -10,7 +10,6 @@
           onrowclass="attributeCombinations_onRowClass">
     <datasource read="@Url.Action("ProductVariantAttributeCombinationList", new { productId = parentModel.Id })"
                 delete="@Url.Action("ProductVariantAttributeCombinationDelete")" />
-    @*TODO: (mc) (core) Position seems to have no effect. Neither Top nor Both works.*@
     <paging position="Both" page-index="1" />
     <sorting enabled="true"></sorting>
     <toolbar>
@@ -52,7 +51,7 @@
                 </div>
             </display-template>
         </column>
-        <column for="IsActive" halign="center" width="1fr" />
+        <column for="IsActive" halign="center" />
         <column for="ProductUrl" halign="center" width="1fr" sortable="false">
             <display-template>
                 <a :href="item.row.ProductUrl" target="_blank" class="text-truncate">
@@ -62,12 +61,11 @@
         </column>
         <column for="Sku" halign="center" width="1fr" />
         <column for="Price" halign="center" width="1fr" />
-        <column for="StockQuantity" halign="center" width="1fr" />
-        <column for="AllowOutOfStockOrders" halign="center" width="1fr" />
+        <column for="StockQuantity" halign="center" />
+        <column for="AllowOutOfStockOrders" halign="center" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-attribute-combination" :data-key="item.row.Id">@T("Common.Edit")</a>
-        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>

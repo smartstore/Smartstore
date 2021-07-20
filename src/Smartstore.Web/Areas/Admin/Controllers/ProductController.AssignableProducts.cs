@@ -304,7 +304,6 @@ namespace Smartstore.Admin.Controllers
             var searchQuery = new CatalogSearchQuery().HasParentGroupedProduct(productId);
             var query = _catalogSearchService.Value.PrepareQuery(searchQuery);
             var associatedProducts = await query
-                .OrderBy(p => p.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToListAsync();
 

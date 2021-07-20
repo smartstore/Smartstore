@@ -11,7 +11,9 @@
     <datasource read="@Url.Action("BundleItemList", new { productId = parentModel.Id })"
                 delete="@Url.Action("BundleItemDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="false" />
-    <sorting enabled="true"></sorting>
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
     <toolbar>
         <toolbar-group>
             <button id="pick-bundle-item-products" type="button" class="btn btn-primary btn-flat no-anims">
@@ -40,15 +42,14 @@
             </display-template>
         </column>
         <column for="Sku" width="1fr" entity-member="Product.Sku" />
-        <column for="Quantity" halign="center" width="1fr" />
-        <column for="Discount" halign="center" width="1fr" />
-        <column for="Visible" halign="center" width="1fr" />
-        <column for="Published" halign="center" width="1fr" />
-        <column for="DisplayOrder" halign="center" width="1fr" />
+        <column for="Quantity" halign="center" />
+        <column for="Discount" halign="center" />
+        <column for="Visible" halign="center" />
+        <column for="Published" halign="center" />
+        <column for="DisplayOrder" halign="center" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-bundle-part" :data-key="item.row.Id">@T("Common.Edit")</a>
-        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>

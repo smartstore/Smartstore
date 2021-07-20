@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text;
 using System.Threading.Tasks;
 //using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +16,6 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
-using Smartstore.Data.Batching;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.DataGrid;
 
@@ -38,7 +36,6 @@ namespace Smartstore.Admin.Controllers
                 .ApplyGridCommand(command)
                 .Include(x => x.SpecificationAttributeOption)
                 .ThenInclude(x => x.SpecificationAttribute)
-                //.OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
             var specAttributeIds = productSpecAttributes.Select(x => x.SpecificationAttributeOption.SpecificationAttributeId).ToArray();

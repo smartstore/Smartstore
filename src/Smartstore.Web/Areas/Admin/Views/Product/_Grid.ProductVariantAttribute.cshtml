@@ -12,7 +12,9 @@
                 delete="@Url.Action("ProductVariantAttributeDelete")"
                 update="@Url.Action("ProductVariantAttributeUpdate")"
                 insert="@Url.Action("ProductVariantAttributeInsert", new { productId = parentModel.Id })" />
-    <sorting enabled="true"></sorting>
+    <sorting enabled="true">
+        <sort by="DisplayOrder1" />
+    </sorting>
     <paging enabled="false" />
     <toolbar>
         <toolbar-group>
@@ -36,7 +38,7 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="ProductAttributeId" hideable="false" width="4fr">
+        <column for="ProductAttributeId" hideable="false" width="2fr">
             <display-template>
                 <div class="dg-cell-value">{{ item.row.ProductAttribute }}</div>
             </display-template>
@@ -46,11 +48,11 @@
                 <div class="dg-cell-value">{{ item.row.AttributeControlType }}</div>
             </display-template>
         </column>
-        <column for="TextPrompt" width="2fr" visible="false" />
-        <column for="CustomData" width="2fr" visible="false" />
+        <column for="TextPrompt" width="1fr" visible="false" />
+        <column for="CustomData" width="1fr" visible="false" />
         <column for="IsRequired" halign="center" />
-        <column for="DisplayOrder1" halign="center" />
-        <column for="EditUrl" width="2fr">
+        <column for="DisplayOrder1" entity-member="DisplayOrder" halign="center" />
+        <column for="EditUrl" width="1fr">
             <display-template>
                 <a :href="item.row.EditUrl">
                     {{ item.row.EditText }}
@@ -67,7 +69,6 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
-        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>

@@ -133,16 +133,12 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Read)]
-        public async Task<IActionResult> ProductCategoryList(GridCommand command, int productId)
+        public async Task<IActionResult> ProductCategoryList(int productId)
         {
             var model = new GridModel<ProductModel.ProductCategoryModel>();
             var productCategories = await _categoryService.Value.GetProductCategoriesByProductIdsAsync(new[] { productId }, true);
-
-            // TODO: (mh) (core) Applying a GridCommand to a resultset is shitty. The methos above needs refactoring. TBD with MC.
-
             var productCategoriesModel = await productCategories
                 .AsQueryable()
-                .ApplyGridCommand(command)
                 .SelectAsync(async x =>
                 {
                     var node = await _categoryService.Value.GetCategoryTreeAsync(x.CategoryId, true);
@@ -276,16 +272,12 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Read)]
-        public async Task<IActionResult> ProductManufacturerList(GridCommand command, int productId)
+        public async Task<IActionResult> ProductManufacturerList(int productId)
         {
             var model = new GridModel<ProductModel.ProductManufacturerModel>();
             var productManufacturers = await _manufacturerService.Value.GetProductManufacturersByProductIdsAsync(new[] { productId }, true);
-
-            // TODO: (mh) (core) Applying a GridCommand to a resultset is shitty. The methos above needs refactoring. TBD with MC.
-
             var productManufacturersModel = productManufacturers
                 .AsQueryable()
-                .ApplyGridCommand(command)
                 .ToList()
                 .Select(x =>
                 {
@@ -593,9 +585,6 @@ namespace Smartstore.Admin.Controllers
             // INFO: (mh) (core) You MUST learn to distinct between queries and lists. They are totally different things.
             var tierPricesModel = product.TierPrices
                 .AsQueryable()
-                .OrderBy(x => x.StoreId)
-                .ThenBy(x => x.Quantity)
-                .ThenBy(x => x.CustomerRoleId)
                 .ApplyGridCommand(command)
                 .ToList()
                 .Select(x =>

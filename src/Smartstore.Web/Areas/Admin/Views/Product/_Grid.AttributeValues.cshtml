@@ -8,7 +8,9 @@
     <datasource read="@Url.Action("ProductAttributeValueList", new { productVariantAttributeId = parentModel.ProductVariantAttributeId })"
                 delete="@Url.Action("ProductAttributeValueDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="false" />
-    <sorting enabled="true"></sorting>
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
     <toolbar>
         <toolbar-group>
             <button type="button" id="btnAddNewValue" name="btnAddNewValue" value="btnAddNewValue" class="btn btn-primary btn-flat no-anims mr-auto">
@@ -37,12 +39,11 @@
         </column>
         <column for="PriceAdjustmentString" width="1fr" entity-member="PriceAdjustment" />
         <column for="WeightAdjustmentString" width="1fr" entity-member="WeightAdjustment" />
-        <column for="IsPreSelected" halign="center" width="1fr" />
-        <column for="DisplayOrder" halign="center" width="1fr" />
+        <column for="IsPreSelected" halign="center" />
+        <column for="DisplayOrder" halign="center" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-attr-values" :data-key="item.row.Id">@T("Common.Edit")</a>
-        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>

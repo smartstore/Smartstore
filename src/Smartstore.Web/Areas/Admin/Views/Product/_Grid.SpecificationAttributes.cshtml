@@ -12,7 +12,10 @@
                 delete="@Url.Action("ProductSpecAttrDelete")"
                 update="@Url.Action("ProductSpecAttrUpdate")" />
     <paging position="Bottom" page-index="1" show-size-chooser="false" />
-    <sorting enabled="true"></sorting>
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+        <sort by="SpecificationAttributeName" />
+    </sorting>
     <toolbar>
         <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
             <i class="fa fa-check"></i>
@@ -29,25 +32,25 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="SpecificationAttributeName" hideable="false" readonly="true" width="4fr" entity-member="SpecificationAttributeOption.SpecificationAttribute.Name" />
-        <column for="SpecificationAttributeOptionName" halign="center" width="2fr" entity-member="SpecificationAttributeOption.Name">
+        <column for="SpecificationAttributeName" hideable="false" readonly="true" width="2fr" entity-member="SpecificationAttributeOption.SpecificationAttribute.Name" />
+        <column for="SpecificationAttributeOptionName" halign="center" width="1fr" entity-member="SpecificationAttributeOption.Name">
             <edit-template>
                 <select name="SpecificationAttributeOptionId"
                         id="SpecificationAttributeOptionId"
                         class="form-control d-block edit-control w-100"
                         data-editor="select"
-                        style="min-width: 200px"
+                        v-bind:data-select-selected-id="item.row.SpecificationAttributeOptionId"
+                        v-bind:data-select-init-text="item.row.SpecificationAttributeOptionName"
                         :data-select-url='item.row.SpecificationAttributeOptionsUrl'>
                 </select>
             </edit-template>
         </column>
-        <column for="AllowFiltering" halign="center" width="1fr" />
-        <column for="ShowOnProductPage" halign="center" width="1fr" />
-        <column for="DisplayOrder" halign="center" width="1fr" />
+        <column for="AllowFiltering" halign="center" />
+        <column for="ShowOnProductPage" halign="center" />
+        <column for="DisplayOrder" halign="center" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
-        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
