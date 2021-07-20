@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Rules;
-using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
-using Smartstore.Core.Stores;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Catalog
@@ -185,44 +180,11 @@ namespace Smartstore.Admin.Models.Catalog
         IMapper<Category, CategoryModel>,
         IMapper<CategoryModel, Category>
     {
-        private readonly ICommonServices _services;
-        private readonly IUrlHelper _urlHelper;
-        private readonly ICategoryService _categoryService;
-        private readonly IStoreMappingService _storeMappingService;
-        private readonly IAclService _aclService;
-
-        public CategoryMapper(
-            ICommonServices services, 
-            IUrlHelper urlHelper, 
-            ICategoryService categoryService,
-            IStoreMappingService storeMappingService,
-            IAclService aclService)
-        {
-            _services = services;
-            _urlHelper = urlHelper;
-            _categoryService = categoryService;
-            _storeMappingService = storeMappingService;
-            _aclService = aclService;
-        }
-
         public async Task MapAsync(Category from, CategoryModel to, dynamic parameters = null)
         {
-            await _services.DbContext.LoadCollectionAsync(from, x => x.AppliedDiscounts);
-            await _services.DbContext.LoadCollectionAsync(from, x => x.RuleSets);
-
             MiniMapper.Map(from, to);
             to.SeName = await from.GetActiveSlugAsync(0, true, false);
             to.PictureId = from.MediaFileId;
-            to.UpdatedOn = _services.DateTimeHelper.ConvertToUserTime(from.UpdatedOnUtc, DateTimeKind.Utc);
-            to.CreatedOn = _services.DateTimeHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc);
-
-            to.Breadcrumb = await _categoryService.GetCategoryPathAsync(from, _services.WorkContext.WorkingLanguage.Id, "<span class='badge badge-secondary'>{0}</span>");
-            to.EditUrl = _urlHelper.Action("Edit", "Category", new { id = from.Id, area = "Admin" });
-
-            to.SelectedDiscountIds = from.AppliedDiscounts.Select(x => x.Id).ToArray();
-            to.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(from);
-            to.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(from);
-            to.SelectedRuleSetIds = from.RuleSets.Select(x => x.Id).ToArray();
         }
 
         public Task MapAsync(CategoryModel from, Category to, dynamic parameters = null)

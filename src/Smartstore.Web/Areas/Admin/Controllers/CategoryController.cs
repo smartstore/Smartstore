@@ -170,6 +170,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Category.Read)]
         public async Task<IActionResult> CategoryList(GridCommand command, CategoryListModel model)
         {
+            var languageId = Services.WorkContext.WorkingLanguage.Id;
             var mapper = MapperFactory.GetMapper<Category, CategoryModel>();
             var query = _db.Categories.AsNoTracking();
 
@@ -188,7 +189,16 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await categories.SelectAsync(x => mapper.MapAsync(x)).AsyncToList();
+            var rows = await categories.SelectAsync(async x =>
+            {
+                var model = await mapper.MapAsync(x);
+
+                model.Breadcrumb = await _categoryService.GetCategoryPathAsync(x, languageId, "<span class='badge badge-secondary'>{0}</span>");
+                model.EditUrl = Url.Action("Edit", "Category", new { id = x.Id, area = "Admin" });
+
+                return model;
+            })
+            .AsyncToList();
 
             return Json(new GridModel<CategoryModel>
             {
@@ -206,7 +216,7 @@ namespace Smartstore.Admin.Controllers
             };
 
             AddLocales(model.Locales);
-            await PrepareViewBag(model, null);
+            await PrepareCategoryModel(model, null);
 
             return View(model);
         }
@@ -245,7 +255,7 @@ namespace Smartstore.Admin.Controllers
                     : RedirectToAction("Index");
             }
 
-            await PrepareViewBag(model, null);
+            await PrepareCategoryModel(model, null);
 
             return View(model);
         }
@@ -279,7 +289,7 @@ namespace Smartstore.Admin.Controllers
                 locale.SeName = await category.GetActiveSlugAsync(languageId, false, false);
             });
 
-            await PrepareViewBag(model, category);
+            await PrepareCategoryModel(model, category);
 
             return View(model);
         }
@@ -320,12 +330,12 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCategory, T("ActivityLog.EditCategory"), category.Name);
                 NotifySuccess(T("Admin.Catalog.Categories.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction("Edit", category.Id) 
+                return continueEditing
+                    ? RedirectToAction("Edit", category.Id)
                     : RedirectToAction("Index");
             }
 
-            await PrepareViewBag(model, null);
+            await PrepareCategoryModel(model, category);
 
             return View(model);
         }
@@ -498,10 +508,17 @@ namespace Smartstore.Admin.Controllers
 
         #endregion
 
-        private async Task PrepareViewBag(CategoryModel model, Category category)
+        private async Task PrepareCategoryModel(CategoryModel model, Category category)
         {
             if (category != null)
             {
+                model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(category.UpdatedOnUtc, DateTimeKind.Utc);
+                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(category.CreatedOnUtc, DateTimeKind.Utc);
+                model.SelectedDiscountIds = category.AppliedDiscounts.Select(x => x.Id).ToArray();
+                model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(category);
+                model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(category);
+                model.SelectedRuleSetIds = category.RuleSets.Select(x => x.Id).ToArray();
+
                 var parentCategoryBreadcrumb = string.Empty;
                 var showRuleApplyButton = model.SelectedRuleSetIds.Any();
 

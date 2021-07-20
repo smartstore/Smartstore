@@ -125,7 +125,7 @@ namespace Smartstore.Core.Catalog.Discounts
 
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
-                var query = _db.Discounts.AsNoTracking();
+                var query = _db.Discounts.AsQueryable();
 
                 if (!includeHidden)
                 {

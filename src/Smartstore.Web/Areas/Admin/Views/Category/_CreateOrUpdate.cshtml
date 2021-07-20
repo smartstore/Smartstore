@@ -43,7 +43,7 @@
                 <div class="adminData">
                     <select asp-for="ParentCategoryId" 
                         asp-items="parentCategoryItems" 
-                        asp-placeholder="parenCategoryPlaceholder"
+                        asp-placeholder="@parentCategoryPlaceholder"
                         data-select="True" 
                         data-select-lazy="True" 
                         data-select-init-text="@parentCategoryBreadcrumb"
@@ -476,6 +476,22 @@
 
 <script sm-target-zone="scripts" data-origin="category-edit">
     $(function() {
+        // Toggle page size.
+        $('#@Html.IdFor(model => model.AllowCustomersToSelectPageSize)').on('change', function() {
+            if ($(this).val() != 'false') {
+                $('#pnl-pagesize').hide();
+                $('#pnl-pagesize-options').show();
+            } else {
+                $('#pnl-pagesize').show();
+                $('#pnl-pagesize-options').hide();
+            }
+        }).trigger('change');
+
+        // Toggle top\bottom description.
+		$('.description-toggle-button').on('click', function() {
+			$('.description-container').toggleClass('d-none');
+        });
+
         // Reapply rules.
         $('#reapply-rules').on('click', function () {
             $(this).doPostData({
