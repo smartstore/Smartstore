@@ -94,9 +94,7 @@ namespace Smartstore.Core.Catalog.Attributes
                             var pvaValue = pva.ProductVariantAttributeValues.FirstOrDefault(x => x.Id == valueStr.ToInt());
                             if (pvaValue != null)
                             {
-                                pvaAttribute = "{0}: {1}".FormatInvariant(
-                                    pva.ProductAttribute.GetLocalized(x => x.Name, languageId),
-                                    pvaValue.GetLocalized(x => x.Name, languageId));
+                                pvaAttribute = $"{pva.ProductAttribute.GetLocalized(x => x.Name, languageId)}: {pvaValue.GetLocalized(x => x.Name, languageId)}";
 
                                 if (includePrices)
                                 {
@@ -129,10 +127,7 @@ namespace Smartstore.Core.Catalog.Attributes
                         else if (pva.AttributeControlType == AttributeControlType.MultilineTextbox)
                         {
                             string attributeName = pva.ProductAttribute.GetLocalized(x => x.Name, languageId);
-
-                            pvaAttribute = "{0}: {1}".FormatInvariant(
-                                htmlEncode ? attributeName.HtmlEncode() : attributeName,
-                                HtmlUtils.ConvertPlainTextToHtml(valueStr.HtmlEncode()));
+                            pvaAttribute = $"{(htmlEncode ? attributeName.HtmlEncode() : attributeName)}: {HtmlUtils.ConvertPlainTextToHtml(valueStr.HtmlEncode())}";
                         }
                         else if (pva.AttributeControlType == AttributeControlType.FileUpload)
                         {
@@ -155,7 +150,7 @@ namespace Smartstore.Core.Catalog.Attributes
                                     {
                                         // TODO: (core) add a method for getting URL (use routing because it handles all SEO friendly URLs).
                                         var downloadLink = _webHelper.GetStoreLocation() + "download/getfileupload/?downloadId=" + download.DownloadGuid;
-                                        attributeText = $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{fileName}</a>";
+                                        attributeText = $"<a href='{downloadLink}' class='fileuploadattribute'>{fileName}</a>";
                                     }
                                     else
                                     {
@@ -163,17 +158,14 @@ namespace Smartstore.Core.Catalog.Attributes
                                     }
 
                                     string attributeName = pva.ProductAttribute.GetLocalized(a => a.Name, languageId);
-
-                                    pvaAttribute = "{0}: {1}".FormatInvariant(
-                                        htmlEncode ? attributeName.HtmlEncode() : attributeName,
-                                        attributeText);
+                                    pvaAttribute = $"{(htmlEncode ? attributeName.HtmlEncode() : attributeName)}: {attributeText}";
                                 }
                             }
                         }
                         else
                         {
                             // TextBox, Datepicker
-                            pvaAttribute = "{0}: {1}".FormatInvariant(pva.ProductAttribute.GetLocalized(x => x.Name, languageId), valueStr);
+                            pvaAttribute = $"{pva.ProductAttribute.GetLocalized(x => x.Name, languageId)}: {valueStr}";
 
                             if (htmlEncode)
                             {
@@ -192,7 +184,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 if (gci != null)
                 {
                     // Sender.
-                    var giftCardFrom = product.GiftCardType == GiftCardType.Virtual
+                    var giftCardFrom = product.GiftCardType == GiftCardType.Virtual 
                         ? (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Virtual")).FormatInvariant(gci.SenderName, gci.SenderEmail)
                         : (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Physical")).FormatInvariant(gci.SenderName);
 

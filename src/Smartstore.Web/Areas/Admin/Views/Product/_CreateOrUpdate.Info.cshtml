@@ -273,8 +273,7 @@
             <smart-label asp-for="ProductTags" />
         </div>
         <div class="adminData">
-            @*TODO: (mh) (core) Do this right*@
-            @*@Html.ListBoxFor(model => model.ProductTags, Model.AvailableProductTags, new { multiple = "multiple", data_tags = "true" })*@
+            <select asp-for="ProductTags" asp-items="ViewBag.AvailableProductTags" multiple="multiple" data-tags="true"></select>
             <span asp-validation-for="ProductTags"></span>
         </div>
     </div>

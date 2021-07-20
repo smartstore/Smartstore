@@ -67,7 +67,6 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> StoreList(GridCommand command, StoreModel model)
         {
             var storeModels = await Services.StoreContext.GetAllStores()
-                // INFO: (mh) (core) Enabling grid sort without applying sort descriptors to query is a no-go!
                 .AsQueryable()
                 .ApplyGridCommand(command)
                 .SelectAsync(async x =>
@@ -146,7 +145,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Store.Update)]
         public async Task<IActionResult> Edit(StoreModel model, bool continueEditing)
         {
-            // INFO: (mh) (core) You should never update and save a cached / untracked entity. Always ensure that entity is fetched from db in edit/update scenarios.
             var store = await _db.Stores.FindByIdAsync(model.Id);
             if (store == null)
             {
@@ -155,8 +153,6 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                // INFO: (mh) (core) NEVER map an EXISTING entity in an update scenario in a way that a new entity instance is returned.
-                // Please check MapAsync usage and fix accordingly.
                 await MapperFactory.MapAsync(model, store);
 
                 // Ensure we have "/" at the end.
@@ -175,7 +171,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Store.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
-            // INFO: (mh) (core) See comment above
             var store = await _db.Stores.FindByIdAsync(id);
             if (store == null)
             {
@@ -191,7 +186,6 @@ namespace Smartstore.Admin.Controllers
                 await _db.Settings.Where(x => x.StoreId == id).BatchDeleteAsync();
 
                 // When we had two stores and now have only one store, we also should delete all "per store" settings.
-                // INFO: (mh) (core) Better fetch live from db, don't rely on cache so short after save.
                 var allStores = await _db.Stores.ToListAsync();
                 if (allStores.Count == 1)
                 {
