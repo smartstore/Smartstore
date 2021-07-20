@@ -199,9 +199,7 @@ namespace Smartstore.Admin.Controllers
 
                         if (x.ProductAttribute.ProductAttributeOptionsSets.Any())
                         {
-                            // TODO: (mh) (core) This is total shit. TBD with MC.
-                            var optionsSets = new StringBuilder($"<option>{T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions")}</option>");
-                            pvaModel.OptionSets.Add(new { Id = "", Name = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions").Value });
+                            pvaModel.OptionSets.Add(new { Id = string.Empty, Name = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions").Value });
                             x.ProductAttribute.ProductAttributeOptionsSets.Each(set => 
                             {
                                 pvaModel.OptionSets.Add(new { set.Id, set.Name });
@@ -301,7 +299,6 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> CopyAttributeOptions(int productVariantAttributeId, int optionsSetId, bool deleteExistingValues)
         {
             var pva = await _db.ProductVariantAttributes
-                // INFO: (mh) (core) BE CAREFUL with untracked entities if your code obviously accesses nav props (in _productAttributeService.CopyAttributeOptionsAsync)!!!!!
                 .Include(x => x.ProductVariantAttributeValues)
                 .FindByIdAsync(productVariantAttributeId, false);
 
@@ -314,9 +311,7 @@ namespace Smartstore.Admin.Controllers
                 try
                 {
                     var numberOfCopiedOptions = await _productAttributeService.Value.CopyAttributeOptionsAsync(pva, optionsSetId, deleteExistingValues);
-
-                    NotifySuccess(string.Concat(T("Admin.Common.TaskSuccessfullyProcessed"), " ",
-                        T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.NumberOfCopiedOptions", numberOfCopiedOptions)));
+                    NotifySuccess($"{T("Admin.Common.TaskSuccessfullyProcessed")} {T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.NumberOfCopiedOptions", numberOfCopiedOptions)}");
                 }
                 catch (Exception ex)
                 {
@@ -766,8 +761,6 @@ namespace Smartstore.Admin.Controllers
             var product = await _db.Products.FindByIdAsync(productId, false);
             var productUrlTitle = T("Common.OpenInShop");
             var productSeName = await product.GetActiveSlugAsync();
-
-            // TODO: (mh) (core) This needs to be a paged list. How are you gonna fetch TotalCount otherwise?
             var allCombinations = await _db.ProductVariantAttributeCombinations
                 .AsNoTracking()
                 .Where(x => x.ProductId == product.Id)
@@ -819,8 +812,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> AttributeCombinationCreatePopup(string btnId, string formId, int productId)
         {
-            // TODO: (mh) (core) Analyze and eager-load.
-            var product = await _db.Products.FindByIdAsync(productId);
+            var product = await _db.Products.FindByIdAsync(productId, false);
+
             if (product == null)
             {
                 return RedirectToAction("List", "Product");
@@ -844,7 +837,6 @@ namespace Smartstore.Admin.Controllers
             ProductVariantAttributeCombinationModel model,
             ProductVariantQuery query)
         {
-            // TODO: (mh) (core) Analyze and eager-load.
             var product = await _db.Products
                 .Include(x => x.ProductVariantAttributes)
                 .ThenInclude(x => x.ProductAttribute)
@@ -894,14 +886,12 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> AttributeCombinationEditPopup(int id, string btnId, string formId)
         {
-            // TODO: (mh) (core) Analyze and eager-load (?)
             var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(id, false);
             if (combination == null)
             {
                 return RedirectToAction("List", "Product");
             }
 
-            // TODO: (mh) (core) Analyze and eager-load (?)
             var product = await _db.Products.FindByIdAsync(combination.ProductId, false);
             if (product == null)
             {

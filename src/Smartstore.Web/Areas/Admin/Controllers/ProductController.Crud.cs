@@ -321,8 +321,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            // TODO: (mh) (core) Please CAREFULLY analyze which navigation properties are always accessed during model preparation and eager load them.
-            var product = await _db.Products.FindByIdAsync(id);
+            var product = await _db.Products
+                .Include(x => x.ProductTags)
+                .Include(x => x.AppliedDiscounts)
+                .FindByIdAsync(id);
+
             if (product == null)
             {
                 NotifyWarning(T("Products.NotFound", id));
@@ -357,8 +360,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Update)]
         public async Task<IActionResult> Edit(ProductModel model, bool continueEditing, IFormCollection form)
         {
-            // TODO: (mh) (core) Please CAREFULLY analyze which navigation properties are always accessed during model preparation and eager load them.
-            var product = await _db.Products.FindByIdAsync(model.Id);
+            var product = await _db.Products
+                .Include(x => x.AppliedDiscounts)
+                .Include(x => x.ProductTags)
+                .FindByIdAsync(model.Id);
+
             if (product == null)
             {
                 NotifyWarning(T("Products.NotFound", model.Id));
@@ -406,9 +412,11 @@ namespace Smartstore.Admin.Controllers
                     return Content("A unique tab name has to specified (route parameter: tabName)");
                 }
 
-                // TODO: (mh) (core) Please CAREFULLY analyze which navigation properties are always accessed during model preparation and eager load them.
-                // INFO: (mh) (core) Loading an untracked product but accessing nav properties in PrepareProductModelAsync will NOT work.
-                var product = await _db.Products.FindByIdAsync(id, false);
+                var product = await _db.Products
+                    .Include(x => x.AppliedDiscounts)
+                    .Include(x => x.ProductTags)
+                    .FindByIdAsync(id, false);
+
                 var model = await MapperFactory.MapAsync<Product, ProductModel>(product);
 
                 await PrepareProductModelAsync(model, product, false, false);
@@ -438,7 +446,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> GoToSku(ProductListModel model)
         {
-            // INFO: (mh) (core) This is a bad port!
             var sku = model.GoDirectlyToSku;
 
             if (sku.HasValue())
@@ -478,7 +485,14 @@ namespace Smartstore.Admin.Controllers
             {
                 Product newProduct = null;
                 // Lets just load this untracked as nearly all navigation properties are needed in order to copy successfully.
-                var product = await _db.Products.FindByIdAsync(copyModel.Id);
+                // We just eager load the most common properties.
+                var product = await _db.Products
+                    .Include(x => x.ProductCategories)
+                    .Include(x => x.ProductManufacturers)
+                    .Include(x => x.ProductSpecificationAttributes)
+                    .Include(x => x.ProductVariantAttributes)
+                    .Include(x => x.ProductVariantAttributeCombinations)
+                    .FindByIdAsync(copyModel.Id);
 
                 for (var i = 1; i <= copyModel.NumberOfCopies; ++i)
                 {
