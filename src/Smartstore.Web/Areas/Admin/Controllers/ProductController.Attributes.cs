@@ -617,6 +617,24 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
+        [NonAction]
+        private async Task<bool> IsBundleItemAsync(int productId)
+        {
+            if (productId == 0)
+            {
+                return false;
+            }
+
+            var query =
+                from pbi in _db.ProductBundleItem.AsNoTracking()
+                join bundle in _db.Products.AsNoTracking() on pbi.BundleProductId equals bundle.Id
+                where pbi.ProductId == productId && !bundle.Deleted
+                select pbi;
+
+            var result = await query.AnyAsync();
+            return result;
+        }
+
         #endregion
 
         #region Product variant attribute combinations
@@ -849,7 +867,6 @@ namespace Smartstore.Admin.Controllers
             if (warnings.Count == 0)
             {
                 var combination = await MapperFactory.MapAsync<ProductVariantAttributeCombinationModel, ProductVariantAttributeCombination>(model);
-                // TODO: (mh) (core) Lets try this again when the code above was implemented correctly.
                 combination.RawAttributes = selection.AsJson();
                 combination.SetAssignedMediaIds(model.AssignedPictureIds);
 
