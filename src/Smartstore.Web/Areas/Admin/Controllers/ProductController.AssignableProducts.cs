@@ -46,7 +46,7 @@ namespace Smartstore.Admin.Controllers
                         Id = x.Id,
                         ProductId2 = x.ProductId2,
                         Product2Name = product2.Name,
-                        ProductTypeName = product2.GetProductTypeLabel(_localizationService),
+                        ProductTypeName = product2.GetProductTypeLabel(Services.Localization),
                         ProductTypeLabelHint = product2.ProductTypeLabelHint,
                         DisplayOrder = x.DisplayOrder,
                         Product2Sku = product2.Sku,
@@ -194,7 +194,7 @@ namespace Smartstore.Admin.Controllers
                         Id = x.Id,
                         ProductId2 = x.ProductId2,
                         Product2Name = product2.Name,
-                        ProductTypeName = product2.GetProductTypeLabel(_localizationService),
+                        ProductTypeName = product2.GetProductTypeLabel(Services.Localization),
                         ProductTypeLabelHint = product2.ProductTypeLabelHint,
                         Product2Sku = product2.Sku,
                         Product2Published = product2.Published,
@@ -293,7 +293,7 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new GridModel<ProductModel.AssociatedProductModel>();
             var searchQuery = new CatalogSearchQuery().HasParentGroupedProduct(productId);
-            var query = _catalogSearchService.PrepareQuery(searchQuery);
+            var query = _catalogSearchService.Value.PrepareQuery(searchQuery);
             var associatedProducts = await query
                 .OrderBy(p => p.DisplayOrder)
                 .ApplyGridCommand(command)
@@ -305,7 +305,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    ProductTypeName = x.GetProductTypeLabel(_localizationService),
+                    ProductTypeName = x.GetProductTypeLabel(Services.Localization),
                     ProductTypeLabelHint = x.ProductTypeLabelHint,
                     DisplayOrder = x.DisplayOrder,
                     Sku = x.Sku,
@@ -370,7 +370,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> AssociatedProductAdd(int productId, int[] selectedProductIds)
         {
             var searchQuery = new CatalogSearchQuery().HasParentGroupedProduct(productId);
-            var query = _catalogSearchService.PrepareQuery(searchQuery);
+            var query = _catalogSearchService.Value.PrepareQuery(searchQuery);
             var maxDisplayOrder = query
                 .Select(x => x.DisplayOrder)
                 .OrderByDescending(x => x)
@@ -418,7 +418,7 @@ namespace Smartstore.Admin.Controllers
                     Id = x.Id,
                     ProductId = x.Product.Id,
                     ProductName = x.Product.Name,
-                    ProductTypeName = x.Product.GetProductTypeLabel(_localizationService),
+                    ProductTypeName = x.Product.GetProductTypeLabel(Services.Localization),
                     ProductTypeLabelHint = x.Product.ProductTypeLabelHint,
                     Sku = x.Product.Sku,
                     Quantity = x.Quantity,

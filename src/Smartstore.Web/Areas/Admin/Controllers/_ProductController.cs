@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using AngleSharp.Common;
 using Microsoft.AspNetCore.Http;
@@ -37,7 +36,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Batching;
-using Smartstore.Events;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
@@ -47,44 +45,33 @@ namespace Smartstore.Admin.Controllers
 {
     public partial class ProductController : AdminControllerBase
     {
-        // TODO: (mh) (core) Make some uncommon fields here Lazy<>
         // TODO: (mh) (core) Split to more files. This file is till too large.
         private readonly SmartDbContext _db;
-        private readonly IProductService _productService;
-        private readonly ICategoryService _categoryService;
-        private readonly IManufacturerService _manufacturerService;
-        private readonly ICustomerService _customerService;
-        private readonly IUrlService _urlService;
+        private readonly IProductService _productService;           
+        private readonly IUrlService _urlService;                   
         private readonly IWorkContext _workContext;
-        private readonly ILanguageService _languageService;
-        private readonly ILocalizationService _localizationService;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IMediaService _mediaService;
         private readonly IProductTagService _productTagService;
-        private readonly IProductCloner _productCloner;
-        private readonly IActivityLogger _activityLogger;
         private readonly IAclService _aclService;
-        private readonly IStoreContext _storeContext;
         private readonly IStoreMappingService _storeMappingService;
-        private readonly AdminAreaSettings _adminAreaSettings;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IDiscountService _discountService;
-        private readonly IProductAttributeService _productAttributeService;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly IStockSubscriptionService _stockSubscriptionService;
-        private readonly IShoppingCartService _shoppingCartService;
-        private readonly IShoppingCartValidator _shoppingCartValidator;
-        private readonly IProductAttributeFormatter _productAttributeFormatter;
+        private readonly Lazy<IProductCloner> _productCloner;
+        private readonly Lazy<ICategoryService> _categoryService;
+        private readonly Lazy<IManufacturerService> _manufacturerService;
+        private readonly Lazy<IProductAttributeService> _productAttributeService;
+        private readonly Lazy<IProductAttributeMaterializer> _productAttributeMaterializer;
+        private readonly Lazy<IStockSubscriptionService> _stockSubscriptionService;
+        private readonly Lazy<IShoppingCartService> _shoppingCartService;
+        private readonly Lazy<IShoppingCartValidator> _shoppingCartValidator;
+        private readonly Lazy<IProductAttributeFormatter> _productAttributeFormatter;
+        private readonly Lazy<IDownloadService> _downloadService;
+        private readonly Lazy<ICatalogSearchService> _catalogSearchService;
+        private readonly Lazy<ProductUrlHelper> _productUrlHelper;
+        private readonly AdminAreaSettings _adminAreaSettings;
         private readonly CatalogSettings _catalogSettings;
-        private readonly IDownloadService _downloadService;
-        private readonly IDeliveryTimeService _deliveryTimesService;
-        private readonly IMeasureService _measureService;
         private readonly MeasureSettings _measureSettings;
-        private readonly IEventPublisher _eventPublisher;
-        private readonly IGenericAttributeService _genericAttributeService;
-        private readonly ICommonServices _services;
-        private readonly ICatalogSearchService _catalogSearchService;
-        private readonly ProductUrlHelper _productUrlHelper;
         private readonly SeoSettings _seoSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly SearchSettings _searchSettings;
@@ -92,40 +79,30 @@ namespace Smartstore.Admin.Controllers
         public ProductController(
             SmartDbContext db,
             IProductService productService,
-            ICategoryService categoryService,
-            IManufacturerService manufacturerService,
-            ICustomerService customerService,
             IUrlService urlService,
             IWorkContext workContext,
-            ILanguageService languageService,
-            ILocalizationService localizationService,
             ILocalizedEntityService localizedEntityService,
             IMediaService mediaService,
             IProductTagService productTagService,
-            IProductCloner productCloner,
-            IActivityLogger activityLogger,
             IAclService aclService,
-            IStoreContext storeContext,
             IStoreMappingService storeMappingService,
-            AdminAreaSettings adminAreaSettings,
             IDateTimeHelper dateTimeHelper,
             IDiscountService discountService,
-            IProductAttributeService productAttributeService,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            IStockSubscriptionService stockSubscriptionService,
-            IShoppingCartService shoppingCartService,
-            IShoppingCartValidator shoppingCartValidator,
-            IProductAttributeFormatter productAttributeFormatter,
+            Lazy<IProductCloner> productCloner,
+            Lazy<ICategoryService> categoryService,
+            Lazy<IManufacturerService> manufacturerService,
+            Lazy<IProductAttributeService> productAttributeService,
+            Lazy<IProductAttributeMaterializer> productAttributeMaterializer,
+            Lazy<IStockSubscriptionService> stockSubscriptionService,
+            Lazy<IShoppingCartService> shoppingCartService,
+            Lazy<IShoppingCartValidator> shoppingCartValidator,
+            Lazy<IProductAttributeFormatter> productAttributeFormatter,
+            Lazy<IDownloadService> downloadService,
+            Lazy<ICatalogSearchService> catalogSearchService,
+            Lazy<ProductUrlHelper> productUrlHelper,
+            AdminAreaSettings adminAreaSettings,
             CatalogSettings catalogSettings,
-            IDownloadService downloadService,
-            IDeliveryTimeService deliveryTimesService,
-            IMeasureService measureService,
             MeasureSettings measureSettings,
-            IEventPublisher eventPublisher,
-            IGenericAttributeService genericAttributeService,
-            ICommonServices services,
-            ICatalogSearchService catalogSearchService,
-            ProductUrlHelper productUrlHelper,
             SeoSettings seoSettings,
             MediaSettings mediaSettings,
             SearchSettings searchSettings)
@@ -134,20 +111,14 @@ namespace Smartstore.Admin.Controllers
             _productService = productService;
             _categoryService = categoryService;
             _manufacturerService = manufacturerService;
-            _customerService = customerService;
             _urlService = urlService;
             _workContext = workContext;
-            _languageService = languageService;
-            _localizationService = localizationService;
             _localizedEntityService = localizedEntityService;
             _mediaService = mediaService;
             _productTagService = productTagService;
             _productCloner = productCloner;
-            _activityLogger = activityLogger;
             _aclService = aclService;
-            _storeContext = storeContext;
             _storeMappingService = storeMappingService;
-            _adminAreaSettings = adminAreaSettings;
             _dateTimeHelper = dateTimeHelper;
             _discountService = discountService;
             _productAttributeService = productAttributeService;
@@ -156,16 +127,12 @@ namespace Smartstore.Admin.Controllers
             _shoppingCartService = shoppingCartService;
             _shoppingCartValidator = shoppingCartValidator;
             _productAttributeFormatter = productAttributeFormatter;
-            _catalogSettings = catalogSettings;
             _downloadService = downloadService;
-            _deliveryTimesService = deliveryTimesService;
-            _measureService = measureService;
-            _measureSettings = measureSettings;
-            _eventPublisher = eventPublisher;
-            _genericAttributeService = genericAttributeService;
-            _services = services;
             _catalogSearchService = catalogSearchService;
             _productUrlHelper = productUrlHelper;
+            _adminAreaSettings = adminAreaSettings;
+            _catalogSettings = catalogSettings;
+            _measureSettings = measureSettings;
             _seoSettings = seoSettings;
             _mediaSettings = mediaSettings;
             _searchSettings = searchSettings;
@@ -182,18 +149,18 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> List(ProductListModel model)
         {
             model.DisplayProductPictures = _adminAreaSettings.DisplayProductPictures;
-            model.IsSingleStoreMode = _storeContext.IsSingleStoreMode();
+            model.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
 
-            // TODO: (core) Uncomment later
-            foreach (var c in (await _categoryService.GetCategoryTreeAsync(includeHidden: true)).FlattenNodes(false))
-            {
-                model.AvailableCategories.Add(new SelectListItem { Text = c.GetCategoryNameIndented(), Value = c.Id.ToString() });
-            }
+            // TODO: (mc) (core) Remove if not needed anymore.
+            //foreach (var c in (await _categoryService.GetCategoryTreeAsync(includeHidden: true)).FlattenNodes(false))
+            //{
+            //    model.AvailableCategories.Add(new SelectListItem { Text = c.GetCategoryNameIndented(), Value = c.Id.ToString() });
+            //}
 
-            foreach (var m in await _db.Manufacturers.AsNoTracking().ApplyStandardFilter(true).Select(x => new { x.Name, x.Id }).ToListAsync())
-            {
-                model.AvailableManufacturers.Add(new SelectListItem { Text = m.Name, Value = m.Id.ToString() });
-            }
+            //foreach (var m in await _db.Manufacturers.AsNoTracking().ApplyStandardFilter(true).Select(x => new { x.Name, x.Id }).ToListAsync())
+            //{
+            //    model.AvailableManufacturers.Add(new SelectListItem { Text = m.Name, Value = m.Id.ToString() });
+            //}
 
             //model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();
 
@@ -284,12 +251,12 @@ namespace Smartstore.Admin.Controllers
                     searchQuery = searchQuery.SortBy(ProductSortingEnum.NameAsc);
                 }
 
-                var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
+                var searchResult = await _catalogSearchService.Value.SearchAsync(searchQuery);
                 products = await searchResult.GetHitsAsync();
             }
             else
             {
-                var query = _catalogSearchService
+                var query = _catalogSearchService.Value
                     .PrepareQuery(searchQuery)
                     .ApplyGridCommand(command, false);
 
@@ -333,7 +300,7 @@ namespace Smartstore.Admin.Controllers
                 productModel.PictureThumbnailUrl = _mediaService.GetUrl(file, _mediaSettings.CartThumbPictureSize);
                 productModel.NoThumb = file == null;
 
-                productModel.ProductTypeName = x.GetProductTypeLabel(_localizationService);
+                productModel.ProductTypeName = x.GetProductTypeLabel(Services.Localization);
                 productModel.UpdatedOn = _dateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc);
                 productModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                 productModel.CopyProductModel.Name = T("Admin.Common.CopyOf", x.Name);
@@ -429,10 +396,6 @@ namespace Smartstore.Admin.Controllers
                 
                 await UpdateDataOfExistingProductAsync(product, model, false, false);
 
-                // TODO: (mh) (core) Remove comment after review.
-                // INFO: Obsolete as this will be taken care of in ProductHook.
-                //_productService.UpdateHasDiscountsApplied(product);
-
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewProduct, T("ActivityLog.AddNewProduct"), product.Name);
 
                 if (continueEditing)
@@ -449,7 +412,7 @@ namespace Smartstore.Admin.Controllers
                 return continueEditing ? RedirectToAction("Edit", new { id = product.Id }) : RedirectToAction("List");
             }
 
-            // If we got this far, something failed, redisplay form.
+            // If we got this far something failed. Redisplay form.
             await PrepareProductModelAsync(model, null, false, true);
 
             return View(model);
@@ -620,7 +583,7 @@ namespace Smartstore.Admin.Controllers
                 for (var i = 1; i <= copyModel.NumberOfCopies; ++i)
                 {
                     var newName = copyModel.NumberOfCopies > 1 ? $"{copyModel.Name} {i}" : copyModel.Name;
-                    newProduct = await _productCloner.CloneProductAsync(product, newName, copyModel.Published);
+                    newProduct = await _productCloner.Value.CloneProductAsync(product, newName, copyModel.Published);
                 }
 
                 if (newProduct != null)
@@ -648,7 +611,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ProductCategoryList(GridCommand command, int productId)
         {
             var model = new GridModel<ProductModel.ProductCategoryModel>();
-            var productCategories = await _categoryService.GetProductCategoriesByProductIdsAsync(new[] { productId }, true);
+            var productCategories = await _categoryService.Value.GetProductCategoriesByProductIdsAsync(new[] { productId }, true);
 
             // TODO: (mh) (core) Applying a GridCommand to a resultset is shitty. The methos above needs refactoring. TBD with MC.
 
@@ -657,11 +620,11 @@ namespace Smartstore.Admin.Controllers
                 .ApplyGridCommand(command)
                 .SelectAsync(async x =>
                 {
-                    var node = await _categoryService.GetCategoryTreeAsync(x.CategoryId, true);
+                    var node = await _categoryService.Value.GetCategoryTreeAsync(x.CategoryId, true);
                     return new ProductModel.ProductCategoryModel
                     {
                         Id = x.Id,
-                        Category = node != null ? _categoryService.GetCategoryPath(node, aliasPattern: "<span class='badge badge-secondary'>{0}</span>") : string.Empty,
+                        Category = node != null ? _categoryService.Value.GetCategoryPath(node, aliasPattern: "<span class='badge badge-secondary'>{0}</span>") : string.Empty,
                         ProductId = x.ProductId,
                         CategoryId = x.CategoryId,
                         IsFeaturedProduct = x.IsFeaturedProduct,
@@ -788,7 +751,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ProductManufacturerList(GridCommand command, int productId)
         {
             var model = new GridModel<ProductModel.ProductManufacturerModel>();
-            var productManufacturers = await _manufacturerService.GetProductManufacturersByProductIdsAsync(new[] { productId }, true);
+            var productManufacturers = await _manufacturerService.Value.GetProductManufacturersByProductIdsAsync(new[] { productId }, true);
 
             // TODO: (mh) (core) Applying a GridCommand to a resultset is shitty. The methos above needs refactoring. TBD with MC.
 
@@ -1091,7 +1054,7 @@ namespace Smartstore.Admin.Controllers
                     .ToListAsync())
                     .ToDictionary(x => x.Id);
 
-                stores = _services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
+                stores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
             }
 
             // TODO: (mh) (core) You can't "Include" anything in plain LINQ, only in EF-Linq.
@@ -1400,14 +1363,14 @@ namespace Smartstore.Admin.Controllers
                 if (product.LimitedToStores)
                 {
                     var storeMappings = await _storeMappingService.GetStoreMappingCollectionAsync(nameof(Product), new[] { product.Id });
-                    var currentStoreId = _services.StoreContext.CurrentStore.Id;
+                    var currentStoreId = Services.StoreContext.CurrentStore.Id;
 
                     if (storeMappings.FirstOrDefault(x => x.StoreId == currentStoreId) == null)
                     {
                         var storeMapping = storeMappings.FirstOrDefault();
                         if (storeMapping != null)
                         {
-                            var store = _services.StoreContext.GetStoreById(storeMapping.StoreId);
+                            var store = Services.StoreContext.GetStoreById(storeMapping.StoreId);
                             if (store != null)
                                 model.ProductUrl = store.Url.EnsureEndsWith("/") + await product.GetActiveSlugAsync();
                         }
@@ -1458,7 +1421,7 @@ namespace Smartstore.Admin.Controllers
                 model.AddPictureModel.PictureId = product.MainPictureId ?? 0;
             }
 
-            model.PrimaryStoreCurrencyCode = _services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
 
             var measure = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
             var dimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
@@ -1699,7 +1662,7 @@ namespace Smartstore.Admin.Controllers
 
             if (bundleItem == null)
             {
-                ViewBag.Title = _localizationService.GetResource("Admin.Catalog.Products.BundleItems.EditOf");
+                ViewBag.Title = T("Admin.Catalog.Products.BundleItems.EditOf").Value;
                 return;
             }
 
@@ -1870,7 +1833,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            await _eventPublisher.PublishAsync(new ModelBoundEvent(model, product, form));
+            await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, product, form));
 
             return nameChanged;
         }
@@ -2006,7 +1969,7 @@ namespace Smartstore.Admin.Controllers
                     !p.Deleted &&
                     !p.IsSystemProduct)
                 {
-                    await _stockSubscriptionService.SendNotificationsToSubscribersAsync(p);
+                    await _stockSubscriptionService.Value.SendNotificationsToSubscribersAsync(p);
                 }
 
                 if (p.StockQuantity != stockQuantityInDatabase)

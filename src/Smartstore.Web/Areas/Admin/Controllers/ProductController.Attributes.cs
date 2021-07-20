@@ -305,7 +305,7 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
-                    var numberOfCopiedOptions = await _productAttributeService.CopyAttributeOptionsAsync(pva, optionsSetId, deleteExistingValues);
+                    var numberOfCopiedOptions = await _productAttributeService.Value.CopyAttributeOptionsAsync(pva, optionsSetId, deleteExistingValues);
 
                     NotifySuccess(string.Concat(T("Admin.Common.TaskSuccessfullyProcessed"), " ",
                         T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.NumberOfCopiedOptions", numberOfCopiedOptions)));
@@ -365,7 +365,7 @@ namespace Smartstore.Admin.Controllers
                 if (linkedProduct != null)
                 {
                     model.LinkedProductName = linkedProduct.GetLocalized(p => p.Name);
-                    model.LinkedProductTypeName = linkedProduct.GetProductTypeLabel(_localizationService);
+                    model.LinkedProductTypeName = linkedProduct.GetProductTypeLabel(Services.Localization);
                     model.LinkedProductTypeLabelHint = linkedProduct.ProductTypeLabelHint;
                     model.LinkedProductEditUrl = Url.Action("Edit", "Product", new { id = linkedProduct.Id });
 
@@ -521,7 +521,7 @@ namespace Smartstore.Admin.Controllers
             if (linkedProduct != null)
             {
                 model.LinkedProductName = linkedProduct.GetLocalized(p => p.Name);
-                model.LinkedProductTypeName = linkedProduct.GetProductTypeLabel(_localizationService);
+                model.LinkedProductTypeName = linkedProduct.GetProductTypeLabel(Services.Localization);
                 model.LinkedProductTypeLabelHint = linkedProduct.ProductTypeLabelHint;
                 model.LinkedProductEditUrl = Url.Action("Edit", "Product", new { id = linkedProduct.Id });
 
@@ -634,7 +634,7 @@ namespace Smartstore.Admin.Controllers
             var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId);
 
             model.ProductId = product.Id;
-            model.PrimaryStoreCurrencyCode = _services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
             model.BaseDimensionIn = baseDimension?.GetLocalized(x => x.Name) ?? string.Empty;
 
             if (entity == null)
@@ -647,7 +647,7 @@ namespace Smartstore.Admin.Controllers
 
             if (formatAttributes && entity != null)
             {
-                model.AttributesXml = await _productAttributeFormatter.FormatAttributesAsync(
+                model.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(
                     entity.AttributeSelection,
                     product,
                     _workContext.CurrentCustomer,
@@ -745,15 +745,15 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            await _productAttributeMaterializer.PrefetchProductVariantAttributesAsync(allCombinations.Select(x => x.AttributeSelection));
+            await _productAttributeMaterializer.Value.PrefetchProductVariantAttributesAsync(allCombinations.Select(x => x.AttributeSelection));
 
             var productVariantAttributesModel = await allCombinations.SelectAsync(async x =>
             {
                 var pvacModel = await MapperFactory.MapAsync<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>(x);
                 pvacModel.ProductId = product.Id;
                 pvacModel.ProductUrlTitle = productUrlTitle;
-                pvacModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(product.Id, productSeName, x.AttributeSelection);
-                pvacModel.AttributesXml = await _productAttributeFormatter.FormatAttributesAsync(x.AttributeSelection, product, customer, "<br />", htmlEncode: false, includeHyperlinks: false);
+                pvacModel.ProductUrl = await _productUrlHelper.Value.GetProductUrlAsync(product.Id, productSeName, x.AttributeSelection);
+                pvacModel.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(x.AttributeSelection, product, customer, "<br />", htmlEncode: false, includeHyperlinks: false);
 
                 return pvacModel;
             })
@@ -833,15 +833,15 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var (selection, warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, product.ProductVariantAttributes, product.Id, 0);
+            var (selection, warnings) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, product.ProductVariantAttributes, product.Id, 0);
 
-            await _shoppingCartValidator.ValidateProductAttributesAsync(
+            await _shoppingCartValidator.Value.ValidateProductAttributesAsync(
                 product,
                 selection,
                 Services.StoreContext.CurrentStore.Id,
                 warnings);
 
-            if (_productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection) != null)
+            if (_productAttributeMaterializer.Value.FindAttributeCombinationAsync(product.Id, selection) != null)
             {
                 warnings.Add(T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CombiExists"));
             }
@@ -932,7 +932,7 @@ namespace Smartstore.Admin.Controllers
                 throw new ArgumentException(T("Products.NotFound", productId));
             }
 
-            await _productAttributeService.CreateAllAttributeCombinationsAsync(productId);
+            await _productAttributeService.Value.CreateAllAttributeCombinationsAsync(productId);
 
             return Json(string.Empty);
         }
@@ -970,12 +970,12 @@ namespace Smartstore.Admin.Controllers
                 return new JsonResult(new { Message = T("Products.NotFound", productId), HasWarning = true });
             }
 
-            var (selection, warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, product.ProductVariantAttributes, product.Id, 0);
-            var exists = _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection) != null;
+            var (selection, warnings) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, product.ProductVariantAttributes, product.Id, 0);
+            var exists = _productAttributeMaterializer.Value.FindAttributeCombinationAsync(product.Id, selection) != null;
 
             if (!exists)
             {
-                await _shoppingCartValidator.ValidateProductAttributesAsync(
+                await _shoppingCartValidator.Value.ValidateProductAttributesAsync(
                     product,
                     selection,
                     Services.StoreContext.CurrentStore.Id,
