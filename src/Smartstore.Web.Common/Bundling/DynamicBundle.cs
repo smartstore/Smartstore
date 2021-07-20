@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.FileProviders;
+using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using Smartstore.Web.Bundling.Processors;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Bundling
 {

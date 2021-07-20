@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Smartstore.Web.Theming
+namespace Smartstore.Core.Theming
 {
     public enum ThemeFileChangeType
     {

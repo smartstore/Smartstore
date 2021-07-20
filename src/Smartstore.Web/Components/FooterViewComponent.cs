@@ -57,8 +57,8 @@ namespace Smartstore.Web.Components
                     {
                         return new StoreThemeModel
                         {
-                            Name = x.ThemeName,
-                            Title = x.ThemeTitle
+                            Name = x.Name,
+                            Title = x.FriendlyName
                         };
                     })
                     .ToList();

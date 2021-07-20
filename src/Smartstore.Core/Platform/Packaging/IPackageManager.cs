@@ -4,15 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Packaging
 {
     public interface IPackageManager
     {
-        Task<PackageInfo> InstallAsync(Stream packageStream, string location, string applicationPath);
-        Task UninstallAsync(string packageId, string applicationPath);
+        Task<IExtensionDescriptor> InstallAsync(ExtensionPackage package);
+        Task UninstallAsync(IExtensionDescriptor extension);
 
-        Task<PackagingResult> BuildModulePackageAsync(string pluginName);
-        Task<PackagingResult> BuildThemePackageAsync(string themeName);
+        Task<ExtensionPackage> BuildModulePackageAsync(string pluginName);
+        Task<ExtensionPackage> BuildThemePackageAsync(string themeName);
     }
 }

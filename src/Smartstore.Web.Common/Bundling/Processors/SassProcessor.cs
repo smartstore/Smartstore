@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using SharpScss;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Theming;
 using Smartstore.IO;
 using Smartstore.Web.Theming;
 

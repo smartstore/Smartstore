@@ -41,9 +41,9 @@ namespace Smartstore.Engine.Modularity
         string Author { get; }
 
         /// <summary>
-        /// Optional project web site of extension
+        /// Optional project web site / url of extension
         /// </summary>
-        string WebSite { get; }
+        string ProjectUrl { get; }
 
         /// <summary>
         /// Optional tags of extension

@@ -102,15 +102,15 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new ThemeDescriptorModel
             {
-                Name = descriptor.ThemeName,
+                Name = descriptor.Name,
                 BaseTheme = descriptor.BaseThemeName,
-                Title = descriptor.ThemeTitle,
+                FriendlyName = descriptor.FriendlyName,
                 Description = descriptor.Description,
                 Author = descriptor.Author,
-                Url = descriptor.Url,
-                Version = descriptor.Version,
-                PreviewImageUrl = $"~/themes/{descriptor.ThemeName}/{descriptor.PreviewImagePath.Trim('/')}",
-                IsActive = themeSettings.DefaultTheme == descriptor.ThemeName,
+                ProjectUrl = descriptor.ProjectUrl,
+                Version = descriptor.Version.ToString(),
+                PreviewImageUrl = $"~/themes/{descriptor.Name}/{descriptor.PreviewImagePath.Trim('/')}",
+                IsActive = themeSettings.DefaultTheme == descriptor.Name,
                 State = descriptor.State,
             };
 

@@ -4,6 +4,7 @@ using Autofac;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using Smartstore.Web.Theming;
 
@@ -39,7 +40,7 @@ namespace Smartstore.Web.Bundling.Processors
                 }
                 else
                 {
-                    var theme = services.Resolve<IThemeContext>().CurrentTheme.ThemeName;
+                    var theme = services.Resolve<IThemeContext>().CurrentTheme.Name;
                     var storeId = _appContext.Services.Resolve<IStoreContext>().CurrentStore.Id;
                     return new ThemeVarsFileInfo(subpath, theme, storeId,repo);
                 }
@@ -57,7 +58,7 @@ namespace Smartstore.Web.Bundling.Processors
             if (filter.StartsWith("themevars.scss"))
             {
                 var services = EngineContext.Current.Scope;
-                var theme = services.Resolve<IThemeContext>().CurrentTheme.ThemeName;
+                var theme = services.Resolve<IThemeContext>().CurrentTheme.Name;
                 var storeId = services.Resolve<IStoreContext>().CurrentStore.Id;
                 var cts = ThemeVariableRepository.GetToken(theme, storeId);
 

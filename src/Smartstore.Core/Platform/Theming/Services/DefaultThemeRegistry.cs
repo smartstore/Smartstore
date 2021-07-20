@@ -14,7 +14,7 @@ using Smartstore.Events;
 using Smartstore.IO;
 using Smartstore.Threading;
 
-namespace Smartstore.Web.Theming
+namespace Smartstore.Core.Theming
 {
     public partial class DefaultThemeRegistry : Disposable, IThemeRegistry
     {
@@ -106,7 +106,7 @@ namespace Smartstore.Web.Theming
 
             if (!isInit)
             {
-                TryRemoveDescriptor(descriptor.ThemeName);
+                TryRemoveDescriptor(descriptor.Name);
             }
 
             ThemeDescriptor baseDescriptor = null;
@@ -119,13 +119,13 @@ namespace Smartstore.Web.Theming
             }
 
             descriptor.BaseTheme = baseDescriptor;
-            var added = _themes.TryAdd(descriptor.ThemeName, descriptor);
+            var added = _themes.TryAdd(descriptor.Name, descriptor);
             if (added)
             {
                 // Post process
                 if (!isInit)
                 {
-                    var children = GetChildrenOf(descriptor.ThemeName, false);
+                    var children = GetChildrenOf(descriptor.Name, false);
                     foreach (var child in children)
                     {
                         child.BaseTheme = descriptor;
@@ -136,18 +136,18 @@ namespace Smartstore.Web.Theming
                 // Create file provider
                 if (baseDescriptor == null)
                 {
-                    descriptor.WebFileProvider = new PhysicalFileProvider(Path.Combine(descriptor.RootPath, "wwwroot"));
+                    descriptor.WebFileProvider = new PhysicalFileProvider(Path.Combine(descriptor.PhysicalPath, "wwwroot"));
                 }
                 else
                 {
                     var fileProviders = new List<IFileProvider>
                     {
-                        new PhysicalFileProvider(Path.Combine(descriptor.RootPath, "wwwroot"))
+                        new PhysicalFileProvider(Path.Combine(descriptor.PhysicalPath, "wwwroot"))
                     };
 
                     while (baseDescriptor != null)
                     {
-                        fileProviders.Add(new PhysicalFileProvider(Path.Combine(baseDescriptor.RootPath, "wwwroot")));
+                        fileProviders.Add(new PhysicalFileProvider(Path.Combine(baseDescriptor.PhysicalPath, "wwwroot")));
                         baseDescriptor = baseDescriptor.BaseTheme;
                     }
 
@@ -176,7 +176,7 @@ namespace Smartstore.Web.Theming
                 {
                     child.BaseTheme = null;
                     child.State = ThemeDescriptorState.MissingBaseTheme;
-                    _eventPublisher.Publish(new ThemeTouchedEvent(child.ThemeName));
+                    _eventPublisher.Publish(new ThemeTouchedEvent(child.Name));
                 }
             }
 
@@ -223,14 +223,14 @@ namespace Smartstore.Web.Theming
             if (!ContainsTheme(themeName))
                 return Enumerable.Empty<ThemeDescriptor>();
 
-            var derivedThemes = _themes.Values.Where(x => x.BaseThemeName != null && !x.ThemeName.EqualsNoCase(themeName));
+            var derivedThemes = _themes.Values.Where(x => x.BaseThemeName != null && !x.Name.EqualsNoCase(themeName));
             if (!deep)
             {
                 derivedThemes = derivedThemes.Where(x => x.BaseThemeName.EqualsNoCase(themeName));
             }
             else
             {
-                derivedThemes = derivedThemes.Where(x => IsChildThemeOf(x.ThemeName, themeName));
+                derivedThemes = derivedThemes.Where(x => IsChildThemeOf(x.Name, themeName));
             }
 
             return derivedThemes;
@@ -427,8 +427,8 @@ namespace Smartstore.Web.Theming
                     {
                         baseThemeChangedArgs = new BaseThemeChangedEventArgs
                         {
-                            ThemeName = newDescriptor.ThemeName,
-                            BaseTheme = newDescriptor.BaseTheme?.ThemeName,
+                            ThemeName = newDescriptor.Name,
+                            BaseTheme = newDescriptor.BaseTheme?.Name,
                             OldBaseTheme = oldBaseThemeName
                         };
                     }

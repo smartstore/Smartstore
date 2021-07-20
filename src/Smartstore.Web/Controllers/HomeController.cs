@@ -51,6 +51,7 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Theming;
 using Smartstore.Core.Web;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
@@ -66,7 +67,6 @@ using Smartstore.Utilities.Html;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.Common;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Controllers
 {

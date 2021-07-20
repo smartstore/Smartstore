@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Packaging;
 using Smartstore.Core.Security;
+using Smartstore.Core.Theming;
+using Smartstore.Engine.Modularity;
 using Smartstore.Web.Controllers;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Controllers
 {
@@ -36,7 +38,15 @@ namespace Smartstore.Controllers
                 var file = Request.Form.Files.FirstOrDefault();
                 if (file != null)
                 {
-                    var requiredPermission = (isTheme = PackagingUtility.IsTheme(file.FileName))
+                    if (!Path.GetExtension(file.FileName).EqualsNoCase(".zip"))
+                    {
+                        return Json(new { success, file.FileName, T("Admin.Packaging.NotAPackage").Value, returnUrl });
+                    }
+
+                    var zip = new ZipArchive(file.OpenReadStream(), ZipArchiveMode.Read, false);
+                    var package = new ExtensionPackage(zip);
+
+                    var requiredPermission = (isTheme = package.Descriptor.ExtensionType == ExtensionType.Theme)
                         ? Permissions.Configuration.Theme.Upload
                         : Permissions.Configuration.Module.Upload;
 
@@ -44,11 +54,6 @@ namespace Smartstore.Controllers
                     {
                         message = T("Admin.AccessDenied.Description").Value;
                         return Json(new { success, file.FileName, message });
-                    }
-
-                    if (!Path.GetExtension(file.FileName).EqualsNoCase(".nupkg"))
-                    {
-                        return Json(new { success, file.FileName, T("Admin.Packaging.NotAPackage").Value, returnUrl });
                     }
 
                     var appContext = Services.ApplicationContext;
@@ -61,24 +66,23 @@ namespace Smartstore.Controllers
                         _themeRegistry.StopMonitoring();
                     }
 
-                    using var packageStream = file.OpenReadStream();
-                    var packageInfo = await _packageManager.InstallAsync(packageStream, location, appPath);
+                    await _packageManager.InstallAsync(package);
 
-                    if (isTheme)
-                    {
-                        // Create descriptor.
-                        if (packageInfo != null)
-                        {
-                            var descriptor = ThemeDescriptor.Create(packageInfo.ExtensionDescriptor.Id, appContext.ThemesRoot);
-                            if (descriptor != null)
-                            {
-                                _themeRegistry.AddThemeDescriptor(descriptor);
-                            }
-                        }
+                    //if (isTheme)
+                    //{
+                    //    // Create descriptor.
+                    //    if (packageInfo != null)
+                    //    {
+                    //        var descriptor = ThemeDescriptor.Create(packageInfo.ExtensionDescriptor.Name, appContext.ThemesRoot);
+                    //        if (descriptor != null)
+                    //        {
+                    //            _themeRegistry.AddThemeDescriptor(descriptor);
+                    //        }
+                    //    }
 
-                        // SOFT start IO events again.
-                        _themeRegistry.StartMonitoring(false);
-                    }
+                    //    // SOFT start IO events again.
+                    //    _themeRegistry.StartMonitoring(false);
+                    //}
                 }
                 else
                 {

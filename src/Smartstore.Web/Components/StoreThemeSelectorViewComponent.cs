@@ -29,8 +29,8 @@ namespace Smartstore.Web.Components
 
             ViewBag.CurrentStoreTheme = new StoreThemeModel
             {
-                Name = currentTheme.ThemeName,
-                Title = currentTheme.ThemeTitle
+                Name = currentTheme.Name,
+                Title = currentTheme.FriendlyName
             };
 
             ViewBag.AvailableStoreThemes = _themeRegistry
@@ -39,8 +39,8 @@ namespace Smartstore.Web.Components
                 {
                     return new StoreThemeModel
                     {
-                        Name = x.ThemeName,
-                        Title = x.ThemeTitle
+                        Name = x.Name,
+                        Title = x.FriendlyName
                     };
                 })
                 .ToList();

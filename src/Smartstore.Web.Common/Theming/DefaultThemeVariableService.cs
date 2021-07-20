@@ -139,7 +139,7 @@ namespace Smartstore.Web.Theming
             Guard.NotNull(theme, nameof(theme));
             Guard.NotNull(variables, nameof(variables));
 
-            var themeName = theme.ThemeName.ToLower();
+            var themeName = theme.Name.ToLower();
             var route = $"/themes/{themeName}/theme.css";
             var bundle = _bundles.GetBundleFor(route);
             var result = new ThemeValidationResult();
@@ -188,7 +188,7 @@ namespace Smartstore.Web.Theming
 
             var unsavedVars = new List<string>();
             var savedThemeVars = await _db.ThemeVariables
-                .Where(v => v.StoreId == storeId && v.Theme == descriptor.ThemeName)
+                .Where(v => v.StoreId == storeId && v.Theme == descriptor.Name)
                 .ToDictionaryAsync(x => x.Name);
 
             bool touched = false;
@@ -233,7 +233,7 @@ namespace Smartstore.Web.Theming
                         unsavedVars.Add(v.Key);
                         savedThemeVar = new ThemeVariable
                         {
-                            Theme = descriptor.ThemeName,
+                            Theme = descriptor.Name,
                             Name = v.Key,
                             Value = value,
                             StoreId = storeId

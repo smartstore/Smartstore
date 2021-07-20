@@ -8,11 +8,13 @@ namespace Smartstore.Engine.Modularity
     {
         #region IExtensionDescriptor
 
+        /// <inheritdoc/>
+        ExtensionType IExtensionDescriptor.ExtensionType
+            => ExtensionType.Module;
+
+        /// <inheritdoc/>
         string IExtensionDescriptor.Name 
             => SystemName;
-
-        ExtensionType IExtensionDescriptor.ExtensionType 
-            => ExtensionType.Module;
 
         /// <inheritdoc/>
         public string FriendlyName { get; init; }
@@ -27,7 +29,7 @@ namespace Smartstore.Engine.Modularity
         public string Author { get; init; }
 
         /// <inheritdoc/>
-        public string WebSite { get; init; }
+        public string ProjectUrl { get; init; }
 
         /// <inheritdoc/>
         public string Tags { get; init; }

@@ -4,9 +4,10 @@ using System.IO;
 using System.Xml;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Collections;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 
-namespace Smartstore.Web.Theming
+namespace Smartstore.Core.Theming
 {
     public enum ThemeDescriptorState
     {
@@ -14,13 +15,13 @@ namespace Smartstore.Web.Theming
         Active = 0
     }
 
-    public class ThemeDescriptor : ComparableObject<ThemeDescriptor>, IDisposable
+    public class ThemeDescriptor : IExtensionDescriptor, IExtensionLocation, IDisposable
     {
         internal ThemeDescriptor()
         {
         }
 
-        #region Methods
+        #region Static
 
         public static ThemeDescriptor Create(string themeName, IFileSystem root)
         {
@@ -90,92 +91,67 @@ namespace Smartstore.Web.Theming
 
         #endregion
 
-        #region Properties
+        #region IExtensionDescriptor
 
-        public string RootPath
-        {
-            get;
-            protected internal set;
-        }
+        /// <inheritdoc/>
+        ExtensionType IExtensionDescriptor.ExtensionType
+            => ExtensionType.Theme;
 
-        /// <summary>
-        /// The file provider that points to the wwwroot directory of the theme.
-        /// </summary>
-        public IFileProvider WebFileProvider
-        {
-            get;
-            protected internal set;
-        }
+        /// <inheritdoc/>
+        [ObjectSignature]
+        public string Name { get; internal set; }
 
-        public IFile ConfigurationFile
-        {
-            get;
-            protected internal set;
-        }
+        /// <inheritdoc/>
+        public string FriendlyName { get; internal set; }
+
+        /// <inheritdoc/>
+        public string Description { get; internal set; }
+
+        /// <inheritdoc/>
+        public string Group { get; internal set; }
+
+        /// <inheritdoc/>
+        public string Author { get; internal set; }
+
+        /// <inheritdoc/>
+        public string ProjectUrl { get; internal set; }
+
+        /// <inheritdoc/>
+        public string Tags { get; internal set; }
+
+        /// <inheritdoc/>
+        public SemanticVersion Version { get; internal set; }
+
+        /// <inheritdoc/>
+        public SemanticVersion MinAppVersion { get; internal set; }
+
+        #endregion
+
+        #region IExtensionLocation
+
+        /// <inheritdoc/>
+        public string Path { get; internal set; }
+
+        /// <inheritdoc/>
+        public string PhysicalPath { get; internal set; }
+
+        /// <inheritdoc/>
+        public IFileProvider WebFileProvider { get; internal set; }
+
+        #endregion
+
+        public IFile ConfigurationFile { get; internal set; }
 
         /// <summary>
         /// Determines whether the theme directory is a symbolic link to another target.
         /// </summary>
-        public bool IsSymbolicLink
-        {
-            get;
-            protected internal set;
-        }
+        public bool IsSymbolicLink { get; internal set; }
 
-        public string PreviewImagePath
-        {
-            get;
-            protected internal set;
-        }
+        public string PreviewImagePath { get; internal set; }
 
-        public string Description
-        {
-            get;
-            protected internal set;
-        }
+        public string BaseThemeName { get; internal set; }
 
-        [ObjectSignature]
-        public string ThemeName
-        {
-            get;
-            protected internal set;
-        }
-
-        public string BaseThemeName
-        {
-            get;
-            internal set;
-        }
-
-        public ThemeDescriptor BaseTheme
-        {
-            get;
-            internal set;
-        }
-
-        public string ThemeTitle
-        {
-            get;
-            protected internal set;
-        }
-
-        public string Author
-        {
-            get;
-            protected internal set;
-        }
-
-        public string Url
-        {
-            get;
-            protected internal set;
-        }
-
-        public string Version
-        {
-            get;
-            protected internal set;
-        }
+        public ThemeDescriptor BaseTheme { get; internal set; }
 
         private IDictionary<string, ThemeVariableInfo> _variables;
         public IDictionary<string, ThemeVariableInfo> Variables
@@ -287,14 +263,6 @@ namespace Smartstore.Web.Theming
             protected internal set => _state = value;
         }
 
-        public override string ToString()
-        {
-            return "{0} (Parent: {1}, State: {2})".FormatInvariant(ThemeName, BaseThemeName ?? "-", State.ToString());
-        }
-
-        #endregion
-
-        #region Dispose
 
         public void Dispose()
         {
@@ -323,6 +291,18 @@ namespace Smartstore.Web.Theming
             Dispose(false);
         }
 
-        #endregion
+        public override string ToString()
+            => "{0} (Parent: {1}, State: {2})".FormatInvariant(Name, BaseThemeName ?? "-", State.ToString());
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as ThemeDescriptor;
+            return other != null &&
+                Name != null &&
+                Name.EqualsNoCase(other.Name);
+        }
+
+        public override int GetHashCode()
+            => Name.GetHashCode();
     }
 }

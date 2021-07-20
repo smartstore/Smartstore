@@ -79,7 +79,7 @@ namespace Smartstore.Web.Theming
                         throw Error.Application("At least one theme must be in active state, but the theme registry does not contain a valid theme package.");
                     }
 
-                    theme = descriptor.ThemeName;
+                    theme = descriptor.Name;
                     if (isUserSpecific)
                     {
                         // the customer chosen theme does not exists (anymore). Invalidate it!

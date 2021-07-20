@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
-using Smartstore.Web.Theming;
+using Smartstore.Core.Theming;
 
 namespace Smartstore.Web.Razor
 {
@@ -20,8 +20,8 @@ namespace Smartstore.Web.Razor
 
                 while (descriptor != null)
                 {
-                    themeLocations.Add($"/Themes/{descriptor.ThemeName}/Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
-                    themeLocations.Add($"/Themes/{descriptor.ThemeName}/Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
+                    themeLocations.Add($"/Themes/{descriptor.Name}/Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
+                    themeLocations.Add($"/Themes/{descriptor.Name}/Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
                     descriptor = descriptor.BaseTheme;
                 }
 
@@ -48,7 +48,7 @@ namespace Smartstore.Web.Razor
             var currentTheme = themeContext.CurrentTheme;
             if (currentTheme != null)
             {
-                context.Values["theme"] = currentTheme.ThemeName;
+                context.Values["theme"] = currentTheme.Name;
             }
         }
     }

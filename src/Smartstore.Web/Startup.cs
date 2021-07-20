@@ -3,9 +3,6 @@ using System.Reflection;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -40,7 +37,7 @@ namespace Smartstore.Web
                 typeof(Smartstore.Engine.IEngine).Assembly,
                 typeof(Smartstore.Core.SmartstoreVersion).Assembly,
                 typeof(Smartstore.Web.Startup).Assembly,
-                typeof(Smartstore.Web.Theming.IThemeRegistry).Assembly
+                typeof(Smartstore.Web.Controllers.SmartController).Assembly
             };
 
             _appContext = new SmartApplicationContext(

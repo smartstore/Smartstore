@@ -40,12 +40,12 @@ namespace Smartstore.Web.Components
             ViewBag.Themes = (from m in _themeRegistry.GetThemeDescriptors(false)
                               select new SelectListItem
                               {
-                                  Value = m.ThemeName,
-                                  Text = m.ThemeTitle,
+                                  Value = m.Name,
+                                  Text = m.FriendlyName,
                                   Selected = m == currentTheme
                               }).ToList();
             ViewBag.Stores = Services.StoreContext.GetAllStores().ToSelectListItems(currentStore.Id);
-            ViewBag.DisableApply = themeSettings.DefaultTheme.EqualsNoCase(currentTheme.ThemeName);
+            ViewBag.DisableApply = themeSettings.DefaultTheme.EqualsNoCase(currentTheme.Name);
             ViewBag.ToolOpen = cookie.ToBool();
 
             return View();

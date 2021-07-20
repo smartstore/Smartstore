@@ -1,4 +1,5 @@
 ﻿using System;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Packaging
 {
@@ -9,6 +10,6 @@ namespace Smartstore.Core.Packaging
         public string Version { get; set; }
         public string Type { get; set; }
         public string Path { get; set; }
-        public ExtensionDescriptor ExtensionDescriptor { get; set; }
+        public IExtensionDescriptor ExtensionDescriptor { get; set; }
     }
 }

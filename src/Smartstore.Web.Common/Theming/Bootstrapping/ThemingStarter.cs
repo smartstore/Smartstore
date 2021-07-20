@@ -1,8 +1,8 @@
 ﻿using Autofac;
+using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Events;
 using Smartstore.Web.Razor;
 using Smartstore.Web.Theming;
 
@@ -17,9 +17,7 @@ namespace Smartstore.Web.Bootstrapping
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
-            builder.Register(x => new DefaultThemeRegistry(x.Resolve<IEventPublisher>(), x.Resolve<IApplicationContext>(), null, true))
-                .As<IThemeRegistry>()
-                .SingleInstance();
+            builder.RegisterModule(new ThemesModule());
 
             builder.RegisterType<ThemeVariableRepository>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<DefaultThemeVariableService>().As<IThemeVariableService>().InstancePerLifetimeScope();

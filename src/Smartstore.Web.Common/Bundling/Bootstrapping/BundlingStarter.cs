@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
+using Smartstore.Core.Theming;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;

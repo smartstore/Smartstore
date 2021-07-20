@@ -153,7 +153,7 @@
 
                             <div class="card-body p-3">
                                 <h4 class="h5 text-truncate">
-                                    @(theme.Title ?? theme.Name)
+                                    @(theme.FriendlyName ?? theme.Name)
                                     @if (theme.BaseTheme.HasValue())
                                     {
                                         <small class="fs-sm text-muted" title='@T("Admin.Configuration.Themes.IsBasedOn"): @theme.BaseTheme'>

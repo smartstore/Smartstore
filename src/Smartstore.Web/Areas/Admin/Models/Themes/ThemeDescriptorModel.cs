@@ -1,6 +1,6 @@
 ﻿using System;
 using Smartstore.Collections;
-using Smartstore.Web.Theming;
+using Smartstore.Core.Theming;
 
 namespace Smartstore.Admin.Models.Themes
 {
@@ -10,13 +10,13 @@ namespace Smartstore.Admin.Models.Themes
 
         public string BaseTheme { get; set; }
 
-        public string Title { get; set; }
+        public string FriendlyName { get; set; }
 
         public string Description { get; set; }
 
         public string Author { get; set; }
 
-        public string Url { get; set; }
+        public string ProjectUrl { get; set; }
 
         public string Version { get; set; }
 

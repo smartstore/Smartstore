@@ -7,7 +7,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
-using Smartstore.Core.DependencyInjection;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Providers;

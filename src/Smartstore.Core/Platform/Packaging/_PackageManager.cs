@@ -2,27 +2,28 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Packaging
 {
     public class PackageManager : IPackageManager
     {
-        public Task<PackageInfo> InstallAsync(Stream packageStream, string location, string applicationPath)
+        public Task<IExtensionDescriptor> InstallAsync(ExtensionPackage package)
         {
             throw new NotImplementedException();
         }
 
-        public Task UninstallAsync(string packageId, string applicationPath)
+        public Task UninstallAsync(IExtensionDescriptor extension)
         {
             throw new NotImplementedException();
         }
 
-        public Task<PackagingResult> BuildModulePackageAsync(string moduleName)
+        public Task<ExtensionPackage> BuildModulePackageAsync(string moduleName)
         {
             throw new NotImplementedException();
         }
 
-        public Task<PackagingResult> BuildThemePackageAsync(string themeName)
+        public Task<ExtensionPackage> BuildThemePackageAsync(string themeName)
         {
             throw new NotImplementedException();
         }

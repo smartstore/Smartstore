@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Theming;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Theming
@@ -15,7 +16,7 @@ namespace Smartstore.Web.Theming
         {
             Guard.NotNull(info, "info");
 
-            var resKey = "ThemeVar.{0}.{1}".FormatInvariant(info.ThemeDescriptor.ThemeName, info.Name);
+            var resKey = "ThemeVar.{0}.{1}".FormatInvariant(info.ThemeDescriptor.Name, info.Name);
             var services = helper.ViewContext.HttpContext.RequestServices;
             var langId = services.GetRequiredService<IWorkContext>().WorkingLanguage.Id;
             var locService = services.GetRequiredService<ILocalizationService>();
@@ -51,7 +52,7 @@ namespace Smartstore.Web.Theming
             if (currentTheme != info.ThemeDescriptor)
             {
                 // the variable is inherited from a base theme: display an info badge
-                var chainInfo = "<span class='themevar-chain-info'><i class='fa fa-link fa-flip-horizontal'></i><span class='pl-1'>{0}</span></span>".FormatCurrent(info.ThemeDescriptor.ThemeName);
+                var chainInfo = "<span class='themevar-chain-info'><i class='fa fa-link fa-flip-horizontal'></i><span class='pl-1'>{0}</span></span>".FormatCurrent(info.ThemeDescriptor.Name);
                 return new HtmlString(chainInfo);
             }
 

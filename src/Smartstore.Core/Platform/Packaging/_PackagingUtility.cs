@@ -41,23 +41,23 @@ namespace Smartstore.Core.Packaging
                 : packageId[GetExtensionPrefix("Module").Length..];
         }
 
-        internal static ExtensionDescriptor ConvertToExtensionDescriptor(this ModuleDescriptor moduleDescriptor)
+        internal static BareExtensionDescriptor ConvertToExtensionDescriptor(this ModuleDescriptor moduleDescriptor)
         {
             // TODO: (pkg) Add Icons to extension manifests
             // TODO: (core) Complete ConvertToExtensionDescriptor after ModuleDescriptor is completely ported.
-            var descriptor = new ExtensionDescriptor
+            var descriptor = new BareExtensionDescriptor
             {
-                ExtensionType = "Plugin",
-                Location = "~/Plugins",
-                Path = moduleDescriptor.FileProvider.Root,
-                Id = moduleDescriptor.SystemName,
-                Author = moduleDescriptor.Author,
-                //MinAppVersion = moduleDescriptor.MinAppVersion,
-                //Version = moduleDescriptor.Version,
-                Name = moduleDescriptor.FriendlyName,
-                Description = moduleDescriptor.Description,
-                //WebSite = moduleDescriptor.Url, // TODO: (pkg) Add author url to plugin manifests,
-                Tags = string.Empty // TODO: (pkg) Add tags to plugin manifests,
+                //ExtensionType = "Plugin",
+                //Location = "~/Plugins",
+                //Path = moduleDescriptor.FileProvider.Root,
+                //Id = moduleDescriptor.SystemName,
+                //Author = moduleDescriptor.Author,
+                ////MinAppVersion = moduleDescriptor.MinAppVersion,
+                ////Version = moduleDescriptor.Version,
+                //Name = moduleDescriptor.FriendlyName,
+                //Description = moduleDescriptor.Description,
+                ////WebSite = moduleDescriptor.Url, // TODO: (pkg) Add author url to plugin manifests,
+                //Tags = string.Empty // TODO: (pkg) Add tags to plugin manifests,
             };
 
             return descriptor;

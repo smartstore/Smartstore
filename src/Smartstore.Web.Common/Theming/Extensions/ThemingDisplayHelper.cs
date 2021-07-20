@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Theming;
 using Smartstore.Web.Theming;
 
 namespace Smartstore
@@ -36,7 +37,7 @@ namespace Smartstore
                 else
                 {
                     var repo = services.GetService<ThemeVariableRepository>();
-                    return repo.GetRawVariablesAsync(themeDescriptor.ThemeName, storeContext.CurrentStore.Id).Await();
+                    return repo.GetRawVariablesAsync(themeDescriptor.Name, storeContext.CurrentStore.Id).Await();
                 }
             });
         }

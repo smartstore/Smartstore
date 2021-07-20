@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Web.Theming
+﻿namespace Smartstore.Core.Theming
 {
     /// <summary>
     /// Provides access to the current working theme.
