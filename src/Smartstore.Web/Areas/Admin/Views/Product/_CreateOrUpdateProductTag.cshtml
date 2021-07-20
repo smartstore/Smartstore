@@ -1,0 +1,49 @@
+﻿@model ProductTagModel
+
+<div asp-validation-summary="ModelOnly"></div>
+
+<input type="hidden" asp-for="Id" />
+
+@(Html.LocalizedEditor<ProductTagModel, ProductTagLocalizedModel>("producttag-localized",
+@<text>
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Locales[item].Name" />
+            </div>
+            <div class="adminData">
+			    @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                <input type="hidden" asp-for="Locales[item].LanguageId" />
+                <input asp-for="Locales[item].Name" />
+                <span asp-validation-for="Locales[item].Name"></span>
+            </div>
+        </div>
+    </div>
+</text>
+,
+@<text>
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Name" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+    </div>
+</text>
+))
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Published" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Published" />
+            <span asp-validation-for="Published"></span>
+        </div>
+    </div>
+</div>

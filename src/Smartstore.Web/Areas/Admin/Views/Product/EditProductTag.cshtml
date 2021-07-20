@@ -1,0 +1,22 @@
+﻿@model ProductTagModel
+
+@{
+    Layout = "_AdminPopupLayout";
+    ViewBag.Title = T("Admin.Catalog.ProductTags.EditTagDetails").Value;
+}
+
+<form asp-action="EditProductTag" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Catalog.ProductTags.EditTagDetails")- @Model.Name
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdateProductTag" model="Model" />
+</form>

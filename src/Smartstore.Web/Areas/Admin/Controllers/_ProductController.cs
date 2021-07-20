@@ -29,7 +29,6 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Data.Batching;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.DataGrid;
 
@@ -852,7 +851,151 @@ namespace Smartstore.Admin.Controllers
 
         #region Product tags
 
-        // TODO: (mh) (core) Finish the job.
+        [Permission(Permissions.Catalog.Product.Read)]
+        public IActionResult ProductTags()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Product.Read)]
+        public async Task<IActionResult> ProductTagsList(GridCommand command)
+        {
+            var model = new GridModel<ProductTagModel>();
+
+            var tags = await _db.ProductTags
+                .AsNoTracking()
+                .Include(x => x.Products)
+                .ApplyGridCommand(command, false)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            model.Rows = tags
+                .Select(x =>
+                {
+                    return new ProductTagModel
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Published = x.Published,
+                        ProductCount = x.Products.Count
+                    };
+                });
+            
+            model.Total = tags.TotalCount;
+
+            return Json(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Product.EditTag)]
+        public async Task<IActionResult> ProductTagsDelete(GridSelection selection)
+        {
+            var ids = selection.GetEntityIds();
+            var numDeleted = 0;
+
+            if (ids.Any())
+            {
+                var toDelete = await _db.ProductTags
+                    .Where(x => ids.Contains(x.Id))
+                    .ToListAsync();
+
+                numDeleted = toDelete.Count;
+
+                _db.ProductTags.RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
+            }
+
+            return Json(new { Success = true, Count = numDeleted });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Product.EditTag)]
+        public async Task<IActionResult> ProductTagsUpdate(ProductTagModel model)
+        {
+            var productTag = await _db.ProductTags.FindByIdAsync(model.Id);
+
+            try
+            {
+                productTag.Published = model.Published;
+                await _db.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex.GetInnerMessage());
+                return Json(new { success = false });
+            }
+        }
+
+        [Permission(Permissions.Catalog.Product.EditTag)]
+        public async Task<IActionResult> EditProductTag(string btnId, string formId, int id)
+        {
+            var productTag = await _db.ProductTags
+                .Include(x => x.Products)
+                .FindByIdAsync(id, false);
+                
+            if (productTag == null)
+            {
+                return NotFound();
+            }
+
+            var model = new ProductTagModel
+            {
+                Id = productTag.Id,
+                Name = productTag.Name,
+                Published = productTag.Published,
+                ProductCount = productTag.Products.Count
+            };
+
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.Name = productTag.GetLocalized(x => x.Name, languageId, false, false);
+            });
+
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Product.EditTag)]
+        public async Task<IActionResult> EditProductTag(string btnId, string formId, ProductTagModel model)
+        {
+            var productTag = await _db.ProductTags
+                .Include(x => x.Products)
+                .FindByIdAsync(model.Id);
+
+            if (productTag == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                productTag.Name = model.Name;
+                productTag.Published = model.Published;
+
+                await UpdateLocalesAsync(productTag, model);
+                await _db.SaveChangesAsync();
+
+                ViewBag.RefreshPage = true;
+                ViewBag.btnId = btnId;
+                ViewBag.formId = formId;
+            }
+
+            return View(model);
+        }
+
+        [NonAction]
+        private async Task UpdateLocalesAsync(ProductTag productTag, ProductTagModel model)
+        {
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedValueAsync(productTag, x => x.Name, localized.Name, localized.LanguageId);
+            }
+        }
 
         #endregion
 

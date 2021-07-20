@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = T("Admin.Catalog.ProductTags").Value;
+
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<form asp-action="ProductTags" id="product-tags-form">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-tags"></i>
+            <span>@T("Admin.Catalog.ProductTags")</span>
+        </div>
+    </div>
+    
+    <partial name="_Grid.ProductTags" model="null" view-data="gridViewData" />
+</form>

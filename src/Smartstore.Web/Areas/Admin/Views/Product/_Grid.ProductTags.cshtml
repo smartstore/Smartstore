@@ -1,0 +1,68 @@
+﻿@model ProductTagModel
+
+<datagrid id="product-tags-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          allow-edit="true"
+          onrowclass="productTags_onRowClass">
+    <datasource read="@Url.Action("ProductTagsList")" 
+                delete="@Url.Action("ProductTagsDelete")"
+                update="@Url.Action("ProductTagsUpdate")"/>
+    <paging position="Both" />
+    <sorting enabled="true">
+        <sort by="ProductCount" descending="true"></sort>
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" hideable="false" readonly />
+        <column for="ProductCount" entity-member="Products.Count" halign="center" readonly />
+        <column for="Published" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="grid-product-tags" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
+
+<script sm-target-zone="Scripts" data-origin="grid-product-tags">
+    $(function () {
+        $(document).on('click', '.grid-product-tags', function (e) {
+            e.preventDefault();
+
+            var id = $(this).data("key");
+            var href = '@Url.Content("~/Admin/Product/EditProductTag/")' + id + '?btnId=btnRefresh&formId=product-tags-form';
+            openPopup(href);
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefresh', function () {
+            window["product-tags-grid"].$children[0].read();
+            return false;
+        });
+    });
+
+    function productTags_onRowClass(row) {
+        if (!row.Published) {
+            return { 'text-muted': true };
+        }
+    }
+</script>
