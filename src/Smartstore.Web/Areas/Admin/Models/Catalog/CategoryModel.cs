@@ -26,9 +26,11 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*FullName")]
         public string FullName { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*Description")]
         public string Description { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*BottomDescription")]
         public string BottomDescription { get; set; }
 
@@ -63,7 +65,8 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Parent")]
         public int? ParentCategoryId { get; set; }
 
-        [UIHint("Media"), AdditionalMetadata("album", "catalog")]
+        [UIHint("Media")]
+        [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true)]
         [LocalizedDisplay("*Picture")]
         public int? PictureId { get; set; }
 
@@ -133,35 +136,6 @@ namespace Smartstore.Admin.Models.Catalog
         [AdditionalMetadata("scope", RuleScope.Product)]
         [LocalizedDisplay("Admin.Catalog.Categories.AutomatedAssignmentRules")]
         public int[] SelectedRuleSetIds { get; set; }
-
-        [LocalizedDisplay("Admin.Catalog.Products.Fields.")]
-        public class CategoryProductModel : EntityModelBase
-        {
-            public int CategoryId { get; set; }
-            public int ProductId { get; set; }
-
-            [LocalizedDisplay("Admin.Catalog.Categories.Products.Fields.Product")]
-            public string ProductName { get; set; }
-
-            [LocalizedDisplay("*Sku")]
-            public string Sku { get; set; }
-
-            [LocalizedDisplay("*ProductType")]
-            public string ProductTypeName { get; set; }
-            public string ProductTypeLabelHint { get; set; }
-
-            [LocalizedDisplay("*Published")]
-            public bool Published { get; set; }
-
-            [LocalizedDisplay("Admin.Catalog.Categories.Products.Fields.IsFeaturedProduct")]
-            public bool IsFeaturedProduct { get; set; }
-
-            [LocalizedDisplay("Common.DisplayOrder")]
-            public int DisplayOrder { get; set; }
-
-            [LocalizedDisplay("Admin.Rules.AddedByRule")]
-            public bool IsSystemMapping { get; set; }
-        }
     }
 
     [LocalizedDisplay("Admin.Catalog.Categories.Fields.")]
@@ -175,9 +149,11 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*FullName")]
         public string FullName { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*Description")]
         public string Description { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*BottomDescription")]
         public string BottomDescription { get; set; }
 
@@ -241,7 +217,7 @@ namespace Smartstore.Admin.Models.Catalog
             to.CreatedOn = _services.DateTimeHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc);
 
             to.Breadcrumb = await _categoryService.GetCategoryPathAsync(from, _services.WorkContext.WorkingLanguage.Id, "<span class='badge badge-secondary'>{0}</span>");
-            to.EditUrl = _urlHelper.Action("Edit, Category", new { id = from.Id, area = "Admin" });
+            to.EditUrl = _urlHelper.Action("Edit", "Category", new { id = from.Id, area = "Admin" });
 
             to.SelectedDiscountIds = from.AppliedDiscounts.Select(x => x.Id).ToArray();
             to.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(from);

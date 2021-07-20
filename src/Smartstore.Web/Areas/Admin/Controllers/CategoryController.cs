@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -331,6 +330,7 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        // TODO: (mg) (core) needs a reworking to also be able to delete selected categories through grid.
         [HttpPost]
         [Permission(Permissions.Catalog.Category.Delete)]
         public async Task<IActionResult> Delete(int id, string deleteType)
@@ -369,9 +369,104 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("Edit", "Category", new { id = model.Id });
         }
 
-        #region Products
+        #region Product categories
 
-        //...
+        [Permission(Permissions.Catalog.Category.Read)]
+        public async Task<IActionResult> ProductCategoryList(GridCommand command, int categoryId)
+        {
+            var mapper = MapperFactory.GetMapper<ProductCategory, CategoryProductModel>();
+
+            var productCategories = await _db.ProductCategories
+                .AsNoTracking()
+                .ApplyCategoryFilter(categoryId)
+                .ApplyGridCommand(command, false)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var rows = await productCategories.SelectAsync(x => mapper.MapAsync(x)).AsyncToList();
+
+            return Json(new GridModel<CategoryProductModel>
+            {
+                Rows = rows,
+                Total = productCategories.TotalCount
+            });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Category.EditProduct)]
+        public async Task<IActionResult> ProductCategoryInsert(int categoryId, int[] selectedProductIds)
+        {
+            var existingProductCategories = await _db.ProductCategories
+                .AsNoTracking()
+                .ApplyCategoryFilter(categoryId)
+                .ToListAsync();
+
+            var maxDisplayOrder = existingProductCategories
+                .OrderByDescending(x => x.DisplayOrder)
+                .FirstOrDefault()?.DisplayOrder ?? -1;
+
+            var existingProductIds = new HashSet<int>(existingProductCategories.Select(x => x.ProductId));
+
+            foreach (var productId in selectedProductIds)
+            {
+                if (!existingProductIds.Contains(productId))
+                {
+                    _db.ProductCategories.Add(new ProductCategory
+                    {
+                        CategoryId = categoryId,
+                        ProductId = productId,
+                        IsFeaturedProduct = false,
+                        DisplayOrder = ++maxDisplayOrder
+                    });
+
+                    existingProductIds.Add(productId);
+                }
+            }
+
+            await _db.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Category.EditProduct)]
+        public async Task<IActionResult> ProductCategoryUpdate(CategoryProductModel model)
+        {
+            var success = false;
+
+            var productCategory = await _db.ProductCategories.FindByIdAsync(model.Id);
+            if (productCategory != null)
+            {
+                productCategory.IsFeaturedProduct = model.IsFeaturedProduct;
+                productCategory.DisplayOrder = model.DisplayOrder;
+
+                await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { success });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Category.EditProduct)]
+        public async Task<IActionResult> ProductCategoryDelete(GridSelection selection)
+        {
+            var ids = selection.GetEntityIds();
+            var numDeleted = 0;
+
+            if (ids.Any())
+            {
+                var productCategories = await _db.ProductCategories
+                    .Where(x => ids.Contains(x.Id))
+                    .ToListAsync();
+
+                _db.ProductCategories.RemoveRange(productCategories);
+
+                numDeleted = await _db.SaveChangesAsync();
+            }
+
+            return Json(new { Success = true, Count = numDeleted });
+        }
 
         [HttpPost]
         [Permission(Permissions.Catalog.Category.Update)]
@@ -415,8 +510,7 @@ namespace Smartstore.Admin.Controllers
                     // Ignore deleted categories.
                     showRuleApplyButton = await _db.ProductCategories
                         .AsNoTracking()
-                        .Include(x => x.Category)
-                        .Where(x => x.CategoryId == category.Id && x.IsSystemMapping && x.Category != null)
+                        .ApplyCategoryFilter(category.Id, true)
                         .AnyAsync();
                 }
 

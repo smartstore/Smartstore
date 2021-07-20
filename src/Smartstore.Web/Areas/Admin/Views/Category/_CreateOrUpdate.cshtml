@@ -1,0 +1,487 @@
+﻿@model CategoryModel
+
+@{
+    var parentCategoryBreadcrumb = (string)ViewBag.ParentCategoryBreadcrumb;
+    var parentCategoryPlaceholder = "[" + T("Common.Unspecified") + "]";
+
+    var parentCategoryItems = Model.ParentCategoryId == null
+        ? Enumerable.Empty<SelectListItem>()
+        : new List<SelectListItem> { new SelectListItem { Text = parentCategoryBreadcrumb, Value = Model.ParentCategoryId.ToString() } };
+
+    var productCategoriesViewData = new ViewDataDictionary(ViewData);
+    productCategoriesViewData["Parent"] = Model;
+}
+
+<div asp-validation-summary="ModelOnly"></div>
+<input type="hidden" asp-for="Id" />
+
+<tabstrip id="category-edit" sm-nav-style="Material" sm-nav-position="Left">
+	<tab sm-title="@T("Admin.Catalog.Categories.Info")" sm-icon="fa fa-pencil-alt fa-lg fa-fw" sm-selected="true">
+		<div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Id" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Id" sm-plaintext="true" readonly />
+                    <span asp-validation-for="Id"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ExternalLink" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="ExternalLink" />
+                    <span asp-validation-for="ExternalLink"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ParentCategoryId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="ParentCategoryId" 
+                        asp-items="parentCategoryItems" 
+                        asp-placeholder="parenCategoryPlaceholder"
+                        data-select="True" 
+                        data-select-lazy="True" 
+                        data-select-init-text="@parentCategoryBreadcrumb"
+                        data-select-url="@Url.Action("AllCategories", "Category", new { selectedIds = Model.ParentCategoryId })">
+                    </select>
+                    <span asp-validation-for="ParentCategoryId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayOrder" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="DisplayOrder" />
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Published" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Published" />
+                    <span asp-validation-for="Published"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ShowOnHomePage" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="ShowOnHomePage" />
+                    <span asp-validation-for="ShowOnHomePage"></span>
+                </div>
+            </div>
+		</div>
+
+    @(Html.LocalizedEditor<CategoryModel, CategoryLocalizedModel>("category-info-localized",
+	    @<text>
+            <div class="adminContent">
+		        <div class="adminRow">
+			        <div class="adminTitle">
+				        <smart-label asp-for="Locales[item].Name" />
+			        </div>
+			        <div class="adminData">
+				        @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input asp-for="Locales[item].LanguageId" type="hidden" />
+                        <input asp-for="Locales[item].Name" />
+				        <span asp-validation-for="Locales[item].Name"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].FullName" />
+			        </div>
+			        <div class="adminData">
+                        <input asp-for="Locales[item].FullName" />
+				        <span asp-validation-for="Locales[item].FullName"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow description-container">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Description" />
+			        </div>
+                    <div class="adminData wide">
+                        <editor asp-for="Locales[item].Description" />
+                        <span asp-validation-for="Locales[item].Description"></span>
+                    </div>
+		        </div>
+		        <div class="adminRow description-container d-none">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].BottomDescription" />
+			        </div>
+                    <div class="adminData wide">
+                        <editor asp-for="Locales[item].BottomDescription" />
+                        <span asp-validation-for="Locales[item].BottomDescription"></span>
+                    </div>
+		        </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        &nbsp;
+                    </div>
+                    <div class="adminData">
+                        <button type="button" class="btn btn-secondary description-toggle-button">
+                            <i class="fa fa-exchange-alt"></i>
+                            <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
+                        </button>
+                    </div>
+                </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].BadgeText" />
+			        </div>
+			        <div class="adminData">
+                        <input asp-for="Locales[item].BadgeText" />
+				        <span asp-validation-for="Locales[item].BadgeText"></span>
+			        </div>
+		        </div>
+	        </div>
+        </text>
+        ,
+	    @<text>
+            <div class="adminContent">
+		        <div class="adminRow">
+			        <div class="adminTitle">
+				        <smart-label asp-for="Name" />
+			        </div>
+			        <div class="adminData">
+                        <input asp-for="Name" />
+				        <span asp-validation-for="Name"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="FullName" />
+			        </div>
+			        <div class="adminData">
+                        <input asp-for="FullName" />
+				        <span asp-validation-for="FullName"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow description-container">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Description" />
+			        </div>
+                    <div class="adminData wide">
+                        <editor asp-for="Description" />
+                        <span asp-validation-for="Description"></span>
+                    </div>
+		        </div>
+		        <div class="adminRow description-container d-none">
+			        <div class="adminTitle">
+                        <smart-label asp-for="BottomDescription" />
+			        </div>
+                    <div class="adminData wide">
+                        <editor asp-for="BottomDescription" />
+                        <span asp-validation-for="BottomDescription"></span>
+                    </div>
+		        </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        &nbsp;
+                    </div>
+                    <div class="adminData">
+                        <button type="button" class="btn btn-secondary description-toggle-button">
+                            <i class="fa fa-exchange-alt"></i>
+                            <span>@T("Admin.Catalog.Categories.DescriptionToggle")</span>
+                        </button>
+                    </div>
+                </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="BadgeText" />
+			        </div>
+			        <div class="adminData">
+                        <input asp-for="BadgeText" />
+				        <span asp-validation-for="BadgeText"></span>
+			        </div>
+		        </div>
+	        </div>
+	    </text>))
+
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="BadgeStyle" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="BadgeStyle" asp-items="ViewBag.BadgeStyles"></select>
+                    <span asp-validation-for="BadgeStyle"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="PictureId" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="PictureId" />
+                    <span asp-validation-for="PictureId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminSeparator"><hr /></div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DefaultViewMode" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="DefaultViewMode" asp-items="ViewBag.DefaultViewModes" asp-placeholder="@T("Common.Unspecified")"></select>
+                    <span asp-validation-for="DefaultViewMode"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="AllowCustomersToSelectPageSize" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="AllowCustomersToSelectPageSize" />
+                    <span asp-validation-for="AllowCustomersToSelectPageSize"></span>
+                </div>
+            </div>
+            <div class="adminRow" id="pnl-pagesize">
+                <div class="adminTitle">
+                    <smart-label asp-for="PageSize" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="PageSize" />
+                    <span asp-validation-for="PageSize"></span>
+                </div>
+            </div>
+            <div class="adminRow" id="pnl-pagesize-options">
+                <div class="adminTitle">
+                    <smart-label asp-for="PageSizeOptions" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="PageSizeOptions" />
+                    <span asp-validation-for="PageSizeOptions"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminSeparator"><hr /></div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Alias" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Alias" />
+                    <span asp-validation-for="Alias"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="CategoryTemplateId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="CategoryTemplateId" asp-items="ViewBag.CategoryTemplates"></select>
+                    <span asp-validation-for="CategoryTemplateId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedDiscountIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedDiscountIds" />
+                    <span asp-validation-for="SelectedDiscountIds"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedStoreIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedStoreIds" />
+                    <span asp-validation-for="SelectedStoreIds"></span>
+
+                    <div class="mt-4">
+                        <div class="alert alert-danger">
+                            @Html.Raw(T("Admin.Configuration.Category.Stores.AssignToSubCategoriesAndProducts.Hint"))
+                        </div>
+                        <button type="submit" name="inherit-stores-into-children" value="inherit-stores-into-children" class="btn btn-danger confirm">
+                            <i class="fa fa-bolt"></i>
+                            <span>@T("Admin.Configuration.Category.Stores.AssignToSubCategoriesAndProducts")</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedCustomerRoleIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedCustomerRoleIds" />
+                    <span asp-validation-for="SelectedCustomerRoleIds"></span>
+
+                    <div class="mt-4">
+                        <div class="alert alert-danger">
+                            @Html.Raw(T("Admin.Configuration.Category.Acl.AssignToSubCategoriesAndProducts.Hint"))
+                        </div>
+                        <button type="submit" name="inherit-acl-into-children" value="inherit-acl-into-children" class="btn btn-danger confirm">
+                            <i class="fa fa-bolt"></i>
+                            <span>@T("Admin.Configuration.Category.Acl.AssignToSubCategoriesAndProducts")</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div sm-if="Model.CreatedOn.HasValue" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="CreatedOn" />
+                </div>
+                <div class="adminData">
+                    <div class="form-control-plaintext">
+                        @Model.CreatedOn
+                    </div>
+                </div>
+            </div>
+            <div sm-if="Model.UpdatedOn.HasValue" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="UpdatedOn" />
+                </div>
+                <div class="adminData">
+                    <div class="form-control-plaintext">
+                        @Model.UpdatedOn
+                    </div>
+                </div>
+            </div>
+        </div>
+	</tab>
+
+	<tab sm-title="@T("Admin.Common.SEO")" sm-icon="fa fa-search fa-lg fa-fw">
+    @(Html.LocalizedEditor<CategoryModel, CategoryLocalizedModel>("category-seo-localized",
+	    @<text>
+            <div class="adminContent">
+		        <div class="adminRow">
+			        <div class="adminTitle">
+				        <smart-label asp-for="Locales[item].MetaTitle" />
+			        </div>
+			        <div class="adminData">
+				        @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input asp-for="Locales[item].LanguageId" type="hidden" />
+                        <textarea asp-for="Locales[item].MetaTitle"></textarea>
+				        <span asp-validation-for="Locales[item].MetaTitle"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].MetaDescription" />
+			        </div>
+			        <div class="adminData">
+                        <textarea asp-for="Locales[item].MetaDescription"></textarea>
+				        <span asp-validation-for="Locales[item].MetaDescription"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].MetaKeywords" />
+			        </div>
+			        <div class="adminData">
+                        <textarea asp-for="Locales[item].MetaKeywords"></textarea>
+				        <span asp-validation-for="Locales[item].MetaKeywords"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].SeName" />
+			        </div>
+			        <div class="adminData">
+                        <input asp-for="Locales[item].SeName" />
+				        <span asp-validation-for="Locales[item].SeName"></span>
+			        </div>
+		        </div>
+	        </div>
+        </text>
+        ,
+	    @<text>
+            <div class="adminContent">
+		        <div class="adminRow">
+			        <div class="adminTitle">
+				        <smart-label asp-for="MetaTitle" />
+			        </div>
+			        <div class="adminData">
+                        <textarea asp-for="MetaTitle"></textarea>
+				        <span asp-validation-for="MetaTitle"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="MetaDescription" />
+			        </div>
+			        <div class="adminData">
+                        <textarea asp-for="MetaDescription"></textarea>
+				        <span asp-validation-for="MetaDescription"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="MetaKeywords" />
+			        </div>
+			        <div class="adminData">
+                        <textarea asp-for="MetaKeywords"></textarea>
+				        <span asp-validation-for="MetaKeywords"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="SeName" />
+			        </div>
+			        <div class="adminData">
+                        <input asp-for="SeName" />
+                        @if (Model.Id != 0)
+                        {
+                            @await Component.InvokeAsync("NamesPerEntity", new { entityName = "Category", entityId = Model.Id })
+                        }
+				        <span asp-validation-for="SeName"></span>
+			        </div>
+		        </div>
+	        </div>
+	    </text>))
+	</tab>
+
+	<tab sm-title="@T("Admin.Catalog.Categories.Products")" sm-icon="fa fa-cube fa-lg fa-fw">
+        @if (Model.Id > 0)
+        {
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SelectedRuleSetIds" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="SelectedRuleSetIds" />
+                        <span asp-validation-for="SelectedRuleSetIds"></span>
+                    </div>
+                </div>
+            </div>
+            <div sm-if="Model.SelectedRuleSetIds.Any()" class="alert alert-info">
+                @T("Admin.Catalog.Categories.ProductListDescription")
+            </div>
+            <partial name="_Grid.ProductCategories" model="null" view-data="productCategoriesViewData" />   
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                @T("Admin.SaveBeforeEdit")
+            </div>
+        }
+	</tab>
+</tabstrip>
+
+<script sm-target-zone="scripts" data-origin="category-edit">
+    $(function() {
+        // Reapply rules.
+        $('#reapply-rules').on('click', function () {
+            $(this).doPostData({
+                ask: @(T("Admin.Common.AskToProceed").JsValue),
+                data: { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() }
+            });
+        });
+    });
+</script>

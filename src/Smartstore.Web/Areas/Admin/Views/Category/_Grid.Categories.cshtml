@@ -14,7 +14,7 @@
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
-        @* TODO: (mg) (core) Delete tool is missing (wip? I was not sure) *@
+        @* TODO: (mg) (core) Delete tool is missing (wip? I was not sure).*@
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
                 <i class="fa fa-fw fa-filter"></i>
@@ -34,13 +34,10 @@
         <column for="Id" halign="center" visible="false" />
         <column for="Name" hideable="false">
             <display-template>
-                @* TODO: (mg) (core) Displaying a separated breadcrumb is a good idea. But create a new column, it takes away too much space here. *@
-                <div class="dg-cell-value">
-                    <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
-                    <div class="text-muted text-truncate" v-html="item.row.Breadcrumb"></div>
-                </div>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
+        <column for="Breadcrumb" sortable="false" width="2fr" />
         <column for="FullName" />
         <column for="Alias" />
         <column for="Published" halign="center" />
@@ -54,3 +51,5 @@
         <column for="ShowOnHomePage" halign="center" visible="false" />
     </columns>
 </datagrid>
+
+<partial name="_DeleteCategoryDialog" />

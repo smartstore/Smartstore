@@ -1,0 +1,40 @@
+﻿@model CategoryModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.Categories.EditCategoryDetails") + " - " + Model.Name;
+}
+
+<form asp-action="Edit">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-sitemap"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="Index">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <button type="submit" name="preview" value="preview" onclick="javascript:openWindow('@Url.RouteUrl("Category", new { SeName = Model.SeName })', true); return false;" class="btn btn-secondary">
+                <i class="far fa-eye"></i>
+                <span>@T("Admin.Common.Preview")</span>
+            </button>
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <button type="button" id="category-delete" value="category-delete" class="btn btn-danger" data-toggle="modal" data-target="#delete-category-dialog">
+                <i class="far fa-trash-alt"></i>
+				<span>@T("Admin.Common.Delete")</span>
+            </button>
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" />
+</form>
+
+<partial name="_DeleteCategoryDialog" />
