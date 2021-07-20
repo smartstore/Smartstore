@@ -60,7 +60,6 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*ProductTags")]
         public string[] ProductTags { get; set; }
-        //public MultiSelectList AvailableProductTags { get; set; }
 
         [LocalizedDisplay("*CountryOfOriginId")]
         public int? CountryOfOriginId { get; set; }

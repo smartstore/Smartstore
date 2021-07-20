@@ -12,7 +12,6 @@
         <siteMapNode id="catalog" title="Catalog" resKey="Admin.Catalog" iconClass="icm icm-cube" permissionNames="catalog.product, catalog.productreview, catalog.category, catalog.manufacturer, catalog.variant, catalog.attribute, cart.checkoutattribute">
             <siteMapNode id="categories-list" title="List" resKey="Admin.Catalog.Categories" controller="Category" action="Index" area="Admin" iconClass="fa fa-sitemap" permissionNames="catalog.category" />
             <siteMapNode id="products" iconClass="fa fa-cube" title="Manage products" resKey="Admin.Catalog.Products.Manage" controller="Product" action="List" area="Admin" permissionNames="catalog.product" />
-            <siteMapNode id="products-bulk-edit" iconClass="fa fa-cubes" title="Bulk edit products" resKey="Admin.Catalog.BulkEdit" controller="Product" action="BulkEdit" area="Admin" permissionNames="catalog.product" />
             <siteMapNode id="reviews" iconClass="far fa-star-half" title="Product reviews" resKey="Admin.Catalog.ProductReviews" controller="ProductReview" action="List" area="Admin" permissionNames="catalog.productreview" />
             <siteMapNode id="manufacturers" iconClass="far fa-building" title="Manufacturers" resKey="Admin.Catalog.Manufacturers" controller="Manufacturer" action="List" area="Admin" permissionNames="catalog.manufacturer" />
             <siteMapNode id="tags" title="Product tags" resKey="Admin.Catalog.ProductTags" controller="Product" action="ProductTags" area="Admin" iconClass="fa fa-tags" permissionNames="catalog.product" />
