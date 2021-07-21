@@ -27,4 +27,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Admin.Catalog.ProductTags.Fields.Name")]
         public string Name { get; set; }
     }
+
+    // INFO/TODO: (mh) (core) You removed the fluent validator for "Name" because of the [Required] attribute.
+    // But we all know that [Required] does NOT output localized messages, only FluentValidator does.
 }

@@ -34,30 +34,27 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var productIds2 = relatedProducts.Select(x => x.ProductId2).ToList();
+            var productIds2 = relatedProducts.Select(x => x.ProductId2).Distinct().ToArray();
+
+            // INFO: (mh) (core) Obviously you don't need Multimap here because you have a 1:1 relationship, not 1:n
+            // INFO: (mh) (core) Projecting a query AFTER data has been loaded is rather inefficient.
+            // TODO: (mh) (core) Apply this refactoring to other applicable methods also.
             var products2 = (await _db.Products
                 .AsNoTracking()
                 .Where(x => productIds2.Contains(x.Id))
-                .ToListAsync())
-                .ToMultimap(x => x.Id, x => new { 
-                    x.Name,
-                    x.Sku,
-                    x.Published,
-                    x.ProductTypeLabelHint,
-                    ProductTypeName = x.GetProductTypeLabel(Services.Localization)
-                });
+                .ToDictionaryAsync(x => x.Id, x => x));
 
             var relatedProductsModel = relatedProducts
                 .Select(x =>
                 {
-                    var product2 = products2[x.ProductId2].FirstOrDefault();
+                    var product2 = products2[x.ProductId2];
                     
                     return new ProductModel.RelatedProductModel()
                     {
                         Id = x.Id,
                         ProductId2 = x.ProductId2,
                         Product2Name = product2.Name,
-                        ProductTypeName = product2.ProductTypeName,
+                        ProductTypeName = product2.GetProductTypeLabel(Services.Localization),
                         ProductTypeLabelHint = product2.ProductTypeLabelHint,
                         DisplayOrder = x.DisplayOrder,
                         Product2Sku = product2.Sku,
@@ -68,7 +65,7 @@ namespace Smartstore.Admin.Controllers
                 .ToList();
 
             model.Rows = relatedProductsModel;
-            model.Total = relatedProducts.TotalCount;
+            model.Total = await relatedProducts.GetTotalCountAsync();
 
             return Json(model);
         }

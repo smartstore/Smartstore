@@ -350,6 +350,7 @@ namespace Smartstore.Admin.Controllers
         {
             var productManufacturer = await _db.ProductManufacturers.FindByIdAsync(model.Id);
             var manufacturerChanged = model.ManufacturerId != productManufacturer.ManufacturerId;
+
             if (manufacturerChanged)
             {
                 var alreadyAssigned = await _db.ProductManufacturers.AnyAsync(x => x.ManufacturerId == model.ManufacturerId && x.ProductId == model.ProductId);
@@ -396,6 +397,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
+                // TODO: (mh) (core) Use DbSet<T>.GetMany(ids) extension method
                 var toDelete = await _db.ProductManufacturers
                     .Where(x => ids.Contains(x.Id))
                     .ToListAsync();
@@ -869,6 +871,8 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ProductTagsList(GridCommand command)
         {
             var model = new GridModel<ProductTagModel>();
+
+            // TODO: (mh) (core) Use IProductTagService.CountProductsByTagIdAsync() to determine counts, don't eager-load all assigned products. It's expensive.
 
             var tags = await _db.ProductTags
                 .AsNoTracking()

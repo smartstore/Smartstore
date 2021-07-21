@@ -14,6 +14,8 @@ using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
@@ -27,6 +29,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Rendering;
 using Smartstore.Web.TagHelpers.Shared;
 namespace Smartstore.Admin.Controllers
 {
@@ -45,18 +48,17 @@ namespace Smartstore.Admin.Controllers
             model.DisplayProductPictures = _adminAreaSettings.DisplayProductPictures;
             model.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
 
-            // TODO: (mc) (core) Remove if not needed anymore.
-            //foreach (var c in (await _categoryService.GetCategoryTreeAsync(includeHidden: true)).FlattenNodes(false))
-            //{
-            //    model.AvailableCategories.Add(new SelectListItem { Text = c.GetCategoryNameIndented(), Value = c.Id.ToString() });
-            //}
+            foreach (var c in (await _categoryService.Value.GetCategoryTreeAsync(includeHidden: true)).FlattenNodes(false))
+            {
+                model.AvailableCategories.Add(new SelectListItem { Text = c.GetCategoryNameIndented(), Value = c.Id.ToString() });
+            }
 
-            //foreach (var m in await _db.Manufacturers.AsNoTracking().ApplyStandardFilter(true).Select(x => new { x.Name, x.Id }).ToListAsync())
-            //{
-            //    model.AvailableManufacturers.Add(new SelectListItem { Text = m.Name, Value = m.Id.ToString() });
-            //}
+            foreach (var m in await _db.Manufacturers.AsNoTracking().ApplyStandardFilter(true).Select(x => new { x.Name, x.Id }).ToListAsync())
+            {
+                model.AvailableManufacturers.Add(new SelectListItem { Text = m.Name, Value = m.Id.ToString() });
+            }
 
-            //model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();
+            model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();
 
             return View(model);
         }
