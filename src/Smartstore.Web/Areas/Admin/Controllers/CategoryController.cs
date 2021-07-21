@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -148,6 +149,7 @@ namespace Smartstore.Admin.Controllers
             take ??= 100;
 
             List<ChoiceListItem> products = null;
+            var hasMoreData = true;
             var ids = selectedIds.ToIntArray();
             var fields = new List<string> { "name" };
 
@@ -171,10 +173,13 @@ namespace Smartstore.Admin.Controllers
                 var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
                 var hits = await searchResult.GetHitsAsync();
 
+                hasMoreData = hits.HasNextPage;
+
                 products = hits.Select(x => new ChoiceListItem
                 {
                     Id = x.Id.ToString(),
                     Text = x.Name,
+                    Hint = x.Sku,
                     Selected = ids.Contains(x.Id)
                 })
                 .ToList();
@@ -184,11 +189,14 @@ namespace Smartstore.Admin.Controllers
                 var query = _catalogSearchService.PrepareQuery(searchQuery);
                 var pageIndex = take == 0 ? 0 : Math.Max(skip.Value / take.Value, 0);
 
+                hasMoreData = (pageIndex + 1) * take < query.Count();
+
                 var data = await query
                     .Select(x => new
                     {
                         x.Id,
                         x.Name,
+                        x.Sku
                     })
                     .OrderBy(x => x.Name)
                     .Skip(skip.Value)
@@ -199,12 +207,17 @@ namespace Smartstore.Admin.Controllers
                 {
                     Id = x.Id.ToString(),
                     Text = x.Name,
+                    Hint = x.Sku,
                     Selected = ids.Contains(x.Id)
                 })
                 .ToList();
             }
 
-            return new JsonResult(products);
+            return new JsonResult(new
+            {
+                hasMoreData = hasMoreData,
+                results = products
+            });
         }
 
         public IActionResult Index()
@@ -414,7 +427,6 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        // TODO: (mg) (core) needs a reworking to also be able to delete selected categories through grid.
         [HttpPost]
         [Permission(Permissions.Catalog.Category.Delete)]
         public async Task<IActionResult> Delete(int id, string deleteType)
@@ -552,9 +564,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var productCategories = await _db.ProductCategories
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
+                var productCategories = await _db.ProductCategories.GetManyAsync(ids, true);
 
                 _db.ProductCategories.RemoveRange(productCategories);
 
