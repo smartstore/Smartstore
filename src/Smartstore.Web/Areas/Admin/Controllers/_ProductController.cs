@@ -207,17 +207,20 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditCategory)]
         public async Task<IActionResult> ProductCategoryUpdate(ProductModel.ProductCategoryModel model)
         {
-            var alreadyAssigned = await _db.ProductCategories.AnyAsync(x => x.CategoryId == model.CategoryId && x.ProductId == model.ProductId);
-
-            if (alreadyAssigned)
-            {
-                NotifyError(T("Admin.Catalog.Products.Categories.NoDuplicatesAllowed"));
-                return Json(new { success = false });
-            }
-
             var productCategory = await _db.ProductCategories.FindByIdAsync(model.Id);
             var categoryChanged = model.CategoryId != productCategory.CategoryId;
 
+            if (categoryChanged)
+            {
+                var alreadyAssigned = await _db.ProductCategories.AnyAsync(x => x.CategoryId == model.CategoryId && x.ProductId == model.ProductId);
+
+                if (alreadyAssigned)
+                {
+                    NotifyError(T("Admin.Catalog.Products.Categories.NoDuplicatesAllowed"));
+                    return Json(new { success = false });
+                }
+            }
+            
             productCategory.CategoryId = model.CategoryId;
             productCategory.IsFeaturedProduct = model.IsFeaturedProduct;
             productCategory.DisplayOrder = model.DisplayOrder;
@@ -345,16 +348,19 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditManufacturer)]
         public async Task<IActionResult> ProductManufacturerUpdate(ProductModel.ProductManufacturerModel model)
         {
-            var alreadyAssigned = await _db.ProductManufacturers.AnyAsync(x => x.ManufacturerId == model.ManufacturerId && x.ProductId == model.ProductId);
-
-            if (alreadyAssigned)
-            {
-                NotifyError(T("Admin.Catalog.Products.Manufacturers.NoDuplicatesAllowed"));
-                return Json(new { success = false });
-            }
-
             var productManufacturer = await _db.ProductManufacturers.FindByIdAsync(model.Id);
             var manufacturerChanged = model.ManufacturerId != productManufacturer.ManufacturerId;
+            if (manufacturerChanged)
+            {
+                var alreadyAssigned = await _db.ProductManufacturers.AnyAsync(x => x.ManufacturerId == model.ManufacturerId && x.ProductId == model.ProductId);
+
+                if (alreadyAssigned)
+                {
+                    NotifyError(T("Admin.Catalog.Products.Manufacturers.NoDuplicatesAllowed"));
+                    return Json(new { success = false });
+                }
+            }
+
             productManufacturer.ManufacturerId = model.ManufacturerId;
             productManufacturer.IsFeaturedProduct = model.IsFeaturedProduct;
             productManufacturer.DisplayOrder = model.DisplayOrder;
