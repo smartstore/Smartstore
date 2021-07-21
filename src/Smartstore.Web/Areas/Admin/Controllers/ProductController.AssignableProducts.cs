@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
-using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Catalog;
@@ -13,7 +12,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
-using Smartstore.Data.Batching;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
@@ -33,31 +31,44 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .ApplyProductId1Filter(productId)
                 .ApplyGridCommand(command)
-                .ToListAsync();
+                .ToPagedList(command)
+                .LoadAsync();
 
-            var relatedProductsModel = await relatedProducts
-                .SelectAsync(async x =>
+            var productIds2 = relatedProducts.Select(x => x.ProductId2).ToList();
+            var products2 = (await _db.Products
+                .AsNoTracking()
+                .Where(x => productIds2.Contains(x.Id))
+                .ToListAsync())
+                .ToMultimap(x => x.Id, x => new { 
+                    x.Name,
+                    x.Sku,
+                    x.Published,
+                    x.ProductTypeLabelHint,
+                    ProductTypeName = x.GetProductTypeLabel(Services.Localization)
+                });
+
+            var relatedProductsModel = relatedProducts
+                .Select(x =>
                 {
-                    // TODO: (mh) (core) (perf) Load all products in one go (projected)
-                    var product2 = await _db.Products.FindByIdAsync(x.ProductId2, false);
-
+                    var product2 = products2[x.ProductId2].FirstOrDefault();
+                    
                     return new ProductModel.RelatedProductModel()
                     {
                         Id = x.Id,
                         ProductId2 = x.ProductId2,
                         Product2Name = product2.Name,
-                        ProductTypeName = product2.GetProductTypeLabel(Services.Localization),
+                        ProductTypeName = product2.ProductTypeName,
                         ProductTypeLabelHint = product2.ProductTypeLabelHint,
                         DisplayOrder = x.DisplayOrder,
                         Product2Sku = product2.Sku,
                         Product2Published = product2.Published,
-                        EditUrl = Url.Action("Edit", "Product", new { id = product2.Id })
+                        EditUrl = Url.Action("Edit", "Product", new { id = x.ProductId2 })
                     };
                 })
-                .AsyncToList();
+                .ToList();
 
             model.Rows = relatedProductsModel;
-            model.Total = relatedProductsModel.Count;
+            model.Total = relatedProducts.TotalCount;
 
             return Json(model);
         }
@@ -108,22 +119,21 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditPromotion)]
         public async Task<IActionResult> RelatedProductAdd(int productId, int[] selectedProductIds)
         {
+            RelatedProduct relation = null;
+            var maxDisplayOrder = -1;
+
             var products = await _db.Products
                 .AsNoTracking()
                 .Where(x => selectedProductIds.Contains(x.Id))
                 .ApplyStandardFilter()
                 .ToListAsync();
 
-            RelatedProduct relation = null;
-            var maxDisplayOrder = -1;
+            var existingRelations = await _db.RelatedProducts
+                .ApplyProductId1Filter(productId)
+                .ToListAsync();
 
             foreach (var product in products)
             {
-                // TODO: (mh) (core) (perf) Load all products to a multimap in one go
-                var existingRelations = await _db.RelatedProducts
-                    .ApplyProductId1Filter(productId)
-                    .ToListAsync();
-
                 if (FindRelatedProduct(existingRelations, productId, product.Id) == null)
                 {
                     if (maxDisplayOrder == -1 && (relation = existingRelations.OrderByDescending(x => x.DisplayOrder).FirstOrDefault()) != null)
@@ -131,12 +141,15 @@ namespace Smartstore.Admin.Controllers
                         maxDisplayOrder = relation.DisplayOrder;
                     }
 
-                    _db.RelatedProducts.Add(new RelatedProduct
+                    var relatedProduct = new RelatedProduct
                     {
                         ProductId1 = productId,
                         ProductId2 = product.Id,
                         DisplayOrder = ++maxDisplayOrder
-                    });
+                    };
+
+                    _db.RelatedProducts.Add(relatedProduct);
+                    existingRelations.Add(relatedProduct);
                 }
             }
 
@@ -186,29 +199,43 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .ApplyProductId1Filter(productId, true)
                 .ApplyGridCommand(command)
-                .ToListAsync();
+                .ToPagedList(command)
+                .LoadAsync();
 
-            var crossSellProductsModel = await crossSellProducts
-                .SelectAsync(async x =>
+            var productIds2 = crossSellProducts.Select(x => x.ProductId2).ToList();
+            var products2 = (await _db.Products
+                .AsNoTracking()
+                .Where(x => productIds2.Contains(x.Id))
+                .ToListAsync())
+                .ToMultimap(x => x.Id, x => new {
+                    x.Name,
+                    x.Sku,
+                    x.Published,
+                    x.ProductTypeLabelHint,
+                    ProductTypeName = x.GetProductTypeLabel(Services.Localization)
+                });
+
+            var crossSellProductsModel = crossSellProducts
+                .Select(x =>
                 {
-                    var product2 = await _db.Products.FindByIdAsync(x.ProductId2, false);
+                    var product2 = products2[x.ProductId2].FirstOrDefault();
 
                     return new ProductModel.CrossSellProductModel
                     {
                         Id = x.Id,
                         ProductId2 = x.ProductId2,
                         Product2Name = product2.Name,
-                        ProductTypeName = product2.GetProductTypeLabel(Services.Localization),
+                        ProductTypeName = product2.ProductTypeName,
                         ProductTypeLabelHint = product2.ProductTypeLabelHint,
                         Product2Sku = product2.Sku,
                         Product2Published = product2.Published,
-                        EditUrl = Url.Action("Edit", "Product", new { id = product2.Id })
+                        EditUrl = Url.Action("Edit", "Product", new { id = x.ProductId2 })
                     };
                 })
-                .ToListAsync();
+                .ToList();
 
             model.Rows = crossSellProductsModel;
-            model.Total = crossSellProductsModel.Count;
+            model.Total = crossSellProducts.TotalCount;
 
             return Json(model);
         }
@@ -244,19 +271,22 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => selectedProductIds.Contains(x.Id))
                 .ToListAsync();
 
+            var existingRelations = await _db.CrossSellProducts
+                .ApplyProductId1Filter(productId)
+                .ToListAsync();
+
             foreach (var product in products.OrderBySequence(selectedProductIds))
             {
-                var existingRelations = await _db.CrossSellProducts
-                    .ApplyProductId1Filter(productId)
-                    .ToListAsync();
-
                 if (FindCrossSellProduct(existingRelations, productId, product.Id) == null)
                 {
-                    _db.CrossSellProducts.Add(new CrossSellProduct
+                    var crossSellProduct = new CrossSellProduct
                     {
                         ProductId1 = productId,
                         ProductId2 = product.Id
-                    });
+                    };
+
+                    _db.CrossSellProducts.Add(crossSellProduct);
+                    existingRelations.Add(crossSellProduct);
                 }
             }
 
@@ -305,7 +335,8 @@ namespace Smartstore.Admin.Controllers
             var query = _catalogSearchService.Value.PrepareQuery(searchQuery);
             var associatedProducts = await query
                 .ApplyGridCommand(command)
-                .ToListAsync();
+                .ToPagedList(command)
+                .LoadAsync();
 
             var associatedProductsModel = associatedProducts.Select(x =>
             {
@@ -324,7 +355,7 @@ namespace Smartstore.Admin.Controllers
             .ToList();
 
             model.Rows = associatedProductsModel;
-            model.Total = associatedProductsModel.Count;
+            model.Total = associatedProducts.TotalCount;
 
             return Json(model);
         }
@@ -417,7 +448,8 @@ namespace Smartstore.Admin.Controllers
                 .ApplyBundledProductsFilter(new[] { productId }, true)
                 .Include(x => x.Product)
                 .ApplyGridCommand(command)
-                .ToListAsync();
+                .ToPagedList(command)
+                .LoadAsync();
 
             var bundleItemsModel = bundleItems.Select(x =>
             {
@@ -438,7 +470,7 @@ namespace Smartstore.Admin.Controllers
             }).ToList();
 
             model.Rows = bundleItemsModel;
-            model.Total = bundleItemsModel.Count;
+            model.Total = bundleItems.TotalCount;
 
             return Json(model);
         }

@@ -30,25 +30,6 @@
     </div>
     <div class="adminRow">
         <div class="adminData wide">
-            @*TODO: (mh) (core) Remove comment after review*@
-            @*INFO: Editor taghelper can't be used because Model.ProductMediaFiles can't be casted into string *@
-            @*@{
-                var attrs = new AttributeDictionary {
-                    { "entityId", Model.Id.ToString() },
-                    { "entityType", "Product" },
-                    { "transientUpload", "false"},
-                    { "album", "catalog"},
-                    { "multifile", "true"},
-                    { "deleteUrl", Url.Action("ProductPictureDelete", "Product", "Admin")},
-                    { "sortUrl", Url.Action("SortPictures", "Product", "Admin")},
-                    { "entityAssignmentUrl", Url.Action("ProductMediaFilesAdd", "Product", "Admin")},
-                    { "uploadedFiles", Model.ProductMediaFiles as IEnumerable<IMediaFile>},
-                    { "typeFilter", "image,video" }
-                };
-            }
-
-            <editor asp-for="AddPictureModel.PictureId" attrs="attrs" />*@
-
             @Html.EditorFor(model => model.AddPictureModel.PictureId, new
             {
                 entityId = Model.Id,
@@ -71,12 +52,12 @@
     $(function () {
         Smartstore.media.lazyLoadThumbnails($(".preview-container"));
 
-        // Set MainPictureId for product
+        // Set MainPictureId for product.
         $(document).on("click", ".set-main-picture", function (e) {
             var el = $(this).closest('.dz-image-preview');
             var previewContainer = $(this).closest(".preview-container");
 
-            // Insert choosen media file at beginning of the list
+            // Insert choosen media file at beginning of the list.
             el.insertBefore(previewContainer.find('.dz-image-preview').first());
             previewContainer.trigger("sort", { item: el });
 

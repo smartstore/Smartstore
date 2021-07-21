@@ -586,7 +586,8 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the quantity control type.
         /// </summary>
-        public QuantityControlType QuantiyControlType { get; set; }
+        [Column("QuantiyControlType")]
+        public QuantityControlType QuantityControlType { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to hide the quantity input control.

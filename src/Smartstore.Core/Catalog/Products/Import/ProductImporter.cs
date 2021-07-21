@@ -418,9 +418,9 @@ namespace Smartstore.Core.DataExchange.Import
                 row.SetProperty(context.Result, (x) => x.CustomsTariffNumber);
                 row.SetProperty(context.Result, (x) => x.CountryOfOriginId);
 
-                if (row.TryGetDataValue("QuantiyControlType", out int qct))
+                if (row.TryGetDataValue("QuantityControlType", out int qct))
                 {
-                    product.QuantiyControlType = (QuantityControlType)qct;
+                    product.QuantityControlType = (QuantityControlType)qct;
                 }
                 if (row.TryGetDataValue("AttributeChoiceBehaviour", out int attributeChoiceBehaviour))
                 {

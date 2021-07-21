@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Newtonsoft.Json;
@@ -9,6 +11,7 @@ using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
@@ -190,8 +193,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*QuantityStep")]
         public int QuantityStep { get; set; }
 
-        // TODO: (mh) (core) Correct slipping of the pen in resource id!
-        [LocalizedDisplay("*QuantiyControlType")]
+        [LocalizedDisplay("*QuantityControlType")]
         public QuantityControlType QuantityControlType { get; set; }
 
         [LocalizedDisplay("*HideQuantityControl")]
@@ -660,14 +662,44 @@ namespace Smartstore.Admin.Models.Catalog
         public string FileVersion { get; set; }
     }
 
-    // TODO: (mh) (core) Is this already suffiencent?
     public partial class ProductModelValidator : SmartValidator<ProductModel>
     {
-        public ProductModelValidator(SmartDbContext db)
+        public ProductModelValidator(SmartDbContext db, Localizer T)
         {
             CopyFromEntityRules<Product>(db);
 
-            // TODO: (mh) (core) Identify missing validation rules (spare required & string length entity annoations)
+            When(x => x.LoadedTabs != null && x.LoadedTabs.Contains("Inventory", StringComparer.OrdinalIgnoreCase), () =>
+            {
+                RuleFor(x => x.OrderMinimumQuantity).GreaterThan(0); // dont't remove "Admin.Validation.ValueGreaterZero" resource. It is used elsewhere.
+                RuleFor(x => x.OrderMaximumQuantity).GreaterThan(0);
+            });
+
+            // validate PAnGV
+            When(x => x.BasePriceEnabled && x.LoadedTabs != null && x.LoadedTabs.Contains("Price"), () =>
+            {
+                RuleFor(x => x.BasePriceMeasureUnit).NotEmpty().WithMessage(T("Admin.Catalog.Products.Fields.BasePriceMeasureUnit.Required"));
+                RuleFor(x => x.BasePriceBaseAmount)
+                    .NotEmpty().WithMessage(T("Admin.Catalog.Products.Fields.BasePriceBaseAmount.Required"))
+                    .GreaterThan(0).WithMessage(T("Admin.Catalog.Products.Fields.BasePriceBaseAmount.Required"));
+                RuleFor(x => x.BasePriceAmount)
+                    .NotEmpty().WithMessage(T("Admin.Catalog.Products.Fields.BasePriceAmount.Required"))
+                    .GreaterThan(0).WithMessage(T("Admin.Catalog.Products.Fields.BasePriceAmount.Required"));
+            });
+
+            RuleFor(x => x.TaxCategoryId)
+                .NotNull()  // Nullable required for IsTaxExempt.
+                .NotEqual(0)
+                .When(x => !x.IsTaxExempt);
+
+            RuleFor(x => x.DownloadFileVersion)
+                .NotEmpty()
+                .When(x => x.DownloadId != null && x.DownloadId != 0)
+                .WithMessage(T("Admin.Catalog.Products.Download.SemanticVersion.NotValid"));
+
+            RuleFor(x => x.NewVersion)
+                .NotEmpty()
+                .When(x => x.NewVersionDownloadId != null && x.NewVersionDownloadId != 0)
+                .WithMessage(T("Admin.Catalog.Products.Download.SemanticVersion.NotValid"));
         }
     }
 

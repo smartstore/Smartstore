@@ -27,13 +27,4 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Admin.Catalog.ProductTags.Fields.Name")]
         public string Name { get; set; }
     }
-
-    // TODO: (mh) (core) Test > Not needed anymore because of [Required] on Name
-    //public partial class ProductTagValidator : AbstractValidator<ProductTagModel>
-    //{
-    //    public ProductTagValidator()
-    //    {
-    //        RuleFor(x => x.Name).NotEmpty();
-    //    }
-    //}
 }

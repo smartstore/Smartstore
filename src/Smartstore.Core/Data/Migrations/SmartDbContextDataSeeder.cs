@@ -208,6 +208,15 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("ActivityLog.ImportThemeVars", "Imported {0} variables for theme '{1}'.", "{0} Variablen für Theme '{1}' importiert.");
             builder.AddOrUpdate("ActivityLog.ExportThemeVars", "Successfully exported theme '{0}'.", "Theme '{0}' erfolgreich exportiert.");
 
+            builder.Delete("Admin.Catalog.Products.Fields.QuantiyControlType");
+            builder.Delete("Admin.Catalog.Products.Fields.QuantiyControlType.Hint");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.Fields.QuantityControlType",
+                "Control type",
+                "Steuerelement",
+                "Specifies the control type to enter the quantity.",
+                "Bestimmt das Steuerelement für die Angabe der Bestellmenge.");
+
             #endregion
         }
 

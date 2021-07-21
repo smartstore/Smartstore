@@ -7,7 +7,8 @@
 <datagrid id="associatedproducts-grid"
           allow-resize="true"
           allow-row-selection="true"
-          allow-edit="true">
+          allow-edit="true"
+          max-height="800px">
     <datasource read="@Url.Action("AssociatedProductList", new { productId = parentModel.Id })"
                 delete="@Url.Action("AssociatedProductDelete")"
                 update="@Url.Action("AssociatedProductUpdate")" />

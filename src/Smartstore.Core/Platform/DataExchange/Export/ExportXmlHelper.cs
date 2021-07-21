@@ -653,7 +653,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             _writer.WriteElementString("OrderMinimumQuantity", entity.OrderMinimumQuantity.ToString());
             _writer.WriteElementString("OrderMaximumQuantity", entity.OrderMaximumQuantity.ToString());
             _writer.WriteElementString("QuantityStep", entity.QuantityStep.ToString());
-            _writer.WriteElementString("QuantiyControlType", ((int)entity.QuantiyControlType).ToString());
+            _writer.WriteElementString("QuantityControlType", ((int)entity.QuantityControlType).ToString());
             _writer.WriteElementString("HideQuantityControl", entity.HideQuantityControl.ToString());
             _writer.WriteElementString("AllowedQuantities", entity.AllowedQuantities);
             _writer.WriteElementString("DisableBuyButton", entity.DisableBuyButton.ToString());

@@ -33,10 +33,11 @@ namespace Smartstore.Admin.Controllers
             var productSpecAttributes = await _db.ProductSpecificationAttributes
                 .AsNoTracking()
                 .ApplyProductsFilter(new[] { productId })
-                .ApplyGridCommand(command)
                 .Include(x => x.SpecificationAttributeOption)
                 .ThenInclude(x => x.SpecificationAttribute)
-                .ToListAsync();
+                .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
 
             var specAttributeIds = productSpecAttributes.Select(x => x.SpecificationAttributeOption.SpecificationAttributeId).ToArray();
             var options = await _db.SpecificationAttributeOptions
@@ -73,7 +74,7 @@ namespace Smartstore.Admin.Controllers
                 .ToList();
 
             model.Rows = productSpecModel;
-            model.Total = productSpecModel.Count;
+            model.Total = await productSpecAttributes.GetTotalCountAsync();
 
             return Json(model);
         }
@@ -166,7 +167,8 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.ProductAttribute)
                 .ThenInclude(x => x.ProductAttributeOptionsSets)
                 .ApplyGridCommand(command)
-                .ToListAsync();
+                .ToPagedList(command)
+                .LoadAsync();
 
             var productVariantAttributesModel = await productVariantAttributes
                 .SelectAsync(async x =>
@@ -209,7 +211,7 @@ namespace Smartstore.Admin.Controllers
                 .AsyncToList();
 
             model.Rows = productVariantAttributesModel;
-            model.Total = productVariantAttributesModel.Count;
+            model.Total = productVariantAttributes.TotalCount;
 
             return Json(model);
         }
@@ -333,10 +335,12 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .ApplyProductAttributeFilter(productVariantAttributeId)
                 .ApplyGridCommand(command)
-                .ToListAsync();
+                .ToPagedList(command)
+                .LoadAsync();
 
             gridModel.Rows = await values.SelectAsync(async x =>
             {
+                // TODO: (mh) (core) Also get this outside of loop (MultiList).
                 var linkedProduct = await _db.Products.FindByIdAsync(x.LinkedProductId, false);
 
                 var model = new ProductModel.ProductVariantAttributeValueModel
@@ -378,7 +382,7 @@ namespace Smartstore.Admin.Controllers
                 return model;
             }).AsyncToList();
 
-            gridModel.Total = values.Count;
+            gridModel.Total = values.TotalCount;
 
             return Json(gridModel);
         }

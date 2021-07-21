@@ -7,7 +7,8 @@
 <datagrid id="crosssellproducts-grid"
           allow-resize="true"
           allow-row-selection="true"
-          allow-edit="true">
+          allow-edit="true"
+          max-height="500px">
     <datasource read="@Url.Action("CrossSellProductList", new { productId = parentModel.Id })"
                 delete="@Url.Action("CrossSellProductDelete")"
                 update="@Url.Action("CrossSellProductUpdate")" />

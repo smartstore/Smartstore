@@ -34,8 +34,6 @@ namespace Smartstore.Admin.Controllers
             _exceptionFactory = exceptionFactory;
         }
 
-        // TODO: (mh) (core) Testing!
-        // TODO: (mh) (core) Fails when trying to add duplicate files. With: Could not determine JSON object type for type Smartstore.Threading.AsyncOut`1[System.String]. at Newtonsoft.Json.Linq.JValue.GetValueType(Nullable`1 current, Object value)
         [HttpPost]
         [Permission(Permissions.Media.Upload)]
         [MaxMediaFileSize]

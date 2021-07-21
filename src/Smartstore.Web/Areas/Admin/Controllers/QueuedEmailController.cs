@@ -59,7 +59,8 @@ namespace Smartstore.Admin.Controllers
                 ? _dateTimeHelper.ConvertToUtcTime(model.SearchEndDate.Value, _dateTimeHelper.CurrentTimeZone).AddDays(1)
                 : null;
 
-            var query = _db.QueuedEmails.AsNoTracking()
+            var query = _db.QueuedEmails
+                .AsNoTracking()
                 .Include(x => x.EmailAccount)
                 .ApplyTimeFilter(startDateValue, endDateValue, model.SearchLoadNotSent)
                 .ApplyMailAddressFilter(model.SearchFromEmail, model.SearchToEmail)

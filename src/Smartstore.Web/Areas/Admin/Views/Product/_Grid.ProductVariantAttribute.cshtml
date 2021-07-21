@@ -6,8 +6,9 @@
 
 <datagrid id="productvariantattributes-grid"
           allow-resize="true"
-          allow-row-selection="false"
-          allow-edit="true">
+          allow-row-selection="true"
+          allow-edit="true"
+          max-height="500px">
     <datasource read="@Url.Action("ProductVariantAttributeList", new { productId = parentModel.Id })"
                 delete="@Url.Action("ProductVariantAttributeDelete")"
                 update="@Url.Action("ProductVariantAttributeUpdate")"
@@ -15,7 +16,7 @@
     <sorting enabled="true">
         <sort by="DisplayOrder1" />
     </sorting>
-    <paging enabled="false" />
+    <paging enabled="true" page-size="10" />
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">

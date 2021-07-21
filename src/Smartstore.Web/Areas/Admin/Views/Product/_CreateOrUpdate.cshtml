@@ -4,10 +4,6 @@
 
 <div asp-validation-summary="ModelOnly"></div>
 
-@*TODO: (mh) (core) Remove this after some further testing*@
-@*INFO: Leads to duplicate IDs as Id is also displayed in _CreateOrUpdate.Info.cshtml*@
-@*<input type="hidden" asp-for="Id" />*@
-
 <tabstrip id="product-edit" sm-nav-style="Material" sm-onajaxsuccess="productEditTab_onAjaxSuccess" data-product-id="@Model.Id" sm-nav-position="Left">
     <tab sm-title="@T("Admin.Catalog.Products.Info")"
          sm-selected="true"

@@ -27,8 +27,7 @@
 			}
 		}).trigger('change');
 
-        // TODO: (mh) (core) Test this!
-		$('#RemoveProductLinkageButton').on('click', function () {
+        $('.btn-remove-product-linkage').on('click', function () {
 			$('#linked-product-name').val('');
 			$('#@Html.IdFor(model => model.LinkedProductId)').val('0');
 			toggleLinkageButtons();
@@ -37,17 +36,15 @@
 		toggleLinkageButtons();
 	});
 
-    // TODO: (mh) (core) Test this!
 	function PickLinkedProduct_Completed(ids, selectedItems, dialog) {
 		$('#linked-product-name').val(selectedItems[0].name);
 		return true;
 	}
 
-    // TODO: (mh) (core) Test this!
 	function toggleLinkageButtons() {
 		var unlinked = ($('#@Html.IdFor(model => model.LinkedProductId)').val() === '0');
-		$('#AddProductLinkageButton').toggle(unlinked);
-		$('#RemoveProductLinkageButton').toggle(!unlinked);
+        $('.btn-add-product-linkage').toggle(unlinked);
+        $('.btn-remove-product-linkage').toggle(!unlinked);
 	}
 </script>
 
@@ -71,20 +68,19 @@
             <div class="input-group">
                 <input type="text" class="form-control" id="linked-product-name" placeholder="@T("Common.Unspecified")" value="@Model.LinkedProductName" readonly>
                 <div class="input-group-append">
-                    <button type="button" id="RemoveProductLinkageButton" class="btn btn-outline-secondary btn-to-danger">
+                    <button type="button" class="btn btn-outline-secondary btn-to-danger btn-remove-product-linkage">
                         <i class="fa fa-times"></i>
                         <span>@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.UnlinkProduct")</span>
                     </button>
                     <entity-picker asp-for="LinkedProductId"
                                    icon-css-class="fa fa-link"
-                                   id="AddProductLinkageButton"
                                    max-items="1"
                                    append-mode="false"
                                    disabled-entity-ids="new[] { Model.ProductId }"
-                                   dialog-title=@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.LinkedProduct.AddNew").JsValue
-                                   caption=@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.LinkProduct").JsValue
+                                   dialog-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.LinkedProduct.AddNew").Value"
+                                   caption="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.LinkProduct").Value"
                                    onselectioncompleted="PickLinkedProduct_Completed"
-                                   class="btn btn-outline-secondary" />
+                                   class="btn btn-outline-secondary btn-add-product-linkage" />
                 </div>
             </div>
 
