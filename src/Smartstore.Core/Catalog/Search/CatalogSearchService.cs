@@ -4,17 +4,16 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
+using Smartstore.Core.Seo;
 using Smartstore.Diagnostics;
 
 namespace Smartstore.Core.Catalog.Search
@@ -25,20 +24,17 @@ namespace Smartstore.Core.Catalog.Search
         private readonly ICommonServices _services;
         private readonly IIndexManager _indexManager;
         private readonly ICurrencyService _currencyService;
-        private readonly IUrlHelper _urlHelper;
 
         public CatalogSearchService(
             SmartDbContext db,
             ICommonServices services,
             IIndexManager indexManager,
-            ICurrencyService currencyService,
-            IUrlHelper urlHelper)
+            ICurrencyService currencyService)
         {
             _db = db;
             _services = services;
             _indexManager = indexManager;
             _currencyService = currencyService;
-            _urlHelper = urlHelper;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -146,7 +142,7 @@ namespace Smartstore.Core.Catalog.Search
                 }
                 else if (searchQuery.Origin.EqualsNoCase("Search/Search"))
                 {
-                    IndexingRequiredNotification(_services, _urlHelper);
+                    IndexingRequiredNotification(_services);
                 }
             }
 

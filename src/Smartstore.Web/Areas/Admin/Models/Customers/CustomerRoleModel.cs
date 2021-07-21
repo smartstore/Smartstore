@@ -1,10 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.ComponentModel;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Web.Modelling;
@@ -58,30 +53,6 @@ namespace Smartstore.Admin.Models.Customers
 
             RuleFor(x => x.OrderTotalMaximum)
                 .GreaterThan(x => x.OrderTotalMinimum ?? 0);
-        }
-    }
-
-    public class CustomerRoleMapper : IMapper<CustomerRole, CustomerRoleModel>
-    {
-        private readonly IUrlHelper _urlHelper;
-
-        public CustomerRoleMapper(IUrlHelper urlHelper)
-        {
-            _urlHelper = urlHelper;
-        }
-
-        public Task MapAsync(CustomerRole from, CustomerRoleModel to, dynamic parameters = null)
-        {
-            MiniMapper.Map(from, to);
-
-            to.SelectedRuleSetIds = from.RuleSets.Select(x => x.Id).ToArray();
-
-            if (from.Id != 0)
-            {
-                to.EditUrl = _urlHelper.Action("Edit", "CustomerRole", new { id = from.Id, area = "Admin" });
-            }
-
-            return Task.CompletedTask;
         }
     }
 }

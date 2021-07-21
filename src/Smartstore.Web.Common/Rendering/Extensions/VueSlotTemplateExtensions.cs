@@ -17,6 +17,7 @@ namespace Smartstore.Web.Rendering
             string typeNameExpression = "item.row.ProductTypeName",
             string typeLabelHintExpression = "item.row.ProductTypeLabelHint",
             string urlExpression = "item.row.EditUrl",
+            string valueExpression = "item.value",
             string linkTarget = null)
         {
             var builder = new HtmlContentBuilder();
@@ -30,7 +31,7 @@ namespace Smartstore.Web.Rendering
             var isLink = urlExpression.HasValue();
             var name = new TagBuilder(isLink ? "a" : "span");
             name.Attributes.Add("class", "text-truncate");
-            name.InnerHtml.AppendHtml("{{ item.value }}");
+            name.InnerHtml.AppendHtml("{{ " + valueExpression + " }}");
 
             if (isLink)
             {

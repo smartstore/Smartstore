@@ -14,6 +14,7 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
+using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -39,9 +40,11 @@ namespace Smartstore.Admin.Controllers
         private readonly IRuleService _ruleService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IAclService _aclService;
+        private readonly ICatalogSearchService _catalogSearchService;
         private readonly Lazy<ITaskStore> _taskStore;
         private readonly Lazy<ITaskScheduler> _taskScheduler;
         private readonly CatalogSettings _catalogSettings;
+        private readonly SearchSettings _searchSettings;
 
         public CategoryController(
             SmartDbContext db,
@@ -53,9 +56,11 @@ namespace Smartstore.Admin.Controllers
             IRuleService ruleService,
             IStoreMappingService storeMappingService,
             IAclService aclService,
+            ICatalogSearchService catalogSearchService,
             Lazy<ITaskStore> taskStore,
             Lazy<ITaskScheduler> taskScheduler,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings,
+            SearchSettings searchSettings)
         {
             _db = db;
             _productService = productService;
@@ -66,9 +71,11 @@ namespace Smartstore.Admin.Controllers
             _ruleService = ruleService;
             _storeMappingService = storeMappingService;
             _aclService = aclService;
+            _catalogSearchService = catalogSearchService;
             _taskStore = taskStore;
             _taskScheduler = taskScheduler;
             _catalogSettings = catalogSettings;
+            _searchSettings = searchSettings;
         }
 
         /// <summary>
@@ -131,6 +138,73 @@ namespace Smartstore.Admin.Controllers
             }
 
             return new JsonResult(data);
+        }
+
+        // TODO: (mg) (core) implement 'AllProducts' AJAX action method for category product list. It's similar to ProductRuleOptionsProvider.SearchProducts.
+        // TODO: (mg) (core) Move it to ProductController when ready.
+        public async Task<IActionResult> AllProducts(string term, int? skip, int? take, string selectedIds)
+        {
+            skip ??= 0;
+            take ??= 100;
+
+            List<ChoiceListItem> products = null;
+            var ids = selectedIds.ToIntArray();
+            var fields = new List<string> { "name" };
+
+            if (_searchSettings.SearchFields.Contains("sku"))
+            {
+                fields.Add("sku");
+            }
+            if (_searchSettings.SearchFields.Contains("shortdescription"))
+            {
+                fields.Add("shortdescription");
+            }
+
+            var searchQuery = new CatalogSearchQuery(fields.ToArray(), term);
+
+            if (_searchSettings.UseCatalogSearchInBackend)
+            {
+                searchQuery = searchQuery
+                    .Slice(skip.Value, take.Value)
+                    .SortBy(ProductSortingEnum.NameAsc);
+
+                var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
+                var hits = await searchResult.GetHitsAsync();
+
+                products = hits.Select(x => new ChoiceListItem
+                {
+                    Id = x.Id.ToString(),
+                    Text = x.Name,
+                    Selected = ids.Contains(x.Id)
+                })
+                .ToList();
+            }
+            else
+            {
+                var query = _catalogSearchService.PrepareQuery(searchQuery);
+                var pageIndex = take == 0 ? 0 : Math.Max(skip.Value / take.Value, 0);
+
+                var data = await query
+                    .Select(x => new
+                    {
+                        x.Id,
+                        x.Name,
+                    })
+                    .OrderBy(x => x.Name)
+                    .Skip(skip.Value)
+                    .Take(take.Value)
+                    .ToListAsync();
+
+                products = data.Select(x => new ChoiceListItem
+                {
+                    Id = x.Id.ToString(),
+                    Text = x.Name,
+                    Selected = ids.Contains(x.Id)
+                })
+                .ToList();
+            }
+
+            return new JsonResult(products);
         }
 
         public IActionResult Index()
@@ -384,8 +458,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Category.Read)]
         public async Task<IActionResult> ProductCategoryList(GridCommand command, int categoryId)
         {
-            var mapper = MapperFactory.GetMapper<ProductCategory, CategoryProductModel>();
-
             var productCategories = await _db.ProductCategories
                 .AsNoTracking()
                 .ApplyCategoryFilter(categoryId)
@@ -393,7 +465,21 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await productCategories.SelectAsync(x => mapper.MapAsync(x)).AsyncToList();
+            var rows = productCategories.Select(x =>
+            {
+                var product = x.Product;
+                var model = MiniMapper.Map<ProductCategory, CategoryProductModel>(x);
+
+                model.ProductName = product.GetLocalized(x => x.Name);
+                model.Sku = product.Sku;
+                model.ProductTypeName = product.GetProductTypeLabel(Services.Localization);
+                model.ProductTypeLabelHint = product.ProductTypeLabelHint;
+                model.Published = product.Published;
+                model.EditUrl = Url.Action("Edit", "Product", new { id = x.ProductId, area = "Admin" });
+
+                return model;
+            })
+            .ToList();
 
             return Json(new GridModel<CategoryProductModel>
             {
@@ -482,7 +568,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Category.Update)]
         public async Task<IActionResult> ApplyRules(int id)
         {
-            var category = await _db.Categories.FindByIdAsync(id);
+            var category = await _db.Categories.FindByIdAsync(id, false);
             if (category == null)
             {
                 return NotFound();
@@ -519,7 +605,6 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(category);
                 model.SelectedRuleSetIds = category.RuleSets.Select(x => x.Id).ToArray();
 
-                var parentCategoryBreadcrumb = string.Empty;
                 var showRuleApplyButton = model.SelectedRuleSetIds.Any();
 
                 if (!showRuleApplyButton)
@@ -531,22 +616,24 @@ namespace Smartstore.Admin.Controllers
                         .AnyAsync();
                 }
 
-                if (model.ParentCategoryId.HasValue)
-                {
-                    var parentCategory = await _categoryService.GetCategoryTreeAsync(model.ParentCategoryId.Value, true);
-                    if (parentCategory != null)
-                    {
-                        parentCategoryBreadcrumb = _categoryService.GetCategoryPath(parentCategory);
-                    }
-                    else
-                    {
-                        model.ParentCategoryId = 0;
-                    }
-                }
-
                 ViewBag.ShowRuleApplyButton = showRuleApplyButton;
-                ViewBag.ParentCategoryBreadcrumb = parentCategoryBreadcrumb;
             }
+
+            var parentCategoryBreadcrumb = string.Empty;
+            if (model.ParentCategoryId.HasValue)
+            {
+                var parentCategory = await _categoryService.GetCategoryTreeAsync(model.ParentCategoryId.Value, true);
+                if (parentCategory != null)
+                {
+                    parentCategoryBreadcrumb = _categoryService.GetCategoryPath(parentCategory);
+                }
+                else
+                {
+                    model.ParentCategoryId = 0;
+                }
+            }
+
+            ViewBag.ParentCategoryBreadcrumb = parentCategoryBreadcrumb;
 
             var categoryTemplates = await _db.CategoryTemplates
                 .AsNoTracking()

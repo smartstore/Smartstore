@@ -21,7 +21,6 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Data;
-using Smartstore.Data.Batching;
 using Smartstore.Scheduling;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
@@ -119,19 +118,19 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Role.Read)]
         public async Task<IActionResult> RoleList(GridCommand command)
         {
-            var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
-
             var customerRoles = await _roleManager.Roles
                 .AsNoTracking()
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await customerRoles.SelectAsync(x =>
+            var rows = customerRoles.Select(x =>
             {
-                return mapper.MapAsync(x);
+                var model = MiniMapper.Map<CustomerRole, CustomerRoleModel>(x);
+                model.EditUrl = Url.Action("Edit", "CustomerRole", new { id = x.Id, area = "Admin" });
+                return model;
             })
-            .AsyncToList();
+            .ToList();
 
             return Json(new GridModel<CustomerRoleModel>
             {
@@ -148,7 +147,7 @@ namespace Smartstore.Admin.Controllers
                 Active = true
             };
 
-            await PrepareViewBag(model, null);
+            await PrepareRoleModel(model, null);
 
             return View(model);
         }
@@ -170,7 +169,7 @@ namespace Smartstore.Admin.Controllers
                     : RedirectToAction("List");
             }
 
-            await PrepareViewBag(model, null);
+            await PrepareRoleModel(model, null);
 
             return View(model);
         }
@@ -184,10 +183,9 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
-            var model = await mapper.MapAsync(role);
+            var model = MiniMapper.Map<CustomerRole, CustomerRoleModel>(role);
 
-            await PrepareViewBag(model, role);
+            await PrepareRoleModel(model, role);
 
             return View(model);
         }
@@ -264,10 +262,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            var mapper = MapperFactory.GetMapper<CustomerRole, CustomerRoleModel>();
-            await mapper.MapAsync(role, model);
-
-            await PrepareViewBag(model, role);
+            await PrepareRoleModel(model, role);
 
             return View(model);
         }
@@ -372,12 +367,14 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("Edit", new { id = role.Id });
         }
 
-        private async Task PrepareViewBag(CustomerRoleModel model, CustomerRole role)
+        private async Task PrepareRoleModel(CustomerRoleModel model, CustomerRole role)
         {
             Guard.NotNull(model, nameof(model));
 
             if (role != null)
             {
+                model.SelectedRuleSetIds = role.RuleSets.Select(x => x.Id).ToArray();
+
                 var showRuleApplyButton = model.SelectedRuleSetIds.Any();
 
                 if (!showRuleApplyButton)

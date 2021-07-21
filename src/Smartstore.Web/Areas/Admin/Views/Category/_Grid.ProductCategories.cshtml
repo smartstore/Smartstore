@@ -6,51 +6,50 @@
 }
 
 <datagrid id="product-categories-grid"
+          key-member="Id"
+          allow-edit="true"
           allow-resize="true"
+          allow-row-selection="true"
           allow-column-reordering="true"
-          preserve-grid-state="true">
+          preserve-grid-state="true"
+          onrowclass="productCategoriesGrid_onRowClass">
     <datasource read="@Url.Action("ProductCategoryList", new { categoryId = parentModel.Id })" 
                 insert="@Url.Action("ProductCategoryInsert", new { categoryId = parentModel.Id })"
                 update="@Url.Action("ProductCategoryUpdate")"
                 delete="@Url.Action("ProductCategoryDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
-    <sorting allow-unsort="true" allow-multisort="false">
-        <sort by="DisplayOrder" />
-    </sorting>
+    <sorting allow-unsort="true" allow-multisort="false" />
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.InsertRow" type="button" class="btn btn-primary btn-flat no-anims mr-auto">
                 <i class="fa fa-plus"></i>
-                <span>@T("Admin.Common.AddNew")</span>
-            </button>
-            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
-                <i class="fa fa-check"></i>
-                <span>@T("Admin.Common.SaveChanges")</span>
-            </button>
-            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
-                <span>@T("Common.Cancel")</span>
+                <span>@T("Admin.Catalog.Categories.Products.AddNew")</span>
             </button>
         </toolbar-group>
-            @if (showRuleApplyButton)
-            {
-                <toolbar-group>
-                    <button type="button" id="reapply-rules" class="btn btn-primary btn-flat" data-url="@Url.Action("ApplyRules", new { id = parentModel.Id })">
-                        <i class="fa fa-play"></i>
-                        <span>@T("Admin.Rules.ReapplyRules")</span>
-                    </button>
-                </toolbar-group>
-            }
-            <toolbar-group class="omega">
-                <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
-                    <i class="far fa-trash-alt"></i>
-                    <span>@T("Admin.Common.Delete.Selected")</span>
+        @if (showRuleApplyButton)
+        {
+            <toolbar-group>
+                <button type="button" id="reapply-rules" class="btn btn-primary btn-flat" data-url="@Url.Action("ApplyRules", new { id = parentModel.Id })">
+                    <i class="fa fa-play"></i>
+                    <span>@T("Admin.Rules.ReapplyRules")</span>
                 </button>
             </toolbar-group>
-        </toolbar>
+        }
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
     <columns>
-		<column for="ProductName" width="3fr" hideable="false" readonly entity-member="Product.Name">
+		<column for="ProductId" width="3fr" hideable="false" entity-member="Product.Name">
             <display-template>
-                @Html.LabeledProductName()
+                @Html.LabeledProductName(valueExpression: "item.row.ProductName")
             </display-template>
 		</column>
         <column for="Sku" readonly entity-member="Product.Sku" />
@@ -59,8 +58,12 @@
         <column for="DisplayOrder" halign="center" />
         <column for="IsSystemMapping" readonly halign="center" />
     </columns>
-    <row-commands>
-        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
-        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
-    </row-commands>
 </datagrid>
+
+<script sm-target-zone="scripts" data-origin="product-categories-grid">
+    function productCategoriesGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.Published
+        };
+    }
+</script>

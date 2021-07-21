@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Autofac;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Logging;
 
@@ -107,9 +108,9 @@ namespace Smartstore.Core.Search
         /// <summary>
         /// Notifies the admin that indexing is required to use the advanced search.
         /// </summary>
-        protected virtual void IndexingRequiredNotification(ICommonServices services, IUrlHelper urlHelper)
+        protected virtual void IndexingRequiredNotification(ICommonServices services)
         {
-            if (services.WorkContext.CurrentCustomer.IsAdmin())
+            if (services.WorkContext.CurrentCustomer.IsAdmin() && services.Container.TryResolve<IUrlHelper>(out var urlHelper))
             {
                 var indexingUrl = urlHelper.Action("Indexing", "MegaSearch", new { area = "SmartStore.MegaSearch" });
                 // TODO: (mg) (core) Be careful with such URLs! They will change most probably (ChildAction <> ViewComponent etc.). Don't leave such code behind without any comment.
