@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
+using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -1001,7 +1002,34 @@ namespace Smartstore.Admin.Controllers
 
         #region Low stock reports
 
-        // TODO: (mh) (core) Finish the job.
+        [Permission(Permissions.Catalog.Product.Read)]
+        public IActionResult LowStockReport()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Product.Read)]
+        public async Task<IActionResult> LowStockReportList(GridCommand command)
+        {
+            var model = new GridModel<ProductModel>();
+            var allProducts = await _productService.GetLowStockProducts()
+                .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            model.Rows = await allProducts.SelectAsync(async x =>
+            {
+                var productModel = await MapperFactory.MapAsync<Product, ProductModel>(x);
+                productModel.ProductTypeName = x.GetProductTypeLabel(Services.Localization);
+                productModel.EditUrl = Url.Action("Edit", "Product", new { id = x.Id });
+                return productModel;
+            }).AsyncToList();
+
+            model.Total = allProducts.TotalCount;
+
+            return Json(model);
+        }
 
         #endregion
 

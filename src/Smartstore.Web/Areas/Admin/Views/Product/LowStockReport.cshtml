@@ -1,0 +1,31 @@
+﻿@model ProductModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.LowStockReport").Value;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="far fa-chart-bar"></i>
+        @T("Admin.Catalog.LowStockReport")
+    </div>
+    <div class="options">
+    </div>
+</div>
+
+<datagrid id="products-grid" allow-resize="true">
+    <datasource read="@Url.Action("LowStockReportList")" />
+    <paging position="Both" />
+    <sorting enabled="true"></sorting>
+    <columns>
+        <column for="Name" width="4fr" hideable="false">
+            <display-template>
+                @Html.LabeledProductName()
+            </display-template>
+        </column>
+        <column for="Sku" width="2fr" />
+        <column for="Price" halign="flex-end" />
+        <column for="StockQuantity" halign="center" />
+        <column for="Published" halign="center" />
+    </columns>
+</datagrid>

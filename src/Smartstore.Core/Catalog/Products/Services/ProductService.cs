@@ -87,7 +87,7 @@ namespace Smartstore.Core.Catalog.Products
             return (variantCombination?.Product, variantCombination);
         }
 
-        public virtual async Task<IList<Product>> GetLowStockProductsAsync(bool tracked = false)
+        public virtual IQueryable<Product> GetLowStockProducts(bool tracked = false)
         {
             var query = _db.Products
                 .ApplyTracking(tracked)
@@ -100,8 +100,6 @@ namespace Smartstore.Core.Catalog.Products
                 where p.ManageInventoryMethodId == (int)ManageInventoryMethod.ManageStock && p.MinStockQuantity >= p.StockQuantity
                 select p;
 
-            var products1 = await query1.ToListAsync();
-
             // Track inventory for product by product attributes.
             var query2 = 
                 from p in query
@@ -109,13 +107,7 @@ namespace Smartstore.Core.Catalog.Products
                 where p.ManageInventoryMethodId == (int)ManageInventoryMethod.ManageStockByAttributes && pvac.StockQuantity <= 0
                 select p;
 
-            var products2 = await query2.ToListAsync();
-
-            var result = new List<Product>();
-            result.AddRange(products1);
-            result.AddRange(products2);
-
-            return result;
+            return query1.Concat(query2);
         }
 
         public virtual async Task<Multimap<int, ProductTag>> GetProductTagsByProductIdsAsync(int[] productIds, bool includeHidden = false)

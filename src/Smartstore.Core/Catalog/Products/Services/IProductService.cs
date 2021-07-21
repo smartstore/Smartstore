@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
@@ -32,7 +33,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
         /// <returns>List of low stock products.</returns>
-        Task<IList<Product>> GetLowStockProductsAsync(bool tracked = false);
+        IQueryable<Product> GetLowStockProducts(bool tracked = false);
 
         /// <summary>
         /// Gets product tags by product identifiers.
