@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
@@ -63,7 +64,7 @@ namespace Smartstore.Web
                     o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
                     o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
                     o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
-
+                    
                     if (appContext.AppConfiguration.EnableLocalizedViews)
                     {
                         o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
@@ -115,7 +116,7 @@ namespace Smartstore.Web
                     //o.EnableEndpointRouting = false;
                     // TODO: (core) AddModelBindingMessagesLocalizer
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
-
+                    
                     // TODO: (core) Add more model binders
                     var complexBinderProvider = o.ModelBinderProviders.OfType<ComplexObjectModelBinderProvider>().First();
                     o.ModelBinderProviders.Insert(0, new GridCommandModelBinderProvider(complexBinderProvider));
@@ -169,6 +170,10 @@ namespace Smartstore.Web
                 })
                 .AddControllersAsServices()
                 .AddAppLocalization()
+                .AddViewOptions(o => 
+                {
+                    o.HtmlHelperOptions.CheckBoxHiddenInputRenderMode = CheckBoxHiddenInputRenderMode.Inline;
+                })
                 .AddMvcOptions(o =>
                 {
                     // TODO: (core) More MVC config?
