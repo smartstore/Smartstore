@@ -259,12 +259,12 @@ namespace Smartstore.Core.Checkout.Cart
 
             if (cartItem.Product.GiftCardType == GiftCardType.Virtual)
             {
-                if (recipientEmail.IsEmpty() || !recipientEmail.IsEmail())
+                if (!recipientEmail.IsEmail())
                 {
                     currentWarnings.Add(T("ShoppingCart.RecipientEmailError"));
                 }
 
-                if (senderEmail.IsEmpty() || !senderEmail.IsEmail())
+                if (!senderEmail.IsEmail())
                 {
                     currentWarnings.Add(T("ShoppingCart.SenderEmailError"));
                 }

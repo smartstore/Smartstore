@@ -40,7 +40,10 @@ namespace Smartstore.Domain
 
             _rawAttributes = rawAttributes.TrimSafe();
             _xmlAttributeName = xmlAttributeName;
-            _xmlAttributeValueName = xmlAttributeValueName.HasValue() ? xmlAttributeValueName : xmlAttributeName + "Value";
+
+            _xmlAttributeValueName = xmlAttributeValueName.HasValue() 
+                ? xmlAttributeValueName 
+                : xmlAttributeName + "Value";
 
             _map = _rawAttributes.HasValue()
                 ? FromXmlOrJson(_rawAttributes, _xmlAttributeName, _xmlAttributeValueName)
@@ -142,11 +145,14 @@ namespace Smartstore.Domain
         public string AsJson()
         {
             if (_rawAttributes.HasValue() && _isJson && !_dirty)
+            {
                 return _rawAttributes;
+            }
 
             try
             {
                 var json = JsonConvert.SerializeObject(_map);
+
                 _isJson = true;
                 _dirty = false;
                 _rawAttributes = json;
@@ -168,9 +174,12 @@ namespace Smartstore.Domain
         public string AsXml()
         {
             if (_rawAttributes.HasValue() && !_isJson && !_dirty)
+            {
                 return _rawAttributes;
+            }
 
             var root = new XElement("Attributes");
+
             foreach (var attribute in _map)
             {
                 if (attribute.Key <= 0)
@@ -180,11 +189,7 @@ namespace Smartstore.Domain
 
                 foreach (var attributeValue in attribute.Value.Distinct())
                 {
-                    attributeElement.Add(
-                        new XElement(
-                            _xmlAttributeValueName,
-                            new XElement("Value", attributeValue))
-                        );
+                    attributeElement.Add(new XElement(_xmlAttributeValueName, new XElement("Value", attributeValue)));
                 }
 
                 root.Add(attributeElement);
@@ -195,6 +200,7 @@ namespace Smartstore.Domain
             _isJson = false;
             _dirty = false;
             _rawAttributes = root.ToString(SaveOptions.DisableFormatting);
+
             return _rawAttributes;
         }
 

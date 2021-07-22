@@ -20,7 +20,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Smartstore.Caching;
+using Smartstore.Collections;
 using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
@@ -899,8 +901,39 @@ namespace Smartstore.Web.Controllers
             var scs = Services.Resolve<IShoppingCartService>();
             var schs = Services.Resolve<IShippingService>();
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
-            var cartWeight = await schs.GetCartTotalWeightAsync(cart);
-            content.AppendLine("Cart weight: " + cartWeight.ToString());
+
+            var attributes = new Multimap<int, object>();
+            var customProperties = new Multimap<string, object>();
+
+            attributes.AddRange(123, new object[] { 9,8,7 });
+            attributes.AddRange(65, new object[] { 11 });
+
+            customProperties.Add("GiftCardInfo", new GiftCardInfo
+            {
+                RecipientName = "John Doe",
+                RecipientEmail = "jdow@web.com",
+                SenderName = "me",
+                SenderEmail = "me@web.com"
+            });
+            customProperties.Add("GiftCardInfo", new GiftCardInfo
+            {
+                RecipientName = "Jane Dow",
+                RecipientEmail = "jane@web.com",
+                SenderName = "me",
+                SenderEmail = "me@web.com"
+            });
+
+            var json = JsonConvert.SerializeObject(new
+            {
+                Attributes = attributes,
+                CustomProperties = customProperties
+            });
+            content.AppendLine(json);
+            content.AppendLine();
+
+
+            //var cartWeight = await schs.GetCartTotalWeightAsync(cart);
+            //content.AppendLine("Cart weight: " + cartWeight.ToString());
 
             //var allSelections = new List<ProductVariantAttributeSelection>();
             //foreach (var item in cart.Items)
@@ -916,45 +949,45 @@ namespace Smartstore.Web.Controllers
             //content.AppendLine($"{num} of {allSelections.Count} cached.");
 
 
-            foreach (var item in cart.Items)
-            {
-                var attributeValues = await pam.MaterializeProductVariantAttributeValuesAsync(item.Item.AttributeSelection);
-                var attributesInfo = string.Join(", ", attributeValues.Select(x => x.ProductVariantAttribute.ProductAttribute.Name + ":" + x.Name));
+            //foreach (var item in cart.Items)
+            //{
+            //    var attributeValues = await pam.MaterializeProductVariantAttributeValuesAsync(item.Item.AttributeSelection);
+            //    var attributesInfo = string.Join(", ", attributeValues.Select(x => x.ProductVariantAttribute.ProductAttribute.Name + ":" + x.Name));
 
-                foreach (var kvp in item.Item.AttributeSelection.AttributesMap)
-                {
-                    content.AppendLine($"{kvp.Key}: " + string.Join(",", kvp.Value.Select(x => x.ToString())));
-                }
+            //    foreach (var kvp in item.Item.AttributeSelection.AttributesMap)
+            //    {
+            //        content.AppendLine($"{kvp.Key}: " + string.Join(",", kvp.Value.Select(x => x.ToString())));
+            //    }
 
-                foreach (var child in item.ChildItems)
-                {
-                    var childAttributeValues = await pam.MaterializeProductVariantAttributeValuesAsync(child.Item.AttributeSelection);
-                    var childAttributesInfo = string.Join(", ", childAttributeValues.Select(x => x.ProductVariantAttribute.ProductAttribute.Name + ":" + x.Name));
+            //    foreach (var child in item.ChildItems)
+            //    {
+            //        var childAttributeValues = await pam.MaterializeProductVariantAttributeValuesAsync(child.Item.AttributeSelection);
+            //        var childAttributesInfo = string.Join(", ", childAttributeValues.Select(x => x.ProductVariantAttribute.ProductAttribute.Name + ":" + x.Name));
 
-                    content.AppendLine(child.Item.Product.Name.PadRight(50) + ": " + childAttributesInfo);
-                }
-            }
+            //        content.AppendLine(child.Item.Product.Name.PadRight(50) + ": " + childAttributesInfo);
+            //    }
+            //}
 
-            //var numDeleted = await scs.DeleteCartAsync(cart, true, true);
-            //content.AppendLine("Deleted cart items: " + numDeleted);
+            ////var numDeleted = await scs.DeleteCartAsync(cart, true, true);
+            ////content.AppendLine("Deleted cart items: " + numDeleted);
 
-            var selection = new ProductVariantAttributeSelection(string.Empty);
-            foreach (var item in cart.Items)
-            {
-                foreach (var attribute in item.Item.AttributeSelection.AttributesMap)
-                {
-                    if (!attribute.Value.IsNullOrEmpty())
-                    {
-                        selection.AddAttribute(attribute.Key, attribute.Value);
-                    }
-                }
-            }
+            //var selection = new ProductVariantAttributeSelection(string.Empty);
+            //foreach (var item in cart.Items)
+            //{
+            //    foreach (var attribute in item.Item.AttributeSelection.AttributesMap)
+            //    {
+            //        if (!attribute.Value.IsNullOrEmpty())
+            //        {
+            //            selection.AddAttribute(attribute.Key, attribute.Value);
+            //        }
+            //    }
+            //}
 
-            content.AppendLine("-----------------------");
-            foreach (var kvp in selection.AttributesMap)
-            {
-                content.AppendLine($"{kvp.Key}: " + string.Join(",", kvp.Value.Select(x => x.ToString())));
-            }
+            //content.AppendLine("-----------------------");
+            //foreach (var kvp in selection.AttributesMap)
+            //{
+            //    content.AppendLine($"{kvp.Key}: " + string.Join(",", kvp.Value.Select(x => x.ToString())));
+            //}
 
             return Content(content.ToString());
             //return View();

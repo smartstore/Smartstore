@@ -40,43 +40,31 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 try
                 {
-                    var giftCardInfo = new GiftCardInfo();
+                    GiftCardInfo = new GiftCardInfo();
+
                     foreach (var el in element.Elements())
                     {
                         switch (el.Name.LocalName)
                         {
                             case nameof(GiftCardInfo.RecipientEmail):
-                                {
-                                    giftCardInfo.RecipientEmail = el.Value;
-                                    break;
-                                }
+                                GiftCardInfo.RecipientEmail = el.Value;
+                                break;
                             case nameof(GiftCardInfo.RecipientName):
-                                {
-                                    giftCardInfo.RecipientName = el.Value;
-                                    break;
-                                }
+                                GiftCardInfo.RecipientName = el.Value;
+                                break;
                             case nameof(GiftCardInfo.SenderName):
-                                {
-                                    giftCardInfo.SenderName = el.Value;
-                                    break;
-                                }
+                                GiftCardInfo.SenderName = el.Value;
+                                break;
                             case nameof(GiftCardInfo.SenderEmail):
-                                {
-                                    giftCardInfo.SenderEmail = el.Value;
-                                    break;
-                                }
+                                GiftCardInfo.SenderEmail = el.Value;
+                                break;
                             case nameof(GiftCardInfo.Message):
-                                {
-                                    giftCardInfo.Message = el.Value;
-                                    break;
-                                }
-
+                                GiftCardInfo.Message = el.Value;
+                                break;
                             default:
                                 throw new InvalidEnumArgumentException(el.Name.LocalName);
                         }
                     }
-
-                    GiftCardInfo = giftCardInfo;
                 }
                 catch (Exception ex)
                 {
@@ -87,17 +75,17 @@ namespace Smartstore.Core.Catalog.Attributes
 
         protected override void OnSerialize(XElement root)
         {
-            if (GiftCardInfo is null)
-                return;
+            if (GiftCardInfo != null)
+            {
+                var el = new XElement("GiftCardInfo");
+                el.Add(new XElement(nameof(GiftCardInfo.RecipientName), GiftCardInfo.RecipientName));
+                el.Add(new XElement(nameof(GiftCardInfo.RecipientEmail), GiftCardInfo.RecipientEmail));
+                el.Add(new XElement(nameof(GiftCardInfo.SenderName), GiftCardInfo.SenderName));
+                el.Add(new XElement(nameof(GiftCardInfo.SenderEmail), GiftCardInfo.SenderEmail));
+                el.Add(new XElement(nameof(GiftCardInfo.Message), GiftCardInfo.Message));
 
-            var xElement = new XElement("GiftCardInfo");
-            xElement.Add(new XElement(nameof(GiftCardInfo.RecipientName), GiftCardInfo.RecipientName));
-            xElement.Add(new XElement(nameof(GiftCardInfo.RecipientEmail), GiftCardInfo.RecipientEmail));
-            xElement.Add(new XElement(nameof(GiftCardInfo.SenderName), GiftCardInfo.SenderName));
-            xElement.Add(new XElement(nameof(GiftCardInfo.SenderEmail), GiftCardInfo.SenderEmail));
-            xElement.Add(new XElement(nameof(GiftCardInfo.Message), GiftCardInfo.Message));
-
-            root.Add(xElement);
+                root.Add(el);
+            }
         }
     }
 }

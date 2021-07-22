@@ -117,6 +117,11 @@ namespace Smartstore.Core.Checkout.Cart
                     if (ctx.BundleItem != null)
                         return false;
                 }
+
+                if (ctx.Product.IsGiftCard)
+                {
+                    // TODO: (mg) (core) adding gift card attribute is missing in AddToCartAsync.
+                }
             }
 
             if (!await _cartValidator.ValidateAccessPermissionsAsync(ctx.Customer, ctx.CartType, ctx.Warnings))

@@ -747,15 +747,12 @@ namespace Smartstore.Web.Controllers
 
             _activityLogger.LogActivity(activity, T(resourceName), product.Name);
 
-            return redirect
-                ? Json(new
-                {
-                    redirect = Url.RouteUrl(routeUrl),
-                })
-                : Json(new
-                {
-                    success = true
-                });
+            if (redirect)
+            {
+                return Json(new { redirect = Url.RouteUrl(routeUrl) });
+            }
+
+            return Json(new { success = true });
         }
 
         /// <summary>
