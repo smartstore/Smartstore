@@ -449,11 +449,20 @@ namespace Smartstore.Admin.Controllers
             var productCategory = await _db.ProductCategories.FindByIdAsync(model.Id);
             if (productCategory != null)
             {
-                productCategory.IsFeaturedProduct = model.IsFeaturedProduct;
-                productCategory.DisplayOrder = model.DisplayOrder;
+                if (model.ProductId != productCategory.ProductId &&
+                    await _db.ProductCategories.AnyAsync(x => x.CategoryId == model.CategoryId && x.ProductId == model.ProductId))
+                {
+                    NotifyError(T("Admin.Catalog.Categories.Products.NoDuplicatesAllowed"));
+                }
+                else
+                {
+                    productCategory.ProductId = model.ProductId;
+                    productCategory.IsFeaturedProduct = model.IsFeaturedProduct;
+                    productCategory.DisplayOrder = model.DisplayOrder;
 
-                await _db.SaveChangesAsync();
-                success = true;
+                    await _db.SaveChangesAsync();
+                    success = true;
+                }
             }
 
             return Json(new { success });

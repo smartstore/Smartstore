@@ -61,6 +61,14 @@ namespace Smartstore.Core.Data.Migrations
                 "This product has already been assigned to the category.",
                 "Dieses Produkt wurde der Warengruppe bereits zugeordnet.");
 
+            builder.AddOrUpdate("BackInStockSubscriptions.Subscribed",
+                "You will be notified if this product is available again.",
+                "Sie erhalten eine Benachrichtigung, falls dieses Produkt wieder lieferbar ist.");
+
+            builder.AddOrUpdate("BackInStockSubscriptions.Unsubscribed",
+                "The back in stock notification has been cancelled.",
+                "Die Benachrichtigung über Produktverfügbarkeit wurde storniert.");
+
             #endregion
 
             #region Identity

@@ -13,7 +13,6 @@ namespace Smartstore.Core.Catalog.Products
 {
     public partial class StockSubscriptionService : IStockSubscriptionService
     {
-        // TODO: (mg) (core) Add localizations in StockSubscriptionService (for subscribed, already subscribed and unsubscribed message).
         private readonly SmartDbContext _db;
         private readonly IMessageFactory _messageFactory;
         private readonly IWorkContext _workContext;
@@ -48,7 +47,11 @@ namespace Smartstore.Core.Catalog.Products
                 .AnyAsync();
         }
 
-        public virtual async Task<(bool Success, string Message)> SubscribeAsync(Product product, Customer customer = null, int? storeId = null)
+        public virtual async Task<(bool Success, string Message)> SubscribeAsync(
+            Product product, 
+            Customer customer = null, 
+            int? storeId = null,
+            bool unsubscribe = false)
         {
             Guard.NotNull(product, nameof(product));
 
@@ -79,8 +82,8 @@ namespace Smartstore.Core.Catalog.Products
                             // Subscribe.
                             _db.BackInStockSubscriptions.Add(new BackInStockSubscription
                             {
-                                Customer = customer,
-                                Product = product,
+                                CustomerId = customer.Id,
+                                ProductId = product.Id,
                                 StoreId = storeId.Value,
                                 CreatedOnUtc = DateTime.UtcNow
                             });
@@ -88,16 +91,24 @@ namespace Smartstore.Core.Catalog.Products
                             await _db.SaveChangesAsync();
 
                             success = true;
-                            message = "Subscribed";
+                            message = T("BackInStockSubscriptions.Subscribed");
                         }
                         else
                         {
                             message = T("BackInStockSubscriptions.MaxSubscriptions").Value.FormatInvariant(_catalogSettings.MaximumBackInStockSubscriptions);
                         }
                     }
+                    else if (unsubscribe)
+                    {
+                        _db.BackInStockSubscriptions.Remove(subscription);
+                        await _db.SaveChangesAsync();
+
+                        success = true;
+                        message = T("BackInStockSubscriptions.Unsubscribed");
+                    }
                     else
                     {
-                        message = "Already subscribed";
+                        message = T("BackInStockSubscriptions.AlreadySubscribed");
                     }
                 }
                 else
@@ -127,7 +138,7 @@ namespace Smartstore.Core.Catalog.Products
                 await _db.SaveChangesAsync();
 
                 success = true;
-                message = "Unsubscribed";
+                message = T("BackInStockSubscriptions.Unsubscribed");
             }
             else
             {

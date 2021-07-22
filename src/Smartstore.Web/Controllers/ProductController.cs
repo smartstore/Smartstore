@@ -198,7 +198,9 @@ namespace Smartstore.Web.Controllers
             var product = await _db.Products.FindByIdAsync(id, false);
 
             if (product == null || product.IsSystemProduct || !product.Published)
+            {
                 return NotFound();
+            }
 
             var customer = Services.WorkContext.CurrentCustomer;
             var store = Services.StoreContext.CurrentStore;
@@ -237,68 +239,14 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> BackInStockSubscribePopup(int id)
         {
             var product = await _db.Products.FindByIdAsync(id, false);
-
             if (product == null || product.IsSystemProduct || !product.Published)
+            {
                 return Content(T("Products.NotFound", id));
-
-            var customer = Services.WorkContext.CurrentCustomer;
-
-            if (!customer.IsRegistered())
-            {
-                return Content(T("BackInStockSubscriptions.OnlyRegistered"));
             }
 
-            if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock &&
-                product.BackorderMode == BackorderMode.NoBackorders &&
-                product.AllowBackInStockSubscriptions &&
-                product.StockQuantity <= 0)
-            {
-                var store = Services.StoreContext.CurrentStore;
+            var (_, message) = await _stockSubscriptionService.Value.SubscribeAsync(product, unsubscribe: true);
 
-                // Out of stock.
-                var subscription = await _db.BackInStockSubscriptions
-                    .ApplyStandardFilter(product.Id, customer.Id, store.Id)
-                    .FirstOrDefaultAsync();
-                
-                if (subscription != null)
-                {
-                    // Unsubscribe.
-                    _db.BackInStockSubscriptions.Remove(subscription);
-                    await _db.SaveChangesAsync();
-                    
-                    return Content("Unsubscribed");
-                }
-                else
-                {
-                    var customerSubscriptionCount = await _db.BackInStockSubscriptions
-                        .ApplyStandardFilter(customerId: customer.Id, storeId: store.Id)
-                        .CountAsync();
-
-                    if (customerSubscriptionCount >= _catalogSettings.MaximumBackInStockSubscriptions)
-                    {
-                        return Content(T("BackInStockSubscriptions.MaxSubscriptions", _catalogSettings.MaximumBackInStockSubscriptions));
-                    }
-
-                    // Subscribe.
-                    subscription = new BackInStockSubscription
-                    {
-                        Customer = customer,
-                        //Product = product,    // INFO: (mh) (core) Throws: Ein expliziter Wert für die Identitätsspalte kann nicht in der Product-Tabelle eingefügt werden, wenn IDENTITY_INSERT auf OFF festgelegt ist.
-                        ProductId = product.Id,
-                        StoreId = store.Id,
-                        CreatedOnUtc = DateTime.UtcNow
-                    };
-
-                    _db.BackInStockSubscriptions.Add(subscription);
-                    await _db.SaveChangesAsync();
-                
-                    return Content("Subscribed");
-                }
-            }
-            else
-            {
-                return Content(T("BackInStockSubscriptions.NotAllowed"));
-            }
+            return Content(message);
         }
 
         /// <summary>
