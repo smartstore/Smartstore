@@ -538,17 +538,11 @@ namespace Smartstore
             => true;
 
         public override bool CanWrite
-            => false;
+            => true;
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            reader.Read();
-            if (reader.TokenType == JsonToken.String)
-            {
-                return (SemanticVersion)reader.Value.ToString();
-            }
-            
-            return null;
+            return (SemanticVersion)reader.ReadAsString();
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

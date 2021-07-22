@@ -22,6 +22,7 @@ namespace Smartstore.Core.Theming
                 ConfigurationFile = directoryData.ConfigurationFile,
                 IsSymbolicLink = directoryData.IsSymbolicLink,
                 BaseThemeName = directoryData.BaseTheme,
+                Path = "/Themes/" + directoryData.Directory.Name,
                 PhysicalPath = directoryData.Directory.PhysicalPath
             };
         }
@@ -32,10 +33,11 @@ namespace Smartstore.Core.Theming
 
             _descriptor.FriendlyName = root.GetAttribute("title").NullEmpty() ?? _descriptor.Name;
             _descriptor.PreviewImagePath = root.GetAttribute("previewImagePath").NullEmpty() ?? "images/preview.png";
-            _descriptor.Description = root.GetAttribute("description").ToSafe();
-            _descriptor.Author = root.GetAttribute("author").ToSafe();
-            _descriptor.ProjectUrl = root.GetAttribute("url").ToSafe();
-            _descriptor.Version = root.GetAttribute("version").ToSafe().HasValue() ? root.GetAttribute("version") : "1.0";
+            _descriptor.Description = root.GetAttribute("description").NullEmpty();
+            _descriptor.Author = root.GetAttribute("author").NullEmpty();
+            _descriptor.ProjectUrl = root.GetAttribute("url").NullEmpty();
+            _descriptor.Version = root.GetAttribute("version").NullEmpty() ?? "1.0";
+            _descriptor.MinAppVersion = SemanticVersion.Parse(SmartstoreVersion.CurrentFullVersion);
 
             _descriptor.Selects = MaterializeSelects();
             _descriptor.Variables = MaterializeVariables();

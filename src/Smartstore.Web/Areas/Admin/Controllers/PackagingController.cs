@@ -16,13 +16,23 @@ namespace Smartstore.Controllers
 {
     public class PackagingController : AdminControllerBase
     {
-        private readonly IPackageManager _packageManager;
+        private readonly IPackageInstaller _packageInstaller;
+        private readonly IPackageBuilder _packageBuilder;
         private readonly IThemeRegistry _themeRegistry;
 
-        public PackagingController(IPackageManager packageManager, IThemeRegistry themeRegistry)
+        public PackagingController(IPackageInstaller packageInstaller, IPackageBuilder packageBuilder, IThemeRegistry themeRegistry)
         {
-            _packageManager = packageManager;
+            _packageInstaller = packageInstaller;
+            _packageBuilder = packageBuilder;
             _themeRegistry = themeRegistry;
+        }
+
+        public async Task<IActionResult> BuildPackage(string theme)
+        {
+            var themeDescriptor = _themeRegistry.GetThemeDescriptor(theme);
+            var package = await _packageBuilder.BuildPackageAsync(themeDescriptor);
+
+            return File(package.ArchiveStream, "application/zip", package.FileName);
         }
 
         [HttpPost]
@@ -43,8 +53,8 @@ namespace Smartstore.Controllers
                         return Json(new { success, file.FileName, T("Admin.Packaging.NotAPackage").Value, returnUrl });
                     }
 
-                    var zip = new ZipArchive(file.OpenReadStream(), ZipArchiveMode.Read, false);
-                    var package = new ExtensionPackage(zip);
+                    // TODO: (core) Validate package stream file name
+                    using var package = new ExtensionPackage(file.OpenReadStream()) { FileName = file.Name };
 
                     var requiredPermission = (isTheme = package.Descriptor.ExtensionType == ExtensionType.Theme)
                         ? Permissions.Configuration.Theme.Upload
@@ -66,7 +76,7 @@ namespace Smartstore.Controllers
                         _themeRegistry.StopMonitoring();
                     }
 
-                    await _packageManager.InstallAsync(package);
+                    await _packageInstaller.InstallPackageAsync(package);
 
                     //if (isTheme)
                     //{

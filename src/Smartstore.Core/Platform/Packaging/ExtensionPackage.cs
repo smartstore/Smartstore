@@ -11,49 +11,62 @@ using Smartstore.IO;
 
 namespace Smartstore.Core.Packaging
 {
-    public class ExtensionPackage
+    public class ExtensionPackage : Disposable
     {
-        const string ManifestFileName = "manifest.json";
-        
-        public ExtensionPackage(ZipArchive zipArchive)
-            : this(zipArchive, null)
+        private string _fileName;
+
+        public ExtensionPackage(Stream archiveStream)
+            : this(archiveStream, null)
         {
         }
 
-        internal ExtensionPackage(ZipArchive zipArchive, IExtensionDescriptor descriptor)
+        internal ExtensionPackage(Stream archiveStream, IExtensionDescriptor descriptor)
         {
-            Archive = Guard.NotNull(zipArchive, nameof(zipArchive));
+            ArchiveStream = Guard.NotNull(archiveStream, nameof(archiveStream));
+
+            if (archiveStream.CanSeek)
+            {
+                archiveStream.Seek(0, SeekOrigin.Begin);
+            }
 
             if (descriptor == null)
             {
-                var manifest = zipArchive.GetEntry(ManifestFileName);
+                using var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read, true);
+                var manifest = archive.GetEntry(PackagingUtility.ManifestFileName);
                 if (manifest == null)
                 {
                     // TODO: (core) Throw typed message, catch in controller and notify with localized message. 
-                    throw new ArgumentException("TODO", nameof(zipArchive));
+                    throw new ArgumentException("TODO", nameof(archiveStream));
                 }
 
                 // TODO: (core) Throw typed message if deserialization fails, catch in controller and notify with localized message. 
                 using var stream = manifest.Open();
-                descriptor = JsonConvert.DeserializeObject<BareExtensionDescriptor>(stream.AsString());
+                descriptor = JsonConvert.DeserializeObject<MinimalExtensionDescriptor>(stream.AsString());
             }
 
             Descriptor = descriptor;
         }
 
+        public Stream ArchiveStream { get; }
+
         public IExtensionDescriptor Descriptor { get; }
 
-        public ZipArchive Archive { get; }
-
-        public  IEnumerable<ZipArchiveEntry> Entries
+        public string FileName
         {
-            get => Archive.Entries.Where(x => !x.FullName.EqualsNoCase(ManifestFileName));
+            get => _fileName ??= PackagingUtility.BuildPackageFileName(Descriptor);
+            init => _fileName = value;
         }
 
-        internal Task ExtractToAsync(IDirectory target)
+        public Task ExtractToDirectoryAsync(IDirectory target)
         {
             // TODO: (core) Implement ExtensionPackage.ExtractToAsync()
             return Task.CompletedTask;
+        }
+
+        protected override void OnDispose(bool disposing)
+        {
+            if (disposing)
+                ArchiveStream.Dispose();
         }
     }
 }

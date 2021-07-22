@@ -3,13 +3,13 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Packaging
 {
-    internal class BareExtensionDescriptor : IExtensionDescriptor
+    internal class MinimalExtensionDescriptor : IExtensionDescriptor
     {
-        public BareExtensionDescriptor()
+        public MinimalExtensionDescriptor()
         {
         }
 
-        public BareExtensionDescriptor(IExtensionDescriptor copyFrom)
+        public MinimalExtensionDescriptor(IExtensionDescriptor copyFrom)
         {
             ExtensionType = copyFrom.ExtensionType;
             Name = copyFrom.Name;
