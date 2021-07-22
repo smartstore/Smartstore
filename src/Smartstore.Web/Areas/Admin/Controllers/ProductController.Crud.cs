@@ -31,11 +31,90 @@ using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
 using Smartstore.Web.Rendering;
 using Smartstore.Web.TagHelpers.Shared;
+
 namespace Smartstore.Admin.Controllers
 {
     public partial class ProductController : AdminControllerBase
     {
         #region Product list / create / edit / delete
+
+        /// <summary>
+        /// (AJAX) Gets a list of all products.
+        /// </summary>
+        /// <param name="page">Zero based page index.</param>
+        /// <param name="term">Optional search term.</param>
+        /// <param name="selectedIds">Selected product identifiers.</param>
+        public async Task<IActionResult> AllProducts(int page, string term, string selectedIds)
+        {
+            const int pageSize = 100;
+            IEnumerable<Product> products = null;
+            var localeKeyGroup = nameof(Product);
+            var localeKey = nameof(Product.Name);
+            var hasMoreData = true;
+            var skip = page * pageSize;
+            var ids = selectedIds.ToIntArray();
+            var languageId = _workContext.WorkingLanguage.Id;
+            var fields = new List<string> { "name" };
+
+            if (_searchSettings.SearchFields.Contains("sku"))
+            {
+                fields.Add("sku");
+            }
+            if (_searchSettings.SearchFields.Contains("shortdescription"))
+            {
+                fields.Add("shortdescription");
+            }
+
+            var searchQuery = new CatalogSearchQuery(fields.ToArray(), term);
+
+            if (_searchSettings.UseCatalogSearchInBackend)
+            {
+                searchQuery = searchQuery
+                    .Slice(skip, pageSize)
+                    .SortBy(ProductSortingEnum.NameAsc);
+
+                var searchResult = await _catalogSearchService.Value.SearchAsync(searchQuery);
+                var hits = await searchResult.GetHitsAsync();
+
+                hasMoreData = hits.HasNextPage;
+                products = hits;
+            }
+            else
+            {
+                var query = _catalogSearchService.Value.PrepareQuery(searchQuery);
+
+                hasMoreData = (page + 1) * pageSize < query.Count();
+                products = await query
+                    .Select(x => new Product
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Sku = x.Sku
+                    })
+                    .OrderBy(x => x.Name)
+                    .Skip(skip)
+                    .Take(pageSize)
+                    .ToListAsync();
+            }
+
+            // Perf: load and apply localized product names the fast way.
+            await _localizedEntityService.PrefetchLocalizedPropertiesAsync(localeKeyGroup, languageId, products.Select(x => x.Id).ToArray());
+
+            var items = products.Select(x => new ChoiceListItem
+            {
+                Id = x.Id.ToString(),
+                Text = _localizedEntityService.GetLocalizedValue(languageId, x.Id, localeKeyGroup, localeKey).NullEmpty() ?? x.Name,
+                Hint = x.Sku,
+                Selected = ids.Contains(x.Id)
+            })
+            .ToList();
+
+            return new JsonResult(new
+            {
+                hasMoreData,
+                results = items
+            });
+        }
 
         public IActionResult Index()
         {

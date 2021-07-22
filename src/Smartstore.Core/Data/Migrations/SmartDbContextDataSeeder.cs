@@ -57,6 +57,10 @@ namespace Smartstore.Core.Data.Migrations
                 "This manufacturer has already been assigned to the product.",
                 "Dieser Hersteller wurde dem Produkt bereits zugeordnet.");
 
+            builder.AddOrUpdate("Admin.Catalog.Categories.Products.NoDuplicatesAllowed",
+                "This product has already been assigned to the category.",
+                "Dieses Produkt wurde der Warengruppe bereits zugeordnet.");
+
             #endregion
 
             #region Identity

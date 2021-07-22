@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -15,7 +14,6 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
-using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -41,11 +39,9 @@ namespace Smartstore.Admin.Controllers
         private readonly IRuleService _ruleService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IAclService _aclService;
-        private readonly ICatalogSearchService _catalogSearchService;
         private readonly Lazy<ITaskStore> _taskStore;
         private readonly Lazy<ITaskScheduler> _taskScheduler;
         private readonly CatalogSettings _catalogSettings;
-        private readonly SearchSettings _searchSettings;
 
         public CategoryController(
             SmartDbContext db,
@@ -57,11 +53,9 @@ namespace Smartstore.Admin.Controllers
             IRuleService ruleService,
             IStoreMappingService storeMappingService,
             IAclService aclService,
-            ICatalogSearchService catalogSearchService,
             Lazy<ITaskStore> taskStore,
             Lazy<ITaskScheduler> taskScheduler,
-            CatalogSettings catalogSettings,
-            SearchSettings searchSettings)
+            CatalogSettings catalogSettings)
         {
             _db = db;
             _productService = productService;
@@ -72,11 +66,9 @@ namespace Smartstore.Admin.Controllers
             _ruleService = ruleService;
             _storeMappingService = storeMappingService;
             _aclService = aclService;
-            _catalogSearchService = catalogSearchService;
             _taskStore = taskStore;
             _taskScheduler = taskScheduler;
             _catalogSettings = catalogSettings;
-            _searchSettings = searchSettings;
         }
 
         /// <summary>
@@ -139,85 +131,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             return new JsonResult(data);
-        }
-
-        // TODO: (mg) (core) implement 'AllProducts' AJAX action method for category product list. It's similar to ProductRuleOptionsProvider.SearchProducts.
-        // TODO: (mg) (core) Move it to ProductController when ready.
-        public async Task<IActionResult> AllProducts(string term, int? skip, int? take, string selectedIds)
-        {
-            skip ??= 0;
-            take ??= 100;
-
-            List<ChoiceListItem> products = null;
-            var hasMoreData = true;
-            var ids = selectedIds.ToIntArray();
-            var fields = new List<string> { "name" };
-
-            if (_searchSettings.SearchFields.Contains("sku"))
-            {
-                fields.Add("sku");
-            }
-            if (_searchSettings.SearchFields.Contains("shortdescription"))
-            {
-                fields.Add("shortdescription");
-            }
-
-            var searchQuery = new CatalogSearchQuery(fields.ToArray(), term);
-
-            if (_searchSettings.UseCatalogSearchInBackend)
-            {
-                searchQuery = searchQuery
-                    .Slice(skip.Value, take.Value)
-                    .SortBy(ProductSortingEnum.NameAsc);
-
-                var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
-                var hits = await searchResult.GetHitsAsync();
-
-                hasMoreData = hits.HasNextPage;
-
-                products = hits.Select(x => new ChoiceListItem
-                {
-                    Id = x.Id.ToString(),
-                    Text = x.Name,
-                    Hint = x.Sku,
-                    Selected = ids.Contains(x.Id)
-                })
-                .ToList();
-            }
-            else
-            {
-                var query = _catalogSearchService.PrepareQuery(searchQuery);
-                var pageIndex = take == 0 ? 0 : Math.Max(skip.Value / take.Value, 0);
-
-                hasMoreData = (pageIndex + 1) * take < query.Count();
-
-                var data = await query
-                    .Select(x => new
-                    {
-                        x.Id,
-                        x.Name,
-                        x.Sku
-                    })
-                    .OrderBy(x => x.Name)
-                    .Skip(skip.Value)
-                    .Take(take.Value)
-                    .ToListAsync();
-
-                products = data.Select(x => new ChoiceListItem
-                {
-                    Id = x.Id.ToString(),
-                    Text = x.Name,
-                    Hint = x.Sku,
-                    Selected = ids.Contains(x.Id)
-                })
-                .ToList();
-            }
-
-            return new JsonResult(new
-            {
-                hasMoreData = hasMoreData,
-                results = products
-            });
         }
 
         public IActionResult Index()
@@ -502,38 +415,29 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.Category.EditProduct)]
-        public async Task<IActionResult> ProductCategoryInsert(int categoryId, int[] selectedProductIds)
+        public async Task<IActionResult> ProductCategoryInsert(CategoryProductModel model, int categoryId)
         {
-            var existingProductCategories = await _db.ProductCategories
-                .AsNoTracking()
-                .ApplyCategoryFilter(categoryId)
-                .ToListAsync();
+            var success = false;
 
-            var maxDisplayOrder = existingProductCategories
-                .OrderByDescending(x => x.DisplayOrder)
-                .FirstOrDefault()?.DisplayOrder ?? -1;
-
-            var existingProductIds = new HashSet<int>(existingProductCategories.Select(x => x.ProductId));
-
-            foreach (var productId in selectedProductIds)
+            if (!await _db.ProductCategories.AnyAsync(x => x.CategoryId == categoryId && x.ProductId == model.ProductId))
             {
-                if (!existingProductIds.Contains(productId))
+                _db.ProductCategories.Add(new ProductCategory
                 {
-                    _db.ProductCategories.Add(new ProductCategory
-                    {
-                        CategoryId = categoryId,
-                        ProductId = productId,
-                        IsFeaturedProduct = false,
-                        DisplayOrder = ++maxDisplayOrder
-                    });
+                    CategoryId = categoryId,
+                    ProductId = model.ProductId,
+                    IsFeaturedProduct = model.IsFeaturedProduct,
+                    DisplayOrder = model.DisplayOrder
+                });
 
-                    existingProductIds.Add(productId);
-                }
+                await _db.SaveChangesAsync();
+                success = true;
+            }
+            else
+            {
+                NotifyError(T("Admin.Catalog.Categories.Products.NoDuplicatesAllowed"));
             }
 
-            await _db.SaveChangesAsync();
-
-            return Json(new { success = true });
+            return Json(new { success });
         }
 
         [HttpPost]
@@ -559,8 +463,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Category.EditProduct)]
         public async Task<IActionResult> ProductCategoryDelete(GridSelection selection)
         {
-            var ids = selection.GetEntityIds();
+            var success = false;
             var numDeleted = 0;
+            var ids = selection.GetEntityIds();
 
             if (ids.Any())
             {
@@ -569,9 +474,10 @@ namespace Smartstore.Admin.Controllers
                 _db.ProductCategories.RemoveRange(productCategories);
 
                 numDeleted = await _db.SaveChangesAsync();
+                success = true;
             }
 
-            return Json(new { Success = true, Count = numDeleted });
+            return Json(new { Success = success, Count = numDeleted });
         }
 
         [HttpPost]

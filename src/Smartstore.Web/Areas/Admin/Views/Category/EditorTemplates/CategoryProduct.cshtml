@@ -1,10 +1,10 @@
-﻿<select v-bind:id="'category-product-' + item.value" 
-        v-bind:name="'category-product-' + item.value"
+﻿@model int
+
+<select asp-for="@Model"
         class="form-control edit-control"
         data-editor="select"
         v-bind:data-select-selected-id="item.value"
         v-bind:data-select-init-text="item.row.ProductName"
-        data-remote-url='@Url.Action("AllProducts", "Category")'>
-        @*TODO: (mg) (core) implement 'AllProducts' AJAX action method for category product list and move it to ProductController when ready.*@
-        <option v-bind:value="item.value" v-bind:data-hint="item.row.Sku" selected="selected">{{ item.row.ProductName }}</option>
+        data-remote-url='@Url.Action("AllProducts", "Product")'>
+        <option v-if="item.row.Id > 0" v-bind:value="item.value" v-bind:data-hint="item.row.Sku" selected="selected">{{ item.row.ProductName }}</option>
 </select>

@@ -14,16 +14,22 @@ namespace Smartstore.Core.Catalog.Products.Rules
     public partial class ProductRuleOptionsProvider : IRuleOptionsProvider
     {
         private readonly SmartDbContext _db;
+        private readonly IWorkContext _workContext;
         private readonly ICatalogSearchService _catalogSearchService;
+        private readonly ILocalizedEntityService _localizedEntityService;
         private readonly SearchSettings _searchSettings;
 
         public ProductRuleOptionsProvider(
             SmartDbContext db,
+            IWorkContext workContext,
             ICatalogSearchService catalogSearchService,
+            ILocalizedEntityService localizedEntityService,
             SearchSettings searchSettings)
         {
             _db = db;
+            _workContext = workContext;
             _catalogSearchService = catalogSearchService;
+            _localizedEntityService = localizedEntityService;
             _searchSettings = searchSettings;
         }
 
@@ -68,7 +74,10 @@ namespace Smartstore.Core.Catalog.Products.Rules
 
         private async Task<List<RuleValueSelectListOption>> SearchProducts(RuleOptionsResult result, string term, int skip, int take)
         {
-            List<RuleValueSelectListOption> products;
+            IEnumerable<Product> products = null;
+            var localeKeyGroup = nameof(Product);
+            var localeKey = nameof(Product.Name);
+            var languageId = _workContext.WorkingLanguage.Id;
             var fields = new List<string> { "name" };
 
             if (_searchSettings.SearchFields.Contains("sku"))
@@ -92,16 +101,7 @@ namespace Smartstore.Core.Catalog.Products.Rules
                 var hits = await searchResult.GetHitsAsync();
 
                 result.HasMoreData = hits.HasNextPage;
-
-                products = hits
-                    .AsQueryable()
-                    .Select(x => new RuleValueSelectListOption
-                    {
-                        Value = x.Id.ToString(),
-                        Text = x.Name,
-                        Hint = x.Sku
-                    })
-                    .ToList();
+                products = hits;
             }
             else
             {
@@ -111,19 +111,30 @@ namespace Smartstore.Core.Catalog.Products.Rules
                 result.HasMoreData = (pageIndex + 1) * take < query.Count();
 
                 products = await query
-                    .Select(x => new RuleValueSelectListOption
+                    .Select(x => new Product
                     {
-                        Value = x.Id.ToString(),
-                        Text = x.Name,
-                        Hint = x.Sku
+                        Id = x.Id,
+                        Name = x.Name,
+                        Sku = x.Sku
                     })
-                    .OrderBy(x => x.Text)
+                    .OrderBy(x => x.Name)
                     .Skip(skip)
                     .Take(take)
                     .ToListAsync();
             }
 
-            return products;
+            await _localizedEntityService.PrefetchLocalizedPropertiesAsync(localeKeyGroup, languageId, products.Select(x => x.Id).ToArray());
+
+            var options = products
+                .Select(x => new RuleValueSelectListOption
+                {
+                    Value = x.Id.ToString(),
+                    Text = _localizedEntityService.GetLocalizedValue(languageId, x.Id, localeKeyGroup, localeKey).NullEmpty() ?? x.Name,
+                    Hint = x.Sku
+                })
+                .ToList();
+
+            return options;
         }
     }
 }

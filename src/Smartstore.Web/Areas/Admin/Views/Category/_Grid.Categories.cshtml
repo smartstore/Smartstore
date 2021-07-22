@@ -3,18 +3,18 @@
 @{
     var parentModel = ViewData["Parent"] as CategoryListModel;
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+    var hasToolbarZoneContent = Display.ZoneHasContent("datagrid_toolbar_after");
 }
 
 <datagrid id="categories-grid"
           allow-resize="true"
-          allow-row-selection="true"
+          allow-row-selection="hasToolbarZoneContent"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("CategoryList")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
-        @* TODO: (mg) (core) Delete tool is missing (wip? I was not sure).*@
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
                 <i class="fa fa-fw fa-filter"></i>
@@ -26,18 +26,21 @@
                 <span>@T("Admin.Common.AddNew")…</span>
             </a>
         </toolbar-group>
+        <zone name="datagrid_toolbar_after"></zone>
     </toolbar>
     <search-panel>
         <partial name="_Grid.Categories.Search" model="parentModel" />
     </search-panel>
     <columns>
         <column for="Id" halign="center" visible="false" />
-        <column for="Name" hideable="false">
+        <column for="Name" hideable="false" width="2fr">
             <display-template>
-                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+                <div class="dg-cell-value">
+                    <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+                    <div v-if="item.row.ParentCategoryId > 0" class="text-muted text-truncate" v-html="item.row.Breadcrumb"></div>
+                </div>
             </display-template>
         </column>
-        <column for="Breadcrumb" sortable="false" width="2fr" />
         <column for="FullName" />
         <column for="Alias" />
         <column for="Published" halign="center" />
