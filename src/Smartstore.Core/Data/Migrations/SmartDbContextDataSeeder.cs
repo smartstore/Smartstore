@@ -62,8 +62,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Dieses Produkt wurde der Warengruppe bereits zugeordnet.");
 
             builder.AddOrUpdate("BackInStockSubscriptions.Subscribed",
-                "You will be notified if this product is available again.",
-                "Sie erhalten eine Benachrichtigung, falls dieses Produkt wieder lieferbar ist.");
+                "You will be notified when this product is available again.",
+                "Sie erhalten eine Benachrichtigung, wenn dieses Produkt wieder lieferbar ist.");
 
             builder.AddOrUpdate("BackInStockSubscriptions.Unsubscribed",
                 "The back in stock notification has been cancelled.",
