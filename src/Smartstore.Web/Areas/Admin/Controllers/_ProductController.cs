@@ -1507,9 +1507,17 @@ namespace Smartstore.Admin.Controllers
                 // Downloads.
                 var productDownloads = await _db.Downloads
                     .AsNoTracking()
+                    .Include(x => x.MediaFile)
                     .ApplyEntityFilter(product)
                     .ApplyVersionFilter(string.Empty)
                     .ToListAsync();
+
+                var idsOrderedByVersion = productDownloads
+                    .Select(x => new { x.Id, Version = SemanticVersion.Parse(x.FileVersion.HasValue() ? x.FileVersion : "1.0.0.0") })
+                    .OrderByDescending(x => x.Version)
+                    .Select(x => x.Id);
+
+                productDownloads = productDownloads.OrderBySequence(idsOrderedByVersion).ToList();
 
                 model.DownloadVersions = productDownloads
                     .Select(x => new DownloadVersion
@@ -1525,10 +1533,11 @@ namespace Smartstore.Admin.Controllers
 
                 model.DownloadId = currentDownload?.Id;
                 model.CurrentDownload = currentDownload;
-                if (currentDownload != null && currentDownload.MediaFile != null)
+                if (currentDownload?.MediaFile != null)
                 {
                     model.DownloadThumbUrl = await _mediaService.GetUrlAsync(currentDownload.MediaFile.Id, _mediaSettings.CartThumbPictureSize, null, true);
                     currentDownload.DownloadUrl = Url.Action("DownloadFile", "Download", new { downloadId = currentDownload.Id });
+                    model.CurrentFile = await _mediaService.GetFileByIdAsync(currentDownload.MediaFile.Id);
                 }
 
                 model.DownloadFileVersion = (currentDownload?.FileVersion).EmptyNull();

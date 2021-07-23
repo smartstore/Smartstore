@@ -100,7 +100,7 @@ namespace Smartstore.Admin.Models.Catalog
         [JsonIgnore]
         public string DownloadThumbUrl { get; set; }
         public Download CurrentDownload { get; set; }
-
+        public MediaFileInfo CurrentFile { get; set; }
 
         [LocalizedDisplay("Common.Download.Version")]
         public string DownloadFileVersion { get; set; }
@@ -133,6 +133,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*UserAgreementText")]
         public string UserAgreementText { get; set; }
 
+        [UIHint("Html")]
         public string AddChangelog { get; set; }
 
         [LocalizedDisplay("*IsRecurring")]

@@ -27,8 +27,6 @@
                     <smart-label asp-for="DownloadId" />
                 </div>
                 <div class="adminData">
-                    @*TODO: (mh) (core) Lets test before moving on*@
-                    @*@Html.EditorFor(model => model.DownloadId, new { entityId = Model.Id, entityName = nameof(Product) })*@
                     <editor asp-for="DownloadId" attrs='new AttributeDictionary { { "entityId", Model.Id.ToString() }, { "entityName", nameof(Product) } }'/>
                     <span asp-validation-for="DownloadId"></span>
                 </div>
@@ -53,15 +51,11 @@
                 <div class="adminData">
                     @if (!Model.CurrentDownload.UseDownloadUrl)
                     {
-                        // TODO: (mh) (core) Why??? and How? :-)
-                        @*var mediaService = this.Services.MediaService;
-                        var currentFile = Model.CurrentDownload?.MediaFile != null ? mediaService.GetFileById((int)Model.CurrentDownload?.MediaFile.Id) : null;
-
-                        <div style="max-width: 150px; max-height: 150px" class="mb-3">
+                        <div id="current-download-preview" class="mb-3">
                             <a href="@Model.CurrentDownload.DownloadUrl" class="filename" title="@(Model.CurrentDownload?.MediaFile?.Name)" target="_blank">
-                                @Html.MediaThumbnail(currentFile, MediaSettings.ThumbnailSizeMd, new { @class = "img-fluid justify-content-start my-2" })
+                                <media-thumbnail sm-file="Model.CurrentFile" sm-size="MediaSettings.ThumbnailSizeMd" class="justify-content-start my-2" sm-width="150" sm-height="150" />
                             </a>
-                        </div>*@
+                        </div>
                     }
                     else
                     {
@@ -94,7 +88,6 @@
                     <smart-label asp-for="NewVersionDownloadId" />
                 </div>
                 <div class="adminData">
-                    @*@Html.EditorFor(model => model.NewVersionDownloadId, new { entityId = Model.Id, entityName = nameof(Product) })*@
                     <editor asp-for="NewVersionDownloadId" attrs='new AttributeDictionary { { "entityId", Model.Id.ToString() }, { "entityName", nameof(Product) } }' />
                     <span asp-validation-for="NewVersionDownloadId"></span>
                 </div>
@@ -189,7 +182,7 @@
                 <smart-label asp-for="DownloadActivationTypeId" />
             </div>
             <div class="adminData">
-                @Html.DropDownListFor(model => model.DownloadActivationTypeId, ((DownloadActivationType)Model.DownloadActivationTypeId).ToSelectList())
+                <select asp-for="DownloadActivationTypeId" asp-items="((DownloadActivationType)Model.DownloadActivationTypeId).ToSelectList()"></select>
                 <span asp-validation-for="DownloadActivationTypeId"></span>
             </div>
         </div>
@@ -232,3 +225,111 @@
         </div>
     </div>
 </div>
+
+<modal id="add-changelog-window" sm-render-at-page-end="true" sm-size="Large">
+    <modal-header sm-title="@T("Admin.Catalog.Products.Download.AddChangelog")"></modal-header>
+    <modal-body>
+        <form method="post">
+            <input type="hidden" id="DownloadId" name="DownloadId" value="0" />
+            <div>
+                <editor asp-for="AddChangelog" />
+                <span asp-validation-for="AddChangelog"></span>
+            </div>
+        </form>
+    </modal-body>
+    <modal-footer>
+        <button type="button" class="btn btn-secondary btn-flat" data-dismiss="modal">
+            <span>@T("Admin.Common.Cancel")</span>
+        </button>
+        <button id="add-changelog" type="submit" class="btn btn-primary" data-dismiss="modal">
+            <i class="fa fa-check"></i>
+            <span>@T("Common.AddNew")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="Scripts" data-origin="product-edit-downloads">
+    $(function () {
+        Smartstore.media.lazyLoadThumbnails($("#current-download-preview"));
+
+        var dialog = $("#add-changelog-window");
+        var form = dialog.find("form");
+        var token = $('input[name="__RequestVerificationToken"]').val();
+
+        $(document).on("click", ".add-changelog-btn", function (e) {
+            e.preventDefault();
+
+            var btn = $(e.currentTarget);
+            var idElem = dialog.find("#@Html.IdFor(x => x.DownloadId)");
+            var changelogElem = dialog.find("#@Html.IdFor(x => x.AddChangelog)");
+            var downloadId = btn.data("download-id");
+
+            idElem.val(downloadId);
+
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: '@Url.Action("GetChangelogText", "Download")',
+                data: {
+                    downloadId: downloadId,
+                    __RequestVerificationToken: token
+                },
+                dataType: 'json',
+                success: function (data) {
+                    changelogElem.summernote('code', data.changelog ? data.changelog : "&nbsp;");
+                    $(".note-editor-preview.empty").trigger("click");
+                    dialog.modal();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to load changelog text.');
+                }
+            });
+
+            return false;
+        });
+
+        $(document).on("click", '#add-changelog', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: '@Url.Action("AddChangelog", "Download")',
+                data: {
+                    downloadId: form.find("#@Html.IdFor(x => x.DownloadId)").val(),
+                    changelogText: form.find("#@Html.IdFor(x => x.AddChangelog)").val(),
+                    __RequestVerificationToken: token
+                },
+                dataType: 'json',
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to add changelog text.');
+                },
+                complete: function () {
+                    $('#add-changelog-window').modal('hide');
+                }
+            });
+
+            return false;
+        });
+
+        $('.download-versions').on('click', '.delete-download-version', function () {
+            var download = $(this).closest("tr");
+
+            $(this).doAjax({
+                type: 'POST',
+                data: { "__RequestVerificationToken": token },
+				ask: @T("Admin.Common.AskToProceed").JsValue,
+                callbackSuccess: function (data) {
+                    if (data.success) {
+                        displayNotification(data.Message, 'success');
+                        download.remove();
+                    }
+				}
+			});
+		});
+
+        dialog.on('shown.bs.modal', function (e) {
+            $(window).trigger('resize');
+        })
+    });
+</script>
