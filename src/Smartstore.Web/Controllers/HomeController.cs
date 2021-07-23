@@ -20,7 +20,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core;
@@ -34,7 +33,6 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
@@ -55,14 +53,10 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
 using Smartstore.Core.Web;
-using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine;
 using Smartstore.Events;
-using Smartstore.Http;
 using Smartstore.Imaging;
-using Smartstore.IO;
-using Smartstore.Net;
 using Smartstore.Net.Mail;
 using Smartstore.Threading;
 using Smartstore.Utilities.Html;
@@ -901,35 +895,6 @@ namespace Smartstore.Web.Controllers
             var scs = Services.Resolve<IShoppingCartService>();
             var schs = Services.Resolve<IShippingService>();
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
-
-            var attributes = new Multimap<int, object>();
-            var customProperties = new Multimap<string, object>();
-
-            attributes.AddRange(123, new object[] { 9,8,7 });
-            attributes.AddRange(65, new object[] { 11 });
-
-            customProperties.Add("GiftCardInfo", new GiftCardInfo
-            {
-                RecipientName = "John Doe",
-                RecipientEmail = "jdow@web.com",
-                SenderName = "me",
-                SenderEmail = "me@web.com"
-            });
-            customProperties.Add("GiftCardInfo", new GiftCardInfo
-            {
-                RecipientName = "Jane Dow",
-                RecipientEmail = "jane@web.com",
-                SenderName = "me",
-                SenderEmail = "me@web.com"
-            });
-
-            var json = JsonConvert.SerializeObject(new
-            {
-                Attributes = attributes,
-                CustomProperties = customProperties
-            });
-            content.AppendLine(json);
-            content.AppendLine();
 
 
             //var cartWeight = await schs.GetCartTotalWeightAsync(cart);

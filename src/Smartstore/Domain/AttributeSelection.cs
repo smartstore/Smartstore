@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Smartstore.Collections;
 using Smartstore.Utilities;
 
@@ -373,5 +374,348 @@ namespace Smartstore.Domain
         }
 
         #endregion
+    }
+
+
+    /// <summary>
+    /// Represents an attribute selection.
+    /// </summary>
+    /// <remarks>
+    /// This class can parse strings with XML or JSON format.
+    /// </remarks>
+    public abstract class AttributeSelection2 : IEquatable<AttributeSelection2>
+    {
+        private string _rawAttributes;
+        private readonly AllAttributes _attributes;
+
+        private readonly string _xmlAttributeName;
+        private readonly string _xmlAttributeValueName;
+        private bool _dirty = true;
+        private bool _isJson;
+
+        /// <summary>
+        /// Creates a new attribute selection from string. 
+        /// Use <see cref="AttributesMap"/> to access parsed attributes afterwards.
+        /// </summary>
+        /// <remarks>
+        /// Automatically differentiates between XML and JSON.
+        /// </remarks>        
+        /// <param name="rawAttributes">XML or JSON attributes string.</param>
+        /// <param name="xmlAttributeName">Attribute name for XML format.</param>
+        /// <param name="xmlAttributeValueName">Optional attribute value name for XML format. If it is <c>null</c>, XmlAttributeName + "Value" is used.</param>
+        protected AttributeSelection2(string rawAttributes, string xmlAttributeName, string xmlAttributeValueName = null)
+        {
+            Guard.NotEmpty(xmlAttributeName, nameof(xmlAttributeName));
+
+            _rawAttributes = rawAttributes.TrimSafe();
+            _xmlAttributeName = xmlAttributeName;
+
+            _xmlAttributeValueName = xmlAttributeValueName.HasValue()
+                ? xmlAttributeValueName
+                : xmlAttributeName + "Value";
+
+            _attributes = GetFromXmlOrJson();
+        }
+
+        /// <summary>
+        /// Gets deserialized attributes.
+        /// </summary>
+        public IEnumerable<KeyValuePair<int, ICollection<object>>> AttributesMap
+            => _attributes.Attributes;
+
+        /// <summary>
+        /// Gets deserialized attribute values by attribute id.
+        /// </summary>
+        /// <param name="attributeId">Attribute identifier</param>
+        public IEnumerable<object> GetAttributeValues(int attributeId)
+            => _attributes.Attributes.ContainsKey(attributeId) ? _attributes.Attributes[attributeId] : null;
+
+        /// <summary>
+        /// Adds an attribute with values.
+        /// </summary>
+        /// <param name="attributeId">Attribute identifier.</param>
+        /// <param name="value">Attribute values.</param>
+        public void AddAttribute(int attributeId, IEnumerable<object> values)
+        {
+            _attributes.Attributes.AddRange(attributeId, values);
+            _dirty = true;
+        }
+
+        /// <summary>
+        /// Adds an attribute value.
+        /// </summary>
+        /// <param name="attributeId">Attribute identifier.</param>
+        /// <param name="value">Attribute value.</param>
+        public void AddAttributeValue(int attributeId, object value)
+        {
+            Guard.NotNull(value, nameof(value));
+
+            _attributes.Attributes.Add(attributeId, value);
+            _dirty = true;
+        }
+
+        /// <summary>
+        /// Removes an attribute.
+        /// </summary>
+        /// <param name="attributeId">Attribute identifier.</param>
+        public void RemoveAttribute(int attributeId)
+        {
+            _attributes.Attributes.RemoveAll(attributeId);
+            _dirty = true;
+        }
+
+        /// <summary>
+        /// Removes attributes from.
+        /// </summary>
+        /// <param name="attributeIds">List of attribute identifiers.</param>
+        public void RemoveAttributes(IEnumerable<int> attributeIds)
+        {
+            foreach (var attributeId in attributeIds)
+            {
+                _attributes.Attributes.RemoveAll(attributeId);
+            }
+
+            _dirty = true;
+        }
+
+        /// <summary>
+        /// Removes an attribute value.
+        /// </summary>
+        /// <param name="attributeId">Attribute identifier.</param>
+        /// <param name="value">Attribute value</param>
+        public void RemoveAttributeValue(int attributeId, object value)
+        {
+            Guard.NotNull(value, nameof(value));
+
+            _attributes.Attributes.Remove(attributeId, value);
+            _dirty = true;
+        }
+
+        /// <summary>
+        /// Removes all attributes.
+        /// </summary>
+        public void ClearAttributes()
+        {
+            _attributes.Attributes.Clear();
+            _attributes.CustomAttributes.Clear();
+            _dirty = true;
+        }
+
+        /// <summary>
+        /// Serializes attributes in JSON format.
+        /// </summary>
+        public string AsJson()
+        {
+            if (_rawAttributes.HasValue() && _isJson && !_dirty)
+            {
+                return _rawAttributes;
+            }
+
+            try
+            {
+                var json = JsonConvert.SerializeObject(_attributes);
+
+                _isJson = true;
+                _dirty = false;
+                _rawAttributes = json;
+
+                return json;
+            }
+            catch (Exception ex)
+            {
+                throw new JsonSerializationException("Failed to serialize JSON string from: " + nameof(_attributes), ex);
+            }
+        }
+
+        /// <summary>
+        /// Serializes attributes in XML format.
+        /// </summary>
+        public string AsXml()
+        {
+            if (_rawAttributes.HasValue() && !_isJson && !_dirty)
+            {
+                return _rawAttributes;
+            }
+
+            var root = new XElement("Attributes");
+
+            foreach (var attribute in _attributes.Attributes)
+            {
+                if (attribute.Key > 0)
+                {
+                    var attributeElement = new XElement(_xmlAttributeName, new XAttribute("ID", attribute.Key));
+
+                    foreach (var attributeValue in attribute.Value.Distinct())
+                    {
+                        attributeElement.Add(new XElement(_xmlAttributeValueName, new XElement("Value", attributeValue)));
+                    }
+
+                    root.Add(attributeElement);
+                }
+            }
+
+            foreach (var customAttribute in _attributes.CustomAttributes)
+            {
+                foreach (var customValue in customAttribute.Value)
+                {
+                    var customElement = ToCustomAttributeElement(customValue);
+                    if (customElement != null)
+                    {
+                        root.Add(customElement);
+                    }
+                }
+            }
+
+            _isJson = false;
+            _dirty = false;
+            _rawAttributes = root.ToString(SaveOptions.DisableFormatting);
+
+            return _rawAttributes;
+        }
+
+        #region Custom attributes
+
+        protected virtual object ToCustomAttributeValue(string attributeName, object value)
+            => null;
+
+        protected virtual XElement ToCustomAttributeElement(object value)
+            => null;
+
+        protected IEnumerable<object> GetCustomAttributeValues(string attributeName)
+        {
+            _attributes.CustomAttributes.TryGetValues(attributeName, out var values);
+
+            return values ?? Enumerable.Empty<object>();
+        }
+
+        protected void AddCustomAttribute(string attributeName, object value)
+        {
+            Guard.NotEmpty(attributeName, nameof(attributeName));
+
+            if (value != null)
+            {
+                _attributes.CustomAttributes.Add(attributeName, value);
+            }
+        }
+
+        #endregion
+
+        #region Compare
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool Equals(object obj)
+            => ((IEquatable<AttributeSelection2>)this).Equals(obj as AttributeSelection2);
+
+        bool IEquatable<AttributeSelection2>.Equals(AttributeSelection2 other)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Gets attributes from attribute string that is either in XML or JSON format.
+        /// </summary>
+        private AllAttributes GetFromXmlOrJson()
+        {
+            if (_rawAttributes.IsEmpty())
+            {
+                return new AllAttributes();
+            }
+
+            var isXml = _rawAttributes[0] == '<';
+            var isJson = _rawAttributes[0] is '{' or '[';
+
+            if (!isXml && !isJson)
+            {
+                throw new ArgumentException("Raw attributes must either be in XML or JSON format.", nameof(_rawAttributes));
+            }
+
+            try
+            {
+                if (isXml)
+                {
+                    var attributes = new AllAttributes();
+                    var xElement = XElement.Parse(_rawAttributes);
+
+                    foreach (var el in xElement.Elements())
+                    {
+                        var attributeName = el.Name.LocalName;
+
+                        if (attributeName == _xmlAttributeName)
+                        {
+                            var id = el.Attribute("ID")?.Value?.Convert<int>() ?? 0;
+
+                            var values = el
+                                .Descendants(_xmlAttributeValueName)
+                                .Select(x => x.Value);
+
+                            attributes.Attributes.AddRange(id, values);
+                        }
+                        else
+                        {
+                            var value = ToCustomAttributeValue(attributeName, el);
+                            if (value != null)
+                            {
+                                attributes.CustomAttributes.Add(attributeName, value);
+                            }
+                        }
+                    }
+
+                    return attributes;
+                }
+                else
+                {
+                    var attributes = JsonConvert.DeserializeObject<AllAttributes>(_rawAttributes);
+
+                    if (attributes.CustomAttributes.Any())
+                    {
+                        // Convert custom attributes from JObject to specific type.
+                        var newAttributes = new Multimap<string, object>();
+
+                        foreach (var pair in attributes.CustomAttributes)
+                        {
+                            foreach (var rawValue in pair.Value)
+                            {
+                                var value = ToCustomAttributeValue(pair.Key, rawValue);
+                                if (value != null)
+                                {
+                                    newAttributes.Add(pair.Key, value);
+                                }
+                            }
+                        }
+
+                        attributes.CustomAttributes.Clear();
+                        newAttributes.Each(pair => attributes.CustomAttributes.AddRange(pair.Key, pair.Value));
+                    }
+
+                    return attributes;
+                }
+            }
+            catch (Exception ex)
+            {
+                Exception exception = isXml
+                    ? new XmlException("Failed to deserialize attributes from XML: " + _rawAttributes, ex)
+                    : new JsonSerializationException("Failed to deserialize attributes from JSON: " + _rawAttributes, ex);
+
+                throw exception;
+            }
+        }
+
+        class AllAttributes
+        {
+            public Multimap<int, object> Attributes { get; set; } = new();
+            public Multimap<string, object> CustomAttributes { get; set; } = new();
+
+            // INFO: Json.NET conditional property serialization convention:
+            // prevents CustomAttributes from being serialized if empty.
+            // Deserialized to an empty map if missing in raw JSON string.
+            public bool ShouldSerializeCustomAttributes()
+                => CustomAttributes?.Any() ?? false;
+        }
     }
 }
