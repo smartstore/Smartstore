@@ -1,4 +1,5 @@
 ﻿@{
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
     ViewBag.Title = T("Admin.Catalog.ProductTags").Value;
 
     var gridViewData = new ViewDataDictionary(this.ViewData);
@@ -12,6 +13,6 @@
             <span>@T("Admin.Catalog.ProductTags")</span>
         </div>
     </div>
-    
-    <partial name="_Grid.ProductTags" model="null" view-data="gridViewData" />
 </form>
+
+<partial name="_Grid.ProductTags" model="null" view-data="gridViewData" />

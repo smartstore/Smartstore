@@ -892,7 +892,7 @@ namespace Smartstore.Admin.Controllers
                         ProductId = entityId
                     };
 
-                    // INFO: (mh) (core) SaveChanges must be done in foreach loop in order to get correct Ids.
+
                     _db.ProductMediaFiles.Add(productPicture);
                     await _db.SaveChangesAsync();
 
@@ -1260,29 +1260,26 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ProductTagsList(GridCommand command)
         {
             var model = new GridModel<ProductTagModel>();
-
-            // TODO: (mh) (core) Use IProductTagService.CountProductsByTagIdAsync() to determine counts, don't eager-load all assigned products. It's expensive.
-
             var tags = await _db.ProductTags
                 .AsNoTracking()
-                .Include(x => x.Products)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            model.Rows = tags
-                .Select(x =>
+            model.Rows = await tags
+                .AsQueryable()
+                .SelectAsync(async x =>
                 {
                     return new ProductTagModel
                     {
                         Id = x.Id,
                         Name = x.Name,
                         Published = x.Published,
-                        ProductCount = x.Products.Count
+                        ProductCount = await _productTagService.CountProductsByTagIdAsync(x.Id)
                     };
-                });
+                }).AsyncToList();
             
-            model.Total = tags.TotalCount;
+            model.Total = await tags.GetTotalCountAsync();
 
             return Json(model);
         }
@@ -1420,7 +1417,7 @@ namespace Smartstore.Admin.Controllers
                 return productModel;
             }).AsyncToList();
 
-            model.Total = allProducts.TotalCount;
+            model.Total = await allProducts.GetTotalCountAsync();
 
             return Json(model);
         }

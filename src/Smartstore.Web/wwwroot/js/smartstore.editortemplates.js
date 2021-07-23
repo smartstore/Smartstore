@@ -166,8 +166,6 @@
             });
     }
 
-    // TODO: (mh) (core) This method must be used in EntityPicker script as a callback function.
-    // > window.productPickerCallback.apply($("#control-id").get(0), [ids, selectedItems]);
     window.productPickerCallback = function (ids, selectedItems) {
         var $el = $(this);
 
@@ -201,7 +199,6 @@
         if ($el.length == 0)
             return;
 
-        // TODO: (mh) (core) implement generic solution for this. Tokens can also be sent with the header in an Actionfilter or something like this.
         var token = $('input[name="__RequestVerificationToken"]').val();
         // Create download for selected MediaFile.
         $.ajax({

@@ -205,7 +205,7 @@ namespace Smartstore.Admin.Controllers
                 .AsyncToList();
 
             model.Rows = productVariantAttributesModel;
-            model.Total = productVariantAttributes.TotalCount;
+            model.Total = await productVariantAttributes.GetTotalCountAsync();
 
             return Json(model);
         }
@@ -370,7 +370,7 @@ namespace Smartstore.Admin.Controllers
                 return model;
             }).AsyncToList();
 
-            gridModel.Total = values.TotalCount;
+            gridModel.Total = await values.GetTotalCountAsync();
 
             return Json(gridModel);
         }
@@ -635,7 +635,6 @@ namespace Smartstore.Admin.Controllers
             Product product, 
             bool formatAttributes = false)
         {
-            // INFO: (mh) (core) Pleeease!!!?
             Guard.NotNull(model, nameof(model));
             Guard.NotNull(product, nameof(product));
 

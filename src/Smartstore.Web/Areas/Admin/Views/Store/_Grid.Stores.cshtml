@@ -31,7 +31,6 @@
             </display-template>
         </column>
         <column for="Hosts" wrap="true">
-            @* INFO: (mh) (core) It's always better to render HTML-(tags) with Vue (instead of putting HTML to column on server) *@
             <display-template>
                 <div class="text-truncate">
                     <div v-for="host in item.row.HostList" class="text-truncate">{{ host }}</div>

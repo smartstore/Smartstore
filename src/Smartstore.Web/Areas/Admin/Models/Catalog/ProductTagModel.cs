@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Catalog
@@ -28,6 +29,11 @@ namespace Smartstore.Admin.Models.Catalog
         public string Name { get; set; }
     }
 
-    // INFO/TODO: (mh) (core) You removed the fluent validator for "Name" because of the [Required] attribute.
-    // But we all know that [Required] does NOT output localized messages, only FluentValidator does.
+    public partial class ProductTagValidator : AbstractValidator<ProductTagModel>
+    {
+        public ProductTagValidator()
+        {
+            RuleFor(x => x.Name).NotEmpty();
+        }
+    }
 }

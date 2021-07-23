@@ -1,6 +1,8 @@
 ﻿@model ProductModel.ProductVariantAttributeValueListModel
 
 @{
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+
     ViewBag.Title = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.EditAttributeDetails", Model.ProductVariantAttributeName, Model.ProductName);
 
     var gridViewData = new ViewDataDictionary(this.ViewData);
@@ -19,6 +21,6 @@
         <div class="options">
         </div>
     </div>
-
-    <partial name="_Grid.AttributeValues" model="null" view-data="gridViewData" />
 </form>
+
+<partial name="_Grid.AttributeValues" model="null" view-data="gridViewData" />

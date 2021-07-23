@@ -35,14 +35,10 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var productIds2 = relatedProducts.Select(x => x.ProductId2).Distinct().ToArray();
-
-            // INFO: (mh) (core) Obviously you don't need Multimap here because you have a 1:1 relationship, not 1:n
-            // INFO: (mh) (core) Projecting a query AFTER data has been loaded is rather inefficient.
-            // TODO: (mh) (core) Apply this refactoring to other applicable methods also.
-            var products2 = (await _db.Products
+            var products2 = await _db.Products
                 .AsNoTracking()
                 .Where(x => productIds2.Contains(x.Id))
-                .ToDictionaryAsync(x => x.Id, x => x));
+                .ToDictionaryAsync(x => x.Id, x => x);
 
             var relatedProductsModel = relatedProducts
                 .Select(x =>
@@ -193,30 +189,23 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var productIds2 = crossSellProducts.Select(x => x.ProductId2).ToList();
-            var products2 = (await _db.Products
+            var productIds2 = crossSellProducts.Select(x => x.ProductId2).Distinct().ToArray();
+            var products2 = await _db.Products
                 .AsNoTracking()
                 .Where(x => productIds2.Contains(x.Id))
-                .ToListAsync())
-                .ToMultimap(x => x.Id, x => new {
-                    x.Name,
-                    x.Sku,
-                    x.Published,
-                    x.ProductTypeLabelHint,
-                    ProductTypeName = x.GetProductTypeLabel(Services.Localization)
-                });
+                .ToDictionaryAsync(x => x.Id, x => x);
 
             var crossSellProductsModel = crossSellProducts
                 .Select(x =>
                 {
-                    var product2 = products2[x.ProductId2].FirstOrDefault();
+                    var product2 = products2[x.ProductId2];
 
                     return new ProductModel.CrossSellProductModel
                     {
                         Id = x.Id,
                         ProductId2 = x.ProductId2,
                         Product2Name = product2.Name,
-                        ProductTypeName = product2.ProductTypeName,
+                        ProductTypeName = product2.GetProductTypeLabel(Services.Localization),
                         ProductTypeLabelHint = product2.ProductTypeLabelHint,
                         Product2Sku = product2.Sku,
                         Product2Published = product2.Published,
@@ -226,7 +215,7 @@ namespace Smartstore.Admin.Controllers
                 .ToList();
 
             model.Rows = crossSellProductsModel;
-            model.Total = crossSellProducts.TotalCount;
+            model.Total = await crossSellProducts.GetTotalCountAsync();
 
             return Json(model);
         }
@@ -340,7 +329,7 @@ namespace Smartstore.Admin.Controllers
             .ToList();
 
             model.Rows = associatedProductsModel;
-            model.Total = associatedProducts.TotalCount;
+            model.Total = await associatedProducts.GetTotalCountAsync();
 
             return Json(model);
         }
@@ -452,7 +441,7 @@ namespace Smartstore.Admin.Controllers
             }).ToList();
 
             model.Rows = bundleItemsModel;
-            model.Total = bundleItems.TotalCount;
+            model.Total = await bundleItems.GetTotalCountAsync();
 
             return Json(model);
         }
