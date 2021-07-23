@@ -137,15 +137,9 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductSpecificationAttributes
-                    .AsQueryable()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
+                var toDelete = await _db.ProductSpecificationAttributes.GetManyAsync(ids);
                 _db.ProductSpecificationAttributes.RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                numDeleted = await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -279,15 +273,9 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductVariantAttributes
-                    .AsQueryable()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
+                var toDelete = await _db.ProductVariantAttributes.GetManyAsync(ids);
                 _db.ProductVariantAttributes.RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                numDeleted = await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -601,15 +589,9 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductVariantAttributeValues
-                    .AsQueryable()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
+                var toDelete = await _db.ProductVariantAttributeValues.GetManyAsync(ids);
                 _db.ProductVariantAttributeValues.RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                numDeleted = await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -797,14 +779,9 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductVariantAttributeCombinations
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
+                var toDelete = await _db.ProductVariantAttributeCombinations.GetManyAsync(ids);
                 _db.ProductVariantAttributeCombinations.RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                numDeleted = await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });

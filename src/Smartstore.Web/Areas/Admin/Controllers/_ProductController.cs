@@ -661,14 +661,9 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductCategories
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
+                var toDelete = await _db.ProductCategories.GetManyAsync(ids);
                 _db.ProductCategories.RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                numDeleted = await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -802,15 +797,9 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                // TODO: (mh) (core) Use DbSet<T>.GetMany(ids) extension method
-                var toDelete = await _db.ProductManufacturers
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
+                var toDelete = await _db.ProductManufacturers.GetManyAsync(ids);
                 _db.ProductManufacturers.RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                numDeleted = await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -1111,14 +1100,9 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.TierPrices
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
+                var toDelete = await _db.TierPrices.GetManyAsync(ids);
                 _db.TierPrices.RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                numDeleted = await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -1312,14 +1296,9 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductTags
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
+                var toDelete = await _db.ProductTags.GetManyAsync(ids);
                 _db.ProductTags.RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                numDeleted = await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });

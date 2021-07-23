@@ -98,15 +98,9 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.RelatedProducts
-                    .AsQueryable()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
+                var toDelete = await _db.RelatedProducts.GetManyAsync(ids);
                 _db.RelatedProducts.RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                numDeleted = await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -245,15 +239,9 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.CrossSellProducts
-                    .AsQueryable()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
+                var toDelete = await _db.CrossSellProducts.GetManyAsync(ids);
                 _db.CrossSellProducts.RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                numDeleted = await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
@@ -384,10 +372,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var products = await _db.Products
-                    .AsQueryable()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
+                var products = await _db.Products.GetManyAsync(ids);
 
                 foreach (var product in products)
                 {
@@ -480,15 +465,9 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var toDelete = await _db.ProductBundleItem
-                    .AsQueryable()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
-                numDeleted = toDelete.Count;
-
+                var toDelete = await _db.ProductBundleItem.GetManyAsync(ids);
                 _db.ProductBundleItem.RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                numDeleted = await _db.SaveChangesAsync();
             }
 
             return Json(new { Success = true, Count = numDeleted });
