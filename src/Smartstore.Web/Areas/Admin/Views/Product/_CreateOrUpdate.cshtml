@@ -2,7 +2,7 @@
 
 @model ProductModel
 
-<div asp-validation-summary="ModelOnly"></div>
+<div asp-validation-summary="All"></div>
 
 <tabstrip id="product-edit" sm-nav-style="Material" sm-onajaxsuccess="productEditTab_onAjaxSuccess" data-product-id="@Model.Id" sm-nav-position="Left">
     <tab sm-title="@T("Admin.Catalog.Products.Info")"
@@ -43,7 +43,6 @@
 
     @if (Model.ProductTypeId != (int)ProductType.GroupedProduct)
     {
-        //TODO: (mh) (core) Fluentvalidation won't work for content loaded via AJAX.
         <tab sm-title="@T("Admin.Catalog.Products.Price")"
              sm-icon="fa fa-euro-sign fa-lg fa-fw"
              sm-ajax="true"
@@ -113,6 +112,29 @@
 
 <script sm-target-zone="Scripts" data-origin="product-edit">
     function productEditTab_onAjaxSuccess(tab, pane) {
+        // TODO: (mh) (core) Implement proper init method for these calls (so initializers e.g. selectWrapper won't get called twice). 
         applyCommonPlugins(pane);
+        initializeEditControls(pane.get(0));
+
+        // INFO: (mh) (core) FluentValidation for ajax tabs works as long as there is no grid in the loaded tab. See comment in _CreateOrUpdate.Price.cshtml for more information.
+        // Reinit validation after tab was rendered by AJAX.
+        reinitValidation();
+    }
+
+    function reinitValidation() {
+        var form = $("#product-form");
+        const validator = form.data("validator");
+        if (validator) {
+            validator.hideErrors();
+            validator.destroy();
+        }
+
+        form
+            .removeData("validator")
+            .removeData("unobtrusiveValidation")
+            .off(".validate");
+
+        $.validator.unobtrusive.parse(form);
+        form.validate();
     }
 </script>

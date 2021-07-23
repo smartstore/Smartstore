@@ -40,7 +40,6 @@
                 <span asp-validation-for="SpecialPrice"></span>
             </div>
         </div>
-        @*TODO: (mh) (core) Both DatetimePickers are broken. See console for more information*@
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="SpecialPriceStartDateTimeUtc" />
@@ -59,7 +58,6 @@
                 <span asp-validation-for="SpecialPriceEndDateTimeUtc"></span>
             </div>
         </div>
-        @*TODO: (mh) (core) Also broken. Can't be saved'*@
         <div class="adminRow" attr-class='(Model.ProductTypeId == (int)ProductType.BundledProduct && Model.BundlePerItemPricing, "d-none")'>
             <div class="adminTitle">
                 <smart-label asp-for="SelectedDiscountIds" />
@@ -193,6 +191,9 @@
             var gridViewData = new ViewDataDictionary(this.ViewData);
             gridViewData["Parent"] = Model;
 
+            //INFO: (mh) (core) FluentValidation for ajax tabs works as long as there is no grid in here.
+            // Grid renders a form inside form#product-form which is invalid HTML! And it causes jquery validate to break.
+            // As long as this can't be solved we have to live with a post back which will render validation in the summary.
             <partial name="_Grid.TierPrices" model="null" view-data="gridViewData" />
         }
         else
