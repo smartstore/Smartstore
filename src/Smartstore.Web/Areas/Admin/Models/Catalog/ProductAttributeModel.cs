@@ -56,7 +56,7 @@ namespace Smartstore.Admin.Models.Catalog
     {
         public ProductAttributeModelValidator(SmartDbContext db)
         {
-            CopyFromEntityRules<ProductAttribute>(db);
+            ApplyDefaultRules<ProductAttribute>(db);
         }
     }
 }

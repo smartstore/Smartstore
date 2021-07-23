@@ -229,6 +229,9 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies the control type to enter the quantity.",
                 "Bestimmt das Steuerelement für die Angabe der Bestellmenge.");
 
+            builder.AddOrUpdate("Validation.MustBeANumber", "'{PropertyName}' muss be a number.", "'{PropertyName}' muss eine Zahl sein.");
+            builder.AddOrUpdate("Validation.NonPropertyMustBeANumber", "The field muss be a number.", "Das Feld muss eine Zahl sein.");
+
             #endregion
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Web.Modelling;
@@ -120,7 +121,7 @@ namespace Smartstore.Admin.Models.Catalog
     {
         public ProductOverviewModelValidator(SmartDbContext db)
         {
-            CopyFromEntityRules<Product>(db);
+            ApplyDefaultRules<Product>(db);
         }
     }
 }

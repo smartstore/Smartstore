@@ -172,11 +172,7 @@ namespace Smartstore
 
         public static bool IsNullable(this Type type, out Type elementType)
         {
-            if (type != null && type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                elementType = type.GetGenericArguments()[0];
-            else
-                elementType = type;
-
+            elementType = Nullable.GetUnderlyingType(type) ?? type;
             return elementType != type;
         }
 

@@ -5,6 +5,7 @@ using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Autofac;
 using FluentValidation.AspNetCore;
+using FluentValidation.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -74,6 +75,8 @@ namespace Smartstore.Web
                 });
             }
 
+            var validatorLanguageManager = new ValidatorLanguageManager(appContext);
+
             // Add AntiForgery
             services.AddAntiforgery(o => 
             {
@@ -139,7 +142,7 @@ namespace Smartstore.Web
                     opts.DisableAccessorCache = true;
 
                     // Language Manager
-                    opts.LanguageManager = new ValidatorLanguageManager(appContext);
+                    opts.LanguageManager = validatorLanguageManager;
 
                     // Display name resolver
                     var originalDisplayNameResolver = opts.DisplayNameResolver;
@@ -182,6 +185,19 @@ namespace Smartstore.Web
                         // Register custom metadata provider
                         o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());
                         o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
+
+                        o.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(x => 
+                        {
+                            return validatorLanguageManager.GetErrorMessage("MustBeANumber", x);
+                        });
+                        o.ModelBindingMessageProvider.SetNonPropertyValueMustBeANumberAccessor(() =>
+                        {
+                            return validatorLanguageManager.GetString("NonPropertyMustBeANumber");
+                        });
+                        o.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(x =>
+                        {
+                            return validatorLanguageManager.GetErrorMessage(nameof(NotEmptyValidator), x);
+                        });
                     }
                 });
 

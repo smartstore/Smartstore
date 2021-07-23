@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
@@ -665,9 +666,14 @@ namespace Smartstore.Admin.Models.Catalog
 
     public partial class ProductModelValidator : SmartValidator<ProductModel>
     {
-        public ProductModelValidator(SmartDbContext db, Localizer T)
+        public ProductModelValidator(SmartDbContext db, IHttpContextAccessor httpContextAccessor, Localizer T)
         {
-            CopyFromEntityRules<Product>(db);
+            ApplyDefaultRules<Product>(db);
+
+            RuleFor(x => x.TaxCategoryId)
+                .NotNull()  // Nullable required for IsTaxExempt.
+                .NotEqual(0)
+                .When(x => !x.IsTaxExempt);
 
             When(x => x.LoadedTabs != null && x.LoadedTabs.Contains("Inventory", StringComparer.OrdinalIgnoreCase), () =>
             {
@@ -687,20 +693,18 @@ namespace Smartstore.Admin.Models.Catalog
                     .GreaterThan(0).WithMessage(T("Admin.Catalog.Products.Fields.BasePriceAmount.Required"));
             });
 
-            RuleFor(x => x.TaxCategoryId)
-                .NotNull()  // Nullable required for IsTaxExempt.
-                .NotEqual(0)
-                .When(x => !x.IsTaxExempt);
+            When(x => x.LoadedTabs != null && x.LoadedTabs.Contains("Downloads"), () =>
+            {
+                RuleFor(x => x.DownloadFileVersion)
+                    .NotEmpty()
+                    .When(x => x.DownloadId != null && x.DownloadId != 0)
+                    .WithMessage(T("Admin.Catalog.Products.Download.SemanticVersion.NotValid"));
 
-            RuleFor(x => x.DownloadFileVersion)
-                .NotEmpty()
-                .When(x => x.DownloadId != null && x.DownloadId != 0)
-                .WithMessage(T("Admin.Catalog.Products.Download.SemanticVersion.NotValid"));
-
-            RuleFor(x => x.NewVersion)
-                .NotEmpty()
-                .When(x => x.NewVersionDownloadId != null && x.NewVersionDownloadId != 0)
-                .WithMessage(T("Admin.Catalog.Products.Download.SemanticVersion.NotValid"));
+                RuleFor(x => x.NewVersion)
+                    .NotEmpty()
+                    .When(x => x.NewVersionDownloadId != null && x.NewVersionDownloadId != 0)
+                    .WithMessage(T("Admin.Catalog.Products.Download.SemanticVersion.NotValid"));
+            });
         }
     }
 

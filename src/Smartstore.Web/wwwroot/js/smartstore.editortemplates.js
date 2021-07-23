@@ -220,6 +220,7 @@
     }
 
     window.initializeEditControls = function (context) {
+        context = context.length ? context.get(0) : context;
         var editControls = (context || document).getElementsByClassName("edit-control");
 
         Array.from(editControls).forEach(el => {

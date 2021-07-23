@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using FluentValidation;
 using FluentValidation.Resources;
 using Smartstore.Core;
 using Smartstore.Engine;
@@ -28,6 +29,18 @@ namespace Smartstore.Web.Modelling.Validation
             }
 
             return result;
+        }
+
+        public string GetErrorMessage(string key, string propertyName)
+        {
+            Guard.NotEmpty(key, nameof(key));
+            Guard.NotNull(propertyName, nameof(propertyName));
+
+            var template = GetString(key);
+            var formatter = ValidatorOptions.Global.MessageFormatterFactory()
+                .AppendPropertyName(propertyName);
+
+            return formatter.BuildMessage(template);
         }
     }
 }
