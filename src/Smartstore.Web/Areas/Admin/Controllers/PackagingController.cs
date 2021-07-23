@@ -30,7 +30,7 @@ namespace Smartstore.Controllers
         public async Task<IActionResult> BuildPackage(string theme)
         {
             var themeDescriptor = _themeRegistry.GetThemeDescriptor(theme);
-            var package = await _packageBuilder.BuildPackageAsync(themeDescriptor);
+            using var package = await _packageBuilder.BuildPackageAsync(themeDescriptor);
 
             return File(package.ArchiveStream, "application/zip", package.FileName);
         }
@@ -54,7 +54,7 @@ namespace Smartstore.Controllers
                     }
 
                     // TODO: (core) Validate package stream file name
-                    using var package = new ExtensionPackage(file.OpenReadStream()) { FileName = file.Name };
+                    using var package = new ExtensionPackage(file.OpenReadStream(), false) { FileName = file.Name };
 
                     var requiredPermission = (isTheme = package.Descriptor.ExtensionType == ExtensionType.Theme)
                         ? Permissions.Configuration.Theme.Upload

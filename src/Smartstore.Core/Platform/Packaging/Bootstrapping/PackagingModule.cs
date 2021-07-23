@@ -8,8 +8,8 @@ namespace Smartstore.Core.Bootstrapping
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<PackageBuilder>().As<IPackageBuilder>().SingleInstance();
-            builder.RegisterType<PackageInstaller>().As<IPackageInstaller>().SingleInstance();
+            builder.RegisterType<PackageBuilder>().As<IPackageBuilder>().InstancePerLifetimeScope();
+            builder.RegisterType<PackageInstaller>().As<IPackageInstaller>().InstancePerLifetimeScope();
         }
     }
 }

@@ -35,10 +35,10 @@ namespace Smartstore.Engine.Modularity
         public string Tags { get; init; }
 
         /// <inheritdoc/>
-        public SemanticVersion Version { get; init; }
+        public Version Version { get; init; }
 
         /// <inheritdoc/>
-        public SemanticVersion MinAppVersion { get; init; }
+        public Version MinAppVersion { get; init; }
 
         #endregion
 

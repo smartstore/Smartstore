@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Smartstore.Core
+namespace Smartstore
 {
     public class HelpTopic
     {
-        public readonly static HelpTopic CronExpressions = new HelpTopic("cron", "Managing+Scheduled+Tasks#ManagingScheduledTasks-Cron", "Geplante+Aufgaben+verwalten#GeplanteAufgabenverwalten-CronAusdruck");
+        public readonly static HelpTopic CronExpressions = new("cron", "Managing+Scheduled+Tasks#ManagingScheduledTasks-Cron", "Geplante+Aufgaben+verwalten#GeplanteAufgabenverwalten-CronAusdruck");
 
         public HelpTopic(string name, string enPath, string dePath)
         {
@@ -27,7 +27,7 @@ namespace Smartstore.Core
 
     public static class SmartstoreVersion
     {
-        private static readonly Version _infoVersion = new Version("1.0.0.0");
+        private static readonly Version _infoVersion = new("1.0.0.0");
         private static readonly List<Version> _breakingChangesHistory = new List<Version>
         { 
             // IMPORTANT: Add app versions from low to high
@@ -65,6 +65,52 @@ namespace Smartstore.Core
         public static Version Version 
             => _infoVersion;
 
+        /// <summary>
+        /// Gets a value indicating whether the given min. required app version is assumed
+        /// to be compatible with the current app version
+        /// </summary>
+        /// <remarks>
+        /// An extension is generally compatible when both app version and extension's 
+        /// <c>MinorAppVersion</c> are equal, OR - when app version is greater - it is 
+        /// assumed to be compatible when no breaking changes occured since <c>MinorAppVersion</c>.
+        /// </remarks>
+        /// <param name="minAppVersion">The min. app version to check for</param>
+        /// <returns><c>true</c> when the extension's version is assumed to be compatible</returns>
+        public static bool IsAssumedCompatible(Version minAppVersion)
+        {
+            Guard.NotNull(minAppVersion, nameof(minAppVersion));
+
+            if (Version == minAppVersion)
+            {
+                return true;
+            }
+
+            if (Version < minAppVersion)
+            {
+                return false;
+            }
+
+            bool compatible = true;
+
+            foreach (var version in _breakingChangesHistory)
+            {
+                if (version > minAppVersion)
+                {
+                    // There was a breaking change in a version greater
+                    // than plugin's MinorAppVersion.
+                    compatible = false;
+                    break;
+                }
+
+                if (version <= minAppVersion)
+                {
+                    break;
+                }
+            }
+
+            return compatible;
+        }
+
         public static string GenerateHelpUrl(string languageCode, HelpTopic topic)
         {
             Guard.NotEmpty(languageCode, nameof(languageCode));
@@ -78,7 +124,7 @@ namespace Smartstore.Core
         {
             Guard.NotEmpty(languageCode, nameof(languageCode));
 
-            return String.Concat(
+            return string.Concat(
                 HELP_BASEURL,
                 GetUserGuideSpaceKey(languageCode),
                 "/",

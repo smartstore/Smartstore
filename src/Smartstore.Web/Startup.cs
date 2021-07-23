@@ -35,7 +35,7 @@ namespace Smartstore.Web
             var coreAssemblies = new Assembly[]
             {
                 typeof(Smartstore.Engine.IEngine).Assembly,
-                typeof(Smartstore.Core.SmartstoreVersion).Assembly,
+                typeof(Smartstore.Core.IWorkContext).Assembly,
                 typeof(Smartstore.Web.Startup).Assembly,
                 typeof(Smartstore.Web.Controllers.SmartController).Assembly
             };

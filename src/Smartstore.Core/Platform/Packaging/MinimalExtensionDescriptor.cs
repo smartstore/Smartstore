@@ -48,9 +48,9 @@ namespace Smartstore.Core.Packaging
         public string Tags { get; set; }
 
         /// <inheritdoc/>
-        public SemanticVersion Version { get; set; }
+        public Version Version { get; set; }
 
         /// <inheritdoc/>
-        public SemanticVersion MinAppVersion { get; set; }
+        public Version MinAppVersion { get; set; }
     }
 }

@@ -120,10 +120,10 @@ namespace Smartstore.Core.Theming
         public string Tags { get; internal set; }
 
         /// <inheritdoc/>
-        public SemanticVersion Version { get; internal set; }
+        public Version Version { get; internal set; }
 
         /// <inheritdoc/>
-        public SemanticVersion MinAppVersion { get; internal set; }
+        public Version MinAppVersion { get; internal set; }
 
         #endregion
 

@@ -1,36 +1,220 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Logging;
+using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
+using Smartstore.IO;
 
 namespace Smartstore.Core.Packaging
 {
     public partial class PackageInstaller : IPackageInstaller
     {
         private readonly IApplicationContext _appContext;
+        private readonly IThemeRegistry _themeRegistry;
+        private readonly INotifier _notifier;
 
-        public PackageInstaller(IApplicationContext appContext)
+        public PackageInstaller(IApplicationContext appContext, IThemeRegistry themeRegistry, INotifier notifier)
         {
             _appContext = appContext;
+            _themeRegistry = themeRegistry;
+            _notifier = notifier;
         }
 
-        public Task<IExtensionDescriptor> InstallPackageAsync(ExtensionPackage package)
+        public ILogger Logger { get; set; } = NullLogger.Instance;
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
+        public async Task<IExtensionDescriptor> InstallPackageAsync(ExtensionPackage package)
         {
-            var descriptor = package.Descriptor;
+            ZipArchive archive = null;
+            try
+            {
+                archive = new ZipArchive(package.ArchiveStream, ZipArchiveMode.Read);
+            }
+            catch (Exception ex)
+            {
+                archive?.Dispose();
+                Logger.Error(T("Admin.Packaging.StreamError"), ex);
+                throw new SmartException(T("Admin.Packaging.StreamError"), ex);
+            }
 
-            //using var archive = new ZipArchive(package.ArchiveStream, ZipArchiveMode.Read);
-            //archive.ExtractToDirectory(_appContext.ContentRoot.Root);
-
-            return Task.FromResult(descriptor);
+            using (archive)
+            {
+                return await InstallPackageCore(package, archive);
+            }
         }
 
-        public Task UninstallPackageAsync(IExtensionDescriptor extension)
+        protected async Task<IExtensionDescriptor> InstallPackageCore(ExtensionPackage package, ZipArchive archive)
         {
-            throw new NotImplementedException();
+            // *** Check if extension is compatible with current app version
+            if (!SmartstoreVersion.IsAssumedCompatible(package.Descriptor.MinAppVersion))
+            {
+                var msg = T("Admin.Packaging.IsIncompatible", SmartstoreVersion.CurrentFullVersion);
+                Logger.Error(msg);
+                throw new SmartException(msg);
+            }
+            
+            IExtensionDescriptor installedExtension;
+            IDirectory backupDirectory;
+
+            // *** See if extension was previously installed and backup its directory if so
+            try
+            {
+                TryBackupExtension(package.Descriptor, out installedExtension, out backupDirectory);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(T("Admin.Packaging.BackupError"), ex);
+                throw new SmartException(T("Admin.Packaging.BackupError"), ex);
+            }
+
+            if (installedExtension != null && package.Descriptor.Version != installedExtension.Version)
+            {
+                // *** If extension is installed and version differs, need to uninstall first. In case of matching version we gonna merge files.
+                try
+                {
+                    await UninstallExtensionAsync(installedExtension);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(T("Admin.Packaging.UninstallError"), ex);
+                    throw new SmartException(T("Admin.Packaging.UninstallError"), ex);
+                }
+            }
+
+            // *** Extract archive to destination
+            try
+            {
+                await ExtractArchive(archive);
+            }
+            catch (Exception ex)
+            {
+                if (installedExtension != null)
+                {
+                    // Restore the previous version
+                    RestoreExtension(installedExtension, backupDirectory);
+                }
+                else
+                {
+                    // Just remove the new package
+                    await UninstallExtensionAsync(package.Descriptor);
+                }
+
+                Logger.Error("TODO", ex);
+                throw new SmartException("TODO", ex);
+            }
+
+            return package.Descriptor;
         }
+
+        public Task UninstallExtensionAsync(IExtensionDescriptor extension)
+        {
+            var path = extension.GetExtensionPath();
+
+            if (!_appContext.ContentRoot.DirectoryExists(path))
+            {
+                throw new SmartException(T("Admin.Packaging.NotFound", path));
+            }
+
+            // TODO: (core) The descriptor should also be removed from ThemeRegistry or ModuleCatalog (but how?)
+            return _appContext.ContentRoot.TryDeleteDirectoryAsync(path);
+        }
+
+        private async Task ExtractArchive(ZipArchive archive)
+        {
+            var fs = _appContext.ContentRoot;
+  
+            foreach (var entry in archive.Entries) 
+            {
+                if (entry.FullName.EqualsNoCase(PackagingUtility.ManifestFileName))
+                    continue;
+
+                if (Path.GetFileName(entry.FullName).Length == 0)
+                {
+                    // Entry is a directory
+                    if (entry.Length == 0)
+                    {
+                        fs.TryCreateDirectory(entry.FullName);
+                    }
+                }
+                else
+                {
+                    // Entry is a file
+                    using var entryStream = entry.Open();
+                    await fs.CreateFileAsync(entry.FullName, entryStream, true);
+                }
+            }
+        }
+
+        #region Backup/Restore
+
+        private bool TryBackupExtension(IExtensionDescriptor extension,  out IExtensionDescriptor installedExtension, out IDirectory backupDirectory)
+        {
+            installedExtension = null;
+            backupDirectory = null;
+
+            var fs = _appContext.ContentRoot;
+            var path = extension.GetExtensionPath().Trim('/', '\\');
+            var sourceDirectory = _appContext.ContentRoot.GetDirectory(path);
+
+            if (sourceDirectory.Exists)
+            {
+                installedExtension = extension.ExtensionType == ExtensionType.Theme
+                    ? _themeRegistry.GetThemeDescriptor(extension.Name)
+                    : _appContext.ModuleCatalog.GetModuleByName(extension.Name, false);
+
+                var backupRoot = "App_Data/_Backup";
+                var uniqueDirName = fs.CreateUniqueDirectoryName(backupRoot, path, 100);
+
+                if (uniqueDirName == null)
+                {
+                    throw new SmartException(T("Admin.Packaging.TooManyBackups", fs.PathCombine(backupRoot, path)));
+                }
+
+                uniqueDirName = fs.PathCombine(backupRoot, uniqueDirName);
+                fs.TryCreateDirectory(uniqueDirName);
+
+                backupDirectory = fs.GetDirectory(uniqueDirName);
+                sourceDirectory.CopyContents(backupDirectory);
+
+                _notifier.Information(T("Admin.Packaging.BackupSuccess", backupDirectory.Name));
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool RestoreExtension(IExtensionDescriptor extension, IDirectory backupDirectory)
+        {
+            if (backupDirectory == null || !backupDirectory.Exists)
+            {
+                return false;
+            }
+
+            var fs = _appContext.ContentRoot;
+            var destinationDirectory = fs.GetDirectory(extension.GetExtensionPath());
+            if (!destinationDirectory.Exists)
+            {
+                fs.TryCreateDirectory(destinationDirectory.SubPath);
+            }
+
+            backupDirectory.CopyContents(destinationDirectory);
+
+            _notifier.Information(T("Admin.Packaging.RestoreSuccess", destinationDirectory.SubPath));
+
+            return true;
+        }
+
+        #endregion
     }
 }

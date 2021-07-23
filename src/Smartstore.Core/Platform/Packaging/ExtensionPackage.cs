@@ -14,15 +14,17 @@ namespace Smartstore.Core.Packaging
     public class ExtensionPackage : Disposable
     {
         private string _fileName;
+        private readonly bool _leaveOpen;
 
-        public ExtensionPackage(Stream archiveStream)
-            : this(archiveStream, null)
+        public ExtensionPackage(Stream archiveStream, bool leaveOpen)
+            : this(archiveStream, null, leaveOpen)
         {
         }
 
-        internal ExtensionPackage(Stream archiveStream, IExtensionDescriptor descriptor)
+        internal ExtensionPackage(Stream archiveStream, IExtensionDescriptor descriptor, bool leaveOpen)
         {
             ArchiveStream = Guard.NotNull(archiveStream, nameof(archiveStream));
+            _leaveOpen = leaveOpen;
 
             if (archiveStream.CanSeek)
             {
@@ -53,19 +55,13 @@ namespace Smartstore.Core.Packaging
 
         public string FileName
         {
-            get => _fileName ??= PackagingUtility.BuildPackageFileName(Descriptor);
+            get => _fileName ??= Descriptor.BuildPackageName() + ".zip";
             init => _fileName = value;
-        }
-
-        public Task ExtractToDirectoryAsync(IDirectory target)
-        {
-            // TODO: (core) Implement ExtensionPackage.ExtractToAsync()
-            return Task.CompletedTask;
         }
 
         protected override void OnDispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && !_leaveOpen)
                 ArchiveStream.Dispose();
         }
     }

@@ -7,6 +7,8 @@ namespace Smartstore.IO
 {
     public class NotFoundFile : IFile
     {
+        private string _dir;
+
         public NotFoundFile(string subpath, IFileSystem fs)
         {
             SubPath = subpath;
@@ -21,7 +23,7 @@ namespace Smartstore.IO
         public Size Size => Size.Empty;
 
         public string SubPath { get; }
-        public string Directory => null;
+        public string Directory => _dir ??= SubPath.IsEmpty() ? string.Empty : SubPath.Substring(0, SubPath.Length - Name.Length);
         public string Name => SubPath.IsEmpty() ? string.Empty : Path.GetFileName(SubPath);
         public string NameWithoutExtension => SubPath.IsEmpty() ? string.Empty : Path.GetFileNameWithoutExtension(SubPath);
         public string Extension => SubPath.IsEmpty() ? string.Empty : Path.GetExtension(SubPath);

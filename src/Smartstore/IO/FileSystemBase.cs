@@ -28,29 +28,6 @@ namespace Smartstore.IO
             return PathUtility.Combine(paths);
         }
 
-        ///// <inheritdoc/>
-        //public virtual string PathCombine(params string[] paths)
-        //{
-        //    if (paths.Length == 0)
-        //        return null;
-
-        //    var normalizedParts =
-        //        paths
-        //            .Select(x => NormalizePath(x))
-        //            .Where(x => !string.IsNullOrEmpty(x))
-        //            .ToArray();
-
-        //    var combined = string.Join('/', normalizedParts);
-
-        //    // Preserve the leading '/' if it is present or if OS is Unix.
-        //    if (paths[0].StartsWith('/') || (Environment.OSVersion.Platform == PlatformID.Unix && !paths[0].StartsWith('~')))
-        //    {
-        //        combined = '/' + combined;
-        //    }
-
-        //    return combined;
-        //}
-
         /// <inheritdoc/>
         public abstract string MapPath(string subpath);
 

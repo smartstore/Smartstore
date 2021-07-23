@@ -542,6 +542,7 @@ namespace Smartstore
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            reader.Read();
             return (SemanticVersion)reader.ReadAsString();
         }
 

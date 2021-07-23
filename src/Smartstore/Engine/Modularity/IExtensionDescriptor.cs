@@ -53,11 +53,11 @@ namespace Smartstore.Engine.Modularity
         /// <summary>
         /// The current version of extension
         /// </summary>
-        SemanticVersion Version { get; }
+        Version Version { get; }
 
         /// <summary>
         /// The minimum compatible application version.
         /// </summary>
-        SemanticVersion MinAppVersion { get; }
+        Version MinAppVersion { get; }
     }
 }

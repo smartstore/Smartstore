@@ -1,7 +1,6 @@
 ﻿using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Admin.Models.Common;
-using Smartstore.Core;
 using Smartstore.Web.Components;
 using System;
 using System.Collections.Generic;

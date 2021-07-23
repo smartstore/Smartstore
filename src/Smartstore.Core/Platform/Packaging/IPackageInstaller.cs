@@ -20,6 +20,6 @@ namespace Smartstore.Core.Packaging
         /// Uninstalls (removes) an extension
         /// </summary>
         /// <param name="extension">The descriptor of extension to remove.</param>
-        Task UninstallPackageAsync(IExtensionDescriptor extension);
+        Task UninstallExtensionAsync(IExtensionDescriptor extension);
     }
 }

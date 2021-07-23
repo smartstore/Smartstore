@@ -582,12 +582,13 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Creates a unique (non-existing) directory name within a given path.
+        /// Creates a unique (non-existing) directory name within a given path by appending an index.
         /// </summary>
         /// <param name="subpath">Path to a directory</param>
         /// <param name="defaultName">Default name for directory. <c>null</c> to use a guid.</param>
+        /// <param name="maxAttempts">Maximum number of attempts/iterations</param>
         /// <returns>Unique directory name</returns>
-        public static string CreateUniqueDirectoryName(this IFileSystem fs, string subpath, string defaultName)
+        public static string CreateUniqueDirectoryName(this IFileSystem fs, string subpath, string defaultName, int maxAttempts = 999999)
         {
             if (defaultName.IsEmpty())
             {
@@ -601,15 +602,17 @@ namespace Smartstore
 
             var newName = defaultName;
 
-            for (int i = 1; i < 999999; ++i)
+            for (int i = 1; i < maxAttempts; ++i)
             {
                 if (!fs.DirectoryExists(fs.PathCombine(subpath, newName)))
-                    break;
+                {
+                    return newName;
+                }
 
                 newName = defaultName + i.ToString();
             }
 
-            return newName;
+            return null;
         }
 
         /// <summary>

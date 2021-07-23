@@ -36,8 +36,8 @@ namespace Smartstore.Core.Theming
             _descriptor.Description = root.GetAttribute("description").NullEmpty();
             _descriptor.Author = root.GetAttribute("author").NullEmpty();
             _descriptor.ProjectUrl = root.GetAttribute("url").NullEmpty();
-            _descriptor.Version = root.GetAttribute("version").NullEmpty() ?? "1.0";
-            _descriptor.MinAppVersion = SemanticVersion.Parse(SmartstoreVersion.CurrentFullVersion);
+            _descriptor.Version = new Version(root.GetAttribute("version").NullEmpty() ?? "1.0");
+            _descriptor.MinAppVersion = SmartstoreVersion.Version;
 
             _descriptor.Selects = MaterializeSelects();
             _descriptor.Variables = MaterializeVariables();

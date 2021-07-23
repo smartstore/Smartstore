@@ -41,7 +41,7 @@ namespace Smartstore.Core.Packaging
 
             var manifest = new MinimalExtensionDescriptor(extension);
 
-            var package = new ExtensionPackage(new MemoryStream(), manifest);
+            var package = new ExtensionPackage(new MemoryStream(), manifest, true);
 
             using (var archive = new ZipArchive(package.ArchiveStream, ZipArchiveMode.Create, true))
             {

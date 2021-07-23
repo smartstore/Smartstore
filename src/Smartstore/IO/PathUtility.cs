@@ -97,7 +97,7 @@ namespace Smartstore.IO
 
         private static string InternalCombine(string path, string other)
         {
-            Guard.NotEmpty(path, nameof(path));
+            Guard.NotNull(path, nameof(path));
 
             if (string.IsNullOrWhiteSpace(other))
             {
