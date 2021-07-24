@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
@@ -107,6 +108,16 @@ namespace Smartstore.Web.Modelling
     public abstract partial class TabbableModel : EntityModelBase
     {
         public virtual string[] LoadedTabs { get; set; }
+
+        public bool IsTabLoaded(string tabName)
+        {
+            if (LoadedTabs != null && tabName.HasValue())
+            {
+                return LoadedTabs.Contains(tabName, StringComparer.OrdinalIgnoreCase);
+            }
+
+            return false;
+        }
     }
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]

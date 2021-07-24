@@ -411,6 +411,8 @@ Vue.component("sm-datagrid", {
         this.hasRowCommands = !!(this.$scopedSlots.rowcommands);
         this.hasDetailView = !!(this.$scopedSlots.detailview);
 
+        //this.destroyRowValidator();
+
         // Read data from server. Process initial read after a short delay, 
         // because something's wrong with numSearchFilters if we call immediately.
         window.setTimeout(() => { this.read(true, true); }, 50);

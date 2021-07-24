@@ -173,9 +173,12 @@ namespace Smartstore.Web
                 })
                 .AddControllersAsServices()
                 .AddAppLocalization()
-                .AddViewOptions(o => 
+                .AddViewOptions(o =>
                 {
                     o.HtmlHelperOptions.CheckBoxHiddenInputRenderMode = CheckBoxHiddenInputRenderMode.Inline;
+
+                    // Client validation (must come last - after "FluentValidationClientModelValidatorProvider")
+                    o.ClientModelValidatorProviders.Add(new SmartClientModelValidatorProvider(appContext, validatorLanguageManager));
                 })
                 .AddMvcOptions(o =>
                 {
@@ -186,6 +189,7 @@ namespace Smartstore.Web
                         o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());
                         o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
 
+                        // Localized messages
                         o.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(x => 
                         {
                             return validatorLanguageManager.GetErrorMessage("MustBeANumber", x);
@@ -194,10 +198,10 @@ namespace Smartstore.Web
                         {
                             return validatorLanguageManager.GetString("NonPropertyMustBeANumber");
                         });
-                        o.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(x =>
-                        {
-                            return validatorLanguageManager.GetErrorMessage(nameof(NotEmptyValidator), x);
-                        });
+                        //o.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(x =>
+                        //{
+                        //    return validatorLanguageManager.GetErrorMessage(nameof(NotEmptyValidator), x);
+                        //});
                     }
                 });
 

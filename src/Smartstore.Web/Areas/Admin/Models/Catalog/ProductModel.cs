@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
@@ -14,6 +15,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Web;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
 
@@ -668,22 +670,27 @@ namespace Smartstore.Admin.Models.Catalog
     {
         public ProductModelValidator(SmartDbContext db, IHttpContextAccessor httpContextAccessor, Localizer T)
         {
-            ApplyDefaultRules<Product>(db);
+            var viewData = httpContextAccessor.HttpContext.RequestServices.GetRequiredService<IViewDataAccessor>().ViewData;
+
+            ApplyEntityRules<Product>(db);
+            //ApplyNonNullableValueTypeRules();
 
             RuleFor(x => x.TaxCategoryId)
                 .NotNull()  // Nullable required for IsTaxExempt.
                 .NotEqual(0)
                 .When(x => !x.IsTaxExempt);
 
-            When(x => x.LoadedTabs != null && x.LoadedTabs.Contains("Inventory", StringComparer.OrdinalIgnoreCase), () =>
+            When(x => x.IsTabLoaded("Inventory"), () =>
             {
                 RuleFor(x => x.OrderMinimumQuantity).GreaterThan(0); // dont't remove "Admin.Validation.ValueGreaterZero" resource. It is used elsewhere.
                 RuleFor(x => x.OrderMaximumQuantity).GreaterThan(0);
             });
 
             // validate PAnGV
-            When(x => x.BasePriceEnabled && x.LoadedTabs != null && x.LoadedTabs.Contains("Price"), () =>
+            When(x => x.BasePriceEnabled && x.IsTabLoaded("Price"), () =>
             {
+                RuleFor(x => x.Price).NotEmpty();
+                
                 RuleFor(x => x.BasePriceMeasureUnit).NotEmpty().WithMessage(T("Admin.Catalog.Products.Fields.BasePriceMeasureUnit.Required"));
                 RuleFor(x => x.BasePriceBaseAmount)
                     .NotEmpty().WithMessage(T("Admin.Catalog.Products.Fields.BasePriceBaseAmount.Required"))
@@ -693,7 +700,7 @@ namespace Smartstore.Admin.Models.Catalog
                     .GreaterThan(0).WithMessage(T("Admin.Catalog.Products.Fields.BasePriceAmount.Required"));
             });
 
-            When(x => x.LoadedTabs != null && x.LoadedTabs.Contains("Downloads"), () =>
+            When(x => x.IsTabLoaded("Downloads"), () =>
             {
                 RuleFor(x => x.DownloadFileVersion)
                     .NotEmpty()

@@ -56,7 +56,7 @@ namespace Smartstore.Admin.Models.Catalog
     {
         public ProductAttributeModelValidator(SmartDbContext db)
         {
-            ApplyDefaultRules<ProductAttribute>(db);
+            ApplyEntityRules<ProductAttribute>(db);
         }
     }
 }
