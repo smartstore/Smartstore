@@ -3,10 +3,6 @@
 
 ; (function (root, $) {
 
-    var toString = Object.prototype.toString,
-        hasOwn = Object.prototype.hasOwnProperty,
-        nativeFormat = String.prototype.format;
-
     var emailRegex = /^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
     var encodeJsRegex = /[\\\"\'\x00-\x1f\x7f-\uffff]/g;
 
@@ -89,15 +85,6 @@
             return str.replace(/\'/g, "");
         },
 
-        format: function (str) {
-            var args;
-            if (_.isArray(arguments[1]))
-                args = arguments[1];
-            else
-                args = _.toArray(arguments).slice(1);
-            return nativeFormat.apply(str, args);
-        },
-
         encodeJson: function (str) {
             return str.replace(encodeJsRegex, function (a) {
                 var c = encodeJsMap[a];
@@ -156,21 +143,6 @@
             }
 
             return r;
-        },
-
-        isEmpty: function (obj) {
-            if (_.isArray(obj) || _.isString(obj)) return obj.length === 0;
-            if ($.isPlainObject(obj)) {
-                for (var key in obj) return false;
-                return true;
-            }
-            else {
-                return (obj == void 0 || obj == null);
-            }
-        },
-
-        now: function () {
-            return (new Date()).getTime();
         },
 
         call: function (func) {
