@@ -26,7 +26,12 @@ namespace Smartstore.Core.Checkout.GiftCards
             => !Equals(left, right);
 
         public override int GetHashCode()
-            => HashCode.Combine(RecipientName, RecipientEmail, SenderName, SenderEmail, Message);
+            => HashCode.Combine(
+                RecipientName.ToLower(), 
+                RecipientEmail.ToLower(), 
+                SenderName.ToLower(), 
+                SenderEmail.ToLower(), 
+                Message.ToLower());
 
         public override bool Equals(object obj)
         {
