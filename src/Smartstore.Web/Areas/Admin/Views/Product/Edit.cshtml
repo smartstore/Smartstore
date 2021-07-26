@@ -57,19 +57,27 @@
 
 <script sm-target-zone="Scripts" data-origin="product-edit">
     $(function() {
-		// Bundle per item pricing
+		// Bundle per item pricing.
         $(document).on('change', '#@Html.IdFor(model => model.BundlePerItemPricing)', function () {
         	bundlePerItemPricing($(this).is(':checked'));
         });
 
-		bundlePerItemPricing(@((Model.ProductTypeId == (int)ProductType.BundledProduct && Model.BundlePerItemPricing).ToString().ToLower()));
+		bundlePerItemPricing(@((Model.IsBundleWithItemPricing).ToString().ToLower()));
 
         function bundlePerItemPricing(isActive) {
-            $('#TierPriceContainer').toggle(!isActive);
+            $('#TierPriceContainer').toggleClass('d-none', isActive);
+            $('#pnlPriceDiscounts').toggleClass('d-none', isActive);
+        }
 
-            // INFO: (mh) (core) I don't know when this could have ever worked. There never was a "base-price" class (I've also checked the history of the file).
-            // TODO: (mg) (core) Can you please check this and remove if not needed anymore.
-        	//$('#group-prices').find('.base-price').toggle(!isActive);
+        // Bundle per item in shopping cart.
+        $(document).on('change', '#@Html.IdFor(model => model.BundlePerItemShoppingCart)', function () {
+        	bundlePerItemShoppingCart($(this).is(':checked'));
+        });
+
+		bundlePerItemShoppingCart(@((Model.ProductTypeId == (int)ProductType.BundledProduct && Model.BundlePerItemShoppingCart).ToString().ToLower()));
+
+        function bundlePerItemShoppingCart(isActive) {
+            $('a[data-tab-name="Inventory"]').parent().toggleClass('d-none', isActive);
         }
     });
 </script>

@@ -58,7 +58,7 @@
                 <span asp-validation-for="SpecialPriceEndDateTimeUtc"></span>
             </div>
         </div>
-        <div class="adminRow" attr-class='(Model.ProductTypeId == (int)ProductType.BundledProduct && Model.BundlePerItemPricing, "d-none")'>
+        <div id="pnlPriceDiscounts" class="adminRow" attr-class='(Model.IsBundleWithItemPricing, "d-none")'>
             <div class="adminTitle">
                 <smart-label asp-for="SelectedDiscountIds" />
             </div>
@@ -183,7 +183,7 @@
         </div>
     </div>
 
-    <div id="TierPriceContainer" class="mt-3">
+    <div id="TierPriceContainer" class="mt-3" attr-class='(Model.IsBundleWithItemPricing, "d-none")'>
         <h4 class="mb-4">@T("Admin.Catalog.Products.TierPrices")</h4>
 
         @if (Model.Id > 0)

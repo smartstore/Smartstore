@@ -242,6 +242,10 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*BundlePerItemShoppingCart")]
         public bool BundlePerItemShoppingCart { get; set; }
 
+        [JsonIgnore]
+        public bool IsBundleWithItemPricing
+            => ProductTypeId == (int)ProductType.BundledProduct && BundlePerItemPricing;
+
         [LocalizedDisplay("*AttributeChoiceBehaviour")]
         public AttributeChoiceBehaviour AttributeChoiceBehaviour { get; set; }
 
