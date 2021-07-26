@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
@@ -57,6 +58,24 @@ namespace Smartstore.Core.Catalog.Attributes
                 x.BundleItemId == bundleItemId &&
                 x.Name.EqualsNoCase(name))
                 ?.Value;
+        }
+
+        public GiftCardInfo GetGiftCardInfo(int productId, int bundleItemId)
+        {
+            var values = _giftCards
+                .Where(x => x.ProductId == productId && x.BundleItemId == bundleItemId)
+                .ToDictionarySafe(x => x.Name, x => x.Value, StringComparer.OrdinalIgnoreCase);
+
+            var giftCardInfo = new GiftCardInfo
+            {
+                RecipientName = values.Get(nameof(GiftCardInfo.RecipientName)),
+                RecipientEmail = values.Get(nameof(GiftCardInfo.RecipientEmail)),
+                SenderName = values.Get(nameof(GiftCardInfo.SenderName)),
+                SenderEmail = values.Get(nameof(GiftCardInfo.SenderEmail)),
+                Message = values.Get(nameof(GiftCardInfo.Message))
+            };
+
+            return giftCardInfo;
         }
 
         public override string ToString()

@@ -25,26 +25,36 @@ namespace Smartstore.Core.Checkout.GiftCards
         public static bool operator !=(GiftCardInfo left, GiftCardInfo right)
             => !Equals(left, right);
 
+        public override int GetHashCode()
+            => HashCode.Combine(RecipientName, RecipientEmail, SenderName, SenderEmail, Message);
+
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, obj))
+            return Equals(obj as GiftCardInfo);
+        }
+
+        protected virtual bool Equals(GiftCardInfo other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
             {
                 return true;
             }
 
-            if (obj is GiftCardInfo other)
+            if (RecipientName.EqualsNoCase(other.RecipientName) && 
+                RecipientEmail.EqualsNoCase(other.RecipientEmail) &&
+                SenderName.EqualsNoCase(other.SenderName) &&
+                SenderEmail.EqualsNoCase(other.SenderEmail) &&
+                Message.EqualsNoCase(other.Message))
             {
-                return RecipientName == other.RecipientName
-                    && RecipientEmail == other.RecipientEmail
-                    && SenderName == other.SenderName
-                    && SenderEmail == other.SenderEmail
-                    && Message == other.Message;
+                return true;
             }
 
             return false;
         }
-
-        public override int GetHashCode() 
-            => HashCode.Combine(RecipientName, RecipientEmail, SenderName, SenderEmail, Message);
     }
 }

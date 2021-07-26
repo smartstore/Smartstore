@@ -180,7 +180,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             if (includeGiftCardAttributes && product.IsGiftCard)
             {                
-                var gci = selection.GiftCardInfo;
+                var gci = selection.GetGiftCardInfo();
                 if (gci != null)
                 {
                     // Sender.

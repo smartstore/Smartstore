@@ -10,7 +10,7 @@ namespace Smartstore.Core.Checkout.Cart
     public static partial class ShoppingCartExtensions
     {
         /// <summary>
-        /// Finds a shopping cart item in cart.
+        /// Finds a cart item in a shopping cart.
         /// </summary>
         /// <remarks>Products with the same identifier need to have matching attribute selections as well.</remarks>
         /// <param name="cart">Shopping cart to search.</param>
@@ -29,56 +29,53 @@ namespace Smartstore.Core.Checkout.Cart
             Guard.NotNull(cart, nameof(cart));
             Guard.NotNull(product, nameof(product));
 
-            // Return on product bundle with individual item pricing - too complex
+            // Return on product bundle with individual item pricing. It is too complex to compare.
             if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
             {
                 return null;
             }
 
-            // Filter non group items from correct cart type, with matching product id and product type id
+            var priceDigits = customerEnteredPrice?.DecimalDigits ?? 2;
+
+            // Filter items of matching cart type, product ID and product type.
             var filteredCart = cart.Items.Where(x => x.Item.ShoppingCartType == shoppingCartType &&
                 x.Item.ParentItemId == null && 
                 x.Item.Product.ProductTypeId == product.ProductTypeId &&
                 x.Item.ProductId == product.Id);
 
-            // There could be multiple matching products with the same identifier but different attributes/selections (etc).
-            // Ensure matching product infos are the same (attributes, gift card values (if it is gift card), customerEnteredPrice).
             foreach (var cartItem in filteredCart)
             {
-                var currentProduct = cartItem.Item.Product;
+                var item = cartItem.Item;
+                var giftCardInfoSame = true;
+                var customerEnteredPricesEqual = true;
+                var attributesEqual = item.AttributeSelection == selection;
 
-                // Compare attribute selection, if not null.
-                if (selection != null && selection.AttributesMap.Any())
+                if (item.Product.IsGiftCard)
                 {
-                    var cartItemSelection = cartItem.Item.AttributeSelection;
-                    if (!cartItemSelection.Equals(selection))
-                    {
-                        continue;
-                    }
+                    var info1 = item.AttributeSelection?.GetGiftCardInfo();
+                    var info2 = selection?.GetGiftCardInfo();
 
-                    // Compare gift cards info values (if it is a gift card).
-                    if (currentProduct.IsGiftCard && 
-                        (cartItemSelection.GiftCardInfo == null || selection.GiftCardInfo == null || cartItemSelection != selection))
+                    if (info1 != null && info2 != null)
                     {
-                        continue;
+                        // INFO: in this context, we only compare the name of recipient and sender.
+                        if (!info1.RecipientName.EqualsNoCase(info2.RecipientName) || !info1.SenderName.EqualsNoCase(info2.SenderName))
+                        {
+                            giftCardInfoSame = false;
+                        }
                     }
                 }
 
                 // Products with CustomerEntersPrice are equal if the price is the same.
                 // But a system product may only be placed once in the shopping cart.
-                if (customerEnteredPrice.HasValue)
+                if (customerEnteredPrice.HasValue && item.Product.CustomerEntersPrice && !item.Product.IsSystemProduct)
                 {
-                    var enteredPrice = customerEnteredPrice.Value;
-
-                    if (currentProduct.CustomerEntersPrice && !currentProduct.IsSystemProduct &&
-                        enteredPrice != decimal.Round(cartItem.Item.CustomerEnteredPrice, enteredPrice.DecimalDigits))
-                    {
-                        continue;
-                    }
+                    customerEnteredPricesEqual = Math.Round(item.CustomerEnteredPrice, priceDigits) == Math.Round(customerEnteredPrice.Value.Amount, priceDigits);
                 }
 
-                // If we got this far, we found a matching product with the same values.
-                return cartItem;
+                if (attributesEqual && giftCardInfoSame && customerEnteredPricesEqual)
+                {
+                    return cartItem;
+                }
             }
 
             return null;

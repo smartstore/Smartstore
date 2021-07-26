@@ -93,35 +93,33 @@ namespace Smartstore.Core.Checkout.Cart
 
             ctx.Customer.ResetCheckoutData(ctx.StoreId.Value);
 
-            // Checks whether attributes have been selected
-            if (ctx.VariantQuery != null || ctx.RawAttributes.HasValue())
+            // Get raw attributes from variant query.
+            if (ctx.VariantQuery != null)
             {
-                if (!ctx.RawAttributes.HasValue())
-                {
-                    await _db.LoadCollectionAsync(ctx.Product, x => x.ProductVariantAttributes, false);
+                await _db.LoadCollectionAsync(ctx.Product, x => x.ProductVariantAttributes, false);
 
-                    var (selection, warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(
-                        ctx.VariantQuery,
-                        ctx.Product.ProductVariantAttributes,
-                        ctx.Product.Id,
-                        ctx.BundleItemId);
-
-                    ctx.RawAttributes = selection.AttributesMap.Any() ? selection.AsJson() : string.Empty;
-                }
-
-                // Check context for bundle item errors
-                if (ctx.Product.ProductType == ProductType.BundledProduct && ctx.RawAttributes.HasValue())
-                {
-                    ctx.Warnings.Add(T("ShoppingCart.Bundle.NoAttributes"));
-
-                    if (ctx.BundleItem != null)
-                        return false;
-                }
+                var (selection, warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(
+                    ctx.VariantQuery,
+                    ctx.Product.ProductVariantAttributes,
+                    ctx.Product.Id,
+                    ctx.BundleItemId);
 
                 if (ctx.Product.IsGiftCard)
                 {
-                    // TODO: (mg) (core) adding gift card attribute is missing in AddToCartAsync.
+                    var giftCardInfo = ctx.VariantQuery.GetGiftCardInfo(ctx.Product.Id, ctx.BundleItemId);
+                    selection.AddGiftCardInfo(giftCardInfo);
                 }
+
+                ctx.RawAttributes = selection.AsJson();
+            }
+
+            if (ctx.Product.ProductType == ProductType.BundledProduct && ctx.AttributeSelection.AttributesMap.Any())
+            {
+                ctx.Warnings.Add(T("ShoppingCart.Bundle.NoAttributes"));
+
+                // For what is this for? It looks like a hack:
+                if (ctx.BundleItem != null)
+                    return false;
             }
 
             if (!await _cartValidator.ValidateAccessPermissionsAsync(ctx.Customer, ctx.CartType, ctx.Warnings))
@@ -168,12 +166,9 @@ namespace Smartstore.Core.Checkout.Cart
             // Checks whether required products are still missing
             await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, cart.Items, ctx.Warnings);
 
-            ShoppingCartItem existingCartItem = null;
-
-            if (ctx.BundleItem == null)
-            {
-                existingCartItem = cart.FindItemInCart(ctx.CartType, ctx.Product, ctx.AttributeSelection, ctx.CustomerEnteredPrice)?.Item;
-            }
+            var existingCartItem = ctx.BundleItem == null
+                ? cart.FindItemInCart(ctx.CartType, ctx.Product, ctx.AttributeSelection, ctx.CustomerEnteredPrice)?.Item
+                : null;
 
             // Add item to cart (if no warnings accured)
             if (existingCartItem != null)

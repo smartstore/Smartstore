@@ -801,7 +801,7 @@ namespace Smartstore.Core.Checkout.Orders
                     // Gift cards.
                     if (product.IsGiftCard)
                     {
-                        var giftCardInfo = item.AttributeSelection.GiftCardInfo;
+                        var giftCardInfo = item.AttributeSelection.GetGiftCardInfo();
                         if (giftCardInfo != null)
                         {
                             _db.GiftCards.AddRange(Enumerable.Repeat(new GiftCard
@@ -859,7 +859,7 @@ namespace Smartstore.Core.Checkout.Orders
                     // Gift cards.
                     if (oi.Product.IsGiftCard)
                     {
-                        var giftCardInfo = oi.AttributeSelection.GiftCardInfo;
+                        var giftCardInfo = oi.AttributeSelection.GetGiftCardInfo();
                         if (giftCardInfo != null)
                         {
                             _db.GiftCards.AddRange(Enumerable.Repeat(new GiftCard

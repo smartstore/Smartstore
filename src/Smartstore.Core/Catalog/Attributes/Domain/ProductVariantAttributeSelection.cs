@@ -1,10 +1,7 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
-using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
-using Smartstore.Collections;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Domain;
 
@@ -13,18 +10,16 @@ namespace Smartstore.Core.Catalog.Attributes
     /// <summary>
     /// Represents a product variant attribute selection.
     /// </summary>
-    /// <remarks>
-    /// This class can parse strings with XML or JSON format to <see cref="Multimap{int, object}"/> and vice versa.
-    /// </remarks>
+    /// <remarks>This class can parse strings of XML or JSON format.</remarks>
     public class ProductVariantAttributeSelection : AttributeSelection
     {
+        private const string GIFTCARD_ATTRIBUTE_NAME = "GiftCardInfo";
+
         /// <summary>
-        /// Creates product variant attribute selection from string as <see cref="Multimap{int, object}"/>. 
+        /// Creates product variant attribute selection from string. 
         /// Use <see cref="AttributeSelection.AttributesMap"/> to access parsed attributes afterwards.
         /// </summary>
-        /// <remarks>
-        /// Automatically differentiates between XML and JSON.
-        /// </remarks>
+        /// <remarks>Automatically differentiates between XML and JSON.</remarks>
         /// <param name="rawAttributes">XML or JSON attributes string.</param>  
         public ProductVariantAttributeSelection(string rawAttributes)
             : base(rawAttributes, "ProductVariantAttribute")
@@ -32,104 +27,24 @@ namespace Smartstore.Core.Catalog.Attributes
         }
 
         /// <summary>
-        /// Gets or sets gift card info
+        /// Gets the gift card information.
         /// </summary>
-        public GiftCardInfo GiftCardInfo { get; set; }
-
-        protected override void MapUnknownElement(XElement element, Multimap<int, object> map)
+        public GiftCardInfo GetGiftCardInfo()
         {
-            if (element.Name.LocalName == "GiftCardInfo")
-            {
-                try
-                {
-                    GiftCardInfo = new GiftCardInfo();
+            var value = GetCustomAttributeValues(GIFTCARD_ATTRIBUTE_NAME)?.FirstOrDefault();
 
-                    foreach (var el in element.Elements())
-                    {
-                        switch (el.Name.LocalName)
-                        {
-                            case nameof(GiftCardInfo.RecipientEmail):
-                                GiftCardInfo.RecipientEmail = el.Value;
-                                break;
-                            case nameof(GiftCardInfo.RecipientName):
-                                GiftCardInfo.RecipientName = el.Value;
-                                break;
-                            case nameof(GiftCardInfo.SenderName):
-                                GiftCardInfo.SenderName = el.Value;
-                                break;
-                            case nameof(GiftCardInfo.SenderEmail):
-                                GiftCardInfo.SenderEmail = el.Value;
-                                break;
-                            case nameof(GiftCardInfo.Message):
-                                GiftCardInfo.Message = el.Value;
-                                break;
-                            default:
-                                throw new InvalidEnumArgumentException(el.Name.LocalName);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new XmlException("Error while trying to parse from additional XML: " + nameof(ProductVariantAttributeSelection), ex);
-                }
-            }
+            return value != null && value is GiftCardInfo info
+                ? info
+                : null;
         }
-
-        protected override void OnSerialize(XElement root)
-        {
-            if (GiftCardInfo != null)
-            {
-                var el = new XElement("GiftCardInfo");
-                el.Add(new XElement(nameof(GiftCardInfo.RecipientName), GiftCardInfo.RecipientName));
-                el.Add(new XElement(nameof(GiftCardInfo.RecipientEmail), GiftCardInfo.RecipientEmail));
-                el.Add(new XElement(nameof(GiftCardInfo.SenderName), GiftCardInfo.SenderName));
-                el.Add(new XElement(nameof(GiftCardInfo.SenderEmail), GiftCardInfo.SenderEmail));
-                el.Add(new XElement(nameof(GiftCardInfo.Message), GiftCardInfo.Message));
-
-                root.Add(el);
-            }
-        }
-    }
-
-
-    public class ProductVariantAttributeSelection2 : AttributeSelection2
-    {
-        private const string GIFTCARD_ATTRIBUTE_NAME = "GiftCardInfo";
-        private GiftCardInfo _giftCardInfo;
 
         /// <summary>
-        /// Creates product variant attribute selection from string. 
-        /// Use <see cref="AttributeSelection.AttributesMap"/> to access parsed attributes afterwards.
+        /// Adds gift card infomation to be taken into account when serializing attributes.
         /// </summary>
-        /// <remarks>
-        /// Automatically differentiates between XML and JSON.
-        /// </remarks>
-        /// <param name="rawAttributes">XML or JSON attributes string.</param>  
-        public ProductVariantAttributeSelection2(string rawAttributes)
-            : base(rawAttributes, "ProductVariantAttribute")
-        {
-        }
-
-        public GiftCardInfo GiftCardInfo
-        {
-            get
-            {
-                if (_giftCardInfo == null)
-                {
-                    var value = GetCustomAttributeValues(GIFTCARD_ATTRIBUTE_NAME).FirstOrDefault();
-
-                    _giftCardInfo = value != null && value is GiftCardInfo info
-                        ? info
-                        : new GiftCardInfo();
-                }
-
-                return _giftCardInfo;
-            }
-        }
-
+        /// <param name="giftCard">Gift card information.</param>
         public void AddGiftCardInfo(GiftCardInfo giftCard)
         {
-            AddCustomAttribute(GIFTCARD_ATTRIBUTE_NAME, giftCard);
+            AddCustomAttributeValue(GIFTCARD_ATTRIBUTE_NAME, giftCard);
         }
 
         protected override object ToCustomAttributeValue(string attributeName, object value)
@@ -144,19 +59,19 @@ namespace Smartstore.Core.Catalog.Attributes
                     {
                         switch (el.Name.LocalName)
                         {
-                            case nameof(GiftCardInfo.RecipientEmail):
+                            case nameof(giftCardInfo.RecipientEmail):
                                 giftCardInfo.RecipientEmail = el.Value;
                                 break;
-                            case nameof(GiftCardInfo.RecipientName):
+                            case nameof(giftCardInfo.RecipientName):
                                 giftCardInfo.RecipientName = el.Value;
                                 break;
-                            case nameof(GiftCardInfo.SenderName):
+                            case nameof(giftCardInfo.SenderName):
                                 giftCardInfo.SenderName = el.Value;
                                 break;
-                            case nameof(GiftCardInfo.SenderEmail):
+                            case nameof(giftCardInfo.SenderEmail):
                                 giftCardInfo.SenderEmail = el.Value;
                                 break;
-                            case nameof(GiftCardInfo.Message):
+                            case nameof(giftCardInfo.Message):
                                 giftCardInfo.Message = el.Value;
                                 break;
                             default:
@@ -190,11 +105,11 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 var el = new XElement(GIFTCARD_ATTRIBUTE_NAME);
 
-                el.Add(new XElement(nameof(GiftCardInfo.RecipientName), giftCardInfo.RecipientName));
-                el.Add(new XElement(nameof(GiftCardInfo.RecipientEmail), giftCardInfo.RecipientEmail));
-                el.Add(new XElement(nameof(GiftCardInfo.SenderName), giftCardInfo.SenderName));
-                el.Add(new XElement(nameof(GiftCardInfo.SenderEmail), giftCardInfo.SenderEmail));
-                el.Add(new XElement(nameof(GiftCardInfo.Message), giftCardInfo.Message));
+                el.Add(new XElement(nameof(giftCardInfo.RecipientName), giftCardInfo.RecipientName));
+                el.Add(new XElement(nameof(giftCardInfo.RecipientEmail), giftCardInfo.RecipientEmail));
+                el.Add(new XElement(nameof(giftCardInfo.SenderName), giftCardInfo.SenderName));
+                el.Add(new XElement(nameof(giftCardInfo.SenderEmail), giftCardInfo.SenderEmail));
+                el.Add(new XElement(nameof(giftCardInfo.Message), giftCardInfo.Message));
 
                 return el;
             }
