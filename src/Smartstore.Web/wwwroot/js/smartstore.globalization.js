@@ -148,10 +148,10 @@
                 pos = " " + pos;
             /* falls through */
             case "n-":
-                if (_.str.endsWith(value, neg)) {
+                if (value.endsWith(neg)) {
                     ret = ["-", value.substr(0, value.length - neg.length)];
                 }
-                else if (_.str.endsWith(value, pos)) {
+                else if (value.endsWith(pos)) {
                     ret = ["+", value.substr(0, value.length - pos.length)];
                 }
                 break;
@@ -160,15 +160,15 @@
                 pos += " ";
             /* falls through */
             case "-n":
-                if (_.str.startsWith(value, neg)) {
+                if (value.startsWith(neg)) {
                     ret = ["-", value.substr(neg.length)];
                 }
-                else if (_.str.startsWith(value, pos)) {
+                else if (value.startsWith(pos)) {
                     ret = ["+", value.substr(pos.length)];
                 }
                 break;
             case "(n)":
-                if (_.str.startsWith(value, "(") && _.str.endsWith(value, ")")) {
+                if (value.startsWith("(") && value.endsWith(")")) {
                     ret = ["-", value.substr(1, value.length - 2)];
                 }
                 break;

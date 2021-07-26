@@ -95,26 +95,21 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        public static string Truncate(this string value, int maxLength, string suffix = "")
+        public static string Truncate(this string value, int maxLength, string end = "")
         {
-            if (suffix == null)
-                throw new ArgumentNullException(nameof(suffix));
+            if (end == null)
+                throw new ArgumentNullException(nameof(end));
 
             Guard.IsPositive(maxLength, nameof(maxLength));
 
-            int subStringLength = maxLength - suffix.Length;
+            int subStringLength = maxLength - end.Length;
 
             if (subStringLength <= 0)
                 throw Error.Argument(nameof(maxLength), "Length of suffix string is greater or equal to maximumLength");
 
             if (value != null && value.Length > maxLength)
             {
-                var truncatedString = value.Substring(0, subStringLength);
-                // in case the last character is a space
-                truncatedString = truncatedString.Trim();
-                truncatedString += suffix;
-
-                return truncatedString;
+                return value.Substring(0, subStringLength).Trim() + end;
             }
             else
             {

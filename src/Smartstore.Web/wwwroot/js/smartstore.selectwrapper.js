@@ -203,7 +203,7 @@
     );
 
     $.fn.selectWrapper = function (options) {
-        if (options && !_.str.isBlank(options.resetDataUrl) && lists[options.resetDataUrl]) {
+        if (options && options.resetDataUrl?.hasValue() && lists[options.resetDataUrl]) {
             lists[options.resetDataUrl] = null;
             return this.each(function () { });
         }
@@ -232,7 +232,7 @@
             // following code only applicable to select boxes (not input:hidden)
             var firstOption = sel.children("option").first();
             var hasOptionLabel = firstOption.length &&
-                (firstOption[0].attributes['value'] === undefined || _.str.isBlank(firstOption.val()));
+                (firstOption[0].attributes['value'] === undefined || firstOption.val().isEmpty());
 
             if (placeholder && hasOptionLabel) {
                 // clear first option text in nullable dropdowns.
@@ -356,13 +356,13 @@
                 },
                 closeOnSelect: !sel.prop('multiple'), //|| sel.data("tags"),
                 adaptContainerCssClass: function (c) {
-                    if (_.str.startsWith(c, "select-"))
+                    if (c?.startsWith("select-"))
                         return c;
                     else
                         return null;
                 },
                 adaptDropdownCssClass: function (c) {
-                    if (_.str.startsWith("drop-"))
+                    if (c?.startsWith("drop-"))
                         return c;
                     else
                         return null;

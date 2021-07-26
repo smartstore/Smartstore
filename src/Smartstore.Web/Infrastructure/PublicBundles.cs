@@ -64,7 +64,6 @@ namespace Smartstore.Web.Infrastructure
             bundles.Add(new ScriptBundle("/bundle/js/site.js").Include(
                 // Vendors
                 lib + "underscore/underscore.js",
-                lib + "underscore/underscore.string.js",
                 lib + "jquery/jquery.addeasing.js",
                 lib + "jquery-ui/effect.js",
                 lib + "jquery-ui/effect-shake.js",

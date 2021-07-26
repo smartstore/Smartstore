@@ -227,7 +227,7 @@
                 if (document.cookie && document.cookie != '') {
                     var cookies = document.cookie.split(';');
                     for (var i = 0; i < cookies.length; i++) {
-                        var cookie = _.str.trim(cookies[i]);
+                        var cookie = cookies[i].trim();
                         if (cookie.substring(0, name.length + 1) == (name + '=')) {
                             return decodeURIComponent(cookie.substring(name.length + 1));
                         }
@@ -278,28 +278,6 @@
         }
     };
 
-    // underscore.string mixins
-    var s = {
-        // overwrite original isBlank, this is better
-	    /*isBlank: function (str) {
-	        return str == false;
-	    },*/
-        grow: function (str, val, delimiter) {
-            if (_.isEmpty(val))
-                return str;
-            if (!_.isEmpty(str))
-                str += delimiter;
-            return str + val;
-        }
-    }
-
     // integrate m with underscore
     root['_'].mixin(m);
-
-    // integrate s with underscore.string
-    if (!root._.str) {
-        root._.str = root._.string = {};
-    }
-    _.extend(_.str, s)
-
 })(window, jQuery);

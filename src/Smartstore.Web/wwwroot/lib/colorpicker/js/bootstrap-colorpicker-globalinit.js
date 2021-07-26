@@ -18,7 +18,7 @@
 	];
 
 	function isValidColor(expr) {
-		if (_.str.isBlank(expr))
+		if (!expr?.hasValue())
 			return true;
 
 		if (expr.indexOf("$") > -1)

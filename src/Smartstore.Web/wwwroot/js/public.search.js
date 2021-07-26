@@ -89,7 +89,7 @@
                             return;
                         }
 
-                        if (_.str.isBlank(html)) {
+                        if (html.isEmpty()) {
                             closeDrop();
                             dropBody.html('');
                         }
@@ -118,7 +118,7 @@
                     $('body').addClass('search-focused');
                     logo.css('margin-left', (logoWidth * -1) + 'px');
 
-                    if (!_.str.isBlank(dropBody.text())) {
+                    if (dropBody.text().hasValue()) {
                         logo.one(Prefixer.event.transitionEnd, function (e) {
                             openDrop();
                         });

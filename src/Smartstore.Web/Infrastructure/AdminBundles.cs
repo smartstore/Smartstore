@@ -42,7 +42,6 @@ namespace Smartstore.Web.Infrastructure
                 adminJs + "jquery-shims.js",
                 // Lib
                 lib + "underscore/underscore.js",
-                lib + "underscore/underscore.string.js",
                 lib + "jquery/jquery.addeasing.js",
                 lib + "jquery-ui/effect.js",
                 lib + "jquery-ui/effect-transfer.js",

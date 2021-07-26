@@ -33,7 +33,88 @@
         window.document.documentElement.classList.add("touchevents");
     }
 
-    String.prototype.format = function () {
+    // #region String.prototype
+
+    let strProto = String.prototype;
+    let rgBlank = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+    let rgHtmlSpecialChars = /[<>&"'`]/g;
+
+    let unescapeHtmlCharsMap = {
+        '<': /(&lt;)|(&#x0*3c;)|(&#0*60;)/gi,
+        '>': /(&gt;)|(&#x0*3e;)|(&#0*62;)/gi,
+        '&': /(&amp;)|(&#x0*26;)|(&#0*38;)/gi,
+        '"': /(&quot;)|(&#x0*22;)|(&#0*34;)/gi,
+        "'": /(&#x0*27;)|(&#0*39;)/gi,
+        '`': /(&#x0*60;)|(&#0*96;)/gi,
+    };
+    let escapeHtmlCharsMap = {
+        '<': '&lt;',
+        '>': '&gt;',
+        '&': '&amp;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '`': '&#x60;',
+    };
+    let htmlChars = Object.keys(unescapeHtmlCharsMap);
+
+    function reduceUnescapedString(str, key) {
+        return str.replace(unescapeHtmlCharsMap[key], key);
+    }
+
+    function replaceSpecialChar(char) {
+        return escapeHtmlCharsMap[char];
+    }
+
+    strProto.trim = strProto.trim || function () {
+        return this.replace(rgBlank, '');
+    };
+
+    strProto.startsWith = strProto.startsWith || function (searchString, position) {
+        position = position || 0;
+        return this.indexOf(searchString, position) === position;
+    };
+
+    strProto.endsWith = strProto.endsWith || function (searchString, position) {
+        var subjectString = this.toString();
+        if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+            position = subjectString.length;
+        }
+        position -= searchString.length;
+        var lastIndex = subjectString.indexOf(searchString, position);
+        return lastIndex !== -1 && lastIndex === position;
+    };
+
+    strProto.isEmpty = function () {
+        return this.length === 0 || rgBlank.test(this);
+    };
+
+    strProto.hasValue = function () {
+        return !rgBlank.test(this);
+    };
+
+    strProto.truncate = function (length, end) {
+        end = end || "…";
+        length = ~~length;
+        return this.length > length ? this.substr(0, length - end.length) + end : this;
+    };
+
+    strProto.grow = function (val, delimiter) {
+        if (val.isEmpty()) {
+            return this;
+        }
+
+        return (this.hasValue() ? this + delimiter : "") + val;
+    };
+
+    strProto.escapeHtml = function () {
+        return this.replace(rgHtmlSpecialChars, replaceSpecialChar);
+    };
+
+    strProto.unescapeHtml = function () {
+        return htmlChars.reduce(reduceUnescapedString, this);
+    };
+
+    strProto.format = function () {
         function getType(o) {
             const t = typeof o;
 
@@ -80,6 +161,8 @@
 
         return s;
     };
+
+    // #endregion
 
     // define noop funcs for window.console in order
     // to prevent scripting errors
