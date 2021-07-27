@@ -81,6 +81,7 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.entitypicker.js",
                 js + "smartstore.rangeslider.js",
                 js + "smartstore.tree.js",
+                js + "smartstore.treeview.js",
                 js + "smartstore.media.js",
                 js + "smartstore.editortemplates.js",
                 // Admin

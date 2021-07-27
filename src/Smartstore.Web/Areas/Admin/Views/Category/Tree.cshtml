@@ -1,4 +1,6 @@
-﻿@{
+﻿@model CategoryListModel
+
+@{
     ViewBag.Title = T("Admin.Catalog.Categories.Manage").Value;
 
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
@@ -31,4 +33,32 @@
     </div>
 </div>
 
+<div sm-if="!isSingleStoreMode" class="row">
+    <div class="col-sm-3">
+        <div class="form-group">
+            <smart-label asp-for="SearchStoreId" />
+            <div class="form-row">
+                <div class="col">
+                    <editor asp-for="SearchStoreId" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @*TODO: (mg) (core) add category tree somehow (including store filter and drag & drop)*@
+<div id="category-tree" class="treeview" data-url="@Url.Action("CategoryTree")"></div>
+
+<script sm-target-zone="scripts" data-origin="category-tree">
+    $(function() {
+        // Init category tree view.
+        $('#category-tree').treeview('init', {
+        });
+
+        // Filter by store ID.
+        $('#@Html.IdFor(model => model.SearchStoreId)').on('change', function() {
+            var storeId = $(this).val();
+            //...
+        });
+    });
+</script>

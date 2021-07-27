@@ -161,10 +161,12 @@ namespace Smartstore.Admin.Controllers
         {
             await UpdateAdminCategoriesType("Tree");
 
+            var model = new CategoryListModel();
+
             ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
             ViewBag.CanEdit = Services.Permissions.Authorize(Permissions.Catalog.Category.Update);
 
-            return View();
+            return View(model);
         }
 
         [Permission(Permissions.Catalog.Category.Read)]
@@ -205,6 +207,118 @@ namespace Smartstore.Admin.Controllers
                 Rows = rows,
                 Total = categories.TotalCount
             });
+        }
+
+        [Permission(Permissions.Catalog.Category.Read)]
+        public async Task<IActionResult> CategoryTree(int parentId = 0, int searchStoreId = 0)
+        {
+            var categories = await _categoryService.GetCategoriesByParentCategoryIdAsync(parentId, true);
+
+            if (parentId == 0 && searchStoreId != 0)
+            {
+                var categoryIds = categories
+                    .Where(x => x.LimitedToStores)
+                    .Select(x => x.Id)
+                    .ToArray();
+
+                if (categoryIds.Any())
+                {
+                    await _storeMappingService.PrefetchStoreMappingsAsync(nameof(Category), categoryIds);
+                }
+
+                for (var i = categories.Count - 1; i >= 0; --i)
+                {
+                    var category = categories[i];
+                    var remove = true;
+
+                    if (category.LimitedToStores)
+                    {
+                        var storeIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(category);
+                        remove = !storeIds.Contains(searchStoreId);
+                    }
+
+                    if (remove)
+                    {
+                        categories.Remove(category);
+                    }
+                }
+            }
+
+            var nodes = await categories.SelectAsync(async x =>
+            {
+                var childCount = await _db.Categories.CountAsync(y => y.ParentCategoryId == x.Id);
+
+                var categoryNode = new CategoryNode
+                {
+                    Id = x.Id,
+                    ParentCategoryId = x.ParentCategoryId,
+                    Name = childCount > 0 ? $"{x.Name} ({childCount})" : x.Name,
+                    ExternalLink = x.ExternalLink,
+                    Alias = x.Alias,
+                    MediaFileId = x.MediaFileId,
+                    Published = x.Published,
+                    DisplayOrder = x.DisplayOrder,
+                    UpdatedOnUtc = x.UpdatedOnUtc,
+                    BadgeText = x.BadgeText,
+                    BadgeStyle = x.BadgeStyle,
+                    LimitedToStores = x.LimitedToStores,
+                    SubjectToAcl = x.SubjectToAcl
+                };
+
+                var node = new TreeNode<ICategoryNode>(categoryNode);
+                
+                node.SetMetadata("ChildCategoriesCount", childCount);
+
+                return node;
+            })
+            .AsyncToList();
+
+            return Json(new { nodes });
+        }
+
+        [Permission(Permissions.Catalog.Category.Update)]
+        public async Task<IActionResult> TreeDrop(int id, int targetId, string position)
+        {
+            var category = await _db.Categories.FindByIdAsync(id);
+            var targetCategory = await _db.Categories.FindByIdAsync(targetId, false);
+
+            switch (position)
+            {
+                case "over":
+                    category.ParentCategoryId = targetCategory.Id;
+                    break;
+                case "before":
+                case "after":
+                    category.ParentCategoryId = targetCategory.ParentCategoryId;
+                    break;
+            }
+
+            // Re-calculate display orders.
+            var tmpDisplayOrder = 0;
+            var childCategories = await _db.Categories
+                .Where(x => x.ParentCategoryId == category.ParentCategoryId)
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            foreach (var childCategory in childCategories)
+            {
+                childCategory.DisplayOrder = tmpDisplayOrder;
+                tmpDisplayOrder += 10;
+
+                switch (position)
+                {
+                    case "before":
+                        category.DisplayOrder = targetCategory.DisplayOrder - 5;
+                        break;
+                    case "after":
+                        category.DisplayOrder = targetCategory.DisplayOrder + 5;
+                        break;
+                }
+            }
+
+            await _db.SaveChangesAsync();
+
+            return Json(new { success = true });
         }
 
         [Permission(Permissions.Catalog.Category.Create)]

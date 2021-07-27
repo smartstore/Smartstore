@@ -345,12 +345,9 @@ namespace Smartstore.Admin.Controllers
         {
             const int pageSize = 100;
             IEnumerable<Product> products = null;
-            var localeKeyGroup = nameof(Product);
-            var localeKey = nameof(Product.Name);
             var hasMoreData = true;
             var skip = page * pageSize;
             var ids = selectedIds.ToIntArray();
-            var languageId = _workContext.WorkingLanguage.Id;
             var fields = new List<string> { "name" };
 
             if (_searchSettings.SearchFields.Contains("sku"))
@@ -394,13 +391,10 @@ namespace Smartstore.Admin.Controllers
                     .ToListAsync();
             }
 
-            // Perf: load and apply localized product names the fast way.
-            await _localizedEntityService.PrefetchLocalizedPropertiesAsync(localeKeyGroup, languageId, products.Select(x => x.Id).ToArray());
-
             var items = products.Select(x => new ChoiceListItem
             {
                 Id = x.Id.ToString(),
-                Text = _localizedEntityService.GetLocalizedValue(languageId, x.Id, localeKeyGroup, localeKey).NullEmpty() ?? x.Name,
+                Text = x.Name,
                 Hint = x.Sku,
                 Selected = ids.Contains(x.Id)
             })
