@@ -10,6 +10,12 @@ namespace Smartstore.Web.Infrastructure
 
         public void RegisterBundles(IApplicationContext appContext, IBundleCollection bundles)
         {
+            /* Admin Main Sass theme --> /admin/theme[-rtl].scss
+             * Also required during install.
+            -----------------------------------------------------*/
+            bundles.Add(new StyleBundle("/bundle/css/admin-theme.css").Include("/admin/theme.scss"));
+            bundles.Add(new StyleBundle("/bundle/css/admin-theme-rtl.css").Include("/admin/theme-rtl.scss"));
+
             if (!appContext.IsInstalled)
             {
                 return;
@@ -28,12 +34,6 @@ namespace Smartstore.Web.Infrastructure
                 lib + "pnotify/css/pnotify.css",
                 lib + "pnotify/css/pnotify.mobile.css",
                 lib + "pnotify/css/pnotify.buttons.css"));
-
-
-            /* Admin Main Sass theme --> /admin/theme[-rtl].scss
-            -----------------------------------------------------*/
-            bundles.Add(new StyleBundle("/bundle/css/admin-theme.css").Include("/admin/theme.scss"));
-            bundles.Add(new StyleBundle("/bundle/css/admin-theme-rtl.css").Include("/admin/theme-rtl.scss"));
 
 
             /* Admin Main scripts --> /bundle/js/admin.js

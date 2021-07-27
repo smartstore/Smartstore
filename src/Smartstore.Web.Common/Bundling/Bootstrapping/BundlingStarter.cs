@@ -11,7 +11,6 @@ using Smartstore.Engine.Builders;
 using Smartstore.IO;
 using Smartstore.Web.Bundling;
 using Smartstore.Web.Bundling.Processors;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Bootstrapping
 {

@@ -37,7 +37,7 @@ namespace Smartstore.Web.Bundling
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext httpContext, IWorkContext workContext)
+        public async Task InvokeAsync(HttpContext httpContext)
         {
             var bundle = _bundles.GetBundleFor(httpContext.Request.Path);
             if (bundle == null)
