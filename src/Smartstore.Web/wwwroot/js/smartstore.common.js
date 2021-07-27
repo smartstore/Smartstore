@@ -321,6 +321,35 @@
         }
     };
 
+    window.reinitFormValidator = function (selector) {
+        $(selector).each(function (i, el) {
+            let form = $(el);
+            if (!form.is('form')) {
+                return;
+            }
+
+            let validator = form.data("validator");
+            if (validator) {
+                validator.hideErrors();
+                validator.destroy();
+            }
+
+            form
+                .removeData("validator")
+                .removeData("unobtrusiveValidation")
+                .off(".validate");
+
+            $.validator.unobtrusive.parse(form);
+
+            validator = form.validate();
+            if (!validator.settings) {
+                $.extend(validator.settings, $.validator.defaults);
+            }
+
+            $.extend(validator.settings, { ignore: ".dg-cell-selector-checkbox, .btn" });
+        });
+    };
+
     // on document ready
     $(function () {
         var rtl = Smartstore.globalization !== undefined ? Smartstore.globalization.culture.isRTL : false,

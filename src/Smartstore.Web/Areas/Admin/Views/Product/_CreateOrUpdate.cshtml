@@ -115,28 +115,6 @@
         // TODO: (mh) (core) Implement proper init method for these calls (so initializers e.g. selectWrapper won't get called twice). 
         applyCommonPlugins(pane);
         initializeEditControls(pane);
-
-        // INFO: (mh) (core) FluentValidation for ajax tabs works as long as there is no grid in the loaded tab. See comment in _CreateOrUpdate.Price.cshtml for more information.
-        // Reinit validation after tab was rendered by AJAX.
-        reinitValidation();
-    }
-
-    function reinitValidation() {
-        var form = $("#product-form");
-        let validator = form.data("validator");
-        if (validator) {
-            validator.hideErrors();
-            validator.destroy();
-        }
-
-        form
-            .removeData("validator")
-            .removeData("unobtrusiveValidation")
-            .off(".validate");
-
-        $.validator.unobtrusive.parse(form);
-
-        validator = form.validate();
-        $.extend(validator.settings, { ignore: ":hidden, .dg-cell-selector-checkbox, .btn" });
+        reinitFormValidator("#product-form");
     }
 </script>
