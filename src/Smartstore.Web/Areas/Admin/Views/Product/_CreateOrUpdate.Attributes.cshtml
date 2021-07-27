@@ -10,7 +10,7 @@
             var gridViewData = new ViewDataDictionary(this.ViewData);
             gridViewData["Parent"] = Model;
         
-            <partial name="_Grid.ProductVariantAttribute" model="null" view-data="gridViewData" />
+            <partial name="Grids/_Grid.ProductVariantAttribute" model="null" view-data="gridViewData" />
 
             <div class="mt-4">
                 <div class="adminContent">
@@ -55,7 +55,7 @@
             var gridViewData = new ViewDataDictionary(this.ViewData);
             gridViewData["Parent"] = Model;
 
-            <partial name="_Grid.AttributeCombinations" model="null" view-data="gridViewData" />
+            <partial name="Grids/_Grid.AttributeCombinations" model="null" view-data="gridViewData" />
         }
         else
         {

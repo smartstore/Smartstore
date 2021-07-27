@@ -15,7 +15,7 @@
     @if (Model.Id > 0)
     {
         <div class="mt-4">
-            <partial name="_Grid.RelatedProducts" model="null" view-data="gridViewData" />
+            <partial name="Grids/_Grid.RelatedProducts" model="null" view-data="gridViewData" />
         </div>
     }
     else
@@ -32,7 +32,7 @@
     @if (Model.Id > 0)
     {
         <div class="mt-4">
-            <partial name="_Grid.CrossSellProducts" model="null" view-data="gridViewData" />
+            <partial name="Grids/_Grid.CrossSellProducts" model="null" view-data="gridViewData" />
         </div>
     }
     else

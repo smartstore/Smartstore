@@ -191,10 +191,7 @@
             var gridViewData = new ViewDataDictionary(this.ViewData);
             gridViewData["Parent"] = Model;
 
-            //INFO: (mh) (core) FluentValidation for ajax tabs works as long as there is no grid in here.
-            // Grid renders a form inside form#product-form which is invalid HTML! And it causes jquery validate to break.
-            // As long as this can't be solved we have to live with a post back which will render validation in the summary.
-            <partial name="_Grid.TierPrices" model="null" view-data="gridViewData" />
+            <partial name="Grids/_Grid.TierPrices" model="null" view-data="gridViewData" />
         }
         else
         {
