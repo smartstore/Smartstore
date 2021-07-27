@@ -246,6 +246,8 @@ namespace Smartstore.Admin.Controllers
 
             var nodes = await categories.SelectAsync(async x =>
             {
+                // TODO: (mg) (core) Determine child category count by using cached category trees. This way
+                // you can also fetch deep count. Could be handy in UI.
                 var childCount = await _db.Categories.CountAsync(y => y.ParentCategoryId == x.Id);
 
                 var categoryNode = new CategoryNode
