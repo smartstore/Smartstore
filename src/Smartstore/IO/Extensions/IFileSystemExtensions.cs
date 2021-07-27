@@ -310,7 +310,6 @@ namespace Smartstore
         /// <param name="overwrite">Whether to overwrite existing files</param>
         /// <returns>The destination directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if source directory does not exist.</exception>
-        /// <exception cref="FileSystemException">Thrown if destination directory exists and <paramref name="overwrite"/> is <c>false</c>.</exception>
         public static IDirectory CopyDirectory(this IFileSystem fs, string subpath, string destinationPath, bool overwrite = true)
         {
             var sourceDirectory = fs.GetDirectory(subpath);
@@ -321,10 +320,6 @@ namespace Smartstore
 
             var targetPath = fs.PathCombine(destinationPath, sourceDirectory.Name);
             var destDirectory = fs.GetDirectory(targetPath);
-            if (!overwrite && destDirectory.Exists)
-            {
-                throw new FileSystemException("Directory " + destinationPath + " already exists.");
-            }
 
             if (destDirectory.SubPath.EnsureEndsWith('/').StartsWith(sourceDirectory.SubPath.EnsureEndsWith('/'), StringComparison.CurrentCultureIgnoreCase))
             {
@@ -343,7 +338,6 @@ namespace Smartstore
         /// <param name="overwrite">Whether to overwrite existing files</param>
         /// <returns>The destination directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if source directory does not exist.</exception>
-        /// <exception cref="FileSystemException">Thrown if destination directory exists and <paramref name="overwrite"/> is <c>false</c>.</exception>
         public static async Task<IDirectory> CopyDirectoryAsync(this IFileSystem fs, string subpath, string destinationPath, bool overwrite = true)
         {
             var sourceDirectory = await fs.GetDirectoryAsync(subpath);
@@ -354,10 +348,6 @@ namespace Smartstore
 
             var targetPath = fs.PathCombine(destinationPath, sourceDirectory.Name);
             var destDirectory = await fs.GetDirectoryAsync(targetPath);
-            if (!overwrite && destDirectory.Exists)
-            {
-                throw new FileSystemException("Directory " + destinationPath + " already exists.");
-            }
 
             if (destDirectory.SubPath.EnsureEndsWith('/').StartsWith(sourceDirectory.SubPath.EnsureEndsWith('/'), StringComparison.CurrentCultureIgnoreCase))
             {
