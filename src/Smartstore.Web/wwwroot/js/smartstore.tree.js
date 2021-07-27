@@ -30,7 +30,8 @@
         expanded: false,    // Whether initially expand tree.
         showLines: false,   // Whether to show helper lines.
         readOnly: false,    // Whether state changed are enabled.
-        nodeState: '',      // on-off
+        nodeState: '',      // 'on-off'
+        dragAndDrop: false,
         expandedClass: 'fas fa-angle-down',
         collapsedClass: 'fas fa-angle-right',
         leafClass: 'tree-leaf left-align',
@@ -47,7 +48,7 @@
             return methods.init.apply(this, arguments);
         }
 
-        EventBroker.publish("message", { title: 'Method "' + method + '" does not exist on jQuery.tree', type: "error" });
+        EventBroker.publish("message", { title: 'Tree method "' + method + '" does not exist', type: "error" });
         return null;
     }
 
@@ -176,6 +177,8 @@
                 setInheritedState(node, inheritedState, opt);
             }
         });
+
+        loadData(root);
     }
 
     function expandAll(context) {
@@ -238,6 +241,28 @@
         }
 
         return result;
+    }
+
+    function loadData(root) {
+        var url = root.data('url');
+        if (!url) {
+            return;
+        }
+
+        var parentId = 0;
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            global: parentId == 0 ? this._global : null,
+            dataType: 'json',
+            cache: false,
+            timeout: 5000,
+            data: { parentId: parentId },
+            success: function (data) {
+                console.log(data);
+            }
+        });
     }
 
 })(jQuery, this, document);

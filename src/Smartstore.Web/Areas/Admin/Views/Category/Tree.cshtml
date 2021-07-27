@@ -47,13 +47,13 @@
 </div>
 
 @*TODO: (mg) (core) add category tree somehow (including store filter and drag & drop)*@
-<div id="category-tree" class="treeview" data-url="@Url.Action("CategoryTree")"></div>
+<div id="category-tree" class="tree" data-url="@Url.Action("CategoryTree")"></div>
 
 <script sm-target-zone="scripts" data-origin="category-tree">
     $(function() {
-        // Init category tree view.
-        // TODO: (mg) (core) Rename treeview --> tree
-        $('#category-tree').treeview('init', {
+        // Init category tree.
+        $('#category-tree').tree('init', {
+            dragAndDrop: @canEdit.ToString().ToLower()
         });
 
         // Filter by store ID.

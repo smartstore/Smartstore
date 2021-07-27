@@ -212,13 +212,14 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Category.Read)]
         public async Task<IActionResult> CategoryTree(int parentId = 0, int searchStoreId = 0)
         {
-            var categories = await _categoryService.GetCategoriesByParentCategoryIdAsync(parentId, true);
+            var tree = await _categoryService.GetCategoryTreeAsync(parentId, true);
+            var children = tree.Children;
 
             if (parentId == 0 && searchStoreId != 0)
             {
-                var categoryIds = categories
-                    .Where(x => x.LimitedToStores)
-                    .Select(x => x.Id)
+                var categoryIds = tree.Children
+                    .Where(x => x.Value.LimitedToStores)
+                    .Select(x => x.Value.Id)
                     .ToArray();
 
                 if (categoryIds.Any())
@@ -226,58 +227,37 @@ namespace Smartstore.Admin.Controllers
                     await _storeMappingService.PrefetchStoreMappingsAsync(nameof(Category), categoryIds);
                 }
 
-                for (var i = categories.Count - 1; i >= 0; --i)
-                {
-                    var category = categories[i];
-                    var remove = true;
-
-                    if (category.LimitedToStores)
+                children = await tree.Children
+                    .WhereAsync(async x =>
                     {
-                        var storeIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(category);
-                        remove = !storeIds.Contains(searchStoreId);
-                    }
+                        if (x.Value.LimitedToStores)
+                        {
+                            var storeIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(nameof(Category), x.Value.Id);
+                            return storeIds.Contains(searchStoreId);
+                        }
 
-                    if (remove)
-                    {
-                        categories.Remove(category);
-                    }
-                }
+                        return false;
+                    })
+                    .AsyncToList();
             }
 
-            var nodes = await categories.SelectAsync(async x =>
+            var nodes = children.Select(x =>
             {
-                // TODO: (mg) (core) Determine child category count by using cached category trees. This way
-                // you can also fetch deep count. Could be handy in UI.
-                var childCount = await _db.Categories.CountAsync(y => y.ParentCategoryId == x.Id);
+                var node = x.Value;
+                var childCount = x.HasChildren ? x.Children.Count : 0;
 
-                var categoryNode = new CategoryNode
+                return new TreeNode<object>(new 
                 {
-                    Id = x.Id,
-                    ParentCategoryId = x.ParentCategoryId,
-                    Name = childCount > 0 ? $"{x.Name} ({childCount})" : x.Name,
-                    ExternalLink = x.ExternalLink,
-                    Alias = x.Alias,
-                    MediaFileId = x.MediaFileId,
-                    Published = x.Published,
-                    DisplayOrder = x.DisplayOrder,
-                    UpdatedOnUtc = x.UpdatedOnUtc,
-                    BadgeText = x.BadgeText,
-                    BadgeStyle = x.BadgeStyle,
-                    LimitedToStores = x.LimitedToStores,
-                    SubjectToAcl = x.SubjectToAcl
-                };
-
-                var node = new TreeNode<ICategoryNode>(categoryNode);
-                
-                node.SetMetadata("ChildCategoriesCount", childCount);
-
-                return node;
-            })
-            .AsyncToList();
+                    node.Id,
+                    Name = childCount > 0 ? $"{node.Name} ({childCount})" : node.Name,
+                    ChildCount = childCount
+                });
+            });
 
             return Json(new { nodes });
         }
 
+        [HttpPost]
         [Permission(Permissions.Catalog.Category.Update)]
         public async Task<IActionResult> TreeDrop(int id, int targetId, string position)
         {
