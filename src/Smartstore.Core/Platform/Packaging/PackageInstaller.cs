@@ -184,7 +184,7 @@ namespace Smartstore.Core.Packaging
                 fs.TryCreateDirectory(uniqueDirName);
 
                 backupDirectory = fs.GetDirectory(uniqueDirName);
-                fs.CopyDirectory(sourceDirectory.SubPath, backupDirectory.SubPath, true);
+                fs.CopyDirectory(sourceDirectory, backupDirectory, true);
 
                 _notifier.Information(T("Admin.Packaging.BackupSuccess", backupDirectory.Name));
 
@@ -208,7 +208,7 @@ namespace Smartstore.Core.Packaging
                 fs.TryCreateDirectory(destinationDirectory.SubPath);
             }
 
-            fs.CopyDirectory(backupDirectory.SubPath, destinationDirectory.SubPath, true);
+            fs.CopyDirectory(backupDirectory, destinationDirectory, true);
 
             _notifier.Information(T("Admin.Packaging.RestoreSuccess", destinationDirectory.SubPath));
 

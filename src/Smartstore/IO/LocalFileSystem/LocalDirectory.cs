@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.IO.SymLinks;
 
@@ -10,19 +11,24 @@ namespace Smartstore.IO
     public class LocalDirectory : IDirectory
     {
         private readonly DirectoryInfo _di;
+        private LocalFileSystem _fs;
 
-        public LocalDirectory(string subpath, DirectoryInfo info, IFileSystem fileSystem)
+        public LocalDirectory(string subpath, DirectoryInfo info, LocalFileSystem fileSystem)
         {
             _di = info;
+            _fs = fileSystem;
 
-            FileSystem = fileSystem;
             SubPath = FileSystemBase.NormalizePath(subpath);
         }
 
         public DirectoryInfo AsDirectoryInfo() => _di;
 
         /// <inheritdoc/>
-        public IFileSystem FileSystem { get; protected internal set; }
+        public IFileSystem FileSystem 
+        {
+            get => _fs;
+            protected internal set => _fs = Guard.NotNull(value as LocalFileSystem, nameof(value));
+        }
 
         /// <inheritdoc/>
         public string SubPath { get; }
@@ -77,7 +83,7 @@ namespace Smartstore.IO
             {
                 if (!IsRoot && _di.Parent != null)
                 {
-                    return new LocalDirectory(Path.GetDirectoryName(SubPath), _di.Parent, FileSystem);
+                    return new LocalDirectory(Path.GetDirectoryName(SubPath), _di.Parent, _fs);
                 }
 
                 return null;
@@ -85,5 +91,38 @@ namespace Smartstore.IO
         }
 
         Stream IFileInfo.CreateReadStream() => throw new NotSupportedException();
+
+        public void Delete()
+        {
+            _di.Delete(true);
+
+            // Wait for deletion to complete
+            var attempts = 0;
+            while (_di.Exists)
+            {
+                attempts += 1;
+                if (attempts > 10) return;
+                Thread.Sleep(100);
+            }
+        }
+
+        public void MoveTo(string newPath)
+        {
+            Guard.NotNull(newPath, nameof(newPath));
+
+            if (!_di.Exists)
+            {
+                throw new FileSystemException($"Cannot move directory '{SubPath}' because it does not exist.");
+            }
+
+            var fullDstPath = _fs.MapPathInternal(ref newPath, true);
+
+            if (Directory.Exists(fullDstPath))
+            {
+                throw new FileSystemException($"Cannot move directory because the target path '{newPath}' already exists.");
+            }
+
+            _di.MoveTo(newPath);
+        }
     }
 }

@@ -14,14 +14,16 @@ namespace Smartstore.IO
     {
         private readonly FileInfo _fi;
 
+        private LocalFileSystem _fs;
         private string _ext;
         private string _title;
         private string _dir;
         private Size? _size;
 
-        public LocalFile(string subpath, FileInfo info, IFileSystem fileSystem)
+        public LocalFile(string subpath, FileInfo info, LocalFileSystem fileSystem)
         {
             _fi = info;
+            _fs = fileSystem;
 
             FileSystem = fileSystem;
             SubPath = subpath;
@@ -30,7 +32,11 @@ namespace Smartstore.IO
         public FileInfo AsFileInfo() => _fi;
 
         /// <inheritdoc/>
-        public IFileSystem FileSystem { get; protected internal set; }
+        public IFileSystem FileSystem 
+        {
+            get => _fs;
+            protected internal set => _fs = Guard.NotNull(value as LocalFileSystem, nameof(value));
+        }
 
         /// <inheritdoc/>
         public string SubPath { get; }
@@ -88,7 +94,7 @@ namespace Smartstore.IO
         /// <inheritdoc/>
         public string Extension
         {
-            get => _ext ??= (_fi?.Extension ?? System.IO.Path.GetExtension(PhysicalPath));
+            get => _ext ??= (_fi.Extension ?? System.IO.Path.GetExtension(PhysicalPath));
         }
 
         /// <inheritdoc/>
@@ -159,7 +165,7 @@ namespace Smartstore.IO
         /// <inheritdoc/>
         public Stream OpenWrite()
         {
-            var di = _fi?.Directory;
+            var di = _fi.Directory;
             if (di == null && PhysicalPath.HasValue())
             {
                 di = new DirectoryInfo(Path.GetDirectoryName(PhysicalPath));
@@ -182,6 +188,87 @@ namespace Smartstore.IO
                 FileShare.None,
                 bufferSize: 4096,
                 useAsync: true);
+        }
+
+
+        public void Delete()
+        {
+            _fs.WaitForUnlockAndExecute(_fi, x => x.Delete());
+        }
+
+        public void CopyTo(string newPath, bool overwrite = false)
+        {
+            Guard.NotNull(newPath, nameof(newPath));
+
+            if (!_fi.Exists)
+            {
+                throw new FileSystemException($"The file '{SubPath}' does not exist.");
+            }
+
+            var fullDstPath = _fs.MapPathInternal(ref newPath, true);
+
+            if (System.IO.Directory.Exists(fullDstPath))
+            {
+                throw new FileSystemException($"Cannot copy file to '{newPath}' because it already exists as a directory.");
+            }
+
+            if (!overwrite && File.Exists(fullDstPath))
+            {
+                throw new FileSystemException($"Cannot copy file because the destination path '{newPath}' already exists.");
+            }
+
+            _fs.WaitForUnlockAndExecute(_fi, x => x.CopyTo(fullDstPath, overwrite));
+        }
+
+        public void MoveTo(string newPath, bool overwrite = false)
+        {
+            Guard.NotNull(newPath, nameof(newPath));
+
+            if (!_fi.Exists)
+            {
+                throw new FileSystemException($"Cannot move file '{SubPath}' because it does not exist.");
+            }
+
+            var fullDstPath = _fs.MapPathInternal(ref newPath, true);
+
+            if (!overwrite && File.Exists(fullDstPath))
+            {
+                throw new FileSystemException($"Cannot move file because the target path '{newPath}' already exists.");
+            }
+
+            _fs.WaitForUnlockAndExecute(_fi, x => _fi.MoveTo(fullDstPath, overwrite));
+        }
+
+        public void Create(Stream inStream = null, bool overwrite = false)
+        {
+            StartCreateFile(overwrite);
+            using var outputStream = _fi.Create();
+            if (inStream != null)
+            {
+                inStream.CopyTo(outputStream);
+            }
+        }
+
+        public async Task CreateAsync(Stream inStream = null, bool overwrite = false)
+        {
+            StartCreateFile(overwrite);
+            using var outputStream = _fi.Create();
+            if (inStream != null)
+            {
+                await inStream.CopyToAsync(outputStream);
+            }
+        }
+
+        private void StartCreateFile(bool overwrite)
+        {
+            if (!overwrite && _fi.Exists)
+            {
+                throw new FileSystemException($"Cannot create file '{SubPath}' because it already exists.");
+            }
+
+            // Create directory path if it doesn't exist.
+            var dirPath = Path.GetDirectoryName(_fi.FullName);
+            System.IO.Directory.CreateDirectory(dirPath);
         }
     }
 }

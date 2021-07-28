@@ -124,23 +124,6 @@ namespace Smartstore.IO
                 : new NotFoundDirectory(subpath, this);
         }
 
-        /// <inheritdoc/>
-        public override long GetDirectorySize(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
-        {
-            return EnumerateFiles(subpath, pattern, deep)
-                .AsParallel()
-                .Where(x => predicate == null || predicate(x.SubPath))
-                .Sum(x => x.Length);
-        }
-
-        public override long CountFiles(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
-        {
-            return EnumerateFiles(subpath, pattern, deep)
-                .AsParallel()
-                .Where(x => predicate == null || predicate(x.SubPath))
-                .Count();
-        }
-
         public override IEnumerable<IFileEntry> EnumerateEntries(string subpath = null, string pattern = "*", bool deep = false)
         {
             var directoryInfo = new DirectoryInfo(MapPathInternal(ref subpath, true));
@@ -256,157 +239,6 @@ namespace Smartstore.IO
             }
         }
 
-        public override void MoveEntry(IFileEntry entry, string newPath)
-        {
-            Guard.NotNull(entry, nameof(entry));
-
-            if (!entry.Exists)
-            {
-                throw new FileSystemException($"Cannot move file system entry '{entry.SubPath}' because it does not exist.");
-            }
-
-            var fullTargetPath = MapPathInternal(ref newPath, true);
-
-            if (entry.IsDirectory)
-            {
-                if (Directory.Exists(fullTargetPath))
-                {
-                    throw new FileSystemException($"Cannot move directory because the target path '{newPath}' already exists.");
-                }
-
-                Directory.Move(entry.PhysicalPath, fullTargetPath);
-            }
-            else if (entry is LocalFile localFile)
-            {
-                if (File.Exists(fullTargetPath))
-                {
-                    throw new FileSystemException($"Cannot move file because the target path '{newPath}' already exists.");
-                }
-
-                if (localFile.AsFileInfo() != null)
-                {
-                    WaitForUnlockAndExecute(localFile.AsFileInfo(), x => File.Move(localFile.PhysicalPath, fullTargetPath));
-                }
-                else
-                {
-                    File.Move(localFile.PhysicalPath, fullTargetPath);
-                }
-            }
-        }
-
-        public override bool CheckUniqueFileName(string subpath, out string newPath)
-        {
-            Guard.NotEmpty(subpath, nameof(subpath));
-
-            newPath = null;
-
-            var file = GetFile(subpath);
-            if (!file.Exists)
-            {
-                return false;
-            }
-
-            var pattern = file.NameWithoutExtension + "-*" + file.Extension;
-            var dir = file.Directory;
-            var files = new HashSet<string>(EnumerateFiles(dir, pattern, false).Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
-
-            int i = 1;
-            while (true)
-            {
-                var fileName = string.Concat(file.NameWithoutExtension, "-", i, file.Extension);
-                if (!files.Contains(fileName))
-                {
-                    // Found our gap
-                    newPath = PathCombine(dir, fileName);
-                    return true;
-                }
-
-                i++;
-            }
-        }
-
-        public override bool TryDeleteFile(string subpath)
-        {
-            var fullPath = MapPathInternal(ref subpath, false);
-            if (fullPath.IsEmpty())
-            {
-                return false;
-            }
-
-            var fileInfo = new FileInfo(fullPath);
-            if (!fileInfo.Exists)
-            {
-                return false;
-            }
-
-            try
-            {
-                WaitForUnlockAndExecute(fileInfo, x => x.Delete());
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public override IFile CreateFile(string subpath, Stream inStream = null, bool overwrite = false)
-        {
-            var fileInfo = StartCreateFile(subpath, overwrite);
-
-            using (var outputStream = fileInfo.Create())
-            {
-                if (inStream != null)
-                {
-                    inStream.CopyTo(outputStream);
-                }
-            }
-
-            return new LocalFile(subpath, fileInfo, this);
-        }
-
-        public override async Task<IFile> CreateFileAsync(string subpath, Stream inStream = null, bool overwrite = false)
-        {
-            var fileInfo = StartCreateFile(subpath, overwrite);
-
-            using (var outputStream = fileInfo.Create())
-            {
-                if (inStream != null)
-                {
-                    await inStream.CopyToAsync(outputStream);
-                }
-            }
-
-            return new LocalFile(subpath, fileInfo, this);
-        }
-
-        public override void CopyFile(string subpath, string newPath, bool overwrite = false)
-        {
-            Guard.NotNull(subpath, nameof(subpath));
-
-            var fullSrcPath = MapPathInternal(ref subpath, true);
-            var sourceFileInfo = new FileInfo(fullSrcPath);
-
-            if (!sourceFileInfo.Exists)
-            {
-                throw new FileSystemException($"The file '{subpath}' does not exist.");
-            }
-
-            var fullDstPath = MapPathInternal(ref newPath, true);
-
-            if (Directory.Exists(fullDstPath))
-            {
-                throw new FileSystemException($"Cannot copy file to '{newPath}' because it already exists as a directory.");
-            }
-
-            if (!overwrite && File.Exists(fullDstPath))
-            {
-                throw new FileSystemException($"Cannot copy file because the destination path '{newPath}' already exists.");
-            }
-
-            WaitForUnlockAndExecute(sourceFileInfo, x => File.Copy(fullSrcPath, fullDstPath, overwrite));
-        }
-
         #region IDisposable
 
         protected override void OnDispose(bool disposing)
@@ -418,7 +250,7 @@ namespace Smartstore.IO
 
         #region Utils
 
-        private string MapPathInternal(ref string subpath, bool throwOnFailure)
+        internal string MapPathInternal(ref string subpath, bool throwOnFailure)
         {
             if (string.IsNullOrEmpty(subpath))
                 return Root;
@@ -443,57 +275,6 @@ namespace Smartstore.IO
             return mappedPath;
         }
 
-        //private string MapPathInternal(string subpath, bool throwOnFailure)
-        //{
-        //    if (string.IsNullOrEmpty(subpath))
-        //        return Root;
-
-        //    if (PathHelper.HasInvalidPathChars(subpath) || Path.IsPathRooted(subpath) || PathHelper.PathNavigatesAboveRoot(subpath))
-        //    {
-        //        if (throwOnFailure)
-        //        {
-        //            throw new DirectoryNotFoundException($"Directory '${subpath}' does not exist.");
-        //        }
-        //        else
-        //        {
-        //            return null;
-        //        }
-        //    }
-
-        //    var sepChar = Path.DirectorySeparatorChar; // --> '\\'
-
-        //    // Check if path ends with / or \
-        //    var hasTrailingSlash = subpath[^1] is ('/' or '\\');
-
-        //    // Convert "/myshop/file.png" --> "/file.png"
-        //    if (WebHelper.IsAbsolutePath(subpath, out var relativePath))
-        //    {
-        //        subpath = relativePath.Value;
-        //    }
-
-        //    var mappedPath = Root + subpath.Trim('~').Replace('/', sepChar).Trim(sepChar);
-
-        //    // Verify that the resulting path is inside the root file system path.
-        //    if (!IsUnderneathRoot(mappedPath))
-        //    {
-        //        if (throwOnFailure)
-        //        {
-        //            throw new DirectoryNotFoundException($"Directory '${subpath}' does not exist.");
-        //        }
-        //        else
-        //        {
-        //            return null;
-        //        }
-        //    }
-
-        //    if (hasTrailingSlash)
-        //    {
-        //        mappedPath += sepChar;
-        //    }
-
-        //    return mappedPath;
-        //}
-
         private static bool IsExcluded(FileSystemInfo fileSystemInfo, ExclusionFilters filters) => filters != ExclusionFilters.None && (fileSystemInfo.Name.StartsWith(".", StringComparison.Ordinal) && (filters & ExclusionFilters.DotPrefixed) != ExclusionFilters.None || fileSystemInfo.Exists && ((fileSystemInfo.Attributes & FileAttributes.Hidden) != (FileAttributes)0 && (filters & ExclusionFilters.Hidden) != ExclusionFilters.None || (fileSystemInfo.Attributes & FileAttributes.System) != (FileAttributes)0 && (filters & ExclusionFilters.System) != ExclusionFilters.None));
 
         private bool IsUnderneathRoot(string fullPath)
@@ -513,30 +294,7 @@ namespace Smartstore.IO
             return new LocalFile(subpath, info, this);
         }
 
-        private FileInfo StartCreateFile(string subpath, bool overwrite)
-        {
-            Guard.NotNull(subpath, nameof(subpath));
-
-            var fullPath = MapPathInternal(ref subpath, true);
-
-            if (!overwrite && File.Exists(fullPath))
-            {
-                throw new FileSystemException($"Cannot create file '{subpath}' because it already exists.");
-            }
-
-            if (Directory.Exists(fullPath))
-            {
-                throw new FileSystemException($"Cannot create file '{subpath}' because it already exists as a directory.");
-            }
-
-            // Create directory path if it doesn't exist.
-            var dirPath = Path.GetDirectoryName(fullPath);
-            Directory.CreateDirectory(dirPath);
-
-            return new FileInfo(fullPath);
-        }
-
-        private static void WaitForUnlockAndExecute(FileInfo fi, Action<FileInfo> action)
+        internal void WaitForUnlockAndExecute(FileInfo fi, Action<FileInfo> action)
         {
             try
             {

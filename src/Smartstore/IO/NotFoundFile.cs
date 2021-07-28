@@ -36,8 +36,5 @@ namespace Smartstore.IO
         }
 
         public Stream CreateReadStream() => throw new NotSupportedException();
-        public Stream OpenRead() => throw new NotSupportedException();
-        public Task<Stream> OpenReadAsync() => throw new NotSupportedException();
-        public Stream OpenWrite() => throw new NotSupportedException();
     }
 }

@@ -247,23 +247,6 @@ namespace Smartstore.IO
         Task<bool> TryDeleteDirectoryAsync(string subpath);
 
         /// <summary>
-        /// Renames/moves a file or a directory.
-        /// </summary>
-        /// <param name="entry">The entry (file or directory) to move or rename.</param>
-        /// <param name="newPath">The new path after entry was moved/renamed.</param>
-        /// <exception cref="FileSystemException">Thrown if source does not exist or if <paramref name="newPath"/> already exists.</exception>
-        void MoveEntry(IFileEntry entry, string newPath);
-
-        /// <summary>
-        /// Renames/moves a file or directory.
-        /// </summary>
-        /// <param name="subpath">The relative path to the file or directory to be renamed/moved.</param>
-        /// <param name="entry">The entry (file or directory) to move or rename.</param>
-        /// <param name="newPath">The new path after entry was moved/renamed.</param>
-        /// <exception cref="FileSystemException">Thrown if source does not exist or if <paramref name="newPath"/> already exists.</exception>
-        Task MoveEntryAsync(IFileEntry entry, string newPath);
-
-        /// <summary>
         /// Checks whether the name of the file is unique within its directory.
         /// When given file exists, this method appends [1...n] to the file title until
         /// the check returns false.

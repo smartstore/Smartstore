@@ -30,5 +30,6 @@ namespace Smartstore.IO
         }
 
         public Stream CreateReadStream() => throw new NotSupportedException();
+        public void Delete() => throw new NotSupportedException();
     }
 }

@@ -5,10 +5,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Smartstore.IO;
+using Smartstore.Utilities;
 
 namespace Smartstore
 {
-    public static class IFileSystemExtensions
+    public static partial class IFileSystemExtensions
     {
         /// <summary>
         /// Retrieves a directory or a file.
@@ -20,7 +21,7 @@ namespace Smartstore
         /// </returns>
         public static IFileEntry GetEntry(this IFileSystem fs, string subpath)
         {
-            Guard.NotEmpty(subpath, nameof(subpath));
+            Guard.NotNull(subpath, nameof(subpath));
 
             var entry = fs.GetDirectory(subpath);
             if (entry.Exists || entry is NotFoundDirectory)
@@ -32,24 +33,28 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Retrieves a directory or a file.
+        /// Retrieves a directory for file path within the storage provider.
         /// </summary>
-        /// <param name="subpath">The relative path to the file or directory within the storage.</param>
-        /// <returns>
-        ///     A <see cref="IFileEntry"/> object representing either a file or a directory, 
-        ///     or <see cref="NotFoundFile"/> if <paramref name="subpath"/> has invalid chars, is rooted or navigates above root.
-        /// </returns>
-        public static async Task<IFileEntry> GetEntryAsync(this IFileSystem fs, string subpath)
+        /// <param name="subpath">The relative path to the file within the storage provider.</param>
+        /// <returns>The directory of the file.</returns>
+        /// <exception cref="ArgumentException">Throws if the file or the directory does not exist.</exception>
+        public static IDirectory GetDirectoryForFile(this IFileSystem fs, string subpath)
         {
-            Guard.NotEmpty(subpath, nameof(subpath));
+            Guard.NotNull(subpath, nameof(subpath));
 
-            var entry = await fs.GetDirectoryAsync(subpath);
-            if (entry.Exists || entry is NotFoundDirectory)
+            var file = fs.GetFile(subpath);
+            if (!file.Exists)
             {
-                return entry;
+                throw new FileNotFoundException("File " + subpath + " does not exist.");
             }
 
-            return await fs.GetFileAsync(subpath);
+            var dir = fs.GetDirectory(file.Directory);
+            if (!dir.Exists)
+            {
+                throw new DirectoryNotFoundException("Directory " + subpath + " does not exist.");
+            }
+
+            return dir;
         }
 
         #region Read
@@ -57,13 +62,8 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadAllText(this IFileSystem fs, string subpath, Encoding encoding = null)
         {
+            Guard.NotEmpty(subpath, nameof(subpath));
             return fs.GetFile(subpath).ReadAllText(encoding);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static async Task<string> ReadAllTextAsync(this IFileSystem fs, string subpath, Encoding encoding = null)
-        {
-            return await (await fs.GetFileAsync(subpath)).ReadAllTextAsync(encoding);
         }
 
         public static string ReadAllText(this IFile file, Encoding encoding = null)
@@ -82,32 +82,11 @@ namespace Smartstore
             }
         }
 
-        public static async Task<string> ReadAllTextAsync(this IFile file, Encoding encoding = null)
-        {
-            Guard.NotNull(file, nameof(file));
-
-            if (!file.Exists)
-            {
-                return null;
-            }
-
-            using (var stream = file.OpenRead())
-            using (var streamReader = new StreamReader(stream, encoding ?? Encoding.UTF8))
-            {
-                return await streamReader.ReadToEndAsync();
-            }
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte[] ReadAllBytes(this IFileSystem fs, string subpath)
         {
+            Guard.NotEmpty(subpath, nameof(subpath));
             return fs.GetFile(subpath).ReadAllBytes();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static async Task<byte[]> ReadAllBytesAsync(this IFileSystem fs, string subpath)
-        {
-            return await (await fs.GetFileAsync(subpath)).ReadAllBytesAsync();
         }
 
         public static byte[] ReadAllBytes(this IFile file)
@@ -125,21 +104,6 @@ namespace Smartstore
             }
         }
 
-        public static async Task<byte[]> ReadAllBytesAsync(this IFile file)
-        {
-            Guard.NotNull(file, nameof(file));
-
-            if (!file.Exists)
-            {
-                return null;
-            }
-
-            using (var stream = file.OpenRead())
-            {
-                return await stream.ToByteArrayAsync();
-            }
-        }
-
         #endregion
 
         #region Write
@@ -147,7 +111,7 @@ namespace Smartstore
         public static void WriteAllText(this IFileSystem fs, string subpath, string contents, Encoding encoding = null)
         {
             Guard.NotEmpty(subpath, nameof(subpath));
-            Guard.NotEmpty(contents, nameof(contents));
+            Guard.NotNull(contents, nameof(contents));
 
             var file = fs.GetFile(subpath);
 
@@ -158,43 +122,16 @@ namespace Smartstore
             }
         }
 
-        public static async Task WriteAllTextAsync(this IFileSystem fs, string subpath, string contents, Encoding encoding = null)
-        {
-            Guard.NotEmpty(subpath, nameof(subpath));
-            Guard.NotEmpty(contents, nameof(contents));
-
-            var file = await fs.GetFileAsync(subpath);
-
-            using (var stream = file.OpenWrite())
-            using (var streamWriter = new StreamWriter(stream, encoding ?? new UTF8Encoding(false, true)))
-            {
-                await streamWriter.WriteAsync(contents);
-            }
-        }
-
         public static void WriteAllBytes(this IFileSystem fs, string subpath, byte[] contents)
         {
             Guard.NotEmpty(subpath, nameof(subpath));
-            Guard.NotEmpty(contents, nameof(contents));
+            Guard.NotNull(contents, nameof(contents));
 
             var file = fs.GetFile(subpath);
 
             using (var stream = file.OpenWrite())
             {
                 stream.Write(contents, 0, contents.Length);
-            }
-        }
-
-        public static async Task WriteAllBytesAsync(this IFileSystem fs, string subpath, byte[] contents)
-        {
-            Guard.NotEmpty(subpath, nameof(subpath));
-            Guard.NotEmpty(contents, nameof(contents));
-
-            var file = await fs.GetFileAsync(subpath);
-
-            using (var stream = file.OpenWrite())
-            {
-                await stream.WriteAsync(contents.AsMemory(0, contents.Length));
             }
         }
 
@@ -222,30 +159,6 @@ namespace Smartstore
             }
         }
 
-        /// <summary>
-        /// Saves a stream in the storage. If the file already exists, it will be overwritten.
-        /// </summary>
-        /// <param name="subpath">The relative path to the file to be saved.</param>
-        /// <param name="inStream">The stream to be saved.</param>
-        /// <exception cref="FileSystemException">If the stream can't be saved due to access permissions.</exception>
-        public static async Task SaveStreamAsync(this IFileSystem fs, string subpath, Stream inStream, bool leaveOpen = true)
-        {
-            Guard.NotEmpty(subpath, nameof(subpath));
-            Guard.NotNull(inStream, nameof(inStream));
-
-            var file = await fs.GetFileAsync(subpath);
-
-            using (var stream = file.OpenWrite())
-            {
-                await inStream.CopyToAsync(stream);
-            }
-
-            if (!leaveOpen)
-            {
-                inStream.Dispose();
-            }
-        }
-
         #endregion
 
         #region Copy / Move / Delete
@@ -256,139 +169,99 @@ namespace Smartstore
         /// <param name="subpath">The relative path to the file or the directory to be renamed/moved.</param>
         /// <param name="newPath">The new path after entry was moved/renamed.</param>
         /// <exception cref="FileSystemException">Thrown if source does not exist or if <paramref name="newPath"/> already exists.</exception>
-        public static void MoveEntry(this IFileSystem fs, string subpath, string newPath)
+        public static void MoveEntry(this IFileSystem fs, string subpath, string newPath, bool overwrite = false)
         {
-            fs.MoveEntry(fs.GetEntry(subpath), newPath);
-        }
+            Guard.NotNull(newPath, nameof(newPath));
 
-        /// <summary>
-        /// Renames/moves a file or a directory.
-        /// </summary>
-        /// <param name="subpath">The relative path to the file or the directory to be renamed/moved.</param>
-        /// <param name="newPath">The new path after entry was moved/renamed.</param>
-        /// <exception cref="FileSystemException">Thrown if source does not exist or if <paramref name="newPath"/> already exists.</exception>
-        public static async Task MoveEntryAsync(this IFileSystem fs, string subpath, string newPath)
-        {
-            await fs.MoveEntryAsync(await fs.GetEntryAsync(subpath), newPath);
-        }
+            var entry = fs.GetEntry(subpath);
 
-        public static bool CopyFileAndDeleteSource(this IFileSystem fs, string subpath, string newPath, bool overwrite = false)
-        {
-            try
+            if (entry is IDirectory dir)
             {
-                fs.CopyFile(subpath, newPath, overwrite);
-                return fs.TryDeleteFile(subpath);
+                dir.MoveTo(newPath);
             }
-            catch (Exception exc)
+            else if (entry is IFile file)
             {
-                exc.Dump();
-                return false;
+                file.MoveTo(newPath, false);
             }
-        }
-
-        public static async Task<bool> CopyFileAndDeleteSourceAsync(this IFileSystem fs, string subpath, string newPath, bool overwrite = false)
-        {
-            var result = false;
-            try
-            {
-                await fs.CopyFileAsync(subpath, newPath, overwrite);
-                result = await fs.TryDeleteFileAsync(subpath);
-            }
-            catch (Exception exc)
-            {
-                exc.Dump();
-            }
-
-            return result;
         }
 
         /// <summary>
         /// Copies a directory and all its content to another directory.
         /// </summary>
-        /// <param name="subpath">The relative path of source directory</param>
-        /// <param name="destinationPath">The relative Path of destination directory</param>
+        /// <param name="sourcePath">The relative path of source directory</param>
+        /// <param name="destinationPath">The relative path of destination directory</param>
+        /// <param name="ignorePatterns">Path patterns to exclude from copy operation. Supports * and ? wildcards.</param>
         /// <param name="overwrite">Whether to overwrite existing files</param>
         /// <returns>The destination directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if source directory does not exist.</exception>
-        public static IDirectory CopyDirectory(this IFileSystem fs, string subpath, string destinationPath, bool overwrite = true)
+        public static IDirectory CopyDirectory(this IFileSystem fs, string sourcePath, string destinationPath, bool overwrite = true, string[] ignorePatterns = null)
         {
-            var sourceDirectory = fs.GetDirectory(subpath);
-            if (!sourceDirectory.Exists)
-            {
-                throw new DirectoryNotFoundException("Directory " + subpath + "does not exist.");
-            }
+            Guard.NotNull(sourcePath, nameof(sourcePath));
+            Guard.NotNull(destinationPath, nameof(destinationPath));
 
-            var targetPath = fs.PathCombine(destinationPath, sourceDirectory.Name);
-            var destDirectory = fs.GetDirectory(targetPath);
-
-            if (destDirectory.SubPath.EnsureEndsWith('/').StartsWith(sourceDirectory.SubPath.EnsureEndsWith('/'), StringComparison.CurrentCultureIgnoreCase))
-            {
-                throw new FileSystemException($"Cannot copy a directory '{subpath}' into itself.");
-            }
-
-            CopyDirectoryInternal(fs, subpath, destinationPath, overwrite);
-            return fs.GetDirectory(destinationPath);
+            return CopyDirectory(fs, fs.GetDirectory(sourcePath), fs.GetDirectory(destinationPath), overwrite, ignorePatterns);
         }
 
         /// <summary>
         /// Copies a directory and all its content to another directory.
         /// </summary>
-        /// <param name="subpath">The relative path of source directory</param>
-        /// <param name="destinationPath">The relative Path of destination directory</param>
+        /// <param name="source">The source directory</param>
+        /// <param name="destination">The destination directory</param>
+        /// <param name="ignorePatterns">Path patterns to exclude from copy operation. Supports * and ? wildcards.</param>
         /// <param name="overwrite">Whether to overwrite existing files</param>
         /// <returns>The destination directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if source directory does not exist.</exception>
-        public static async Task<IDirectory> CopyDirectoryAsync(this IFileSystem fs, string subpath, string destinationPath, bool overwrite = true)
+        public static IDirectory CopyDirectory(this IFileSystem fs, IDirectory source, IDirectory destination, bool overwrite = true, string[] ignorePatterns = null)
         {
-            var sourceDirectory = await fs.GetDirectoryAsync(subpath);
-            if (!sourceDirectory.Exists)
+            Guard.NotNull(fs, nameof(fs));
+            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(destination, nameof(destination));
+
+            if (!source.Exists)
             {
-                throw new DirectoryNotFoundException("Directory " + subpath + " does not exist.");
+                throw new DirectoryNotFoundException("Directory " + source.SubPath + "does not exist.");
             }
 
-            var targetPath = fs.PathCombine(destinationPath, sourceDirectory.Name);
-            var destDirectory = await fs.GetDirectoryAsync(targetPath);
-
-            if (destDirectory.SubPath.EnsureEndsWith('/').StartsWith(sourceDirectory.SubPath.EnsureEndsWith('/'), StringComparison.CurrentCultureIgnoreCase))
+            if (destination.SubPath.EnsureEndsWith('/').StartsWith(source.SubPath.EnsureEndsWith('/'), StringComparison.CurrentCultureIgnoreCase))
             {
-                throw new FileSystemException($"Cannot copy a directory '{subpath}' into itself.");
+                throw new FileSystemException($"Cannot copy a directory '{source.SubPath}' into itself.");
             }
 
-            await CopyDirectoryInternalAsync(fs, subpath, destinationPath, overwrite);
-            return await fs.GetDirectoryAsync(destinationPath);
+            InternalCopyDirectory(
+                fs,
+                source, 
+                destination.SubPath,
+                ignorePatterns?.Select(x => new Wildcard(x))?.ToArray() ?? Array.Empty<Wildcard>(), 
+                overwrite);
+
+            return fs.GetDirectory(destination.SubPath);
         }
 
-        private static void CopyDirectoryInternal(IFileSystem fs, string subpath, string destinationPath, bool overwrite = true)
+        private static void InternalCopyDirectory(IFileSystem fs, 
+            IDirectory source, 
+            string destinationPath, 
+            Wildcard[] ignores,
+            bool overwrite)
         {
             fs.TryCreateDirectory(destinationPath);
-
-            foreach (var entry in fs.EnumerateFiles(subpath))
+            
+            foreach (var entry in fs.EnumerateEntries(source.SubPath))
             {
-                var newPath = fs.PathCombine(destinationPath, entry.Name);
-                fs.CopyFile(entry.SubPath, newPath, overwrite);
-            }
+                if (ignores.Any(w => w.IsMatch(entry.SubPath)))
+                {
+                    continue;
+                }
 
-            foreach (var entry in fs.EnumerateDirectories(subpath))
-            {
                 var newPath = fs.PathCombine(destinationPath, entry.Name);
-                CopyDirectoryInternal(fs, entry.SubPath, newPath, overwrite);
-            }
-        }
 
-        private static async Task CopyDirectoryInternalAsync(IFileSystem fs, string subpath, string destinationPath, bool overwrite = true)
-        {
-            await fs.TryCreateDirectoryAsync(destinationPath);
-
-            await foreach (var entry in fs.EnumerateFilesAsync(subpath))
-            {
-                var newPath = fs.PathCombine(destinationPath, entry.Name);
-                await fs.CopyFileAsync(entry.SubPath, newPath, overwrite);
-            }
-
-            await foreach (var entry in fs.EnumerateDirectoriesAsync(subpath))
-            {
-                var newPath = fs.PathCombine(destinationPath, entry.Name);
-                await CopyDirectoryInternalAsync(fs, entry.SubPath, newPath, overwrite);
+                if (entry is IDirectory dir)
+                {
+                    InternalCopyDirectory(fs, dir, newPath, ignores, overwrite);
+                }
+                else
+                {
+                    fs.CopyFile(entry.SubPath, newPath, overwrite);
+                }
             }
         }
 
@@ -398,12 +271,12 @@ namespace Smartstore
         /// <param name="subpath">Directory path</param>
         /// <param name="deleteIfEmpfy">Delete dir too if it doesn't contain any entries after deletion anymore</param>
         /// <param name="olderThan">Delete only files older than this TimeSpan</param>
-        /// <param name="exceptFileNames">Name of files not to be deleted</param>
+        /// <param name="ignoreFiles">Name of files to ignore (not to delete).</param>
         public static void ClearDirectory(this IFileSystem fs,
             IDirectory directory,
             bool deleteIfEmpfy,
             TimeSpan olderThan,
-            params string[] exceptFileNames)
+            params string[] ignoreFiles)
         {
             Guard.NotNull(directory, nameof(directory));
 
@@ -423,7 +296,7 @@ namespace Smartstore
                             if (file.LastModified >= olderThanDate)
                                 continue;
 
-                            if (exceptFileNames.Any(x => x.EqualsNoCase(file.Name)))
+                            if (ignoreFiles.Any(x => x.EqualsNoCase(file.Name)))
                                 continue;
 
                             if (file is LocalFile fi && fi.AsFileInfo().IsReadOnly)
@@ -435,7 +308,7 @@ namespace Smartstore
                         }
                         else if (entry is IDirectory subDir)
                         {
-                            ClearDirectory(fs, subDir, true, olderThan, exceptFileNames);
+                            ClearDirectory(fs, subDir, true, olderThan, ignoreFiles);
                         }
 
                     }
@@ -526,52 +399,6 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Retrieves a directory for file path within the storage provider.
-        /// </summary>
-        /// <param name="subpath">The relative path to the file within the storage provider.</param>
-        /// <returns>The directory of the file.</returns>
-        /// <exception cref="ArgumentException">Throws if the file or the directory does not exist.</exception>
-        public static IDirectory GetDirectoryForFile(this IFileSystem fs, string subpath)
-        {
-            var file = fs.GetFile(subpath);
-            if (!file.Exists)
-            {
-                throw new FileNotFoundException("File " + subpath + " does not exist.");
-            }
-
-            var dir = fs.GetDirectory(file.Directory);
-            if (!dir.Exists)
-            {
-                throw new DirectoryNotFoundException("Directory " + subpath + " does not exist.");
-            }
-
-            return dir;
-        }
-
-        /// <summary>
-        /// Retrieves a directory for file path within the storage provider.
-        /// </summary>
-        /// <param name="subpath">The relative path to the file within the storage provider.</param>
-        /// <returns>The directory of the file.</returns>
-        /// <exception cref="ArgumentException">Throws if the file or the directory does not exist.</exception>
-        public static async Task<IDirectory> GetDirectoryForFileAsync(this IFileSystem fs, string subpath)
-        {
-            var file = await fs.GetFileAsync(subpath);
-            if (!file.Exists)
-            {
-                throw new FileNotFoundException("File " + subpath + " does not exist.");
-            }
-
-            var dir = await fs.GetDirectoryAsync(file.Directory);
-            if (!dir.Exists)
-            {
-                throw new DirectoryNotFoundException("Directory " + subpath + " does not exist.");
-            }
-
-            return dir;
-        }
-
-        /// <summary>
         /// Creates a unique (non-existing) directory name within a given path by appending an index.
         /// </summary>
         /// <param name="subpath">Path to a directory</param>
@@ -580,6 +407,9 @@ namespace Smartstore
         /// <returns>Unique directory name</returns>
         public static string CreateUniqueDirectoryName(this IFileSystem fs, string subpath, string defaultName, int maxAttempts = 999999)
         {
+            Guard.NotNull(fs, nameof(fs));
+            Guard.NotNull(subpath, nameof(subpath));
+
             if (defaultName.IsEmpty())
             {
                 defaultName = Guid.NewGuid().ToString();
@@ -616,6 +446,9 @@ namespace Smartstore
         /// <exception cref="FileSystemException">Throws if <paramref name="subpath"/> is a file.</exception>
         public static DirectoryHasher GetDirectoryHasher(this IFileSystem fs, string subpath, string searchPattern = "*", bool deep = false)
         {
+            Guard.NotNull(fs, nameof(fs));
+            Guard.NotNull(subpath, nameof(subpath));
+
             return GetDirectoryHasher(fs, subpath, null, searchPattern, deep);
         }
 
@@ -630,6 +463,7 @@ namespace Smartstore
         /// <exception cref="FileSystemException">Throws if <paramref name="subpath"/> is a file.</exception>
         public static DirectoryHasher GetDirectoryHasher(this IFileSystem fs, string subpath, IDirectory storageDir, string searchPattern = "*", bool deep = false)
         {
+            Guard.NotNull(fs, nameof(fs));
             Guard.NotEmpty(subpath, nameof(subpath));
 
             var entry = fs.GetEntry(subpath);

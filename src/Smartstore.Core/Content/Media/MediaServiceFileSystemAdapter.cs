@@ -312,27 +312,27 @@ namespace Smartstore.Core.Content.Media
         public override string MapPath(string subpath)
             => throw new NotSupportedException();
 
-        public override void MoveEntry(IFileEntry entry, string newPath)
-        {
-            MoveEntryAsync(entry, newPath).Await();
-        }
+        //public override void MoveEntry(IFileEntry entry, string newPath)
+        //{
+        //    MoveEntryAsync(entry, newPath).Await();
+        //}
 
-        public override Task MoveEntryAsync(IFileEntry entry, string newPath)
-        {
-            Guard.NotNull(entry, nameof(entry));
-            Guard.NotEmpty(newPath, nameof(newPath));
+        //public override Task MoveEntryAsync(IFileEntry entry, string newPath)
+        //{
+        //    Guard.NotNull(entry, nameof(entry));
+        //    Guard.NotEmpty(newPath, nameof(newPath));
 
-            if (entry is MediaFile file)
-            {
-                return _mediaService.MoveFileAsync(file, newPath);
-            }
-            else if (entry is IDirectory dir)
-            {
-                return _mediaService.MoveFolderAsync(dir.SubPath, newPath);
-            }
+        //    if (entry is MediaFile file)
+        //    {
+        //        return _mediaService.MoveFileAsync(file, newPath);
+        //    }
+        //    else if (entry is IDirectory dir)
+        //    {
+        //        return _mediaService.MoveFolderAsync(dir.SubPath, newPath);
+        //    }
 
-            return Task.CompletedTask;
-        }
+        //    return Task.CompletedTask;
+        //}
 
         public override string PathCombine(params string[] paths)
         {

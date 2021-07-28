@@ -402,7 +402,7 @@ namespace Smartstore.Core.Theming
 
             // config file changes always result in refreshing the corresponding theme descriptor
             //var dir = new DirectoryInfo(Path.GetDirectoryName(fullPath));
-            var dir = new LocalDirectory(themeName, new DirectoryInfo(Path.GetDirectoryName(fullPath)), _root);
+            var dir = new LocalDirectory(themeName, new DirectoryInfo(Path.GetDirectoryName(fullPath)), _root as LocalFileSystem);
 
             string oldBaseThemeName = null;
             var oldDescriptor = GetThemeDescriptor(dir.Name);

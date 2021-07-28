@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.FileProviders;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.FileProviders;
 
 namespace Smartstore.IO
 {
@@ -23,5 +25,19 @@ namespace Smartstore.IO
         /// <code>true</code> if the entry is a symbolic link, <code>false</code> otherwise.
         /// </returns>
         bool IsSymbolicLink(out string finalPhysicalPath);
+
+        /// <summary>
+        /// Deletes the file entry if it exists.
+        /// </summary>
+        void Delete() => throw new NotSupportedException();
+
+        /// <summary>
+        /// Deletes the file entry if it exists.
+        /// </summary>
+        Task DeleteAsync()
+        {
+            Delete();
+            return Task.CompletedTask;
+        }
     }
 }

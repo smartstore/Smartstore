@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
+using Dasync.Collections;
 using Smartstore.Threading;
 
 namespace Smartstore.IO
@@ -81,18 +82,38 @@ namespace Smartstore.IO
             => EnumerateDirectories(subpath, pattern, deep).ToAsyncEnumerable();
 
         /// <inheritdoc/>
-        public abstract long GetDirectorySize(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true);
+        public virtual long GetDirectorySize(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
+        {
+            return EnumerateFiles(subpath, pattern, deep)
+                .AsParallel()
+                .Where(x => predicate == null || predicate(x.SubPath))
+                .Sum(x => x.Length);
+        }
 
         /// <inheritdoc/>
-        public virtual Task<long> GetDirectorySizeAsync(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
-            => Task.FromResult(GetDirectorySize(subpath, pattern, predicate, deep));
+        public virtual async Task<long> GetDirectorySizeAsync(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
+        {
+            return await EnumerateFilesAsync(subpath, pattern, deep)
+                .Where(x => predicate == null || predicate(x.SubPath))
+                .SumAsync(x => x.Length);
+        }
 
         /// <inheritdoc/>
-        public abstract long CountFiles(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true);
+        public virtual long CountFiles(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
+        {
+            return EnumerateFiles(subpath, pattern, deep)
+                .AsParallel()
+                .Where(x => predicate == null || predicate(x.SubPath))
+                .Count();
+        }
 
         /// <inheritdoc/>
-        public virtual Task<long> CountFilesAsync(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
-            => Task.FromResult(CountFiles(subpath, pattern, predicate, deep));
+        public virtual async Task<long> CountFilesAsync(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
+        {
+            return await EnumerateFilesAsync(subpath, pattern, deep)
+                .Where(x => predicate == null || predicate(x.SubPath))
+                .CountAsync();
+        }
 
         /// <inheritdoc/>
         public abstract bool TryCreateDirectory(string subpath);
@@ -109,51 +130,157 @@ namespace Smartstore.IO
             => Task.FromResult(TryDeleteDirectory(subpath));
 
         /// <inheritdoc/>
-        public abstract void MoveEntry(IFileEntry entry, string newPath);
-
-        /// <inheritdoc/>
-        public virtual Task MoveEntryAsync(IFileEntry entry, string newPath)
+        public virtual bool CheckUniqueFileName(string subpath, out string newPath)
         {
-            MoveEntry(entry, newPath);
-            return Task.CompletedTask;
-        }
+            Guard.NotEmpty(subpath, nameof(subpath));
 
-        /// <inheritdoc/>
-        public abstract bool CheckUniqueFileName(string subpath, out string newPath);
+            newPath = null;
 
-        /// <inheritdoc/>
-        public virtual Task<AsyncOut<string>> CheckUniqueFileNameAsync(string subpath)
-        {
-            if (CheckUniqueFileName(subpath, out var newPath))
+            var file = GetFile(subpath);
+            if (!file.Exists)
             {
-                return Task.FromResult(new AsyncOut<string>(true, newPath));
+                return false;
             }
 
-            return Task.FromResult(AsyncOut<string>.Empty);
+            var pattern = file.NameWithoutExtension + "-*" + file.Extension;
+            var dir = file.Directory;
+            var files = new HashSet<string>(EnumerateFiles(dir, pattern, false).Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
+
+            int i = 1;
+            while (true)
+            {
+                var fileName = string.Concat(file.NameWithoutExtension, "-", i, file.Extension);
+                if (!files.Contains(fileName))
+                {
+                    // Found our gap
+                    newPath = PathCombine(dir, fileName);
+                    return true;
+                }
+
+                i++;
+            }
         }
 
         /// <inheritdoc/>
-        public abstract bool TryDeleteFile(string subpath);
-
-        /// <inheritdoc/>
-        public virtual Task<bool> TryDeleteFileAsync(string subpath)
-            => Task.FromResult(TryDeleteFile(subpath));
-
-        /// <inheritdoc/>
-        public abstract IFile CreateFile(string subpath, Stream inStream = null, bool overwrite = false);
-
-        /// <inheritdoc/>
-        public virtual Task<IFile> CreateFileAsync(string subpath, Stream inStream = null, bool overwrite = false)
-            => Task.FromResult(CreateFile(subpath, inStream, overwrite));
-
-        /// <inheritdoc/>
-        public abstract void CopyFile(string subpath, string newPath, bool overwrite = false);
-
-        /// <inheritdoc/>
-        public virtual Task CopyFileAsync(string subpath, string newPath, bool overwrite = false)
+        public virtual async Task<AsyncOut<string>> CheckUniqueFileNameAsync(string subpath)
         {
-            CopyFile(subpath, newPath, overwrite);
-            return Task.CompletedTask;
+            Guard.NotEmpty(subpath, nameof(subpath));
+
+            var file = GetFile(subpath);
+            if (!file.Exists)
+            {
+                return AsyncOut<string>.Empty;
+            }
+
+            var pattern = file.NameWithoutExtension + "-*" + file.Extension;
+            var dir = file.Directory;
+            var names = await EnumerateFilesAsync(dir, pattern, false).Select(x => x.Name).AsyncToArray();
+            var files = new HashSet<string>(names, StringComparer.OrdinalIgnoreCase);
+
+            int i = 1;
+            while (true)
+            {
+                var fileName = string.Concat(file.NameWithoutExtension, "-", i, file.Extension);
+                if (!files.Contains(fileName))
+                {
+                    // Found our gap
+                    return new AsyncOut<string>(true, PathCombine(dir, fileName));
+                }
+
+                i++;
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual bool TryDeleteFile(string subpath)
+        {
+            var file = GetFile(subpath);
+
+            if (file.PhysicalPath.IsEmpty())
+            {
+                return false;
+            }
+
+            if (!file.Exists)
+            {
+                return false;
+            }
+
+            try
+            {
+                file.Delete();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual async Task<bool> TryDeleteFileAsync(string subpath)
+        {
+            var file = await GetFileAsync(subpath);
+
+            if (file.PhysicalPath.IsEmpty())
+            {
+                return false;
+            }
+
+            if (!file.Exists)
+            {
+                return false;
+            }
+
+            try
+            {
+                await file.DeleteAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual IFile CreateFile(string subpath, Stream inStream = null, bool overwrite = false)
+        {
+            if (DirectoryExists(subpath))
+            {
+                throw new FileSystemException($"Cannot create file '{subpath}' because it already exists as a directory.");
+            }
+
+            var file = GetFile(subpath);
+            file.Create(inStream, overwrite);
+            return file;
+        }
+
+        /// <inheritdoc/>
+        public virtual async Task<IFile> CreateFileAsync(string subpath, Stream inStream = null, bool overwrite = false)
+        {
+            if (await DirectoryExistsAsync(subpath))
+            {
+                throw new FileSystemException($"Cannot create file '{subpath}' because it already exists as a directory.");
+            }
+
+            var file = await GetFileAsync(subpath);
+            await file.CreateAsync(inStream, overwrite);
+            return file;
+        }
+
+        /// <inheritdoc/>
+        public virtual void CopyFile(string subpath, string newPath, bool overwrite = false)
+        {
+            var file = GetFile(subpath);
+            file.CopyTo(newPath, overwrite);
+        }
+
+        /// <inheritdoc/>
+        public virtual async Task CopyFileAsync(string subpath, string newPath, bool overwrite = false)
+        {
+            var file = await GetFileAsync(subpath);
+            await file.CopyToAsync(newPath, overwrite);
         }
 
         #region Protected utils

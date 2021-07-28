@@ -317,6 +317,41 @@ namespace Smartstore
             }
         }
 
+        /// <summary>
+        /// Computes the sum of a sequence of <see cref="int" /> values that are obtained by invoking a transform function on each element of the input sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">A sequence of values that are used to calculate a sum.</param>
+        /// <param name="selector">A transform function to apply to each element.</param>
+        /// <param name="cancellationToken">The optional cancellation token to be used for cancelling the sequence at any time.</param>
+        /// <returns>An async-enumerable sequence containing a single element with the sum of the values in the source sequence.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> is null.</exception>
+        /// <remarks>The return type of this operator differs from the corresponding operator on IEnumerable in order to retain asynchronous behavior.</remarks>
+        public static ValueTask<long> SumAsync<TSource>(this IAsyncEnumerable<TSource> source, Func<TSource, long> selector, CancellationToken cancellationToken = default)
+        {
+            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(selector, nameof(selector));
+
+            return Core(source, selector, cancellationToken);
+
+            static async ValueTask<long> Core(IAsyncEnumerable<TSource> source, Func<TSource, long> selector, CancellationToken cancellationToken)
+            {
+                long sum = 0;
+
+                await foreach (TSource item in source.WithCancellation(cancellationToken).ConfigureAwait(false))
+                {
+                    var value = selector(item);
+
+                    checked
+                    {
+                        sum += value;
+                    }
+                }
+
+                return sum;
+            }
+        }
+
         #endregion
 
         #region Min/Max

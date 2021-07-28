@@ -54,7 +54,7 @@ namespace Smartstore
         ///// </summary>
         ///// <param name="source">The source directory</param>
         ///// <param name="destination">The destination directory</param>
-        ///// <param name="ignorePatterns">Path patterns to exclude from copy.</param>
+        ///// <param name="ignorePatterns">Path patterns to exclude from copy. Supports * and ? wildcards.</param>
         ///// <returns></returns>
         //public static void CopyContents(this IDirectory source, IDirectory destination, params string[] ignorePatterns)
         //{

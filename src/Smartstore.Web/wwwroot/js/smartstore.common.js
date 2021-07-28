@@ -346,7 +346,7 @@
                 $.extend(validator.settings, $.validator.defaults);
             }
 
-            $.extend(validator.settings, { ignore: ".dg-cell-selector-checkbox, .btn" });
+            $.extend(validator.settings, { ignore: "[type=hidden], .dg-cell-selector-checkbox, .btn" });
         });
     };
 
