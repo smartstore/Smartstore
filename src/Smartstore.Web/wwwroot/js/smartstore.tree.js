@@ -6,8 +6,22 @@
 
     var methods = {
         init: function (options) {
+            options = $.extend({}, $.tree.defaults, options);
+
             return this.each(function () {
-                initialize(this, options);
+                var root = $(this);
+                var url = root.data('url');
+
+                root.data('tree-options', options);
+
+                if (url) {
+                    loadData(url, root, function (data) {
+                        initialize(root, options, data);
+                    });
+                }
+                else {
+                    initialize(root, options, null);
+                }
             });
         },
 
@@ -27,14 +41,14 @@
     };
 
     $.tree.defaults = {
-        expanded: false,    // Whether initially expand tree.
-        showLines: false,   // Whether to show helper lines.
-        readOnly: false,    // Whether state changed are enabled.
-        nodeState: '',      // 'on-off'
+        expanded: false,    // true = initially expand tree.
+        showLines: false,   // true = show helper lines.
+        readOnly: false,    // true = no state changes allowed (checkbox disabled).
+        nodeState: '',      // 'on-off' = adds state checkboxes for on (green), off (red), inherit (muted green\red).
         dragAndDrop: false,
         expandedClass: 'fas fa-angle-down',
         collapsedClass: 'fas fa-angle-right',
-        leafClass: 'tree-leaf left-align',
+        leafClass: 'tree-leaf',
         stateTitles: ['', '', '', '']
     };
 
@@ -52,25 +66,9 @@
         return null;
     }
 
-    function initialize(context, opt) {
-        var root = $(context);
-
-        opt = $.extend({}, $.tree.defaults, opt);
-        root.data('tree-options', opt);
-
-        var labelHtml = '<label class="tree-label' + (opt.readOnly ? '' : ' tree-control') + '"><span class="tree-text"></span></label>';
-        var noLeafHtml = '<div class="tree-inner"><span class="tree-expander-container tree-expander"></span>' + labelHtml + '</div>';
-        var leafHtml = '<div class="tree-inner"><span class="tree-expander-container"></span>' + labelHtml + '</div>';
-
-        // Set node HTML.
-        root.find('li').each(function () {
-            var li = $(this);
-            var isLeaf = !li.has('ul').length;
-
-            li.addClass('tree-node ' + (isLeaf ? opt.leafClass : 'tree-noleaf'))
-                .prepend(isLeaf ? leafHtml : noLeafHtml)
-                .find('.tree-text').html(li.data('label'));
-        });
+    function initialize(root, opt, data) {
+        // Add node HTML.
+        addNodeHtml(root, opt, data);
 
         // Set root item class.
         root.find('ul:first > .tree-node').each(function () {
@@ -94,8 +92,8 @@
             root.find('.tree-label').each(function (i, el) {
                 var label = $(this);
                 var node = label.closest('.tree-node');
-                var value = parseInt(node.data('value')) || 0;
-                var name = node.data('name');
+                var value = parseInt(node.data('state-value')) || 0;
+                var stateId = node.data('state-id');
                 var html = '';
                 var stateClass = '';
                 var stateTitle = '';
@@ -111,10 +109,10 @@
                 }
 
                 if (!opt.readOnly) {
-                    label.attr('for', name);
+                    label.attr('for', stateId);
 
-                    html += '<input type="checkbox" name="' + name + '" id="' + name + '" value="' + value + '"' + (value === 2 ? ' checked="checked"' : '') + ' />';
-                    html += '<input type="hidden" name="' + name + '" value="' + (value === 0 ? 0 : 1) + '" />';
+                    html += '<input type="checkbox" name="' + stateId + '" id="' + stateId + '" value="' + value + '"' + (value === 2 ? ' checked="checked"' : '') + ' />';
+                    html += '<input type="hidden" name="' + stateId + '" value="' + (value === 0 ? 0 : 1) + '" />';
                 }
                 html += '<span class="tree-state ' + stateClass + '" title="' + stateTitle + '"></span>';
 
@@ -177,8 +175,29 @@
                 setInheritedState(node, inheritedState, opt);
             }
         });
+    }
 
-        loadData(root);
+    function addNodeHtml(root, opt, data) {
+        var labelHtml = '<label class="tree-label' + (opt.readOnly ? '' : ' tree-control') + '"><span class="tree-text"></span></label>';
+        var noLeafHtml = '<div class="tree-inner"><span class="tree-expander-container tree-expander"></span>' + labelHtml + '</div>';
+        var leafHtml = '<div class="tree-inner"><span class="tree-expander-container"></span>' + labelHtml + '</div>';
+
+        root.find('li').each(function () {
+            var li = $(this);
+            var isLeaf = !li.has('ul').length;
+            var nodeData = data?.nodes?.find(x => x.Id == li.data('id'))?.Value;
+            var nodeText = nodeData?.DisplayName || li.data('display-name');
+            var badgeText = nodeData?.BadgeText || li.data('badge-text');
+
+            if (badgeText) {
+                var badgeStyle = nodeData?.BadgeStyle || li.data('badge-style') || 'badge-secondary';
+                nodeText += ' <span class="badge ' + badgeStyle + '">' + badgeText + '</span>';
+            }
+
+            li.addClass('tree-node ' + (isLeaf ? opt.leafClass : 'tree-noleaf'))
+                .prepend(isLeaf ? leafHtml : noLeafHtml)
+                .find('.tree-text').html(nodeText);
+        });
     }
 
     function expandAll(context) {
@@ -243,12 +262,7 @@
         return result;
     }
 
-    function loadData(root) {
-        var url = root.data('url');
-        if (!url) {
-            return;
-        }
-
+    function loadData(url, node, callback) {
         var parentId = 0;
 
         $.ajax({
@@ -260,7 +274,10 @@
             timeout: 5000,
             data: { parentId: parentId },
             success: function (data) {
-                console.log(data);
+                var items = '';
+                data.nodes.forEach(x => items += '<li data-id="' + x.Id + '"></li>');
+                node.html('<ul>' + items + '</ul>');
+                callback(data);
             }
         });
     }

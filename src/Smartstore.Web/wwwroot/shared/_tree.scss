@@ -10,7 +10,7 @@ $default-state-color: $gray-400;
 .tree {
     position: relative;
 
-    :first-child {
+    ul:first-child {
         padding-left: 0;
     }
 

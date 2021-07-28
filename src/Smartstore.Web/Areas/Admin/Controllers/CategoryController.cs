@@ -212,6 +212,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Category.Read)]
         public async Task<IActionResult> CategoryTree(int parentId = 0, int searchStoreId = 0)
         {
+            var entityName = nameof(Category);
             var tree = await _categoryService.GetCategoryTreeAsync(parentId, true);
             var children = tree.Children;
 
@@ -224,7 +225,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (categoryIds.Any())
                 {
-                    await _storeMappingService.PrefetchStoreMappingsAsync(nameof(Category), categoryIds);
+                    await _storeMappingService.PrefetchStoreMappingsAsync(entityName, categoryIds);
                 }
 
                 children = await tree.Children
@@ -232,7 +233,7 @@ namespace Smartstore.Admin.Controllers
                     {
                         if (x.Value.LimitedToStores)
                         {
-                            var storeIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(nameof(Category), x.Value.Id);
+                            var storeIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(entityName, x.Value.Id);
                             return storeIds.Contains(searchStoreId);
                         }
 
@@ -243,16 +244,20 @@ namespace Smartstore.Admin.Controllers
 
             var nodes = children.Select(x =>
             {
-                var node = x.Value;
+                var category = x.Value;
                 var childCount = x.HasChildren ? x.Children.Count : 0;
 
-                return new TreeNode<object>(new 
+                var nodeValue = new TreeNodeValue
                 {
-                    node.Id,
-                    Name = childCount > 0 ? $"{node.Name} ({childCount})" : node.Name,
-                    ChildCount = childCount
-                });
-            });
+                    DisplayName = childCount > 0 ? $"{category.Name} ({childCount})" : category.Name,
+                    BadgeText = category.Alias,
+                    Published = category.Published,
+                    Url = Url.Action("Edit", "Category", new { id = x.Id })
+                };
+
+                return new TreeNode<TreeNodeValue>(nodeValue) { Id = category.Id };
+            })
+            .ToList();
 
             return Json(new { nodes });
         }

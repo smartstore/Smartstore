@@ -7,9 +7,9 @@
 <ul>
     @foreach (var child in Model.Children)
     {
-        <li data-name="permission-@child.Value.PermissionRecordId"
-            data-value="@(child.Value.Allow.HasValue ? (child.Value.Allow.Value ? 2 : 1) : 0)"
-            data-label="@(permissionTree.GetDisplayName(child))"
+        <li data-state-id="permission-@child.Value.PermissionRecordId"
+            data-state-value="@(child.Value.Allow.HasValue ? (child.Value.Allow.Value ? 2 : 1) : 0)"
+            data-display-name="@(permissionTree.GetDisplayName(child))"
             title="@child.Value.SystemName">
             @if (child.HasChildren)
             {
