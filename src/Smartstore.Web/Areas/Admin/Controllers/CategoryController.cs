@@ -247,7 +247,8 @@ namespace Smartstore.Admin.Controllers
                 var category = x.Value;
                 var childCount = x.HasChildren ? x.Children.Count : 0;
 
-                var nodeValue = new TreeNodeValue
+                // TODO: (mg) (core) Needs direct and deep children count.
+                var nodeValue = new TreeItem
                 {
                     DisplayName = childCount > 0 ? $"{category.Name} ({childCount})" : category.Name,
                     BadgeText = category.Alias,
@@ -255,7 +256,7 @@ namespace Smartstore.Admin.Controllers
                     Url = Url.Action("Edit", "Category", new { id = x.Id })
                 };
 
-                return new TreeNode<TreeNodeValue>(nodeValue) { Id = category.Id };
+                return new TreeNode<TreeItem>(nodeValue) { Id = category.Id };
             })
             .ToList();
 

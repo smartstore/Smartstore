@@ -8,6 +8,8 @@ $default-state-color: $gray-400;
 // ------------------------------
 
 .tree {
+    // TODO: (mg) (core) Bad (inperformant) CSS design. Matching ".tree li" is much slower than ".tree-item". Use specific class names where applicable.
+    // TODO: (mg) (core) Don't nest specific class names. DONT: ".tree .tree-expander". DO: ".tree-expander".
     position: relative;
 
     ul:first-child {
@@ -48,7 +50,7 @@ $default-state-color: $gray-400;
         height: calc(100% - 12px);
     }
 
-    .tree-hline li::before {
+    .tree-hline li:before {
         content: "";
         position: absolute;
         left: 6px;
@@ -69,8 +71,8 @@ $default-state-color: $gray-400;
             margin: 0;
         }
 
-        .tree-state:hover::before {
-            box-shadow: 0 0 4px rgba($warning, 0.8);
+        .tree-state:hover:before {
+            box-shadow: 0 0 4px rgba(#{$warning}, 0.8);
             transition: box-shadow 0.1s linear;
         }
     }
@@ -93,7 +95,7 @@ $default-state-color: $gray-400;
         font-weight: $font-weight-medium;
     }
     // State box default style.
-    .tree-state::before {
+    .tree-state:before {
         content: "";
         float: left;
         height: 18px;
@@ -104,11 +106,12 @@ $default-state-color: $gray-400;
         margin: 2px 6px 0 0;
     }
 
-    .tree-state::after {
+    .tree-state:after {
         position: absolute;
         display: block;
     }
     // State indicator 'on' and 'off'.
+    // TODO: (mg) (core) ".tree .on" is a vague and bad selector. Better: ".someclass.on", can be perfectly nested and is much more readable also.
     .on:after,
     .in-on:after {
         content: "";

@@ -3,10 +3,10 @@
 namespace Smartstore.Web.Modelling
 {
     /// <summary>
-    /// Represents a generic tree node value.
+    /// Represents a generic treeview item.
     /// It can be used together with smartstore.tree.js to load tree nodes using AJAX.
     /// </summary>
-    public class TreeNodeValue
+    public class TreeItem
     {
         /// <summary>
         /// The display name of the node.
@@ -49,7 +49,7 @@ namespace Smartstore.Web.Modelling
         public string Url { get; set; }
 
         /// <summary>
-        /// State ID of the node. Needs be unique across the entire tree.
+        /// State ID of the node. Needs to be unique across the entire tree.
         /// It is used for ID and name attribute of the state checkbox (if any).
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
