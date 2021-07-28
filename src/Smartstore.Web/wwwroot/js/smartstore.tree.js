@@ -41,10 +41,10 @@
     };
 
     $.tree.defaults = {
-        expanded: false,    // true = initially expand tree.
-        showLines: false,   // true = show helper lines.
-        readOnly: false,    // true = no state changes allowed (checkbox disabled).
-        nodeState: '',      // 'on-off' = adds state checkboxes for on (green), off (red), inherit (muted green\red).
+        expanded: false,    // true: initially expand tree.
+        showLines: false,   // true: show helper lines.
+        readOnly: false,    // true: no state changes allowed (checkbox disabled).
+        nodeState: '',      // 'on-off': adds state checkboxes for 'on' (green), 'off' (red), 'inherit' (muted green\red).
         dragAndDrop: false,
         expandedClass: 'fas fa-angle-down',
         collapsedClass: 'fas fa-angle-right',
@@ -178,25 +178,38 @@
     }
 
     function addNodeHtml(root, opt, data) {
-        var labelHtml = '<label class="tree-label' + (opt.readOnly ? '' : ' tree-control') + '"><span class="tree-text"></span></label>';
-        var noLeafHtml = '<div class="tree-inner"><span class="tree-expander-container tree-expander"></span>' + labelHtml + '</div>';
-        var leafHtml = '<div class="tree-inner"><span class="tree-expander-container"></span>' + labelHtml + '</div>';
+        var labelClass = opt.readOnly ? '' : ' tree-control';
 
         root.find('li').each(function () {
             var li = $(this);
             var isLeaf = !li.has('ul').length;
+            var expanderClass = isLeaf ? '' : ' tree-expander';
             var nodeData = data?.nodes?.find(x => x.Id == li.data('id'))?.Value;
-            var nodeText = nodeData?.DisplayName || li.data('display-name');
+            var nodeHtml = nodeData?.DisplayName || li.data('display-name');
             var badgeText = nodeData?.BadgeText || li.data('badge-text');
+            var iconClass = nodeData?.IconClass || li.data('icon-class');
+            var iconUrl = nodeData?.IconUrl || li.data('icon-url');
+            var published = nodeData ? nodeData.Published : toBool(li.data('published'), true);
+            var innerClass = published ? '' : ' tree-unpublished';
 
             if (badgeText) {
                 var badgeStyle = nodeData?.BadgeStyle || li.data('badge-style') || 'badge-secondary';
-                nodeText += ' <span class="badge ' + badgeStyle + '">' + badgeText + '</span>';
+                nodeHtml += ' <span class="badge ' + badgeStyle + '">' + badgeText + '</span>';
             }
 
+            var html = '<span class="tree-expander-container' + expanderClass + '"></span>';
+
+            if (iconClass) {
+                html += '<span class="tree-icon"><i class="' + iconClass + '"></i></span>';
+            }
+            else if (iconUrl) {
+                html += '<span class="tree-icon"><img src="' + iconUrl + '" /></span>';
+            }
+
+            html += '<label class="tree-label' + labelClass + '"><span class="tree-text">' + nodeHtml + '</span></label>';
+
             li.addClass('tree-node ' + (isLeaf ? opt.leafClass : 'tree-noleaf'))
-                .prepend(isLeaf ? leafHtml : noLeafHtml)
-                .find('.tree-text').html(nodeText);
+                .prepend('<div class="tree-inner' + innerClass + '">' + html + '</div>');
         });
     }
 

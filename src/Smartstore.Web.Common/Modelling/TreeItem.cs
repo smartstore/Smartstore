@@ -34,13 +34,13 @@ namespace Smartstore.Web.Modelling
         /// <summary>
         /// A value indicating whether the node is enabled.
         /// </summary>
-        public bool Enabled { get; set; }
+        public bool Enabled { get; set; } = true;
 
         /// <summary>
         /// A value indicating whether the node is published.
         /// Unpublished nodes are diplayed muted.
         /// </summary>
-        public bool Published { get; set; }
+        public bool Published { get; set; } = true;
 
         /// <summary>
         /// URL to open when clicking the node.
@@ -67,5 +67,11 @@ namespace Smartstore.Web.Modelling
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string IconClass { get; set; }
+
+        /// <summary>
+        /// Optional icon URL.
+        /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string IconUrl { get; set; }
     }
 }

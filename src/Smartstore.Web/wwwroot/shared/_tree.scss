@@ -39,6 +39,14 @@ $default-state-color: $gray-400;
         cursor: pointer;
     }
 
+    .tree-unpublished {
+        opacity: .6;
+    }
+
+    .tree-icon {
+        margin: 0 2px;
+    }
+
     .tree-vline {
         content: "";
         position: absolute;
