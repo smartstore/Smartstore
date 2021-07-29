@@ -15,10 +15,10 @@ $default-state-color: $gray-400;
     position: relative;
     list-style: none;
     padding-left: 24px;
-}
 
-.tree-list:first-child {
-    padding-left: 0;
+    &:first-child {
+        padding-left: 0;
+    }
 }
 
 .tree-node {
@@ -97,58 +97,60 @@ $default-state-color: $gray-400;
     margin: 0;
 }
 
-.tree-state:before {
-    content: "";
-    float: left;
-    height: 18px;
-    width: 18px;
-    border-radius: 5px;
-    border: 2px solid $default-state-color;
-    background-color: #fff;
-    margin: 2px 6px 0 0;
-}
+.tree-state {
+    &:before {
+        content: "";
+        float: left;
+        height: 18px;
+        width: 18px;
+        border-radius: 5px;
+        border: 2px solid $default-state-color;
+        background-color: #fff;
+        margin: 2px 6px 0 0;
+    }
 
-.tree-state:after {
-    position: absolute;
-    display: block;
+    &:after {
+        position: absolute;
+        display: block;
+    }
+
+    &.on:after,
+    &.in-on:after {
+        content: "";
+        top: 5px;
+        left: 6px;
+        width: 6px;
+        height: 10px;
+        transform: rotate(45deg);
+        border: 2px solid $default-state-color;
+        border-width: 0 3px 3px 0;
+    }
+
+    &.on:before,
+    &.on:after,
+    &.in-on:before,
+    &.in-on:after {
+        border-color: $success;
+    }
+
+    &.off:before,
+    &.in-off:before {
+        border-color: $danger;
+    }
+
+    &.in-on:before,
+    &.in-on:after,
+    &.in-off:before,
+    &.in-off:after {
+        opacity: 0.3;
+    }
 }
 
 .tree-state-active {
     cursor: pointer;
-}
 
-.tree-state-active:hover:before {
-    box-shadow: 0 0 4px rgba($warning, .8);
-    transition: box-shadow 0.1s linear;
-}
-
-.tree-state.on:after,
-.tree-state.in-on:after {
-    content: "";
-    top: 5px;
-    left: 6px;
-    width: 6px;
-    height: 10px;
-    transform: rotate(45deg);
-    border: 2px solid $default-state-color;
-    border-width: 0 3px 3px 0;
-}
-
-.tree-state.on:before,
-.tree-state.on:after,
-.tree-state.in-on:before,
-.tree-state.in-on:after {
-    border-color: $success;
-}
-
-.tree-state.off:before,
-.tree-state.in-off:before {
-    border-color: $danger;
-}
-
-.tree-state.in-on:before,
-.tree-state.in-on:after,
-.tree-state.in-off:before,
-.tree-state.in-off:after {
-    opacity: 0.3;
+    &:hover:before {
+        box-shadow: 0 0 4px rgba($warning, .8);
+        transition: box-shadow 0.1s linear;
+    }
 }
