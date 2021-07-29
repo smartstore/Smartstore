@@ -44,8 +44,9 @@
         dragAndDrop: false,     // true: drag & drop enabled.
         defaultIconClass: null,
         defaultIconUrl: null,
-        expandedClass: 'fas fa-angle-down',
-        collapsedClass: 'fas fa-angle-right',
+        // TODO: (mg) (core) Expander needs larger clickable area. See MediaManager expanders.
+        expandedClass: 'fas fa-chevron-down',
+        collapsedClass: 'fas fa-chevron-right',
         leafClass: 'tree-leaf',
         stateTitles: ['', '', '', '']
     };
