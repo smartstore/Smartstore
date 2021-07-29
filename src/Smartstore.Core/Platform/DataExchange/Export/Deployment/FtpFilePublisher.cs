@@ -54,9 +54,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 return;
             }
 
-            var files = await directory.FileSystem
-                .EnumerateFilesAsync(directory.SubPath)
-                .ToListAsync(_cancelToken);
+            var files = await directory.EnumerateFilesAsync().ToListAsync(_cancelToken);
             var lastFile = files.Last();
 
             foreach (var file in files)
@@ -65,10 +63,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 await UploadFile(file, url, file != lastFile);
             }
 
-            var subdirs = await directory.FileSystem
-                .EnumerateDirectoriesAsync(directory.SubPath)
-                .ToListAsync(_cancelToken);
-
+            var subdirs = await directory.EnumerateDirectoriesAsync().ToListAsync(_cancelToken);
             foreach (var subdir in subdirs)
             {
                 var url = BuildUrl(subdir);

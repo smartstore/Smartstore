@@ -80,7 +80,7 @@ $default-state-color: $gray-400;
         }
 
         .tree-state:hover:before {
-            box-shadow: 0 0 4px rgba(#{$warning}, 0.8);
+            box-shadow: 0 0 4px rgba($warning, .8);
             transition: box-shadow 0.1s linear;
         }
     }

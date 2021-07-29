@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Threading;
 
 namespace Smartstore.Core.Content.Media
 {

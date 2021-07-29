@@ -691,10 +691,10 @@ namespace Smartstore.Core.Seo
         public virtual void InvalidateAll()
         {
             var dir = BuildSitemapDirPath(null, null);
-            foreach (var subDir in _tenantRoot.EnumerateDirectories(dir))
+            foreach (var subDir in _tenantRoot.EnumerateDirectories(dir).ToArray())
             {
                 // Delete only directories, no lock files.
-                _tenantRoot.TryDeleteDirectory(subDir.SubPath);
+                subDir.Delete();
             }
         }
 

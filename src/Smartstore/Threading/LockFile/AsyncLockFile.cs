@@ -7,20 +7,20 @@ namespace Smartstore.Threading
     {
         private readonly string _path;
         private readonly string _content;
-        private readonly IFileSystem _directory;
+        private readonly IFileSystem _fs;
         private readonly AsyncLock _asyncLock;
 
         private bool _released;
 
-        public AsyncLockFile(IFileSystem directory, string path, string content, AsyncLock asyncLock)
+        public AsyncLockFile(IFileSystem fs, string path, string content, AsyncLock asyncLock)
         {
-            _directory = directory;
+            _fs = fs;
             _content = content;
             _asyncLock = asyncLock;
             _path = path;
 
             // Create the physical lock file
-            _directory.WriteAllText(_path, content);
+            _fs.WriteAllText(_path, content);
         }
 
         protected override void OnDispose(bool disposing)
@@ -37,7 +37,7 @@ namespace Smartstore.Threading
         {
             using (_asyncLock.Lock())
             {
-                var lockFile = _directory.GetFile(_path);
+                var lockFile = _fs.GetFile(_path);
 
                 if (_released || !lockFile.Exists)
                 {
@@ -47,10 +47,10 @@ namespace Smartstore.Threading
                 _released = true;
 
                 // Check it has not been granted in the meantime
-                var current = _directory.ReadAllText(_path);
+                var current = lockFile.ReadAllText();
                 if (current == _content)
                 {
-                    _directory.TryDeleteFile(_path);
+                    lockFile.Delete();
                 }
             }
         }
@@ -59,7 +59,7 @@ namespace Smartstore.Threading
         {
             using (await AsyncLock.KeyedAsync($"AsyncLockFile.{_path}"))
             {
-                var lockFile = await _directory.GetFileAsync(_path);
+                var lockFile = await _fs.GetFileAsync(_path);
 
                 if (_released || !lockFile.Exists)
                 {
@@ -69,10 +69,10 @@ namespace Smartstore.Threading
                 _released = true;
 
                 // Check it has not been granted in the meantime
-                var current = await _directory.ReadAllTextAsync(_path);
+                var current = await lockFile.ReadAllTextAsync();
                 if (current == _content)
                 {
-                    await _directory.TryDeleteFileAsync(_path);
+                    await lockFile.DeleteAsync();
                 }
             }
         }

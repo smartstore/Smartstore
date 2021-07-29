@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.IO.SymLinks;
@@ -10,6 +12,10 @@ namespace Smartstore.IO
     [DebuggerDisplay("LocalDirectory: {SubPath}")]
     public class LocalDirectory : IDirectory
     {
+        // Defaults are: AttributesToSkip = FileAttributes.Hidden | FileAttributes.System, IgnoreInaccessible = true
+        private static readonly EnumerationOptions _flatEnumerationOptions = new();
+        private static readonly EnumerationOptions _deepEnumerationOptions = new() { RecurseSubdirectories = true };
+
         private readonly DirectoryInfo _di;
         private LocalFileSystem _fs;
 
@@ -95,15 +101,18 @@ namespace Smartstore.IO
         public void Delete()
         {
             _di.Delete(true);
+        }
 
-            // Wait for deletion to complete
-            var attempts = 0;
-            while (_di.Exists)
-            {
-                attempts += 1;
-                if (attempts > 10) return;
-                Thread.Sleep(100);
-            }
+        public void Create()
+        {
+            _di.Create();
+        }
+
+        public IDirectory CreateSubdirectory(string path)
+        {
+            path = FileSystemBase.NormalizePath(path);
+            var di = _di.CreateSubdirectory(path);
+            return new LocalDirectory(_fs.PathCombine(SubPath, path), di, _fs);
         }
 
         public void MoveTo(string newPath)
@@ -123,6 +132,67 @@ namespace Smartstore.IO
             }
 
             _di.MoveTo(newPath);
+        }
+
+        public IEnumerable<IFileEntry> EnumerateEntries(string pattern = "*", bool deep = false)
+        {
+            if (!_di.Exists)
+            {
+                throw new DirectoryNotFoundException($"Directory '{SubPath}' does not exist.");
+            }
+
+            return _di
+                .EnumerateFileSystemInfos(pattern, deep ? _deepEnumerationOptions : _flatEnumerationOptions)
+                .Select(x =>
+                {
+                    if (x is FileInfo fi)
+                    {
+                        return ConvertFileInfo(fi);
+                    }
+                    else if (x is DirectoryInfo di)
+                    {
+                        return ConvertDirectoryInfo(di);
+                    }
+
+                    return (IFileEntry)null;
+                })
+                .Where(x => x != null);
+        }
+
+        public IEnumerable<IDirectory> EnumerateDirectories(string pattern = "*", bool deep = false)
+        {
+            if (!_di.Exists)
+            {
+                throw new DirectoryNotFoundException($"Directory '{SubPath}' does not exist.");
+            }
+
+            return _di
+                .EnumerateDirectories(pattern, deep ? _deepEnumerationOptions : _flatEnumerationOptions)
+                .Select(ConvertDirectoryInfo);
+        }
+
+        public IEnumerable<IFile> EnumerateFiles(string pattern = "*", bool deep = false)
+        {
+            if (!_di.Exists)
+            {
+                throw new DirectoryNotFoundException($"Directory '{SubPath}' does not exist.");
+            }
+
+            return _di
+                .EnumerateFiles(pattern, deep ? _deepEnumerationOptions : _flatEnumerationOptions)
+                .Select(ConvertFileInfo);
+        }
+
+        private IDirectory ConvertDirectoryInfo(DirectoryInfo info)
+        {
+            var subpath = info.FullName[_fs.Root.Length..];
+            return new LocalDirectory(subpath, info, _fs);
+        }
+
+        private IFile ConvertFileInfo(FileInfo info)
+        {
+            var subpath = info.FullName[_fs.Root.Length..];
+            return new LocalFile(subpath, info, _fs);
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Smartstore.Collections;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Threading;
@@ -192,6 +193,8 @@ namespace Smartstore.Core.Content.Media
         Task<FolderDeleteResult> DeleteFolderAsync(string path, FileHandling fileHandling = FileHandling.SoftDelete, CancellationToken cancelToken = default);
 
         MediaFileInfo ConvertMediaFile(MediaFile file);
+        MediaFolderInfo ConvertMediaFolder(TreeNode<MediaFolderNode> node);
+
         string GetUrl(MediaFileInfo file, ProcessImageQuery query, string host = null, bool doFallback = true);
     }
 }

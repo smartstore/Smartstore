@@ -51,13 +51,14 @@ namespace Smartstore.Core.DataExchange.Import
 
             var root = _appContext.TenantRoot;
             var path = root.PathCombine(IMPORT_FILE_ROOT, profile.FolderName, subpath.EmptyNull());
+            var dir = await root.GetDirectoryAsync(path);
 
             if (createIfNotExists)
             {
-                var _ = await root.TryCreateDirectoryAsync(path);
+                await dir.CreateAsync();
             }
 
-            return await root.GetDirectoryAsync(path);
+            return dir;
         }
 
         public virtual async Task<IList<ImportFile>> GetImportFilesAsync(ImportProfile profile, bool includeRelatedFiles = true)
@@ -67,7 +68,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (directory.Exists)
             {
-                var files = await directory.FileSystem.EnumerateFilesAsync(directory.SubPath).ToListAsync();
+                var files = await directory.EnumerateFilesAsync().ToListAsync();
                 if (files.Any())
                 {
                     foreach (var file in files)

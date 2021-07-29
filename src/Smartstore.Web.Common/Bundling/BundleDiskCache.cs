@@ -115,7 +115,7 @@ namespace Smartstore.Web.Bundling
 
             using (await AsyncLock.KeyedAsync(BuildLockKey(dir.Name)))
             {
-                _fs.TryCreateDirectory(dir.SubPath);
+                dir.Create();
 
                 try
                 {

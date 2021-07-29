@@ -61,9 +61,8 @@ namespace Smartstore.Core.Messaging.Utilities
         {
             Guard.NotNull(language, nameof(language));
 
-            var root = _appContext.ContentRoot;
             var dir = ResolveTemplateDirectory(language, virtualRootPath);
-            var files = root.EnumerateFiles(dir.SubPath, "*.xml");
+            var files = dir.EnumerateFiles("*.xml");
 
             foreach (var file in files)
             {
@@ -101,10 +100,7 @@ namespace Smartstore.Core.Messaging.Utilities
 
             var root = _appContext.ContentRoot;
             var dir = root.GetDirectory(root.PathCombine("/App_Data/EmailTemplates", language.GetTwoLetterISOLanguageName()));
-            if (!dir.Exists)
-            {
-                root.TryCreateDirectory(dir.SubPath);
-            }
+            dir.Create();
 
             // File path
             var filePath = root.PathCombine(dir.SubPath, template.Name + ".xml");

@@ -83,13 +83,14 @@ namespace Smartstore.Core.DataExchange.Export
             // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
             var root = _appContext.TenantRoot;
             var path = root.PathCombine(EXPORT_FILE_ROOT, _regexFolderName.Replace(profile.FolderName, string.Empty), subpath.EmptyNull());
+            var dir = await root.GetDirectoryAsync(path);
 
             if (createIfNotExists)
             {
-                var _ = await root.TryCreateDirectoryAsync(path);
+                await dir.CreateAsync();
             }
 
-            return await root.GetDirectoryAsync(path);
+            return dir;
         }
 
         public virtual async Task<IDirectory> GetDeploymentDirectoryAsync(ExportDeployment deployment, bool createIfNotExists = false)
@@ -100,13 +101,14 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     var webRoot = _appContext.WebRoot;
                     var path = webRoot.PathCombine(DataExporter.PublicDirectoryName, deployment.SubFolder);
+                    var dir = await webRoot.GetDirectoryAsync(path);
 
                     if (createIfNotExists)
                     {
-                        _ = await webRoot.TryCreateDirectoryAsync(path);
+                        await dir.CreateAsync();
                     }
 
-                    return await webRoot.GetDirectoryAsync(path);
+                    return dir;
                 }
                 else if (deployment.DeploymentType == ExportDeploymentType.FileSystem && deployment.FileSystemPath.HasValue())
                 {

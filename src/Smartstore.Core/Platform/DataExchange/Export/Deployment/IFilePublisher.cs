@@ -44,10 +44,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 // Avoid accidents with incalculable consequences due to hundreds of files.
                 if (ExportDirectory?.SubPath?.HasValue() ?? false)
                 {
-                    var files = await ExportDirectory.FileSystem
-                        .EnumerateFilesAsync(ExportDirectory.SubPath, "*", true)
-                        .ToListAsync(cancelToken);
-
+                    var files = await ExportDirectory.EnumerateFilesAsync("*", true).ToListAsync(cancelToken);
                     return files;
                 }
             }

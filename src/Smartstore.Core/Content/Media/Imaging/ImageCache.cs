@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Imaging;
@@ -116,9 +117,9 @@ namespace Smartstore.Core.Content.Media.Imaging
 
             var filter = string.Format("{0}*.*", mediaFile.Id.ToString(IdFormatString));
 
-            await foreach (var file in _fileSystem.EnumerateFilesAsync(_thumbsRootDir, filter, deep: true))
+            foreach (var file in await _fileSystem.EnumerateFilesAsync(_thumbsRootDir, filter, deep: true).AsyncToArray())
             {
-                await _fileSystem.TryDeleteFileAsync(file.SubPath);
+                await file.DeleteAsync();
             }
         }
 

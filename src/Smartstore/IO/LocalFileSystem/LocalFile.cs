@@ -39,7 +39,7 @@ namespace Smartstore.IO
         }
 
         /// <inheritdoc/>
-        public string SubPath { get; }
+        public string SubPath { get; private set; }
 
         /// <inheritdoc />
         public bool Exists
@@ -193,10 +193,10 @@ namespace Smartstore.IO
 
         public void Delete()
         {
-            _fs.WaitForUnlockAndExecute(_fi, x => x.Delete());
+            WaitForUnlockAndExecute(_fi, x => x.Delete());
         }
 
-        public void CopyTo(string newPath, bool overwrite = false)
+        public IFile CopyTo(string newPath, bool overwrite)
         {
             Guard.NotNull(newPath, nameof(newPath));
 
@@ -217,10 +217,16 @@ namespace Smartstore.IO
                 throw new FileSystemException($"Cannot copy file because the destination path '{newPath}' already exists.");
             }
 
-            _fs.WaitForUnlockAndExecute(_fi, x => x.CopyTo(fullDstPath, overwrite));
+            FileInfo copy = null;
+            WaitForUnlockAndExecute(_fi, x => 
+            { 
+                copy = x.CopyTo(fullDstPath, overwrite); 
+            });
+
+            return new LocalFile(newPath, copy, _fs);
         }
 
-        public void MoveTo(string newPath, bool overwrite = false)
+        public void MoveTo(string newPath)
         {
             Guard.NotNull(newPath, nameof(newPath));
 
@@ -230,18 +236,13 @@ namespace Smartstore.IO
             }
 
             var fullDstPath = _fs.MapPathInternal(ref newPath, true);
+            WaitForUnlockAndExecute(_fi, x => _fi.MoveTo(fullDstPath, false));
 
-            if (!overwrite && File.Exists(fullDstPath))
-            {
-                throw new FileSystemException($"Cannot move file because the target path '{newPath}' already exists.");
-            }
-
-            _fs.WaitForUnlockAndExecute(_fi, x => _fi.MoveTo(fullDstPath, overwrite));
+            SubPath = newPath;
         }
 
-        public void Create(Stream inStream = null, bool overwrite = false)
+        public void Create(Stream inStream, bool overwrite)
         {
-            StartCreateFile(overwrite);
             using var outputStream = _fi.Create();
             if (inStream != null)
             {
@@ -249,9 +250,8 @@ namespace Smartstore.IO
             }
         }
 
-        public async Task CreateAsync(Stream inStream = null, bool overwrite = false)
+        public async Task CreateAsync(Stream inStream, bool overwrite)
         {
-            StartCreateFile(overwrite);
             using var outputStream = _fi.Create();
             if (inStream != null)
             {
@@ -259,16 +259,21 @@ namespace Smartstore.IO
             }
         }
 
-        private void StartCreateFile(bool overwrite)
+        private static void WaitForUnlockAndExecute(FileInfo fi, Action<FileInfo> action)
         {
-            if (!overwrite && _fi.Exists)
+            try
             {
-                throw new FileSystemException($"Cannot create file '{SubPath}' because it already exists.");
+                action(fi);
             }
+            catch (IOException)
+            {
+                if (!fi.WaitForUnlock(250))
+                {
+                    throw;
+                }
 
-            // Create directory path if it doesn't exist.
-            var dirPath = Path.GetDirectoryName(_fi.FullName);
-            System.IO.Directory.CreateDirectory(dirPath);
+                action(fi);
+            }
         }
     }
 }

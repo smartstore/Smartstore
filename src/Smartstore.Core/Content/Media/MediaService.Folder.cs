@@ -74,7 +74,7 @@ namespace Smartstore.Core.Content.Media
                 }
             }
 
-            return new MediaFolderInfo(_folderService.GetNodeById(folderId));
+            return ConvertMediaFolder(_folderService.GetNodeById(folderId));
         }
 
         public async Task<MediaFolderInfo> MoveFolderAsync(string path, string destinationPath)
@@ -137,7 +137,7 @@ namespace Smartstore.Core.Content.Media
             // Commit
             await _db.SaveChangesAsync();
 
-            return new MediaFolderInfo(_folderService.GetNodeById(folder.Id));
+            return ConvertMediaFolder(_folderService.GetNodeById(folder.Id));
         }
 
         public async Task<FolderOperationResult> CopyFolderAsync(
@@ -310,7 +310,7 @@ namespace Smartstore.Core.Content.Media
                 await InternalCopyFolder(scope, node, destPath, dupeEntryHandling, dupeFiles, cancelToken);
             }
 
-            return new MediaFolderInfo(destNode);
+            return ConvertMediaFolder(destNode);
 
             Task UniqueFileNameChecker(MediaPathData pathData)
             {
@@ -477,6 +477,12 @@ namespace Smartstore.Core.Content.Media
         #endregion
 
         #region Utils
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public MediaFolderInfo ConvertMediaFolder(TreeNode<MediaFolderNode> node)
+        {
+            return new MediaFolderInfo(node, this, _searcher, _folderService, _exceptionFactory);
+        }
 
         private void ValidateFolderPath(string path, string operation, string paramName)
         {

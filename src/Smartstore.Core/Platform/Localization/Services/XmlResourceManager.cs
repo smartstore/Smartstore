@@ -365,8 +365,7 @@ namespace Smartstore.Core.Localization
             }
 
             // any other region with same language (de-*)
-            var fs = directory.FileSystem;
-            foreach (var fi in fs.EnumerateFiles(directory.SubPath, "resources.{0}-*.xml".FormatInvariant(code)))
+            foreach (var fi in directory.EnumerateFiles("resources.{0}-*.xml".FormatInvariant(code)))
             {
                 code = _rgFileName.Match(fi.Name).Groups[1].Value;
                 if (CultureHelper.IsValidCultureCode(code))
@@ -378,7 +377,7 @@ namespace Smartstore.Core.Localization
 
             if (canFallBackToAnyResourceFile)
             {
-                foreach (var fi in fs.EnumerateFiles(directory.SubPath, "resources.*.xml"))
+                foreach (var fi in directory.EnumerateFiles("resources.*.xml"))
                 {
                     code = _rgFileName.Match(fi.Name).Groups[1].Value;
                     if (CultureHelper.IsValidCultureCode(code))

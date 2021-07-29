@@ -50,36 +50,15 @@ namespace Smartstore.IO
         /// If <paramref name="overwrite"/> is false, an exception will be
         /// raised if the destination exists. Otherwise it will be overwritten.
         /// </summary>
-        void CopyTo(string newPath, bool overwrite = false) => throw new NotSupportedException();
+        IFile CopyTo(string newPath, bool overwrite) => throw new NotSupportedException();
 
         /// <summary>
         /// Copies an existing file to a new file.
         /// If <paramref name="overwrite"/> is false, an exception will be
         /// raised if the destination exists. Otherwise it will be overwritten.
         /// </summary>
-        Task CopyToAsync(string newPath, bool overwrite = false)
-        {
-            CopyTo(newPath, overwrite);
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Moves an existing file to a new location and potentially a new name.
-        /// If <paramref name="overwrite"/> is false, an exception will be
-        /// raised if the destination exists. Otherwise it will be overwritten.
-        /// </summary>
-        void MoveTo(string newPath, bool overwrite = false) => throw new NotSupportedException();
-
-        /// <summary>
-        /// Moves an existing file to a new location and potentially a new name.
-        /// If <paramref name="overwrite"/> is false, an exception will be
-        /// raised if the destination exists. Otherwise it will be overwritten.
-        /// </summary>
-        Task MoveToAsync(string newPath, bool overwrite = false)
-        {
-            MoveTo(newPath, overwrite);
-            return Task.CompletedTask;
-        }
+        Task<IFile> CopyToAsync(string newPath, bool overwrite)
+            => Task.FromResult(CopyTo(newPath, overwrite));
 
         /// <summary>
         /// Creates or overwrites the file from the contents of an input stream.
@@ -92,7 +71,7 @@ namespace Smartstore.IO
         /// <remarks>
         /// If the specified path contains one or more directories, then those directories are created if they do not already exist.
         /// </remarks>
-        void Create(Stream inStream = null, bool overwrite = false) => throw new NotSupportedException();
+        void Create(Stream inStream, bool overwrite) => throw new NotSupportedException();
 
         /// <summary>
         /// Creates or overwrites the file from the contents of an input stream.
@@ -105,6 +84,6 @@ namespace Smartstore.IO
         /// <remarks>
         /// If the specified path contains one or more directories, then those directories are created if they do not already exist.
         /// </remarks>
-        Task CreateAsync(Stream inStream = null, bool overwrite = false) => throw new NotSupportedException();
+        Task CreateAsync(Stream inStream, bool overwrite) => throw new NotSupportedException();
     }
 }

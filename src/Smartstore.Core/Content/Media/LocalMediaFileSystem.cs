@@ -11,9 +11,9 @@ namespace Smartstore.Core.Content.Media
             StorageConfiguration = storageConfiguration;
 
             // Create required folders
-            TryCreateDirectory("Storage");
-            TryCreateDirectory("Thumbs");
-            TryCreateDirectory("QueuedEmailAttachment");
+            this.TryCreateDirectory("Storage");
+            this.TryCreateDirectory("Thumbs");
+            this.TryCreateDirectory("QueuedEmailAttachment");
         }
 
         public IMediaStorageConfiguration StorageConfiguration { get; }

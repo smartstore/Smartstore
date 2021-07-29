@@ -245,7 +245,7 @@ namespace Smartstore.Core.Installation
             _db.DetachEntities<BaseEntity>();
 
             // Save resources
-            foreach (var file in appDataRoot.EnumerateFiles(locDir.SubPath, "*.smres.xml"))
+            foreach (var file in locDir.EnumerateFiles("*.smres.xml"))
             {
                 var doc = new XmlDocument();
                 doc.Load(file.PhysicalPath);

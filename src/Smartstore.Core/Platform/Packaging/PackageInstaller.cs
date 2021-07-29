@@ -116,17 +116,18 @@ namespace Smartstore.Core.Packaging
             return package.Descriptor;
         }
 
-        public Task UninstallExtensionAsync(IExtensionDescriptor extension)
+        public async Task UninstallExtensionAsync(IExtensionDescriptor extension)
         {
             var path = extension.GetExtensionPath();
+            var dir = await _appContext.ContentRoot.GetDirectoryAsync(path);
 
-            if (!_appContext.ContentRoot.DirectoryExists(path))
+            if (!dir.Exists)
             {
                 throw new SmartException(T("Admin.Packaging.NotFound", path));
             }
 
             // TODO: (core) The descriptor should also be removed from ThemeRegistry or ModuleCatalog (but how?)
-            return _appContext.ContentRoot.TryDeleteDirectoryAsync(path);
+            await dir.DeleteAsync();
         }
 
         private async Task ExtractArchive(ZipArchive archive)

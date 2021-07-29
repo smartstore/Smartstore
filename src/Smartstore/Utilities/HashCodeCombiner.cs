@@ -123,7 +123,7 @@ namespace Smartstore.Utilities
 
             if (entry is IDirectory dir)
             {
-                foreach (var e in entry.FileSystem.EnumerateFiles(dir.SubPath, deep: deep))
+                foreach (var e in dir.EnumerateFiles(deep: deep))
                 {
                     Add(e);
                 }

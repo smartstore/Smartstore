@@ -907,7 +907,7 @@ namespace Smartstore.Core.Content.Media
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected MediaFileInfo ConvertMediaFile(MediaFile file, MediaFolderNode folder)
         {
-            var mediaFile = new MediaFileInfo(file, _storageProvider, _urlGenerator, folder?.Path)
+            var mediaFile = new MediaFileInfo(file, this, _urlGenerator, folder?.Path)
             {
                 ThumbSize = _mediaSettings.ProductThumbPictureSize
             };

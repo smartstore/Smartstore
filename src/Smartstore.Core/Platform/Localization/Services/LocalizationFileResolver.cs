@@ -163,7 +163,7 @@ namespace Smartstore.Core.Localization
                 var rgPattern = "^" + pattern.Replace(LangToken, @"(.+?)") + "$";
                 var rgFileName = new Regex(rgPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-                foreach (var fi in fs.EnumerateFiles(dirPath, pattern.Replace(LangToken, ci.Name + "-*")))
+                foreach (var fi in directory.EnumerateFiles(pattern.Replace(LangToken, ci.Name + "-*")))
                 {
                     var culture = rgFileName.Match(fi.Name).Groups[1].Value;
                     if (CultureHelper.IsValidCultureCode(culture))
