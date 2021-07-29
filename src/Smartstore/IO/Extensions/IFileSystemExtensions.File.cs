@@ -66,10 +66,17 @@ namespace Smartstore
         /// <param name="subpath">The relative path of the file to be deleted.</param>
         /// <returns><c>true</c> if the file was deleted; <c>false</c> if the file did not exist.</returns>
         public static bool TryDeleteFile(this IFileSystem fs, string subpath)
+            => TryDeleteFile(fs, fs.GetFile(subpath));
+
+        /// <summary>
+        /// Deletes a file if it exists.
+        /// </summary>
+        /// <param name="file">The file to delete.</param>
+        /// <returns><c>true</c> if the file was deleted; <c>false</c> if the file did not exist.</returns>
+        public static bool TryDeleteFile(this IFileSystem fs, IFile file)
         {
             Guard.NotNull(fs, nameof(fs));
-
-            var file = fs.GetFile(subpath);
+            Guard.NotNull(file, nameof(file));
 
             if (!file.Exists)
             {
@@ -93,10 +100,17 @@ namespace Smartstore
         /// <param name="subpath">The relative path of the file to be deleted.</param>
         /// <returns><c>true</c> if the file was deleted; <c>false</c> if the file did not exist.</returns>
         public static async Task<bool> TryDeleteFileAsync(this IFileSystem fs, string subpath)
+            => await TryDeleteFileAsync(fs, await fs.GetFileAsync(subpath));
+
+        /// <summary>
+        /// Deletes a file if it exists.
+        /// </summary>
+        /// <param name="file">The file to deleted</param>
+        /// <returns><c>true</c> if the file was deleted; <c>false</c> if the file did not exist.</returns>
+        public static async Task<bool> TryDeleteFileAsync(this IFileSystem fs, IFile file)
         {
             Guard.NotNull(fs, nameof(fs));
-
-            var file = await fs.GetFileAsync(subpath);
+            Guard.NotNull(file, nameof(file));
 
             if (!file.Exists)
             {

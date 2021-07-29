@@ -22,7 +22,7 @@ namespace Smartstore.IO
         static DirectoryHasher()
         {
             _defaultStorageDir = DataSettings.Instance.TenantRoot.GetDirectory("Hash");
-            _defaultStorageDir.FileSystem.TryCreateDirectory(_defaultStorageDir.SubPath);
+            _defaultStorageDir.Create();
         }
 
         internal DirectoryHasher(IDirectory source, IDirectory storageDir, string searchPattern = "*", bool deep = false)

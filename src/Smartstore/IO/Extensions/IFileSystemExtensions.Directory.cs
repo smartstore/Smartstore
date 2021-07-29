@@ -173,27 +173,35 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Deletes a directory if it exists.
+        /// Deletes a directory recursively if it exists.
         /// </summary>
         /// <param name="subpath">The path of the directory to be deleted.</param>
         /// <returns><c>true</c> if the directory was deleted; <c>false</c> if the directory did not exist.</returns>
         public static bool TryDeleteDirectory(this IFileSystem fs, string subpath)
+            => TryDeleteDirectory(fs, fs.GetDirectory(subpath));
+
+        /// <summary>
+        /// Deletes a directory recursively if it exists.
+        /// </summary>
+        /// <param name="directory">The directory to delete.</param>
+        /// <returns><c>true</c> if the directory was deleted; <c>false</c> if the directory did not exist.</returns>
+        public static bool TryDeleteDirectory(this IFileSystem fs, IDirectory directory)
         {
             Guard.NotNull(fs, nameof(fs));
+            Guard.NotNull(directory, nameof(directory));
 
-            var dir = fs.GetDirectory(subpath);
-            if (!dir.Exists)
+            if (!directory.Exists)
             {
                 return false;
             }
 
             try
             {
-                dir.Delete();
+                directory.Delete();
 
                 // Wait for deletion to complete
                 var attempts = 0;
-                while (dir.Exists)
+                while (directory.Exists)
                 {
                     attempts += 1;
                     if (attempts > 10) return true;
@@ -209,27 +217,35 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Deletes a directory if it exists.
+        /// Deletes a directory recursively if it exists.
         /// </summary>
         /// <param name="subpath">The path of the directory to be deleted.</param>
         /// <returns><c>true</c> if the directory was deleted; <c>false</c> if the directory did not exist.</returns>
         public static async Task<bool> TryDeleteDirectoryAsync(this IFileSystem fs, string subpath)
+            => await TryDeleteDirectoryAsync(fs, await fs.GetDirectoryAsync(subpath));
+
+        /// <summary>
+        /// Deletes a directory recursively if it exists.
+        /// </summary>
+        /// <param name="directory">The directory to delete.</param>
+        /// <returns><c>true</c> if the directory was deleted; <c>false</c> if the directory did not exist.</returns>
+        public static async Task<bool> TryDeleteDirectoryAsync(this IFileSystem fs, IDirectory directory)
         {
             Guard.NotNull(fs, nameof(fs));
+            Guard.NotNull(directory, nameof(directory));
 
-            var dir = await fs.GetDirectoryAsync(subpath);
-            if (!dir.Exists)
+            if (!directory.Exists)
             {
                 return false;
             }
 
             try
             {
-                await dir.DeleteAsync();
+                await directory.DeleteAsync();
 
                 // Wait for deletion to complete
                 var attempts = 0;
-                while (dir.Exists)
+                while (directory.Exists)
                 {
                     attempts += 1;
                     if (attempts > 10) return true;
@@ -289,7 +305,6 @@ namespace Smartstore
                         {
                             ClearDirectory(fs, subDir, true, olderThan, ignoreFiles);
                         }
-
                     }
 
                     break;
@@ -335,7 +350,9 @@ namespace Smartstore
             Guard.NotNull(sourcePath, nameof(sourcePath));
             Guard.NotNull(destinationPath, nameof(destinationPath));
 
-            return CopyDirectory(fs, fs.GetDirectory(sourcePath), fs.GetDirectory(destinationPath), overwrite, ignorePatterns);
+            var destination = fs.GetDirectory(destinationPath);
+            CopyDirectory(fs, fs.GetDirectory(sourcePath), destination, overwrite, ignorePatterns);
+            return destination;
         }
 
         /// <summary>
@@ -347,7 +364,7 @@ namespace Smartstore
         /// <param name="overwrite">Whether to overwrite existing files</param>
         /// <returns>The destination directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if source directory does not exist.</exception>
-        public static IDirectory CopyDirectory(this IFileSystem fs, IDirectory source, IDirectory destination, bool overwrite = true, string[] ignorePatterns = null)
+        public static void CopyDirectory(this IFileSystem fs, IDirectory source, IDirectory destination, bool overwrite = true, string[] ignorePatterns = null)
         {
             Guard.NotNull(fs, nameof(fs));
             Guard.NotNull(source, nameof(source));
@@ -366,11 +383,9 @@ namespace Smartstore
             InternalCopyDirectory(
                 fs,
                 source,
-                destination.SubPath,
+                destination,
                 ignorePatterns?.Select(x => new Wildcard(x))?.ToArray() ?? Array.Empty<Wildcard>(),
                 overwrite);
-
-            return fs.GetDirectory(destination.SubPath);
         }
 
         /// <summary>
@@ -382,12 +397,14 @@ namespace Smartstore
         /// <param name="overwrite">Whether to overwrite existing files</param>
         /// <returns>The destination directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if source directory does not exist.</exception>
-        public static Task<IDirectory> CopyDirectoryAsync(this IFileSystem fs, string sourcePath, string destinationPath, bool overwrite = true, string[] ignorePatterns = null)
+        public static async Task<IDirectory> CopyDirectoryAsync(this IFileSystem fs, string sourcePath, string destinationPath, bool overwrite = true, string[] ignorePatterns = null)
         {
             Guard.NotEmpty(sourcePath, nameof(sourcePath));
             Guard.NotEmpty(destinationPath, nameof(destinationPath));
 
-            return CopyDirectoryAsync(fs, fs.GetDirectory(sourcePath), fs.GetDirectory(destinationPath), overwrite, ignorePatterns);
+            var destination = fs.GetDirectory(destinationPath);
+            await CopyDirectoryAsync(fs, fs.GetDirectory(sourcePath), destination, overwrite, ignorePatterns);
+            return destination;
         }
 
         /// <summary>
@@ -399,7 +416,7 @@ namespace Smartstore
         /// <param name="overwrite">Whether to overwrite existing files</param>
         /// <returns>The destination directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if source directory does not exist.</exception>
-        public static async Task<IDirectory> CopyDirectoryAsync(this IFileSystem fs, IDirectory source, IDirectory destination, bool overwrite = true, string[] ignorePatterns = null)
+        public static async Task CopyDirectoryAsync(this IFileSystem fs, IDirectory source, IDirectory destination, bool overwrite = true, string[] ignorePatterns = null)
         {
             Guard.NotNull(fs, nameof(fs));
             Guard.NotNull(source, nameof(source));
@@ -418,11 +435,9 @@ namespace Smartstore
             await InternalCopyDirectoryAsync(
                 fs,
                 source,
-                destination.SubPath,
+                destination,
                 ignorePatterns?.Select(x => new Wildcard(x))?.ToArray() ?? Array.Empty<Wildcard>(),
                 overwrite);
-
-            return fs.GetDirectory(destination.SubPath);
         }
 
         #endregion
@@ -618,11 +633,14 @@ namespace Smartstore
 
         private static void InternalCopyDirectory(IFileSystem fs,
             IDirectory source,
-            string destinationPath,
+            IDirectory destination,
             Wildcard[] ignores,
             bool overwrite)
         {
-            fs.TryCreateDirectory(destinationPath);
+            if (!destination.Exists)
+            {
+                destination.Create();
+            }
 
             foreach (var entry in fs.EnumerateEntries(source.SubPath))
             {
@@ -631,26 +649,29 @@ namespace Smartstore
                     continue;
                 }
 
-                var newPath = fs.PathCombine(destinationPath, entry.Name);
+                var newPath = fs.PathCombine(destination.SubPath, entry.Name);
 
                 if (entry is IDirectory dir)
                 {
-                    InternalCopyDirectory(fs, dir, newPath, ignores, overwrite);
+                    InternalCopyDirectory(fs, dir, fs.GetDirectory(newPath), ignores, overwrite);
                 }
-                else
+                else if (entry is IFile file)
                 {
-                    fs.CopyFile(entry.SubPath, newPath, overwrite);
+                    file.CopyTo(newPath, overwrite);
                 }
             }
         }
 
         private static async Task InternalCopyDirectoryAsync(IFileSystem fs,
             IDirectory source,
-            string destinationPath,
+            IDirectory destination,
             Wildcard[] ignores,
             bool overwrite)
         {
-            await fs.TryCreateDirectoryAsync(destinationPath);
+            if (!destination.Exists)
+            {
+                await destination.CreateAsync();
+            }
 
             await foreach (var entry in fs.EnumerateEntriesAsync(source.SubPath))
             {
@@ -659,15 +680,15 @@ namespace Smartstore
                     continue;
                 }
 
-                var newPath = fs.PathCombine(destinationPath, entry.Name);
+                var newPath = fs.PathCombine(destination.SubPath, entry.Name);
 
                 if (entry is IDirectory dir)
                 {
-                    await InternalCopyDirectoryAsync(fs, dir, newPath, ignores, overwrite);
+                    await InternalCopyDirectoryAsync(fs, dir, await fs.GetDirectoryAsync(newPath), ignores, overwrite);
                 }
-                else
+                else if (entry is IFile file)
                 {
-                    await fs.CopyFileAsync(entry.SubPath, newPath, overwrite);
+                    await file.CopyToAsync(newPath, overwrite);
                 }
             }
         }

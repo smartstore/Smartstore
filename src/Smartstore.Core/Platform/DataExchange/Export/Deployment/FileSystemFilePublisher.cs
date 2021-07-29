@@ -25,7 +25,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             var source = _appContext.ContentRoot.AttachEntry(context.ExportDirectory);
             var webRootDir = await _appContext.WebRoot.GetDirectoryAsync(null);
             var newPath = deploymentDir.FileSystem.PathCombine(webRootDir.Name, deploymentDir.SubPath);
-
+            
             await source.FileSystem.CopyDirectoryAsync(source.SubPath, newPath);
 
             context.Log.Info($"Export data files are copied to {newPath}.");

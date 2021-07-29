@@ -1299,9 +1299,9 @@ namespace Smartstore.Core.DataExchange.Export
                 context.DataStream?.Dispose();
                 context.DataStream = null;
 
-                if (context.Abort == DataExchangeAbortion.Hard && ctx.IsFileBasedExport)
+                if (context.Abort == DataExchangeAbortion.Hard && ctx.IsFileBasedExport && file.Exists)
                 {
-                    await dir.FileSystem.TryDeleteFileAsync(file.SubPath);
+                    await file.DeleteAsync();
                 }
 
                 if (method == "Execute")
@@ -1325,9 +1325,9 @@ namespace Smartstore.Core.DataExchange.Export
 
                         if (context.Abort == DataExchangeAbortion.Hard)
                         {
-                            if (ctx.IsFileBasedExport)
+                            if (ctx.IsFileBasedExport && unitFile.Exists)
                             {
-                                await dir.FileSystem.TryDeleteFileAsync(unitFile.SubPath);
+                                await unitFile.DeleteAsync();
                             }
                         }
                         else

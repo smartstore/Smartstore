@@ -27,12 +27,14 @@ namespace Smartstore.IO
         bool IsSymbolicLink(out string finalPhysicalPath);
 
         /// <summary>
-        /// Deletes the file entry if it exists. Directories will be deleted recursively.
+        /// Deletes the file entry. Directories will be deleted recursively.
+        /// An exception will be raised if the entry does not exists.
         /// </summary>
         void Delete() => throw new NotSupportedException();
 
         /// <summary>
         /// Deletes the file entry if it exists. Directories will be deleted recursively.
+        /// An exception will be raised if the entry does not exists.
         /// </summary>
         Task DeleteAsync()
         {
