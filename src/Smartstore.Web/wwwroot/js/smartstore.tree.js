@@ -235,15 +235,18 @@
     }
 
     function expandClickHandler(root, node, opt) {
-        if (node.find('ul').length) {
-            // Child list already loaded.
-            expandNode(node, node.hasClass('tree-collapsed'), opt, true);
+        var expand = node.hasClass('tree-collapsed');
+
+        // Return if child list already loaded or it is about to collapse.
+        if (node.find('ul').length || !expand) {
+            expandNode(node, expand, opt, true);
             return;
         }
 
-        var parentId = node.data('id');
-
-        console.log('load child list for category ID ' + parentId);
+        loadData(root, node, function (data) {
+            //...
+            expandNode(node, expand, opt, true);
+        });
     }
 
     function expandAll(context) {
@@ -323,27 +326,40 @@
     function loadData(root, node, callback) {
         var url = root.data('url');
         if (!url) {
+            // We assume that all data already loaded.
             return false;
         }
 
         var parentId = parseInt(node?.data('id')) || 0;
+        var expander = node?.find('.tree-expander');
 
         $.ajax({
             type: 'GET',
             url: url,
-            global: parentId == 0 ? this._global : null,
+            global: node ? null : this._global,
             dataType: 'json',
             cache: false,
             timeout: 5000,
             data: { parentId: parentId },
+            beforeSend: function () {
+                if (expander) {
+                    expander.find('i').hide();
+                    expander.prepend(window.createCircularSpinner(12, true));
+                }
+            },
             success: function (data) {
                 var items = '';
                 data.nodes.forEach(x => items += '<li data-id="' + x.Id + '"></li>');
-                (node ?? root).html('<ul>' + items + '</ul>');
+
+                (node ?? root).append('<ul>' + items + '</ul>');
 
                 callback(data);
             },
             complete: function () {
+                if (expander) {
+                    expander.find('.spinner').remove();
+                    expander.find('i').show();
+                }
             }
         });
 
