@@ -245,12 +245,21 @@ namespace Smartstore.Admin.Controllers
             var nodes = children.Select(x =>
             {
                 var category = x.Value;
-                var childCount = x.HasChildren ? x.Children.Count : 0;
+                var childCount = 0;
 
-                // TODO: (mg) (core) Needs direct and deep children count.
+                if (_catalogSettings.ShowProductsFromSubcategories)
+                {
+                    childCount = x.Flatten(false).Count();
+                }
+                else if (x.HasChildren)
+                {
+                    childCount = x.Children.Count;
+                }
+
                 var nodeValue = new TreeItem
                 {
-                    DisplayName = childCount > 0 ? $"{category.Name} ({childCount})" : category.Name,
+                    Name = category.Name,
+                    ChildCount = childCount,
                     BadgeText = category.Alias,
                     Published = category.Published,
                     Url = Url.Action("Edit", "Category", new { id = x.Id })

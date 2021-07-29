@@ -6,12 +6,12 @@ namespace Smartstore.Web.Modelling
     /// Represents a generic treeview item.
     /// It can be used together with smartstore.tree.js to load tree nodes using AJAX.
     /// </summary>
-    public class TreeItem
+    public partial class TreeItem
     {
         /// <summary>
-        /// The display name of the node.
+        /// The name of the node.
         /// </summary>
-        public string DisplayName { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// The title of the node. It is used for the HTML title attribute.
@@ -32,6 +32,11 @@ namespace Smartstore.Web.Modelling
         public string BadgeStyle { get; set; }
 
         /// <summary>
+        /// Number of child elements. Is appended to <see cref="Name"/> if greater than zero.
+        /// </summary>
+        public int ChildCount { get; set; }
+
+        /// <summary>
         /// A value indicating whether the node is enabled.
         /// </summary>
         public bool Enabled { get; set; } = true;
@@ -47,6 +52,12 @@ namespace Smartstore.Web.Modelling
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
+
+        /// <summary>
+        /// HTML target attribute for <see cref="Url"/>.
+        /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string UrlTarget { get; set; }
 
         /// <summary>
         /// State ID of the node. Needs to be unique across the entire tree.

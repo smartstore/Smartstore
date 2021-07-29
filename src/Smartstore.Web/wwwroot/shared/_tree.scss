@@ -8,167 +8,147 @@ $default-state-color: $gray-400;
 // ------------------------------
 
 .tree {
-    // TODO: (mg) (core) Bad (inperformant) CSS design. Matching ".tree li" is much slower than ".tree-item". Use specific class names where applicable.
-    // TODO: (mg) (core) Don't nest specific class names. DONT: ".tree .tree-expander". DO: ".tree-expander".
     position: relative;
-
-    ul:first-child {
-        padding-left: 0;
-    }
-
-    ul {
-        position: relative;
-        list-style: none;
-        padding-left: 24px;
-    }
-
-    li {
-        padding: 3px 0;
-    }
-
-    label {
-        margin: 0;
-    }
-
-    .tree-expander-container {
-        display: inline-block;
-        min-width: 15px;
-    }
-
-    .tree-expander {
-        cursor: pointer;
-    }
-
-    .tree-unpublished {
-        opacity: .6;
-    }
-
-    .tree-icon {
-        margin: 0 2px;
-    }
-
-    .tree-vline {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 6px;
-        width: 0;
-        border-left: 1px solid $gray-300;
-        height: calc(100% - 12px);
-    }
-
-    .tree-hline li:before {
-        content: "";
-        position: absolute;
-        left: 6px;
-        width: 18px;
-        height: 0;
-        margin-top: 10px;
-        border-top: 1px solid $gray-300;
-    }
-
-    .tree-control {
-        cursor: pointer;
-
-        input[type=checkbox] {
-            position: absolute;
-            opacity: 0;
-            height: 0;
-            width: 0;
-            margin: 0;
-        }
-
-        .tree-state:hover:before {
-            box-shadow: 0 0 4px rgba($warning, .8);
-            transition: box-shadow 0.1s linear;
-        }
-    }
-
-    .tree-label {
-        position: relative;
-        user-select: none;
-    }
-
-    .tree-leaf {
-        &.left-align {
-            display: inline-block;
-            flex: 0 0 auto;
-            width: auto;
-            max-width: none;
-        }
-    }
-
-    .tree-noleaf > .tree-inner .tree-text {
-        font-weight: $font-weight-medium;
-    }
-    // State box default style.
-    .tree-state:before {
-        content: "";
-        float: left;
-        height: 18px;
-        width: 18px;
-        border-radius: 5px;
-        border: 2px solid $default-state-color;
-        background-color: #fff;
-        margin: 2px 6px 0 0;
-    }
-
-    .tree-state:after {
-        position: absolute;
-        display: block;
-    }
-    // State indicator 'on' and 'off'.
-    // TODO: (mg) (core) ".tree .on" is a vague and bad selector. Better: ".someclass.on", can be perfectly nested and is much more readable also.
-    .on:after,
-    .in-on:after {
-        content: "";
-        top: 5px;
-        left: 6px;
-        width: 6px;
-        height: 10px;
-        transform: rotate(45deg);
-        border: 2px solid $default-state-color;
-        border-width: 0 3px 3px 0;
-    }
-
-    .on:before,
-    .on:after,
-    .in-on:before,
-    .in-on:after {
-        border-color: $success;
-    }
-
-    .off:before,
-    .in-off:before {
-        border-color: $danger;
-    }
-
-    .in-on:before,
-    .in-on:after,
-    .in-off:before,
-    .in-off:after {
-        opacity: 0.3;
-    }
-    /*.off:after,
-    .in-off:after {
-        content: '\002D';
-        top: 10px;
-        left: 8px;
-        font: bold 20px helvetica, arial, sans-serif;
-        transform: translate(-50%,-50%) scaleX(1.9);
-    }
-
-    .off:before {
-        border-color: $danger;
-    }
-
-    .off:after {
-        color: $danger;
-    }
-
-    .in-off:after {
-        color: $default-state-color;
-    }*/
 }
 
+.tree-list {
+    position: relative;
+    list-style: none;
+    padding-left: 24px;
+}
+
+.tree-list:first-child {
+    padding-left: 0;
+}
+
+.tree-node {
+    padding: 2px 0;
+}
+
+.tree-label {
+    position: relative;
+    user-select: none;
+    margin: 0 2px;
+    vertical-align: middle;
+}
+
+.tree-label-active {
+    cursor: pointer;
+}
+
+.tree-expander-container {
+    display: inline-block;
+    min-width: 13px;
+    vertical-align: middle;
+}
+
+.tree-expander {
+    cursor: pointer;
+}
+
+.tree-unpublished {
+    opacity: .6;
+}
+
+.tree-icon {
+    margin: 0 2px;
+    vertical-align: middle;
+}
+
+.tree-leaf-left {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+}
+
+.tree-noleaf-text {
+    font-weight: $font-weight-medium;
+}
+
+.tree-vline {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 6px;
+    width: 0;
+    border-left: 1px solid $gray-300;
+    height: calc(100% - 12px);
+}
+
+.tree-hline .tree-item:before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    width: 14px;
+    height: 0;
+    margin-top: 10px;
+    border-top: 1px solid $gray-300;
+}
+
+
+// Tree state checkbox.
+.tree-state-checkbox {
+    position: absolute;
+    opacity: 0;
+    height: 0;
+    width: 0;
+    margin: 0;
+}
+
+.tree-state:before {
+    content: "";
+    float: left;
+    height: 18px;
+    width: 18px;
+    border-radius: 5px;
+    border: 2px solid $default-state-color;
+    background-color: #fff;
+    margin: 2px 6px 0 0;
+}
+
+.tree-state:after {
+    position: absolute;
+    display: block;
+}
+
+.tree-state-active {
+    cursor: pointer;
+}
+
+.tree-state-active:hover:before {
+    box-shadow: 0 0 4px rgba($warning, .8);
+    transition: box-shadow 0.1s linear;
+}
+
+.tree-state.on:after,
+.tree-state.in-on:after {
+    content: "";
+    top: 5px;
+    left: 6px;
+    width: 6px;
+    height: 10px;
+    transform: rotate(45deg);
+    border: 2px solid $default-state-color;
+    border-width: 0 3px 3px 0;
+}
+
+.tree-state.on:before,
+.tree-state.on:after,
+.tree-state.in-on:before,
+.tree-state.in-on:after {
+    border-color: $success;
+}
+
+.tree-state.off:before,
+.tree-state.in-off:before {
+    border-color: $danger;
+}
+
+.tree-state.in-on:before,
+.tree-state.in-on:after,
+.tree-state.in-off:before,
+.tree-state.in-off:after {
+    opacity: 0.3;
+}

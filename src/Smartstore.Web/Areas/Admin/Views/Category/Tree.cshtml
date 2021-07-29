@@ -46,14 +46,15 @@
     </div>
 </div>
 
-@*TODO: (mg) (core) add category tree somehow (including store filter and drag & drop)*@
-<div id="category-tree" class="tree" data-url="@Url.Action("CategoryTree")"></div>
+@*TODO: (mg) (core) remove margin-left later. MiniProfiler is in my way.*@
+<div id="category-tree" class="tree" data-url="@Url.Action("CategoryTree")" style="margin-left:100px"></div>
 
 <script sm-target-zone="scripts" data-origin="category-tree">
     $(function() {
         // Init category tree.
         $('#category-tree').tree('init', {
-            dragAndDrop: @canEdit.ToString().ToLower()
+            dragAndDrop: @canEdit.ToString().ToLower(),
+            defaultIconClass: 'far fa-fw fa-folder-open'
         });
 
         // Filter by store ID.

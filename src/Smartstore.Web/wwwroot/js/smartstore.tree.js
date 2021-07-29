@@ -10,16 +10,12 @@
 
             return this.each(function () {
                 var root = $(this);
-                var url = root.data('url');
 
                 root.data('tree-options', options);
 
-                if (url) {
-                    loadData(url, root, function (data) {
-                        initialize(root, options, data);
-                    });
-                }
-                else {
+                if (!loadData(root, null, function (data) {
+                    initialize(root, options, data);
+                })) {
                     initialize(root, options, null);
                 }
             });
@@ -41,11 +37,13 @@
     };
 
     $.tree.defaults = {
-        expanded: false,    // true: initially expand tree.
-        showLines: false,   // true: show helper lines.
-        readOnly: false,    // true: no state changes allowed (checkbox disabled).
-        nodeState: '',      // 'on-off': adds state checkboxes for 'on' (green), 'off' (red), 'inherit' (muted green\red).
-        dragAndDrop: false,
+        expanded: false,        // true: initially expand tree.
+        showLines: false,       // true: show helper lines.
+        readOnly: false,        // true: no state changes allowed (checkbox disabled).
+        nodeState: '',          // 'on-off': adds state checkboxes for 'on' (green), 'off' (red), 'inherit' (muted green\red).
+        dragAndDrop: false,     // true: drag & drop enabled.
+        defaultIconClass: null,
+        defaultIconUrl: null,
         expandedClass: 'fas fa-angle-down',
         collapsedClass: 'fas fa-angle-right',
         leafClass: 'tree-leaf',
@@ -77,7 +75,7 @@
 
         // Initially expand or collapse nodes.
         root.find('.tree-noleaf').each(function () {
-            expandNode($(this), opt.expanded, opt);
+            expandNode($(this), opt.expanded, opt, false);
         });
 
         // Helper lines.
@@ -95,26 +93,27 @@
                 var value = parseInt(node.data('state-value')) || 0;
                 var stateId = node.data('state-id');
                 var html = '';
-                var stateClass = '';
+                var stateClass = 'tree-state';
                 var stateTitle = '';
 
                 if (value === 2) {
-                    stateClass = 'on';
+                    stateClass += ' on';
                     stateTitle = opt.stateTitles[0];
                 }
                 else if (value === 1 || node.hasClass('root-node')) {
                     value = 1;
-                    stateClass = 'off';
+                    stateClass += ' off';
                     stateTitle = opt.stateTitles[1];
                 }
 
                 if (!opt.readOnly) {
+                    stateClass += ' tree-state-active';
                     label.attr('for', stateId);
 
-                    html += '<input type="checkbox" name="' + stateId + '" id="' + stateId + '" value="' + value + '"' + (value === 2 ? ' checked="checked"' : '') + ' />';
+                    html += '<input class="tree-state-checkbox" type="checkbox" name="' + stateId + '" id="' + stateId + '" value="' + value + '"' + (value === 2 ? ' checked="checked"' : '') + ' />';
                     html += '<input type="hidden" name="' + stateId + '" value="' + (value === 0 ? 0 : 1) + '" />';
                 }
-                html += '<span class="tree-state ' + stateClass + '" title="' + stateTitle + '"></span>';
+                html += '<span class="' + stateClass + '" title="' + stateTitle + '"></span>';
 
                 label.prepend(html);
             });
@@ -132,8 +131,7 @@
 
         // Expander click handler.
         root.on('click', '.tree-expander', function () {
-            var node = $(this).closest('.tree-node');
-            expandNode(node, node.hasClass('tree-collapsed'), opt);
+            expandClickHandler(root, $(this).closest('.tree-node'), opt);
         });
 
         // State click handler.
@@ -178,23 +176,44 @@
     }
 
     function addNodeHtml(root, opt, data) {
-        var labelClass = opt.readOnly ? '' : ' tree-control';
-
         root.find('li').each(function () {
             var li = $(this);
-            var isLeaf = !li.has('ul').length;
+            var childList = li.find('ul');
+            // Child already loaded and contains elements.
+            var isLeaf = childList.length && childList.find('li').length == 0;
             var expanderClass = isLeaf ? '' : ' tree-expander';
             var nodeData = data?.nodes?.find(x => x.Id == li.data('id'))?.Value;
-            var nodeHtml = nodeData?.DisplayName || li.data('display-name');
+            var name = nodeData?.Name || li.data('name');
+            var childCount = parseInt(nodeData ? nodeData.ChildCount : li.data('child-count')) || 0;
+            var nodeUrl = nodeData?.Url || li.data('url');
             var badgeText = nodeData?.BadgeText || li.data('badge-text');
-            var iconClass = nodeData?.IconClass || li.data('icon-class');
-            var iconUrl = nodeData?.IconUrl || li.data('icon-url');
+            var iconClass = nodeData?.IconClass || li.data('icon-class') || opt.defaultIconClass;
+            var iconUrl = nodeData?.IconUrl || li.data('icon-url') || opt.defaultIconUrl;
             var published = nodeData ? nodeData.Published : toBool(li.data('published'), true);
             var innerClass = published ? '' : ' tree-unpublished';
+            var textClass = isLeaf ? 'tree-leaf-text' : 'tree-noleaf-text';
+            var labelClass = !nodeUrl && !opt.readOnly && opt.nodeState === 'on-off' ? ' tree-label-active' : '';
+            var labelHtml = '';
+
+            if (nodeUrl) {
+                var urlTarget = nodeData?.UrlTarget || li.data('url-target');
+                labelHtml = '<a href="' + nodeUrl + '"';
+                if (urlTarget) {
+                    labelHtml += ' target="' + urlTarget + '"';
+                }
+                labelHtml += '>' + name + '</a>';
+            }
+            else {
+                labelHtml = name;
+            }
+
+            if (childCount > 0) {
+                labelHtml += ' (' + childCount + ')';
+            }
 
             if (badgeText) {
                 var badgeStyle = nodeData?.BadgeStyle || li.data('badge-style') || 'badge-secondary';
-                nodeHtml += ' <span class="badge ' + badgeStyle + '">' + badgeText + '</span>';
+                labelHtml += ' <span class="badge ' + badgeStyle + '">' + badgeText + '</span>';
             }
 
             var html = '<span class="tree-expander-container' + expanderClass + '"></span>';
@@ -206,11 +225,25 @@
                 html += '<span class="tree-icon"><img src="' + iconUrl + '" /></span>';
             }
 
-            html += '<label class="tree-label' + labelClass + '"><span class="tree-text">' + nodeHtml + '</span></label>';
+            html += '<label class="tree-label' + labelClass + '"><span class="' + textClass + '">' + labelHtml + '</span></label>';
 
             li.addClass('tree-node ' + (isLeaf ? opt.leafClass : 'tree-noleaf'))
                 .prepend('<div class="tree-inner' + innerClass + '">' + html + '</div>');
+
+            li.closest('ul').addClass('tree-list');
         });
+    }
+
+    function expandClickHandler(root, node, opt) {
+        if (node.find('ul').length) {
+            // Child list already loaded.
+            expandNode(node, node.hasClass('tree-collapsed'), opt, true);
+            return;
+        }
+
+        var parentId = node.data('id');
+
+        console.log('load child list for category ID ' + parentId);
     }
 
     function expandAll(context) {
@@ -219,19 +252,31 @@
         var expand = !(opt.expanded || false);
 
         self.find('.tree-noleaf').each(function () {
-            expandNode($(this), expand, opt);
+            expandNode($(this), expand, opt, false);
         });
 
         opt.expanded = expand;
     }
 
-    function expandNode(node, expand, opt) {
+    function expandNode(node, expand, opt, slide) {
         if (expand) {
-            node.children('ul').show();
             node.removeClass('tree-collapsed').addClass('tree-expanded');
+
+            if (slide) {
+                node.children('ul').slideDown(300);
+            }
+            else {
+                node.children('ul').show();
+            }
         }
-        else {
-            node.children('ul').hide();
+        else {           
+            if (slide) {
+                node.children('ul').slideUp(300);
+            }
+            else {
+                node.children('ul').hide();
+            }
+
             node.removeClass('tree-expanded').addClass('tree-collapsed');
         }
         node.find('.tree-inner:first .tree-expander').html('<i class="' + (expand ? opt.expandedClass : opt.collapsedClass) + '"></i>');
@@ -275,8 +320,13 @@
         return result;
     }
 
-    function loadData(url, node, callback) {
-        var parentId = 0;
+    function loadData(root, node, callback) {
+        var url = root.data('url');
+        if (!url) {
+            return false;
+        }
+
+        var parentId = parseInt(node?.data('id')) || 0;
 
         $.ajax({
             type: 'GET',
@@ -289,10 +339,15 @@
             success: function (data) {
                 var items = '';
                 data.nodes.forEach(x => items += '<li data-id="' + x.Id + '"></li>');
-                node.html('<ul>' + items + '</ul>');
+                (node ?? root).html('<ul>' + items + '</ul>');
+
                 callback(data);
+            },
+            complete: function () {
             }
         });
+
+        return true;
     }
 
 })(jQuery, this, document);
