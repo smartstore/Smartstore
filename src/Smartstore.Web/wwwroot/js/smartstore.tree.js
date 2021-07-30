@@ -42,9 +42,10 @@
         readOnly: false,        // true: no state changes allowed (checkbox disabled).
         nodeState: '',          // 'on-off': adds state checkboxes for 'on' (green), 'off' (red), 'inherit' (muted green\red).
         dragAndDrop: false,     // true: drag & drop enabled.
+        showNumChildren: true,
+        showNumChildrenDeep: false,
         defaultIconClass: null,
         defaultIconUrl: null,
-        // TODO: (mg) (core) Expander needs larger clickable area. See MediaManager expanders.
         expandedClass: 'fas fa-chevron-down',
         collapsedClass: 'fas fa-chevron-right',
         leafClass: 'tree-leaf',
@@ -78,13 +79,6 @@
         root.find('.tree-noleaf').each(function () {
             expandNode($(this), opt.expanded, opt, false);
         });
-
-        // Helper lines.
-        if (opt.showLines) {
-            root.find('ul:first').find('ul')
-                .addClass('tree-hline')
-                .prepend('<span class="tree-vline"></span>');
-        }
 
         // Add state checkbox HTML.
         if (opt.nodeState === 'on-off') {
@@ -132,7 +126,17 @@
 
         // Expander click handler.
         root.on('click', '.tree-expander', function () {
-            expandClickHandler(root, $(this).closest('.tree-node'), opt);
+            var node = $(this).closest('.tree-node');
+
+            if (node.find('ul').length) {
+                expandNode(node, node.hasClass('tree-collapsed'), opt, true);
+            }
+            else {
+                loadData(root, node, function (data) {
+                    addNodeHtml(node, opt, data);
+                    expandNode(node, true, opt, true);
+                });
+            }
         });
 
         // State click handler.
@@ -176,78 +180,92 @@
         });
     }
 
-    function addNodeHtml(root, opt, data) {
-        root.find('li').each(function () {
+    function addNodeHtml(context, opt, data) {
+        var isRoot = context.hasClass('tree');
+
+        context.find('li').each(function () {
             var li = $(this);
             var childList = li.find('ul');
-            // Child already loaded and contains elements.
-            var isLeaf = childList.length && childList.find('li').length == 0;
-            var expanderClass = isLeaf ? '' : ' tree-expander';
+            var dataLoaded = childList.length;
             var nodeData = data?.nodes?.find(x => x.Id == li.data('id'))?.Value;
+
+            var numChildren = dataLoaded
+                ? childList.find('li').length
+                : parseInt(nodeData?.NumChildren ?? '0');
+
+            var numChildrenDeep = parseInt(nodeData?.NumChildrenDeep ?? '0');
+
             var name = nodeData?.Name || li.data('name');
-            var childCount = parseInt(nodeData ? nodeData.ChildCount : li.data('child-count')) || 0;
+            var title = nodeData?.Title ? window.htmlEncode(nodeData.Title) : li.data('title');
             var nodeUrl = nodeData?.Url || li.data('url');
             var badgeText = nodeData?.BadgeText || li.data('badge-text');
             var iconClass = nodeData?.IconClass || li.data('icon-class') || opt.defaultIconClass;
             var iconUrl = nodeData?.IconUrl || li.data('icon-url') || opt.defaultIconUrl;
             var published = nodeData ? nodeData.Published : toBool(li.data('published'), true);
             var innerClass = published ? '' : ' tree-unpublished';
-            var textClass = isLeaf ? 'tree-leaf-text' : 'tree-noleaf-text';
+            var textClass = numChildren == 0 ? 'tree-leaf-text' : 'tree-noleaf-text';
             var labelClass = !nodeUrl && !opt.readOnly && opt.nodeState === 'on-off' ? ' tree-label-active' : '';
             var labelHtml = '';
+            var html = '';
 
             if (nodeUrl) {
-                var urlTarget = nodeData?.UrlTarget || li.data('url-target');
+                var target = nodeData?.UrlTarget || li.data('url-target');
+                // Why does string.format() sometimes not work with URLs?
                 labelHtml = '<a href="' + nodeUrl + '"';
-                if (urlTarget) {
-                    labelHtml += ' target="' + urlTarget + '"';
+                if (target) {
+                    labelHtml += ' target="' + target + '"';
+                }
+                if (title) {
+                    labelHtml += ' title="' + title + '"';
                 }
                 labelHtml += '>' + name + '</a>';
+            }
+            else if (title) {
+                labelHtml = '<span title="{0}">{1}</span>'.format(title, name);
             }
             else {
                 labelHtml = name;
             }
 
-            if (childCount > 0) {
-                labelHtml += ' (' + childCount + ')';
+            if (numChildren > 0 && opt.showNumChildren) {
+                labelHtml += ' ({0})'.format(numChildren);
+            }
+            else if (numChildrenDeep > 0 && opt.showNumChildrenDeep) {
+                labelHtml += ' ({0})'.format(numChildrenDeep);
             }
 
             if (badgeText) {
                 var badgeStyle = nodeData?.BadgeStyle || li.data('badge-style') || 'badge-secondary';
-                labelHtml += ' <span class="badge ' + badgeStyle + '">' + badgeText + '</span>';
+                labelHtml += ' <span class="badge {0}">{1}</span>'.format(badgeStyle, badgeText);
             }
 
-            var html = '<span class="tree-expander-container' + expanderClass + '"></span>';
+            if (numChildren > 0) {
+                html += '<span class="tree-expander-container tree-expander"><i class="{0}"></i></span>'.format(opt.collapsedClass);
+            }
+            else {
+                html += '<span class="tree-expander-container"></span>';
+            }
 
             if (iconClass) {
-                html += '<span class="tree-icon"><i class="' + iconClass + '"></i></span>';
+                html += '<span class="tree-icon"><i class="{0}"></i></span>'.format(iconClass);
             }
             else if (iconUrl) {
-                html += '<span class="tree-icon"><img src="' + iconUrl + '" /></span>';
+                html += '<span class="tree-icon"><img src="{0}" /></span>'.format(iconUrl);
             }
 
-            html += '<label class="tree-label' + labelClass + '"><span class="' + textClass + '">' + labelHtml + '</span></label>';
+            html += '<label class="tree-label{0}"><span class="{1}">{2}</span></label>'.format(labelClass, textClass, labelHtml);
 
-            li.addClass('tree-node ' + (isLeaf ? opt.leafClass : 'tree-noleaf'))
-                .prepend('<div class="tree-inner' + innerClass + '">' + html + '</div>');
+            li.addClass('tree-node ' + (numChildren == 0 ? opt.leafClass : 'tree-noleaf'))
+                .prepend('<div class="tree-inner{0}">{1}</div>'.format(innerClass, html));
 
             li.closest('ul').addClass('tree-list');
         });
-    }
 
-    function expandClickHandler(root, node, opt) {
-        var expand = node.hasClass('tree-collapsed');
-
-        // Return if child list already loaded or it is about to collapse.
-        if (node.find('ul').length || !expand) {
-            expandNode(node, expand, opt, true);
-            return;
+        if (opt.showLines) {
+            context.find(isRoot ? 'ul:first ul' : 'ul')
+                .addClass('tree-hline')
+                .prepend('<span class="tree-vline"></span>');
         }
-
-        loadData(root, node, function (data) {
-            //...
-            expandNode(node, expand, opt, true);
-        });
     }
 
     function expandAll(context) {
@@ -283,6 +301,7 @@
 
             node.removeClass('tree-expanded').addClass('tree-collapsed');
         }
+
         node.find('.tree-inner:first .tree-expander').html('<i class="' + (expand ? opt.expandedClass : opt.collapsedClass) + '"></i>');
     }
 

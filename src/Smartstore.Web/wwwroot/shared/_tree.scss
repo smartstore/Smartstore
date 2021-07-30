@@ -38,8 +38,10 @@ $default-state-color: $gray-400;
 
 .tree-expander-container {
     display: inline-block;
-    min-width: 13px;
+    min-width: 25px;
+    width: 25px;
     vertical-align: middle;
+    text-align: center;
 }
 
 .tree-expander {
@@ -72,19 +74,19 @@ $default-state-color: $gray-400;
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 6px;
+    left: 12px;
     width: 0;
     border-left: 1px solid $gray-300;
     height: calc(100% - 12px);
 }
 
-.tree-hline .tree-item:before {
+.tree-hline .tree-node:before {
     content: "";
     position: absolute;
-    left: 6px;
+    left: 12px;
     width: 14px;
     height: 0;
-    margin-top: 10px;
+    margin-top: 13px;
     border-top: 1px solid $gray-300;
 }
 

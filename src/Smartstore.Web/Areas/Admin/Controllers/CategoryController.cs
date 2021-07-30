@@ -245,15 +245,12 @@ namespace Smartstore.Admin.Controllers
             var nodes = children.Select(x =>
             {
                 var category = x.Value;
-                var childCount = x.Children.Count;
-
-                // TODO: (mg) (core) Rename ChildCount --> NumChildren
-                // TODO: (mg) (core) NumChildrenDeep (= x.Flatten(false).Count())
 
                 var nodeValue = new TreeItem
                 {
                     Name = category.Name,
-                    ChildCount = childCount,
+                    NumChildren = x.Children.Count,
+                    NumChildrenDeep = x.Flatten(false).Count(),
                     BadgeText = category.Alias,
                     Published = category.Published,
                     Url = Url.Action("Edit", "Category", new { id = x.Id })

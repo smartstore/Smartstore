@@ -34,7 +34,12 @@ namespace Smartstore.Web.Modelling
         /// <summary>
         /// Number of child elements. Is appended to <see cref="Name"/> if greater than zero.
         /// </summary>
-        public int ChildCount { get; set; }
+        public int NumChildren { get; set; }
+
+        /// <summary>
+        /// Number of all child elements.
+        /// </summary>
+        public int NumChildrenDeep { get; set; }
 
         /// <summary>
         /// A value indicating whether the node is enabled.

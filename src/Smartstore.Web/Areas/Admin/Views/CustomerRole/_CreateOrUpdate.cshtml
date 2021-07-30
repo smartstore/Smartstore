@@ -161,6 +161,7 @@
         // Init permission tree.
         $('#permission-tree').tree('init', {
             nodeState: 'on-off',
+            showNumChildren: false,
             leafClass: 'tree-leaf tree-leaf-left',
             stateTitles: [@T("Common.Allow").JsValue, @T("Common.Deny").JsValue, @T("Admin.Permissions.AllowInherited").JsValue, @T("Admin.Permissions.DenyInherited").JsValue]
         });
