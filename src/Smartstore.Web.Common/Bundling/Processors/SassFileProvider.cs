@@ -27,11 +27,11 @@ namespace Smartstore.Web.Bundling.Processors
 
         public IFileInfo GetFileInfo(string subpath)
         {
-            if (subpath.StartsWith("themevars.scss"))
+            if (subpath.StartsWith(ThemeVarsFileInfo.FileName))
             {
                 var services = EngineContext.Current.Scope;
                 var repo = services.Resolve<ThemeVariableRepository>();
-                var bundleContext = _appContext.Services.Resolve<IBundleContextAccessor>().BundleContext;
+                var bundleContext = GetBundleContext();
 
                 if (bundleContext != null && bundleContext.DataTokens.TryGetValue("ThemeVars", out var obj) && obj is IDictionary<string, object> themeVars)
                 {
@@ -45,17 +45,23 @@ namespace Smartstore.Web.Bundling.Processors
                     return new ThemeVarsFileInfo(subpath, theme, storeId,repo);
                 }
             }
-            else if (subpath.StartsWith("moduleimports.scss"))
+            else if (subpath.StartsWith(ModuleImportsFileInfo.FileName))
             {
-                // TODO: Implement module importer for SassFileProvider
+                var isThemeable = GetBundleContext()?.CacheKey.Fragments?.ContainsKey("Theme") == true;
+                return new ModuleImportsFileInfo(!isThemeable);
             }
 
             return new NotFoundFileInfo(subpath);
+
+            BundleContext GetBundleContext()
+            {
+                return _appContext.Services.Resolve<IBundleContextAccessor>().BundleContext;
+            }
         }
 
         public IChangeToken Watch(string filter)
         {
-            if (filter.StartsWith("themevars.scss"))
+            if (filter.StartsWith(ThemeVarsFileInfo.FileName))
             {
                 var services = EngineContext.Current.Scope;
                 var theme = services.Resolve<IThemeContext>().CurrentTheme.Name;
@@ -64,12 +70,8 @@ namespace Smartstore.Web.Bundling.Processors
 
                 return new CancellationChangeToken(cts.Token);
             }
-            else if (filter.StartsWith("moduleimports.scss"))
-            {
-                // TODO: Implement module importer watcher in SassFileProvider
-            }
 
-            return null;
+            return NullChangeToken.Singleton;
         }
     }
 }

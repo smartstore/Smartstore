@@ -136,10 +136,10 @@
 @import "_print.scss";
 
 //
-// Custom imports from plugins
+// Custom imports from modules
 // --------------------------------------------------
 
-/*@import '/.app/moduleimports.scss';*/
+@import '/.app/moduleimports.scss';
 
 
 //

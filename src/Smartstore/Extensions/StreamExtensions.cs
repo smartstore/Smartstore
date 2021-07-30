@@ -10,6 +10,24 @@ namespace Smartstore
 {
     public static class StreamExtensions
     {
+        public static MemoryStream WriteString(this MemoryStream stream, string value, bool seekToBegin = true)
+        {
+            Guard.NotNull(stream, nameof(stream));
+            Guard.NotNull(value, nameof(value));
+
+            using var writer = new StreamWriter(stream, Encoding.Unicode, 1024, true);
+
+            writer.Write(value);
+            writer.Flush();
+
+            if (seekToBegin)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
+
+            return stream;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static StreamReader ToStreamReader(this Stream stream, bool leaveOpen)
         {

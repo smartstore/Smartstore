@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.IO;
@@ -12,6 +11,9 @@ namespace Smartstore.Web.Bundling.Processors
 {
     internal class ThemeVarsFileInfo : IFileInfo, IFileHashProvider
     {
+        public const string FileName = "themevars.scss";
+        public const string Path = "/.app/themevars.scss";
+
         private readonly string _theme;
         private readonly int _storeId;
         private readonly ThemeVariableRepository _repo;
@@ -22,7 +24,7 @@ namespace Smartstore.Web.Bundling.Processors
         private ThemeVarsFileInfo(string name)
         {
             Name = name;
-            PhysicalPath = name;
+            PhysicalPath = PathUtility.Combine("/.app/", name);
             LastModified = DateTimeOffset.UtcNow;
         }
 
@@ -47,7 +49,7 @@ namespace Smartstore.Web.Bundling.Processors
         }
 
         public ThemeVarsFileInfo(string content, ThemeVariableRepository repo)
-            : this("themevars.scss")
+            : this(FileName)
         {
             Guard.NotNull(content, nameof(content));
             Guard.NotNull(repo, nameof(repo));
@@ -70,7 +72,7 @@ namespace Smartstore.Web.Bundling.Processors
 
         public Stream CreateReadStream()
         {
-            return GenerateStreamFromString(GetContentAsync().Await());
+            return new MemoryStream().WriteString(GetContentAsync().Await());
         }
 
         public async Task<int> GetFileHashAsync()
@@ -98,19 +100,6 @@ namespace Smartstore.Web.Bundling.Processors
             }
 
             return _content;
-        }
-
-        private static Stream GenerateStreamFromString(string value)
-        {
-            var stream = new MemoryStream();
-
-            using (var writer = new StreamWriter(stream, Encoding.Unicode, 1024, true))
-            {
-                writer.Write(value);
-                writer.Flush();
-                stream.Seek(0, SeekOrigin.Begin);
-                return stream;
-            }
         }
     }
 }

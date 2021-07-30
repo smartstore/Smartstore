@@ -133,24 +133,33 @@ namespace Smartstore.Core.Theming
                     }
                 }
 
-                // Create file provider
-                if (baseDescriptor == null)
+                var fileProviders = new List<IFileProvider>();
+                var webRootFullPath = Path.Combine(descriptor.PhysicalPath, "wwwroot");
+                if (Directory.Exists(webRootFullPath))
                 {
-                    descriptor.WebFileProvider = new PhysicalFileProvider(Path.Combine(descriptor.PhysicalPath, "wwwroot"));
+                    fileProviders.Add(new PhysicalFileProvider(webRootFullPath));
+                }
+
+                while (baseDescriptor != null)
+                {
+                    webRootFullPath = Path.Combine(baseDescriptor.PhysicalPath, "wwwroot");
+                    if (Directory.Exists(webRootFullPath))
+                    {
+                        fileProviders.Add(new PhysicalFileProvider(webRootFullPath));
+                    }
+                    baseDescriptor = baseDescriptor.BaseTheme;
+                }
+
+                if (fileProviders.Count == 0)
+                {
+                    descriptor.WebFileProvider = new NullFileProvider();
+                }
+                else if (fileProviders.Count == 1)
+                {
+                    descriptor.WebFileProvider = fileProviders[0];
                 }
                 else
                 {
-                    var fileProviders = new List<IFileProvider>
-                    {
-                        new PhysicalFileProvider(Path.Combine(descriptor.PhysicalPath, "wwwroot"))
-                    };
-
-                    while (baseDescriptor != null)
-                    {
-                        fileProviders.Add(new PhysicalFileProvider(Path.Combine(baseDescriptor.PhysicalPath, "wwwroot")));
-                        baseDescriptor = baseDescriptor.BaseTheme;
-                    }
-
                     // Use CompositeFileProvider for theme inheritance
                     descriptor.WebFileProvider = new CompositeFileProvider(fileProviders);
 
