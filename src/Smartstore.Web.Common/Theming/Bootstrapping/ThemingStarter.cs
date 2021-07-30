@@ -10,19 +10,17 @@ namespace Smartstore.Web.Bootstrapping
 {
     internal sealed class ThemingStarter : StarterBase
     {
-        public override bool Matches(IApplicationContext appContext)
-        {
-            return appContext.IsInstalled;
-        }
-
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterModule(new ThemesModule());
 
-            builder.RegisterType<ThemeVariableRepository>().AsSelf().InstancePerLifetimeScope();
-            builder.RegisterType<DefaultThemeVariableService>().As<IThemeVariableService>().InstancePerLifetimeScope();
-            builder.RegisterType<DefaultThemeContext>().As<IThemeContext>().InstancePerLifetimeScope();
-            builder.RegisterType<RazorViewInvoker>().As<IRazorViewInvoker>().InstancePerLifetimeScope();
+            if (appContext.IsInstalled)
+            {
+                builder.RegisterType<ThemeVariableRepository>().AsSelf().InstancePerLifetimeScope();
+                builder.RegisterType<DefaultThemeVariableService>().As<IThemeVariableService>().InstancePerLifetimeScope();
+                builder.RegisterType<DefaultThemeContext>().As<IThemeContext>().InstancePerLifetimeScope();
+                builder.RegisterType<RazorViewInvoker>().As<IRazorViewInvoker>().InstancePerLifetimeScope();
+            }
         }
     }
 }
