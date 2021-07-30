@@ -2,7 +2,12 @@
 *  Project: Smartstore tree.
 *  Author: Marcus Gesing, SmartStore AG.
 */
-; (function ($, window, document, undefined) {
+(function ($, window, document, undefined) {
+
+    // TODO: (mg) (core) Slide animation is missing after initial node load.
+    // TODO: (mg) (core) Expanded node state needs custom icon (fa-folder --> fa-folder-open)
+    // TODO: (mg) (core) No underline for links please
+    // TODO: (mg) (core) For optimal dragdrop visual feedback style the hover effect how it was before (background for icon + label). For this you need to move the icon to a new parent element and put some padding around the content.
 
     var methods = {
         init: function (options) {
