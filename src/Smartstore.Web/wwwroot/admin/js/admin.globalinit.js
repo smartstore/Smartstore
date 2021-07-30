@@ -50,7 +50,11 @@
         // RangeSlider
         function (ctx) {
             ctx.find(".range-slider").rangeSlider();
-        }
+        },
+        //// Input spinner
+        //function (ctx) {
+        //    ctx.find("input[type=number]").inputSpinner();
+        //}
     ];
 
 	/* 

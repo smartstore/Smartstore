@@ -184,7 +184,9 @@
         padding-left: 5px;
         padding-right: 5px;
     }
+
     // Telerik
+    // TODO: (core) Remove later
     // -------
     .t-numerictextbox {
         &:after {
@@ -231,7 +233,7 @@
         }
     }
 
-    .numerictextbox-group .numerictextbox-postfix {
+    .numberinput-group .numberinput-postfix {
         left: $input-height;
         right: auto;
     }

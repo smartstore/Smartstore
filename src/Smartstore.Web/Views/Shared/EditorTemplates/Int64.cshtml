@@ -29,11 +29,11 @@
     {
         get
         {
-            var cls = "numerictextbox-group flex-grow-1";
+            var cls = "numberinput-group flex-grow-1";
 
             if (TryGetMetadata<string>("size", out var size))
             {
-                cls += " numerictextbox-group-" + size;
+                cls += " numberinput-group-" + size;
             }
 
             return cls;
@@ -71,6 +71,6 @@
 
     @if (TryGetMetadata<string>("postfix", out var postfix))
     {
-        <span class="numerictextbox-postfix">@postfix</span>
+        <span class="numberinput-postfix">@postfix</span>
     }
 </div>

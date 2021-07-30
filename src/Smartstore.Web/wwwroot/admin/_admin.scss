@@ -1611,11 +1611,11 @@ table.payment-method-features td {
 
 /* Numeric textbox postfix
 -------------------------------------------------------------- */
-.numerictextbox-group {
+.numberinput-group {
     display: block;
     position: relative;
 
-    > .numerictextbox-postfix {
+    > .numberinput-postfix {
         display: block;
         position: absolute;
         z-index: 2;
@@ -1630,8 +1630,8 @@ table.payment-method-features td {
     }
 }
 
-.numerictextbox-group-sm {
-    > .numerictextbox-postfix {
+.numberinput-group-sm {
+    > .numberinput-postfix {
         padding: $input-btn-padding-y-sm $input-btn-padding-x-sm;
         font-size: $font-size-sm; // Match sm inputs
         line-height: $input-btn-line-height-sm;

@@ -5,11 +5,11 @@
     {
         get
         {
-            var cls = "numerictextbox-group flex-grow-1";
+            var cls = "numberinput-group flex-grow-1";
 
             if (TryGetMetadata<string>("size", out var size))
             {
-                cls += " numerictextbox-group-" + size;
+                cls += " numberinput-group-" + size;
             }
 
             return cls;
@@ -37,6 +37,7 @@
         )*@
 
     <input asp-for="@Model"
+           type="number"
            attrs="attributes"
            class="form-control "
            placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
