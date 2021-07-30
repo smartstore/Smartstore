@@ -71,6 +71,42 @@ namespace Smartstore.Core.Data.Migrations
 
             #endregion
 
+            #region Packaging
+
+            builder.AddOrUpdate("Admin.Packaging.Dialog.PluginInfo",
+                "Choose a plugin package file (Smartstore.Module.*.zip) to upload to your server. The package will be automatically extracted and installed. If an older version of the plugin already exists, it will be backed up for you.",
+                "Wählen Sie die Plugin Paket-Datei (Smartstore.Module.*.zip), die Sie auf den Server hochladen möchten. Das Paket wird autom. extrahiert und installiert. Wenn eine ältere Version des Plugins bereits existiert, wird eine Sicherungskopie davon erstellt.");
+
+            builder.AddOrUpdate("Admin.Packaging.Dialog.ThemeInfo",
+                "Choose the theme package file (Smartstore.Theme.*.zip) to upload to your server. The package will be automatically extracted and installed. If an older version of the theme already exists, it will be backed up for you.",
+                "Wählen Sie die Theme Paket-Datei (Smartstore.Theme.*.zip), die Sie auf den Server hochladen möchten. Das Paket wird autom. extrahiert und installiert. Wenn eine ältere Version des Themes bereits existiert, wird eine Sicherungskopie davon erstellt.");
+
+            builder.AddOrUpdate("Admin.Packaging.InstallSuccess",
+                "Package '{0}' was uploaded and unzipped successfully. Please reload the list.",
+                "Paket '{0}' wurde hochgeladen und erfolgreich entpackt. Bitte laden Sie die Liste neu.");
+
+            builder.AddOrUpdate("Admin.Packaging.InstallSuccess.Theme",
+                "Theme '{0}' was uploaded and installed successfully. Please reload the list.",
+                "Theme '{0}' wurde hochgeladen und erfolgreich installiert. Bitte laden Sie die Liste neu.");
+
+            builder.AddOrUpdate("Admin.Packaging.NotAPackage",
+                "Package file is invalid. Please upload a 'Smartstore.*.zip' file.",
+                "Paket-Datei ist ungültig. Bitte laden Sie eine 'Smartstore.*.zip' Datei hoch.");
+
+            builder.AddOrUpdate("Admin.Packaging.StreamError",
+                "Unable to create ZIP archive from stream.",
+                "Stream kann nicht in ein ZIP-Archiv konvertiert werden.");
+
+            builder.AddOrUpdate("Admin.Packaging.NotATheme",
+                "Package does not contain a theme.",
+                "Paket beinhaltet kein Theme.");
+
+            builder.AddOrUpdate("Admin.Packaging.NotAModule",
+                "Package does not contain a plugin.",
+                "Paket beinhaltet kein Plugin.");
+
+            #endregion
+
             #region Identity
 
             builder.Delete("Account.EmailUsernameErrors.UsernameAlreadyExists");    // Isn't used

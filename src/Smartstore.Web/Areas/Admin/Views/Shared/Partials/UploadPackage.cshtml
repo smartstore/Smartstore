@@ -19,10 +19,11 @@
             <div class="dropzone-container">
                 <div class="fu-thumb"></div>
 
-                <file-uploader upload-url="@Url.Action("UploadPackage", "Packaging")"
+                <file-uploader upload-url="@Url.Action("UploadPackage", "Packaging", new { expectTheme = isTheme, returnUrl = Request.RawUrl() })"
                                file-uploader-name="packagefile"
                                type-filter=".zip"
                                has-template-preview="true"
+                               multi-file="false"
                                upload-text="@T("Admin.Packaging.Dialog.Upload")"
                                onuploadcompleted="packager_onUploadCompleted" />
             </div>

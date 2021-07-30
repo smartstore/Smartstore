@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -92,9 +90,21 @@ namespace Smartstore.Core.Packaging
             }
 
             // *** Extract archive to destination
+            var isTheme = package.Descriptor.IsTheme();
             try
             {
+                if (isTheme)
+                {
+                    // Avoid getting terrorized by IO events.
+                    _themeRegistry.StopMonitoring();
+                }
+
                 await ExtractArchive(archive);
+
+                if (isTheme)
+                {
+                    _themeRegistry.ReloadThemes();
+                }
             }
             catch (Exception ex)
             {
@@ -109,11 +119,24 @@ namespace Smartstore.Core.Packaging
                     await UninstallExtensionAsync(package.Descriptor);
                 }
 
-                Logger.Error("TODO", ex);
-                throw new SmartException("TODO", ex);
+                Logger.Error(ex);
+                throw;
+            }
+            finally
+            {
+                if (isTheme)
+                {
+                    // SOFT start IO events again.
+                    _themeRegistry.StartMonitoring(false);
+                }
             }
 
-            return package.Descriptor;
+            if (installedExtension == null && isTheme)
+            {
+                installedExtension = _themeRegistry.GetThemeDescriptor(package.Descriptor.Name);
+            }
+
+            return installedExtension ?? package.Descriptor;
         }
 
         public async Task UninstallExtensionAsync(IExtensionDescriptor extension)
