@@ -231,11 +231,17 @@
                 });
 
                 onPointerDown($decr[0], function () {
+                    if (document.activeElement !== $input[0]) {
+                        $input[0].focus();
+                    }
                     if (!$decr.prop("disabled")) {
                         stepHandling(-step);
                     }
                 })
                 onPointerDown($incr[0], function () {
+                    if (document.activeElement !== $input[0]) {
+                        $input[0].focus();
+                    }
                     if (!$incr.prop("disabled")) {
                         stepHandling(step);
                     }
