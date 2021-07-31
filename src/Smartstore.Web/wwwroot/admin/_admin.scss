@@ -1608,32 +1608,3 @@ table.payment-method-features td {
 // TODO: (mh) (core) Find proper place
 // Editor templates
 // --------------------------------------------------------------
-
-/* Numeric textbox postfix
--------------------------------------------------------------- */
-.numberinput-group {
-    display: block;
-    position: relative;
-
-    > .numberinput-postfix {
-        display: block;
-        position: absolute;
-        z-index: 2;
-        top: 0;
-        color: $gray-600;
-        right: $input-height;
-        padding: $input-btn-padding-y $input-btn-padding-x;
-        font-size: $font-size-base; // Match inputs
-        line-height: $input-btn-line-height;
-        cursor: default;
-        user-select: none;
-    }
-}
-
-.numberinput-group-sm {
-    > .numberinput-postfix {
-        padding: $input-btn-padding-y-sm $input-btn-padding-x-sm;
-        font-size: $font-size-sm; // Match sm inputs
-        line-height: $input-btn-line-height-sm;
-    }
-}

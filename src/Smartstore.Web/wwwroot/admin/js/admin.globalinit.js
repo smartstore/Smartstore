@@ -51,10 +51,10 @@
         function (ctx) {
             ctx.find(".range-slider").rangeSlider();
         },
-        //// Input spinner
-        //function (ctx) {
-        //    ctx.find("input[type=number]").inputSpinner();
-        //}
+        // Number input
+        function (ctx) {
+            ctx.find(".yo.numberinput-group").numberInput();
+        }
     ];
 
 	/* 

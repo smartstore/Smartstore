@@ -1,0 +1,153 @@
+/// <reference path="_variables-shared.scss" />
+/// <reference path="_mixins.scss" />
+/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+
+.numberinput-group {
+    overflow: hidden;
+    flex-wrap: nowrap;
+    --ni-height: #{$input-height-inner};
+    --ni-font-size: #{$font-size-base};
+    --ni-line-height: #{$input-line-height};
+    --ni-padding-x: #{$input-btn-padding-x};
+    --ni-padding-y: #{$input-btn-padding-y};
+    --ni-border-radius: #{$input-border-radius};
+    --ni-addon-width: var(--ni-height);
+
+    &.input-group-lg {
+        --ni-height: #{$input-height-inner-lg};
+        --ni-font-size: #{$font-size-lg};
+        --ni-line-height: #{$input-line-height-lg};
+        --ni-padding-x: #{$input-btn-padding-x-lg};
+        --ni-padding-y: #{$input-btn-padding-y-lg};
+        --ni-border-radius: #{$input-border-radius-lg};
+    }
+
+    &.input-group-sm {
+        --ni-height: #{$input-height-inner-sm};
+        --ni-font-size: #{$font-size-sm};
+        --ni-line-height: #{$input-line-height-sm};
+        --ni-padding-x: #{$input-btn-padding-x-sm};
+        --ni-padding-y: #{$input-btn-padding-y-sm};
+        --ni-border-radius: #{$input-border-radius-sm};
+    }
+
+    &:after {
+        // Mimic input group addon
+        position: absolute;
+        z-index: 10;
+        content: ' ';
+        display: block;
+        background: $input-group-addon-bg;
+        border: 0 solid $input-group-addon-border-color;
+        border-left-width: 1px;
+        top: 1px;
+        right: 1px;
+        bottom: 1px;
+        left: auto;
+        width: var(--ni-addon-width);
+        /*.t-grid-edit-row & {
+            width: 1.5rem;
+        }*/
+    }
+}
+
+.numberinput {
+    color: transparent;
+    &:focus,
+    &:active {
+        color: inherit;
+        .numberinput-formatted {
+            display: none;
+        }
+    }
+}
+
+.numberinput::placeholder {
+    font-style: italic;
+}
+
+.numberinput-formatted {
+    position: absolute;
+    z-index: 1;
+    display: inline-flex;
+    justify-content: center;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    left: 1px;
+    height: 100%;
+    align-items: center;
+    padding: 0 var(--ni-padding-x);
+    font-size: var(--ni-font-size);
+    line-height: var(--ni-line-height);
+
+    &:empty {
+        display: none;
+    }
+}
+
+.numberinput-postfix {
+    display: block;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    z-index: 10;
+    top: 1px;
+    bottom: 1px;
+    background-color: $input-bg;
+    color: $gray-600;
+    right: var(--ni-height);
+    padding-right: var(--ni-padding-x);
+    font-size: var(--ni-font-size);
+    line-height: var(--ni-line-height);
+    cursor: default;
+    user-select: none;
+}
+
+.numberinput-formatted,
+.numberinput-postfix {
+    pointer-events: none;
+}
+
+.numberinput-stepper {
+    position: absolute;
+    z-index: 15;
+    right: 1px;
+    width: calc(var(--ni-addon-width) - 1px);
+    height: calc(50% - 1px);
+    text-decoration: none !important;
+    color: inherit;
+    font-size: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &:focus-visible {
+        outline: 1px solid red;
+        outline-offset: 0;
+    }
+
+    .numberinput:disabled ~ & {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .numberinput:not(:disabled) ~ & {
+        &:hover {
+            background-color: rgba(#000, 0.05);
+        }
+
+        &:active {
+            background-color: rgba(#000, 0.08);
+        }
+    }
+
+
+    &.numberinput-up {
+        top: 1px;
+    }
+
+    &.numberinput-down {
+        bottom: 1px;
+    }
+}

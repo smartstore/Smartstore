@@ -38,6 +38,7 @@
 
     <input asp-for="@Model"
            type="number"
+           inputmode="decimal"
            attrs="attributes"
            class="form-control "
            placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
@@ -47,7 +48,7 @@
 
     @if (TryGetMetadata<string>("postfix", out var postfix))
     {
-        <span class="numerictextbox-postfix">@postfix</span>
+        <span class="numberinput-postfix">@postfix</span>
     }
 </div>
 
