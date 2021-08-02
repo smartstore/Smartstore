@@ -253,7 +253,7 @@ namespace Smartstore.Admin.Controllers
                     NumChildrenDeep = x.Flatten(false).Count(),
                     BadgeText = category.Alias,
                     Published = category.Published,
-                    Url = Url.Action("Edit", "Category", new { id = x.Id })
+                    Url = Url.Action("Edit", "Category", new { id = category.Id })
                 };
 
                 return new TreeNode<TreeItem>(nodeValue) { Id = category.Id };

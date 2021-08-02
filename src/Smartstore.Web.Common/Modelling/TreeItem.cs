@@ -53,6 +53,11 @@ namespace Smartstore.Web.Modelling
         public bool Published { get; set; } = true;
 
         /// <summary>
+        /// A value indicating whether the node is selected.
+        /// </summary>
+        public bool Selected { get; set; }
+
+        /// <summary>
         /// URL to open when clicking the node.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

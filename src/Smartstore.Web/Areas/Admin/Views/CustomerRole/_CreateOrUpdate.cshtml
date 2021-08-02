@@ -162,6 +162,7 @@
         $('#permission-tree').tree('init', {
             nodeState: 'on-off',
             showNumChildren: false,
+            highlightNodes: false,
             leafClass: 'tree-leaf tree-leaf-left',
             stateTitles: [@T("Common.Allow").JsValue, @T("Common.Deny").JsValue, @T("Admin.Permissions.AllowInherited").JsValue, @T("Admin.Permissions.DenyInherited").JsValue]
         });

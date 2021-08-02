@@ -47,14 +47,18 @@
 </div>
 
 @*TODO: (mg) (core) remove margin-left later. MiniProfiler is in my way.*@
-<div id="category-tree" class="tree" data-url="@Url.Action("CategoryTree")" style="margin-left:100px"></div>
+<div id="category-tree" class="tree" style="margin-left:100px"></div>
 
 <script sm-target-zone="scripts" data-origin="category-tree">
     $(function() {
         // Init category tree.
         $('#category-tree').tree('init', {
+            url: '@Url.Action("CategoryTree")',
             dragAndDrop: @canEdit.ToString().ToLower(),
-            defaultIconClass: 'fa fa-fw fa-folder text-success'
+            defaultCollapsedIconClass: 'fa fa-fw fa-folder text-success',
+            defaultExpandededIconClass: 'fa fa-fw fa-folder-open text-success',
+            //nodeState: 'selector',
+            //stateTitles: [@T("Common.NotSelectable").JsValue]
         });
 
         // Filter by store ID.

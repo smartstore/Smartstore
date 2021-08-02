@@ -4,10 +4,8 @@
 */
 (function ($, window, document, undefined) {
 
-    // TODO: (mg) (core) Slide animation is missing after initial node load.
-    // TODO: (mg) (core) Expanded node state needs custom icon (fa-folder --> fa-folder-open)
-    // TODO: (mg) (core) No underline for links please
-    // TODO: (mg) (core) For optimal dragdrop visual feedback style the hover effect how it was before (background for icon + label). For this you need to move the icon to a new parent element and put some padding around the content.
+    // TODO: (mg) (core) For optimal dragdrop visual feedback style the hover effect how it was before (background for icon + label). 
+    // For this you need to move the icon to a new parent element and put some padding around the content.
 
     var methods = {
         init: function (options) {
@@ -18,7 +16,7 @@
 
                 root.data('tree-options', options);
 
-                if (!loadData(root, null, function (data) {
+                if (!loadData(root, null, options, function (data) {
                     initialize(root, options, data);
                 })) {
                     initialize(root, options, null);
@@ -31,6 +29,26 @@
                 expandAll(this);
             });
         },
+
+        getSelectedItems: function (getStateId) {
+            var root = $(this);
+            var opt = root.data('tree-options');
+
+            if (opt.nodeState === 'selector') {
+                var ids = _.map(root.find('.tree-state-selector-checkbox:checked'), function (x) {
+                    return getStateId ? $(x).attr('name') : $(x).closest('li').data('id');
+                });
+
+                console.log(ids);
+                return ids;
+            }
+
+            return null;
+        },
+
+        setSelectedItems: function () {
+            // TODO: (mg) (core) setSelectedItems.
+        }
     };
 
     $.fn.tree = function (method) {
@@ -42,15 +60,20 @@
     };
 
     $.tree.defaults = {
+        url: null,              // URL to load tree items on demand.
         expanded: false,        // true: initially expand tree.
+        highlightNodes: true,   // true: highlight nodes on mouse hover.
         showLines: false,       // true: show helper lines.
         readOnly: false,        // true: no state changes allowed (checkbox disabled).
-        nodeState: '',          // 'on-off': adds state checkboxes for 'on' (green), 'off' (red), 'inherit' (muted green\red).
+        nodeState: null,        // 'selector': adds state checkboxes for item selection.
+                                // 'on-off': adds state checkboxes for 'on'(green), 'off'(red), 'inherit'(muted green\red).
         dragAndDrop: false,     // true: drag & drop enabled.
         showNumChildren: true,
         showNumChildrenDeep: false,
-        defaultIconClass: null,
-        defaultIconUrl: null,
+        defaultCollapsedIconClass: null,
+        defaultExpandededIconClass: null,
+        defaultCollapsedIconUrl: null,
+        defaultExpandededIconUrl: null,
         expandedClass: 'fas fa-chevron-down',
         collapsedClass: 'fas fa-chevron-right',
         leafClass: 'tree-leaf',
@@ -67,7 +90,7 @@
             return methods.init.apply(this, arguments);
         }
 
-        EventBroker.publish("message", { title: 'Tree method "' + method + '" does not exist', type: "error" });
+        EventBroker.publish('message', { title: 'Tree method "' + method + '" does not exist', type: 'error' });
         return null;
     }
 
@@ -85,48 +108,14 @@
             expandNode($(this), opt.expanded, opt, false);
         });
 
-        // Add state checkbox HTML.
-        if (opt.nodeState === 'on-off') {
-            root.find('.tree-label').each(function (i, el) {
-                var label = $(this);
-                var node = label.closest('.tree-node');
-                var value = parseInt(node.data('state-value')) || 0;
-                var stateId = node.data('state-id');
-                var html = '';
-                var stateClass = 'tree-state';
-                var stateTitle = '';
+        // Set inherited state.
+        if (opt.nodeState === 'on-off' && !opt.readOnly) {
+            // Set indeterminate property.
+            //root.find('input[type=checkbox][value=0]').prop('indeterminate', true);
 
-                if (value === 2) {
-                    stateClass += ' on';
-                    stateTitle = opt.stateTitles[0];
-                }
-                else if (value === 1 || node.hasClass('root-node')) {
-                    value = 1;
-                    stateClass += ' off';
-                    stateTitle = opt.stateTitles[1];
-                }
-
-                if (!opt.readOnly) {
-                    stateClass += ' tree-state-active';
-                    label.attr('for', stateId);
-
-                    html += '<input class="tree-state-checkbox" type="checkbox" name="' + stateId + '" id="' + stateId + '" value="' + value + '"' + (value === 2 ? ' checked="checked"' : '') + ' />';
-                    html += '<input type="hidden" name="' + stateId + '" value="' + (value === 0 ? 0 : 1) + '" />';
-                }
-                html += '<span class="' + stateClass + '" title="' + stateTitle + '"></span>';
-
-                label.prepend(html);
+            root.find('ul:first > .tree-node').each(function () {
+                setInheritedState($(this), 0, opt);
             });
-
-            if (!opt.readOnly) {
-                // Set indeterminate property.
-                //root.find('input[type=checkbox][value=0]').prop('indeterminate', true);
-
-                // Set inherited state.
-                root.find('ul:first > .tree-node').each(function () {
-                    setInheritedState($(this), 0, opt);
-                });
-            }
         }
 
         // Expander click handler.
@@ -137,11 +126,13 @@
                 expandNode(node, node.hasClass('tree-collapsed'), opt, true);
             }
             else {
-                loadData(root, node, function (data) {
+                loadData(root, node, opt, function (data) {
                     addNodeHtml(node, opt, data);
                     expandNode(node, true, opt, true);
                 });
             }
+
+            EventBroker.publishSync('tree.expanderclicked', { node });
         });
 
         // State click handler.
@@ -151,7 +142,7 @@
 
             if (opt.nodeState === 'on-off') {
                 var hIn = el.next();
-                var state = el.siblings('.tree-state:first');
+                var state = el.siblings('.tree-state-onoff:first');
                 var inheritedState = 0;
                 var val = parseInt(el.val());
 
@@ -182,6 +173,8 @@
                 // Update nodes with inherited state.
                 setInheritedState(node, inheritedState, opt);
             }
+
+            EventBroker.publishSync('tree.stateclicked', { node });
         });
     }
 
@@ -204,10 +197,10 @@
             var title = nodeData?.Title ? window.htmlEncode(nodeData.Title) : li.data('title');
             var nodeUrl = nodeData?.Url || li.data('url');
             var badgeText = nodeData?.BadgeText || li.data('badge-text');
-            var iconClass = nodeData?.IconClass || li.data('icon-class') || opt.defaultIconClass;
-            var iconUrl = nodeData?.IconUrl || li.data('icon-url') || opt.defaultIconUrl;
+            var iconClass = nodeData?.IconClass || li.data('icon-class') || opt.defaultCollapsedIconClass;
+            var iconUrl = nodeData?.IconUrl || li.data('icon-url') || opt.defaultCollapsedIconUrl;
             var published = nodeData ? nodeData.Published : toBool(li.data('published'), true);
-            var innerClass = published ? '' : ' tree-unpublished';
+            var innerClass = (published ? '' : ' tree-unpublished');
             var textClass = numChildren == 0 ? 'tree-leaf-text' : 'tree-noleaf-text';
             var labelClass = !nodeUrl && !opt.readOnly && opt.nodeState === 'on-off' ? ' tree-label-active' : '';
             var labelHtml = '';
@@ -215,53 +208,49 @@
 
             if (nodeUrl) {
                 var target = nodeData?.UrlTarget || li.data('url-target');
-                // Why does string.format() sometimes not work with URLs?
-                labelHtml = '<a href="' + nodeUrl + '"';
-                if (target) {
-                    labelHtml += ' target="' + target + '"';
-                }
-                if (title) {
-                    labelHtml += ' title="' + title + '"';
-                }
-                labelHtml += '>' + name + '</a>';
+                labelHtml = `<a class="tree-link" href="${nodeUrl}"${target ? ` target="${target}"` : ''}${title ? ` title="${title}"` : ''}>${name}</a>`;
             }
             else if (title) {
-                labelHtml = '<span title="{0}">{1}</span>'.format(title, name);
+                labelHtml = `<span title="${title}">${name}</span>`;
             }
             else {
                 labelHtml = name;
             }
 
             if (numChildren > 0 && opt.showNumChildren) {
-                labelHtml += ' ({0})'.format(numChildren);
+                labelHtml += ` (${numChildren})`;
             }
             else if (numChildrenDeep > 0 && opt.showNumChildrenDeep) {
-                labelHtml += ' ({0})'.format(numChildrenDeep);
+                labelHtml += ` (${numChildrenDeep})`;
             }
 
             if (badgeText) {
                 var badgeStyle = nodeData?.BadgeStyle || li.data('badge-style') || 'badge-secondary';
-                labelHtml += ' <span class="badge {0}">{1}</span>'.format(badgeStyle, badgeText);
+                labelHtml += ` <span class="badge ${badgeStyle}">${badgeText}</span>`;
             }
 
             if (numChildren > 0) {
-                html += '<span class="tree-expander-container tree-expander"><i class="{0}"></i></span>'.format(opt.collapsedClass);
+                html += `<span class="tree-expander-container tree-expander"><i class="${opt.collapsedClass}"></i></span>`;
             }
             else {
                 html += '<span class="tree-expander-container"></span>';
             }
 
+            html += `<span class="tree-node-content${opt.highlightNodes ? ' tree-highlight' : ''}">`;
+            html += `<label class="tree-label${labelClass}">`;
+
             if (iconClass) {
-                html += '<span class="tree-icon"><i class="{0}"></i></span>'.format(iconClass);
+                html += `<span class="tree-icon"><i class="${iconClass}"></i></span>`;
             }
             else if (iconUrl) {
-                html += '<span class="tree-icon"><img src="{0}" /></span>'.format(iconUrl);
+                html += `<span class="tree-icon"><img src="${iconUrl}" /></span>`;
             }
 
-            html += '<label class="tree-label{0}"><span class="{1}">{2}</span></label>'.format(labelClass, textClass, labelHtml);
+            html += `<span class="${textClass}">${labelHtml}</span>`;
+            html += '</label></span>';
 
-            li.addClass('tree-node ' + (numChildren == 0 ? opt.leafClass : 'tree-noleaf'))
-                .prepend('<div class="tree-inner{0}">{1}</div>'.format(innerClass, html));
+            li.addClass(`tree-node ${numChildren == 0 ? opt.leafClass : 'tree-noleaf'}`)
+                .prepend(`<div class="tree-inner${innerClass}">${html}</div>`);
 
             li.closest('ul').addClass('tree-list');
         });
@@ -271,6 +260,62 @@
                 .addClass('tree-hline')
                 .prepend('<span class="tree-vline"></span>');
         }
+
+        if (opt.nodeState) {
+            addStateCheckboxes(context, opt, data);
+        }
+    }
+
+    function addStateCheckboxes(context, opt, data) {
+        context.find('.tree-label').each(function () {
+            var label = $(this);
+
+            if (label.find('> input[type=checkbox]').length) {
+                return;
+            }
+
+            var node = label.closest('.tree-node');
+            var nodeId = node.data('id');
+            var nodeData = data?.nodes?.find(x => x.Id == nodeId)?.Value;
+            var stateId = nodeData?.StateId || node.data('state-id');
+            var value = nodeData?.StateValue || node.data('state-value');
+            var html = '';
+
+            if (opt.nodeState === 'on-off') {
+                value = parseInt(value) || 0;
+                var stateClass = 'tree-state-onoff';
+                var stateTitle = '';
+
+                if (value === 2) {
+                    stateClass += ' on';
+                    stateTitle = opt.stateTitles[0];
+                }
+                else if (value === 1 || node.hasClass('root-node')) {
+                    value = 1;
+                    stateClass += ' off';
+                    stateTitle = opt.stateTitles[1];
+                }
+
+                if (!opt.readOnly) {
+                    stateClass += ' tree-state-onoff-active';
+                    label.attr('for', stateId);
+
+                    html += `<input class="tree-state-onoff-checkbox" type="checkbox" name="${stateId}" id="${stateId}" value="${value}"${value === 2 ? ' checked="checked"' : ''} />`;
+                    html += `<input type="hidden" name="${stateId}" value="${value === 0 ? 0 : 1}" />`;
+                }
+                html += `<span class="${stateClass}" title="${stateTitle}"></span>`;
+            }
+            else if (opt.nodeState === 'selector') {
+                var enabled = nodeData ? nodeData.Enabled : toBool(node.data('enabled'), true);
+                var selected = nodeData ? nodeData.Selected : toBool(node.data('selected'), false);
+                var stateTitle = !enabled ? opt.stateTitles[0] : null;
+
+                html += `<input class="tree-state-selector-checkbox" type="checkbox"${selected ? ' checked="checked"' : ''}${enabled ? '' : ' disabled="disabled"'}`;
+                html += `${stateId ? ` name="${stateId}" id="${stateId}"` : ''}${value ? ` value="${value}"` : ''}${stateTitle ? ` title="${stateTitle}"` : ''} />`;
+            }
+
+            label.prepend(html);
+        });
     }
 
     function expandAll(context) {
@@ -286,28 +331,49 @@
     }
 
     function expandNode(node, expand, opt, slide) {
+        var childNodes = node.children('ul');
+        var nodeInner = node.find('.tree-inner:first');
+
+        // Expand or collapse.
         if (expand) {
             node.removeClass('tree-collapsed').addClass('tree-expanded');
 
             if (slide) {
-                node.children('ul').slideDown(300);
+                childNodes.hide().slideDown(300);
             }
             else {
-                node.children('ul').show();
+                childNodes.show();
             }
+
+            toggleIcons();
         }
         else {           
             if (slide) {
-                node.children('ul').slideUp(300);
+                childNodes.slideUp(300, function () {
+                    childNodes.hide();
+                    toggleIcons();
+                });
             }
             else {
-                node.children('ul').hide();
+                childNodes.hide();
+                toggleIcons();
             }
 
             node.removeClass('tree-expanded').addClass('tree-collapsed');
         }
 
-        node.find('.tree-inner:first .tree-expander').html('<i class="' + (expand ? opt.expandedClass : opt.collapsedClass) + '"></i>');
+        function toggleIcons() {
+            // Toggle node icon.
+            if (opt.defaultCollapsedIconClass && opt.defaultExpandededIconClass) {
+                nodeInner.find('.tree-icon i').attr('class', expand ? opt.defaultExpandededIconClass : opt.defaultCollapsedIconClass);
+            }
+            else if (opt.defaultCollapsedIconUrl && opt.defaultExpandededIconUrl) {
+                nodeInner.find('.tree-icon img').attr('src', expand ? opt.defaultExpandededIconUrl : opt.defaultCollapsedIconUrl);
+            }
+
+            // Toggle expander icon.
+            nodeInner.find('.tree-expander').html(`<i class="${expand ? opt.expandedClass : opt.collapsedClass}"></i>`);
+        }
     }
 
     function setInheritedState(node, inheritedState, opt) {
@@ -322,7 +388,7 @@
         }
         else {
             // Is not directly on.
-            node.find('.tree-state:first')
+            node.find('.tree-state-onoff:first')
                 .removeClass('in-on in-off on off')
                 .addClass(inheritedState === 2 ? 'in-on' : 'in-off')
                 .attr('title', opt.stateTitles[inheritedState === 2 ? 2 : 3]);
@@ -348,8 +414,8 @@
         return result;
     }
 
-    function loadData(root, node, callback) {
-        var url = root.data('url');
+    function loadData(root, node, opt, callback) {
+        var url = opt.url || root.data('url');
         if (!url) {
             // We assume that all data already loaded.
             return false;
@@ -371,14 +437,17 @@
                     expander.find('i').hide();
                     expander.prepend(window.createCircularSpinner(12, true));
                 }
+
+                EventBroker.publishSync('tree.dataloading', { node });
             },
             success: function (data) {
                 var items = '';
-                data.nodes.forEach(x => items += '<li data-id="' + x.Id + '"></li>');
+                data.nodes.forEach(x => items += `<li data-id="${x.Id}"></li>`);
 
-                (node ?? root).append('<ul>' + items + '</ul>');
+                (node ?? root).append(`<ul>${items}</ul>`);
 
                 callback(data);
+                EventBroker.publishSync('tree.dataloaded', { node });
             },
             complete: function () {
                 if (expander) {
