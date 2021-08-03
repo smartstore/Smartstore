@@ -16,7 +16,7 @@
             self.controls = $el.find(".link-control");
             self.templateValueField = $el.find("#" + $el.data("field-id"));
             self.queryStringCtrl = $el.find(".query-string");
-            self.typeContainer = $el.find(".type-container");
+            self.typeContainer = $el.find(".link-type-container");
 
             _.delay(function () {
 
@@ -139,8 +139,8 @@
             var cnt = $(this.element),
                 type = elem.data('type');
 
-            var btn = cnt.find('.btn-icon'),
-                icon = elem.find('i').attr('class').replace('fa-fw ', ''),
+            var btn = cnt.find('.btn-linktype'),
+                icon = elem.find('> i').attr('class').replace('fa-fw ', ''),
                 name = elem.find('span').text();
 
             btn.find('i').attr('class', icon);
@@ -161,7 +161,7 @@
 
                 // Prevent dropdown-menu from being displayed
                 self.typeContainer
-                    .find(".btn-icon")
+                    .find(".btn-linktype")
                     .removeClass("dropdown-toggle")
                     .removeAttr("data-toggle");
             }

@@ -226,3 +226,23 @@ fieldset.content-group {
 .required-text-input {
 	display: none;
 }
+
+
+//
+// Link Builder (maybe move to custom file later)
+// ------------------------------------------------------
+
+.link-control > .form-control,
+.link-control > .select2 {
+	border-radius: 0 !important;
+	border-color: $input-border-color !important;
+
+	.select2-selection {
+		border-radius: 0 !important;
+	}
+}
+
+.link-control > .form-control:focus {
+	outline: 1px solid $input-focus-border-color;
+	outline-offset: -2px;
+}

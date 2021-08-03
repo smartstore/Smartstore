@@ -1,5 +1,7 @@
 ﻿@using Smartstore.Utilities
 
+@* TODO: (mh) (core) Restructure CSS (or script) in a way that the last visible button always is rounded right. *@
+
 @functions
 {
     private string Value => ViewData.Model != null ? Convert.ToString(ViewData.Model) : null;
@@ -20,18 +22,20 @@
         : new LinkType[] { LinkType.Product, LinkType.Category, LinkType.Manufacturer, LinkType.Topic, LinkType.BlogPost, LinkType.NewsItem, LinkType.File, LinkType.Url };
 }
 
-<div id="link-builder-@rnd" class="link-builder edit-control" 
-     data-field-id="@id" 
+<div id="link-builder-@rnd" class="link-builder edit-control"
+     data-field-id="@id"
      data-editor="link"
      data-current-type="@(Value != null ? link.Type.ToString().ToLower() : string.Empty)"
      attr-data-product-picker-callback='(allowedTypes.Contains(LinkType.Product), "lbPickerSelectionCompleted" + rnd.ToString())'>
+
+    @* Template control that receives the link expression. *@
+    <input asp-for="@Model" type="hidden" value="@Value" />
+
     <div class="d-flex flex-nowrap input-group">
-        @* Template control that receives the link expression. *@
-        <input asp-for="@Model" type="hidden" value="@Value" />
 
         @* 1. prepend type selector. *@
-        <div class="input-group-prepend type-container">
-            <button type="button" class="btn btn-secondary btn-icon dropdown-toggle" data-toggle="dropdown" title="">
+        <div class="input-group-prepend link-type-container">
+            <button type="button" class="btn btn-light btn-linktype btn-icon dropdown-toggle" data-toggle="dropdown" title="">
                 <i class="fa fa-link"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-@(rtl ? "right" : "left")">
@@ -82,19 +86,19 @@
                 }
                 @*TODO: (mh) (core) Must be provided & injected by forum and news modules*@
                 @*else if (type == LinkType.BlogPost)
-                {
-                    <select class="form-control transferable resettable"
-                            data-select-url="@Url.Action("AllBlogPosts", "Blog", new { area = "admin" })"
-                            data-select-selected-id="@value"
-                            data-select-init-text="@label"></select>
-                }
-                else if (type == LinkType.NewsItem)
-                {
-                    <select class="form-control transferable resettable"
-                            data-select-url="@Url.Action("AllNews", "News", new { area = "admin" })"
-                            data-select-selected-id="@value"
-                            data-select-init-text="@label"></select>
-                }*@
+                    {
+                        <select class="form-control transferable resettable"
+                                data-select-url="@Url.Action("AllBlogPosts", "Blog", new { area = "admin" })"
+                                data-select-selected-id="@value"
+                                data-select-init-text="@label"></select>
+                    }
+                    else if (type == LinkType.NewsItem)
+                    {
+                        <select class="form-control transferable resettable"
+                                data-select-url="@Url.Action("AllNews", "News", new { area = "admin" })"
+                                data-select-selected-id="@value"
+                                data-select-init-text="@label"></select>
+                    }*@
                 else if (type == LinkType.Url)
                 {
                     <input type="text" class="form-control transferable resettable" value="@value" />
@@ -110,8 +114,8 @@
         @if (allowedTypes.Contains(LinkType.Product))
         {
             <div class="input-group-append link-control" attr-class='(link.Type != LinkType.Product, "hide")' data-type="product">
-                <entity-picker max-items="1" 
-                               append-mode="false" 
+                <entity-picker max-items="1"
+                               append-mode="false"
                                dialog-title=@T("Common.Entity.SelectProduct").JsValue
                                caption=@T("Common.Search").JsValue />
             </div>
@@ -121,7 +125,7 @@
         {
             <div class="input-group-append link-control" attr-class='(link.Type != LinkType.File, "hide")' data-type="file">
                 @*TODO: (mh) (core) Implement RoxyFileManager when available*@
-                <a href="javascript:void(0)" class="btn btn-secondary browse-files" data-url="@Url.Content("~/Admin/RoxyFileManager/")" data-field-id="lb-file-url-@rnd">
+                <a href="javascript:;" class="btn btn-light browse-files" data-url="@Url.Content("~/Admin/RoxyFileManager/")" data-field-id="lb-file-url-@rnd">
                     <i class="fa fa-upload"></i>
                     <span>@(T("Common.BrowseFiles"))&hellip;</span>
                 </a>
@@ -130,12 +134,13 @@
 
         @* 4. append additional buttons. *@
         <div class="input-group-append">
-            <button type="button" class="btn btn-secondary btn-to-danger btn-reset" title="@T("Common.Remove")">
-                <i class="fa fa-times"></i>
+            <button type="button" class="btn btn-light btn-icon btn-to-danger btn-reset" title="@T("Common.Remove")">
+                @*<i class="fa fa-unlink"></i>*@
+                <span class="fs-h5" style="line-height: 1">&times;</span>
             </button>
             @if (!hideQueryString)
             {
-                <button type="button" class="btn btn-secondary btn-query-string" attr-class='(link.Type == LinkType.Url, "hide")'
+                <button type="button" class="btn btn-light btn-icon btn-query-string" attr-class='(link.Type == LinkType.Url, "hide")'
                         title="@T("Common.QueryString")" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-hashtag @(link.QueryString.HasValue() ? "text-success" : "text-muted")"></i>
                 </button>

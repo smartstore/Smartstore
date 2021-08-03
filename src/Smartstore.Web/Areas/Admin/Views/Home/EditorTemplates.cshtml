@@ -15,21 +15,31 @@
 
         <div class="adminRow">
             <div class="adminTitle">
+                @Html.SmartLabel("Decimal", "NumberInput Test")
+            </div>
+            <div class="adminData">
+                <div class="yo numberinput-group input-group xinput-group-lg">
+                    <input asp-for="Decimal" inputmode="decimal" class="numberinput" type="text" min="0" max="9999" step="1" data-decimals="4" data-decimals-display="2" placeholder="Leer" />
+
+                    <span class="numberinput-formatted">@Model.Decimal.ToString("N2")</span>
+                    <span class="numberinput-postfix">EUR</span>
+
+                    <a href="javascript:;" class="numberinput-stepper numberinput-up" tabindex="-1">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a href="javascript:;" class="numberinput-stepper numberinput-down" tabindex="-1">
+                        <i class="fa fa-chevron-down"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="QuantityControlType" />
             </div>
             <div class="adminData">
-                <entity-picker button-id="ss"
-                               entity-type="Product"
-                               icon-css-class="fa fa-plus"
-                               max-items="10"
-                               caption="@T("Admin.Catalog.Categories.Products.AddNew")"
-                               onselectioncompleted="PickProducts_Completed" />
-
-                <script>
-                    function PickProducts_Completed(ids) {
-                        console.log(ids);
-                    }
-                </script>
+                <editor asp-for="QuantityControlType" />
             </div>
         </div>
 
@@ -48,7 +58,18 @@
                 <smart-label asp-for="QuantityControlType" />
             </div>
             <div class="adminData">
-                <editor asp-for="QuantityControlType" />
+                <entity-picker button-id="ss"
+                               entity-type="Product"
+                               icon-css-class="fa fa-plus"
+                               max-items="10"
+                               caption="@T("Admin.Catalog.Categories.Products.AddNew")"
+                               onselectioncompleted="PickProducts_Completed" />
+
+                <script>
+                    function PickProducts_Completed(ids) {
+                        console.log(ids);
+                    }
+                </script>
             </div>
         </div>
 

@@ -48,26 +48,6 @@
     {
         <div class="adminRow">
             <div class="adminTitle">
-                @Html.SmartLabel("Price", "NumberInput Test")
-            </div>
-            <div class="adminData">
-                <div class="yo numberinput-group input-group xinput-group-lg">
-                    <input asp-for="Price" class="numberinput" type="text" min="5" max="9999" step="0.033" data-decimals="4" data-decimals-display="2" placeholder="Leer" />
-
-                    <span class="numberinput-formatted">@Model.Price.ToString("N2")</span>
-                    <span class="numberinput-postfix">EUR</span>
-                    <a href="javascript:;" class="numberinput-stepper numberinput-up" tabindex="-1">
-                        <i class="fa fa-chevron-up"></i>
-                    </a>
-                    <a href="javascript:;" class="numberinput-stepper numberinput-down" tabindex="-1">
-                        <i class="fa fa-chevron-down"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="adminRow">
-            <div class="adminTitle">
                 <smart-label asp-for="Id" />
             </div>
             <div class="adminData">
