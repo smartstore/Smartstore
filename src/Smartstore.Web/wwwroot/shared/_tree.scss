@@ -4,9 +4,6 @@
 
 $default-state-color: $gray-400;
 
-// Tree
-// ------------------------------
-
 .tree {
     position: relative;
 }
@@ -27,22 +24,35 @@ $default-state-color: $gray-400;
     padding: 3px;
 }
 
-.tree-highlight:hover {
-    background-color: rgba(#000, 0.04);
-}
-
 .tree-label {
     position: relative;
     user-select: none;
     margin: 0;
 }
 
-.tree-label-active {
+.tree-pointer,
+.tree-selectable {
     cursor: pointer;
 }
 
 .tree-link {
     text-decoration: none !important;
+}
+
+.tree-highlight:not(.tree-selected, .tree-disabled):hover {
+    background-color: rgba(#000, 0.08);
+}
+
+.tree-selected {
+    background-color: lighten($warning, 20%);
+}
+
+.tree-unpublished {
+    opacity: .6;
+}
+
+.tree-icon {
+    margin-right: 5px;
 }
 
 .tree-expander-container {
@@ -55,14 +65,6 @@ $default-state-color: $gray-400;
 .tree-expander {
     cursor: pointer;
     font-size: 12px;
-}
-
-.tree-unpublished {
-    opacity: .6;
-}
-
-.tree-icon {
-    margin: 0 2px;
 }
 
 .tree-leaf-left {
@@ -116,7 +118,7 @@ $default-state-color: $gray-400;
         border-radius: 5px;
         border: 2px solid $default-state-color;
         background-color: #fff;
-        margin: 2px 6px 0 0;
+        margin: 5px 5px 0 0;
     }
 
     &:after {
@@ -127,7 +129,7 @@ $default-state-color: $gray-400;
     &.on:after,
     &.in-on:after {
         content: "";
-        top: 5px;
+        top: 8px;
         left: 6px;
         width: 6px;
         height: 10px;
@@ -165,11 +167,12 @@ $default-state-color: $gray-400;
     }
 }
 
-.tree-state-selector-checkbox {
+.tree-state-checkbox {
     position: relative;
     top: 2px;
     width: 16px;
     height: 16px;
+    margin: 0 5px;
 
     &:not([disabled]):hover {
         cursor: pointer;

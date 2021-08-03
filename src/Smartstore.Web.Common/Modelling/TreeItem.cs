@@ -43,6 +43,7 @@ namespace Smartstore.Web.Modelling
 
         /// <summary>
         /// A value indicating whether the node is enabled.
+        /// Disabled nodes cannot be checked or selected.
         /// </summary>
         public bool Enabled { get; set; } = true;
 
@@ -53,9 +54,9 @@ namespace Smartstore.Web.Modelling
         public bool Published { get; set; } = true;
 
         /// <summary>
-        /// A value indicating whether the node is selected.
+        /// A value indicating whether the node is checked.
         /// </summary>
-        public bool Selected { get; set; }
+        public bool Checked { get; set; }
 
         /// <summary>
         /// URL to open when clicking the node.

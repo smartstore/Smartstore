@@ -7,6 +7,38 @@
     // TODO: (mg) (core) For optimal dragdrop visual feedback style the hover effect how it was before (background for icon + label). 
     // For this you need to move the icon to a new parent element and put some padding around the content.
 
+    $.fn.tree = function (method) {
+        return main.apply(this, arguments);
+    };
+
+    $.tree = function () {
+        return main.apply($('.tree:first'), arguments);
+    };
+
+    $.tree.defaults = {
+        stateType: null,        // 'checkbox': adds simple checkboxes to check\uncheck items.
+                                // 'on-off': adds checkboxes for 'on'(green), 'off'(red), 'inherit'(muted green\red).
+        selectMode: null,       // 'single':...
+                                // 'multiple':...
+        url: null,              // URL to load tree items on demand.
+        expanded: false,        // true: initially expand tree.
+        highlightNodes: true,   // true: highlight items on mouse hover.
+        showLines: false,       // true: show helper lines.
+        readOnly: false,        // true: no state changes allowed (checkbox disabled).
+        dragAndDrop: false,     // true: drag & drop enabled.
+        showNumChildren: true,
+        showNumChildrenDeep: false,
+        defaultCollapsedIconClass: null,
+        defaultExpandededIconClass: null,
+        defaultCollapsedIconUrl: null,
+        defaultExpandededIconUrl: null,
+        expandedClass: 'fas fa-chevron-down',
+        collapsedClass: 'fas fa-chevron-right',
+        leafClass: 'tree-leaf',
+        stateTitles: ['', '', '', ''],
+        disabledTitle: null
+    };
+
     var methods = {
         init: function (options) {
             options = $.extend({}, $.tree.defaults, options);
@@ -30,54 +62,20 @@
             });
         },
 
-        getSelectedItems: function (getStateId) {
+        getCheckedItems: function (getStateId) {
             var root = $(this);
             var opt = root.data('tree-options');
 
-            if (opt.nodeState === 'selector') {
-                var ids = _.map(root.find('.tree-state-selector-checkbox:checked'), function (x) {
+            if (opt.stateType === 'checkbox') {
+                var ids = _.map(root.find('.tree-state-checkbox:checked'), function (x) {
                     return getStateId ? $(x).attr('name') : $(x).closest('li').data('id');
                 });
 
-                console.log(ids);
                 return ids;
             }
 
             return null;
-        },
-
-        setSelectedItems: function () {
-            // TODO: (mg) (core) setSelectedItems.
         }
-    };
-
-    $.fn.tree = function (method) {
-        return main.apply(this, arguments);
-    };
-
-    $.tree = function () {
-        return main.apply($('.tree:first'), arguments);
-    };
-
-    $.tree.defaults = {
-        url: null,              // URL to load tree items on demand.
-        expanded: false,        // true: initially expand tree.
-        highlightNodes: true,   // true: highlight nodes on mouse hover.
-        showLines: false,       // true: show helper lines.
-        readOnly: false,        // true: no state changes allowed (checkbox disabled).
-        nodeState: null,        // 'selector': adds state checkboxes for item selection.
-                                // 'on-off': adds state checkboxes for 'on'(green), 'off'(red), 'inherit'(muted green\red).
-        dragAndDrop: false,     // true: drag & drop enabled.
-        showNumChildren: true,
-        showNumChildrenDeep: false,
-        defaultCollapsedIconClass: null,
-        defaultExpandededIconClass: null,
-        defaultCollapsedIconUrl: null,
-        defaultExpandededIconUrl: null,
-        expandedClass: 'fas fa-chevron-down',
-        collapsedClass: 'fas fa-chevron-right',
-        leafClass: 'tree-leaf',
-        stateTitles: ['', '', '', '']
     };
 
 
@@ -109,7 +107,7 @@
         });
 
         // Set inherited state.
-        if (opt.nodeState === 'on-off' && !opt.readOnly) {
+        if (opt.stateType === 'on-off' && !opt.readOnly) {
             // Set indeterminate property.
             //root.find('input[type=checkbox][value=0]').prop('indeterminate', true);
 
@@ -118,7 +116,7 @@
             });
         }
 
-        // Expander click handler.
+        // Expander clicked.
         root.on('click', '.tree-expander', function () {
             var node = $(this).closest('.tree-node');
 
@@ -131,51 +129,75 @@
                     expandNode(node, true, opt, true);
                 });
             }
-
-            EventBroker.publishSync('tree.expanderclicked', { node });
         });
 
-        // State click handler.
+        // State checkbox clicked.
         root.on('click', 'input[type=checkbox]', function () {
             var el = $(this);
             var node = el.closest('.tree-node');
 
-            if (opt.nodeState === 'on-off') {
+            if (opt.stateType === 'on-off') {
                 var hIn = el.next();
                 var state = el.siblings('.tree-state-onoff:first');
                 var inheritedState = 0;
-                var val = parseInt(el.val());
+                var currentValue = parseInt(el.val());
+                var value;
 
                 state.removeClass('on off in-on in-off');
 
-                if (val === 2) {
+                if (currentValue === 2) {
                     // Checked > unchecked.
-                    el.prop({ checked: false, indeterminate: false, value: 1 });
+                    value = 1;
+                    el.prop({ checked: false, indeterminate: false, value });
                     hIn.val(1);
                     state.addClass('off').attr('title', opt.stateTitles[1]);
                     inheritedState = 1;
                 }
-                else if (val === 0 || node.hasClass('root-node')) {
+                else if (currentValue === 0 || node.hasClass('root-node')) {
                     // Indeterminate > checked.
                     // Root item cannot have an inherited state.
-                    el.prop({ checked: true, indeterminate: false, value: 2 });
+                    value = 2;
+                    el.prop({ checked: true, indeterminate: false, value });
                     hIn.val(1);
                     state.addClass('on').attr('title', opt.stateTitles[0]);
                     inheritedState = 2;
                 }
                 else {
                     // Unchecked > indeterminate.
-                    el.prop({ checked: false, indeterminate: true, value: 0 });
+                    value = 0;
+                    el.prop({ checked: false, indeterminate: true, value });
                     hIn.val(0);
                     inheritedState = getInheritedState(node);
                 }
 
                 // Update nodes with inherited state.
                 setInheritedState(node, inheritedState, opt);
+
+                EventBroker.publishSync('tree.checked', { node, value });
+            }
+            else if (opt.stateType === 'checkbox') {
+                EventBroker.publishSync('tree.checked', { node });
+            }
+        });
+
+        // Selectable node clicked.
+        root.on('click', '.tree-selectable', function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            var node = $(this).closest('.tree-node');
+
+            if (opt.selectMode === 'single') {
+                root.find('.tree-selected').removeClass('tree-selected');
             }
 
-            EventBroker.publishSync('tree.stateclicked', { node });
+            $(this).addClass('tree-selected');
+
+            EventBroker.publishSync('tree.selected', { node });
+
+            return false;
         });
+
+        EventBroker.publishSync('tree.initialized', { root });
     }
 
     function addNodeHtml(context, opt, data) {
@@ -200,11 +222,17 @@
             var iconClass = nodeData?.IconClass || li.data('icon-class') || opt.defaultCollapsedIconClass;
             var iconUrl = nodeData?.IconUrl || li.data('icon-url') || opt.defaultCollapsedIconUrl;
             var published = nodeData ? nodeData.Published : toBool(li.data('published'), true);
-            var innerClass = (published ? '' : ' tree-unpublished');
+            var enabled = nodeData ? nodeData.Enabled : toBool(li.data('enabled'), true);
             var textClass = numChildren == 0 ? 'tree-leaf-text' : 'tree-noleaf-text';
-            var labelClass = !nodeUrl && !opt.readOnly && opt.nodeState === 'on-off' ? ' tree-label-active' : '';
+            var contentClass = `tree-node-content${opt.highlightNodes ? ' tree-highlight' : ''}${published ? '' : ' tree-unpublished'}${enabled ? '' : ' tree-disabled'}`;
+            var nodeClass = `tree-node ${numChildren == 0 ? opt.leafClass : 'tree-noleaf'}`;
             var labelHtml = '';
             var html = '';
+            //${stateTitle ? ` title="${stateTitle}"` : ''}
+
+            if (!nodeUrl) {
+                contentClass += `${opt.selectMode && enabled ? ' tree-selectable' : ''}${!opt.readOnly && opt.stateType === 'on-off' ? ' tree-pointer' : ''}`;
+            }
 
             if (nodeUrl) {
                 var target = nodeData?.UrlTarget || li.data('url-target');
@@ -236,8 +264,7 @@
                 html += '<span class="tree-expander-container"></span>';
             }
 
-            html += `<span class="tree-node-content${opt.highlightNodes ? ' tree-highlight' : ''}">`;
-            html += `<label class="tree-label${labelClass}">`;
+            html += `<label class="tree-label"${!enabled && opt.disabledTitle ? ` title="${opt.disabledTitle}"` : ''}><span class="${contentClass}">`;
 
             if (iconClass) {
                 html += `<span class="tree-icon"><i class="${iconClass}"></i></span>`;
@@ -247,11 +274,9 @@
             }
 
             html += `<span class="${textClass}">${labelHtml}</span>`;
-            html += '</label></span>';
+            html += '</span></label>';
 
-            li.addClass(`tree-node ${numChildren == 0 ? opt.leafClass : 'tree-noleaf'}`)
-                .prepend(`<div class="tree-inner${innerClass}">${html}</div>`);
-
+            li.addClass(nodeClass).prepend(`<div class="tree-inner">${html}</div>`);
             li.closest('ul').addClass('tree-list');
         });
 
@@ -261,7 +286,7 @@
                 .prepend('<span class="tree-vline"></span>');
         }
 
-        if (opt.nodeState) {
+        if (opt.stateType) {
             addStateCheckboxes(context, opt, data);
         }
     }
@@ -281,7 +306,7 @@
             var value = nodeData?.StateValue || node.data('state-value');
             var html = '';
 
-            if (opt.nodeState === 'on-off') {
+            if (opt.stateType === 'on-off') {
                 value = parseInt(value) || 0;
                 var stateClass = 'tree-state-onoff';
                 var stateTitle = '';
@@ -305,21 +330,20 @@
                 }
                 html += `<span class="${stateClass}" title="${stateTitle}"></span>`;
             }
-            else if (opt.nodeState === 'selector') {
+            else if (opt.stateType === 'checkbox') {
                 var enabled = nodeData ? nodeData.Enabled : toBool(node.data('enabled'), true);
-                var selected = nodeData ? nodeData.Selected : toBool(node.data('selected'), false);
-                var stateTitle = !enabled ? opt.stateTitles[0] : null;
+                var checked = nodeData ? nodeData.Checked : toBool(node.data('checked'), false);
 
-                html += `<input class="tree-state-selector-checkbox" type="checkbox"${selected ? ' checked="checked"' : ''}${enabled ? '' : ' disabled="disabled"'}`;
-                html += `${stateId ? ` name="${stateId}" id="${stateId}"` : ''}${value ? ` value="${value}"` : ''}${stateTitle ? ` title="${stateTitle}"` : ''} />`;
+                html += `<input class="tree-state-checkbox" type="checkbox"${checked ? ' checked="checked"' : ''}${enabled ? '' : ' disabled="disabled"'}`;
+                html += `${stateId ? ` name="${stateId}" id="${stateId}"` : ''}${value ? ` value="${value}"` : ''} />`;
             }
 
             label.prepend(html);
         });
     }
 
-    function expandAll(context) {
-        var self = $(context);
+    function expandAll(root) {
+        var self = $(root);
         var opt = self.data('tree-options') || $.tree.defaults;
         var expand = !(opt.expanded || false);
 
@@ -334,8 +358,8 @@
         var childNodes = node.children('ul');
         var nodeInner = node.find('.tree-inner:first');
 
-        // Expand or collapse.
         if (expand) {
+            // Expand.
             node.removeClass('tree-collapsed').addClass('tree-expanded');
 
             if (slide) {
@@ -346,20 +370,24 @@
             }
 
             toggleIcons();
+            EventBroker.publishSync('tree.expanded', { node });
         }
-        else {           
+        else {
+            // Collapse.
+            node.removeClass('tree-expanded').addClass('tree-collapsed');
+
             if (slide) {
                 childNodes.slideUp(300, function () {
                     childNodes.hide();
                     toggleIcons();
+                    EventBroker.publishSync('tree.collapsed', { node });
                 });
             }
             else {
                 childNodes.hide();
                 toggleIcons();
+                EventBroker.publishSync('tree.collapsed', { node });
             }
-
-            node.removeClass('tree-expanded').addClass('tree-collapsed');
         }
 
         function toggleIcons() {
@@ -438,7 +466,7 @@
                     expander.prepend(window.createCircularSpinner(12, true));
                 }
 
-                EventBroker.publishSync('tree.dataloading', { node });
+                EventBroker.publishSync('tree.loading', { node });
             },
             success: function (data) {
                 var items = '';
@@ -447,7 +475,7 @@
                 (node ?? root).append(`<ul>${items}</ul>`);
 
                 callback(data);
-                EventBroker.publishSync('tree.dataloaded', { node });
+                EventBroker.publishSync('tree.loaded', { node });
             },
             complete: function () {
                 if (expander) {
