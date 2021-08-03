@@ -24,11 +24,14 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            // Run before bundling middleware
-            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 1, app =>
+            if (builder.ApplicationContext.IsInstalled)
             {
-                app.UseMedia();
-            });
+                // Run before bundling middleware
+                builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 1, app =>
+                {
+                    app.UseMedia();
+                });
+            }
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
