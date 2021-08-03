@@ -7,6 +7,8 @@
     // TODO: (mg) (core) For optimal dragdrop visual feedback style the hover effect how it was before (background for icon + label). 
     // For this you need to move the icon to a new parent element and put some padding around the content.
 
+    // TODO: (mg) (core) We're building a common tree component, not a "product category tree". ".tree-unpublished" is bad CSS design, find a way to be more generic please.
+
     $.fn.tree = function (method) {
         return main.apply(this, arguments);
     };
@@ -363,7 +365,7 @@
             node.removeClass('tree-collapsed').addClass('tree-expanded');
 
             if (slide) {
-                childNodes.hide().slideDown(300);
+                childNodes.hide().slideDown(200);
             }
             else {
                 childNodes.show();
@@ -377,7 +379,7 @@
             node.removeClass('tree-expanded').addClass('tree-collapsed');
 
             if (slide) {
-                childNodes.slideUp(300, function () {
+                childNodes.slideUp(200, function () {
                     childNodes.hide();
                     toggleIcons();
                     EventBroker.publishSync('tree.collapsed', { node });

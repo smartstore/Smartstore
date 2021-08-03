@@ -21,7 +21,7 @@ $default-state-color: $gray-400;
 .tree-node-content {
     display: inline-block;
     border-radius: $border-radius;
-    padding: 3px;
+    padding: 3px 6px;
 }
 
 .tree-label {
@@ -37,6 +37,7 @@ $default-state-color: $gray-400;
 
 .tree-link {
     text-decoration: none !important;
+    color: inherit;
 }
 
 .tree-highlight:not(.tree-selected, .tree-disabled):hover {
@@ -57,8 +58,8 @@ $default-state-color: $gray-400;
 
 .tree-expander-container {
     display: inline-block;
-    min-width: 25px;
-    width: 25px;
+    min-width: 18px;
+    width: 18px;
     text-align: center;
 }
 
