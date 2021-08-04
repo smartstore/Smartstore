@@ -101,8 +101,8 @@
     }
 
     function initialize(root, opt, data) {
-        // Add node HTML.
         addNodeHtml(root, opt, data);
+        initializeDragAndDrop(root, opt);
 
         // Set root item class.
         root.find('ul:first > .tree-node').each(function () {
@@ -134,6 +134,7 @@
             else {
                 loadData(root, node, opt, function (data) {
                     addNodeHtml(node, opt, data);
+                    initializeDragAndDrop(node, opt);
                     expandNode(node, true, opt, true);
                 });
             }
@@ -207,7 +208,90 @@
             return false;
         });
 
+        if (opt.dragAndDrop2) {
+            initializeDragAndDrop2(root, opt);
+        }
+
         EventBroker.publishSync('tree.initialized', { root });
+    }
+
+    function initializeDragAndDrop(context, opt) {
+        if (!opt.dragAndDrop || opt.dragAndDrop2) {
+            return;
+        }
+
+        // SortableJS... missing option to take .tree-node-content as "visual UI item" into account.
+        // Is not HTML agnostic... indicates moving a child item as new parent below actual parent.
+        context.find('.tree-node').sortable({
+            group: 'nested',
+            animation: 150,
+            fallbackOnBody: true,
+            swapThreshold: 0.65,
+            //draggable: '.tree-node-content',
+            //handle: '.tree-node-drag',
+            //filter: ''
+        }).on('add', function (e) {
+            //var node = $(e.item);
+            //console.log(`drop: ${node.find('.tree-name').text()}`);
+            var from = $(e.originalEvent.from);
+            var to = $(e.originalEvent.to);
+            // WTH???
+            console.log(`add: ${from.find('.tree-name:first').text()} -> ${to.find('.tree-name:first').text()}`);
+        });
+    }
+
+    function initializeDragAndDrop2(root, opt) {
+        function finalizeDragging() {
+            opt._drag = null;
+            root.find('.tree-node').removeClass('dragging droppable');
+        }
+
+        root.on('dragstart', '.tree-node-content', function (e) {
+            //e.stopPropagation();
+
+            var node = $(this).closest('.tree-node');
+            node.addClass('dragging');
+            e.originalEvent.dataTransfer.setDragImage(this, -5, -5);
+            e.originalEvent.dataTransfer.setData('text/plain', node.data('id'));
+            
+            console.log('dragstart ' + node.find('.tree-inner:first .tree-name').text());
+        });
+
+        root.on('dragend', '.tree-node-content', function (e) {
+            //e.stopPropagation();
+
+            finalizeDragging();
+            console.log('dragend');
+        });
+
+        root.on('dragover', '.tree-node-content', function (e) {
+            e.preventDefault();  // Allow dropping.
+        });
+
+        root.on('dragenter', '.tree-node-content', function (e) {
+            e.preventDefault();
+            //e.stopPropagation();
+
+            var node = $(this).closest('.tree-node');
+
+            opt._drag = {
+                target: e.target,
+                dropId: node.data('id'),
+            };
+        });
+
+        root.on('dragleave', '.tree-node-content', function (e) {
+        });
+
+        root.on('drop', '.tree-node-content', function (e) {
+            e.preventDefault();
+            //e.stopPropagation();
+
+            var node = $(this).closest('.tree-node');
+
+            console.log('drop ' + node.find('.tree-inner:first .tree-name').text());
+            finalizeDragging();
+        });
     }
 
     function addNodeHtml(context, opt, data) {
@@ -245,13 +329,10 @@
 
             if (nodeUrl) {
                 var target = nodeData?.UrlTarget || li.data('url-target');
-                labelHtml = `<a class="tree-link" href="${nodeUrl}"${target ? ` target="${target}"` : ''}${title ? ` title="${title}"` : ''}>${name}</a>`;
-            }
-            else if (title) {
-                labelHtml = `<span title="${title}">${name}</span>`;
+                labelHtml = `<a class="tree-link tree-name" href="${nodeUrl}"${target ? ` target="${target}"` : ''}${title ? ` title="${title}"` : ''}>${name}</a>`;
             }
             else {
-                labelHtml = name;
+                labelHtml = `<span class="tree-name"${title ? ` title="${title}"` : ''}>${name}</span>`;
             }
 
             if (numChildren > 0 && opt.showNumChildren) {
