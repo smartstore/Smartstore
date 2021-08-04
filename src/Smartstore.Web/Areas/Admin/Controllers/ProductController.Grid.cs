@@ -65,7 +65,6 @@ namespace Smartstore.Admin.Controllers
                 searchQuery = searchQuery.WithManufacturerIds(null, model.SearchManufacturerId);
             }
 
-
             if (model.SearchWithoutCategories.HasValue)
             {
                 searchQuery = searchQuery.HasAnyCategory(!model.SearchWithoutCategories.Value);
@@ -188,5 +187,34 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true, Count = numDeleted });
         }
 
+        [HttpPost]
+        [Permission(Permissions.Catalog.Product.Update)]
+        public async Task<IActionResult> ProductUpdate(ProductOverviewModel model)
+        {
+            var product = await _db.Products.FindByIdAsync(model.Id);
+
+            product.Name = model.Name;
+            product.Sku = model.Sku;
+            product.Price = model.Price;
+            product.StockQuantity = model.StockQuantity;
+            product.Published = model.Published;
+            product.ManufacturerPartNumber = model.ManufacturerPartNumber;
+            product.Gtin = model.Gtin;
+            product.MinStockQuantity = model.MinStockQuantity;
+            product.OldPrice = model.OldPrice ?? 0;
+            product.AvailableStartDateTimeUtc = model.AvailableStartDateTimeUtc;
+            product.AvailableEndDateTimeUtc = model.AvailableEndDateTimeUtc;
+
+            try
+            {
+                await _db.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex.GetInnerMessage());
+                return Json(new { success = false });
+            }
+        }
     }
 }
