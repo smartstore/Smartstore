@@ -221,22 +221,19 @@
         }
 
         // SortableJS... missing option to take .tree-node-content as "visual UI item" into account.
-        // Is not HTML agnostic... indicates moving a child item as new parent below actual parent.
-        context.find('.tree-node').sortable({
+        context.find('.tree-list').sortable({
             group: 'nested',
             animation: 150,
             fallbackOnBody: true,
             swapThreshold: 0.65,
-            //draggable: '.tree-node-content',
+            //items: '.tree-node-content',
             //handle: '.tree-node-drag',
             //filter: ''
-        }).on('add', function (e) {
-            //var node = $(e.item);
-            //console.log(`drop: ${node.find('.tree-name').text()}`);
-            var from = $(e.originalEvent.from);
-            var to = $(e.originalEvent.to);
-            // WTH???
-            console.log(`add: ${from.find('.tree-name:first').text()} -> ${to.find('.tree-name:first').text()}`);
+            onSort: function (e) {
+                var from = $(e.from);
+                var to = $(e.to);
+                console.log(`sort: ${from.find('.tree-name:first').text()} -> ${to.find('.tree-name:first').text()}`);
+            }
         });
     }
 
