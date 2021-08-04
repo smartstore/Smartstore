@@ -48,10 +48,9 @@ namespace Smartstore.Web.Modelling
         public bool Enabled { get; set; } = true;
 
         /// <summary>
-        /// A value indicating whether the node is published.
-        /// Unpublished nodes are diplayed muted.
+        /// A value indicating whether to display the node dimmed.
         /// </summary>
-        public bool Published { get; set; } = true;
+        public bool Dimmed { get; set; }
 
         /// <summary>
         /// A value indicating whether the node is checked.

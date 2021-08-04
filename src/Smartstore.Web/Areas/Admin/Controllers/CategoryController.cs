@@ -252,7 +252,7 @@ namespace Smartstore.Admin.Controllers
                     NumChildren = x.Children.Count,
                     NumChildrenDeep = x.Flatten(false).Count(),
                     BadgeText = category.Alias,
-                    Published = category.Published,
+                    Dimmed = !category.Published,
                     Url = Url.Action("Edit", "Category", new { id = category.Id })
                 };
 

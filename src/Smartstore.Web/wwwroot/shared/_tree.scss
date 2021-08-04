@@ -48,7 +48,7 @@ $default-state-color: $gray-400;
     background-color: lighten($warning, 20%);
 }
 
-.tree-unpublished {
+.tree-dim {
     opacity: .6;
 }
 
@@ -119,7 +119,7 @@ $default-state-color: $gray-400;
         border-radius: 5px;
         border: 2px solid $default-state-color;
         background-color: #fff;
-        margin: 5px 5px 0 0;
+        margin: 5px 0 0 5px;
     }
 
     &:after {
@@ -131,7 +131,7 @@ $default-state-color: $gray-400;
     &.in-on:after {
         content: "";
         top: 8px;
-        left: 6px;
+        left: 11px;
         width: 6px;
         height: 10px;
         transform: rotate(45deg);

@@ -7,8 +7,6 @@
     // TODO: (mg) (core) For optimal dragdrop visual feedback style the hover effect how it was before (background for icon + label). 
     // For this you need to move the icon to a new parent element and put some padding around the content.
 
-    // TODO: (mg) (core) We're building a common tree component, not a "product category tree". ".tree-unpublished" is bad CSS design, find a way to be more generic please.
-
     $.fn.tree = function (method) {
         return main.apply(this, arguments);
     };
@@ -20,8 +18,8 @@
     $.tree.defaults = {
         stateType: null,        // 'checkbox': adds simple checkboxes to check\uncheck items.
                                 // 'on-off': adds checkboxes for 'on'(green), 'off'(red), 'inherit'(muted green\red).
-        selectMode: null,       // 'single':...
-                                // 'multiple':...
+        selectMode: null,       // 'single': single selection, only one node is selected at any time.
+                                // 'multiple': multiple selection, several nodes can be selected.
         url: null,              // URL to load tree items on demand.
         expanded: false,        // true: initially expand tree.
         highlightNodes: true,   // true: highlight items on mouse hover.
@@ -64,19 +62,27 @@
             });
         },
 
-        getCheckedItems: function (getStateId) {
+        checkedNodeKeys: function (getStateKeys) {
             var root = $(this);
             var opt = root.data('tree-options');
 
             if (opt.stateType === 'checkbox') {
-                var ids = _.map(root.find('.tree-state-checkbox:checked'), function (x) {
-                    return getStateId ? $(x).attr('name') : $(x).closest('li').data('id');
+                var keys = _.map(root.find('.tree-state-checkbox:checked'), function (x) {
+                    return getStateKeys ? $(x).attr('name') : $(x).closest('li').data('id');
                 });
 
-                return ids;
+                return keys;
             }
 
             return null;
+        },
+
+        selectedNodeKeys: function () {
+            var keys = _.map($(this).find('.tree-selected'), function (x) {
+                return $(x).closest('li').data('id');
+            });
+
+            return keys;
         }
     };
 
@@ -186,16 +192,18 @@
         root.on('click', '.tree-selectable', function (e) {
             e.stopPropagation();
             e.preventDefault();
-            var node = $(this).closest('.tree-node');
+            var self = $(this);
+            var node = self.closest('.tree-node');
 
             if (opt.selectMode === 'single') {
                 root.find('.tree-selected').removeClass('tree-selected');
+                self.addClass('tree-selected');
+            }
+            else if (opt.selectMode === 'multiple') {
+                self.toggleClass('tree-selected');
             }
 
-            $(this).addClass('tree-selected');
-
             EventBroker.publishSync('tree.selected', { node });
-
             return false;
         });
 
@@ -223,14 +231,13 @@
             var badgeText = nodeData?.BadgeText || li.data('badge-text');
             var iconClass = nodeData?.IconClass || li.data('icon-class') || opt.defaultCollapsedIconClass;
             var iconUrl = nodeData?.IconUrl || li.data('icon-url') || opt.defaultCollapsedIconUrl;
-            var published = nodeData ? nodeData.Published : toBool(li.data('published'), true);
+            var dimmed = nodeData ? nodeData.Dimmed : toBool(li.data('dimmed'), false);
             var enabled = nodeData ? nodeData.Enabled : toBool(li.data('enabled'), true);
             var textClass = numChildren == 0 ? 'tree-leaf-text' : 'tree-noleaf-text';
-            var contentClass = `tree-node-content${opt.highlightNodes ? ' tree-highlight' : ''}${published ? '' : ' tree-unpublished'}${enabled ? '' : ' tree-disabled'}`;
+            var contentClass = `tree-node-content${opt.highlightNodes ? ' tree-highlight' : ''}${dimmed ? ' tree-dim' : ''}${enabled ? '' : ' tree-disabled'}`;
             var nodeClass = `tree-node ${numChildren == 0 ? opt.leafClass : 'tree-noleaf'}`;
             var labelHtml = '';
             var html = '';
-            //${stateTitle ? ` title="${stateTitle}"` : ''}
 
             if (!nodeUrl) {
                 contentClass += `${opt.selectMode && enabled ? ' tree-selectable' : ''}${!opt.readOnly && opt.stateType === 'on-off' ? ' tree-pointer' : ''}`;
