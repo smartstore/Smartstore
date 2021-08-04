@@ -53,7 +53,7 @@
         },
         // Number input
         function (ctx) {
-            ctx.find(".yo.numberinput-group").numberInput();
+            ctx.find(".numberinput-group").numberInput();
         }
     ];
 

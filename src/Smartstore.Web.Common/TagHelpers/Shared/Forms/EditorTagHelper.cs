@@ -30,7 +30,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         //public string Value { get; set; }
 
         /// <summary>
-        /// The text which will be displayed inside the input tag as a post fix.
+        /// The text which will be displayed inside the input as a post fix.
         /// </summary>
         [HtmlAttributeName(PostfixAttributeName)]
         public string Postfix { get; set; }

@@ -81,7 +81,7 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("Admin.ContentManagement.News.NewsItems.Fields.StartDate")]
         public DateTime? DateTime { get; set; }
-        public decimal Decimal { get; set; }
+        public decimal Decimal { get; set; } = 123456.56m;
         public double Double { get; set; }
 
         [UIHint("Html")]

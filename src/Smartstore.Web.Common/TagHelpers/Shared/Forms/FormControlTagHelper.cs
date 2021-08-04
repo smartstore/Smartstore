@@ -80,7 +80,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 case "select":
                 case "textarea":
-                    ProcessFormControl(output);
+                    ProcessFormControl(context, output);
                     break;
                 case "input":
                     if (output.Attributes.TryGetAttribute("type", out var typeAttr))
@@ -95,7 +95,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                         }
                         else if (typeAttr.Value is not ("file" or "hidden"))
                         {
-                            ProcessFormControl(output);
+                            ProcessFormControl(context, output);
                         }
                     }
                     break;
@@ -131,7 +131,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             ProcessHint(output);
         }
 
-        private void ProcessFormControl(TagHelperOutput output)
+        private void ProcessFormControl(TagHelperContext context, TagHelperOutput output)
         {
             bool isPlainText;
             if (Plaintext)
@@ -162,7 +162,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
             
 
-            if (ControlSize != ControlSize.Medium)
+            if (ControlSize != ControlSize.Medium && !context.Items.ContainsKey("IsNumberInput"))
             {
                 output.AppendCssClass("form-control-" + (ControlSize == ControlSize.Small ? "sm" : "lg"));
             }

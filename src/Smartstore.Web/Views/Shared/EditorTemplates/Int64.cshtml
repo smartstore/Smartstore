@@ -24,53 +24,19 @@
             return value;
         }
     }
-
-    private string CssClass
-    {
-        get
-        {
-            var cls = "numberinput-group flex-grow-1";
-
-            if (TryGetMetadata<string>("size", out var size))
-            {
-                cls += " numberinput-group-" + size;
-            }
-
-            return cls;
-        }
-    }
 }
 
 @{
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
-<div class="@CssClass">
-    @*TODO: (mh) (core) Reimplement with taghelper once available *@
-    @*@(Html.Telerik().NumericTextBox<long>()
-                .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
-                .EmptyMessage(GetMetadata<string>("placeholder") ?? T("Common.EnterValue"))
-                .ButtonTitleUp(T("Common.IncreaseValue"))
-                .ButtonTitleDown(T("Common.DecreaseValue"))
-                .MinValue(GetMetadata<long?>("min"))
-                .MaxValue(GetMetadata<long?>("max"))
-                .IncrementStep(GetMetadata<long?>("step") ?? 1)
-                .DecimalDigits(0)
-                .Value(Value)
-        )*@
-
-    <input asp-for="@Model"
-           attrs="attributes"
-           value="@Value"
-           class="form-control"
-           type="number"
-           placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
-           min="@(GetMetadata<long?>("min"))"
-           max="@(GetMetadata<long?>("max"))"
-           step="@(GetMetadata<long?>("step") ?? 1)" />
-
-    @if (TryGetMetadata<string>("postfix", out var postfix))
-    {
-        <span class="numberinput-postfix">@postfix</span>
-    }
-</div>
+<input type="number"
+       asp-for="@Model"
+       attrs="attributes"
+       sm-decimals="0"
+       sm-postfix="@(GetMetadata<string>("postfix"))"
+       class="form-control"
+       placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.Empty").Value)"
+       min="@(GetMetadata<long?>("min"))"
+       max="@(GetMetadata<long?>("max"))"
+       step="@(GetMetadata<long?>("step") ?? 1)" />

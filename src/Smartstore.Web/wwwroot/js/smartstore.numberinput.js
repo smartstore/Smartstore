@@ -9,34 +9,6 @@
     "use strict"
 
     let g = Smartstore.globalization;
-    let culture = g.culture;
-
-    // the default editor for parsing and rendering
-    var I18nEditor = function (props, element) {
-        var locale = props.locale || "en-US"
-
-        this.parse = function (customFormat) {
-            var numberFormat = new Intl.NumberFormat(locale)
-            var thousandSeparator = numberFormat.format(11111).replace(/1/g, '') || '.'
-            var decimalSeparator = numberFormat.format(1.1).replace(/1/g, '')
-            return parseFloat(customFormat
-                .replace(new RegExp(' ', 'g'), '')
-                .replace(new RegExp('\\' + thousandSeparator, 'g'), '')
-                .replace(new RegExp('\\' + decimalSeparator), '.')
-            )
-        }
-
-        this.render = function (number) {
-            var decimals = parseInt(element.getAttribute("data-decimals")) || 0
-            var digitGrouping = !(element.getAttribute("data-digit-grouping") === "false")
-            var numberFormat = new Intl.NumberFormat(locale, {
-                minimumFractionDigits: decimals,
-                maximumFractionDigits: decimals,
-                useGrouping: digitGrouping
-            })
-            return numberFormat.format(number)
-        }
-    };
 
     var RawEditor = function (props, element) {
         this.parse = function (customFormat) {
@@ -46,28 +18,17 @@
                 : parseInt(customFormat);
         }
         this.render = function (number) {
-            let decimals = parseInt(element.getAttribute("data-decimals-display")) || 0;
-            let numberFormat = new Intl.NumberFormat(culture.name, {
-                minimumFractionDigits: Math.min(2, decimals),
-                maximumFractionDigits: decimals,
+            let decimals = parseInt(element.getAttribute("data-decimals")) || 0;
+            let numberFormat = new Intl.NumberFormat(g.culture.name, {
+                minimumFractionDigits: Math.min(g.culture.numberFormat.decimals, decimals),
+                maximumFractionDigits: g.culture.numberFormat.decimals,
                 useGrouping: true
-            })
+            });
             return numberFormat.format(number)
         }
     };
 
     var triggerKeyPressed = false
-    //var originalVal = $.fn.val
-    //$.fn.val = function (value) {
-    //    if (arguments.length >= 1) {
-    //        for (var i = 0; i < this.length; i++) {
-    //            if (this[i]["number-input"] && this[i].setValue) {
-    //                this[i].setValue(value)
-    //            }
-    //        }
-    //    }
-    //    return originalVal.apply(this, arguments)
-    //}
 
     $.fn.numberInput = function (methodOrProps) {
         if (methodOrProps === "destroy") {
@@ -118,8 +79,8 @@
         this.each(function () {
             if (this["number-input"]) {
                 console.warn("element", this, "is already a number-input")
-            } else {
-
+            }
+            else {
                 var $group = $(this);
                 var $decr = $group.find(".numberinput-down");
                 var $incr = $group.find(".numberinput-up");
@@ -129,22 +90,8 @@
                 $group[0]["number-input"] = true;
                 $group[0].numberInputEditor = new props.editor(props, $input[0]);
 
-                //var $original = $(this)
-                //$original[0]["number-input"] = true
-                //$original.hide()
-                //$original[0].numberInputEditor = new props.editor(props, this)
-
                 var autoDelayHandler = null
                 var autoIntervalHandler = null
-
-                //var $inputGroup = $(html)
-                //var $buttonDecrement = $inputGroup.find(".btn-decrement")
-                //var $buttonIncrement = $inputGroup.find(".btn-increment")
-                //var $input = $inputGroup.find("input")
-                //var $label = $("label[for='" + $original.attr("id") + "']")
-                //if (!$label[0]) {
-                //    $label = $original.closest("label")
-                //}
 
                 var min = $input.attr("min");
                 var max = $input.attr("max");
@@ -153,38 +100,9 @@
                 max = isNaN(max) || max === "" ? Infinity : parseFloat(max);
                 step = parseFloat(step) || 1;
 
-                //updateAttributes()
+                var value = parseFloat($input[0].value);
 
-                var value = parseFloat($input[0].value)
-
-                //var prefix = $original.attr("data-prefix") || ""
-                //var suffix = $original.attr("data-suffix") || ""
-
-                //if (prefix) {
-                //    var prefixElement = $('<span class="input-group-text">' + prefix + '</span>')
-                //    $inputGroup.find("input").before(prefixElement)
-                //}
-                //if (suffix) {
-                //    var suffixElement = $('<span class="input-group-text">' + suffix + '</span>')
-                //    $inputGroup.find("input").after(suffixElement)
-                //}
-
-                //$group[0].setValue = function (newValue) {
-                //    setValue(newValue)
-                //}
-                //$group[0].destroyInputSpinner = function () {
-                //    destroy()
-                //}
-
-                //var observer = new MutationObserver(function () {
-                //    updateAttributes()
-                //    setValue(value, true)
-                //})
-                //observer.observe($original[0], { attributes: true })
-
-                //$original.after($inputGroup)
-
-                //setValue(value)
+                updateDisplay(value);
 
                 $input.on("paste input change focusout", function (e) {
                     var newValue = $group[0].numberInputEditor.parse($input[0].value);
@@ -193,62 +111,83 @@
                     updateDisplay(newValue);
                 });
 
-                $input.on("keydown", function (e) {
-                    if (props.keyboardStepping) {
-                        if (e.which === 38) { // up arrow pressed
-                            e.preventDefault();
-                            if (!$decr.prop("disabled")) {
-                                stepHandling(step);
-                            }
-                        } else if (e.which === 40) { // down arrow pressed
-                            e.preventDefault();
-                            if (!$incr.prop("disabled")) {
-                                stepHandling(-step);
-                            }
-                        }
-                    }
+                $input.on("focusin", function (e) {
+                    $input[0].select();
                 });
 
-                $input.on("keyup", function (e) {
-                    // up/down arrow released
-                    if (props.keyboardStepping && (e.which === 38 || e.which === 40)) {
-                        e.preventDefault();
-                        resetTimer();
-                    }
-                });
+                //// --> type=number
+                //$input.on("keydown", function (e) {
+                //    if (props.keyboardStepping) {
+                //        if (e.which === 38) { // up arrow pressed
+                //            e.preventDefault();
+                //            if (!$decr.prop("disabled")) {
+                //                stepHandling(step);
+                //            }
+                //        } else if (e.which === 40) { // down arrow pressed
+                //            e.preventDefault();
+                //            if (!$incr.prop("disabled")) {
+                //                stepHandling(-step);
+                //            }
+                //        }
+                //    }
+                //});
 
-                $input.on("keypress", function (e) {
-                    // Allow numbers only
-                    var key = e.keyCode || e.which;
-                    if (key === 8 || key === 45 || key === 46) {
-                        return true;
-                    }
-                    else if (key < 48 || key > 57) {
-                        return false;
-                    }
+                //// --> type=number
+                //$input.on("keyup", function (e) {
+                //    // up/down arrow released
+                //    if (props.keyboardStepping && (e.which === 38 || e.which === 40)) {
+                //        e.preventDefault();
+                //        resetTimer();
+                //    }
+                //});
 
-                    return true;
-                });
+                //// --> type=number
+                //$input.on("keypress", function (e) {
+                //    // Allow numbers only
+                //    var key = e.keyCode || e.which;
+                //    if (key === 8 || key === 45 || key === 46) {
+                //        return true;
+                //    }
+                //    else if (key < 48 || key > 57) {
+                //        return false;
+                //    }
+
+                //    return true;
+                //});
 
                 onPointerDown($decr[0], function () {
-                    if (document.activeElement !== $input[0]) {
-                        $input[0].focus();
-                    }
                     if (!$decr.prop("disabled")) {
-                        stepHandling(-step);
+                        doStep(false);
                     }
                 })
                 onPointerDown($incr[0], function () {
-                    if (document.activeElement !== $input[0]) {
-                        $input[0].focus();
-                    }
                     if (!$incr.prop("disabled")) {
-                        stepHandling(step);
+                        doStep(true);
                     }
                 })
                 onPointerUp(document.body, function () {
                     resetTimer();
                 })
+            }
+
+            function doStep(up) {
+                const isActive = document.activeElement === $input[0];
+                if (!isActive) {
+                    $input[0].focus();
+                    setTimeout(() => $input[0].select(), 0);
+                }
+
+                try {
+                    if (up) $input[0].stepUp()
+                    else $input[0].stepDown();
+                }
+                catch {
+                    stepHandling(up ? step : -step);
+                }
+
+                if (isActive) {
+                    $input[0].select();
+                }      
             }
 
             function setValue(newValue, updateInput) {
@@ -278,15 +217,15 @@
             }
 
             function destroy() {
-                $original.prop("required", $input.prop("required"))
-                observer.disconnect()
-                resetTimer()
-                $input.off("paste input change focusout")
-                $inputGroup.remove()
-                $original.show()
-                $original[0]["number-input"] = undefined
+                $original.prop("required", $input.prop("required"));
+                observer.disconnect();
+                resetTimer();
+                $input.off("paste input change focusout");
+                $inputGroup.remove();
+                $original.show();
+                $original[0]["number-input"] = undefined;
                 if ($label[0]) {
-                    $label.attr("for", $original.attr("id"))
+                    $label.attr("for", $original.attr("id"));
                 }
             }
 
@@ -327,52 +266,6 @@
             function resetTimer() {
                 clearTimeout(autoDelayHandler)
                 clearTimeout(autoIntervalHandler)
-            }
-
-            function updateAttributes() {
-                //// copy properties from original to the new input
-                //if ($original.prop("required")) {
-                //    $input.prop("required", $original.prop("required"))
-                //    $original.removeAttr('required')
-                //}
-                //$input.prop("placeholder", $original.prop("placeholder"))
-                //$input.attr("inputmode", $original.attr("inputmode") || "decimal")
-                //var disabled = $original.prop("disabled")
-                //var readonly = $original.prop("readonly")
-                //$input.prop("disabled", disabled)
-                //$input.prop("readonly", readonly || props.buttonsOnly)
-                //$buttonIncrement.prop("disabled", disabled || readonly)
-                //$buttonDecrement.prop("disabled", disabled || readonly)
-                //if (disabled || readonly) {
-                //    resetTimer()
-                //}
-                //var originalClass = $original.prop("class")
-                //var groupClass = ""
-                //// sizing
-                //if (/form-control-sm/g.test(originalClass)) {
-                //    groupClass = "input-group-sm"
-                //} else if (/form-control-lg/g.test(originalClass)) {
-                //    groupClass = "input-group-lg"
-                //}
-                //var inputClass = originalClass.replace(/form-control(-(sm|lg))?/g, "")
-                //$inputGroup.prop("class", "input-group " + groupClass + " " + props.groupClass)
-                //$input.prop("class", "form-control " + inputClass)
-
-                //// update the main attributes
-                //min = isNaN($original.prop("min")) || $original.prop("min") === "" ? -Infinity : parseFloat($original.prop("min"))
-                //max = isNaN($original.prop("max")) || $original.prop("max") === "" ? Infinity : parseFloat($original.prop("max"))
-                //step = parseFloat($original.prop("step")) || 1
-                //if ($original.attr("hidden")) {
-                //    $inputGroup.attr("hidden", $original.attr("hidden"))
-                //} else {
-                //    $inputGroup.removeAttr("hidden")
-                //}
-                //if ($original.attr("id")) {
-                //    $input.attr("id", $original.attr("id") + "_MP_cBdLN29i2")
-                //    if ($label[0]) {
-                //        $label.attr("for", $input.attr("id"))
-                //    }
-                //}
             }
         })
 

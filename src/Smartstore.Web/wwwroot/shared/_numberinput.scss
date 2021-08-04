@@ -31,6 +31,10 @@
         --ni-border-radius: #{$input-border-radius-sm};
     }
 
+    .dg-cell-edit & {
+        --ni-addon-width: 1.5rem;
+    }
+
     &:after {
         // Mimic input group addon
         position: absolute;
@@ -45,14 +49,16 @@
         bottom: 1px;
         left: auto;
         width: var(--ni-addon-width);
-        /*.t-grid-edit-row & {
-            width: 1.5rem;
-        }*/
+        border-top-right-radius: var(--ni-border-radius);
+        border-bottom-right-radius: var(--ni-border-radius);
     }
 }
 
 .numberinput {
+    border-radius: var(--ni-border-radius) !important; // Fix bs4 .input-group > .form-control issue
     color: transparent;
+    -moz-appearance: textfield;
+
     &:focus,
     &:active {
         color: inherit;
@@ -60,6 +66,12 @@
             display: none;
         }
     }
+}
+
+.numberinput::-webkit-inner-spin-button,
+.numberinput::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .numberinput::placeholder {
