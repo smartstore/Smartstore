@@ -257,7 +257,7 @@
         opacity: 0.3;
 
         &.numberinput-up {
-            right: 0;
+            right: 1px;
             left: auto;
             padding-left: 4px;
             justify-content: flex-start;
@@ -284,35 +284,52 @@
 }
 
 
+// RTL support (right to left)
+// --------------------------------------------------
 
-
-// Touchspin
-// -------------------------------------
-
-/*.bootstrap-touchspin {
-    .input-group-btn {
-        &:first-child {
-            left: auto;
-            right: 1px;
-        }
-
-        &:last-child {
-            right: auto;
-            left: 0;
-        }
-
-        > .btn {
-            &.bootstrap-touchspin-down {
-                text-align: left;
-                padding-left: 4px;
-                padding-right: 0;
-            }
-
-            &.bootstrap-touchspin-up {
-                text-align: right;
-                padding-right: 4px;
-                padding-left: 0;
-            }
-        }
+[dir=rtl] .numberinput-centered {
+    > .numberinput-up {
+        left: 1px;
+        right: auto;
+        padding-left: 0;
+        padding-right: 4px;
     }
-}*/
+
+    > .numberinput-down {
+        right: 1px;
+        left: auto;
+        padding-right: 0;
+        padding-left: 4px;
+    }
+}
+
+[dir=rtl] .numberinput-default {
+    &:after {
+        // Mimic input group addon
+        border-left-width: 0;
+        border-right-width: 1px;
+        left: 1px;
+        right: auto;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-top-left-radius: var(--ni-border-radius);
+        border-bottom-left-radius: var(--ni-border-radius);
+    }
+
+    > .numberinput-formatted {
+        left: auto;
+        right: 1px;
+    }
+
+    > .numberinput-postfix {
+        left: var(--ni-height);
+        right: auto;
+        padding-left: var(--ni-padding-x);
+        padding-right: 0;
+    }
+
+    > .numberinput-stepper {
+        left: 1px;
+        right: auto;
+    }
+}
