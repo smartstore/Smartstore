@@ -24,6 +24,8 @@
         var props = {
             autoDelay: 500, // ms threshold before auto value change
             autoInterval: 50, // speed of auto value change
+            autoFocus: true, // whether to focus input on stepper click
+            autoSelect: true, // whether to select input value on focusin or stepper click
         }
 
         for (var option in methodOrProps) {
@@ -40,10 +42,17 @@
             let $group = $(this).addClass("numberinput-initialized");
             let $input = $group.find(".numberinput");
             let $formatted = $group.find(".numberinput-formatted");
-            let isCentered = $group.hasClass("numberinput-centered");
 
             if ($input.data("step-interval") >>> 0) {
                 props.autoInterval = parseFloat($input.data("step-interval"));
+            }
+
+            if ($input.data("auto-focus") !== undefined) {
+                props.autoFocus = toBool($input.data("auto-focus"));
+            }
+
+            if ($input.data("auto-select") !== undefined) {
+                props.autoSelect = toBool($input.data("auto-select"));
             }
 
             this["number-input"] = true;
@@ -79,7 +88,7 @@
                 updateDisplay(newValue);
             });
 
-            if (!isCentered) {
+            if (props.autoSelect) {
                 $input.on("focusin.ni", function (e) {
                     $input[0].select();
                 });
@@ -126,8 +135,10 @@
             function onStep(up) {
                 const isActive = document.activeElement === $input[0];
                 if (!isActive) {
-                    $input[0].focus();
-                    if (!isCentered) {
+                    if (props.autoFocus) {
+                        $input[0].focus();
+                    }
+                    if (props.autoSelect) {
                         setTimeout(() => $input[0].select(), 0);
                     }
                 }
@@ -140,7 +151,7 @@
                     }, props.autoInterval)
                 }, props.autoDelay)
 
-                if (isActive && !isCentered) {
+                if (isActive && props.autoSelect) {
                     $input[0].select();
                 }      
             }
