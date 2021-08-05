@@ -102,7 +102,6 @@
 
     function initialize(root, opt, data) {
         addNodeHtml(root, opt, data);
-        initializeDragAndDrop(root, opt);
 
         if (opt.highlightNodes) {
             root.addClass('tree-highlight');
@@ -138,7 +137,6 @@
             else {
                 loadData(root, node, opt, function (data) {
                     addNodeHtml(node, opt, data);
-                    initializeDragAndDrop(node, opt);
                     expandNode(node, true, opt, true);
                 });
             }
@@ -212,110 +210,31 @@
             return false;
         });
 
-        if (opt.dragAndDrop2) {
-            initializeDragAndDrop2(root, opt);
+        if (opt.dragAndDrop) {
+            initializeDragAndDrop(root, opt);
         }
 
         EventBroker.publishSync('tree.initialized', { root });
     }
 
-    function initializeDragAndDrop(context, opt) {
-        if (!opt.dragAndDrop || opt.dragAndDrop2) {
-            return;
-        }
-
-        // SortableJS... missing option to take .tree-node-content as "visual UI item" into account.
-        context.find('.tree-list').sortable({
-            group: 'nested',
-            animation: 150,
-            fallbackOnBody: true,
-            swapThreshold: 0.65,
-            handle: '.tree-node-content',
-            //dragClass: 'tree-dragging',
-            //filter: '.tree-node-disabled'
-        }).on('sort', function (e) {
-            e.stopPropagation();
-
-            // Dragged element.
-            var el = $(e.originalEvent.item);
-            var elNext = el.next();
-            var elPrev = el.prev();
-            var targetName;
-
-            var data = {
-                "id": el.data('id') || 0,
-                "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-            };
-
-            if (elNext.length) {
-                data.position = 'before';
-                data.targetId = elNext.data('id') || 0;
-                targetName = elNext.find('.tree-name:first').text();
-            }
-            else if (elPrev.length) {
-                data.position = 'after';
-                data.targetId = elPrev.data('id') || 0;
-                targetName = elPrev.find('.tree-name:first').text();
-            }
-            else {
-                // Node of target list.
-                var parent = $(e.originalEvent.to).closest('.tree-node');
-
-                data.position = 'over';
-                data.targetId = parent.data('id') || 0;
-                targetName = parent.find('.tree-name:first').text();
-            }
-
-            // Only fire data once.
-            var dataStr = JSON.stringify(data);
-            if (opt?._drag?.dataStr != dataStr) {
-                opt._drag.dataStr = dataStr;
-
-                $.ajax({
-                    type: 'POST',
-                    url: opt.dropUrl,
-                    cache: false,
-                    timeout: 5000,
-                    data: data,
-                    success: function (response) {
-                        console.log(`${data.position}: ${targetName}, ${data.targetId}`);
-
-                        if (response.message) {
-                            displayNotification(response.message, response.success ? 'success' : 'error');
-                        }
-                    },
-                    error: function (xhr, ajaxOptions, thrownError) {
-                        displayNotification(xhr.responseText || thrownError, 'error');
-                    }
-                });
-            }
-        }).on('start', function (e) {
-            e.stopPropagation();
-            opt._drag = {};
-            context.closest('.tree').removeClass('tree-highlight');
-            //console.log(`start: ${$(e.originalEvent.item).find('.tree-name:first').text()}`);
-        }).on('end', function (e) {
-            e.stopPropagation();
-            opt._drag = null;
-            if (opt.highlightNodes) {
-                context.closest('.tree').addClass('tree-highlight');
-            }
-            //console.log(`end: ${$(e.originalEvent.item).find('.tree-name:first').text()}`);
-        });
-    }
-
-    function initializeDragAndDrop2(root, opt) {
+    function initializeDragAndDrop(root, opt) {
         function finalizeDragging() {
             opt._drag = null;
             root.find('.tree-node').removeClass('dragging droppable');
+
+            if (opt.highlightNodes) {
+                root.addClass('tree-highlight');
+            }
         }
 
         root.on('dragstart', '.tree-node-content', function (e) {
             //e.stopPropagation();
+            root.removeClass('tree-highlight');
 
             var node = $(this).closest('.tree-node');
             node.addClass('dragging');
-            e.originalEvent.dataTransfer.setDragImage(this, -5, -5);
+            e.originalEvent.dataTransfer.effectAllowed = 'move';
+            e.originalEvent.dataTransfer.setDragImage(this, -8, -8);
             e.originalEvent.dataTransfer.setData('text/plain', node.data('id'));
             
             console.log('dragstart ' + node.find('.tree-inner:first .tree-name').text());
@@ -325,7 +244,6 @@
             //e.stopPropagation();
 
             finalizeDragging();
-            console.log('dragend');
         });
 
         root.on('dragover', '.tree-node-content', function (e) {
