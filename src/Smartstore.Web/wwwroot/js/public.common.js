@@ -76,6 +76,8 @@
         },
         // NumberInput
         function (ctx) {
+            if ($.fn.numberInput === undefined)
+                return;
             ctx.find(".numberinput-group").numberInput();
         },
         // newsletter subsription

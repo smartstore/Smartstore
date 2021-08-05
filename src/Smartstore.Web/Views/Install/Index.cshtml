@@ -9,10 +9,10 @@
 
 @{
     // TODO: (core) Install: Apply language attributes to <html> tag
-    // TODO: (core) Install: Define css and js assets properly
 
     Layout = null;
     var availableLanguages = ViewBag.AvailableInstallationLanguages as IList<SelectListItem>;
+    var checkAliveUrl = Url.Content("~/taskscheduler/noop");
 }
 
 <!DOCTYPE html>
@@ -307,7 +307,6 @@
 
     <script src="~/lib/jquery/jquery.addeasing.js"></script>
     <script src="~/js/smartstore.throbber.js"></script>
-    <script src="~/js/smartstore.numberinput.js"></script>
     <script src="~/lib/jquery/jquery.scrollTo.js"></script>
     <script src="~/js/public.common.js"></script>
     <script src="~/js/jquery.validate.unobtrusive.custom.js"></script>
@@ -322,6 +321,7 @@
         var authType = $('#DbAuthType');
         var userId = $('#DbUserId');
         var password = $('#DbPassword');
+        var checkAliveInterval;
 
         $(function () {
             dataProvider.on('change', toggleDataProvider).trigger('change');
@@ -384,6 +384,18 @@
                 password.attr("disabled", "disabled");
 			}
 		}
+
+        function checkAlive(redirectUrl) {
+            $.ajax({
+                type: "GET",
+                cache: false,
+                url: "@checkAliveUrl",
+                success() {
+                    clearInterval(checkAliveInterval);
+                    location.replace(redirectUrl);
+                }
+            });
+        }
 
         var Installation = (function () {
             var progressIntervall;
@@ -466,7 +478,10 @@
                     if (data.Success) {
                     	$("#install-message").html("@InstallService.GetResource("Common.StartShop")");
                         $("#install-progress").html("");
-                        window.location = data.RedirectUrl;
+
+                        checkAliveInterval = setInterval(function () {
+                            checkAlive(data.RedirectUrl);
+                        }, 1000);
                     }
                     else {
                         $.throbber.hide();
