@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Smartstore.Data.Migrations;
+using Smartstore.Core.Data;
 
 namespace Smartstore.Data.SqlServer.Migrations
 {
@@ -7,6 +9,11 @@ namespace Smartstore.Data.SqlServer.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            if (DbMigrationManager.Instance.SuppressInitialCreate<SmartDbContext>())
+            {
+                return;
+            }
+
             migrationBuilder.CreateTable(
                 name: "ActivityLogType",
                 columns: table => new
