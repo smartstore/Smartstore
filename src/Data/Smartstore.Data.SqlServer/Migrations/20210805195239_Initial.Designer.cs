@@ -10,7 +10,7 @@ using Smartstore.Data.SqlServer;
 namespace Smartstore.Data.SqlServer.Migrations
 {
     [DbContext(typeof(SqlServerSmartDbContext))]
-    [Migration("20210409202530_Initial")]
+    [Migration("20210805195239_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -498,8 +498,8 @@ namespace Smartstore.Data.SqlServer.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal>("PriceAdjustment")
                         .HasPrecision(18, 4)
@@ -1371,13 +1371,14 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.Property<bool>("Published")
                         .HasColumnType("bit");
 
+                    b.Property<int>("QuantityControlType")
+                        .HasColumnType("int")
+                        .HasColumnName("QuantiyControlType");
+
                     b.Property<int>("QuantityStep")
                         .HasColumnType("int");
 
                     b.Property<int?>("QuantityUnitId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuantiyControlType")
                         .HasColumnType("int");
 
                     b.Property<int>("RecurringCycleLength")
@@ -2682,7 +2683,8 @@ namespace Smartstore.Data.SqlServer.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
 
                     b.Property<int>("NumericIsoCode")
                         .HasColumnType("int");
@@ -3498,6 +3500,284 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.ToTable("Topic");
                 });
 
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ExportDeployment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("DeploymentTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmailAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EmailAddresses")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("EmailSubject")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("FileSystemPath")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<int>("HttpTransmissionType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HttpTransmissionTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("PassiveMode")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Password")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<int>("ProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ResultInfo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubFolder")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<bool>("UseSsl")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Username")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfileId");
+
+                    b.ToTable("ExportDeployment");
+                });
+
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ExportProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("BatchSize")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Cleanup")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("CompletedEmailAddresses")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<bool>("CreateZipArchive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("EmailAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ExportRelatedData")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("FileNamePattern")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<string>("Filtering")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FolderName")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<bool>("IsSystemProfile")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Limit")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Offset")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("PerStore")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Projection")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderConfigData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderSystemName")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("ResultInfo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SystemName")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int")
+                        .HasColumnName("SchedulingTaskId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("ExportProfile");
+                });
+
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ImportProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ColumnMapping")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("EntityTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExtraData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileTypeConfiguration")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("FileTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FolderName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("ImportRelatedData")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("KeyFieldNames")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ResultInfo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Skip")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Take")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int")
+                        .HasColumnName("SchedulingTaskId");
+
+                    b.Property<bool>("UpdateOnly")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("ImportProfile");
+                });
+
+            modelBuilder.Entity("Smartstore.Core.DataExchange.SyncMapping", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ContextName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool?>("CustomBool")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("CustomInt")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CustomString")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SourceHash")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("SourceKey")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime>("SyncedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "EntityId", "EntityName", "ContextName" }, "IX_SyncMapping_ByEntity")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "SourceKey", "EntityName", "ContextName" }, "IX_SyncMapping_BySource")
+                        .IsUnique();
+
+                    b.ToTable("SyncMapping");
+                });
+
             modelBuilder.Entity("Smartstore.Core.Identity.Customer", b =>
                 {
                     b.Property<int>("Id")
@@ -4007,13 +4287,13 @@ namespace Smartstore.Data.SqlServer.Migrations
 
                     b.Property<string>("LocaleKey")
                         .IsRequired()
-                        .HasMaxLength(400)
-                        .HasColumnType("nvarchar(400)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("LocaleKeyGroup")
                         .IsRequired()
-                        .HasMaxLength(400)
-                        .HasColumnType("nvarchar(400)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("LocaleValue")
                         .IsRequired()
@@ -4154,7 +4434,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.ToTable("Log");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.Campaign", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.Campaign", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4187,7 +4467,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.ToTable("Campaign");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.EmailAccount", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.EmailAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4232,7 +4512,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.ToTable("EmailAccount");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.MessageTemplate", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.MessageTemplate", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4297,7 +4577,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.ToTable("MessageTemplate");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.NewsletterSubscription", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.NewsletterSubscription", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4335,7 +4615,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.ToTable("NewsLetterSubscription");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.QueuedEmail", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.QueuedEmail", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4398,7 +4678,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.ToTable("QueuedEmail");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.QueuedEmailAttachment", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.QueuedEmailAttachment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4761,6 +5041,33 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.ToTable("StoreMapping");
                 });
 
+            modelBuilder.Entity("Smartstore.Core.Theming.ThemeVariable", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<int>("StoreId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Theme")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<string>("Value")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ThemeVariable");
+                });
+
             modelBuilder.Entity("Smartstore.Scheduling.TaskDescriptor", b =>
                 {
                     b.Property<int>("Id")
@@ -4801,8 +5108,8 @@ namespace Smartstore.Data.SqlServer.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasMaxLength(800)
-                        .HasColumnType("nvarchar(800)");
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
 
                     b.HasKey("Id");
 
@@ -5664,6 +5971,39 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.Navigation("Menu");
                 });
 
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ExportDeployment", b =>
+                {
+                    b.HasOne("Smartstore.Core.DataExchange.ExportProfile", "Profile")
+                        .WithMany("Deployments")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ExportProfile", b =>
+                {
+                    b.HasOne("Smartstore.Scheduling.TaskDescriptor", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ImportProfile", b =>
+                {
+                    b.HasOne("Smartstore.Scheduling.TaskDescriptor", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
             modelBuilder.Entity("Smartstore.Core.Identity.Customer", b =>
                 {
                     b.HasOne("Smartstore.Core.Common.Address", "BillingAddress")
@@ -5784,7 +6124,8 @@ namespace Smartstore.Data.SqlServer.Migrations
 
                     b.HasOne("Smartstore.Core.Identity.Customer", "Customer")
                         .WithOne()
-                        .HasForeignKey("Smartstore.Core.Logging.ActivityLog", "CustomerId");
+                        .HasForeignKey("Smartstore.Core.Logging.ActivityLog", "CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("ActivityLogType");
 
@@ -5801,9 +6142,9 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.QueuedEmail", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.QueuedEmail", b =>
                 {
-                    b.HasOne("Smartstore.Core.Messages.EmailAccount", "EmailAccount")
+                    b.HasOne("Smartstore.Core.Messaging.EmailAccount", "EmailAccount")
                         .WithMany()
                         .HasForeignKey("EmailAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -5812,7 +6153,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.Navigation("EmailAccount");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.QueuedEmailAttachment", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.QueuedEmailAttachment", b =>
                 {
                     b.HasOne("Smartstore.Core.Content.Media.MediaFile", "MediaFile")
                         .WithMany()
@@ -5824,7 +6165,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                         .HasForeignKey("MediaStorageId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Smartstore.Core.Messages.QueuedEmail", "QueuedEmail")
+                    b.HasOne("Smartstore.Core.Messaging.QueuedEmail", "QueuedEmail")
                         .WithMany("Attachments")
                         .HasForeignKey("QueuedEmailId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -6057,6 +6398,11 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ExportProfile", b =>
+                {
+                    b.Navigation("Deployments");
+                });
+
             modelBuilder.Entity("Smartstore.Core.Identity.Customer", b =>
                 {
                     b.Navigation("CustomerContent");
@@ -6086,7 +6432,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                     b.Navigation("LocaleStringResources");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.QueuedEmail", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.QueuedEmail", b =>
                 {
                     b.Navigation("Attachments");
                 });

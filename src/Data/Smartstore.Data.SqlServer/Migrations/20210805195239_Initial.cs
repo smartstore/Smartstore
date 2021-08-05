@@ -1,7 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Smartstore.Core.Data;
-using Smartstore.Data.Migrations;
 
 namespace Smartstore.Data.SqlServer.Migrations
 {
@@ -9,11 +7,6 @@ namespace Smartstore.Data.SqlServer.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            if (DbMigrationManager.Instance.SuppressInitialCreate<SmartDbContext>())
-            {
-                return;
-            }
-
             migrationBuilder.CreateTable(
                 name: "ActivityLogType",
                 columns: table => new
@@ -570,7 +563,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                     Name = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Alias = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CronExpression = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    Type = table.Column<string>(type: "nvarchar(800)", maxLength: 800, nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: false),
                     Enabled = table.Column<bool>(type: "bit", nullable: false),
                     Priority = table.Column<int>(type: "int", nullable: false),
                     StopOnError = table.Column<bool>(type: "bit", nullable: false),
@@ -651,6 +644,27 @@ namespace Smartstore.Data.SqlServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SyncMapping",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EntityId = table.Column<int>(type: "int", nullable: false),
+                    SourceKey = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    EntityName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    ContextName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    SourceHash = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
+                    CustomInt = table.Column<int>(type: "int", nullable: true),
+                    CustomString = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomBool = table.Column<bool>(type: "bit", nullable: true),
+                    SyncedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SyncMapping", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TaxCategory",
                 columns: table => new
                 {
@@ -662,6 +676,22 @@ namespace Smartstore.Data.SqlServer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TaxCategory", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ThemeVariable",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Theme = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
+                    Value = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    StoreId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ThemeVariable", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -724,7 +754,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: true),
                     AllowsBilling = table.Column<bool>(type: "bit", nullable: false),
                     AllowsShipping = table.Column<bool>(type: "bit", nullable: false),
                     TwoLetterIsoCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -874,8 +904,8 @@ namespace Smartstore.Data.SqlServer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EntityId = table.Column<int>(type: "int", nullable: false),
                     LanguageId = table.Column<int>(type: "int", nullable: false),
-                    LocaleKeyGroup = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: false),
-                    LocaleKey = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: false),
+                    LocaleKeyGroup = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    LocaleKey = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     LocaleValue = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -1108,6 +1138,78 @@ namespace Smartstore.Data.SqlServer.Migrations
                         name: "FK_dbo.RuleSet_PaymentMethod_Mapping_dbo.RuleSet_RuleSetEntity_Id",
                         column: x => x.RuleSetEntity_Id,
                         principalTable: "RuleSet",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExportProfile",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FolderName = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: false),
+                    FileNamePattern = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
+                    SystemName = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
+                    ProviderSystemName = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
+                    IsSystemProfile = table.Column<bool>(type: "bit", nullable: false),
+                    Enabled = table.Column<bool>(type: "bit", nullable: false),
+                    ExportRelatedData = table.Column<bool>(type: "bit", nullable: false),
+                    Filtering = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Projection = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProviderConfigData = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ResultInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Offset = table.Column<int>(type: "int", nullable: false),
+                    Limit = table.Column<int>(type: "int", nullable: false),
+                    BatchSize = table.Column<int>(type: "int", nullable: false),
+                    PerStore = table.Column<bool>(type: "bit", nullable: false),
+                    EmailAccountId = table.Column<int>(type: "int", nullable: false),
+                    CompletedEmailAddresses = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
+                    CreateZipArchive = table.Column<bool>(type: "bit", nullable: false),
+                    Cleanup = table.Column<bool>(type: "bit", nullable: false),
+                    SchedulingTaskId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExportProfile", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExportProfile_ScheduleTask_SchedulingTaskId",
+                        column: x => x.SchedulingTaskId,
+                        principalTable: "ScheduleTask",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ImportProfile",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FolderName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FileTypeId = table.Column<int>(type: "int", nullable: false),
+                    EntityTypeId = table.Column<int>(type: "int", nullable: false),
+                    Enabled = table.Column<bool>(type: "bit", nullable: false),
+                    ImportRelatedData = table.Column<bool>(type: "bit", nullable: false),
+                    Skip = table.Column<int>(type: "int", nullable: false),
+                    Take = table.Column<int>(type: "int", nullable: false),
+                    UpdateOnly = table.Column<bool>(type: "bit", nullable: false),
+                    KeyFieldNames = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    FileTypeConfiguration = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ExtraData = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ColumnMapping = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ResultInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SchedulingTaskId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImportProfile", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ImportProfile_ScheduleTask_SchedulingTaskId",
+                        column: x => x.SchedulingTaskId,
+                        principalTable: "ScheduleTask",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1467,6 +1569,41 @@ namespace Smartstore.Data.SqlServer.Migrations
                         principalTable: "ProductAttributeOptionsSet",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExportDeployment",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProfileId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Enabled = table.Column<bool>(type: "bit", nullable: false),
+                    ResultInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DeploymentTypeId = table.Column<int>(type: "int", nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
+                    Url = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: true),
+                    HttpTransmissionTypeId = table.Column<int>(type: "int", nullable: false),
+                    HttpTransmissionType = table.Column<int>(type: "int", nullable: false),
+                    FileSystemPath = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
+                    SubFolder = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
+                    EmailAddresses = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: true),
+                    EmailSubject = table.Column<string>(type: "nvarchar(400)", maxLength: 400, nullable: true),
+                    EmailAccountId = table.Column<int>(type: "int", nullable: false),
+                    PassiveMode = table.Column<bool>(type: "bit", nullable: false),
+                    UseSsl = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExportDeployment", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExportDeployment_ExportProfile_ProfileId",
+                        column: x => x.ProfileId,
+                        principalTable: "ExportProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -2136,7 +2273,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                         column: x => x.CustomerId,
                         principalTable: "Customer",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -2434,7 +2571,7 @@ namespace Smartstore.Data.SqlServer.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProductVariantAttributeId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: true),
                     Alias = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     MediaFileId = table.Column<int>(type: "int", nullable: false),
                     Color = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
@@ -3171,6 +3308,16 @@ namespace Smartstore.Data.SqlServer.Migrations
                 columns: new[] { "UpdatedOnUtc", "IsTransient" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ExportDeployment_ProfileId",
+                table: "ExportDeployment",
+                column: "ProfileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExportProfile_SchedulingTaskId",
+                table: "ExportProfile",
+                column: "SchedulingTaskId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ExternalAuthenticationRecord_CustomerId",
                 table: "ExternalAuthenticationRecord",
                 column: "CustomerId");
@@ -3199,6 +3346,11 @@ namespace Smartstore.Data.SqlServer.Migrations
                 name: "IX_GiftCardUsageHistory_UsedWithOrderId",
                 table: "GiftCardUsageHistory",
                 column: "UsedWithOrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ImportProfile_SchedulingTaskId",
+                table: "ImportProfile",
+                column: "SchedulingTaskId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Language_DisplayOrder",
@@ -3954,6 +4106,18 @@ namespace Smartstore.Data.SqlServer.Migrations
                 columns: new[] { "EntityId", "EntityName" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_SyncMapping_ByEntity",
+                table: "SyncMapping",
+                columns: new[] { "EntityId", "EntityName", "ContextName" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SyncMapping_BySource",
+                table: "SyncMapping",
+                columns: new[] { "SourceKey", "EntityName", "ContextName" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TierPrice_CustomerRoleId",
                 table: "TierPrice",
                 column: "CustomerRoleId");
@@ -4030,6 +4194,9 @@ namespace Smartstore.Data.SqlServer.Migrations
                 name: "DiscountUsageHistory");
 
             migrationBuilder.DropTable(
+                name: "ExportDeployment");
+
+            migrationBuilder.DropTable(
                 name: "ExternalAuthenticationRecord");
 
             migrationBuilder.DropTable(
@@ -4037,6 +4204,9 @@ namespace Smartstore.Data.SqlServer.Migrations
 
             migrationBuilder.DropTable(
                 name: "GiftCardUsageHistory");
+
+            migrationBuilder.DropTable(
+                name: "ImportProfile");
 
             migrationBuilder.DropTable(
                 name: "LocaleStringResource");
@@ -4165,7 +4335,13 @@ namespace Smartstore.Data.SqlServer.Migrations
                 name: "StoreMapping");
 
             migrationBuilder.DropTable(
+                name: "SyncMapping");
+
+            migrationBuilder.DropTable(
                 name: "TaxCategory");
+
+            migrationBuilder.DropTable(
+                name: "ThemeVariable");
 
             migrationBuilder.DropTable(
                 name: "TierPrice");
@@ -4184,6 +4360,9 @@ namespace Smartstore.Data.SqlServer.Migrations
 
             migrationBuilder.DropTable(
                 name: "CheckoutAttribute");
+
+            migrationBuilder.DropTable(
+                name: "ExportProfile");
 
             migrationBuilder.DropTable(
                 name: "GiftCard");
@@ -4240,9 +4419,6 @@ namespace Smartstore.Data.SqlServer.Migrations
                 name: "ShippingMethod");
 
             migrationBuilder.DropTable(
-                name: "ScheduleTask");
-
-            migrationBuilder.DropTable(
                 name: "Shipment");
 
             migrationBuilder.DropTable(
@@ -4250,6 +4426,9 @@ namespace Smartstore.Data.SqlServer.Migrations
 
             migrationBuilder.DropTable(
                 name: "CustomerRole");
+
+            migrationBuilder.DropTable(
+                name: "ScheduleTask");
 
             migrationBuilder.DropTable(
                 name: "OrderItem");
