@@ -37,7 +37,7 @@ namespace Smartstore.Web.Bootstrapping
             section.Bind(options);
 
             var env = _appContext.HostEnvironment;
-            var themeSettings = _appContext.IsInstalled ? _themeSettings.Value : new ThemeSettings();
+            var themeSettings = _appContext.IsInstalled ? _themeSettings.Value : new ThemeSettings { BundleOptimizationEnabled = 1, AssetCachingEnabled = 1 };
 
             bool? bundlingEnabled = null;
             if (themeSettings.BundleOptimizationEnabled > 0)

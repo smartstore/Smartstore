@@ -138,9 +138,6 @@ namespace Smartstore.Web.Controllers
         [IgnoreAntiforgeryToken]
         public IActionResult RestartInstall()
         {
-            //// Restart application
-            //_hostApplicationLifetime.StopApplication();
-
             // Redirect to home page
             return RedirectToAction("Index");
         }
