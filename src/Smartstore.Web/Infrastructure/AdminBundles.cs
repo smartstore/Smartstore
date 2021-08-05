@@ -80,6 +80,7 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.thumbzoomer.js",
                 js + "smartstore.entitypicker.js",
                 js + "smartstore.rangeslider.js",
+                js + "smartstore.numberinput.js",
                 js + "smartstore.tree.js",
                 js + "smartstore.media.js",
                 js + "smartstore.editortemplates.js",

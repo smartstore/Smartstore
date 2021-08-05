@@ -331,7 +331,7 @@ namespace Smartstore.Web.Models.Cart
                             var enteredDate = selectedCheckoutAttributes.AttributesMap
                                 .Where(x => x.Key == attribute.Id)
                                 .SelectMany(x => x.Value)
-                                .FirstOrDefault()
+                                .FirstOrDefault()?
                                 .ToString();
 
                             if (enteredDate.HasValue()

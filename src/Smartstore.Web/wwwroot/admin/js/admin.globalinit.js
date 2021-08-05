@@ -9,7 +9,7 @@
                 Smartstore.Admin.togglePanel(el, false);
             });
         },
-        // select2
+        // select2 (generic)
         function (ctx) {
             ctx.find("select:not(.noskin)").selectWrapper();
         },
@@ -43,17 +43,9 @@
                 return false;
             });
         },
-        // ColorPicker
+        // Edit controls (select2, range, colorpicker, numberinput etc.)
         function (ctx) {
-            ctx.find(".sm-colorbox").colorpicker({ fallbackColor: false, color: false, align: Smartstore.globalization.culture.isRTL ? 'left' : 'right' });
-        },
-        // RangeSlider
-        function (ctx) {
-            ctx.find(".range-slider").rangeSlider();
-        },
-        // Number input
-        function (ctx) {
-            ctx.find(".numberinput-group").numberInput();
+            initializeEditControls(ctx);
         }
     ];
 

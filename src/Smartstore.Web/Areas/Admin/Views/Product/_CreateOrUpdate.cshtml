@@ -112,9 +112,7 @@
 
 <script sm-target-zone="Scripts" data-origin="product-edit">
     function productEditTab_onAjaxSuccess(tab, pane) {
-        // TODO: (mh) (core) Implement proper init method for these calls (so initializers e.g. selectWrapper won't get called twice). 
         applyCommonPlugins(pane);
-        initializeEditControls(pane);
         reinitFormValidator("#product-form");
     }
 </script>

@@ -1,5 +1,71 @@
 ﻿(function ($, window, document, undefined) {
 
+    let editorMap = {
+        // LinkBuilder
+        "link": function (el) { $(el).linkBuilder() },
+        // Download
+        "download": function (el) { $(el).downloadEditor() },
+        // NumberInput
+        "number": function (el) { $(el).numberInput() },
+        // RangeSlider
+        "range": function (el) { $(el).rangeSlider() },
+        // ColorBox
+        "color": function (el) { $(el).colorpicker({ fallbackColor: false, color: false, align: Smartstore.globalization.culture.isRTL ? 'left' : 'right' }) },
+        // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
+        "select": function (el) {
+            if ($.fn.select2 === undefined || $.fn.selectWrapper === undefined)
+                return;
+
+            if (!el.classList.contains("noskin") && !$(el).data("select2")) {
+                $(el).selectWrapper();
+            }
+        },
+        // Datetime & Time
+        "date-time": function (el) {
+            var $el = $(el);
+            $el.parent().datetimepicker({
+                format: $el.data("format"),
+                useCurrent: $el.data("use-current"),
+                locale: moment.locale(),
+                keepOpen: false
+            });
+        },
+        // Html
+        "html": function (el) {
+            var $el = $(el);
+
+            summernote_image_upload_url = $el.data("summernote-image-upload-url");
+
+            if (!$el.data("lazy")) {
+                $el.summernote($.extend(true, {}, summernote_global_config, { lang: $el.data("lang") }));
+            }
+        },
+        // RuleSets
+        "rule-sets": function (el) {
+            $(el)
+                .selectWrapper()
+                .on('select2:selecting select2:unselecting', function (e) {
+                    try {
+                        // Prevent selection when a link has been clicked.
+                        if ($(e.params.args.originalEvent.target).hasClass('prevent-selection')) {
+                            var data = e.params.args.data;
+
+                            if (data.id === '-1' && !_.isEmpty(data.url)) {
+                                window.location = data.url;
+                            }
+
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+                    catch (e) {
+                        console.error(e);
+                    }
+                });
+        }
+    };
+    editorMap["time"] = editorMap["date-time"];
+
     // Replace datetimepicker internal _place() method with our own, because the original is really badly fucked up!
     // TODO: (core) Move $.fn.datetimepicker.Constructor.prototype._place() to applicable place when bundling is available.
     $.fn.datetimepicker.Constructor.prototype._place = function (e) {
@@ -100,72 +166,6 @@
         });
     }
 
-    // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
-    function initSelect(el) {
-        if ($.fn.select2 === undefined || $.fn.selectWrapper === undefined)
-            return;
-
-        if (!el.classList.contains("noskin")) {
-            $(el).selectWrapper();
-        }
-    }
-
-    // Datetime & Time
-    function initDateTime(el) {
-        var $el = $(el);
-        $el.parent().datetimepicker({
-            format: $el.data("format"),
-            useCurrent: $el.data("use-current"),
-            locale: moment.locale(),
-            keepOpen: false
-        });
-    }
-
-    // Html
-    function initHtml(el) {
-        var $el = $(el);
-
-        summernote_image_upload_url = $el.data("summernote-image-upload-url");
-
-        if (!$el.data("lazy")) {
-            $el.summernote($.extend(true, {}, summernote_global_config, { lang: $el.data("lang") }));
-        }
-    }
-
-    // Link
-    function initLinkBuilder(el) {
-        $(el).linkBuilder();
-    }
-
-    // Download
-    function initDownload(el) {
-        $(el).downloadEditor();
-    }
-
-    // RuleSets
-    function initRuleSets(el) {
-        $(el)
-            .selectWrapper()
-            .on('select2:selecting select2:unselecting', function (e) {
-                try {
-                    // Prevent selection when a link has been clicked.
-                    if ($(e.params.args.originalEvent.target).hasClass('prevent-selection')) {
-                        var data = e.params.args.data;
-
-                        if (data.id === '-1' && !_.isEmpty(data.url)) {
-                            window.location = data.url;
-                        }
-
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-                catch (e) {
-                    console.error(e);
-                }
-            });
-    }
-
     window.productPickerCallback = function (ids, selectedItems) {
         var $el = $(this);
 
@@ -225,27 +225,11 @@
 
         Array.from(editControls).forEach(el => {
             var template = el.getAttribute("data-editor");
-
-            switch (template) {
-                case "select":
-                    initSelect(el);
-                    break;
-                case "date-time":
-                case "time":
-                    initDateTime(el);
-                    break;
-                case "html":
-                    initHtml(el);
-                    break;
-                case "link":
-                    initLinkBuilder(el);
-                    break;
-                case "download":
-                    initDownload(el);
-                    break;
-                case "rule-sets":
-                    initRuleSets(el);
-                    break;
+            if (template) {
+                var initializer = editorMap[template];
+                if (_.isFunction(initializer)) {
+                    initializer(el);
+                }
             }
         });
     };

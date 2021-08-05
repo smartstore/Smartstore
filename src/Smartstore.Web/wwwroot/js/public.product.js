@@ -22,7 +22,7 @@
             $(el).on('change', ':input', function (e) {
                 var inputCtrl = $(this);
                 var ctx = inputCtrl.closest('.update-container');
-                var isTouchSpin = inputCtrl.parent(".bootstrap-touchspin").length > 0;
+                var isNumberInput = inputCtrl.parent(".numberinput-group").length > 0;
                 var isFileUpload = inputCtrl.data("fileupload");
                 var isDateTime = inputCtrl.hasClass("date-part");
 
@@ -34,14 +34,14 @@
                 ctx.doAjax({
                     data: ctx.find(':input').serialize(),
                     callbackSuccess: function (response) {
-                        self.updateDetailData(response, ctx, isTouchSpin, isFileUpload, isDateTime);
+                        self.updateDetailData(response, ctx, isNumberInput, isFileUpload, isDateTime);
 
                         if (ctx.hasClass('pd-bundle-item')) {
                             // Update bundle price too.
                             $('#main-update-container').doAjax({
                                 data: $('.pd-bundle-items').find(':input').serialize(),
                                 callbackSuccess: function (response2) {
-                                    self.updateDetailData(response2, $('#main-update-container'), isTouchSpin, isFileUpload, isDateTime);
+                                    self.updateDetailData(response2, $('#main-update-container'), isNumberInput, isFileUpload, isDateTime);
                                 }
                             });
                         }
@@ -52,7 +52,7 @@
             return this;
         };
 
-        this.updateDetailData = function (data, ctx, isTouchSpin, isFileUpload, isDateTime) {
+        this.updateDetailData = function (data, ctx, isNumberInput, isFileUpload, isDateTime) {
             var gallery = $('#pd-gallery').data(galPluginName);
 
             // Image gallery needs special treatment
@@ -75,7 +75,7 @@
                 var $el = $(el);
                 var partial = $el.data('partial');
 
-                if (partial && !(isTouchSpin && partial === 'OfferActions') && !(isDateTime && partial === 'Variants')) {
+                if (partial && !(isNumberInput && partial === 'OfferActions') && !(isDateTime && partial === 'Variants')) {
                     // ...fetch the updated html from the corresponding AJAX result object's properties
                     if (data.Partials && data.Partials.hasOwnProperty(partial)) {
                         if (partial === 'Variants') {

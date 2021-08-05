@@ -66,16 +66,18 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (ViewContext.HttpContext.Request.IsAjaxRequest())
             {
-                // Don't re-inject content during AJAX requests, the target zones are most probably rendered already.
-                // Just output the content in-place.
-                if (output.TagName == "widget")
-                {
-                    output.TagName = null;
-                }
-                else if (output.TagName == "meta")
-                {
-                    output.SuppressOutput();
-                }
+                //// Don't re-inject content during AJAX requests, the target zones are most probably rendered already.
+                //// Just output the content in-place.
+                //if (output.TagName == "widget")
+                //{
+                //    output.TagName = null;
+                //}
+                //else if (output.TagName == "meta")
+                //{
+                //    output.SuppressOutput();
+                //}
+
+                output.SuppressOutput();
 
                 return;
             }

@@ -26,17 +26,22 @@
     //var inputStyle = Model.QuantityControlType;
 
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
-    attributes.Merge("class", "form-control" + (large ? " form-control-lg" : ""));
-    attributes.Merge("data-min", Model.MinOrderAmount.ToString(), true);
-    attributes.Merge("data-max", Model.MaxOrderAmount.ToString(), true);
-    attributes.Merge("data-postfix", Model.QuantityUnitName, true);
-    attributes.Merge("data-step", Model.QuantityStep.ToString(), true);
 }
 
-<div class="qty-input" attr-class='(Model.QuantityUnitName != null && Model.QuantityUnitName.Value.HasValue(), "has-postfix")'>
+<div class="qty-input">
     @if (inputStyle == "spinner")
     {
-        <input asp-for="EnteredQuantity" type="text" attrs="@attributes" />
+        <input asp-for="EnteredQuantity" 
+               type="number" 
+               attrs="@attributes"
+               sm-control-size='@(large ? ControlSize.Large : ControlSize.Small)'
+               sm-postfix="@Model.QuantityUnitName"
+               sm-numberinput-style="Centered"
+               data-step-interval="150"
+               min="@Model.MinOrderAmount"
+               max="@Model.MaxOrderAmount"
+               step="@Model.QuantityStep"
+               class="form-control" />
     }
     else
     {

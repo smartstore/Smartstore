@@ -79,8 +79,8 @@
 .btn,
 .nav-link,
 .menubar-link {
-	> i:not(.d-none) + span:not(:empty),
-	> i:not(.d-none) + em:not(:empty) {
+	> i + span:not(:empty),
+	> i + em:not(:empty) {
 		padding-left: 0.5em;
 	}
 

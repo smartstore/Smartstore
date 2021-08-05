@@ -9,7 +9,7 @@
         //throw new InvalidOperationException("The model item to be used in a range editor must be numeric and non-nullable.");
     }
 
-    var containerCssClass = "range-slider";
+    var containerCssClass = "range-slider edit-control";
     if (ViewData.ContainsKey("size"))
     {
         containerCssClass += " range-slider-" + ViewData["size"].ToString();
@@ -33,7 +33,7 @@
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
-<div class="@containerCssClass" data-format="@Html.Raw(format)">
+<div class="@containerCssClass" data-format="@Html.Raw(format)" data-editor="range">
     @*TODO: (mh) (core) Default validation was inserted by this*@
     @*@Html.Hidden(string.Empty, ViewData.Model)*@
 

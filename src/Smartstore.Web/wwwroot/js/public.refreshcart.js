@@ -14,7 +14,7 @@ $(function () {
         return false;
     });
 
-    // Quantity touchspin change.
+    // Quantity numberinput change.
     var debouncedUpdate = _.debounce(function (e) {
         e.preventDefault();
         var link = $(this);

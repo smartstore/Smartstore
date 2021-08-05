@@ -184,7 +184,7 @@ $(function () {
         }
     });
 
-    // React to touchspin change
+    // React to numberinput change
     var updatingCart = false;
     var debouncedSpin = _.debounce(function (e) {
         if (updatingCart)
@@ -318,17 +318,8 @@ var ShopBar = (function ($) {
         },
 
         initQtyControls: function (parentSelector) {
-            $(parentSelector + " .qty-input .form-control").each(function (e) {
-                var el = $(this);
-                el.TouchSpin({
-                    min: el.data("min-qty"),
-                    max: el.data("max-qty"),
-                    step: el.data("min-step"),
-                    buttondown_class: 'btn btn-secondary',
-                    buttonup_class: 'btn btn-secondary',
-                    buttondown_txt: '<i class="fa fa-minus"></i>',
-                    buttonup_txt: '<i class="fa fa-plus"></i>',
-                });
+            $(parentSelector + " .qty-input > .numberinput-group").each(function (e) {
+                $(this).numberInput();
             });
         },
 

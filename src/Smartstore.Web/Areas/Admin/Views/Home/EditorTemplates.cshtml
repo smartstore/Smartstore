@@ -18,19 +18,17 @@
                 @Html.SmartLabel("Decimal", "NumberInput Test")
             </div>
             <div class="adminData">
-                <div class="yo numberinput-group input-group xinput-group-lg">
-                    <input asp-for="Decimal" class="numberinput" type="number" min="0" max="999999" step="0.333" data-decimals="4" placeholder="Leer" />
-
-                    <span class="numberinput-formatted"></span>
-                    <span class="numberinput-postfix">EUR</span>
-
-                    <a href="javascript:;" class="numberinput-stepper numberinput-up" tabindex="-1">
-                        <i class="fa fa-chevron-up"></i>
-                    </a>
-                    <a href="javascript:;" class="numberinput-stepper numberinput-down" tabindex="-1">
-                        <i class="fa fa-chevron-down"></i>
-                    </a>
-                </div>
+                <input asp-for="Decimal" 
+                       type="number" 
+                       sm-numberinput-style="Centered"
+                       sm-control-size="Large"
+                       sm-postfix="EUR"
+                       class="numberinput" 
+                       min="0" 
+                       max="10" 
+                       step="1" 
+                       data-decimals="0" 
+                       placeholder="Leer" />
             </div>
         </div>
 
@@ -88,7 +86,9 @@
             </div>
             <div class="adminData">
                 <editor asp-for="Color" id="test" name="test" value="#000" attrs='new AttributeDictionary { { "fallbackColor", "#000" } }' />
-                <colorbox id="test" name="test" value="#000" />
+                <div class="mt-2">
+                    <colorbox id="test" name="test" value="#000" />
+                </div>
                 <span asp-validation-for="Color"></span>
             </div>
         </div>

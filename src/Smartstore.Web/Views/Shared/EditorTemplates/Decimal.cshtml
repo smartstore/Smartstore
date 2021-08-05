@@ -8,7 +8,7 @@
 <input type="number"
        asp-for="@Model"
        attrs="attributes"
-       sm-decimals="4"
+       sm-decimals="@(GetMetadata<uint?>("decimals") ?? 4)"
        sm-postfix="@(GetMetadata<string>("postfix"))"
        class="form-control"
        placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.Empty").Value)"

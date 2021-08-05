@@ -34,36 +34,23 @@
     .dg-cell-edit & {
         --ni-addon-width: 1.5rem;
     }
-
-    &:after {
-        // Mimic input group addon
-        position: absolute;
-        z-index: 10;
-        content: ' ';
-        display: block;
-        background: $input-group-addon-bg;
-        border: 0 solid $input-group-addon-border-color;
-        border-left-width: 1px;
-        top: 1px;
-        right: 1px;
-        bottom: 1px;
-        left: auto;
-        width: var(--ni-addon-width);
-        border-top-right-radius: var(--ni-border-radius);
-        border-bottom-right-radius: var(--ni-border-radius);
-    }
 }
 
 .numberinput {
     border-radius: var(--ni-border-radius) !important; // Fix bs4 .input-group > .form-control issue
-    color: transparent;
+    font-size: var(--ni-font-size) !important;
     -moz-appearance: textfield;
+}
+
+.numberinput-initialized > .numberinput {
+    color: transparent;
 
     &:focus,
     &:active {
         color: inherit;
-        .numberinput-formatted {
-            display: none;
+
+        ~ .numberinput-formatted {
+            display: none !important;
         }
     }
 }
@@ -81,16 +68,15 @@
 .numberinput-formatted {
     position: absolute;
     z-index: 1;
-    display: inline-flex;
-    justify-content: center;
+    display: none;
     flex-wrap: nowrap;
     white-space: nowrap;
-    left: 1px;
-    height: 100%;
-    align-items: center;
-    padding: 0 var(--ni-padding-x);
-    font-size: var(--ni-font-size);
+    font-size: var(--ni-font-size) !important;
     line-height: var(--ni-line-height);
+
+    .numberinput-initialized > & {
+        display: inline-flex;
+    }
 
     &:empty {
         display: none;
@@ -104,16 +90,17 @@
     align-items: center;
     flex-wrap: nowrap;
     z-index: 10;
-    top: 1px;
-    bottom: 1px;
     background-color: $input-bg;
     color: $gray-600;
-    right: var(--ni-height);
-    padding-right: var(--ni-padding-x);
     font-size: var(--ni-font-size);
     line-height: var(--ni-line-height);
     cursor: default;
     user-select: none;
+
+    .numberinput:disabled ~ &,
+    .numberinput:read-only ~ & {
+        background-color: $input-disabled-bg;
+    }
 }
 
 .numberinput-formatted,
@@ -124,27 +111,75 @@
 .numberinput-stepper {
     position: absolute;
     z-index: 15;
-    right: 1px;
-    width: calc(var(--ni-addon-width) - 1px);
-    height: calc(50% - 1px);
     text-decoration: none !important;
-    color: inherit;
-    font-size: 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    &:focus-visible {
-        outline: 1px solid red;
-        outline-offset: 0;
-    }
-
-    .numberinput:disabled ~ & {
+    .numberinput:disabled ~ &,
+    .numberinput:read-only ~ &,
+    &:disabled {
         pointer-events: none;
         opacity: 0.5;
     }
+}
 
-    .numberinput:not(:disabled) ~ & {
+//
+// Default Styling
+// -------------------------------------
+
+.numberinput-default {
+    &:after {
+        // Mimic input group addon
+        position: absolute;
+        z-index: 10;
+        content: ' ';
+        display: block;
+        background: $input-group-addon-bg;
+        border: 0 solid $input-group-addon-border-color;
+        border-left-width: 1px;
+        top: 1px;
+        right: 1px;
+        bottom: 1px;
+        left: auto;
+        width: var(--ni-addon-width);
+        border-top-right-radius: var(--ni-border-radius);
+        border-bottom-right-radius: var(--ni-border-radius);
+    }
+
+    > .numberinput-formatted {
+        justify-content: center;
+        left: 1px;
+        height: 100%;
+        align-items: center;
+        padding: 0 var(--ni-padding-x);
+    }
+
+    > .numberinput-postfix {
+        top: 1px;
+        bottom: 1px;
+        right: var(--ni-height);
+        padding-right: var(--ni-padding-x);
+    }
+
+    > .numberinput-stepper {
+        right: 1px;
+        width: calc(var(--ni-addon-width) - 1px);
+        height: calc(50% - 1px);
+        color: inherit;
+        font-size: 10px;
+
+        &.numberinput-up {
+            top: 1px;
+        }
+
+        &.numberinput-down {
+            bottom: 1px;
+        }
+    }
+
+    > .numberinput:not(:disabled) ~ .numberinput-stepper,
+    > .numberinput:not(:read-only) ~ .numberinput-stepper {
         &:hover {
             background-color: rgba(#000, 0.05);
         }
@@ -153,13 +188,131 @@
             background-color: rgba(#000, 0.08);
         }
     }
+}
 
 
-    &.numberinput-up {
-        top: 1px;
+//
+// Centered Styling
+// -------------------------------------
+
+.numberinput-centered {
+    --ni-addon-width: 1.6rem;
+    --ni-number-offset: 0px;
+    --ni-number-top: calc(var(--ni-padding-y) - var(--ni-number-offset));
+    --ni-number-bottom: calc(var(--ni-padding-y) + var(--ni-number-offset));
+
+    &.has-postfix {
+        --ni-number-offset: calc((var(--ni-padding-y) / 2) + 0.175rem);
     }
 
-    &.numberinput-down {
+    &.has-postfix.input-group-lg {
+        --ni-number-offset: calc(var(--ni-padding-y) / 2);
+        --ni-font-size: #{$font-size-base};
+    }
+
+    &.has-postfix.input-group-sm {
+        --ni-number-top: 0px;
+        --ni-number-bottom: calc(var(--ni-padding-y) * 2);
+    }
+
+    > .numberinput {
+        font-weight: $font-weight-bold;
+        padding-left: var(--ni-addon-width);
+        padding-right: var(--ni-addon-width);
+        padding-top: var(--ni-number-top);
+        padding-bottom: var(--ni-number-bottom);
+        text-align: center;
+    }
+
+    > .numberinput-formatted {
+        font-weight: $font-weight-bold;
+        left: var(--ni-addon-width);
+        right: var(--ni-addon-width);
+        top: var(--ni-number-top);
+        bottom: var(--ni-number-bottom);
+        justify-content: center;
+        align-items: center;
+    }
+
+    > .numberinput-postfix {
+        font-size: 11px;
+        left: var(--ni-addon-width);
+        right: var(--ni-addon-width);
         bottom: 1px;
+        top: auto;
+        padding-bottom: 0.15rem;
+        justify-content: center;
+        align-items: center;
+        background-color: transparent;
+    }
+
+    &.input-group-lg > .numberinput-postfix {
+        bottom: 5px;
+    }
+
+    > .numberinput-stepper {
+        width: var(--ni-addon-width);
+        height: 100%;
+        color: inherit;
+        opacity: 0.3;
+
+        &.numberinput-up {
+            right: 0;
+            left: auto;
+            padding-left: 4px;
+            justify-content: flex-start;
+        }
+
+        &.numberinput-down {
+            left: 1px;
+            right: auto;
+            padding-right: 4px;
+            justify-content: flex-end;
+        }
+    }
+
+    > .numberinput:not(:disabled) ~ .numberinput-stepper,
+    > .numberinput:not(:read-only) ~ .numberinput-stepper {
+        &:hover {
+            opacity: 0.6;
+        }
+
+        &:active {
+            opacity: 1;
+        }
     }
 }
+
+
+
+
+// Touchspin
+// -------------------------------------
+
+/*.bootstrap-touchspin {
+    .input-group-btn {
+        &:first-child {
+            left: auto;
+            right: 1px;
+        }
+
+        &:last-child {
+            right: auto;
+            left: 0;
+        }
+
+        > .btn {
+            &.bootstrap-touchspin-down {
+                text-align: left;
+                padding-left: 4px;
+                padding-right: 0;
+            }
+
+            &.bootstrap-touchspin-up {
+                text-align: right;
+                padding-right: 4px;
+                padding-left: 0;
+            }
+        }
+    }
+}*/

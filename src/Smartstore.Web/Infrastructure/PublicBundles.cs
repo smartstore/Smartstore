@@ -80,7 +80,6 @@ namespace Smartstore.Web.Infrastructure
                 lib + "pnotify/js/pnotify.buttons.js",
                 lib + "pnotify/js/pnotify.animate.js",
                 lib + "slick/slick.js",
-                lib + "touchspin/jquery.bootstrap-touchspin.js",
                 lib + "aos/js/aos.js",
                 lib + "bs4/js/bootstrap.bundle.js",
                 // Common
@@ -96,6 +95,7 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.common.js",
                 js + "smartstore.dialogs.js",
                 js + "smartstore.selectwrapper.js",
+                js + "smartstore.numberinput.js",
                 js + "smartstore.throbber.js",
                 js + "smartstore.thumbzoomer.js",
                 js + "smartstore.responsiveNav.js",

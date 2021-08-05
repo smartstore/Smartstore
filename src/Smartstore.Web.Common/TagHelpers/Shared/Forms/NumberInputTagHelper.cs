@@ -8,11 +8,25 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    public enum NumberInputStyle
+    {
+        /// <summary>
+        /// Up/Down chevrons on right, number left-aligned, postfix right-aligned.
+        /// </summary>
+        Default,
+
+        /// <summary>
+        /// Minus on left, Plus on right, number centered, postfix centered below number.
+        /// </summary>
+        Centered
+    }
+    
     [HtmlTargetElement("input", Attributes = "[type=number]")]
     public class NumberInputTagHelper : TagHelper
     {
         const string PostfixAttributeName = "sm-postfix";
         const string DecimalsAttributeName = "sm-decimals";
+        const string StyleAttributeName = "sm-numberinput-style";
 
         private readonly ILocalizationService _localizationService;
 
@@ -36,9 +50,16 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(DecimalsAttributeName)]
         public uint Decimals { get; set; }
 
+        /// <summary>
+        /// Style of numberinput control.
+        /// </summary>
+        [HtmlAttributeName(StyleAttributeName)]
+        public NumberInputStyle Style { get; set; }
+
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             output.AppendCssClass("numberinput");
+            output.MergeAttribute("data-editor", "numberinput");
 
             if (Decimals > 0)
             {
@@ -53,14 +74,12 @@ namespace Smartstore.Web.TagHelpers.Shared
                 {
                     output.Attributes.Add("placeholder", _localizationService.GetResource("Common.Empty", logIfNotFound: false, returnEmptyIfNotFound: true));
                 }
-                
+
                 // Fix value decimal separator (make invariant)
-                if (output.Attributes.TryGetAttribute("value", out var valueAttr) && valueAttr.Value != null)
+                var value = modelExpression.Model.Convert<decimal?>();
+                if (value.HasValue)
                 {
-                    if (decimal.TryParse(valueAttr.Value.ToString(), out var value))
-                    {
-                        output.MergeAttribute("value", value.ToStringInvariant(), true);
-                    }
+                    output.MergeAttribute("value", value.ToStringInvariant(), true);
                 }
             }
             
@@ -73,20 +92,30 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.PostElement.AppendHtml($"<span class='numberinput-postfix'>{Postfix}</span>");
             }
 
-            // Step up
-            output.PostElement.AppendHtml("<a href='javascript:;' class='numberinput-stepper numberinput-up' tabindex='-1'><i class='fa fa-chevron-up'></i></a>");
-
             // Step down
-            output.PostElement.AppendHtml("<a href='javascript:;' class='numberinput-stepper numberinput-down' tabindex='-1'><i class='fa fa-chevron-down'></i></a>");
+            var stepDownIcon = "fas fa-" + (Style == NumberInputStyle.Centered ? "minus" : "chevron-down");
+            output.PostElement.AppendHtml($"<a href='javascript:;' class='numberinput-stepper numberinput-down' tabindex='-1'><i class='{stepDownIcon}'></i></a>");
+
+            // Step up
+            var stepUpIcon = "fas fa-" + (Style == NumberInputStyle.Centered ? "plus" : "chevron-up");
+            output.PostElement.AppendHtml($"<a href='javascript:;' class='numberinput-stepper numberinput-up' tabindex='-1'><i class='{stepUpIcon}'></i></a>");
 
             // Parent wrapper tag
             var group = new TagBuilder("div");
-            group.Attributes.Add("class", "numberinput-group input-group");
+            group.Attributes.Add("class", "numberinput-group input-group edit-control");
+            group.MergeAttribute("data-editor", "number");
+
+            group.AppendCssClass("numberinput-" + (Style == NumberInputStyle.Centered ? "centered" : "default"));
+
+            if (Postfix.HasValue())
+            {
+                group.AppendCssClass("has-postfix");
+            }
 
             if (context.AllAttributes.TryGetAttribute("sm-control-size", out var controlSizeAttr))
             {
                 var controlSize = controlSizeAttr.Value.Convert<ControlSize?>();
-                if (controlSize.HasValue)
+                if (controlSize.HasValue && controlSize != ControlSize.Medium)
                 {
                     group.AppendCssClass("input-group-" + (controlSize == ControlSize.Small ? "sm" : "lg"));
                 }

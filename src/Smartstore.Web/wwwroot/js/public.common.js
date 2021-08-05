@@ -74,21 +74,9 @@
                 trigger: 'hover'
             });
         },
-        // touch spin
+        // NumberInput
         function (ctx) {
-            if ($.fn.TouchSpin === undefined)
-                return;
-
-            ctx.find('.qty-input > .form-control').each(function (i, el) {
-                var ctl = $(this);
-
-                ctl.TouchSpin({
-                    buttondown_class: 'btn btn-secondary',
-                    buttonup_class: 'btn btn-secondary',
-                    buttondown_txt: '<i class="fa fa-minus"></i>',
-                    buttonup_txt: '<i class="fa fa-plus"></i>',
-                });
-            });
+            ctx.find(".numberinput-group").numberInput();
         },
         // newsletter subsription
         function (ctx) {
