@@ -215,10 +215,10 @@
 
 		container.change(function() {
 			note.empty();
-			container.closest('form').doAjax({
+            container.closest('form').ajax({
 				smallIcon: note,
 				url: '@Url.Action("CombinationExistenceNote", "Product", new { productId = Model.ProductId })',
-				callbackSuccess: function (resp) {
+				success: function (resp) {
 					var cls = (resp.HasWarning ? 'warning' : 'info'),
 						ico = (resp.HasWarning ? 'warning-sign' : 'ok-sign');
 

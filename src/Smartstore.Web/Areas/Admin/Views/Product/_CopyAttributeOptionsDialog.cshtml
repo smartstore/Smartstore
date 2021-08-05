@@ -61,9 +61,8 @@
 
         // Copy attribute options.
         $(document).on('click', '#btn-copy-attribute-options', (function () {
-            $('#copy-options-form').doAjax({
-                type: 'POST',
-                callbackSuccess: function () {
+            $('#copy-options-form').ajax({
+                success: function () {
                     window["productvariantattributes-grid"].$children[0].read();
                 }
             });

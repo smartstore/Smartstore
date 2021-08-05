@@ -331,10 +331,10 @@
 		// Resolve file name pattern example.
 		$('#FileNamePatternExampleButton').on('click', function () {
 			var pattern = $('#@(Html.IdFor(x => x.FileNamePattern))').val();
-			$(this).doAjax({
+            $(this).ajax({
 				type: 'GET',
 				url: '@Url.Action("ResolveFileNamePatternExample", new { id = Model.Id })' + '?pattern=' + encodeURIComponent(pattern),
-				callbackSuccess: function (response) {
+				success: function (response) {
 					$('#FileNamePatternExample').text(response);
 				}
 			});
@@ -343,7 +343,7 @@
 		// Execute export.
 		$('#ProfileExportButton').on('click', function (e) {
 			e.preventDefault();
-			$(this).doPostData({
+            $(this).postData({
 				ask: @(T("Admin.Common.AskToProceed").JsValue),
                 data: { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() }
 			});

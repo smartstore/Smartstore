@@ -71,7 +71,7 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.globalization.js",
                 js + "jquery.validate.unobtrusive.custom.js",
                 js + "smartstore.viewport.js",
-                js + "smartstore.doajax.js",
+                js + "smartstore.ajax.js",
                 js + "smartstore.eventbroker.js",
                 js + "smartstore.common.js",
                 js + "smartstore.dialogs.js",

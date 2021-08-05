@@ -77,9 +77,9 @@
 
         // Mutually create related products.
         $(document).on("click", "#btnCreateMutuallyCrossSellProducts", function () {
-            $(this).doAjax({
+            $(this).ajax({
                 data: { "__RequestVerificationToken": token },
-                callbackSuccess: function (resp) {
+                success: function (resp) {
                     alert(resp.Message);
                 }
             });
@@ -87,15 +87,14 @@
     });
 
     function PickCrossSellProducts_Completed(ids) {
-        $({}).doAjax({
-            type: 'POST',
+        $({}).ajax({
             url: '@Url.Action("CrossSellProductAdd")',
             data: {
                 "productId": @parentModel.Id,
                 "selectedProductIds": ids,
                 "__RequestVerificationToken": token
             },
-            callbackSuccess: function () {
+            success: function () {
                 window["crosssellproducts-grid"].$children[0].read();
             }
         });

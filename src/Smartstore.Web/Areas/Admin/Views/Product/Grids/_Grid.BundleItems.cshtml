@@ -102,15 +102,14 @@
     }
 
     function PickBundleItems_Completed(ids) {
-        $({}).doAjax({
-            type: 'POST',
+        $({}).ajax({
             url: '@Url.Action("BundleItemAdd")',
             data: {
                 "productId": @parentModel.Id,
                 "selectedProductIds": ids,
                 "__RequestVerificationToken": token
             },
-            callbackSuccess: function () {
+            success: function () {
                 window["bundleitems-grid"].$children[0].read();
             }
         });

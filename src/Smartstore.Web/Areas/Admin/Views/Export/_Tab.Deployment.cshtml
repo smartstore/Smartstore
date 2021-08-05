@@ -252,7 +252,7 @@
 
 		// Delete deployment.
 		$('#export-deployment-list').find('.delete-deployment').on('click', function () {
-			$(this).doPostData({
+            $(this).postData({
                 data: { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
 				ask: @T("Admin.Common.AskToProceed").JsValue
 			});
@@ -266,11 +266,11 @@
 
 			fileDialog.find('.modal-body').empty();
 
-			$({}).doAjax({
+			$({}).ajax({
 				type: 'GET',
 				url: '@Url.Action("ProfileFileDetails")?profileId=0&deploymentId=' + id,
 				smallIcon: fileDialog.find('.modal-body'),
-				callbackSuccess: function (response) {
+				success: function (response) {
 					fileDialog.find('.modal-body').html(response);
 				}
 			});

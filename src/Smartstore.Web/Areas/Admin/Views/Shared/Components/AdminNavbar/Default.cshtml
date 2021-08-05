@@ -130,11 +130,10 @@
 		$("#clear-database-cache, #clear-cache").on('click', function (e) {
             e.preventDefault();
 
-            $({}).doAjax({
-                type: 'POST',
+            $({}).ajax({
                 url: $(e.target).data("url"),
                 data: { "__RequestVerificationToken": token },
-                callbackSuccess: function (data) {
+                success: function (data) {
 					displayNotification(data.Message, 'success');
 					$(e.target).closest(".dropdown").dropdown('toggle');
                 }

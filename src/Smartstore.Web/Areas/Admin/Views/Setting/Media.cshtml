@@ -298,7 +298,7 @@
     				message: @T("Admin.Common.WaitProcessingMessage").JsValue
     			});
 
-    			$(this).doPostData({
+                $(this).postData({
                     data: {
                         targetProvider: $('#@Html.IdFor(model => model.StorageProvider)').val(),
                         __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()

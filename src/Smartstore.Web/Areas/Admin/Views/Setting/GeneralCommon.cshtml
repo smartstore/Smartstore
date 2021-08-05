@@ -968,10 +968,9 @@
     $(function() {
 		// Test creation of SEO names.
 		$('#TestSeoNameCreationButton').click(function () {
-			$(this).closest('form').doAjax({
-				type: 'POST',
+            $(this).closest('form').ajax({
 				url: '@Url.Action("TestSeoNameCreation")',
-				callbackSuccess: function (resp) {
+				success: function (resp) {
 					$('#TestSeoNameCreationResult').html('<p class="alert alert-info">' + resp + '</p>');
 				}
 			});

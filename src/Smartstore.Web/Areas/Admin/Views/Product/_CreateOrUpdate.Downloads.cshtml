@@ -315,11 +315,10 @@
         $('.download-versions').on('click', '.delete-download-version', function () {
             var download = $(this).closest("tr");
 
-            $(this).doAjax({
-                type: 'POST',
+            $(this).ajax({
                 data: { "__RequestVerificationToken": token },
 				ask: @T("Admin.Common.AskToProceed").JsValue,
-                callbackSuccess: function (data) {
+                success: function (data) {
                     if (data.success) {
                         displayNotification(data.Message, 'success');
                         download.remove();

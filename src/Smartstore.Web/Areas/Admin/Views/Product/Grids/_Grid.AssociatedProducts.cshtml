@@ -73,15 +73,14 @@
     function PickAssociatedProducts_Completed(ids) {
 		var token = $('input[name="__RequestVerificationToken"]').val();
 
-		$({}).doAjax({
-			type: 'POST',
+        $({}).ajax({
 			url: '@Url.Action("AssociatedProductAdd")',
             data: {
                 "productId": @parentModel.Id,
                 "selectedProductIds": ids,
 				"__RequestVerificationToken": token
             },
-			callbackSuccess: function () {
+			success: function () {
                 window["associatedproducts-grid"].$children[0].read();
 			}
 		});

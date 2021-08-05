@@ -50,10 +50,10 @@
             dialog.find('.modal-body').empty();
             dialog.find('.btn-primary').toggle(false);
 
-			$(this).doAjax({
+            $(this).ajax({
 				type: 'GET',
 				smallIcon: dialog.find('.modal-body'),
-				callbackSuccess: function (response) {
+				success: function (response) {
 					dialog.find('.modal-body').html(response);
 
 					$('select[name="ProviderSystemName"]').selectWrapper({
@@ -71,7 +71,7 @@
 						templateSelection: profileSelectItemFormatting
 					});
 				},
-				callbackComplete: function () {
+				complete: function () {
 					dialog.find('.btn-primary').toggle(true);
 				}
 			});
@@ -89,11 +89,11 @@
 
             fileDialog.find('.modal-body').empty();
 			
-			$({}).doAjax({
+            $({}).ajax({
 				type: 'GET',
 				url: '@Url.Action("ProfileFileDetails")?deploymentId=0&profileId=' + id,
 				smallIcon: fileDialog.find('.modal-body'),
-				callbackSuccess: function (response) {
+				success: function (response) {
 					fileDialog.find('.modal-body').html(response);
 				}
 			});
@@ -188,7 +188,7 @@
 		// Start export task.
 		$(document).on('click', '.btn-run-task', function (e) {
 			e.preventDefault();
-            $(this).doPostData({
+            $(this).postData({
                 ask: @T("Admin.Common.AskToProceed").JsValue,
 				data: { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() }
 			});

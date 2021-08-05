@@ -98,9 +98,9 @@
 
         $(document).on('click', '#btnCreateAllCombinations, #btnDeleteAllCombinations', function () {
 			var token = $('input[name="__RequestVerificationToken"]').val();
-            $(this).doAjax({
+            $(this).ajax({
                 data: { "__RequestVerificationToken": token },
-                callbackSuccess: function (resp) {
+                success: function (resp) {
                     $('#btnRefreshCombinations').click();
                 }
             });

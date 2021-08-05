@@ -31,16 +31,16 @@
                     ctx = el;
                 }
 
-                ctx.doAjax({
+                ctx.ajax({
                     data: ctx.find(':input').serialize(),
-                    callbackSuccess: function (response) {
+                    success: function (response) {
                         self.updateDetailData(response, ctx, isNumberInput, isFileUpload, isDateTime);
 
                         if (ctx.hasClass('pd-bundle-item')) {
                             // Update bundle price too.
-                            $('#main-update-container').doAjax({
+                            $('#main-update-container').ajax({
                                 data: $('.pd-bundle-items').find(':input').serialize(),
-                                callbackSuccess: function (response2) {
+                                success: function (response2) {
                                     self.updateDetailData(response2, $('#main-update-container'), isNumberInput, isFileUpload, isDateTime);
                                 }
                             });

@@ -69,15 +69,14 @@
             var activate = $el.attr("data-activate") == "true" ? true : false;
             var T = window.Res.Provider;
 
-            $({}).doAjax({
-                type: 'POST',
+            $({}).ajax({
                 url: $el.data('href'),
                 data: {
                     "__RequestVerificationToken": token,
                     "systemName": $el.attr("data-systemname"),
                     "activate": activate
                 },
-                callbackSuccess: function () {
+                success: function () {
                     var item = $el.closest(".module-item");
                     var badge = item.find(".badge");
 
@@ -100,7 +99,7 @@
                 }
             });
 
-        return false;
+            return false;
         })
     }
 
