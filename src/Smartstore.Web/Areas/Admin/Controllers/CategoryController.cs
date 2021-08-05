@@ -267,8 +267,14 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Category.Update)]
         public async Task<IActionResult> TreeDrop(int id, int targetId, string position)
         {
+            // INFO: all entities needs to be tracked.
             var category = await _db.Categories.FindByIdAsync(id);
-            var targetCategory = await _db.Categories.FindByIdAsync(targetId, false);
+            var targetCategory = await _db.Categories.FindByIdAsync(targetId);
+
+            if (category == null || targetCategory == null)
+            {
+                return Json(new { success = false, message = T("Admin.Common.ResourceNotFound").Value });
+            }
 
             switch (position)
             {
@@ -282,17 +288,21 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Re-calculate display orders.
+            // INFO: apply the same sort order as when loading the tree.
             var tmpDisplayOrder = 0;
             var childCategories = await _db.Categories
                 .Where(x => x.ParentCategoryId == category.ParentCategoryId)
-                .OrderBy(x => x.DisplayOrder)
+                .ApplyStandardFilter(true, null, 0)
                 .ToListAsync();
 
             foreach (var childCategory in childCategories)
             {
                 childCategory.DisplayOrder = tmpDisplayOrder;
                 tmpDisplayOrder += 10;
+            }
 
+            if (childCategories.Any())
+            {
                 switch (position)
                 {
                     case "before":

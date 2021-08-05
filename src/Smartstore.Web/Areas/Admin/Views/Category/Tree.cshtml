@@ -54,6 +54,7 @@
         // Init category tree.
         $('#category-tree').tree('init', {
             url: '@Url.Action("CategoryTree")',
+            dropUrl: '@Url.Action("TreeDrop")',
             dragAndDrop: @canEdit.ToString().ToLower(),
             defaultCollapsedIconClass: 'fas fa-fw fa-folder text-success',
             defaultExpandededIconClass: 'fas fa-fw fa-folder-open text-success',

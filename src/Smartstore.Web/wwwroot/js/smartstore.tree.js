@@ -226,14 +226,77 @@
             animation: 150,
             fallbackOnBody: true,
             swapThreshold: 0.65,
-            //items: '.tree-node-content',
-            //handle: '.tree-node-drag',
-            //filter: ''
-            onSort: function (e) {
-                var from = $(e.from);
-                var to = $(e.to);
-                console.log(`sort: ${from.find('.tree-name:first').text()} -> ${to.find('.tree-name:first').text()}`);
+            handle: '.tree-node-content',
+            //dragClass: 'tree-dragging',
+            //filter: '.tree-node-disabled'
+        }).on('sort', function (e) {
+            e.stopPropagation();
+
+            // Dragged element.
+            var el = $(e.originalEvent.item);
+            var elNext = el.next();
+            var elPrev = el.prev();
+            var targetName;
+
+            var data = {
+                "id": el.data('id') || 0,
+                "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+            };
+
+            if (elNext.length) {
+                data.position = 'before';
+                data.targetId = elNext.data('id') || 0;
+                targetName = elNext.find('.tree-name:first').text();
             }
+            else if (elPrev.length) {
+                data.position = 'after';
+                data.targetId = elPrev.data('id') || 0;
+                targetName = elPrev.find('.tree-name:first').text();
+            }
+            else {
+                // Node of target list.
+                var parent = $(e.originalEvent.to).closest('.tree-node');
+
+                data.position = 'over';
+                data.targetId = parent.data('id') || 0;
+                targetName = parent.find('.tree-name:first').text();
+            }
+
+            // Only fire data once.
+            var dataStr = JSON.stringify(data);
+            if (opt?._drag?.dataStr != dataStr) {
+                opt._drag.dataStr = dataStr;
+
+                $.ajax({
+                    type: 'POST',
+                    url: opt.dropUrl,
+                    cache: false,
+                    timeout: 5000,
+                    data: data,
+                    success: function (response) {
+                        console.log(`${data.position}: ${targetName}, ${data.targetId}`);
+
+                        if (response.message) {
+                            displayNotification(response.message, response.success ? 'success' : 'error');
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        displayNotification(xhr.responseText || thrownError, 'error');
+                    }
+                });
+            }
+        }).on('start', function (e) {
+            e.stopPropagation();
+            opt._drag = {};
+            context.closest('.tree').find('.tree-highlight').removeClass('tree-highlight');
+            //console.log(`start: ${$(e.originalEvent.item).find('.tree-name:first').text()}`);
+        }).on('end', function (e) {
+            e.stopPropagation();
+            opt._drag = null;
+            if (opt.highlightNodes) {
+                context.closest('.tree').find('.tree-node-content').addClass('tree-highlight');
+            }
+            //console.log(`end: ${$(e.originalEvent.item).find('.tree-name:first').text()}`);
         });
     }
 
