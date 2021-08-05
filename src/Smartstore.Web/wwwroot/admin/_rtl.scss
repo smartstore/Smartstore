@@ -9,6 +9,7 @@
 // --------------------------------------------------
 
 [dir=rtl] {
+
     // Layout
     // ------
     .section-header {
@@ -32,6 +33,7 @@
             padding-left: 0;
         }
     }
+
     // Main Menu
     // ---------
     #navbar #navbar-menu .nav-item > .dropdown-menu {
@@ -62,6 +64,7 @@
             right: auto;
         }
     }
+
     // Form Grid
     // ---------
     .adminContent {
@@ -87,6 +90,7 @@
             }
         }
     }
+
     // Themes
     // ------
     #theme-list .theme-broken-badge {
@@ -98,6 +102,7 @@
         margin-right: 0.75rem;
         margin-left: initial;
     }
+
     // Dashboard
     // ---------
     .stats-today .stats-today-item {
@@ -109,6 +114,7 @@
             border-left: none
         }
     }
+
     //
     // Locale Editor
     // -------------
@@ -123,6 +129,7 @@
             text-align: left;
         }
     }
+
     // Plugins & Providers
     // -------------------
     .module-icon {
@@ -149,12 +156,14 @@
         padding-right: 2rem;
         padding-left: initial;
     }
+
     // Misc
     // ----
     .color-container {
         padding-left: 0.5rem;
         padding-right: initial;
     }
+
     // HTML editors
     // ------------
     .note-editor .note-toolbar {
@@ -183,79 +192,5 @@
     .card-header.note-toolbar .note-color .dropdown-toggle {
         padding-left: 5px;
         padding-right: 5px;
-    }
-
-    // Telerik
-    // TODO: (core) Remove later
-    // -------
-    .t-numerictextbox {
-        &:after {
-            border-right-width: 1px;
-            border-left-width: 0;
-            left: 1px;
-            right: auto;
-        }
-
-        .t-input {
-            padding-left: $input-height-inner + 1rem !important;
-            padding-right: $input-padding-x !important;
-        }
-
-        .t-formatted-value {
-            right: 0;
-            left: auto;
-        }
-
-        .t-input ~ .t-icon {
-            left: 0;
-            right: auto;
-        }
-    }
-
-    .t-grid-header .t-header {
-        text-align: right;
-
-        .t-grid-filter {
-            left: 0;
-            right: initial;
-        }
-    }
-
-    .t-grid-edit-row .t-numerictextbox {
-        .t-input {
-            padding-right: 0.5rem !important;
-            padding-left: 1.75rem !important;
-        }
-
-        .t-formatted-value {
-            padding-right: 0.5rem !important;
-            padding-left: 1rem !important;
-        }
-    }
-
-    .numberinput-group .numberinput-postfix {
-        left: $input-height;
-        right: auto;
-    }
-
-    .t-treeview .t-plus, .t-treeview .t-minus, .t-treeview .t-plus-disabled, .t-treeview .t-minus-disabled {
-        margin-left: inherit;
-        float: none;
-    }
-
-    .t-treeview .t-sprite, .t-treeview .t-image {
-        margin-left: 3px;
-    }
-
-    .t-treeview .t-item {
-        padding: 0 16px 0 16px;
-    }
-
-    .t-treeview .t-in {
-        padding: 2px 12px 2px 3px;
-    }
-
-    .t-treeview .t-state-hover, .t-treeview .t-state-selected {
-        padding: 1px 11px 1px 2px;
     }
 }
