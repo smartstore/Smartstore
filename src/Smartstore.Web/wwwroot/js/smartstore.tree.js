@@ -104,6 +104,10 @@
         addNodeHtml(root, opt, data);
         initializeDragAndDrop(root, opt);
 
+        if (opt.highlightNodes) {
+            root.addClass('tree-highlight');
+        }
+
         // Set root item class.
         root.find('ul:first > .tree-node').each(function () {
             $(this).addClass('root-node');
@@ -288,13 +292,13 @@
         }).on('start', function (e) {
             e.stopPropagation();
             opt._drag = {};
-            context.closest('.tree').find('.tree-highlight').removeClass('tree-highlight');
+            context.closest('.tree').removeClass('tree-highlight');
             //console.log(`start: ${$(e.originalEvent.item).find('.tree-name:first').text()}`);
         }).on('end', function (e) {
             e.stopPropagation();
             opt._drag = null;
             if (opt.highlightNodes) {
-                context.closest('.tree').find('.tree-node-content').addClass('tree-highlight');
+                context.closest('.tree').addClass('tree-highlight');
             }
             //console.log(`end: ${$(e.originalEvent.item).find('.tree-name:first').text()}`);
         });
@@ -378,7 +382,7 @@
             var dimmed = nodeData ? nodeData.Dimmed : toBool(li.data('dimmed'), false);
             var enabled = nodeData ? nodeData.Enabled : toBool(li.data('enabled'), true);
             var textClass = numChildren == 0 ? 'tree-leaf-text' : 'tree-noleaf-text';
-            var contentClass = `tree-node-content${opt.highlightNodes ? ' tree-highlight' : ''}${dimmed ? ' tree-dim' : ''}${enabled ? '' : ' tree-disabled'}`;
+            var contentClass = `tree-node-content${dimmed ? ' tree-dim' : ''}${enabled ? '' : ' tree-disabled'}`;
             var nodeClass = `tree-node ${numChildren == 0 ? opt.leafClass : 'tree-noleaf'}`;
             var labelHtml = '';
             var html = '';

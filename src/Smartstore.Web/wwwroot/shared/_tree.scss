@@ -10,6 +10,7 @@ $default-state-color: $gray-400;
 
 .tree-list {
     position: relative;
+    display: inline-block;
     list-style: none;
     padding-left: 24px;
 
@@ -40,7 +41,7 @@ $default-state-color: $gray-400;
     color: inherit;
 }
 
-.tree-highlight:not(.tree-selected, .tree-disabled):hover {
+.tree-highlight .tree-node-content:not(.tree-selected, .tree-disabled):hover {
     background-color: rgba(#000, 0.08);
 }
 
