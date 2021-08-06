@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.DevTools</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<Copyright>Copyright © Smartstore AG</Copyright>
+		<Company>Smartstore AG</Company>
+		<Authors>Smartstore AG</Authors>
+		<PackageProjectUrl>https://smartstore.com/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/smartstore/Smartstore</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>		
+	</PropertyGroup>
+	
+	<!--<ItemGroup>
+	  <None Remove="manifest.json" />
+	  <None Remove="wwwroot\placeholder.txt" />
+	</ItemGroup>-->
+
+	<ItemGroup>
+	  <Content Include="manifest.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+		<Content Include="wwwroot\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Views\**\*.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+	</ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Smartstore.Core\Smartstore.Core.csproj">
+      <Private>false</Private>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Smartstore.Web.Common\Smartstore.Web.Common.csproj">
+      <Private>false</Private>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Smartstore\Smartstore.csproj">
+      <Private>false</Private>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+	<!-- Remove files from copy local that would not be published as they are provided by the platform package --><!--
+	<Target Name="FilterCopyLocal" DependsOnTargets="RunResolvePublishAssemblies" BeforeTargets="ResolveLockFileCopyLocalProjectDeps">
+		<ItemGroup>
+			<_CopyLocalButNotPublished Include="@(AllCopyLocalItems)" Exclude="@(ResolvedAssembliesToPublish)" />
+			<AllCopyLocalItems Remove="@(_CopyLocalButNotPublished)" />
+		</ItemGroup>
+	</Target>-->
+
+</Project>

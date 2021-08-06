@@ -1,0 +1,11 @@
+{
+  "Group": "Developer",
+  "SystemName": "Smartstore.DevTools",
+  "FriendlyName": "Smartstore Developer Tools (MiniProfiler and other goodies)",
+  "Description": "",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "DisplayOrder": 1,
+  "FileName": "Smartstore.DevTools.dll",
+  "ResourceRootKey": "Plugins.Developer.DevTools"
+}

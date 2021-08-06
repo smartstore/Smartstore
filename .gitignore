@@ -300,7 +300,7 @@ _[Bb]ackups/
 Kopie von*
 
 /build
-/src/Smartstore.Web/Plugins
+/src/Smartstore.Web/Modules
 /src/Smartstore.Web/App_Data/_temp/
 /src/Smartstore.Web/App_Data/ExportProfiles/
 /src/Smartstore.Web/App_Data/ImportProfiles/
