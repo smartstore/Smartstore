@@ -12,7 +12,7 @@ namespace Smartstore.Engine.Modularity
         /// <summary> 
         /// Returns a collection of all referenced module assemblies that have been deployed.
         /// </summary>
-        IEnumerable<ModuleDescriptor> Modules { get; }
+        IEnumerable<IModuleDescriptor> Modules { get; }
 
         /// <summary>
         /// Returns a list of all module names which are not compatible with the current application version.
@@ -39,7 +39,7 @@ namespace Smartstore.Engine.Modularity
         /// <param name="assembly">The module assembly</param>
         /// <param name="installedOnly">Return the module only if it is installed.</param>
         /// <returns>Descriptor</returns>
-        ModuleDescriptor GetModuleByAssembly(Assembly assembly, bool installedOnly = true);
+        IModuleDescriptor GetModuleByAssembly(Assembly assembly, bool installedOnly = true);
 
         /// <summary>
         /// Gets a module by system name.
@@ -47,7 +47,7 @@ namespace Smartstore.Engine.Modularity
         /// <param name="name">The module's system name.</param>
         /// <param name="installedOnly">Return the module only if it is installed.</param>
         /// <returns>Descriptor</returns>
-        ModuleDescriptor GetModuleByName(string name, bool installedOnly = true);
+        IModuleDescriptor GetModuleByName(string name, bool installedOnly = true);
     }
 
     public static class IModuleCatalogExtensions
@@ -56,20 +56,20 @@ namespace Smartstore.Engine.Modularity
         /// Get descriptors of all installed modules.
         /// </summary>
         /// <returns>Installed module descriptors.</returns>
-        public static IEnumerable<ModuleDescriptor> GetInstalledModules(this IModuleCatalog catalog)
+        public static IEnumerable<IModuleDescriptor> GetInstalledModules(this IModuleCatalog catalog)
         {
-            return catalog.Modules.Where(x => x.Installed);
+            return catalog.Modules.Where(x => x.AssemblyInfo?.Installed == true);
         }
 
-        /// <summary>
-        /// Get a module descriptor by type.
-        /// </summary>
-        /// <returns>Descriptor or <c>null</c>.</returns>
-        public static ModuleDescriptor GetModule<TModule>(this IModuleCatalog catalog) where TModule : class, IModule
-        {
-            return catalog.Modules
-                .Where(x => typeof(TModule).IsAssignableFrom(x.ModuleClrType))
-                .FirstOrDefault();
-        }
+        ///// <summary>
+        ///// Get a module descriptor by type.
+        ///// </summary>
+        ///// <returns>Descriptor or <c>null</c>.</returns>
+        //public static IModuleDescriptor GetModule<TModule>(this IModuleCatalog catalog) where TModule : class, IModule
+        //{
+        //    return catalog.Modules
+        //        .Where(x => typeof(TModule).IsAssignableFrom(x.ModuleClrType))
+        //        .FirstOrDefault();
+        //}
     }
 }

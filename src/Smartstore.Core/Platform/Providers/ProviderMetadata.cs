@@ -120,10 +120,10 @@ namespace Smartstore.Engine.Modularity
         public string[] DependentWidgets { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="ModuleDescriptor"/> instance in which the provider is implemented
+        /// Gets or sets the <see cref="IModuleDescriptor"/> instance in which the provider is implemented
         /// </summary>
         /// <remarks>The value is <c>null</c>, if the provider is part of the application core</remarks>
-        public ModuleDescriptor ModuleDescriptor { get; set; }
+        public IModuleDescriptor ModuleDescriptor { get; set; }
 
         public string GetSettingKey(string name)
         {

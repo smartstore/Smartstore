@@ -47,7 +47,7 @@ namespace Smartstore.Core.Localization
         /// <param name="updateTouchedResources">Specifies whether user touched resources should also be updated</param>	
         /// <param name="filterLanguages">Import only files for particular languages</param>
         Task ImportModuleResourcesFromXmlAsync(
-            ModuleDescriptor moduleDescriptor,
+            IModuleDescriptor moduleDescriptor,
             IList<LocaleStringResource> targetList = null,
             bool updateTouchedResources = true,
             List<Language> filterLanguages = null);
@@ -67,6 +67,6 @@ namespace Smartstore.Core.Localization
         /// </summary>
         /// <param name="moduleDescriptor">Descriptor of the module</param>
         /// <returns>The hasher impl</returns>
-        DirectoryHasher CreateModuleResourcesHasher(ModuleDescriptor moduleDescriptor);
+        DirectoryHasher CreateModuleResourcesHasher(IModuleDescriptor moduleDescriptor);
     }
 }

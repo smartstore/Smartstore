@@ -22,7 +22,7 @@ namespace Smartstore.Events
         public bool WithEnvelope { get; set; }
         public bool IsAsync { get; set; }
         public bool FireForget { get; set; }
-        public ModuleDescriptor ModuleDescriptor { get; set; }
+        public IModuleDescriptor ModuleDescriptor { get; set; }
 
         public Type MessageType { get; set; }
         public Type ContainerType { get; set; }

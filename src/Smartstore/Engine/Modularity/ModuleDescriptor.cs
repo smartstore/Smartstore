@@ -4,8 +4,27 @@ using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity
 {
-    public class ModuleDescriptor : IExtensionDescriptor, IExtensionLocation
+    /// <inheritdoc/>
+    public class ModuleDescriptor : IModuleDescriptor
     {
+        private string _assemblyName;
+        private IFileSystem _fileProvider;
+        private string _resourceRootKey;
+
+        #region Static
+
+        public static ModuleDescriptor Parse(string manifestJson)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static ModuleDescriptor Parse(IFile file)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
         #region IExtensionDescriptor
 
         /// <inheritdoc/>
@@ -17,102 +36,76 @@ namespace Smartstore.Engine.Modularity
             => SystemName;
 
         /// <inheritdoc/>
-        public string FriendlyName { get; init; }
+        public string FriendlyName { get; internal set; }
 
         /// <inheritdoc/>
-        public string Description { get; init; }
+        public string Description { get; internal set; }
 
         /// <inheritdoc/>
-        public string Group { get; init; }
+        public string Group { get; internal set; }
 
         /// <inheritdoc/>
-        public string Author { get; init; }
+        public string Author { get; internal set; }
 
         /// <inheritdoc/>
-        public string ProjectUrl { get; init; }
+        public string ProjectUrl { get; internal set; }
 
         /// <inheritdoc/>
-        public string Tags { get; init; }
+        public string Tags { get; internal set; }
 
         /// <inheritdoc/>
-        public Version Version { get; init; }
+        public Version Version { get; internal set; }
 
         /// <inheritdoc/>
-        public Version MinAppVersion { get; init; }
+        public Version MinAppVersion { get; internal set; }
 
         #endregion
 
         #region IExtensionLocation
 
         /// <inheritdoc/>
-        public string Path { get; init; }
+        public string Path { get; internal set; }
 
         /// <inheritdoc/>
-        public string PhysicalPath { get; init; }
+        public string PhysicalPath { get; internal set; }
 
         /// <inheritdoc/>
-        public IFileProvider WebFileProvider { get; protected internal set; }
+        public IFileProvider WebFileProvider { get; internal set; }
 
         #endregion
 
-        private string _resourceRootKey;
+        /// <inheritdoc/>
+        public string SystemName { get; internal set; }
 
-        /// <summary>
-        /// Gets or sets the system name
-        /// </summary>
-        public string SystemName { get; init; }
+        /// <inheritdoc/>
+        public int Order { get; internal set; }
 
-        /// <summary>
-        /// Module installer runtime type.
-        /// </summary>
-        public Type ModuleClrType { get; set; }
+        /// <inheritdoc/>
+        public IFileSystem FileProvider
+        {
+            get => _fileProvider ??= new LocalFileSystem(PhysicalPath);
+            internal set => _fileProvider = Guard.NotNull(value, nameof(value));
+        }
 
-        /// <summary>
-        /// Gets or sets the (display) order
-        /// </summary>
-        public int Order { get; set; }
+        /// <inheritdoc/>
+        public string AssemblyName
+        {
+            get => _assemblyName ??= SystemName.EnsureEndsWith(".dll");
+            set => _assemblyName = value;
+        }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the module is installed
-        /// </summary>
-        public bool Installed { get; set; }
+        /// <inheritdoc/>
+        public ModuleAssemblyInfo AssemblyInfo { get; internal set; }
 
-        /// <summary>
-        /// Gets a value indicating whether the module is incompatible with the current application version
-        /// </summary>
-        public bool Incompatible { get; set; }
-
-        /// <summary>
-        /// Gets or sets the value indicating whether the module is configurable
-        /// </summary>
-        /// <remarks>
-        /// A module is configurable when it implements the <see cref="IConfigurable"/> interface
-        /// </remarks>
-        public bool IsConfigurable { get; set; }
-
-        /// <summary>
-        /// Gets the file provider that references the module's root directory.
-        /// </summary>
-        public IFileSystem FileProvider { get; protected internal set; }
-
-        /// <summary>
-        /// Gets or sets the root key of string resources.
-        /// </summary>
-        /// <remarks>
-        /// Tries to get it from first entry of resource XML file if not specified.
-        /// In that case the first resource name should not contain a dot if it's not part of the root key.
-        /// Otherwise you get the wrong root key.
-        /// </remarks>
+        /// <inheritdoc/>
         public string ResourceRootKey
         {
             // TODO: (core) Impl ModuleDescriptor.ResourceRootKey getter
-            get => "Smartstore.PseudoModule";
+            get => _resourceRootKey ??= "Smartstore.PseudoModule";
             set => _resourceRootKey = value;
         }
 
-        /// <summary>
-        /// Builds a setting key. Pattern: "PluginSetting.{ModuleSystemName}.{SettingName}"
-        /// </summary>
+        /// <inheritdoc/>
         public string GetSettingKey(string name)
         {
             // Compat: DON'T change Plugin > Module

@@ -380,7 +380,7 @@ namespace Smartstore.Core.Localization
         /// <param name="languageId">Language identifier</param>
         /// <param name="returnDefaultValue">A value indicating whether to return default value (if localized is not found)</param>
         /// <returns>Localized value</returns>
-        public static string GetLocalizedModuleProperty<T>(this ModuleDescriptor module, string propertyName, int languageId = 0, bool doFallback = true)
+        public static string GetLocalizedModuleProperty<T>(this IModuleDescriptor module, string propertyName, int languageId = 0, bool doFallback = true)
         {
             return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?
                 .GetLocalizedModuleProperty(module, propertyName, languageId, doFallback);

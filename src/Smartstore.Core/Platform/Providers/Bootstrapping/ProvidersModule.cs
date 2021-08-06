@@ -111,7 +111,7 @@ namespace Smartstore.Core.Bootstrapping
             }
         }
 
-        private static string GetSystemName(Type type, ModuleDescriptor descriptor)
+        private static string GetSystemName(Type type, IModuleDescriptor descriptor)
         {
             var attr = type.GetAttribute<SystemNameAttribute>(false);
             if (attr != null)
@@ -128,7 +128,7 @@ namespace Smartstore.Core.Bootstrapping
             //throw Error.Application("The 'SystemNameAttribute' must be applied to a provider type if the provider does not implement 'IModule' (provider type: {0}, plugin: {1})".FormatInvariant(type.FullName, descriptor != null ? descriptor.SystemName : "-"));
         }
 
-        private static int GetDisplayOrder(Type type, ModuleDescriptor descriptor)
+        private static int GetDisplayOrder(Type type, IModuleDescriptor descriptor)
         {
             var attr = type.GetAttribute<OrderAttribute>(false);
             if (attr != null)
@@ -166,7 +166,7 @@ namespace Smartstore.Core.Bootstrapping
             return ExportFeatures.None;
         }
 
-        private static (string Name, string Description) GetFriendlyName(Type type, ModuleDescriptor descriptor)
+        private static (string Name, string Description) GetFriendlyName(Type type, IModuleDescriptor descriptor)
         {
             string name = null;
             string description = name;

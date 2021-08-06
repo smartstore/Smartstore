@@ -5,7 +5,7 @@
   "Description": "",
   "Version": "5.0",
   "MinAppVersion": "5.0",
-  "DisplayOrder": 1,
-  "FileName": "Smartstore.DevTools.dll",
+  "Order": 1,
+  "AssemblyName": "Smartstore.DevTools.dll",
   "ResourceRootKey": "Plugins.Developer.DevTools"
 }

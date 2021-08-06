@@ -1639,7 +1639,7 @@ namespace Smartstore.Core.DataExchange.Export
             sb.Append("Module: ");
             if (module != null)
             {
-                var incompatible = module.Incompatible ? " INCOMPATIBLE" : string.Empty;
+                var incompatible = module.AssemblyInfo?.Incompatible == true ? " INCOMPATIBLE" : string.Empty;
                 sb.AppendLine($"{module.FriendlyName} ({module.SystemName}){incompatible}");
             }
             else

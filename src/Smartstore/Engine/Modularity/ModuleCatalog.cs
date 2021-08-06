@@ -7,11 +7,11 @@ namespace Smartstore.Engine.Modularity
     public class ModuleCatalog : IModuleCatalog
     {
         // TODO: (core) Implement Tenant stuff
-        private readonly IDictionary<string, ModuleDescriptor> _nameMap = new Dictionary<string, ModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
-        private readonly IDictionary<Assembly, ModuleDescriptor> _assemblyMap = new Dictionary<Assembly, ModuleDescriptor>();
+        private readonly IDictionary<string, IModuleDescriptor> _nameMap = new Dictionary<string, IModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
+        private readonly IDictionary<Assembly, IModuleDescriptor> _assemblyMap = new Dictionary<Assembly, IModuleDescriptor>();
         private readonly HashSet<Assembly> _inactiveAssemblies = new();
 
-        public IEnumerable<ModuleDescriptor> Modules
+        public IEnumerable<IModuleDescriptor> Modules
         {
             get => _nameMap.Values;
             internal set
@@ -23,11 +23,10 @@ namespace Smartstore.Engine.Modularity
                 {
                     _nameMap[module.SystemName] = module;
 
-                    // TODO: (core) Add module to assembly map
-                    //if (module.Assembly.Assembly != null)
-                    //{
-                    //    _assemblyMap[module.Assembly.Assembly] = module;
-                    //}
+                    if (module.AssemblyInfo?.Assembly != null)
+                    {
+                        _assemblyMap[module.AssemblyInfo.Assembly] = module;
+                    }
                 }
             }
         }
@@ -49,22 +48,22 @@ namespace Smartstore.Engine.Modularity
             return assembly != null && !_inactiveAssemblies.Contains(assembly);
         }
 
-        public ModuleDescriptor GetModuleByAssembly(Assembly assembly, bool installedOnly = true)
+        public IModuleDescriptor GetModuleByAssembly(Assembly assembly, bool installedOnly = true)
         {
             if (assembly != null && _assemblyMap.TryGetValue(assembly, out var descriptor))
             {
-                if (!installedOnly || descriptor.Installed)
+                if (!installedOnly || descriptor.AssemblyInfo?.Installed == true)
                     return descriptor;
             }
 
             return null;
         }
 
-        public ModuleDescriptor GetModuleByName(string name, bool installedOnly = true)
+        public IModuleDescriptor GetModuleByName(string name, bool installedOnly = true)
         {
             if (name.HasValue() && _nameMap.TryGetValue(name, out var descriptor))
             {
-                if (!installedOnly || descriptor.Installed)
+                if (!installedOnly || descriptor.AssemblyInfo?.Installed == true)
                     return descriptor;
             }
 

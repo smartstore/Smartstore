@@ -151,7 +151,7 @@ namespace Smartstore.Core.Localization
         }
 
         public virtual async Task ImportModuleResourcesFromXmlAsync(
-            ModuleDescriptor moduleDescriptor,
+            IModuleDescriptor moduleDescriptor,
             IList<LocaleStringResource> targetList = null,
             bool updateTouchedResources = true,
             List<Language> filterLanguages = null)
@@ -224,7 +224,7 @@ namespace Smartstore.Core.Localization
             catch { }
         }
 
-        public virtual DirectoryHasher CreateModuleResourcesHasher(ModuleDescriptor moduleDescriptor)
+        public virtual DirectoryHasher CreateModuleResourcesHasher(IModuleDescriptor moduleDescriptor)
         {
             return moduleDescriptor.FileProvider.GetDirectoryHasher("Localization", "resources.*.xml");
         }

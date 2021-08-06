@@ -189,10 +189,11 @@ namespace Smartstore
         /// </summary>
         /// <param name="value">The target string</param>
         /// <param name="startsWith">The string the target string should start with</param>
+        /// <param name="comparison">Comparison rule</param>
         /// <returns>The resulting string</returns>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string EnsureStartsWith(this string value, string startsWith)
+        public static string EnsureStartsWith(this string value, string startsWith, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
@@ -200,7 +201,7 @@ namespace Smartstore
             if (startsWith == null)
                 throw new ArgumentNullException(nameof(startsWith));
 
-            return value.StartsWith(startsWith) ? value : (startsWith + value);
+            return value.StartsWith(startsWith, comparison) ? value : (startsWith + value);
         }
 
         /// <summary>
@@ -224,9 +225,10 @@ namespace Smartstore
         /// </summary>
         /// <param name="endsWith">The target.</param>
         /// <param name="value">The value.</param>
+        /// <param name="comparison">Comparison rule</param>
         /// <returns>The target string with the value string at the end.</returns>
         [DebuggerStepThrough]
-        public static string EnsureEndsWith(this string value, string endsWith)
+        public static string EnsureEndsWith(this string value, string endsWith, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
@@ -236,12 +238,12 @@ namespace Smartstore
 
             if (value.Length >= endsWith.Length)
             {
-                if (string.Compare(value, value.Length - endsWith.Length, endsWith, 0, endsWith.Length, StringComparison.OrdinalIgnoreCase) == 0)
+                if (string.Compare(value, value.Length - endsWith.Length, endsWith, 0, endsWith.Length, comparison) == 0)
                     return value;
 
                 string trimmedString = value.TrimEnd(null);
 
-                if (string.Compare(trimmedString, trimmedString.Length - endsWith.Length, endsWith, 0, endsWith.Length, StringComparison.OrdinalIgnoreCase) == 0)
+                if (string.Compare(trimmedString, trimmedString.Length - endsWith.Length, endsWith, 0, endsWith.Length, comparison) == 0)
                     return value;
             }
 

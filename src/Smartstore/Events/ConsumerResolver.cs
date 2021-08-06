@@ -26,7 +26,7 @@ namespace Smartstore.Events
             return (c ?? EngineContext.Current.Scope.RequestContainer).Resolve(p.ParameterType);
         }
 
-        private bool IsActiveForStore(ModuleDescriptor module)
+        private bool IsActiveForStore(IModuleDescriptor module)
         {
             // TODO: (core) Implement ConsumerResolver.IsActiveForStore
 

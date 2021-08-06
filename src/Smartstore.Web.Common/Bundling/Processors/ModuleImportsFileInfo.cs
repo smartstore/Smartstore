@@ -40,7 +40,7 @@ namespace Smartstore.Web.Bundling.Processors
                 TryAddImport(module, _adminImports, "admin.scss");
             }
 
-            static void TryAddImport(ModuleDescriptor module, HashSet<ModuleImport> imports, string name)
+            static void TryAddImport(IModuleDescriptor module, HashSet<ModuleImport> imports, string name)
             {
                 var file = module.WebFileProvider.GetFileInfo(name);
                 if (file.Exists)
@@ -106,7 +106,7 @@ namespace Smartstore.Web.Bundling.Processors
         {
             public string Path { get; init; }
             public string PhysicalPath { get; init; }
-            public ModuleDescriptor ModuleDescriptor { get; init; }
+            public IModuleDescriptor ModuleDescriptor { get; init; }
 
             public override string ToString()
                 => Path;

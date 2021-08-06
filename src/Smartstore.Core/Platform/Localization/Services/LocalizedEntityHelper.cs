@@ -116,7 +116,7 @@ namespace Smartstore.Core.Localization
             return new LocalizedValue<TProp>(result, requestLanguage, currentLanguage);
         }
 
-        public string GetLocalizedModuleProperty(ModuleDescriptor module, string propertyName, int languageId = 0, bool doFallback = true)
+        public string GetLocalizedModuleProperty(IModuleDescriptor module, string propertyName, int languageId = 0, bool doFallback = true)
         {
             Guard.NotNull(module, nameof(module));
             Guard.NotEmpty(propertyName, nameof(propertyName));
