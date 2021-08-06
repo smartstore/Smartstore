@@ -218,54 +218,97 @@
     }
 
     function initializeDragAndDrop(root, opt) {
-        function finalizeDragging() {
-            opt._drag = null;
-            root.find('.tree-node').removeClass('dragging droppable');
-
-            if (opt.highlightNodes) {
-                root.addClass('tree-highlight');
-            }
-        }
+        opt._drag = {
+            active: false,
+            position: '',
+            source: null,
+            targetId: 0,
+            indicator: $('<div class="tree-drop-indicator"></div>').appendTo(document.body).get(0)
+        };
 
         root.on('dragstart', '.tree-node-content', function (e) {
             //e.stopPropagation();
             root.removeClass('tree-highlight');
 
             var node = $(this).closest('.tree-node');
-            node.addClass('dragging');
+
+            node.addClass('no-drop-target').find('.tree-node-content').addClass('no-drop-target');
+
             e.originalEvent.dataTransfer.effectAllowed = 'move';
             e.originalEvent.dataTransfer.setDragImage(this, -8, -8);
             e.originalEvent.dataTransfer.setData('text/plain', node.data('id'));
+
+            opt._drag.source = node.get(0);
+            opt._drag.active = true;
             
             console.log('dragstart ' + node.find('.tree-inner:first .tree-name').text());
         });
 
-        root.on('dragend', '.tree-node-content', function (e) {
-            //e.stopPropagation();
-
-            finalizeDragging();
-        });
-
-        root.on('dragover', '.tree-node-content', function (e) {
-            e.preventDefault();  // Allow dropping.
-        });
-
-        root.on('dragenter', '.tree-node-content', function (e) {
+        root.on('dragenter', '.tree-node-content:not(.no-drop-target)', function (e) {
             e.preventDefault();
-            //e.stopPropagation();
 
-            var node = $(this).closest('.tree-node');
+            var d = opt._drag;
+            if (d.active) {
+                d.target = e.target;
 
-            opt._drag = {
-                target: e.target,
-                dropId: node.data('id'),
-            };
+                var node = $(this).closest('.tree-node').get(0);
+                var nodeId = node.getAttribute('data-id');
+
+                if (nodeId !== d.targetId) {
+                    d.targetId = nodeId;
+                    d.position = '';
+                    d.targetRect = this.getBoundingClientRect();
+                    d.indicatorLeft = d.targetRect.left + 10;
+                    d.beforeY = d.targetRect.top + 8;
+                    d.afterY = d.targetRect.bottom - 8;
+                }
+            }
+        });
+
+        root.on('dragover', '.tree-node-content:not(.no-drop-target)', function (e) {
+            e.preventDefault();  // Allow dropping.
+
+            var d = opt._drag;
+            if (d.active && d.targetRect) {
+                // Indicate.
+                if (e.pageY < d.beforeY) {
+                    // Normalize position.
+                    var bodyRect = document.body.getBoundingClientRect();
+
+                    d.position = 'before';
+                    d.indicator.style.display = 'block';
+                    d.indicator.style.top = (d.targetRect.top - bodyRect.top) + 'px';
+                    d.indicator.style.left = d.indicatorLeft + 'px';
+                }
+                else if (e.pageY > d.afterY) {
+                    var bodyRect = document.body.getBoundingClientRect();
+
+                    d.position = 'after';
+                    d.indicator.style.display = 'block';
+                    d.indicator.style.top = (d.targetRect.bottom - bodyRect.top) + 'px';
+                    d.indicator.style.left = d.indicatorLeft + 'px';
+                }
+                else {
+                    d.position = '';
+                    d.indicator.style.display = 'none';
+                }
+            }
         });
 
         root.on('dragleave', '.tree-node-content', function (e) {
+            var d = opt._drag;
+            if (d.active && d.target === e.target) {
+                e.preventDefault();
+                d.indicator.style.display = 'none';
+            }
         });
 
-        root.on('drop', '.tree-node-content', function (e) {
+        root.on('dragend', '.tree-node-content', function (e) {
+            //e.stopPropagation();
+            finalizeDragging();
+        });
+
+        root.on('drop', '.tree-node-content:not(.no-drop-target)', function (e) {
             e.preventDefault();
             //e.stopPropagation();
 
@@ -274,6 +317,24 @@
             console.log('drop ' + node.find('.tree-inner:first .tree-name').text());
             finalizeDragging();
         });
+
+        function finalizeDragging() {
+            var d = opt._drag;
+
+            //root.find('.tree-node').removeClass('dragging droppable');
+
+            $(d.source).removeClass('no-drop-target').find('.tree-node-content').removeClass('no-drop-target');
+
+            if (opt.highlightNodes) {
+                root.addClass('tree-highlight');
+            }
+
+            d.active = false;
+            d.position = '';
+            d.source = null;
+            d.targetId = 0;
+            d.indicator.style.display = 'none';
+        }
     }
 
     function addNodeHtml(context, opt, data) {
