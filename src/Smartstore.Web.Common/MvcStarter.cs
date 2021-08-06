@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Encodings.Web;
-using System.Text.Unicode;
+﻿using System.Linq;
 using Autofac;
 using FluentValidation.AspNetCore;
-using FluentValidation.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -19,10 +14,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.WebEncoders;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Bootstrapping;
@@ -32,9 +24,7 @@ using Smartstore.Core.Web;
 using Smartstore.Data;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.IO;
 using Smartstore.Net;
-using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
 using Smartstore.Web.Modelling.Settings;
@@ -49,80 +39,76 @@ namespace Smartstore.Web
         {
             RunAfter<WebStarter>();
         }
-        
+
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
             // Add action context accessor
             services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
 
-            if (appContext.IsInstalled)
-            {
-                // Configure Cookie Policy Options
-                services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<CookiePolicyOptions>, CookiePolicyOptionsConfigurer>());
-
-                services.Configure<RazorViewEngineOptions>(o =>
-                {
-                    o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
-                    o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
-                    o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
-                    
-                    if (appContext.AppConfiguration.EnableLocalizedViews)
-                    {
-                        o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
-                    }
-
-                    // TODO: (core) Implement ModuleViewLocationExpander
-                });
-            }
-
-            var validatorLanguageManager = new ValidatorLanguageManager(appContext);
-
-            // Add AntiForgery
-            services.AddAntiforgery(o => 
-            {
-                o.Cookie.Name = CookieNames.Antiforgery;
-                o.HeaderName = "X-XSRF-Token";
-            });
-
-            // Add HTTP client feature
-            services.AddHttpClient();
-            
-            // Add session feature
-            services.AddSession(o => 
-            {
-                o.Cookie.Name = CookieNames.Session;
-                o.Cookie.IsEssential = true;
-            });
-
-            // Detailed database related error notifications
-            services.AddDatabaseDeveloperPageExceptionFilter();
-
-            services.Configure<WebEncoderOptions>(o =>
-            {
-                o.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All);
-            });
-
-            // TODO: (core) Implement localization stuff
-            //services.TryAddSingleton<IStringLocalizerFactory, SmartStringLocalizerFactory>();
-            //services.TryAddScoped(typeof(IStringLocalizer<>), typeof(SmartStringLocalizer<>));
-
-            services.AddRouting(o => 
+            services.AddRouting(o =>
             {
                 // TODO: (core) Make this behave like in SMNET
                 o.AppendTrailingSlash = true;
                 o.LowercaseUrls = true;
             });
 
-            var mvcBuilder = services
-                .AddControllersWithViews(o =>
+            // Replace BsonTempDataSerializer that was registered by AddNewtonsoftJson()
+            // with our own serializer which is capable of serializing more stuff.
+            services.AddSingleton<TempDataSerializer, SmartTempDataSerializer>();
+        }
+
+        public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        {
+            var validatorLanguageManager = new ValidatorLanguageManager(appContext);
+
+            mvcBuilder
+                .AddMvcOptions(o =>
                 {
                     //o.EnableEndpointRouting = false;
                     // TODO: (core) AddModelBindingMessagesLocalizer
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
-                    
-                    // TODO: (core) Add more model binders
-                    var complexBinderProvider = o.ModelBinderProviders.OfType<ComplexObjectModelBinderProvider>().First();
-                    o.ModelBinderProviders.Insert(0, new GridCommandModelBinderProvider(complexBinderProvider));
+
+                    // TODO: (core) More MVC config?
+                    if (DataSettings.DatabaseIsInstalled())
+                    {
+                        // TODO: (core) Add more model binders
+                        var complexBinderProvider = o.ModelBinderProviders.OfType<ComplexObjectModelBinderProvider>().First();
+                        o.ModelBinderProviders.Insert(0, new GridCommandModelBinderProvider(complexBinderProvider));
+
+                        // Register custom metadata provider
+                        o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());
+                        o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
+
+                        // Localized messages
+                        o.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(x =>
+                        {
+                            return validatorLanguageManager.GetErrorMessage("MustBeANumber", x);
+                        });
+                        o.ModelBindingMessageProvider.SetNonPropertyValueMustBeANumberAccessor(() =>
+                        {
+                            return validatorLanguageManager.GetString("NonPropertyMustBeANumber");
+                        });
+                        //o.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(x =>
+                        //{
+                        //    return validatorLanguageManager.GetErrorMessage(nameof(NotEmptyValidator), x);
+                        //});
+                    }
+                })
+                .AddRazorOptions(o => 
+                {
+                    if (appContext.IsInstalled)
+                    {
+                        o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
+                        o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
+                        o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
+
+                        if (appContext.AppConfiguration.EnableLocalizedViews)
+                        {
+                            o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
+                        }
+
+                        // TODO: (core) Implement ModuleViewLocationExpander
+                    }
                 })
                 .AddRazorRuntimeCompilation(o =>
                 {
@@ -179,30 +165,6 @@ namespace Smartstore.Web
 
                     // Client validation (must come last - after "FluentValidationClientModelValidatorProvider")
                     o.ClientModelValidatorProviders.Add(new SmartClientModelValidatorProvider(appContext, validatorLanguageManager));
-                })
-                .AddMvcOptions(o =>
-                {
-                    // TODO: (core) More MVC config?
-                    if (DataSettings.DatabaseIsInstalled())
-                    {
-                        // Register custom metadata provider
-                        o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());
-                        o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
-
-                        // Localized messages
-                        o.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(x => 
-                        {
-                            return validatorLanguageManager.GetErrorMessage("MustBeANumber", x);
-                        });
-                        o.ModelBindingMessageProvider.SetNonPropertyValueMustBeANumberAccessor(() =>
-                        {
-                            return validatorLanguageManager.GetString("NonPropertyMustBeANumber");
-                        });
-                        //o.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(x =>
-                        //{
-                        //    return validatorLanguageManager.GetErrorMessage(nameof(NotEmptyValidator), x);
-                        //});
-                    }
                 });
 
             // Add TempData feature
@@ -218,10 +180,6 @@ namespace Smartstore.Web
             {
                 mvcBuilder.AddSessionStateTempDataProvider();
             }
-
-            // Replace BsonTempDataSerializer that was registered by AddNewtonsoftJson()
-            // with our own serializer which is capable of serializing more stuff.
-            services.AddSingleton<TempDataSerializer, SmartTempDataSerializer>();
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)

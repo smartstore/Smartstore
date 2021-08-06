@@ -27,6 +27,10 @@ namespace Smartstore.Engine.Builders
         {
         }
 
+        public virtual void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        {
+        }
+
         /// <inheritdoc />
         public virtual void BuildPipeline(RequestPipelineBuilder builder)
         {

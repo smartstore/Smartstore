@@ -58,32 +58,6 @@ namespace Smartstore.Web
 
         public void Configure(IApplicationBuilder app, IHostApplicationLifetime appLifetime)
         {
-            //using (var scope = app.ApplicationServices.CreateScope())
-            //{
-            //    var db = scope.ServiceProvider.GetRequiredService<SmartDbContext>();
-
-            //    if (!db.Database.GetService<IRelationalDatabaseCreator>().Exists())
-            //    {
-            //        db.Database.Migrate();
-            //    }
-            //    else
-            //    {
-            //        var hasLegacyMigrations = db.DataProvider.HasTable("__MigrationHistory");
-            //        if (hasLegacyMigrations)
-            //        {
-            //            var firstPendingMigration = db.Database.GetPendingMigrations().FirstOrDefault();
-            //            if (firstPendingMigration != "Initial")
-            //            {
-            //                db.Database.Migrate();
-            //            }
-            //        }
-            //        else
-            //        {
-            //            db.Database.Migrate();
-            //        }
-            //    }
-            //}
-
             // Must come very early.
             app.UseContextState();
 

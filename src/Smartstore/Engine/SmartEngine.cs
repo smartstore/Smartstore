@@ -118,10 +118,19 @@ namespace Smartstore.Engine
                 services.AddMailKitMailService();
                 services.AddTemplateEngine();
 
+                // Add MVC core services
+                var mvcBuilder = services.AddControllersWithViews();
+
                 // Configure all modular services
                 foreach (var starter in _starters)
                 {
-                    starter.ConfigureServices(services, _appContext, IsActiveModule(starter));
+                    var isActiveModule = IsActiveModule(starter);
+
+                    // Call modular service configurers
+                    starter.ConfigureServices(services, _appContext, isActiveModule);
+
+                    // Call modular MVC configurers
+                    starter.ConfigureMvc(mvcBuilder, services, _appContext, isActiveModule);
                 }
             }
 
