@@ -5,9 +5,21 @@
     <TargetFramework>net5.0</TargetFramework>
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.DevTools</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
-		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<PreserveCompilationContext>false</PreserveCompilationContext>
+		<PreserveCompilationReferences>false</PreserveCompilationReferences>
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+		<GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+		<GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+		<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+		<GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+	</PropertyGroup>
+	
 	<PropertyGroup>
 		<Copyright>Copyright © Smartstore AG</Copyright>
 		<Company>Smartstore AG</Company>
@@ -23,7 +35,7 @@
 	</ItemGroup>-->
 
 	<ItemGroup>
-	  <Content Include="manifest.json">
+	  <Content Include="module.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 		<Content Include="wwwroot\*">
@@ -32,6 +44,12 @@
 		<Content Include="Views\**\*.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Views\Configure.cshtml" />
+	  <None Remove="Views\_ViewImports.cshtml" />
+	  <None Remove="Views\_ViewStart.cshtml" />
 	</ItemGroup>
 
   <ItemGroup>
@@ -54,7 +72,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <!--<Folder Include="Properties\" />-->
+		<Compile Include="..\..\AssemblySharedInfo.cs">
+			<Link>Properties\AssemblySharedInfo.cs</Link>
+		</Compile>
+		<Compile Include="..\..\AssemblyVersionInfo.cs">
+			<Link>Properties\AssemblyVersionInfo.cs</Link>
+		</Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Views\_ViewImports.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\DevTools\Configure.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\_ViewStart.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 	<!-- Remove files from copy local that would not be published as they are provided by the platform package --><!--

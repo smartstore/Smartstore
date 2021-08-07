@@ -11,12 +11,6 @@ namespace Smartstore.Engine
     public interface ITypeScanner
     {
         /// <summary>
-        /// Adds one or more assemblies to the list of scannable assemblies.
-        /// </summary>
-        /// <param name="assemblies">The assemblies to add.</param>
-        void AddAssemblies(params Assembly[] assemblies);
-
-        /// <summary>
         /// Gets all registered scannable assemblies (core & all modules)
         /// </summary>
         IEnumerable<Assembly> Assemblies { get; }

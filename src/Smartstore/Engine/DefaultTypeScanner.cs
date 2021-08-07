@@ -11,11 +11,11 @@ namespace Smartstore.Engine
     /// <inheritdoc/>
     public class DefaultTypeScanner : ITypeScanner
     {
-        private readonly IModuleCatalog _moduleCatalog;
         private HashSet<Assembly> _activeAssemblies = new();
 
-        public DefaultTypeScanner(IModuleCatalog moduleCatalog, ILogger logger, params Assembly[] assemblies)
+        public DefaultTypeScanner(IEnumerable<Assembly> coreAssemblies, IModuleCatalog moduleCatalog, ILogger logger)
         {
+            Guard.NotNull(coreAssemblies, nameof(coreAssemblies));
             Guard.NotNull(moduleCatalog, nameof(moduleCatalog));
             Guard.NotNull(logger, nameof(logger));
 
@@ -23,25 +23,19 @@ namespace Smartstore.Engine
 
             Logger = logger;
 
-            _moduleCatalog = moduleCatalog;
-            AddAssemblies(assemblies);
+            var assemblies = new HashSet<Assembly>(coreAssemblies);
+
+            // Add all module assemblies to assemblies list
+            assemblies.AddRange(moduleCatalog.GetInstalledModules().Select(x => x.AssemblyInfo.Assembly));
+
+            // (Perf) Create a list with all active module assemblies only
+            _activeAssemblies.AddRange(assemblies.Where(x => moduleCatalog.IsActiveModuleAssembly(x)));
+
+            // No edit allowed from now on
+            Assemblies = assemblies.AsReadOnly();
         }
 
-        public ILogger Logger
-        {
-            get;
-            set;
-        } = NullLogger.Instance;
-
-        /// <inheritdoc/>
-        public void AddAssemblies(params Assembly[] assemblies)
-        {
-            var newSet = new HashSet<Assembly>(Assemblies ?? Enumerable.Empty<Assembly>());
-            newSet.AddRange(assemblies);
-            Assemblies = newSet.AsReadOnly();
-
-            _activeAssemblies.AddRange(assemblies.Where(x => _moduleCatalog.IsActiveModuleAssembly(x)));
-        }
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         /// <inheritdoc/>
         public IEnumerable<Assembly> Assemblies { get; private set; }

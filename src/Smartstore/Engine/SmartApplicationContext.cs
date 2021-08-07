@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Autofac;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -22,14 +22,12 @@ namespace Smartstore.Engine
         const string TempDirName = "_temp";
 
         private bool _freezed;
+        private IModuleCatalog _moduleCatalog;
+        private ITypeScanner _typeScanner;
         private IDirectory _tempDirectory;
         private IDirectory _tempDirectoryTenant;
 
-        public SmartApplicationContext(
-            IHostEnvironment hostEnvironment,
-            IConfiguration configuration,
-            ILogger logger,
-            params Assembly[] coreAssemblies)
+        public SmartApplicationContext(IHostEnvironment hostEnvironment, IConfiguration configuration, ILogger logger)
         {
             Guard.NotNull(hostEnvironment, nameof(hostEnvironment));
             Guard.NotNull(configuration, nameof(configuration));
@@ -40,11 +38,7 @@ namespace Smartstore.Engine
             Logger = logger;
 
             ConfigureFileSystem(hostEnvironment);
-
             DataSettings.SetApplicationContext(this, OnDataSettingsLoaded);
-
-            ModuleCatalog = new ModuleCatalog();
-            TypeScanner = new DefaultTypeScanner(ModuleCatalog, logger, coreAssemblies);
             OSIdentity = new GenericOSIdentity();
 
             // Create app configuration
@@ -57,7 +51,7 @@ namespace Smartstore.Engine
 
         private void OnDataSettingsLoaded(DataSettings settings)
         {
-            this.TenantRoot = settings.TenantRoot;
+            TenantRoot = settings.TenantRoot;
         }
 
         private void ConfigureFileSystem(IHostEnvironment hostEnvironment)
@@ -90,12 +84,30 @@ namespace Smartstore.Engine
 
         IServiceProvider IServiceProviderContainer.ApplicationServices { get; set; }
 
+        public IModuleCatalog ModuleCatalog 
+        {
+            get => _moduleCatalog;
+            set
+            {
+                CheckFreezed();
+                _moduleCatalog = Guard.NotNull(value, nameof(value));
+            } 
+        }
+
+        public ITypeScanner TypeScanner 
+        {
+            get => _typeScanner;
+            set
+            {
+                CheckFreezed();
+                _typeScanner = Guard.NotNull(value, nameof(value));
+            }
+        }
+
         public IHostEnvironment HostEnvironment { get; }
         public IConfiguration Configuration { get; }
         public ILogger Logger { get; }
         public SmartConfiguration AppConfiguration { get; }
-        public ITypeScanner TypeScanner { get; }
-        public IModuleCatalog ModuleCatalog { get; }
 
         public ILifetimeScope Services
         {
@@ -162,17 +174,11 @@ namespace Smartstore.Engine
             }
         }
 
-        public void Freeze()
-        {
-            _freezed = true;
-        }
-
+        public void Freeze() => _freezed = true;
         private void CheckFreezed()
         {
             if (_freezed)
-            {
                 throw new SmartException("Operation invalid after application has been bootstrapped completely.");
-            }
         }
     }
 }

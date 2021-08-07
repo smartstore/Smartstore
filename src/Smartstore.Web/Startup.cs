@@ -32,21 +32,11 @@ namespace Smartstore.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var coreAssemblies = new Assembly[]
-            {
-                typeof(Smartstore.Engine.IEngine).Assembly,
-                typeof(Smartstore.Core.IWorkContext).Assembly,
-                typeof(Smartstore.Web.Startup).Assembly,
-                typeof(Smartstore.Web.Controllers.SmartController).Assembly
-            };
+            _appContext = new SmartApplicationContext(Environment, Configuration, StartupLogger);
 
-            _appContext = new SmartApplicationContext(
-                Environment, 
-                Configuration, 
-                StartupLogger,
-                coreAssemblies);
-
-            _engineStarter = EngineFactory.Create(_appContext.AppConfiguration).Start(_appContext);
+            _engineStarter = EngineFactory
+                .Create(_appContext.AppConfiguration)
+                .Start(_appContext);
 
             _engineStarter.ConfigureServices(services);
         }

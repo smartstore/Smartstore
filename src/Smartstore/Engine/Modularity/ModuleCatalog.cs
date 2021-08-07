@@ -7,28 +7,28 @@ namespace Smartstore.Engine.Modularity
     public class ModuleCatalog : IModuleCatalog
     {
         // TODO: (core) Implement Tenant stuff
-        private readonly IDictionary<string, IModuleDescriptor> _nameMap = new Dictionary<string, IModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
-        private readonly IDictionary<Assembly, IModuleDescriptor> _assemblyMap = new Dictionary<Assembly, IModuleDescriptor>();
+        private readonly Dictionary<string, IModuleDescriptor> _nameMap = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<Assembly, IModuleDescriptor> _assemblyMap = new();
         private readonly HashSet<Assembly> _inactiveAssemblies = new();
+
+        public ModuleCatalog(IEnumerable<IModuleDescriptor> modules)
+        {
+            Guard.NotNull(modules, nameof(modules));
+
+            foreach (var module in modules)
+            {
+                _nameMap[module.SystemName] = module;
+
+                if (module.AssemblyInfo?.Assembly != null)
+                {
+                    _assemblyMap[module.AssemblyInfo.Assembly] = module;
+                }
+            }
+        }
 
         public IEnumerable<IModuleDescriptor> Modules
         {
             get => _nameMap.Values;
-            internal set
-            {
-                _nameMap.Clear();
-                _assemblyMap.Clear();
-
-                foreach (var module in value)
-                {
-                    _nameMap[module.SystemName] = module;
-
-                    if (module.AssemblyInfo?.Assembly != null)
-                    {
-                        _assemblyMap[module.AssemblyInfo.Assembly] = module;
-                    }
-                }
-            }
         }
 
         public IEnumerable<string> IncompatibleModules

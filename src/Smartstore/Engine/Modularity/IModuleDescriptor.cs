@@ -23,6 +23,11 @@ namespace Smartstore.Engine.Modularity
         int Order { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the module is incompatible with the current application version.
+        /// </summary>
+        bool Incompatible { get; }
+
+        /// <summary>
         /// Gets the file provider that references the module's root directory.
         /// </summary>
         IFileSystem FileProvider { get; }

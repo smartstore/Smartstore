@@ -45,17 +45,34 @@ namespace Smartstore.Engine
 
         /// <summary>
         /// Provides access to module information.
+        /// The setter will raise an exception when called after the bootstrapping stage.
         /// </summary>
-        IModuleCatalog ModuleCatalog { get; }
+        IModuleCatalog ModuleCatalog { get; set; }
 
         /// <summary>
         /// Type scanner used to discover types.
+        /// The setter will raise an exception when called after the bootstrapping stage.
         /// </summary>
-        ITypeScanner TypeScanner { get; }
+        ITypeScanner TypeScanner { get; set; }
 
+        /// <summary>
+        /// Checks whether the application is fully installed.
+        /// </summary>
         bool IsInstalled { get; }
+
+        /// <summary>
+        /// Checks whether the current host is a web host.
+        /// </summary>
         bool IsWebHost { get; }
+
+        /// <summary>
+        /// Gets the current machines's name.
+        /// </summary>
         string MachineName { get; }
+
+        /// <summary>
+        /// Get a unique environment identifier.
+        /// </summary>
         string EnvironmentIdentifier { get; }
 
         /// <summary>

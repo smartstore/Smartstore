@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.Loader;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Smartstore.Bootstrapping;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -15,6 +18,7 @@ using Smartstore.DependencyInjection;
 using Smartstore.Diagnostics;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Initialization;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Pdf;
 
@@ -62,12 +66,18 @@ namespace Smartstore.Engine
         {
             private SmartEngine _engine;
             private IApplicationContext _appContext;
+            private ModuleExplorer _moduleExplorer;
+            private ModuleLoader _moduleLoader;
             private IList<IStarter> _starters;
 
             public EngineStarter(SmartEngine engine)
             {
                 _engine = engine;
                 _appContext = engine.Application;
+                _moduleExplorer = new ModuleExplorer(_appContext);
+                _moduleLoader = new ModuleLoader(_appContext);
+
+                LoadModules();
 
                 _starters = _appContext.TypeScanner.FindTypes<IStarter>()
                     .Select(t => (IStarter)Activator.CreateInstance(t))
@@ -78,6 +88,67 @@ namespace Smartstore.Engine
 
             public SmartConfiguration AppConfiguration { get; private set; }
 
+            private void LoadModules()
+            {
+                var modules = DiscoverModules();
+                
+                foreach (var module in modules)
+                {
+                    LoadModule(module);
+                }
+
+                // Provide module catalog
+                _appContext.ModuleCatalog = new ModuleCatalog(modules);
+
+                // Provide type scanner which also can reflect over module assemblies
+                var coreAssemblies = ResolveCoreAssemblies();
+                _appContext.TypeScanner = new DefaultTypeScanner(coreAssemblies, _appContext.ModuleCatalog, _appContext.Logger);
+            }
+
+            private IEnumerable<Assembly> ResolveCoreAssemblies()
+            {
+                var assemblies = new HashSet<Assembly>();
+
+                var libs = DependencyContext.Default.CompileLibraries
+                    .Where(x => x.Type == "project")
+                    .Select(x => new CoreAssembly
+                    {
+                        Name = x.Name,
+                        DependsOn = x.Dependencies.Select(y => y.Name).ToArray()
+                    })
+                    .ToArray()
+                    .SortTopological()
+                    .Cast<CoreAssembly>()
+                    .ToArray();
+
+                foreach (var lib in libs)
+                {
+                    try
+                    {
+                        var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(lib.Name));
+                        assemblies.Add(assembly);
+
+                        _appContext.Logger.Debug("Assembly '{0}' discovered and loaded.", lib.Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        _appContext.Logger.Error(ex);
+                    }
+                }
+
+                return assemblies;
+            }
+
+            public IEnumerable<IModuleDescriptor> DiscoverModules()
+            {
+                return _moduleExplorer.DiscoverModules();
+            }
+
+            public void LoadModule(IModuleDescriptor descriptor)
+            {
+                _moduleLoader.LoadModule(descriptor as ModuleDescriptor);
+            }
+
             public void ConfigureServices(IServiceCollection services)
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -86,6 +157,7 @@ namespace Smartstore.Engine
 
                 services.AddOptions();
                 services.AddSingleton(app.AppConfiguration);
+                services.AddSingleton(app.ModuleCatalog);
                 services.AddSingleton(app.TypeScanner);
                 services.AddSingleton(app.OSIdentity);
                 services.AddSingleton<IEngine>(_engine);
@@ -198,6 +270,17 @@ namespace Smartstore.Engine
                 _appContext = null;
                 _starters.Clear();
                 _starters = null;
+            }
+
+            class CoreAssembly : ITopologicSortable<string>
+            {
+                public string Name { get; init; }
+                string ITopologicSortable<string>.Key 
+                {
+                    get => Name;
+                }
+
+                public string[] DependsOn { get; init; }
             }
         }
     }

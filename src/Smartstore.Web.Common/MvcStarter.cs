@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
@@ -59,6 +60,15 @@ namespace Smartstore.Web
 
         public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
+            // Register application parts
+            foreach (var module in appContext.ModuleCatalog.Modules)
+            {
+                if (module.AssemblyInfo?.Assembly != null)
+                {
+                    mvcBuilder.PartManager.ApplicationParts.Add(new AssemblyPart(module.AssemblyInfo.Assembly));
+                }
+            }
+            
             var validatorLanguageManager = new ValidatorLanguageManager(appContext);
 
             mvcBuilder
@@ -98,6 +108,7 @@ namespace Smartstore.Web
                 {
                     if (appContext.IsInstalled)
                     {
+                        o.ViewLocationExpanders.Add(new ModuleViewLocationExpander());
                         o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
                         o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
                         o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
@@ -106,8 +117,6 @@ namespace Smartstore.Web
                         {
                             o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
                         }
-
-                        // TODO: (core) Implement ModuleViewLocationExpander
                     }
                 })
                 .AddRazorRuntimeCompilation(o =>

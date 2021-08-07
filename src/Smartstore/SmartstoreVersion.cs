@@ -78,9 +78,7 @@ namespace Smartstore
         /// <returns><c>true</c> when the extension's version is assumed to be compatible</returns>
         public static bool IsAssumedCompatible(Version minAppVersion)
         {
-            Guard.NotNull(minAppVersion, nameof(minAppVersion));
-
-            if (Version == minAppVersion)
+            if (minAppVersion == null || Version == minAppVersion)
             {
                 return true;
             }

@@ -24,11 +24,6 @@ namespace Smartstore.Engine.Modularity
         public bool Installed { get; init; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the module is incompatible with the current application version.
-        /// </summary>
-        public bool Incompatible { get; init; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether the module is configurable.
         /// </summary>
         /// <remarks>
