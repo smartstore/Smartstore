@@ -7,6 +7,8 @@
     // TODO: (mg) (core) For optimal dragdrop visual feedback style the hover effect how it was before (background for icon + label). 
     // For this you need to move the icon to a new parent element and put some padding around the content.
 
+    // TODO: (mg) (core) During a drag operation browser gets laggy and unresponsive after some time. Beware of "dragover": it is like a "machine gun"!
+
     $.fn.tree = function (method) {
         return main.apply(this, arguments);
     };
