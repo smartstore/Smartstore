@@ -47,7 +47,7 @@ namespace Smartstore.Engine.Modularity
             }
 
             descriptor.PhysicalPath = directory.PhysicalPath;
-            descriptor.Path = "/Modules/" + directory.Name;
+            descriptor.Path = "/Modules/" + directory.Name + "/";
 
             if (!SmartstoreVersion.IsAssumedCompatible(descriptor.MinAppVersion))
             {

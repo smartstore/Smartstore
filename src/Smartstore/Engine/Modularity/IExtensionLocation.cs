@@ -6,7 +6,7 @@ namespace Smartstore.Engine.Modularity
     public interface IExtensionLocation
     {
         /// <summary>
-        /// Absolute application path to extension directory, e.g. "/Modules/MyModule".
+        /// Absolute application path to extension directory, e.g. "/Modules/MyModule/".
         /// </summary>
         string Path { get; }
 

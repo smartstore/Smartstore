@@ -22,7 +22,7 @@ namespace Smartstore.Core.Theming
                 ConfigurationFile = directoryData.ConfigurationFile,
                 IsSymbolicLink = directoryData.IsSymbolicLink,
                 BaseThemeName = directoryData.BaseTheme,
-                Path = "/Themes/" + directoryData.Directory.Name,
+                Path = "/Themes/" + directoryData.Directory.Name + "/",
                 PhysicalPath = directoryData.Directory.PhysicalPath
             };
         }

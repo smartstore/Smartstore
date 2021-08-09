@@ -10,18 +10,20 @@ namespace Smartstore.Web.Razor
 {
     internal class ThemeViewLocationExpander : IViewLocationExpander
     {
+        const string ParamKey = "module";
+
         public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
         {
-            if (context.Values.TryGetValue("theme", out var theme))
+            if (context.Values.TryGetValue(ParamKey, out var themeName))
             {
                 var themeRegistry = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeRegistry>();
-                var descriptor = themeRegistry.GetThemeDescriptor(theme);
+                var descriptor = themeRegistry.GetThemeDescriptor(themeName);
                 var themeLocations = new List<string>(4);
 
                 while (descriptor != null)
                 {
-                    themeLocations.Add($"/Themes/{descriptor.Name}/Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
-                    themeLocations.Add($"/Themes/{descriptor.Name}/Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
+                    themeLocations.Add($"{descriptor.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
+                    themeLocations.Add($"{descriptor.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
                     descriptor = descriptor.BaseTheme;
                 }
 
@@ -48,7 +50,7 @@ namespace Smartstore.Web.Razor
             var currentTheme = themeContext.CurrentTheme;
             if (currentTheme != null)
             {
-                context.Values["theme"] = currentTheme.Name;
+                context.Values[ParamKey] = currentTheme.Name;
             }
         }
     }

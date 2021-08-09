@@ -14,7 +14,7 @@ namespace Smartstore.Web.Razor
     /// </summary>
     internal class ModuleViewLocationExpander : IViewLocationExpander
     {
-        const string ParamKey = "module-name";
+        const string ParamKey = "module";
         
         public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
         {
@@ -27,8 +27,8 @@ namespace Smartstore.Web.Razor
                 {
                     return viewLocations.Union(new[]
                     {
-                        $"/Modules/{module.Name}/Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension,
-                        $"/Modules/{module.Name}/Views/Shared/{{0}}" + RazorViewEngine.ViewExtension,
+                        $"{module.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension,
+                        $"{module.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension,
                     });
                 }
             }
