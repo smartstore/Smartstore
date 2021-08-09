@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using Smartstore.Engine;
@@ -14,9 +15,9 @@ namespace Smartstore.Tests.Engine
         public void TypeFinder_Benchmark_Findings()
         {
             var scanner = new DefaultTypeScanner(
-                new ModuleCatalog(),
-                NullLogger.Instance,
-                typeof(ISomeInterface).Assembly);
+                new[] { typeof(ISomeInterface).Assembly },
+                new ModuleCatalog(Array.Empty<IModuleDescriptor>()),
+                NullLogger.Instance);
 
             var type = scanner.FindTypes<ISomeInterface>();
             type.Count().ShouldEqual(1);

@@ -18,9 +18,9 @@ namespace Smartstore.Tests
         {
             base.SetUp();
             typeScanner = new DefaultTypeScanner(
-                new ModuleCatalog(), 
-                NullLogger.Instance, 
-                typeof(TypeScannerBase).Assembly);
+                new[] { typeof(TypeScannerBase).Assembly },
+                new ModuleCatalog(Array.Empty<IModuleDescriptor>()),
+                NullLogger.Instance);
         }
     }
 }
