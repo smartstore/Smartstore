@@ -217,129 +217,7 @@
         EventBroker.publishSync('tree.initialized', { root });
     }
 
-    function initializeDragAndDrop(root, opt) {
-        opt._drag = {
-            active: false,
-            position: '',
-            source: null,
-            targetId: 0,
-            indicator: $('<div class="tree-drop-indicator"></div>').appendTo(document.body).get(0)
-        };
-
-        root.on('dragstart', '.tree-node-content', function (e) {
-            //e.stopPropagation();
-            root.removeClass('tree-highlight');
-
-            var node = $(this).closest('.tree-node');
-
-            node.addClass('no-drop-target').find('.tree-node-content').addClass('no-drop-target');
-
-            e.originalEvent.dataTransfer.effectAllowed = 'move';
-            e.originalEvent.dataTransfer.setDragImage(this, -8, -8);
-            e.originalEvent.dataTransfer.setData('text/plain', node.data('id'));
-
-            opt._drag.source = node.get(0);
-            opt._drag.active = true;
-            
-            console.log('dragstart ' + node.find('.tree-inner:first .tree-name').text());
-        });
-
-        root.on('dragenter', '.tree-node-content:not(.no-drop-target)', function (e) {
-            e.preventDefault();
-
-            var d = opt._drag;
-            if (d.active) {
-                d.target = e.target;
-
-                var node = $(this).closest('.tree-node').get(0);
-                var nodeId = node.getAttribute('data-id');
-
-                if (nodeId !== d.targetId) {
-                    d.targetId = nodeId;
-                    d.position = '';
-                    d.targetRect = this.getBoundingClientRect();
-                    d.indicatorLeft = d.targetRect.left + 10;
-                    d.beforeY = d.targetRect.top + 8;
-                    d.afterY = d.targetRect.bottom - 8;
-                }
-            }
-        });
-
-        root.on('dragover', '.tree-node-content:not(.no-drop-target)', function (e) {
-            e.preventDefault();  // Allow dropping.
-
-            var d = opt._drag;
-            if (d.active && d.targetRect) {
-                // Indicate.
-                if (e.pageY < d.beforeY) {
-                    // Normalize position.
-                    var bodyRect = document.body.getBoundingClientRect();
-
-                    d.position = 'before';
-                    d.indicator.style.display = 'block';
-                    d.indicator.style.top = (d.targetRect.top - bodyRect.top) + 'px';
-                    d.indicator.style.left = d.indicatorLeft + 'px';
-                }
-                else if (e.pageY > d.afterY) {
-                    var bodyRect = document.body.getBoundingClientRect();
-
-                    d.position = 'after';
-                    d.indicator.style.display = 'block';
-                    d.indicator.style.top = (d.targetRect.bottom - bodyRect.top) + 'px';
-                    d.indicator.style.left = d.indicatorLeft + 'px';
-                }
-                else {
-                    d.position = '';
-                    d.indicator.style.display = 'none';
-                }
-            }
-        });
-
-        root.on('dragleave', '.tree-node-content', function (e) {
-            var d = opt._drag;
-            if (d.active && d.target === e.target) {
-                e.preventDefault();
-                d.indicator.style.display = 'none';
-            }
-        });
-
-        root.on('dragend', '.tree-node-content', function (e) {
-            //e.stopPropagation();
-            finalizeDragging();
-        });
-
-        root.on('drop', '.tree-node-content:not(.no-drop-target)', function (e) {
-            e.preventDefault();
-            //e.stopPropagation();
-
-            var node = $(this).closest('.tree-node');
-
-            console.log('drop ' + node.find('.tree-inner:first .tree-name').text());
-            finalizeDragging();
-        });
-
-        function finalizeDragging() {
-            var d = opt._drag;
-
-            //root.find('.tree-node').removeClass('dragging droppable');
-
-            $(d.source).removeClass('no-drop-target').find('.tree-node-content').removeClass('no-drop-target');
-
-            if (opt.highlightNodes) {
-                root.addClass('tree-highlight');
-            }
-
-            d.active = false;
-            d.position = '';
-            d.source = null;
-            d.targetId = 0;
-            d.indicator.style.display = 'none';
-        }
-    }
-
     function addNodeHtml(context, opt, data) {
-        var isRoot = context.hasClass('tree');
-
         context.find('li').each(function () {
             var li = $(this);
             var childList = li.find('ul');
@@ -414,7 +292,7 @@
         });
 
         if (opt.showLines) {
-            context.find(isRoot ? 'ul:first ul' : 'ul')
+            context.find(context.hasClass('tree') ? 'ul:first ul' : 'ul')
                 .addClass('tree-hline')
                 .prepend('<span class="tree-vline"></span>');
         }
@@ -619,6 +497,149 @@
         });
 
         return true;
+    }
+
+    // Drag & drop
+    function initializeDragAndDrop(root, opt) {
+        var d = opt._drag = {
+            active: false,
+            scrollTimer: null,
+            scrollEdgeSize: 50, // How close to the edge the scrolling should start.
+            scrollMaxStep: 20,  // Make the icremental scroll changes more "intense" the closer that the user gets the viewport edge.
+            indicator: $('<div class="tree-drop-indicator"></div>').appendTo(document.body).get(0),
+            ghost: $('<div class="tree-ghost badge badge-light"><i></i><span class="ml-1"></span></div>').appendTo(document.body).get(0)
+        };
+
+        root.on('dragstart', '.tree-node-content', function (e) {
+            var node = $(this).closest('.tree-node');
+
+            startDragging(true);
+            d.sourceId = node.data('id');
+            d.ghost.getElementsByTagName('span')[0].innerText = $(this).find('.tree-name').text();
+            d.ghostIcon = d.ghost.getElementsByTagName('i')[0];
+
+            root.find('.tree-node-content').addClass('droppable');
+            node.find('.tree-node-content').removeClass('droppable');
+
+            e.originalEvent.dataTransfer.effectAllowed = 'move';
+            e.originalEvent.dataTransfer.setDragImage(this, -99999, -99999);
+            e.originalEvent.dataTransfer.setData('text/plain', d.sourceId);
+
+            console.log('dragstart ' + d.ghost.getElementsByTagName('span')[0].innerText);
+        });
+
+        root.on('dragend', '.tree-node-content', function () {
+            startDragging(false);
+        });
+
+        root.on('dragenter', '.droppable', function (e) {
+            e.preventDefault();
+
+            if (d.active) {
+                d.nodeContent = this;
+
+                var nodeId = $(this).closest('.tree-node').data('id');
+                if (nodeId !== d.targetId) {
+                    d.targetId = nodeId;
+                    d.targetRect = this.getBoundingClientRect();
+                    d.position = '';
+
+                    var scrollY = window.scrollY;
+                    d.beforeY = d.targetRect.top + scrollY + 8;
+                    d.afterY = d.targetRect.bottom + scrollY - 8;
+                    d.indicatorBeforeTop = d.targetRect.top + scrollY;
+                    d.indicatorAfterBottom = d.targetRect.bottom + scrollY;
+
+                    d.indicator.style.left = (d.targetRect.left + 10) + 'px';
+
+                    root.find('.droppable-highlight').removeClass('droppable-highlight');
+                }
+            }
+        });
+
+        root.on('dragleave', '.droppable', function (e) {
+            if (d.active && this === d.nodeContent) {
+                e.preventDefault();
+                d.indicator.style.display = 'none';
+                d.ghost.style.display = 'none';
+                root.find('.droppable-highlight').removeClass('droppable-highlight');
+            }
+        });
+
+        root.on('dragover', '.droppable', function (e) {
+            e.preventDefault();  // Allow dropping.
+
+            if (d.active) {
+                // Indicate.
+                if (e.pageY < d.beforeY) {
+                    d.position = 'before';
+                    d.indicator.style.display = 'block';
+                    d.indicator.style.top = d.indicatorBeforeTop + 'px';
+                    d.ghostIcon.setAttribute('class', 'fas fa-fw fa-long-arrow-alt-right');
+                    d.nodeContent.classList.remove('droppable-highlight');
+                }
+                else if (e.pageY > d.afterY) {
+                    d.position = 'after';
+                    d.indicator.style.display = 'block';
+                    d.indicator.style.top = d.indicatorAfterBottom + 'px';
+                    d.ghostIcon.setAttribute('class', 'fas fa-fw fa-long-arrow-alt-right');
+                    d.nodeContent.classList.remove('droppable-highlight');
+                }
+                else if (e.pageY >= d.beforeY && e.pageY <= d.afterY) {
+                    d.position = 'over';
+                    d.indicator.style.display = 'none';
+                    d.ghostIcon.setAttribute('class', 'fas fa-fw fa-plus');
+                    d.nodeContent.classList.add('droppable-highlight');
+                }
+                else {
+                    d.position = '';
+                    d.indicator.style.display = 'none';
+                    d.ghost.style.display = 'none';
+                    d.nodeContent.classList.remove('droppable-highlight');
+                }
+
+                // Show ghost tooltip.
+                if (d.position.length > 0) {
+                    d.ghost.style.display = 'block';
+                    d.ghost.style.top = (e.pageY + 14) + 'px';
+                    d.ghost.style.left = (e.pageX + 18) + 'px';
+                }
+            }
+        });
+
+        root.on('drop', '.droppable', function (e) {
+            e.preventDefault();
+
+            var sourceName = root.find(`.tree-node[data-id=${d.sourceId}]`).find('.tree-inner:first .tree-name').text();
+            var targetName = $(this).closest('.tree-node').find('.tree-inner:first .tree-name').text();
+            console.log(`drop ${sourceName} ${d.position} ${targetName}`);
+
+            startDragging(false);
+        });
+
+
+        function startDragging(active) {
+            d.active = active;
+            d.position = '';
+            d.sourceId = 0;
+            d.targetId = 0;
+            d.targetRect = null;
+            d.nodeContent = null;
+            d.ghostIcon = null;
+
+            if (active) {
+                root.removeClass('tree-highlight');
+            }
+            else {
+                root.find('.tree-node-content').removeClass('droppable droppable-highlight');
+                d.indicator.style.display = 'none';
+                d.ghost.style.display = 'none';
+
+                if (opt.highlightNodes) {
+                    root.addClass('tree-highlight');
+                }
+            }
+        }
     }
 
 })(jQuery, this, document);

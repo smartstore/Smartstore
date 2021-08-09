@@ -7,7 +7,8 @@
     var canEdit = (bool)ViewBag.CanEdit;
 }
 
-<div class="section-header">
+@*INFO: please no sticky header here ('nofix'). It blocks the browser from auto scrolling during drag and drop.*@
+<div class="section-header nofix">
     <div class="title">
         <i class="fa fa-sitemap"></i>
         <span>@ViewBag.Title</span>

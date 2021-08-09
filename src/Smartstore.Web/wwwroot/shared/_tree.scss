@@ -6,6 +6,10 @@ $default-state-color: $gray-400;
 
 .tree {
     position: relative;
+
+    .droppable * {
+        pointer-events: none;
+    }
 }
 
 .tree-list {
@@ -181,6 +185,7 @@ $default-state-color: $gray-400;
     }
 }
 
+// Drag and drop.
 .tree-drop-indicator {
     display: none;
     position: absolute;
@@ -205,3 +210,15 @@ $default-state-color: $gray-400;
         border-bottom: 5px solid transparent;
     }
 }
+
+.tree-ghost {
+    display: none;
+    position: absolute;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.droppable-highlight {
+    background-color: rgba($warning, 0.3) !important;
+}
+
