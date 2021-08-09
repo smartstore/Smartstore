@@ -14,7 +14,7 @@ using Smartstore.Web.Models.Search;
 
 namespace Smartstore.Web.Controllers
 {
-    public class SearchController : PublicControllerBase
+    public class SearchController : PublicController
     {
         private readonly CatalogHelper _catalogHelper;
         private readonly ICatalogSearchService _catalogSearchService;

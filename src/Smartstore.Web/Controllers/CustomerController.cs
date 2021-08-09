@@ -31,7 +31,7 @@ using Smartstore.Web.Models.Customers;
 
 namespace Smartstore.Web.Controllers
 {
-    public class CustomerController : PublicControllerBase
+    public class CustomerController : PublicController
     {
         private readonly SmartDbContext _db;
         private readonly INewsletterSubscriptionService _newsletterSubscriptionService;

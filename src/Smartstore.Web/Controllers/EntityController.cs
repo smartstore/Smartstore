@@ -20,7 +20,7 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Controllers
 {
-    public partial class EntityController : PublicControllerBase
+    public partial class EntityController : PublicController
     {
         private readonly SmartDbContext _db;
         private readonly ICatalogSearchService _catalogSearchService;

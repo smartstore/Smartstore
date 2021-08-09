@@ -14,7 +14,7 @@ using Smartstore.Web.Models.Topics;
 
 namespace Smartstore.Web.Controllers
 {
-    public class TopicController : PublicControllerBase
+    public class TopicController : PublicController
     {
         private readonly IAclService _aclService;
         private readonly IStoreMappingService _storeMappingService;

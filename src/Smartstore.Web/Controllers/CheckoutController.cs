@@ -21,7 +21,7 @@ using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.Web.Controllers
 {
-    public class CheckoutController : PublicControllerBase
+    public class CheckoutController : PublicController
     {
         private readonly SmartDbContext _db;
         private readonly IOrderService _orderService;

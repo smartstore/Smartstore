@@ -35,7 +35,7 @@ using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.Web.Controllers
 {
-    public class ShoppingCartController : PublicControllerBase
+    public class ShoppingCartController : PublicController
     {
         private readonly SmartDbContext _db;
         private readonly IMessageFactory _messageFactory;

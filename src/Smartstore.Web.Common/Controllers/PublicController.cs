@@ -14,7 +14,7 @@ namespace Smartstore.Web.Controllers
     [TrackActivity(Order = 100)]
     [CheckAffiliate(Order = 100)]
     [SaveChanges(typeof(SmartDbContext), Order = int.MaxValue)]
-    public class PublicControllerBase : SmartController
+    public class PublicController : SmartController
     {
     }
 }

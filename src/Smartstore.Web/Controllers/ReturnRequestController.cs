@@ -18,7 +18,7 @@ using Smartstore.Web.Models.Orders;
 
 namespace Smartstore.Web.Controllers
 {
-    public class ReturnRequestController : PublicControllerBase
+    public class ReturnRequestController : PublicController
     {
         private readonly SmartDbContext _db;
         private readonly IOrderProcessingService _orderProcessingService;

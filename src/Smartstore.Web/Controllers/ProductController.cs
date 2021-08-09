@@ -28,7 +28,7 @@ using Smartstore.Web.Models.Catalog;
 
 namespace Smartstore.Web.Controllers
 {
-    public partial class ProductController : PublicControllerBase
+    public partial class ProductController : PublicController
     {
         private readonly SmartDbContext _db;
         private readonly IWebHelper _webHelper;

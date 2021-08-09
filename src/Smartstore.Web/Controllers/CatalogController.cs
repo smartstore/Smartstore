@@ -27,7 +27,7 @@ using Smartstore.Web.Models.Catalog;
 
 namespace Smartstore.Web.Controllers
 {
-    public partial class CatalogController : PublicControllerBase
+    public partial class CatalogController : PublicController
     {
         private readonly SmartDbContext _db;
         private readonly ICategoryService _categoryService;
