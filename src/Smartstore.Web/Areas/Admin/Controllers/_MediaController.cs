@@ -13,7 +13,7 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class MediaController : AdminControllerBase
+    public class MediaController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IMediaService _mediaService;

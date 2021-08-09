@@ -39,7 +39,7 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class ExportController : AdminControllerBase
+    public class ExportController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IExportProfileService _exportProfileService;

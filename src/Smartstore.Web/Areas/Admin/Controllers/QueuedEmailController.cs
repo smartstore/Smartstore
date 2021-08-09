@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class QueuedEmailController : AdminControllerBase
+    public class QueuedEmailController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IDateTimeHelper _dateTimeHelper;

@@ -7,7 +7,7 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class SecurityController : AdminControllerBase
+    public class SecurityController : AdminController
     {
         // INFO: instead, throw new AccessDeniedException()
 

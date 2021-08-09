@@ -44,7 +44,7 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class SettingController : AdminControllerBase
+    public class SettingController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly ILanguageService _languageService;

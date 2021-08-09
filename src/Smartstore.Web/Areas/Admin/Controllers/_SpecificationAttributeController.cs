@@ -9,7 +9,7 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Web.Areas.Admin.Controllers
 {
-    public class SpecificationAttributeController : AdminControllerBase
+    public class SpecificationAttributeController : AdminController
     {
         private readonly SmartDbContext _db;
 

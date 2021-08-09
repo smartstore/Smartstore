@@ -43,7 +43,7 @@ using Smartstore.Web.TagHelpers.Shared;
 
 namespace Smartstore.Admin.Controllers
 {
-    public partial class ProductController : AdminControllerBase
+    public partial class ProductController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IProductService _productService;           

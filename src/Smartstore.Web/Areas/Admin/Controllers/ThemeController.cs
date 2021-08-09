@@ -22,7 +22,7 @@ using Smartstore.Web.Theming;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class ThemeController : AdminControllerBase
+    public class ThemeController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IThemeRegistry _themeRegistry;

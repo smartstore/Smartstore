@@ -17,7 +17,7 @@ using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class ProductAttributeController : AdminControllerBase
+    public class ProductAttributeController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly AdminAreaSettings _adminAreaSettings;

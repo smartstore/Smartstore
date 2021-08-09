@@ -18,7 +18,7 @@ using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
-    public partial class ProductController : AdminControllerBase
+    public partial class ProductController : AdminController
     {
         #region Related products
 

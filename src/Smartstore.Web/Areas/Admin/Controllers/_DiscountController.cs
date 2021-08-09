@@ -13,7 +13,7 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class DiscountController : AdminControllerBase
+    public class DiscountController : AdminController
     {
         private readonly SmartDbContext _db;
         

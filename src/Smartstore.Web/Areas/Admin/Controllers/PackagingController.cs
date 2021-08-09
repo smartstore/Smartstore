@@ -11,7 +11,7 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Controllers
 {
-    public class PackagingController : AdminControllerBase
+    public class PackagingController : AdminController
     {
         private readonly IPackageInstaller _packageInstaller;
         private readonly IPackageBuilder _packageBuilder;

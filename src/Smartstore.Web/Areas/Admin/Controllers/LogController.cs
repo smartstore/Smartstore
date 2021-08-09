@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class LogController : AdminControllerBase
+    public class LogController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IDbLogService _dbLogService;

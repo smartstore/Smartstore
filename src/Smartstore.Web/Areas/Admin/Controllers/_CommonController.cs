@@ -11,7 +11,7 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class CommonController : AdminControllerBase
+    public class CommonController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IMemoryCache _memCache;

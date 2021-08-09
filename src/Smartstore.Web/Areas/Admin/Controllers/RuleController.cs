@@ -35,7 +35,7 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class RuleController : AdminControllerBase
+    public class RuleController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IRuleService _ruleService;

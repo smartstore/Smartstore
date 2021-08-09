@@ -18,7 +18,7 @@ using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class SchedulingController : AdminControllerBase
+    public class SchedulingController : AdminController
     {
         private readonly ITaskStore _taskStore;
         private readonly ITaskActivator _taskActivator;

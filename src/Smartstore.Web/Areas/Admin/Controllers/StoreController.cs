@@ -24,7 +24,7 @@ using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class StoreController : AdminControllerBase
+    public class StoreController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly ICatalogSearchService _catalogSearchService;

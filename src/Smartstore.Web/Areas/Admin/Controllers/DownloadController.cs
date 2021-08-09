@@ -10,7 +10,7 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class DownloadController : AdminControllerBase
+    public class DownloadController : AdminController
     {
         private const string DOWNLOAD_TEMPLATE = "EditorTemplates/Download";
 

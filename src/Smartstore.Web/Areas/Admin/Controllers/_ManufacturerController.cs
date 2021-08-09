@@ -16,7 +16,7 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class ManufacturerController : AdminControllerBase
+    public class ManufacturerController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IProductService _productService;

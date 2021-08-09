@@ -17,7 +17,7 @@ using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
-    public partial class ProductController : AdminControllerBase
+    public partial class ProductController : AdminController
     {
         [HttpPost]
         [Permission(Permissions.Catalog.Product.Read)]

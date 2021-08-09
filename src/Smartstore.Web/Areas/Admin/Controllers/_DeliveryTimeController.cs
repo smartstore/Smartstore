@@ -14,7 +14,7 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class DeliveryTimeController : AdminControllerBase
+    public class DeliveryTimeController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IDeliveryTimeService _deliveryTimeService;

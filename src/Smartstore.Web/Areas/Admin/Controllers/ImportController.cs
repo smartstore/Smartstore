@@ -24,7 +24,7 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class ImportController : AdminControllerBase
+    public class ImportController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IImportProfileService _importProfileService;

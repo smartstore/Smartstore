@@ -29,7 +29,7 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class CustomerRoleController : AdminControllerBase
+    public class CustomerRoleController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly RoleManager<CustomerRole> _roleManager;

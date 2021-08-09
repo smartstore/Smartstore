@@ -6,7 +6,7 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class HomeController : AdminControllerBase
+    public class HomeController : AdminController
     {
         private readonly IUserAgent _userAgent;
         

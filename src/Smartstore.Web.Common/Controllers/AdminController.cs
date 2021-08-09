@@ -33,7 +33,7 @@ namespace Smartstore.Web.Controllers
     [AdminThemed]
     [TrackActivity(Order = 100)]
     [SaveChanges(typeof(SmartDbContext), Order = int.MaxValue)]
-    public abstract class AdminControllerBase : ManageController
+    public abstract class AdminController : ManageController
     {
     }
 }

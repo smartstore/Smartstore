@@ -27,7 +27,7 @@ using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
-    public class TopicController : AdminControllerBase
+    public class TopicController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly ILocalizedEntityService _localizedEntityService;
