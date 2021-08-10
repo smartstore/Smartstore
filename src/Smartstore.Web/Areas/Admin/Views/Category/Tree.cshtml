@@ -49,8 +49,7 @@
     </div>
 </div>
 
-@*TODO: (mg) (core) remove margin-left later. MiniProfiler is in my way.*@
-<div id="category-tree" style="margin-left:100px"></div>
+<div id="category-tree"></div>
 
 <script sm-target-zone="scripts" data-origin="category-tree">
     $(function() {
@@ -64,7 +63,6 @@
             $('#category-tree').tree('destroy');
 
             initTree(treeUrl + '?searchStoreId=' + $(this).val());
-            // TODO: (mg) (core) info about empty tree is missing.
         });
 
         function initTree(url) {
@@ -73,7 +71,8 @@
                 dropUrl: '@Url.Action("TreeDrop")',
                 dragAndDrop: @canEdit.ToString().ToLower(),
                 defaultCollapsedIconClass: 'fas fa-fw fa-folder text-success',
-                defaultExpandededIconClass: 'fas fa-fw fa-folder-open text-success'
+                defaultExpandededIconClass: 'fas fa-fw fa-folder-open text-success',
+                noDataNote: @T("Admin.Catalog.Categories.NoCategories").JsValue
             });
         }
     });

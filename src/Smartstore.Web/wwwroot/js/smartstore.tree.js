@@ -36,7 +36,8 @@
         collapsedClass: 'fas fa-chevron-right',
         leafClass: 'tree-leaf',
         stateTitles: ['', '', '', ''],
-        disabledTitle: null
+        disabledTitle: null,
+        noDataNote: null
     };
 
     var methods = {
@@ -227,6 +228,10 @@
 
         if (opt.dragAndDrop) {
             initializeDragAndDrop(root, opt);
+        }
+
+        if (opt.noDataNote && root.find('li').length == 0) {
+            root.append(`<div class="alert alert-info">${opt.noDataNote}</div>`);
         }
 
         EventBroker.publishSync('tree.initialized', { root });

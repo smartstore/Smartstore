@@ -70,6 +70,10 @@ namespace Smartstore.Core.Data.Migrations
                 "The back in stock notification has been cancelled.",
                 "Die Benachrichtigung über Produktverfügbarkeit wurde storniert.");
 
+            builder.AddOrUpdate("Admin.Catalog.Categories.NoCategories",
+                "There were no categories found.",
+                "Es wurden keine Warengruppen gefunden.");
+
             #endregion
 
             #region Packaging
