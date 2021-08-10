@@ -14,6 +14,7 @@
         <span>@ViewBag.Title</span>
 
         @* TBD: (mg) (core) I remember having that fixed. It looks ugly with align-top. Why?  *@
+        @* RE: you have removed it from the list view but left it unchanged in the tree view. *@
         <div class="btn-group ml-2">
             <a asp-action="List" class="btn btn-outline-secondary btn-sm tooltip-toggle" title="@T("Admin.Catalog.Categories.SwitchToListView")">
                 <i class="fa fa-bars"></i>
@@ -49,26 +50,31 @@
 </div>
 
 @*TODO: (mg) (core) remove margin-left later. MiniProfiler is in my way.*@
-<div id="category-tree" class="tree" style="margin-left:100px"></div>
+<div id="category-tree" style="margin-left:100px"></div>
 
 <script sm-target-zone="scripts" data-origin="category-tree">
     $(function() {
+        var treeUrl = '@Url.Action("CategoryTree")';
+
         // Init category tree.
-        $('#category-tree').tree('init', {
-            url: '@Url.Action("CategoryTree")',
-            dropUrl: '@Url.Action("TreeDrop")',
-            dragAndDrop: @canEdit.ToString().ToLower(),
-            defaultCollapsedIconClass: 'fas fa-fw fa-folder text-success',
-            defaultExpandededIconClass: 'fas fa-fw fa-folder-open text-success',
-            //stateType: 'checkbox',
-            //selectMode: 'single',
-            //disabledTitle: @T("Common.NotSelectable").JsValue
-        });
+        initTree(treeUrl);
 
         // Filter by store ID.
         $('#@Html.IdFor(model => model.SearchStoreId)').on('change', function() {
-            var storeId = $(this).val();
-            //...
+            $('#category-tree').tree('destroy');
+
+            initTree(treeUrl + '?searchStoreId=' + $(this).val());
+            // TODO: (mg) (core) info about empty tree is missing.
         });
+
+        function initTree(url) {
+            $('#category-tree').tree('init', {
+                url: url,
+                dropUrl: '@Url.Action("TreeDrop")',
+                dragAndDrop: @canEdit.ToString().ToLower(),
+                defaultCollapsedIconClass: 'fas fa-fw fa-folder text-success',
+                defaultExpandededIconClass: 'fas fa-fw fa-folder-open text-success'
+            });
+        }
     });
 </script>

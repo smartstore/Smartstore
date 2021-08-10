@@ -305,6 +305,9 @@ namespace Smartstore.Admin.Controllers
             {
                 switch (position)
                 {
+                    case "over":
+                        category.DisplayOrder = childCategories.Max(x => x.DisplayOrder) + 10;
+                        break;
                     case "before":
                         category.DisplayOrder = targetCategory.DisplayOrder - 5;
                         break;

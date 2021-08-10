@@ -4,17 +4,15 @@
 */
 (function ($, window, document, undefined) {
 
-    // TODO: (mg) (core) For optimal dragdrop visual feedback style the hover effect how it was before (background for icon + label). 
-    // For this you need to move the icon to a new parent element and put some padding around the content.
-
-    // TODO: (mg) (core) During a drag operation browser gets laggy and unresponsive after some time. Beware of "dragover": it is like a "machine gun"!
+    // TODO: (mg) (core) category tree drag and drop: find a way for "move into the category" indication (that does not cause the browser to hang in task list).
+    // TODO: (mg) (core) add RTL support to category tree.
 
     $.fn.tree = function (method) {
         return main.apply(this, arguments);
     };
 
     $.tree = function () {
-        return main.apply($('.tree:first'), arguments);
+        return main.apply($('.tree').first(), arguments);
     };
 
     $.tree.defaults = {
@@ -48,13 +46,30 @@
             return this.each(function () {
                 var root = $(this);
 
-                root.data('tree-options', options);
+                root.data('tree-options', options).addClass('tree');
 
                 if (!loadData(root, null, options, function (data) {
                     initialize(root, options, data);
                 })) {
                     initialize(root, options, null);
                 }
+            });
+        },
+
+        destroy: function () {
+            return this.each(function () {
+                var root = $(this);
+
+                root.off()
+                    .removeData('tree-options')
+                    .removeAttr('data-tree-options')
+                    .removeClass(function (index, className) {
+                        return (className.match(/(^|\s)tree-\S+/g) || []).join(' ');
+                    })
+                    .removeClass('tree')
+                    .empty();
+
+                EventBroker.publishSync('tree.destroyed', { root });
             });
         },
 
@@ -110,9 +125,7 @@
         }
 
         // Set root item class.
-        root.find('ul:first > .tree-node').each(function () {
-            $(this).addClass('root-node');
-        });
+        root.find('ul:first > .tree-node').addClass('root-node');
 
         // Initially expand or collapse nodes.
         root.find('.tree-noleaf').each(function () {
@@ -151,7 +164,7 @@
 
             if (opt.stateType === 'on-off') {
                 var hIn = el.next();
-                var state = el.siblings('.tree-state-onoff:first');
+                var state = el.siblings('.tree-state-onoff').first();
                 var inheritedState = 0;
                 var currentValue = parseInt(el.val());
                 var value;
@@ -369,7 +382,7 @@
 
     function expandNode(node, expand, opt, slide) {
         var childNodes = node.children('ul');
-        var nodeInner = node.find('.tree-inner:first');
+        var nodeInner = node.find('.tree-inner').first();
 
         if (expand) {
             // Expand.
@@ -417,6 +430,15 @@
         }
     }
 
+    function addExpander(node, opt) {
+        var container = node.find('.tree-inner').first().find('.tree-expander-container');
+
+        if (!container.hasClass('tree-expander')) {
+            container.addClass('tree-expander').html(`<i class="${opt.collapsedClass}"></i>`);
+            node.addClass('tree-collapsed tree-noleaf').removeClass('tree-leaf');
+        }
+    }
+
     function setInheritedState(node, inheritedState, opt) {
         if (!node) return;
 
@@ -429,7 +451,8 @@
         }
         else {
             // Is not directly on.
-            node.find('.tree-state-onoff:first')
+            node.find('.tree-state-onoff')
+                .first()
                 .removeClass('in-on in-off on off')
                 .addClass(inheritedState === 2 ? 'in-on' : 'in-off')
                 .attr('title', opt.stateTitles[inheritedState === 2 ? 2 : 3]);
@@ -485,7 +508,7 @@
                 var items = '';
                 data.nodes.forEach(x => items += `<li data-id="${x.Id}"></li>`);
 
-                (node ?? root).append(`<ul>${items}</ul>`);
+                (node ?? root).append(`<ul class="tree-list">${items}</ul>`);
 
                 callback(data);
                 EventBroker.publishSync('tree.loaded', { node });
@@ -501,33 +524,33 @@
         return true;
     }
 
-    // Drag & drop
     function initializeDragAndDrop(root, opt) {
-        var d = opt._drag = {
+        opt._drag = {
             active: false,
-            scrollTimer: null,
-            scrollEdgeSize: 50, // How close to the edge the scrolling should start.
-            scrollMaxStep: 20,  // Make the icremental scroll changes more "intense" the closer that the user gets the viewport edge.
             indicator: $('<div class="tree-drop-indicator"></div>').appendTo(document.body).get(0),
-            ghost: $('<div class="tree-ghost badge badge-light"><i></i><span class="ml-1"></span></div>').appendTo(document.body).get(0)
+            //ghost: $('<div class="tree-ghost badge badge-light"><i></i><span class="ml-1"></span></div>').appendTo(document.body).get(0)
         };
 
+        var d = opt._drag;
+        //d.ghostIcon = d.ghost.getElementsByTagName('i')[0];
+
         root.on('dragstart', '.tree-node-content', function (e) {
-            var node = $(this).closest('.tree-node');
+            var content = $(this);
+            var node = content.closest('.tree-node');
 
             startDragging(true);
             d.sourceId = node.data('id');
-            d.ghost.getElementsByTagName('span')[0].innerText = $(this).find('.tree-name').text();
-            d.ghostIcon = d.ghost.getElementsByTagName('i')[0];
+            //d.ghost.getElementsByTagName('span')[0].innerText = content.find('.tree-name').text();
 
             root.find('.tree-node-content').addClass('droppable');
             node.find('.tree-node-content').removeClass('droppable');
 
             e.originalEvent.dataTransfer.effectAllowed = 'move';
-            e.originalEvent.dataTransfer.setDragImage(this, -99999, -99999);
+            e.originalEvent.dataTransfer.setDragImage(content.find('.tree-name')[0], -18, -8);
+            //e.originalEvent.dataTransfer.setDragImage(this, -99999, -99999);
             e.originalEvent.dataTransfer.setData('text/plain', d.sourceId);
 
-            console.log('dragstart ' + d.ghost.getElementsByTagName('span')[0].innerText);
+            //console.log('dragstart ' + content.find('.tree-name').text());
         });
 
         root.on('dragend', '.tree-node-content', function () {
@@ -554,7 +577,7 @@
 
                     d.indicator.style.left = (d.targetRect.left + 10) + 'px';
 
-                    root.find('.droppable-highlight').removeClass('droppable-highlight');
+                    //root.find('.droppable-highlight').removeClass('droppable-highlight');
                 }
             }
         });
@@ -563,8 +586,8 @@
             if (d.active && this === d.nodeContent) {
                 e.preventDefault();
                 d.indicator.style.display = 'none';
-                d.ghost.style.display = 'none';
-                root.find('.droppable-highlight').removeClass('droppable-highlight');
+                //d.ghost.style.display = 'none';
+                //root.find('.droppable-highlight').removeClass('droppable-highlight');
             }
         });
 
@@ -577,48 +600,79 @@
                     d.position = 'before';
                     d.indicator.style.display = 'block';
                     d.indicator.style.top = d.indicatorBeforeTop + 'px';
-                    d.ghostIcon.setAttribute('class', 'fas fa-fw fa-long-arrow-alt-right');
-                    d.nodeContent.classList.remove('droppable-highlight');
+                    //d.ghostIcon.setAttribute('class', 'fas fa-fw fa-long-arrow-alt-right');
+                    //d.nodeContent.classList.remove('droppable-highlight');
                 }
                 else if (e.pageY > d.afterY) {
                     d.position = 'after';
                     d.indicator.style.display = 'block';
                     d.indicator.style.top = d.indicatorAfterBottom + 'px';
-                    d.ghostIcon.setAttribute('class', 'fas fa-fw fa-long-arrow-alt-right');
-                    d.nodeContent.classList.remove('droppable-highlight');
+                    //d.ghostIcon.setAttribute('class', 'fas fa-fw fa-long-arrow-alt-right');
+                    //d.nodeContent.classList.remove('droppable-highlight');
                 }
                 else if (e.pageY >= d.beforeY && e.pageY <= d.afterY) {
                     d.position = 'over';
                     d.indicator.style.display = 'none';
-                    d.ghostIcon.setAttribute('class', 'fas fa-fw fa-plus');
-                    d.nodeContent.classList.add('droppable-highlight');
+                    //d.ghostIcon.setAttribute('class', 'fas fa-fw fa-plus');
+                    //d.nodeContent.classList.add('droppable-highlight');
                 }
                 else {
                     d.position = '';
                     d.indicator.style.display = 'none';
-                    d.ghost.style.display = 'none';
-                    d.nodeContent.classList.remove('droppable-highlight');
+                    //d.ghost.style.display = 'none';
+                    //d.nodeContent.classList.remove('droppable-highlight');
                 }
 
                 // Show ghost tooltip.
-                if (d.position.length > 0) {
-                    d.ghost.style.display = 'block';
-                    d.ghost.style.top = (e.pageY + 14) + 'px';
-                    d.ghost.style.left = (e.pageX + 18) + 'px';
-                }
+                //if (d.position.length > 0) {
+                //    d.ghost.style.display = 'block';
+                //    d.ghost.style.top = (e.pageY + 14) + 'px';
+                //    d.ghost.style.left = (e.pageX + 18) + 'px';
+                //}
             }
         });
 
         root.on('drop', '.droppable', function (e) {
             e.preventDefault();
 
-            var sourceName = root.find(`.tree-node[data-id=${d.sourceId}]`).find('.tree-inner:first .tree-name').text();
-            var targetName = $(this).closest('.tree-node').find('.tree-inner:first .tree-name').text();
-            console.log(`drop ${sourceName} ${d.position} ${targetName}`);
+            if (d.position.length > 0) {
+                var data = {
+                    id: d.sourceId || 0,
+                    targetId: d.targetId || 0,
+                    position: d.position,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                };
 
-            startDragging(false);
+                startDragging(false);
+
+                $.ajax({
+                    type: 'POST',
+                    url: opt.dropUrl,
+                    cache: false,
+                    timeout: 5000,
+                    data: data,
+                    success: function (response) {
+                        if (response.success) {
+                            var source = root.find(`.tree-node[data-id=${data.id}]`);
+                            var target = root.find(`.tree-node[data-id=${data.targetId}]`);
+
+                            //console.log(`drop ${source.find('.tree-inner:first .tree-name').text()} ${data.position} ${target.find('.tree-inner:first .tree-name').text()}`);
+
+                            EventBroker.publishSync('tree.dropped', { source, target });
+
+                            moveNode(source, target, data.position);
+                        }
+
+                        if (response.message) {
+                            displayNotification(response.message, response.success ? 'success' : 'error');
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        displayNotification(xhr.responseText || thrownError, 'error');
+                    }
+                });
+            }
         });
-
 
         function startDragging(active) {
             d.active = active;
@@ -627,19 +681,66 @@
             d.targetId = 0;
             d.targetRect = null;
             d.nodeContent = null;
-            d.ghostIcon = null;
 
             if (active) {
                 root.removeClass('tree-highlight');
             }
             else {
-                root.find('.tree-node-content').removeClass('droppable droppable-highlight');
+                root.find('.tree-node-content').removeClass('droppable');
+                //root.find('.tree-node-content').removeClass('droppable-highlight');
                 d.indicator.style.display = 'none';
-                d.ghost.style.display = 'none';
+                //d.ghost.style.display = 'none';
 
                 if (opt.highlightNodes) {
                     root.addClass('tree-highlight');
                 }
+            }
+        }
+
+        function moveNode(source, target, position) {
+            var dataLoaded = false;
+
+            if (position === 'before') {
+                source.detach().insertBefore(target);
+            }
+            else if (position === 'after') {
+                source.detach().insertAfter(target);
+            }
+            else if (position === 'over') {
+                var list = target.find('ul').first();
+
+                addExpander(target, opt);
+
+                if (!target.hasClass('tree-expanded')) {
+                    if (!list.length) {
+                        dataLoaded = true;
+
+                        // Just detach but do not append. We fetch target from server.
+                        source.detach();
+
+                        loadData(root, target, opt, function (data) {
+                            addNodeHtml(target, opt, data);
+                            expandNode(target, true, opt, true);
+                            updateRootNodes();
+                        });
+                    }
+                    else {
+                        expandNode(target, true, opt, true);
+                        source.detach().appendTo(list);
+                    }
+                }
+                else {
+                    source.detach().appendTo(list);
+                }
+            }
+
+            if (!dataLoaded) {
+                updateRootNodes();
+            }
+
+            function updateRootNodes() {
+                root.find('.root-node').removeClass('root-node');
+                root.find('ul:first > .tree-node').addClass('root-node');
             }
         }
     }
