@@ -4,12 +4,13 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
+using Smartstore.Collections;
 using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity
 {
     /// <inheritdoc/>
-    public class ModuleDescriptor : IModuleDescriptor, IComparable<ModuleDescriptor>
+    public class ModuleDescriptor : IModuleDescriptor, ITopologicSortable<string>, IComparable<ModuleDescriptor>
     {
         private string _assemblyName;
         private string _resourceRootKey;
@@ -126,27 +127,35 @@ namespace Smartstore.Engine.Modularity
         string IExtensionDescriptor.Name 
             => SystemName;
 
+        [JsonProperty]
         /// <inheritdoc/>
         public string FriendlyName { get; internal set; }
 
+        [JsonProperty]
         /// <inheritdoc/>
         public string Description { get; internal set; }
 
+        [JsonProperty]
         /// <inheritdoc/>
         public string Group { get; internal set; }
 
+        [JsonProperty]
         /// <inheritdoc/>
         public string Author { get; internal set; }
 
+        [JsonProperty]
         /// <inheritdoc/>
         public string ProjectUrl { get; internal set; }
 
+        [JsonProperty]
         /// <inheritdoc/>
         public string Tags { get; internal set; }
 
+        [JsonProperty]
         /// <inheritdoc/>
         public Version Version { get; internal set; }
 
+        [JsonProperty]
         /// <inheritdoc/>
         public Version MinAppVersion { get; internal set; }
 
@@ -183,9 +192,18 @@ namespace Smartstore.Engine.Modularity
 
         #endregion
 
+        [JsonProperty]
         /// <inheritdoc/>
         public string SystemName { get; internal set; }
 
+        string ITopologicSortable<string>.Key
+            => SystemName;
+
+        [JsonProperty]
+        /// <inheritdoc/>
+        public string[] DependsOn { get; internal set; }
+
+        [JsonProperty]
         /// <inheritdoc/>
         public int Order { get; internal set; }
 
@@ -209,6 +227,7 @@ namespace Smartstore.Engine.Modularity
         /// <inheritdoc/>
         public ModuleAssemblyInfo Module { get; internal set; }
 
+        [JsonProperty]
         /// <inheritdoc/>
         public string ResourceRootKey
         {

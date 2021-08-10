@@ -33,6 +33,8 @@ namespace Smartstore.Core.Packaging
 
         public async Task<IExtensionDescriptor> InstallPackageAsync(ExtensionPackage package)
         {
+            // TODO: (core) Check if required dependencies are already installed.
+
             ZipArchive archive = null;
             try
             {

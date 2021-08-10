@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
@@ -15,6 +13,8 @@ namespace Smartstore.Web.Razor
 {
     internal class RazorRuntimeFileProvider : IFileProvider
     {
+        // TODO: (core) Implement DebugFileProvider for module and theme files and replace RazorRuntimeFileProvider.
+
         private readonly IFileProvider _contentRoot;
         private readonly IFileProvider _modulesRoot;
         private readonly IFileProvider _debugRoot;

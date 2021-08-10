@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Smartstore.Collections;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -17,7 +18,7 @@ namespace Smartstore.Engine.Modularity
         {
             var allDirectories = _appContext.ModulesRoot.EnumerateDirectories()
                 .Where(d => d.Name != "bin" && d.Name != "_Backup")
-                .OrderBy(d => d.Name)
+                //.OrderBy(d => d.Name)
                 .ToArray();
 
             var modules = allDirectories
@@ -25,9 +26,10 @@ namespace Smartstore.Engine.Modularity
                 .AsOrdered()
                 .Select(d => ModuleDescriptor.Create(d))
                 .Where(x => x != null)
-                .ToArray();
+                .ToArray()
+                .SortTopological()
+                .Cast<ModuleDescriptor>();
 
-            Array.Sort(modules);
             return modules;
         }
     }

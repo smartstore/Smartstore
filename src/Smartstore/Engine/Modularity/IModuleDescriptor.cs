@@ -18,6 +18,11 @@ namespace Smartstore.Engine.Modularity
         string SystemName { get; }
 
         /// <summary>
+        /// Gets the module system names the module depends on (or <c>null</c>)
+        /// </summary>
+        string[] DependsOn { get; }
+
+        /// <summary>
         /// Gets the (display) order
         /// </summary>
         int Order { get; }

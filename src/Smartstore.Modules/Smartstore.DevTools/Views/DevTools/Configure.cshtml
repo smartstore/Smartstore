@@ -1,3 +1,18 @@
-﻿
+﻿@{ 
+    Layout = "_ConfigureModule";
+}
 
-<h1>Hello World from DevTools module</h1>
+<form asp-action="Configure">
+    <widget target-zone="admin_button_toolbar_before">
+        <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+            <i class="fa fa-check"></i>
+            <span>@T("Admin.Common.Save")</span>
+        </button>
+    </widget>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="All"></div>
+
+    <h1>Hello World from DevTools module</h1>
+</form>
