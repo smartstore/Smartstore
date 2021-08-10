@@ -58,7 +58,7 @@ namespace Smartstore.Engine.Modularity
         /// <returns>Installed module descriptors.</returns>
         public static IEnumerable<IModuleDescriptor> GetInstalledModules(this IModuleCatalog catalog)
         {
-            return catalog.Modules.Where(x => x.AssemblyInfo?.Installed == true);
+            return catalog.Modules.Where(x => x.Module?.Installed == true);
         }
 
         ///// <summary>

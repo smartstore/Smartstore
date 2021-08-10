@@ -26,6 +26,8 @@ namespace Smartstore.Engine
 {
     public class SmartEngine : IEngine
     {
+        const string SmartstoreNamespace = "Smartstore.";
+        
         public IApplicationContext Application { get; private set; }
         public ScopedServiceContainer Scope { get; set; }
         public bool IsStarted { get; private set; }
@@ -110,11 +112,15 @@ namespace Smartstore.Engine
                 var assemblies = new HashSet<Assembly>();
 
                 var libs = DependencyContext.Default.CompileLibraries
-                    .Where(x => x.Type == "project")
+                    .Where(x => x.Name.StartsWith(SmartstoreNamespace))
                     .Select(x => new CoreAssembly
                     {
                         Name = x.Name,
-                        DependsOn = x.Dependencies.Select(y => y.Name).ToArray()
+                        DependsOn = x.Dependencies
+                            .Where(y => y.Name.StartsWith(SmartstoreNamespace))
+                            .Where(y => !y.Name.StartsWith(SmartstoreNamespace + ".Data.")) // Exclude data provider projects
+                            .Select(y => y.Name)
+                            .ToArray()
                     })
                     .ToArray()
                     .SortTopological()
@@ -275,6 +281,7 @@ namespace Smartstore.Engine
             class CoreAssembly : ITopologicSortable<string>
             {
                 public string Name { get; init; }
+                public Assembly Assembly { get; init; }
                 string ITopologicSortable<string>.Key 
                 {
                     get => Name;

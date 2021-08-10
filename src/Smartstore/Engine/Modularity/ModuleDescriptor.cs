@@ -207,7 +207,7 @@ namespace Smartstore.Engine.Modularity
         }
 
         /// <inheritdoc/>
-        public ModuleAssemblyInfo AssemblyInfo { get; internal set; }
+        public ModuleAssemblyInfo Module { get; internal set; }
 
         /// <inheritdoc/>
         public string ResourceRootKey

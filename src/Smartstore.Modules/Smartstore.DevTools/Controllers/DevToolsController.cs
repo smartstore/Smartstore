@@ -10,7 +10,7 @@ namespace Smartstore.DevTools.Controllers
 {
     [Area("Admin")]
     //[Route("module/[area]/[action]/{id?}", Name = "Smartstore.DevTools")]
-    public class DevToolsController : ModuleControllerBase
+    public class DevToolsController : ModuleController
     {
         public IActionResult Configure()
         {

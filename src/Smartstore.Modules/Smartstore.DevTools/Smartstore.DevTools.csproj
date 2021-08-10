@@ -1,16 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+		<MvcRazorCompileOnPublish>false</MvcRazorCompileOnPublish>
+		<RazorCompileOnBuild>false</RazorCompileOnBuild>
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<PreserveCompilationReferences>false</PreserveCompilationReferences>
+		<!--<MvcRazorExcludeRefAssembliesOnBuild>true</MvcRazorExcludeRefAssembliesOnBuild>-->
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.DevTools</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
 
 	<PropertyGroup>
-		<PreserveCompilationContext>false</PreserveCompilationContext>
-		<PreserveCompilationReferences>false</PreserveCompilationReferences>
-		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
 		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
 		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -53,7 +58,7 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>

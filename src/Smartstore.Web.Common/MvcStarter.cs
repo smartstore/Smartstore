@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using Autofac;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
@@ -25,6 +26,7 @@ using Smartstore.Core.Web;
 using Smartstore.Data;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Engine.Modularity;
 using Smartstore.Net;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
@@ -63,9 +65,10 @@ namespace Smartstore.Web
             // Register application parts
             foreach (var module in appContext.ModuleCatalog.Modules)
             {
-                if (module.AssemblyInfo?.Assembly != null)
+                if (module.Module?.Assembly != null)
                 {
-                    mvcBuilder.PartManager.ApplicationParts.Add(new AssemblyPart(module.AssemblyInfo.Assembly));
+                    //mvcBuilder.PartManager.ApplicationParts.Add(new AssemblyPart(module.Module.Assembly));
+                    mvcBuilder.PartManager.ApplicationParts.Add(new ModulePart(module));
                 }
             }
             
@@ -121,7 +124,9 @@ namespace Smartstore.Web
                 })
                 .AddRazorRuntimeCompilation(o =>
                 {
-                    // TODO: (core) FileProvider
+                    o.FileProviders.Clear();
+                    o.FileProviders.Add(new RazorRuntimeFileProvider(appContext));
+                    
                 })
                 .AddFluentValidation(c =>
                 {

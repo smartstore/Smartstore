@@ -19,9 +19,9 @@ namespace Smartstore.Engine.Modularity
             {
                 _nameMap[module.SystemName] = module;
 
-                if (module.AssemblyInfo?.Assembly != null)
+                if (module.Module?.Assembly != null)
                 {
-                    _assemblyMap[module.AssemblyInfo.Assembly] = module;
+                    _assemblyMap[module.Module.Assembly] = module;
                 }
             }
         }
@@ -52,7 +52,7 @@ namespace Smartstore.Engine.Modularity
         {
             if (assembly != null && _assemblyMap.TryGetValue(assembly, out var descriptor))
             {
-                if (!installedOnly || descriptor.AssemblyInfo?.Installed == true)
+                if (!installedOnly || descriptor.Module?.Installed == true)
                     return descriptor;
             }
 
@@ -63,7 +63,7 @@ namespace Smartstore.Engine.Modularity
         {
             if (name.HasValue() && _nameMap.TryGetValue(name, out var descriptor))
             {
-                if (!installedOnly || descriptor.AssemblyInfo?.Installed == true)
+                if (!installedOnly || descriptor.Module?.Installed == true)
                     return descriptor;
             }
 

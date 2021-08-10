@@ -1,4 +1,9 @@
-﻿using System.Runtime.Loader;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Loader;
+using Microsoft.Extensions.DependencyModel;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -21,13 +26,38 @@ namespace Smartstore.Engine.Modularity
             var assemblyPath = descriptor.FileProvider.MapPath(descriptor.AssemblyName);
             var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
 
+
+
+            var assemblies = new[] { Assembly.GetEntryAssembly(), assembly };
+            foreach (var asm in assemblies)
+            {
+                var hset = new HashSet<string>();
+                var dependencyContext = DependencyContext.Load(asm);
+                if (dependencyContext != null)
+                {
+                    foreach (var library in dependencyContext.CompileLibraries)
+                    {
+                        try
+                        {
+                            var refPaths = library.ResolveReferencePaths().ToArray();
+                            hset.AddRange(refPaths);
+                        }
+                        catch (Exception ex)
+                        {
+                            var ex2 = ex;
+                        }
+                    }
+                }
+            }
+
+
             var assemblyInfo = new ModuleAssemblyInfo(descriptor)
             {
                 Assembly = assembly,
                 Installed = true
             };
 
-            descriptor.AssemblyInfo = assemblyInfo;
+            descriptor.Module = assemblyInfo;
         }
     }
 }

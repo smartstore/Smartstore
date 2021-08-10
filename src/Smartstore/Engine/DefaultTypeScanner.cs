@@ -26,7 +26,7 @@ namespace Smartstore.Engine
             var assemblies = new HashSet<Assembly>(coreAssemblies);
 
             // Add all module assemblies to assemblies list
-            assemblies.AddRange(moduleCatalog.GetInstalledModules().Select(x => x.AssemblyInfo.Assembly));
+            assemblies.AddRange(moduleCatalog.GetInstalledModules().Select(x => x.Module.Assembly));
 
             // (Perf) Create a list with all active module assemblies only
             _activeAssemblies.AddRange(assemblies.Where(x => moduleCatalog.IsActiveModuleAssembly(x)));

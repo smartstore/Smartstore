@@ -54,8 +54,8 @@ namespace Smartstore.Engine.Modularity
         string AssemblyName { get; }
 
         /// <summary>
-        /// Gets the runtime assembly info.
+        /// Gets the module's runtime assembly info.
         /// </summary>
-        ModuleAssemblyInfo AssemblyInfo { get; }
+        ModuleAssemblyInfo Module { get; }
     }
 }
