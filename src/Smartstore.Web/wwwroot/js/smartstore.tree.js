@@ -125,9 +125,6 @@
             root.addClass('tree-highlight');
         }
 
-        // Set root item class.
-        root.find('ul:first > .tree-node').addClass('root-node');
-
         // Initially expand or collapse nodes.
         root.find('.tree-noleaf').each(function () {
             expandNode($(this), opt.expanded, opt, false);
@@ -238,6 +235,8 @@
     }
 
     function addNodeHtml(context, opt, data) {
+        var isRoot = context.hasClass('tree');
+
         context.find('li').each(function () {
             var li = $(this);
             var childList = li.find('ul');
@@ -312,9 +311,14 @@
         });
 
         if (opt.showLines) {
-            context.find(context.hasClass('tree') ? 'ul:first ul' : 'ul')
+            context.find(isRoot ? 'ul:first ul' : 'ul')
                 .addClass('tree-hline')
                 .prepend('<span class="tree-vline"></span>');
+        }
+
+        // Set root item class.
+        if (isRoot) {
+            context.find('ul:first > .tree-node').addClass('root-node');
         }
 
         if (opt.stateType) {
