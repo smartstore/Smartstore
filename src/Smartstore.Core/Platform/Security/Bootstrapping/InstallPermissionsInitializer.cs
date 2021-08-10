@@ -39,8 +39,8 @@ namespace Smartstore.Core.Bootstrapping
             var removeUnusedPermissions = true;
             var providers = new List<IPermissionProvider>();
 
-            // TODO: (core) PluginManager.PluginChangeDetected is still required in InstallPermissionsInitializer?
-            if (/*PluginManager.PluginChangeDetected ||*/ DbMigrationManager.Instance.GetAppliedMigrations().Any() || !await _db.PermissionRecords.AnyAsync())
+            // TODO: (core) Uncomment the condition when PluginManager.PluginChangeDetected is ported
+            if (true /*PluginManager.PluginChangeDetected || DbMigrationManager.Instance.GetAppliedMigrations().Any() || !await _db.PermissionRecords.AnyAsync()*/)
             {
                 // INFO: even if no module has changed: directly after a DB migration this code block MUST run. It seems awkward
                 // that pending migrations exist when binaries has not changed. But after a manual DB reset for a migration rerun

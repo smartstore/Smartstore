@@ -6,11 +6,11 @@ namespace Smartstore.Core.Content.Menus
     {
         public void BuildMenu(TreeNode<MenuItem> rootNode)
         {
-            var pluginsNode = rootNode.SelectNodeById("plugins");
-            BuildMenuCore(pluginsNode);
+            var modulesNode = rootNode.SelectNodeById("modules");
+            BuildMenuCore(modulesNode);
         }
 
-        protected abstract void BuildMenuCore(TreeNode<MenuItem> pluginsNode);
+        protected abstract void BuildMenuCore(TreeNode<MenuItem> modulesNode);
 
         public string MenuName => "admin";
 

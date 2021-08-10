@@ -143,9 +143,9 @@
             <siteMapNode id="system-info" iconClass="fa fa-info-circle" title="System information" resKey="Admin.System.SystemInfo" permissionNames="system.maintenance" controller="Common" action="SystemInfo" area="Admin" />
         </siteMapNode>
 
-        <siteMapNode id="plugins" title="Plugins" resKey="Admin.Plugins" iconClass="icm icm-puzzle" permissionNames="configuration.plugin.read">
-            <siteMapNode id="plugins-sep-1" isGroupHeader="true" title="[SKIP]" />
-            <siteMapNode id="plugins-manage" iconClass="fa fa-puzzle-piece" title="Manage plugins" resKey="Admin.Plugins.Manage" permissionNames="configuration.plugin.read" controller="Plugin" action="List" area="Admin"/>
+        <siteMapNode id="modules" title="Plugins" resKey="Admin.Plugins" iconClass="icm icm-puzzle" permissionNames="configuration.plugin.read">
+            <siteMapNode id="modules-sep-1" isGroupHeader="true" title="[SKIP]" />
+            <siteMapNode id="modules-manage" iconClass="fa fa-puzzle-piece" title="Manage plugins" resKey="Admin.Plugins.Manage" permissionNames="configuration.plugin.read" controller="Plugin" action="List" area="Admin"/>
         </siteMapNode>
 
     </siteMapNode>

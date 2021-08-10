@@ -13,7 +13,7 @@ namespace Smartstore.Core.Packaging
     {
         private static readonly string[] _ignoredExtensions = new[] 
         {
-            ".obj", ".pdb", ".exclude"
+            ".obj", ".pdb", ".exclude", ".cs"
         };
 
         private static readonly string[] _ignoredPaths = new[] 

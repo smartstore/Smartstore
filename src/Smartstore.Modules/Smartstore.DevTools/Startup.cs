@@ -8,7 +8,7 @@ using Smartstore.Engine.Builders;
 
 namespace Smartstore.DevTools
 {
-    internal class DevToolsStarter : StarterBase
+    internal class Startup : StarterBase
     {
         public override void MapRoutes(EndpointRoutingBuilder builder)
         {
