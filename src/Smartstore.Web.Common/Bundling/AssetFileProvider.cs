@@ -63,6 +63,7 @@ namespace Smartstore.Web.Bundling
         public virtual IFileProvider ResolveFileProvider(ref string path)
         {
             var path2 = path.TrimStart(PathUtility.PathSeparators);
+
             var index = path2.IndexOf('/');
             var lenBase = 0;
 

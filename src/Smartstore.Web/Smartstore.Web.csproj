@@ -9,9 +9,13 @@
 
   <ItemGroup>
 		<Compile Remove="App_Data\**" />
+		<Compile Remove="Modules\*\**" />
 		<Content Remove="App_Data\**" />
+		<Content Remove="Modules\*\**" />
 		<EmbeddedResource Remove="App_Data\**" />
+		<EmbeddedResource Remove="Modules\*\**" />
 		<None Remove="App_Data\**" />
+		<None Remove="Modules\*\**" />
   </ItemGroup>
 
 	<ItemGroup>

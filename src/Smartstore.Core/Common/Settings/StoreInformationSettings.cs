@@ -13,10 +13,5 @@ namespace Smartstore.Core.Common.Settings
         /// Gets or sets a value indicating whether administrators can visit a closed store
         /// </summary>
         public bool StoreClosedAllowForAdmins { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether mini profiler should be displayed in public store (used for debugging)
-        /// </summary>
-        public bool DisplayMiniProfilerInPublicStore { get; set; }
     }
 }

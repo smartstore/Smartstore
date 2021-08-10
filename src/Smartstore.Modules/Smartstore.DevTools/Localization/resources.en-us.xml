@@ -18,6 +18,12 @@
     <LocaleResource Name="EnableMiniProfilerInPublicStore.Hint">
         <Value>Activates the Mini-Profiler for the Frontend. With its help you can analyse requests of a page, including database requests. The display of the profiler is limited to administrators.</Value>
     </LocaleResource>
+	  <LocaleResource Name="MiniProfilerIgnorePaths">
+		  <Value>Mini-Profiler ignored paths</Value>
+	  </LocaleResource>
+	  <LocaleResource Name="MiniProfilerIgnorePaths.Hint">
+		  <Value>A comma-separated list of paths to be ignored by the Mini-Profiler.</Value>
+	  </LocaleResource>
     <LocaleResource Name="DisplayWidgetZones">
         <Value>Display widget zones</Value>
     </LocaleResource>

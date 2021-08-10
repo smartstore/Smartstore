@@ -248,12 +248,6 @@ namespace Smartstore.Web
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
             });
 
-            builder.Configure(StarterOrdering.FirstMiddleware, app =>
-            {
-                // TODO: (core) Find decent ordering for MiniProfiler
-                app.UseMiniProfiler();
-            });
-
             builder.Configure(StarterOrdering.RoutingMiddleware, app =>
             {
                 app.UseRouting();

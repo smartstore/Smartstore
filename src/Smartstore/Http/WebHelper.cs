@@ -12,8 +12,10 @@ using System.Threading.Tasks;
 using System.Web;
 using Autofac;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Threading;
 using Smartstore.Utilities;
@@ -276,6 +278,62 @@ namespace Smartstore.Http
             return !url.IsEmpty() &&
                    ((url[0] == '/' && (url.Length == 1 || (url[1] != '/' && url[1] != '\\'))) || // "/" or "/foo" but not "//" or "/\"
                     (url.Length > 1 && url[0] == '~' && url[1] == '/')); // "~/" or "~/foo"
+        }
+
+        /// <summary>
+        /// Checks whether <paramref name="path"/> points to an extension resource (module or theme).
+        /// </summary>
+        /// <param name="path">Path to check.</param>
+        /// <param name="extensionType">Type of extension</param>
+        /// <param name="extensionName">Name of extension (segment after "/modules" or "/themes") without slashes</param>
+        /// <param name="remainingPath">The remaining segment after <paramref name="extensionName"/> including leading slash.</param>
+        public static bool IsExtensionPath(string path, out ExtensionType? extensionType, out string extensionName, out string remainingPath)
+        {
+            extensionType = null;
+            extensionName = null;
+            remainingPath = null;
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return false;
+            }
+
+            var tokenizer = new StringTokenizer(path.Trim(PathUtility.PathSeparators), PathUtility.PathSeparators);
+            int i = 0;
+
+            foreach (var segment in tokenizer)
+            {
+                if (i == 0)
+                {
+                    if (segment.Value.EqualsNoCase("modules"))
+                    {
+                        extensionType = ExtensionType.Module;
+                    }
+                    else if (segment.Value.EqualsNoCase("themes"))
+                    {
+                        extensionType = ExtensionType.Theme;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                
+                if (i == 1)
+                {
+                    extensionName = segment.Value;
+                }
+
+                if (i == 2)
+                {
+                    remainingPath = segment.Buffer[(segment.Offset - 1)..];
+                    break;
+                }
+
+                i++;
+            }
+
+            return !string.IsNullOrEmpty(extensionName) && !string.IsNullOrEmpty(remainingPath);
         }
 
         public static async Task<string> GetPublicIPAddressAsync()

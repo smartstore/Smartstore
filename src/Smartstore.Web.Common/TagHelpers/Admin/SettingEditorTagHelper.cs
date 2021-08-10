@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.AspNetCore.Routing;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;
 using System;
@@ -44,7 +45,14 @@ namespace Smartstore.Web.TagHelpers.Admin
             var content = await output.GetChildContentAsync();
             if (content.IsEmptyOrWhiteSpace)
             {
-                output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, new { postfix = Postfix }));
+                var additionalViewData = new RouteValueDictionary() { ["postfix"] = Postfix };
+                if (output.Attributes.TryGetAttribute("data-toggler-for", out var attr))
+                {
+                    // TODO: (mh) (core) Find a better solution to pass custom attributes to auto-generated editors.
+                    additionalViewData["htmlAttributes"] = new { data_toggler_for = attr.Value.ToString() };
+                }
+
+                output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, additionalViewData));
             }
 
             var data = HtmlHelper.ViewData[StoreDependingSettingHelper.ViewDataKey] as StoreDependingSettingData;

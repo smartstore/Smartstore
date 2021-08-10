@@ -1,6 +1,10 @@
-﻿@{ 
+﻿@model ConfigurationModel
+
+@{
     Layout = "_ConfigureModule";
 }
+
+@await Component.InvokeAsync("StoreScope")
 
 <form asp-action="Configure">
     <widget target-zone="admin_button_toolbar_before">
@@ -10,9 +14,44 @@
         </button>
     </widget>
 
-    @await Component.InvokeAsync("StoreScope")
-
     <div asp-validation-summary="All"></div>
 
-    <h1>Hello World from DevTools module</h1>
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="EnableMiniProfilerInPublicStore" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="EnableMiniProfilerInPublicStore" data-toggler-for="#pnlIgnorePaths"></setting-editor>
+                <span asp-validation-for="EnableMiniProfilerInPublicStore"></span>
+            </div>
+        </div>
+        <div id="pnlIgnorePaths" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MiniProfilerIgnorePaths" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="MiniProfilerIgnorePaths"></setting-editor>
+                <span asp-validation-for="MiniProfilerIgnorePaths"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DisplayWidgetZones" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DisplayWidgetZones"></setting-editor>
+                <span asp-validation-for="DisplayWidgetZones"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DisplayMachineName" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DisplayMachineName"></setting-editor>
+                <span asp-validation-for="DisplayMachineName"></span>
+            </div>
+        </div>
+    </div>
 </form>

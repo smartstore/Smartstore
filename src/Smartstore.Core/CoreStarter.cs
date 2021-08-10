@@ -46,14 +46,6 @@ namespace Smartstore.Core.Bootstrapping
 
                 services.AddDbMigrator();
                 services.AddDbQuerySettings();
-                services.AddMiniProfiler(o =>
-                {
-                    // TODO: (more) Move MiniProfiler start to module and configure
-                    //o.EnableDebugMode = true;
-                    o.EnableMvcFilterProfiling = true;
-                    o.EnableMvcViewProfiling = true;
-                    o.EnableServerTimingHeader = true;
-                }).AddEntityFramework();
             }
         }
 

@@ -319,7 +319,7 @@ namespace Smartstore.Core.Localization
             {
                 var doc = new XmlDocument();
 
-                doc.Load(path);
+                doc.Load(fs.MapPath(path));
                 doc = FlattenResourceFile(doc);
 
                 if (targetList == null)

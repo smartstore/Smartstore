@@ -4,7 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.ComponentModel;
+using Smartstore.Core.Security;
+using Smartstore.DevTools.Models;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.DevTools.Controllers
 {
@@ -12,9 +16,27 @@ namespace Smartstore.DevTools.Controllers
     //[Route("module/[area]/[action]/{id?}", Name = "Smartstore.DevTools")]
     public class DevToolsController : ModuleController
     {
-        public IActionResult Configure()
+        [AuthorizeAdmin, Permission(DevToolsPermissions.Read)]
+        [LoadSetting]
+        public IActionResult Configure(ProfilerSettings settings)
         {
-            return View();
+            var model = MiniMapper.Map<ProfilerSettings, ConfigurationModel>(settings);
+            return View(model);
+        }
+
+        [AuthorizeAdmin, Permission(DevToolsPermissions.Update)]
+        [HttpPost, SaveSetting]
+        public IActionResult Configure(ConfigurationModel model, ProfilerSettings settings)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Configure(settings);
+            }
+
+            ModelState.Clear();
+            MiniMapper.Map(model, settings);
+
+            return RedirectToAction("Configure");
         }
     }
 }
