@@ -5,7 +5,6 @@
 (function ($, window, document, undefined) {
 
     // TODO: (mg) (core) category tree drag and drop: find a way for "move into the category" indication (that does not cause the browser to hang in task list).
-    // TODO: (mg) (core) add RTL support to category tree.
 
     $.fn.tree = function (method) {
         return main.apply(this, arguments);
@@ -119,6 +118,8 @@
     }
 
     function initialize(root, opt, data) {
+        opt.rtl = $('html').attr('dir') === 'rtl';
+
         addNodeHtml(root, opt, data);
 
         if (opt.highlightNodes) {
@@ -276,10 +277,10 @@
             }
 
             if (numChildren > 0 && opt.showNumChildren) {
-                labelHtml += ` (${numChildren})`;
+                labelHtml += `<span class="tree-num">(${numChildren})</span>`;
             }
             else if (numChildrenDeep > 0 && opt.showNumChildrenDeep) {
-                labelHtml += ` (${numChildrenDeep})`;
+                labelHtml += `<span class="tree-num">(${numChildrenDeep})</span>`;
             }
 
             if (badgeText) {
@@ -541,6 +542,7 @@
         };
 
         var d = opt._drag;
+        d.indicatorWidth = d.indicator.offsetWidth || d.indicator.clientWidth || 160;
         //d.ghostIcon = d.ghost.getElementsByTagName('i')[0];
 
         root.on('dragstart', '.tree-node-content', function (e) {
@@ -584,7 +586,12 @@
                     d.indicatorBeforeTop = d.targetRect.top + scrollY;
                     d.indicatorAfterBottom = d.targetRect.bottom + scrollY;
 
-                    d.indicator.style.left = (d.targetRect.left + 10) + 'px';
+                    if (opt.rtl) {
+                        d.indicator.style.left = (d.targetRect.right - d.indicatorWidth - 10) + 'px';
+                    }
+                    else {
+                        d.indicator.style.left = (d.targetRect.left + 10) + 'px';
+                    }
 
                     //root.find('.droppable-highlight').removeClass('droppable-highlight');
                 }

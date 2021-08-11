@@ -24,7 +24,7 @@ $default-state-color: $gray-400;
 }
 
 .tree-node-content {
-    display: inline-block;
+    display: inherit;
     border-radius: $border-radius;
     padding: 3px 6px;
 }
@@ -40,11 +40,6 @@ $default-state-color: $gray-400;
     cursor: pointer;
 }
 
-.tree-link {
-    text-decoration: none !important;
-    color: inherit;
-}
-
 .tree-highlight .tree-node-content:not(.tree-selected, .tree-disabled):hover {
     background-color: rgba(#000, 0.08);
 }
@@ -58,7 +53,22 @@ $default-state-color: $gray-400;
 }
 
 .tree-icon {
+    display: inline;
     margin-right: 5px;
+}
+
+.tree-link {
+    text-decoration: none !important;
+    color: inherit;
+}
+
+.tree-name {
+    display: inline-flex;
+}
+
+.tree-num {
+    display: inline-flex;
+    margin-left: 3px;
 }
 
 .tree-expander-container {
@@ -107,6 +117,7 @@ $default-state-color: $gray-400;
 
 
 // Tree state checkbox.
+// -----------------------------------------
 .tree-state-onoff-checkbox {
     position: absolute;
     opacity: 0;
@@ -186,6 +197,7 @@ $default-state-color: $gray-400;
 }
 
 // Drag and drop.
+// -----------------------------------------
 .tree-drop-indicator {
     display: none;
     position: absolute;
@@ -221,3 +233,59 @@ $default-state-color: $gray-400;
 .droppable-highlight {
     background-color: rgba($warning, 0.3) !important;
 }*/
+
+// RTL
+// -----------------------------------------
+[dir=rtl] {
+    .tree-list {
+        padding-right: 24px;
+
+        &:first-child {
+            padding-right: 0;
+        }
+    }
+
+    .tree-icon {
+        margin-right: inherit;
+        margin-left: 5px;
+    }
+
+    .tree-num {
+        margin-right: 3px;
+        margin-left: 0;
+    }
+
+    .tree-vline {
+        left: 0;
+        right: 12px;
+    }
+
+    .tree-hline .tree-node:before {
+        left: 0;
+        right: 12px;
+    }
+
+    .tree-state-onoff {
+        &:before {
+            float: right;
+            margin: 5px 5px 0 0;
+        }
+
+        &.on:after,
+        &.in-on:after {
+            left: 0;
+            right: 11px;
+        }
+    }
+
+    .tree-drop-indicator {
+        background: radial-gradient(ellipse at left, $body-bg 5%, rgba($success, 0.8) 100%);
+
+        &:before {
+            border-right: 5px solid $success;
+            border-left: none;
+            left: 0;
+            right: -8px;
+        }
+    }
+}
