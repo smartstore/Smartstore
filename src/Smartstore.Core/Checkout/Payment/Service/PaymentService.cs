@@ -18,7 +18,6 @@ using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
-using StackExchange.Profiling.Internal;
 
 namespace Smartstore.Core.Checkout.Payment
 {
@@ -239,7 +238,7 @@ namespace Smartstore.Core.Checkout.Payment
             }
 
             // Remove any white space or dashes from credit card number
-            if (!processPaymentRequest.CreditCardNumber.IsNullOrWhiteSpace())
+            if (processPaymentRequest.CreditCardNumber.HasValue())
             {
                 processPaymentRequest.CreditCardNumber = processPaymentRequest.CreditCardNumber.Replace(" ", "");
                 processPaymentRequest.CreditCardNumber = processPaymentRequest.CreditCardNumber.Replace("-", "");
@@ -417,7 +416,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual string GetMaskedCreditCardNumber(string creditCardNumber)
         {
-            if (creditCardNumber.IsNullOrWhiteSpace())
+            if (creditCardNumber.IsEmpty())
                 return string.Empty;
 
             if (creditCardNumber.Length <= 4)

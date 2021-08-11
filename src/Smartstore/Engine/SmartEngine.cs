@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -28,6 +28,9 @@ namespace Smartstore.Engine
     public class SmartEngine : IEngine
     {
         const string SmartstoreNamespace = "Smartstore.";
+
+        private ModuleReferenceResolver _moduleReferenceResolver;
+        private readonly static ConcurrentDictionary<Assembly, IModuleDescriptor> _assemblyModuleMap = new();
         
         public IApplicationContext Application { get; private set; }
         public ScopedServiceContainer Scope { get; set; }
@@ -43,7 +46,8 @@ namespace Smartstore.Engine
             // Set IsInitialized prop after init completes.
             ApplicationInitializerMiddleware.Initialized += (s, e) => IsInitialized = true;
 
-            // Assembly resolver event. View rendering in modules can throw exceptions otherwise.
+            // Assembly resolver event.
+            _moduleReferenceResolver = new ModuleReferenceResolver(application);
             AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
 
             return new EngineStarter(this);
@@ -51,17 +55,21 @@ namespace Smartstore.Engine
 
         private Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
         {
-            // Check for assembly already loaded
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
-            if (assembly != null)
-                return assembly;
+            var assembly = _moduleReferenceResolver.ResolveAssembly(args.RequestingAssembly, args.Name);
+            
+            if (assembly == null)
+            {
+                // Check for assembly already loaded
+                assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
+                if (assembly != null)
+                {
+                    return assembly;
+                }
+                    
+                // Get assembly from TypeScanner
+                assembly = Application.TypeScanner?.Assemblies?.FirstOrDefault(a => a.FullName == args.Name);
+            }
 
-            // Get assembly from TypeScanner
-            var typeScanner = Application.TypeScanner;
-            if (typeScanner == null)
-                return null;
-
-            assembly = typeScanner.Assemblies.FirstOrDefault(a => a.FullName == args.Name);
             return assembly;
         }
 

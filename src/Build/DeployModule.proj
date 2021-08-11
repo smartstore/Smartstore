@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Copyright>Copyright © Smartstore AG</Copyright>
+    <Company>Smartstore AG</Company>
+    <Authors>Smartstore AG</Authors>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>$(MSBuildProjectDirectory)\..\Smartstore.Web\bin\$(Configuration)</OutputPath>
+  </PropertyGroup> 
+
+  <Target Name="DeployModule">   
+    <!--  
+    	Resolves private module references (packages) and copies them to the output directory.
+    	Also deletes unnecessary files and folders from output.
+    -->  
+    <Exec Command='dotnet "DeployModule.dll" "OutputPath=$(OutputPath); ModulePath=$(ModulePath)"' />
+  </Target>      
+</Project>
