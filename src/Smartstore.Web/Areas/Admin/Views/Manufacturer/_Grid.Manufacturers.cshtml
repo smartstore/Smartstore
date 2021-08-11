@@ -1,18 +1,18 @@
-﻿@model CategoryModel
+﻿@model ManufacturerModel
 
 @{
-    var parentModel = ViewData["Parent"] as CategoryListModel;
+    var parentModel = ViewData["Parent"] as ManufacturerListModel;
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
     var hasToolbarZoneContent = Display.ZoneHasContent("datagrid_toolbar_after");
 }
 
-<datagrid id="categories-grid"
+<datagrid id="manufacturers-grid"
           allow-resize="true"
           allow-row-selection="hasToolbarZoneContent"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true"
-          onrowclass="categoriesGrid_onRowClass">
-    <datasource read="@Url.Action("CategoryList")" />
+          onrowclass="manufacturersGrid_onRowClass">
+    <datasource read="@Url.Action("ManufacturerList")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <toolbar>
@@ -30,20 +30,15 @@
         <zone name="datagrid_toolbar_after"></zone>
     </toolbar>
     <search-panel>
-        <partial name="_Grid.Categories.Search" model="parentModel" />
+        <partial name="_Grid.Manufacturers.Search" model="parentModel" />
     </search-panel>
     <columns>
         <column for="Id" halign="center" visible="false" />
         <column for="Name" hideable="false" width="2fr">
             <display-template>
-                <div class="dg-cell-value">
-                    <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
-                    <div v-if="item.row.ParentCategoryId > 0" class="text-muted text-truncate" v-html="item.row.Breadcrumb"></div>
-                </div>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
-        <column for="FullName" />
-        <column for="Alias" />
         <column for="Published" halign="center" />
         <column for="DisplayOrder" halign="center" />
 		@if (!isSingleStoreMode)
@@ -52,14 +47,11 @@
 		}
         <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
         <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
-        <column for="ShowOnHomePage" halign="center" visible="false" />
     </columns>
 </datagrid>
 
-<partial name="_DeleteCategoryDialog" />
-
-<script sm-target-zone="scripts" data-origin="categories-grid">
-    function categoriesGrid_onRowClass(row) {
+<script sm-target-zone="scripts" data-origin="manufacturers-grid">
+    function manufacturersGrid_onRowClass(row) {
         return {
             "text-muted": !row.Published
         };

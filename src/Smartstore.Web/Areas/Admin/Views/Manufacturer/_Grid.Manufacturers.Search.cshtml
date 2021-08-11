@@ -1,0 +1,14 @@
+﻿@model ManufacturerListModel
+
+@{
+    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+}
+
+<div class="form-group">
+    <smart-label asp-for="SearchManufacturerName" />
+    <input asp-for="SearchManufacturerName" />
+</div>
+<div sm-if="!isSingleStoreMode" class="form-group">
+    <smart-label asp-for="SearchStoreId" />
+    <editor asp-for="SearchStoreId" />
+</div>

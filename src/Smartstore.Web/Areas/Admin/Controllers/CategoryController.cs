@@ -195,8 +195,10 @@ namespace Smartstore.Admin.Controllers
             {
                 var model = await mapper.MapAsync(x);
 
-                model.Breadcrumb = await _categoryService.GetCategoryPathAsync(x, languageId, "<span class='badge badge-secondary'>{0}</span>");
                 model.EditUrl = Url.Action("Edit", "Category", new { id = x.Id, area = "Admin" });
+                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc);
+                model.Breadcrumb = await _categoryService.GetCategoryPathAsync(x, languageId, "<span class='badge badge-secondary'>{0}</span>");
 
                 return model;
             })
