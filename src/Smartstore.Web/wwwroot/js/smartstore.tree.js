@@ -7,8 +7,6 @@
     // TODO: (mg) (core) category tree drag and drop: find a way for "move into the category" indication (that does not cause the browser to hang in task list).
     // Probable solution would be to add droppable, transparent indicator elements between nodes and to remove any top and bottom padding from them.
     // But for this everything must be rebuilt again.
-    // TODO: (mg) (core) Show subtle indicator for source node while dragging
-    // TODO: (mg) (core) Last dragged child does not update its parent's DOM correctly after dropping
 
     $.fn.tree = function (method) {
         return main.apply(this, arguments);
@@ -396,7 +394,6 @@
 
     function expandNode(node, expand, opt, slide) {
         var childNodes = node.children('ul');
-        var nodeInner = node.find('.tree-inner').first();
 
         if (expand) {
             // Expand.
@@ -409,8 +406,7 @@
                 childNodes.show();
             }
 
-            toggleIcons();
-            EventBroker.publishSync('tree.expanded', { node });
+            finalizeExpanding('tree.expanded');
         }
         else {
             // Collapse.
@@ -419,18 +415,18 @@
             if (slide) {
                 childNodes.slideUp(200, function () {
                     childNodes.hide();
-                    toggleIcons();
-                    EventBroker.publishSync('tree.collapsed', { node });
+                    finalizeExpanding('tree.collapsed');
                 });
             }
             else {
                 childNodes.hide();
-                toggleIcons();
-                EventBroker.publishSync('tree.collapsed', { node });
+                finalizeExpanding('tree.collapsed');
             }
         }
 
-        function toggleIcons() {
+        function finalizeExpanding(eventName) {
+            var nodeInner = node.find('.tree-inner').first();
+
             // Toggle node icon.
             if (opt.defaultCollapsedIconClass && opt.defaultExpandededIconClass) {
                 nodeInner.find('.tree-icon i').attr('class', expand ? opt.defaultExpandededIconClass : opt.defaultCollapsedIconClass);
@@ -441,6 +437,8 @@
 
             // Toggle expander icon.
             nodeInner.find('.tree-expander').html(`<i class="${expand ? opt.expandedClass : opt.collapsedClass}"></i>`);
+
+            EventBroker.publishSync(eventName, { node });
         }
     }
 
@@ -564,6 +562,8 @@
             e.originalEvent.dataTransfer.setDragImage(content.find('.tree-name')[0], -18, -8);
             //e.originalEvent.dataTransfer.setDragImage(this, -99999, -99999);
             e.originalEvent.dataTransfer.setData('text/plain', d.sourceId);
+
+            content.addClass('dragging');
 
             //console.log('dragstart ' + content.find('.tree-name').text());
         });
@@ -706,7 +706,7 @@
                 root.removeClass('tree-highlight');
             }
             else {
-                root.find('.tree-node-content').removeClass('droppable');
+                root.find('.tree-node-content').removeClass('dragging droppable');
                 //root.find('.tree-node-content').removeClass('droppable-highlight');
                 d.indicator.style.display = 'none';
                 //d.ghost.style.display = 'none';

@@ -10,11 +10,15 @@ $default-state-color: $gray-400;
     .droppable * {
         pointer-events: none;
     }
+
+    .dragging {
+        box-shadow: 0 0 3px 0 rgba(#000, 0.3);
+    }
 }
 
 .tree-list {
     position: relative;
-    display: inline-block;
+    display: inherit;
     list-style: none;
     padding-left: 24px;
 
@@ -197,7 +201,7 @@ $default-state-color: $gray-400;
     }
 }
 
-// Drag and drop.
+// Drag and drop indicator.
 // -----------------------------------------
 .tree-drop-indicator {
     display: none;
