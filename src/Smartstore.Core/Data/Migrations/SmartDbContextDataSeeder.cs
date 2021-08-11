@@ -71,7 +71,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Die Benachrichtigung über Produktverfügbarkeit wurde storniert.");
 
             builder.AddOrUpdate("Admin.Catalog.Categories.NoCategories",
-                "There were no categories found.",
+                "No categories found.",
                 "Es wurden keine Warengruppen gefunden.");
 
             #endregion

@@ -149,6 +149,7 @@ namespace Smartstore.Admin.Controllers
 
             var rows = await manufacturers.SelectAsync(async x =>
             {
+                // TODO: (mg) (core) (perf) Don't map properties that won't be displayed in grid (Description, BottomDescription may slow down things)
                 var model = await mapper.MapAsync(x);
                 model.EditUrl = Url.Action("Edit", "Manufacturer", new { id = x.Id, area = "Admin" });
                 model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);

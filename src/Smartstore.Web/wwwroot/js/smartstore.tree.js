@@ -7,6 +7,8 @@
     // TODO: (mg) (core) category tree drag and drop: find a way for "move into the category" indication (that does not cause the browser to hang in task list).
     // Probable solution would be to add droppable, transparent indicator elements between nodes and to remove any top and bottom padding from them.
     // But for this everything must be rebuilt again.
+    // TODO: (mg) (core) Show subtle indicator for source node while dragging
+    // TODO: (mg) (core) Last dragged child does not update its parent's DOM correctly after dropping
 
     $.fn.tree = function (method) {
         return main.apply(this, arguments);
