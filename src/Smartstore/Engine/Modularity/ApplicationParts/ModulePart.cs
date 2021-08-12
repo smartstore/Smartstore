@@ -5,7 +5,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyModel;
 
-namespace Smartstore.Engine.Modularity
+namespace Smartstore.Engine.Modularity.ApplicationParts
 {
     /// <summary>
     /// A custom ApplicationPart implementation that will NOT raise an exception

@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using System;
 using System.Linq;
 using Autofac;
 using FluentValidation.AspNetCore;
@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
@@ -27,6 +26,7 @@ using Smartstore.Data;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity;
+using Smartstore.Engine.Modularity.ApplicationParts;
 using Smartstore.Net;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
@@ -62,15 +62,8 @@ namespace Smartstore.Web
 
         public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
-            // Register application parts
-            foreach (var module in appContext.ModuleCatalog.Modules)
-            {
-                if (module.Module?.Assembly != null)
-                {
-                    //mvcBuilder.PartManager.ApplicationParts.Add(new AssemblyPart(module.Module.Assembly));
-                    mvcBuilder.PartManager.ApplicationParts.Add(new ModulePart(module));
-                }
-            }
+            // Populate application parts with modules
+            mvcBuilder.PartManager.PopulateModules(appContext.ModuleCatalog);
             
             var validatorLanguageManager = new ValidatorLanguageManager(appContext);
 

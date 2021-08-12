@@ -15,13 +15,15 @@
 		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
 		<RazorCompileOnBuild>true</RazorCompileOnBuild>
 		<!-- TODO: Describe GenerateProvideApplicationPartFactoryAttribute -->
-		<GenerateProvideApplicationPartFactoryAttribute>false</GenerateProvideApplicationPartFactoryAttribute>
+		<GenerateProvideApplicationPartFactoryAttribute>true</GenerateProvideApplicationPartFactoryAttribute>
+		<ProvideApplicationPartFactoryAttributeTypeName>Smartstore.Engine.Modularity.ApplicationParts.ModuleRazorAssemblyPartFactory, Smartstore</ProvideApplicationPartFactoryAttributeTypeName>
 		<!-- TODO: Describe EnableDefaultContentItems -->
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<!-- TODO: Describe CompilationContext -->
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<PreserveCompilationReferences>false</PreserveCompilationReferences>
-		<MvcRazorExcludeRefAssembliesOnBuild>true</MvcRazorExcludeRefAssembliesOnBuild>
+		<!-- TODO: Describe MvcRazorExcludeRefAssembliesFromPublish -->
+		<MvcRazorExcludeRefAssembliesFromPublish>true</MvcRazorExcludeRefAssembliesFromPublish>
 	</PropertyGroup>
 
 	<PropertyGroup>
