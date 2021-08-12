@@ -3,17 +3,26 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-		<MvcRazorCompileOnPublish>false</MvcRazorCompileOnPublish>
-		<RazorCompileOnBuild>false</RazorCompileOnBuild>
-		<EnableDefaultContentItems>false</EnableDefaultContentItems>
-		<PreserveCompilationContext>true</PreserveCompilationContext>
-		<PreserveCompilationReferences>false</PreserveCompilationReferences>
-		<!--<MvcRazorExcludeRefAssembliesOnBuild>true</MvcRazorExcludeRefAssembliesOnBuild>-->
-		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.DevTools</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
+
+	<PropertyGroup>
+		<!-- TODO: !!!! Describe CopyLocalLockFileAssemblies !!!! -->
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+		<!-- TODO: Describe Razor compilation -->
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
+		<RazorCompileOnBuild>true</RazorCompileOnBuild>
+		<!-- TODO: Describe GenerateProvideApplicationPartFactoryAttribute -->
+		<GenerateProvideApplicationPartFactoryAttribute>false</GenerateProvideApplicationPartFactoryAttribute>
+		<!-- TODO: Describe EnableDefaultContentItems -->
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+		<!-- TODO: Describe CompilationContext -->
+		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<PreserveCompilationReferences>false</PreserveCompilationReferences>
+		<MvcRazorExcludeRefAssembliesOnBuild>true</MvcRazorExcludeRefAssembliesOnBuild>
+	</PropertyGroup>
 
 	<PropertyGroup>
 		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
