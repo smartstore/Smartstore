@@ -9,7 +9,7 @@
 <input type="hidden" asp-for="Id" />
 
 <tabstrip id="manufacturer-edit" sm-nav-style="Material">
-	<tab sm-title="@T("Admin.Common.General")" sm-icon="fa fa-pencil-alt fa-lg fa-fw" sm-selected="true">
+	<tab sm-title="@T("Admin.Common.General")" sm-selected="true">
 		<div class="adminContent">
             <div class="adminRow">
                 <div class="adminTitle">
@@ -224,7 +224,7 @@
             </div>
         </div>
 	</tab>
-	<tab sm-title="@T("Admin.Common.SEO")" sm-icon="fa fa-search fa-lg fa-fw">
+	<tab sm-title="@T("Admin.Common.SEO")">
     @(Html.LocalizedEditor<ManufacturerModel, ManufacturerLocalizedModel>("manufacturer-seo-localized",
 	    @<text>
             <div class="adminContent">
@@ -314,7 +314,7 @@
 	        </div>
 	    </text>))
 	</tab>
-	<tab sm-title="@T("Admin.Catalog.Manufacturers.Products")" sm-icon="fa fa-cube fa-lg fa-fw">
+	<tab sm-title="@T("Admin.Catalog.Manufacturers.Products")">
         @if (Model.Id > 0)
         {
             <partial name="_Grid.ProductManufacturers" model="null" view-data="productManufacturersViewData" />   

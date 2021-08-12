@@ -11,6 +11,7 @@
           allow-row-selection="true"
           allow-column-reordering="true"
           preserve-grid-state="true"
+          max-height="600px"
           onrowclass="productManufacturersGrid_onRowClass">
     <datasource read="@Url.Action("ProductManufacturerList", new { manufacturerId = parentModel.Id })" 
                 insert="@Url.Action("ProductManufacturerInsert", new { manufacturerId = parentModel.Id })"

@@ -40,6 +40,8 @@ namespace Smartstore.Core.Data.Migrations
 
         public static void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
+            // TODO: (core) Uncomment all resource deletions before first public release.
+            
             #region General
 
             // TODO: (core) Delete all Telerik language resources (???)
