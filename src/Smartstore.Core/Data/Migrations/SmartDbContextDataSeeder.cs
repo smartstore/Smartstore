@@ -277,13 +277,14 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Obsolete
 
-            builder.Delete(
-                "Admin.Catalog.Categories.BackToList",
-                "Admin.Catalog.Manufacturers.BackToList",
-                "Admin.Catalog.Categories.Info",
-                "Admin.Catalog.Manufacturers.Info",
-                "Admin.Catalog.Categories.Products.SaveBeforeEdit",
-                "Admin.Catalog.Manufacturers.Products.SaveBeforeEdit");
+            // Deletion at this time is a bit confusing if you run Classic and Core with the same database and the strings in Classic are suddenly gone.
+            //builder.Delete(
+            //    "Admin.Catalog.Categories.BackToList",
+            //    "Admin.Catalog.Manufacturers.BackToList",
+            //    "Admin.Catalog.Categories.Info",
+            //    "Admin.Catalog.Manufacturers.Info",
+            //    "Admin.Catalog.Categories.Products.SaveBeforeEdit",
+            //    "Admin.Catalog.Manufacturers.Products.SaveBeforeEdit");
 
             #endregion
         }
