@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -33,11 +28,6 @@ namespace Smartstore.Engine.Modularity
         bool Incompatible { get; }
 
         /// <summary>
-        /// Gets the file provider that references the module's root directory.
-        /// </summary>
-        IFileSystem FileProvider { get; }
-
-        /// <summary>
         /// Gets the root key of string resources.
         /// </summary>
         /// <remarks>
@@ -57,6 +47,11 @@ namespace Smartstore.Engine.Modularity
         /// </summary>
         /// <remarks>
         string AssemblyName { get; }
+
+        /// <summary>
+        /// The full physical path of the module source code directory if running in dev mode, <c>null</c> otherwise.
+        /// </summary>
+        string SourcePhysicalPath { get; }
 
         /// <summary>
         /// Gets the module's runtime assembly info.

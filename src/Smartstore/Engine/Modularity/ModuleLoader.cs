@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -23,7 +24,7 @@ namespace Smartstore.Engine.Modularity
                 return;
             }
             
-            var assemblyPath = descriptor.FileProvider.MapPath(descriptor.AssemblyName);
+            var assemblyPath = Path.Combine(descriptor.PhysicalPath, descriptor.AssemblyName);
             var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
 
             var assemblyInfo = new ModuleAssemblyInfo(descriptor)

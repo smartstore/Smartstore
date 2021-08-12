@@ -17,11 +17,11 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    internal class ProvidersModule : Module
+    internal class ModularityModule : Module
     {
         private readonly IApplicationContext _appContext;
 
-        public ProvidersModule(IApplicationContext appContext)
+        public ModularityModule(IApplicationContext appContext)
         {
             _appContext = appContext;
         }

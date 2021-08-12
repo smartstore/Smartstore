@@ -6,6 +6,9 @@ using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.IO;
+using Smartstore.IO.SymLinks;
+using Smartstore.Utilities;
+using IOPath = System.IO.Path;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -14,7 +17,6 @@ namespace Smartstore.Engine.Modularity
     {
         private string _assemblyName;
         private string _resourceRootKey;
-        private IFileSystem _fileProvider;
         private IFileProvider _webFileProvider;
 
         #region Create
@@ -47,9 +49,6 @@ namespace Smartstore.Engine.Modularity
                 descriptor.SystemName = directory.Name;
             }
 
-            descriptor.PhysicalPath = directory.PhysicalPath;
-            descriptor.Path = "/Modules/" + directory.Name + "/";
-
             if (!SmartstoreVersion.IsAssumedCompatible(descriptor.MinAppVersion))
             {
                 descriptor.Incompatible = true;
@@ -59,6 +58,33 @@ namespace Smartstore.Engine.Modularity
             {
                 descriptor.Group = "Misc";
             }
+
+            descriptor.Path = "/Modules/" + directory.Name + "/";
+            descriptor.PhysicalPath = directory.PhysicalPath;
+
+            if (CommonHelper.IsDevEnvironment)
+            {
+                // Try to point file provider to source code directory in dev mode.
+                var sourceRoot = IOPath.GetFullPath(IOPath.Combine(CommonHelper.ContentRoot.Root, @"..\Smartstore.Modules"));
+                var dirNamesToCheck = new[] { directory.Name, directory.Name + "-sym" };
+                
+                foreach (var name in dirNamesToCheck)
+                {
+                    var dir = new DirectoryInfo(IOPath.Combine(sourceRoot, name));
+                    if (dir.Exists)
+                    {
+                        descriptor.SourcePhysicalPath = dir.IsSymbolicLink(out var linkedPath)
+                            ? linkedPath
+                            : dir.FullName;
+
+                        break;
+                    }
+                }
+            }
+
+            descriptor.ContentRoot = descriptor.SourcePhysicalPath != null
+                ? new LocalFileSystem(descriptor.SourcePhysicalPath)
+                : new ExpandedFileSystem(directory.Name, directory.FileSystem);
 
             return descriptor;
         }
@@ -127,36 +153,36 @@ namespace Smartstore.Engine.Modularity
         string IExtensionDescriptor.Name 
             => SystemName;
 
-        [JsonProperty]
         /// <inheritdoc/>
+        [JsonProperty]
         public string FriendlyName { get; internal set; }
 
-        [JsonProperty]
         /// <inheritdoc/>
+        [JsonProperty]
         public string Description { get; internal set; }
 
-        [JsonProperty]
         /// <inheritdoc/>
+        [JsonProperty]
         public string Group { get; internal set; }
 
-        [JsonProperty]
         /// <inheritdoc/>
+        [JsonProperty]
         public string Author { get; internal set; }
 
-        [JsonProperty]
         /// <inheritdoc/>
+        [JsonProperty]
         public string ProjectUrl { get; internal set; }
 
-        [JsonProperty]
         /// <inheritdoc/>
+        [JsonProperty]
         public string Tags { get; internal set; }
 
-        [JsonProperty]
         /// <inheritdoc/>
+        [JsonProperty]
         public Version Version { get; internal set; }
 
-        [JsonProperty]
         /// <inheritdoc/>
+        [JsonProperty]
         public Version MinAppVersion { get; internal set; }
 
         #endregion
@@ -170,52 +196,35 @@ namespace Smartstore.Engine.Modularity
         public string PhysicalPath { get; internal set; }
 
         /// <inheritdoc/>
-        public IFileProvider WebFileProvider 
-        { 
-            get
-            {
-                if (_webFileProvider == null)
-                {
-                    var webRootFullPath = System.IO.Path.Combine(PhysicalPath, "wwwroot");
-                    if (Directory.Exists(webRootFullPath))
-                    {
-                        _webFileProvider = Directory.Exists(webRootFullPath) 
-                            ? new PhysicalFileProvider(webRootFullPath) 
-                            : new NullFileProvider();
-                    }
-                }
-                
-                return _webFileProvider;
-            }
+        public IFileSystem ContentRoot { get; internal set; }
+
+        /// <inheritdoc/>
+        public IFileProvider WebRoot
+        {
+            get => _webFileProvider ??= new ExpandedFileSystem("wwwroot", ContentRoot);
             internal set => _webFileProvider = Guard.NotNull(value, nameof(value));
         }
 
         #endregion
 
-        [JsonProperty]
         /// <inheritdoc/>
+        [JsonProperty]
         public string SystemName { get; internal set; }
 
         string ITopologicSortable<string>.Key
             => SystemName;
 
-        [JsonProperty]
+
         /// <inheritdoc/>
+        [JsonProperty]
         public string[] DependsOn { get; internal set; }
 
-        [JsonProperty]
         /// <inheritdoc/>
+        [JsonProperty]
         public int Order { get; internal set; }
 
         /// <inheritdoc/>
         public bool Incompatible { get; internal set; }
-
-        /// <inheritdoc/>
-        public IFileSystem FileProvider
-        {
-            get => _fileProvider ??= new LocalFileSystem(PhysicalPath);
-            internal set => _fileProvider = Guard.NotNull(value, nameof(value));
-        }
 
         /// <inheritdoc/>
         public string AssemblyName
@@ -225,10 +234,14 @@ namespace Smartstore.Engine.Modularity
         }
 
         /// <inheritdoc/>
+        public string SourcePhysicalPath { get; internal set; }
+
+        /// <inheritdoc/>
         public ModuleAssemblyInfo Module { get; internal set; }
 
-        [JsonProperty]
+
         /// <inheritdoc/>
+        [JsonProperty]
         public string ResourceRootKey
         {
             // TODO: (core) Impl ModuleDescriptor.ResourceRootKey getter

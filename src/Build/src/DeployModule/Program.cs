@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Extensions.DependencyModel;
 
 namespace DeployModule
@@ -41,18 +40,20 @@ namespace DeployModule
 
         static void DeployModules(string appPath, string[] modulePaths)
         {
-            var entryDll = new FileInfo(Path.Combine(appPath, "Smartstore.Web.dll"));
-            if (!entryDll.Exists)
+            var appContext = ReadDependencyContext(Path.Combine(appPath, "Smartstore.Web.deps.json"));
+            if (appContext == null)
             {
                 return;
             }
 
-            var appContext = DependencyContext.Load(Assembly.LoadFrom(Path.Combine(appPath, "Smartstore.Web.dll")));
             var appLibs = GetLibNames(appContext);
 
             foreach (var path in modulePaths)
             {
                 var fullModulePath = Path.GetFullPath(path).Trim('"');
+
+                Console.WriteLine($"DeployModule: {Path.GetFileName(fullModulePath)}");
+
                 DeployModule(appLibs, fullModulePath);
                 DeleteRefs(fullModulePath);
             }
@@ -60,36 +61,51 @@ namespace DeployModule
 
         static void DeployModule(string[] appLibs, string modulePath)
         {
-            var assembly = LoadModuleAssembly(modulePath);
-
-            if (assembly != null)
+            var moduleName = Path.GetFileName(modulePath);
+            var moduleContext = ReadDependencyContext(Path.Combine(modulePath, $"{moduleName}.deps.json"));
+            if (moduleContext == null)
             {
-                var moduleContext = DependencyContext.Load(assembly);
-                var moduleLibs = GetLibNames(moduleContext);
-                var privateLibs = moduleLibs.Except(appLibs).ToArray();
+                return;
+            }
 
-                foreach (var privateLib in privateLibs)
+            var moduleLibs = GetLibNames(moduleContext);
+            var privateLibs = moduleLibs.Except(appLibs).ToArray();
+
+            foreach (var privateLib in privateLibs)
+            {
+                var lib = moduleContext.CompileLibraries.FirstOrDefault(x => x.Name == privateLib);
+                if (lib != null)
                 {
-                    var lib = moduleContext.CompileLibraries.FirstOrDefault(x => x.Name == privateLib);
-                    if (lib != null)
+                    var paths = lib.ResolveReferencePaths();
+                    if (paths != null)
                     {
-                        var paths = lib.ResolveReferencePaths();
-                        if (paths != null)
+                        foreach (var path in paths)
                         {
-                            foreach (var path in paths)
-                            {
-                                var sourceFile = new FileInfo(path);
-                                var targetFile = new FileInfo(Path.Combine(modulePath, Path.GetFileName(path)));
+                            var sourceFile = new FileInfo(path);
+                            var targetFile = new FileInfo(Path.Combine(modulePath, Path.GetFileName(path)));
 
-                                if (!targetFile.Exists || sourceFile.Length != targetFile.Length || sourceFile.LastWriteTimeUtc != targetFile.LastWriteTimeUtc)
-                                {
-                                    File.Copy(sourceFile.FullName, targetFile.FullName);
-                                    Console.WriteLine($"DeployModule: copied private reference {privateLib} to {targetFile.FullName}");
-                                }
+                            if (!targetFile.Exists || sourceFile.Length != targetFile.Length || sourceFile.LastWriteTimeUtc != targetFile.LastWriteTimeUtc)
+                            {
+                                File.Copy(sourceFile.FullName, targetFile.FullName);
+                                Console.WriteLine($"---- copied private reference {privateLib} to {targetFile.FullName}");
                             }
                         }
                     }
                 }
+            }
+        }
+
+        static DependencyContext ReadDependencyContext(string depsFilePath)
+        {
+            if (!File.Exists(depsFilePath))
+            {
+                return null;
+            }
+            
+            var reader = new DependencyContextJsonReader();
+            using (var file = File.OpenRead(depsFilePath))
+            {
+                return reader.Read(file);
             }
         }
 
@@ -102,23 +118,6 @@ namespace DeployModule
         static string[] GetLibNames(DependencyContext context)
         {
             return context.CompileLibraries.Where(x => x.Type == "package").Select(x => x.Name).ToArray();
-        }
-
-        static Assembly LoadModuleAssembly(string path)
-        {
-            var di = new DirectoryInfo(path);
-            if (!di.Exists)
-            {
-                return null;
-            }
-
-            var fi = di.GetFiles("*.deps.json", SearchOption.TopDirectoryOnly).FirstOrDefault();
-            if (!fi.Exists)
-            {
-                return null;
-            }
-
-            return Assembly.LoadFrom(fi.FullName.Replace(".deps.json", ".dll"));
         }
     }
 }

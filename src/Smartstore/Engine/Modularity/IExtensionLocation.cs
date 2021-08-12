@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.FileProviders;
+using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -16,8 +17,14 @@ namespace Smartstore.Engine.Modularity
         string PhysicalPath { get; }
 
         /// <summary>
+        /// The file provider that references the extension's root directory.
+        /// This may point to the source code directory if running in dev mode,
+        /// </summary>
+        IFileSystem ContentRoot { get; }
+
+        /// <summary>
         /// The file provider that points to the wwwroot directory of the extension.
         /// </summary>
-        IFileProvider WebFileProvider { get; }
+        IFileProvider WebRoot { get; }
     }
 }

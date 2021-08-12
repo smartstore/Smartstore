@@ -25,7 +25,7 @@ namespace Smartstore.Core.Theming
         private readonly ConcurrentDictionary<EventThrottleKey, Timer> _eventQueue = new();
         private readonly bool _enableMonitoring;
 
-        private readonly Regex _fileFilterPattern = new(@"^\.(config|json|png|gif|jpg|jpeg|css|scss|js|cshtml|svg)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex _fileFilterPattern = new(@"^\.(config|cshtml|scss|liquid)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private FileSystemWatcher _monitorFolders;
         private FileSystemWatcher _monitorFiles;
@@ -46,7 +46,7 @@ namespace Smartstore.Core.Theming
             CreateFileSystemWatchers();
 
             // start FS watcher
-            this.StartMonitoring(false);
+            StartMonitoring(false);
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -133,39 +133,18 @@ namespace Smartstore.Core.Theming
                     }
                 }
 
-                var fileProviders = new List<IFileProvider>();
-                var webRootFullPath = Path.Combine(descriptor.PhysicalPath, "wwwroot");
-                if (Directory.Exists(webRootFullPath))
-                {
-                    fileProviders.Add(new PhysicalFileProvider(webRootFullPath));
-                }
+                IFileSystem contentRoot = descriptor.IsSymbolicLink
+                    ? new LocalFileSystem(descriptor.PhysicalPath)
+                    : new ExpandedFileSystem(descriptor.Name, _appContext.ThemesRoot);
 
-                while (baseDescriptor != null)
+                if (baseDescriptor != null)
                 {
-                    webRootFullPath = Path.Combine(baseDescriptor.PhysicalPath, "wwwroot");
-                    if (Directory.Exists(webRootFullPath))
-                    {
-                        fileProviders.Add(new PhysicalFileProvider(webRootFullPath));
-                    }
-                    baseDescriptor = baseDescriptor.BaseTheme;
-                }
-
-                if (fileProviders.Count == 0)
-                {
-                    descriptor.WebFileProvider = new NullFileProvider();
-                }
-                else if (fileProviders.Count == 1)
-                {
-                    descriptor.WebFileProvider = fileProviders[0];
-                }
-                else
-                {
-                    // Use CompositeFileProvider for theme inheritance
-                    descriptor.WebFileProvider = new CompositeFileProvider(fileProviders);
-
                     // INFO: (core) Falling back to base theme's file via "?base" is not supported anymore.
                     // The full path must be specified instead, e.g. "/themes/flex/_variables.scss".
+                    contentRoot = new CompositeFileSystem(contentRoot, baseDescriptor.ContentRoot);
                 }
+
+                descriptor.ContentRoot = contentRoot;
             }
         }
 
@@ -316,7 +295,7 @@ namespace Smartstore.Core.Theming
             {
                 Path = _root.Root,
                 InternalBufferSize = 32768, // // 32 instead of the default 8 KB,
-                Filter = "theme.config",
+                Filter = "*.*",
                 NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.LastWrite | NotifyFilters.FileName,
                 IncludeSubdirectories = true
             };
@@ -391,6 +370,12 @@ namespace Smartstore.Core.Theming
                 return;
             }
 
+            var ext = Path.GetExtension(name);
+            if (!_fileFilterPattern.IsMatch(ext))
+            {
+                return;
+            }   
+
             var idx = name.IndexOf('\\');
             if (idx < 0)
             {
@@ -402,58 +387,79 @@ namespace Smartstore.Core.Theming
             var relativePath = name[(themeName.Length + 1)..].Replace('\\', '/');
             var isConfigFile = relativePath.EqualsNoCase("theme.config");
 
-            if (!isConfigFile)
+            if (changeType == ThemeFileChangeType.Modified && !isConfigFile)
             {
+                // Monitor changes only for root theme.config
                 return;
             }
 
             BaseThemeChangedEventArgs baseThemeChangedArgs = null;
 
-            // config file changes always result in refreshing the corresponding theme descriptor
-            //var dir = new DirectoryInfo(Path.GetDirectoryName(fullPath));
-            var dir = new LocalDirectory(themeName, new DirectoryInfo(Path.GetDirectoryName(fullPath)), _root as LocalFileSystem);
+            var currentDescriptor = GetThemeDescriptor(themeName);
 
-            string oldBaseThemeName = null;
-            var oldDescriptor = GetThemeDescriptor(dir.Name);
-            if (oldDescriptor != null)
+            if (!isConfigFile)
             {
-                oldBaseThemeName = oldDescriptor.BaseThemeName;
-            }
-
-            try
-            {
-                // FS watcher in conjunction with some text editors fires change events twice and locks the file.
-                // Let's wait max. 250ms till the lock is gone (hopefully).
-                var fi = new FileInfo(fullPath);
-                fi.WaitForUnlock(250);
-
-                var newDescriptor = ThemeDescriptor.Create(dir.Name, _root);
-                if (newDescriptor != null)
+                if (changeType == ThemeFileChangeType.Created)
                 {
-                    AddThemeDescriptorInternal(newDescriptor, false);
-
-                    if (!oldBaseThemeName.EqualsNoCase(newDescriptor.BaseThemeName))
+                    // If a file is being added to a derived theme's directory, any base file
+                    // needs to be refreshed/cancelled. This is necessary, because the new file 
+                    // overwrites the base file now, and RazorViewEngine/SassParser must be notified
+                    // about this change.
+                    var baseFile = currentDescriptor?.BaseTheme?.ContentRoot?.GetFile(relativePath);
+                    if (baseFile != null && baseFile.Exists && baseFile is LocalFile localFile)
                     {
-                        baseThemeChangedArgs = new BaseThemeChangedEventArgs
-                        {
-                            ThemeName = newDescriptor.Name,
-                            BaseTheme = newDescriptor.BaseTheme?.Name,
-                            OldBaseTheme = oldBaseThemeName
-                        };
+                        File.SetLastWriteTimeUtc(baseFile.PhysicalPath, DateTime.UtcNow);
                     }
-
-                    Logger.Debug("Changed theme descriptor for '{0}'".FormatCurrent(name));
                 }
-                else
+            }
+            else
+            {
+                // Config file changes always result in refreshing the corresponding theme descriptor
+                //var dir = new DirectoryInfo(Path.GetDirectoryName(fullPath));
+                var dir = new LocalDirectory(themeName, new DirectoryInfo(Path.GetDirectoryName(fullPath)), _root as LocalFileSystem);
+
+                string oldBaseThemeName = null;
+                
+                if (currentDescriptor != null)
                 {
-                    // something went wrong (most probably no 'theme.config'): remove the descriptor
+                    oldBaseThemeName = currentDescriptor.BaseThemeName;
+                }
+
+                try
+                {
+                    // FS watcher in conjunction with some text editors fires change events twice and locks the file.
+                    // Let's wait max. 250ms till the lock is gone (hopefully).
+                    var fi = new FileInfo(fullPath);
+                    fi.WaitForUnlock(250);
+
+                    var newDescriptor = ThemeDescriptor.Create(dir.Name, _root);
+                    if (newDescriptor != null)
+                    {
+                        AddThemeDescriptorInternal(newDescriptor, false);
+
+                        if (!oldBaseThemeName.EqualsNoCase(newDescriptor.BaseThemeName))
+                        {
+                            baseThemeChangedArgs = new BaseThemeChangedEventArgs
+                            {
+                                ThemeName = newDescriptor.Name,
+                                BaseTheme = newDescriptor.BaseTheme?.Name,
+                                OldBaseTheme = oldBaseThemeName
+                            };
+                        }
+
+                        Logger.Debug("Changed theme descriptor for '{0}'".FormatCurrent(name));
+                    }
+                    else
+                    {
+                        // something went wrong (most probably no 'theme.config'): remove the descriptor
+                        TryRemoveDescriptor(dir.Name);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Could not touch theme descriptor '{0}': {1}".FormatCurrent(name, ex.Message));
                     TryRemoveDescriptor(dir.Name);
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Could not touch theme descriptor '{0}': {1}".FormatCurrent(name, ex.Message));
-                TryRemoveDescriptor(dir.Name);
             }
 
             if (baseThemeChangedArgs != null)

@@ -69,7 +69,7 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterModule(new LoggingModule());
-            builder.RegisterModule(new ProvidersModule(appContext));
+            builder.RegisterModule(new ModularityModule(appContext));
             builder.RegisterModule(new PackagingModule());
             builder.RegisterModule(new LocalizationModule());
             builder.RegisterModule(new CommonServicesModule());

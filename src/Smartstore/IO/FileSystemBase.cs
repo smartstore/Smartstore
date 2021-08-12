@@ -95,7 +95,7 @@ namespace Smartstore.IO
         {
             Guard.NotEmpty(subpath, nameof(subpath));
 
-            var file = GetFile(subpath);
+            var file = await GetFileAsync(subpath);
             if (!file.Exists)
             {
                 return AsyncOut<string>.Empty;

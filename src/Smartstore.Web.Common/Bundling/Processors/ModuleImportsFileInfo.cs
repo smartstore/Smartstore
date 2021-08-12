@@ -42,7 +42,7 @@ namespace Smartstore.Web.Bundling.Processors
 
             static void TryAddImport(IModuleDescriptor module, HashSet<ModuleImport> imports, string name)
             {
-                var file = module.WebFileProvider.GetFileInfo(name);
+                var file = module.WebRoot.GetFileInfo(name);
                 if (file.Exists)
                 {
                     imports.Add(new ModuleImport

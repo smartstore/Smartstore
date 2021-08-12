@@ -156,7 +156,7 @@ namespace Smartstore.Core.Localization
             bool updateTouchedResources = true,
             List<Language> filterLanguages = null)
         {
-            var directory = moduleDescriptor.FileProvider.GetDirectory("Localization");
+            var directory = moduleDescriptor.ContentRoot.GetDirectory("Localization");
 
             if (!directory.Exists)
                 return;
@@ -226,7 +226,7 @@ namespace Smartstore.Core.Localization
 
         public virtual DirectoryHasher CreateModuleResourcesHasher(IModuleDescriptor moduleDescriptor)
         {
-            return moduleDescriptor.FileProvider.GetDirectoryHasher("Localization", "resources.*.xml");
+            return moduleDescriptor.ContentRoot.GetDirectoryHasher("Localization", "resources.*.xml");
         }
 
         public virtual XmlDocument FlattenResourceFile(XmlDocument source)

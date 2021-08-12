@@ -17,6 +17,8 @@ namespace Smartstore.Core.Theming
 
     public class ThemeDescriptor : IExtensionDescriptor, IExtensionLocation, IDisposable
     {
+        private IFileProvider _webFileProvider;
+
         internal ThemeDescriptor()
         {
         }
@@ -51,10 +53,10 @@ namespace Smartstore.Core.Theming
             if (!themeDirectory.Exists)
                 return null;
 
-            var isSymLink = themeDirectory.IsSymbolicLink(out var finalPathName);
+            var isSymLink = themeDirectory.IsSymbolicLink(out var linkedPath);
             if (isSymLink)
             {
-                themeDirectory = new LocalDirectory(themeDirectory.SubPath, new DirectoryInfo(finalPathName), root as LocalFileSystem);
+                themeDirectory = new LocalDirectory(themeDirectory.SubPath, new DirectoryInfo(linkedPath), root as LocalFileSystem);
             }
 
             var themeConfigFile = root.GetFile(root.PathCombine(themeDirectory.Name, "theme.config"));
@@ -136,7 +138,14 @@ namespace Smartstore.Core.Theming
         public string PhysicalPath { get; internal set; }
 
         /// <inheritdoc/>
-        public IFileProvider WebFileProvider { get; internal set; }
+        public IFileSystem ContentRoot { get; internal set; }
+
+        /// <inheritdoc/>
+        public IFileProvider WebRoot
+        {
+            get => _webFileProvider ??= new ExpandedFileSystem("wwwroot", ContentRoot);
+            internal set => _webFileProvider = Guard.NotNull(value, nameof(value));
+        }
 
         #endregion
 

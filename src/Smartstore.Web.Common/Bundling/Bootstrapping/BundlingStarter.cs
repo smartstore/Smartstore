@@ -24,12 +24,12 @@ namespace Smartstore.Web.Bootstrapping
         private static IFileProvider ResolveThemeFileProvider(string themeName, IApplicationContext appContext)
         {
             var themeRegistry = appContext.Services.Resolve<IThemeRegistry>();
-            return themeRegistry?.GetThemeDescriptor(themeName)?.WebFileProvider;
+            return themeRegistry?.GetThemeDescriptor(themeName)?.WebRoot;
         }
 
         private static IFileProvider ResolveModuleFileProvider(string moduleName, IApplicationContext appContext)
         {
-            return appContext.ModuleCatalog.GetModuleByName(moduleName, true)?.WebFileProvider;
+            return appContext.ModuleCatalog.GetModuleByName(moduleName, true)?.WebRoot;
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)

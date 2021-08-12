@@ -125,8 +125,8 @@ namespace Smartstore.Web
                 .AddRazorRuntimeCompilation(o =>
                 {
                     o.FileProviders.Clear();
-                    o.FileProviders.Add(new RazorRuntimeFileProvider(appContext));
-                    
+                    o.FileProviders.Add(new ModularFileProvider(appContext));
+
                 })
                 .AddFluentValidation(c =>
                 {

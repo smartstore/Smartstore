@@ -10,7 +10,7 @@ namespace Smartstore.Web.Razor
 {
     internal class ThemeViewLocationExpander : IViewLocationExpander
     {
-        const string ParamKey = "module";
+        const string ParamKey = "theme";
 
         public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
         {
@@ -18,14 +18,12 @@ namespace Smartstore.Web.Razor
             {
                 var themeRegistry = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeRegistry>();
                 var descriptor = themeRegistry.GetThemeDescriptor(themeName);
-                var themeLocations = new List<string>(4);
-
-                while (descriptor != null)
+                var themeLocations = new List<string>
                 {
-                    themeLocations.Add($"{descriptor.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
-                    themeLocations.Add($"{descriptor.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
-                    descriptor = descriptor.BaseTheme;
-                }
+                    // ModularFileProvider will lookup in base themes.
+                    $"{descriptor.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension,
+                    $"{descriptor.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension
+                };
 
                 return themeLocations.Union(viewLocations);
             }

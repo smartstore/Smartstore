@@ -39,7 +39,7 @@ namespace Smartstore.IO
         }
 
         /// <inheritdoc/>
-        public string SubPath { get; private set; }
+        public string SubPath { get; internal set; }
 
         /// <inheritdoc />
         public bool Exists

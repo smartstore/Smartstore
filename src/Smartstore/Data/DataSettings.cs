@@ -280,7 +280,7 @@ namespace Smartstore.Data
                 fs.TryCreateDirectory(tenantPath);
             }
 
-            var tenantRoot = new LocalFileSystem(fs.GetDirectory(tenantPath).PhysicalPath);
+            var tenantRoot = new ExpandedFileSystem(tenantPath, fs);
 
             return (curTenant.TrimEnd('/'), tenantRoot);
         }
