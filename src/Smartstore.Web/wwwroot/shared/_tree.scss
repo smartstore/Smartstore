@@ -201,20 +201,24 @@ $default-state-color: $gray-400;
     }
 }
 
-// Drag and drop indicator.
+// Drag and drop indicators.
 // -----------------------------------------
-.tree-drop-indicator {
-    display: none;
+.tree-line-indicator,
+.tree-over-indicator {
     position: absolute;
-    width: 160px;
-    height: 1px;
+    top: -100px;
     z-index: 9999;
     pointer-events: none;
-    // Indicator line.
+}
+
+// Line indicator for moving before or after a node.
+.tree-line-indicator {
+    width: 160px;
+    height: 1px;
     background: radial-gradient(ellipse at right, $body-bg 5%, rgba($success, 0.8) 100%);
 
+    // Arrow left.
     &:before {
-        // Arrow left.
         position: absolute;
         display: block;
         content: '';
@@ -228,16 +232,13 @@ $default-state-color: $gray-400;
     }
 }
 
-/*.tree-ghost {
-    display: none;
-    position: absolute;
-    z-index: 9999;
-    pointer-events: none;
+// "Over" indicator for moving into a node.
+.tree-over-indicator {
+    content: '';
+    border: 1px solid $success;
+    border-radius: $border-radius;
 }
 
-.droppable-highlight {
-    background-color: rgba($warning, 0.3) !important;
-}*/
 
 // RTL
 // -----------------------------------------
@@ -283,7 +284,7 @@ $default-state-color: $gray-400;
         }
     }
 
-    .tree-drop-indicator {
+    .tree-line-indicator {
         background: radial-gradient(ellipse at left, $body-bg 5%, rgba($success, 0.8) 100%);
 
         &:before {

@@ -4,10 +4,6 @@
 */
 (function ($, window, document, undefined) {
 
-    // TODO: (mg) (core) category tree drag and drop: find a way for "move into the category" indication (that does not cause the browser to hang in task list).
-    // Probable solution would be to add droppable, transparent indicator elements between nodes and to remove any top and bottom padding from them.
-    // But for this everything must be rebuilt again.
-
     $.fn.tree = function (method) {
         return main.apply(this, arguments);
     };
@@ -539,13 +535,11 @@
     function initializeDragAndDrop(root, opt) {
         opt._drag = {
             active: false,
-            indicator: $('<div class="tree-drop-indicator"></div>').appendTo(document.body).get(0),
-            //ghost: $('<div class="tree-ghost badge badge-light"><i></i><span class="ml-1"></span></div>').appendTo(document.body).get(0)
+            lineIndicator: $('<div class="tree-line-indicator"></div>').appendTo(document.body).get(0),
+            overIndicator: $('<div class="tree-over-indicator"></div>').appendTo(document.body).get(0),
         };
 
         var d = opt._drag;
-        d.indicatorWidth = d.indicator.offsetWidth || d.indicator.clientWidth || 160;
-        //d.ghostIcon = d.ghost.getElementsByTagName('i')[0];
 
         root.on('dragstart', '.tree-node-content', function (e) {
             var content = $(this);
@@ -553,14 +547,12 @@
 
             startDragging(true);
             d.sourceId = node.data('id');
-            //d.ghost.getElementsByTagName('span')[0].innerText = content.find('.tree-name').text();
 
             root.find('.tree-node-content').addClass('droppable');
             node.find('.tree-node-content').removeClass('droppable');
 
             e.originalEvent.dataTransfer.effectAllowed = 'move';
             e.originalEvent.dataTransfer.setDragImage(content.find('.tree-name')[0], -18, -8);
-            //e.originalEvent.dataTransfer.setDragImage(this, -99999, -99999);
             e.originalEvent.dataTransfer.setData('text/plain', d.sourceId);
 
             content.addClass('dragging');
@@ -581,23 +573,33 @@
                 var nodeId = $(this).closest('.tree-node').data('id');
                 if (nodeId !== d.targetId) {
                     d.targetId = nodeId;
-                    d.targetRect = this.getBoundingClientRect();
                     d.position = '';
 
+                    // Current target node rect.
+                    var rc = this.getBoundingClientRect();
                     var scrollY = window.scrollY;
-                    d.beforeY = d.targetRect.top + scrollY + 8;
-                    d.afterY = d.targetRect.bottom + scrollY - 8;
-                    d.indicatorBeforeTop = d.targetRect.top + scrollY;
-                    d.indicatorAfterBottom = d.targetRect.bottom + scrollY;
 
+                    // Mouse position thresholds.
+                    d.beforeThreshold = rc.top + scrollY + 8;
+                    d.afterThreshold = rc.bottom + scrollY - 8;
+
+                    // Calculate new vertical position of both indicators.
+                    d.lineTop = (rc.top + scrollY) + 'px';
+                    d.lineBottom = (rc.bottom + scrollY) + 'px';
+                    d.overTop = (rc.top + scrollY) + 'px';
+
+                    // Update size and left position of both indicators.
                     if (opt.rtl) {
-                        d.indicator.style.left = (d.targetRect.right - d.indicatorWidth - 10) + 'px';
+                        d.lineIndicator.style.left = (rc.left - 10) + 'px';
                     }
                     else {
-                        d.indicator.style.left = (d.targetRect.left + 10) + 'px';
+                        d.lineIndicator.style.left = (rc.left + 10) + 'px';
                     }
+                    d.lineIndicator.style.width = rc.width + 'px';
 
-                    //root.find('.droppable-highlight').removeClass('droppable-highlight');
+                    d.overIndicator.style.left = rc.left + 'px';
+                    d.overIndicator.style.width = rc.width + 'px';
+                    d.overIndicator.style.height = rc.height + 'px';
                 }
             }
         });
@@ -605,50 +607,36 @@
         root.on('dragleave', '.droppable', function (e) {
             if (d.active && this === d.nodeContent) {
                 e.preventDefault();
-                d.indicator.style.display = 'none';
-                //d.ghost.style.display = 'none';
-                //root.find('.droppable-highlight').removeClass('droppable-highlight');
+                d.lineIndicator.style.top = '-100px';
+                d.overIndicator.style.top = '-100px';
             }
         });
 
         root.on('dragover', '.droppable', function (e) {
             e.preventDefault();  // Allow dropping.
 
+            // Indicate.
             if (d.active) {
-                // Indicate.
-                if (e.pageY < d.beforeY) {
+                if (e.pageY < d.beforeThreshold) {
                     d.position = 'before';
-                    d.indicator.style.display = 'block';
-                    d.indicator.style.top = d.indicatorBeforeTop + 'px';
-                    //d.ghostIcon.setAttribute('class', 'fas fa-fw fa-long-arrow-alt-right');
-                    //d.nodeContent.classList.remove('droppable-highlight');
+                    d.lineIndicator.style.top = d.lineTop;
+                    d.overIndicator.style.top = '-100px';
                 }
-                else if (e.pageY > d.afterY) {
+                else if (e.pageY > d.afterThreshold) {
                     d.position = 'after';
-                    d.indicator.style.display = 'block';
-                    d.indicator.style.top = d.indicatorAfterBottom + 'px';
-                    //d.ghostIcon.setAttribute('class', 'fas fa-fw fa-long-arrow-alt-right');
-                    //d.nodeContent.classList.remove('droppable-highlight');
+                    d.lineIndicator.style.top = d.lineBottom;
+                    d.overIndicator.style.top = '-100px';
                 }
-                else if (e.pageY >= d.beforeY && e.pageY <= d.afterY) {
+                else if (e.pageY >= d.beforeThreshold && e.pageY <= d.afterThreshold) {
                     d.position = 'over';
-                    d.indicator.style.display = 'none';
-                    //d.ghostIcon.setAttribute('class', 'fas fa-fw fa-plus');
-                    //d.nodeContent.classList.add('droppable-highlight');
+                    d.lineIndicator.style.top = '-100px';
+                    d.overIndicator.style.top = d.overTop;
                 }
                 else {
                     d.position = '';
-                    d.indicator.style.display = 'none';
-                    //d.ghost.style.display = 'none';
-                    //d.nodeContent.classList.remove('droppable-highlight');
+                    d.lineIndicator.style.top = '-100px';
+                    d.overIndicator.style.top = '-100px';
                 }
-
-                // Show ghost tooltip.
-                //if (d.position.length > 0) {
-                //    d.ghost.style.display = 'block';
-                //    d.ghost.style.top = (e.pageY + 14) + 'px';
-                //    d.ghost.style.left = (e.pageX + 18) + 'px';
-                //}
             }
         });
 
@@ -679,7 +667,6 @@
                             //console.log(`drop ${source.find('.tree-inner:first .tree-name').text()} ${data.position} ${target.find('.tree-inner:first .tree-name').text()}`);
 
                             EventBroker.publishSync('tree.dropped', { source, target });
-
                             moveNode(source, target, data.position);
                         }
 
@@ -699,7 +686,6 @@
             d.position = '';
             d.sourceId = 0;
             d.targetId = 0;
-            d.targetRect = null;
             d.nodeContent = null;
 
             if (active) {
@@ -707,9 +693,8 @@
             }
             else {
                 root.find('.tree-node-content').removeClass('dragging droppable');
-                //root.find('.tree-node-content').removeClass('droppable-highlight');
-                d.indicator.style.display = 'none';
-                //d.ghost.style.display = 'none';
+                d.lineIndicator.style.top = '-100px';
+                d.overIndicator.style.top = '-100px';
 
                 if (opt.highlightNodes) {
                     root.addClass('tree-highlight');
