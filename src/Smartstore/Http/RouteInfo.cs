@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 
-namespace Smartstore.Core.Web
+namespace Smartstore.Http
 {
 	[JsonConverter(typeof(RouteInfoConverter))]
 	public class RouteInfo
@@ -72,7 +72,7 @@ namespace Smartstore.Core.Web
 
 	#region JsonConverter
 
-	public class RouteInfoConverter : JsonConverter
+	internal class RouteInfoConverter : JsonConverter
 	{
 		public override bool CanWrite
 		{

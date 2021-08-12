@@ -10,7 +10,7 @@ namespace Smartstore.Engine.Modularity
         /// <summary>
         /// Gets or sets the module descriptor
         /// </summary>
-        IModuleDescriptor ModuleDescriptor { get; set; }
+        IModuleDescriptor Descriptor { get; set; }
 
         /// <summary>
         /// Installs module

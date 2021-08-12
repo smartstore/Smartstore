@@ -3,8 +3,9 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Configuration;
 
-namespace Smartstore.Core.Configuration
+namespace Smartstore
 {
     public static class ISettingServiceExtensions
     {
