@@ -32,9 +32,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.DevTools", "src\Smartstore.Modules\Smartstore.DevTools\Smartstore.DevTools.csproj", "{62C64D0B-D937-40B2-B89D-198B2409FC84}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4C0385CB-1ABE-4569-AA9D-0C3DCBE44479}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1DE93C7F-22CE-462C-BB6E-7282F4403F2E}"
 	ProjectSection(SolutionItems) = preProject
-		src\AssemblySharedInfo.cs = src\AssemblySharedInfo.cs
-		src\AssemblyVersionInfo.cs = src\AssemblyVersionInfo.cs
+		src\Build\Smartstore.Common.props = src\Build\Smartstore.Common.props
+		src\Build\Smartstore.Common.targets = src\Build\Smartstore.Common.targets
+		src\Build\Smartstore.Module.props = src\Build\Smartstore.Module.props
+		src\Build\Smartstore.Module.targets = src\Build\Smartstore.Module.targets
 	EndProjectSection
 EndProject
 Global
@@ -99,6 +103,7 @@ Global
 		{253DECF2-2ECA-4A90-955B-9299CCEC1363} = {82A38DDA-C944-4C15-AF43-86732F8ED15A}
 		{EAA90B11-ED40-4AB1-8027-45226471F9EE} = {B3391994-AE0F-4C8C-AE8E-968F6013B4B6}
 		{62C64D0B-D937-40B2-B89D-198B2409FC84} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{1DE93C7F-22CE-462C-BB6E-7282F4403F2E} = {4C0385CB-1ABE-4569-AA9D-0C3DCBE44479}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}

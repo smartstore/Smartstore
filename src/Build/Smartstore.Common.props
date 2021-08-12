@@ -1,0 +1,21 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Product>Smartstore</Product>
+		<Copyright>Copyright © Smartstore AG</Copyright>
+		<Company>Smartstore AG</Company>
+		<Authors>Smartstore AG</Authors>
+		<Version>5.0.0.0</Version>
+		<FileVersion>5.0.0.0</FileVersion>
+		<InformationalVersion>5.0.0.0</InformationalVersion>
+		<PackageProjectUrl>https://smartstore.com/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/smartstore/Smartstore</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+	</PropertyGroup>
+
+</Project>

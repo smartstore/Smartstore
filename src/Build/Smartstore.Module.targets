@@ -1,0 +1,21 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<ItemGroup>
+		<DeployModule Include="$(MSBuildProjectDirectory)\..\..\Build\DeployModule.proj" />
+	</ItemGroup>
+
+	<Target Name="DeployModule" AfterTargets="Build">
+		<!-- Copy private module references and delete unnecessary files and directories. -->
+		<MSBuild Projects="@(DeployModule)" Properties="ModulePath=$(MSBuildProjectDirectory)\$(OutDir)" Targets="DeployModule" />
+	</Target>
+
+	<!-- Remove files from copy local that would not be published as they are provided by the platform package -->
+	<!--
+	<Target Name="FilterCopyLocal" DependsOnTargets="RunResolvePublishAssemblies" BeforeTargets="ResolveLockFileCopyLocalProjectDeps">
+		<ItemGroup>
+			<_CopyLocalButNotPublished Include="@(AllCopyLocalItems)" Exclude="@(ResolvedAssembliesToPublish)" />
+			<AllCopyLocalItems Remove="@(_CopyLocalButNotPublished)" />
+		</ItemGroup>
+	</Target>-->
+	
+</Project>

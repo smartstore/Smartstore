@@ -1,116 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+		<Product>Smartstore DevTools</Product>
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.DevTools</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
 
-	<PropertyGroup>
-		<!-- TODO: !!!! Describe CopyLocalLockFileAssemblies !!!! -->
-		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
-		<!-- TODO: Describe Razor compilation -->
-		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
-		<RazorCompileOnBuild>true</RazorCompileOnBuild>
-		<!-- TODO: Describe GenerateProvideApplicationPartFactoryAttribute -->
-		<GenerateProvideApplicationPartFactoryAttribute>true</GenerateProvideApplicationPartFactoryAttribute>
-		<ProvideApplicationPartFactoryAttributeTypeName>Smartstore.Engine.Modularity.ApplicationParts.ModuleRazorAssemblyPartFactory, Smartstore</ProvideApplicationPartFactoryAttributeTypeName>
-		<!-- TODO: Describe EnableDefaultContentItems -->
-		<EnableDefaultContentItems>false</EnableDefaultContentItems>
-		<!-- TODO: Describe CompilationContext -->
-		<PreserveCompilationContext>true</PreserveCompilationContext>
-		<PreserveCompilationReferences>false</PreserveCompilationReferences>
-		<!-- TODO: Describe MvcRazorExcludeRefAssembliesFromPublish -->
-		<MvcRazorExcludeRefAssembliesFromPublish>true</MvcRazorExcludeRefAssembliesFromPublish>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-		<GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-		<GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-		<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-		<GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-	</PropertyGroup>
-	
-	<PropertyGroup>
-		<Copyright>Copyright © Smartstore AG</Copyright>
-		<Company>Smartstore AG</Company>
-		<Authors>Smartstore AG</Authors>
-		<PackageProjectUrl>https://smartstore.com/</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/smartstore/Smartstore</RepositoryUrl>
-		<RepositoryType>Git</RepositoryType>		
-	</PropertyGroup>
-	
-	<!--<ItemGroup>
-	  <None Remove="manifest.json" />
-	  <None Remove="wwwroot\placeholder.txt" />
-	</ItemGroup>-->
-
-	<ItemGroup>
-	  <Content Include="module.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-		<Content Include="wwwroot\*">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Localization\*.xml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Views\**\*.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-	</ItemGroup>
-
-  <ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Smartstore.Core\Smartstore.Core.csproj">
-      <Private>false</Private>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Smartstore.Web.Common\Smartstore.Web.Common.csproj">
-      <Private>false</Private>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Smartstore\Smartstore.csproj">
-      <Private>false</Private>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-    </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <!--<Folder Include="Properties\" />-->
-		<Compile Include="..\..\AssemblySharedInfo.cs">
-			<Link>Properties\AssemblySharedInfo.cs</Link>
-		</Compile>
-		<Compile Include="..\..\AssemblyVersionInfo.cs">
-			<Link>Properties\AssemblyVersionInfo.cs</Link>
-		</Compile>
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.1" />
     <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.2.22" />
-		<DeployModule Include="$(MSBuildProjectDirectory)\..\..\Build\DeployModule.proj" />
   </ItemGroup>
-
-	<Target Name="DeployModule" AfterTargets="Build">
-		<!-- Copy private module references and delete unnecessary files and directories. -->
-		<MSBuild Projects="@(DeployModule)" Properties="ModulePath=$(MSBuildProjectDirectory)\$(OutDir)" Targets="DeployModule" />
-	</Target>
-
-	<!-- Remove files from copy local that would not be published as they are provided by the platform package --><!--
-	<Target Name="FilterCopyLocal" DependsOnTargets="RunResolvePublishAssemblies" BeforeTargets="ResolveLockFileCopyLocalProjectDeps">
-		<ItemGroup>
-			<_CopyLocalButNotPublished Include="@(AllCopyLocalItems)" Exclude="@(ResolvedAssembliesToPublish)" />
-			<AllCopyLocalItems Remove="@(_CopyLocalButNotPublished)" />
-		</ItemGroup>
-	</Target>-->
 
 </Project>

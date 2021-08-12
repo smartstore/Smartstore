@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+	<Import Project="..\Build\Smartstore.Common.props" />
+	
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Smartstore.Web</RootNamespace>
-		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   
   <ItemGroup>
