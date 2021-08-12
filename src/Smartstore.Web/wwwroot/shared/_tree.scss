@@ -213,7 +213,6 @@ $default-state-color: $gray-400;
 
 // Line indicator for moving before or after a node.
 .tree-line-indicator {
-    width: 160px;
     height: 1px;
     background: radial-gradient(ellipse at right, $body-bg 5%, rgba($success, 0.8) 100%);
 

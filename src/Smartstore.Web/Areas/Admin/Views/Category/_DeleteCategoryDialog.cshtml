@@ -1,8 +1,10 @@
-﻿<modal id="delete-category-dialog" sm-render-at-page-end="true" sm-size="Medium">
+﻿@model CategoryModel
+
+<modal id="delete-category-dialog" sm-render-at-page-end="true" sm-size="Medium">
 	<modal-header sm-title="@T("Admin.Catalog.Categories.Delete.Caption")"></modal-header>
     <modal-body>
 		<form asp-action="Delete" method="post" id="delete-category-form">
-			@*<input type="hidden" asp-for="Id" />*@
+			<input type="hidden" asp-for="Id" />
 			<p>@T("Admin.Catalog.Categories.Delete.Hint")</p>
 			<div class="form-check">
 				<input type="radio" class="form-check-input" id="deleteType_1" name="deleteType" value="resetparent" checked="checked" />

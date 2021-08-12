@@ -17,9 +17,11 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*Description")]
         public string Description { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*BottomDescription")]
         public string BottomDescription { get; set; }
 
@@ -38,7 +40,8 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Admin.Configuration.Seo.SeName")]
         public string SeName { get; set; }
 
-        [UIHint("Media"), AdditionalMetadata("album", "catalog")]
+        [UIHint("Media")]
+        [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true)]
         [LocalizedDisplay("*Picture")]
         public int? PictureId { get; set; }
 
@@ -103,9 +106,11 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*Description")]
         public string Description { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*BottomDescription")]
         public string BottomDescription { get; set; }
 

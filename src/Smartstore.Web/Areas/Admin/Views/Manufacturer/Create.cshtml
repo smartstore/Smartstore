@@ -1,15 +1,15 @@
-﻿@model ExportDeploymentModel
+﻿@model ManufacturerModel
 
 @{
-	ViewBag.Title = T("Common.Publishing") + " - " + T("Common.AddNew");
+    ViewBag.Title = T("Admin.Catalog.Manufacturers.AddNew").Value;
 }
 
-<form asp-action="CreateDeployment">
+<form asp-action="Create">
     <div class="section-header">
         <div class="title">
-            <img src="@Model.ThumbnailUrl" />
-            <span>@ViewBag.Title - @Model.Name</span>
-            <a asp-action="Edit" asp-route-id="@Model.ProfileId">(@T("Common.Back"))</a>
+            <i class="far fa-building"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="Index">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-primary">
@@ -22,5 +22,5 @@
         </div>
     </div>
 
-    <partial name="_CreateOrUpdate.Deployment" />
+    <partial name="_CreateOrUpdate" />
 </form>

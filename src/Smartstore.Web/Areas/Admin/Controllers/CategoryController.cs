@@ -191,16 +191,20 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await categories.SelectAsync(async x =>
+            var rows = await categories.SelectAsync(async x => new CategoryModel
             {
-                var model = await mapper.MapAsync(x);
-
-                model.EditUrl = Url.Action("Edit", "Category", new { id = x.Id, area = "Admin" });
-                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc);
-                model.Breadcrumb = await _categoryService.GetCategoryPathAsync(x, languageId, "<span class='badge badge-secondary'>{0}</span>");
-
-                return model;
+                Id = x.Id,
+                Name = x.Name,
+                FullName = x.FullName,
+                Alias = x.Alias,
+                Published = x.Published,
+                DisplayOrder = x.DisplayOrder,
+                LimitedToStores = x.LimitedToStores,
+                ShowOnHomePage = x.ShowOnHomePage,
+                EditUrl = Url.Action("Edit", "Category", new { id = x.Id, area = "Admin" }),
+                CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc),
+                Breadcrumb = await _categoryService.GetCategoryPathAsync(x, languageId, "<span class='badge badge-secondary'>{0}</span>")
             })
             .AsyncToList();
 
@@ -346,8 +350,10 @@ namespace Smartstore.Admin.Controllers
             {
                 var mapper = MapperFactory.GetMapper<CategoryModel, Category>();
                 var category = await mapper.MapAsync(model);
+                _db.Categories.Add(category);
 
-                await _db.SaveChangesAsync();
+                var num = await _db.SaveChangesAsync();
+                num.ToString().Dump();
 
                 var validateSlugResult = await category.ValidateSlugAsync(category.Name, true, 0);
                 await _urlService.ApplySlugAsync(validateSlugResult);

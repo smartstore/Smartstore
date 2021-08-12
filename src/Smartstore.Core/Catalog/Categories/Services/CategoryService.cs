@@ -78,7 +78,6 @@ namespace Smartstore.Core.Catalog.Categories
             var subCategoryIds = await GetSubCategoryIds(new[] { category.Id });
             await SoftDeleteCategories(subCategoryIds);
 
-            // Commit because we internally committed data anyway (because of BatchUpdateAsync when processing sub-categories).
             await _db.SaveChangesAsync();
 
             _requestCache.RemoveByPattern(PRODUCTCATEGORIES_PATTERN_KEY);
@@ -102,23 +101,26 @@ namespace Smartstore.Core.Catalog.Categories
 
             async Task SoftDeleteCategories(IEnumerable<int> categoryIds)
             {
-                if (!categoryIds.Any())
+                if (categoryIds.Any())
                 {
-                    return;
-                }
+                    var categories = await _db.Categories.GetManyAsync(categoryIds, true);
 
-                var num = await _db.Categories
-                    .AsQueryable()
-                    .Where(x => categoryIds.Contains(x.Id))
-                    .BatchUpdateAsync(x => new Category
+                    foreach (var category in categories)
                     {
-                        Deleted = deleteSubCategories || x.Deleted,
-                        ParentCategoryId = deleteSubCategories ? x.ParentCategoryId : 0
-                    });
+                        if (deleteSubCategories)
+                        {
+                            category.Deleted = true;
+                        }
+                        else
+                        {
+                            category.ParentCategoryId = 0;
+                        }
+                    }
 
-                // Process sub-categories.
-                var ids = await GetSubCategoryIds(categoryIds);
-                await SoftDeleteCategories(ids);
+                    // Process sub-categories.
+                    var ids = await GetSubCategoryIds(categoryIds);
+                    await SoftDeleteCategories(ids);
+                }
             }
         }
 

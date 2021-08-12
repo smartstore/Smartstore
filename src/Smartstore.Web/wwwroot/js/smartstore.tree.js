@@ -540,6 +540,7 @@
         };
 
         var d = opt._drag;
+        const lineWidth = 160;
 
         root.on('dragstart', '.tree-node-content', function (e) {
             var content = $(this);
@@ -590,12 +591,12 @@
 
                     // Update size and left position of both indicators.
                     if (opt.rtl) {
-                        d.lineIndicator.style.left = (rc.left - 10) + 'px';
+                        d.lineIndicator.style.left = (rc.right - lineWidth - 10) + 'px';
                     }
                     else {
                         d.lineIndicator.style.left = (rc.left + 10) + 'px';
                     }
-                    d.lineIndicator.style.width = rc.width + 'px';
+                    d.lineIndicator.style.width = lineWidth + 'px';
 
                     d.overIndicator.style.left = rc.left + 'px';
                     d.overIndicator.style.width = rc.width + 'px';

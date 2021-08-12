@@ -274,6 +274,18 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Validation.NonPropertyMustBeANumber", "The field muss be a number.", "Das Feld muss eine Zahl sein.");
 
             #endregion
+
+            #region Obsolete
+
+            builder.Delete(
+                "Admin.Catalog.Categories.BackToList",
+                "Admin.Catalog.Manufacturers.BackToList",
+                "Admin.Catalog.Categories.Info",
+                "Admin.Catalog.Manufacturers.Info",
+                "Admin.Catalog.Categories.Products.SaveBeforeEdit",
+                "Admin.Catalog.Manufacturers.Products.SaveBeforeEdit");
+
+            #endregion
         }
 
         private static async Task MigrateEnumResources(SmartDbContext context, CancellationToken cancelToken = default)

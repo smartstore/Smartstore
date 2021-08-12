@@ -147,17 +147,18 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await manufacturers.SelectAsync(async x =>
+            var rows = manufacturers.Select(x => new ManufacturerModel
             {
-                // TODO: (mg) (core) (perf) Don't map properties that won't be displayed in grid (Description, BottomDescription may slow down things)
-                var model = await mapper.MapAsync(x);
-                model.EditUrl = Url.Action("Edit", "Manufacturer", new { id = x.Id, area = "Admin" });
-                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc);
-
-                return model;
+                Id = x.Id,
+                Name = x.Name,
+                Published = x.Published,
+                DisplayOrder = x.DisplayOrder,
+                LimitedToStores = x.LimitedToStores,
+                EditUrl = Url.Action("Edit", "Manufacturer", new { id = x.Id, area = "Admin" }),
+                CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc)
             })
-            .AsyncToList();
+            .ToList();
 
             return Json(new GridModel<ManufacturerModel>
             {
@@ -188,6 +189,7 @@ namespace Smartstore.Admin.Controllers
             {
                 var mapper = MapperFactory.GetMapper<ManufacturerModel, Manufacturer>();
                 var manufacturer = await mapper.MapAsync(model);
+                _db.Manufacturers.Add(manufacturer);
 
                 await _db.SaveChangesAsync();
 
