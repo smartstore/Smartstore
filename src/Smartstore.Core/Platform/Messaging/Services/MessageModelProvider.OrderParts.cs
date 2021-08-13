@@ -77,7 +77,7 @@ namespace Smartstore.Core.Messaging
             var paymentMethod = _services.Resolve<IProviderManager>().GetProvider<IPaymentMethod>(part.PaymentMethodSystemName);
             if (paymentMethod != null)
             {
-                paymentMethodName = GetLocalizedValue(messageContext, paymentMethod.Metadata, nameof(paymentMethod.Metadata.FriendlyName), x => x.FriendlyName);
+                paymentMethodName = _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata, messageContext.Language.Id);
             }
             d.PaymentMethod = paymentMethodName.NullEmpty();
 

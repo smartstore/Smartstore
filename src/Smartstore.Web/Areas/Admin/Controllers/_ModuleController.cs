@@ -16,18 +16,20 @@ namespace Smartstore.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly IXmlResourceManager _xmlResourceManager;
         private readonly IProviderManager _providerManager;
-        //private readonly PluginMediator _pluginMediator;
+        private readonly ModuleManager _moduleManager;
 
         public ModuleController(
             IModuleCatalog moduleCatalog,
             ILanguageService languageService,
             IXmlResourceManager xmlResourceManager,
-            IProviderManager providerManager)
+            IProviderManager providerManager,
+            ModuleManager moduleManager)
         {
             _moduleCatalog = moduleCatalog;
             _languageService = languageService;
             _xmlResourceManager = xmlResourceManager;
             _providerManager = providerManager;
+            _moduleManager = moduleManager;
         }
 
         [HttpPost]

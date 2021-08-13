@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Engine.Modularity
 {
+    /// <inheritdoc />
     public abstract class ModuleBase : IModule
     {
         /// <inheritdoc />

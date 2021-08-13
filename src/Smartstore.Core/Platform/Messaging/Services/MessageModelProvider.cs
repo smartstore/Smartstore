@@ -32,6 +32,7 @@ using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
+using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.Imaging;
 using Smartstore.Templating;
@@ -62,6 +63,7 @@ namespace Smartstore.Core.Messaging
         private readonly ITemplateEngine _templateEngine;
         private readonly IEmailAccountService _emailAccountService;
         private readonly ILocalizationService _localizationService;
+        private readonly ModuleManager _moduleManager;
         private readonly IUrlHelper _urlHelper;
         
         public MessageModelProvider(
@@ -70,6 +72,7 @@ namespace Smartstore.Core.Messaging
             ITemplateEngine templateEngine,
             IEmailAccountService emailAccountService,
             ILocalizationService localizationService,
+            ModuleManager moduleManager,
             IUrlHelper urlHelper)
         {
             _db = db;
@@ -77,6 +80,7 @@ namespace Smartstore.Core.Messaging
             _templateEngine = templateEngine;
             _emailAccountService = emailAccountService;
             _localizationService = localizationService;
+            _moduleManager = moduleManager;
             _urlHelper = urlHelper;
         }
 

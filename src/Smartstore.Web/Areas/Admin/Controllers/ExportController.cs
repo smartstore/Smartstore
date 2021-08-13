@@ -41,6 +41,15 @@ namespace Smartstore.Admin.Controllers
 {
     public class ExportController : AdminController
     {
+        private static readonly IReadOnlyDictionary<ExportDeploymentType, string> DeploymentTypeIconClasses = new Dictionary<ExportDeploymentType, string>()
+        {
+            { ExportDeploymentType.FileSystem, "far fa-folder-open" },
+            { ExportDeploymentType.Email, "far fa-envelope" },
+            { ExportDeploymentType.Http, "fa fa-globe" },
+            { ExportDeploymentType.Ftp, "far fa-copy" },
+            { ExportDeploymentType.PublicFolder, "fa fa-unlock" },
+        };
+
         private readonly SmartDbContext _db;
         private readonly IExportProfileService _exportProfileService;
         private readonly ICategoryService _categoryService;
@@ -50,15 +59,7 @@ namespace Smartstore.Admin.Controllers
         private readonly ITaskStore _taskStore;
         private readonly DataExchangeSettings _dataExchangeSettings;
         private readonly CustomerSettings _customerSettings;
-
-        private static readonly IReadOnlyDictionary<ExportDeploymentType, string> DeploymentTypeIconClasses = new Dictionary<ExportDeploymentType, string>()
-        {
-            { ExportDeploymentType.FileSystem, "far fa-folder-open" },
-            { ExportDeploymentType.Email, "far fa-envelope" },
-            { ExportDeploymentType.Http, "fa fa-globe" },
-            { ExportDeploymentType.Ftp, "far fa-copy" },
-            { ExportDeploymentType.PublicFolder, "fa fa-unlock" },
-        };
+        private readonly ModuleManager _moduleManager;
 
         public ExportController(
             SmartDbContext db,
@@ -69,7 +70,8 @@ namespace Smartstore.Admin.Controllers
             IProviderManager providerManager,
             ITaskStore taskStore,
             DataExchangeSettings dataExchangeSettings,
-            CustomerSettings customerSettings)
+            CustomerSettings customerSettings,
+            ModuleManager moduleManager)
         {
             _db = db;
             _exportProfileService = exportProfileService;
@@ -80,6 +82,7 @@ namespace Smartstore.Admin.Controllers
             _taskStore = taskStore;
             _dataExchangeSettings = dataExchangeSettings;
             _customerSettings = customerSettings;
+            _moduleManager = moduleManager;
         }
 
         public IActionResult Index()
@@ -164,11 +167,8 @@ namespace Smartstore.Admin.Controllers
                     Id = ++num,
                     SystemName = x.Metadata.SystemName,
                     ImageUrl = GetThumbnailUrl(x),
-                    // TODO: (mg) (core) PluginMediator required in ExportController.
-                    //FriendlyName = _pluginMediator.GetLocalizedFriendlyName(x.Metadata),
-                    FriendlyName = x.Metadata.SystemName,
-                    //Description = _pluginMediator.GetLocalizedDescription(x.Metadata)
-                    Description = x.Metadata.SystemName
+                    FriendlyName = _moduleManager.GetLocalizedFriendlyName(x.Metadata),
+                    Description = _moduleManager.GetLocalizedDescription(x.Metadata)
                 })
                 .ToList();
 
@@ -837,11 +837,8 @@ namespace Smartstore.Admin.Controllers
                 EntityTypeName = await Services.Localization.GetLocalizedEnumAsync(provider.Value.EntityType),
                 FileExtension = provider.Value.FileExtension,
                 ThumbnailUrl = GetThumbnailUrl(provider),
-                // TODO: (mg) (core) PluginMediator required in ExportController.
-                //FriendlyName = _pluginMediator.GetLocalizedFriendlyName(provider.Metadata),
-                FriendlyName = provider.Metadata.SystemName,
-                //Description = _pluginMediator.GetLocalizedDescription(provider.Metadata),
-                Description = provider.Metadata.SystemName,
+                FriendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata),
+                Description = _moduleManager.GetLocalizedDescription(provider.Metadata),
                 //Url = descriptor?.Url,
                 //Author = descriptor?.Author,
                 //Version = descriptor?.Version?.ToString()
@@ -1257,15 +1254,13 @@ namespace Smartstore.Admin.Controllers
         {
             string url = null;
 
-            // TODO: (mg) (core) PluginMediator required in ExportController.
-            url = "http://demo.smartstore.com/backend/Administration/Content/images/icon-plugin-default.png";
-            //if (provider != null)
-            //    url = _pluginMediator.GetIconUrl(provider.Metadata);
+            if (provider != null)
+                url = _moduleManager.GetIconUrl(provider.Metadata);
 
-            //if (url.IsEmpty())
-            //    url = _pluginMediator.GetDefaultIconUrl(null);
+            if (url.IsEmpty())
+                url = _moduleManager.GetDefaultIconUrl(null);
 
-            //url = Url.Content(url);
+            url = Url.Content(url);
 
             return url;
         }

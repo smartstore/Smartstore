@@ -192,18 +192,7 @@ namespace Smartstore.Web
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             // Register all module entry types in service container
-            foreach (var descriptor in appContext.ModuleCatalog.GetInstalledModules())
-            {
-                if (descriptor.Module.ModuleType == null)
-                {
-                    continue;
-                }
-                
-                builder.RegisterType(descriptor.Module.ModuleType)
-                    .As<IModule>()
-                    .As(descriptor.Module.ModuleType)
-                    .InstancePerLifetimeScope();
-            }
+            builder.RegisterModule(new ModularityModule(appContext));
 
             builder.RegisterType<DefaultViewDataAccessor>().As<IViewDataAccessor>().InstancePerLifetimeScope();
             builder.RegisterType<GridCommandStateStore>().As<IGridCommandStateStore>().InstancePerLifetimeScope();

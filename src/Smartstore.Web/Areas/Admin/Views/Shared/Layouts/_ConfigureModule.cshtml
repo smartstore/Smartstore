@@ -2,24 +2,29 @@
 @using Smartstore.Engine.Modularity
 
 @inject IModuleCatalog ModuleCatalog
+@inject ModuleManager ModuleManager
 
 @{
     Layout = "_AdminLayout";
 
-    var module = ModuleCatalog.GetModuleByAssembly((ViewContext.ActionDescriptor as ControllerActionDescriptor).ControllerTypeInfo.Assembly);
+    var controllerType = (ViewContext.ActionDescriptor as ControllerActionDescriptor).ControllerTypeInfo;
+    var module = ModuleCatalog.GetModuleByAssembly(controllerType.Assembly);
+    if (module == null)
+    {
+        throw new InvalidOperationException($"The controller '{controllerType.FullName}' does not belong to any module.");
+    }
 
-    // TODO: (core) Localized Friendly Name
-    // TODO: (core) Display module icon
     // TODO: (core) Determine "BackToList" url by module type
-    var systemName = module?.SystemName;
-    var friendlyName = module?.FriendlyName;
+    var systemName = module.SystemName;
+    var friendlyName = ModuleManager.GetLocalizedFriendlyName(module);
+    var iconUrl = Url.Content(ModuleManager.GetIconUrl(module));
 
     ViewBag.Title = T("Admin.Common.Configure").Value + " - " + friendlyName;
 }
 
 <div class="section-header">
     <div class="title" title="@ViewBag.Title (@systemName)">
-        @*<img src="@Url.Content(Model.IconUrl)" alt="@Model.FriendlyName" />*@
+        <img src="@iconUrl" alt="@friendlyName" />
         @ViewBag.Title
         <a href='@Url.Action("List")'>(@T("Admin.Common.BackToList"))</a>
     </div>
@@ -38,8 +43,8 @@
 </div>
 
 <script sm-target-zone="scripts" data-origin="ConfigureModule">
-	$(function () {
-		var token = $('input[name="__RequestVerificationToken"]').val();
+    $(function () {
+        var token = $('input[name="__RequestVerificationToken"]').val();
 
         $('.section-header .options').on('click', '[type=submit]', function (e) {
             // On SubmitButtonClick, post the form programmatically, as the button is not a child of the form...
@@ -52,24 +57,24 @@
             }
         });
 
-		$(".update-string-resources").on("click", function (e) {
+        $(".update-string-resources").on("click", function (e) {
             e.preventDefault();
 
             var $el = $(this);
 
             $({}).ajax({
-			    type: 'POST',
-			    url: $el.attr("href"),
+                type: 'POST',
+                url: $el.attr("href"),
                 data: {
                     "__RequestVerificationToken": token,
                     "systemName": $el.attr("data-system-name")
                 },
-				success: function (data) {
-					displayNotification(data.Message, data.Success ? "success" : "error");
-				}
+                success: function (data) {
+                    displayNotification(data.Message, data.Success ? "success" : "error");
+                }
             });
 
-			return false;
+            return false;
         })
     });
 </script>

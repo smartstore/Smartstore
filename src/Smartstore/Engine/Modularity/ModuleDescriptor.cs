@@ -18,6 +18,7 @@ namespace Smartstore.Engine.Modularity
     {
         private string _assemblyName;
         private string _resourceRootKey;
+        private string _brandImageFileName;
         private IFileProvider _webFileProvider;
 
         #region Create
@@ -246,7 +247,7 @@ namespace Smartstore.Engine.Modularity
         public string ResourceRootKey
         {
             get => _resourceRootKey ??= DiscoverResourceRootKey();
-            set => _resourceRootKey = value;
+            internal set => _resourceRootKey = value;
         }
 
         private string DiscoverResourceRootKey()
@@ -279,6 +280,34 @@ namespace Smartstore.Engine.Modularity
             catch (Exception ex)
             {
                 ex.Dump();
+            }
+
+            return string.Empty;
+        }
+
+        /// <inheritdoc/>
+        [JsonProperty]
+        public string BrandImageFileName
+        {
+            get => _brandImageFileName ??= DiscoverBrandImageFileName();
+            internal set => _brandImageFileName = value;
+        }
+
+        private string DiscoverBrandImageFileName()
+        {
+            if (WebRoot == null)
+            {
+                return null;
+            }
+
+            var filesToCheck = new[] { "branding.png", "branding.gif", "branding.jpg", "branding.jpeg" };
+            foreach (var file in filesToCheck)
+            {
+                var fileInfo = WebRoot.GetFileInfo(file);
+                if (fileInfo.Exists)
+                {
+                    return file;
+                }
             }
 
             return string.Empty;

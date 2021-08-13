@@ -75,19 +75,18 @@ namespace Smartstore.Web.Rendering
         /// <returns>List of select items</returns>
         public static IList<ExtendedSelectListItem> ToSelectListItems(
             this IEnumerable<Provider<IPaymentMethod>> paymentProviders,
-            //PluginMediator pluginMediator,
+            ModuleManager moduleManager,
             params string[] selectedMethods)
         {
             Guard.NotNull(paymentProviders, nameof(paymentProviders));
+            Guard.NotNull(moduleManager, nameof(moduleManager));
 
             var list = new List<ExtendedSelectListItem>();
 
             foreach (var provider in paymentProviders)
             {
-                // TODO: (mh) (core) Get GetLocalizedFriendlyName.
                 var systemName = provider.Metadata.SystemName;
-                //var name = pluginMediator.GetLocalizedFriendlyName(provider.Metadata);
-                var name = string.Empty;
+                var name = moduleManager.GetLocalizedFriendlyName(provider.Metadata);
 
                 if (name.IsEmpty())
                 {

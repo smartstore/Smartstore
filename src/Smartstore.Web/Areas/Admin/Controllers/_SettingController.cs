@@ -60,6 +60,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IConfigureOptions<IdentityOptions>> _identityOptionsConfigurer;
         private readonly IOptions<IdentityOptions> _identityOptions;
         private readonly PrivacySettings _privacySettings;
+        private readonly Lazy<ModuleManager> _moduleManager;
 
         public SettingController(
             SmartDbContext db,
@@ -75,7 +76,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IMediaMover> mediaMover,
             Lazy<IConfigureOptions<IdentityOptions>> identityOptionsConfigurer,
             IOptions<IdentityOptions> identityOptions,
-            PrivacySettings privacySettings)
+            PrivacySettings privacySettings,
+            Lazy<ModuleManager> moduleManager)
         {
             _db = db;
             _languageService = languageService;
@@ -91,6 +93,7 @@ namespace Smartstore.Admin.Controllers
             _identityOptionsConfigurer = identityOptionsConfigurer;
             _identityOptions = identityOptions;
             _privacySettings = privacySettings;
+            _moduleManager = moduleManager;
         }
 
         [LoadSetting(IsRootedModel = true)]
@@ -945,19 +948,11 @@ namespace Smartstore.Admin.Controllers
             var currentStorageProvider = Services.Settings.GetSettingByKey<string>("Media.Storage.Provider");
             var provider = _providerManager.GetProvider<IMediaStorageProvider>(currentStorageProvider);
 
-            // TODO: (mh) (core) Use _pluginMediator when available.
-            //model.StorageProvider = provider != null ? _pluginMediator.GetLocalizedFriendlyName(provider.Metadata) : null;
-            model.StorageProvider = provider?.Metadata?.FriendlyName;
+            model.StorageProvider = provider != null ? _moduleManager.Value.GetLocalizedFriendlyName(provider.Metadata) : null;
 
-            // TODO: (mh) (core) Use _pluginMediator when available.
-            //model.AvailableStorageProvider = _providerManager.GetAllProviders<IMediaStorageProvider>()
-            //    .Where(x => !x.Metadata.SystemName.EqualsNoCase(currentStorageProvider))
-            //    .Select(x => new SelectListItem { Text = _pluginMediator.GetLocalizedFriendlyName(x.Metadata), Value = x.Metadata.SystemName })
-            //    .ToList();
-            
             ViewBag.AvailableStorageProvider = _providerManager.GetAllProviders<IMediaStorageProvider>()
                 .Where(x => !x.Metadata.SystemName.EqualsNoCase(currentStorageProvider))
-                .Select(x => new SelectListItem { Text = x.Metadata.FriendlyName, Value = x.Metadata.SystemName })
+                .Select(x => new SelectListItem { Text = _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata), Value = x.Metadata.SystemName })
                 .ToList();
 
             return View(model);

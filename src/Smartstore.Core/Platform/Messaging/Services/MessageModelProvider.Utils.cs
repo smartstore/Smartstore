@@ -3,19 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Stores;
-using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 
@@ -57,21 +54,6 @@ namespace Smartstore.Core.Messaging
         private async Task PublishModelPartCreatedEventAsync<T>(T source, dynamic part) where T : class
         {
             await _services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, part));
-        }
-
-        private string GetLocalizedValue(MessageContext messageContext, ProviderMetadata metadata, string propertyName, Func<ProviderMetadata, string> fallback)
-        {
-            // TODO: (mc) this actually belongs to PluginMediator, but we simply cannot add a dependency to framework from here. Refactor later!
-
-            Guard.NotNull(metadata, nameof(metadata));
-
-            var resourceName = metadata.ResourceKeyPattern.FormatInvariant(metadata.SystemName, propertyName);
-            string result = _localizationService.GetResource(resourceName, messageContext.Language.Id, false, "", true);
-
-            if (result.IsEmpty())
-                result = fallback(metadata);
-
-            return result;
         }
 
         private async Task<object> GetTopicAsync(string topicSystemName, MessageContext ctx)

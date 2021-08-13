@@ -23,6 +23,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Media;
 using Smartstore.Web.Models.Orders;
@@ -44,6 +45,7 @@ namespace Smartstore.Web.Controllers
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly IEncryptor _encryptor;
+        private readonly Lazy<ModuleManager> _moduleManager;
 
         public OrderHelper(
             SmartDbContext db,
@@ -58,7 +60,8 @@ namespace Smartstore.Web.Controllers
             IGiftCardService giftCardService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ProductUrlHelper productUrlHelper,
-            IEncryptor encryptor)
+            IEncryptor encryptor,
+            Lazy<ModuleManager> moduleManager)
         {
             _db = db;
             _services = services;
@@ -73,6 +76,7 @@ namespace Smartstore.Web.Controllers
             _productAttributeMaterializer = productAttributeMaterializer;
             _productUrlHelper = productUrlHelper;
             _encryptor = encryptor;
+            _moduleManager = moduleManager;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -336,9 +340,7 @@ namespace Smartstore.Web.Controllers
             // Payment method.
             var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(order.PaymentMethodSystemName);
             model.PaymentMethodSystemName = order.PaymentMethodSystemName;
-            // TODO: (mh) (core) 
-            //model.PaymentMethod = paymentMethod != null ? _pluginMediator.GetLocalizedFriendlyName(paymentMethod.Metadata) : order.PaymentMethodSystemName;
-            model.PaymentMethod = order.PaymentMethodSystemName;
+            model.PaymentMethod = paymentMethod != null ? _moduleManager.Value.GetLocalizedFriendlyName(paymentMethod.Metadata) : order.PaymentMethodSystemName;
             model.CanRePostProcessPayment = await _paymentService.CanRePostProcessPaymentAsync(order);
 
             // Purchase order number (we have to find a better to inject this information because it's related to a certain plugin).

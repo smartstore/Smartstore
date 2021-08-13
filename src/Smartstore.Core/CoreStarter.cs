@@ -51,8 +51,6 @@ namespace Smartstore.Core.Bootstrapping
 
         internal static void RegisterTypeConverters()
         {
-            // Internal for testing
-
             ITypeConverter converter = new ShippingOptionConverter(true);
             TypeConverterFactory.RegisterConverter<IList<ShippingOption>>(converter);
             TypeConverterFactory.RegisterConverter<List<ShippingOption>>(converter);
@@ -69,7 +67,6 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterModule(new LoggingModule());
-            builder.RegisterModule(new ModularityModule(appContext));
             builder.RegisterModule(new PackagingModule());
             builder.RegisterModule(new LocalizationModule());
             builder.RegisterModule(new CommonServicesModule());

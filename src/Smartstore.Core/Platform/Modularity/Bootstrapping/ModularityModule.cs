@@ -28,9 +28,54 @@ namespace Smartstore.Core.Bootstrapping
 
         protected override void Load(ContainerBuilder builder)
         {
-            // TODO: (core) Finish ProvidersModule
-            
             builder.RegisterType<ProviderManager>().As<IProviderManager>().InstancePerLifetimeScope();
+            builder.RegisterType<ModuleManager>().AsSelf().InstancePerLifetimeScope();
+
+            // Register all module entry types in service container
+            foreach (var descriptor in _appContext.ModuleCatalog.GetInstalledModules())
+            {
+                if (descriptor.Module.ModuleType == null)
+                {
+                    continue;
+                }
+
+                builder.RegisterType(descriptor.Module.ModuleType)
+                    .As<IModule>()
+                    .As(descriptor.Module.ModuleType)
+                    .InstancePerDependency();
+            }
+
+            // Register custom resolver for IModule (by system name)
+            builder.Register<Func<string, IModule>>(c =>
+            {
+                var catalog = c.Resolve<IModuleCatalog>();
+                return (systemName) =>
+                {
+                    Guard.NotEmpty(systemName, nameof(systemName));
+                    var descriptor = catalog.GetModuleByName(systemName);
+                    if (descriptor == null)
+                    {
+                        throw new SmartException($"Cannot resolve module instance for '{systemName}' because it does not exist.");
+                    }
+                    return c.Resolve<Func<IModuleDescriptor, IModule>>().Invoke(descriptor);
+                };
+            });
+
+            // Register custom resolver for IModule (by descriptor)
+            builder.Register<Func<IModuleDescriptor, IModule>>(c =>
+            {
+                return (descriptor) =>
+                {
+                    Guard.NotNull(descriptor, nameof(descriptor));
+                    if (!descriptor.IsInstalled())
+                    {
+                        throw new SmartException($"Cannot resolve module instance for '{descriptor.SystemName}' because it is not installed.");
+                    }
+                    var instance = (IModule)c.Resolve(descriptor.Module.ModuleType);
+                    instance.Descriptor = descriptor;
+                    return instance;
+                };
+            });
 
             if (!_appContext.IsInstalled)
             {
@@ -220,10 +265,10 @@ namespace Smartstore.Core.Bootstrapping
             {
                 return "Shipping";
             }
-            //else if (typeof(IPaymentMethod).IsAssignableFrom(implType))
-            //{
-            //    return "Payment";
-            //}
+            else if (typeof(IPaymentMethod).IsAssignableFrom(implType))
+            {
+                return "Payment";
+            }
             //else if (typeof(IExternalAuthenticationMethod).IsAssignableFrom(implType))
             //{
             //    return "Security";
@@ -232,10 +277,10 @@ namespace Smartstore.Core.Bootstrapping
             {
                 return "CMS";
             }
-            //else if (typeof(IExportProvider).IsAssignableFrom(implType))
-            //{
-            //    return "Exporting";
-            //}
+            else if (typeof(IExportProvider).IsAssignableFrom(implType))
+            {
+                return "Exporting";
+            }
             else if (typeof(IOutputCacheProvider).IsAssignableFrom(implType))
             {
                 return "OutputCache";

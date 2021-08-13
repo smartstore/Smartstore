@@ -38,6 +38,13 @@ namespace Smartstore.Engine.Modularity
         string ResourceRootKey { get; }
 
         /// <summary>
+        /// Gets the file name of the brand image in the module's 'wwwroot' directory (without path).
+        /// Searched file names are: "branding.png", "branding.gif", "branding.jpg", "branding.jpeg".
+        /// Returns an empty string if no such file can be found.
+        /// </summary>
+        string BrandImageFileName { get; }
+
+        /// <summary>
         /// Builds a setting key. Pattern: "PluginSetting.{ModuleSystemName}.{SettingName}"
         /// </summary>
         string GetSettingKey(string name);

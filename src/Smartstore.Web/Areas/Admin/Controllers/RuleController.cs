@@ -28,6 +28,7 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
@@ -43,6 +44,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Func<RuleScope, IRuleProvider> _ruleProvider;
         private readonly IEnumerable<IRuleOptionsProvider> _ruleOptionsProviders;
         private readonly Lazy<IPaymentService> _paymentService;
+        private readonly Lazy<ModuleManager> _moduleManager;
         private readonly AdminAreaSettings _adminAreaSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly MediaSettings _mediaSettings;
@@ -54,6 +56,7 @@ namespace Smartstore.Admin.Controllers
             Func<RuleScope, IRuleProvider> ruleProvider,
             IEnumerable<IRuleOptionsProvider> ruleOptionsProviders,
             Lazy<IPaymentService> paymentService,
+            Lazy<ModuleManager> moduleManager,
             AdminAreaSettings adminAreaSettings,
             CustomerSettings customerSettings,
             MediaSettings mediaSettings)
@@ -64,6 +67,7 @@ namespace Smartstore.Admin.Controllers
             _ruleProvider = ruleProvider;
             _ruleOptionsProviders = ruleOptionsProviders;
             _paymentService = paymentService;
+            _moduleManager = moduleManager;
             _adminAreaSettings = adminAreaSettings;
             _customerSettings = customerSettings;
             _mediaSettings = mediaSettings;
@@ -775,8 +779,7 @@ namespace Smartstore.Admin.Controllers
                             string friendlyName = null;
                             if (paymentProviders.TryGetValue(x.PaymentMethodSystemName, out var paymentProvider))
                             {
-                                // TODO: (mg) (core) PluginMediator required in RuleController.
-                                //friendlyName = _pluginMediator.Value.GetLocalizedFriendlyName(paymentProvider.Metadata);
+                                friendlyName = _moduleManager.Value.GetLocalizedFriendlyName(paymentProvider.Metadata);
                             }
 
                             return new RuleSetAssignedToEntityModel

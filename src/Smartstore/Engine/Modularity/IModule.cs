@@ -4,6 +4,8 @@ namespace Smartstore.Engine.Modularity
 {
     /// <summary>
     /// Responsible for installing or uninstalling modules.
+    /// Implementations are auto-discovered on app startup and registered as transient
+    /// in service container as <see cref="IModule"/> and also as concrete type.
     /// </summary>
     public interface IModule
     {

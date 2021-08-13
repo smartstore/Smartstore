@@ -28,6 +28,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 
 namespace Smartstore.Web.Models.Cart
@@ -85,6 +86,7 @@ namespace Smartstore.Web.Models.Cart
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
+        private readonly ModuleManager _moduleManager;
         private readonly OrderSettings _orderSettings;
         private readonly MeasureSettings _measureSettings;
         private readonly ShippingSettings _shippingSettings;
@@ -103,6 +105,7 @@ namespace Smartstore.Web.Models.Cart
             IOrderCalculationService orderCalculationService,
             ICheckoutAttributeFormatter checkoutAttributeFormatter,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+            ModuleManager moduleManager,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings,
             MediaSettings mediaSettings,
@@ -124,6 +127,7 @@ namespace Smartstore.Web.Models.Cart
             _orderCalculationService = orderCalculationService;
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
+            _moduleManager = moduleManager;
             _shippingSettings = shippingSettings;
             _orderSettings = orderSettings;
             _measureSettings = measureSettings;
@@ -514,8 +518,7 @@ namespace Smartstore.Web.Models.Cart
                 var selectedPaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
                 var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(selectedPaymentMethodSystemName);
 
-                // TODO: (mh) (core) Wait for PluginMediator.GetLocalizedFriendlyName implementation
-                //model.OrderReviewData.PaymentMethod = paymentMethod != null ? _pluginMediator.GetLocalizedFriendlyName(paymentMethod.Metadata) : "";
+                to.OrderReviewData.PaymentMethod = paymentMethod != null ? _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata) : string.Empty;
                 to.OrderReviewData.PaymentSummary = checkoutState.PaymentSummary;
                 to.OrderReviewData.IsPaymentSelectionSkipped = checkoutState.IsPaymentSelectionSkipped;
             }
