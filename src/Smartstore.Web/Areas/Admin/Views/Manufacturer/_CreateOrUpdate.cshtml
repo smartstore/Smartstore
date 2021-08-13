@@ -5,7 +5,12 @@
     productManufacturersViewData["Parent"] = Model;
 }
 
-<div asp-validation-summary="ModelOnly"></div>
+@*
+    TODO: (mg) (core) "ModelOnly" is the wrong choice for tabbed forms.
+    Rule is: Html.ValidationSummary(false) --> All, Html.ValidationSummary(false) --> ModelOnly.
+    Please check in other places also and fix accordingly.
+*@
+<div asp-validation-summary="All"></div>
 <input type="hidden" asp-for="Id" />
 
 <tabstrip id="manufacturer-edit" sm-nav-style="Material">

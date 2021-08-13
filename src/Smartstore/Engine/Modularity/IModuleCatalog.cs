@@ -60,16 +60,5 @@ namespace Smartstore.Engine.Modularity
         {
             return catalog.Modules.Where(x => x.IsInstalled());
         }
-
-        ///// <summary>
-        ///// Get a module descriptor by type.
-        ///// </summary>
-        ///// <returns>Descriptor or <c>null</c>.</returns>
-        //public static IModuleDescriptor GetModule<TModule>(this IModuleCatalog catalog) where TModule : class, IModule
-        //{
-        //    return catalog.Modules
-        //        .Where(x => typeof(TModule).IsAssignableFrom(x.ModuleClrType))
-        //        .FirstOrDefault();
-        //}
     }
 }
