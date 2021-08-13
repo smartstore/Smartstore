@@ -5,11 +5,6 @@
     productManufacturersViewData["Parent"] = Model;
 }
 
-@*
-    TODO: (mg) (core) "ModelOnly" is the wrong choice for tabbed forms.
-    Rule is: Html.ValidationSummary(false) --> All, Html.ValidationSummary(true) --> ModelOnly.
-    Please check in other places also and fix accordingly.
-*@
 <div asp-validation-summary="All"></div>
 <input type="hidden" asp-for="Id" />
 
