@@ -1,0 +1,23 @@
+﻿@model SpecificationAttributeListModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.Attributes.SpecificationAttributes").Value;
+
+	Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-list"></i>
+        <span>@ViewBag.Title</span>
+    </div>
+    <div class="options">
+		<zone name="admin_button_toolbar_before" />
+		<zone name="admin_button_toolbar_after" />
+    </div>
+</div>
+
+<partial name="_Grid.SpecificationAttributes" model="null" view-data="gridViewData" />

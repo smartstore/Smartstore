@@ -1,0 +1,57 @@
+﻿@model SpecificationAttributeModel
+
+@{
+    var parentModel = ViewData["Parent"] as SpecificationAttributeListModel;
+}
+
+@* TODO: (core) the data grid reset button does not reset sorting (GridCommand.Sorting), which is a bit confusing if a sort column has been hidden by reset. 
+I would expect the reset button to really reset everything and return the grid to its initial state. *@
+<datagrid id="specification-attribute-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("SpecificationAttributeList")" delete="@Url.Action("SpecificationAttributeDelete")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="DisplayOrder" />
+        <sort by="Name" />
+    </sorting>
+    <search-panel>
+        <partial name="_Grid.SpecificationAttribute.Search" />
+    </search-panel>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")…</span>
+            </a>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Id" halign="center" visible="false" />
+        <column for="Name" hideable="false" width="2fr">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="Alias" />
+        <column for="AllowFiltering" halign="center" />
+        <column for="ShowOnProductPage" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+        <column for="IndexOptionNames" halign="center" visible="false" />
+        <column for="LocalizedFacetSorting" entity-member="FacetSorting" visible="false" />
+        <column for="LocalizedFacetTemplateHint" entity-member="FacetTemplateHint" visible="false" />
+    </columns>
+</datagrid>

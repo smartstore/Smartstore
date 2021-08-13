@@ -14,7 +14,10 @@
           onrowclass="manufacturersGrid_onRowClass">
     <datasource read="@Url.Action("ManufacturerList")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
-    <sorting allow-unsort="true" allow-multisort="false"></sorting>
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="DisplayOrder" />
+        <sort by="Id" />
+    </sorting>
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
