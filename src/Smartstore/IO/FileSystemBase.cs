@@ -119,20 +119,5 @@ namespace Smartstore.IO
                 i++;
             }
         }
-
-        #region Protected utils
-
-        /// <summary>
-        /// Normalizes a path using the path delimiter semantics of the abstract virtual file system.
-        /// </summary>
-        /// <remarks>
-        /// Backslash is converted to forward slash and any leading or trailing slashes are removed.
-        /// </remarks>
-        protected internal static string NormalizePath(string path)
-        {
-            return path?.Trim('~').Replace('\\', '/').Trim('/', ' ');
-        }
-
-        #endregion
     }
 }

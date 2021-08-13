@@ -30,7 +30,9 @@ namespace Smartstore.Engine.Modularity
             var assemblyInfo = new ModuleAssemblyInfo(descriptor)
             {
                 Assembly = assembly,
-                Installed = true
+                ModuleType = assembly.GetLoadableTypes()
+                    .Where(t => !t.IsInterface && t.IsClass && !t.IsAbstract)
+                    .FirstOrDefault(t => typeof(IModule).IsAssignableFrom(t))
             };
 
             descriptor.Module = assemblyInfo;

@@ -8,6 +8,8 @@ namespace Smartstore.Engine.Modularity
     /// </summary>
     public class ModuleAssemblyInfo
     {
+        private bool? _isConfigurable;
+        
         public ModuleAssemblyInfo(IModuleDescriptor descriptor)
         {
             Descriptor = Guard.NotNull(descriptor, nameof(descriptor));
@@ -19,9 +21,14 @@ namespace Smartstore.Engine.Modularity
         public IModuleDescriptor Descriptor { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the module is installed.
+        /// The module main assembly.
         /// </summary>
-        public bool Installed { get; init; }
+        public Assembly Assembly { get; init; }
+
+        /// <summary>
+        /// Gets or sets the module runtime type.
+        /// </summary>
+        public Type ModuleType { get; init; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the module is configurable.
@@ -29,21 +36,9 @@ namespace Smartstore.Engine.Modularity
         /// <remarks>
         /// A module is configurable when it implements the <see cref="IConfigurable"/> interface
         /// </remarks>
-        public bool IsConfigurable { get; init; }
-
-        /// <summary>
-        /// Gets or sets the module runtime type.
-        /// </summary>
-        public Type ModuleClrType { get; init; }
-
-        /// <summary>
-        /// The module main assembly.
-        /// </summary>
-        public Assembly Assembly { get; init; }
-
-        /// <summary>
-        /// List of assemblies found in the module folder, except the main module assembly.
-        /// </summary>
-        public Assembly[] ReferencedLocalAssemblies { get; init; } = Array.Empty<Assembly>();
+        public bool IsConfigurable
+        {
+            get => _isConfigurable ??= (ModuleType != null && typeof(IConfigurable).IsAssignableFrom(ModuleType));
+        }
     }
 }

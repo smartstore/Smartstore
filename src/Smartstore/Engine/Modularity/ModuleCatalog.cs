@@ -52,7 +52,7 @@ namespace Smartstore.Engine.Modularity
         {
             if (assembly != null && _assemblyMap.TryGetValue(assembly, out var descriptor))
             {
-                if (!installedOnly || descriptor.Module?.Installed == true)
+                if (!installedOnly || descriptor.IsInstalled())
                     return descriptor;
             }
 
@@ -63,7 +63,7 @@ namespace Smartstore.Engine.Modularity
         {
             if (name.HasValue() && _nameMap.TryGetValue(name, out var descriptor))
             {
-                if (!installedOnly || descriptor.Module?.Installed == true)
+                if (!installedOnly || descriptor.IsInstalled())
                     return descriptor;
             }
 

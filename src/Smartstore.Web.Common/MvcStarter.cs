@@ -118,7 +118,7 @@ namespace Smartstore.Web
                 .AddRazorRuntimeCompilation(o =>
                 {
                     o.FileProviders.Clear();
-                    o.FileProviders.Add(new ModularFileProvider(appContext));
+                    o.FileProviders.Add(new ModularFileProvider(appContext, true));
 
                 })
                 .AddFluentValidation(c =>
@@ -191,6 +191,20 @@ namespace Smartstore.Web
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
+            // Register all module entry types in service container
+            foreach (var descriptor in appContext.ModuleCatalog.GetInstalledModules())
+            {
+                if (descriptor.Module.ModuleType == null)
+                {
+                    continue;
+                }
+                
+                builder.RegisterType(descriptor.Module.ModuleType)
+                    .As<IModule>()
+                    .As(descriptor.Module.ModuleType)
+                    .InstancePerLifetimeScope();
+            }
+
             builder.RegisterType<DefaultViewDataAccessor>().As<IViewDataAccessor>().InstancePerLifetimeScope();
             builder.RegisterType<GridCommandStateStore>().As<IGridCommandStateStore>().InstancePerLifetimeScope();
             builder.RegisterType<StoreDependingSettingHelper>().AsSelf().InstancePerLifetimeScope();

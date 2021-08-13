@@ -15,10 +15,12 @@ namespace Smartstore.Engine.Modularity
     public class ModularFileProvider : IFileProvider
     {
         private readonly IApplicationContext _appContext;
-        
-        public ModularFileProvider(IApplicationContext appContext)
+        private readonly bool _ignoreThemes;
+
+        public ModularFileProvider(IApplicationContext appContext, bool ignoreThemes = false)
         {
             _appContext = Guard.NotNull(appContext, nameof(appContext));
+            _ignoreThemes = ignoreThemes;
         }
 
         public IFileInfo GetFileInfo(string subpath)
@@ -36,7 +38,7 @@ namespace Smartstore.Engine.Modularity
             {
                 IExtensionLocation extension = type == ExtensionType.Module
                     ? _appContext.ModuleCatalog?.GetModuleByName(name)
-                    : _appContext.Services.ResolveOptional<IThemeRegistry>()?.GetThemeDescriptor(name);
+                    : (_ignoreThemes ? null : _appContext.Services.ResolveOptional<IThemeRegistry>()?.GetThemeDescriptor(name));
 
                 if (extension?.ContentRoot != null)
                 {

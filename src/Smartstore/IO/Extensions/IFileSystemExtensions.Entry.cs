@@ -119,7 +119,7 @@ namespace Smartstore
                 throw new FileSystemException($"The root of the source entry must be underneath the target file system root. Source: {source.FileSystem.Root}, Target: {fs.Root}");
             }
 
-            var subRoot = FileSystemBase.NormalizePath(source.FileSystem.Root[fs.Root.Length..]);
+            var subRoot = PathUtility.NormalizeRelativePath(source.FileSystem.Root[fs.Root.Length..]);
             var expandedPath = fs.PathCombine(subRoot, source.SubPath);
 
             if (source.IsDirectory)

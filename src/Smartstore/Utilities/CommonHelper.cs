@@ -71,10 +71,7 @@ namespace Smartstore.Utilities
                 // TODO: (core) Test thoroughly!
                 // Not hosted. For example, running in unit tests or EF tooling
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                path = path
-                    .TrimStart('~')
-                    .TrimStart(PathUtility.PathSeparators)
-                    .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+                path = PathUtility.NormalizeRelativePath(path);
 
                 var testPath = Path.Combine(baseDirectory, path);
 

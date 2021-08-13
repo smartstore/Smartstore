@@ -124,7 +124,7 @@ namespace Smartstore.Core.Web
 
 		static UAParserUserAgent()
 		{
-			var path = CommonHelper.MapPath("~/App_Data/UAParser.regexes.yaml");
+			var path = CommonHelper.MapPath("/App_Data/UAParser.regexes.yaml");
 			s_uap = File.Exists(path)
 				? uap.Parser.FromYaml(path)
 				: uap.Parser.GetDefault();

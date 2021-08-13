@@ -65,7 +65,7 @@ namespace Smartstore.Admin.Controllers
 
             foreach (var descriptor in moduleDescriptors)
             {
-                if (descriptor.Module?.Installed == true)
+                if (descriptor.IsInstalled())
                 {
                     await _xmlResourceManager.ImportModuleResourcesFromXmlAsync(descriptor, null, false);
                 }

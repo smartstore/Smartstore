@@ -127,7 +127,7 @@ namespace Smartstore.IO
             if (string.IsNullOrEmpty(subpath))
                 return Root;
 
-            subpath = NormalizePath(subpath);
+            subpath = PathUtility.NormalizeRelativePath(subpath);
 
             var mappedPath = Path.Combine(Root, subpath);
 
@@ -144,7 +144,7 @@ namespace Smartstore.IO
                 }
             }
 
-            return mappedPath;
+            return Path.GetFullPath(mappedPath);
         }
 
         private static bool IsExcluded(FileSystemInfo fileSystemInfo, ExclusionFilters filters) => filters != ExclusionFilters.None && (fileSystemInfo.Name.StartsWith(".", StringComparison.Ordinal) && (filters & ExclusionFilters.DotPrefixed) != ExclusionFilters.None || fileSystemInfo.Exists && ((fileSystemInfo.Attributes & FileAttributes.Hidden) != (FileAttributes)0 && (filters & ExclusionFilters.Hidden) != ExclusionFilters.None || (fileSystemInfo.Attributes & FileAttributes.System) != (FileAttributes)0 && (filters & ExclusionFilters.System) != ExclusionFilters.None));

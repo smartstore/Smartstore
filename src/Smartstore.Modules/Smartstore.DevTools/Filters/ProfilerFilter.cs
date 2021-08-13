@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
@@ -24,7 +23,7 @@ namespace Smartstore.DevTools.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            if (!ShouldProfile(context.HttpContext))
+            if (!ShouldProfile(context))
                 return;
 
             var routeIdent = context.RouteData.Values.GenerateRouteIdentifier();
@@ -33,7 +32,7 @@ namespace Smartstore.DevTools.Filters
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
-            if (!ShouldProfile(context.HttpContext))
+            if (!ShouldProfile(context))
                 return;
 
             if (!context.Result.IsHtmlViewResult())
@@ -42,7 +41,7 @@ namespace Smartstore.DevTools.Filters
 
         public void OnResultExecuting(ResultExecutingContext context)
         {
-            if (!ShouldProfile(context.HttpContext))
+            if (!ShouldProfile(context))
                 return;
 
             // Should only run on a full view rendering result
@@ -66,7 +65,7 @@ namespace Smartstore.DevTools.Filters
 
         public void OnResultExecuted(ResultExecutedContext context)
         {
-            if (!ShouldProfile(context.HttpContext))
+            if (!ShouldProfile(context))
                 return;
 
             // Should only run on a full view rendering result
@@ -77,7 +76,7 @@ namespace Smartstore.DevTools.Filters
             _services.Chronometer.StepStop("ActionFilter");
         }
 
-        private bool ShouldProfile(HttpContext context)
-            => _shouldProfile ??= Startup.ShouldProfile(context.Request);
+        private bool ShouldProfile(FilterContext context)
+            => _shouldProfile ??= Startup.ShouldProfile(context.HttpContext.Request);
     }
 }

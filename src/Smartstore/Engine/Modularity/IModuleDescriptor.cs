@@ -58,4 +58,13 @@ namespace Smartstore.Engine.Modularity
         /// </summary>
         ModuleAssemblyInfo Module { get; }
     }
+
+    public static class IModuleDescriptorExtensions
+    {
+        /// <summary>
+        /// Checks whether the module is installed and loaded.
+        /// </summary>
+        public static bool IsInstalled(this IModuleDescriptor descriptor)
+            => Guard.NotNull(descriptor, nameof(descriptor)).Module?.Assembly != null;
+    }
 }

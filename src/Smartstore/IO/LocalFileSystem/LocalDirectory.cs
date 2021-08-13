@@ -23,7 +23,7 @@ namespace Smartstore.IO
             _di = info;
             _fs = fileSystem;
 
-            SubPath = FileSystemBase.NormalizePath(subpath);
+            SubPath = PathUtility.NormalizeRelativePath(subpath);
         }
 
         public DirectoryInfo AsDirectoryInfo() => _di;
@@ -109,7 +109,7 @@ namespace Smartstore.IO
 
         public IDirectory CreateSubdirectory(string path)
         {
-            path = FileSystemBase.NormalizePath(path);
+            path = PathUtility.NormalizeRelativePath(path);
             var di = _di.CreateSubdirectory(path);
             return new LocalDirectory(_fs.PathCombine(SubPath, path), di, _fs);
         }

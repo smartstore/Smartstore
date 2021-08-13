@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.Engine.Modularity.ApplicationParts
 {
@@ -15,11 +16,6 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
 
             foreach (var descriptor in moduleCatalog.GetInstalledModules())
             {
-                if (descriptor.Module.Assembly == null)
-                {
-                    continue;
-                }
-                
                 PopulateModuleParts(partManager, descriptor);
             }
         }

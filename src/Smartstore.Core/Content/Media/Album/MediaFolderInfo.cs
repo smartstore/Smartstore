@@ -137,7 +137,7 @@ namespace Smartstore.Core.Content.Media
         {
             CheckExists();
 
-            path = PathUtility.Combine(Path, FileSystemBase.NormalizePath(path));
+            path = PathUtility.Combine(Path, PathUtility.NormalizeRelativePath(path));
             var node = _folderService.GetNodeByPath(path);
 
             return node != null 

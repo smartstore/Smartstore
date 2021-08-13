@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Smartstore.Collections;
@@ -244,9 +245,43 @@ namespace Smartstore.Engine.Modularity
         [JsonProperty]
         public string ResourceRootKey
         {
-            // TODO: (core) Impl ModuleDescriptor.ResourceRootKey getter
-            get => _resourceRootKey ??= "Smartstore.PseudoModule";
+            get => _resourceRootKey ??= DiscoverResourceRootKey();
             set => _resourceRootKey = value;
+        }
+
+        private string DiscoverResourceRootKey()
+        {
+            if (ContentRoot == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                // Try to get root-key from first entry of XML file
+                var localizationDir = ContentRoot.GetDirectory("Localization");
+
+                if (localizationDir.Exists)
+                {
+                    var localizationFile = localizationDir.EnumerateFiles("*.xml").FirstOrDefault();
+                    if (localizationFile != null)
+                    {
+                        XmlDocument doc = new();
+                        doc.Load(localizationFile.PhysicalPath);
+                        var key = doc.SelectSingleNode(@"//Language/LocaleResource")?.Attributes["Name"]?.InnerText;
+                        if (key.HasValue() && key.Contains('.'))
+                        {
+                            return key.Substring(0, key.LastIndexOf('.'));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ex.Dump();
+            }
+
+            return string.Empty;
         }
 
         /// <inheritdoc/>

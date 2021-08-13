@@ -7,7 +7,7 @@ namespace Smartstore.IO
     {
         public NotFoundDirectory(string subpath, IFileSystem fs)
         {
-            SubPath = FileSystemBase.NormalizePath(subpath);
+            SubPath = PathUtility.NormalizeRelativePath(subpath);
             FileSystem = fs;
         }
 

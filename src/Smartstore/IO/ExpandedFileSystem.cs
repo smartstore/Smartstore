@@ -21,7 +21,7 @@ namespace Smartstore.IO
             Guard.NotEmpty(pathPrefix, nameof(pathPrefix));
             Guard.NotNull(inner, nameof(inner));
 
-            PathPrefix = FileSystemBase.NormalizePath(pathPrefix); // No leading or trailing slash
+            PathPrefix = PathUtility.NormalizeRelativePath(pathPrefix); // No leading or trailing slash
             _pathPrefix = new PathString('/' + PathPrefix);
 
             InnerProvider = inner;

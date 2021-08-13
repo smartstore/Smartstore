@@ -6,20 +6,17 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Packaging
 {
     public partial class PackageBuilder : IPackageBuilder
     {
-        private static readonly string[] _ignoredExtensions = new[] 
+        private static readonly Wildcard[] _ignoredPaths = new[] 
         {
-            ".obj", ".pdb", ".exclude", ".cs"
-        };
-
-        private static readonly string[] _ignoredPaths = new[] 
-        {
-            "/obj/"
-        };
+            "/obj/*", "/ref/*", "/refs/*",
+            "*.obj", "*.pdb", "*.exclude", "*.cs", "*.deps.json"
+        }.Select(x => new Wildcard(x)).ToArray();
 
         private readonly IApplicationContext _appContext;
         
@@ -102,9 +99,7 @@ namespace Smartstore.Core.Packaging
 
         private static bool IgnoreFile(string filePath)
         {
-            return string.IsNullOrEmpty(filePath) ||
-                _ignoredPaths.Any(filePath.Contains) ||
-                _ignoredExtensions.Contains(Path.GetExtension(filePath).NullEmpty() ?? string.Empty);
+            return string.IsNullOrEmpty(filePath) || _ignoredPaths.Any(x => x.IsMatch(filePath));
         }
     }
 }
