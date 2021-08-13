@@ -7,5 +7,11 @@
   "MinAppVersion": "5.0",
   "Order": 1,
   "AssemblyName": "Smartstore.DevTools.dll",
-  "ResourceRootKey": "Plugins.Developer.DevTools"
+  "ResourceRootKey": "Plugins.Developer.DevTools",
+  "PrivateReferences": [
+    "MiniProfiler.Shared",
+    "MiniProfiler.AspNetCore",
+    "MiniProfiler.AspNetCore.Mvc",
+    "MiniProfiler.EntityFrameworkCore"
+  ]
 }

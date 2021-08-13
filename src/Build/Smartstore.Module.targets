@@ -1,12 +1,12 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<ItemGroup>
-		<DeployModule Include="$(MSBuildProjectDirectory)\..\..\Build\DeployModule.proj" />
+		<BuildModule Include="$(MSBuildProjectDirectory)\..\..\Build\Smartstore.ModuleBuilder\Smartstore.BuildModule.proj" />
 	</ItemGroup>
 
-	<Target Name="DeployModule" AfterTargets="Build">
+	<Target Name="BuildModule" AfterTargets="Build">
 		<!-- Copy private module references and delete unnecessary files and directories. -->
-		<MSBuild Projects="@(DeployModule)" Properties="ModulePath=$(MSBuildProjectDirectory)\$(OutDir)" Targets="DeployModule" />
+		<MSBuild Projects="@(BuildModule)" Properties="ModulePath=$(MSBuildProjectDirectory)\$(OutDir)" Targets="BuildModule" />
 	</Target>
 
 	<!-- Remove files from copy local that would not be published as they are provided by the platform package -->
