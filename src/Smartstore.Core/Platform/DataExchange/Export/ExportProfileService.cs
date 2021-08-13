@@ -66,7 +66,7 @@ namespace Smartstore.Core.DataExchange.Export
         protected override Task<HookResult> OnUpdatingAsync(ExportProfile entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             // No more validation of 'FolderName' necessary anymore. Contains only the name of the export folder (no more path information).
-            entity.FolderName = _regexFolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName), string.Empty);
+            entity.FolderName = _regexFolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName).TrimEnd('/'), string.Empty);
 
             return Task.FromResult(HookResult.Ok);
         }

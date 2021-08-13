@@ -88,7 +88,7 @@ namespace Smartstore.IO
             {
                 if (!IsRoot && _di.Parent != null)
                 {
-                    return new LocalDirectory(Path.GetDirectoryName(SubPath), _di.Parent, _fs);
+                    return new LocalDirectory(Path.GetDirectoryName(SubPath.TrimEnd('/')), _di.Parent, _fs);
                 }
 
                 return null;

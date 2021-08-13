@@ -77,11 +77,11 @@ namespace Smartstore.Utilities
 
                 if (findAppRoot /* && !Directory.Exists(testPath)*/)
                 {
-                    // most likely we're in unit tests or design-mode (EF migration scaffolding)...
+                    // Most likely we're in unit tests or design-mode (EF migration scaffolding)...
                     // find solution root directory first
                     var dir = FindSolutionRoot(baseDirectory);
 
-                    // concat the web root
+                    // Concat the web root
                     if (dir != null)
                     {
                         baseDirectory = Path.Combine(dir.FullName, "src", "Smartstore.Web");

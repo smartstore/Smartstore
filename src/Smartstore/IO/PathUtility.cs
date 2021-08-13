@@ -56,27 +56,14 @@ namespace Smartstore.IO
                     string.Join(sep, toParts.Skip(matchedParts));
         }
 
-        ///// <summary>
-        ///// Ensures that a path is a valid app relative path by replacing by converting
-        ///// backslashes to forward slashes and removing any leading or trailing slashes.
-        ///// </summary>
-        ///// <param name="path">Relative path to normalize</param>
-        ///// <returns>Normalized relative path</returns>
-        //public static string NormalizeRelativePath(string path)
-        //{
-        //    if (string.IsNullOrEmpty(path))
-        //        return path;
-
-        //    return path.Trim('~').Replace('\\', '/').Trim('/', ' ');
-        //}
-
         /// <summary>
-        /// Ensures that a path is a valid app relative path by replacing by converting
-        /// backslashes to forward slashes and removing any leading or trailing slashes.
+        /// Ensures that a path is a valid app relative path by converting
+        /// backslashes to forward slashes and optionally removing the leading slash.
         /// </summary>
         /// <param name="path">Relative path to normalize</param>
+        /// <param name="ensureLeadingSlash"><c>true</c>: ensures that normalized path starts with '/', <c>false</c>: removes leading '/'.</param>
         /// <returns>Normalized relative path</returns>
-        public static string NormalizeRelativePath(string path)
+        public static string NormalizeRelativePath(string path, bool ensureLeadingSlash = false)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -97,32 +84,37 @@ namespace Smartstore.IO
             }
 
             var length = path.Length;
-            var removeLeadingSlash = path[0] == '/' || path[0] == '\\';
-            var removeTrailingSlash = path[length - 1] == '/' || path[length - 1] == '\\';
+            var hasLeadingSlash = path[0] == '/' || path[0] == '\\';
+            var addLeadingSlash = ensureLeadingSlash && !hasLeadingSlash;
+            var removeLeadingSlash = !ensureLeadingSlash && hasLeadingSlash;
             var transformSlashes = path.IndexOf('\\') != -1;
 
-            if (!removeLeadingSlash && !removeTrailingSlash && !transformSlashes)
+            if (!addLeadingSlash && !removeLeadingSlash && !transformSlashes)
             {
                 return path;
             }
 
-            if (removeLeadingSlash)
+            if (addLeadingSlash)
+            {
+                length++;
+            }
+            else if (removeLeadingSlash)
             {
                 length--;
             }
 
-            if (removeTrailingSlash)
+            return string.Create(length, (path, addLeadingSlash, removeLeadingSlash), (span, tuple) =>
             {
-                length--;
-            }
-
-            return string.Create(length, (path, removeLeadingSlash, removeTrailingSlash), (span, tuple) =>
-            {
-                var (pathValue, removeLeadingSlashValue, removeTrailingSlashValue) = tuple;
+                var (pathValue, addLeadingSlashValue, removeLeadingSlashValue) = tuple;
                 var spanIndex = 0;
 
+                if (addLeadingSlashValue)
+                {
+                    span[spanIndex++] = '/';
+                }
+
                 int start = removeLeadingSlashValue ? 1 : 0;
-                int end = removeTrailingSlashValue ? pathValue.Length - 2 : pathValue.Length - 1;
+                int end = pathValue.Length - 1;
 
                 for (var i = start; i <= end; i++)
                 {
