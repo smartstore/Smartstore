@@ -15,12 +15,14 @@ namespace Smartstore.Engine.Modularity
         IModuleDescriptor Descriptor { get; set; }
 
         /// <summary>
-        /// Installs module
+        /// Executed when a module is installed. This method should perform
+        /// common data seeding tasks like importing language resources, saving initial settings data etc.
         /// </summary>
         Task InstallAsync();
 
         /// <summary>
-        /// Uninstalls module
+        /// Executed when a module is uninstalled. This method should remove module specific
+        /// data like language resources, settings etc.
         /// </summary>
         Task UninstallAsync();
     }

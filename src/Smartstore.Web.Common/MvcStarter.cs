@@ -63,7 +63,7 @@ namespace Smartstore.Web
         public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
             // Populate application parts with modules
-            mvcBuilder.PartManager.PopulateModules(appContext.ModuleCatalog);
+            mvcBuilder.PartManager.PopulateModules(appContext);
             
             var validatorLanguageManager = new ValidatorLanguageManager(appContext);
 

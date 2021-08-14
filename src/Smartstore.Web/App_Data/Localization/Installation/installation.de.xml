@@ -144,7 +144,7 @@
   <LocaleResource Name="Progress.BuildingDatabase">
     <Value>Erzeuge Datenbank</Value>
   </LocaleResource>
-  <LocaleResource Name="Progress.InstallingPlugins">
+  <LocaleResource Name="Progress.InstallingModules">
     <Value>Installiere Modul {0} von {1}</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.ProcessingMedia">

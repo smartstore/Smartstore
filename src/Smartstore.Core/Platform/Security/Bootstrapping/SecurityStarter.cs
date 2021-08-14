@@ -14,12 +14,8 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<HttpsUrlFilter>().As<IUrlFilter>().SingleInstance();
             builder.RegisterType<Encryptor>().As<IEncryptor>().InstancePerLifetimeScope();
             builder.RegisterType<HoneypotProtector>().SingleInstance();
-
-            if (appContext.IsInstalled)
-            {
-                builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
-                builder.RegisterType<AclService>().As<IAclService>().InstancePerLifetimeScope();
-            }
+            builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
+            builder.RegisterType<AclService>().As<IAclService>().InstancePerLifetimeScope();
         }
     }
 }

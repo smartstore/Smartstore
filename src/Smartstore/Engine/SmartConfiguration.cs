@@ -89,7 +89,10 @@
         /// </summary>
         public ImagingMemoryAllocation ImagingMemoryAllocation { get; set; } = ImagingMemoryAllocation.Minimal;
 
-        public string[] PluginsIgnoredDuringInstallation { get; set; }
+        /// <summary>
+        /// List of module names to ignore during app installation.
+        /// </summary>
+        public string[] IgnoredModules { get; set; }
 
         /// <summary>
         /// Task Scheduler sweep interval in minutes (1 recommended)

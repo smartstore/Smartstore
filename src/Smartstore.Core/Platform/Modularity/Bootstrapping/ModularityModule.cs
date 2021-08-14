@@ -42,13 +42,21 @@ namespace Smartstore.Core.Bootstrapping
                 builder.RegisterType(descriptor.Module.ModuleType)
                     .As<IModule>()
                     .As(descriptor.Module.ModuleType)
+                    .OnActivated(x => 
+                    {
+                        if (x.Instance is ModuleBase moduleBase)
+                        {
+                            moduleBase.Services = x.Context.Resolve<ICommonServices>();
+                        }
+                    })
                     .InstancePerDependency();
             }
 
             // Register custom resolver for IModule (by system name)
             builder.Register<Func<string, IModule>>(c =>
             {
-                var catalog = c.Resolve<IModuleCatalog>();
+                var cc = c.Resolve<IComponentContext>();
+                var catalog = cc.Resolve<IModuleCatalog>();
                 return (systemName) =>
                 {
                     Guard.NotEmpty(systemName, nameof(systemName));
@@ -57,13 +65,14 @@ namespace Smartstore.Core.Bootstrapping
                     {
                         throw new SmartException($"Cannot resolve module instance for '{systemName}' because it does not exist.");
                     }
-                    return c.Resolve<Func<IModuleDescriptor, IModule>>().Invoke(descriptor);
+                    return cc.Resolve<Func<IModuleDescriptor, IModule>>().Invoke(descriptor);
                 };
             });
 
             // Register custom resolver for IModule (by descriptor)
             builder.Register<Func<IModuleDescriptor, IModule>>(c =>
             {
+                var cc = c.Resolve<IComponentContext>();
                 return (descriptor) =>
                 {
                     Guard.NotNull(descriptor, nameof(descriptor));
@@ -71,7 +80,8 @@ namespace Smartstore.Core.Bootstrapping
                     {
                         throw new SmartException($"Cannot resolve module instance for '{descriptor.SystemName}' because it is not installed.");
                     }
-                    var instance = (IModule)c.Resolve(descriptor.Module.ModuleType);
+
+                    var instance = (IModule)cc.Resolve(descriptor.Module.ModuleType);
                     instance.Descriptor = descriptor;
                     return instance;
                 };

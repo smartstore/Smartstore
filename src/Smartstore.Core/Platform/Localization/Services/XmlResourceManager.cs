@@ -221,7 +221,9 @@ namespace Smartstore.Core.Localization
                 var hasher = CreateModuleResourcesHasher(moduleDescriptor);
                 hasher.Persist();
             }
-            catch { }
+            catch 
+            { 
+            }
         }
 
         public virtual DirectoryHasher CreateModuleResourcesHasher(IModuleDescriptor moduleDescriptor)

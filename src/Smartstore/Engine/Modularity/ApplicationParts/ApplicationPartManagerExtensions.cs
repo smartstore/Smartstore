@@ -3,20 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.Engine.Modularity.ApplicationParts
 {
     public static class ApplicationPartManagerExtensions
     {
-        public static void PopulateModules(this ApplicationPartManager partManager, IModuleCatalog moduleCatalog)
+        public static void PopulateModules(this ApplicationPartManager partManager, IApplicationContext appContext)
         {
             Guard.NotNull(partManager, nameof(partManager));
-            Guard.NotNull(moduleCatalog, nameof(moduleCatalog));
+            Guard.NotNull(appContext, nameof(appContext));
 
-            foreach (var descriptor in moduleCatalog.GetInstalledModules())
+            foreach (var descriptor in appContext.ModuleCatalog.GetInstalledModules())
             {
                 PopulateModuleParts(partManager, descriptor);
+            }
+
+            if (appContext.IsInstalled)
+            {
+                ModularState.Instance.SaveStateHash();
             }
         }
 

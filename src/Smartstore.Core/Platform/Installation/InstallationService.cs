@@ -21,8 +21,10 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
+using Smartstore.Data.Hooks;
 using Smartstore.Data.Providers;
 using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Threading;
 
@@ -177,10 +179,15 @@ namespace Smartstore.Core.Installation
                 }
 
                 // Create the DataContext
-                dbContext = (SmartDbContext)dbFactory.CreateApplicationDbContext(
-                    conString, 
-                    _appContext.AppConfiguration.DbMigrationCommandTimeout,
-                    SmartDbContext.MigrationHistoryTableName);
+                var dbContextFactory = new SimpleDbContextFactory<SmartDbContext>(() => 
+                {
+                    return (SmartDbContext)dbFactory.CreateApplicationDbContext(
+                       conString,
+                       _appContext.AppConfiguration.DbMigrationCommandTimeout,
+                       SmartDbContext.MigrationHistoryTableName);
+                });
+
+                dbContext = dbContextFactory.CreateDbContext();
 
                 // Delete only on failure if WE created the database.
                 var canConnectDatabase = await dbContext.Database.CanConnectAsync(cancelToken);
@@ -232,25 +239,34 @@ namespace Smartstore.Core.Installation
                 cancelToken.ThrowIfCancellationRequested();
 
                 // ===>>> Seeds data.
-                await seeder.SeedAsync(dbContext);
+                await seeder.SeedAsync(dbContext, cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 
-                // ... Install modules
+                // ===>>> Create rich scope for complex tasks.
+                richScope = scope.BeginLifetimeScope(c =>
+                {
+                    // At this stage (after the database has been created and seeded completely) we can create a richer service scope
+                    // to minimize the risk of dependency resolution exceptions during more complex install operations.
+                    c.RegisterInstance(dbContext);
+                    c.RegisterInstance(dbContextFactory).As<IDbContextFactory<SmartDbContext>>();
+                    c.Register<IStoreContext>(cc => 
+                    { 
+                        return new StoreContext(cc.Resolve<IComponentContext>(), _httpContextAccessor, cc.Resolve<ICacheFactory>(), dbContextFactory, cc.Resolve<IActionContextAccessor>()); 
+                    });
+                    c.Register<ISettingFactory>(cc =>
+                    {
+                        return new SettingFactory(cc.Resolve<IComponentContext>(), _httpContextAccessor, cc.Resolve<ICacheManager>(), dbContextFactory);
+                    });
+                });
+
+                // ===>>> Install modules
+                await InstallModules(dbContext, richScope, cancelToken);
 
                 // Detect media file tracks (must come after plugins installation)
                 UpdateResult(x =>
                 {
                     x.ProgressMessage = GetResource("Progress.ProcessingMedia");
                     Logger.Info(x.ProgressMessage);
-                });
-
-                richScope = scope.BeginLifetimeScope(c =>
-                {
-                    // At this stage (after the database has been created and seeded completely) we can create a richer service scope
-                    // to minimize the risk of dependency resolution exceptions during more complex install operations.
-                    c.RegisterInstance(dbContext);
-                    c.Register<IStoreContext>(cc => new StoreContext(cc.Resolve<ICacheFactory>(), null, _httpContextAccessor, cc.Resolve<IActionContextAccessor>()));
-                    c.Register<ISettingFactory>(cc => new SettingFactory(cc.Resolve<ICacheManager>(), null, _httpContextAccessor));
                 });
 
                 var mediaTracker = richScope.Resolve<IMediaTracker>();
@@ -291,7 +307,9 @@ namespace Smartstore.Core.Installation
                         Logger.Debug("Deleting database");
                         await dbContext.Database.EnsureDeletedAsync(cancelToken);
                     }
-                    catch { }
+                    catch 
+                    { 
+                    }
                 }
 
                 // Clear provider settings if something got wrong
@@ -329,6 +347,46 @@ namespace Smartstore.Core.Installation
                     richScope.Dispose();
                 }
             }
+        }
+
+        private async Task InstallModules(SmartDbContext db, ILifetimeScope scope, CancellationToken cancelToken = default)
+        {
+            // TODO: (core) InstalledModules.txt & ModulesIgnoredDuringInstallation
+
+            var idx = 0;
+            var modularState = ModularState.Instance;
+            var modules = modularState.IgnoredModules.Length == 0 
+                ? _appContext.ModuleCatalog.Modules.ToArray()
+                : _appContext.ModuleCatalog.Modules.Where(x => !modularState.IgnoredModules.Contains(x.SystemName, StringComparer.OrdinalIgnoreCase)).ToArray();
+
+            modularState.InstalledModules.Clear();
+
+            using (var dbScope = new DbContextScope(db, minHookImportance: HookImportance.Essential, retainConnection: true))
+            {
+                foreach (var module in modules)
+                {
+                    try
+                    {
+                        idx++;
+                        UpdateResult(x =>
+                        {
+                            x.ProgressMessage = GetResource("Progress.InstallingModules").FormatInvariant(idx, modules.Length);
+                            Logger.Info(x.ProgressMessage);
+                        });
+
+                        var moduleInstance = scope.Resolve<Func<IModuleDescriptor, IModule>>().Invoke(module);
+                        await moduleInstance.InstallAsync();
+                        await dbScope.CommitAsync(cancelToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                        modularState.InstalledModules.Remove(module.SystemName);
+                    }
+                }
+            }
+
+            ModularState.Instance.Save();
         }
 
         private void CheckFileSystemAccessRights(List<string> errors)

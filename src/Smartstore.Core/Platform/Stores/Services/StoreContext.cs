@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -22,19 +23,34 @@ namespace Smartstore.Core.Stores
         internal const string OverriddenStoreIdKey = "OverriddenStoreId";
         const string CacheKey = "stores:all";
 
+        private readonly IComponentContext _scope;
+        private readonly IActionContextAccessor _actionContextAccessor;
         private readonly ICacheFactory _cacheFactory;
         private readonly IDbContextFactory<SmartDbContext> _dbContextFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IActionContextAccessor _actionContextAccessor;
 
         private Store _currentStore;
 
         public StoreContext(
+            IHttpContextAccessor httpContextAccessor,
             ICacheFactory cacheFactory,
             IDbContextFactory<SmartDbContext> dbContextFactory,
-            IHttpContextAccessor httpContextAccessor,
             IActionContextAccessor actionContextAccessor)
         {
+            _cacheFactory = cacheFactory;
+            _dbContextFactory = dbContextFactory;
+            _httpContextAccessor = httpContextAccessor;
+            _actionContextAccessor = actionContextAccessor;
+        }
+
+        internal StoreContext(
+            IComponentContext scope,
+            IHttpContextAccessor httpContextAccessor,
+            ICacheFactory cacheFactory,
+            IDbContextFactory<SmartDbContext> dbContextFactory,
+            IActionContextAccessor actionContextAccessor)
+        {
+            _scope = scope;
             _cacheFactory = cacheFactory;
             _dbContextFactory = dbContextFactory;
             _httpContextAccessor = httpContextAccessor;
@@ -209,7 +225,8 @@ namespace Smartstore.Core.Stores
 
         private IDisposable GetOrCreateDbContext(out SmartDbContext db)
         {
-            db = _httpContextAccessor.HttpContext?.RequestServices?.GetService<SmartDbContext>();
+            db = _scope?.ResolveOptional<SmartDbContext>()
+                ?? _httpContextAccessor.HttpContext?.RequestServices?.GetService<SmartDbContext>();
 
             if (db != null)
             {

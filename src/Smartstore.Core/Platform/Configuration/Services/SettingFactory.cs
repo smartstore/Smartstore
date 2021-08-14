@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,12 +18,26 @@ namespace Smartstore.Core.Configuration
 {
     public class SettingFactory : ISettingFactory
     {
+        private readonly IComponentContext _scope;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICacheManager _cache;
         private readonly IDbContextFactory<SmartDbContext> _dbContextFactory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SettingFactory(ICacheManager cache, IDbContextFactory<SmartDbContext> dbContextFactory, IHttpContextAccessor httpContextAccessor)
+        public SettingFactory(
+            IHttpContextAccessor httpContextAccessor,
+            ICacheManager cache,
+            IDbContextFactory<SmartDbContext> dbContextFactory)
+            : this(null, httpContextAccessor, cache, dbContextFactory)
         {
+        }
+
+        internal SettingFactory(
+            IComponentContext scope,
+            IHttpContextAccessor httpContextAccessor,
+            ICacheManager cache, 
+            IDbContextFactory<SmartDbContext> dbContextFactory)
+        {
+            _scope = scope;
             _cache = cache;
             _dbContextFactory = dbContextFactory;
             _httpContextAccessor = httpContextAccessor;
@@ -173,7 +188,8 @@ namespace Smartstore.Core.Configuration
 
         private IDisposable GetOrCreateDbContext(out SmartDbContext db)
         {
-            db = _httpContextAccessor.HttpContext?.RequestServices?.GetService<SmartDbContext>();
+            db = _scope?.ResolveOptional<SmartDbContext>() 
+                ?? _httpContextAccessor.HttpContext?.RequestServices?.GetService<SmartDbContext>();
 
             if (db != null)
             {
