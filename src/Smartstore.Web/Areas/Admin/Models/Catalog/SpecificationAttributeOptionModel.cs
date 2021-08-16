@@ -15,7 +15,6 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
-        public string NameString { get; set; }
 
         [LocalizedDisplay("*Alias")]
         public string Alias { get; set; }
@@ -31,9 +30,10 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*ColorSquaresRgb")]
         [UIHint("Color")]
-        public string Color { get; set; }
+        public string Color { get; set; } = string.Empty;
 
-        [UIHint("Media"), AdditionalMetadata("album", "catalog")]
+        [UIHint("Media")]
+        [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true)]
         [LocalizedDisplay("*Picture")]
         public int PictureId { get; set; }
 

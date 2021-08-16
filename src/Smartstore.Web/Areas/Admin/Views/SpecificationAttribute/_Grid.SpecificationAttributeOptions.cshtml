@@ -1,0 +1,73 @@
+﻿@model SpecificationAttributeOptionModel
+
+@{
+    var parentModel = ViewData["Parent"] as SpecificationAttributeModel;
+}
+
+<datagrid id="specification-attribute-options-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("SpecificationAttributeOptionList", new { specificationAttributeId = parentModel.Id })" delete="@Url.Action("SpecificationAttributeOptionDelete")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button type="button" class="add-specification-attribute-option btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew")</span>
+            </button>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="edit-specification-attribute-option" :data-id="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+    <columns>
+        <column for="Id" halign="center" visible="false" />
+        <column for="Name" hideable="false" width="3fr">
+            <display-template>
+                @Html.SpecificationAttributeOptionName()
+            </display-template>
+        </column>
+        <column for="Alias" />
+        <column for="NumberValue" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+        <column for="Color" visible="false" />
+    </columns>
+</datagrid>
+
+<input type="submit" id="btnRefreshOptions" name="btnRefreshOptions" class="d-none" />
+
+<script sm-target-zone="scripts" data-origin="specification-attribute-edit">
+    $(function() {
+        $(document).on('click', '.add-specification-attribute-option', function (e) {
+            e.preventDefault();
+            var url = '@Url.Action("SpecificationAttributeOptionCreatePopup", new { specificationAttributeId = parentModel.Id, btnId = "btnRefreshOptions", formId = "specification-attribute-form" })';
+            openPopup(url, true);
+            return false;
+        });
+
+        $(document).on('click', '.edit-specification-attribute-option', function (e) {
+            e.preventDefault();
+            var url = '@Url.Content("~/Admin/SpecificationAttribute/SpecificationAttributeOptionEditPopup/")' + $(this).data("id");
+            openPopup(url + "?btnId=btnRefreshOptions&formId=specification-attribute-form", true);
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefreshOptions', function () {
+            window["specification-attribute-options-grid"].$children[0].read();
+            return false;
+        });
+    });
+</script>

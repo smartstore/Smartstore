@@ -1,0 +1,154 @@
+﻿@using Smartstore.Core.Search.Facets
+
+@model SpecificationAttributeModel
+
+@{
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div asp-validation-summary="All"></div>
+<input type="hidden" asp-for="Id" />
+
+<tabstrip id="specificationattribute-edit" sm-nav-style="Material">
+	<tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+		<div sm-if="Model.Id != 0" class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Id" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Id" sm-plaintext="true" readonly />
+                    <span asp-validation-for="Id"></span>
+                </div>
+            </div>
+        </div>
+
+        @(Html.LocalizedEditor<SpecificationAttributeModel, SpecificationAttributeLocalizedModel>("specificationattribute-localized",
+	    @<text>
+            <div class="adminContent">
+		        <div class="adminRow">
+			        <div class="adminTitle">
+				        <smart-label asp-for="Locales[item].Name" />
+			        </div>
+			        <div class="adminData">
+				        @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input asp-for="Locales[item].LanguageId" type="hidden" />
+                        <input asp-for="Locales[item].Name" />
+				        <span asp-validation-for="Locales[item].Name"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Alias" />
+			        </div>
+                    <div class="adminData">
+                        <editor asp-for="Locales[item].Alias" />
+                        <span asp-validation-for="Locales[item].Alias"></span>
+                    </div>
+		        </div>
+	        </div>
+        </text>
+        ,
+	    @<text>
+            <div class="adminContent">
+		        <div class="adminRow">
+			        <div class="adminTitle">
+				        <smart-label asp-for="Name" />
+			        </div>
+			        <div class="adminData">
+                        <input asp-for="Name" />
+				        <span asp-validation-for="Name"></span>
+			        </div>
+		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Alias" />
+			        </div>
+                    <div class="adminData">
+                        <editor asp-for="Alias" />
+                        <span asp-validation-for="Alias"></span>
+                    </div>
+		        </div>
+	        </div>
+	    </text>))
+
+		<div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayOrder" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="DisplayOrder" />
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ShowOnProductPage" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="ShowOnProductPage" />
+                    <span asp-validation-for="ShowOnProductPage"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="AllowFiltering" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="AllowFiltering" />
+                    <span asp-validation-for="AllowFiltering"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="FacetTemplateHint" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="FacetTemplateHint" asp-items="Model.FacetTemplateHint.ToSelectList()"></select>
+                    <span asp-validation-for="FacetTemplateHint"></span>
+                </div>
+            </div>
+            <div class="adminRow facet-sorting">
+                <div class="adminTitle">
+                    <smart-label asp-for="FacetSorting" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="FacetSorting" asp-items="Model.FacetSorting.ToSelectList()"></select>
+                    <span asp-validation-for="FacetSorting"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IndexOptionNames" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="IndexOptionNames" />
+                    <span asp-validation-for="IndexOptionNames"></span>
+                </div>
+            </div>
+        </div>
+	</tab>
+	<tab sm-title="@T("Admin.Catalog.Attributes.SpecificationAttributes.Options")">
+        @if (Model.Id > 0)
+        {
+            <partial name="_Grid.SpecificationAttributeOptions" model="null" view-data="gridViewData" />
+        }
+        else
+        {
+		    <div class="alert alert-warning">
+			    @T("Admin.SaveBeforeEdit")
+		    </div>
+        }
+	</tab>
+</tabstrip>
+
+<script sm-target-zone="scripts" data-origin="specification-attribute-edit">
+    $(function() {
+		$('#@(Html.IdFor(x => x.FacetTemplateHint))').change(function () {
+			var sorting = $(this).val() !== '@((int)FacetTemplateHint.NumericRange)';
+			$('.facet-sorting').toggle(sorting);
+		}).trigger('change');
+    });
+</script>

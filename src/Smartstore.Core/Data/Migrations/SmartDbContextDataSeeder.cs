@@ -286,7 +286,10 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Catalog.Categories.Info",
             //    "Admin.Catalog.Manufacturers.Info",
             //    "Admin.Catalog.Categories.Products.SaveBeforeEdit",
-            //    "Admin.Catalog.Manufacturers.Products.SaveBeforeEdit");
+            //    "Admin.Catalog.Manufacturers.Products.SaveBeforeEdit",
+            //    "Admin.Catalog.Attributes.SpecificationAttributes.BackToList",
+            //    "Admin.Catalog.Attributes.SpecificationAttributes.Info"
+            //    );
 
             #endregion
         }

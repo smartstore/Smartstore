@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿using System;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Localization;
@@ -114,6 +115,24 @@ namespace Smartstore.Web.Rendering
 
             var quantityInfo = "<span>{{ item.value }} {{ item.row.QuantityInfo }}</span>";
             builder.AppendHtml(quantityInfo);
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Renders a specification attribute option name (including color square) for grids. Not intended to be used outside of grids.
+        /// </summary>
+        /// <returns>Specification attribute option name.</returns>
+        public static IHtmlContent SpecificationAttributeOptionName(this IHtmlHelper _)
+        {
+            var colorSpan = new TagBuilder("span");
+            colorSpan.Attributes.Add("v-if", "item.row.Color?.length > 0");
+            colorSpan.Attributes.Add("class", "color-container");
+            colorSpan.InnerHtml.AppendHtml("<span class='color' :style='{ background: item.row.Color }' :title='item.row.Color'>&nbsp;</span>");
+
+            var builder = new HtmlContentBuilder();
+            builder.AppendHtml(colorSpan);
+            builder.AppendHtml("<a href='javascript:void(0)' class='edit-specification-attribute-option' :data-id='item.row.Id'>{{ item.value }}</a>");
 
             return builder;
         }

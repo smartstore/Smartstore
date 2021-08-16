@@ -1,0 +1,22 @@
+﻿@model SpecificationAttributeOptionModel
+
+@{
+	Layout = "_AdminPopupLayout";
+	ViewBag.Title = T("Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew").Value;
+}
+
+<form asp-action="SpecificationAttributeOptionCreatePopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+    <div class="section-header">
+        <div class="title">
+            <span>@ViewBag.Title</span>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-primary">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdateOption" />
+</form>

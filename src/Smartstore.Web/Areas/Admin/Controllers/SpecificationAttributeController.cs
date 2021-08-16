@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -217,8 +218,8 @@ namespace Smartstore.Web.Areas.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditSpecAttribute, T("ActivityLog.EditSpecAttribute"), attribute.Name);
                 NotifySuccess(T("Admin.Catalog.Attributes.SpecificationAttributes.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction("Edit", attribute.Id) 
+                return continueEditing
+                    ? RedirectToAction("Edit", attribute.Id)
                     : RedirectToAction("List");
             }
 
@@ -231,36 +232,155 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         public async Task<IActionResult> SpecificationAttributeOptionList(GridCommand command, int specificationAttributeId)
         {
             var mapper = MapperFactory.GetMapper<SpecificationAttributeOption, SpecificationAttributeOptionModel>();
-            var attribute = await _db.SpecificationAttributes
-                .Include(x => x.SpecificationAttributeOptions)
-                .FindByIdAsync(specificationAttributeId);
-
-            if (attribute == null)
-            {
-                return NotFound();
-            }
-
-            var rows = await attribute.SpecificationAttributeOptions
+            var options = await _db.SpecificationAttributeOptions
+                .AsNoTracking()
+                .Where(x => x.SpecificationAttributeId == specificationAttributeId)
                 .OrderBy(x => x.DisplayOrder)
-                .SelectAsync(async x =>
-                {
-                    var model = await mapper.MapAsync(x);
-                    var name = x.Color.IsEmpty() ? x.Name : $"{x.Name} - {x.Color}";
-                    model.NameString = name.HtmlEncode();
+                .ThenBy(x => x.Id)
+                .ApplyGridCommand(command, false)
+                .ToPagedList(command)
+                .LoadAsync();
 
-                    return model;
-                })
+            var rows = await options
+                .SelectAsync(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
             return Json(new GridModel<SpecificationAttributeOptionModel>
             {
                 Rows = rows,
-                Total = attribute.SpecificationAttributeOptions.Count
+                Total = options.TotalCount
             });
         }
 
+        [Permission(Permissions.Catalog.Attribute.EditOption)]
+        public async Task<IActionResult> SpecificationAttributeOptionDelete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
 
+            if (ids.Any())
+            {
+                var options = await _db.SpecificationAttributeOptions.GetManyAsync(ids, true);
 
+                _db.SpecificationAttributeOptions.RemoveRange(options);
+
+                numDeleted = await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
+        }
+
+        [Permission(Permissions.Catalog.Attribute.EditOption)]
+        public IActionResult SpecificationAttributeOptionCreatePopup(string btnId, string formId, int specificationAttributeId)
+        {
+            var model = new SpecificationAttributeOptionModel
+            {
+                SpecificationAttributeId = specificationAttributeId
+            };
+
+            AddLocales(model.Locales);
+
+            ViewBag.MultipleEnabled = true;
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Attribute.EditOption)]
+        public async Task<IActionResult> SpecificationAttributeOptionCreatePopup(string btnId, string formId, SpecificationAttributeOptionModel model)
+        {
+            var attribute = await _db.SpecificationAttributes.FindByIdAsync(model.SpecificationAttributeId, false);
+            if (attribute == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await AddSpecificationAttributeOption(model);
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
+                ViewBag.RefreshPage = true;
+                ViewBag.btnId = btnId;
+                ViewBag.formId = formId;
+            }
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Catalog.Attribute.Read)]
+        public async Task<IActionResult> SpecificationAttributeOptionEditPopup(string btnId, string formId, int id)
+        {
+            var option = await _db.SpecificationAttributeOptions.FindByIdAsync(id, false);
+            if (option == null)
+            {
+                return NotFound();
+            }
+
+            var mapper = MapperFactory.GetMapper<SpecificationAttributeOption, SpecificationAttributeOptionModel>();
+            var model = await mapper.MapAsync(option);
+
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.Name = option.GetLocalized(x => x.Name, languageId, false, false);
+                locale.Alias = option.GetLocalized(x => x.Alias, languageId, false, false);
+            });
+
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Attribute.EditOption)]
+        public async Task<IActionResult> SpecificationAttributeOptionEditPopup(string btnId, string formId, SpecificationAttributeOptionModel model)
+        {
+            var option = await _db.SpecificationAttributeOptions.FindByIdAsync(model.Id);
+            if (option == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var mapper = MapperFactory.GetMapper<SpecificationAttributeOptionModel, SpecificationAttributeOption>();
+                    await mapper.MapAsync(model, option);
+
+                    await ApplyOptionLocales(model, option);
+
+                    await _db.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
+                ViewBag.RefreshPage = true;
+                ViewBag.btnId = btnId;
+                ViewBag.formId = formId;
+            }
+
+            return View(model);
+        }
 
         #endregion
 
@@ -270,6 +390,86 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             {
                 await _localizedEntityService.ApplyLocalizedValueAsync(attribute, x => x.Name, localized.Name, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(attribute, x => x.Alias, localized.Alias, localized.LanguageId);
+            }
+        }
+
+        private async Task ApplyOptionLocales(SpecificationAttributeOptionModel model, SpecificationAttributeOption option)
+        {
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedValueAsync(option, x => x.Name, localized.Name, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(option, x => x.Alias, localized.Alias, localized.LanguageId);
+            }
+        }
+
+        private async Task AddSpecificationAttributeOption(SpecificationAttributeOptionModel model)
+        {
+            if (model.Multiple)
+            {
+                var values = model.Name.SplitSafe(";").ToArray();
+                var alias = model.Alias.SplitSafe(";").ToArray();
+                var displayOrder = model.DisplayOrder;
+                // Array index to added option.
+                var options = new Dictionary<int, SpecificationAttributeOption>();
+
+                for (var i = 0; i < values.Length; ++i)
+                {
+                    var name = values.ElementAtOrDefault(i)?.Trim();
+                    if (name.HasValue())
+                    {
+                        options[i] = new SpecificationAttributeOption
+                        {
+                            Name = name,
+                            Alias = alias.ElementAtOrDefault(i)?.Trim(),
+                            DisplayOrder = displayOrder++,
+                            SpecificationAttributeId = model.SpecificationAttributeId
+                        };
+                    }
+                }
+
+                if (options.Any())
+                {
+                    _db.SpecificationAttributeOptions.AddRange(options.Select(x => x.Value));
+                    await _db.SaveChangesAsync();
+
+                    // Save localized values.
+                    foreach (var option in options.Where(x => !x.Value.IsTransientRecord()))
+                    {
+                        foreach (var locale in model.Locales.Where(x => x.Name.HasValue()))
+                        {
+                            var localizedNames = locale.Name.SplitSafe(";").ToArray();
+                            var localizedName = option.Key < localizedNames.Length
+                                ? localizedNames[option.Key].Trim()
+                                : option.Value.Name;
+
+                            await _localizedEntityService.ApplyLocalizedValueAsync(option.Value, x => x.Name, localizedName, locale.LanguageId);
+                        }
+
+                        foreach (var locale in model.Locales.Where(x => x.Alias.HasValue()))
+                        {
+                            var localizedAlias = locale.Alias.SplitSafe(";").ToArray();
+                            var value = localizedAlias.ElementAtOrDefault(option.Key)?.Trim();
+
+                            if (value.HasValue())
+                            {
+                                await _localizedEntityService.ApplyLocalizedValueAsync(option.Value, x => x.Alias, value, locale.LanguageId);
+                            }
+                        }
+                    }
+
+                    await _db.SaveChangesAsync();
+                }
+            }
+            else
+            {
+                var mapper = MapperFactory.GetMapper<SpecificationAttributeOptionModel, SpecificationAttributeOption>();
+                var option = await mapper.MapAsync(model);
+
+                _db.SpecificationAttributeOptions.Add(option);
+                await _db.SaveChangesAsync();
+
+                await ApplyOptionLocales(model, option);
+                await _db.SaveChangesAsync();
             }
         }
     }

@@ -6,7 +6,7 @@
 
 @* TODO: (core) the data grid reset button does not reset sorting (GridCommand.Sorting), which is a bit confusing if a sort column has been hidden by reset. 
 I would expect the reset button to really reset everything and return the grid to its initial state. *@
-<datagrid id="specification-attribute-grid"
+<datagrid id="specification-attributes-grid"
           allow-resize="true"
           allow-row-selection="true"
           preserve-grid-state="true" preserve-command-state="true"
@@ -29,7 +29,7 @@ I would expect the reset button to really reset everything and return the grid t
         <toolbar-group>
             <a asp-action="Create" class="btn btn-primary btn-flat">
                 <i class="fa fa-plus"></i>
-                <span>@T("Admin.Common.AddNew")…</span>
+                <span>@T("Admin.Common.AddNew")</span>
             </a>
         </toolbar-group>
         <toolbar-group class="omega">
