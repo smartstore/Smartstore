@@ -123,20 +123,22 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         public async Task<IActionResult> SpecificationAttributeDelete(GridSelection selection)
         {
             var success = false;
-            var numDeleted = 0;
             var ids = selection.GetEntityIds();
 
             if (ids.Any())
             {
                 var attributes = await _db.SpecificationAttributes.GetManyAsync(ids, true);
+                var deletedNames = string.Join(", ", attributes.Select(x => x.Name));
 
                 _db.SpecificationAttributes.RemoveRange(attributes);
 
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
                 success = true;
+
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteSpecAttribute, T("ActivityLog.DeleteSpecAttribute"), deletedNames);
             }
 
-            return Json(new { Success = success, Count = numDeleted });
+            return Json(new { Success = success });
         }
 
         [Permission(Permissions.Catalog.Attribute.Create)]
@@ -224,6 +226,25 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.Attribute.Delete)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var attribute = await _db.SpecificationAttributes.FindByIdAsync(id);
+            if (attribute == null)
+            {
+                return NotFound();
+            }
+
+            _db.SpecificationAttributes.Remove(attribute);
+            await _db.SaveChangesAsync();
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteSpecAttribute, T("ActivityLog.DeleteSpecAttribute"), attribute.Name);
+            NotifySuccess(T("Admin.Catalog.Attributes.SpecificationAttributes.Deleted"));
+
+            return RedirectToAction("List");
         }
 
         #region Specification attribute options
