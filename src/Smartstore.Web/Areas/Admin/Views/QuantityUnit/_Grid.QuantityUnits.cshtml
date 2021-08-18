@@ -1,16 +1,16 @@
 ﻿@using Smartstore.Admin.Models.Directory
 
-@model DeliveryTimeModel
+@model QuantityUnitModel
 
-<datagrid id="delivery-time-grid" allow-resize="true" allow-row-selection="true">
-    <datasource read="@Url.Action("DeliveryTimeList", "DeliveryTime")" 
-                delete="@Url.Action("Delete", "DeliveryTime")"/>
+<datagrid id="quantity-unit-grid" allow-resize="true" allow-row-selection="true">
+    <datasource read="@Url.Action("QuantityUnitList", "QuantityUnit")" 
+                delete="@Url.Action("Delete", "QuantityUnit")"/>
     <sorting enabled="true">
         <sort by="DisplayOrder" />
     </sorting>
     <toolbar>
         <toolbar-group>
-            <a href="#" class="add-delivery-time btn btn-primary btn-flat">
+            <a href="#" class="add-quantity-unit btn btn-primary btn-flat">
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Common.AddNew")...</span>
             </a>
@@ -25,47 +25,46 @@
     <columns>
         <column for="Name" width="2fr" hideable="false">
             <display-template>
-                <a href="#" class="grid-edit-delivery-time text-truncate" :data-key="item.row.Id">
+                <a href="#" class="grid-edit-quantity-unit text-truncate" :data-key="item.row.Id">
                     {{ item.value }}
                 </a>
             </display-template>
         </column>
-        <column for="ColorHexValue" sortable="false" />
-        <column for="IsDefault" halign="center" />
-        <column for="MinDays" halign="center" />
-        <column for="MaxDays" halign="center" />
+        <column for="NamePlural" title="@T("Common.Plural")" />
+        <column for="Description" />
         <column for="DisplayOrder" halign="center" />
+        <column for="IsDefault" halign="center" />
     </columns>
     <row-commands>
-        <a datarow-action="DataRowAction.Custom" class="grid-edit-delivery-time" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-edit-quantity-unit" :data-key="item.row.Id">@T("Common.Edit")</a>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
 
 <input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
 
-<script sm-target-zone="scripts" data-origin="delivery-time-grid">
+<script sm-target-zone="scripts" data-origin="quantity-unit-grid">
     $(function () {
-        $(document).on('click', '.add-delivery-time', function (e) {
+        $(document).on('click', '.add-quantity-unit', function (e) {
             e.preventDefault();
 
-            var href = "@Url.Content("~/Admin/DeliveryTime/CreateDeliveryTimePopup/")?btnId=btnRefresh&formId=delivery-times";
+            var href = "@Url.Content("~/Admin/QuantityUnit/CreateQuantityUnitPopup/")?btnId=btnRefresh&formId=quantity-units";
             openPopup(href);
             return false;
         });
 
-        $(document).on('click', '.grid-edit-delivery-time', function (e) {
+        $(document).on('click', '.grid-edit-quantity-unit', function (e) {
             e.preventDefault();
 
             var id = $(this).data("key");
-            var href = "@Url.Content("~/Admin/DeliveryTime/EditDeliveryTimePopup/")" + id + "?btnId=btnRefresh&formId=delivery-times";
+            var href = "@Url.Content("~/Admin/QuantityUnit/EditQuantityUnitPopup/")" + id + "?btnId=btnRefresh&formId=quantity-units";
             openPopup(href);
             return false;
         });
 
         // Refresh grid after popup edit dialog was closed.
         $(document).on('click', '#btnRefresh', function () {
-            window["delivery-time-grid"].$children[0].read();
+            window["quantity-unit-grid"].$children[0].read();
             return false;
         });
     });

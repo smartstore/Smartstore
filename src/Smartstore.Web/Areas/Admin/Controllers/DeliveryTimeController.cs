@@ -180,8 +180,8 @@ namespace Smartstore.Admin.Controllers
                 try
                 {
                     await MapperFactory.MapAsync(model, deliveryTime);
-                    await _db.SaveChangesAsync();
                     await UpdateLocalesAsync(deliveryTime, model);
+                    await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Configuration.DeliveryTimes.Updated"));
                 }

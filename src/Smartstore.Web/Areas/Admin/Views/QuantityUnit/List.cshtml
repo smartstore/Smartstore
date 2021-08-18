@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = T("Admin.Configuration.QuantityUnit.EditQuantityUnitDetails").Value;
+}
+
+<form id="quantity-unit">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Configuration.QuantityUnit.EditQuantityUnitDetails")
+        </div>
+    </div>
+
+    <partial name="_Grid.QuantityUnits" model="null" />
+</form>

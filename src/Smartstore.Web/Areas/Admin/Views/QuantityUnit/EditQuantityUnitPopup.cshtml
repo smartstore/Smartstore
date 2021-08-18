@@ -1,0 +1,24 @@
+﻿@using Smartstore.Admin.Models.Directory
+
+@model QuantityUnitModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.QuantityUnit.EditQuantityUnitDetails").Value;
+    Layout = "_AdminPopupLayout";
+}
+
+<form asp-action="EditQuantityUnitPopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Configuration.QuantityUnit.EditQuantityUnitDetails")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" id="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" model="Model" />
+</form>
