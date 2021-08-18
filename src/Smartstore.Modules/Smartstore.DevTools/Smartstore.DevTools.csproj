@@ -7,13 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Data\MySql\Sql\20210818000000_Initial.sql" />
-    <None Remove="Data\SqlServer\Sql\20210818000000_Initial.sql" />
+    <None Remove="Data\MySql\Sql\AddTestEntity.sql" />
+    <None Remove="Data\SqlServer\Sql\AddTestEntity.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Data\MySql\Sql\20210818000000_Initial.sql" />
-    <EmbeddedResource Include="Data\SqlServer\Sql\20210818000000_Initial.sql" />
+    <EmbeddedResource Include="Data\MySql\Sql\AddTestEntity.sql" />
+    <EmbeddedResource Include="Data\SqlServer\Sql\AddTestEntity.sql" />
   </ItemGroup>
 
   <ItemGroup>

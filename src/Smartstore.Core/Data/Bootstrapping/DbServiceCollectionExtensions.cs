@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
+using FluentMigrator;
+using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -12,6 +15,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
+using Smartstore.Engine;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -38,10 +42,27 @@ namespace Smartstore.Core.Bootstrapping
         /// <summary>
         /// Registers the open generic <see cref="DbMigrator{TContext}" /> as transient dependency.
         /// </summary>
-        public static IServiceCollection AddDbMigrator(this IServiceCollection services)
+        public static IServiceCollection AddDbMigrator(this IServiceCollection services, IApplicationContext appContext)
         {
             services.AddTransient<IDatabaseInitializer, DatabaseInitializer>();
             services.AddTransient(typeof(DbMigrator<>));
+
+            // Fluent migrator.
+            //var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>()
+            //    .Select(x => x.Assembly)
+            //    .Where(x => !x.FullName.Contains("FluentMigrator.Runner"))
+            //    .Distinct()
+            //    .ToArray();
+
+            //services
+            //    .AddFluentMigratorCore()
+            //    .ConfigureRunner(rb => rb
+            //        //.WithVersionTable(new MyMigrationVersionTable())  // I guess we should use this for own metadata?
+            //        .AddSqlServer()
+            //        .AddMySql5()
+            //        .WithGlobalConnectionString(DataSettings.Instance.ConnectionString) // Or AddScoped<IConnectionStringAccessor>?
+            //        .ScanIn(migrationAssemblies).For.Migrations());
+
             return services;
         }
 

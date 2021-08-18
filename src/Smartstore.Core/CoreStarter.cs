@@ -44,7 +44,7 @@ namespace Smartstore.Core.Bootstrapping
                         });
                 });
 
-                services.AddDbMigrator();
+                services.AddDbMigrator(appContext);
                 services.AddDbQuerySettings();
             }
         }
