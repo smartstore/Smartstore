@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Data\MySql\Sql\20210818000000_Initial.sql" />
+    <None Remove="Data\SqlServer\Sql\20210818000000_Initial.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Data\MySql\Sql\20210818000000_Initial.sql" />
+    <EmbeddedResource Include="Data\SqlServer\Sql\20210818000000_Initial.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.1" />
     <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.2.22" />
   </ItemGroup>
