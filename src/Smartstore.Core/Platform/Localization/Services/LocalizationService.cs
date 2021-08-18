@@ -350,6 +350,11 @@ namespace Smartstore.Core.Localization
             try
             {
                 var pattern = (key.EndsWith(".") || !keyIsRootKey ? key : key + ".") + "%";
+                // TODO: (core) BatchDeleteAsync fails in DeleteLocaleStringResourcesAsync for MySQL.
+                // Exception: "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '[`l`]"
+                // Current SQL looks somewhat like: DELETE [`l`] FROM `LocaleStringResource` AS `l` WHERE `l`.`ResourceName` LIKE...
+                // Following would work:            DELETE `l` FROM `LocaleStringResource` AS `l` WHERE `l`.`ResourceName` LIKE...
+                // Probably BatchUtil, line 50 is wrong.
                 result = await _db.LocaleStringResources.Where(x => EF.Functions.Like(x.ResourceName, pattern)).BatchDeleteAsync();
                 await ClearCacheSegmentAsync(null);
             }

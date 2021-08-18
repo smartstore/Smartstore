@@ -897,6 +897,13 @@ namespace Smartstore.Web.Controllers
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
 
 
+            //await Services.Localization.DeleteLocaleStringResourcesAsync("Plugins.SmartStore.MyTestPlugin");
+            //var parameter = "Plugins.SmartStore.MyTestPlugin.%";
+            //var sql = "DELETE `l` FROM `LocaleStringResource` AS `l` WHERE `l`.`ResourceName` LIKE {0}";
+            //var num = await _db.Database.ExecuteSqlRawAsync(sql, parameter);
+            //content.AppendLine($"num {num}");
+
+
             //var cartWeight = await schs.GetCartTotalWeightAsync(cart);
             //content.AppendLine("Cart weight: " + cartWeight.ToString());
 

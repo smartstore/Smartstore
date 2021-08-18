@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Smartstore.Data.MySql;
 
 namespace Smartstore.Data.MySql.Migrations
 {
@@ -323,7 +324,9 @@ namespace Smartstore.Data.MySql.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("SpecificationAttributeOptionId");
+                    b.HasIndex(new[] { "AllowFiltering" }, "IX_PSAM_AllowFiltering");
+
+                    b.HasIndex(new[] { "SpecificationAttributeOptionId", "AllowFiltering" }, "IX_PSAM_SpecificationAttributeOptionId_AllowFiltering");
 
                     b.ToTable("Product_SpecificationAttribute_Mapping");
                 });
@@ -482,8 +485,8 @@ namespace Smartstore.Data.MySql.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(4000)
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450) CHARACTER SET utf8mb4");
 
                     b.Property<decimal>("PriceAdjustment")
                         .HasPrecision(18, 4)
@@ -1341,13 +1344,14 @@ namespace Smartstore.Data.MySql.Migrations
                     b.Property<bool>("Published")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<int>("QuantityControlType")
+                        .HasColumnType("int")
+                        .HasColumnName("QuantiyControlType");
+
                     b.Property<int>("QuantityStep")
                         .HasColumnType("int");
 
                     b.Property<int?>("QuantityUnitId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuantiyControlType")
                         .HasColumnType("int");
 
                     b.Property<int>("RecurringCycleLength")
@@ -2627,6 +2631,7 @@ namespace Smartstore.Data.MySql.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
+                        .HasMaxLength(4000)
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<int>("NumericIsoCode")
@@ -2908,7 +2913,8 @@ namespace Smartstore.Data.MySql.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CountryId");
+                    b.HasIndex("CountryId")
+                        .HasDatabaseName("IX_StateProvince_CountryId");
 
                     b.ToTable("StateProvince");
                 });
@@ -3423,6 +3429,280 @@ namespace Smartstore.Data.MySql.Migrations
                     b.ToTable("Topic");
                 });
 
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ExportDeployment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("DeploymentTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmailAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EmailAddresses")
+                        .HasMaxLength(4000)
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("EmailSubject")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("FileSystemPath")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+
+                    b.Property<int>("HttpTransmissionType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HttpTransmissionTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("PassiveMode")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Password")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+
+                    b.Property<int>("ProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ResultInfo")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("SubFolder")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(4000)
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("UseSsl")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Username")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfileId");
+
+                    b.ToTable("ExportDeployment");
+                });
+
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ExportProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("BatchSize")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Cleanup")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("CompletedEmailAddresses")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("CreateZipArchive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("EmailAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("ExportRelatedData")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("FileNamePattern")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Filtering")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("FolderName")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("IsSystemProfile")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("Limit")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4");
+
+                    b.Property<int>("Offset")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("PerStore")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Projection")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("ProviderConfigData")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("ProviderSystemName")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("ResultInfo")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("SystemName")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int")
+                        .HasColumnName("SchedulingTaskId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("ExportProfile");
+                });
+
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ImportProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("ColumnMapping")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("EntityTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExtraData")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("FileTypeConfiguration")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int>("FileTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FolderName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("ImportRelatedData")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("KeyFieldNames")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("ResultInfo")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int>("Skip")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Take")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int")
+                        .HasColumnName("SchedulingTaskId");
+
+                    b.Property<bool>("UpdateOnly")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("ImportProfile");
+                });
+
+            modelBuilder.Entity("Smartstore.Core.DataExchange.SyncMapping", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContextName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4");
+
+                    b.Property<bool?>("CustomBool")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int?>("CustomInt")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CustomString")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("SourceHash")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("SourceKey")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150) CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime>("SyncedOnUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "EntityId", "EntityName", "ContextName" }, "IX_SyncMapping_ByEntity")
+                        .IsUnique();
+
+                    b.HasIndex(new[] { "SourceKey", "EntityName", "ContextName" }, "IX_SyncMapping_BySource")
+                        .IsUnique();
+
+                    b.ToTable("SyncMapping");
+                });
+
             modelBuilder.Entity("Smartstore.Core.Identity.Customer", b =>
                 {
                     b.Property<int>("Id")
@@ -3919,19 +4199,22 @@ namespace Smartstore.Data.MySql.Migrations
 
                     b.Property<string>("LocaleKey")
                         .IsRequired()
-                        .HasMaxLength(400)
-                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.Property<string>("LocaleKeyGroup")
                         .IsRequired()
-                        .HasMaxLength(400)
-                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150) CHARACTER SET utf8mb4");
 
                     b.Property<string>("LocaleValue")
                         .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Id")
+                        .HasDatabaseName("IX_LocalizedProperty_Key");
 
                     b.HasIndex("LanguageId");
 
@@ -4059,7 +4342,7 @@ namespace Smartstore.Data.MySql.Migrations
                     b.ToTable("Log");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.Campaign", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.Campaign", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4091,7 +4374,7 @@ namespace Smartstore.Data.MySql.Migrations
                     b.ToTable("Campaign");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.EmailAccount", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.EmailAccount", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4135,7 +4418,7 @@ namespace Smartstore.Data.MySql.Migrations
                     b.ToTable("EmailAccount");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.MessageTemplate", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.MessageTemplate", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4199,7 +4482,7 @@ namespace Smartstore.Data.MySql.Migrations
                     b.ToTable("MessageTemplate");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.NewsletterSubscription", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.NewsletterSubscription", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4236,7 +4519,7 @@ namespace Smartstore.Data.MySql.Migrations
                     b.ToTable("NewsLetterSubscription");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.QueuedEmail", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.QueuedEmail", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4298,7 +4581,7 @@ namespace Smartstore.Data.MySql.Migrations
                     b.ToTable("QueuedEmail");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.QueuedEmailAttachment", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.QueuedEmailAttachment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4651,6 +4934,32 @@ namespace Smartstore.Data.MySql.Migrations
                     b.ToTable("StoreMapping");
                 });
 
+            modelBuilder.Entity("Smartstore.Core.Theming.ThemeVariable", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+
+                    b.Property<int>("StoreId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Theme")
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Value")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000) CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ThemeVariable");
+                });
+
             modelBuilder.Entity("Smartstore.Scheduling.TaskDescriptor", b =>
                 {
                     b.Property<int>("Id")
@@ -4690,8 +4999,8 @@ namespace Smartstore.Data.MySql.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasMaxLength(800)
-                        .HasColumnType("varchar(800) CHARACTER SET utf8mb4");
+                        .HasMaxLength(400)
+                        .HasColumnType("varchar(400) CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
 
@@ -5552,6 +5861,39 @@ namespace Smartstore.Data.MySql.Migrations
                     b.Navigation("Menu");
                 });
 
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ExportDeployment", b =>
+                {
+                    b.HasOne("Smartstore.Core.DataExchange.ExportProfile", "Profile")
+                        .WithMany("Deployments")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ExportProfile", b =>
+                {
+                    b.HasOne("Smartstore.Scheduling.TaskDescriptor", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ImportProfile", b =>
+                {
+                    b.HasOne("Smartstore.Scheduling.TaskDescriptor", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
             modelBuilder.Entity("Smartstore.Core.Identity.Customer", b =>
                 {
                     b.HasOne("Smartstore.Core.Common.Address", "BillingAddress")
@@ -5672,7 +6014,8 @@ namespace Smartstore.Data.MySql.Migrations
 
                     b.HasOne("Smartstore.Core.Identity.Customer", "Customer")
                         .WithOne()
-                        .HasForeignKey("Smartstore.Core.Logging.ActivityLog", "CustomerId");
+                        .HasForeignKey("Smartstore.Core.Logging.ActivityLog", "CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("ActivityLogType");
 
@@ -5689,9 +6032,9 @@ namespace Smartstore.Data.MySql.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.QueuedEmail", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.QueuedEmail", b =>
                 {
-                    b.HasOne("Smartstore.Core.Messages.EmailAccount", "EmailAccount")
+                    b.HasOne("Smartstore.Core.Messaging.EmailAccount", "EmailAccount")
                         .WithMany()
                         .HasForeignKey("EmailAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -5700,7 +6043,7 @@ namespace Smartstore.Data.MySql.Migrations
                     b.Navigation("EmailAccount");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.QueuedEmailAttachment", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.QueuedEmailAttachment", b =>
                 {
                     b.HasOne("Smartstore.Core.Content.Media.MediaFile", "MediaFile")
                         .WithMany()
@@ -5712,7 +6055,7 @@ namespace Smartstore.Data.MySql.Migrations
                         .HasForeignKey("MediaStorageId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Smartstore.Core.Messages.QueuedEmail", "QueuedEmail")
+                    b.HasOne("Smartstore.Core.Messaging.QueuedEmail", "QueuedEmail")
                         .WithMany("Attachments")
                         .HasForeignKey("QueuedEmailId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -5945,6 +6288,11 @@ namespace Smartstore.Data.MySql.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("Smartstore.Core.DataExchange.ExportProfile", b =>
+                {
+                    b.Navigation("Deployments");
+                });
+
             modelBuilder.Entity("Smartstore.Core.Identity.Customer", b =>
                 {
                     b.Navigation("CustomerContent");
@@ -5974,7 +6322,7 @@ namespace Smartstore.Data.MySql.Migrations
                     b.Navigation("LocaleStringResources");
                 });
 
-            modelBuilder.Entity("Smartstore.Core.Messages.QueuedEmail", b =>
+            modelBuilder.Entity("Smartstore.Core.Messaging.QueuedEmail", b =>
                 {
                     b.Navigation("Attachments");
                 });
