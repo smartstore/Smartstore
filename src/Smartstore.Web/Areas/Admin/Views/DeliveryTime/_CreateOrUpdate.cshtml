@@ -1,0 +1,81 @@
+﻿@using Smartstore.Admin.Models.Directory
+
+@model DeliveryTimeModel
+
+<input asp-for="Id" type="hidden" />
+
+@(Html.LocalizedEditor<DeliveryTimeModel, DeliveryTimeLocalizedModel>("delivery-time-info-localized",
+    @<div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Locales[item].Name" />
+            </div>
+            <div class="adminData">
+                @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                <input asp-for="Locales[item].LanguageId" type="hidden" />
+                <input asp-for="Locales[item].Name" />
+                <span asp-validation-for="Locales[item].LanguageId"></span>
+            </div>
+        </div>
+    </div>
+    ,
+    @<div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Name" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+    </div>
+))
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ColorHexValue" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="ColorHexValue" />
+            <span asp-validation-for="ColorHexValue"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IsDefault" />
+        </div>
+        <div class="adminData">
+            <input asp-for="IsDefault" />
+            <span asp-validation-for="IsDefault"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DisplayOrder" />
+        </div>
+        <div class="adminData">
+            <input asp-for="DisplayOrder" />
+            <span asp-validation-for="DisplayOrder"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="MinDays" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="MinDays" sm-postfix="@T("Time.Days")" />
+            <span asp-validation-for="MinDays"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="MaxDays" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="MaxDays" sm-postfix="@T("Time.Days")" />
+            <span asp-validation-for="MaxDays"></span>
+        </div>
+    </div>
+</div>

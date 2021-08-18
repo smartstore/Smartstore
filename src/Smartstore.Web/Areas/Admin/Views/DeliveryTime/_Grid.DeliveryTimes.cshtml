@@ -1,0 +1,72 @@
+﻿@using Smartstore.Admin.Models.Directory
+
+@model DeliveryTimeModel
+
+<datagrid id="delivery-time-grid" allow-resize="true" allow-row-selection="true">
+    <datasource read="@Url.Action("DeliveryTimeList", "DeliveryTime")" 
+                delete="@Url.Action("Delete", "DeliveryTime")"/>
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <a href="#" class="add-delivery-time btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="2fr" hideable="false">
+            <display-template>
+                <a href="#" class="grid-edit-delivery-time text-truncate" :data-key="item.row.Id">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="ColorHexValue" sortable="false" />
+        <column for="IsDefault" halign="center" />
+        <column for="MinDays" halign="center" />
+        <column for="MaxDays" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="grid-edit-delivery-time" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
+
+<script>
+    $(function () {
+        $(document).on('click', '.add-delivery-time', function (e) {
+            e.preventDefault();
+
+            var href = "@Url.Content("~/Admin/DeliveryTime/CreateDeliveryTimePopup/")?btnId=btnRefresh&formId=delivery-times";
+            openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-edit-delivery-time', function (e) {
+            e.preventDefault();
+
+            var id = $(this).data("key");
+            var href = "@Url.Content("~/Admin/DeliveryTime/EditDeliveryTimePopup/")" + id + "?btnId=btnRefresh&formId=delivery-times";
+            openPopup(href);
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefresh', function () {
+            window["delivery-time-grid"].$children[0].read();
+            return false;
+        });
+    });
+</script>

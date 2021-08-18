@@ -1,0 +1,16 @@
+﻿@{
+    ViewBag.Title = T("Admin.Configuration.DeliveryTimes").Value;
+
+    
+}
+
+<form id="delivery-times">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-clock"></i>
+            <span>@T("Admin.Configuration.DeliveryTimes")</span>
+        </div>
+    </div>
+
+    <partial name="_Grid.DeliveryTimes" model="null" />
+</form>
