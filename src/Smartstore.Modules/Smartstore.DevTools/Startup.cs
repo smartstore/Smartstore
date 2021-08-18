@@ -62,6 +62,7 @@ namespace Smartstore.DevTools
                 }
                 
                 o.Filters.Add<ProfilerFilter>();
+                o.Filters.Add<MachineNameFilter>();
             });
         }
 
