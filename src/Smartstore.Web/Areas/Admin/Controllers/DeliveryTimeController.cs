@@ -200,7 +200,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.System.Log.Delete)]
+        [Permission(Permissions.Configuration.DeliveryTime.Delete)]
         public async Task<IActionResult> Delete(GridSelection selection)
         {
             var success = false;
