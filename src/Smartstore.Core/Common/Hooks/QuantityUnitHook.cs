@@ -20,19 +20,19 @@ namespace Smartstore.Core.Common.Hooks
         /// <summary>
         /// Sets all quantity units to <see cref="QuantityUnit.IsDefault"/> = false if the currently updated entity is the default quantity unit.
         /// </summary>
+        protected override async Task<HookResult> OnInsertingAsync(QuantityUnit entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            await TryResetDefaultQuantityUnitsAsync(entity, cancelToken);
+
+            return HookResult.Ok;
+        }
+
+        /// <summary>
+        /// Sets all quantity units to <see cref="QuantityUnit.IsDefault"/> = false if the currently updated entity is the default quantity unit.
+        /// </summary>
         protected override async Task<HookResult> OnUpdatingAsync(QuantityUnit entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (entity.IsDefault)
-            {
-                var quantityUnits = await _db.QuantityUnits
-                    .Where(x => x.IsDefault && x.Id != entity.Id)
-                    .ToListAsync(cancellationToken: cancelToken);
-
-                foreach (var quantityUnit in quantityUnits)
-                {
-                    quantityUnit.IsDefault = false;
-                }
-            }
+            await TryResetDefaultQuantityUnitsAsync(entity, cancelToken);
 
             return HookResult.Ok;
         }
@@ -53,6 +53,23 @@ namespace Smartstore.Core.Common.Hooks
             }
 
             return HookResult.Ok;
+        }
+
+        public virtual async Task TryResetDefaultQuantityUnitsAsync(QuantityUnit entity, CancellationToken cancelToken)
+        {
+            Guard.NotNull(entity, nameof(entity));
+
+            if (entity.IsDefault)
+            {
+                var quantityUnits = await _db.QuantityUnits
+                    .Where(x => x.IsDefault && x.Id != entity.Id)
+                    .ToListAsync(cancellationToken: cancelToken);
+
+                foreach (var quantityUnit in quantityUnits)
+                {
+                    quantityUnit.IsDefault = false;
+                }
+            }
         }
     }
 }

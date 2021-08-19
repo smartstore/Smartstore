@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -24,20 +23,19 @@ namespace Smartstore.Core.Common.Hooks
         /// <summary>
         /// Sets all delivery times to <see cref="DeliveryTime.IsDefault"/> = false if the currently updated entity is the default delivery time.
         /// </summary>
+        protected override async Task<HookResult> OnInsertingAsync(DeliveryTime entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            await TryResetDefaultDeliveryTimesAsync(entity, cancelToken);
+
+            return HookResult.Ok;
+        }
+
+        /// <summary>
+        /// Sets all delivery times to <see cref="DeliveryTime.IsDefault"/> = false if the currently updated entity is the default delivery time.
+        /// </summary>
         protected override async Task<HookResult> OnUpdatingAsync(DeliveryTime entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (entity.IsDefault == true)
-            {
-                var temp = new List<DeliveryTime> { entity };
-                var dts = await _db.DeliveryTimes
-                    .Where(x => x.IsDefault == true && x.Id != entity.Id)
-                    .ToListAsync(cancellationToken: cancelToken);
-
-                foreach (var dt in dts)
-                {
-                    dt.IsDefault = false;
-                }
-            }
+            await TryResetDefaultDeliveryTimesAsync(entity, cancelToken);
 
             return HookResult.Ok;
         }
@@ -89,6 +87,23 @@ namespace Smartstore.Core.Common.Hooks
             }
 
             return HookResult.Ok;
+        }
+
+        public virtual async Task TryResetDefaultDeliveryTimesAsync(DeliveryTime entity, CancellationToken cancelToken)
+        {
+            Guard.NotNull(entity, nameof(entity));
+
+            if (entity.IsDefault == true)
+            {
+                var dts = await _db.DeliveryTimes
+                    .Where(x => x.IsDefault == true && x.Id != entity.Id)
+                    .ToListAsync(cancellationToken: cancelToken);
+
+                foreach (var dt in dts)
+                {
+                    dt.IsDefault = false;
+                }
+            }
         }
     }
 }
