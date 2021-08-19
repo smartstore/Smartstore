@@ -3,11 +3,11 @@
 	<Import Project="..\..\Build\Smartstore.Common.props" />
 
 	<ItemGroup>
-	  <None Remove="Sql\20210818000000_Initial.sql" />
+	  <None Remove="Sql\Initial.sql" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="Sql\20210818000000_Initial.sql" />
+	  <EmbeddedResource Include="Sql\Initial.sql" />
 	</ItemGroup>
 
   <ItemGroup>

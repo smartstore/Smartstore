@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Smartstore.Collections;
@@ -33,13 +34,19 @@ namespace Smartstore.Core.Data.Migrations
         private readonly SmartConfiguration _appConfig;
         private readonly ITypeScanner _typeScanner;
         private readonly Multimap<Type, Type> _seedersMap;
+        private readonly IMigrationRunner _migrationRunner;
 
-        public DatabaseInitializer(ILifetimeScope scope, ITypeScanner typeScanner, SmartConfiguration appConfig)
+        public DatabaseInitializer(
+            ILifetimeScope scope, 
+            ITypeScanner typeScanner, 
+            SmartConfiguration appConfig,
+            IMigrationRunner migrationRunner)
         {
             _scope = scope;
             _appConfig = appConfig;
             _typeScanner = typeScanner;
             _seedersMap = DiscoverDataSeeders().ToMultimap(key => key.ContextType, value => value.SeederType);
+            _migrationRunner = migrationRunner;
         }
 
         public virtual async Task InitializeDatabasesAsync(CancellationToken cancelToken = default)
@@ -83,6 +90,11 @@ namespace Smartstore.Core.Data.Migrations
                 // Execute the global seeders anyway (on every startup),
                 // we could have locale resources or settings to add/update.
                 await RunGlobalSeeders(context, seederTypes, cancelToken);
+
+                // ------ fluent migrator start
+                //_migrationRunner.MigrateUp();
+                //_migrationRunner.MigrateDown(MigrationVersionAttribute.GetVersion("2021-08-19 00:00:00"));
+                // ------ fluent migrator end
 
                 // Restore standard command timeout
                 context.Database.SetCommandTimeout(prevCommandTimeout);

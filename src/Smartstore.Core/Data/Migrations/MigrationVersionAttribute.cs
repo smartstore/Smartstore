@@ -14,21 +14,21 @@ namespace Smartstore.Core.Data.Migrations
             "yyyy-MM-dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss", "yyyy.MM.dd HH:mm:ss"
         };
 
-        public MigrationVersionAttribute(string timestamp)
-            : base(GetVersion(timestamp), null)
+        public MigrationVersionAttribute(string timestamp, string description = null)
+            : base(GetVersion(timestamp), BuildDescription(description))
         {
         }
 
-        public MigrationVersionAttribute(string timestamp, string description)
-            : base(GetVersion(timestamp), description)
-        {
-        }
-
-        private static long GetVersion(string timestamp)
+        public static long GetVersion(string timestamp)
         {
             Guard.NotEmpty(timestamp, nameof(timestamp));
 
             return DateTime.ParseExact(timestamp, _timestampFormats, CultureInfo.InvariantCulture).Ticks;
+        }
+
+        private static string BuildDescription(string description)
+        {
+            return SmartstoreVersion.CurrentFullVersion.Grow(description, " ");
         }
     }
 }

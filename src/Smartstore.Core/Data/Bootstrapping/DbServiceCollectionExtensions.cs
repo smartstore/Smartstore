@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using FluentMigrator;
 using FluentMigrator.Runner;
+using FluentMigrator.Runner.Processors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -48,20 +49,28 @@ namespace Smartstore.Core.Bootstrapping
             services.AddTransient(typeof(DbMigrator<>));
 
             // Fluent migrator.
-            //var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>()
-            //    .Select(x => x.Assembly)
-            //    .Where(x => !x.FullName.Contains("FluentMigrator.Runner"))
-            //    .Distinct()
-            //    .ToArray();
+            var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>()
+                .Select(x => x.Assembly)
+                .Where(x => !x.FullName.Contains("FluentMigrator.Runner"))
+                .Distinct()
+                .ToArray();
 
-            //services
-            //    .AddFluentMigratorCore()
-            //    .ConfigureRunner(rb => rb
-            //        //.WithVersionTable(new MyMigrationVersionTable())  // I guess we should use this for own metadata?
-            //        .AddSqlServer()
-            //        .AddMySql5()
-            //        .WithGlobalConnectionString(DataSettings.Instance.ConnectionString) // Or AddScoped<IConnectionStringAccessor>?
-            //        .ScanIn(migrationAssemblies).For.Migrations());
+            services
+                .AddFluentMigratorCore()
+                .AddScoped<IProcessorAccessor, MigrationProcessorAccessor>()
+                //.AddLogging(lb => lb.AddFluentMigratorConsole())
+                //.Configure<RunnerOptions>(opt =>
+                //{
+                //    opt.Tags = new[] { "UK", "Production" }   // Filter by tags.
+                //})
+                .ConfigureRunner(rb => rb
+                    //.WithVersionTable(new MigrationVersionInfo())  // Implement if you want to change the default metadata table name "VersionInfo".
+                    .AddSqlServer()
+                    .AddMySql5()
+                    .WithGlobalConnectionString(DataSettings.Instance.ConnectionString) // Or AddScoped<IConnectionStringAccessor>?
+                    .ScanIn(migrationAssemblies)
+                        .For.Migrations()
+                        .For.EmbeddedResources());
 
             return services;
         }
