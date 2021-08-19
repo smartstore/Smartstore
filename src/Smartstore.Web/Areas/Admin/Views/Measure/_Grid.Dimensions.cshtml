@@ -1,0 +1,72 @@
+﻿@using Smartstore.Admin.Models.Directory
+
+@model MeasureDimensionModel
+
+<datagrid id="measure-dimension-grid" allow-resize="true" allow-row-selection="true">
+    <datasource read="@Url.Action("DimensionList", "Measure")"
+                delete="@Url.Action("DeleteMeasureDimensions", "Measure")" />
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a href="#" class="add-measure-dimension btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="2fr" hideable="false">
+            <display-template>
+                <a href="#" class="grid-edit-measure-dimension text-truncate" :data-key="item.row.Id">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="SystemKeyword" />
+        <column for="Ratio" halign="center" />
+        <column for="IsPrimaryDimension" halign="center" sortable="false" />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="grid-edit-measure-dimension" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
+
+<script sm-target-zone="scripts" data-origin="measure-dimension-grid">
+    $(function () {
+        $(document).on('click', '.add-measure-dimension', function (e) {
+            e.preventDefault();
+
+            var href = "@Url.Content("~/Admin/Measure/CreateDimensionPopup/")?btnId=btnRefresh&formId=measure-dimensions";
+            openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-edit-measure-dimension', function (e) {
+            e.preventDefault();
+
+            var id = $(this).data("key");
+            var href = "@Url.Content("~/Admin/Measure/EditDimensionPopup/")" + id + "?btnId=btnRefresh&formId=measure-dimensions";
+            openPopup(href);
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefresh', function () {
+            window["measure-dimension-grid"].$children[0].read();
+            return false;
+        });
+    });
+</script>

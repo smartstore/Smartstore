@@ -1,0 +1,98 @@
+﻿@using Smartstore.Admin.Models.Directory
+
+@model MeasureDimensionModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+@(Html.LocalizedEditor<MeasureDimensionModel, MeasureDimensionLocalizedModel>("measure-dimension-localized",
+@<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Locales[item].Name" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Locales[item].LanguageId" type="hidden" />
+
+            <input asp-for="Locales[item].Name" />
+            <span asp-validation-for="Locales[item].Name"></span>
+        </div>
+    </div>
+</div>
+,
+@<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Name" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Name" />
+            <span asp-validation-for="Name"></span>
+        </div>
+    </div>
+</div>
+))
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SystemKeyword" />
+        </div>
+        <div class="adminData">
+            <input asp-for="SystemKeyword" />
+            <span asp-validation-for="SystemKeyword"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Ratio" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Ratio" />
+            <span asp-validation-for="Ratio"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DisplayOrder" />
+        </div>
+        <div class="adminData">
+            <input asp-for="DisplayOrder" />
+            <span asp-validation-for="DisplayOrder"></span>
+        </div>
+    </div>
+    @if (Model.IsPrimaryDimension)
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IsPrimaryDimension" />
+            </div>
+            <div class="adminData">
+                <input asp-for="IsPrimaryDimension" type="checkbox" readonly />
+                <span asp-validation-for="IsPrimaryDimension"></span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IsPrimaryDimension" />
+            </div>
+            <div class="adminData">
+                <input asp-for="IsPrimaryDimension" />
+                <span asp-validation-for="IsPrimaryDimension"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                &nbsp;
+            </div>
+            <div class="adminData">
+                <div class="alert alert-warning">
+                    @T("Admin.Configuration.Measures.Dimensions.Description")
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Title = T("Admin.Configuration.Measures.Weights").Value;
+}
+
+<form id="measures-weights">
+    <div class="section-header">
+        <div class="title">
+            <i class="fas fa-balance-scale"></i>
+            <span>@T("Admin.Configuration.Measures.Weights")</span>
+        </div>
+    </div>
+
+    <partial name="_Grid.Weights" model="null" />
+</form>

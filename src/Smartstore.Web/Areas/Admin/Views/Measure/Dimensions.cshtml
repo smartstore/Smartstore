@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Title = T("Admin.Configuration.Measures.Dimensions").Value;
+}
+
+<form id="measures-dimensions">
+    <div class="section-header">
+        <div class="title">
+            <i class="fas fa-ruler-combined"></i>
+            <span>@T("Admin.Configuration.Measures.Dimensions")</span>
+        </div>
+    </div>
+
+    <partial name="_Grid.Dimensions" model="null" />
+</form>
