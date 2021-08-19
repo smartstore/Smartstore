@@ -41,10 +41,34 @@ namespace Smartstore.Core.Data.Migrations
         public static void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             // TODO: (core) Uncomment all resource deletions before first public release.
-            
+
             #region General
 
             // TODO: (core) Delete all Telerik language resources (???)
+
+            builder.AddOrUpdate("Admin.Configuration.Measures.QuantityUnits.CantDeleteDefault",
+                "The default quantity unit can't be deleted. Specify another standard quantity unit beforehand.",
+                "Die Standard-Verpackungseinheit kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Verpackungseinheit.");
+
+            builder.AddOrUpdate("Admin.Configuration.DeliveryTimes.CantDeleteDefault",
+                "The default delivery time can't be deleted. Specify another standard delivery time beforehand.",
+                "Die Standard-Lieferzeit kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Lieferzeit.");
+            
+            builder.AddOrUpdate("Admin.Configuration.MeasureDimension.Updated",
+                "The dimension has been successfully updated.",
+                "Die Abmessung wurde erfolgreich aktualisiert.");
+            
+            builder.AddOrUpdate("Admin.Configuration.MeasureWeight.Updated",
+                "The weight has been successfully updated.",
+                "Das Gewicht wurde erfolgreich aktualisiert.");
+
+            builder.AddOrUpdate("Admin.Configuration.MeasureDimension.Added",
+                "The dimension has been successfully added.",
+                "Die Abmessung wurde erfolgreich hinzugefügt.");
+
+            builder.AddOrUpdate("Admin.Configuration.MeasureWeight.Added",
+                "The weight has been successfully added.",
+                "Das Gewicht wurde erfolgreich hinzugefügt.");
 
             builder.AddOrUpdate("Common.Exit", "Exit", "Beenden");
             builder.AddOrUpdate("Common.Empty", "Empty", "Leer");

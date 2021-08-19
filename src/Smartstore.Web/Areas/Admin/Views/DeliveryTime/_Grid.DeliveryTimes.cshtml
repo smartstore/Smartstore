@@ -3,11 +3,12 @@
 @model DeliveryTimeModel
 
 <datagrid id="delivery-time-grid" allow-resize="true" allow-row-selection="true">
-    <datasource read="@Url.Action("DeliveryTimeList", "DeliveryTime")" 
-                delete="@Url.Action("Delete", "DeliveryTime")"/>
+    <datasource read="@Url.Action("DeliveryTimeList", "DeliveryTime")"
+                delete="@Url.Action("Delete", "DeliveryTime")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
     </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
         <toolbar-group>
             <a href="#" class="add-delivery-time btn btn-primary btn-flat">
@@ -31,7 +32,7 @@
             </display-template>
         </column>
         <column for="ColorHexValue" sortable="false" />
-        <column for="IsDefault" halign="center" />
+        <column for="IsDefault" halign="center" sortable="false" />
         <column for="MinDays" halign="center" />
         <column for="MaxDays" halign="center" />
         <column for="DisplayOrder" halign="center" />

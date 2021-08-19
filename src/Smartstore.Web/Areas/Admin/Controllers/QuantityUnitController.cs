@@ -23,9 +23,7 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly ILocalizedEntityService _localizedEntityService;
 
-        public QuantityUnitController(
-            SmartDbContext db,
-            ILocalizedEntityService localizedEntityService)
+        public QuantityUnitController(SmartDbContext db, ILocalizedEntityService localizedEntityService)
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
@@ -73,7 +71,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Read)]
-        public async Task<IActionResult> QuantityUnitList(GridCommand command, QuantityUnitModel model)
+        public async Task<IActionResult> QuantityUnitList(GridCommand command)
         {
             var quantityUnitModels = await _db.QuantityUnits
                 .ApplyGridCommand(command)
@@ -118,6 +116,8 @@ namespace Smartstore.Admin.Controllers
                 {
                     var quantityUnit = await MapperFactory.MapAsync<QuantityUnitModel, QuantityUnit>(model);
                     _db.QuantityUnits.Add(quantityUnit);
+                    await _db.SaveChangesAsync();
+
                     await UpdateLocalesAsync(quantityUnit, model);
                     await _db.SaveChangesAsync();
 
@@ -207,11 +207,31 @@ namespace Smartstore.Admin.Controllers
             if (ids.Any())
             {
                 var quantityUnits = await _db.QuantityUnits.GetManyAsync(ids, true);
+                var triedToDeleteDefault = false;
 
-                _db.QuantityUnits.RemoveRange(quantityUnits);
+                foreach (var quantityUnit in quantityUnits)
+                {
+                    if (quantityUnit.IsDefault)
+                    {
+                        triedToDeleteDefault = true;
+                        NotifyError(T("Admin.Configuration.Measures.QuantityUnits.CantDeleteDefault"));
+                    }
+                    else
+                    {
+                        _db.QuantityUnits.Remove(quantityUnit);
+                    }
+                }
 
                 numDeleted = await _db.SaveChangesAsync();
-                success = true;
+                
+                if (triedToDeleteDefault && numDeleted == 0)
+                {
+                    success = false;
+                }
+                else
+                {
+                    success = true;
+                }
             }
 
             return Json(new { Success = success, Count = numDeleted });

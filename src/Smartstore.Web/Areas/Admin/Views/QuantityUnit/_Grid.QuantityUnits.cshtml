@@ -3,11 +3,12 @@
 @model QuantityUnitModel
 
 <datagrid id="quantity-unit-grid" allow-resize="true" allow-row-selection="true">
-    <datasource read="@Url.Action("QuantityUnitList", "QuantityUnit")" 
-                delete="@Url.Action("Delete", "QuantityUnit")"/>
+    <datasource read="@Url.Action("QuantityUnitList", "QuantityUnit")"
+                delete="@Url.Action("Delete", "QuantityUnit")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
     </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
         <toolbar-group>
             <a href="#" class="add-quantity-unit btn btn-primary btn-flat">

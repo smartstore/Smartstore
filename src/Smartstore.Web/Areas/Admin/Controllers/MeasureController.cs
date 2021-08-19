@@ -38,7 +38,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Read)]
-        public async Task<IActionResult> WeightList(GridCommand command, MeasureWeightModel model)
+        public async Task<IActionResult> WeightList(GridCommand command)
         {
             var measureWeightModels = await _db.MeasureWeights
                 .ApplyGridCommand(command)
@@ -241,7 +241,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Read)]
-        public async Task<IActionResult> DimensionList(GridCommand command, MeasureDimensionModel model)
+        public async Task<IActionResult> DimensionList(GridCommand command)
         {
             var measureDimensionModels = await _db.MeasureDimensions
                 .ApplyGridCommand(command)

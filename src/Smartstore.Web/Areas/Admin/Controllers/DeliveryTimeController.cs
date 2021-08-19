@@ -25,10 +25,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IDeliveryTimeService _deliveryTimeService;
         private readonly ILocalizedEntityService _localizedEntityService;
 
-        public DeliveryTimeController(
-            SmartDbContext db,
-            IDeliveryTimeService deliveryTimeService,
-            ILocalizedEntityService localizedEntityService)
+        public DeliveryTimeController(SmartDbContext db, IDeliveryTimeService deliveryTimeService, ILocalizedEntityService localizedEntityService)
         {
             _db = db;
             _deliveryTimeService = deliveryTimeService;
@@ -75,7 +72,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
-        public async Task<IActionResult> DeliveryTimeList(GridCommand command, DeliveryTimeModel model)
+        public async Task<IActionResult> DeliveryTimeList(GridCommand command)
         {
             var deliveryTimeModels = await _db.DeliveryTimes
                 .ApplyGridCommand(command)
@@ -210,11 +207,31 @@ namespace Smartstore.Admin.Controllers
             if (ids.Any())
             {
                 var deliveryTimes = await _db.DeliveryTimes.GetManyAsync(ids, true);
+                var triedToDeleteDefault = false;
 
-                _db.DeliveryTimes.RemoveRange(deliveryTimes);
+                foreach (var deliveryTime in deliveryTimes)
+                {
+                    if (deliveryTime.IsDefault == true)
+                    {
+                        triedToDeleteDefault = true;
+                        NotifyError(T("Admin.Configuration.DeliveryTimes.CantDeleteDefault"));
+                    }
+                    else
+                    {
+                        _db.DeliveryTimes.Remove(deliveryTime);
+                    }
+                }
 
                 numDeleted = await _db.SaveChangesAsync();
-                success = true;
+
+                if (triedToDeleteDefault && numDeleted == 0)
+                {
+                    success = false;
+                }
+                else
+                {
+                    success = true;
+                }
             }
 
             return Json(new { Success = success, Count = numDeleted });
