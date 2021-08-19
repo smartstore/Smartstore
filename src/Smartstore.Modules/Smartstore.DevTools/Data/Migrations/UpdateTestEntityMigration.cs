@@ -1,20 +1,20 @@
-﻿using Smartstore.Core.Data.Migrations;
+﻿using FluentMigrator;
+using Smartstore.Core.Data.Migrations;
 
 namespace Smartstore.DevTools.Data.Migrations
 {
     [MigrationVersion("2021-08-19 14:17:55", "Update DevTools test entity.")]
-    public class UpdateTestEntityMigration : DataMigrationBase
+    public class UpdateTestEntityMigration : Migration
     {
         public override void Up()
         {
-            Create.Column("IsActive").OnTable("DevToolsTestEntity").AsBoolean().NotNullable();
-            Create.Column("Notes").OnTable("DevToolsTestEntity").AsString(400).Nullable();
+            this.CreateColumn("DevToolsTestEntity", "IsActive")?.AsBoolean()?.NotNullable();
+            this.CreateColumn("DevToolsTestEntity", "Notes")?.AsString(400)?.Nullable();
         }
 
         public override void Down()
         {
-            Delete.Column("Notes").FromTable("DevToolsTestEntity");
-            Delete.Column("IsActive").FromTable("DevToolsTestEntity");
+            this.DeleteColumns("DevToolsTestEntity", "Notes", "IsActive");
         }
     }
 }
