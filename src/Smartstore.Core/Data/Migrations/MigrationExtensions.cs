@@ -7,6 +7,8 @@ namespace Smartstore.Core.Data.Migrations
 {
     public static partial class MigrationExtensions
     {
+        private const string DEFAULT_SCHEMA = "dbo";
+
         public static string SqlServer => "SqlServer";
         public static string MySql => "MySql";
 
@@ -62,21 +64,21 @@ namespace Smartstore.Core.Data.Migrations
         #region Schema
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TableExists(this ISchemaExpressionRoot schema, string tableName, string schemaName = "dbo")
+        public static bool TableExists(this ISchemaExpressionRoot schema, string tableName, string schemaName = default)
         {
-            return schema.Schema(schemaName).Table(tableName).Exists();
+            return schema.Schema(schemaName ?? DEFAULT_SCHEMA).Table(tableName).Exists();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ColumnExists(this ISchemaExpressionRoot schema, string tableName, string columnName, string schemaName = "dbo")
+        public static bool ColumnExists(this ISchemaExpressionRoot schema, string tableName, string columnName, string schemaName = default)
         {
-            return schema.Schema(schemaName).Table(tableName).Column(columnName).Exists();
+            return schema.Schema(schemaName ?? DEFAULT_SCHEMA).Table(tableName).Column(columnName).Exists();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool ForeignKeyExists(this ISchemaExpressionRoot schema, string tableName, string keyName, string schemaName = "dbo")
+        public static bool ForeignKeyExists(this ISchemaExpressionRoot schema, string tableName, string keyName, string schemaName = default)
         {
-            return schema.Schema(schemaName).Table(tableName).Constraint(keyName).Exists();
+            return schema.Schema(schemaName ?? DEFAULT_SCHEMA).Table(tableName).Constraint(keyName).Exists();
         }
 
         #endregion

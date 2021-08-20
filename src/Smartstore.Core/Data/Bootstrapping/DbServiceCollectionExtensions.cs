@@ -58,16 +58,19 @@ namespace Smartstore.Core.Bootstrapping
             services
                 .AddFluentMigratorCore()
                 .AddScoped<IProcessorAccessor, MigrationProcessorAccessor>()
+                .AddSingleton<IDbMigrator2, DbMigrator2>()
+                //.AddSingleton<IConventionSet, MigrationConventionSet>()
                 //.AddLogging(lb => lb.AddFluentMigratorConsole())
                 //.Configure<RunnerOptions>(opt =>
                 //{
-                //    opt.Tags = new[] { "UK", "Production" }   // Filter by tags.
+                //    opt.Profile = "Development"   // Selectively apply migrations depending on whatever.
+                //    opt.Tags = new[] { "UK", "Production" }   // Used to filter migrations by tags.
                 //})
                 .ConfigureRunner(rb => rb
-                    //.WithVersionTable(new MigrationVersionInfo())  // Implement if you want to change the default metadata table name "VersionInfo".
+                    .WithVersionTable(new MigrationVersionInfo())
                     .AddSqlServer()
                     .AddMySql5()
-                    .WithGlobalConnectionString(DataSettings.Instance.ConnectionString) // Or AddScoped<IConnectionStringAccessor>?
+                    .WithGlobalConnectionString(DataSettings.Instance.ConnectionString) // Isn't AddScoped<IConnectionStringAccessor> better?
                     .ScanIn(migrationAssemblies)
                         .For.Migrations()
                         .For.EmbeddedResources());

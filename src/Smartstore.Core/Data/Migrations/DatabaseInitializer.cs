@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
-using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Smartstore.Collections;
@@ -34,19 +33,19 @@ namespace Smartstore.Core.Data.Migrations
         private readonly SmartConfiguration _appConfig;
         private readonly ITypeScanner _typeScanner;
         private readonly Multimap<Type, Type> _seedersMap;
-        private readonly IMigrationRunner _migrationRunner;
+        private readonly IDbMigrator2 _dbMigrator;
 
         public DatabaseInitializer(
             ILifetimeScope scope, 
             ITypeScanner typeScanner, 
             SmartConfiguration appConfig,
-            IMigrationRunner migrationRunner)
+            IDbMigrator2 dbMigrator)
         {
             _scope = scope;
             _appConfig = appConfig;
             _typeScanner = typeScanner;
             _seedersMap = DiscoverDataSeeders().ToMultimap(key => key.ContextType, value => value.SeederType);
-            _migrationRunner = migrationRunner;
+            _dbMigrator = dbMigrator;
         }
 
         public virtual async Task InitializeDatabasesAsync(CancellationToken cancelToken = default)
@@ -92,8 +91,7 @@ namespace Smartstore.Core.Data.Migrations
                 await RunGlobalSeeders(context, seederTypes, cancelToken);
 
                 // ------ fluent migrator start
-                //_migrationRunner.MigrateUp();
-                //_migrationRunner.MigrateDown(MigrationVersionAttribute.GetVersion("2021-08-19 00:00:00"));
+                //_dbMigrator.MigrateUp(_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools")));
                 // ------ fluent migrator end
 
                 // Restore standard command timeout
