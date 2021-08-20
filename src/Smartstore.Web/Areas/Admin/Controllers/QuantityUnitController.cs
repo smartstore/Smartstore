@@ -87,7 +87,7 @@ namespace Smartstore.Admin.Controllers
 
             var gridModel = new GridModel<QuantityUnitModel>
             {
-                Rows = quantityUnitModels,
+                Rows = quantityUnits,
                 Total = quantityUnits.TotalCount
             };
 

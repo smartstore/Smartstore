@@ -1,0 +1,163 @@
+﻿@using Smartstore.Admin.Models.Directory
+@model CountryModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<tabstrip id="country-edit" sm-nav-style="Material" sm-nav-position="Top">
+    <tab sm-title="@T("Admin.Configuration.Countries.Info")" sm-selected="true">
+        @(Html.LocalizedEditor<CountryModel, CountryLocalizedModel>("country-info-localized",
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Name" />
+                    </div>
+                    <div class="adminData">
+					    @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input type="hidden" asp-for="Locales[item].LanguageId" />
+                        <input asp-for="Locales[item].Name" />
+                        <span asp-validation-for="Locales[item].Name"></span>
+                    </div>
+                </div>
+            </div>
+            ,
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Name" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Name" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                </div>
+            </div>
+        ))
+
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="AllowsBilling" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="AllowsBilling" />
+                    <span asp-validation-for="AllowsBilling"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="AllowsShipping" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="AllowsShipping" />
+                    <span asp-validation-for="AllowsShipping"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="TwoLetterIsoCode" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="TwoLetterIsoCode" />
+                    <span asp-validation-for="TwoLetterIsoCode"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ThreeLetterIsoCode" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="ThreeLetterIsoCode" />
+                    <span asp-validation-for="ThreeLetterIsoCode"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="NumericIsoCode" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="NumericIsoCode" />
+                    <span asp-validation-for="NumericIsoCode"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SubjectToVat" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="SubjectToVat" />
+                    <span asp-validation-for="SubjectToVat"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayCookieManager" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="DisplayCookieManager" />
+                    <span asp-validation-for="DisplayCookieManager"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Published" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Published" />
+                    <span asp-validation-for="Published"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayOrder" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="DisplayOrder" />
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DefaultCurrencyId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="DefaultCurrencyId" asp-items="ViewBag.AllCurrencies">
+                        <option>@T("Common.Unspecified")</option>
+                    </select>
+                    <span asp-validation-for="DefaultCurrencyId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedStoreIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedStoreIds" />
+                    <span asp-validation-for="SelectedStoreIds"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="AddressFormat" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="AddressFormat" />
+                    <span asp-validation-for="AddressFormat"></span>
+                </div>
+            </div>
+        </div>
+    </tab>
+    <tab sm-title="@T("Admin.Configuration.Countries.States") (@Model.NumberOfStates)">
+        @if (Model.Id > 0)
+        {
+            var gridViewData = new ViewDataDictionary(ViewData);
+            gridViewData["CountryId"] = Model.Id;
+
+            <partial name="_Grid.StateProvince" model="null" view-data="gridViewData" />
+        }
+        else
+        {
+            @T("Admin.Configuration.Countries.States.SaveBeforeEdit")
+        }
+    </tab>
+</tabstrip>

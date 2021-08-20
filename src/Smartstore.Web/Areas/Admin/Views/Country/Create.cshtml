@@ -1,0 +1,27 @@
+﻿@using Smartstore.Admin.Models.Directory
+
+@model CountryModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Countries.AddNew").Value;
+}
+
+<form asp-action="Create" id="country-form">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Configuration.Countries.AddNew") 
+            <a asp-action="List">(@T("Admin.Configuration.Countries.BackToList"))</a>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-primary">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" model="Model" />
+</form>

@@ -1,0 +1,74 @@
+﻿@using Smartstore.Admin.Models.Directory
+@model StateProvinceModel
+
+@{
+    var countryId = ViewData["CountryId"];
+}
+
+<datagrid id="states-grid" allow-resize="true" allow-row-selection="true">
+    <datasource read="@Url.Action("States", "Country", new { countryId = countryId })"
+                delete="@Url.Action("StateDelete", "Country")" />
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a href="#" class="add-state-region btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Configuration.Countries.States.AddNew")...</span>
+            </a>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="2fr" hideable="false">
+            <display-template>
+                <a href="#" class="grid-edit-state-region text-truncate" :data-key="item.row.Id">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Abbreviation" halign="center" />
+        <column for="Published" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="grid-edit-state-region" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
+
+<script sm-target-zone="scripts" data-origin="state-regions-grid">
+    $(function () {
+        $(document).on('click', '.add-state-region', function (e) {
+            e.preventDefault();
+
+            var href = "@Url.Content("~/Admin/Country/StateCreatePopup/")?countryId=@(countryId)&btnId=btnRefresh&formId=state-regions";
+            openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-edit-state-region', function (e) {
+            e.preventDefault();
+
+            var id = $(this).data("key");
+            var href = "@Url.Content("~/Admin/Country/StateEditPopup/")" + id + "?countryId=@(countryId)&btnId=btnRefresh&formId=state-regions";
+            openPopup(href);
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefresh', function () {
+            window["states-grid"].$children[0].read();
+            return false;
+        });
+    });
+</script>

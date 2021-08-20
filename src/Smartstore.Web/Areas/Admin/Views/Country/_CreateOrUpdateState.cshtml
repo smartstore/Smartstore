@@ -1,0 +1,64 @@
+﻿@using Smartstore.Admin.Models.Directory
+@model StateProvinceModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="CountryId" type="hidden" />
+
+@(Html.LocalizedEditor<StateProvinceModel, StateProvinceLocalizedModel>("state-localized",
+@<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Locales[item].Name" />
+        </div>
+        <div class="adminData">
+			@*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+            <input asp-for="Locales[item].LanguageId" type="hidden" />
+            <input asp-for="Locales[item].Name" />
+            <span asp-validation-for="Locales[item].Name"></span>
+        </div>
+    </div>
+</div>
+,
+@<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Name" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Name" />
+            <span asp-validation-for="Name"></span>
+        </div>
+    </div>
+</div>
+))
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Abbreviation" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Abbreviation" />
+            <span asp-validation-for="Abbreviation"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Published" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Published" />
+            <span asp-validation-for="Published"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DisplayOrder" />
+        </div>
+        <div class="adminData">
+            <input asp-for="DisplayOrder" />
+            <span asp-validation-for="DisplayOrder"></span>
+        </div>
+    </div>
+</div>

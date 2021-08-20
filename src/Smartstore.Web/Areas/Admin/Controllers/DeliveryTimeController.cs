@@ -90,7 +90,7 @@ namespace Smartstore.Admin.Controllers
 
             var gridModel = new GridModel<DeliveryTimeModel>
             {
-                Rows = deliveryTimeModels,
+                Rows = deliveryTimes,
                 Total = deliveryTimes.TotalCount
             };
 

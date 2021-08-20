@@ -1,0 +1,25 @@
+﻿@using Smartstore.Admin.Models.Directory
+
+@model StateProvinceModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.States.EditStateDetails").Value;
+    Layout = "_AdminPopupLayout";
+}
+
+<form asp-action="StateEditPopup" id="state-regions" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Configuration.Countries.States.EditStateDetails")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdateState" model="Model" />
+</form>
+

@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Title = T("Admin.Configuration.Countries").Value;
+}
+
+<form id="countries">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-globe"></i>
+            @T("Admin.Configuration.Countries")
+        </div>
+    </div>
+
+    <partial name="_Grid.Countries" model="null" />
+</form>

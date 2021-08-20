@@ -1,0 +1,48 @@
+﻿@using Smartstore.Admin.Models.Directory
+@model CountryModel
+
+<datagrid id="countries-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
+    <datasource read="@Url.Action("CountryList", "Country")"
+                update="@Url.Action("CountryUpdate", "Country")"
+                delete="@Url.Action("CountryDelete", "Country")" />
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat no-anims mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="2fr" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="AllowsBilling" halign="center" />
+        <column for="AllowsShipping" halign="center" />
+        <column for="TwoLetterIsoCode" halign="center" />
+        <column for="ThreeLetterIsoCode" halign="center" />
+        <column for="NumericIsoCode" halign="center" />
+        <column for="SubjectToVat" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+        <column for="LimitedToStores" halign="center" />
+        <column for="Published" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
