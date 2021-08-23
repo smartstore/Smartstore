@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Directory;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common;
@@ -40,8 +41,13 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Measure.Read)]
         public async Task<IActionResult> WeightList(GridCommand command)
         {
-            var measureWeightModels = await _db.MeasureWeights
+            var measureWeights = await _db.MeasureWeights
+                .AsNoTracking()
                 .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var measureWeightModels = await measureWeights
                 .SelectAsync(async x =>
                 {
                     var model = await MapperFactory.MapAsync<MeasureWeight, MeasureWeightModel>(x);
@@ -50,14 +56,10 @@ namespace Smartstore.Admin.Controllers
                 })
                 .AsyncToList();
 
-            var measureWeights = await measureWeightModels
-                .ToPagedList(command.Page - 1, command.PageSize)
-                .LoadAsync();
-
             var gridModel = new GridModel<MeasureWeightModel>
             {
-                Rows = measureWeights,
-                Total = measureWeights.TotalCount
+                Rows = measureWeightModels,
+                Total = await measureWeights.GetTotalCountAsync()
             };
 
             return Json(gridModel);
@@ -93,7 +95,7 @@ namespace Smartstore.Admin.Controllers
                     if (model.IsPrimaryWeight)
                     {
                         _measureSettings.BaseWeightId = measureWeight.Id;
-                        await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseWeightId, 0);
+                        await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseWeightId);
                         await _db.SaveChangesAsync();
                     }
 
@@ -158,7 +160,7 @@ namespace Smartstore.Admin.Controllers
                     if (model.IsPrimaryWeight && _measureSettings.BaseWeightId != measureWeight.Id)
                     {
                         _measureSettings.BaseWeightId = measureWeight.Id;
-                        await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseWeightId, 0);
+                        await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseWeightId);
                         await _db.SaveChangesAsync();
                     }
 
@@ -243,24 +245,24 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Measure.Read)]
         public async Task<IActionResult> DimensionList(GridCommand command)
         {
-            var measureDimensionModels = await _db.MeasureDimensions
+            var measureDimensions = await _db.MeasureDimensions
+                .AsNoTracking()
                 .ApplyGridCommand(command)
-                .SelectAsync(async x =>
-                {
-                    var model = await MapperFactory.MapAsync<MeasureDimension, MeasureDimensionModel>(x);
-                    model.IsPrimaryDimension = x.Id == _measureSettings.BaseDimensionId;
-                    return model;
-                })
-                .AsyncToList();
-
-            var measureDimensions = await measureDimensionModels
-                .ToPagedList(command.Page - 1, command.PageSize)
+                .ToPagedList(command)
                 .LoadAsync();
+
+            var measureDimensionModels = await measureDimensions.SelectAsync(async x =>
+            {
+                var model = await MapperFactory.MapAsync<MeasureDimension, MeasureDimensionModel>(x);
+                model.IsPrimaryDimension = x.Id == _measureSettings.BaseDimensionId;
+                return model;
+            })
+            .AsyncToList();
 
             var gridModel = new GridModel<MeasureDimensionModel>
             {
-                Rows = measureDimensions,
-                Total = measureDimensions.TotalCount
+                Rows = measureDimensionModels,
+                Total = await measureDimensions.GetTotalCountAsync()
             };
 
             return Json(gridModel);
@@ -296,7 +298,7 @@ namespace Smartstore.Admin.Controllers
                     if (model.IsPrimaryDimension)
                     {
                         _measureSettings.BaseDimensionId = measureDimension.Id;
-                        await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseDimensionId, 0);
+                        await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseDimensionId);
                         await _db.SaveChangesAsync();
                     }
 
@@ -361,7 +363,7 @@ namespace Smartstore.Admin.Controllers
                     if (model.IsPrimaryDimension && _measureSettings.BaseDimensionId != measureDimension.Id)
                     {
                         _measureSettings.BaseDimensionId = measureDimension.Id;
-                        await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseDimensionId, 0);
+                        await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseDimensionId);
                         await _db.SaveChangesAsync();
                     }
 

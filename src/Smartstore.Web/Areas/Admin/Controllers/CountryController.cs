@@ -105,9 +105,13 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         [Permission(Permissions.Configuration.Country.Read)]
         public async Task<IActionResult> CountryList(GridCommand command)
         {
-            var countryModels = await _db.Countries
+            var countries = await _db.Countries
                 .AsNoTracking()
                 .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
+            
+            var countryModels = await countries
                 .SelectAsync(async x =>
                 {
                     var model = await MapperFactory.MapAsync<Country, CountryModel>(x);
@@ -116,14 +120,10 @@ namespace Smartstore.Web.Areas.Admin.Controllers
                 })
                 .AsyncToList();
 
-            var countries = await countryModels
-                .ToPagedList(command.Page - 1, command.PageSize)
-                .LoadAsync();
-
             var gridModel = new GridModel<CountryModel>
             {
-                Rows = countries,
-                Total = countries.TotalCount
+                Rows = countryModels,
+                Total = await countries.GetTotalCountAsync()
             };
 
             return Json(gridModel);
@@ -310,23 +310,23 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         [Permission(Permissions.Configuration.Country.Read)]
         public async Task<IActionResult> States(int countryId, GridCommand command)
         {
-            var stateProvinceModels = await _db.StateProvinces
+            var stateProvinces = await _db.StateProvinces
                 .Where(x => x.CountryId == countryId)
                 .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var stateProvinceModels = await stateProvinces
                 .SelectAsync(async x =>
                 {
                     return await MapperFactory.MapAsync<StateProvince, StateProvinceModel>(x);
                 })
                 .AsyncToList();
 
-            var stateProvinces = await stateProvinceModels
-                .ToPagedList(command.Page - 1, command.PageSize)
-                .LoadAsync();
-
             var gridModel = new GridModel<StateProvinceModel>
             {
-                Rows = stateProvinces,
-                Total = stateProvinces.TotalCount
+                Rows = stateProvinceModels,
+                Total = await stateProvinces.GetTotalCountAsync()
             };
 
             return Json(gridModel);

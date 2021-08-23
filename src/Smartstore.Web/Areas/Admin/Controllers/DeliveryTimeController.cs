@@ -65,7 +65,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
-        public ActionResult List()
+        public IActionResult List()
         {
             return View();
         }
@@ -74,8 +74,13 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
         public async Task<IActionResult> DeliveryTimeList(GridCommand command)
         {
-            var deliveryTimeModels = await _db.DeliveryTimes
+            var deliveryTimes = await _db.DeliveryTimes
+                .AsNoTracking()
                 .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var deliveryTimeModels = await deliveryTimes
                 .SelectAsync(async x =>
                 {
                     var model = await MapperFactory.MapAsync<DeliveryTime, DeliveryTimeModel>(x);
@@ -84,14 +89,10 @@ namespace Smartstore.Admin.Controllers
                 })
                 .AsyncToList();
 
-            var deliveryTimes = await deliveryTimeModels
-                .ToPagedList(command.Page - 1, command.PageSize)
-                .LoadAsync();
-
             var gridModel = new GridModel<DeliveryTimeModel>
             {
-                Rows = deliveryTimes,
-                Total = deliveryTimes.TotalCount
+                Rows = deliveryTimeModels,
+                Total = await deliveryTimes.GetTotalCountAsync()
             };
 
             return Json(gridModel);

@@ -73,22 +73,23 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Measure.Read)]
         public async Task<IActionResult> QuantityUnitList(GridCommand command)
         {
-            var quantityUnitModels = await _db.QuantityUnits
+            var quantityUnits = await _db.QuantityUnits
+                .AsNoTracking()
                 .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var quantityUnitModels = await quantityUnits
                 .SelectAsync(async x =>
                 {
                     return await MapperFactory.MapAsync<QuantityUnit, QuantityUnitModel>(x);
                 })
                 .AsyncToList();
 
-            var quantityUnits = await quantityUnitModels
-                .ToPagedList(command.Page - 1, command.PageSize)
-                .LoadAsync();
-
             var gridModel = new GridModel<QuantityUnitModel>
             {
-                Rows = quantityUnits,
-                Total = quantityUnits.TotalCount
+                Rows = quantityUnitModels,
+                Total = await quantityUnits.GetTotalCountAsync()
             };
 
             return Json(gridModel);

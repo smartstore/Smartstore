@@ -437,7 +437,7 @@ namespace Smartstore.Admin.Controllers
             _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
 
             // Save setting.
-            await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos, 0);
+            await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos);
             await _db.SaveChangesAsync();
 
             return Json(new { Success = true, Count = numDeleted });
@@ -488,7 +488,7 @@ namespace Smartstore.Admin.Controllers
             _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
 
             // Now apply & save again.
-            await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos, 0);
+            await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos);
 
             foreach (var localized in model.Locales)
             {
@@ -567,7 +567,7 @@ namespace Smartstore.Admin.Controllers
 
                 _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
 
-                await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos, 0);
+                await Services.Settings.ApplySettingAsync(_privacySettings, x => x.CookieInfos);
 
                 foreach (var localized in model.Locales)
                 {
@@ -829,7 +829,7 @@ namespace Smartstore.Admin.Controllers
             await _storeDependingSettingHelper.UpdateSettingsAsync(settings, form, storeScope);
 
             var clearCatalogFacetCache = false;
-            await Services.Settings.ApplySettingAsync(settings, x => x.SearchFields, 0);
+            await Services.Settings.ApplySettingAsync(settings, x => x.SearchFields);
             await _db.SaveChangesAsync();
 
             // Facet settings (CommonFacetSettingsModel).
@@ -1383,7 +1383,7 @@ namespace Smartstore.Admin.Controllers
 
             if (model.GiftCards_Activated_OrderStatusId.HasValue)
             {
-                await Services.Settings.ApplySettingAsync(settings, x => x.GiftCards_Activated_OrderStatusId, 0);
+                await Services.Settings.ApplySettingAsync(settings, x => x.GiftCards_Activated_OrderStatusId);
             }
             else
             {
@@ -1392,7 +1392,7 @@ namespace Smartstore.Admin.Controllers
 
             if (model.GiftCards_Deactivated_OrderStatusId.HasValue)
             {
-                await Services.Settings.ApplySettingAsync(settings, x => x.GiftCards_Deactivated_OrderStatusId, 0);
+                await Services.Settings.ApplySettingAsync(settings, x => x.GiftCards_Deactivated_OrderStatusId);
             }
             else
             {
