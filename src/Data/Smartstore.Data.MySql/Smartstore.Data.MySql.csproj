@@ -2,6 +2,14 @@
 
 	<Import Project="..\..\Build\Smartstore.Common.props" />
 
+	<ItemGroup>
+	  <None Remove="Sql\Initial.sql" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Sql\Initial.sql" />
+	</ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Smartstore.Core\Smartstore.Core.csproj">
       <Private>false</Private>

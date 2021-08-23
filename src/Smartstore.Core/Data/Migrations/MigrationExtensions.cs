@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using FluentMigrator;
 using FluentMigrator.Builders.Create.Column;
+using FluentMigrator.Builders.Create.Index;
 using FluentMigrator.Builders.Schema;
 
 namespace Smartstore.Core.Data.Migrations
@@ -9,23 +10,7 @@ namespace Smartstore.Core.Data.Migrations
     {
         private const string DEFAULT_SCHEMA = "dbo";
 
-        public static string SqlServer => "SqlServer";
-        public static string MySql => "MySql";
-
         #region Migration
-
-        public static void ExecuteEmbeddedScripts(this Migration migration, string sqlServerPath, string mySqlPath)
-        {
-            if (sqlServerPath.HasValue())
-            {
-                migration.IfDatabase(SqlServer).Execute.EmbeddedScript(sqlServerPath);
-            }
-
-            if (mySqlPath.HasValue())
-            {
-                migration.IfDatabase(MySql).Execute.EmbeddedScript(mySqlPath);
-            }
-        }
 
         public static void DeleteTables(this Migration migration, params string[] tableNames)
         {
@@ -59,6 +44,16 @@ namespace Smartstore.Core.Data.Migrations
             return null;
         }
 
+        public static ICreateIndexColumnOptionsSyntax CreateIndex(this Migration migration, string tableName, string columnName, string indexName)
+        {
+            if (!migration.Schema.IndexExists(tableName, indexName))
+            {
+                return migration.Create.Index(indexName).OnTable(tableName).OnColumn(columnName);
+            }
+
+            return null;
+        }
+
         #endregion
 
         #region Schema
@@ -73,6 +68,12 @@ namespace Smartstore.Core.Data.Migrations
         public static bool ColumnExists(this ISchemaExpressionRoot schema, string tableName, string columnName, string schemaName = default)
         {
             return schema.Schema(schemaName ?? DEFAULT_SCHEMA).Table(tableName).Column(columnName).Exists();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IndexExists(this ISchemaExpressionRoot schema, string tableName, string indexName, string schemaName = default)
+        {
+            return schema.Schema(schemaName ?? DEFAULT_SCHEMA).Table(tableName).Index(indexName).Exists();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

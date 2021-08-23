@@ -49,7 +49,7 @@ namespace Smartstore.Core.Bootstrapping
             services.AddTransient(typeof(DbMigrator<>));
 
             // Fluent migrator.
-            var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>()
+            var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>(true, true)
                 .Select(x => x.Assembly)
                 .Where(x => !x.FullName.Contains("FluentMigrator.Runner"))
                 .Distinct()
