@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine;
+using Smartstore.Web.Controllers;
 
 namespace Smartstore.DevTools.Filters
 {
@@ -30,6 +31,9 @@ namespace Smartstore.DevTools.Filters
             if (!_profilerSettings.DisplayMachineName)
                 return;
 
+            if (filterContext.Controller is not SmartController)
+                return;
+
             var result = filterContext.Result;
 
             // should only run on a full view rendering result or HTML ContentResult
@@ -54,7 +58,9 @@ namespace Smartstore.DevTools.Filters
 		            padding: 0.3em 1em;
 		            opacity: 0.92;
 		            border: 1px solid #fff;
-		            border-top-left-radius: 3px;
+                    border-right-width: 0;
+                    border-bottom-width: 0;
+		            border-top-left-radius: 4px;
 	            }
             </style>";
 
