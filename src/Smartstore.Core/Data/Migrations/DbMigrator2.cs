@@ -1,17 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using FluentMigrator;
 using FluentMigrator.Infrastructure;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Smartstore.Core.Data.Migrations
 {
     public interface IDbMigrator2
     {
-        void MigrateUp(Assembly assembly);
-        void MigrateDown(Assembly assembly);
+        void MigrateUp(Assembly assembly, CancellationToken cancelToken = default);
+        void MigrateDown(Assembly assembly, CancellationToken cancelToken = default);
     }
 
     public partial class DbMigrator2 : IDbMigrator2
@@ -33,26 +36,47 @@ namespace Smartstore.Core.Data.Migrations
             _versionLoader = versionLoader;
         }
 
-        public void MigrateUp(Assembly assembly)
+        public ILogger Logger { get; set; } = NullLogger.Instance;
+
+        public void MigrateUp(Assembly assembly, CancellationToken cancelToken = default)
         {
             Guard.NotNull(assembly, nameof(assembly));
 
             var migrationInfos = GetMigrationInfos(assembly, true);
+            LogInfo("Migrating up", assembly, migrationInfos);
 
             foreach (var info in migrationInfos)
             {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                //var versionAttribute = info.Migration.GetType().GetCustomAttribute<MigrationVersionAttribute>(false);
+                //if (versionAttribute.IsInitial && !includeInitial)
+                //{
+                //    continue;
+                //}
+
+                // INFO: this executes all migrations in ALL assemblies up to info.Version:
                 _migrationRunner.MigrateUp(info.Version);
             }
         }
 
-        public void MigrateDown(Assembly assembly)
+        public void MigrateDown(Assembly assembly, CancellationToken cancelToken = default)
         {
             Guard.NotNull(assembly, nameof(assembly));
 
             var migrationInfos = GetMigrationInfos(assembly, false);
+            LogInfo("Migrating down", assembly, migrationInfos);
 
             foreach (var info in migrationInfos)
             {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 _migrationRunner.Down(info.Migration);
                 _versionLoader.DeleteVersion(info.Version);
             }
@@ -66,6 +90,14 @@ namespace Smartstore.Core.Data.Migrations
             return ascending
                 ? migrationInfos.OrderBy(x => x.Version)
                 : migrationInfos.OrderByDescending(x => x.Version);
+        }
+
+        private void LogInfo(string text, Assembly assembly, IEnumerable<IMigrationInfo> infos)
+        {
+            if (infos.Any())
+            {
+                Logger.Info($"{text} {assembly.GetName().Name}: {string.Join(" ", infos.Select(x => x.Description))}");
+            }
         }
     }
 }

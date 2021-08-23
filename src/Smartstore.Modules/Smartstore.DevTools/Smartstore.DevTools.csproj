@@ -7,13 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Data\MySql\Sql\AddTestEntity.sql" />
-    <None Remove="Data\SqlServer\Sql\AddTestEntity.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Data\MySql\Sql\AddTestEntity.sql" />
-    <EmbeddedResource Include="Data\SqlServer\Sql\AddTestEntity.sql" />
+    <EmbeddedResource Include="Data\Sql\MySql\Initial.sql" />
+    <EmbeddedResource Include="Data\Sql\SqlServer\Initial.sql" />
   </ItemGroup>
 
   <ItemGroup>

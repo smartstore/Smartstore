@@ -7,7 +7,7 @@ namespace Smartstore.Core.Data.Migrations
     /// Represents the migration database table. It contains version information about applied migrations.
     /// </summary>
     [VersionTableMetaData]
-    public class MigrationVersionInfo : IVersionTableMetaData
+    public class MigrationHistory : IVersionTableMetaData
     {
         public long Version { get; set; }
 

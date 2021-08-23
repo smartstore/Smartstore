@@ -33,19 +33,16 @@ namespace Smartstore.Core.Data.Migrations
         private readonly SmartConfiguration _appConfig;
         private readonly ITypeScanner _typeScanner;
         private readonly Multimap<Type, Type> _seedersMap;
-        private readonly IDbMigrator2 _dbMigrator;
 
         public DatabaseInitializer(
             ILifetimeScope scope, 
             ITypeScanner typeScanner, 
-            SmartConfiguration appConfig,
-            IDbMigrator2 dbMigrator)
+            SmartConfiguration appConfig)
         {
             _scope = scope;
             _appConfig = appConfig;
             _typeScanner = typeScanner;
             _seedersMap = DiscoverDataSeeders().ToMultimap(key => key.ContextType, value => value.SeederType);
-            _dbMigrator = dbMigrator;
         }
 
         public virtual async Task InitializeDatabasesAsync(CancellationToken cancelToken = default)
@@ -53,11 +50,11 @@ namespace Smartstore.Core.Data.Migrations
             foreach (var dbContextType in DbMigrationManager.Instance.GetDbContextTypes())
             {
                 var migrator = _scope.Resolve(typeof(DbMigrator<>).MakeGenericType(dbContextType)) as DbMigrator;
-                await InitializeDatabaseAsync(migrator, _seedersMap[dbContextType], cancelToken);
+                await InitializeDatabaseAsync(migrator, _scope.Resolve<IDbMigrator2>(), _seedersMap[dbContextType], cancelToken);
             }
         }
 
-        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
+        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, IDbMigrator2 migrator2, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
         {
             Guard.NotNull(migrator, nameof(migrator));
 
@@ -85,14 +82,15 @@ namespace Smartstore.Core.Data.Migrations
                 
                 // Run all pending migrations
                 await migrator.RunPendingMigrationsAsync(cancelToken);
-                
+
+                // ------ fluent migrator start
+                //migrator2.MigrateUp(typeof(InitialMigration).Assembly, cancelToken);
+                //migrator2.MigrateUp(_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools")), cancelToken);
+                // ------ fluent migrator end
+
                 // Execute the global seeders anyway (on every startup),
                 // we could have locale resources or settings to add/update.
                 await RunGlobalSeeders(context, seederTypes, cancelToken);
-
-                // ------ fluent migrator start
-                //_dbMigrator.MigrateUp(_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools")));
-                // ------ fluent migrator end
 
                 // Restore standard command timeout
                 context.Database.SetCommandTimeout(prevCommandTimeout);

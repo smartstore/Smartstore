@@ -54,11 +54,14 @@ namespace Smartstore.Core.Bootstrapping
                 .Where(x => !x.FullName.Contains("FluentMigrator.Runner"))
                 .Distinct()
                 .ToArray();
+            //$"assemblies {string.Join(", ", migrationAssemblies.Select(x => x.GetName().Name))}".Dump();
+
+            var migrationTimeout = appContext.AppConfiguration.DbMigrationCommandTimeout ?? 60;
 
             services
                 .AddFluentMigratorCore()
                 .AddScoped<IProcessorAccessor, MigrationProcessorAccessor>()
-                .AddSingleton<IDbMigrator2, DbMigrator2>()
+                .AddScoped<IDbMigrator2, DbMigrator2>()
                 //.AddSingleton<IConventionSet, MigrationConventionSet>()
                 //.AddLogging(lb => lb.AddFluentMigratorConsole())
                 //.Configure<RunnerOptions>(opt =>
@@ -67,10 +70,11 @@ namespace Smartstore.Core.Bootstrapping
                 //    opt.Tags = new[] { "UK", "Production" }   // Used to filter migrations by tags.
                 //})
                 .ConfigureRunner(rb => rb
-                    .WithVersionTable(new MigrationVersionInfo())
                     .AddSqlServer()
                     .AddMySql5()
+                    .WithVersionTable(new MigrationHistory())
                     .WithGlobalConnectionString(DataSettings.Instance.ConnectionString) // Isn't AddScoped<IConnectionStringAccessor> better?
+                    .WithGlobalCommandTimeout(TimeSpan.FromSeconds(migrationTimeout))
                     .ScanIn(migrationAssemblies)
                         .For.Migrations()
                         .For.EmbeddedResources());
