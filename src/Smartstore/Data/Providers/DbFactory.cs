@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Engine;
@@ -79,5 +81,11 @@ namespace Smartstore.Data.Providers
                 return (DbFactory)Activator.CreateInstance(dbFactoryType);
             });
         }
+
+        public abstract Task<int> CreateDatabaseAsync(
+            string connectionString,
+            string collation = null,
+            int? commandTimeout = null,
+            CancellationToken cancelToken = default);
     }
 }

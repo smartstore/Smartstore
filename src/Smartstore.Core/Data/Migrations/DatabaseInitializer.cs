@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,11 +52,12 @@ namespace Smartstore.Core.Data.Migrations
             foreach (var dbContextType in DbMigrationManager.Instance.GetDbContextTypes())
             {
                 var migrator = _scope.Resolve(typeof(DbMigrator<>).MakeGenericType(dbContextType)) as DbMigrator;
-                await InitializeDatabaseAsync(migrator, _scope.Resolve<IDbMigrator2>(), _seedersMap[dbContextType], cancelToken);
+                var migrator2 = _scope.Resolve(typeof(DbMigrator2<>).MakeGenericType(dbContextType)) as DbMigrator2;
+                await InitializeDatabaseAsync(migrator, migrator2, _seedersMap[dbContextType], cancelToken);
             }
         }
 
-        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, IDbMigrator2 migrator2, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
+        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, DbMigrator2 migrator2, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
         {
             Guard.NotNull(migrator, nameof(migrator));
 
@@ -87,8 +87,7 @@ namespace Smartstore.Core.Data.Migrations
                 await migrator.RunPendingMigrationsAsync(cancelToken);
 
                 // ------ fluent migrator start
-                //migrator2.MigrateUp(typeof(InitialMigration).Assembly, cancelToken);
-                //migrator2.MigrateUp(_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools")), cancelToken);
+                //await migrator2.RunPendingMigrationsAsync();
                 // ------ fluent migrator end
 
                 // Execute the global seeders anyway (on every startup),

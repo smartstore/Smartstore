@@ -1,4 +1,5 @@
 ﻿using FluentMigrator;
+using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -7,11 +8,14 @@ namespace Smartstore.Core.Data.Migrations
     {
         public override void Up()
         {
-            "!! Initial migration: Smartstore Core database schema !!".Dump();
+            if (!DbMigrationManager.Instance.SuppressInitialCreate<SmartDbContext>())
+            {
+                "!! Initial migration: Smartstore Core database schema !!".Dump();
 
-            //this.ExecuteEmbeddedScripts(
-            //    "Smartstore.Core.Data.Sql.SqlServer.Initial.sql",
-            //    "Smartstore.Core.Data.Sql.MySql.Initial.sql");
+                //this.ExecuteEmbeddedScripts(
+                //    "Smartstore.Core.Data.Sql.SqlServer.Initial.sql",
+                //    "Smartstore.Core.Data.Sql.MySql.Initial.sql");
+            }
         }
 
         public override void Down()

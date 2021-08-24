@@ -1,37 +1,47 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentMigrator;
 using FluentMigrator.Infrastructure;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Data;
+using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
 {
-    public interface IDbMigrator2
+    public abstract class DbMigrator2
     {
+        public abstract HookingDbContext Context { get; }
+
         // TODO: (mg) (core) I don't like "Assembly" param in the signature. Maybe more conceptual? Not technical.
         // TODO: (mg) (core) The contract should follow the old contract (DbMigrator). We need DbContext for translation and setting seeding. We can't break with our concept.
-        void MigrateUp(Assembly assembly, CancellationToken cancelToken = default);
-        void MigrateDown(Assembly assembly, CancellationToken cancelToken = default);
+        public abstract Task RunPendingMigrationsAsync();
+        public abstract void MigrateDown(Assembly assembly, CancellationToken cancelToken = default);
     }
 
-    public partial class DbMigrator2 : IDbMigrator2
+    public class DbMigrator2<TContext> : DbMigrator2 where TContext : HookingDbContext
     {
+        private readonly TContext _db;
         private readonly IFilteringMigrationSource _filteringMigrationSource;
         private readonly IMigrationRunnerConventions _migrationRunnerConventions;
         private readonly IMigrationRunner _migrationRunner;
         private readonly IVersionLoader _versionLoader;
 
         public DbMigrator2(
+            TContext db,
             IFilteringMigrationSource filteringMigrationSource,
             IMigrationRunnerConventions migrationRunnerConventions,
             IMigrationRunner migrationRunner,
             IVersionLoader versionLoader)
         {
+            _db = Guard.NotNull(db, nameof(db));
+
             _filteringMigrationSource = filteringMigrationSource;
             _migrationRunnerConventions = migrationRunnerConventions;
             _migrationRunner = migrationRunner;
@@ -40,32 +50,26 @@ namespace Smartstore.Core.Data.Migrations
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public void MigrateUp(Assembly assembly, CancellationToken cancelToken = default)
+        public override TContext Context => _db;
+
+        public override async Task RunPendingMigrationsAsync()
         {
-            Guard.NotNull(assembly, nameof(assembly));
-
-            var migrationInfos = GetMigrationInfos(assembly, true);
-            LogInfo("Migrating up", assembly, migrationInfos);
-
-            foreach (var info in migrationInfos)
+            if (!_migrationRunner.HasMigrationsToApplyUp())
             {
-                if (cancelToken.IsCancellationRequested)
-                {
-                    break;
-                }
-
-                //var versionAttribute = info.Migration.GetType().GetCustomAttribute<MigrationVersionAttribute>(false);
-                //if (versionAttribute.IsInitial && !includeInitial)
-                //{
-                //    continue;
-                //}
-
-                // INFO: this executes all migrations in ALL assemblies up to info.Version:
-                _migrationRunner.MigrateUp(info.Version);
+                return;
             }
+
+            var latestVersion = _versionLoader.VersionInfo.Latest();
+            if (latestVersion == 0 && await ShouldSuppressInitialCreate())
+            {
+                DbMigrationManager.Instance.SetSuppressInitialCreate<TContext>(true);
+            }
+
+            // INFO: this executes all migrations in ALL assemblies registered by IMigrationRunnerBuilder.ScanIn:
+            _migrationRunner.MigrateUp();
         }
 
-        public void MigrateDown(Assembly assembly, CancellationToken cancelToken = default)
+        public override void MigrateDown(Assembly assembly, CancellationToken cancelToken = default)
         {
             Guard.NotNull(assembly, nameof(assembly));
 
@@ -92,6 +96,18 @@ namespace Smartstore.Core.Data.Migrations
             return ascending
                 ? migrationInfos.OrderBy(x => x.Version)
                 : migrationInfos.OrderByDescending(x => x.Version);
+        }
+
+        private async Task<bool> ShouldSuppressInitialCreate()
+        {
+            var tablesToCheck = _db.GetInvariantType().GetAttribute<CheckTablesAttribute>(true)?.TableNames;
+            if (tablesToCheck != null && tablesToCheck.Length > 0)
+            {
+                var dbTables = await _db.DataProvider.GetTableNamesAsync();
+                return dbTables.Intersect(tablesToCheck, StringComparer.InvariantCultureIgnoreCase).Count() == tablesToCheck.Length;
+            }
+
+            return false;
         }
 
         private void LogInfo(string text, Assembly assembly, IEnumerable<IMigrationInfo> infos)

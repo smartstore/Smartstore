@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using FluentMigrator;
 using FluentMigrator.Runner;
+using FluentMigrator.Runner.Logging;
 using FluentMigrator.Runner.Processors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -56,12 +57,27 @@ namespace Smartstore.Core.Bootstrapping
                 .ToArray();
             //$"assemblies {string.Join(", ", migrationAssemblies.Select(x => x.GetName().Name))}".Dump();
 
-            var migrationTimeout = appContext.AppConfiguration.DbMigrationCommandTimeout ?? 60;
+            var dataSettings = DataSettings.Instance;
+
+            void migrationRunner(IMigrationRunnerBuilder rb)
+            {
+                var migrationTimeout = appContext.AppConfiguration.DbMigrationCommandTimeout ?? 60;
+                var dbSystemName = dataSettings.DbFactory.DbSystem.ToString();
+
+                rb = dbSystemName.EqualsNoCase("MySql") ? rb.AddMySql5() : rb.AddSqlServer();
+
+                rb.WithVersionTable(new MigrationHistory())
+                    .WithGlobalConnectionString(dataSettings.ConnectionString) // Isn't AddScoped<IConnectionStringAccessor> better?
+                    .WithGlobalCommandTimeout(TimeSpan.FromSeconds(migrationTimeout))
+                    .ScanIn(migrationAssemblies)
+                        .For.Migrations()
+                        .For.EmbeddedResources();
+            }
 
             services
                 .AddFluentMigratorCore()
                 .AddScoped<IProcessorAccessor, MigrationProcessorAccessor>()
-                .AddScoped<IDbMigrator2, DbMigrator2>()
+                .AddTransient(typeof(DbMigrator2<>))
                 //.AddSingleton<IConventionSet, MigrationConventionSet>()
                 //.AddLogging(lb => lb.AddFluentMigratorConsole())
                 //.Configure<RunnerOptions>(opt =>
@@ -69,15 +85,12 @@ namespace Smartstore.Core.Bootstrapping
                 //    opt.Profile = "Development"   // Selectively apply migrations depending on whatever.
                 //    opt.Tags = new[] { "UK", "Production" }   // Used to filter migrations by tags.
                 //})
-                .ConfigureRunner(rb => rb
-                    .AddSqlServer() // TODO: (mg) (core) Don't add both providers. Add only the active one.
-                    .AddMySql5()
-                    .WithVersionTable(new MigrationHistory())
-                    .WithGlobalConnectionString(DataSettings.Instance.ConnectionString) // Isn't AddScoped<IConnectionStringAccessor> better?
-                    .WithGlobalCommandTimeout(TimeSpan.FromSeconds(migrationTimeout))
-                    .ScanIn(migrationAssemblies)
-                        .For.Migrations()
-                        .For.EmbeddedResources());
+                .ConfigureRunner(migrationRunner)
+                .Configure<FluentMigratorLoggerOptions>(o =>
+                {
+                    o.ShowSql = false;  // // TODO: (mg) (core) Security risk logging SQL. Config has no effect here. Loggs like crazy.
+                    o.ShowElapsedTime = true;
+                });
 
             return services;
         }

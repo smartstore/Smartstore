@@ -1,5 +1,6 @@
 ﻿using FluentMigrator;
 using Smartstore.Core.Data.Migrations;
+using Smartstore.Data;
 
 namespace Smartstore.DevTools.Data.Migrations
 {
@@ -8,13 +9,17 @@ namespace Smartstore.DevTools.Data.Migrations
     {
         public override void Up()
         {
-            this.CreateColumn("DevToolsTestEntity", "IsActive")?.AsBoolean()?.NotNullable();
-            this.CreateColumn("DevToolsTestEntity", "Notes")?.AsString(400)?.Nullable();
+            var dbSystemName = DataSettings.Instance.DbFactory.DbSystem.ToString();
+
+            this.CreateColumn(dbSystemName, "DevToolsTestEntity", "IsActive")?.AsBoolean()?.NotNullable();
+            this.CreateColumn(dbSystemName, "DevToolsTestEntity", "Notes")?.AsString(400)?.Nullable();
         }
 
         public override void Down()
         {
-            this.DeleteColumns("DevToolsTestEntity", "Notes", "IsActive");
+            var dbSystemName = DataSettings.Instance.DbFactory.DbSystem.ToString();
+
+            this.DeleteColumns(dbSystemName, "DevToolsTestEntity", "Notes", "IsActive");
         }
     }
 }

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Smartstore.Core.Data;
 using Smartstore.Data.Providers;
 
@@ -99,6 +102,38 @@ namespace Smartstore.Data.SqlServer
                         sql.MigrationsHistoryTable(extension.MigrationsHistoryTableName, extension.MigrationsHistoryTableSchema);
                 }
             });
+        }
+
+        public override async Task<int> CreateDatabaseAsync(
+            string connectionString,
+            string collation = null,
+            int? commandTimeout = null,
+            CancellationToken cancelToken = default)
+        {
+            Guard.NotEmpty(connectionString, nameof(connectionString));
+
+            var conString = (SqlConnectionStringBuilder)CreateConnectionStringBuilder(connectionString);
+            var databaseName = conString.InitialCatalog;
+
+            conString.InitialCatalog = "master";
+
+            var createSql = collation.HasValue()
+                ? $"CREATE DATABASE [{databaseName}] COLLATE {collation}"
+                : $"CREATE DATABASE [{databaseName}]";
+
+            using var connection = new SqlConnection(conString.ConnectionString);
+
+            var command = connection.CreateCommand();
+            command.CommandText = $"IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{databaseName}') BEGIN {createSql} END";
+
+            if (commandTimeout.HasValue)
+            {
+                command.CommandTimeout = commandTimeout.Value;
+            }
+
+            await command.Connection.OpenAsync(cancelToken);
+
+            return await command.ExecuteNonQueryAsync(cancelToken);
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using MySqlConnector;
-using Smartstore.Core.Data;
 using Smartstore.Data.Providers;
 
 // Add-Migration Initial -Context MySqlSmartDbContext -Project Smartstore.Data.MySql
@@ -93,6 +93,38 @@ namespace Smartstore.Data.MySql
                         sql.MigrationsHistoryTable(extension.MigrationsHistoryTableName, extension.MigrationsHistoryTableSchema);
                 }
             });
+        }
+
+        public override async Task<int> CreateDatabaseAsync(
+            string connectionString,
+            string collation = null,
+            int? commandTimeout = null,
+            CancellationToken cancelToken = default)
+        {
+            Guard.NotEmpty(connectionString, nameof(connectionString));
+
+            var conString = (MySqlConnectionStringBuilder)CreateConnectionStringBuilder(connectionString);
+            var databaseName = conString.Database;
+
+            conString.Database = null;
+
+            var sql = collation.HasValue()
+                ? $"CREATE DATABASE IF NOT EXISTS `{databaseName}` COLLATE {collation}"
+                : $"CREATE DATABASE IF NOT EXISTS `{databaseName}`";
+
+            using var connection = new MySqlConnection(conString.ConnectionString);
+
+            var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            if (commandTimeout.HasValue)
+            {
+                command.CommandTimeout = commandTimeout.Value;
+            }
+
+            await command.Connection.OpenAsync(cancelToken);
+
+            return await command.ExecuteNonQueryAsync(cancelToken);
         }
     }
 }
