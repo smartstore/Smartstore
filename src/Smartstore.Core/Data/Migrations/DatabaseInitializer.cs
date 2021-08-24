@@ -13,6 +13,9 @@ using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
 using Smartstore.Engine;
 
+// TODO: (mg) (core) We need to separate migration infrastructure and actual migration classes. Both cannot exist in the same space.
+//       Maybe we can move infrastructure to "Smartstore" assembly.
+
 namespace Smartstore.Core.Data.Migrations
 {
     /// <summary>

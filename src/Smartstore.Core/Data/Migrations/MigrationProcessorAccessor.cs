@@ -35,7 +35,6 @@ namespace Smartstore.Core.Data.Migrations
             if (Processor == null)
             {
                 var availableTypeNames = string.Join(", ", processors.Select(x => x.DatabaseType).Union(processors.SelectMany(x => x.DatabaseTypeAliases)));
-
                 throw new ProcessorFactoryNotFoundException($"Cannot find migration processor for {dbSystemName}. Available processors: {availableTypeNames}.");
             }
         }

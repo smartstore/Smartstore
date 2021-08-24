@@ -61,6 +61,7 @@ namespace Smartstore.Core.Data.Migrations
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TableExists(this ISchemaExpressionRoot schema, string tableName, string schemaName = default)
         {
+            // TODO: (mg) (core) "dbo" is not always the default schema. We need to be db-provider-agnostic.
             return schema.Schema(schemaName ?? DEFAULT_SCHEMA).Table(tableName).Exists();
         }
 

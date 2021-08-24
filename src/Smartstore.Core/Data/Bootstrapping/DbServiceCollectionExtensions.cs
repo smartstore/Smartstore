@@ -70,7 +70,7 @@ namespace Smartstore.Core.Bootstrapping
                 //    opt.Tags = new[] { "UK", "Production" }   // Used to filter migrations by tags.
                 //})
                 .ConfigureRunner(rb => rb
-                    .AddSqlServer()
+                    .AddSqlServer() // TODO: (mg) (core) Don't add both providers. Add only the active one.
                     .AddMySql5()
                     .WithVersionTable(new MigrationHistory())
                     .WithGlobalConnectionString(DataSettings.Instance.ConnectionString) // Isn't AddScoped<IConnectionStringAccessor> better?

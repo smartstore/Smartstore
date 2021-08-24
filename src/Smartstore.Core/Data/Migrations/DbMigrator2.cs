@@ -13,6 +13,8 @@ namespace Smartstore.Core.Data.Migrations
 {
     public interface IDbMigrator2
     {
+        // TODO: (mg) (core) I don't like "Assembly" param in the signature. Maybe more conceptual? Not technical.
+        // TODO: (mg) (core) The contract should follow the old contract (DbMigrator). We need DbContext for translation and setting seeding. We can't break with our concept.
         void MigrateUp(Assembly assembly, CancellationToken cancelToken = default);
         void MigrateDown(Assembly assembly, CancellationToken cancelToken = default);
     }
