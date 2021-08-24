@@ -1,10 +1,9 @@
-﻿using FluentMigrator;
-using Smartstore.Data.Migrations;
+﻿using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
 {
     [MigrationVersion("2021-01-01 00:00:00", "Smartstore Core database schema.")]
-    public class InitialMigration : Migration
+    public class InitialMigration : DatabaseMigrationBase
     {
         public override void Up()
         {

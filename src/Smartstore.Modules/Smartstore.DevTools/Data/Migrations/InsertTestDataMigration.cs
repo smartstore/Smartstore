@@ -1,11 +1,10 @@
 ﻿using System;
-using FluentMigrator;
 using Smartstore.Core.Data.Migrations;
 
 namespace Smartstore.DevTools.Data.Migrations
 {
     [MigrationVersion("2021-08-19 14:39:12", "Insert DevTools test data.")]
-    public class InsertTestDataMigration : Migration
+    public class InsertTestDataMigration : DatabaseMigrationBase
     {
         public override void Up()
         {

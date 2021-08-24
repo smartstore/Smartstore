@@ -1,19 +1,15 @@
-﻿using FluentMigrator;
-using Smartstore.Core.Data.Migrations;
-using Smartstore.Data;
+﻿using Smartstore.Core.Data.Migrations;
 
 namespace Smartstore.DevTools.Data.Migrations
 {
     [MigrationVersion("2021-08-18 15:51:30", "Add DevTools test entity.")]
-    public class InitialMigration : Migration
+    public class InitialMigration : DatabaseMigrationBase
     {
         private const string TEST_TABLE = "DevToolsTestEntity";
 
         public override void Up()
         {
-            var dbSystemName = DataSettings.Instance.DbFactory.DbSystem.ToString();
-
-            if (!this.TableExists(dbSystemName, TEST_TABLE))
+            if (!TableExists(TEST_TABLE))
             {
                 Create.Table(TEST_TABLE)
                     .WithColumn("Id").AsInt32().PrimaryKey().Identity().NotNullable()
@@ -29,15 +25,15 @@ namespace Smartstore.DevTools.Data.Migrations
                     .WithColumn("UpdatedOnUtc").AsDateTime2().NotNullable();
             }
 
-            this.CreateIndex(dbSystemName, TEST_TABLE, "Deleted", "IX_Deleted")?.Ascending()?.WithOptions()?.NonClustered();
-            this.CreateIndex(dbSystemName, TEST_TABLE, "DisplayOrder", "IX_DisplayOrder")?.Ascending()?.WithOptions()?.NonClustered();
-            this.CreateIndex(dbSystemName, TEST_TABLE, "LimitedToStores", "IX_LimitedToStores")?.Ascending()?.WithOptions()?.NonClustered();
-            this.CreateIndex(dbSystemName, TEST_TABLE, "SubjectToAcl", "IX_SubjectToAcl")?.Ascending()?.WithOptions()?.NonClustered();
+            CreateIndex(TEST_TABLE, "Deleted", "IX_Deleted")?.Ascending()?.WithOptions()?.NonClustered();
+            CreateIndex(TEST_TABLE, "DisplayOrder", "IX_DisplayOrder")?.Ascending()?.WithOptions()?.NonClustered();
+            CreateIndex(TEST_TABLE, "LimitedToStores", "IX_LimitedToStores")?.Ascending()?.WithOptions()?.NonClustered();
+            CreateIndex(TEST_TABLE, "SubjectToAcl", "IX_SubjectToAcl")?.Ascending()?.WithOptions()?.NonClustered();
         }
 
         public override void Down()
         {
-            this.DeleteTables(TEST_TABLE);
+            DeleteTables(TEST_TABLE);
         }
     }
 }
