@@ -1,5 +1,22 @@
 ﻿@using Smartstore.Admin.Models.Directory
+
 @model CountryModel
+
+@{ 
+    // TODO: (mh) (core) spa-layout please!
+    // TODO: (mh) (core) LimitedToStores cannot be editable
+    // TODO: (mh) (core) Too many initially visible columns
+    // TODO: (mh) (core) Generally bad grid layout
+    // TODO: (mh) (core) Why enabling inline edit here but not in other grids (measure, weight etc.)? 1-to-1 port?! 
+    // TODO: (mh) (core) InlineEdit update does not work!
+    // TODO: (mh) (core) Edit-->Update update does not work!
+    // TODO: (mh) (core) NumberInput missing in edit form.
+    // TODO: (mh) (core) Group/rearrange controls in edit form. Was always too chaotic.
+    // TODO: (mh) (core) max-height is missing in Regions grid.
+    // TODO: (mh) (core) Regions grid: enable inline edit/insert to allow fast edit. Click on Name link opens editor form.
+    // TODO: (mh) (core) Title part (CountryName) missing in Region edit form
+    // INFO: (mh) (core) Too many mistakes!!!!!!!!!!!!
+}
 
 <datagrid id="countries-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
     <datasource read="@Url.Action("CountryList", "Country")"

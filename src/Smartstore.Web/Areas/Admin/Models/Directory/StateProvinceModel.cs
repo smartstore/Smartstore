@@ -4,17 +4,18 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Directory
 {
+    [LocalizedDisplay("Admin.Configuration.Countries.States.Fields.")]
     public class StateProvinceModel : EntityModelBase, ILocalizedModel<StateProvinceLocalizedModel>
     {
         public int CountryId { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Countries.States.Fields.Name")]
+        [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Countries.States.Fields.Abbreviation")]
+        [LocalizedDisplay("*Abbreviation")]
         public string Abbreviation { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Countries.States.Fields.Published")]
+        [LocalizedDisplay("*Published")]
         public bool Published { get; set; }
 
         [LocalizedDisplay("Common.DisplayOrder")]

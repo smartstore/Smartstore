@@ -5,47 +5,48 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Directory
 {
+    [LocalizedDisplay("Admin.Configuration.Countries.Fields.")] // INFO: (mh) (core) Why?!!
     public class CountryModel : TabbableModel, ILocalizedModel<CountryLocalizedModel>
     {
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.Name")]
+        [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.AllowsBilling")]
+        [LocalizedDisplay("*AllowsBilling")]
         public bool AllowsBilling { get; set; } = true;
 
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.AllowsShipping")]
+        [LocalizedDisplay("*AllowsShipping")]
         public bool AllowsShipping { get; set; } = true;
 
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.TwoLetterIsoCode")]
+        [LocalizedDisplay("*TwoLetterIsoCode")]
         public string TwoLetterIsoCode { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.ThreeLetterIsoCode")]
+        [LocalizedDisplay("*ThreeLetterIsoCode")]
         public string ThreeLetterIsoCode { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.NumericIsoCode")]
+        [LocalizedDisplay("*NumericIsoCode")]
         public int NumericIsoCode { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.SubjectToVat")]
+        [LocalizedDisplay("*SubjectToVat")]
         public bool SubjectToVat { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.DisplayCookieManager")]
+        [LocalizedDisplay("*DisplayCookieManager")]
         public bool DisplayCookieManager { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.Published")]
+        [LocalizedDisplay("*Published")]
         public bool Published { get; set; } = true;
 
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.NumberOfStates")]
+        [LocalizedDisplay("*NumberOfStates")]
         public int NumberOfStates { get; set; }
 
         [UIHint("Textarea")]
         [AdditionalMetadata("rows", 10)]
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.AddressFormat")]
+        [LocalizedDisplay("*AddressFormat")]
         public string AddressFormat { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Countries.Fields.DefaultCurrency")]
+        [LocalizedDisplay("*DefaultCurrency")]
         public int? DefaultCurrencyId { get; set; }
 
         public List<CountryLocalizedModel> Locales { get; set; } = new();

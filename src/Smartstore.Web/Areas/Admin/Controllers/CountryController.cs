@@ -150,6 +150,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         [Permission(Permissions.Configuration.Country.Delete)]
         public async Task<IActionResult> Delete(CountryModel model)
         {
+            // TODO: (mh) (core) Why pass model??!! Id is sufficient!
             var country = await _db.Countries.FindByIdAsync(model.Id);
             if (country == null)
             {
@@ -250,9 +251,9 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         [Permission(Permissions.Configuration.Country.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var country = _db.Countries
+            var country = await _db.Countries
                 .Include(x => x.StateProvinces)
-                .FindById(id, false);
+                .FindByIdAsync(id, false);
 
             if (country == null)
             {
@@ -275,9 +276,9 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         [Permission(Permissions.Configuration.Country.Update)]
         public async Task<IActionResult> Edit(CountryModel model, bool continueEditing, IFormCollection form)
         {
-            var country = _db.Countries
+            var country = await _db.Countries
                 .Include(x => x.StateProvinces)
-                .FindById(model.Id);
+                .FindByIdAsync(model.Id);
 
             if (country == null)
             {
@@ -352,7 +353,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         [Permission(Permissions.Configuration.Country.Update)]
         public async Task<IActionResult> StateCreatePopup(StateProvinceModel model, string btnId, string formId)
         {
-            var country = _db.Countries.FindById(model.CountryId);
+            var country = await _db.Countries.FindByIdAsync(model.CountryId);
             if (country == null)
             {
                 return NotFound();
@@ -377,7 +378,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         [Permission(Permissions.Configuration.Country.Read)]
         public async Task<IActionResult> StateEditPopup(int id, string btnId, string formId)
         {
-            var stateProvince = _db.StateProvinces.FindById(id);
+            var stateProvince = await _db.StateProvinces.FindByIdAsync(id);
             if (stateProvince == null)
             {
                 return NotFound();
@@ -400,7 +401,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         [Permission(Permissions.Configuration.Country.Update)]
         public async Task<IActionResult> StateEditPopup(StateProvinceModel model, string btnId, string formId)
         {
-            var stateProvince = _db.StateProvinces.FindById(model.Id);
+            var stateProvince = await _db.StateProvinces.FindByIdAsync(model.Id);
             if (stateProvince == null)
             {
                 return NotFound();
@@ -442,11 +443,11 @@ namespace Smartstore.Web.Areas.Admin.Controllers
 
         /// <summary>
         /// Permission validation is not required here.
-        /// This action method gets called via an ajax request.
+        /// This action method gets called via an AJAX request.
         /// </summary>
         public async Task<IActionResult> GetStatesByCountryId(string countryId, bool? addEmptyStateIfRequired, bool? addAsterisk)
         {
-            var country = _db.Countries.FindById(countryId.ToInt());
+            var country = await _db.Countries.FindByIdAsync(countryId.ToInt());
             var states = new List<StateProvince>();
             if (country != null)
             {
