@@ -1,5 +1,6 @@
 ﻿@{
     ViewBag.Title = T("Admin.Configuration.Countries").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
 }
 
 <form id="countries">
@@ -9,6 +10,6 @@
             @T("Admin.Configuration.Countries")
         </div>
     </div>
-
-    <partial name="_Grid.Countries" model="null" />
 </form>
+
+<partial name="_Grid.Countries" model="null" />

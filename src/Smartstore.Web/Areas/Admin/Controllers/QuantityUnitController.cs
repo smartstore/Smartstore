@@ -214,7 +214,6 @@ namespace Smartstore.Admin.Controllers
                 {
                     if (quantityUnit.IsDefault)
                     {
-                        // TODO: (mh) (core) I guess we have a hook for this. Please check.
                         triedToDeleteDefault = true;
                         NotifyError(T("Admin.Configuration.Measures.QuantityUnits.CantDeleteDefault"));
                     }

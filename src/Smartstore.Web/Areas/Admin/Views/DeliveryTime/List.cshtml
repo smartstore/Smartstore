@@ -1,5 +1,6 @@
 ﻿@{
     ViewBag.Title = T("Admin.Configuration.DeliveryTimes").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
 }
 
 <form id="delivery-times">
@@ -9,6 +10,7 @@
             <span>@T("Admin.Configuration.DeliveryTimes")</span>
         </div>
     </div>
-
-    <partial name="_Grid.DeliveryTimes" model="null" />
+    <input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
 </form>
+
+<partial name="_Grid.DeliveryTimes" model="null" />

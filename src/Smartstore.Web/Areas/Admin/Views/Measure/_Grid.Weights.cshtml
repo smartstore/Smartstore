@@ -1,9 +1,6 @@
 ﻿@using Smartstore.Admin.Models.Directory
 
 @{
-    // TODO: (mh) (core) spa-layout please!
-    // TODO: (mh) (core) Bad grid layout (column widths)
-    // TODO: (mh) (core) Popup: wrong editor template types for Ratio and DisplayOrder (must be NumberInput)
     // TODO: (mh) (core) Add row action that makes the entry "default".
 }
 
@@ -31,16 +28,16 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Name" width="2fr" hideable="false">
+        <column for="Name" width="1fr" hideable="false">
             <display-template>
                 <a href="#" class="grid-edit-measure-weight text-truncate" :data-key="item.row.Id">
                     {{ item.value }}
                 </a>
             </display-template>
         </column>
-        <column for="SystemKeyword" />
-        <column for="Ratio" halign="center" />
-        <column for="IsPrimaryWeight" halign="center" sortable="false" />
+        <column for="SystemKeyword" width="1fr" />
+        <column for="Ratio" halign="center" width="1fr" />
+        <column for="IsPrimaryWeight" halign="center" sortable="false" width="1fr" />
         <column for="DisplayOrder" halign="center" />
     </columns>
     <row-commands>
@@ -48,8 +45,6 @@
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
-
-<input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
 
 <script sm-target-zone="scripts" data-origin="measure-weight-grid">
     $(function () {

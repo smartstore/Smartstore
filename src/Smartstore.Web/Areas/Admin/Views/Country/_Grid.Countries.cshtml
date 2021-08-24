@@ -3,19 +3,12 @@
 @model CountryModel
 
 @{ 
-    // TODO: (mh) (core) spa-layout please!
-    // TODO: (mh) (core) LimitedToStores cannot be editable
-    // TODO: (mh) (core) Too many initially visible columns
-    // TODO: (mh) (core) Generally bad grid layout
-    // TODO: (mh) (core) Why enabling inline edit here but not in other grids (measure, weight etc.)? 1-to-1 port?! 
+    // INFO: Works for me. Let's check in your project...
     // TODO: (mh) (core) InlineEdit update does not work!
     // TODO: (mh) (core) Edit-->Update update does not work!
-    // TODO: (mh) (core) NumberInput missing in edit form.
-    // TODO: (mh) (core) Group/rearrange controls in edit form. Was always too chaotic.
-    // TODO: (mh) (core) max-height is missing in Regions grid.
+
+    // TODO: (mh) (core) Why enabling inline edit here but not in other grids (measure, weight etc.)? 1-to-1 port?! 
     // TODO: (mh) (core) Regions grid: enable inline edit/insert to allow fast edit. Click on Name link opens editor form.
-    // TODO: (mh) (core) Title part (CountryName) missing in Region edit form
-    // INFO: (mh) (core) Too many mistakes!!!!!!!!!!!!
 }
 
 <datagrid id="countries-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
@@ -41,22 +34,22 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Name" width="2fr" hideable="false">
+        <column for="Name" width="1fr" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">
                     {{ item.value }}
                 </a>
             </display-template>
         </column>
+        <column for="TwoLetterIsoCode" halign="center" />
         <column for="AllowsBilling" halign="center" />
         <column for="AllowsShipping" halign="center" />
-        <column for="TwoLetterIsoCode" halign="center" />
-        <column for="ThreeLetterIsoCode" halign="center" />
-        <column for="NumericIsoCode" halign="center" />
+        <column for="ThreeLetterIsoCode" halign="center" visible="false" />
+        <column for="NumericIsoCode" halign="center" visible="false" />
         <column for="SubjectToVat" halign="center" />
-        <column for="DisplayOrder" halign="center" />
-        <column for="LimitedToStores" halign="center" />
+        <column for="LimitedToStores" halign="center" readonly="true" />
         <column for="Published" halign="center" />
+        <column for="DisplayOrder" halign="center" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>

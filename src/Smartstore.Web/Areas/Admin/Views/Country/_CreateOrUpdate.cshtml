@@ -37,6 +37,24 @@
         <div class="adminContent">
             <div class="adminRow">
                 <div class="adminTitle">
+                    <smart-label asp-for="Published" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Published" />
+                    <span asp-validation-for="Published"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayOrder" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="DisplayOrder" />
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
                     <smart-label asp-for="AllowsBilling" />
                 </div>
                 <div class="adminData">
@@ -52,6 +70,47 @@
                     <input asp-for="AllowsShipping" />
                     <span asp-validation-for="AllowsShipping"></span>
                 </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SubjectToVat" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="SubjectToVat" />
+                    <span asp-validation-for="SubjectToVat"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayCookieManager" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="DisplayCookieManager" />
+                    <span asp-validation-for="DisplayCookieManager"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DefaultCurrencyId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="DefaultCurrencyId" asp-items="ViewBag.AllCurrencies">
+                        <option>@T("Common.Unspecified")</option>
+                    </select>
+                    <span asp-validation-for="DefaultCurrencyId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedStoreIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedStoreIds" />
+                    <span asp-validation-for="SelectedStoreIds"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminSeparator"><hr /></div>
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
@@ -76,65 +135,12 @@
                     <smart-label asp-for="NumericIsoCode" />
                 </div>
                 <div class="adminData">
-                    <input asp-for="NumericIsoCode" />
+                    <editor asp-for="NumericIsoCode" />
                     <span asp-validation-for="NumericIsoCode"></span>
                 </div>
             </div>
             <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="SubjectToVat" />
-                </div>
-                <div class="adminData">
-                    <input asp-for="SubjectToVat" />
-                    <span asp-validation-for="SubjectToVat"></span>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="DisplayCookieManager" />
-                </div>
-                <div class="adminData">
-                    <input asp-for="DisplayCookieManager" />
-                    <span asp-validation-for="DisplayCookieManager"></span>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="Published" />
-                </div>
-                <div class="adminData">
-                    <input asp-for="Published" />
-                    <span asp-validation-for="Published"></span>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="DisplayOrder" />
-                </div>
-                <div class="adminData">
-                    <input asp-for="DisplayOrder" />
-                    <span asp-validation-for="DisplayOrder"></span>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="DefaultCurrencyId" />
-                </div>
-                <div class="adminData">
-                    <select asp-for="DefaultCurrencyId" asp-items="ViewBag.AllCurrencies">
-                        <option>@T("Common.Unspecified")</option>
-                    </select>
-                    <span asp-validation-for="DefaultCurrencyId"></span>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="SelectedStoreIds" />
-                </div>
-                <div class="adminData">
-                    <editor asp-for="SelectedStoreIds" />
-                    <span asp-validation-for="SelectedStoreIds"></span>
-                </div>
+                <div class="adminSeparator"><hr /></div>
             </div>
             <div class="adminRow">
                 <div class="adminTitle">

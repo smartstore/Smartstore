@@ -1,12 +1,5 @@
 ﻿@using Smartstore.Admin.Models.Directory
 
-@{ 
-    // TODO: (mh) (core) spa-layout please!
-    // TODO: (mh) (core) Colorbox should render in "Color" column!
-    // TODO: (mh) (core) Date range label is missing in "Name" column (when. 
-    // INFO: (mh) (core) Please port "completely". There are too many missing parts in such a small module!!!
-}
-
 @model DeliveryTimeModel
 
 <datagrid id="delivery-time-grid" allow-resize="true" allow-row-selection="true">
@@ -33,12 +26,22 @@
     <columns>
         <column for="Name" width="2fr" hideable="false">
             <display-template>
-                <a href="#" class="grid-edit-delivery-time text-truncate" :data-key="item.row.Id">
-                    {{ item.value }}
-                </a>
+                <div class="d-block">
+                    <a href="#" class="grid-edit-delivery-time text-truncate" :data-key="item.row.Id">
+                        {{ item.value }}
+                    </a>
+                    <div v-if="item.row.DeliveryInfo" class="muted" v-html="item.row.DeliveryInfo"></div>
+                </div>
             </display-template>
         </column>
-        <column for="ColorHexValue" sortable="false" />
+        <column for="ColorHexValue" sortable="false">
+            <display-template>
+                <span class='color-container'>
+                    <span class='color' :style='{background: item.value}'>&nbsp;</span>
+                </span>
+                <span>{{ item.value }}</span>
+            </display-template>
+        </column>
         <column for="IsDefault" halign="center" sortable="false" />
         <column for="MinDays" halign="center" />
         <column for="MaxDays" halign="center" />
@@ -49,8 +52,6 @@
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
-
-<input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
 
 <script sm-target-zone="scripts" data-origin="delivery-time-grid">
     $(function () {

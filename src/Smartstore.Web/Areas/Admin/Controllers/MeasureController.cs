@@ -99,7 +99,7 @@ namespace Smartstore.Admin.Controllers
                         await _db.SaveChangesAsync();
                     }
 
-                    NotifySuccess(T("Admin.Configuration.MeasureWeight.Added"));
+                    NotifySuccess(T("Admin.Configuration.Entity.Added"));
                 }
                 catch (Exception ex)
                 {
@@ -164,7 +164,7 @@ namespace Smartstore.Admin.Controllers
                         await _db.SaveChangesAsync();
                     }
 
-                    NotifySuccess(T("Admin.Configuration.MeasureWeight.Updated"));
+                    NotifySuccess(T("Admin.Configuration.Entity.Updated"));
                 }
                 catch (Exception ex)
                 {
@@ -302,7 +302,7 @@ namespace Smartstore.Admin.Controllers
                         await _db.SaveChangesAsync();
                     }
 
-                    NotifySuccess(T("Admin.Configuration.Dimension.Added"));
+                    NotifySuccess(T("Admin.Configuration.Entity.Added"));
                 }
                 catch (Exception ex)
                 {
@@ -362,13 +362,12 @@ namespace Smartstore.Admin.Controllers
 
                     if (model.IsPrimaryDimension && _measureSettings.BaseDimensionId != measureDimension.Id)
                     {
-                        // TODO: (mh) (core) Check for hooks
                         _measureSettings.BaseDimensionId = measureDimension.Id;
                         await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseDimensionId);
                         await _db.SaveChangesAsync();
                     }
 
-                    NotifySuccess(T("Admin.Configuration.MeasureDimension.Updated"));
+                    NotifySuccess(T("Admin.Configuration.Entity.Updated"));
                 }
                 catch (Exception ex)
                 {

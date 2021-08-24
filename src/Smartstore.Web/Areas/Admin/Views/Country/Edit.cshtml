@@ -9,7 +9,7 @@
 <form asp-action="Edit" id="country-form">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Configuration.Countries.EditCountryDetails")
+            @T("Admin.Configuration.Countries.EditCountryDetails") - @Model.Name
             <a asp-action="List">(@T("Admin.Configuration.Countries.BackToList"))</a>
         </div>
         <div class="options">

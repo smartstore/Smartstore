@@ -5,15 +5,16 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Directory
 {
+    [LocalizedDisplay("Admin.Configuration.Measures.Weights.Fields.")]
     public class MeasureWeightModel : EntityModelBase, ILocalizedModel<MeasureWeightLocalizedModel>
     {
-        [LocalizedDisplay("Admin.Configuration.Measures.Weights.Fields.Name")]
+        [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Measures.Weights.Fields.SystemKeyword")]
+        [LocalizedDisplay("*SystemKeyword")]
         public string SystemKeyword { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Measures.Weights.Fields.Ratio")]
+        [LocalizedDisplay("*Ratio")]
         [UIHint("Decimal")]
         [AdditionalMetadata("decimals", 8)]
         public decimal Ratio { get; set; }
@@ -21,7 +22,7 @@ namespace Smartstore.Admin.Models.Directory
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.Measures.Weights.Fields.IsPrimaryWeight")]
+        [LocalizedDisplay("*IsPrimaryWeight")]
         public bool IsPrimaryWeight { get; set; }
 
         public List<MeasureWeightLocalizedModel> Locales { get; set; } = new();

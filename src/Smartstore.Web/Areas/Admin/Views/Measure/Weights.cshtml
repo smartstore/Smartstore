@@ -1,5 +1,6 @@
 ﻿@{
     ViewBag.Title = T("Admin.Configuration.Measures.Weights").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
 }
 
 <form id="measures-weights">
@@ -10,5 +11,7 @@
         </div>
     </div>
 
-    <partial name="_Grid.Weights" model="null" />
+    <input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />    
 </form>
+
+<partial name="_Grid.Weights" model="null" />

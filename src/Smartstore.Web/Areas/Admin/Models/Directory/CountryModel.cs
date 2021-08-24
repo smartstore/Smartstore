@@ -5,7 +5,7 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Directory
 {
-    [LocalizedDisplay("Admin.Configuration.Countries.Fields.")] // INFO: (mh) (core) Why?!!
+    [LocalizedDisplay("Admin.Configuration.Countries.Fields.")]
     public class CountryModel : TabbableModel, ILocalizedModel<CountryLocalizedModel>
     {
         [LocalizedDisplay("*Name")]

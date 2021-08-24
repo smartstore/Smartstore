@@ -7,29 +7,30 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Directory
 {
+    [LocalizedDisplay("Admin.Configuration.DeliveryTimes.Fields.")]
     public class DeliveryTimeModel : EntityModelBase, ILocalizedModel<DeliveryTimeLocalizedModel>
     {
-        [LocalizedDisplay("Admin.Configuration.DeliveryTimes.Fields.Name")]
+        [LocalizedDisplay("*Name")]
         public string Name { get; set; }
         public string DeliveryInfo { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.DeliveryTimes.Fields.DisplayLocale")]
+        [LocalizedDisplay("*DisplayLocale")]
         public string DisplayLocale { get; set; }
 
         [UIHint("Color")]
-        [LocalizedDisplay("Admin.Configuration.DeliveryTimes.Fields.Color")]
+        [LocalizedDisplay("*Color")]
         public string ColorHexValue { get; set; }
 
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.DeliveryTimes.Fields.IsDefault")]
+        [LocalizedDisplay("*IsDefault")]
         public bool IsDefault { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.DeliveryTimes.Fields.MinDays")]
+        [LocalizedDisplay("*MinDays")]
         public int? MinDays { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.DeliveryTimes.Fields.MaxDays")]
+        [LocalizedDisplay("*MaxDays")]
         public int? MaxDays { get; set; }
 
         public List<DeliveryTimeLocalizedModel> Locales { get; set; } = new();
@@ -39,7 +40,7 @@ namespace Smartstore.Admin.Models.Directory
     {
         public int LanguageId { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.DeliveryTimes.Fields.Name")]
+        [LocalizedDisplay("*Name")]
         public string Name { get; set; }
     }
 

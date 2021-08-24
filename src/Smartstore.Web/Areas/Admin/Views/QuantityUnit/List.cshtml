@@ -1,13 +1,16 @@
 ﻿@{
     ViewBag.Title = T("Admin.Configuration.QuantityUnit.EditQuantityUnitDetails").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
 }
 
 <form id="quantity-units">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Configuration.QuantityUnit.EditQuantityUnitDetails")
+            <i class="fas fa-box-open"></i>
+            <span>@T("Admin.Configuration.QuantityUnit")</span>
         </div>
     </div>
-
-    <partial name="_Grid.QuantityUnits" model="null" />
+    <input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
 </form>
+
+<partial name="_Grid.QuantityUnits" model="null" />

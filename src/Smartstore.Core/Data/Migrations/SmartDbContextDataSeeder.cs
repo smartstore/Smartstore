@@ -53,23 +53,14 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.DeliveryTimes.CantDeleteDefault",
                 "The default delivery time can't be deleted. Specify another standard delivery time beforehand.",
                 "Die Standard-Lieferzeit kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Lieferzeit.");
-            
-            // TODO: (mh) (core) Please don't add new "repetitive" resource entries. Favor generic entries instead (e.g.: The ENTITY has been updated...)
-            builder.AddOrUpdate("Admin.Configuration.MeasureDimension.Updated",
-                "The dimension has been successfully updated.",
-                "Die Abmessung wurde erfolgreich aktualisiert.");
-            
-            builder.AddOrUpdate("Admin.Configuration.MeasureWeight.Updated",
-                "The weight has been successfully updated.",
-                "Das Gewicht wurde erfolgreich aktualisiert.");
+           
+            builder.AddOrUpdate("Admin.Configuration.Entity.Updated",
+                "The entity has been successfully updated.",
+                "Die Entität wurde erfolgreich aktualisiert.");
 
-            builder.AddOrUpdate("Admin.Configuration.MeasureDimension.Added",
-                "The dimension has been successfully added.",
-                "Die Abmessung wurde erfolgreich hinzugefügt.");
-
-            builder.AddOrUpdate("Admin.Configuration.MeasureWeight.Added",
-                "The weight has been successfully added.",
-                "Das Gewicht wurde erfolgreich hinzugefügt.");
+            builder.AddOrUpdate("Admin.Configuration.Entity.Added",
+                "The entity has been successfully added.",
+                "Die Entität wurde erfolgreich hinzugefügt.");
 
             builder.AddOrUpdate("Common.Exit", "Exit", "Beenden");
             builder.AddOrUpdate("Common.Empty", "Empty", "Leer");

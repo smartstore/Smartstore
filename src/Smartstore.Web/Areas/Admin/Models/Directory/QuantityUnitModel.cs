@@ -4,12 +4,13 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Directory
 {
+    [LocalizedDisplay("Admin.Configuration.QuantityUnit.Fields.")]
     public class QuantityUnitModel : EntityModelBase, ILocalizedModel<QuantityUnitLocalizedModel>
     {
-        [LocalizedDisplay("Admin.Configuration.QuantityUnit.Fields.Name")]
+        [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.QuantityUnit.Fields.NamePlural")]
+        [LocalizedDisplay("*NamePlural")]
         public string NamePlural { get; set; }
 
         [LocalizedDisplay("Common.Description")]
@@ -18,20 +19,21 @@ namespace Smartstore.Admin.Models.Directory
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.QuantityUnit.Fields.IsDefault")]
+        [LocalizedDisplay("*IsDefault")]
         public bool IsDefault { get; set; }
 
         public List<QuantityUnitLocalizedModel> Locales { get; set; } = new();
     }
 
+    [LocalizedDisplay("Admin.Configuration.QuantityUnit.Fields.")]
     public class QuantityUnitLocalizedModel : ILocalizedLocaleModel
     {
         public int LanguageId { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.QuantityUnit.Fields.Name")]
+        [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
-        [LocalizedDisplay("Admin.Configuration.QuantityUnit.Fields.NamePlural")]
+        [LocalizedDisplay("*NamePlural")]
         public string NamePlural { get; set; }
 
         [LocalizedDisplay("Common.Description")]

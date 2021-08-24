@@ -1,10 +1,5 @@
 ﻿@using Smartstore.Admin.Models.Directory
 
-@{
-    // TODO: (mh) (core) spa-layout please!
-    // TODO: (mh) (core) Icon is missing
-}
-
 @model QuantityUnitModel
 
 <datagrid id="quantity-unit-grid" allow-resize="true" allow-row-selection="true">
@@ -46,8 +41,6 @@
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
-
-<input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
 
 <script sm-target-zone="scripts" data-origin="quantity-unit-grid">
     $(function () {

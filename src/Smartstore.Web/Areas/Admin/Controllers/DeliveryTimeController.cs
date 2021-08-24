@@ -214,7 +214,9 @@ namespace Smartstore.Admin.Controllers
                 {
                     if (deliveryTime.IsDefault == true)
                     {
-                        // TODO: (mh) (core) I guess we have a hook for this. Please check.
+                        // INFO: The hook only handles setting all other deleivery times to not default.
+                        // But doesnt not prevent the default delivery time from being deleted nor informs the user to do the correct thing.
+                        // TODO: (mh) (core) Remove comments after review.
                         triedToDeleteDefault = true;
                         NotifyError(T("Admin.Configuration.DeliveryTimes.CantDeleteDefault"));
                     }
