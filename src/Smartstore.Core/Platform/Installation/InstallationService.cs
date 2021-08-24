@@ -235,7 +235,8 @@ namespace Smartstore.Core.Installation
                 //});
 
                 // ===>>> Actually performs database creation.
-                await dbContext.Database.MigrateAsync(cancelToken);
+                //await dbContext.Database.MigrateAsync(cancelToken);
+                await dbContext.Database.EnsureCreatedAsync(cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 
                 // ===>>> Seeds data.
@@ -259,8 +260,8 @@ namespace Smartstore.Core.Installation
                     });
                 });
 
-                // ===>>> Install modules
-                await InstallModules(dbContext, richScope, cancelToken);
+                //// ===>>> Install modules
+                //await InstallModules(dbContext, richScope, cancelToken);
 
                 // Detect media file tracks (must come after plugins installation)
                 UpdateResult(x =>
