@@ -54,6 +54,7 @@ namespace Smartstore.Core.Data.Migrations
                 "The default delivery time can't be deleted. Specify another standard delivery time beforehand.",
                 "Die Standard-Lieferzeit kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Lieferzeit.");
             
+            // TODO: (mh) (core) Please don't add new "repetitive" resource entries. Favor generic entries instead (e.g.: The ENTITY has been updated...)
             builder.AddOrUpdate("Admin.Configuration.MeasureDimension.Updated",
                 "The dimension has been successfully updated.",
                 "Die Abmessung wurde erfolgreich aktualisiert.");

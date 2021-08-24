@@ -118,7 +118,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Measure.Read)]
         public async Task<IActionResult> EditWeightPopup(int id, string btnId, string formId)
         {
-            var measureWeight = _db.MeasureWeights.FindById(id, false);
+            var measureWeight = await _db.MeasureWeights.FindByIdAsync(id, false);
             if (measureWeight == null)
             {
                 return NotFound();
@@ -143,7 +143,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Measure.Update)]
         public async Task<IActionResult> EditWeightPopup(MeasureWeightModel model, string btnId, string formId)
         {
-            var measureWeight = _db.MeasureWeights.FindById(model.Id);
+            var measureWeight = await _db.MeasureWeights.FindByIdAsync(model.Id);
             if (measureWeight == null)
             {
                 return NotFound();
@@ -321,7 +321,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Measure.Read)]
         public async Task<IActionResult> EditDimensionPopup(int id, string btnId, string formId)
         {
-            var measureDimension = _db.MeasureDimensions.FindById(id, false);
+            var measureDimension = await _db.MeasureDimensions.FindByIdAsync(id, false);
             if (measureDimension == null)
             {
                 return NotFound();
@@ -346,7 +346,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Measure.Update)]
         public async Task<IActionResult> EditDimensionPopup(MeasureDimensionModel model, string btnId, string formId)
         {
-            var measureDimension = _db.MeasureDimensions.FindById(model.Id);
+            var measureDimension = await _db.MeasureDimensions.FindByIdAsync(model.Id);
             if (measureDimension == null)
             {
                 return NotFound();
@@ -362,6 +362,7 @@ namespace Smartstore.Admin.Controllers
 
                     if (model.IsPrimaryDimension && _measureSettings.BaseDimensionId != measureDimension.Id)
                     {
+                        // TODO: (mh) (core) Check for hooks
                         _measureSettings.BaseDimensionId = measureDimension.Id;
                         await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseDimensionId);
                         await _db.SaveChangesAsync();
