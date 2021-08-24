@@ -49,6 +49,7 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-delivery-time" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id">@T("Common.SetDefault")</a>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
@@ -69,6 +70,26 @@
             var id = $(this).data("key");
             var href = "@Url.Content("~/Admin/DeliveryTime/EditDeliveryTimePopup/")" + id + "?btnId=btnRefresh&formId=delivery-times";
             openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-set-default', function (e) {
+            e.preventDefault();
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+				cache: false,
+				type: 'POST',
+				url: '@(Url.Action("SetDefault", "DeliveryTime"))',
+				data: {
+					"id": $(this).data("key"),
+					"__RequestVerificationToken": token
+				},
+                success: function () {
+                    window["delivery-time-grid"].$children[0].read();
+                }
+            });
+
             return false;
         });
 

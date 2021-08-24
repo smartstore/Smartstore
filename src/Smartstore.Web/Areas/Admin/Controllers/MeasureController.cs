@@ -181,6 +181,19 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.Configuration.Measure.Update)]
+        public async Task<IActionResult> SetDefaultWeight(int id)
+        {
+            Guard.NotZero(id, nameof(id));
+
+            _measureSettings.BaseWeightId = id;
+            await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseWeightId);
+            await _db.SaveChangesAsync();
+
+            return Json(new { Success = true });
+        }
+
+        [HttpPost]
         [Permission(Permissions.Configuration.Measure.Delete)]
         public async Task<IActionResult> DeleteMeasureWeights(GridSelection selection)
         {
@@ -381,6 +394,19 @@ namespace Smartstore.Admin.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Measure.Update)]
+        public async Task<IActionResult> SetDefaultDimension(int id)
+        {
+            Guard.NotZero(id, nameof(id));
+
+            _measureSettings.BaseDimensionId = id;
+            await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseDimensionId);
+            await _db.SaveChangesAsync();
+
+            return Json(new { Success = true });
         }
 
         [HttpPost]

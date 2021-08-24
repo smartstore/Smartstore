@@ -1,9 +1,5 @@
 ﻿@using Smartstore.Admin.Models.Directory
 
-@{
-    // TODO: (mh) (core) Add row action that makes the entry "default".
-}
-
 @model MeasureWeightModel
 
 <datagrid id="measure-weight-grid" allow-resize="true" allow-row-selection="true">
@@ -42,6 +38,7 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-measure-weight" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id">@T("Common.SetDefault")</a>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
@@ -62,6 +59,26 @@
             var id = $(this).data("key");
             var href = "@Url.Content("~/Admin/Measure/EditWeightPopup/")" + id + "?btnId=btnRefresh&formId=measure-weights";
             openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-set-default', function (e) {
+            e.preventDefault();
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+				cache: false,
+				type: 'POST',
+				url: '@(Url.Action("SetDefaultWeight", "Measure"))',
+				data: {
+					"id": $(this).data("key"),
+					"__RequestVerificationToken": token
+				},
+                success: function () {
+                    window["measure-weight-grid"].$children[0].read();
+                }
+            });
+
             return false;
         });
 

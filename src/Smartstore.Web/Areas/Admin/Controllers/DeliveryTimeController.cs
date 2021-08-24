@@ -198,6 +198,19 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.Configuration.Measure.Update)]
+        public async Task<IActionResult> SetDefault(int id)
+        {
+            Guard.NotZero(id, nameof(id));
+
+            var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(id);
+            deliveryTime.IsDefault = true;
+            await _db.SaveChangesAsync();
+
+            return Json(new { Success = true });
+        }
+
+        [HttpPost]
         [Permission(Permissions.Configuration.DeliveryTime.Delete)]
         public async Task<IActionResult> Delete(GridSelection selection)
         {

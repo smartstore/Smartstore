@@ -198,6 +198,19 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.Configuration.Measure.Update)]
+        public async Task<IActionResult> SetDefault(int id)
+        {
+            Guard.NotZero(id, nameof(id));
+
+            var quantityUnit = await _db.QuantityUnits.FindByIdAsync(id);
+            quantityUnit.IsDefault = true;
+            await _db.SaveChangesAsync();
+
+            return Json(new { Success = true });
+        }
+
+        [HttpPost]
         [Permission(Permissions.Configuration.Measure.Delete)]
         public async Task<IActionResult> Delete(GridSelection selection)
         {
