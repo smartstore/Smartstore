@@ -17,6 +17,7 @@ namespace Smartstore.Core.Data.Migrations
 {
     public abstract class DbMigrator2
     {
+        // TODO: (mg) (core) Use only relevant FluentMigrator dependencies/packages (SqlServer, MySql). Remove everything else!
         public abstract HookingDbContext Context { get; }
 
         // TODO: (mg) (core) I don't like "Assembly" param in the signature. Maybe more conceptual? Not technical.
