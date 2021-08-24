@@ -143,7 +143,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
         public async Task<IActionResult> EditDeliveryTimePopup(int id, string btnId, string formId)
         {
-            var deliveryTime = _db.DeliveryTimes.FindById(id, false);
+            var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(id, false);
             if (deliveryTime == null)
             {
                 return NotFound();
@@ -167,7 +167,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.DeliveryTime.Update)]
         public async Task<IActionResult> EditDeliveryTimePopup(DeliveryTimeModel model, string btnId, string formId)
         {
-            var deliveryTime = _db.DeliveryTimes.FindById(model.Id);
+            var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(model.Id);
             if (deliveryTime == null)
             {
                 return NotFound();
@@ -185,7 +185,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", ex.Message);
+                    ModelState.AddModelError(string.Empty, ex.Message);
                     return View(model);
                 }
 
@@ -214,6 +214,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     if (deliveryTime.IsDefault == true)
                     {
+                        // TODO: (mh) (core) I guess we have a hook for this. Please check.
                         triedToDeleteDefault = true;
                         NotifyError(T("Admin.Configuration.DeliveryTimes.CantDeleteDefault"));
                     }
