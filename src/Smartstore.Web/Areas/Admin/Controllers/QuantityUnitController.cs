@@ -126,7 +126,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", ex.Message);
+                    ModelState.AddModelError(string.Empty, ex.Message);
                     return View(model);
                 }
 
@@ -141,7 +141,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Measure.Read)]
         public async Task<IActionResult> EditQuantityUnitPopup(int id, string btnId, string formId)
         {
-            var quantityUnit = _db.QuantityUnits.FindById(id, false);
+            var quantityUnit = await _db.QuantityUnits.FindByIdAsync(id, false);
             if (quantityUnit == null)
             {
                 return NotFound();
@@ -167,7 +167,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Measure.Update)]
         public async Task<IActionResult> EditQuantityUnitPopup(QuantityUnitModel model, string btnId, string formId)
         {
-            var quantityUnit = _db.QuantityUnits.FindById(model.Id);
+            var quantityUnit = await _db.QuantityUnits.FindByIdAsync(model.Id);
             if (quantityUnit == null)
             {
                 return NotFound();
@@ -214,6 +214,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     if (quantityUnit.IsDefault)
                     {
+                        // TODO: (mh) (core) I guess we have a hook for this. Please check.
                         triedToDeleteDefault = true;
                         NotifyError(T("Admin.Configuration.Measures.QuantityUnits.CantDeleteDefault"));
                     }
