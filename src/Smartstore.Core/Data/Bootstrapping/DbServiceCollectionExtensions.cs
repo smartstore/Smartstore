@@ -1,11 +1,14 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using FluentMigrator;
 using FluentMigrator.Runner;
+using FluentMigrator.Runner.Logging;
 using FluentMigrator.Runner.Processors;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Security;
@@ -43,12 +46,22 @@ namespace Smartstore.Core.Bootstrapping
             // TODO: (mg) (core) Some parts of FluentMigrator are required during installation (VersionInfo), but we can't register 
             // this whole stuff during installation (because of DbFactory which is available later in the install pipeline).
             // Find a way to use VersionInfo dependency during installation. TBD with MC.
-            
+
+            /*
+                RE: the leanest way to make sure that VersionInfo table exists is
+                services.AddFluentMigratorCore().ConfigureRunner(rb =>
+                {
+                    rb = DataSettings.Instance.DbFactory.DbSystem.ToString().EqualsNoCase("MySql") ? rb.AddMySql5() : rb.AddSqlServer();
+                    rb.WithVersionTable(new MigrationHistory()).WithGlobalConnectionString(DataSettings.Instance.ConnectionString);
+                });
+                and then calling FluentMigrator.Runner.IVersionLoader.LoadVersionInfo()
+             */
+
             services.AddTransient<IDatabaseInitializer, DatabaseInitializer>();
             services.AddTransient(typeof(DbMigrator<>));
 
             // Fluent migrator.
-            var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>(true, true)
+            var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>()//true, true)
                 .Select(x => x.Assembly)
                 .Where(x => !x.FullName.Contains("FluentMigrator.Runner"))
                 .Distinct()
@@ -86,8 +99,8 @@ namespace Smartstore.Core.Bootstrapping
                 .ConfigureRunner(migrationRunner)
                 .Configure<FluentMigratorLoggerOptions>(o =>
                 {
-                    o.ShowSql = false;  // // TODO: (mg) (core) Security risk logging SQL. Config has no effect here. Loggs like crazy.
-                    o.ShowElapsedTime = true;
+                    o.ShowSql = false;  // TODO: (mg) (core) Security risk logging SQL. Config has no effect here. Loggs like crazy.
+                    o.ShowElapsedTime = false;
                 });
 
             return services;

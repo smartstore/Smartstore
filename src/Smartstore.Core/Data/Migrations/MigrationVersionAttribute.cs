@@ -46,6 +46,8 @@ namespace Smartstore.Core.Data.Migrations
 
         private static string BuildDescription(string description)
         {
+            Guard.NotEmpty(description, nameof(description));
+
             return SmartstoreVersion.CurrentFullVersion.Grow(description, " ");
         }
     }

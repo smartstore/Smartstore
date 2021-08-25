@@ -1,11 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<Import Project="..\Build\Smartstore.Common.props" />
-
-	<ItemGroup>
-	  <None Remove="Data\Migrations\Sql\MySql\Initial.sql" />
-	  <None Remove="Data\Migrations\Sql\SqlServer\Initial.sql" />
-	</ItemGroup>
   
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -61,11 +56,6 @@
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>Smartstore.Web.Common</_Parameter1>
 		</AssemblyAttribute>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Include="Data\Migrations\Sql\MySql\Initial.sql" />
-	  <EmbeddedResource Include="Data\Migrations\Sql\SqlServer\Initial.sql" />
 	</ItemGroup>
 
 	<ItemGroup>

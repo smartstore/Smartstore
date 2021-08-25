@@ -52,12 +52,11 @@ namespace Smartstore.Core.Data.Migrations
             foreach (var dbContextType in DbMigrationManager.Instance.GetDbContextTypes())
             {
                 var migrator = _scope.Resolve(typeof(DbMigrator<>).MakeGenericType(dbContextType)) as DbMigrator;
-                var migrator2 = _scope.Resolve(typeof(DbMigrator2<>).MakeGenericType(dbContextType)) as DbMigrator2;
-                await InitializeDatabaseAsync(migrator, migrator2, _seedersMap[dbContextType], cancelToken);
+                await InitializeDatabaseAsync(migrator, _seedersMap[dbContextType], cancelToken);
             }
         }
 
-        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, DbMigrator2 migrator2, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
+        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
         {
             Guard.NotNull(migrator, nameof(migrator));
 
@@ -86,10 +85,6 @@ namespace Smartstore.Core.Data.Migrations
                 // Run all pending migrations
                 await migrator.RunPendingMigrationsAsync(cancelToken);
 
-                // ------ fluent migrator start
-                //await migrator2.RunPendingMigrationsAsync();
-                // ------ fluent migrator end
-
                 // Execute the global seeders anyway (on every startup),
                 // we could have locale resources or settings to add/update.
                 await RunGlobalSeeders(context, seederTypes, cancelToken);
@@ -115,7 +110,7 @@ namespace Smartstore.Core.Data.Migrations
                     if (seedMethod != null)
                     {
                         await (Task)seedMethod.Invoke(seeder, new object[] { dbContext, cancelToken });
-                        await dbContext.SaveChangesAsync();
+                        await dbContext.SaveChangesAsync(cancelToken);
                     }
                 }
             }
