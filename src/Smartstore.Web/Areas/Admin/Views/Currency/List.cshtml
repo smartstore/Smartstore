@@ -1,0 +1,59 @@
+﻿@model Smartstore.Admin.Models.Directory.CurrencyListModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Currencies").Value;
+}
+
+<form asp-action="List" id="CurrencySettings">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-money-bill-alt"></i>
+            @T("Admin.Configuration.Currencies")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <a href="@Url.Action("List", "Currency", new { liveRates = true })" class="btn btn-secondary">
+                <i class="fa fa-sync"></i>
+                <span>@T("Admin.Configuration.Currencies.GetLiveRates")</span>
+            </a>
+        </div>
+    </div>
+
+    <tabstrip id="currency-edit" sm-nav-style="Material" sm-nav-position="Top">
+        <tab sm-title="@T("Admin.Configuration.Currencies")" sm-selected="true">
+            <partial name="_Grid.Currencies" model="null" />
+        </tab>
+
+        @if (Model.DisplayLiveRates)
+        {
+            <tab sm-title="@T("Admin.Configuration.Currencies.LiveRates")">
+                <partial name="_Grid.LiveRates" model="null" />
+            </tab>
+        }
+
+        <tab sm-title="@T("Common.Options")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ExchangeRateProvider" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="ExchangeRateProvider" asp-items="ViewBag.ExchangeRateProviders"></select>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AutoUpdateEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="AutoUpdateEnabled" />
+                        <span asp-validation-for="AutoUpdateEnabled"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+    </tabstrip>
+</form>

@@ -8,8 +8,6 @@ namespace Smartstore.Web.Rendering
 {
     public static class VueSlotTemplateExtensions
     {
-        // TODO: (mg) (core) Port other helpers: LabeledCurrencyName
-
         /// <summary>
         /// Renders labeled product for grids including link to the edit page. Not intended to be used outside of grids (use BadgedProductName there).
         /// </summary>
@@ -81,6 +79,67 @@ namespace Smartstore.Web.Rendering
             var name = new TagBuilder(isLink ? "a" : "span");
             name.Attributes.Add("class", "text-truncate");
             name.InnerHtml.AppendHtml("{{ item.value }}");
+
+            if (isLink)
+            {
+                name.Attributes.Add("v-bind:href", urlExpression);
+                if (linkTarget.HasValue())
+                {
+                    name.Attributes.Add("target", linkTarget);
+                }
+            }
+
+            builder.AppendHtml(name);
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Renders a labeled currency name for grids including a link to the edit page. Not intended to be used outside of grids.
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="isPrimaryStoreCurrencyExpression">Row expression of IsPrimaryStoreCurrencyExpression property.</param>
+        /// <param name="isPrimaryExchangeRateCurrencyExpression">Row expression of IsPrimaryExchangeRateCurrencyExpression property.</param>
+        /// <param name="urlExpression">Row expression of the edit page URL.</param>
+        /// <param name="valueExpression">Value expression of the name cell.</param>
+        /// <param name="linkTarget">Value of the HTML target attribute.</param>
+        /// <returns>Labeled currency name.</returns>
+        public static IHtmlContent LabeledCurrencyName(
+            this IHtmlHelper helper,
+            string isPrimaryStoreCurrencyExpression = "item.row.IsPrimaryStoreCurrency",
+            string isPrimaryExchangeRateCurrencyExpression = "item.row.IsPrimaryExchangeRateCurrency",
+            string urlExpression = "item.row.EditUrl",
+            string valueExpression = "item.value",
+            string linkTarget = null)
+        {
+            var builder = new HtmlContentBuilder();
+            var localizationService = helper.ViewContext.HttpContext.RequestServices.GetService<ILocalizationService>();
+
+            if (isPrimaryStoreCurrencyExpression.HasValue())
+            {
+                var label = new TagBuilder("span");
+                label.Attributes.Add("v-if", isPrimaryStoreCurrencyExpression);
+                label.Attributes.Add("class", "badge badge-warning");
+                label.Attributes.Add("v-bind:class", "{ 'mr-1': !" + isPrimaryExchangeRateCurrencyExpression + "}");
+                label.InnerHtml.Append(localizationService.GetResource("Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"));
+
+                builder.AppendHtml(label);
+            }
+
+            if (isPrimaryExchangeRateCurrencyExpression.HasValue())
+            {
+                var label = new TagBuilder("span");
+                label.Attributes.Add("v-if", isPrimaryExchangeRateCurrencyExpression);
+                label.Attributes.Add("class", "badge badge-info mr-1");
+                label.InnerHtml.Append(localizationService.GetResource("Admin.Configuration.Currencies.Fields.IsPrimaryExchangeRateCurrency"));
+
+                builder.AppendHtml(label);
+            }
+
+            var isLink = urlExpression.HasValue();
+            var name = new TagBuilder(isLink ? "a" : "span");
+            name.Attributes.Add("class", "text-truncate");
+            name.InnerHtml.AppendHtml("{{ " + valueExpression + " }}");
 
             if (isLink)
             {

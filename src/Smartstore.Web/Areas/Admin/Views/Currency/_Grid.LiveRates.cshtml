@@ -1,0 +1,60 @@
+﻿@model Smartstore.Core.Common.ExchangeRate
+
+<datagrid id="live-rates-grid" 
+          allow-resize="true" 
+          allow-row-selection="false" 
+          onrowclass="liveRatesGrid_onRowClass">
+    <datasource read="@Url.Action("LiveRateList", "Currency")" />
+    <sorting enabled="false"></sorting>
+    <paging position="Bottom" show-size-chooser="true" enabled="false" />
+    <columns>
+        <column for="Name" width="1fr" hideable="false" title="@T("Admin.Configuration.Currencies.Fields.Name")" />
+        <column for="CurrencyCode" width="1fr" halign="center" title="@T("Admin.Configuration.Currencies.Fields.CurrencyCode")" />
+        <column for="UpdatedOn" width="1fr" halign="center" title="@T("Admin.Common.Updated")" />
+        <column for="Rate" width="1fr" halign="right" title="@T("Admin.Configuration.Currencies.Fields.Rate")" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" 
+           class="grid-apply-rate" 
+           :data-currency="item.row.CurrencyCode" 
+           :data-rate="item.row.Rate" 
+           v-bind:class="{ disabled: !item.row.IsStoreCurrency }">
+            @T("Admin.Configuration.Currencies.ApplyRate")
+        </a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="live-rates-grid">
+    function liveRatesGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.IsStoreCurrency
+        };
+    }
+
+    $(function () {
+        $(document).on('click', '.grid-apply-rate', function (e) {
+            e.preventDefault();
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+				cache: false,
+				type: 'POST',
+				url: '@(Url.Action("ApplyRate", "Currency"))',
+				data: {
+                    "currencyCode": $(this).data("currency"),
+                    "rate": $(this).data("rate"),
+					"__RequestVerificationToken": token
+				},
+                success: function (response) {
+                    displayNotification(response.returnMessage, response.success ? "success" : "error");
+
+                    if (response.success) {
+                        window["currencies-grid"].$children[0].read();
+                    }
+                }
+            });
+
+            return false;
+        });
+    });
+</script>

@@ -1,0 +1,294 @@
+﻿@using Smartstore.Admin.Models.Directory
+ 
+@model Smartstore.Admin.Models.Directory.CurrencyModel
+
+@{
+    var cultures = System.Globalization.CultureInfo.GetCultures(System.Globalization.CultureTypes.SpecificCultures).ToList();
+    var availableDomainEndings = Model.AvailableDomainEndings.Select(x => x.Value).ToArray();
+    for (var i = 0; i < availableDomainEndings.Length; i++)
+    {
+        availableDomainEndings[i] = availableDomainEndings[i].EncodeJsString();
+    }
+
+    ViewBag.SerializedDomainEndings = string.Join(",", availableDomainEndings);
+
+    var roundOrderTotalDenominators = new List<SelectListItem>
+    {
+        new SelectListItem { Text = 0.05.ToString("F"), Value = 0.05.ToString("F") },
+        new SelectListItem { Text = 0.10.ToString("F"), Value = 0.10.ToString("F") },
+        new SelectListItem { Text = 0.50.ToString("F"), Value = 0.50.ToString("F") },
+        new SelectListItem { Text = 1.00.ToString("F"), Value = 1.00.ToString("F") }
+    };
+}
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<tabstrip id="currency-edit" sm-nav-style="Material" sm-nav-position="Top">
+    <tab sm-title="@T("Admin.Common.Info")" sm-selected="true">
+        @(Html.LocalizedEditor<Smartstore.Admin.Models.Directory.CurrencyModel, CurrencyLocalizedModel>("currency-info-localized",
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Name" />
+                    </div>
+                    <div class="adminData">
+                        @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input asp-for="Locales[item].LanguageId" type="hidden" />
+                        <input asp-for="Locales[item].Name" />
+                        <span asp-validation-for="Locales[item].Name"></span>
+                    </div>
+                </div>
+            </div>
+            ,
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Name" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Name" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                </div>
+            </div>
+        ))
+
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="CurrencyCode" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="CurrencyCode" />
+                    <span asp-validation-for="CurrencyCode"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Rate" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Rate" type="number" />
+                    <span asp-validation-for="Rate"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayLocale" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="DisplayLocale" 
+                            asp-items='cultures.Select(x => new SelectListItem { Value = x.IetfLanguageTag, Text = $"{x.DisplayName} [{x.IetfLanguageTag}]" })'></select>
+                    <span asp-validation-for="DisplayLocale"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="CustomFormatting" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="CustomFormatting" />
+                    <span asp-validation-for="CustomFormatting"></span>
+                    <div id="CustomFormattingExample"></div>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DomainEndings" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="DomainEndingsArray" asp-items="Model.AvailableDomainEndings" multiple="multiple" data-tags="true"></select>
+                    <span asp-validation-for="DomainEndings"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Published" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Published" />
+                    <span asp-validation-for="Published"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayOrder" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="DisplayOrder" type="number" />
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedStoreIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedStoreIds" />
+                    <span asp-validation-for="SelectedStoreIds"></span>
+                </div>
+            </div>
+            @if (Model.Id > 0)
+            {
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CreatedOn" />
+                    </div>
+                    <div class="adminData">
+                        <div class="form-control-plaintext">
+                            @Html.DisplayFor(model => model.CreatedOn)
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="PrimaryStoreCurrencyStores" />
+                </div>
+                <div class="adminData">
+                    @if (Model.PrimaryStoreCurrencyStores != null && Model.PrimaryStoreCurrencyStores.Count > 0)
+                    {
+                        foreach (var store in Model.PrimaryStoreCurrencyStores)
+                        {
+                            <a href="@store.Value">@store.Text.NaIfEmpty()</a><br />
+                        }
+                    }
+                    else
+                    {
+                        <div class="form-control-plaintext">
+                            @T("Common.Unspecified")
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="PrimaryExchangeRateCurrencyStores" />
+                </div>
+                <div class="adminData">
+                    @if (Model.PrimaryExchangeRateCurrencyStores != null && Model.PrimaryExchangeRateCurrencyStores.Count > 0)
+                    {
+                        foreach (var store in Model.PrimaryExchangeRateCurrencyStores)
+                        {
+                            <a href="@store.Value">@store.Text.NaIfEmpty()</a><br />
+                        }
+                    }
+                    else
+                    {
+                        <div class="form-control-plaintext">
+                            @T("Common.Unspecified")
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="adminRow">
+                <div class="admin-config-group">
+                    <div class="title">@T("Common.Round")</div>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RoundOrderItemsEnabled" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="RoundOrderItemsEnabled" />
+                    <span asp-validation-for="RoundOrderItemsEnabled"></span>
+                </div>
+            </div>
+            <div class="adminRow round-order-items">
+                <div class="adminTitle">
+                    <smart-label asp-for="RoundNumDecimals" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="RoundNumDecimals" type="number" />
+                    <span asp-validation-for="RoundNumDecimals"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RoundOrderTotalEnabled" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="RoundOrderTotalEnabled" />
+                    <span asp-validation-for="RoundOrderTotalEnabled"></span>
+                </div>
+            </div>
+            <div class="adminRow round-order-total">
+                <div class="adminTitle">
+                    <smart-label asp-for="RoundOrderTotalDenominator" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="RoundOrderTotalDenominator" asp-items="roundOrderTotalDenominators" class="autowidth" style="width: 150px"></select>
+                    <span asp-validation-for="RoundOrderTotalDenominator"></span>
+                </div>
+            </div>
+            <div class="adminRow round-order-total">
+                <div class="adminTitle">
+                    <smart-label asp-for="RoundOrderTotalRule" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="RoundOrderTotalRule" asp-items="Model.RoundOrderTotalRule.ToSelectList()"></select>
+                    <span asp-validation-for="RoundOrderTotalRule"></span>
+                </div>
+            </div>
+            <div class="adminRow round-order-total">
+                <div class="adminTitle">
+                </div>
+                <div class="adminData">
+                    @if (Model.RoundOrderTotalPaymentMethods.Any())
+                    {
+                        <div class="alert alert-info">
+                            <span>@T("Admin.Configuration.Currencies.PaymentMethodsEnabledRoundingList"):</span>
+                            @Html.Raw(string.Join(" · ", Model.RoundOrderTotalPaymentMethods.Select(x => $"<a href='{Url.Action("Edit", "Payment", new { systemName = x.Key })}'>{x.Value.HtmlEncode()}</a>")))
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            @Html.Raw(T("Admin.Configuration.Currencies.NoPaymentMethodsEnabledRounding", Url.Action("Providers", "Payment")))
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </tab>
+</tabstrip>
+
+<script sm-target-zone="scripts" data-origin="currencies-create-or-update">
+    $(function () {
+        $('#@(Html.IdFor(x => x.RoundOrderItemsEnabled))').change(function () {
+            $('.round-order-items').toggle($(this).is(':checked'));
+        }).trigger('change');
+
+        $('#@(Html.IdFor(x => x.RoundOrderTotalEnabled))').change(function () {
+            $('.round-order-total').toggle($(this).is(':checked'));
+        }).trigger('change');
+
+        // Show custom formatting example.
+        $('#@Html.IdFor(model => model.CustomFormatting)').on('change', function () {
+			$.ajax({
+				cache: false,
+				type: 'GET',
+				url: '@(Url.Action("GetCustomFormattingExample", "Currency"))',
+				data: {
+					"currencyId" : @Model.Id,
+					"customFormat": $('#@Html.IdFor(model => model.CustomFormatting)').val()
+				},
+                success: function (response) {
+                    if (response.error.length > 0) {
+                        $('#CustomFormattingExample').html('<div class="text-warning mt-1">' + response.error + '</div>');
+                    }
+                    else if (response.example.length > 0) {
+                        $('#CustomFormattingExample').html('<div class="text-muted mt-1">' + response.example + '</div>');
+                    }
+                    else {
+                        $('#CustomFormattingExample').empty();
+                    }
+				}
+            });
+        }).trigger('change');
+    });
+</script>

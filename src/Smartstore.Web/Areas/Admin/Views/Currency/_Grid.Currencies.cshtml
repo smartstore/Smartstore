@@ -1,0 +1,44 @@
+﻿@model Smartstore.Admin.Models.Directory.CurrencyModel
+
+<datagrid id="currencies-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
+    <datasource read="@Url.Action("CurrencyList", "Currency")"
+                update="@Url.Action("Update", "Currency")"
+                delete="@Url.Action("DeleteSelection", "Currency")" />
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a href="@Url.Action("Create")" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="2fr" hideable="false">
+            <display-template>
+                <display-template>
+                    @Html.LabeledCurrencyName()
+                </display-template>
+            </display-template>
+        </column>
+        <column for="CurrencyCode" halign="center" />
+        <column for="Published" halign="center" />
+        <column for="Rate" halign="right" />
+        <column for="DisplayOrder" halign="center" />
+        <column for="LimitedToStores" halign="center" readonly="true" />
+        <column for="DomainEndings" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>

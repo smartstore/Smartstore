@@ -46,7 +46,15 @@ namespace Smartstore.Core.Data.Migrations
 
             // TODO: (core) Delete all Telerik language resources (???)
 
+            // Resourcen für Currencies prüfen.
+            
             builder.AddOrUpdate("Common.SetDefault", "Set as default", "Als Standard festlegen");
+
+            builder.AddOrUpdate("Admin.Configuration.Currencies.ApplyRate.Error", "An error occurred when applying the rate.", "Bei der Aktualisierung der Rate ist ein Fehler aufgetreten.");
+
+            builder.AddOrUpdate("Admin.Configuration.Currencies.CannotDeleteAssociated",
+                "Currencies that have already been assigned to a store cannot be deleted. Remove the assignment first.",
+                "Währungen, die bereits einem Store zugewiesen wurden können nicht gelöscht werden. Entfernen Sie zunächst die Zuordnung.");
 
             builder.AddOrUpdate("Admin.Configuration.Measures.QuantityUnits.CantDeleteDefault",
                 "The default quantity unit can't be deleted. Specify another standard quantity unit beforehand.",
