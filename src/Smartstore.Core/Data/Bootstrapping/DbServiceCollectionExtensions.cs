@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using FluentMigrator;
 using FluentMigrator.Runner;
-using FluentMigrator.Runner.Logging;
 using FluentMigrator.Runner.Processors;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Smartstore.Core.Data;
@@ -16,7 +11,6 @@ using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Data.Migrations;
 using Smartstore.Engine;
 
 namespace Smartstore.Core.Bootstrapping
@@ -46,6 +40,10 @@ namespace Smartstore.Core.Bootstrapping
         /// </summary>
         public static IServiceCollection AddDbMigrator(this IServiceCollection services, IApplicationContext appContext)
         {
+            // TODO: (mg) (core) Some parts of FluentMigrator are required during installation (VersionInfo), but we can't register 
+            // this whole stuff during installation (because of DbFactory which is available later in the install pipeline).
+            // Find a way to use VersionInfo dependency during installation. TBD with MC.
+            
             services.AddTransient<IDatabaseInitializer, DatabaseInitializer>();
             services.AddTransient(typeof(DbMigrator<>));
 
@@ -67,7 +65,7 @@ namespace Smartstore.Core.Bootstrapping
                 rb = dbSystemName.EqualsNoCase("MySql") ? rb.AddMySql5() : rb.AddSqlServer();
 
                 rb.WithVersionTable(new MigrationHistory())
-                    .WithGlobalConnectionString(dataSettings.ConnectionString) // Isn't AddScoped<IConnectionStringAccessor> better?
+                    .WithGlobalConnectionString(dataSettings.ConnectionString)
                     .WithGlobalCommandTimeout(TimeSpan.FromSeconds(migrationTimeout))
                     .ScanIn(migrationAssemblies)
                         .For.Migrations()
@@ -91,47 +89,6 @@ namespace Smartstore.Core.Bootstrapping
                     o.ShowSql = false;  // // TODO: (mg) (core) Security risk logging SQL. Config has no effect here. Loggs like crazy.
                     o.ShowElapsedTime = true;
                 });
-
-            return services;
-        }
-
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Support for multi-provider pooled factory")]
-        public static IServiceCollection AddPooledDbContextFactory<TContext>(
-            this IServiceCollection services,
-            Type contextImplType,
-            int poolSize = 128,
-            Action<IServiceProvider, DbContextOptionsBuilder> optionsBuilder = null)
-            where TContext : HookingDbContext
-        {
-            // INFO: TContextImpl cannot be a type parameter because type is defined in an assembly that is not referenced.
-            Guard.NotNull(services, nameof(services));
-            Guard.NotNull(contextImplType, nameof(contextImplType));
-
-            var addPoolingOptionsMethod = typeof(EntityFrameworkServiceCollectionExtensions)
-                .GetMethod("AddPoolingOptions", BindingFlags.NonPublic | BindingFlags.Static)
-                .MakeGenericMethod(contextImplType);
-
-            // --> Call AddPoolingOptions<TContextImplementation>(services, optionsAction, poolSize)
-            addPoolingOptionsMethod.Invoke(null, new object[] { services, optionsBuilder, poolSize });
-
-            // --> Call services.TryAddSingleton<IDbContextPool<TContextImpl>, DbContextPool<TContextImpl>>()
-            var contextPoolServiceType = typeof(IDbContextPool<>).MakeGenericType(contextImplType);
-            var contextPoolImplType = typeof(DbContextPool<>).MakeGenericType(contextImplType);
-            services.TryAddSingleton(contextPoolServiceType, contextPoolImplType);
-
-            // --> Register provider-aware IDbContextFactory<TContext>
-            services.TryAddSingleton(c =>
-            {
-                var pool = c.GetRequiredService(contextPoolServiceType);
-                var pooledFactoryType = typeof(PooledApplicationDbContextFactory<,>).MakeGenericType(typeof(TContext), contextImplType);
-
-                var instance = Activator.CreateInstance(pooledFactoryType, new object[] { pool });
-                return (IDbContextFactory<TContext>)instance;
-            });
-
-            services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<TContext>>().CreateDbContext());
-
-            DbMigrationManager.Instance.RegisterDbContext(typeof(TContext));
 
             return services;
         }
