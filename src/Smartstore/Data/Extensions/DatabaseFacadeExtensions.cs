@@ -5,17 +5,65 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.ComponentModel;
+using Smartstore.Data;
+using Smartstore.Data.Migrations;
 
 namespace Smartstore
 {
     public static class DatabaseFacadeExtensions
     {
+        #region Relational schema
+
+        /// <summary>
+        /// Creates the schema for the current model in the database. The database must exist physically or this method
+        /// will raise an exception.
+        /// </summary>
+        /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+        public static bool EnsureSchemaPopulated(this DatabaseFacade databaseFacade)
+        {
+            Guard.NotNull(databaseFacade, nameof(databaseFacade));
+
+            var dbCreator = GetFacadeDependencies(databaseFacade).DatabaseCreator as RelationalDatabaseCreator;
+            if (dbCreator != null)
+            {
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var dbContext = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context;
+
+                    if (!HasTables(databaseFacade))
+                    {
+                        dbCreator.CreateTables();
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasTables(DatabaseFacade databaseFacade)
+        {
+            var dbContext = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context as HookingDbContext;
+            var tablesToCheck = dbContext.GetType().GetAttribute<CheckTablesAttribute>(true)?.TableNames;
+
+            if (tablesToCheck != null && tablesToCheck.Length > 0)
+            {
+                var dbTables = dbContext.DataProvider.GetTableNames();
+                var xxx = dbTables.Intersect(tablesToCheck, StringComparer.InvariantCultureIgnoreCase).Count() == tablesToCheck.Length;
+            }
+
+            return false;
+        }
+
+        #endregion
+
         #region Migrations
 
         /// <summary>

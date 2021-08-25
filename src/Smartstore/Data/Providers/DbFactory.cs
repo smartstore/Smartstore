@@ -31,7 +31,7 @@ namespace Smartstore.Data.Providers
         public abstract DataProvider CreateDataProvider(DatabaseFacade database);
 
         public abstract TContext CreateDbContext<TContext>(string connectionString, int? commandTimeout = null)
-            where TContext : HookingDbContext;
+            where TContext : DbContext;
 
         public abstract DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString);
 
