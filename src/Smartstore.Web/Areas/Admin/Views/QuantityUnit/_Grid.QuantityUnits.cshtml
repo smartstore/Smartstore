@@ -2,8 +2,9 @@
 
 @model QuantityUnitModel
 
-<datagrid id="quantity-unit-grid" allow-resize="true" allow-row-selection="true">
+<datagrid id="quantity-unit-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
     <datasource read="@Url.Action("QuantityUnitList", "QuantityUnit")"
+                update="@Url.Action("Update", "QuantityUnit")"
                 delete="@Url.Action("Delete", "QuantityUnit")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
@@ -38,7 +39,8 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-quantity-unit" :data-key="item.row.Id">@T("Common.Edit")</a>
-        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id">@T("Common.SetDefault")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsDefault }">@T("Common.SetDefault")</a>
+        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>

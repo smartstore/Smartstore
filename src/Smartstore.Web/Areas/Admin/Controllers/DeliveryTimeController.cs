@@ -98,6 +98,23 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
+        [HttpPost]
+        [Permission(Permissions.Configuration.DeliveryTime.Update)]
+        public async Task<IActionResult> Update(DeliveryTimeModel model)
+        {
+            var success = false;
+            var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(model.Id);
+
+            if (deliveryTime != null)
+            {
+                await MapperFactory.MapAsync(model, deliveryTime);
+                await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { success });
+        }
+
         [Permission(Permissions.Configuration.DeliveryTime.Create)]
         public IActionResult CreateDeliveryTimePopup(string btnId, string formId)
         {
@@ -227,9 +244,6 @@ namespace Smartstore.Admin.Controllers
                 {
                     if (deliveryTime.IsDefault == true)
                     {
-                        // INFO: The hook only handles setting all other deleivery times to not default.
-                        // But doesnt not prevent the default delivery time from being deleted nor informs the user to do the correct thing.
-                        // TODO: (mh) (core) Remove comments after review.
                         triedToDeleteDefault = true;
                         NotifyError(T("Admin.Configuration.DeliveryTimes.CantDeleteDefault"));
                     }
@@ -241,14 +255,7 @@ namespace Smartstore.Admin.Controllers
 
                 numDeleted = await _db.SaveChangesAsync();
 
-                if (triedToDeleteDefault && numDeleted == 0)
-                {
-                    success = false;
-                }
-                else
-                {
-                    success = true;
-                }
+                success = triedToDeleteDefault && numDeleted == 0 ? false : true;
             }
 
             return Json(new { Success = success, Count = numDeleted });

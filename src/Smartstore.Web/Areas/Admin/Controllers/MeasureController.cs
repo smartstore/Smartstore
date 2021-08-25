@@ -65,6 +65,30 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
+        [HttpPost]
+        [Permission(Permissions.Configuration.Measure.Update)]
+        public async Task<IActionResult> WeightUpdate(MeasureWeightModel model)
+        {
+            var success = false;
+            var measureWeight = await _db.MeasureWeights.FindByIdAsync(model.Id);
+
+            if (measureWeight != null)
+            {
+                if (model.IsPrimaryWeight && _measureSettings.BaseWeightId != measureWeight.Id)
+                {
+                    _measureSettings.BaseWeightId = measureWeight.Id;
+                    await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseWeightId);
+                    await _db.SaveChangesAsync();
+                }
+
+                await MapperFactory.MapAsync(model, measureWeight);
+                await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { success });
+        }
+
         [Permission(Permissions.Configuration.Measure.Create)]
         public IActionResult CreateWeightPopup(string btnId, string formId)
         {
@@ -220,15 +244,8 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 numDeleted = await _db.SaveChangesAsync();
-                
-                if(triedToDeletePrimary && numDeleted == 0)
-                {
-                    success = false;
-                }
-                else
-                {
-                    success = true;
-                }
+
+                success = triedToDeletePrimary && numDeleted == 0 ? false : true;
             }
 
             return Json(new { Success = success, Count = numDeleted });
@@ -279,6 +296,30 @@ namespace Smartstore.Admin.Controllers
             };
 
             return Json(gridModel);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Measure.Update)]
+        public async Task<IActionResult> DimensionUpdate(MeasureDimensionModel model)
+        {
+            var success = false;
+            var measureDimension = await _db.MeasureDimensions.FindByIdAsync(model.Id);
+
+            if (measureDimension != null)
+            {
+                if (model.IsPrimaryDimension && _measureSettings.BaseDimensionId != measureDimension.Id)
+                {
+                    _measureSettings.BaseDimensionId = measureDimension.Id;
+                    await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseDimensionId);
+                    await _db.SaveChangesAsync();
+                }
+
+                await MapperFactory.MapAsync(model, measureDimension);
+                await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { success });
         }
 
         [Permission(Permissions.Configuration.Measure.Create)]
@@ -436,15 +477,8 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 numDeleted = await _db.SaveChangesAsync();
-                
-                if (triedToDeletePrimary && numDeleted == 0)
-                {
-                    success = false;
-                }
-                else
-                {
-                    success = true;
-                }
+
+                success = triedToDeletePrimary && numDeleted == 0 ? false : true;
             }
 
             return Json(new { Success = success, Count = numDeleted });

@@ -2,8 +2,9 @@
 
 @model MeasureWeightModel
 
-<datagrid id="measure-weight-grid" allow-resize="true" allow-row-selection="true">
+<datagrid id="measure-weight-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
     <datasource read="@Url.Action("WeightList", "Measure")"
+                update="@Url.Action("WeightUpdate", "Measure")"
                 delete="@Url.Action("DeleteMeasureWeights", "Measure")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
@@ -38,7 +39,8 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-measure-weight" :data-key="item.row.Id">@T("Common.Edit")</a>
-        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id">@T("Common.SetDefault")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsPrimaryWeight }">@T("Common.SetDefault")</a>
+        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>

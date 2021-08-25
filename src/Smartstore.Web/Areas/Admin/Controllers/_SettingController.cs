@@ -985,8 +985,10 @@ namespace Smartstore.Admin.Controllers
             var success = await _mediaMover.Value.MoveAsync(source, target);
 
             if (success)
+            {
                 NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
-
+            }
+            
             return RedirectToAction("Media");
         }
 

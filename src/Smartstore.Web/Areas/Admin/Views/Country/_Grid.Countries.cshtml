@@ -2,15 +2,6 @@
 
 @model CountryModel
 
-@{ 
-    // INFO: Works for me. Let's check in your project...
-    // TODO: (mh) (core) InlineEdit update does not work!
-    // TODO: (mh) (core) Edit-->Update update does not work!
-
-    // TODO: (mh) (core) Why enabling inline edit here but not in other grids (measure, weight etc.)? 1-to-1 port?! 
-    // TODO: (mh) (core) Regions grid: enable inline edit/insert to allow fast edit. Click on Name link opens editor form.
-}
-
 <datagrid id="countries-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
     <datasource read="@Url.Action("CountryList", "Country")"
                 update="@Url.Action("CountryUpdate", "Country")"

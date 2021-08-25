@@ -95,6 +95,23 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
+        [HttpPost]
+        [Permission(Permissions.Configuration.Measure.Update)]
+        public async Task<IActionResult> Update(QuantityUnitModel model)
+        {
+            var success = false;
+            var quantityUnit = await _db.QuantityUnits.FindByIdAsync(model.Id);
+
+            if (quantityUnit != null)
+            {
+                await MapperFactory.MapAsync(model, quantityUnit);
+                await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { success });
+        }
+
         [Permission(Permissions.Configuration.Measure.Create)]
         public IActionResult CreateQuantityUnitPopup(string btnId, string formId)
         {
@@ -237,15 +254,8 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 numDeleted = await _db.SaveChangesAsync();
-                
-                if (triedToDeleteDefault && numDeleted == 0)
-                {
-                    success = false;
-                }
-                else
-                {
-                    success = true;
-                }
+
+                success = triedToDeleteDefault && numDeleted == 0 ? false : true;
             }
 
             return Json(new { Success = success, Count = numDeleted });

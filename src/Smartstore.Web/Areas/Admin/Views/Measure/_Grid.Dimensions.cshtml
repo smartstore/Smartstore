@@ -2,8 +2,9 @@
 
 @model MeasureDimensionModel
 
-<datagrid id="measure-dimension-grid" allow-resize="true" allow-row-selection="true">
+<datagrid id="measure-dimension-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
     <datasource read="@Url.Action("DimensionList", "Measure")"
+                update="@Url.Action("DimensionUpdate", "Measure")"
                 delete="@Url.Action("DeleteMeasureDimensions", "Measure")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
@@ -38,7 +39,8 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" class="grid-edit-measure-dimension" :data-key="item.row.Id">@T("Common.Edit")</a>
-        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id">@T("Common.SetDefault")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsPrimaryDimension }">@T("Common.SetDefault")</a>
+        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>

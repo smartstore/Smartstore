@@ -5,8 +5,9 @@
     var countryId = ViewData["CountryId"];
 }
 
-<datagrid id="states-grid" allow-resize="true" allow-row-selection="true" max-height="800px">
+<datagrid id="states-grid" allow-resize="true" allow-row-selection="true" allow-edit="true" max-height="800px">
     <datasource read="@Url.Action("States", "Country", new { countryId = countryId })"
+                update="@Url.Action("StateUpdate", "Country")"
                 delete="@Url.Action("StateDelete", "Country")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
@@ -27,7 +28,7 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Name" width="2fr" hideable="false">
+        <column for="Name" width="2fr" hideable="false" readonly="true">
             <display-template>
                 <a href="#" class="grid-edit-state-region text-truncate" :data-key="item.row.Id">
                     {{ item.value }}

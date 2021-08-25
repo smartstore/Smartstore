@@ -421,6 +421,23 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [Permission(Permissions.Configuration.Country.Update)]
+        public async Task<IActionResult> StateUpdate(StateProvinceModel model)
+        {
+            var success = false;
+            var stateProvinces = await _db.StateProvinces.FindByIdAsync(model.Id);
+
+            if (stateProvinces != null)
+            {
+                await MapperFactory.MapAsync(model, stateProvinces);
+                await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { success });
+        }
+
         [Permission(Permissions.Configuration.Country.Update)]
         public async Task<IActionResult> StateDelete(GridSelection selection)
         {
