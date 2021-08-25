@@ -6,11 +6,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Update.Internal;
-using Smartstore.Core.Data;
 using Smartstore.Data.Providers;
-
-// Add-Migration Initial -Context SqlServerSmartDbContext -Project Smartstore.Data.SqlServer
 
 namespace Smartstore.Data.SqlServer
 {
@@ -19,8 +15,6 @@ namespace Smartstore.Data.SqlServer
     internal class SqlServerDbFactory : DbFactory
     {
         public override DbSystemType DbSystem { get; } = DbSystemType.SqlServer;
-
-        public override Type SmartDbContextType => typeof(SqlServerSmartDbContext);
 
         public override DbConnectionStringBuilder CreateConnectionStringBuilder(string connectionString)
             => new SqlConnectionStringBuilder(connectionString);
@@ -57,19 +51,18 @@ namespace Smartstore.Data.SqlServer
         public override DataProvider CreateDataProvider(DatabaseFacade database)
             => new SqlServerDataProvider(database);
 
-        public override HookingDbContext CreateApplicationDbContext(string connectionString, int? commandTimeout = null, string migrationHistoryTableName = null)
+        public override TContext CreateDbContext<TContext>(string connectionString, int? commandTimeout = null)
         {
             Guard.NotEmpty(connectionString, nameof(connectionString));
 
-            var optionsBuilder = new DbContextOptionsBuilder<SqlServerSmartDbContext>()
+            var optionsBuilder = new DbContextOptionsBuilder<TContext>()
                 .ReplaceService<IConventionSetBuilder, FixedRuntimeConventionSetBuilder>()
                 .UseSqlServer(connectionString, sql =>
                 {
                     sql.CommandTimeout(commandTimeout);
-                    sql.MigrationsHistoryTable(migrationHistoryTableName);
                 });
 
-            return new SqlServerSmartDbContext(optionsBuilder.Options);
+            return (TContext)Activator.CreateInstance(typeof(TContext), new object[] { optionsBuilder.Options });
         }
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
@@ -94,12 +87,6 @@ namespace Smartstore.Data.SqlServer
 
                     if (extension.UseRelationalNulls.HasValue)
                         sql.UseRelationalNulls(extension.UseRelationalNulls.Value);
-
-                    if (extension.MigrationsAssembly.HasValue())
-                        sql.MigrationsAssembly(extension.MigrationsAssembly);
-
-                    if (extension.MigrationsHistoryTableName.HasValue())
-                        sql.MigrationsHistoryTable(extension.MigrationsHistoryTableName, extension.MigrationsHistoryTableSchema);
                 }
             });
         }

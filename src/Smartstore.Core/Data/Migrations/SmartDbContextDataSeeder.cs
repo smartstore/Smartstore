@@ -46,7 +46,7 @@ namespace Smartstore.Core.Data.Migrations
 
             // TODO: (core) Delete all Telerik language resources (???)
 
-            builder.AddOrUpdate("Common.SetDefault", "Set as default", "Setze als Standard");
+            builder.AddOrUpdate("Common.SetDefault", "Set as default", "Als Standard festlegen");
 
             builder.AddOrUpdate("Admin.Configuration.Measures.QuantityUnits.CantDeleteDefault",
                 "The default quantity unit can't be deleted. Specify another standard quantity unit beforehand.",

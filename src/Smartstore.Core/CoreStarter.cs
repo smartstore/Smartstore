@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Autofac;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
@@ -21,32 +22,37 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
-            var appConfig = appContext.AppConfiguration;
-
             RegisterTypeConverters();
 
             // CodePages dependency required by ExcelDataReader to avoid NotSupportedException "No data is available for encoding 1252."
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            if (appContext.IsInstalled)
-            {
-                var contextImplType = DataSettings.Instance.DbFactory.SmartDbContextType;
-                var poolSize = appContext.AppConfiguration.DbContextPoolSize;
+            var dbCommandTimeout = appContext.AppConfiguration.DbMigrationCommandTimeout;
 
+            if (!appContext.IsInstalled)
+            {
+                services.AddSingleton<IDbContextFactory<SmartDbContext>>(c => new SimpleDbContextFactory<SmartDbContext>(() =>
+                {
+                    return DataSettings.Instance.DbFactory.CreateDbContext<SmartDbContext>(
+                        DataSettings.Instance.ConnectionString,
+                        dbCommandTimeout);
+                }));
+            }
+            else
+            {
                 // Application DbContext as pooled factory
-                services.AddPooledDbContextFactory<SmartDbContext>(contextImplType, poolSize, (c, builder) =>
+                services.AddPooledDbContextFactory<SmartDbContext>((c, builder) =>
                 {
                     builder
                         .UseSecondLevelCache()
-                        .UseDbFactory(f =>
-                        {
-                            f.MigrationsHistoryTable(SmartDbContext.MigrationHistoryTableName);
-                        });
-                });
+                        .UseDbFactory();
+                }, appContext.AppConfiguration.DbContextPoolSize);
 
                 services.AddDbMigrator(appContext);
                 services.AddDbQuerySettings();
             }
+
+            services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<SmartDbContext>>().CreateDbContext());
         }
 
         internal static void RegisterTypeConverters()

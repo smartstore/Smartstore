@@ -9,17 +9,12 @@ using System.Xml;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Caching;
 using Smartstore.Core;
-using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Providers;
@@ -178,16 +173,8 @@ namespace Smartstore.Core.Installation
                     });
                 }
 
-                // Create the DataContext
-                var dbContextFactory = new SimpleDbContextFactory<SmartDbContext>(() => 
-                {
-                    return (SmartDbContext)dbFactory.CreateApplicationDbContext(
-                       conString,
-                       _appContext.AppConfiguration.DbMigrationCommandTimeout,
-                       SmartDbContext.MigrationHistoryTableName);
-                });
-
-                dbContext = dbContextFactory.CreateDbContext();
+                // Now it is safe to create the DbContext instance
+                dbContext = scope.Resolve<SmartDbContext>();
 
                 // Delete only on failure if WE created the database.
                 var canConnectDatabase = await dbContext.Database.CanConnectAsync(cancelToken);
@@ -249,19 +236,10 @@ namespace Smartstore.Core.Installation
                     // At this stage (after the database has been created and seeded completely) we can create a richer service scope
                     // to minimize the risk of dependency resolution exceptions during more complex install operations.
                     c.RegisterInstance(dbContext);
-                    c.RegisterInstance(dbContextFactory).As<IDbContextFactory<SmartDbContext>>();
-                    c.Register<IStoreContext>(cc => 
-                    { 
-                        return new StoreContext(cc.Resolve<IComponentContext>(), _httpContextAccessor, cc.Resolve<ICacheFactory>(), dbContextFactory, cc.Resolve<IActionContextAccessor>()); 
-                    });
-                    c.Register<ISettingFactory>(cc =>
-                    {
-                        return new SettingFactory(cc.Resolve<IComponentContext>(), _httpContextAccessor, cc.Resolve<ICacheManager>(), dbContextFactory);
-                    });
                 });
 
-                //// ===>>> Install modules
-                //await InstallModules(dbContext, richScope, cancelToken);
+                // ===>>> Install modules
+                await InstallModules(dbContext, richScope, cancelToken);
 
                 // Detect media file tracks (must come after plugins installation)
                 UpdateResult(x =>

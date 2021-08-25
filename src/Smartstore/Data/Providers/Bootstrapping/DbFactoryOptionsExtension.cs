@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine;
 
@@ -20,11 +19,6 @@ namespace Smartstore.Data.Providers
             {
                 CommandTimeout = appConfig.DbCommandTimeout.Value;
             }
-
-            if (options?.ContextType != null)
-            {
-                MigrationsHistoryTableName = HistoryRepository.DefaultTableName + "_" + options.ContextType.Name;
-            }
         }
 
         protected DbFactoryOptionsExtension(DbFactoryOptionsExtension copyFrom)
@@ -36,9 +30,6 @@ namespace Smartstore.Data.Providers
             MaxBatchSize = copyFrom.MaxBatchSize;
             UseRelationalNulls = copyFrom.UseRelationalNulls;
             QuerySplittingBehavior = copyFrom.QuerySplittingBehavior;
-            MigrationsAssembly = copyFrom.MigrationsAssembly;
-            MigrationsHistoryTableName = copyFrom.MigrationsHistoryTableName;
-            MigrationsHistoryTableSchema = copyFrom.MigrationsHistoryTableSchema;
         }
 
         public DbContextOptionsExtensionInfo Info
@@ -114,24 +105,6 @@ namespace Smartstore.Data.Providers
             return clone;
         }
 
-        public string MigrationsAssembly { get; private set; }
-        public DbFactoryOptionsExtension WithMigrationsAssembly(string migrationsAssembly)
-        {
-            var clone = Clone();
-            clone.MigrationsAssembly = migrationsAssembly;
-            return clone;
-        }
-
-        public string MigrationsHistoryTableName { get; private set; }
-        public string MigrationsHistoryTableSchema { get; private set; }
-        public DbFactoryOptionsExtension WithMigrationsHistoryTable(string tableName, string tableSchema = null)
-        {
-            var clone = Clone();
-            clone.MigrationsHistoryTableName = tableName;
-            clone.MigrationsHistoryTableSchema = tableSchema;
-            return clone;
-        }
-
         #endregion
 
         #region Nested ExtensionInfo
@@ -162,9 +135,6 @@ namespace Smartstore.Data.Providers
                     hashCode.Add(Extension.MaxBatchSize);
                     hashCode.Add(Extension.UseRelationalNulls);
                     hashCode.Add(Extension.QuerySplittingBehavior);
-                    hashCode.Add(Extension.MigrationsAssembly);
-                    hashCode.Add(Extension.MigrationsHistoryTableName);
-                    hashCode.Add(Extension.MigrationsHistoryTableSchema);
 
                     _serviceProviderHash = hashCode.ToHashCode();
                 }

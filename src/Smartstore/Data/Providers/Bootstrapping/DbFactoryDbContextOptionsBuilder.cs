@@ -64,20 +64,5 @@ namespace Smartstore.Data.Providers
         /// </summary>
         public virtual DbFactoryDbContextOptionsBuilder QuerySplittingBehavior(QuerySplittingBehavior querySplittingBehavior)
             => WithOption(e => e.WithQuerySplittingBehavior(querySplittingBehavior));
-
-        /// <summary>
-        /// Configures the assembly where migrations are maintained for this context.
-        /// </summary>
-        /// <param name="assemblyName">The name of the assembly.</param>
-        public virtual DbFactoryDbContextOptionsBuilder MigrationsAssembly(string migrationsAssembly)
-            => WithOption(e => e.WithMigrationsAssembly(migrationsAssembly));
-
-        /// <summary>
-        /// Configures the name of the table used to record which migrations have been applied to the database.
-        /// </summary>
-        /// <param name="tableName">The name of the table.</param>
-        /// <param name="schema">The schema of the table.</param>
-        public virtual DbFactoryDbContextOptionsBuilder MigrationsHistoryTable(string tableName, string schema = null)
-            => WithOption(e => e.WithMigrationsHistoryTable(tableName, schema));
     }
 }

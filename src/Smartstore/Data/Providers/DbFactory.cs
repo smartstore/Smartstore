@@ -22,8 +22,6 @@ namespace Smartstore.Data.Providers
         
         public abstract DbSystemType DbSystem { get; }
 
-        public abstract Type SmartDbContextType { get; }
-
         public abstract DbConnectionStringBuilder CreateConnectionStringBuilder(string connectionString);
 
         public abstract DbConnectionStringBuilder CreateConnectionStringBuilder(
@@ -34,10 +32,8 @@ namespace Smartstore.Data.Providers
 
         public abstract DataProvider CreateDataProvider(DatabaseFacade database);
 
-        public abstract HookingDbContext CreateApplicationDbContext(
-            string connectionString, 
-            int? commandTimeout = null, 
-            string migrationHistoryTableName = null);
+        public abstract TContext CreateDbContext<TContext>(string connectionString, int? commandTimeout = null)
+            where TContext : HookingDbContext;
 
         public abstract DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString);
 

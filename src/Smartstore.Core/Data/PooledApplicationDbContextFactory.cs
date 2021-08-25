@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Smartstore.Data;
 using Smartstore.Engine;
 
+// TODO: (core) After switching to FluentMigrator we won't need PooledApplicationDbContextFactory anymore. Remove later!
+
 namespace Smartstore.Core.Data
 {
     /// <summary>

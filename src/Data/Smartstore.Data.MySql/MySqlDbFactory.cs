@@ -8,15 +8,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using MySqlConnector;
 using Smartstore.Data.Providers;
 
-// Add-Migration Initial -Context MySqlSmartDbContext -Project Smartstore.Data.MySql
-
 namespace Smartstore.Data.MySql
 {
     internal class MySqlDbFactory : DbFactory
     {
         public override DbSystemType DbSystem { get; } = DbSystemType.MySql;
-
-        public override Type SmartDbContextType => typeof(MySqlSmartDbContext);
 
         public override DbConnectionStringBuilder CreateConnectionStringBuilder(string connectionString)
             => new MySqlConnectionStringBuilder(connectionString) { AllowUserVariables = true, UseAffectedRows = false };
@@ -48,19 +44,18 @@ namespace Smartstore.Data.MySql
         public override DataProvider CreateDataProvider(DatabaseFacade database)
             => new MySqlDataProvider(database);
 
-        public override HookingDbContext CreateApplicationDbContext(string connectionString, int? commandTimeout = null, string migrationHistoryTableName = null)
+        public override TContext CreateDbContext<TContext>(string connectionString, int? commandTimeout = null)
         {
             Guard.NotEmpty(connectionString, nameof(connectionString));
 
-            var optionsBuilder = new DbContextOptionsBuilder<MySqlSmartDbContext>()
+            var optionsBuilder = new DbContextOptionsBuilder<TContext>()
                 .ReplaceService<IConventionSetBuilder, FixedRuntimeConventionSetBuilder>()
-                .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), sql => 
+                .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), sql =>
                 {
                     sql.CommandTimeout(commandTimeout);
-                    sql.MigrationsHistoryTable(migrationHistoryTableName);
                 });
 
-            return new MySqlSmartDbContext(optionsBuilder.Options);
+            return (TContext)Activator.CreateInstance(typeof(TContext), new object[] { optionsBuilder.Options });
         }
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
@@ -85,12 +80,6 @@ namespace Smartstore.Data.MySql
 
                     if (extension.UseRelationalNulls.HasValue)
                         sql.UseRelationalNulls(extension.UseRelationalNulls.Value);
-
-                    if (extension.MigrationsAssembly.HasValue())
-                        sql.MigrationsAssembly(extension.MigrationsAssembly);
-
-                    if (extension.MigrationsHistoryTableName.HasValue())
-                        sql.MigrationsHistoryTable(extension.MigrationsHistoryTableName, extension.MigrationsHistoryTableSchema);
                 }
             });
         }
