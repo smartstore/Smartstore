@@ -52,7 +52,7 @@ namespace Smartstore.Core.Bootstrapping
                 services.AddFluentMigratorCore().ConfigureRunner(rb =>
                 {
                     rb = DataSettings.Instance.DbFactory.DbSystem.ToString().EqualsNoCase("MySql") ? rb.AddMySql5() : rb.AddSqlServer();
-                    rb.WithVersionTable(new MigrationHistory()).WithGlobalConnectionString(DataSettings.Instance.ConnectionString);
+                    rb.WithVersionTable(new MigrationHistory()).WithGlobalConnectionString(x => DataSettings.Instance.ConnectionString);
                 });
                 and then calling FluentMigrator.Runner.IVersionLoader.LoadVersionInfo()
              */
@@ -61,7 +61,7 @@ namespace Smartstore.Core.Bootstrapping
             services.AddTransient(typeof(DbMigrator<>));
 
             // Fluent migrator.
-            var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>()//true, true)
+            var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>()// TODO: (mg) (core) ignore inactive modules when ready.
                 .Select(x => x.Assembly)
                 .Where(x => !x.FullName.Contains("FluentMigrator.Runner"))
                 .Distinct()

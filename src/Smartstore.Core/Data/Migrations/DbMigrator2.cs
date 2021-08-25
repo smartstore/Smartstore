@@ -68,14 +68,12 @@ namespace Smartstore.Core.Data.Migrations
             var migrationInfos = GetMigrationInfos(assembly, true);
             var runner = (MigrationRunner)_migrationRunner;
 
-            LogInfo("Migrating up", assembly, migrationInfos);
+            //LogInfo("Migrating up", assembly, migrationInfos);
 
             using (IMigrationScope scope = _runnerOptions.TransactionPerSession ? _migrationRunner.BeginScope() : null)
             {
                 try
                 {
-                    runner.ApplyMaintenance(MigrationStage.BeforeAll, true);
-
                     foreach (var info in migrationInfos)
                     {
                         if (cancelToken.IsCancellationRequested)
@@ -83,15 +81,9 @@ namespace Smartstore.Core.Data.Migrations
                             break;
                         }
 
-                        runner.ApplyMaintenance(MigrationStage.BeforeEach, true);
                         runner.ApplyMigrationUp(info, info.TransactionBehavior == TransactionBehavior.Default);
-                        runner.ApplyMaintenance(MigrationStage.AfterEach, true);
-
                         ++result;
                     }
-
-                    runner.ApplyMaintenance(MigrationStage.BeforeProfiles, true);
-                    runner.ApplyMaintenance(MigrationStage.AfterAll, true);
 
                     scope?.Complete();
                 }
@@ -121,7 +113,7 @@ namespace Smartstore.Core.Data.Migrations
             var migrationInfos = GetMigrationInfos(assembly, false);
             var runner = (MigrationRunner)_migrationRunner;
 
-            LogInfo("Migrating down", assembly, migrationInfos);
+            //LogInfo("Migrating down", assembly, migrationInfos);
 
             using (IMigrationScope scope = _runnerOptions.TransactionPerSession ? _migrationRunner.BeginScope() : null)
             {
@@ -161,20 +153,29 @@ namespace Smartstore.Core.Data.Migrations
 
         protected virtual IEnumerable<IMigrationInfo> GetMigrationInfos(Assembly assembly, bool ascending)
         {
-            var migrations = _filteringMigrationSource.GetMigrations(x => x.Assembly == assembly) ?? Enumerable.Empty<IMigration>();
-            var migrationInfos = migrations.Select(x => _migrationRunnerConventions.GetMigrationInfoForMigration(x));
+            // Perf: IMigration is internally cached by FM via ConcurrentDictionary<Type, IMigration> (see MigrationSource).
+            var migrations = _filteringMigrationSource.GetMigrations(x => x.Assembly == assembly);
 
-            return ascending
-                ? migrationInfos.OrderBy(x => x.Version)
-                : migrationInfos.OrderByDescending(x => x.Version);
-        }
-
-        private void LogInfo(string text, Assembly assembly, IEnumerable<IMigrationInfo> infos)
-        {
-            if (infos.Any())
+            if (migrations?.Any() ?? false)
             {
-                Logger.Info($"{text} {assembly.GetName().Name}: {string.Join(" ", infos.Select(x => x.Description))}");
+                var migrationInfos = migrations
+                    //.Where(x => _migrationRunnerConventions.TypeIsMigration(x.GetType()))     // If someone forgets using MigrationAttribute GetMigrationInfoForMigration crashes.
+                    .Select(x => _migrationRunnerConventions.GetMigrationInfoForMigration(x));
+
+                return ascending
+                    ? migrationInfos.OrderBy(x => x.Version)
+                    : migrationInfos.OrderByDescending(x => x.Version);
             }
+
+            return Enumerable.Empty<IMigrationInfo>();
         }
+
+        //private void LogInfo(string text, Assembly assembly, IEnumerable<IMigrationInfo> infos)
+        //{
+        //    if (infos.Any())
+        //    {
+        //        Logger.Info($"{text} {assembly.GetName().Name}: {string.Join(" ", infos.Select(x => x.Description))}");
+        //    }
+        //}
     }
 }
