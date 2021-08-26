@@ -105,6 +105,14 @@ namespace Smartstore.Data.Providers
             return clone;
         }
 
+        public string MigrationsAssembly { get; private set; }
+        public DbFactoryOptionsExtension WithMigrationsAssembly(string migrationsAssembly)
+        {
+            var clone = Clone();
+            clone.MigrationsAssembly = migrationsAssembly;
+            return clone;
+        }
+
         #endregion
 
         #region Nested ExtensionInfo
@@ -135,6 +143,7 @@ namespace Smartstore.Data.Providers
                     hashCode.Add(Extension.MaxBatchSize);
                     hashCode.Add(Extension.UseRelationalNulls);
                     hashCode.Add(Extension.QuerySplittingBehavior);
+                    hashCode.Add(Extension.MigrationsAssembly);
 
                     _serviceProviderHash = hashCode.ToHashCode();
                 }

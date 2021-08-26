@@ -42,9 +42,10 @@ namespace Smartstore.Core.Bootstrapping
                         .UseDbFactory();
                 }, appContext.AppConfiguration.DbContextPoolSize);
 
-                services.AddDbMigrator(appContext);
                 services.AddDbQuerySettings();
             }
+
+            services.AddDbMigrator(appContext);
 
             services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<SmartDbContext>>().CreateDbContext());
         }

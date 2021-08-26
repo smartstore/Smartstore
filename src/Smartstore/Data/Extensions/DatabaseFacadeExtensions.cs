@@ -12,34 +12,33 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.ComponentModel;
-using Smartstore.Data;
-using Smartstore.Data.Migrations;
 
 namespace Smartstore
 {
     public static class DatabaseFacadeExtensions
     {
-        #region Relational schema
+        #region Database creation
 
         /// <summary>
-        /// Creates the schema for the current model in the database. The database must exist physically or this method
-        /// will raise an exception.
+        /// Ensures that the database for the context exists. If it exists, no action is taken. If it does not
+        /// exist then the database is created WITHOUT populating the schema.
         /// </summary>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-        public static bool EnsureSchemaPopulated(this DatabaseFacade databaseFacade)
+        /// <returns>
+        /// <see langword="true" /> if the database is created, <see langword="false" /> if it already existed.
+        /// </returns>
+        public static bool EnsureCreatedSchemaless(this DatabaseFacade databaseFacade)
         {
             Guard.NotNull(databaseFacade, nameof(databaseFacade));
 
-            var dbCreator = GetFacadeDependencies(databaseFacade).DatabaseCreator as RelationalDatabaseCreator;
-            if (dbCreator != null)
+            var creator = GetFacadeDependencies(databaseFacade).DatabaseCreator as RelationalDatabaseCreator;
+            if (creator != null)
             {
                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    var dbContext = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context;
-
-                    if (!HasTables(databaseFacade))
+                    if (!creator.Exists())
                     {
-                        dbCreator.CreateTables();
+                        creator.Create();
                         return true;
                     }
                 }
@@ -48,15 +47,29 @@ namespace Smartstore
             return false;
         }
 
-        private static bool HasTables(DatabaseFacade databaseFacade)
+        /// <summary>
+        /// Ensures that the database for the context exists. If it exists, no action is taken. If it does not
+        /// exist then the database is created WITHOUT populating the schema.
+        /// </summary>
+        /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+        /// <returns>
+        /// <see langword="true" /> if the database is created, <see langword="false" /> if it already existed.
+        /// </returns>
+        public static async Task<bool> EnsureCreatedSchemalessAsync(this DatabaseFacade databaseFacade, CancellationToken cancelToken = default)
         {
-            var dbContext = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context as HookingDbContext;
-            var tablesToCheck = dbContext.GetType().GetAttribute<CheckTablesAttribute>(true)?.TableNames;
+            Guard.NotNull(databaseFacade, nameof(databaseFacade));
 
-            if (tablesToCheck != null && tablesToCheck.Length > 0)
+            var creator = GetFacadeDependencies(databaseFacade).DatabaseCreator as RelationalDatabaseCreator;
+            if (creator != null)
             {
-                var dbTables = dbContext.DataProvider.GetTableNames();
-                var xxx = dbTables.Intersect(tablesToCheck, StringComparer.InvariantCultureIgnoreCase).Count() == tablesToCheck.Length;
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    if (!await creator.ExistsAsync(cancelToken))
+                    {
+                        await creator.CreateAsync(cancelToken);
+                        return true;
+                    }
+                }
             }
 
             return false;
@@ -65,6 +78,8 @@ namespace Smartstore
         #endregion
 
         #region Migrations
+
+        // TODO: (core) Remove Migration stuff from DatabaseFacadeExtensions later
 
         /// <summary>
         /// Migrates the database to the specified target migration.
@@ -331,7 +346,7 @@ namespace Smartstore
 
         #endregion
 
-        private static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(DatabaseFacade databaseFacade)
+        internal static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(this DatabaseFacade databaseFacade)
         {
             var dependencies = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies;
             if (dependencies is IRelationalDatabaseFacadeDependencies relationalDependencies)
@@ -342,7 +357,7 @@ namespace Smartstore
             throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
         }
 
-        private static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
+        internal static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
         {
             Guard.NotNull(databaseFacade, nameof(databaseFacade));
 

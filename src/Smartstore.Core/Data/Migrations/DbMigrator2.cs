@@ -3,179 +3,232 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Transactions;
+using Autofac;
 using FluentMigrator;
 using FluentMigrator.Infrastructure;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Smartstore.Data;
+using Smartstore.Data.Migrations;
 using Smartstore.Engine;
 
 namespace Smartstore.Core.Data.Migrations
 {
     public abstract class DbMigrator2
     {
+        private Assembly _assembly;
+        private IReadOnlyDictionary<long, MigrationDescriptor> _migrations;
+
+        private readonly ILifetimeScope _scope;
+        private readonly ITypeScanner _typeScanner;
+        private readonly IVersionLoader _versionLoader;
+
+        protected DbMigrator2(ILifetimeScope scope, ITypeScanner typeScanner, IVersionLoader versionLoader)
+        {
+            _scope = scope;
+            _typeScanner = typeScanner;
+            _versionLoader = versionLoader;
+        }
+
         // TODO: (mg) (core) Use only relevant FluentMigrator dependencies/packages (SqlServer, MySql). Remove everything else!
         public abstract HookingDbContext Context { get; }
 
         // TODO: (mg) (core) The contract should follow the old contract (DbMigrator). We need DbContext for translation and setting seeding. We can't break with our concept.
         public abstract int RunPendingMigrationsAsync(CancellationToken cancelToken = default);
         public abstract int MigrateDown(CancellationToken cancelToken = default);
-    }
 
-    public class DbMigrator2<TContext> : DbMigrator2 where TContext : HookingDbContext
-    {
-        private readonly TContext _db;
-        private readonly IFilteringMigrationSource _filteringMigrationSource;
-        private readonly IMigrationRunnerConventions _migrationRunnerConventions;
-        private readonly IMigrationRunner _migrationRunner;
-        private readonly IVersionLoader _versionLoader;
-        private readonly RunnerOptions _runnerOptions;
+        /// <summary>
+        /// TODO: Describe
+        /// </summary>
+        /// <param name="targetVersion">TODO: Describe</param>
+        /// <returns>Number of processed migrations.</returns>
+        public abstract Task<int> MigrateAsync(long? targetVersion = null, CancellationToken cancelToken = default);
 
-        public DbMigrator2(
-            TContext db,
-            IFilteringMigrationSource filteringMigrationSource,
-            IMigrationRunnerConventions migrationRunnerConventions,
-            IMigrationRunner migrationRunner,
-            IVersionLoader versionLoader,
-            IOptions<RunnerOptions> runnerOptions)
+        #region Database initialization
+
+        /// <summary>
+        /// Determines whether the database contains ALL tables specified by <see cref="CheckTablesAttribute"/>. 
+        /// If the DbContext is not annotated with <see cref="CheckTablesAttribute"/> this method will return
+        /// <c>true</c> if at least one user table is present in the database, otherwise <c>false</c>.
+        /// </summary>
+        /// <returns> A value indicating whether the required tables are present in the database. </returns>
+        public bool HasTables()
         {
-            _db = Guard.NotNull(db, nameof(db));
+            var tablesToCheck = Context.GetType().GetAttribute<CheckTablesAttribute>(true)?.TableNames;
 
-            _filteringMigrationSource = filteringMigrationSource;
-            _migrationRunnerConventions = migrationRunnerConventions;
-            _migrationRunner = migrationRunner;
-            _versionLoader = versionLoader;
-            _runnerOptions = runnerOptions.Value;
+            if (tablesToCheck != null && tablesToCheck.Length > 0)
+            {
+                var dbTables = Context.DataProvider.GetTableNames();
+
+                // True when ALL required tables are present in the database
+                return dbTables.Intersect(tablesToCheck, StringComparer.InvariantCultureIgnoreCase).Count() == tablesToCheck.Length;
+            }
+
+            return (Context.Database.GetFacadeDependencies().DatabaseCreator as RelationalDatabaseCreator)?.HasTables() ?? false;
         }
 
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-
-        public override TContext Context => _db;
-
-        public override int RunPendingMigrationsAsync(CancellationToken cancelToken = default)
+        /// <summary>
+        /// Creates the schema for the current model in the database. The database must exist physically or this method
+        /// will raise an exception. To specify the table names that the database should contain in order to satisfy the model, annotate
+        /// the DbContext class with <see cref="CheckTablesAttribute"/>. 
+        /// If all given tables already exist in the database, this method will exit.
+        /// After the schema was created, the migration version info table is populated with all found migrations
+        /// for the current model.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if the schema was created, <see langword="false" /> if it already existed.
+        /// </returns>
+        public bool EnsureSchemaPopulated()
         {
-            //if (!_migrationRunner.HasMigrationsToApplyUp())
-            //{
-            //    return 0;
-            //}
-
-            var result = 0;
-            var assembly = Assembly.GetAssembly(_db.GetType());
-            //var assembly = EngineContext.Current.ResolveService<Engine.ITypeScanner>().Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools"));
-            var migrationInfos = GetMigrationInfos(assembly, true);
-            var runner = (MigrationRunner)_migrationRunner;
-
-            //LogInfo("Migrating up", assembly, migrationInfos);
-
-            using (IMigrationScope scope = _runnerOptions.TransactionPerSession ? _migrationRunner.BeginScope() : null)
+            var creator = Context.Database.GetFacadeDependencies().DatabaseCreator as RelationalDatabaseCreator;
+            if (creator != null)
             {
-                try
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    foreach (var info in migrationInfos)
+                    if (!HasTables())
                     {
-                        if (cancelToken.IsCancellationRequested)
-                        {
-                            break;
-                        }
-
-                        runner.ApplyMigrationUp(info, info.TransactionBehavior == TransactionBehavior.Default);
-                        ++result;
+                        creator.CreateTables();
+                        PostPopulateSchema();
+                        return true;
                     }
-
-                    scope?.Complete();
                 }
-                catch
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Creates the schema for the current model in the database. The database must exist physically or this method
+        /// will raise an exception. To specify the table names that the database should contain in order to satisfy the model, annotate
+        /// the DbContext class with <see cref="CheckTablesAttribute"/>. 
+        /// If all given tables already exist in the database, this method will exit.
+        /// After the schema was created, the migration version info table is populated with all found migrations
+        /// for the current model.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if the schema was created, <see langword="false" /> if it already existed.
+        /// </returns>
+        public async Task<bool> EnsureSchemaPopulatedAsync(CancellationToken cancelToken = default)
+        {
+            var creator = Context.Database.GetFacadeDependencies().DatabaseCreator as RelationalDatabaseCreator;
+            if (creator != null)
+            {
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    result = 0;
-
-                    if (scope?.IsActive ?? false)
+                    if (!HasTables())
                     {
-                        scope?.Cancel();
+                        await creator.CreateTablesAsync(cancelToken);
+                        PostPopulateSchema();
+                        return true;
                     }
-
-                    throw;
                 }
+            }
+
+            return false;
+        }
+
+        private void PostPopulateSchema()
+        {
+            var appliedMigrations = GetAppliedMigrations().ToArray();
+            
+            foreach (var migration in GetMigrations().Values)
+            {
+                if (!appliedMigrations.Contains(migration.Version))
+                {
+                    _versionLoader.UpdateVersionInfo(migration.Version, migration.Description ?? migration.Type.Name);
+                } 
             }
 
             _versionLoader.LoadVersionInfo();
-            cancelToken.ThrowIfCancellationRequested();
-
-            return result;
         }
 
-        public override int MigrateDown(CancellationToken cancelToken = default)
+        #endregion
+
+        #region Migration history
+
+        /// <summary>
+        ///  The assembly that contains the migrations, usually the assembly containing the DbContext.
+        /// </summary>
+        public Assembly MigrationAssembly
         {
-            var result = 0;
-            var assembly = Assembly.GetAssembly(_db.GetType());
-            var migrationInfos = GetMigrationInfos(assembly, false);
-            var runner = (MigrationRunner)_migrationRunner;
-
-            //LogInfo("Migrating down", assembly, migrationInfos);
-
-            using (IMigrationScope scope = _runnerOptions.TransactionPerSession ? _migrationRunner.BeginScope() : null)
+            get 
             {
-                try
+                Assembly Resolve()
                 {
-                    foreach (var info in migrationInfos)
-                    {
-                        if (cancelToken.IsCancellationRequested)
-                        {
-                            break;
-                        }
-
-                        runner.ApplyMigrationDown(info, info.TransactionBehavior == TransactionBehavior.Default);
-                        ++result;
-                    }
-
-                    scope?.Complete();
+                    var assemblyName = RelationalOptionsExtension.Extract(Context.Options)?.MigrationsAssembly;
+                    return assemblyName == null
+                        ? Context.GetType().Assembly
+                        : Assembly.Load(new AssemblyName(assemblyName));
                 }
-                catch
+                
+                return _assembly ??= Resolve();
+            }
+        }
+
+        /// <summary>
+        /// Gets all the migrations that are defined in the configured migrations assembly.
+        /// </summary>
+        public IReadOnlyDictionary<long, MigrationDescriptor> GetMigrations()
+        {
+            IReadOnlyDictionary<long, MigrationDescriptor> Create()
+            {
+                var result = new SortedList<long, MigrationDescriptor>();
+
+                var items
+                    = from t in _typeScanner.FindTypes<IMigration>(new[] { MigrationAssembly })
+                      let descriptor = new MigrationDescriptor(t)
+                      where descriptor.Version > 0
+                      orderby descriptor.Version
+                      select descriptor;
+
+                foreach (var descriptor in items)
                 {
-                    result = 0;
-
-                    if (scope?.IsActive ?? false)
-                    {
-                        scope?.Cancel();
-                    }
-
-                    throw;
+                    result.Add(descriptor.Version, descriptor);
                 }
+
+                return result;
             }
 
-            _versionLoader.LoadVersionInfo();
-            cancelToken.ThrowIfCancellationRequested();
-
-            return result;
+            return _migrations ??= Create();
         }
 
-        protected virtual IEnumerable<IMigrationInfo> GetMigrationInfos(Assembly assembly, bool ascending)
+        /// <summary>
+        /// Gets all migrations that have been applied to the target database.
+        /// </summary>
+        public IEnumerable<long> GetAppliedMigrations()
         {
-            // Perf: IMigration is internally cached by FM via ConcurrentDictionary<Type, IMigration> (see MigrationSource).
-            var migrations = _filteringMigrationSource.GetMigrations(x => x.Assembly == assembly);
-
-            if (migrations?.Any() ?? false)
-            {
-                var migrationInfos = migrations
-                    //.Where(x => _migrationRunnerConventions.TypeIsMigration(x.GetType()))     // If someone forgets using MigrationAttribute GetMigrationInfoForMigration crashes.
-                    .Select(x => _migrationRunnerConventions.GetMigrationInfoForMigration(x));
-
-                return ascending
-                    ? migrationInfos.OrderBy(x => x.Version)
-                    : migrationInfos.OrderByDescending(x => x.Version);
-            }
-
-            return Enumerable.Empty<IMigrationInfo>();
+            return GetMigrations().Select(x => x.Key).Intersect(_versionLoader.VersionInfo.AppliedMigrations());
         }
 
-        //private void LogInfo(string text, Assembly assembly, IEnumerable<IMigrationInfo> infos)
-        //{
-        //    if (infos.Any())
-        //    {
-        //        Logger.Info($"{text} {assembly.GetName().Name}: {string.Join(" ", infos.Select(x => x.Description))}");
-        //    }
-        //}
+        /// <summary>
+        /// Gets all migrations that are defined in the assembly but haven't been applied to the target database.
+        /// </summary>
+        public IEnumerable<long> GetPendingMigrations()
+        {
+            return GetMigrations().Select(x => x.Key).Except(GetAppliedMigrations());
+        }
+
+        /// <summary>
+        /// Creates an instance of the migration class.
+        /// </summary>
+        /// <param name="migrationClass">
+        /// The <see cref="Type" /> for the migration class, as obtained from the <see cref="GetMigrations()" /> dictionary.
+        /// </param>
+        /// <returns>The migration instance.</returns>
+        protected IMigration CreateMigration(Type migrationClass)
+        {
+            Guard.NotNull(migrationClass, nameof(migrationClass));
+
+            return (IMigration)_scope.ResolveUnregistered(migrationClass);
+        }
+
+        #endregion
     }
 }

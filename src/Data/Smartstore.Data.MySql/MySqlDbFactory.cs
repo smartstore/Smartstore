@@ -78,6 +78,9 @@ namespace Smartstore.Data.MySql
 
                     if (extension.UseRelationalNulls.HasValue)
                         sql.UseRelationalNulls(extension.UseRelationalNulls.Value);
+
+                    if (extension.MigrationsAssembly.HasValue())
+                        sql.MigrationsAssembly(extension.MigrationsAssembly);
                 }
             });
         }

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Localization;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
@@ -221,9 +222,13 @@ namespace Smartstore.Core.Installation
                 //    Logger.Info("Installation completed successfully");
                 //});
 
-                // ===>>> Actually performs database creation.
-                //await dbContext.Database.MigrateAsync(cancelToken);
-                await dbContext.Database.EnsureCreatedAsync(cancelToken);
+                // ===>>> Creates database
+                await dbContext.Database.EnsureCreatedSchemalessAsync(cancelToken);
+                cancelToken.ThrowIfCancellationRequested();
+
+                // ===>>> Populates latest schema
+                var migrator = scope.Resolve<DbMigrator2<SmartDbContext>>(TypedParameter.From(dbContext));
+                await migrator.EnsureSchemaPopulatedAsync(cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 
                 // ===>>> Seeds data.

@@ -9,10 +9,10 @@ namespace Smartstore.Core.Data.Migrations
         private const string MSG_SUFFIX = " All changes to the database were reversed to '{2}'. Please downgrade your application to a version which is known to be compatible with '{2}'.";
 
         public DbMigrationException(string initialMigration, string targetMigration, Exception inner, bool isSeed)
-            : base(((isSeed ? MSG_SEED : MSG_DDL) + MSG_SUFFIX).FormatCurrent(targetMigration, inner != null ? inner.Message : "", initialMigration), inner)
+            : base(((isSeed ? MSG_SEED : MSG_DDL) + MSG_SUFFIX).FormatCurrent(targetMigration, inner?.Message.EmptyNull(), initialMigration), inner)
         {
-            this.InitialMigration = initialMigration;
-            this.TargetMigration = targetMigration;
+            InitialMigration = initialMigration;
+            TargetMigration = targetMigration;
         }
 
         public string InitialMigration { get; private set; }
