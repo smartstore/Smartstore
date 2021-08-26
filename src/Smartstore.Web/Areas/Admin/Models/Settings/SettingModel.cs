@@ -12,7 +12,7 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*Value")]
         [UIHint("Textarea")]
-        [AdditionalMetadata("rows", 3)]
+        [AdditionalMetadata("rows", 1)]
         public string Value { get; set; }
 
         [LocalizedDisplay("*StoreName")]

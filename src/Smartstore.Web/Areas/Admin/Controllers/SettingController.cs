@@ -100,7 +100,6 @@ namespace Smartstore.Admin.Controllers
         public IActionResult AllSettings(SettingListModel model)
         {
             model.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
-
             return View(model);
         }
 
@@ -134,6 +133,8 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var storesAll = T("Admin.Common.StoresAll").Value;
+
             var settingModels = settings
                 .Select(x =>
                 {
@@ -147,12 +148,12 @@ namespace Smartstore.Admin.Controllers
 
                     if (x.StoreId == 0)
                     {
-                        settingModel.Store = T("Admin.Common.StoresAll");
+                        settingModel.Store = storesAll;
                     }
                     else
                     {
-                        var store = stores.FirstOrDefault(s => s.Id == x.StoreId);
-                        settingModel.Store = store != null ? store.Name : string.Empty.NaIfEmpty();
+                        var store = Services.StoreContext.GetStoreById(x.StoreId);
+                        settingModel.Store = store?.Name.NaIfEmpty();
                     }
 
                     return settingModel;

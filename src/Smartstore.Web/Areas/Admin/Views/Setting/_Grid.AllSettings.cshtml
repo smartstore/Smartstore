@@ -12,7 +12,7 @@
     <sorting enabled="true">
         <sort by="Name" />
     </sorting>
-    <paging position="Both" show-size-chooser="true" />
+    <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
@@ -43,11 +43,15 @@
         <partial name="_Grid.AllSettings.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="Name" width="1fr" hideable="false" />
-        <column for="Value" width="1fr" hideable="false" />
-        <column for="StoreId" width="0.5fr">
+        <column for="Name" width="350px" hideable="false" />
+        <column for="Value" width="1fr" hideable="false" wrap="true">
             <display-template>
-                <div class="dg-cell-value w-100">{{ item.row.Store }}</div>
+                {{ item.value }}
+            </display-template>
+        </column>
+        <column for="StoreId" width="200px">
+            <display-template>
+                <div class="dg-cell-value">{{ item.row.Store }}</div>
             </display-template>
         </column>
     </columns>
