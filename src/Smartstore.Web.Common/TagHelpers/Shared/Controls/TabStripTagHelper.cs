@@ -177,7 +177,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (isStacked)
             {
-                classList.Add("row");
+                classList.Add("tabs-stacked");
             }
 
             if (OnAjaxBegin.HasValue())
@@ -298,7 +298,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (isStacked)
             {
                 // opening left/right tabs col
-                content.AppendHtml("<aside class=\"col-lg-auto nav-aside\">");
+                content.AppendHtml("<aside class=\"nav-aside\">");
             }
 
             content.AppendHtml(ul.RenderStartTag());
@@ -322,7 +322,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (isStacked)
             {
                 // opening left/right content col
-                content.AppendHtmlLine("<div class=\"col-lg nav-content\">");
+                content.AppendHtmlLine("<div class=\"nav-content\">");
             }
 
             content.AppendHtmlLine("<div class=\"tab-content\">");
