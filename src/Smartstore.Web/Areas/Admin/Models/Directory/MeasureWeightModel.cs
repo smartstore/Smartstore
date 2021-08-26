@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Web.Modelling;
 
+// TODO: (mh) (core) There is no such namespace "Directory" anymore. All entities are in "Common" namespace. Please rename Directory --> Common.
+
 namespace Smartstore.Admin.Models.Directory
 {
     [LocalizedDisplay("Admin.Configuration.Measures.Weights.Fields.")]
