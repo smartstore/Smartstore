@@ -1,0 +1,12 @@
+﻿@{
+    ViewBag.Title = T("Admin.Configuration.ActivityLog.ActivityLogType").Value;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-fire"></i>
+        @T("Admin.Configuration.ActivityLog.ActivityLogType")
+    </div>
+</div>
+
+<partial name="_Grid.ListTypes" model="null" />

@@ -1,0 +1,19 @@
+﻿@using Smartstore.Admin.Models.Logging
+
+@model ActivityLogTypeModel
+
+<datagrid id="activity-types-grid" allow-resize="true" allow-edit="true">
+    <datasource read="@Url.Action("ActivityTypesList", "ActivityLog")"
+                update="@Url.Action("ActivityTypesUpdate", "ActivityLog")" />
+    <sorting enabled="true">
+        <sort by="Name" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <columns>
+        <column for="Enabled" halign="center" hideable="false" />
+        <column for="Name" hideable="false" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+    </row-commands>
+</datagrid>
