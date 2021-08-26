@@ -28,6 +28,8 @@ namespace Smartstore.Core.Data.Migrations
         private readonly IEventPublisher _eventPublisher;
 
         private Exception _lastSeedException;
+        private string _initialMigration;
+        private string _lastSuccessfulMigration;
 
         public DbMigrator2(
             TContext db,
@@ -80,6 +82,9 @@ namespace Smartstore.Core.Data.Migrations
             var versions = Enumerable.Empty<long>();
             var down = false;
             var result = 0;
+
+            _initialMigration = localMigrations.GetValueOrDefault(lastAppliedVersion)?.Description ?? "[Initial]";
+            _lastSuccessfulMigration = _initialMigration;
 
             if (targetVersion == null)
             {
@@ -136,82 +141,10 @@ namespace Smartstore.Core.Data.Migrations
 
         protected virtual async Task<int> MigrateUpAsync(IMigrationInfo[] migrations, CancellationToken cancelToken)
         {
-            var result = MigrateInternal(migrations, true, cancelToken);
-
-            cancelToken.ThrowIfCancellationRequested();
-
-            await RunSeedersAsync(migrations, cancelToken);
-
-            //Logger.Info("Database migration successful: {0} >> {1}".FormatInvariant(initialMigration, lastSuccessful));
-
-            return result.SucceededMigrations;
-        }
-
-        protected virtual int MigrateDown(IMigrationInfo[] migrations, CancellationToken cancelToken)
-        {
-            return MigrateInternal(migrations, false, cancelToken).SucceededMigrations;
-        }
-
-        private MigrationResult MigrateInternal(IMigrationInfo[] migrations, bool up, CancellationToken cancelToken)
-        {
-            var result = new MigrationResult();
+            var succeeded = 0;
+            var seederEntries = new List<SeederEntry>();
             var runner = (MigrationRunner)_migrationRunner;
-            IMigrationInfo current = null;
 
-            using (IMigrationScope scope = _runnerOptions.TransactionPerSession ? _migrationRunner.BeginScope() : null)
-            {
-                try
-                {
-                    foreach (var migration in migrations)
-                    {
-                        current = migration;
-
-                        if (cancelToken.IsCancellationRequested)
-                        {
-                            break;
-                        }
-
-                        if (up)
-                        {
-                            runner.ApplyMigrationUp(migration, migration.TransactionBehavior == TransactionBehavior.Default);
-                        }
-                        else
-                        {
-                            runner.ApplyMigrationDown(migration, migration.TransactionBehavior == TransactionBehavior.Default);
-                        }
-
-                        ++result.SucceededMigrations;
-                        result.LastSucceededMigration = migration;
-                    }
-
-                    scope?.Complete();
-
-                    DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), result.LastSucceededMigration?.Description);
-                }
-                catch (Exception ex)
-                {
-                    result.SucceededMigrations = 0;
-
-                    if (scope?.IsActive ?? false)
-                    {
-                        scope?.Cancel();
-                    }
-
-                    throw new DbMigrationException(
-                        result.LastSucceededMigration?.Description ?? GetLastSuccessfulMigration()?.Description,
-                        current?.Description, 
-                        ex.InnerException ?? ex, 
-                        false);
-                }
-            }
-
-            _versionLoader.LoadVersionInfo();
-
-            return result;
-        }
-
-        protected virtual async Task RunSeedersAsync(IMigrationInfo[] migrations, CancellationToken cancelToken)
-        {
             foreach (var migration in migrations)
             {
                 if (cancelToken.IsCancellationRequested)
@@ -219,47 +152,107 @@ namespace Smartstore.Core.Data.Migrations
                     break;
                 }
 
-                if (migration is IDataSeeder<TContext> seeder)
+                try
                 {
-                    try
-                    {
-                        // Pre seed event.
-                        await _eventPublisher.PublishAsync(new SeedingDbMigrationEvent
-                        {
-                            Version = migration.Version,
-                            Description = migration.Description,
-                            DbContext = _db
-                        }, cancelToken);
+                    // TODO: CreateMigration -> if (migration is IDataSeeder<TContext> seeder) -> add seeder entry
 
-                        // Seed.
-                        await seeder.SeedAsync(_db, cancelToken);
+                    // TODO: check FM TransactionBehavior handling.
+                    runner.ApplyMigrationUp(migration, migration.TransactionBehavior == TransactionBehavior.Default);
 
-                        // Post seed event.
-                        await _eventPublisher.PublishAsync(new SeededDbMigrationEvent
-                        {
-                            Version = migration.Version,
-                            Description = migration.Description,
-                            DbContext = _db
-                        }, cancelToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        if (seeder.RollbackOnFailure)
-                        {
-
-
-                            //...
-                        }
-
-                        Logger.Warn(ex, "Seed error in migration '{0}'. The error was ignored because no rollback was requested.", migration.Description);
-                    }
+                    ++succeeded;
+                    _lastSuccessfulMigration = migration.Description;
+                    DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migration.Description);
+                }
+                catch (Exception ex)
+                {
+                    throw new DbMigrationException(_lastSuccessfulMigration, migration.Description, ex.InnerException ?? ex, false);
                 }
             }
+
+            _versionLoader.LoadVersionInfo();
+            cancelToken.ThrowIfCancellationRequested();
+
+            foreach (var entry in seederEntries)
+            {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                var m = entry.Migration;
+
+                try
+                {
+                    // Pre seed event.
+                    await _eventPublisher.PublishAsync(new SeedingDbMigrationEvent
+                    {
+                        Version = m.Version,
+                        Description = m.Description,
+                        DbContext = _db
+                    }, cancelToken);
+
+                    // Seed.
+                    await entry.Seeder.SeedAsync(_db, cancelToken);
+
+                    // Post seed event.
+                    await _eventPublisher.PublishAsync(new SeededDbMigrationEvent
+                    {
+                        Version = m.Version,
+                        Description = m.Description,
+                        DbContext = _db
+                    }, cancelToken);
+                }
+                catch (Exception ex)
+                {
+                    if (entry.Seeder.RollbackOnFailure)
+                    {
+                        //_lastSeedException = new DbMigrationException(lastSuccessful, m.Description, ex.InnerException ?? ex, true);
+
+                        if (!cancelToken.IsCancellationRequested)
+                        {
+                        }
+
+                        //throw _lastSeedException;
+                    }
+
+                    Logger.Warn(ex, "Seed error in migration '{0}'. The error was ignored because no rollback was requested.", m.Description);
+                }
+            }
+
+            Logger.Info($"Database migration successful: {_initialMigration} >> {_lastSuccessfulMigration}");
+
+            return succeeded;
         }
 
-        private MigrationDescriptor GetLastSuccessfulMigration()
+        protected virtual int MigrateDown(IMigrationInfo[] migrations, CancellationToken cancelToken)
         {
-            return GetMigrations().GetValueOrDefault(GetAppliedMigrations().LastOrDefault());
+            var succeeded = 0;
+            var runner = (MigrationRunner)_migrationRunner;
+
+            foreach (var migration in migrations)
+            {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                try
+                {
+                    runner.ApplyMigrationDown(migration, migration.TransactionBehavior == TransactionBehavior.Default);
+
+                    ++succeeded;
+                    _lastSuccessfulMigration = migration.Description;
+                    DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migration.Description);
+                }
+                catch (Exception ex)
+                {
+                    throw new DbMigrationException(_lastSuccessfulMigration, migration.Description, ex.InnerException ?? ex, false);
+                }
+            }
+
+            _versionLoader.LoadVersionInfo();
+
+            return succeeded;
         }
 
         //private static string GetMigrationName(IMigrationInfo migration)
@@ -267,10 +260,17 @@ namespace Smartstore.Core.Data.Migrations
         //    return migration?.Migration?.GetType()?.Name;
         //}
 
-        private class MigrationResult
+        protected class MigrationResult
         {
-            public int SucceededMigrations { get; set; }
-            public IMigrationInfo LastSucceededMigration { get; set; }
+            public int Succeeded { get; set; }
+            public List<SeederEntry> SeederEntries { get; set; } = new();
+        }
+
+        protected class SeederEntry
+        {
+            public IDataSeeder<TContext> Seeder { get; set; }
+            public IMigrationInfo PreviousMigration { get; set; }
+            public IMigrationInfo Migration { get; set; }
         }
     }
 }
