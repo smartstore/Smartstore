@@ -17,6 +17,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
@@ -32,7 +33,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly ILanguageService _languageService;
         private readonly IStoreMappingService _storeMappingService;
-        //private readonly PluginMediator _pluginMediator;
+        private readonly ModuleManager _moduleManager;
         private readonly ICommonServices _services;
         private readonly IPaymentService _paymentService;
 
@@ -44,7 +45,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             ILocalizedEntityService localizedEntityService,
             ILanguageService languageService,
             IStoreMappingService storeMappingService,
-            //PluginMediator pluginMediator,
+            ModuleManager moduleManager,
             ICommonServices services,
             IPaymentService paymentService)
         {
@@ -55,7 +56,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             _localizedEntityService = localizedEntityService;
             _languageService = languageService;
             _storeMappingService = storeMappingService;
-            //_pluginMediator = pluginMediator;
+            _moduleManager = moduleManager;
             _services = services;
             _paymentService = paymentService;
         }
@@ -82,9 +83,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             {
                 if (paymentMethods.TryGetValue(provider.Metadata.SystemName, out var paymentMethod) && paymentMethod.RoundOrderTotalEnabled)
                 {
-                    // TODO: (mh) (core) Get friendly name once _pluginMediator is available.
-                    var friendlyName = string.Empty;
-                    //var friendlyName = _pluginMediator.GetLocalizedFriendlyName(provider.Metadata);
+                    var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
                     model.RoundOrderTotalPaymentMethods[provider.Metadata.SystemName] = friendlyName ?? provider.Metadata.SystemName;
                 }
             }
@@ -167,20 +166,19 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         [Permission(Permissions.Configuration.Currency.Read)]
         public IActionResult List(bool liveRates = false)
         {
-            var model = new CurrencyListModel { 
+            var model = new CurrencyListModel 
+            { 
                 DisplayLiveRates = liveRates,
                 AutoUpdateEnabled = _currencySettings.AutoUpdateEnabled
             };
             
             ViewBag.ExchangeRateProviders = new List<SelectListItem>();
 
-            // TODO: (mh) (core) Get friendly name of plugin once available.
             foreach (var erp in _currencyService.LoadAllExchangeRateProviders())
             {
                 ViewBag.ExchangeRateProviders.Add(new SelectListItem
                 {
-                    Text = "TODO",
-                    //Text = _pluginMediator.GetLocalizedFriendlyName(erp.Metadata),
+                    Text = _moduleManager.GetLocalizedFriendlyName(erp.Metadata),
                     Value = erp.Metadata.SystemName,
                     Selected = erp.Metadata.SystemName.Equals(_currencySettings.ActiveExchangeRateProviderSystemName, StringComparison.InvariantCultureIgnoreCase)
                 });
@@ -195,6 +193,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         {
             _currencySettings.ActiveExchangeRateProviderSystemName = model.ExchangeRateProvider;
             _currencySettings.AutoUpdateEnabled = model.AutoUpdateEnabled;
+
             await _services.Settings.ApplySettingAsync(_currencySettings, x => x.ActiveExchangeRateProviderSystemName);
             await _services.Settings.ApplySettingAsync(_currencySettings, x => x.AutoUpdateEnabled);
             await _db.SaveChangesAsync();
@@ -287,7 +286,9 @@ namespace Smartstore.Web.Areas.Admin.Controllers
                             currencyNames.Add(region.ISOCurrencySymbol, region.CurrencyEnglishName);
                         }
                     }
-                    catch { }
+                    catch 
+                    { 
+                    }
                 }
 
                 // Provide rate with currency name and whether it is available in store.
@@ -450,6 +451,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         [Permission(Permissions.Configuration.Currency.Delete)]
         public async Task<IActionResult> Delete(CountryModel model)
         {
+            // TODO: (mh) (core) Why CounntryModel? And why not just pass id?
             var currency = await _db.Currencies.FindByIdAsync(model.Id);
             if (currency == null)
             {
@@ -507,7 +509,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
 
                 numDeleted = await _db.SaveChangesAsync();
 
-                success = triedToDeleteAssociated && numDeleted == 0 ? false : true;
+                success = !triedToDeleteAssociated || numDeleted != 0;
             }
 
             return Json(new { Success = success, Count = numDeleted });

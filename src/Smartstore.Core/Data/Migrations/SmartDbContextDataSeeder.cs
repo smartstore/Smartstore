@@ -55,7 +55,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.CannotDeleteAssociated",
                 "Currencies that have already been assigned to a store cannot be deleted. Remove the assignment first.",
-                "Währungen, die bereits einem Store zugewiesen wurden können nicht gelöscht werden. Entfernen Sie zunächst die Zuordnung.");
+                "Währungen, die bereits einem Store zugewiesen wurde,n können nicht gelöscht werden. Entfernen Sie zunächst die Zuordnung.");
 
             builder.AddOrUpdate("Admin.Configuration.Measures.QuantityUnits.CantDeleteDefault",
                 "The default quantity unit can't be deleted. Specify another standard quantity unit beforehand.",
