@@ -46,7 +46,8 @@ namespace Smartstore.Core.Data.Migrations
 
             // TODO: (core) Delete all Telerik language resources (???)
 
-            // Resourcen für Currencies prüfen.
+            builder.Delete("Admin.Configuration.Settings.NoneWithThatId");
+            builder.Delete("Admin.Configuration.Settings.AllSettings.Description");
             
             builder.AddOrUpdate("Common.SetDefault", "Set as default", "Als Standard festlegen");
 

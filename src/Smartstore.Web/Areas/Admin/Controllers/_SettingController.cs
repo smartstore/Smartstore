@@ -96,6 +96,145 @@ namespace Smartstore.Admin.Controllers
             _moduleManager = moduleManager;
         }
 
+        [Permission(Permissions.Configuration.Setting.Read)]
+        public IActionResult AllSettings(SettingListModel model)
+        {
+            model.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
+
+            return View(model);
+        }
+
+        #region All setting grid
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Setting.Read)]
+        public async Task<IActionResult> List(GridCommand command, SettingListModel model)
+        {
+            var stores = Services.StoreContext.GetAllStores();
+
+            var query = _db.Settings.AsNoTracking();
+
+            if (model.SearchSettingName.HasValue())
+            {
+                query = query.Where(x => x.Name.Contains(model.SearchSettingName));
+            }
+
+            if (model.SearchSettingValue.HasValue())
+            {
+                query = query.Where(x => x.Value.Contains(model.SearchSettingValue));
+            }
+
+            if (model.SearchStoreId != 0)
+            {
+                query = query.Where(x => x.StoreId == model.SearchStoreId);
+            }
+            
+            var settings = await query
+                .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var settingModels = settings
+                .Select(x =>
+                {
+                    var settingModel = new SettingModel
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Value = x.Value,
+                        StoreId = x.StoreId
+                    };
+
+                    if (x.StoreId == 0)
+                    {
+                        settingModel.Store = T("Admin.Common.StoresAll");
+                    }
+                    else
+                    {
+                        var store = stores.FirstOrDefault(s => s.Id == x.StoreId);
+                        settingModel.Store = store != null ? store.Name : string.Empty.NaIfEmpty();
+                    }
+
+                    return settingModel;
+                })
+                .ToList();
+
+            var gridModel = new GridModel<SettingModel>
+            {
+                Rows = settingModels,
+                Total = await settings.GetTotalCountAsync()
+            };
+
+            return Json(gridModel);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Setting.Update)]
+        public async Task<IActionResult> Update(SettingModel model)
+        {
+            model.Name = model.Name.Trim();
+
+            if (model.Value.HasValue())
+            {
+                model.Value = model.Value.Trim();
+            }
+
+            var success = false;
+            var setting = await _db.Settings.FindByIdAsync(model.Id);
+
+            if (setting != null)
+            {
+                await MapperFactory.MapAsync(model, setting);
+                await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { success });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Setting.Create)]
+        public async Task<IActionResult> Insert(SettingModel model)
+        {
+            model.Name = model.Name.Trim();
+
+            if (model.Value.HasValue())
+            {
+                model.Value = model.Value.Trim();
+            }
+            
+            var success = true;
+            var setting = new Setting();
+            await MapperFactory.MapAsync(model, setting);
+            _db.Settings.Add(setting);
+            await _db.SaveChangesAsync();
+            
+            return Json(new { success });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Setting.Delete)]
+        public async Task<IActionResult> Delete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                var settings = await _db.Settings.GetManyAsync(ids, true);
+
+                _db.Settings.RemoveRange(settings);
+
+                numDeleted = await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
+        }
+
+        #endregion
+
         [LoadSetting(IsRootedModel = true)]
         public async Task<IActionResult> GeneralCommon(
             int storeScope,

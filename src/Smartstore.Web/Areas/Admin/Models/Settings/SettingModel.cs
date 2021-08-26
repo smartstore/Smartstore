@@ -1,7 +1,8 @@
-﻿using FluentValidation;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Admin.Models.Settings
+namespace Smartstore.Admin.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.AllSettings.Fields.")]
     public class SettingModel : EntityModelBase
@@ -10,11 +11,15 @@ namespace Smartstore.Admin.Models.Settings
         public string Name { get; set; }
 
         [LocalizedDisplay("*Value")]
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 3)]
         public string Value { get; set; }
 
         [LocalizedDisplay("*StoreName")]
+        [UIHint("Stores")]
+        public int? StoreId { get; set; }
+
         public string Store { get; set; }
-        public int StoreId { get; set; }
     }
 
     public partial class SettingValidator : AbstractValidator<SettingModel>

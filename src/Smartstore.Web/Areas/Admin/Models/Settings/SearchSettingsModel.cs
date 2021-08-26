@@ -1,11 +1,9 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.Collections.Generic;
+using FluentValidation;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
 using Smartstore.Web.Modelling;
-using System;
-using System.Collections.Generic;
 
 namespace Smartstore.Admin.Models
 {

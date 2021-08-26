@@ -1,0 +1,16 @@
+﻿@model SettingListModel
+
+<div class="form-group">
+    <smart-label asp-for="SearchSettingName" />
+    <input asp-for="SearchSettingName" />
+</div>
+
+<div class="form-group">
+    <smart-label asp-for="SearchSettingValue" />
+    <input asp-for="SearchSettingValue" />
+</div>
+
+<div sm-if="!Model.IsSingleStoreMode" class="form-group">
+    <smart-label asp-for="SearchStoreId" />
+    <editor asp-for="SearchStoreId" />
+</div>

@@ -1,0 +1,22 @@
+﻿@model SettingListModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Settings.AllSettings").Value;
+    Layout = "_SettingLayout";
+    // INFO: (mh) (core) Breaks setting layout.
+    //Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-cogs"></i>
+        @T("Admin.Configuration.Settings.AllSettings")
+    </div>
+</div>
+
+@{
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<partial name="_Grid.AllSettings" model="null" view-data="gridViewData" />
