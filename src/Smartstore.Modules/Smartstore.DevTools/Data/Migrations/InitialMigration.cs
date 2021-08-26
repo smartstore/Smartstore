@@ -2,7 +2,7 @@
 
 namespace Smartstore.DevTools.Data.Migrations
 {
-    [MigrationVersion("2021-08-18 15:51:30", "Add DevTools test entity.")]
+    [MigrationVersion("2021-08-18 15:51:30", "Add DevTools test entity")]
     public class InitialMigration : DatabaseMigrationBase
     {
         private const string TEST_TABLE = "DevToolsTestEntity";

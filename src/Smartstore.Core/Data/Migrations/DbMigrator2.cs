@@ -7,14 +7,9 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Autofac;
 using FluentMigrator;
-using FluentMigrator.Infrastructure;
 using FluentMigrator.Runner;
-using FluentMigrator.Runner.Initialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
 using Smartstore.Engine;
@@ -41,8 +36,7 @@ namespace Smartstore.Core.Data.Migrations
         public abstract HookingDbContext Context { get; }
 
         // TODO: (mg) (core) The contract should follow the old contract (DbMigrator). We need DbContext for translation and setting seeding. We can't break with our concept.
-        public abstract int RunPendingMigrationsAsync(CancellationToken cancelToken = default);
-        public abstract int MigrateDown(CancellationToken cancelToken = default);
+        public abstract Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default);
 
         /// <summary>
         /// TODO: Describe

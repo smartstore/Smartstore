@@ -2,7 +2,7 @@
 
 namespace Smartstore.DevTools.Data.Migrations
 {
-    [MigrationVersion("2021-08-19 14:17:55", "Update DevTools test entity.")]
+    [MigrationVersion("2021-08-19 14:17:55", "Update DevTools test entity")]
     public class UpdateTestEntityMigration : DatabaseMigrationBase
     {
         public override void Up()

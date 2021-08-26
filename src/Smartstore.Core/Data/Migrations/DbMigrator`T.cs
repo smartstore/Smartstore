@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
@@ -13,47 +12,58 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Smartstore.Data;
+using Smartstore.Data.Migrations;
 using Smartstore.Engine;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Data.Migrations
 {
     public class DbMigrator2<TContext> : DbMigrator2 where TContext : HookingDbContext
     {
         private readonly TContext _db;
-        private readonly IFilteringMigrationSource _filteringMigrationSource;
         private readonly IMigrationRunnerConventions _migrationRunnerConventions;
         private readonly IMigrationRunner _migrationRunner;
         private readonly IVersionLoader _versionLoader;
         private readonly RunnerOptions _runnerOptions;
+        private readonly IEventPublisher _eventPublisher;
+
+        private Exception _lastSeedException;
 
         public DbMigrator2(
             TContext db,
             IApplicationContext appContext,
             ILifetimeScope scope,
-            IFilteringMigrationSource filteringMigrationSource,
             IMigrationRunnerConventions migrationRunnerConventions,
             IMigrationRunner migrationRunner,
             IVersionLoader versionLoader,
-            IOptions<RunnerOptions> runnerOptions)
+            IOptions<RunnerOptions> runnerOptions,
+            IEventPublisher eventPublisher)
             : base(scope, appContext.TypeScanner, versionLoader)
         {
             _db = db;
-            _filteringMigrationSource = filteringMigrationSource;
             _migrationRunnerConventions = migrationRunnerConventions;
             _migrationRunner = migrationRunner;
             _versionLoader = versionLoader;
             _runnerOptions = runnerOptions.Value;
+            _eventPublisher = eventPublisher;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
+        /// <inheritdoc/>
         public override TContext Context => _db;
 
         /// <inheritdoc/>
         public override async Task<int> MigrateAsync(long? targetVersion = null, CancellationToken cancelToken = default)
         {
             // TODO: (mg) (core) Throw when this method is called during installation. Migrations MUST NOT run during installation.
-            
+
+            if (_lastSeedException != null)
+            {
+                // This can happen when a previous migration attempt failed with a rollback.
+                throw _lastSeedException;
+            }
+
             var localMigrations = GetMigrations();
             if (localMigrations.Count == 0)
             {
@@ -62,35 +72,41 @@ namespace Smartstore.Core.Data.Migrations
 
             if (targetVersion > 0 && !localMigrations.ContainsKey(targetVersion.Value))
             {
-                // TODO: (mg) (core) Throw after DbMigrationException has been refactored
-                //throw new DbMigrationException("", "", null, false);
+                throw new DbMigrationException($"{_db.GetType().Name} does not contain a database migration with version {targetVersion.Value}.");
             }
 
-            //var targetMigration = targetVersion == null
-            //    // null = run pending migration up to last
-            //    ? localMigrations.Last().Value
-            //    : (targetVersion == -1
-            //        // -1 = rollback all applied migrations
-            //        ? localMigrations.First().Value
-            //        // > 0 = up or down to given version
-            //        : localMigrations[targetVersion.Value]);
-
             var appliedMigrations = GetAppliedMigrations().ToArray();
-            //var lastAppliedVersion = appliedMigrations.LastOrDefault();
+            var lastAppliedVersion = appliedMigrations.LastOrDefault();
+            var versions = Enumerable.Empty<long>();
+            var down = false;
+            var result = 0;
 
-            var versions = targetVersion == null
-                // null = run pending migration up to last
-                ? GetPendingMigrations()
-                : (targetVersion == -1
-                    // -1 = rollback all applied migrations
-                    ? appliedMigrations.Reverse()
-                    // > 0 = up or down to given version
-                    // TODO: (mg) (core) Determine migrations to run. Reverse if down.
-                    : Enumerable.Empty<long>());
+            if (targetVersion == null)
+            {
+                // null = run pending migrations up to last.
+                versions = GetPendingMigrations();
+            }
+            else if (targetVersion == -1)
+            {
+                // -1 = rollback all applied migrations.
+                versions = appliedMigrations.Reverse();
+                down = true;
+            }
+            else if (targetVersion < lastAppliedVersion)
+            {
+                // Rollback to given version.
+                versions = appliedMigrations.Where(x => x > targetVersion).Reverse();
+                down = true;
+            }
+            else if (targetVersion > lastAppliedVersion)
+            {
+                // Migrate up to given version.
+                versions = localMigrations.Select(x => x.Key).Where(x => x > lastAppliedVersion && x <= targetVersion);
+            }
 
             if (!versions.Any())
             {
-                // Nothing to do
+                // Nothing to do.
                 return 0;
             }
 
@@ -100,147 +116,161 @@ namespace Smartstore.Core.Data.Migrations
                 let instance = CreateMigration(descriptor.Type)
                 select _migrationRunnerConventions.GetMigrationInfoForMigration(instance);
 
-            // TODO: (mg) (core) Determine whether this is a rollback.
-            var down = false;
-
             if (!down)
             {
-                // TODO: (mg) (core) Perform MigrateUp for given migrations, e.g. MigrateUpAsync(migrations.ToArray())
+                result = await MigrateUpAsync(migrations.ToArray(), cancelToken);
             }
             else
             {
-                // TODO: (mg) (core) Perform MigrateDown for given migrations, e.g. MigrateDown(migrations.ToArray()). Async not necessarily required 'cause no seeding here.
+                result = MigrateDown(migrations.ToArray(), cancelToken);
             }
 
-            // TODO: (mg) (core) RunPendingMigrationsAsync() just calls MigrateAsync(null).
-
-            // Remove later.
-            await Task.Delay(10);
-
-            return 0;
+            return result;
         }
 
-        public override int RunPendingMigrationsAsync(CancellationToken cancelToken = default)
+        /// <inheritdoc/>
+        public override Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default)
         {
-            //if (!_migrationRunner.HasMigrationsToApplyUp())
-            //{
-            //    return 0;
-            //}
+            return MigrateAsync(null, cancelToken);
+        }
 
-            var result = 0;
-            var assembly = _db.GetType().Assembly;
-            //var assembly = EngineContext.Current.ResolveService<Engine.ITypeScanner>().Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools"));
-            var migrationInfos = GetMigrationInfos(assembly, true);
+        protected virtual async Task<int> MigrateUpAsync(IMigrationInfo[] migrations, CancellationToken cancelToken)
+        {
+            var result = MigrateInternal(migrations, true, cancelToken);
+
+            cancelToken.ThrowIfCancellationRequested();
+
+            await RunSeedersAsync(migrations, cancelToken);
+
+            //Logger.Info("Database migration successful: {0} >> {1}".FormatInvariant(initialMigration, lastSuccessful));
+
+            return result.SucceededMigrations;
+        }
+
+        protected virtual int MigrateDown(IMigrationInfo[] migrations, CancellationToken cancelToken)
+        {
+            return MigrateInternal(migrations, false, cancelToken).SucceededMigrations;
+        }
+
+        private MigrationResult MigrateInternal(IMigrationInfo[] migrations, bool up, CancellationToken cancelToken)
+        {
+            var result = new MigrationResult();
             var runner = (MigrationRunner)_migrationRunner;
-
-            //LogInfo("Migrating up", assembly, migrationInfos);
+            IMigrationInfo current = null;
 
             using (IMigrationScope scope = _runnerOptions.TransactionPerSession ? _migrationRunner.BeginScope() : null)
             {
                 try
                 {
-                    foreach (var info in migrationInfos)
+                    foreach (var migration in migrations)
                     {
+                        current = migration;
+
                         if (cancelToken.IsCancellationRequested)
                         {
                             break;
                         }
 
-                        runner.ApplyMigrationUp(info, info.TransactionBehavior == TransactionBehavior.Default);
-                        ++result;
+                        if (up)
+                        {
+                            runner.ApplyMigrationUp(migration, migration.TransactionBehavior == TransactionBehavior.Default);
+                        }
+                        else
+                        {
+                            runner.ApplyMigrationDown(migration, migration.TransactionBehavior == TransactionBehavior.Default);
+                        }
+
+                        ++result.SucceededMigrations;
+                        result.LastSucceededMigration = migration;
                     }
-                    
+
                     scope?.Complete();
+
+                    DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), result.LastSucceededMigration?.Description);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    result = 0;
+                    result.SucceededMigrations = 0;
 
                     if (scope?.IsActive ?? false)
                     {
                         scope?.Cancel();
                     }
 
-                    throw;
+                    throw new DbMigrationException(
+                        result.LastSucceededMigration?.Description ?? GetLastSuccessfulMigration()?.Description,
+                        current?.Description, 
+                        ex.InnerException ?? ex, 
+                        false);
                 }
             }
 
             _versionLoader.LoadVersionInfo();
-            cancelToken.ThrowIfCancellationRequested();
 
             return result;
         }
 
-        public override int MigrateDown(CancellationToken cancelToken = default)
+        protected virtual async Task RunSeedersAsync(IMigrationInfo[] migrations, CancellationToken cancelToken)
         {
-            var result = 0;
-            var assembly = Assembly.GetAssembly(_db.GetType());
-            var migrationInfos = GetMigrationInfos(assembly, false);
-            var runner = (MigrationRunner)_migrationRunner;
-
-            //LogInfo("Migrating down", assembly, migrationInfos);
-
-            using (IMigrationScope scope = _runnerOptions.TransactionPerSession ? _migrationRunner.BeginScope() : null)
+            foreach (var migration in migrations)
             {
-                try
+                if (cancelToken.IsCancellationRequested)
                 {
-                    foreach (var info in migrationInfos)
+                    break;
+                }
+
+                if (migration is IDataSeeder<TContext> seeder)
+                {
+                    try
                     {
-                        if (cancelToken.IsCancellationRequested)
+                        // Pre seed event.
+                        await _eventPublisher.PublishAsync(new SeedingDbMigrationEvent
                         {
-                            break;
+                            Version = migration.Version,
+                            Description = migration.Description,
+                            DbContext = _db
+                        }, cancelToken);
+
+                        // Seed.
+                        await seeder.SeedAsync(_db, cancelToken);
+
+                        // Post seed event.
+                        await _eventPublisher.PublishAsync(new SeededDbMigrationEvent
+                        {
+                            Version = migration.Version,
+                            Description = migration.Description,
+                            DbContext = _db
+                        }, cancelToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (seeder.RollbackOnFailure)
+                        {
+
+
+                            //...
                         }
 
-                        runner.ApplyMigrationDown(info, info.TransactionBehavior == TransactionBehavior.Default);
-                        ++result;
+                        Logger.Warn(ex, "Seed error in migration '{0}'. The error was ignored because no rollback was requested.", migration.Description);
                     }
-
-                    scope?.Complete();
-                }
-                catch
-                {
-                    result = 0;
-
-                    if (scope?.IsActive ?? false)
-                    {
-                        scope?.Cancel();
-                    }
-
-                    throw;
                 }
             }
-
-            _versionLoader.LoadVersionInfo();
-            cancelToken.ThrowIfCancellationRequested();
-
-            return result;
         }
 
-        protected virtual IEnumerable<IMigrationInfo> GetMigrationInfos(Assembly assembly, bool ascending)
+        private MigrationDescriptor GetLastSuccessfulMigration()
         {
-            // Perf: IMigration is internally cached by FM via ConcurrentDictionary<Type, IMigration> (see MigrationSource).
-            var migrations = _filteringMigrationSource.GetMigrations(x => x.Assembly == assembly);
-
-            if (migrations?.Any() ?? false)
-            {
-                var migrationInfos = migrations
-                    //.Where(x => _migrationRunnerConventions.TypeIsMigration(x.GetType()))     // If someone forgets using MigrationAttribute GetMigrationInfoForMigration crashes.
-                    .Select(x => _migrationRunnerConventions.GetMigrationInfoForMigration(x));
-
-                return ascending
-                    ? migrationInfos.OrderBy(x => x.Version)
-                    : migrationInfos.OrderByDescending(x => x.Version);
-            }
-
-            return Enumerable.Empty<IMigrationInfo>();
+            return GetMigrations().GetValueOrDefault(GetAppliedMigrations().LastOrDefault());
         }
 
-        //private void LogInfo(string text, Assembly assembly, IEnumerable<IMigrationInfo> infos)
+        //private static string GetMigrationName(IMigrationInfo migration)
         //{
-        //    if (infos.Any())
-        //    {
-        //        Logger.Info($"{text} {assembly.GetName().Name}: {string.Join(" ", infos.Select(x => x.Description))}");
-        //    }
+        //    return migration?.Migration?.GetType()?.Name;
         //}
+
+        private class MigrationResult
+        {
+            public int SucceededMigrations { get; set; }
+            public IMigrationInfo LastSucceededMigration { get; set; }
+        }
     }
 }
