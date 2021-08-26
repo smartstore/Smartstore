@@ -77,9 +77,9 @@ namespace Smartstore.Web
                     // TODO: (core) More MVC config?
                     if (DataSettings.DatabaseIsInstalled())
                     {
-                        // TODO: (core) Add more model binders
                         var complexBinderProvider = o.ModelBinderProviders.OfType<ComplexObjectModelBinderProvider>().First();
                         o.ModelBinderProviders.Insert(0, new GridCommandModelBinderProvider(complexBinderProvider));
+                        o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
 
                         // Register custom metadata provider
                         o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());

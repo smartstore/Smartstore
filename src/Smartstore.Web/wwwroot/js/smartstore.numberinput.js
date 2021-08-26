@@ -124,9 +124,10 @@
             }
 
             function renderValue(number) {
+                let minDigits = Math.min(culture.numberFormat.decimals, decimals);
                 let numberFormat = new Intl.NumberFormat(culture.name, {
-                    minimumFractionDigits: Math.min(culture.numberFormat.decimals, decimals),
-                    maximumFractionDigits: culture.numberFormat.decimals,
+                    minimumFractionDigits: minDigits,
+                    maximumFractionDigits: Math.max(minDigits, decimals),
                     useGrouping: true
                 });
                 return numberFormat.format(number);
