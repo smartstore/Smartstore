@@ -2,7 +2,7 @@
 using FluentValidation;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Admin.Models.Directory
+namespace Smartstore.Admin.Models.Common
 {
     [LocalizedDisplay("Admin.Configuration.QuantityUnit.Fields.")]
     public class QuantityUnitModel : EntityModelBase, ILocalizedModel<QuantityUnitLocalizedModel>

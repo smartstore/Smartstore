@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Admin.Models.Directory
+namespace Smartstore.Admin.Models.Common
 {
     [LocalizedDisplay("Admin.Configuration.Measures.Dimensions.Fields.")]
     public class MeasureDimensionModel : EntityModelBase, ILocalizedModel<MeasureDimensionLocalizedModel>

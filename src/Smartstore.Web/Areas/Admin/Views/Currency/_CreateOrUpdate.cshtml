@@ -1,6 +1,6 @@
-﻿@using Smartstore.Admin.Models.Directory
+﻿@using Smartstore.Admin.Models.Common
  
-@model Smartstore.Admin.Models.Directory.CurrencyModel
+@model Smartstore.Admin.Models.Common.CurrencyModel
 
 @{
     var cultures = System.Globalization.CultureInfo.GetCultures(System.Globalization.CultureTypes.SpecificCultures).ToList();
@@ -26,7 +26,7 @@
 
 <tabstrip id="currency-edit" sm-nav-style="Material" sm-nav-position="Top">
     <tab sm-title="@T("Admin.Common.Info")" sm-selected="true">
-        @(Html.LocalizedEditor<Smartstore.Admin.Models.Directory.CurrencyModel, CurrencyLocalizedModel>("currency-info-localized",
+        @(Html.LocalizedEditor<Smartstore.Admin.Models.Common.CurrencyModel, CurrencyLocalizedModel>("currency-info-localized",
             @<div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">

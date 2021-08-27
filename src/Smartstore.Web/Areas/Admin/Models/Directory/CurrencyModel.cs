@@ -8,7 +8,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Admin.Models.Directory
+namespace Smartstore.Admin.Models.Common
 {
     [LocalizedDisplay("Admin.Configuration.Currencies.Fields.")]
     public class CurrencyModel : EntityModelBase, ILocalizedModel<CurrencyLocalizedModel>

@@ -2,7 +2,7 @@
 using FluentValidation;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Admin.Models.Directory
+namespace Smartstore.Admin.Models.Common
 {
     [LocalizedDisplay("Admin.Configuration.Countries.States.Fields.")]
     public class StateProvinceModel : EntityModelBase, ILocalizedModel<StateProvinceLocalizedModel>

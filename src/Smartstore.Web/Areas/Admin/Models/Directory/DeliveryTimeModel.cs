@@ -5,7 +5,7 @@ using FluentValidation;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Admin.Models.Directory
+namespace Smartstore.Admin.Models.Common
 {
     [LocalizedDisplay("Admin.Configuration.DeliveryTimes.Fields.")]
     public class DeliveryTimeModel : EntityModelBase, ILocalizedModel<DeliveryTimeLocalizedModel>
