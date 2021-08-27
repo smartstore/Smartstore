@@ -90,7 +90,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
 
             if (model.SearchName.HasValue())
             {
-                query = query.ApplyWildcardFilterFor(x => x.Name, model.SearchName);
+                query = query.ApplySearchTermFilterFor(x => x.Name, model.SearchName);
             }
 
             var attributes = await query

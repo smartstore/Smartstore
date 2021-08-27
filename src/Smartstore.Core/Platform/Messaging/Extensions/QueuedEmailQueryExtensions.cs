@@ -15,10 +15,10 @@ namespace Smartstore
             Guard.NotNull(query, nameof(query));
 
             if (from.HasValue())
-                query = query.ApplyWildcardFilterFor(x => x.From, from.Trim());
+                query = query.ApplySearchTermFilterFor(x => x.From, from.Trim());
 
             if (to.HasValue())
-                query = query.ApplyWildcardFilterFor(x => x.To, to.Trim());
+                query = query.ApplySearchTermFilterFor(x => x.To, to.Trim());
 
             return query;
         }

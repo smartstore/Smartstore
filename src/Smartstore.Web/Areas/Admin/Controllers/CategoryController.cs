@@ -179,12 +179,11 @@ namespace Smartstore.Admin.Controllers
 
             if (model.SearchCategoryName.HasValue())
             {
-                // TODO: (mh) (core) Apply wildcardfilter if its possible to use with ||
-                query = query.Where(x => x.Name.Contains(model.SearchCategoryName) || x.FullName.Contains(model.SearchCategoryName));
+                query = query.ApplySearchTermFilter(model.SearchCategoryName, LogicalRuleOperator.Or, x => x.Name, x => x.FullName);
             }
             if (model.SearchAlias.HasValue())
             {
-                query = query.ApplyWildcardFilterFor(x => x.Alias, model.SearchAlias);
+                query = query.ApplySearchTermFilterFor(x => x.Alias, model.SearchAlias);
             }
 
             var categories = await query

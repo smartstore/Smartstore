@@ -30,7 +30,7 @@ namespace Smartstore.Core.Logging
                 var queryCustomers = query.GetDbContext<SmartDbContext>().Customers.AsQueryable();
 
                 if (email.HasValue())
-                    queryCustomers = queryCustomers.ApplyWildcardFilterFor(x => x.Email, email);
+                    queryCustomers = queryCustomers.ApplySearchTermFilterFor(x => x.Email, email);
 
                 if (customerSystemAccount.HasValue)
                     queryCustomers = queryCustomers.Where(x => x.IsSystemAccount == customerSystemAccount.Value);

@@ -38,7 +38,7 @@ namespace Smartstore.Core.Logging
 
             if (logger.HasValue())
             {
-                return query.ApplyWildcardFilterFor(x => x.Logger, logger);
+                return query.ApplySearchTermFilterFor(x => x.Logger, logger);
             }
 
             return query;
@@ -50,8 +50,9 @@ namespace Smartstore.Core.Logging
 
             if (message.HasValue())
             {
-                // TODO: (mh) (core) Apply wildcardfilter if its possible to use with ||
-                return query.Where(x => x.ShortMessage.Contains(message) || (!includeException && x.FullMessage.Contains(message)));
+                return includeException
+                    ? query.ApplySearchTermFilter(message, Rules.LogicalRuleOperator.Or, x => x.ShortMessage, x => x.FullMessage)
+                    : query.ApplySearchTermFilterFor(x => x.ShortMessage, message);
             }
 
             return query;
