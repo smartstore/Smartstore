@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using Smartstore.Utilities;
+using EFCore = Microsoft.EntityFrameworkCore;
 
 namespace Smartstore.Core.Rules.Filters
 {
@@ -20,12 +22,18 @@ namespace Smartstore.Core.Rules.Filters
         public readonly static MethodInfo StringIsNullOrEmptyMethod = typeof(string).GetMethod("IsNullOrEmpty", new Type[] { typeof(string) });
         public readonly static MethodInfo StringStartsWithMethod = typeof(string).GetMethod(nameof(string.StartsWith), new Type[] { typeof(string) });
         public readonly static MethodInfo StringEndsWithMethod = typeof(string).GetMethod(nameof(string.EndsWith), new Type[] { typeof(string) });
-        //public readonly static MethodInfo StringCompareMethod = typeof(string).GetMethod("Compare", new Type[] { typeof(string), typeof(string) });
         public readonly static MethodInfo StringContainsMethod = typeof(string).GetMethod(nameof(string.Contains), new Type[] { typeof(string) });
+        public readonly static MethodInfo WildcardIsMatchMethod = typeof(Wildcard).GetMethod(nameof(Wildcard.IsMatch), new Type[] { typeof(string) });
 
-        public static Expression CallToLower(this Expression stringExpression, bool liftToNull)
+        public readonly static MethodInfo DbLikeMethod
+            = typeof(EFCore.DbFunctionsExtensions).GetRuntimeMethod("Like",
+                new Type[] { typeof(EFCore.DbFunctions), typeof(string), typeof(string), typeof(string) });
+
+        public readonly static IQueryProvider LinqToObjectsProvider = Enumerable.Empty<int>().AsQueryable().Provider;
+
+        public static Expression CallToLower(this Expression stringExpression, IQueryProvider provider)
         {
-            if (liftToNull)
+            if (provider is EnumerableQuery)
             {
                 stringExpression = LiftStringExpressionToEmpty(stringExpression);
             }
@@ -38,9 +46,9 @@ namespace Smartstore.Core.Rules.Filters
             return Expression.Call(StringIsNullOrEmptyMethod, stringExpression);
         }
 
-        public static Expression CallTrim(this Expression stringExpression, bool liftToNull)
+        public static Expression CallTrim(this Expression stringExpression, IQueryProvider provider)
         {
-            if (liftToNull)
+            if (provider is EnumerableQuery)
             {
                 stringExpression = LiftStringExpressionToEmpty(stringExpression);
             }
@@ -48,10 +56,10 @@ namespace Smartstore.Core.Rules.Filters
             return Expression.Call(stringExpression, StringTrimMethod);
         }
 
-        public static Expression ToCaseInsensitiveStringMethodCall(this MethodInfo methodInfo, Expression left, Expression right, bool liftToNull)
+        public static Expression ToCaseInsensitiveStringMethodCall(this MethodInfo methodInfo, Expression left, Expression right, IQueryProvider provider)
         {
-            var leftCall = CallToLower(left, liftToNull);
-            var rightCall = CallToLower(right, liftToNull);
+            var leftCall = CallToLower(left, provider);
+            var rightCall = CallToLower(right, provider);
 
             if (methodInfo.IsStatic)
             {
@@ -149,11 +157,51 @@ namespace Smartstore.Core.Rules.Filters
             return NullLiteral;
         }
 
+        public static LambdaExpression CreateLambdaExpression<T, TValue>(Expression<Func<T, TValue>> left, RuleOperator op, object right)
+        {
+            var paramExpr = Expression.Parameter(typeof(T), "it");
+            var valueExpr = CreateValueExpression(left.Body.Type, right);
+            var expr = op.GetExpression(left.Body, valueExpr, LinqToObjectsProvider);
+
+            return CreateLambdaExpression(paramExpr, expr);
+        }
+
         public static LambdaExpression CreateLambdaExpression(ParameterExpression p, Expression body)
         {
             return Expression.Lambda(
                 new FilterExpressionVisitor(p).Visit(body),
                 new[] { p });
+        }
+
+        public static Expression CombineExpressions(ParameterExpression node, LogicalRuleOperator logicalOperator, params Expression[] expressions)
+        {
+            Guard.NotNull(node, nameof(node));
+
+            Expression left = null;
+
+            foreach (var expression in expressions)
+            {
+                var right = expression;
+
+                if (left == null)
+                    left = right;
+                else
+                    left = CombineExpressions(left, logicalOperator, right);
+            }
+
+            if (left == null)
+            {
+                return TrueLiteral;
+            }
+
+            return left;
+        }
+
+        public static Expression CombineExpressions(Expression left, LogicalRuleOperator logicalOperator, Expression right)
+        {
+            return logicalOperator == LogicalRuleOperator.And
+                ? Expression.AndAlso(left, right)
+                : Expression.OrElse(left, right);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Rules.Operators;
@@ -29,6 +30,8 @@ namespace Smartstore.Core.Rules
         public readonly static RuleOperator NotIn = new NotInOperator();
         public readonly static RuleOperator AllIn = new AllInOperator();
         public readonly static RuleOperator NotAllIn = new NotAllInOperator();
+        public readonly static RuleOperator Like = new LikeOperator();
+        public readonly static RuleOperator NotLike = new NotLikeOperator();
         //public readonly static string All = new RuleOperator(); // TODO
 
         protected RuleOperator(string op)
@@ -102,14 +105,14 @@ namespace Smartstore.Core.Rules
             var body = GetExpression(
                 ExpressionHelper.CreateConstantExpression(left, typeof(TLeft)),
                 ExpressionHelper.CreateConstantExpression(right),
-                true);
+                ExpressionHelper.LinqToObjectsProvider);
 
             var lambda = Expression.Lambda<Func<bool>>(body);
 
             return lambda.Compile().Invoke();
         }
 
-        public Expression GetExpression(Expression left, Expression right, bool liftToNull)
+        public Expression GetExpression(Expression left, Expression right, IQueryProvider provider)
         {
             var targetType = GetBodyType(left);
             bool valid = true;
@@ -141,10 +144,10 @@ namespace Smartstore.Core.Rules
                     right.Type.GetTypeName()));
             }
 
-            return GenerateExpression(left, right, liftToNull);
+            return GenerateExpression(left, right, provider);
         }
 
-        protected abstract Expression GenerateExpression(Expression left, Expression right, bool liftToNull);
+        protected abstract Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider);
 
         #region Expression/Lambda stuff
 

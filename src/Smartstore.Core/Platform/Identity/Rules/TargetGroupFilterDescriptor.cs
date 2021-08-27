@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
@@ -17,7 +18,7 @@ namespace Smartstore.Core.Identity.Rules
             _ruleVisitor = new WeakReference<IRuleVisitor>(ruleVisitor);
         }
 
-        public override Expression GetExpression(RuleOperator op, Expression valueExpression, bool liftToNull)
+        public override Expression GetExpression(RuleOperator op, Expression valueExpression, IQueryProvider provider)
         {
             var ruleSetId = ((ConstantExpression)valueExpression).Value.Convert<int>();
 
@@ -26,13 +27,13 @@ namespace Smartstore.Core.Identity.Rules
 
             var otherGroup = _ruleService.CreateExpressionGroupAsync(ruleSetId, visitor).Await() as FilterExpressionGroup;
 
-            var otherPredicate = otherGroup?.ToPredicate(liftToNull);
+            var otherPredicate = otherGroup?.ToPredicate(provider);
             if (otherPredicate is Expression<Func<Customer, bool>> lambda)
             {
                 MemberExpression = lambda;
             }
 
-            return base.GetExpression(op, Expression.Constant(true), liftToNull);
+            return base.GetExpression(op, Expression.Constant(true), provider);
         }
     }
 }

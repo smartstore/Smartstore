@@ -66,6 +66,8 @@ namespace Smartstore.Core.Rules
                 yield return RuleOperator.EndsWith;
                 yield return RuleOperator.Contains;
                 yield return RuleOperator.NotContains;
+                yield return RuleOperator.Like;
+                yield return RuleOperator.NotLike;
             }
 
             if (nonNullableType == typeof(List<int>) || nonNullableType == typeof(List<float>) || nonNullableType == typeof(List<string>))

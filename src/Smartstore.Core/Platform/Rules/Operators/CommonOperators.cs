@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Linq;
+using System.Linq.Expressions;
 using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore.Core.Rules.Operators
@@ -8,12 +9,12 @@ namespace Smartstore.Core.Rules.Operators
         internal EqualOperator()
             : base("=") { }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             if (GetBodyType(left) == typeof(string))
             {
-                left = left.CallToLower(liftToNull);
-                right = right.CallToLower(liftToNull);
+                left = left.CallToLower(provider);
+                right = right.CallToLower(provider);
             }
 
             return Expression.Equal(left, right);
@@ -25,12 +26,12 @@ namespace Smartstore.Core.Rules.Operators
         internal NotEqualOperator()
             : base("!=") { }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             if (GetBodyType(left) == typeof(string))
             {
-                left = left.CallToLower(liftToNull);
-                right = right.CallToLower(liftToNull);
+                left = left.CallToLower(provider);
+                right = right.CallToLower(provider);
             }
 
             return Expression.NotEqual(left, right);
@@ -42,7 +43,7 @@ namespace Smartstore.Core.Rules.Operators
         internal IsNullOperator()
             : base("IsNull") { }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             return Expression.Equal(
                 left,
@@ -55,7 +56,7 @@ namespace Smartstore.Core.Rules.Operators
         internal IsNotNullOperator()
             : base("IsNotNull") { }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             return Expression.NotEqual(
                 left,

@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Linq;
+using System.Linq.Expressions;
 
 namespace Smartstore.Core.Rules.Operators
 {
@@ -7,7 +8,7 @@ namespace Smartstore.Core.Rules.Operators
         internal LessThanOperator()
             : base("<") { }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             return Expression.LessThan(left, right);
         }
@@ -18,7 +19,7 @@ namespace Smartstore.Core.Rules.Operators
         internal LessThanOrEqualOperator()
             : base("<=") { }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             return Expression.LessThanOrEqual(left, right);
         }
@@ -29,7 +30,7 @@ namespace Smartstore.Core.Rules.Operators
         internal GreaterThanOperator()
             : base(">") { }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             return Expression.GreaterThan(left, right);
         }
@@ -40,7 +41,7 @@ namespace Smartstore.Core.Rules.Operators
         internal GreaterThanOrEqualOperator()
             : base(">=") { }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             return Expression.GreaterThanOrEqual(left, right);
         }

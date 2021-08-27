@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Smartstore.Core.Rules.Filters;
 
@@ -24,7 +25,7 @@ namespace Smartstore.Core.Rules.Operators
 
         private bool Negate { get; set; }
 
-        protected override Expression GenerateExpression(Expression left /* member expression */, Expression right /* collection instance */, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left /* member expression */, Expression right /* collection instance */, IQueryProvider provider)
         {
             var constantExpr = right as ConstantExpression;
             if (constantExpr == null)
@@ -78,7 +79,7 @@ namespace Smartstore.Core.Rules.Operators
 
         private bool Negate { get; set; }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             throw new NotImplementedException();
         }

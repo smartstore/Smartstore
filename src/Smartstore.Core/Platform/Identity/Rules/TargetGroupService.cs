@@ -115,7 +115,7 @@ namespace Smartstore.Core.Identity.Rules
             }
 
             // Create lambda predicate
-            var predicate = group.ToPredicate(false);
+            var predicate = group.ToPredicate(query.Provider);
 
             // Apply predicate to query
             query = query

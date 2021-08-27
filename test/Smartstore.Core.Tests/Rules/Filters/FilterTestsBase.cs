@@ -302,13 +302,8 @@ namespace Smartstore.Core.Tests.Rules.Filters
 
         protected virtual List<Customer> ExecuteQuery<TValue>(RuleOperator op, Expression<Func<Customer, TValue>> left, object right)
         {
-            var paramExpr = Expression.Parameter(typeof(Customer), "it");
-            var valueExpr = ExpressionHelper.CreateValueExpression(left.Body.Type, right); // Expression.Constant(right)
-            var expr = op.GetExpression(left.Body, valueExpr, true);
-            var predicate = ExpressionHelper.CreateLambdaExpression(paramExpr, expr);
-
+            var predicate = ExpressionHelper.CreateLambdaExpression(left, op, right);
             var result = _customers.AsQueryable().Where(predicate).Cast<Customer>().ToList();
-
             return result;
         }
 
@@ -317,7 +312,7 @@ namespace Smartstore.Core.Tests.Rules.Filters
             var compositeFilter = new FilterExpressionGroup(typeof(Customer)) { LogicalOperator = logicalOperator };
             compositeFilter.AddExpressions(expressions);
 
-            var predicate = compositeFilter.ToPredicate(true);
+            var predicate = compositeFilter.ToPredicate(_customers.AsQueryable().Provider);
             var result = _customers.AsQueryable().Where(predicate).Cast<Customer>().ToList();
 
             return result;

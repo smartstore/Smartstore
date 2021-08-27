@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
 using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore.Core.Rules.Operators
@@ -7,23 +9,6 @@ namespace Smartstore.Core.Rules.Operators
     {
         internal IsNotEmptyOperator()
             : base("IsNotEmpty", true) { }
-
-        #region Old
-        //protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
-        //{
-        //    if (GetBodyType(left) == typeof(string) && (!liftToNull || ExpressionHelper.IsNotNullConstantExpression(left)))
-        //    {
-        //        left = left.CallTrim(false);
-        //        return Expression.NotEqual(left, ExpressionHelper.EmptyStringLiteral);
-        //    }
-
-        //    return Expression.NotEqual(left, ExpressionHelper.NullLiteral);
-
-        //    //return Expression.AndAlso(
-        //    //    Expression.NotEqual(left, ExpressionHelper.NullLiteral),
-        //    //    Expression.NotEqual(left.TrimCall(false), ExpressionHelper.EmptyStringLiteral));
-        //}
-        #endregion
     }
 
     internal class IsEmptyOperator : RuleOperator
@@ -39,7 +24,7 @@ namespace Smartstore.Core.Rules.Operators
 
         private bool Negate { get; set; }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             return Expression.Equal(
                 left.CallIsNullOrEmpty(),
@@ -52,11 +37,11 @@ namespace Smartstore.Core.Rules.Operators
         internal StartsWithOperator()
             : base("StartsWith") { }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             var methodInfo = ExpressionHelper.StringStartsWithMethod;
             return Expression.Equal(
-                methodInfo.ToCaseInsensitiveStringMethodCall(left, right, liftToNull),
+                methodInfo.ToCaseInsensitiveStringMethodCall(left, right, provider),
                 ExpressionHelper.TrueLiteral);
         }
     }
@@ -66,11 +51,11 @@ namespace Smartstore.Core.Rules.Operators
         internal EndsWithOperator()
             : base("EndsWith") { }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             var methodInfo = ExpressionHelper.StringEndsWithMethod;
             return Expression.Equal(
-                methodInfo.ToCaseInsensitiveStringMethodCall(left, right, liftToNull),
+                methodInfo.ToCaseInsensitiveStringMethodCall(left, right, provider),
                 ExpressionHelper.TrueLiteral);
         }
     }
@@ -94,10 +79,10 @@ namespace Smartstore.Core.Rules.Operators
 
         private bool Negate { get; set; }
 
-        protected override Expression GenerateExpression(Expression left, Expression right, bool liftToNull)
+        protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
             return Expression.Equal(
-                ExpressionHelper.StringContainsMethod.ToCaseInsensitiveStringMethodCall(left, right, liftToNull),
+                ExpressionHelper.StringContainsMethod.ToCaseInsensitiveStringMethodCall(left, right, provider),
                 Negate ? ExpressionHelper.FalseLiteral : ExpressionHelper.TrueLiteral);
         }
     }

@@ -33,49 +33,25 @@ namespace Smartstore.Core.Rules.Filters
             _expressions.AddRange(expressions.OfType<FilterExpression>());
         }
 
-        public Expression ToPredicate(bool liftToNull)
+        public Expression ToPredicate(IQueryProvider provider)
+            => ToPredicate(null, provider);
+
+        public override Expression ToPredicate(ParameterExpression node, IQueryProvider provider)
         {
-            return ToPredicate(null, liftToNull);
+            node ??= Expression.Parameter(EntityType, "it");
+
+            // TODO: was base.Descriptor.EntityType, check if MemberExpression is the same
+            return ExpressionHelper.CreateLambdaExpression(node,  CreateBodyExpression(node, provider));
         }
 
-        public override Expression ToPredicate(ParameterExpression node, bool liftToNull)
+        protected override Expression CreateBodyExpression(ParameterExpression node, IQueryProvider provider)
         {
-            if (node == null)
-            {
-                node = Expression.Parameter(EntityType, "it"); // TODO: was base.Descriptor.EntityType, check if MemberExpression is the same
-            }
+            var expressions = Expressions
+                .Cast<FilterExpression>()
+                .Select(x => x.ToPredicate(node, provider))
+                .ToArray();
 
-            //return ExpressionHelper.CreateLambdaExpression(node, base.ToPredicate(node, liftToNull));
-            return ExpressionHelper.CreateLambdaExpression(node, CreateBodyExpression(node, liftToNull));
-        }
-
-        protected override Expression CreateBodyExpression(ParameterExpression node, bool liftToNull)
-        {
-            Expression left = null;
-
-            foreach (var ruleExpression in Expressions.Cast<FilterExpression>())
-            {
-                var right = ruleExpression.ToPredicate(node, liftToNull);
-
-                if (left == null)
-                    left = right;
-                else
-                    left = CombineExpressions(left, right, LogicalOperator);
-            }
-
-            if (left == null)
-            {
-                return ExpressionHelper.TrueLiteral;
-            }
-
-            return left;
-        }
-
-        private Expression CombineExpressions(Expression left, Expression right, LogicalRuleOperator logicalOperator)
-        {
-            return logicalOperator == LogicalRuleOperator.And
-                ? Expression.AndAlso(left, right)
-                : Expression.OrElse(left, right);
+            return ExpressionHelper.CombineExpressions(node, LogicalOperator, expressions);
         }
     }
 }
