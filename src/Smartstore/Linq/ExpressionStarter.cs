@@ -32,19 +32,25 @@ namespace Smartstore.Linq
             _predicate = exp;
         }
 
-        /// <summary>The actual Predicate. It can only be set by calling Start.</summary>
+        /// <summary>
+        /// The actual Predicate. It can only be set by calling Start.
+        /// </summary>
         private Expression<Func<T, bool>> Predicate => (IsStarted || !UseDefaultExpression) ? _predicate : DefaultExpression;
 
         /// <summary>Determines if the predicate is started.</summary>
         public bool IsStarted => _predicate != null;
 
-        /// <summary> A default expression to use only when the expression is null </summary>
+        /// <summary>
+        /// A default expression to use only when the expression is null
+        /// </summary>
         public bool UseDefaultExpression => DefaultExpression != null;
 
         /// <summary>The default expression</summary>
         public Expression<Func<T, bool>> DefaultExpression { get; set; }
 
-        /// <summary>Set the Expression predicate</summary>
+        /// <summary>
+        /// Set the Expression predicate
+        /// </summary>
         /// <param name="exp">The first expression</param>
         public Expression<Func<T, bool>> Start(Expression<Func<T, bool>> exp)
         {

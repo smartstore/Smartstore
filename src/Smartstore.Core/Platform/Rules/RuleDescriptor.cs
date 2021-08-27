@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Smartstore.Core.Rules
@@ -10,7 +11,7 @@ namespace Smartstore.Core.Rules
         protected RuleDescriptor(RuleScope scope)
         {
             Scope = scope;
-            Constraints = new IRuleConstraint[0];
+            Constraints = Array.Empty<IRuleConstraint>();
             Metadata = new Dictionary<string, object>();
         }
 

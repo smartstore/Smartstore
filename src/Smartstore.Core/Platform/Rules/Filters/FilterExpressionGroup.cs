@@ -7,7 +7,7 @@ namespace Smartstore.Core.Rules.Filters
 {
     public class FilterExpressionGroup : FilterExpression, IRuleExpressionGroup
     {
-        private readonly List<IRuleExpression> _expressions = new List<IRuleExpression>();
+        private readonly List<IRuleExpression> _expressions = new();
 
         public FilterExpressionGroup(Type entityType)
         {

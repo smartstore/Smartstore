@@ -15,8 +15,8 @@ namespace Smartstore.Core.Rules.Filters
         public readonly static Expression ZeroLiteral = Expression.Constant(0);
         public readonly static Expression EmptyStringLiteral = Expression.Constant(string.Empty);
 
-        public readonly static MethodInfo StringToLowerMethod = typeof(string).GetMethod(nameof(string.ToLower), new Type[0]);
-        public readonly static MethodInfo StringTrimMethod = typeof(string).GetMethod(nameof(string.Trim), new Type[0]);
+        public readonly static MethodInfo StringToLowerMethod = typeof(string).GetMethod(nameof(string.ToLower), Array.Empty<Type>());
+        public readonly static MethodInfo StringTrimMethod = typeof(string).GetMethod(nameof(string.Trim), Array.Empty<Type>());
         public readonly static MethodInfo StringIsNullOrEmptyMethod = typeof(string).GetMethod("IsNullOrEmpty", new Type[] { typeof(string) });
         public readonly static MethodInfo StringStartsWithMethod = typeof(string).GetMethod(nameof(string.StartsWith), new Type[] { typeof(string) });
         public readonly static MethodInfo StringEndsWithMethod = typeof(string).GetMethod(nameof(string.EndsWith), new Type[] { typeof(string) });

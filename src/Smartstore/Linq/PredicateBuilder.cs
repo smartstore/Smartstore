@@ -35,13 +35,17 @@ namespace Smartstore.Linq
             }
         }
 
-        /// <summary>Start an expression</summary>
+        /// <summary>
+        /// Start an expression
+        /// </summary>
         public static ExpressionStarter<T> New<T>(Expression<Func<T, bool>> expr = null)
         {
             return new ExpressionStarter<T>(expr);
         }
 
-        /// <summary> Create an expression with a stub expression true or false to use when the expression is not yet started. </summary>
+        /// <summary>
+        /// Create an expression with a stub expression true or false to use when the expression is not yet started.
+        /// </summary>
         public static ExpressionStarter<T> New<T>(bool defaultExpression)
         {
             return new ExpressionStarter<T>(defaultExpression);

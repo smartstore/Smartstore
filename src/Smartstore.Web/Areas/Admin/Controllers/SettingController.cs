@@ -31,6 +31,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
@@ -115,12 +116,12 @@ namespace Smartstore.Admin.Controllers
 
             if (model.SearchSettingName.HasValue())
             {
-                query = query.Where(x => x.Name.Contains(model.SearchSettingName));
+                query = query.ApplyWildcardFilterFor(x => x.Name, model.SearchSettingName);
             }
 
             if (model.SearchSettingValue.HasValue())
             {
-                query = query.Where(x => x.Value.Contains(model.SearchSettingValue));
+                query = query.ApplyWildcardFilterFor(x => x.Value, model.SearchSettingValue);
             }
 
             if (model.SearchStoreId != 0)
