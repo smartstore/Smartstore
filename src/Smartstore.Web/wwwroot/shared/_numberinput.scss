@@ -283,6 +283,18 @@
     }
 }
 
+// Text prepend
+// --------------------------------------------------
+
+.number-input-prepend {
+    margin-right: -3px !important;
+    z-index: 2;
+
+    .input-group-text {
+        border-radius: $border-radius-sm 0 0 $border-radius-sm;
+    }
+}
+
 
 // RTL support (right to left)
 // --------------------------------------------------
@@ -331,5 +343,14 @@
     > .numberinput-stepper {
         left: 1px;
         right: auto;
+    }
+}
+
+[dir=rtl] .number-input-prepend {
+    margin-left: -3px !important;
+    z-index: 2;
+
+    .input-group-text {
+        border-radius: 0 $border-radius-sm $border-radius-sm 0;
     }
 }

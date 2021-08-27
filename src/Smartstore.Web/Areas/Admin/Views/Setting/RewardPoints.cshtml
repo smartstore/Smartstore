@@ -46,11 +46,15 @@
                 </div>
                 <div class="adminData">
                     <setting-editor asp-for="ExchangeRate">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon1">@T("Admin.Configuration.Settings.RewardPoints.ExchangeRate.Hint2")</span>
+                        <div class="container p-0">
+                            <div class="row no-gutters">
+                                <div class="input-group-prepend col-auto number-input-prepend">
+                                    <span class="input-group-text">@T("Admin.Configuration.Settings.RewardPoints.ExchangeRate.Hint2")</span>
+                                </div>
+                                <div class="col">
+                                    <editor asp-for="ExchangeRate" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                                </div>
                             </div>
-                            <editor asp-for="ExchangeRate" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
                         </div>
                     </setting-editor>
                     <span asp-validation-for="ExchangeRate"></span>
