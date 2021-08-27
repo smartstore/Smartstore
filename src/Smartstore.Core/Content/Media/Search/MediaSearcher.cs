@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Engine;
 using Smartstore.Linq;
 
@@ -265,36 +264,22 @@ namespace Smartstore.Core.Content.Media
             var hasSingleCharToken = term.IndexOf('?') > -1;
             var hasAnyWildcard = hasAnyCharToken || hasSingleCharToken;
 
-            if (!hasAnyWildcard)
+            List<Expression<Func<MediaFile, string>>> expressions = new(2) 
             {
-                return !includeAlt
-                    ? (exactMatch ? query.Where(x => x.Name == term) : query.Where(x => x.Name.Contains(term)))
-                    : (exactMatch ? query.Where(x => x.Name == term || x.Alt == term) : query.Where(x => x.Name.Contains(term) || x.Alt.Contains(term)));
-            }
-            else
+                x => x.Name
+            };
+
+            if (includeAlt)
             {
-                // Convert file pattern to SQL LIKE expression:
-                // my*new_file-?.png > my%new/_file-_.png
-
-                var hasUnderscore = term.IndexOf('_') > -1;
-
-                if (hasUnderscore)
-                {
-                    term = term.Replace("_", "/_");
-                }
-                if (hasAnyCharToken)
-                {
-                    term = term.Replace('*', '%');
-                }
-                if (hasSingleCharToken)
-                {
-                    term = term.Replace('?', '_');
-                }
-
-                return !includeAlt
-                    ? query.Where(x => EF.Functions.Like(x.Name, term, "/"))
-                    : query.Where(x => EF.Functions.Like(x.Name, term, "/") || EF.Functions.Like(x.Alt, term, "/"));
+                expressions.Add(x => x.Alt);
             }
+
+            if (exactMatch)
+            {
+                term = '"' + term.Trim('"', '\'') + '"';
+            }
+
+            return query.ApplySearchTermFilter(term, Rules.LogicalRuleOperator.Or, expressions.ToArray());
         }
     }
 }
