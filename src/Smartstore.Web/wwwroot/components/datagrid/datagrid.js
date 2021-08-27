@@ -105,8 +105,8 @@ Vue.component("sm-datagrid", {
                         </thead>
                         <tbody ref="tableBody" class="dg-tbody">
                             <tr v-if="ready && rows.length === 0" class="dg-tr dg-no-data">
-                                <td class="dg-td text-muted text-center">
-                                    <div class="dg-cell justify-content-center">Keine Daten</div>
+                                <td class="dg-td text-muted">
+                                    <div class="dg-cell">Keine Daten</div>
                                 </td>
                             </tr>                            
                             

@@ -419,21 +419,16 @@ input.form-control-plaintext {
 }
 
 .dg-cell-selector {
+    display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    display: block;
+    //display: block;
     margin: 0;
 }
 
 .dg-cell-selector-checkbox {
     cursor: pointer;
-}
-
-.dg-cell-selector:not(.dg-cell-header) {
-    align-items: center;
-    justify-content: center;
-    //background-color: $even;
 }
 
 .dg-cell-detail-toggle {
@@ -628,6 +623,9 @@ span.dg-page {
     height: 100%;
 
     > .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         height: 50%;
         padding: 0 !important;
         > i {
