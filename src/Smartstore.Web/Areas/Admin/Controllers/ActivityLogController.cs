@@ -43,13 +43,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Measure.Read)]
         public async Task<IActionResult> ActivityTypesList(GridCommand command)
         {
-            var activityLogTypes = await _db.ActivityLogTypes
+            var activityLogTypeModels = await _db.ActivityLogTypes
                 .AsNoTracking()
                 .ApplyGridCommand(command)
-                .ToPagedList(command)
-                .LoadAsync();
-
-            var activityLogTypeModels = await activityLogTypes
                 .SelectAsync(async x =>
                 {
                     return await MapperFactory.MapAsync<ActivityLogType, ActivityLogTypeModel>(x);
@@ -59,7 +55,7 @@ namespace Smartstore.Admin.Controllers
             var gridModel = new GridModel<ActivityLogTypeModel>
             {
                 Rows = activityLogTypeModels,
-                Total = await activityLogTypes.GetTotalCountAsync()
+                Total = activityLogTypeModels.Count
             };
 
             return Json(gridModel);
