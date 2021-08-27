@@ -18,6 +18,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -178,11 +179,12 @@ namespace Smartstore.Admin.Controllers
 
             if (model.SearchCategoryName.HasValue())
             {
+                // TODO: (mh) (core) Apply wildcardfilter if its possible to use with ||
                 query = query.Where(x => x.Name.Contains(model.SearchCategoryName) || x.FullName.Contains(model.SearchCategoryName));
             }
             if (model.SearchAlias.HasValue())
             {
-                query = query.Where(x => x.Alias.Contains(model.SearchAlias));
+                query = query.ApplyWildcardFilterFor(x => x.Alias, model.SearchAlias);
             }
 
             var categories = await query

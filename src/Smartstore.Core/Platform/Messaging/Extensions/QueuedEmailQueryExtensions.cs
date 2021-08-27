@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Smartstore.Core.Messaging;
+using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore
 {
@@ -14,10 +15,10 @@ namespace Smartstore
             Guard.NotNull(query, nameof(query));
 
             if (from.HasValue())
-                query = query.Where(x => x.From.Contains(from.Trim()));
+                query = query.ApplyWildcardFilterFor(x => x.From, from.Trim());
 
             if (to.HasValue())
-                query = query.Where(x => x.To.Contains(to.Trim()));
+                query = query.ApplyWildcardFilterFor(x => x.To, to.Trim());
 
             return query;
         }

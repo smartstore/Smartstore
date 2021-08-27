@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore.Core.Logging
 {
@@ -37,7 +38,7 @@ namespace Smartstore.Core.Logging
 
             if (logger.HasValue())
             {
-                return query.Where(x => x.Logger.Contains(logger));
+                return query.ApplyWildcardFilterFor(x => x.Logger, logger);
             }
 
             return query;
@@ -49,6 +50,7 @@ namespace Smartstore.Core.Logging
 
             if (message.HasValue())
             {
+                // TODO: (mh) (core) Apply wildcardfilter if its possible to use with ||
                 return query.Where(x => x.ShortMessage.Contains(message) || (!includeException && x.FullMessage.Contains(message)));
             }
 

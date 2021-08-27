@@ -10,6 +10,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
@@ -89,7 +90,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
 
             if (model.SearchName.HasValue())
             {
-                query = query.Where(x => x.Name.Contains(model.SearchName));
+                query = query.ApplyWildcardFilterFor(x => x.Name, model.SearchName);
             }
 
             var attributes = await query

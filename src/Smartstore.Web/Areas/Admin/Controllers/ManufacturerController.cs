@@ -17,6 +17,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -138,7 +139,7 @@ namespace Smartstore.Admin.Controllers
 
             if (model.SearchManufacturerName.HasValue())
             {
-                query = query.Where(x => x.Name.Contains(model.SearchManufacturerName));
+                query = query.ApplyWildcardFilterFor(x => x.Name, model.SearchManufacturerName);
             }
 
             var manufacturers = await query

@@ -18,6 +18,7 @@ using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -86,6 +87,8 @@ namespace Smartstore.Admin.Controllers
             
             if (model.Title.HasValue())
             {
+                // TODO: (mh) (core) Remove comment
+                // Question: how concat Wildcardfilters?
                 query = query.Where(x => x.Title.Contains(model.Title) || x.ShortTitle.Contains(model.Title));
             }
 
