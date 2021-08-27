@@ -1,5 +1,5 @@
 ﻿@using Smartstore.Admin.Models.Common
- 
+
 @model Smartstore.Admin.Models.Common.CurrencyModel
 
 @{
@@ -12,6 +12,7 @@
 
     ViewBag.SerializedDomainEndings = string.Join(",", availableDomainEndings);
 
+    @*TODO: (mh) (core) Not valid anymore. How to do this correctly? *@
     var roundOrderTotalDenominators = new List<SelectListItem>
     {
         new SelectListItem { Text = 0.05.ToString("F"), Value = 0.05.ToString("F") },
@@ -78,7 +79,7 @@
                     <smart-label asp-for="DisplayLocale" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="DisplayLocale" 
+                    <select asp-for="DisplayLocale"
                             asp-items='cultures.Select(x => new SelectListItem { Value = x.IetfLanguageTag, Text = $"{x.DisplayName} [{x.IetfLanguageTag}]" })'></select>
                     <span asp-validation-for="DisplayLocale"></span>
                 </div>
