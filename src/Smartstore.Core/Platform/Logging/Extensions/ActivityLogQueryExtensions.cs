@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Core.Data;
+using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore.Core.Logging
 {
@@ -29,7 +30,7 @@ namespace Smartstore.Core.Logging
                 var queryCustomers = query.GetDbContext<SmartDbContext>().Customers.AsQueryable();
 
                 if (email.HasValue())
-                    queryCustomers = queryCustomers.Where(x => x.Email.Contains(email));
+                    queryCustomers = queryCustomers.ApplyWildcardFilterFor(x => x.Email, email);
 
                 if (customerSystemAccount.HasValue)
                     queryCustomers = queryCustomers.Where(x => x.IsSystemAccount == customerSystemAccount.Value);

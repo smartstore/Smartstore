@@ -1,0 +1,22 @@
+﻿@using Smartstore.Admin.Models.Logging
+
+@model ActivityLogListModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.ActivityLog.ActivityLog").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-fire"></i>
+        @T("Admin.Configuration.ActivityLog.ActivityLog")
+    </div>
+</div>
+
+@{
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<partial name="_Grid.ListLogs" model="null" view-data="gridViewData" />
