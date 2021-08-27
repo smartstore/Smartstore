@@ -7,10 +7,8 @@ using Autofac;
 using FluentMigrator;
 using FluentMigrator.Infrastructure;
 using FluentMigrator.Runner;
-using FluentMigrator.Runner.Initialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
 using Smartstore.Engine;
@@ -24,12 +22,11 @@ namespace Smartstore.Core.Data.Migrations
         private readonly IMigrationRunnerConventions _migrationRunnerConventions;
         private readonly IMigrationRunner _migrationRunner;
         private readonly IVersionLoader _versionLoader;
-        private readonly RunnerOptions _runnerOptions;
         private readonly IEventPublisher _eventPublisher;
 
         private Exception _lastSeedException;
-        private string _initialMigration;
-        private string _lastSuccessfulMigration;
+        private MigrationDescriptor _initialMigration;
+        private IMigrationInfo _lastSuccessfulMigration;
 
         public DbMigrator2(
             TContext db,
@@ -38,7 +35,6 @@ namespace Smartstore.Core.Data.Migrations
             IMigrationRunnerConventions migrationRunnerConventions,
             IMigrationRunner migrationRunner,
             IVersionLoader versionLoader,
-            IOptions<RunnerOptions> runnerOptions,
             IEventPublisher eventPublisher)
             : base(scope, appContext.TypeScanner, versionLoader)
         {
@@ -46,7 +42,6 @@ namespace Smartstore.Core.Data.Migrations
             _migrationRunnerConventions = migrationRunnerConventions;
             _migrationRunner = migrationRunner;
             _versionLoader = versionLoader;
-            _runnerOptions = runnerOptions.Value;
             _eventPublisher = eventPublisher;
         }
 
@@ -56,9 +51,18 @@ namespace Smartstore.Core.Data.Migrations
         public override TContext Context => _db;
 
         /// <inheritdoc/>
+        public override Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default)
+        {
+            return MigrateAsync(null, cancelToken);
+        }
+
+        /// <inheritdoc/>
         public override async Task<int> MigrateAsync(long? targetVersion = null, CancellationToken cancelToken = default)
         {
-            // TODO: (mg) (core) Throw when this method is called during installation. Migrations MUST NOT run during installation.
+            if (!DataSettings.DatabaseIsInstalled())
+            {
+                throw new DbMigrationException("Database migrations must not be executed during the installation.");
+            }
 
             if (_lastSeedException != null)
             {
@@ -83,8 +87,9 @@ namespace Smartstore.Core.Data.Migrations
             var down = false;
             var result = 0;
 
-            _initialMigration = localMigrations.GetValueOrDefault(lastAppliedVersion)?.Description ?? "[Initial]";
-            _lastSuccessfulMigration = _initialMigration;
+            _initialMigration = localMigrations.GetValueOrDefault(lastAppliedVersion);
+            // INFO: the initialization of lastSuccessfulMigration in Classic looks wrong to me. Should be the last of all applied migrations, rather than the very first one.
+            _lastSuccessfulMigration = null;
 
             if (targetVersion == null)
             {
@@ -130,21 +135,23 @@ namespace Smartstore.Core.Data.Migrations
                 result = MigrateDown(migrations.ToArray(), cancelToken);
             }
 
+            _versionLoader.LoadVersionInfo();
+
+            if (_lastSuccessfulMigration != null)
+            {
+                Logger.Info($"Database migration successful: {_initialMigration?.Description ?? "Initial"} >> {_lastSuccessfulMigration.Description}");
+            }
+
             return result;
         }
-
-        /// <inheritdoc/>
-        public override Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default)
-        {
-            return MigrateAsync(null, cancelToken);
-        }
-
+        
         protected virtual async Task<int> MigrateUpAsync(IMigrationInfo[] migrations, CancellationToken cancelToken)
         {
             var succeeded = 0;
             var seederEntries = new List<SeederEntry>();
             var runner = (MigrationRunner)_migrationRunner;
 
+            // Migrate up.
             foreach (var migration in migrations)
             {
                 if (cancelToken.IsCancellationRequested)
@@ -154,24 +161,35 @@ namespace Smartstore.Core.Data.Migrations
 
                 try
                 {
-                    // TODO: CreateMigration -> if (migration is IDataSeeder<TContext> seeder) -> add seeder entry
-
-                    // TODO: check FM TransactionBehavior handling.
                     runner.ApplyMigrationUp(migration, migration.TransactionBehavior == TransactionBehavior.Default);
-
                     ++succeeded;
-                    _lastSuccessfulMigration = migration.Description;
-                    DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migration.Description);
                 }
                 catch (Exception ex)
                 {
-                    throw new DbMigrationException(_lastSuccessfulMigration, migration.Description, ex.InnerException ?? ex, false);
+                    throw new DbMigrationException(
+                        _lastSuccessfulMigration?.Description ?? _initialMigration?.Description ?? "Initial",
+                        migration.Description, 
+                        ex.InnerException ?? ex, 
+                        false);
                 }
+
+                if (migration.Migration is IDataSeeder<TContext> seeder)
+                {
+                    seederEntries.Add(new SeederEntry
+                    {
+                        Seeder = seeder,
+                        Migration = migration,
+                        PreviousMigration = _lastSuccessfulMigration
+                    });
+                }
+
+                _lastSuccessfulMigration = migration;
+                DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migration.Description);
             }
 
-            _versionLoader.LoadVersionInfo();
             cancelToken.ThrowIfCancellationRequested();
 
+            // Execute data seeders.
             foreach (var entry in seederEntries)
             {
                 if (cancelToken.IsCancellationRequested)
@@ -206,20 +224,39 @@ namespace Smartstore.Core.Data.Migrations
                 {
                     if (entry.Seeder.RollbackOnFailure)
                     {
-                        //_lastSeedException = new DbMigrationException(lastSuccessful, m.Description, ex.InnerException ?? ex, true);
+                        _lastSeedException = new DbMigrationException(
+                            entry.PreviousMigration?.Description ?? _initialMigration?.Description ?? "Initial", 
+                            m.Description, 
+                            ex.InnerException ?? ex, 
+                            true);
 
                         if (!cancelToken.IsCancellationRequested)
                         {
+                            try
+                            {
+                                if (entry.PreviousMigration == null && _initialMigration != null)
+                                {
+                                    // No migration executed in this iteration -> get the last of all applied migrations (if any).
+                                    entry.PreviousMigration = _migrationRunnerConventions.GetMigrationInfoForMigration(CreateMigration(_initialMigration.Type));
+                                }
+
+                                if (entry.PreviousMigration != null)
+                                {
+                                    runner.ApplyMigrationDown(entry.PreviousMigration, entry.PreviousMigration.TransactionBehavior == TransactionBehavior.Default);
+                                }
+                            }
+                            catch (Exception ex2)
+                            {
+                                Logger.Error(ex2);
+                            }
                         }
 
-                        //throw _lastSeedException;
+                        throw _lastSeedException;
                     }
 
                     Logger.Warn(ex, "Seed error in migration '{0}'. The error was ignored because no rollback was requested.", m.Description);
                 }
             }
-
-            Logger.Info($"Database migration successful: {_initialMigration} >> {_lastSuccessfulMigration}");
 
             return succeeded;
         }
@@ -239,26 +276,23 @@ namespace Smartstore.Core.Data.Migrations
                 try
                 {
                     runner.ApplyMigrationDown(migration, migration.TransactionBehavior == TransactionBehavior.Default);
-
                     ++succeeded;
-                    _lastSuccessfulMigration = migration.Description;
-                    DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migration.Description);
                 }
                 catch (Exception ex)
                 {
-                    throw new DbMigrationException(_lastSuccessfulMigration, migration.Description, ex.InnerException ?? ex, false);
+                    throw new DbMigrationException(
+                        _lastSuccessfulMigration?.Description ?? _initialMigration?.Description ?? "Initial", 
+                        migration.Description, 
+                        ex.InnerException ?? ex, 
+                        false);
                 }
-            }
 
-            _versionLoader.LoadVersionInfo();
+                _lastSuccessfulMigration = migration;
+                DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migration.Description);
+            }
 
             return succeeded;
         }
-
-        //private static string GetMigrationName(IMigrationInfo migration)
-        //{
-        //    return migration?.Migration?.GetType()?.Name;
-        //}
 
         protected class MigrationResult
         {
@@ -269,8 +303,8 @@ namespace Smartstore.Core.Data.Migrations
         protected class SeederEntry
         {
             public IDataSeeder<TContext> Seeder { get; set; }
-            public IMigrationInfo PreviousMigration { get; set; }
             public IMigrationInfo Migration { get; set; }
+            public IMigrationInfo PreviousMigration { get; set; }
         }
     }
 }

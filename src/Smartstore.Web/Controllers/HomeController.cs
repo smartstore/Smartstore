@@ -898,7 +898,9 @@ namespace Smartstore.Web.Controllers
 
             //_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools"));
             var migrator2 = Services.Container.Resolve(typeof(Core.Data.Migrations.DbMigrator2<>).MakeGenericType(typeof(SmartDbContext))) as Core.Data.Migrations.DbMigrator2;
-            await migrator2.RunPendingMigrationsAsync();
+            //await migrator2.RunPendingMigrationsAsync();
+            //await migrator2.SeedPendingLocaleResourcesAsync(null);
+            //await migrator2.SeedPendingLocaleResourcesAsync("UpdateTestEntityMigration");
 
 
             //await Services.Localization.DeleteLocaleStringResourcesAsync("Plugins.SmartStore.MyTestPlugin");

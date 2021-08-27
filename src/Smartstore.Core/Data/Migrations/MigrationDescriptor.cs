@@ -19,6 +19,12 @@ namespace Smartstore.Core.Data.Migrations
         }
 
         public long Version { get; }
+        
+        /// <summary>
+        /// The class name of the migration.
+        /// </summary>
+        public string Name => Type.Name;
+
         public string Description { get; }
         public Type Type { get; }
         public bool BreakingChange { get; }

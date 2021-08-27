@@ -32,17 +32,19 @@ namespace Smartstore.Core.Data.Migrations
             _versionLoader = versionLoader;
         }
 
-        // TODO: (mg) (core) Use only relevant FluentMigrator dependencies/packages (SqlServer, MySql). Remove everything else!
         public abstract HookingDbContext Context { get; }
 
-        // TODO: (mg) (core) The contract should follow the old contract (DbMigrator). We need DbContext for translation and setting seeding. We can't break with our concept.
+        /// <summary>
+        /// Migrates the database to the latest version.
+        /// </summary>
+        /// <returns>The number of applied migrations.</returns>
         public abstract Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default);
 
         /// <summary>
-        /// TODO: Describe
+        /// Migrates the database to <paramref name="targetVersion"/> or to the latest version if no version was specified.
         /// </summary>
-        /// <param name="targetVersion">TODO: Describe</param>
-        /// <returns>Number of processed migrations.</returns>
+        /// <param name="targetVersion">The target migration version.</param>
+        /// <returns>The number of applied migrations.</returns>
         public abstract Task<int> MigrateAsync(long? targetVersion = null, CancellationToken cancelToken = default);
 
         #region Database initialization
@@ -126,6 +128,63 @@ namespace Smartstore.Core.Data.Migrations
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Seeds locale resources of pending migrations.
+        /// </summary>
+        /// <param name="currentHead">
+        /// Specifies a pending migration (class name) from which locale resources are to be seeded.
+        /// <c>null</c> to seed locale resources of all pending migrations.
+        /// </param>
+        /// <returns>The number of seeded migrations.</returns>
+        public async Task<int> SeedPendingLocaleResourcesAsync(string currentHead = null, CancellationToken cancelToken = default)
+        {
+            if (Context is not SmartDbContext db)
+            {
+                return 0;
+            }
+
+            var localMigrations = GetMigrations();
+            if (localMigrations.Count == 0)
+            {
+                return 0;
+            }
+
+            var succeeded = 0;
+            var pending = GetPendingMigrations().Select(v => localMigrations[v]);
+
+            if (currentHead.HasValue())
+            {
+                var headMigration = pending.FirstOrDefault(x => x.Name.EqualsNoCase(currentHead));
+                if (headMigration != null)
+                {
+                    pending = pending.Where(x => x.Version > headMigration.Version);
+                }
+            }
+
+            var providers = pending
+                .Select(x => CreateMigration(x.Type) as ILocaleResourcesProvider)
+                .Where(x => x != null)
+                .ToArray();
+
+            foreach (var provider in providers)
+            {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                var builder = new LocaleResourcesBuilder();
+                provider.MigrateLocaleResources(builder);
+
+                var resEntries = builder.Build();
+                var resMigrator = new LocaleResourcesMigrator(db);
+                await resMigrator.MigrateAsync(resEntries);
+                ++succeeded;
+            }
+
+            return succeeded;
         }
 
         private void PostPopulateSchema()

@@ -1,15 +1,12 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using FluentMigrator;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
-using FluentMigrator.Runner.Logging;
 using FluentMigrator.Runner.Processors;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Security;
@@ -51,16 +48,6 @@ namespace Smartstore.Core.Bootstrapping
         /// </summary>
         public static IServiceCollection AddDbMigrator(this IServiceCollection services, IApplicationContext appContext)
         {
-            /*
-                RE: the leanest way to make sure that VersionInfo table exists is
-                services.AddFluentMigratorCore().ConfigureRunner(rb =>
-                {
-                    rb = DataSettings.Instance.DbFactory.DbSystem.ToString().EqualsNoCase("MySql") ? rb.AddMySql5() : rb.AddSqlServer();
-                    rb.WithVersionTable(new MigrationHistory()).WithGlobalConnectionString(x => DataSettings.Instance.ConnectionString);
-                });
-                and then calling FluentMigrator.Runner.IVersionLoader.LoadVersionInfo()
-             */
-
             services
                 .AddFluentMigratorCore()
                 .AddScoped<IConnectionStringReader, DataSettingsConnectionStringReader>()
@@ -68,13 +55,6 @@ namespace Smartstore.Core.Bootstrapping
                 .AddTransient<IDatabaseInitializer, DatabaseInitializer>()
                 .AddTransient(typeof(DbMigrator<>))
                 .AddTransient(typeof(DbMigrator2<>))
-                //.AddSingleton<IConventionSet, MigrationConventionSet>()
-                //.AddLogging(lb => lb.AddFluentMigratorConsole())
-                //.Configure<RunnerOptions>(opt =>
-                //{
-                //    opt.Profile = "Development"   // Selectively apply migrations depending on whatever.
-                //    opt.Tags = new[] { "UK", "Production" }   // Used to filter migrations by tags.
-                //})
                 .ConfigureRunner(builder => 
                 {
                     var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>()// TODO: (mg) (core) ignore inactive modules when ready.
@@ -82,13 +62,11 @@ namespace Smartstore.Core.Bootstrapping
                         .Where(x => !x.FullName.Contains("FluentMigrator.Runner"))
                         .Distinct()
                         .ToArray();
-                    //$"assemblies {string.Join(", ", migrationAssemblies.Select(x => x.GetName().Name))}".Dump();
 
                     builder
                         .AddSqlServer()
                         .AddMySql5()
                         .WithVersionTable(new MigrationHistory())
-                        //.WithGlobalConnectionString(dataSettings.ConnectionString)
                         .WithGlobalCommandTimeout(TimeSpan.FromSeconds(appContext.AppConfiguration.DbMigrationCommandTimeout ?? 120))
                         .ScanIn(migrationAssemblies)
                             .For.Migrations()
