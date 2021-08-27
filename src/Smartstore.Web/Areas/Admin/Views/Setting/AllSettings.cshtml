@@ -4,21 +4,7 @@
     ViewBag.Title = T("Admin.Configuration.Settings.AllSettings").Value;
     Layout = "_SettingLayout";
     Assets.BodyAttributes.AppendCssClass("spa-layout");
-    // TODO: (mh) (core) Make .spa-layout classes more flexible to suit all needs and remove the embedded style below.
 }
-
-<style>
-    .page-main {
-        grid-template-columns: 206px minmax(100px, 1fr) !important;
-    }
-</style>
-
-<div class="section-header">
-    <div class="title">
-        <i class="fa fa-cogs"></i>
-        @T("Admin.Configuration.Settings.AllSettings")
-    </div>
-</div>
 
 @{
     var gridViewData = new ViewDataDictionary(this.ViewData);

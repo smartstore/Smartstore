@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Directory;
+using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Payment;
@@ -449,10 +449,9 @@ namespace Smartstore.Web.Areas.Admin.Controllers
 
         [HttpPost, ActionName("Delete")]
         [Permission(Permissions.Configuration.Currency.Delete)]
-        public async Task<IActionResult> Delete(CountryModel model)
+        public async Task<IActionResult> Delete(int id)
         {
-            // TODO: (mh) (core) Why CounntryModel? And why not just pass id?
-            var currency = await _db.Currencies.FindByIdAsync(model.Id);
+            var currency = await _db.Currencies.FindByIdAsync(id);
             if (currency == null)
             {
                 return NotFound();

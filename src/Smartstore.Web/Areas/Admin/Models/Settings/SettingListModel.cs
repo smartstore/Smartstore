@@ -5,13 +5,13 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models
 {
-    [LocalizedDisplay("Admin.Catalog.Products.List.")]
+    [LocalizedDisplay("Admin.Configuration.Settings.AllSettings.Fields.")]
     public class SettingListModel : ModelBase
     {
-        [LocalizedDisplay("*SearchSettingName")]
+        [LocalizedDisplay("*Name")]
         public string SearchSettingName { get; set; }
 
-        [LocalizedDisplay("*SearchSettingValue")]
+        [LocalizedDisplay("*Value")]
         public string SearchSettingValue { get; set; }
 
         [UIHint("Stores")]

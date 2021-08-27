@@ -322,6 +322,10 @@ body {
         grid-template-rows: 72px var(--header-height) calc(100vh - var(--content-height));
     }
 
+    &.has-left-sidebar .page-main {
+        grid-template-columns: 206px minmax(100px, 1fr) !important;
+    }
+
     .cph {
         height: 100%;
     }

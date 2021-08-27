@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using FluentValidation;
+using Smartstore.ComponentModel;
+using Smartstore.Core.Common;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Admin.Models.Directory
+namespace Smartstore.Admin.Models.Common
 {
     [LocalizedDisplay("Admin.Configuration.Countries.Fields.")]
     public class CountryModel : TabbableModel, ILocalizedModel<CountryLocalizedModel>
@@ -83,14 +86,14 @@ namespace Smartstore.Admin.Models.Directory
         }
     }
 
-    // TODO: (mh) (core) Find out what to do here
-    //public class CountryMapper :
-    //    IMapper<Country, CountryModel>
-    //{
-    //    public void Map(Country from, CountryModel to)
-    //    {
-    //        MiniMapper.Map(from, to);
-    //        to.NumberOfStates = from.StateProvinces?.Count ?? 0;
-    //    }
-    //}
+    public class CountryMapper :
+        IMapper<Country, CountryModel>
+    {
+        public Task MapAsync(Country from, CountryModel to, dynamic parameters = null)
+        {
+            MiniMapper.Map(from, to);
+            to.NumberOfStates = from.StateProvinces?.Count ?? 0;
+            return Task.CompletedTask;
+        }
+    }
 }
