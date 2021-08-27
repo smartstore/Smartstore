@@ -647,7 +647,7 @@ Vue.component("sm-datagrid", {
             }
 
             // Spacer always 'auto' to fill remaining area
-            result.push(hasFraction ? "0" : "auto");
+            result.push(hasFraction ? "0" : "minmax(0, auto)");
 
             // Last grid tools / row commands column
             if (this.canEditRow || this.hasRowCommands) {
