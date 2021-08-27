@@ -6,6 +6,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
@@ -29,6 +30,7 @@ namespace Smartstore.Web.Components
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ILocalizationService _localizationService;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly IShippingService _shippingService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly MeasureSettings _measureSettings;
         private readonly TaxSettings _taxSettings;
@@ -42,6 +44,7 @@ namespace Smartstore.Web.Components
             IShoppingCartService shoppingCartService,
             ILocalizationService localizationService,
             IOrderCalculationService orderCalculationService,
+            IShippingService shippingService,
             ShoppingCartSettings shoppingCartSettings,
             MeasureSettings measureSettings,
             TaxSettings taxSettings)
@@ -54,6 +57,7 @@ namespace Smartstore.Web.Components
             _shoppingCartService = shoppingCartService;
             _localizationService = localizationService;
             _orderCalculationService = orderCalculationService;
+            _shippingService = shippingService;
             _shoppingCartSettings = shoppingCartSettings;
             _measureSettings = measureSettings;
             _taxSettings = taxSettings;
@@ -79,12 +83,7 @@ namespace Smartstore.Web.Components
                 return View(model);
             }
 
-            model.Weight = decimal.Zero;
-
-            foreach (var cartItem in cart.Items)
-            {
-                model.Weight += cartItem.Item.Product.Weight * cartItem.Item.Quantity;
-            }
+            model.Weight = await _shippingService.GetCartTotalWeightAsync(cart);
 
             var measureWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
             if (measureWeight != null)
