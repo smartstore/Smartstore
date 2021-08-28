@@ -83,7 +83,8 @@ namespace Smartstore.Core.Rules.Filters
                         }
                         else
                         {
-                            op = RuleOperator.Like;
+                            var hasAnyWildcard = term.IndexOfAny(new[] { '*', '?' }) > -1;
+                            op = hasAnyWildcard ? RuleOperator.Like : RuleOperator.Contains;
                         }
                     }
 
@@ -96,20 +97,10 @@ namespace Smartstore.Core.Rules.Filters
                 })
                 .ToArray();
 
-            FilterExpression filterExpression;
+            var compositeFilter = new FilterExpressionGroup(typeof(T)) { LogicalOperator = logicalOperator };
+            compositeFilter.AddExpressions(filterExpressions);
 
-            if (filterExpressions.Length == 1)
-            {
-                filterExpression = filterExpressions[0];
-            }
-            else
-            {
-                var compositeFilter = new FilterExpressionGroup(typeof(T)) { LogicalOperator = logicalOperator };
-                compositeFilter.AddExpressions(filterExpressions);
-                filterExpression = compositeFilter;
-            }
-
-            return query.Where(filterExpression).Cast<T>();
+            return query.Where(compositeFilter).Cast<T>();
         }
 
         #endregion

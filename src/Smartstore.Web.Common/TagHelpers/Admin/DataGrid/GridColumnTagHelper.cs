@@ -30,6 +30,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string GroupableAttributeName = "groupable";
         const string ReorderableAttributeName = "reorderable";
         const string HideableAttributeName = "hideable";
+        const string EncodedAttributeName = "encoded";
         const string WrapAttributeName = "wrap";
         const string EntityMemberAttributeName = "entity-member";
         const string IconAttributeName = "icon";
@@ -166,6 +167,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         public bool Wrap { get; set; }
 
         /// <summary>
+        /// Html encodes cell value. Default: <c>false</c>.
+        /// </summary>
+        [HtmlAttributeName(EncodedAttributeName)]
+        public bool Encoded { get; set; }
+
+        /// <summary>
         /// The entity member/property name. Use this if the corresponding
         /// entity member name differs, e.g. 'CreatedOn' --> 'CreatedOnUtc'.
         /// </summary>
@@ -232,6 +239,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 editable = !ReadOnly,
                 reorderable = Reorderable,
                 wrap = Wrap,
+                encoded = Encoded,
                 entityMember = EntityMember,
                 icon = Icon,
                 onCellClass = OnCellClass

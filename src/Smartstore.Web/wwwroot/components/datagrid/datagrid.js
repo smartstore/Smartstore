@@ -138,7 +138,8 @@ Vue.component("sm-datagrid", {
                                                     <div class="dg-cell-value"><i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i></div>
                                                 </template>
                                                 <template v-else>
-                                                    <div class="dg-cell-value" v-html="renderCellValue(row[column.member], column, row)"></div>
+                                                    <div class="dg-cell-value" v-if="column.encoded" v-html="renderCellValue(row[column.member], column, row)"></div>
+                                                    <div class="dg-cell-value" v-else>{{ renderCellValue(row[column.member], column, row) }}</div>
                                                 </template>
                                             </slot>
                                             <template v-if="isInlineEditCell(row, column)">
