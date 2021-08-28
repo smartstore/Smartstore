@@ -4,6 +4,8 @@
 
 @{
     var parentModel = ViewData["Parent"] as ActivityLogListModel;
+    // TODO: (mh) (core) The Grid naming is bad: please rename ListLogs --> ActivityLogs, ListTypes --> ActivityLogTypes.
+    // TODO: (mh) (core) Column reordering should be allowed is most grids. Please check all your grid, decide and allow.
 }
 
 <form asp-action="DeleteAll">
@@ -11,11 +13,11 @@
     <confirm button-id="delete-all" action="DeleteAll" />
 </form>
 
-<datagrid id="activity-log-grid" allow-resize="true" allow-row-selection="true">
+<datagrid id="activity-log-grid" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
     <datasource read="@Url.Action("ListActivityLogs", "ActivityLog")"
                 delete="@Url.Action("Delete", "ActivityLog")" />
     <sorting enabled="true">
-        <sort by="CreatedOn" />
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>
     <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
@@ -40,11 +42,7 @@
     </search-panel>
     <columns>
         <column for="ActivityLogTypeName" entity-member="ActivityLogType.Name" width="350px" hideable="false" />
-        <column for="Comment" width="1fr" wrap="true">
-            <display-template>
-                {{ item.value }}
-            </display-template>
-        </column>
+        <column for="Comment" width="1fr" />
         <column for="CustomerEmail" entity-member="Customer.Email" width="200px">
             <display-template>
                 <a :href="item.row.CustomerEditUrl" class="text-truncate">
