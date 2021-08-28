@@ -9,9 +9,6 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal class SeoStarter : StarterBase
     {
-        public override bool Matches(IApplicationContext appContext)
-            => appContext.IsInstalled;
-
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<UrlService>().As<IUrlService>().InstancePerLifetimeScope();

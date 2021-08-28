@@ -75,15 +75,16 @@ namespace Smartstore.Web
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
 
                     // TODO: (core) More MVC config?
-                    if (DataSettings.DatabaseIsInstalled())
-                    {
-                        var complexBinderProvider = o.ModelBinderProviders.OfType<ComplexObjectModelBinderProvider>().First();
-                        o.ModelBinderProviders.Insert(0, new GridCommandModelBinderProvider(complexBinderProvider));
-                        o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
+                    var complexBinderProvider = o.ModelBinderProviders.OfType<ComplexObjectModelBinderProvider>().First();
+                    o.ModelBinderProviders.Insert(0, new GridCommandModelBinderProvider(complexBinderProvider));
+                    o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
 
-                        // Register custom metadata provider
+                    // Register custom metadata provider
+                    o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
+
+                    if (appContext.IsInstalled)
+                    {
                         o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());
-                        o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
 
                         // Localized messages
                         o.ModelBindingMessageProvider.SetValueMustBeANumberAccessor(x =>
@@ -108,11 +109,11 @@ namespace Smartstore.Web
                         o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
                         o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
                         o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
+                    }
 
-                        if (appContext.AppConfiguration.EnableLocalizedViews)
-                        {
-                            o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
-                        }
+                    if (appContext.AppConfiguration.EnableLocalizedViews)
+                    {
+                        o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
                     }
                 })
                 .AddRazorRuntimeCompilation(o =>
@@ -217,7 +218,7 @@ namespace Smartstore.Web
                 return null;
             }).InstancePerDependency();
 
-            if (DataSettings.DatabaseIsInstalled())
+            if (appContext.IsInstalled)
             {
                 builder.RegisterDecorator<SmartLinkGenerator, LinkGenerator>();
                 builder.RegisterDecorator<SmartRouteValuesAddressScheme, IEndpointAddressScheme<RouteValuesAddress>>();

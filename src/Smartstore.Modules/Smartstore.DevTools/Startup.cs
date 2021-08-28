@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyModel;
 using Smartstore.Core;
 using Smartstore.Core.Web;
 using Smartstore.DevTools.Filters;
@@ -20,7 +18,8 @@ namespace Smartstore.DevTools
 {
     internal class Startup : StarterBase
     {
-        public override bool Matches(IApplicationContext appContext) => appContext.IsInstalled;
+        public override bool Matches(IApplicationContext appContext) 
+            => appContext.IsInstalled;
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {

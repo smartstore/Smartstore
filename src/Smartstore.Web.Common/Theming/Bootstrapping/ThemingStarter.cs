@@ -13,14 +13,10 @@ namespace Smartstore.Web.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterModule(new ThemesModule());
-
-            if (appContext.IsInstalled)
-            {
-                builder.RegisterType<ThemeVariableRepository>().AsSelf().InstancePerLifetimeScope();
-                builder.RegisterType<DefaultThemeVariableService>().As<IThemeVariableService>().InstancePerLifetimeScope();
-                builder.RegisterType<DefaultThemeContext>().As<IThemeContext>().InstancePerLifetimeScope();
-                builder.RegisterType<RazorViewInvoker>().As<IRazorViewInvoker>().InstancePerLifetimeScope();
-            }
+            builder.RegisterType<ThemeVariableRepository>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<DefaultThemeVariableService>().As<IThemeVariableService>().InstancePerLifetimeScope();
+            builder.RegisterType<DefaultThemeContext>().As<IThemeContext>().InstancePerLifetimeScope();
+            builder.RegisterType<RazorViewInvoker>().As<IRazorViewInvoker>().InstancePerLifetimeScope();
         }
     }
 }

@@ -9,9 +9,6 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal sealed class MessagingStarter : StarterBase
     {
-        public override bool Matches(IApplicationContext appContext)
-            => appContext.IsInstalled;
-
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<EmailAccountService>().As<IEmailAccountService>().InstancePerLifetimeScope();

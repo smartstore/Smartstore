@@ -16,9 +16,7 @@ namespace Smartstore.Redis
         public override int Order => (int)StarterOrdering.Default;
 
         public override bool Matches(IApplicationContext appContext)
-        {
-            return appContext.IsInstalled;
-        }
+            => appContext.IsInstalled;
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
