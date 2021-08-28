@@ -12,6 +12,7 @@ using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
 using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 
 // TODO: (mg) (core) We need to separate migration infrastructure and actual migration classes. Both cannot exist in the same space.
 //       Maybe we can move infrastructure to "Smartstore" assembly.
@@ -65,11 +66,18 @@ namespace Smartstore.Core.Data.Migrations
 
         public virtual async Task InitializeDatabasesAsync(CancellationToken cancelToken = default)
         {
-            var contextTypes = _typeScanner.FindTypes<DbContext>().ToArray();
-
-            foreach (var contextType in contextTypes)
+            if (!ModularState.Instance.HasChanged)
             {
-                await InitializeDatabaseAsync(contextType, cancelToken);
+                // (perf) ignore modules, they did not change since last migration.
+                await InitializeDatabaseAsync(typeof(SmartDbContext), cancelToken);
+            }
+            else
+            {
+                var contextTypes = _typeScanner.FindTypes<DbContext>().ToArray();
+                foreach (var contextType in contextTypes)
+                {
+                    await InitializeDatabaseAsync(contextType, cancelToken);
+                }
             }
         }
 
