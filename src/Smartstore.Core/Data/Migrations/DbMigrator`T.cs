@@ -59,10 +59,7 @@ namespace Smartstore.Core.Data.Migrations
         /// <inheritdoc/>
         public override async Task<int> MigrateAsync(long? targetVersion = null, CancellationToken cancelToken = default)
         {
-            if (!DataSettings.DatabaseIsInstalled())
-            {
-                throw new DbMigrationException("Database migrations must not be executed during the installation.");
-            }
+            // INFO: (mg) (core) My fault. It absolutely makes sense for modules to migrate during installation to be able to strip off everything when uninstalling.
 
             if (_lastSeedException != null)
             {
@@ -89,11 +86,12 @@ namespace Smartstore.Core.Data.Migrations
 
             _initialMigration = localMigrations.GetValueOrDefault(lastAppliedVersion);
             // INFO: the initialization of lastSuccessfulMigration in Classic looks wrong to me. Should be the last of all applied migrations, rather than the very first one.
+            // RE: (mg) (core) See rollback TODO further below in MigrateUpAsync()
             _lastSuccessfulMigration = null;
 
             if (targetVersion == null)
             {
-                // null = run pending migrations up to last.
+                // null = run pending migrations up to last (inclusive).
                 versions = GetPendingMigrations();
             }
             else if (targetVersion == -1)
@@ -104,13 +102,13 @@ namespace Smartstore.Core.Data.Migrations
             }
             else if (targetVersion < lastAppliedVersion)
             {
-                // Rollback to given version.
+                // Rollback to given version (exclusive).
                 versions = appliedMigrations.Where(x => x > targetVersion).Reverse();
                 down = true;
             }
             else if (targetVersion > lastAppliedVersion)
             {
-                // Migrate up to given version.
+                // Migrate up to given version (inclusive).
                 versions = localMigrations.Select(x => x.Key).Where(x => x > lastAppliedVersion && x <= targetVersion);
             }
 
@@ -147,6 +145,8 @@ namespace Smartstore.Core.Data.Migrations
         
         protected virtual async Task<int> MigrateUpAsync(IMigrationInfo[] migrations, CancellationToken cancelToken)
         {
+            // TBD: (mg) (core) Why was scoping removed? Do I miss something?
+
             var succeeded = 0;
             var seederEntries = new List<SeederEntry>();
             var runner = (MigrationRunner)_migrationRunner;
@@ -158,14 +158,15 @@ namespace Smartstore.Core.Data.Migrations
                 {
                     break;
                 }
-
+                
                 try
                 {
                     runner.ApplyMigrationUp(migration, migration.TransactionBehavior == TransactionBehavior.Default);
-                    ++succeeded;
+                    succeeded++;
                 }
                 catch (Exception ex)
                 {
+                    // TODO: (mg) (core) Need to refactor every part that takes migration ids as strings. It is a "long" version now.
                     throw new DbMigrationException(
                         _lastSuccessfulMigration?.Description ?? _initialMigration?.Description ?? "Initial",
                         migration.Description, 
@@ -184,11 +185,12 @@ namespace Smartstore.Core.Data.Migrations
                 }
 
                 _lastSuccessfulMigration = migration;
-                DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migration.Description);
             }
 
             cancelToken.ThrowIfCancellationRequested();
 
+            // TODO: (mg) (core) Where are the core/global seeders gone?
+            // TODO: (mg) (core) Granularity: make isolated method for seeding again.
             // Execute data seeders.
             foreach (var entry in seederEntries)
             {
@@ -242,6 +244,8 @@ namespace Smartstore.Core.Data.Migrations
 
                                 if (entry.PreviousMigration != null)
                                 {
+                                    // TODO: (mg) (core) This is fundamentally wrong. We need to rollback the complete migration session,
+                                    // down to the last known applied one, which belongs to a previous session.
                                     runner.ApplyMigrationDown(entry.PreviousMigration, entry.PreviousMigration.TransactionBehavior == TransactionBehavior.Default);
                                 }
                             }
@@ -288,7 +292,6 @@ namespace Smartstore.Core.Data.Migrations
                 }
 
                 _lastSuccessfulMigration = migration;
-                DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migration.Description);
             }
 
             return succeeded;

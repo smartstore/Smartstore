@@ -6,6 +6,7 @@ using Smartstore.Data;
 namespace Smartstore.Core.Data.Migrations
 {
     // TODO: (mg) (core) add code comments to DatabaseMigrationBase when ready.
+    // TODO: (mg) (core) We gonna use AutoReversingMigration whereever possible. This class is counter-productive. Maybe extension methods?
     public abstract class DatabaseMigrationBase : Migration
     {
         private string _dbSystemName;

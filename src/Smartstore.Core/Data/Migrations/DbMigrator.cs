@@ -92,7 +92,7 @@ namespace Smartstore.Core.Data.Migrations
 
             if (appliedMigrations.Length == 0 && await ShouldSuppressInitialCreate())
             {
-                DbMigrationManager.Instance.SetSuppressInitialCreate<TContext>(true);
+                //DbMigrationManager.Instance.SetSuppressInitialCreate<TContext>(true);
             }
 
             // Apply migrations
@@ -153,7 +153,7 @@ namespace Smartstore.Core.Data.Migrations
                     });
 
                 lastSuccessfulMigration = migrationId;
-                DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migrationId);
+                //DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migrationId);
             }
 
             cancelToken.ThrowIfCancellationRequested();

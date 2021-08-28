@@ -57,6 +57,8 @@ namespace Smartstore.Core.Bootstrapping
                 .AddTransient(typeof(DbMigrator2<>))
                 .ConfigureRunner(builder => 
                 {
+                    // TODO: (mg) (core) I highly doubt that we'll ever need FluentMigrator's built-in scanning capabilities.
+                    //       WE do the scans. Thoroughly check if I miss something and strip this off completely.
                     var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>()// TODO: (mg) (core) ignore inactive modules when ready.
                         .Select(x => x.Assembly)
                         .Where(x => !x.FullName.Contains("FluentMigrator.Runner"))
