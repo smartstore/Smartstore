@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using FluentMigrator;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Smartstore.Collections;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
@@ -23,11 +24,26 @@ namespace Smartstore.Core.Data.Migrations
     public interface IDatabaseInitializer
     {
         /// <summary>
-        /// Initializes / migrates all migratable <see cref="DbContext"/> instances.
+        /// Initializes / migrates all discovered migratable <see cref="DbContext"/> instances.
         /// </summary>
         Task InitializeDatabasesAsync(CancellationToken cancelToken);
+
+        /// <summary>
+        /// Initializes / migrates the given <paramref name="dbContextType"/>.
+        /// </summary>
+        Task InitializeDatabaseAsync(Type dbContextType, CancellationToken cancelToken);
     }
-    
+
+    public static class IDatabaseInitializerExtensions
+    {
+        /// <summary>
+        /// Initializes / migrates the given <typeparamref name="TContext"/> type.
+        /// </summary>
+        public static Task InitializeDatabaseAsync<TContext>(this IDatabaseInitializer initializer, CancellationToken cancelToken = default)
+            => initializer.InitializeDatabaseAsync(typeof(TContext), cancelToken);
+    }
+
+
     public class DatabaseInitializer : IDatabaseInitializer
     {
         private static readonly SyncedCollection<Type> _initializedContextTypes = new List<Type>().AsSynchronized();
@@ -49,14 +65,24 @@ namespace Smartstore.Core.Data.Migrations
 
         public virtual async Task InitializeDatabasesAsync(CancellationToken cancelToken = default)
         {
-            foreach (var dbContextType in DbMigrationManager.Instance.GetDbContextTypes())
+            var contextTypes = _typeScanner.FindTypes<DbContext>().ToArray();
+
+            foreach (var contextType in contextTypes)
             {
-                var migrator = _scope.Resolve(typeof(DbMigrator<>).MakeGenericType(dbContextType)) as DbMigrator;
-                await InitializeDatabaseAsync(migrator, _seedersMap[dbContextType], cancelToken);
+                await InitializeDatabaseAsync(contextType, cancelToken);
             }
         }
 
-        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
+        public Task InitializeDatabaseAsync(Type dbContextType, CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(dbContextType, nameof(dbContextType));
+            Guard.IsAssignableFrom<DbContext>(dbContextType);
+
+            var migrator = _scope.Resolve(typeof(DbMigrator2<>).MakeGenericType(dbContextType)) as DbMigrator2;
+            return InitializeDatabaseAsync(migrator, _seedersMap[dbContextType], cancelToken);
+        }
+
+        protected virtual async Task InitializeDatabaseAsync(DbMigrator2 migrator, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
         {
             Guard.NotNull(migrator, nameof(migrator));
 
@@ -128,7 +154,7 @@ namespace Smartstore.Core.Data.Migrations
                     continue;
                 }
 
-                if (typeof(Migration).IsAssignableFrom(seederType))
+                if (typeof(IMigration).IsAssignableFrom(seederType))
                 {
                     // Skip data seeders that are bound to specific migrations.
                     continue;
