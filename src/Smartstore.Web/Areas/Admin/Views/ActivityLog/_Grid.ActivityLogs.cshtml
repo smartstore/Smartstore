@@ -4,7 +4,6 @@
 
 @{
     var parentModel = ViewData["Parent"] as ActivityLogListModel;
-    // TODO: (mh) (core) The Grid naming is bad: please rename ListLogs --> ActivityLogs, ListTypes --> ActivityLogTypes.
 }
 
 <form asp-action="DeleteAll">
@@ -37,7 +36,7 @@
         </toolbar-group>
     </toolbar>
     <search-panel>
-        <partial name="_Grid.ListLogs.Search" model="parentModel" />
+        <partial name="_Grid.ActivityLogs.Search" model="parentModel" />
     </search-panel>
     <columns>
         <column for="ActivityLogTypeName" entity-member="ActivityLogType.Name" width="350px" hideable="false" />

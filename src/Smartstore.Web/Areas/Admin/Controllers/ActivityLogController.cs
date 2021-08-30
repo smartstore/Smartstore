@@ -20,26 +20,18 @@ namespace Smartstore.Admin.Controllers
     public class ActivityLogController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly ICustomerService _customerService;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly AdminAreaSettings _adminAreaSettings;
-
-        public ActivityLogController(
-            SmartDbContext db,
-            ICustomerService customerService,
-            IDateTimeHelper dateTimeHelper,
-            AdminAreaSettings adminAreaSettings)
+        
+        public ActivityLogController(SmartDbContext db, IDateTimeHelper dateTimeHelper)
         {
             _db = db;
-            _customerService = customerService;
             _dateTimeHelper = dateTimeHelper;
-            _adminAreaSettings = adminAreaSettings;
         }
 
         #region Activity log types
 
         [Permission(Permissions.Configuration.ActivityLog.Read)]
-        public IActionResult ListTypes()
+        public IActionResult ActivityLogTypes()
         {
             return View();
         }
@@ -88,7 +80,7 @@ namespace Smartstore.Admin.Controllers
         #region Activity log
 
         [Permission(Permissions.Configuration.ActivityLog.Read)]
-        public async Task<IActionResult> ListLogs()
+        public async Task<IActionResult> ActivityLogs()
         {
             var model = new ActivityLogListModel
             {

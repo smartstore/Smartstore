@@ -22,6 +22,7 @@
         </toolbar-group>
     </toolbar>
     <columns>
+        @*TODO: (mh) (core) Address properties won't work. Find out why. *@
         <column for="Address.Email" entity-member="Address.Email" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">

@@ -47,7 +47,7 @@
             <siteMapNode id="external-auth" iconClass="fab fa-facebook-square" title="External authentication methods" resKey="Admin.Configuration.ExternalAuthenticationMethods" permissionNames="configuration.authentication" controller="ExternalAuthentication" action="Providers" area="Admin"/>
 
             <siteMapNode id="users-sep-1" isGroupHeader="true" title="[SKIP]" />
-            <siteMapNode id="activity-log" iconClass="far fa-eye" title="Activity Log" resKey="Admin.Configuration.ActivityLog.ActivityLog" permissionNames="configuration.activitylog" controller="ActivityLog" action="ListLogs" area="Admin" />
+            <siteMapNode id="activity-log" iconClass="far fa-eye" title="Activity Log" resKey="Admin.Configuration.ActivityLog.ActivityLog" permissionNames="configuration.activitylog" controller="ActivityLog" action="ActivityLogs" area="Admin" />
         </siteMapNode>
 
         <siteMapNode id="promotions" title="Promotions" resKey="Admin.Promotions" permissionNames="promotion" iconClass="icm icm-bullhorn">
@@ -122,7 +122,7 @@
 
             <siteMapNode id="email-accounts" iconClass="fa fa-envelope" title="EmailAccounts" resKey="Admin.Configuration.EmailAccounts" permissionNames="configuration.emailaccount" controller="EmailAccount" action="List" area="Admin" />
 
-            <siteMapNode id="activity-types" iconClass="fa fa-eye" title="Activity Types" resKey="Admin.Configuration.ActivityLog.ActivityLogType" permissionNames="configuration.activitylog" controller="ActivityLog" action="ListTypes" area="Admin" />
+            <siteMapNode id="activity-types" iconClass="fa fa-eye" title="Activity Types" resKey="Admin.Configuration.ActivityLog.ActivityLogType" permissionNames="configuration.activitylog" controller="ActivityLog" action="ActivityLogTypes" area="Admin" />
 
             <siteMapNode id="data-sep-1" isGroupHeader="true" title="[SKIP]" />
             <siteMapNode id="import" iconClass="fa fa-download " title="Import" resKey="Common.Import" permissionNames="configuration.import" controller="Import" action="List" area="Admin" />
