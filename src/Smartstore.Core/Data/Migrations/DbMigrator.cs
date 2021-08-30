@@ -140,6 +140,7 @@ namespace Smartstore.Core.Data.Migrations
         /// <returns>The number of seeded migrations.</returns>
         public async Task<int> SeedPendingLocaleResourcesAsync(string currentHead = null, CancellationToken cancelToken = default)
         {
+            // TODO: (mg) (core) currentHead must be long type now.
             if (Context is not SmartDbContext db)
             {
                 return 0;
