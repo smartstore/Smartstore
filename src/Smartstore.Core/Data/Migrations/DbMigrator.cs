@@ -1,300 +1,287 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using System.Transactions;
+using Autofac;
+using FluentMigrator;
+using FluentMigrator.Runner;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
-using Smartstore.Events;
+using Smartstore.Engine;
 
 namespace Smartstore.Core.Data.Migrations
 {
     public abstract class DbMigrator
     {
-        /// <summary>
-        /// The default name for the Migrations history table.
-        /// </summary>
-        public const string DefaultHistoryTableName = "__EFMigrationsHistory";
+        private Assembly _assembly;
+        private IReadOnlyDictionary<long, MigrationDescriptor> _migrations;
+
+        private readonly ILifetimeScope _scope;
+        private readonly ITypeScanner _typeScanner;
+        private readonly IVersionLoader _versionLoader;
+
+        protected DbMigrator(ILifetimeScope scope, ITypeScanner typeScanner, IVersionLoader versionLoader)
+        {
+            _scope = scope;
+            _typeScanner = typeScanner;
+            _versionLoader = versionLoader;
+        }
 
         public abstract HookingDbContext Context { get; }
 
         /// <summary>
-        /// Migrates the database to the latest version
+        /// Migrates the database to the latest version.
         /// </summary>
-        /// <returns>The number of applied migrations</returns>
+        /// <returns>The number of applied migrations.</returns>
         public abstract Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default);
 
         /// <summary>
-        /// Seeds locale resources which are ahead of given <paramref name="currentHead"/> migration.
+        /// Migrates the database to <paramref name="targetVersion"/> or to the latest version if no version was specified.
         /// </summary>
-        public abstract Task SeedPendingLocaleResources(string currentHead, CancellationToken cancelToken = default);
-    }
-    
-    public class DbMigrator<TContext> : DbMigrator where TContext : HookingDbContext
-    {
-        private static readonly Regex _migrationIdPattern = new Regex(@"\d{15}_.+");
+        /// <param name="targetVersion">The target migration version.</param>
+        /// <returns>The number of applied migrations.</returns>
+        public abstract Task<int> MigrateAsync(long? targetVersion = null, CancellationToken cancelToken = default);
 
-        private readonly TContext _db;
-        private readonly SmartDbContext _dbCore;
-        private readonly IEventPublisher _eventPublisher;
+        #region Database initialization
 
-        private Exception _lastSeedException;
-
-        public DbMigrator(TContext db, SmartDbContext dbCore, IEventPublisher eventPublisher)
+        /// <summary>
+        /// Determines whether the database contains ALL tables specified by <see cref="CheckTablesAttribute"/>. 
+        /// If the DbContext is not annotated with <see cref="CheckTablesAttribute"/> this method will return
+        /// <c>true</c> if at least one user table is present in the database, otherwise <c>false</c>.
+        /// </summary>
+        /// <returns> A value indicating whether the required tables are present in the database. </returns>
+        public bool HasTables()
         {
-            _db = Guard.NotNull(db, nameof(db));
-            _dbCore = Guard.NotNull(dbCore, nameof(dbCore));
-            _eventPublisher = Guard.NotNull(eventPublisher, nameof(eventPublisher));
-        }
+            var tablesToCheck = Context.GetType().GetAttribute<CheckTablesAttribute>(true)?.TableNames;
 
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-
-        public override TContext Context => _db;
-
-        private async Task<bool> ShouldSuppressInitialCreate()
-        {
-            var shouldSuppress = false;
-            var tablesToCheck = _db.GetInvariantType().GetAttribute<CheckTablesAttribute>(true)?.TableNames;
             if (tablesToCheck != null && tablesToCheck.Length > 0)
             {
-                var dbTables = await _db.DataProvider.GetTableNamesAsync();
-                shouldSuppress = dbTables.Intersect(tablesToCheck, StringComparer.InvariantCultureIgnoreCase).Count() == tablesToCheck.Length;
+                var dbTables = Context.DataProvider.GetTableNames();
+
+                // True when ALL required tables are present in the database
+                return dbTables.Intersect(tablesToCheck, StringComparer.InvariantCultureIgnoreCase).Count() == tablesToCheck.Length;
             }
 
-            return shouldSuppress;
+            return (Context.Database.GetFacadeDependencies().DatabaseCreator as RelationalDatabaseCreator)?.HasTables() ?? false;
         }
 
-        public override async Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default)
+        /// <summary>
+        /// Creates the schema for the current model in the database. The database must exist physically or this method
+        /// will raise an exception. To specify the table names that the database should contain in order to satisfy the model, annotate
+        /// the DbContext class with <see cref="CheckTablesAttribute"/>. 
+        /// If all given tables already exist in the database, this method will exit.
+        /// After the schema was created, the migration version info table is populated with all found migrations
+        /// for the current model.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if the schema was created, <see langword="false" /> if it already existed.
+        /// </returns>
+        public bool EnsureSchemaPopulated()
         {
-            if (_lastSeedException != null)
+            var creator = Context.Database.GetFacadeDependencies().DatabaseCreator as RelationalDatabaseCreator;
+            if (creator != null)
             {
-                // This can happen when a previous migration attempt failed with a rollback.
-                //return 0;
-                throw _lastSeedException;
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    if (!HasTables())
+                    {
+                        creator.CreateTables();
+                        PostPopulateSchema();
+                        return true;
+                    }
+                }
             }
 
-            var pendingMigrations = (await _db.Database.GetPendingMigrationsAsync(cancelToken)).ToList();
-            if (!pendingMigrations.Any())
+            return false;
+        }
+
+        /// <summary>
+        /// Creates the schema for the current model in the database. The database must exist physically or this method
+        /// will raise an exception. To specify the table names that the database should contain in order to satisfy the model, annotate
+        /// the DbContext class with <see cref="CheckTablesAttribute"/>. 
+        /// If all given tables already exist in the database, this method will exit.
+        /// After the schema was created, the migration version info table is populated with all found migrations
+        /// for the current model.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true" /> if the schema was created, <see langword="false" /> if it already existed.
+        /// </returns>
+        public async Task<bool> EnsureSchemaPopulatedAsync(CancellationToken cancelToken = default)
+        {
+            var creator = Context.Database.GetFacadeDependencies().DatabaseCreator as RelationalDatabaseCreator;
+            if (creator != null)
+            {
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    if (!HasTables())
+                    {
+                        await creator.CreateTablesAsync(cancelToken);
+                        PostPopulateSchema();
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Seeds locale resources of pending migrations.
+        /// </summary>
+        /// <param name="currentHead">
+        /// Specifies a pending migration (class name) from which locale resources are to be seeded.
+        /// <c>null</c> to seed locale resources of all pending migrations.
+        /// </param>
+        /// <returns>The number of seeded migrations.</returns>
+        public async Task<int> SeedPendingLocaleResourcesAsync(string currentHead = null, CancellationToken cancelToken = default)
+        {
+            if (Context is not SmartDbContext db)
+            {
                 return 0;
-
-            var migrationsAssembly = _db.Database.GetMigrationsAssembly();
-            var coreSeeders = new List<SeederEntry>();
-            var externalSeeders = new List<SeederEntry>();
-            var isCoreMigration = _db is SmartDbContext;
-            var appliedMigrations = (await _db.Database.GetAppliedMigrationsAsync(cancelToken)).ToArray();
-            var initialMigration = appliedMigrations.LastOrDefault() ?? "[Initial]";
-            var lastSuccessfulMigration = appliedMigrations.FirstOrDefault();
-            int result = 0;
-
-            if (appliedMigrations.Length == 0 && await ShouldSuppressInitialCreate())
-            {
-                //DbMigrationManager.Instance.SetSuppressInitialCreate<TContext>(true);
             }
 
-            // Apply migrations
-            foreach (var migrationId in pendingMigrations)
+            var localMigrations = GetMigrations();
+            if (localMigrations.Count == 0)
             {
-                if (cancelToken.IsCancellationRequested)
-                    break;
-                
-                // Resolve and instantiate the Migration instance from the assembly
-                var migrationType = migrationsAssembly.Migrations[migrationId];
-                var migration = migrationsAssembly.CreateMigration(migrationType, _db.Database.ProviderName);
-
-                // Seeders for the core DbContext must be run in any case 
-                // (e.g. for Resource or Setting updates even from external modules)
-                var coreSeeder = migration as IDataSeeder<SmartDbContext>;
-                IDataSeeder<TContext> externalSeeder = null;
-
-                if (!isCoreMigration)
-                {
-                    // Context specific seeders should only be resolved
-                    // when origin is external (e.g. a module)
-                    externalSeeder = migration as IDataSeeder<TContext>;
-                }
-
-                try
-                {
-                    // Call the actual Migrate() to execute this migration
-                    await _db.Database.MigrateAsync(migrationId, cancelToken);
-                    result++;
-
-                    if (cancelToken.IsCancellationRequested)
-                        break;
-                }
-                catch
-                {
-                    result = 0;
-                    throw;
-                    //throw new DbMigrationException(lastSuccessfulMigration, migrationId, ex.InnerException ?? ex, false);
-                }
-
-                var migrationName = migrationType.Name;
-
-                if (coreSeeder != null)
-                    coreSeeders.Add(new SeederEntry
-                    {
-                        DataSeeder = coreSeeder,
-                        MigrationId = migrationId,
-                        MigrationName = migrationName,
-                        PreviousMigrationId = lastSuccessfulMigration,
-                    });
-
-                if (externalSeeder != null)
-                    externalSeeders.Add(new SeederEntry
-                    {
-                        DataSeeder = externalSeeder,
-                        MigrationId = migrationId,
-                        MigrationName = migrationName,
-                        PreviousMigrationId = lastSuccessfulMigration,
-                    });
-
-                lastSuccessfulMigration = migrationId;
-                //DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migrationId);
+                return 0;
             }
 
-            cancelToken.ThrowIfCancellationRequested();
+            var succeeded = 0;
+            var pending = GetPendingMigrations().Select(v => localMigrations[v]);
 
-            if (coreSeeders.Any())
+            if (currentHead.HasValue())
             {
-                // Apply core data seeders first
-                await RunSeedersAsync(coreSeeders, _dbCore);
+                var headMigration = pending.FirstOrDefault(x => x.Name.EqualsNoCase(currentHead));
+                if (headMigration != null)
+                {
+                    pending = pending.Where(x => x.Version > headMigration.Version);
+                }
             }
 
-            // Apply external data seeders
-            await RunSeedersAsync(externalSeeders, _db);
+            var providers = pending
+                .Select(x => CreateMigration(x.Type) as ILocaleResourcesProvider)
+                .Where(x => x != null)
+                .ToArray();
 
-            Logger.Info("Database migration successful: {0} >> {1}".FormatInvariant(initialMigration, lastSuccessfulMigration));
-
-            return result;
-        }
-
-        private async Task RunSeedersAsync<T>(IEnumerable<SeederEntry> seederEntries, T ctx, CancellationToken cancelToken = default) where T : HookingDbContext
-        {
-            foreach (var seederEntry in seederEntries)
+            foreach (var provider in providers)
             {
                 if (cancelToken.IsCancellationRequested)
+                {
                     break;
+                }
+
+                var builder = new LocaleResourcesBuilder();
+                provider.MigrateLocaleResources(builder);
+
+                var resEntries = builder.Build();
+                var resMigrator = new LocaleResourcesMigrator(db);
+                await resMigrator.MigrateAsync(resEntries);
+                ++succeeded;
+            }
+
+            return succeeded;
+        }
+
+        private void PostPopulateSchema()
+        {
+            var appliedMigrations = GetAppliedMigrations().ToArray();
+            
+            foreach (var migration in GetMigrations().Values)
+            {
+                if (!appliedMigrations.Contains(migration.Version))
+                {
+                    _versionLoader.UpdateVersionInfo(migration.Version, migration.Description ?? migration.Type.Name);
+                } 
+            }
+
+            _versionLoader.LoadVersionInfo();
+        }
+
+        #endregion
+
+        #region Migration history
+
+        /// <summary>
+        ///  The assembly that contains the migrations, usually the assembly containing the DbContext.
+        /// </summary>
+        public Assembly MigrationAssembly
+        {
+            get 
+            {
+                Assembly Resolve()
+                {
+                    var assemblyName = RelationalOptionsExtension.Extract(Context.Options)?.MigrationsAssembly;
+                    return assemblyName == null
+                        ? Context.GetType().Assembly
+                        : Assembly.Load(new AssemblyName(assemblyName));
+                }
                 
-                var seeder = (IDataSeeder<T>)seederEntry.DataSeeder;
-
-                try
-                {
-                    // Pre seed event
-                    //await _eventPublisher.PublishAsync(new SeedingDbMigrationEvent { MigrationName = seederEntry.MigrationName, DbContext = ctx });
-
-                    // Seed
-                    await seeder.SeedAsync(ctx, cancelToken);
-
-                    // Post seed event
-                    //await _eventPublisher.PublishAsync(new SeededDbMigrationEvent { MigrationName = seederEntry.MigrationName, DbContext = ctx });
-                }
-                catch (Exception ex)
-                {
-                    if (seeder.RollbackOnFailure)
-                    {
-                        _lastSeedException = ex;
-                        //_lastSeedException = new DbMigrationException(seederEntry.PreviousMigrationId, seederEntry.MigrationId, ex.InnerException ?? ex, true);
-
-                        if (!cancelToken.IsCancellationRequested)
-                        {
-                            try
-                            {
-                                await _db.Database.MigrateAsync(seederEntry.PreviousMigrationId, cancelToken);
-                            }
-                            catch
-                            {
-                            }
-                        }
-
-                        throw _lastSeedException;
-                    }
-
-                    Logger.Warn(ex, "Seed error in migration '{0}'. The error was ignored because no rollback was requested.", seederEntry.MigrationId);
-                }
+                return _assembly ??= Resolve();
             }
         }
 
-        public override async Task SeedPendingLocaleResources(string currentHead, CancellationToken cancelToken = default)
+        /// <summary>
+        /// Gets all the migrations that are defined in the configured migrations assembly.
+        /// </summary>
+        public IReadOnlyDictionary<long, MigrationDescriptor> GetMigrations()
         {
-            Guard.NotEmpty(currentHead, nameof(currentHead));
-
-            var db = _db as SmartDbContext;
-            if (db == null)
+            IReadOnlyDictionary<long, MigrationDescriptor> Create()
             {
-                return;
-            }
+                var result = new SortedList<long, MigrationDescriptor>();
 
-            var migrations = GetPendingResourceMigrations(currentHead).ToArray();
+                var items
+                    = from t in _typeScanner.FindTypes<IMigration>(new[] { MigrationAssembly })
+                      let descriptor = new MigrationDescriptor(t)
+                      where descriptor.Version > 0
+                      orderby descriptor.Version
+                      select descriptor;
 
-            if (migrations.Any())
-            {
-                var migrationsAssembly = db.Database.GetMigrationsAssembly();
-
-                foreach (var id in migrations)
+                foreach (var descriptor in items)
                 {
-                    if (cancelToken.IsCancellationRequested)
-                        break;
-                    
-                    // Resolve and instantiate the Migration instance from the assembly
-                    var migrationType = migrationsAssembly.Migrations[id];
-                    var migration = migrationsAssembly.CreateMigration(migrationType, db.Database.ProviderName);
-
-                    var provider = migration as ILocaleResourcesProvider;
-                    if (provider == null)
-                        continue;
-
-                    var builder = new LocaleResourcesBuilder();
-                    provider.MigrateLocaleResources(builder);
-
-                    var resEntries = builder.Build();
-                    var resMigrator = new LocaleResourcesMigrator(db);
-                    await resMigrator.MigrateAsync(resEntries);
-                }
-            }
-        }
-
-        private IEnumerable<string> GetPendingResourceMigrations(string currentHead)
-        {
-            var localMigrations = _db.Database.GetMigrations();
-            var atHead = false;
-
-            foreach (var id in localMigrations)
-            {
-                var name = id[15..]; // First part is {Timestamp:14}_
-                
-                if (!atHead)
-                {
-                    if (!name.EqualsNoCase(currentHead))
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        atHead = true;
-                        continue;
-                    }
+                    result.Add(descriptor.Version, descriptor);
                 }
 
-                yield return id;
+                return result;
             }
+
+            return _migrations ??= Create();
         }
 
-        private void LogError(string initialMigration, string targetMigration, Exception exception)
+        /// <summary>
+        /// Gets all migrations that have been applied to the target database.
+        /// </summary>
+        public IEnumerable<long> GetAppliedMigrations()
         {
-            Logger.Error(exception, "Database migration error: {0} >> {1}", initialMigration, targetMigration);
+            return GetMigrations().Select(x => x.Key).Intersect(_versionLoader.VersionInfo.AppliedMigrations());
         }
 
-        private class SeederEntry
+        /// <summary>
+        /// Gets all migrations that are defined in the assembly but haven't been applied to the target database.
+        /// </summary>
+        public IEnumerable<long> GetPendingMigrations()
         {
-            public string PreviousMigrationId { get; set; }
-            public string MigrationId { get; set; }
-            public string MigrationName { get; set; }
-            public object DataSeeder { get; set; }
+            return GetMigrations().Select(x => x.Key).Except(GetAppliedMigrations());
         }
+
+        /// <summary>
+        /// Creates an instance of the migration class.
+        /// </summary>
+        /// <param name="migrationClass">
+        /// The <see cref="Type" /> for the migration class, as obtained from the <see cref="GetMigrations()" /> dictionary.
+        /// </param>
+        /// <returns>The migration instance.</returns>
+        protected IMigration CreateMigration(Type migrationClass)
+        {
+            Guard.NotNull(migrationClass, nameof(migrationClass));
+
+            return (IMigration)_scope.ResolveUnregistered(migrationClass);
+        }
+
+        #endregion
     }
 }

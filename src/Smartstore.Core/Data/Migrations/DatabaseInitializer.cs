@@ -78,11 +78,11 @@ namespace Smartstore.Core.Data.Migrations
             Guard.NotNull(dbContextType, nameof(dbContextType));
             Guard.IsAssignableFrom<DbContext>(dbContextType);
 
-            var migrator = _scope.Resolve(typeof(DbMigrator2<>).MakeGenericType(dbContextType)) as DbMigrator2;
+            var migrator = _scope.Resolve(typeof(DbMigrator<>).MakeGenericType(dbContextType)) as DbMigrator;
             return InitializeDatabaseAsync(migrator, _seedersMap[dbContextType], cancelToken);
         }
 
-        protected virtual async Task InitializeDatabaseAsync(DbMigrator2 migrator, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
+        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
         {
             Guard.NotNull(migrator, nameof(migrator));
 

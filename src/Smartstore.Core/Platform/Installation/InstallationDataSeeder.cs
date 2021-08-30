@@ -33,6 +33,7 @@ namespace Smartstore.Core.Installation
 {
     public partial class InstallationDataSeeder : IDataSeeder<SmartDbContext>
     {
+        private readonly DbMigrator<SmartDbContext> _migrator;
         private readonly SeedDataConfiguration _config;
         private readonly ILogger _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -44,13 +45,19 @@ namespace Smartstore.Core.Installation
         private IUrlService _urlService;
         private int _defaultStoreId;
 
-        public InstallationDataSeeder(SeedDataConfiguration configuration, ILogger logger, IHttpContextAccessor httpContextAccessor)
+        public InstallationDataSeeder(
+            DbMigrator<SmartDbContext> migrator,
+            SeedDataConfiguration configuration, 
+            ILogger logger, 
+            IHttpContextAccessor httpContextAccessor)
         {
+            Guard.NotNull(migrator, nameof(migrator));
             Guard.NotNull(configuration, nameof(configuration));
             Guard.NotNull(configuration.Language, "SeedDataConfiguration.Language");
             Guard.NotNull(configuration.Data, "SeedDataConfiguration.SeedData");
             Guard.NotNull(httpContextAccessor, nameof(httpContextAccessor));
 
+            _migrator = migrator;
             _config = configuration;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
@@ -276,11 +283,10 @@ namespace Smartstore.Core.Installation
                 return;
             }
 
-            string resHead = headFile.ReadAllText().Trim();
+            var resHead = headFile.ReadAllText().Trim();
             if (resHead.HasValue())
             {
-                var migrator = new DbMigrator<SmartDbContext>(_db, _db, NullEventPublisher.Instance);
-                await migrator.SeedPendingLocaleResources(resHead);
+                await _migrator.SeedPendingLocaleResourcesAsync(resHead);
             }
         }
 

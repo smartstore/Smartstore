@@ -205,8 +205,6 @@ namespace Smartstore.Core.Installation
                     ProgressMessageCallback = msg => UpdateResult(x => x.ProgressMessage = GetResource(msg))
                 };
 
-                var seeder = new InstallationDataSeeder(seedConfiguration, Logger, _httpContextAccessor);
-
                 UpdateResult(x =>
                 {
                     x.ProgressMessage = GetResource("Progress.BuildingDatabase");
@@ -227,11 +225,12 @@ namespace Smartstore.Core.Installation
                 cancelToken.ThrowIfCancellationRequested();
 
                 // ===>>> Populates latest schema
-                var migrator = scope.Resolve<DbMigrator2<SmartDbContext>>(TypedParameter.From(dbContext));
+                var migrator = scope.Resolve<DbMigrator<SmartDbContext>>(TypedParameter.From(dbContext));
                 await migrator.EnsureSchemaPopulatedAsync(cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 
                 // ===>>> Seeds data.
+                var seeder = new InstallationDataSeeder(migrator, seedConfiguration, Logger, _httpContextAccessor);
                 await seeder.SeedAsync(dbContext, cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 

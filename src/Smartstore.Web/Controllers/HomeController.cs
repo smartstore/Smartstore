@@ -897,7 +897,7 @@ namespace Smartstore.Web.Controllers
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
 
             //_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools"));
-            var migrator2 = Services.Container.Resolve(typeof(Core.Data.Migrations.DbMigrator2<>).MakeGenericType(typeof(SmartDbContext))) as Core.Data.Migrations.DbMigrator2;
+            var migrator2 = Services.Container.Resolve(typeof(Core.Data.Migrations.DbMigrator<>).MakeGenericType(typeof(SmartDbContext))) as Core.Data.Migrations.DbMigrator;
             //await migrator2.RunPendingMigrationsAsync();
             //await migrator2.SeedPendingLocaleResourcesAsync(null);
             //await migrator2.SeedPendingLocaleResourcesAsync("UpdateTestEntityMigration");

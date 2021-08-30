@@ -18,7 +18,7 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Data.Migrations
 {
-    public class DbMigrator2<TContext> : DbMigrator2 where TContext : HookingDbContext
+    public class DbMigrator<TContext> : DbMigrator where TContext : HookingDbContext
     {
         private readonly TContext _db;
         private readonly SmartDbContext _dbCore;
@@ -31,7 +31,7 @@ namespace Smartstore.Core.Data.Migrations
         private Exception _lastSeedException;
         private MigrationDescriptor _initialMigration;
 
-        public DbMigrator2(
+        public DbMigrator(
             TContext db,
             SmartDbContext dbCore,
             IApplicationContext appContext,

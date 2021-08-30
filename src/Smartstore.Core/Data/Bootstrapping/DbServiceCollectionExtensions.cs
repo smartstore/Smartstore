@@ -52,7 +52,6 @@ namespace Smartstore.Core.Bootstrapping
                 .AddScoped<IProcessorAccessor, MigrationProcessorAccessor>()
                 .AddTransient<IDatabaseInitializer, DatabaseInitializer>()
                 .AddTransient(typeof(DbMigrator<>))
-                .AddTransient(typeof(DbMigrator2<>))
                 .ConfigureRunner(builder => 
                 {
                     builder
