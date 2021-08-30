@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using FluentMigrator;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
 using FluentMigrator.Runner.Processors;
@@ -57,26 +55,15 @@ namespace Smartstore.Core.Bootstrapping
                 .AddTransient(typeof(DbMigrator2<>))
                 .ConfigureRunner(builder => 
                 {
-                    // TODO: (mg) (core) I highly doubt that we'll ever need FluentMigrator's built-in scanning capabilities.
-                    //       WE do the scans. Thoroughly check if I miss something and strip this off completely.
-                    var migrationAssemblies = appContext.TypeScanner.FindTypes<MigrationBase>()// TODO: (mg) (core) ignore inactive modules when ready.
-                        .Select(x => x.Assembly)
-                        .Where(x => !x.FullName.Contains("FluentMigrator.Runner"))
-                        .Distinct()
-                        .ToArray();
-
                     builder
                         .AddSqlServer()
                         .AddMySql5()
                         .WithVersionTable(new MigrationHistory())
-                        .WithGlobalCommandTimeout(TimeSpan.FromSeconds(appContext.AppConfiguration.DbMigrationCommandTimeout ?? 120))
-                        .ScanIn(migrationAssemblies)
-                            .For.Migrations()
-                            .For.EmbeddedResources();
+                        .WithGlobalCommandTimeout(TimeSpan.FromSeconds(appContext.AppConfiguration.DbMigrationCommandTimeout ?? 120));
                 })
                 .Configure<FluentMigratorLoggerOptions>(o =>
                 {
-                    o.ShowSql = false;  // TODO: (mg) (core) Security risk logging SQL. Config has no effect here. Loggs like crazy.
+                    o.ShowSql = false;  // TODO: (mg) (core) Security risk logging SQL. Find a way to get configuration working. Loggs like crazy.
                     o.ShowElapsedTime = false;
                 });
 

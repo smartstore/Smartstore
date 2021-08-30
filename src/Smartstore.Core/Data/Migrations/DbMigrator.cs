@@ -126,10 +126,11 @@ namespace Smartstore.Core.Data.Migrations
                     if (cancelToken.IsCancellationRequested)
                         break;
                 }
-                catch (Exception ex)
+                catch
                 {
                     result = 0;
-                    throw new DbMigrationException(lastSuccessfulMigration, migrationId, ex.InnerException ?? ex, false);
+                    throw;
+                    //throw new DbMigrationException(lastSuccessfulMigration, migrationId, ex.InnerException ?? ex, false);
                 }
 
                 var migrationName = migrationType.Name;
@@ -184,19 +185,20 @@ namespace Smartstore.Core.Data.Migrations
                 try
                 {
                     // Pre seed event
-                    await _eventPublisher.PublishAsync(new SeedingDbMigrationEvent { MigrationName = seederEntry.MigrationName, DbContext = ctx });
+                    //await _eventPublisher.PublishAsync(new SeedingDbMigrationEvent { MigrationName = seederEntry.MigrationName, DbContext = ctx });
 
                     // Seed
                     await seeder.SeedAsync(ctx, cancelToken);
 
                     // Post seed event
-                    await _eventPublisher.PublishAsync(new SeededDbMigrationEvent { MigrationName = seederEntry.MigrationName, DbContext = ctx });
+                    //await _eventPublisher.PublishAsync(new SeededDbMigrationEvent { MigrationName = seederEntry.MigrationName, DbContext = ctx });
                 }
                 catch (Exception ex)
                 {
                     if (seeder.RollbackOnFailure)
                     {
-                        _lastSeedException = new DbMigrationException(seederEntry.PreviousMigrationId, seederEntry.MigrationId, ex.InnerException ?? ex, true);
+                        _lastSeedException = ex;
+                        //_lastSeedException = new DbMigrationException(seederEntry.PreviousMigrationId, seederEntry.MigrationId, ex.InnerException ?? ex, true);
 
                         if (!cancelToken.IsCancellationRequested)
                         {

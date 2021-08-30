@@ -7,8 +7,10 @@ using Autofac;
 using FluentMigrator;
 using FluentMigrator.Infrastructure;
 using FluentMigrator.Runner;
+using FluentMigrator.Runner.Initialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
 using Smartstore.Engine;
@@ -19,29 +21,37 @@ namespace Smartstore.Core.Data.Migrations
     public class DbMigrator2<TContext> : DbMigrator2 where TContext : HookingDbContext
     {
         private readonly TContext _db;
+        private readonly SmartDbContext _dbCore;
         private readonly IMigrationRunnerConventions _migrationRunnerConventions;
         private readonly IMigrationRunner _migrationRunner;
         private readonly IVersionLoader _versionLoader;
+        private readonly RunnerOptions _runnerOptions;
         private readonly IEventPublisher _eventPublisher;
 
         private Exception _lastSeedException;
         private MigrationDescriptor _initialMigration;
-        private IMigrationInfo _lastSuccessfulMigration;
 
         public DbMigrator2(
             TContext db,
+            SmartDbContext dbCore,
             IApplicationContext appContext,
             ILifetimeScope scope,
             IMigrationRunnerConventions migrationRunnerConventions,
             IMigrationRunner migrationRunner,
             IVersionLoader versionLoader,
+            IOptions<RunnerOptions> runnerOptions,
             IEventPublisher eventPublisher)
             : base(scope, appContext.TypeScanner, versionLoader)
         {
+            Guard.NotNull(db, nameof(db));
+            Guard.NotNull(dbCore, nameof(dbCore));
+
             _db = db;
+            _dbCore = dbCore;
             _migrationRunnerConventions = migrationRunnerConventions;
             _migrationRunner = migrationRunner;
             _versionLoader = versionLoader;
+            _runnerOptions = runnerOptions.Value;
             _eventPublisher = eventPublisher;
         }
 
@@ -59,8 +69,6 @@ namespace Smartstore.Core.Data.Migrations
         /// <inheritdoc/>
         public override async Task<int> MigrateAsync(long? targetVersion = null, CancellationToken cancelToken = default)
         {
-            // INFO: (mg) (core) My fault. It absolutely makes sense for modules to migrate during installation to be able to strip off everything when uninstalling.
-
             if (_lastSeedException != null)
             {
                 // This can happen when a previous migration attempt failed with a rollback.
@@ -85,9 +93,6 @@ namespace Smartstore.Core.Data.Migrations
             var result = 0;
 
             _initialMigration = localMigrations.GetValueOrDefault(lastAppliedVersion);
-            // INFO: the initialization of lastSuccessfulMigration in Classic looks wrong to me. Should be the last of all applied migrations, rather than the very first one.
-            // RE: (mg) (core) See rollback TODO further below in MigrateUpAsync()
-            _lastSuccessfulMigration = null;
 
             if (targetVersion == null)
             {
@@ -135,63 +140,107 @@ namespace Smartstore.Core.Data.Migrations
 
             _versionLoader.LoadVersionInfo();
 
-            if (_lastSuccessfulMigration != null)
-            {
-                Logger.Info($"Database migration successful: {_initialMigration?.Description ?? "Initial"} >> {_lastSuccessfulMigration.Description}");
-            }
-
+            Logger.Info($"Database migration successful: {_initialMigration?.Version.ToString() ?? "[Initial]"} >> {migrations.Last().Version}");
             return result;
         }
         
         protected virtual async Task<int> MigrateUpAsync(IMigrationInfo[] migrations, CancellationToken cancelToken)
         {
-            // TBD: (mg) (core) Why was scoping removed? Do I miss something?
+            var isCoreMigration = _db is SmartDbContext;
+            var coreSeeders = new List<SeederEntry>();
+            var externalSeeders = new List<SeederEntry>();
 
-            var succeeded = 0;
-            var seederEntries = new List<SeederEntry>();
-            var runner = (MigrationRunner)_migrationRunner;
-
-            // Migrate up.
-            foreach (var migration in migrations)
+            void migrationApplied(IMigrationInfo migration)
             {
-                if (cancelToken.IsCancellationRequested)
+                // Seeders for the core DbContext must be run in any case 
+                // (e.g. for Resource or Setting updates even from external modules).
+                if (migration.Migration is IDataSeeder<SmartDbContext> coreSeeder)
                 {
-                    break;
-                }
-                
-                try
-                {
-                    runner.ApplyMigrationUp(migration, migration.TransactionBehavior == TransactionBehavior.Default);
-                    succeeded++;
-                }
-                catch (Exception ex)
-                {
-                    // TODO: (mg) (core) Need to refactor every part that takes migration ids as strings. It is a "long" version now.
-                    throw new DbMigrationException(
-                        _lastSuccessfulMigration?.Description ?? _initialMigration?.Description ?? "Initial",
-                        migration.Description, 
-                        ex.InnerException ?? ex, 
-                        false);
+                    coreSeeders.Add(new SeederEntry { Seeder = coreSeeder, Migration = migration });
                 }
 
-                if (migration.Migration is IDataSeeder<TContext> seeder)
+                if (!isCoreMigration && migration.Migration is IDataSeeder<TContext> externalSeeder)
                 {
-                    seederEntries.Add(new SeederEntry
-                    {
-                        Seeder = seeder,
-                        Migration = migration,
-                        PreviousMigration = _lastSuccessfulMigration
-                    });
+                    externalSeeders.Add(new SeederEntry { Seeder = externalSeeder, Migration = migration });
                 }
-
-                _lastSuccessfulMigration = migration;
             }
+
+            var succeeded = MigrateInternal(migrations, true, migrationApplied, cancelToken);
 
             cancelToken.ThrowIfCancellationRequested();
 
-            // TODO: (mg) (core) Where are the core/global seeders gone?
-            // TODO: (mg) (core) Granularity: make isolated method for seeding again.
-            // Execute data seeders.
+            if (coreSeeders.Any())
+            {
+                // Apply core data seeders first,
+                await RunSeedersAsync(coreSeeders, _dbCore, cancelToken);
+            }
+
+            // Apply external data seeders.
+            await RunSeedersAsync(externalSeeders, _db, cancelToken);
+
+            return succeeded;
+        }
+
+        protected virtual int MigrateDown(IMigrationInfo[] migrations, CancellationToken cancelToken)
+        {
+            return MigrateInternal(migrations, false, null, cancelToken);
+        }
+
+        private int MigrateInternal(IMigrationInfo[] migrations, bool up, Action<IMigrationInfo> migrationApplied, CancellationToken cancelToken)
+        {
+            var succeeded = 0;
+            IMigrationInfo current = null;
+            var runner = (MigrationRunner)_migrationRunner;
+
+            // INFO: execute each migration in own transction scope (default) unless the global option TransactionPerSession is True.
+            using (IMigrationScope scope = _runnerOptions.TransactionPerSession ? _migrationRunner.BeginScope() : null)
+            {
+                try
+                {
+                    foreach (var migration in migrations)
+                    {
+                        current = migration;
+
+                        if (cancelToken.IsCancellationRequested)
+                        {
+                            break;
+                        }
+
+                        if (up)
+                        {
+                            runner.ApplyMigrationUp(migration, migration.TransactionBehavior == TransactionBehavior.Default);
+                        }
+                        else
+                        {
+                            runner.ApplyMigrationDown(migration, migration.TransactionBehavior == TransactionBehavior.Default);
+                        }
+
+                        succeeded++;
+                        migrationApplied?.Invoke(migration);
+                    }
+
+                    scope?.Complete();
+                }
+                catch (Exception ex)
+                {
+                    succeeded = 0;
+
+                    if (scope?.IsActive ?? false)
+                    {
+                        scope?.Cancel();
+                    }
+
+                    throw new DbMigrationException(_initialMigration?.Version, current.Version, ex.InnerException ?? ex, false);
+                }
+            }
+
+            return succeeded;
+        }
+
+        protected virtual async Task RunSeedersAsync<T>(IEnumerable<SeederEntry> seederEntries, T ctx, CancellationToken cancelToken = default) where T : HookingDbContext
+        {
+            var runner = (MigrationRunner)_migrationRunner;
+
             foreach (var entry in seederEntries)
             {
                 if (cancelToken.IsCancellationRequested)
@@ -200,54 +249,42 @@ namespace Smartstore.Core.Data.Migrations
                 }
 
                 var m = entry.Migration;
+                var seeder = (IDataSeeder<T>)entry.Seeder;
 
                 try
                 {
                     // Pre seed event.
                     await _eventPublisher.PublishAsync(new SeedingDbMigrationEvent
                     {
-                        Version = m.Version,
-                        Description = m.Description,
-                        DbContext = _db
+                        MigrationVersion = m.Version,
+                        MigrationDescription = m.Description,
+                        DbContext = ctx
                     }, cancelToken);
 
                     // Seed.
-                    await entry.Seeder.SeedAsync(_db, cancelToken);
+                    await seeder.SeedAsync(ctx, cancelToken);
 
                     // Post seed event.
                     await _eventPublisher.PublishAsync(new SeededDbMigrationEvent
                     {
-                        Version = m.Version,
-                        Description = m.Description,
-                        DbContext = _db
+                        MigrationVersion = m.Version,
+                        MigrationDescription = m.Description,
+                        DbContext = ctx
                     }, cancelToken);
                 }
                 catch (Exception ex)
                 {
-                    if (entry.Seeder.RollbackOnFailure)
+                    if (seeder.RollbackOnFailure)
                     {
-                        _lastSeedException = new DbMigrationException(
-                            entry.PreviousMigration?.Description ?? _initialMigration?.Description ?? "Initial", 
-                            m.Description, 
-                            ex.InnerException ?? ex, 
-                            true);
+                        _lastSeedException = new DbMigrationException(_initialMigration?.Version, m.Version, ex.InnerException ?? ex, true);
 
-                        if (!cancelToken.IsCancellationRequested)
+                        if (!cancelToken.IsCancellationRequested && _initialMigration != null)
                         {
                             try
                             {
-                                if (entry.PreviousMigration == null && _initialMigration != null)
-                                {
-                                    // No migration executed in this iteration -> get the last of all applied migrations (if any).
-                                    entry.PreviousMigration = _migrationRunnerConventions.GetMigrationInfoForMigration(CreateMigration(_initialMigration.Type));
-                                }
-
-                                if (entry.PreviousMigration != null)
-                                {
-                                    // TODO: (mg) (core) This is fundamentally wrong. We need to rollback the complete migration session,
-                                    // down to the last known applied one, which belongs to a previous session.
-                                    runner.ApplyMigrationDown(entry.PreviousMigration, entry.PreviousMigration.TransactionBehavior == TransactionBehavior.Default);
-                                }
+                                var initialMigration = _migrationRunnerConventions.GetMigrationInfoForMigration(CreateMigration(_initialMigration.Type));
+                                
+                                runner.ApplyMigrationDown(initialMigration, initialMigration.TransactionBehavior == TransactionBehavior.Default);
                             }
                             catch (Exception ex2)
                             {
@@ -261,53 +298,12 @@ namespace Smartstore.Core.Data.Migrations
                     Logger.Warn(ex, "Seed error in migration '{0}'. The error was ignored because no rollback was requested.", m.Description);
                 }
             }
-
-            return succeeded;
-        }
-
-        protected virtual int MigrateDown(IMigrationInfo[] migrations, CancellationToken cancelToken)
-        {
-            var succeeded = 0;
-            var runner = (MigrationRunner)_migrationRunner;
-
-            foreach (var migration in migrations)
-            {
-                if (cancelToken.IsCancellationRequested)
-                {
-                    break;
-                }
-
-                try
-                {
-                    runner.ApplyMigrationDown(migration, migration.TransactionBehavior == TransactionBehavior.Default);
-                    ++succeeded;
-                }
-                catch (Exception ex)
-                {
-                    throw new DbMigrationException(
-                        _lastSuccessfulMigration?.Description ?? _initialMigration?.Description ?? "Initial", 
-                        migration.Description, 
-                        ex.InnerException ?? ex, 
-                        false);
-                }
-
-                _lastSuccessfulMigration = migration;
-            }
-
-            return succeeded;
-        }
-
-        protected class MigrationResult
-        {
-            public int Succeeded { get; set; }
-            public List<SeederEntry> SeederEntries { get; set; } = new();
         }
 
         protected class SeederEntry
         {
-            public IDataSeeder<TContext> Seeder { get; set; }
+            public object Seeder { get; set; }
             public IMigrationInfo Migration { get; set; }
-            public IMigrationInfo PreviousMigration { get; set; }
         }
     }
 }

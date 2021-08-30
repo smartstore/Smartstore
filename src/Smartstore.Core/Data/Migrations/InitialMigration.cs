@@ -1,10 +1,10 @@
-﻿using Smartstore.Data.Migrations;
+﻿using FluentMigrator;
 
 namespace Smartstore.Core.Data.Migrations
 {
     // TODO: (mg) (core) remove test migration later.
     [MigrationVersion("2021-01-01 00:00:00", "Smartstore Core test migration")]
-    public class InitialMigration : DatabaseMigrationBase
+    public class InitialMigration : Migration
     {
         public override void Up()
         {
