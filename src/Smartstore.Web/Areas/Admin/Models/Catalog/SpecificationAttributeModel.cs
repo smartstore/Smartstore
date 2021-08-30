@@ -5,11 +5,20 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Catalog
 {
-    [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Fields.")]
+    [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.List.")]
     public class SpecificationAttributeListModel
     {
-        [LocalizedDisplay("*Name")]
+        [LocalizedDisplay("*SearchName")]
         public string SearchName { get; set; }
+
+        [LocalizedDisplay("*SearchAlias")]
+        public string SearchAlias { get; set; }
+
+        [LocalizedDisplay("*SearchAllowFiltering")]
+        public bool? SearchAllowFiltering { get; set; }
+
+        [LocalizedDisplay("*SearchShowOnProductPage")]
+        public bool? SearchShowOnProductPage { get; set; }
     }
 
     [LocalizedDisplay("Admin.Catalog.Attributes.SpecificationAttributes.Fields.")]

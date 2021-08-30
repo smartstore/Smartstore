@@ -2,15 +2,8 @@
 
 @{
     var parentModel = ViewData["Parent"] as SpecificationAttributeListModel;
-    // TODO: (mg) (core) Create more search filters (Alias, AllowFiltering, ShowOnProductPage)
-    // TODO: (mg) (core) Option dialog > NumericValue and DisplayOrder controls --> must be NumberInput editor.
 }
 
-@* TODO: (core) the data grid reset button does not reset sorting (GridCommand.Sorting), which is a bit confusing if a sort column has been hidden by reset.
-    I would expect the reset button to really reset everything and return the grid to its initial state.
-        RE: (mc) We have to distinct between durable local grid state (LocalStorage) and short-lived command state (Session). The latter is required when
-        navigating back to list templates to restore previous state.
-*@
 <datagrid id="specification-attributes-grid"
           allow-resize="true"
           allow-row-selection="true"

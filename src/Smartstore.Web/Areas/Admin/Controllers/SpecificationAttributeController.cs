@@ -93,6 +93,21 @@ namespace Smartstore.Web.Areas.Admin.Controllers
                 query = query.ApplySearchTermFilterFor(x => x.Name, model.SearchName);
             }
 
+            if (model.SearchAlias.HasValue())
+            {
+                query = query.ApplySearchTermFilterFor(x => x.Alias, model.SearchAlias);
+            }
+
+            if (model.SearchAllowFiltering.HasValue)
+            {
+                query = query.Where(x => x.AllowFiltering == model.SearchAllowFiltering.Value);
+            }
+
+            if (model.SearchShowOnProductPage.HasValue)
+            {
+                query = query.Where(x => x.ShowOnProductPage == model.SearchShowOnProductPage.Value);
+            }
+
             var attributes = await query
                 .OrderBy(x => x.DisplayOrder)
                 .ThenBy(x => x.Name)

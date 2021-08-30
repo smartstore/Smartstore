@@ -159,8 +159,6 @@
 
 <script sm-target-zone="scripts" data-origin="ExportDeployment">
     $(function () {
-        // TODO: (mg) (core) Where is selectWrapper and selectDeploymentType()?
-        // RE: it's no longer required. Was just used to render the type icon which SelectWrapper does itself in the meantime.
         // Toggle deployment type.
         $('#@Html.IdFor(x => x.DeploymentType)').on('change', function () {
             var type = $(this).val();
