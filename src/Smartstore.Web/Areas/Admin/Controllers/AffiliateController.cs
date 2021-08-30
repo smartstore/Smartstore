@@ -85,7 +85,8 @@ namespace Smartstore.Admin.Controllers
 
             foreach (var c in countries)
             {
-                model.Address.AvailableCountries.Add(new SelectListItem() { 
+                model.Address.AvailableCountries.Add(new SelectListItem
+                { 
                     Text = c.Name, 
                     Value = c.Id.ToString(), 
                     Selected = affiliate != null && c.Id == affiliate.Address.CountryId 
@@ -246,8 +247,8 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        [Permission(Permissions.System.Message.Delete)]
         [HttpPost]
+        [Permission(Permissions.System.Message.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
             var affiliate = await _db.Affiliates.FindByIdAsync(id);
