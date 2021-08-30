@@ -106,7 +106,7 @@ namespace Smartstore.Admin.Controllers
             var email = await _db.QueuedEmails.FindByIdAsync(model.Id);
             if (email == null)
             {
-                return RedirectToAction("List");
+                return NotFound();
             }
 
             _db.QueuedEmails.Remove(email);

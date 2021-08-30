@@ -1,6 +1,7 @@
 ﻿@model AddressModel
 
 <input type="hidden" asp-for="Id" />
+<input type="hidden" asp-for="CreatedOnUtc" />
 <input type="hidden" asp-for="TitleEnabled" />
 <input type="hidden" asp-for="FirstNameEnabled" />
 <input type="hidden" asp-for="LastNameEnabled" />
@@ -29,7 +30,7 @@
             <smart-label asp-for="Title" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.Title)
+            <input asp-for="Title" />
             <span asp-validation-for="Title"></span>
         </div>
     </div>
@@ -38,7 +39,7 @@
             <smart-label asp-for="FirstName" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.FirstName)
+            <input asp-for="FirstName" />
             <span asp-validation-for="FirstName"></span>
         </div>
     </div>
@@ -47,7 +48,7 @@
             <smart-label asp-for="LastName" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.LastName)
+            <input asp-for="LastName" />
             <span asp-validation-for="LastName"></span>
         </div>
     </div>
@@ -56,7 +57,7 @@
             <smart-label asp-for="Email" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.Email)
+            <input asp-for="Email" />
             <span asp-validation-for="Email"></span>
         </div>
     </div>
@@ -65,7 +66,7 @@
             <smart-label asp-for="EmailMatch" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.EmailMatch)
+            <input asp-for="EmailMatch" />
             <span asp-validation-for="EmailMatch"></span>
         </div>
     </div>
@@ -74,7 +75,7 @@
             <smart-label asp-for="Company" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.Company)
+            <input asp-for="Company" />
             <span asp-validation-for="Company"></span>
         </div>
     </div>
@@ -97,7 +98,7 @@
             <smart-label asp-for="StateProvinceId" />
         </div>
         <div class="adminData">
-            @Html.DropDownListFor(model => model.StateProvinceId, Model.AvailableStates)
+            <select asp-for="StateProvinceId" asp-items="Model.AvailableStates"></select>
             <span asp-validation-for="StateProvinceId"></span>
         </div>
     </div>
@@ -106,7 +107,7 @@
             <smart-label asp-for="City" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.City)
+            <input asp-for="City" />
             <span asp-validation-for="City"></span>
         </div>
     </div>
@@ -115,7 +116,7 @@
             <smart-label asp-for="Address1" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.Address1)
+            <input asp-for="Address1" />
             <span asp-validation-for="Address1"></span>
         </div>
     </div>
@@ -124,7 +125,7 @@
             <smart-label asp-for="Address2" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.Address2)
+            <input asp-for="Address2" />
             <span asp-validation-for="Address2"></span>
         </div>
     </div>
@@ -133,7 +134,7 @@
             <smart-label asp-for="ZipPostalCode" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.ZipPostalCode)
+            <input asp-for="ZipPostalCode" />
             <span asp-validation-for="ZipPostalCode"></span>
         </div>
     </div>
@@ -142,7 +143,7 @@
             <smart-label asp-for="PhoneNumber" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.PhoneNumber)
+            <input asp-for="PhoneNumber" />
             <span asp-validation-for="PhoneNumber"></span>
         </div>
     </div>
@@ -151,7 +152,7 @@
             <smart-label asp-for="FaxNumber" />
         </div>
         <div class="adminData">
-            @Html.EditorFor(model => model.FaxNumber)
+            <input asp-for="FaxNumber" />
             <span asp-validation-for="FaxNumber"></span>
         </div>
     </div>

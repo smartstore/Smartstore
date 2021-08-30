@@ -87,9 +87,7 @@ namespace Smartstore.Admin.Controllers
             
             if (model.Title.HasValue())
             {
-                // TODO: (mh) (core) Remove comment
-                // Question: how concat Wildcardfilters?
-                query = query.Where(x => x.Title.Contains(model.Title) || x.ShortTitle.Contains(model.Title));
+                query = query.ApplySearchTermFilter(model.Title, Core.Rules.LogicalRuleOperator.Or, x => x.Title, x => x.ShortTitle);
             }
 
             if (model.RenderAsWidget.HasValue)

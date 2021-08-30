@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using FluentValidation;
@@ -95,6 +96,7 @@ namespace Smartstore.Web.Models.Common
         public string FaxNumber { get; set; }
         public bool FaxEnabled { get; set; }
         public bool FaxRequired { get; set; }
+        public DateTime CreatedOnUtc { get; set; }
 
         public List<SelectListItem> AvailableCountries { get; set; } = new();
         public List<SelectListItem> AvailableStates { get; set; } = new();

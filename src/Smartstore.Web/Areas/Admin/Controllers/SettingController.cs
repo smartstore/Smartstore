@@ -31,7 +31,6 @@ using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
