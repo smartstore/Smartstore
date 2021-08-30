@@ -147,15 +147,18 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var affiliateModels = await affiliates
-                .SelectAsync(async x =>
+            var affiliateModels = affiliates
+                .Select(x =>
                 {
-                    var model = await MapperFactory.MapAsync<Affiliate, AffiliateModel>(x);
-                    await PrepareAffiliateModelAsync(model, x, false);
-                    model.EditUrl = Url.Action("Edit", "Affiliate", new { id = x.Id });
-                    return model;
+                    return new AffiliateModel {
+                        Id = x.Id,
+                        AddressEmail = x.Address.Email,
+                        AddressFirstName = x.Address.FirstName,
+                        AddressLastName = x.Address.LastName,
+                        EditUrl = Url.Action("Edit", "Affiliate", new { id = x.Id })
+                    };
                 })
-                .AsyncToList();
+                .ToList();
 
             var gridModel = new GridModel<AffiliateModel>
             {
