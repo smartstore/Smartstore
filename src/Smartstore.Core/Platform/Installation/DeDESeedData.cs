@@ -28,6 +28,7 @@ using Smartstore.Core.Messaging.Tasks;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Migrations;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Installation

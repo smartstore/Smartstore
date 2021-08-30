@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Data.Migrations
 {
     public class DbMigrationException : ApplicationException
     {

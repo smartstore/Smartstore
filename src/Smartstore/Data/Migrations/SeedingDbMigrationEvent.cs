@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Data.Migrations
 {
     public sealed class SeedingDbMigrationEvent
     {
