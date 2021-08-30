@@ -6,7 +6,9 @@
 
 <datagrid id="attributecombinations-grid"
           allow-resize="true"
-          allow-row-selection="true" max-height="800px"
+          allow-row-selection="true" 
+          allow-column-reordering="true"
+          max-height="800px"
           onrowclass="attributeCombinations_onRowClass">
     <datasource read="@Url.Action("ProductVariantAttributeCombinationList", new { productId = parentModel.Id })"
                 delete="@Url.Action("ProductVariantAttributeCombinationDelete")" />

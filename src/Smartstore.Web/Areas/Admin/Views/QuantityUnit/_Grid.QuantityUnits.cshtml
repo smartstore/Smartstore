@@ -2,7 +2,11 @@
 
 @model QuantityUnitModel
 
-<datagrid id="quantity-unit-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
+<datagrid id="quantity-unit-grid" 
+          allow-resize="true" 
+          allow-row-selection="true" 
+          allow-edit="true"
+          allow-column-reordering="true">
     <datasource read="@Url.Action("QuantityUnitList", "QuantityUnit")"
                 update="@Url.Action("Update", "QuantityUnit")"
                 delete="@Url.Action("Delete", "QuantityUnit")" />

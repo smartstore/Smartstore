@@ -2,7 +2,11 @@
 
 @model QueuedEmailModel
 
-<datagrid id="queuedEmails-grid" allow-resize="true" allow-row-selection="true" allow-column-reordering="true" onrowclass="queuedEmails_onRowClass">
+<datagrid id="queuedEmails-grid" 
+          allow-resize="true" 
+          allow-row-selection="true" 
+          allow-column-reordering="true" 
+          onrowclass="queuedEmails_onRowClass">
     <datasource read="@Url.Action("QueuedEmailList")" delete="@Url.Action("QueuedEmailDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">

@@ -6,7 +6,8 @@
 
 <datagrid id="product-attribute-values-grid" 
           allow-resize="true" 
-          allow-row-selection="true">
+          allow-row-selection="true"
+          allow-column-reordering="true">
     <datasource read="@Url.Action("ProductAttributeValueList", new { productVariantAttributeId = parentModel.ProductVariantAttributeId })"
                 delete="@Url.Action("ProductAttributeValueDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="false" />

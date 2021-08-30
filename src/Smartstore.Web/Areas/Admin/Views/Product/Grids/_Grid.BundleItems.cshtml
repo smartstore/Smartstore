@@ -7,6 +7,7 @@
 <datagrid id="bundleitems-grid"
           allow-resize="true"
           allow-row-selection="true"
+          allow-column-reordering="true"
           onrowclass="bundleItems_onRowClass"
           max-height="800px">
     <datasource read="@Url.Action("BundleItemList", new { productId = parentModel.Id })"

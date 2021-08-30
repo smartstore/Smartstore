@@ -2,7 +2,7 @@
 
 @model CountryModel
 
-<datagrid id="countries-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
+<datagrid id="countries-grid" allow-resize="true" allow-row-selection="true" allow-edit="true" allow-column-reordering="true">
     <datasource read="@Url.Action("CountryList", "Country")"
                 update="@Url.Action("CountryUpdate", "Country")"
                 delete="@Url.Action("CountryDelete", "Country")" />

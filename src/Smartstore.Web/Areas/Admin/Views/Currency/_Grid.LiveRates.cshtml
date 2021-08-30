@@ -3,6 +3,7 @@
 <datagrid id="live-rates-grid" 
           allow-resize="true" 
           allow-row-selection="false" 
+          allow-column-reordering="true"
           onrowclass="liveRatesGrid_onRowClass">
     <datasource read="@Url.Action("LiveRateList", "Currency")" />
     <sorting enabled="false"></sorting>

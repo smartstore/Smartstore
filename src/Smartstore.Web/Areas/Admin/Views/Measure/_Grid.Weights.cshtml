@@ -2,7 +2,11 @@
 
 @model MeasureWeightModel
 
-<datagrid id="measure-weight-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
+<datagrid id="measure-weight-grid" 
+          allow-resize="true" 
+          allow-row-selection="true" 
+          allow-edit="true"
+          allow-column-reordering="true">
     <datasource read="@Url.Action("WeightList", "Measure")"
                 update="@Url.Action("WeightUpdate", "Measure")"
                 delete="@Url.Action("DeleteMeasureWeights", "Measure")" />
