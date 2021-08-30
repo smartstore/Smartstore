@@ -12,13 +12,12 @@
 
     ViewBag.SerializedDomainEndings = string.Join(",", availableDomainEndings);
 
-    @*TODO: (mh) (core) Not valid anymore. How to do this correctly? *@
     var roundOrderTotalDenominators = new List<SelectListItem>
     {
-        new SelectListItem { Text = 0.05.ToString("F"), Value = 0.05.ToString("F") },
-        new SelectListItem { Text = 0.10.ToString("F"), Value = 0.10.ToString("F") },
-        new SelectListItem { Text = 0.50.ToString("F"), Value = 0.50.ToString("F") },
-        new SelectListItem { Text = 1.00.ToString("F"), Value = 1.00.ToString("F") }
+        new SelectListItem { Text = 0.05.ToString("F"), Value = "0.05" },
+        new SelectListItem { Text = 0.10.ToString("F"), Value = "0.10" },
+        new SelectListItem { Text = 0.50.ToString("F"), Value = "0.50" },
+        new SelectListItem { Text = 1.00.ToString("F"), Value = "1.00" }
     };
 }
 
