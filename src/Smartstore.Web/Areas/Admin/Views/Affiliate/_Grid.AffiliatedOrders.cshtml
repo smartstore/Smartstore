@@ -1,0 +1,26 @@
+﻿@using Smartstore.Admin.Models.Affiliates
+
+@model AffiliateModel.AffiliatedOrderModel
+
+<datagrid id="order-grid" allow-resize="true" allow-column-reordering="true">
+    <datasource read="@Url.Action("AffiliatedOrderList", "Affiliate", new { affiliateId = ViewData["AffiliateId"] })" />
+    <sorting enabled="true" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <columns>
+        <column for="Id" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="OrderStatus" />
+        <column for="PaymentStatus" />
+        <column for="ShippingStatus" />
+        <column for="CreatedOn" />
+        <column for="OrderTotal" halign="flex-end" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Admin.Common.View")</a>
+    </row-commands>
+</datagrid> 

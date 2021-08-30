@@ -1,0 +1,12 @@
+﻿@{
+    ViewBag.Title = T("Admin.Affiliates").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+        @T("Admin.Affiliates")
+    </div>
+</div>
+
+<partial name="_Grid.Affiliates.cshtml" />

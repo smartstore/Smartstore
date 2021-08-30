@@ -1,0 +1,60 @@
+﻿@using Smartstore.Admin.Models.Affiliates
+
+@model AffiliateModel
+
+@{
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["AffiliateId"] = Model.Id;
+}
+
+<div asp-validation-summary="All"></div>
+
+<tabstrip id="affiliate-edit" sm-nav-style="Material" sm-nav-position="Top">
+    <tab sm-title="@T("Admin.Affiliates.Info")" sm-selected="true">
+        <div class="adminContent">
+            @if (Model.Id > 0)
+            {
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Id"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Id" sm-plaintext readonly />
+                        <span asp-validation-for="Id"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Url"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <div class="form-control-plaintext">
+                            <a href="@Model.Url">@Model.Url</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Active"></smart-label>
+                </div>
+                <div class="adminData">
+                    <input asp-for="Active" />
+                    <span asp-validation-for="Active"></span>
+                </div>
+            </div>
+        </div>
+
+        <editor asp-for="Address" />
+    </tab>
+
+    @if (Model.Id > 0)
+    {
+        <tab sm-title="@T("Admin.Affiliates.Customers")">
+            <partial name="_Grid.AffiliatedCustomers.cshtml" model="null" view-data="gridViewData" />
+        </tab>
+        <tab sm-title="@T("Admin.Affiliates.Orders")">
+            <partial name="_Grid.AffiliatedOrders.cshtml" model="null" view-data="gridViewData"  />
+        </tab>
+    }
+</tabstrip>>
