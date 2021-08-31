@@ -9,6 +9,9 @@
     string categorySelector(DiscountAppliedToEntityModel x) => $"<a href='{Url.Action("Edit", "Category", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
     string manufacturerSelector(DiscountAppliedToEntityModel x) => $"<a href='{Url.Action("Edit", "Manufacturer", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
     string productSelector(DiscountAppliedToEntityModel x) => $"<a href='{Url.Action("Edit", "Product", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
+
+    var discountUsageHistoryViewData = new ViewDataDictionary(ViewData);
+    discountUsageHistoryViewData["Parent"] = Model;
 }
 
 <div asp-validation-summary="All"></div>
@@ -164,10 +167,57 @@
         </div>
 	</tab>
 	<tab sm-title="@T("Admin.Promotions.Discounts.History")">
+        <partial name="_Grid.DiscountUsageHistory" model="null" view-data="discountUsageHistoryViewData" />   
 	</tab>
 </tabstrip>
 
 <script sm-target-zone="scripts" data-origin="discount-edit">
     $(function() {
+        $("#@Html.IdFor(model => model.DiscountTypeId)").on('change', function() {
+            var selectedDiscountTypeId = $("#@Html.IdFor(model => model.DiscountTypeId)").val();
+
+            if (selectedDiscountTypeId == '@((int)DiscountType.AssignedToCategories)') {
+                $('#pnlAppliedToCategories').show();
+                $('#pnlAppliedToManufacturers').hide();
+                $('#pnlAppliedToProducts').hide();
+            }
+            else if (selectedDiscountTypeId == '@((int)DiscountType.AssignedToManufacturers)') {
+            	$('#pnlAppliedToCategories').hide();
+            	$('#pnlAppliedToManufacturers').show();
+            	$('#pnlAppliedToProducts').hide();
+            }
+            else if (selectedDiscountTypeId == '@((int)DiscountType.AssignedToSkus)') {
+                $('#pnlAppliedToCategories').hide();
+                $('#pnlAppliedToManufacturers').hide();
+                $('#pnlAppliedToProducts').show();
+            }
+            else {
+                $('#pnlAppliedToCategories').hide();
+                $('#pnlAppliedToManufacturers').hide();
+                $('#pnlAppliedToProducts').hide();
+            }
+        }).trigger('change');
+
+        $("#@Html.IdFor(model => model.DiscountLimitationId)").on('change', function () {
+            var selectedDiscountLimitationId = $("#@Html.IdFor(model => model.DiscountLimitationId)").val();
+
+            if (selectedDiscountLimitationId == '@((int)DiscountLimitationType.NTimesOnly)' || selectedDiscountLimitationId == '@((int)DiscountLimitationType.NTimesPerCustomer)') {
+                $('#pnlLimitationTimes').show();
+            }
+            else {
+                $('#pnlLimitationTimes').hide();
+            }
+        }).trigger('change');
+
+        $("#@Html.IdFor(model => model.UsePercentage)").on('change', function () {
+            if ($('#@Html.IdFor(model => model.UsePercentage)').is(':checked')) {
+                $('#pnlDiscountPercentage').show();
+                $('#pnlDiscountAmount').hide();
+            }
+            else {
+                $('#pnlDiscountPercentage').hide();
+                $('#pnlDiscountAmount').show();
+			}
+        }).trigger('change');
     });
 </script>
