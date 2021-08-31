@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Rules;
@@ -7,6 +6,22 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Discounts
 {
+    [LocalizedDisplay("Admin.Promotions.Discounts.List.")]
+    public class DiscountListModel
+    {
+        [LocalizedDisplay("*Name")]
+        public string SearchName { get; set; }
+
+        [LocalizedDisplay("*DiscountType")]
+        public int? SearchDiscountTypeId { get; set; }
+
+        [LocalizedDisplay("*UsePercentage")]
+        public bool? SearchUsePercentage { get; set; }
+
+        [LocalizedDisplay("*RequiresCouponCode")]
+        public bool? SearchRequiresCouponCode { get; set; }
+    }
+
     [LocalizedDisplay("Admin.Promotions.Discounts.Fields.")]
     public class DiscountModel : EntityModelBase
     {
@@ -15,6 +30,8 @@ namespace Smartstore.Admin.Models.Discounts
 
         [LocalizedDisplay("*DiscountType")]
         public int DiscountTypeId { get; set; }
+
+        [LocalizedDisplay("*DiscountType")]
         public string DiscountTypeName { get; set; }
 
         [LocalizedDisplay("*UsePercentage")]
@@ -46,8 +63,14 @@ namespace Smartstore.Admin.Models.Discounts
         [LocalizedDisplay("*StartDate")]
         public DateTime? StartDateUtc { get; set; }
 
+        [LocalizedDisplay("*StartDate")]
+        public DateTime? StartDate { get; set; }
+
         [LocalizedDisplay("*EndDate")]
         public DateTime? EndDateUtc { get; set; }
+
+        [LocalizedDisplay("*EndDate")]
+        public DateTime? EndDate { get; set; }
 
         [LocalizedDisplay("*RequiresCouponCode")]
         public bool RequiresCouponCode { get; set; }
@@ -60,17 +83,6 @@ namespace Smartstore.Admin.Models.Discounts
 
         [LocalizedDisplay("*LimitationTimes")]
         public int LimitationTimes { get; set; }
-
-
-        [LocalizedDisplay("*AppliedToCategories")]
-        public IList<AppliedToEntityModel> AppliedToCategories { get; set; }
-
-        [LocalizedDisplay("*AppliedToManufacturers")]
-        public IList<AppliedToEntityModel> AppliedToManufacturers { get; set; }
-
-        [LocalizedDisplay("*AppliedToProducts")]
-        public IList<AppliedToEntityModel> AppliedToProducts { get; set; }
-
 
         [UIHint("RuleSets")]
         [AdditionalMetadata("multiple", true)]
@@ -96,12 +108,12 @@ namespace Smartstore.Admin.Models.Discounts
             public DateTime CreatedOn { get; set; }
         }
 
-        public class AppliedToEntityModel : EntityModelBase
-        {
-            public string Name { get; set; }
-        }
-
         #endregion
+    }
+
+    public class DiscountAppliedToEntityModel : EntityModelBase
+    {
+        public string Name { get; set; }
     }
 
     public partial class DiscountValidator : AbstractValidator<DiscountModel>

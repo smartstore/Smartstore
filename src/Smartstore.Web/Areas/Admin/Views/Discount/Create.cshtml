@@ -1,13 +1,13 @@
-﻿@model ManufacturerModel
+﻿@model DiscountModel
 
 @{
-    ViewBag.Title = T("Admin.Catalog.Manufacturers.AddNew").Value;
+    ViewBag.Title = T("Admin.Promotions.Discounts.AddNew").Value;
 }
 
 <form asp-action="Create">
     <div class="section-header">
         <div class="title">
-            <i class="far fa-building"></i>
+            <i class="fa fa-signal fa-flip-horizontal"></i>
             <span>@ViewBag.Title</span>
             <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>

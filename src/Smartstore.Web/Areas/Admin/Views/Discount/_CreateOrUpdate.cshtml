@@ -1,0 +1,173 @@
+﻿@model DiscountModel
+
+@{
+    var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
+    var appliedToCategories = ViewBag.AppliedToCategories as List<DiscountAppliedToEntityModel>;
+    var appliedToManufacturers = ViewBag.AppliedToManufacturers as List<DiscountAppliedToEntityModel>;
+    var appliedToProducts = ViewBag.AppliedToProducts as List<DiscountAppliedToEntityModel>;
+
+    string categorySelector(DiscountAppliedToEntityModel x) => $"<a href='{Url.Action("Edit", "Category", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
+    string manufacturerSelector(DiscountAppliedToEntityModel x) => $"<a href='{Url.Action("Edit", "Manufacturer", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
+    string productSelector(DiscountAppliedToEntityModel x) => $"<a href='{Url.Action("Edit", "Product", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
+}
+
+<div asp-validation-summary="All"></div>
+<input type="hidden" asp-for="Id" />
+
+<tabstrip id="discount-edit" sm-nav-style="Material">
+	<tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+		<div class="adminContent">
+            <div sm-if="Model.Id != 0" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Id" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Id" sm-plaintext="true" readonly />
+                    <span asp-validation-for="Id"></span>
+                </div>
+            </div>
+		    <div class="adminRow">
+			    <div class="adminTitle">
+				    <smart-label asp-for="Name" />
+			    </div>
+			    <div class="adminData">
+                    <input asp-for="Name" />
+				    <span asp-validation-for="Name"></span>
+			    </div>
+		    </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DiscountTypeId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="DiscountTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(DiscountType))"></select>
+                    <span asp-validation-for="DiscountTypeId"></span>
+                </div>
+            </div>
+            <div class="adminRow" id="pnlAppliedToCategories">
+                <div class="adminTitle">
+                    @Html.SmartLabel("AppliedToCategories", T("Admin.Promotions.Discounts.Fields.AppliedToCategories"), T("Admin.Promotions.Discounts.Fields.AppliedToCategories.Hint"))
+                </div>
+                <div class="adminData form-control-plaintext wide">
+                    <div sm-if="!appliedToCategories.Any()" class="muted">@T("Admin.Promotions.Discounts.NoObjectsAssigned")</div>
+                    @Html.Raw(string.Join(" · ", appliedToCategories.Select(categorySelector)))
+                </div>
+            </div>
+            <div class="adminRow" id="pnlAppliedToManufacturers">
+                <div class="adminTitle">
+                    @Html.SmartLabel("AppliedToManufacturers", T("Admin.Promotions.Discounts.Fields.AppliedToManufacturers"), T("Admin.Promotions.Discounts.Fields.AppliedToManufacturers.Hint"))
+                </div>
+                <div class="adminData form-control-plaintext wide">
+                    <div sm-if="!appliedToManufacturers.Any()" class="muted">@T("Admin.Promotions.Discounts.NoObjectsAssigned")</div>
+                    @Html.Raw(string.Join(" · ", appliedToManufacturers.Select(manufacturerSelector)))
+                </div>
+            </div>
+            <div class="adminRow" id="pnlAppliedToProducts">
+                <div class="adminTitle">
+                    @Html.SmartLabel("AppliedToProducts", T("Admin.Promotions.Discounts.Fields.AppliedToProducts"), T("Admin.Promotions.Discounts.Fields.AppliedToProducts.Hint"))
+                </div>
+                <div class="adminData form-control-plaintext wide">
+                    <div sm-if="!appliedToProducts.Any()" class="muted">@T("Admin.Promotions.Discounts.NoObjectsAssigned")</div>
+                    @Html.Raw(string.Join(" · ", appliedToProducts.Select(productSelector)))
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="UsePercentage" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="UsePercentage" />
+                    <span asp-validation-for="UsePercentage"></span>
+                </div>
+            </div>
+            <div class="adminRow" id="pnlDiscountAmount">
+                <div class="adminTitle">
+                    <smart-label asp-for="DiscountAmount" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="DiscountAmount" sm-postfix="@primaryStoreCurrencyCode" />
+                    <span asp-validation-for="DiscountAmount"></span>
+                </div>
+            </div>
+            <div class="adminRow" id="pnlDiscountPercentage">
+                <div class="adminTitle">
+                    <smart-label asp-for="DiscountPercentage" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="DiscountPercentage" />
+                    <span asp-validation-for="DiscountPercentage"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="StartDateUtc" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="StartDateUtc" />
+                    <span asp-validation-for="StartDateUtc"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="EndDateUtc" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="EndDateUtc" />
+                    <span asp-validation-for="EndDateUtc"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RequiresCouponCode" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="RequiresCouponCode" data-toggler-for="#pnlCouponCode" />
+                    <span asp-validation-for="RequiresCouponCode"></span>
+                </div>
+            </div>
+            <div class="adminRow" id="pnlCouponCode">
+                <div class="adminTitle">
+                    <smart-label asp-for="CouponCode" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="CouponCode" />
+                    <span asp-validation-for="CouponCode"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DiscountLimitationId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="DiscountLimitationId" asp-items="Html.GetLocalizedEnumSelectList(typeof(DiscountLimitationType))"></select>
+                    <span asp-validation-for="DiscountLimitationId"></span>
+                </div>
+            </div>
+            <div class="adminRow" id="pnlLimitationTimes">
+                <div class="adminTitle">
+                    <smart-label asp-for="LimitationTimes" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="LimitationTimes" sm-postfix="@T("Admin.Promotions.Discounts.Fields.LimitationTimes.Times")" />
+                    <span asp-validation-for="LimitationTimes"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedRuleSetIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedRuleSetIds" />
+                    <span asp-validation-for="SelectedRuleSetIds"></span>
+                </div>
+            </div>
+        </div>
+	</tab>
+	<tab sm-title="@T("Admin.Promotions.Discounts.History")">
+	</tab>
+</tabstrip>
+
+<script sm-target-zone="scripts" data-origin="discount-edit">
+    $(function() {
+    });
+</script>

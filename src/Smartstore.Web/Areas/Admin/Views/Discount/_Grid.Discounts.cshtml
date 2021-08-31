@@ -1,0 +1,50 @@
+﻿@model DiscountModel
+
+@{
+    var parentModel = ViewData["Parent"] as DiscountListModel;
+}
+
+<datagrid id="discounts-grid"
+          allow-resize="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("DiscountList")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="Name" />
+        <sort by="Id" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")</span>
+            </a>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_after"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.Discounts.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" halign="center" visible="false" />
+        <column for="Name" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="DiscountTypeName" entity-member="DiscountTypeId" readonly="true" />
+        <column for="NumberOfRules" halign="center" readonly="true" sortable="false" />
+        <column for="StartDate" entity-member="StartDateUtc" />
+        <column for="EndDate" entity-member="EndDateUtc" />
+        <column for="UsePercentage" halign="center" />
+        <column for="FormattedDiscountPercentage" entity-member="DiscountPercentage" halign="center" readonly="true" />
+        <column for="FormattedDiscountAmount" entity-member="DiscountAmount" halign="center" readonly="true" />
+        <column for="RequiresCouponCode" halign="center" />
+    </columns>
+</datagrid>

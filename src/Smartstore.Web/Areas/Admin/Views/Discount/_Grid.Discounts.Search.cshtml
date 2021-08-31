@@ -1,0 +1,18 @@
+﻿@model DiscountListModel
+
+<div class="form-group">
+    <smart-label asp-for="SearchName" />
+    <input asp-for="SearchName" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchDiscountTypeId" />
+    <select asp-for="SearchDiscountTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(DiscountType))" asp-placeholder="@T("Admin.Common.All")"></select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchUsePercentage" />
+    <editor asp-for="SearchUsePercentage" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchRequiresCouponCode" />
+    <editor asp-for="SearchRequiresCouponCode" />
+</div>

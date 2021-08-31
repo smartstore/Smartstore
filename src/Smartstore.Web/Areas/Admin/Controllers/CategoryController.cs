@@ -353,8 +353,7 @@ namespace Smartstore.Admin.Controllers
                 var category = await mapper.MapAsync(model);
                 _db.Categories.Add(category);
 
-                var num = await _db.SaveChangesAsync();
-                num.ToString().Dump();
+                await _db.SaveChangesAsync();
 
                 var validateSlugResult = await category.ValidateSlugAsync(category.Name, true, 0);
                 await _urlService.ApplySlugAsync(validateSlugResult);

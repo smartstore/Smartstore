@@ -127,6 +127,30 @@ namespace Smartstore.Core.Data.Migrations
                 "Filters attributes that are displayed on the product detail page.",
                 "Filtert Attribute, die auf der Produktdetailseite angezeigt werden.");
 
+            builder.AddOrUpdate("Admin.Promotions.Discounts.List.Name",
+                "Name",
+                "Name",
+                "Filters by discount name.",
+                "Filtert nach dem Rabattnamen.");
+
+            builder.AddOrUpdate("Admin.Promotions.Discounts.List.DiscountType",
+                "Discount type",
+                "Rabatttyp",
+                "Filters by discount type.",
+                "Filtert nach dem Rabatttyp.");
+
+            builder.AddOrUpdate("Admin.Promotions.Discounts.List.UsePercentage",
+                "Use percentage",
+                "Als Prozentwert",
+                "Filters by percentage discounts.",
+                "Filtert nach prozentualen Rabatten.");
+
+            builder.AddOrUpdate("Admin.Promotions.Discounts.List.RequiresCouponCode",
+                "Requires coupon code",
+                "Gutscheincode erforderlich",
+                "Filters discounts that require a coupon code.",
+                "Filtert Rabatte, bei denen ein Gutscheincode erforderlich ist.");
+
             #endregion
 
             #region Packaging
@@ -339,7 +363,9 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Catalog.Categories.Products.SaveBeforeEdit",
             //    "Admin.Catalog.Manufacturers.Products.SaveBeforeEdit",
             //    "Admin.Catalog.Attributes.SpecificationAttributes.BackToList",
-            //    "Admin.Catalog.Attributes.SpecificationAttributes.Info"
+            //    "Admin.Catalog.Attributes.SpecificationAttributes.Info",
+            //    "Admin.Promotions.Discounts.BackToList",
+            //    "Admin.Promotions.Discounts.Info",
             //    );
 
             #endregion
