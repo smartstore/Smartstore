@@ -27,7 +27,7 @@ namespace Smartstore.Core.Catalog.Rules
 
         public IEnumerable<IRuleExpression> Expressions => _expressions;
 
-        public void AddExpressions(params IRuleExpression[] expressions)
+        public void AddExpressions(IEnumerable<IRuleExpression> expressions)
         {
             Guard.NotNull(expressions, nameof(expressions));
 

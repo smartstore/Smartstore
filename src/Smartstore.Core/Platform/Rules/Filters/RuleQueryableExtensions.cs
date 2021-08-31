@@ -53,8 +53,8 @@ namespace Smartstore.Core.Rules.Filters
         /// Applies a (wildcard) search filter to given string members by combining 
         /// the predicates with <paramref name="logicalOperator"/>.
         /// </summary>
-        /// <param name="term">
-        /// The term to search for. Enclose the term with quotes (" or ') to perform an exact match search, 
+        /// <param name="filter">
+        /// The search filter. Enclose the term with quotes (" or ') to perform an exact match search, 
         /// otherwise a "Contains" search will be performed. If the term contains wildcard chars (* or ?),
         /// an adequate "LIKE" predicate will be built depending on the query provider.
         /// </param>
@@ -65,7 +65,7 @@ namespace Smartstore.Core.Rules.Filters
         /// All member access expressions to build a combined lambda predicate for.
         /// </param>
         public static IQueryable<T> ApplySearchTermFilter<T>(this IQueryable<T> query,
-            string term,
+            string filter,
             LogicalRuleOperator logicalOperator,
             params Expression<Func<T, string>>[] expressions)
             where T : BaseEntity
@@ -80,47 +80,68 @@ namespace Smartstore.Core.Rules.Filters
             var filterExpressions = expressions
                 .Select(expression => 
                 {
-                    var descriptor = new FilterDescriptor<T, string>(expression)
+                    // TODO: (core) ErrorHandling and ModelState for ApplySearchTermFilter
+                    if (FilterExpressionParser.TryParse(expression, filter, out var filterExpression))
                     {
-                        RuleType = RuleType.String,
-                        Name = "SearchTerm"
-                    };
-
-                    RuleOperator op;
-
-                    if (string.IsNullOrEmpty(term))
-                    {
-                        op = RuleOperator.IsEqualTo;
-                    }
-                    else
-                    {
-                        var startsWithQuote = term[0] == '"' || term[0] == '\'';
-                        var exactMatch = startsWithQuote && term.EndsWith(term[0]);
-                        if (exactMatch)
-                        {
-                            op = RuleOperator.IsEqualTo;
-                            term = term.Trim(term[0]);
-                        }
-                        else
-                        {
-                            var hasAnyWildcard = term.IndexOfAny(new[] { '*', '?' }) > -1;
-                            op = hasAnyWildcard ? RuleOperator.Like : RuleOperator.Contains;
-                        }
+                        return filterExpression;
                     }
 
-                    return new FilterExpression
-                    {
-                        Descriptor = descriptor,
-                        Operator = op,
-                        Value = term
-                    };
+                    return null;
+
+                    //var descriptor = new FilterDescriptor<T, string>(expression)
+                    //{
+                    //    RuleType = RuleType.String,
+                    //    Name = "SearchTerm"
+                    //};
+
+                    //RuleOperator op;
+
+                    //if (string.IsNullOrEmpty(filter))
+                    //{
+                    //    op = RuleOperator.IsEqualTo;
+                    //}
+                    //else
+                    //{
+                    //    var startsWithQuote = filter[0] == '"' || filter[0] == '\'';
+                    //    var exactMatch = startsWithQuote && filter.EndsWith(filter[0]);
+                    //    if (exactMatch)
+                    //    {
+                    //        op = RuleOperator.IsEqualTo;
+                    //        filter = filter.Trim(filter[0]);
+                    //    }
+                    //    else
+                    //    {
+                    //        var hasAnyWildcard = filter.IndexOfAny(new[] { '*', '?' }) > -1;
+                    //        op = hasAnyWildcard ? RuleOperator.Like : RuleOperator.Contains;
+                    //    }
+                    //}
+
+                    //return new FilterExpression
+                    //{
+                    //    Descriptor = descriptor,
+                    //    Operator = op,
+                    //    Value = filter
+                    //};
                 })
+                .Where(x => x != null)
                 .ToArray();
 
-            var compositeFilter = new FilterExpressionGroup(typeof(T)) { LogicalOperator = logicalOperator };
-            compositeFilter.AddExpressions(filterExpressions);
-
-            return query.Where(compositeFilter).Cast<T>();
+            if (filterExpressions.Length == 0)
+            {
+                return query;
+            }
+            else if (filterExpressions.Length == 1)
+            {
+                return query.Where(filterExpressions[0]).Cast<T>();
+            }
+            else
+            {
+                var compositeFilter = new FilterExpressionGroup(typeof(T), filterExpressions) 
+                { 
+                    LogicalOperator = logicalOperator 
+                };
+                return query.Where(compositeFilter).Cast<T>();
+            }
         }
 
         #endregion

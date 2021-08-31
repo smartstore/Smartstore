@@ -17,12 +17,12 @@ namespace Smartstore.Core.Rules
         bool IsSubGroup { get; }
         IRuleProvider Provider { get; }
         IEnumerable<IRuleExpression> Expressions { get; }
-        void AddExpressions(params IRuleExpression[] expressions);
+        void AddExpressions(IEnumerable<IRuleExpression> expressions);
     }
 
     public class RuleExpressionGroup : RuleExpression, IRuleExpressionGroup
     {
-        private readonly List<IRuleExpression> _expressions = new List<IRuleExpression>();
+        private readonly List<IRuleExpression> _expressions = new();
 
         public int RefRuleId { get; set; }
         public LogicalRuleOperator LogicalOperator { get; set; }
@@ -31,7 +31,7 @@ namespace Smartstore.Core.Rules
 
         public IEnumerable<IRuleExpression> Expressions => _expressions;
 
-        public virtual void AddExpressions(params IRuleExpression[] expressions)
+        public virtual void AddExpressions(IEnumerable<IRuleExpression> expressions)
         {
             Guard.NotNull(expressions, nameof(expressions));
             _expressions.AddRange(expressions);
