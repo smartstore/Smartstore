@@ -43,13 +43,13 @@ namespace Smartstore.Core.Rules.Filters
         ///             is switched to "Equals". Use "NotEquals" (!) to negate pattern.
         ///             
         ///         <c>OPERATOR:</c>
-        ///             =[=]    --> Equals
+        ///             =[=]    --> Equals (default when omitted on numeric terms)
         ///             ![=]    --> NotEquals
         ///             &gt;    --> GreaterThan
         ///             &gt;=   --> GreaterThanOrEqual
         ///             &lt;    --> LessThan
         ///             &lt;=   --> LessThanOrEqual
-        ///             ~       --> Contains (default when omitted)
+        ///             ~       --> Contains (default when omitted on string terms)
         ///             !~      --> NotContains
         ///             
         ///         <c>COMBINATOR:</c>

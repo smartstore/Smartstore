@@ -20,6 +20,9 @@ namespace Smartstore.Core.Rules.Filters
         static readonly Parser<char> RParen = Terms.Char(')');
 
         // Operators
+        static readonly Parser<char> IsNotEqualShort = Terms.Char('!');
+        static readonly Parser<TextSpan> Op = Terms.Pattern(x => x == '~' || x == '=' || x == '!' || x == '<' || x == '>', 1, 2);
+        #region Old
         //static readonly Parser<string> IsNotEqual = Terms.Text("!=");
         //static readonly Parser<string> IsEqual = Terms.Text("==");
         //static readonly Parser<string> NotContains = Terms.Text("!~");
@@ -27,11 +30,9 @@ namespace Smartstore.Core.Rules.Filters
         //static readonly Parser<string> LowerOr = Terms.Text("<=");
         //static readonly Parser<string> Different = Terms.Text("<>");
         //static readonly Parser<string> IsEqualShort = Terms.Text("=");
-        static readonly Parser<char> IsNotEqualShort = Terms.Char('!');
         //static readonly Parser<string> Contains = Terms.Text("~");
         //static readonly Parser<string> Greater = Terms.Text(">");
         //static readonly Parser<string> Lower = Terms.Text("<");
-        static readonly Parser<TextSpan> Op = Terms.Pattern(x => x == '~' || x == '=' || x == '!' || x == '<' || x == '>', 1, 2);
         //static readonly Parser<string> Op = IsNotEqual
         //    .Or(IsEqual)
         //    .Or(NotContains)
@@ -43,6 +44,7 @@ namespace Smartstore.Core.Rules.Filters
         //    .Or(Contains)
         //    .Or(Greater)
         //    .Or(Lower);
+        #endregion
 
         // Logical Operators
         static readonly Parser<string> LogicalOr = Terms.Text("or", true);
