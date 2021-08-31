@@ -22,7 +22,7 @@ using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
 
-namespace Smartstore.Web.Areas.Admin.Controllers
+namespace Smartstore.Admin.Controllers
 {
     public class CurrencyController : AdminController
     {

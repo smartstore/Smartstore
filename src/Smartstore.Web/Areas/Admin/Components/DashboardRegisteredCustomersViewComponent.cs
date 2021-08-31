@@ -10,7 +10,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Web.Components;
 
-namespace Smartstore.Web.Areas.Admin.Components
+namespace Smartstore.Admin.Components
 {
     public class DashboardRegisteredCustomersViewComponent : SmartViewComponent
     {
