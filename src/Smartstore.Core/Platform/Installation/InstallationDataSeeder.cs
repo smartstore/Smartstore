@@ -286,7 +286,15 @@ namespace Smartstore.Core.Installation
             var resHead = headFile.ReadAllText().Trim();
             if (resHead.HasValue())
             {
-                await _migrator.SeedPendingLocaleResourcesAsync(resHead);
+                if (long.TryParse(resHead, out var version))
+                {
+                    await _migrator.SeedPendingLocaleResourcesAsync(version);
+                }
+                else
+                {
+                    throw new ArgumentException("Wrong head value (head.txt) for seeding pending locale resources."
+                        + $" Must be a migration version number of type 'long'. See {nameof(MigrationHistory.Version)}.");
+                }
             }
         }
 

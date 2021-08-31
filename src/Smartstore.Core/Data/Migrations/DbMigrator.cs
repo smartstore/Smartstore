@@ -8,6 +8,7 @@ using System.Transactions;
 using Autofac;
 using FluentMigrator;
 using FluentMigrator.Runner;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Smartstore.Data;
@@ -133,39 +134,27 @@ namespace Smartstore.Core.Data.Migrations
         /// <summary>
         /// Seeds locale resources of pending migrations.
         /// </summary>
-        /// <param name="currentHead">
-        /// Specifies a pending migration (class name) from which locale resources are to be seeded.
-        /// <c>null</c> to seed locale resources of all pending migrations.
-        /// </param>
+        /// <param name="fromVersion">Specifies the version of a migration from which locale resources are to be seeded.</param>
         /// <returns>The number of seeded migrations.</returns>
-        public async Task<int> SeedPendingLocaleResourcesAsync(string currentHead = null, CancellationToken cancelToken = default)
+        public async Task<int> SeedPendingLocaleResourcesAsync(long fromVersion, CancellationToken cancelToken = default)
         {
-            // TODO: (mg) (core) currentHead must be long type now.
+            Guard.IsPositive(fromVersion, nameof(fromVersion));
+
             if (Context is not SmartDbContext db)
             {
                 return 0;
             }
 
             var localMigrations = GetMigrations();
-            if (localMigrations.Count == 0)
+            if (!localMigrations.Any())
             {
                 return 0;
             }
 
             var succeeded = 0;
-            var pending = GetPendingMigrations().Select(v => localMigrations[v]);
-
-            if (currentHead.HasValue())
-            {
-                var headMigration = pending.FirstOrDefault(x => x.Name.EqualsNoCase(currentHead));
-                if (headMigration != null)
-                {
-                    pending = pending.Where(x => x.Version > headMigration.Version);
-                }
-            }
-
-            var providers = pending
-                .Select(x => CreateMigration(x.Type) as ILocaleResourcesProvider)
+            var providers = localMigrations
+                .Where(x => x.Key > fromVersion)
+                .Select(x => CreateMigration(x.Value.Type) as ILocaleResourcesProvider)
                 .Where(x => x != null)
                 .ToArray();
 
