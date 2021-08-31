@@ -47,7 +47,7 @@ namespace Smartstore.Core.Rules.Filters
         static readonly Parser<string> LogicalAnd = Terms.Text("and", true);
 
         // Term
-        static readonly Parser<TextSpan> Term = Terms.Identifier();
+        static readonly Parser<TextSpan> Term = Terms.NonWhiteSpace();
         static readonly Parser<TextSpan> QuotedTerm = Terms.String(StringLiteralQuotes.SingleOrDouble);
 
         // Expression
@@ -69,7 +69,7 @@ namespace Smartstore.Core.Rules.Filters
                 // Optional whitespace between equality operator and term
                 .AndSkip(ZeroOrOne(Literals.WhiteSpace()))
                 // Term, either quoted or non-quoted
-                .And(Term.Or(QuotedTerm))
+                .And(QuotedTerm.Or(Term))
                 // Optional logical operator (AND | OR) after term. Default is "OR".
                 .And(ZeroOrOne(LogicalOr.Or(LogicalAnd)))
                 // Create FilterExpression result

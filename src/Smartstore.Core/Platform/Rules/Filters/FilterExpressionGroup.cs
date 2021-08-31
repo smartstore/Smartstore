@@ -60,6 +60,7 @@ namespace Smartstore.Core.Rules.Filters
         protected override Expression CreateBodyExpression(ParameterExpression node, IQueryProvider provider)
         {
             Expression left = null;
+            LogicalRuleOperator? op = null;
 
             foreach (var expression in Expressions.Cast<FilterExpression>().ToArray())
             {
@@ -68,7 +69,9 @@ namespace Smartstore.Core.Rules.Filters
                 if (left == null)
                     left = right;
                 else
-                    left = ExpressionHelper.CombineExpressions(left, expression.LogicalOperator ?? LogicalOperator, right);
+                    left = ExpressionHelper.CombineExpressions(left, op ?? LogicalOperator, right);
+
+                op = expression.LogicalOperator;
             }
 
             if (left == null)
