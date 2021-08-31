@@ -116,12 +116,12 @@ namespace Smartstore.Admin.Controllers
 
             if (model.SearchSettingName.HasValue())
             {
-                query = query.ApplySearchTermFilterFor(x => x.Name, model.SearchSettingName);
+                query = query.ApplySearchFilterFor(x => x.Name, model.SearchSettingName);
             }
 
             if (model.SearchSettingValue.HasValue())
             {
-                query = query.ApplySearchTermFilterFor(x => x.Value, model.SearchSettingValue);
+                query = query.ApplySearchFilterFor(x => x.Value, model.SearchSettingValue);
             }
 
             if (model.SearchStoreId != 0)

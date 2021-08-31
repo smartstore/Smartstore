@@ -90,12 +90,12 @@ namespace Smartstore.Web.Areas.Admin.Controllers
 
             if (model.SearchName.HasValue())
             {
-                query = query.ApplySearchTermFilterFor(x => x.Name, model.SearchName);
+                query = query.ApplySearchFilterFor(x => x.Name, model.SearchName);
             }
 
             if (model.SearchAlias.HasValue())
             {
-                query = query.ApplySearchTermFilterFor(x => x.Alias, model.SearchAlias);
+                query = query.ApplySearchFilterFor(x => x.Alias, model.SearchAlias);
             }
 
             if (model.SearchAllowFiltering.HasValue)

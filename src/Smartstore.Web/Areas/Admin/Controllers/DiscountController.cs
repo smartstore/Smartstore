@@ -83,7 +83,7 @@ namespace Smartstore.Admin.Controllers
 
             if (model.SearchName.HasValue())
             {
-                query = query.ApplySearchTermFilterFor(x => x.Name, model.SearchName);
+                query = query.ApplySearchFilterFor(x => x.Name, model.SearchName);
             }
             if (model.SearchDiscountTypeId.HasValue)
             {

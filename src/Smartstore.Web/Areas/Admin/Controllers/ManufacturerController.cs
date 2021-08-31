@@ -139,7 +139,7 @@ namespace Smartstore.Admin.Controllers
 
             if (model.SearchManufacturerName.HasValue())
             {
-                query = query.ApplySearchTermFilterFor(x => x.Name, model.SearchManufacturerName);
+                query = query.ApplySearchFilterFor(x => x.Name, model.SearchManufacturerName);
             }
 
             var manufacturers = await query

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Parlot;
 using Parlot.Fluent;
+using Smartstore.Core.Rules.Operators;
 using static Parlot.Fluent.Parsers;
 
 namespace Smartstore.Core.Rules.Filters
@@ -25,7 +27,7 @@ namespace Smartstore.Core.Rules.Filters
         //static readonly Parser<string> LowerOr = Terms.Text("<=");
         //static readonly Parser<string> Different = Terms.Text("<>");
         //static readonly Parser<string> IsEqualShort = Terms.Text("=");
-        //static readonly Parser<string> IsNotEqualShort = Terms.Text("!");
+        static readonly Parser<char> IsNotEqualShort = Terms.Char('!');
         //static readonly Parser<string> Contains = Terms.Text("~");
         //static readonly Parser<string> Greater = Terms.Text(">");
         //static readonly Parser<string> Lower = Terms.Text("<");
@@ -47,7 +49,8 @@ namespace Smartstore.Core.Rules.Filters
         static readonly Parser<string> LogicalAnd = Terms.Text("and", true);
 
         // Term
-        static readonly Parser<TextSpan> Term = Terms.NonWhiteSpace();
+        static readonly Func<char, bool> IsTermChar = c => !char.IsWhiteSpace(c) && c is not ('(' or ')');
+        static readonly Parser<TextSpan> Term = Terms.Identifier(IsTermChar, IsTermChar);
         static readonly Parser<TextSpan> QuotedTerm = Terms.String(StringLiteralQuotes.SingleOrDouble);
 
         // Expression
@@ -89,10 +92,11 @@ namespace Smartstore.Core.Rules.Filters
 
             // Group expression parser: ([expressions...])
             GroupExpression.Parser =
+                ZeroOrOne(IsNotEqualShort)
                 // Opening left parent "("
-                LParen
+                .AndSkip(LParen)
                 // Skip "(" and find all inner expressions (0..n)
-                .SkipAnd(ZeroOrMany(FilterExpression))
+                .And(ZeroOrMany(GroupExpression.Or(FilterExpression)))
                 // Skip ")" when reached
                 .AndSkip(RParen)
                 // Optional logical operator (AND | OR) after group. Default is "OR".
@@ -100,9 +104,12 @@ namespace Smartstore.Core.Rules.Filters
                 // Create FilterExpressionGroup result
                 .Then<FilterExpression>(x =>
                 {
-                    var group = new FilterExpressionGroup(x.Item1.ToArray())
+                    var group = new FilterExpressionGroup(x.Item2.ToArray())
                     {
-                        LogicalOperator = ConvertLogicalOperator(x.Item2)
+                        LogicalOperator = ConvertLogicalOperator(x.Item3),
+                        IsSubGroup = true,
+                        // If first token ("!") is present, then negate group
+                        Value = x.Item1 == default(char)
                     };
                     return group;
                 });
@@ -149,24 +156,36 @@ namespace Smartstore.Core.Rules.Filters
         private static FilterExpression PostProcessResult<T, TValue>(List<FilterExpression> expressions, FilterDescriptor<T, TValue> descriptor, Type entityType)
             where T : class
         {
-            foreach (var expression in expressions)
-            {
-                // PostProcess expression
-                if (expression is FilterExpressionGroup group)
-                {
-                    group.EntityType = entityType;
-                }
-                else
-                {
-                    expression.Descriptor = descriptor;
-                    expression.Value = expression.RawValue.Convert<TValue>();
-                }
-            }
+            PostProcess(expressions);
 
             return new FilterExpressionGroup(expressions.ToArray())
             {
                 EntityType = entityType
             };
+
+            void PostProcess(IEnumerable<FilterExpression> expressions2)
+            {
+                foreach (var expression in expressions2)
+                {
+                    // PostProcess expression
+                    if (expression is FilterExpressionGroup group)
+                    {
+                        group.EntityType = entityType;
+                        PostProcess(group.Expressions.Cast<FilterExpression>());
+                    }
+                    else
+                    {
+                        expression.Descriptor = descriptor;
+                        expression.Value = expression.RawValue.Convert<TValue>();
+
+                        if (expression.Operator is ContainsOperator op && typeof(TValue).IsNumericType())
+                        {
+                            // Fix default operator
+                            expression.Operator = op.Negate ? RuleOperator.IsNotEqualTo : RuleOperator.IsEqualTo;
+                        }
+                    }
+                }
+            }
         }
 
         private static RuleOperator ConvertOperator(string op, string term)

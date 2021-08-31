@@ -38,7 +38,7 @@ namespace Smartstore.Core.Logging
 
             if (logger.HasValue())
             {
-                return query.ApplySearchTermFilterFor(x => x.Logger, logger);
+                return query.ApplySearchFilterFor(x => x.Logger, logger);
             }
 
             return query;
@@ -51,8 +51,8 @@ namespace Smartstore.Core.Logging
             if (message.HasValue())
             {
                 return includeException
-                    ? query.ApplySearchTermFilter(message, Rules.LogicalRuleOperator.Or, x => x.ShortMessage, x => x.FullMessage)
-                    : query.ApplySearchTermFilterFor(x => x.ShortMessage, message);
+                    ? query.ApplySearchFilter(message, Rules.LogicalRuleOperator.Or, x => x.ShortMessage, x => x.FullMessage)
+                    : query.ApplySearchFilterFor(x => x.ShortMessage, message);
             }
 
             return query;

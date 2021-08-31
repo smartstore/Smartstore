@@ -279,7 +279,7 @@ namespace Smartstore.Core.Content.Media
                 term = '"' + term.Trim('"', '\'') + '"';
             }
 
-            return query.ApplySearchTermFilter(term, Rules.LogicalRuleOperator.Or, expressions.ToArray());
+            return query.ApplySearchFilter(term, Rules.LogicalRuleOperator.Or, expressions.ToArray());
         }
     }
 }

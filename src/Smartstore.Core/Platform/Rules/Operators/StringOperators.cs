@@ -22,7 +22,7 @@ namespace Smartstore.Core.Rules.Operators
             Negate = negate;
         }
 
-        private bool Negate { get; set; }
+        public bool Negate { get; }
 
         protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {
@@ -77,7 +77,7 @@ namespace Smartstore.Core.Rules.Operators
             Negate = negate;
         }
 
-        private bool Negate { get; set; }
+        public bool Negate { get; }
 
         protected override Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider)
         {

@@ -29,55 +29,97 @@ namespace Smartstore.Core.Rules.Filters
         #region Entities
 
         /// <summary>
-        /// Applies a (wildcard) search filter to given string member.
+        /// Applies a complex string-based DSL filter to given entity member. Only numeric and string members are allowed.
         /// </summary>
-        /// <param name="expression">
-        /// The member expression.
+        /// <param name="memberExpression">
+        /// The member expression to apply filter to.
         /// </param>
-        /// <param name="term">
-        /// The term to search for. Enclose the term with quotes (" or ') to perform an exact match search, 
-        /// otherwise a "Contains" search will be performed. If the term contains wildcard chars (* or ?),
-        /// an adequate "LIKE" predicate will be built depending on the query provider.
+        /// <param name="filter">
+        ///     The search filter. Grammar:
+        ///     <code>
+        ///         <c>TERM:</c>
+        ///             Quoted search term (double or single) | unquoted search term without whitespaces.
+        ///             Supports wildcards (* | ?). If wildcards are present, default OPERATOR
+        ///             is switched to "Equals". Use "NotEquals" (!) to negate pattern.
+        ///             
+        ///         <c>OPERATOR:</c>
+        ///             =[=]    --> Equals
+        ///             ![=]    --> NotEquals
+        ///             &gt;    --> GreaterThan
+        ///             &gt;=   --> GreaterThanOrEqual
+        ///             &lt;    --> LessThan
+        ///             &lt;=   --> LessThanOrEqual
+        ///             ~       --> Contains (default when omitted)
+        ///             !~      --> NotContains
+        ///             
+        ///         <c>COMBINATOR:</c>
+        ///             [and | or] (case-insensitive)
+        ///             If omitted, "or" is used.
+        ///             
+        ///         <c>FILTER:</c>
+        ///             [ OPERATOR ]TERM [COMBINATOR]
+        ///             
+        ///         <c>FILTER_GROUP:</c>
+        ///             [!]([FILTER | FILTER_GROUP]*)
+        ///             The optional "!" operator negates the group.
+        ///             
+        ///         <c>EXPRESSION:</c>
+        ///             FILTER* | FILTER_GROUP*
+        ///     </code>
         /// </param>
-        public static IQueryable<T> ApplySearchTermFilterFor<T>(this IQueryable<T> query, Expression<Func<T, string>> expression, string term)
+        /// <example>
+        ///     <code>
+        ///         <c>banana joe</c>
+        ///             Contains "banana" or contains "joe"
+        ///             
+        ///         <c>banana and !*.joe</c>
+        ///             Contains "banana" but does not match "*.joe"
+        ///             
+        ///         <c>~banana and (!~"hello world" or !*jim)</c>
+        ///             Contains "banana", but does not contain "hello world" or does not end with "jim"
+        ///             
+        ///         <c>*Middleware and !(Serilog* Microsoft*)</c>
+        ///             Ends with "Middleware", but does not starts with "Serilog" or "Microsoft"
+        ///             
+        ///         <c>(&gt;=10 and &lt;=100) or 1 or &gt;1000</c>
+        ///             Is between 10 and 100, or equals 1, or is greater than 1000.
+        ///     </code>
+        /// </example>
+        public static IQueryable<T> ApplySearchFilterFor<T, TValue>(this IQueryable<T> query, Expression<Func<T, TValue>> memberExpression, string filter)
             where T : BaseEntity
         {
-            return ApplySearchTermFilter(
+            return ApplySearchFilter(
                 query,
-                term, 
+                filter, 
                 LogicalRuleOperator.And, // Doesn't matter
-                Guard.NotNull(expression, nameof(expression)));
+                Guard.NotNull(memberExpression, nameof(memberExpression)));
         }
 
+        /// <inheritdoc cref="ApplySearchFilterFor{T, TValue}(IQueryable{T}, Expression{Func{T, TValue}}, string)"/>
         /// <summary>
-        /// Applies a (wildcard) search filter to given string members by combining 
+        /// Applies a complex string-based DSL filter to given string members by combining 
         /// the predicates with <paramref name="logicalOperator"/>.
         /// </summary>
-        /// <param name="filter">
-        /// The search filter. Enclose the term with quotes (" or ') to perform an exact match search, 
-        /// otherwise a "Contains" search will be performed. If the term contains wildcard chars (* or ?),
-        /// an adequate "LIKE" predicate will be built depending on the query provider.
-        /// </param>
         /// <param name="logicalOperator">
-        /// The logical operator to combine multiple <paramref name="expressions"/> with.
+        /// The logical operator to combine multiple <paramref name="memberExpressions"/> with.
         /// </param>
-        /// <param name="expressions">
-        /// All member access expressions to build a combined lambda predicate for.
+        /// <param name="memberExpressions">
+        /// All member access expressions to build a combined lambda expression for.
         /// </param>
-        public static IQueryable<T> ApplySearchTermFilter<T>(this IQueryable<T> query,
+        public static IQueryable<T> ApplySearchFilter<T, TValue>(this IQueryable<T> query,
             string filter,
             LogicalRuleOperator logicalOperator,
-            params Expression<Func<T, string>>[] expressions)
+            params Expression<Func<T, TValue>>[] memberExpressions)
             where T : BaseEntity
         {
             Guard.NotNull(query, nameof(query));
 
-            if (expressions.Length == 0)
+            if (memberExpressions.Length == 0)
             {
                 return query;
             }
 
-            var filterExpressions = expressions
+            var filterExpressions = memberExpressions
                 .Select(expression => 
                 {
                     // TODO: (core) ErrorHandling and ModelState for ApplySearchTermFilter
@@ -87,41 +129,6 @@ namespace Smartstore.Core.Rules.Filters
                     }
 
                     return null;
-
-                    //var descriptor = new FilterDescriptor<T, string>(expression)
-                    //{
-                    //    RuleType = RuleType.String,
-                    //    Name = "SearchTerm"
-                    //};
-
-                    //RuleOperator op;
-
-                    //if (string.IsNullOrEmpty(filter))
-                    //{
-                    //    op = RuleOperator.IsEqualTo;
-                    //}
-                    //else
-                    //{
-                    //    var startsWithQuote = filter[0] == '"' || filter[0] == '\'';
-                    //    var exactMatch = startsWithQuote && filter.EndsWith(filter[0]);
-                    //    if (exactMatch)
-                    //    {
-                    //        op = RuleOperator.IsEqualTo;
-                    //        filter = filter.Trim(filter[0]);
-                    //    }
-                    //    else
-                    //    {
-                    //        var hasAnyWildcard = filter.IndexOfAny(new[] { '*', '?' }) > -1;
-                    //        op = hasAnyWildcard ? RuleOperator.Like : RuleOperator.Contains;
-                    //    }
-                    //}
-
-                    //return new FilterExpression
-                    //{
-                    //    Descriptor = descriptor,
-                    //    Operator = op,
-                    //    Value = filter
-                    //};
                 })
                 .Where(x => x != null)
                 .ToArray();

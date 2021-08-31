@@ -26,7 +26,7 @@ namespace Smartstore.Core.Rules.Filters
 
         public int RefRuleId { get; set; }
         public Type EntityType { get; internal set; }
-        public LogicalRuleOperator LogicalOperator { get; set; }
+        public new LogicalRuleOperator LogicalOperator { get; set; }
         public bool IsSubGroup { get; set; }
         public IRuleProvider Provider { get; set; }
 
@@ -43,18 +43,21 @@ namespace Smartstore.Core.Rules.Filters
 
         public override Expression ToPredicate(ParameterExpression node, IQueryProvider provider)
         {
-            if (node == null)
+            var bodyExpression = CreateBodyExpression(node, provider);
+
+            if (!IsSubGroup && node == null)
             {
                 if (EntityType == null)
                 {
-                    throw new InvalidOperationException($"{nameof(EntityType)} must not be null if 'ToPredicate()' method is called with '{nameof(node)}' parameter being null.");
+                    throw new InvalidOperationException($"For lambda expressions '{nameof(EntityType)}' must not be null if 'ToPredicate()' method is called with '{nameof(node)}' parameter being null.");
                 }
 
                 node = Expression.Parameter(EntityType, "it");
-            } 
+            }
 
-            // TODO: was base.Descriptor.EntityType, check if MemberExpression is the same
-            return ExpressionHelper.CreateLambdaExpression(node,  CreateBodyExpression(node, provider));
+            return IsSubGroup 
+                ? bodyExpression
+                : ExpressionHelper.CreateLambdaExpression(node, bodyExpression);
         }
 
         protected override Expression CreateBodyExpression(ParameterExpression node, IQueryProvider provider)
@@ -79,7 +82,15 @@ namespace Smartstore.Core.Rules.Filters
                 return ExpressionHelper.TrueLiteral;
             }
 
-            return left;
+            if (Value is bool value && value == false)
+            {
+                // Negate group
+                return Expression.Equal(left, ExpressionHelper.FalseLiteral);
+            }
+            else
+            {
+                return left;
+            }
         }
     }
 }

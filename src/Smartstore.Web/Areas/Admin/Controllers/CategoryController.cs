@@ -179,11 +179,11 @@ namespace Smartstore.Admin.Controllers
 
             if (model.SearchCategoryName.HasValue())
             {
-                query = query.ApplySearchTermFilter(model.SearchCategoryName, LogicalRuleOperator.Or, x => x.Name, x => x.FullName);
+                query = query.ApplySearchFilter(model.SearchCategoryName, LogicalRuleOperator.Or, x => x.Name, x => x.FullName);
             }
             if (model.SearchAlias.HasValue())
             {
-                query = query.ApplySearchTermFilterFor(x => x.Alias, model.SearchAlias);
+                query = query.ApplySearchFilterFor(x => x.Alias, model.SearchAlias);
             }
 
             var categories = await query

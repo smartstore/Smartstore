@@ -87,7 +87,7 @@ namespace Smartstore.Admin.Controllers
             
             if (model.Title.HasValue())
             {
-                query = query.ApplySearchTermFilter(model.Title, Core.Rules.LogicalRuleOperator.Or, x => x.Title, x => x.ShortTitle);
+                query = query.ApplySearchFilter(model.Title, Core.Rules.LogicalRuleOperator.Or, x => x.Title, x => x.ShortTitle);
             }
 
             if (model.RenderAsWidget.HasValue)
