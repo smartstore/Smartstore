@@ -12,12 +12,18 @@ using Smartstore.Engine;
 
 namespace Smartstore.Data.Providers
 {
+    public class DbFunctionMap
+    {
+        public MethodInfo Method { get; init; }
+        public IMethodCallTranslator Translator { get; init; }
+    }
+
     /// <summary>
     /// TODO: (core) Describe everything when completed.
     /// </summary>
     public abstract class DbFactory
     {
-        private readonly ConcurrentDictionary<MethodInfo, MappedDbFunction> _mappedDbFunctions = new();
+        private readonly ConcurrentDictionary<MethodInfo, DbFunctionMap> _mappedDbFunctions = new();
 
         private readonly static ConcurrentDictionary<string, DbFactory> _loadedFactories = new(StringComparer.OrdinalIgnoreCase);
         
@@ -88,9 +94,8 @@ namespace Smartstore.Data.Providers
         /// </summary>
         /// <param name="services">The database services</param>
         /// <param name="sourceMethod">The source method from <see cref="DbFunctionsExtensions"/> to map.</param>
-        /// <param name="mappedMethod">The mapped method or <c>null</c></param>
-        /// <param name="translator">The provider specific translator or <c>null</c></param>
-        public bool TryMapDbFunctionsMethod(IServiceProvider services, MethodInfo sourceMethod, out MethodInfo mappedMethod, out IMethodCallTranslator translator)
+        /// <returns>Information about the target provider-specific method and translator.</returns>
+        public DbFunctionMap MapDbFunction(IServiceProvider services, MethodInfo sourceMethod)
         {
             var mappedFunction = _mappedDbFunctions.GetOrAdd(sourceMethod, key =>
             {
@@ -100,28 +105,19 @@ namespace Smartstore.Data.Providers
                     var method = FindMappedMethod(sourceMethod);
                     if (method != null)
                     {
-                        return new MappedDbFunction { Method = method, Translator = translator };
+                        return new DbFunctionMap { Method = method, Translator = translator };
                     }
                 }
 
                 return null;
             });
 
-            mappedMethod = mappedFunction?.Method;
-            translator = mappedFunction?.Translator;
-
-            return mappedMethod != null && translator != null;
+            return mappedFunction;
         }
 
         protected abstract IMethodCallTranslator FindMethodCallTranslator(IServiceProvider services, MethodInfo sourceMethod);
 
         protected abstract MethodInfo FindMappedMethod(MethodInfo sourceMethod);
-
-        class MappedDbFunction
-        {
-            public MethodInfo Method { get; init; }
-            public IMethodCallTranslator Translator { get; init; }
-        }
 
         #endregion
     }

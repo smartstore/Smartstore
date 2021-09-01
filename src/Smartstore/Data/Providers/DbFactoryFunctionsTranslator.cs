@@ -128,9 +128,10 @@ namespace Smartstore.Data.Providers
         {
             if (_uniMethods.Contains(method))
             {
-                if (DataSettings.Instance.DbFactory.TryMapDbFunctionsMethod(_services, method, out var mappedMethod, out var translator))
+                var mappedFunction = DataSettings.Instance.DbFactory.MapDbFunction(_services, method);
+                if (mappedFunction != null)
                 {
-                    return translator.Translate(instance, mappedMethod, arguments, logger);
+                    return mappedFunction.Translator.Translate(instance, mappedFunction.Method, arguments, logger);
                 }
             }      
             
