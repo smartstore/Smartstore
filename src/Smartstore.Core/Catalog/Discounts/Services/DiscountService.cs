@@ -46,12 +46,12 @@ namespace Smartstore.Core.Catalog.Discounts
 
         #region Hook
 
-        protected override Task<HookResult> OnInsertingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnInsertedAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
         protected override Task<HookResult> OnUpdatingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (entry.IsPropertyModified(nameof(Discount.DiscountType)))
+            if (entry.IsPropertyModified(nameof(Discount.DiscountTypeId)))
             {
                 KeepRelatedEntityIds(entity);
             }
@@ -59,11 +59,17 @@ namespace Smartstore.Core.Catalog.Discounts
             return Task.FromResult(HookResult.Ok);
         }
 
+        protected override Task<HookResult> OnUpdatedAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
         protected override Task<HookResult> OnDeletingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             KeepRelatedEntityIds(entity);
             return Task.FromResult(HookResult.Ok);
         }
+
+        protected override Task<HookResult> OnDeletedAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
