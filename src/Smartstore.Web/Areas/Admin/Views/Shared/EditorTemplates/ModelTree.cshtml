@@ -1,0 +1,136 @@
+﻿@model TreeNode<ModelTreeMember>
+
+@using Smartstore.Collections
+@using Smartstore.Core.Messaging
+
+@{
+    async Task AddItemsToModelTree(TreeNode<ModelTreeMember> root)
+    {
+        if (root != null)
+        {
+            <ul>
+                @foreach (var node in root.Children)
+                {
+                    List<string> tokens = new List<string>();
+                    var curNode = node;
+                    while (!curNode.IsRoot)
+                    {
+                        tokens.Insert(0, curNode.Value.Name);
+                        curNode = curNode.Parent;
+                    }
+
+                    <li data-name="@node.Value.Name"
+                        data-token="@string.Join(".", tokens)">
+                        @if (!node.IsLeaf)
+                        {
+                            await AddItemsToModelTree(node);
+                        }
+                    </li>
+                }
+            </ul>
+        }
+    }
+}
+
+<modal id="addtoken-window" sm-render-at-page-end="true" sm-size="FlexSmall" title="@T("Admin.Common.ChooseToken")">
+    <modal-body>
+        <div id="model-tree">
+            @{ await AddItemsToModelTree(Model); }
+        </div>
+    </modal-body>
+    <modal-footer>
+        <button type="button" class="btn btn-secondary btn-flat" data-dismiss="modal">
+            <span>@T("Admin.Common.Cancel")</span>
+        </button>
+        <button id="btn-addtoken" type="submit" class="btn btn-primary disabled">
+            <i class="fa fa-check"></i>
+            <span>@T("Common.AddNew")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+@if (Model == null || !Model.HasChildren)
+{
+    <div class="text-muted">
+        @T("Admin.ContentManagement.MessageTemplates.NoModelTree")
+    </div>
+}
+else
+{
+    <a id="btn-choosetoken" href="#addtoken-window" data-toggle="modal" class="btn btn-primary">
+        <i class="fa fa-plus"></i>
+        <span>@T("Admin.Common.ChooseToken")</span>
+    </a>
+
+    <script>
+        $(function() {
+            // Init model tree.
+            $('#model-tree').tree('init', {
+                selectMode: 'single' 
+            });
+
+            EventBroker.subscribe('tree.selected', function (message, node) {
+                onNodeSelect(node);
+            });
+        });
+
+        // TODO: (mh) (core) Implement initialization in javascript factory analog to ApplyCommonPlugins.
+		var lastSelectedNode;
+
+        $(document).on("mousedown", "#btn-choosetoken", function () {
+            var editor = getEditor();
+            editor.summernote('editor.saveRange');
+		});
+
+		$(document).on("click", "#btn-addtoken", function () {
+			pasteTokenIntoEditor(lastSelectedNode);
+		});
+
+        $(document).on("dblclick", ".tree-node-content", function (e) {
+			e.stopPropagation();
+			pasteTokenIntoEditor(lastSelectedNode);
+        });
+
+        function getEditor() {
+            var editor = $("#messagetemplate-localized .tab-pane.active .summernote-editor");
+            if (editor.length) {
+                return editor;
+            }
+            else {
+                return $('.summernote-editor').first();
+            }
+        }
+
+		function pasteTokenIntoEditor(node) {
+			var token = node.data("token");
+            var isLeaf = node.hasClass("tree-leaf");
+
+			if (!token || !isLeaf)
+				return false;
+
+			var editor = getEditor();
+			editor.summernote('editor.restoreRange');
+			editor.summernote('editor.insertText', '{{ ' + token + ' }}');
+
+			$("#addtoken-window").modal("hide");
+
+			return false;
+		}
+
+        function onNodeSelect(e) {
+            lastSelectedNode = $(e.node);
+
+            // Disable button if elem is branch.
+            var isLeaf = lastSelectedNode.hasClass("tree-leaf");
+            var btn = $("#btn-addtoken");
+            var isBtnDisabled = btn.hasClass("disabled");
+
+            if (isLeaf == true) {
+                btn.removeClass("disabled");
+            }
+            else if (!isBtnDisabled) {
+                btn.addClass("disabled");
+            }
+        }
+    </script>
+}
