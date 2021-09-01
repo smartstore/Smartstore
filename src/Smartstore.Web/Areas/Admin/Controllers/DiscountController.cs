@@ -112,7 +112,7 @@ namespace Smartstore.Admin.Controllers
                 m.EditUrl = Url.Action("Edit", "Discount", new { id = x.Id, area = "Admin" });
                 m.NumberOfRules = x.RuleSets.Count;
                 m.DiscountTypeName = await Services.Localization.GetLocalizedEnumAsync(x.DiscountType);
-                m.FormattedDiscountAmount = x.DiscountAmount != decimal.Zero
+                m.FormattedDiscountAmount = !x.UsePercentage
                     ? Services.CurrencyService.PrimaryCurrency.AsMoney(x.DiscountAmount).ToString(true)
                     : string.Empty;
 

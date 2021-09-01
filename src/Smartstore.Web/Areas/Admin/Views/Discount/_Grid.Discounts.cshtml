@@ -12,7 +12,7 @@
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="Name" />
-        <sort by="Id" />
+        @* INFO: (mg) (core) Disabling multisort while sorting by 2 columns is a bit awkward *@
     </sorting>
     <toolbar>
         <toolbar-group>
@@ -43,8 +43,8 @@
         <column for="StartDate" entity-member="StartDateUtc" />
         <column for="EndDate" entity-member="EndDateUtc" />
         <column for="UsePercentage" halign="center" />
-        <column for="FormattedDiscountPercentage" entity-member="DiscountPercentage" halign="center" readonly="true" />
-        <column for="FormattedDiscountAmount" entity-member="DiscountAmount" halign="center" readonly="true" />
+        <column for="FormattedDiscountPercentage" entity-member="DiscountPercentage" width="auto" halign="center" readonly="true" />
+        <column for="FormattedDiscountAmount" entity-member="DiscountAmount" width="auto" halign="center" readonly="true" />
         <column for="RequiresCouponCode" halign="center" />
     </columns>
 </datagrid>

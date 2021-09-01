@@ -6,13 +6,13 @@
 
 <datagrid id="discount-usage-history-grid"
           key-member="Id"
-          allow-edit="true"
           allow-resize="true"
           allow-row-selection="true"
-          allow-column-reordering="true"
-          preserve-grid-state="true">
+          allow-column-reordering="false"
+          preserve-grid-state="true"
+          max-height="650px">
     <datasource read="@Url.Action("DiscountUsageHistoryList", new { discountId = parentModel.Id })" delete="@Url.Action("DiscountUsageHistoryDelete")" />
-    <paging position="Bottom" show-size-chooser="true" />
+    <paging position="Top" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="CreatedOn" descending="true" />
     </sorting>
@@ -28,11 +28,11 @@
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
     <columns>
-		<column for="OrderId" hideable="false" entity-member="OrderId">
+        <column for="CreatedOn" width="auto" entity-member="CreatedOnUtc" />
+        <column for="OrderId" hideable="false" width="1fr" entity-member="OrderId">
             <display-template>
-                <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.value }}</a></div>
+                <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">@T("Admin.Common.View") (#{{ item.value }})</a></div>
             </display-template>
 		</column>
-        <column for="CreatedOn" entity-member="CreatedOnUtc" />
     </columns>
 </datagrid>

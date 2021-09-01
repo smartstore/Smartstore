@@ -43,15 +43,7 @@ namespace Smartstore.Admin.Models.Discounts
         [LocalizedDisplay("*DiscountPercentage")]
         public string FormattedDiscountPercentage
         {
-            get
-            {
-                if (UsePercentage)
-                {
-                    return string.Format("{0:0.##}", DiscountPercentage);
-                }
-
-                return string.Empty;
-            }
+            get => UsePercentage ? (DiscountPercentage / 100).ToString("P2") : string.Empty;
         }
 
         [LocalizedDisplay("*DiscountAmount")]
