@@ -300,7 +300,7 @@
                                 // Add small item button to open detail page.
                                 preHtml += '<span class="select2-item-btn float-right">';
                                 preHtml += '<a href="' + item.url.replace('__id__', item.id) + '" class="btn btn-flat btn-icon btn-light prevent-selection"' + attr('title', item.urlTitle) + '>';
-                                preHtml += '<i class="fa fa-link fa-fw prevent-selection" /></a>';
+                                preHtml += '<i class="fa fa-link fa-fw prevent-selection"></i></a>';
                                 preHtml += '</span>';
                             }
                         }

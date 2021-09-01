@@ -14,7 +14,7 @@
     <datasource read="@Url.Action("DiscountUsageHistoryList", new { discountId = parentModel.Id })" delete="@Url.Action("DiscountUsageHistoryDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
-        <sort by="CreatedOnUtc" />
+        <sort by="CreatedOn" descending="true" />
     </sorting>
     <toolbar>
         <toolbar-group class="omega">

@@ -179,12 +179,13 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Promotion.Discount.Read)]
         public async Task<IActionResult> Edit(int id)
         {
+            // INFO: CacheableEntity! Always load "tracked" otherwise RuleSets loaded with old values after saving.
             var discount = await _db.Discounts
                 .Include(x => x.RuleSets)
                 .Include(x => x.AppliedToCategories)
                 .Include(x => x.AppliedToManufacturers)
                 .Include(x => x.AppliedToProducts)
-                .FindByIdAsync(id, false);
+                .FindByIdAsync(id);
 
             if (discount == null)
             {
@@ -348,6 +349,12 @@ namespace Smartstore.Admin.Controllers
                     .Where(x => x != null && !x.Deleted)
                     .Select(x => new DiscountAppliedToEntityModel { Id = x.Id, Name = x.GetLocalized(y => y.Name, language) })
                     .ToList();
+            }
+            else
+            {
+                ViewBag.AppliedToCategories = new List<DiscountAppliedToEntityModel>();
+                ViewBag.AppliedToManufacturers = new List<DiscountAppliedToEntityModel>();
+                ViewBag.AppliedToProducts = new List<DiscountAppliedToEntityModel>();
             }
 
             ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;

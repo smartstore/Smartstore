@@ -31,8 +31,6 @@
     var id = Html.IdForModel();
     var strValue = Value;
     var ruleScope = TryGetMetadata<RuleScope>("scope", out var scope) ? scope : (RuleScope?)null;
-
-    // TODO: (mh) (core) Add Edit to RuleController
     var url = Url.Action("Edit", "Rule", new { id = "__id__", area = "Admin" });
 
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
