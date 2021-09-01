@@ -43,6 +43,17 @@
                 return false;
             });
         },
+        //lazy summernote
+        function (ctx) {
+            ctx.find(".html-editor-root").each(function (i, el) {
+                var $el = $(el);
+                summernote_image_upload_url = $el.data("summernote-image-upload-url");
+
+                if ($el.data("lazy") == "False") {
+                    $el.find(".summernote-editor").summernote($.extend(true, {}, summernote_global_config, { lang: $el.data("lang") }));
+                }
+            });
+        },
         // Edit controls (select2, range, colorpicker, numberinput etc.)
         function (ctx) {
             initializeEditControls(ctx);

@@ -3,7 +3,7 @@
 @model string
 
 @{
-    var lazy = ViewData["lazy"].Convert<bool?>() ?? true;
+    var lazy = GetMetadata<bool?>("lazy") ?? true;
     var id = Html.IdForModel();
     var html = ((string)ViewData.TemplateInfo.FormattedModelValue);
     var htmlIsEmpty = !html.HasValue() || html == "<p></p>" || html == "<p>&nbsp;</p>" || html == "<p><br></p>";
