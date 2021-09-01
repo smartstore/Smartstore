@@ -84,14 +84,10 @@ namespace Smartstore.Net.Mail
         }
 
         public override bool CanConvertFrom(Type type)
-        {
-            return type == typeof(string);
-        }
+            => type == typeof(string);
 
         public override bool CanConvertTo(Type type)
-        {
-            return type == typeof(string);
-        }
+            => type == typeof(string);
 
         public override object ConvertFrom(CultureInfo culture, object value)
         {

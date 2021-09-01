@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Humanizer;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering;
@@ -255,7 +256,7 @@ namespace Smartstore.Web.TagHelpers.Admin
 
             var t = For.Metadata.ModelType.GetNonNullableType();
 
-            if (t == typeof(string))
+            if (t == typeof(string) || typeof(IHtmlContent).IsAssignableFrom(t))
             {
                 return "string";
             }

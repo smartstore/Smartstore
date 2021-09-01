@@ -10,6 +10,7 @@ using Sys = System;
 
 namespace Smartstore.Core.Common
 {
+    [JsonConverter(typeof(MoneyJsonConverter))]
     public readonly struct Money : IHtmlContent, IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
     {
         public readonly static Money Zero;
@@ -590,5 +591,25 @@ namespace Smartstore.Core.Common
         }
 
         #endregion
+    }
+
+    internal sealed class MoneyJsonConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+            => typeof(Money).IsAssignableFrom(objectType);
+
+        public override bool CanRead
+            => false;
+
+        public override bool CanWrite
+            => true;
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            => throw new NotSupportedException();
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            serializer.Serialize(writer, value.ToString());
+        }
     }
 }

@@ -18,7 +18,7 @@
                     <i class="fa fa fa-envelope"></i>
                     <span>@T("Common.Send")</span>
                 </button>
-                <confirm button-id="send-campaign" action="SendCampaign" type="Action" icon-color="ThemeColor.Danger" />
+                <confirm message="@T("Common.AreYouSure")" button-id="send-campaign" icon="fas fa-question-circle" action="SendCampaign" type="Action" />
                 <a id="btn-preview-template" class="btn btn-secondary" asp-action="Preview" asp-controller="MessageTemplate" asp-route-id="@Model.Id" asp-route-isCampaign="true">
                     <i class="far fa-eye"></i>
                     <span>@T("Admin.Common.Preview")</span>
