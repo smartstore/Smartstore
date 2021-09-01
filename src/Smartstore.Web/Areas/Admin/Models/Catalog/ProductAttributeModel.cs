@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Data;
 using Smartstore.Core.Search.Facets;
@@ -7,17 +8,29 @@ using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Admin.Models.Catalog
 {
+    [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.List.")]
+    public class ProductAttributeListModel
+    {
+        [LocalizedDisplay("*SearchName")]
+        public string SearchName { get; set; }
+
+        [LocalizedDisplay("*SearchAlias")]
+        public string SearchAlias { get; set; }
+
+        [LocalizedDisplay("*SearchAllowFiltering")]
+        public bool? SearchAllowFiltering { get; set; }
+    }
+
     [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.")]
     public class ProductAttributeModel : EntityModelBase, ILocalizedModel<ProductAttributeLocalizedModel>
     {
-        public List<ProductAttributeLocalizedModel> Locales { get; set; } = new();
-
         [LocalizedDisplay("*Alias")]
         public string Alias { get; set; }
 
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*Description")]
         public string Description { get; set; }
 
@@ -29,12 +42,20 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*FacetTemplateHint")]
         public FacetTemplateHint FacetTemplateHint { get; set; }
+        [LocalizedDisplay("*FacetTemplateHint")]
+        public string LocalizedFacetTemplateHint { get; set; }
 
         [LocalizedDisplay("*IndexOptionNames")]
         public bool IndexOptionNames { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 6)]
         [LocalizedDisplay("*ExportMappings")]
-        public string ExportMappings { get; set; } 
+        public string ExportMappings { get; set; }
+
+        public List<ProductAttributeLocalizedModel> Locales { get; set; } = new();
+
+        public string EditUrl { get; set; }
     }
 
     [LocalizedDisplay("Admin.Catalog.Attributes.ProductAttributes.Fields.")]
@@ -48,6 +69,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*Description")]
         public string Description { get; set; }
     }

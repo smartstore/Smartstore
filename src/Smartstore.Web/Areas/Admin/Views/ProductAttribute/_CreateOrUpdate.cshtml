@@ -1,6 +1,6 @@
 ﻿@using Smartstore.Core.Search.Facets
 
-@model SpecificationAttributeModel
+@model ProductAttributeModel
 
 @{
     var gridViewData = new ViewDataDictionary(ViewData);
@@ -10,7 +10,7 @@
 <div asp-validation-summary="All"></div>
 <input type="hidden" asp-for="Id" />
 
-<tabstrip id="specificationattribute-edit" sm-nav-style="Material">
+<tabstrip id="productattribute-edit" sm-nav-style="Material">
 	<tab sm-title="@T("Admin.Common.General")" sm-selected="true">
 		<div sm-if="Model.Id != 0" class="adminContent">
             <div class="adminRow">
@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        @(Html.LocalizedEditor<SpecificationAttributeModel, SpecificationAttributeLocalizedModel>("specificationattribute-localized",
+        @(Html.LocalizedEditor<ProductAttributeModel, ProductAttributeLocalizedModel>("productattribute-localized",
 	    @<text>
             <div class="adminContent">
 		        <div class="adminRow">
@@ -45,6 +45,15 @@
                     <div class="adminData">
                         <input asp-for="Locales[item].Alias" />
                         <span asp-validation-for="Locales[item].Alias"></span>
+                    </div>
+		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Description" />
+			        </div>
+                    <div class="adminData wide">
+                        <editor asp-for="Locales[item].Description" />
+                        <span asp-validation-for="Locales[item].Description"></span>
                     </div>
 		        </div>
 	        </div>
@@ -70,6 +79,15 @@
                         <span asp-validation-for="Alias"></span>
                     </div>
 		        </div>
+		        <div class="adminRow">
+			        <div class="adminTitle">
+                        <smart-label asp-for="Description" />
+			        </div>
+                    <div class="adminData wide">
+                        <editor asp-for="Description" />
+                        <span asp-validation-for="Description"></span>
+                    </div>
+		        </div>
 	        </div>
 	    </text>))
 
@@ -85,38 +103,20 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="ShowOnProductPage" />
-                </div>
-                <div class="adminData">
-                    <input asp-for="ShowOnProductPage" />
-                    <span asp-validation-for="ShowOnProductPage"></span>
-                </div>
-            </div>
-            <div class="adminRow">
-                <div class="adminTitle">
                     <smart-label asp-for="AllowFiltering" />
                 </div>
                 <div class="adminData">
-                    <input asp-for="AllowFiltering" />
+                    <input asp-for="AllowFiltering" data-toggler-for="#pnlAllowFiltering" />
                     <span asp-validation-for="AllowFiltering"></span>
                 </div>
             </div>
-            <div class="adminRow">
+            <div class="adminRow" id="pnlAllowFiltering">
                 <div class="adminTitle">
                     <smart-label asp-for="FacetTemplateHint" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="FacetTemplateHint" asp-items="Model.FacetTemplateHint.ToSelectList()"></select>
+                    <select asp-for="FacetTemplateHint" asp-items="Model.FacetTemplateHint.ToSelectList().Where(x => x.Value.ToInt() != (int)FacetTemplateHint.NumericRange).ToList()"></select>
                     <span asp-validation-for="FacetTemplateHint"></span>
-                </div>
-            </div>
-            <div class="adminRow facet-sorting">
-                <div class="adminTitle">
-                    <smart-label asp-for="FacetSorting" />
-                </div>
-                <div class="adminData">
-                    <select asp-for="FacetSorting" asp-items="Model.FacetSorting.ToSelectList()"></select>
-                    <span asp-validation-for="FacetSorting"></span>
                 </div>
             </div>
             <div class="adminRow">
@@ -128,12 +128,29 @@
                     <span asp-validation-for="IndexOptionNames"></span>
                 </div>
             </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ExportMappings" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="ExportMappings" />
+                    <span asp-validation-for="ExportMappings"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">&nbsp;</div>
+                <div class="adminData">
+				    <div class="alert alert-info">
+					    @Html.Raw(T("Admin.Catalog.Attributes.ProductAttributes.Fields.ExportMappings.Note"))
+				    </div>
+                </div>
+            </div>
         </div>
 	</tab>
-	<tab sm-title="@T("Admin.Catalog.Attributes.SpecificationAttributes.Options")">
+	<tab sm-title="@T("Admin.Catalog.Attributes.OptionsSets")">
         @if (Model.Id > 0)
         {
-            <partial name="_Grid.SpecificationAttributeOptions" model="null" view-data="gridViewData" />
+            <partial name="_Grid.ProductAttributeOptionsSet" model="null" view-data="gridViewData" />
         }
         else
         {
@@ -143,12 +160,3 @@
         }
 	</tab>
 </tabstrip>
-
-<script sm-target-zone="scripts" data-origin="specification-attribute-edit">
-    $(function() {
-		$('#@(Html.IdFor(x => x.FacetTemplateHint))').change(function () {
-			var sorting = $(this).val() !== '@((int)FacetTemplateHint.NumericRange)';
-			$('.facet-sorting').toggle(sorting);
-		}).trigger('change');
-    });
-</script>

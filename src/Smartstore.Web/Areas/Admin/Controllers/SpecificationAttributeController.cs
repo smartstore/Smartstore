@@ -29,7 +29,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             _localizedEntityService = localizedEntityService;
         }
 
-        // Ajax.
+        // AJAX.
         public async Task<IActionResult> GetOptionsByAttributeId(int attributeId)
         {
             var options = await _db.SpecificationAttributeOptions

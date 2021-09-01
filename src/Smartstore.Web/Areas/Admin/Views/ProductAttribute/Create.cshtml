@@ -1,0 +1,26 @@
+﻿@model ProductAttributeModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.Attributes.ProductAttributes.AddNew").Value;
+}
+
+<form asp-action="Create" id="product-attribute-form">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-list-alt"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-primary">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" />
+</form>

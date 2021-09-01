@@ -1,0 +1,53 @@
+﻿@model ProductAttributeModel
+
+@{
+    var parentModel = ViewData["Parent"] as ProductAttributeListModel;
+}
+
+<datagrid id="product-attributes-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("ProductAttributeList")" delete="@Url.Action("ProductAttributeDelete")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="DisplayOrder" />
+        <sort by="Name" />
+    </sorting>
+    <search-panel>
+        <partial name="_Grid.ProductAttribute.Search" />
+    </search-panel>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")</span>
+            </a>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Id" halign="center" visible="false" />
+        <column for="Name" hideable="false" width="2fr">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="Alias" />
+        <column for="AllowFiltering" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+        <column for="IndexOptionNames" halign="center" visible="false" />
+        <column for="LocalizedFacetTemplateHint" entity-member="FacetTemplateHint" visible="false" />
+    </columns>
+</datagrid>

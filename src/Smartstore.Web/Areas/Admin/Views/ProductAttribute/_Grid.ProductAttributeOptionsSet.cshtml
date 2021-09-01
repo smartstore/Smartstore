@@ -1,0 +1,36 @@
+﻿@model ProductAttributeOptionsSetModel
+
+@{
+    var parentModel = ViewData["Parent"] as ProductAttributeModel;
+}
+
+<input type="button" id="btnRefreshOptions" name="btnRefreshOptions" value="" class="d-none" />
+
+<script sm-target-zone="scripts" data-origin="product-attribute-edit">
+    $(function() {
+        $(document).on('click', '.add-product-attribute-option', function (e) {
+            e.preventDefault();
+            //var id = $(this).closest('.t-grid').attr('id').replace('productattributeoptions-grid', '');
+            var optionsSetId = 0; //TODO: get id
+            $('#btnRefreshOptions').val(optionsSetId);
+            var url = '@Url.Content("~/Admin/ProductAttribute/ProductAttributeOptionCreatePopup/")' + optionsSetId + '?btnId=btnRefreshOptions&formId=product-attribute-form';
+            openPopup(url, true);
+            return false;
+        });
+
+        $(document).on('click', '.edit-product-attribute-option', function (e) {
+            e.preventDefault();
+            var id = $(this).data("id");
+            $('#btnRefreshOptions').val(id);
+            var url = '@Url.Content("~/Admin/ProductAttribute/ProductAttributeOptionEditPopup/")' + id + '?btnId=btnRefreshOptions&formId=product-attribute-form';
+            openPopup(url, true);
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefreshOptions', function () {
+            window["product-attribute-options-grid" + $(this).val()].$children[0].read();
+            return false;
+        });
+    });
+</script>

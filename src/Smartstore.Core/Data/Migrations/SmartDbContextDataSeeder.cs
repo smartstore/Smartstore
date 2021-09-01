@@ -103,6 +103,25 @@ namespace Smartstore.Core.Data.Migrations
                 "No categories found.",
                 "Es wurden keine Warengruppen gefunden.");
 
+
+            builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.List.SearchName",
+                "Name",
+                "Name",
+                "Filters by the attribute name.",
+                "Filtert nach dem Attributnamen.");
+
+            builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.List.SearchAlias",
+                "Alias",
+                "Alias",
+                "Filters by the URL alias for search filters.",
+                "Filtert nach dem URL-Alias für Suchfilter.");
+
+            builder.AddOrUpdate("Admin.Catalog.Attributes.ProductAttributes.List.SearchAllowFiltering",
+                "Allow filtering",
+                "Filtern zulassen",
+                "Filters attributes by which search results can be filtered.",
+                "Filtert Attribute, nach denen Suchergebnisse eingegrenzt werden können.");
+
             builder.AddOrUpdate("Admin.Catalog.Attributes.SpecificationAttributes.List.SearchName",
                 "Name",
                 "Name",
@@ -366,6 +385,7 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Catalog.Attributes.SpecificationAttributes.Info",
             //    "Admin.Promotions.Discounts.BackToList",
             //    "Admin.Promotions.Discounts.Info",
+            //    "Admin.Catalog.Attributes.ProductAttributes.BackToList",
             //    );
 
             #endregion
