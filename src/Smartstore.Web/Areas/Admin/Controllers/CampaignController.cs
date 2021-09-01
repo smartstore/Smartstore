@@ -142,7 +142,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Promotion.Campaign.Update)]
         public async Task<IActionResult> Edit(CampaignModel model, bool continueEditing)
         {
-            var campaign = await _db.Campaigns.FindByIdAsync(model.Id, false);
+            var campaign = await _db.Campaigns.FindByIdAsync(model.Id);
             if (campaign == null)
             {
                 return NotFound();
