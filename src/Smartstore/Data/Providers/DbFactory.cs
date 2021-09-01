@@ -19,7 +19,8 @@ namespace Smartstore.Data.Providers
     }
 
     /// <summary>
-    /// TODO: (core) Describe everything when completed.
+    /// Contains factory methods for creating connection strings, <see cref="DataProvider"/>,
+    /// <see cref="DbContext"/> and <see cref="DbContextOptions"/>.
     /// </summary>
     public abstract class DbFactory
     {
@@ -27,23 +28,51 @@ namespace Smartstore.Data.Providers
 
         private readonly static ConcurrentDictionary<string, DbFactory> _loadedFactories = new(StringComparer.OrdinalIgnoreCase);
         
+        /// <summary>
+        /// Gets the database system type.
+        /// </summary>
         public abstract DbSystemType DbSystem { get; }
 
+        /// <summary>
+        /// Creates a <see cref="DbConnectionStringBuilder"/> instance with the given <paramref name="connectionString"/>.
+        /// </summary>
+        /// <param name="connectionString">The connection string to initialize the builder with.</param>
         public abstract DbConnectionStringBuilder CreateConnectionStringBuilder(string connectionString);
 
+        /// <summary>
+        /// Creates a <see cref="DbConnectionStringBuilder"/> instance with the given parameters.
+        /// </summary>
         public abstract DbConnectionStringBuilder CreateConnectionStringBuilder(
             string server, 
             string database,
             string userName,
             string password);
 
+        /// <summary>
+        /// Creates a <see cref="DataProvider"/> instance for the current database system.
+        /// </summary>
         public abstract DataProvider CreateDataProvider(DatabaseFacade database);
 
+        /// <summary>
+        /// Creates a data context configured for the current database system.
+        /// </summary>
+        /// <typeparam name="TContext">Data context type</typeparam>
+        /// <param name="connectionString">Connection string</param>
+        /// <param name="commandTimeout">Command timeout</param>
+        /// <returns>The data context instance.</returns>
         public abstract TContext CreateDbContext<TContext>(string connectionString, int? commandTimeout = null)
             where TContext : DbContext;
 
+        /// <summary>
+        /// Configures any data context to use the current database system.
+        /// </summary>
         public abstract DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString);
 
+        /// <summary>
+        /// Finds the <see cref="DbFactory"/> impl type for the given <paramref name="provider"/> name
+        /// and loads its assembly into the current <see cref="AssemblyLoadContext"/>.
+        /// </summary>
+        /// <param name="provider">The provider to find</param>
         public static DbFactory Load(string provider, ITypeScanner typeScanner)
         {
             Guard.NotEmpty(provider, nameof(provider));
