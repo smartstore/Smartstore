@@ -1,0 +1,12 @@
+﻿@{
+    ViewBag.Title = T("Admin.Promotions.Campaigns").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-bullhorn"></i>
+        @T("Admin.Promotions.Campaigns")
+    </div>
+</div>
+
+<partial name="_Grid.Campaigns" />
