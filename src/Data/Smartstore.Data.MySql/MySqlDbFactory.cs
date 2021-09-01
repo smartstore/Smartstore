@@ -1,9 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.Extensions.DependencyInjection;
 using MySqlConnector;
+using Pomelo.EntityFrameworkCore.MySql.Query.Internal;
 using Smartstore.Data.Providers;
 
 namespace Smartstore.Data.MySql
@@ -84,5 +91,42 @@ namespace Smartstore.Data.MySql
                 }
             });
         }
+
+        #region Method Call Translation
+
+        private static readonly FieldInfo _translatorsField = typeof(RelationalMethodCallTranslatorProvider)
+            .GetField("_translators", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "No public API for this available")]
+        protected override IMethodCallTranslator FindMethodCallTranslator(IServiceProvider services, MethodInfo sourceMethod)
+        {
+            var provider = services.GetRequiredService<IMethodCallTranslatorProvider>() as MySqlMethodCallTranslatorProvider;
+            if (provider != null)
+            {
+                var translators = _translatorsField.GetValue(provider) as List<IMethodCallTranslator>;
+                if (translators != null)
+                {
+                    if (sourceMethod.Name.StartsWith("DateDiff"))
+                    {
+                        return translators.FirstOrDefault(x => x is MySqlDateDiffFunctionsTranslator);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        protected override MethodInfo FindMappedMethod(MethodInfo sourceMethod)
+        {
+            var parameterTypes = sourceMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+
+            var method = typeof(MySqlDbFunctionsExtensions).GetRuntimeMethod(
+                sourceMethod.Name,
+                parameterTypes);
+
+            return method;
+        }
+
+        #endregion
     }
 }

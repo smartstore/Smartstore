@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine;
 
@@ -40,7 +41,7 @@ namespace Smartstore.Data.Providers
 
         public void ApplyServices(IServiceCollection services)
         {
-            // No services
+            services.AddSingleton<IMethodCallTranslatorPlugin, DbFactoryMethodCallTranslatorPlugin>();
         }
 
         public void Validate(IDbContextOptions options)
