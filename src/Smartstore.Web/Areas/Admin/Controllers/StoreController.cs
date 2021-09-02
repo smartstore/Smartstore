@@ -157,7 +157,7 @@ namespace Smartstore.Admin.Controllers
 
                 // Ensure we have "/" at the end.
                 store.Url = store.Url.EnsureEndsWith("/");
-                var num = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
                 
                 NotifySuccess(T("Admin.Configuration.Stores.Updated"));
                 return continueEditing ? RedirectToAction("Edit", new { id = store.Id }) : RedirectToAction("List");

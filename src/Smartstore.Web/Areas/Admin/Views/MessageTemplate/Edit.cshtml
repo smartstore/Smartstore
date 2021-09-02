@@ -44,3 +44,13 @@
 
     <partial name="_CreateOrUpdate" />
 </form>
+
+<script sm-target-zone="scripts" data-origin="message-template-edit">
+    $(function () {
+        $('#btn-preview-template').on('click', function (e) {
+            e.preventDefault();
+            openPopup($(this).attr('href'), false /* large */, true /* flex */);
+            return false;
+        });
+    });
+</script>

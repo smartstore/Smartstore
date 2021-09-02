@@ -459,7 +459,7 @@ namespace Smartstore.Core.Messaging
             {
                 //{ "BlogComment", () => GetRandomEntity<BlogComment>(x => true) },
                 { "Product", () => GetRandomEntity<Product>(x => !x.Deleted && !x.IsSystemProduct && x.Visibility != ProductVisibility.Hidden && x.Published) },
-                { "Customer", () => GetRandomEntity<Customer>(x => !x.Deleted && !x.IsSystemAccount && x.Email.HasValue()) },
+                { "Customer", () => GetRandomEntity<Customer>(x => !x.Deleted && !x.IsSystemAccount && !string.IsNullOrEmpty(x.Email)) },
                 { "Order", () => GetRandomEntity<Order>(x => !x.Deleted) },
                 { "Shipment", () => GetRandomEntity<Shipment>(x => !x.Order.Deleted) },
                 { "OrderNote", () => GetRandomEntity<OrderNote>(x => !x.Order.Deleted) },
