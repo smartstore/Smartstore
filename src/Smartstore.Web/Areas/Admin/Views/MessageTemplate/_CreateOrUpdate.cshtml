@@ -1,0 +1,241 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model MessageTemplateModel
+
+@{
+    string modelTree = ViewBag.LastModelTreeJson;
+    string templateName = "MessageTemplate/" + Model.Name;
+}
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<tabstrip id="template-edit" sm-nav-style="Material" sm-nav-position="Top">
+    <tab sm-title="@T("Admin.Common.Info")" sm-selected="true">
+        <div class="adminContent mb-2">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Name"></smart-label>
+                </div>
+                <div class="adminData">
+                    <div class="form-control-plaintext">
+                        @Model.Name
+                    </div>
+                    <input asp-for="Name" type="hidden" />
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IsActive"></smart-label>
+                </div>
+                <div class="adminData">
+                    <input asp-for="IsActive" />
+                    <span asp-validation-for="IsActive"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SendManually"></smart-label>
+                </div>
+                <div class="adminData">
+                    <input asp-for="SendManually" />
+                    <span asp-validation-for="SendManually"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedStoreIds"></smart-label>
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedStoreIds" />
+                    <span asp-validation-for="SelectedStoreIds"></span>
+                </div>
+            </div>
+        </div>
+
+        @(Html.LocalizedEditor<MessageTemplateModel, MessageTemplateLocalizedModel>("messagetemplate-localized",
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Name"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input asp-for="Locales[item].LanguageId" type="hidden" />
+                        <select asp-for="Locales[item].EmailAccountId" asp-items='new SelectList(ViewBag.EmailAccounts, "Id", "DisplayName", Model.Locales[item].EmailAccountId)'></select>
+                        <span asp-validation-for="Locales[item].EmailAccountId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].To"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Locales[item].To" />
+                        <span asp-validation-for="Locales[item].To"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].ReplyTo"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Locales[item].ReplyTo" />
+                        <span asp-validation-for="Locales[item].ReplyTo"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].BccEmailAddresses"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Locales[item].BccEmailAddresses" />
+                        <span asp-validation-for="Locales[item].BccEmailAddresses"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Subject"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Locales[item].Subject" />
+                        <span asp-validation-for="Locales[item].Subject"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Attachment1FileId"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Locales[item].Attachment1FileId" />
+                        <span asp-validation-for="Locales[item].Attachment1FileId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Attachment2FileId"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Locales[item].Attachment2FileId" />
+                        <span asp-validation-for="Locales[item].Attachment2FileId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Attachment3FileId"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Locales[item].Attachment3FileId" />
+                        <span asp-validation-for="Locales[item].Attachment3FileId"></span>
+                    </div>
+                </div>
+                <div class="adminRow wide">
+                    <div class="adminData">
+                        <editor asp-for="Locales[item].Body" TemplateName="@templateName" />
+                        <span asp-validation-for="Locales[item].Body"></span>
+                    </div>
+                </div>
+            </div>
+            ,
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="EmailAccountId"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="EmailAccountId" asp-items='new SelectList(ViewBag.EmailAccounts, "Id", "DisplayName")'></select>
+                        <span asp-validation-for="EmailAccountId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="To"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="To" />
+                        <span asp-validation-for="To"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ReplyTo"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="ReplyTo" />
+                        <span asp-validation-for="ReplyTo"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BccEmailAddresses"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="BccEmailAddresses" />
+                        <span asp-validation-for="BccEmailAddresses"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Subject"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Subject" />
+                        <span asp-validation-for="Subject"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Attachment1FileId"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Attachment1FileId" />
+                        <span asp-validation-for="Attachment1FileId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Attachment2FileId"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Attachment2FileId" />
+                        <span asp-validation-for="Attachment2FileId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Attachment3FileId"></smart-label>
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Attachment3FileId" />
+                        <span asp-validation-for="Attachment3FileId"></span>
+                    </div>
+                </div>
+                <div class="adminRow wide">
+                    <div class="adminData">
+                        <editor asp-for="Body" TemplateName="@templateName" />
+                        <span asp-validation-for="Body"></span>
+                    </div>
+                </div>
+            </div>
+        ))
+    </tab>
+</tabstrip>
+
+<script sm-target-zone="scripts" data-origin="message-template-edit">
+    $(function () {
+
+        @if (modelTree.HasValue())
+        {
+	        <text>SmartStore.Admin.modelTrees["@Html.Raw(templateName)"] = @Html.Raw("JSON.parse('" + modelTree + "')"); </text>
+        }
+
+        $("#template-edit").on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+            // Refresh/repaint hidden CodeMirror instance
+            var a = $(e.target);
+            var el = a.closest('.nav').next().find(a.attr('href') + ' .CodeMirror');
+            if (el.length) {
+                el[0].CodeMirror.refresh();
+            }
+        });
+    });
+</script>

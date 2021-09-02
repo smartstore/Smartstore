@@ -1,0 +1,50 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model MessageTemplateModel
+
+@{
+    var parentModel = ViewData["Parent"] as SettingListModel;
+}
+
+<datagrid id="templates-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("List", "MessageTemplate")"
+                delete="@Url.Action("DeleteSelection", "MessageTemplate")" />
+    <sorting enabled="true">
+        <sort by="Name" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.MessageTemplates.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Name" width="350px" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="Subject" width="1fr" />
+        <column for="IsActive" halign="center" />
+        <column for="SendManually" halign="center" />
+        <column for="LimitedToStores" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>

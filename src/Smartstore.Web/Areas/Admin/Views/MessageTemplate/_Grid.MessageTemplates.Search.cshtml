@@ -1,0 +1,20 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model MessageTemplateListModel
+
+@{
+    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+}
+
+<div class="form-group">
+    <smart-label asp-for="SearchName" />
+    <input asp-for="SearchName" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchSubject" />
+    <input asp-for="SearchSubject" />
+</div>
+<div sm-if="!isSingleStoreMode" class="form-group">
+    <smart-label asp-for="SearchStoreId" />
+    <editor asp-for="SearchStoreId" />
+</div>

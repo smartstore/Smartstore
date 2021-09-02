@@ -1,0 +1,46 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model MessageTemplateModel
+
+@{
+    ViewBag.Title = T("Admin.ContentManagement.MessageTemplates.EditMessageTemplateDetails").Value;
+}
+
+<form asp-action="Edit">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-edit"></i>
+            @T("Admin.ContentManagement.MessageTemplates.EditMessageTemplateDetails") - @Model.Name <a asp-action="List">(@T("Admin.ContentManagement.MessageTemplates.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before"></zone>
+
+            @* CAUTION: saving a template to XML overwrites the original raw content *@
+            @*<button type="submit" name="save-in-file" value="save-in-file" class="btn btn-danger"><i class="fa fa-floppy-o"></i><span>Save as XML</span></button>*@
+            <a id="btn-preview-template" class="btn btn-secondary"
+               asp-action="Preview" asp-route-id="@Model.Id" asp-route-isCampaign="false">
+                <i class="far fa-eye"></i>
+                <span>@T("Admin.Common.Preview")</span>
+            </a>
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">@T("Admin.Common.SaveContinue")</button>
+            <button type="submit" name="message-template-copy" id="message-template-copy" class="btn btn-secondary" value="@T("Admin.ContentManagement.MessageTemplates.Copy")">
+                <i class="far fa-copy"></i>
+                <span>@T("Admin.ContentManagement.MessageTemplates.Copy")</span>
+            </button>
+            <confirm button-id="message-template-copy" action="CopyTemplate" type="Action" />
+            <button type="submit" name="message-template-delete" id="message-template-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="message-template-delete" />
+
+            <zone name="admin_button_toolbar_after"></zone>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" />
+</form>
