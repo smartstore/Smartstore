@@ -2,9 +2,17 @@
 
 @{
     var parentModel = ViewData["Parent"] as ProductAttributeModel;
+
+    const string strRoot = "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.";
+    var nameStr = T(strRoot + "Name");
+    var aliasStr = T(strRoot + "Alias");
+    var priceAdjustmentStr = T(strRoot + "PriceAdjustment");
+    var weightAdjustmentStr = T(strRoot + "WeightAdjustment");
+    var isPreSelectedStr = T(strRoot + "IsPreSelected");
+    var displayOrderStr = T("Common.DisplayOrder");
 }
 
-<datagrid id="product-attributes-optionsset-grid"
+<datagrid id="product-attribute-optionsset-grid"
           allow-resize="true"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
@@ -45,6 +53,34 @@
         <column for="Id" halign="center" visible="false" readonly="true" />
         <column for="Name" hideable="false" width="2fr" />
     </columns>
+    <detail-view>
+        <div class="datagrid-root">
+            <sm-datagrid 
+                :options="{ keyMemberName: 'Id', vborders: true, hover: true, striped: true }" 
+                :data-source="{ read: '@Url.Action("ProductAttributeOptionsList")?optionsSetId=5' }"@*TODO: (mg) (core) Find the set ID somehow.*@
+                :columns="[ 
+                    { member: 'Name', name: 'Name', visible: true, title: '@nameStr' }, @*TODO: (mg) (core) Use template somehow.*@
+                    { member: 'Alias', name: 'Alias', visible: true, title: '@aliasStr' },
+                    { member: 'PriceAdjustmentString', name: 'PriceAdjustmentString', visible: true, halign: 'center', title: '@priceAdjustmentStr' },
+                    { member: 'WeightAdjustmentString', name: 'WeightAdjustmentString', visible: true, halign: 'center', title: '@weightAdjustmentStr' },
+                    { member: 'IsPreSelected', name: 'IsPreSelected', visible: true, halign: 'center', type: 'boolean', title: '@isPreSelectedStr' },
+                    { member: 'DisplayOrder', name: 'DisplayOrder', visible: true, halign: 'center', type: 'int', title: '@displayOrderStr' },
+                ]" 
+                :paging="{ enabled: true, pageSize: 15, pageIndex: 1 }" 
+                :sorting="{ enabled: true, descriptors: [] }">
+                <template v-slot:toolbar="grid">
+                    <div class="dg-toolbar d-flex flex-nowrap">
+                        <div class="dg-toolbar-group">
+                            <button type="button" class="btn btn-primary btn-sm btn-flat no-anims mr-auto insert-option" href="#" v-if="!grid.editing.active" v-on:click.prevent="grid.insertRow">
+                                <i class="fa fa-plus"></i>
+                                <span>@T("Admin.Common.AddNew")</span>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </sm-datagrid>
+        </div>
+    </detail-view>
 </datagrid>
 
 <input type="button" id="btnRefreshOptions" name="btnRefreshOptions" value="" class="d-none" />
