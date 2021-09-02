@@ -13,6 +13,8 @@ using Smartstore.Data.Caching;
 using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Templating;
+using Smartstore.Templating.Liquid;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -67,6 +69,8 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
+            builder.RegisterType<LiquidTemplateEngine>().As<ITemplateEngine>().SingleInstance();
+            
             builder.RegisterModule(new LoggingModule());
             builder.RegisterModule(new PackagingModule());
             builder.RegisterModule(new LocalizationModule());

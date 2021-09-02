@@ -35,6 +35,6 @@ namespace Smartstore.Core.Common.Services
         /// <param name="address">Address to format. Usually passed by the template engine as a dictionary.</param>
         /// <param name="template">The (liquid) formatting template. If <c>null</c>, the system global template will be used.</param>
         /// <returns>The formatted address.</returns>
-        string FormatAddress(object address, string template = null, IFormatProvider formatProvider = null);
+        Task<string> FormatAddressAsync(object address, string template = null, IFormatProvider formatProvider = null);
     }
 }

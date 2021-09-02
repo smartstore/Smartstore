@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Smartstore.Domain;
 
 namespace Smartstore.Templating
@@ -14,9 +15,9 @@ namespace Smartstore.Templating
             return new NullTemplate(template);
         }
 
-        public string Render(string source, object data, IFormatProvider formatProvider)
+        public Task<string> RenderAsync(string source, object data, IFormatProvider formatProvider = null)
         {
-            return source;
+            return Task.FromResult(source);
         }
 
         public ITestModel CreateTestModelFor(BaseEntity entity, string modelPrefix)
@@ -40,9 +41,9 @@ namespace Smartstore.Templating
 
             public string Source => _source;
 
-            public string Render(object data, IFormatProvider formatProvider)
+            public Task<string> RenderAsync(object data, IFormatProvider formatProvider)
             {
-                return _source;
+                return Task.FromResult(_source);
             }
         }
     }

@@ -734,7 +734,7 @@ namespace Smartstore.Core.Messaging
             var body = HtmlUtils.RelativizeFontSizes(part.Body.EmptyNull());
 
             // We must render the body separately.
-            body = _templateEngine.Render(body, messageContext.Model, messageContext.FormatProvider);
+            body = await _templateEngine.RenderAsync(body, messageContext.Model, messageContext.FormatProvider);
 
             var m = new Dictionary<string, object>
             {

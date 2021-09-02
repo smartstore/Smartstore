@@ -23,7 +23,9 @@ namespace Smartstore.DependencyInjection
         public IEnumerable<IComponentRegistration> RegistrationsFor(Service service, Func<Service, IEnumerable<ServiceRegistration>> registrationAccessor)
         {
             if (service is not IServiceWithType swt || !IsClosingTypeOf(swt.ServiceType, typeof(Work<>)))
+            {
                 return Enumerable.Empty<IComponentRegistration>();
+            }  
 
             var valueType = swt.ServiceType.GetGenericArguments()[0];
 

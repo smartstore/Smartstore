@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Smartstore.Domain;
 
 namespace Smartstore.Templating
@@ -40,7 +41,7 @@ namespace Smartstore.Templating
         /// </param>
         /// <param name="formatProvider">Provider to use for formatting numbers, dates, money etc.</param>
         /// <returns>The processed template result</returns>
-        string Render(string source, object model, IFormatProvider formatProvider);
+        Task<string> RenderAsync(string source, object model, IFormatProvider formatProvider = null);
 
         /// <summary>
         /// Creates a test model for the passed entity to be used during preview and test.

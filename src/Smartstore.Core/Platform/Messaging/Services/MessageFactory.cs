@@ -121,14 +121,14 @@ namespace Smartstore.Core.Messaging
             var languageId = messageContext.Language.Id;
 
             // Render templates
-            var to = RenderEmailAddress(messageTemplate.To, messageContext);
-            var replyTo = RenderEmailAddress(messageTemplate.ReplyTo, messageContext, false);
-            var bcc = RenderTemplate(messageTemplate.GetLocalized((x) => x.BccEmailAddresses, languageId), messageContext, false);
+            var to = await RenderEmailAddressAsync(messageTemplate.To, messageContext);
+            var replyTo = await RenderEmailAddressAsync(messageTemplate.ReplyTo, messageContext, false);
+            var bcc = await RenderTemplateAsync(messageTemplate.GetLocalized((x) => x.BccEmailAddresses, languageId), messageContext, false);
 
-            var subject = RenderTemplate(messageTemplate.GetLocalized((x) => x.Subject, languageId), messageContext);
+            var subject = await RenderTemplateAsync(messageTemplate.GetLocalized((x) => x.Subject, languageId), messageContext);
             ((dynamic)model).Email.Subject = subject;
 
-            var body = RenderBodyTemplate(messageContext);
+            var body = await RenderBodyTemplateAsync(messageContext);
 
             // CSS inliner
             body = InlineCss(body, model);
@@ -191,13 +191,13 @@ namespace Smartstore.Core.Messaging
             await _db.SaveChangesAsync();
         }
 
-        private MailAddress RenderEmailAddress(string email, MessageContext ctx, bool required = true)
+        private async Task<MailAddress> RenderEmailAddressAsync(string email, MessageContext ctx, bool required = true)
         {
             string parsed = null;
 
             try
             {
-                parsed = RenderTemplate(email, ctx, required);
+                parsed = await RenderTemplateAsync(email, ctx, required);
 
                 if (required || parsed.HasValue())
                 {
@@ -221,17 +221,17 @@ namespace Smartstore.Core.Messaging
             }
         }
 
-        private string RenderTemplate(string template, MessageContext ctx, bool required = true)
+        private Task<string> RenderTemplateAsync(string template, MessageContext ctx, bool required = true)
         {
             if (!required && template.IsEmpty())
             {
-                return null;
+                return Task.FromResult<string>(null);
             }
 
-            return _templateEngine.Render(template, ctx.Model, ctx.FormatProvider);
+            return _templateEngine.RenderAsync(template, ctx.Model, ctx.FormatProvider);
         }
 
-        private string RenderBodyTemplate(MessageContext ctx)
+        private async Task<string> RenderBodyTemplateAsync(MessageContext ctx)
         {
             var key = BuildTemplateKey(ctx);
             var source = ctx.MessageTemplate.GetLocalized((x) => x.Body, ctx.Language);
@@ -246,7 +246,7 @@ namespace Smartstore.Core.Messaging
                 _templateManager.Put(key, template);
             }
 
-            return template.Render(ctx.Model, ctx.FormatProvider);
+            return await template.RenderAsync(ctx.Model, ctx.FormatProvider);
 
             string GetBodyTemplate()
             {

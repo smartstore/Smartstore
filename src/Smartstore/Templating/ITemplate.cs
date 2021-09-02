@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Smartstore.Templating
 {
@@ -22,6 +23,6 @@ namespace Smartstore.Templating
         /// </param>
         /// <param name="formatProvider">Provider to use for formatting numbers, dates, money etc.</param>
         /// <returns>The processed template result</returns>
-        string Render(object model, IFormatProvider formatProvider);
+        Task<string> RenderAsync(object model, IFormatProvider formatProvider);
     }
 }

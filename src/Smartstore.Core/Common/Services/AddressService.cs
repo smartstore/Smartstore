@@ -176,7 +176,7 @@ namespace Smartstore.Core.Common.Services
             await _messageModelProvider.AddModelPartAsync(address, messageContext, "Address");
             var model = messageContext.Model["Address"];
 
-            var result = FormatAddress(model, address?.Country?.AddressFormat, messageContext.FormatProvider);
+            var result = await FormatAddressAsync(model, address?.Country?.AddressFormat, messageContext.FormatProvider);
 
             if (newLineToBr)
             {
@@ -186,17 +186,16 @@ namespace Smartstore.Core.Common.Services
             return result;
         }
 
-        public virtual string FormatAddress(object address, string template = null, IFormatProvider formatProvider = null)
+        public virtual async Task<string> FormatAddressAsync(object address, string template = null, IFormatProvider formatProvider = null)
         {
             Guard.NotNull(address, nameof(address));
 
             template = template.NullEmpty() ?? Address.DefaultAddressFormat;
 
-            var result = _templateEngine
-                .Render(template, address, formatProvider ?? CultureInfo.CurrentCulture)
-                .Compact(true);
+            var result = await _templateEngine
+                .RenderAsync(template, address, formatProvider);
 
-            return result;
+            return result.Compact(true);
         }
     }
 }

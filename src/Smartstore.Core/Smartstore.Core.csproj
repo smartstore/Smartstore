@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
+    <PackageReference Include="DotLiquid" Version="2.2.548" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="FluentMigrator" Version="3.3.0" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.3.0" />
