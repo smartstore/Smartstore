@@ -151,6 +151,7 @@ namespace Smartstore.Core.Messaging
             {
                 Priority = 5,
                 From = messageContext.SenderMailAddress ?? messageContext.EmailAccount.ToMailAddress(),
+                // INFO: Comment in to produce error
                 //To = to.ToString(),
                 To = "",                    // TODO: (mh) (core) Uncomment once template engine is available.
                 Bcc = bcc,
@@ -228,6 +229,8 @@ namespace Smartstore.Core.Messaging
                 return Task.FromResult<string>(null);
             }
 
+            // INFO: Fails to render email address
+            // Tested with {{ NewsLetterSubscription.Email }} model had the correct property.
             return _templateEngine.RenderAsync(template, ctx.Model, ctx.FormatProvider);
         }
 

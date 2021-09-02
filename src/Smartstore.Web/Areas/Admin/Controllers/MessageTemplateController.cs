@@ -358,7 +358,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
                 model.ReplyTo = email.ReplyTo;
                 model.Subject = email.Subject;
                 model.To = "test@test.de";
-                // INFO: Uncomment to test email rendering bug
+                // INFO: Uncomment to test email rendering bug 
                 //model.To = email.To;
                 model.Error = null;
                 model.Token = Guid.NewGuid().ToString();
