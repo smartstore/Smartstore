@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,9 +29,12 @@ namespace Smartstore.Core.Common.Services
 
         #region Hook
 
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            // Publish OrderUpdated event for attributes referring to order entities
+            // Publish OrderUpdated event for attributes referring to order entities.
             var orderIds = entries
                 .Select(x => x.Entity)
                 .OfType<GenericAttribute>()

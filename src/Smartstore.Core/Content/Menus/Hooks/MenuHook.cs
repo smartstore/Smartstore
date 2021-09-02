@@ -66,6 +66,9 @@ namespace Smartstore.Core.Content.Menus.Hooks
             return Task.FromResult(HookResult.Ok);
         }
 
+        protected override Task<HookResult> OnUpdatedAsync(MenuEntity entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
         protected override Task<HookResult> OnDeletedAsync(MenuEntity entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             _toRemove.Add(entity.SystemName);
