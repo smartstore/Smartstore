@@ -33,7 +33,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Visibility")]
         public ProductVisibility Visibility { get; set; }
 
-        [LocalizedDisplay("*.Condition")]
+        [LocalizedDisplay("*Condition")]
         public ProductCondition Condition { get; set; }
 
         [LocalizedDisplay("*ProductTemplate")]

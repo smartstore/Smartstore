@@ -13,6 +13,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
+using EState = Smartstore.Data.EntityState;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
@@ -49,23 +50,68 @@ namespace Smartstore.Core.Catalog.Discounts
         protected override Task<HookResult> OnInsertedAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
-        protected override Task<HookResult> OnUpdatingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override async Task<HookResult> OnUpdatingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (entry.IsPropertyModified(nameof(Discount.DiscountTypeId)))
+            if (entry.State == EState.Modified)
             {
-                KeepRelatedEntityIds(entity);
+                var prop = entry.Entry.Property(nameof(entity.DiscountTypeId));
+
+                var currentDiscountType = prop.OriginalValue != null
+                    ? (DiscountType)(int)prop.OriginalValue
+                    : (DiscountType?)null;
+
+                var newDiscountType = prop.CurrentValue != null
+                    ? (DiscountType)(int)prop.CurrentValue
+                    : (DiscountType?)null;
+
+                if (currentDiscountType == DiscountType.AssignedToCategories && newDiscountType != DiscountType.AssignedToCategories)
+                {
+                    await _db.LoadCollectionAsync(entity, x => x.AppliedToCategories, cancelToken: cancelToken);
+                    _relatedEntityIds.AddRange("category", entity.AppliedToCategories.Select(x => x.Id));
+
+                    entity.AppliedToCategories.Clear();
+                }
+                else if (currentDiscountType == DiscountType.AssignedToManufacturers && newDiscountType != DiscountType.AssignedToManufacturers)
+                {
+                    await _db.LoadCollectionAsync(entity, x => x.AppliedToManufacturers, cancelToken: cancelToken);
+                    _relatedEntityIds.AddRange("manufacturer", entity.AppliedToManufacturers.Select(x => x.Id));
+
+                    entity.AppliedToManufacturers.Clear();
+                }
+                else if (currentDiscountType == DiscountType.AssignedToSkus && newDiscountType != DiscountType.AssignedToSkus)
+                {
+                    await _db.LoadCollectionAsync(entity, x => x.AppliedToProducts, cancelToken: cancelToken);
+                    _relatedEntityIds.AddRange("product", entity.AppliedToProducts.Select(x => x.Id));
+
+                    entity.AppliedToProducts.Clear();
+                }
             }
 
-            return Task.FromResult(HookResult.Ok);
+            return HookResult.Ok;
         }
 
         protected override Task<HookResult> OnUpdatedAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
-        protected override Task<HookResult> OnDeletingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override async Task<HookResult> OnDeletingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            KeepRelatedEntityIds(entity);
-            return Task.FromResult(HookResult.Ok);
+            if (entity.DiscountType == DiscountType.AssignedToCategories)
+            {
+                await _db.LoadCollectionAsync(entity, x => x.AppliedToCategories, cancelToken: cancelToken);
+                _relatedEntityIds.AddRange("category", entity.AppliedToCategories.Select(x => x.Id));
+            }
+            else if (entity.DiscountType == DiscountType.AssignedToManufacturers)
+            {
+                await _db.LoadCollectionAsync(entity, x => x.AppliedToManufacturers, cancelToken: cancelToken);
+                _relatedEntityIds.AddRange("manufacturer", entity.AppliedToManufacturers.Select(x => x.Id));
+            }
+            else if (entity.DiscountType == DiscountType.AssignedToSkus)
+            {
+                await _db.LoadCollectionAsync(entity, x => x.AppliedToProducts, cancelToken: cancelToken);
+                _relatedEntityIds.AddRange("product", entity.AppliedToProducts.Select(x => x.Id));
+            }
+
+            return HookResult.Ok;
         }
 
         protected override Task<HookResult> OnDeletedAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
@@ -85,13 +131,6 @@ namespace Smartstore.Core.Catalog.Discounts
             _requestCache.RemoveByPattern(DISCOUNTS_PATTERN_KEY);
         }
 
-        private void KeepRelatedEntityIds(Discount entity)
-        {
-            _relatedEntityIds.AddRange("product", entity.AppliedToProducts.Select(x => x.Id));
-            _relatedEntityIds.AddRange("category", entity.AppliedToCategories.Select(x => x.Id));
-            _relatedEntityIds.AddRange("manufacturer", entity.AppliedToManufacturers.Select(x => x.Id));
-        }
-
         private async Task UpdateHasDiscountsAppliedProperty<TEntity>(DbSet<TEntity> dbSet, IEnumerable<int> ids, CancellationToken cancelToken = default)
             where TEntity : EntityWithDiscounts
         {
@@ -100,17 +139,13 @@ namespace Smartstore.Core.Catalog.Discounts
             foreach (var idsChunk in allIds.Slice(100))
             {
                 var entities = await dbSet
+                    .Include(x => x.AppliedDiscounts)
                     .Where(x => idsChunk.Contains(x.Id))
                     .ToListAsync(cancelToken);
 
                 foreach (var entity in entities.OfType<EntityWithDiscounts>())
                 {
-                    var isLoaded = _db.IsCollectionLoaded(entity, x => x.AppliedDiscounts, out var collectionEntry);
-                    var hasDiscounts = isLoaded
-                        ? entity.AppliedDiscounts.Any()
-                        : await collectionEntry.Query().AnyAsync(cancelToken);
-
-                    entity.HasDiscountsApplied = hasDiscounts;
+                    entity.HasDiscountsApplied = entity.AppliedDiscounts.Any();
                 }
 
                 await _db.SaveChangesAsync(cancelToken);

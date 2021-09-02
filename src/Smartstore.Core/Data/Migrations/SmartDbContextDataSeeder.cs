@@ -170,6 +170,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Filters discounts that require a coupon code.",
                 "Filtert Rabatte, bei denen ein Gutscheincode erforderlich ist.");
 
+            builder.AddOrUpdate("Admin.Promotions.Discounts.Fields.AppliedToManufacturers.Hint",
+                "A list of manufacturers to which the discount is assigned. The assignment can be made on the manufacturer detail page.",
+                "Eine Liste von Herstellern, denen der Rabatt zugeordnet ist. Die Zuordnung kann auf der Hersteller-Detailseite vorgenommen werden.");
+
             #endregion
 
             #region Packaging

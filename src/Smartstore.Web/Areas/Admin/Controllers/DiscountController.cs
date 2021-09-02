@@ -218,28 +218,10 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var prevDiscountType = discount.DiscountType;
-
                 var mapper = MapperFactory.GetMapper<DiscountModel, Discount>();
                 await mapper.MapAsync(model, discount);
 
                 await _ruleService.ApplyRuleSetMappingsAsync(discount, model.SelectedRuleSetIds);
-
-                // Cleanup old references (if changed). "HasDiscountsApplied" properties are updated by hook.
-                if (prevDiscountType == DiscountType.AssignedToCategories && discount.DiscountType != DiscountType.AssignedToCategories)
-                {
-                    discount.AppliedToCategories.Clear();
-                }
-
-                if (prevDiscountType == DiscountType.AssignedToManufacturers && discount.DiscountType != DiscountType.AssignedToManufacturers)
-                {
-                    discount.AppliedToManufacturers.Clear();
-                }
-
-                if (prevDiscountType == DiscountType.AssignedToSkus && discount.DiscountType != DiscountType.AssignedToSkus)
-                {
-                    discount.AppliedToProducts.Clear();
-                }
 
                 await _db.SaveChangesAsync();
 
