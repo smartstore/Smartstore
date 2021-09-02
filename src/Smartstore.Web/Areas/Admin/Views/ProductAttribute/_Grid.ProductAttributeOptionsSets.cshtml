@@ -57,7 +57,7 @@
         <div class="datagrid-root">
             <sm-datagrid 
                 :options="{ keyMemberName: 'Id', vborders: true, hover: true, striped: true }" 
-                :data-source="{ read: '@Url.Action("ProductAttributeOptionsList")?optionsSetId=5' }"@*TODO: (mg) (core) Find the set ID somehow.*@
+                :data-source="{ read: '@Url.Action("ProductAttributeOptionsList")?optionsSetId=' + item.row.Id }"@*TODO: (mg) (core) Find the set ID somehow.*@
                 :columns="[ 
                     { member: 'Name', name: 'Name', visible: true, title: '@nameStr' }, @*TODO: (mg) (core) Use template somehow.*@
                     { member: 'Alias', name: 'Alias', visible: true, title: '@aliasStr' },

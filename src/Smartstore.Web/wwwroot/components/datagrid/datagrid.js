@@ -508,7 +508,9 @@ Vue.component("sm-datagrid", {
 
     watch: {
         command: {
-            handler: function(value) {
+            handler: function (value, prev) {
+                // TODO: (core) Because value and prev quality check sometimes fails,
+                // this method gets called too often, e.g. when detail-view is collapsed or expanded.
                 this.read();
             },
             deep: true
