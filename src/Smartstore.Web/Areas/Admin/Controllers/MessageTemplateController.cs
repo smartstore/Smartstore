@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Admin.Models.Messages;
-using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
@@ -28,7 +28,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IApplicationContext _appContext;
-        private readonly ICacheManager _cache;
+        private readonly IMemoryCache _memCache;
         private readonly ICampaignService _campaignService;
         private readonly IMessageFactory _messageFactory;
         private readonly IEmailAccountService _emailAccountService;
@@ -44,7 +44,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         public MessageTemplateController(
             SmartDbContext db,
             IApplicationContext appContext,
-            ICacheManager cache,
+            IMemoryCache memCache,
             ICampaignService campaignService,
             IMessageFactory messageFactory,
             IEmailAccountService emailAccountService,
@@ -59,7 +59,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         {
             _db = db;
             _appContext = appContext;
-            _cache = cache;
+            _memCache = memCache;
             _campaignService = campaignService;
             _messageFactory = messageFactory;
             _emailAccountService = emailAccountService;
@@ -324,7 +324,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
                     var campaign = await _db.Campaigns.FindByIdAsync(id, false);
                     if (campaign == null)
                     {
-                        model.Error = "The request campaign does not exist.";
+                        model.Error = "The requested campaign does not exist.";
                         return View(model);
                     }
 
@@ -357,14 +357,18 @@ namespace Smartstore.Web.Areas.Admin.Controllers
                 model.From = email.From;
                 model.ReplyTo = email.ReplyTo;
                 model.Subject = email.Subject;
-                model.To = "test@test.de";
-                // INFO: Uncomment to test email rendering bug 
-                //model.To = email.To;
+                model.To = email.To;
                 model.Error = null;
                 model.Token = Guid.NewGuid().ToString();
                 model.BodyUrl = Url.Action("PreviewBody", new { token = model.Token });
 
-                await _cache.PutAsync("mtpreview:" + model.Token, model, new CacheEntryOptions().ExpiresIn(TimeSpan.FromMinutes(1)));
+                // INFO: (mh) (core) Our hybrid cache does not support sliding or file expirations. Whenever you need expiration logic
+                // other than absolute expiration you need to switch over to native IMemoryCache.
+                using (var entry = _memCache.CreateEntry("mtpreview:" + model.Token))
+                {
+                    entry.Value = model;
+                    entry.SetSlidingExpiration(TimeSpan.FromMinutes(1));
+                }
             }
             catch (Exception ex)
             {
@@ -377,7 +381,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         [Permission(Permissions.Cms.MessageTemplate.Read)]
         public async Task<IActionResult> PreviewBodyAsync(string token)
         {
-            var body = (await GetPreviewMailModelAsync(token))?.Body;
+            var body = GetPreviewMailModel(token)?.Body;
 
             if (body.IsEmpty())
             {
@@ -388,23 +392,23 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PreservePreviewAsync(string token)
+        public IActionResult PreservePreview(string token)
         {
             // While the preview window is open, the preview model should not expire.
-            await GetPreviewMailModelAsync(token);
+            GetPreviewMailModel(token);
             return Content(token);
         }
 
-        private async Task<MessageTemplatePreviewModel> GetPreviewMailModelAsync(string token)
+        private MessageTemplatePreviewModel GetPreviewMailModel(string token)
         {
-            return await _cache.GetAsync<MessageTemplatePreviewModel>("mtpreview:" + token);
+            return _memCache.Get<MessageTemplatePreviewModel>("mtpreview:" + token);
         }
 
         [HttpPost]
         [Permission(Permissions.System.Message.Send)]
         public async Task<ActionResult> SendTestMail(string token, string to)
         {
-            var model = await GetPreviewMailModelAsync(token);
+            var model = GetPreviewMailModel(token);
             if (model == null)
             {
                 return Json(new { success = false, message = "Preview result not available anymore. Try again." });
@@ -414,7 +418,9 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             {
                 var account = (await _db.EmailAccounts.FindByIdAsync(model.EmailAccountId, false)) ?? _emailAccountService.GetDefaultEmailAccount();
                 var msg = new MailMessage(to, model.Subject, model.Body, model.From);
-                var client = await _mailService.ConnectAsync(account);
+
+                // INFO: (core) NEVER forget to dispose IDisposable!
+                using var client = await _mailService.ConnectAsync(account);
                 await client.SendAsync(msg);
 
                 return Json(new { success = true });

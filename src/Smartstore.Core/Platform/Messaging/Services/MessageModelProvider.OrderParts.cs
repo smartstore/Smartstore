@@ -208,7 +208,7 @@ namespace Smartstore.Core.Messaging
             {
                 return new
                 {
-                    Rate = T("Order.TaxRateLine", language.Id, taxService.FormatTaxRate(x.Key)).Value,
+                    Rate = T("Order.TaxRateLine", language.Id, taxService.FormatTaxRate(x.Key)).ToString(),
                     Value = FormatPrice(x.Value, order, messageContext)
                 };
             }).ToArray();
@@ -221,7 +221,7 @@ namespace Smartstore.Core.Messaging
 
                 return new
                 {
-                    GiftCard = T("Order.GiftCardInfo", language.Id, x.GiftCard.GiftCardCouponCode).Value,
+                    GiftCard = T("Order.GiftCardInfo", language.Id, x.GiftCard.GiftCardCouponCode).ToString(),
                     UsedAmount = FormatPrice(-x.UsedValue, order, messageContext),
                     RemainingAmount = FormatPrice(remainingAmount.Amount, order, messageContext)
                 };
@@ -230,7 +230,7 @@ namespace Smartstore.Core.Messaging
             // Reward Points
             m.RedeemedRewardPoints = order.RedeemedRewardPointsEntry == null ? null : new
             {
-                Title = T("Order.RewardPoints", language.Id, -order.RedeemedRewardPointsEntry.Points).Value,
+                Title = T("Order.RewardPoints", language.Id, -order.RedeemedRewardPointsEntry.Points).ToString(),
                 Amount = FormatPrice(-order.RedeemedRewardPointsEntry.UsedAmount, order, messageContext)
             };
 

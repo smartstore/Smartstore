@@ -488,7 +488,7 @@ namespace Smartstore.Core.Messaging
                 { "Company", await CreateCompanyModelPartAsync(messageContext) },
                 { "Contact", await CreateContactModelPartAsync(messageContext) },
                 { "Bank", await CreateBankModelPartAsync(messageContext) },
-                { "Copyright", T("Content.CopyrightNotice", messageContext.Language.Id, DateTime.Now.Year.ToString(), part.Name).Value }
+                { "Copyright", T("Content.CopyrightNotice", messageContext.Language.Id, DateTime.Now.Year.ToString(), part.Name).ToString() }
             };
 
             var he = new HybridExpando(true);
@@ -561,7 +561,7 @@ namespace Smartstore.Core.Messaging
             var url = BuildUrl(productUrl, messageContext);
             var file = await GetMediaFileFor(part, attrSelection);
             var name = part.GetLocalized(x => x.Name, messageContext.Language.Id).Value;
-            var alt = T("Media.Product.ImageAlternateTextFormat", messageContext.Language.Id, name).Value;
+            var alt = T("Media.Product.ImageAlternateTextFormat", messageContext.Language.Id, name).ToString();
 
             var m = new Dictionary<string, object>
             {
