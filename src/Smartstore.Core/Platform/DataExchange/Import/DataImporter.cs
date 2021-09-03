@@ -312,7 +312,7 @@ namespace Smartstore.Core.DataExchange.Import
                 Request = request,
                 ProgressCallback = request.ProgressCallback,
                 UpdateOnly = profile.UpdateOnly,
-                KeyFieldNames = profile.KeyFieldNames.SplitSafe(",").ToArray(),
+                KeyFieldNames = profile.KeyFieldNames.SplitSafe(',').ToArray(),
                 ImportDirectory = dir,
                 ImageDownloadDirectory = await _importProfileService.GetImportDirectoryAsync(profile, @"Content\DownloadedImages", true),
                 ExtraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData),

@@ -218,7 +218,7 @@ namespace Smartstore.Core.Catalog.Search
                 foreach (var facet in numericRange.SelectedFacets)
                 {
                     var val = facet.Value;
-                    var labels = val.Label.SplitSafe("~");
+                    var labels = val.Label.SplitSafe('~');
 
                     if (val.Value == null && val.UpperValue != null)
                     {

@@ -62,7 +62,7 @@ namespace Smartstore.Core.Seo
             string charConversions = null)
         {
             // Return empty value if text is null
-            if (name == null) return "";
+            if (name == null) return string.Empty;
 
             const int maxlen = 400;
 
@@ -70,9 +70,6 @@ namespace Smartstore.Core.Seo
             {
                 InitializeUserSeoCharacterTable(charConversions);
             }
-
-            // Normalize
-            name = name.ToLowerInvariant();
 
             var len = name.Length;
             using var psb = StringBuilderPool.Instance.Get(out var sb);
@@ -83,6 +80,11 @@ namespace Smartstore.Core.Seo
             for (int i = 0; i < len; i++)
             {
                 c = name[i];
+
+                if (char.IsUpper(c))
+                {
+                    c = char.ToLowerInvariant(c);
+                }
 
                 if (charConversions != null && _userSeoCharacterTable != null && _userSeoCharacterTable.TryGetValue(c, out string userChar))
                 {
@@ -127,7 +129,7 @@ namespace Smartstore.Core.Seo
                             c2 = c.TryRemoveDiacritic();
                         }
 
-                        if ((allowUnicodeChars && Char.IsLetterOrDigit(c2)) || (c2 >= 'a' && c2 <= 'z'))
+                        if ((allowUnicodeChars && char.IsLetterOrDigit(c2)) || (c2 >= 'a' && c2 <= 'z'))
                         {
                             sb.Append(c2);
                         }
@@ -139,15 +141,23 @@ namespace Smartstore.Core.Seo
                 if (i >= maxlen) break;
             }
 
+            // Trim allocation-free
             if (prevdash)
             {
-                len = sb.Length;
-                return sb.ToString().Substring(0, len - 1).Trim('/');
+                sb.Remove(sb.Length - 1, 1);
             }
-            else
+
+            if (sb[0] == '/')
             {
-                return sb.ToString().Trim('/');
+                sb.Remove(0, 1);
             }
+
+            if (sb[^1] == '/')
+            {
+                sb.Remove(sb.Length - 1, 1);
+            }
+
+            return sb.ToString();
         }
 
         public static void ResetUserSeoCharacterTable()

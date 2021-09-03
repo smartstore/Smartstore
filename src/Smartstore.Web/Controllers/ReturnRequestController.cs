@@ -153,7 +153,7 @@ namespace Smartstore.Web.Controllers
 
             // Return reasons.
             var availableReturnReasons = new List<SelectListItem>();
-            foreach (var rrr in returnRequestReasons.SplitSafe(","))
+            foreach (var rrr in returnRequestReasons.SplitSafe(','))
             {
                 availableReturnReasons.Add(new SelectListItem { Text = rrr, Value = rrr });
             }
@@ -161,7 +161,7 @@ namespace Smartstore.Web.Controllers
 
             // Return actions.
             var availableReturnActions = new List<SelectListItem>();
-            foreach (var rra in returnRequestActions.SplitSafe(","))
+            foreach (var rra in returnRequestActions.SplitSafe(','))
             {
                 availableReturnActions.Add(new SelectListItem { Text = rra, Value = rra });
             }

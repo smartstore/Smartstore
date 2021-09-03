@@ -393,7 +393,7 @@ namespace Smartstore.Admin.Controllers
                 locale.Name = currency.GetLocalized(x => x.Name, languageId, false, false);
             });
 
-            foreach (var ending in model.DomainEndings.SplitSafe(","))
+            foreach (var ending in model.DomainEndings.SplitSafe(','))
             {
                 var item = model.AvailableDomainEndings.FirstOrDefault(x => x.Value.EqualsNoCase(ending));
                 if (item == null)
@@ -406,7 +406,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            model.DomainEndingsArray = model.DomainEndings.SplitSafe(",").ToArray();
+            model.DomainEndingsArray = model.DomainEndings.SplitSafe(',').ToArray();
 
             await PrepareCurrencyModelAsync(model, currency, false);
 

@@ -443,8 +443,8 @@ namespace Smartstore.Admin.Controllers
         {
             if (model.Multiple)
             {
-                var values = model.Name.SplitSafe(";").ToArray();
-                var alias = model.Alias.SplitSafe(";").ToArray();
+                var values = model.Name.SplitSafe(';').ToArray();
+                var alias = model.Alias.SplitSafe(';').ToArray();
                 var displayOrder = model.DisplayOrder;
                 // Array index to added option.
                 var options = new Dictionary<int, SpecificationAttributeOption>();
@@ -474,7 +474,7 @@ namespace Smartstore.Admin.Controllers
                     {
                         foreach (var locale in model.Locales.Where(x => x.Name.HasValue()))
                         {
-                            var localizedNames = locale.Name.SplitSafe(";").ToArray();
+                            var localizedNames = locale.Name.SplitSafe(';').ToArray();
                             var localizedName = option.Key < localizedNames.Length
                                 ? localizedNames[option.Key].Trim()
                                 : option.Value.Name;
@@ -484,7 +484,7 @@ namespace Smartstore.Admin.Controllers
 
                         foreach (var locale in model.Locales.Where(x => x.Alias.HasValue()))
                         {
-                            var localizedAlias = locale.Alias.SplitSafe(";").ToArray();
+                            var localizedAlias = locale.Alias.SplitSafe(';').ToArray();
                             var value = localizedAlias.ElementAtOrDefault(option.Key)?.Trim();
 
                             if (value.HasValue())

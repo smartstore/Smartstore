@@ -76,7 +76,7 @@ namespace Smartstore.Net.Mail
         {
             return addresses
                 .Trim()
-                .SplitSafe(";")
+                .SplitSafe(';')
                 .Where(x => x.Trim().HasValue())
                 .Select(x => new MailAddress(x));
         }

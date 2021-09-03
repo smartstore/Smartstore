@@ -814,7 +814,7 @@ namespace Smartstore.Admin.Controllers
                     .ApplyProductFilter(entityId)
                     .ToListAsync();
 
-                var pictureIds = new HashSet<int>(pictures.SplitSafe(",").Select(x => Convert.ToInt32(x)));
+                var pictureIds = new HashSet<int>(pictures.ToIntArray());
                 var ordinal = 5;
 
                 foreach (var id in pictureIds)
@@ -1855,7 +1855,7 @@ namespace Smartstore.Admin.Controllers
                 int attributeId = key[ProductBundleItemAttributeModel.AttributeControlPrefix.Length..].ToInt();
                 string preSelectId = form[ProductBundleItemAttributeModel.PreSelectControlPrefix + attributeId.ToString()].ToString().EmptyNull();
 
-                foreach (var valueId in form[key].ToString().SplitSafe(","))
+                foreach (var valueId in form[key].ToString().SplitSafe(','))
                 {
                     var attributeFilter = new ProductBundleItemAttributeFilter
                     {

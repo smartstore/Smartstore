@@ -629,8 +629,8 @@ namespace Smartstore.Core.DataExchange.Export
                 // Append text.
                 if (ctx.Projection.AppendDescriptionText.HasValue() && ((string)dynObject.ShortDescription).IsEmpty() && ((string)dynObject.FullDescription).IsEmpty())
                 {
-                    var appendText = ctx.Projection.AppendDescriptionText.SplitSafe(",").ToArray();
-                    if (appendText.Any())
+                    var appendText = ctx.Projection.AppendDescriptionText.SplitSafe(',').ToArray();
+                    if (appendText.Length > 0)
                     {
                         var rnd = CommonHelper.GenerateRandomInteger(0, appendText.Length - 1);
                         description = description.Grow(appendText.ElementAtOrDefault(rnd), " ");
@@ -640,7 +640,7 @@ namespace Smartstore.Core.DataExchange.Export
                 // Remove critical characters.
                 if (description.HasValue() && ctx.Projection.RemoveCriticalCharacters)
                 {
-                    foreach (var str in ctx.Projection.CriticalCharacters.SplitSafe(","))
+                    foreach (var str in ctx.Projection.CriticalCharacters.SplitSafe(','))
                     {
                         description = description.Replace(str, "");
                     }

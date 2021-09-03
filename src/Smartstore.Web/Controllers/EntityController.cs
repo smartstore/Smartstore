@@ -94,9 +94,9 @@ namespace Smartstore.Web.Controllers
             try
             {
                 var form = Request.Form;
-                var disableIf = model.DisableIf.SplitSafe(",").Select(x => x.ToLower().Trim()).ToList();
-                var disableIds = model.DisableIds.SplitSafe(",").Select(x => x.ToInt()).ToList();
-                var selected = model.Selected.SplitSafe(",");
+                var disableIf = model.DisableIf.SplitSafe(',').Select(x => x.ToLower().Trim()).ToList();
+                var disableIds = model.DisableIds.SplitSafe(',').Select(x => x.ToInt()).ToList();
+                var selected = model.Selected.SplitSafe(',');
                 var returnSku = model.ReturnField.EqualsNoCase("sku");
 
                 using var scope = new DbContextScope(Services.DbContext, autoDetectChanges: false, forceNoTracking: true);

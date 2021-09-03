@@ -1,49 +1,59 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Smartstore
 {
     public static class CharExtensions
     {
-        [DebuggerStepThrough]
-        public static int ToInt(this char value)
+        private const int _size = 256;
+        private static readonly string[] _table = new string[_size];
+
+        static CharExtensions()
         {
-            if (value >= '0' && value <= '9')
+            for (int i = 0; i < _size; i++)
             {
-                return value - '0';
+                _table[i] = ((char)i).ToString();
             }
-            else if (value >= 'a' && value <= 'f')
+        }
+
+        public static int ToInt(this char ch)
+        {
+            if (ch >= '0' && ch <= '9')
             {
-                return (value - 'a') + 10;
+                return ch - '0';
             }
-            else if (value >= 'A' && value <= 'F')
+            else if (ch >= 'a' && ch <= 'f')
             {
-                return (value - 'A') + 10;
+                return (ch - 'a') + 10;
+            }
+            else if (ch >= 'A' && ch <= 'F')
+            {
+                return (ch - 'A') + 10;
             }
 
             return -1;
         }
 
-        [DebuggerStepThrough]
-        public static string ToUnicode(this char c)
+        public static string ToUnicode(this char ch)
         {
             using (var w = new StringWriter(CultureInfo.InvariantCulture))
             {
-                WriteCharAsUnicode(c, w);
+                WriteCharAsUnicode(ch, w);
                 return w.ToString();
             }
         }
 
-        internal static void WriteCharAsUnicode(char c, TextWriter writer)
+        internal static void WriteCharAsUnicode(char ch, TextWriter writer)
         {
             Guard.NotNull(writer, "writer");
 
-            char h1 = ((c >> 12) & '\x000f').ToHex();
-            char h2 = ((c >> 8) & '\x000f').ToHex();
-            char h3 = ((c >> 4) & '\x000f').ToHex();
-            char h4 = (c & '\x000f').ToHex();
+            char h1 = ((ch >> 12) & '\x000f').ToHex();
+            char h2 = ((ch >> 8) & '\x000f').ToHex();
+            char h3 = ((ch >> 4) & '\x000f').ToHex();
+            char h4 = (ch & '\x000f').ToHex();
 
             writer.Write('\\');
             writer.Write('u');
@@ -53,15 +63,33 @@ namespace Smartstore
             writer.Write(h4);
         }
 
-        public static char TryRemoveDiacritic(this char c)
+        public static char TryRemoveDiacritic(this char ch)
         {
-            var normalized = c.ToString().Normalize(NormalizationForm.FormD);
+            var normalized = ch.AsString().Normalize(NormalizationForm.FormD);
             if (normalized.Length > 1)
             {
                 return normalized[0];
             }
 
-            return c;
+            return ch;
+        }
+
+        public static bool IsInRange(this char ch, char a, char b)
+            => ch >= a && ch <= b;
+
+        /// <summary>
+        /// Maps a char to a string while reducing memory allocations.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string AsString(this char ch)
+        {
+            string[] table = _table;
+            if (ch < (uint)table.Length)
+            {
+                return table[ch];
+            }
+            
+            return ch.ToString();
         }
     }
 }

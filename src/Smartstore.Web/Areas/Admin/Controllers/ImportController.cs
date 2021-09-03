@@ -578,7 +578,7 @@ namespace Smartstore.Admin.Controllers
             model.Skip = profile.Skip == 0 ? null : profile.Skip;
             model.Take = profile.Take == 0 ? null : profile.Take;
             model.UpdateOnly = profile.UpdateOnly;
-            model.KeyFieldNames = profile.KeyFieldNames.SplitSafe(",").Distinct().ToArray();
+            model.KeyFieldNames = profile.KeyFieldNames.SplitSafe(',').Distinct().ToArray();
             model.TaskId = profile.TaskId;
             model.TaskName = profile.Task.Name.NaIfEmpty();
             model.IsTaskRunning = lastExecutionInfo?.IsRunning ?? false;

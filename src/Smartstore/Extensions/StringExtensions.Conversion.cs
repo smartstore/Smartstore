@@ -257,7 +257,9 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int[] ToIntArray(this string s)
         {
-            return s.SplitSafe(",", StringSplitOptions.TrimEntries).Select(v => int.Parse(v)).ToArray();
+            return s.SplitSafe(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(v => int.Parse(v))
+                .ToArray();
         }
 
         [DebuggerStepThrough]

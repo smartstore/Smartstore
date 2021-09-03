@@ -16,7 +16,7 @@
     var link = await LinkResolver.ResolveAsync(Value);
     var hideQueryString = GetMetadata<bool>("hideQueryString");
 
-    var arr = GetMetadata<string>("allowedTypes").SplitSafe(",");
+    var arr = GetMetadata<string>("allowedTypes").SplitSafe(',');
     var allowedTypes = arr.Any()
         ? arr.Select(x => (LinkType)Enum.Parse(typeof(LinkType), x, true)).ToArray()
         : new LinkType[] { LinkType.Product, LinkType.Category, LinkType.Manufacturer, LinkType.Topic, LinkType.BlogPost, LinkType.NewsItem, LinkType.File, LinkType.Url };

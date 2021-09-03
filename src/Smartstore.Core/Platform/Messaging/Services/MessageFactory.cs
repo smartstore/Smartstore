@@ -477,8 +477,7 @@ namespace Smartstore.Core.Messaging
             };
 
             var modelNames = messageContext.MessageTemplate.ModelTypes
-                .SplitSafe(",")
-                .Select(x => x.Trim())
+                .SplitSafe(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Distinct()
                 .ToArray();
 

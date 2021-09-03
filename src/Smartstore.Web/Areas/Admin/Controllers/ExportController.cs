@@ -829,7 +829,7 @@ namespace Smartstore.Admin.Controllers
             model.IsTaskEnabled = profile.Task.Enabled;
             model.LogFileExists = logFile.Exists;
             model.HasActiveProvider = provider != null;
-            model.FileNamePatternDescriptions = T("Admin.DataExchange.Export.FileNamePatternDescriptions").Value.SplitSafe(";").ToArray();
+            model.FileNamePatternDescriptions = T("Admin.DataExchange.Export.FileNamePatternDescriptions").Value.SplitSafe(';').ToArray();
 
             model.Provider = new ExportProfileModel.ProviderModel
             {
@@ -872,7 +872,7 @@ namespace Smartstore.Admin.Controllers
             model.BatchSize = profile.BatchSize == 0 ? null : profile.BatchSize;
             model.PerStore = profile.PerStore;
             model.EmailAccountId = profile.EmailAccountId;
-            model.CompletedEmailAddresses = profile.CompletedEmailAddresses.SplitSafe(",").ToArray();
+            model.CompletedEmailAddresses = profile.CompletedEmailAddresses.SplitSafe(',').ToArray();
             model.CreateZipArchive = profile.CreateZipArchive;
             model.Cleanup = profile.Cleanup;
             model.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
@@ -882,7 +882,7 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => new SelectListItem { Text = x.FriendlyName, Value = x.Id.ToString() })
                 .ToList();
 
-            ViewBag.CompletedEmailAddresses = new MultiSelectList(profile.CompletedEmailAddresses.SplitSafe(","));
+            ViewBag.CompletedEmailAddresses = new MultiSelectList(profile.CompletedEmailAddresses.SplitSafe(','));
 
             ViewBag.Stores = stores.ToSelectListItems();
 
@@ -899,8 +899,8 @@ namespace Smartstore.Admin.Controllers
             // Projection.
             model.Projection = MiniMapper.Map<ExportProjection, ExportProjectionModel>(projection);
             model.Projection.NumberOfPictures = projection.NumberOfMediaFiles;
-            model.Projection.AppendDescriptionText = projection.AppendDescriptionText.SplitSafe(",").ToArray();
-            model.Projection.CriticalCharacters = projection.CriticalCharacters.SplitSafe(",").ToArray();
+            model.Projection.AppendDescriptionText = projection.AppendDescriptionText.SplitSafe(',').ToArray();
+            model.Projection.CriticalCharacters = projection.CriticalCharacters.SplitSafe(',').ToArray();
 
             if (profile.Projection.IsEmpty())
             {
@@ -961,8 +961,8 @@ namespace Smartstore.Admin.Controllers
                         .Where(x => x.Value != ((int)PriceDisplayType.Hide).ToString())
                         .ToList();
 
-                    ViewBag.AppendDescriptionTexts = new MultiSelectList(projection.AppendDescriptionText.SplitSafe(","));
-                    ViewBag.CriticalCharacters = new MultiSelectList(projection.CriticalCharacters.SplitSafe(","));
+                    ViewBag.AppendDescriptionTexts = new MultiSelectList(projection.AppendDescriptionText.SplitSafe(','));
+                    ViewBag.CriticalCharacters = new MultiSelectList(projection.CriticalCharacters.SplitSafe(','));
 
                     if (model.Filter.CategoryIds?.Any() ?? false)
                     {
@@ -1032,7 +1032,7 @@ namespace Smartstore.Admin.Controllers
         {
             var model = MiniMapper.Map<ExportDeployment, ExportDeploymentModel>(deployment);
 
-            model.EmailAddresses = deployment.EmailAddresses.SplitSafe(",").ToArray();
+            model.EmailAddresses = deployment.EmailAddresses.SplitSafe(',').ToArray();
             model.DeploymentTypeName = await Services.Localization.GetLocalizedEnumAsync(deployment.DeploymentType);
             model.PublicFolderUrl = await _exportProfileService.GetDeploymentDirectoryUrlAsync(deployment);
 

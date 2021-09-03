@@ -587,7 +587,7 @@ namespace Smartstore.Core.DataExchange.Import
                 var rawImageUrls = row.GetDataValue<string>("ImageUrls");
 
                 // Force pipe symbol as separator because file names can contain commas or semicolons.
-                var imageUrls = rawImageUrls.SplitSafe("|").ToArray();
+                var imageUrls = rawImageUrls.SplitSafe('|').ToArray();
                 if (!imageUrls.Any())
                 {
                     continue;
@@ -725,9 +725,9 @@ namespace Smartstore.Core.DataExchange.Import
                     var sourceTags = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
                     var product = row.Entity;
 
-                    foreach (var value in row.GetDataValue<string>("TagNames").SplitSafe("|"))
+                    foreach (var value in row.GetDataValue<string>("TagNames").SplitSafe('|'))
                     {
-                        var arr = value.SplitSafe("~").ToArray();
+                        var arr = value.SplitSafe('~').ToArray();
                         if (arr.Length > 0)
                         {
                             sourceTags[arr[0]] = arr.Length <= 1 || arr[1].ToBool(true);

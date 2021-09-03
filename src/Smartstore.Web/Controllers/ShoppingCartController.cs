@@ -156,7 +156,7 @@ namespace Smartstore.Web.Controllers
                             var selectedValue = selectedItems.FirstOrDefault()?.Value;
                             if (selectedValue.HasValue())
                             {
-                                var selectedAttributeValueId = selectedValue.SplitSafe(",").FirstOrDefault()?.ToInt();
+                                var selectedAttributeValueId = selectedValue.SplitSafe(',').FirstOrDefault()?.ToInt();
                                 if (selectedAttributeValueId.GetValueOrDefault() > 0)
                                 {
                                     selectedAttributes.AddAttributeValue(attribute.Id, selectedAttributeValueId.Value);
@@ -169,7 +169,7 @@ namespace Smartstore.Web.Controllers
                         {
                             foreach (var item in selectedItems)
                             {
-                                var selectedValue = item.Value.SplitSafe(",").FirstOrDefault()?.ToInt();
+                                var selectedValue = item.Value.SplitSafe(',').FirstOrDefault()?.ToInt();
                                 if (selectedValue.GetValueOrDefault() > 0)
                                 {
                                     selectedAttributes.AddAttributeValue(attribute.Id, selectedValue);

@@ -5,7 +5,7 @@
     var list = Model.Descriptor.SelectList;
     var isMultiple = list?.Multiple ?? true;
     var tags = list == null || list.Tags;
-    var values = Model.RawValue.SplitSafe(",");
+    var values = Model.RawValue.SplitSafe(',');
     var enteredValues = new string[0];
     string remoteUrl = null;
 

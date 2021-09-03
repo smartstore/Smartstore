@@ -1480,7 +1480,7 @@ namespace Smartstore.Core.DataExchange.Export
             if (profile.CompletedEmailAddresses.HasValue())
             {
                 var addresses = profile.CompletedEmailAddresses
-                    .SplitSafe(",")
+                    .SplitSafe(',')
                     .Where(x => x.IsEmail())
                     .Select(x => new MailAddress(x));
 

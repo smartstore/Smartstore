@@ -22,9 +22,7 @@ namespace Smartstore
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string FormatInvariant(this string format, params object[] objects)
-        {
-            return string.Format(CultureInfo.InvariantCulture, format, objects);
-        }
+            => string.Format(CultureInfo.InvariantCulture, format, objects);
 
         /// <summary>
         /// Formats a string to the current culture.
@@ -35,9 +33,7 @@ namespace Smartstore
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string FormatCurrent(this string format, params object[] objects)
-        {
-            return string.Format(CultureInfo.CurrentCulture, format, objects);
-        }
+            => string.Format(CultureInfo.CurrentCulture, format, objects);
 
         /// <summary>
         /// Formats a string to the current UI culture.
@@ -48,22 +44,16 @@ namespace Smartstore
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string FormatCurrentUI(this string format, params object[] objects)
-        {
-            return string.Format(CultureInfo.CurrentUICulture, format, objects);
-        }
+            => string.Format(CultureInfo.CurrentUICulture, format, objects);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string FormatWith(this string format, params object[] args)
-        {
-            return FormatWith(format, CultureInfo.CurrentCulture, args);
-        }
+            => FormatWith(format, CultureInfo.CurrentCulture, args);
 
         [DebuggerStepThrough]
         public static string FormatWith(this string format, IFormatProvider provider, params object[] args)
-        {
-            return string.Format(provider, format, args);
-        }
+            => string.Format(provider, format, args);
 
         /// <summary>
         /// Mask by replacing characters with asterisks.
@@ -75,7 +65,9 @@ namespace Smartstore
         public static string Mask(this string value, int length)
         {
             if (value.HasValue())
-                return value.Substring(0, length) + new String('*', value.Length - length);
+            {
+                return value.Substring(0, length) + new string('*', value.Length - length);
+            }   
 
             return value;
         }
@@ -91,7 +83,7 @@ namespace Smartstore
             if (string.IsNullOrEmpty(str))
                 return string.Empty;
 
-            return new String(str.Where(c => char.IsDigit(c)).ToArray());
+            return new string(str.Where(c => char.IsDigit(c)).ToArray());
         }
 
         [DebuggerStepThrough]
@@ -105,7 +97,7 @@ namespace Smartstore
             int subStringLength = maxLength - end.Length;
 
             if (subStringLength <= 0)
-                throw Error.Argument(nameof(maxLength), "Length of suffix string is greater or equal to maximumLength");
+                throw new ArgumentException("Length of suffix string is greater or equal to maximumLength", nameof(maxLength));
 
             if (value != null && value.Length > maxLength)
             {
@@ -362,7 +354,7 @@ namespace Smartstore
             if (count < 1)
                 return value;
 
-            var left = new String(pad, count);
+            var left = new string(pad, count);
             var right = value;
 
             if (!string.IsNullOrWhiteSpace(format))
@@ -462,7 +454,7 @@ namespace Smartstore
         {
             if (s.IsEmpty())
             {
-                return "";
+                return string.Empty;
             }
 
             s = s.Replace(';', ',');
@@ -482,7 +474,7 @@ namespace Smartstore
                 return input;
             }
 
-            var pattern = string.Join("|", keywords.Trim().Tokenize(new[] { ' ', '-' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            var pattern = string.Join('|', keywords.Tokenize(new[] { ' ', '-' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Select(x => Regex.Escape(x))
                 .Distinct());
 

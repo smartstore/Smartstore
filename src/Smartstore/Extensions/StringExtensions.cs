@@ -6,6 +6,9 @@ namespace Smartstore
 {
     public static partial class StringExtensions
     {
+        private const string DumpStr = "------------------------------------------------";
+        private const string NaStr = "n/a";
+
         public const string CarriageReturnLineFeed = "\r\n";
         public const string Empty = "";
         public const char CarriageReturn = '\r';
@@ -51,7 +54,7 @@ namespace Smartstore
         public static void Dump(this string value, bool appendMarks = false)
         {
             Debug.WriteLine(value);
-            Debug.WriteLineIf(appendMarks, "------------------------------------------------");
+            Debug.WriteLineIf(appendMarks, DumpStr);
         }
 
         /// <summary>
@@ -61,7 +64,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NaIfEmpty(this string value)
         {
-            return (string.IsNullOrWhiteSpace(value) ? "n/a" : value);
+            return (string.IsNullOrWhiteSpace(value) ? NaStr : value);
         }
     }
 }

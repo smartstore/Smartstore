@@ -195,7 +195,7 @@ namespace Smartstore.Admin.Controllers
             var model = await MapperFactory.MapAsync<Topic, TopicModel>(topic);
             await PrepareTopicModelAsync(topic, model);
 
-            model.WidgetZone = topic.WidgetZone.SplitSafe(",").ToArray();
+            model.WidgetZone = topic.WidgetZone.SplitSafe(',').ToArray();
             model.CookieType = (int?)topic.CookieType;
 
             AddLocales(model.Locales, async (locale, languageId) =>

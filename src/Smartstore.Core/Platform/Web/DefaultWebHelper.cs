@@ -300,7 +300,7 @@ namespace Smartstore.Core.Web
             if (string.IsNullOrEmpty(queryParam))
                 return url;
 
-            var parts = url.SplitSafe("?").ToArray();
+            var parts = url.SplitSafe('?').ToArray();
 
             var current = new MutableQueryCollection(parts.Length == 2 ? parts[1] : string.Empty);
 

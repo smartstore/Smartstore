@@ -83,7 +83,7 @@ namespace Smartstore.Core.Content.Media
             }
             else
             {
-                return ParseTypeFilter(typeFilter.SplitSafe(",").ToArray());
+                return ParseTypeFilter(typeFilter.SplitSafe(',').ToArray());
             }
         }
 

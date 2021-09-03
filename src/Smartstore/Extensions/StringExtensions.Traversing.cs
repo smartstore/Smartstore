@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Utilities;
 
@@ -68,7 +69,7 @@ namespace Smartstore
 
             if (ca.Length > 1)
             {
-                sb.Append(ca[ca.Length - 1]);
+                sb.Append(ca[^1]);
             }
 
             return sb.ToString();
@@ -79,31 +80,43 @@ namespace Smartstore
         /// </summary>
         /// <param name="input">String value to split</param>
         /// <param name="separator">If <c>null</c> then value is searched for a common delimiter like pipe, semicolon or comma</param>
-        /// <returns>String array</returns>
+        /// <returns>Separated string tokens</returns>
         [DebuggerStepThrough]
         public static IEnumerable<string> SplitSafe(this string input, string separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries)
         {
             if (string.IsNullOrEmpty(input))
+            {
                 return Enumerable.Empty<string>();
+            }  
 
             // Do not use separator.IsEmpty() here because whitespace like " " is a valid separator.
             // an empty separator "" returns array with value.
             if (separator == null)
             {
+                // Find separator
                 for (var i = 0; i < input.Length; i++)
                 {
                     var c = input[i];
                     if (c == ';' || c == ',' || c == '|')
                     {
+                        // Split by common delims
                         return Tokenize(input, c, options);
                     }
                     if (c == '\r' && (i + 1) < input.Length & input[i + 1] == '\n')
                     {
+                        // Split by lines
                         return input.GetLines(false, true);
                     }
                 }
 
-                return new[] { input };
+                if (options.HasFlag(StringSplitOptions.TrimEntries))
+                {
+                    input = input.Trim();
+                }
+
+                return options.HasFlag(StringSplitOptions.RemoveEmptyEntries) && string.IsNullOrWhiteSpace(input)
+                    ? Enumerable.Empty<string>()
+                    : new[] { input };
             }
             else
             {
@@ -111,6 +124,21 @@ namespace Smartstore
                     ? Tokenize(input, separator[0], options)
                     : input.Split(new string[] { separator }, options);
             }
+        }
+
+        /// <summary>
+        /// Splits a string into a string array
+        /// </summary>
+        /// <param name="input">String value to split</param>
+        /// <param name="separator">The char to separate by</param>
+        /// <returns>Separated string tokens</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<string> SplitSafe(this string input, char separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries)
+        {
+            return string.IsNullOrEmpty(input) 
+                ? Enumerable.Empty<string>() 
+                : Tokenize(input, separator, options);
         }
 
         /// <summary>Splits a string into two strings</summary>

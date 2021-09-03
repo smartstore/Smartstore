@@ -202,8 +202,8 @@ namespace Smartstore.Core.Catalog.Products
             Guard.NotNull(product, nameof(product));
 
             return product.AllowedQuantities
-                .SplitSafe(",")
-                .Select(x => int.TryParse(x.Trim(), out var quantity) ? quantity : int.MaxValue)
+                .SplitSafe(',', StringSplitOptions.TrimEntries)
+                .Select(x => int.TryParse(x, out var quantity) ? quantity : int.MaxValue)
                 .Where(x => x != int.MaxValue)
                 .ToArray();
         }
@@ -218,8 +218,8 @@ namespace Smartstore.Core.Catalog.Products
             Guard.NotNull(product, nameof(product));
 
             return product.RequiredProductIds
-                .SplitSafe(",")
-                .Select(x => int.TryParse(x.Trim(), out var id) ? id : int.MaxValue)
+                .SplitSafe(',', StringSplitOptions.TrimEntries)
+                .Select(x => int.TryParse(x, out var id) ? id : int.MaxValue)
                 .Where(x => x > int.MaxValue)
                 .ToArray();
         }

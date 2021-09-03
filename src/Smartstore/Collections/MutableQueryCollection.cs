@@ -43,7 +43,7 @@ namespace Smartstore.Collections
         /// Adds a name value pair to the collection.
         /// </summary>
         /// <param name="name">the name</param>
-        /// <param name="value">the value associated to the name</param>
+        /// <param name="value">the value associated with the name</param>
         /// <param name="isUnique">true if the name is unique within the querystring. This allows us to override existing values</param>
         public virtual MutableQueryCollection Add(string name, string value, bool isUnique = false)
         {
@@ -51,7 +51,7 @@ namespace Smartstore.Collections
 
             if (_store.TryGetValue(name, out var existingValues))
             {
-                var passedValues = new StringValues(value.SplitSafe(",").Select(x => x.ToString()).ToArray());
+                var passedValues = new StringValues(value.SplitSafe(',').ToArray());
                 _store[name] = isUnique ? passedValues : StringValues.Concat(existingValues, passedValues);
             }
             else

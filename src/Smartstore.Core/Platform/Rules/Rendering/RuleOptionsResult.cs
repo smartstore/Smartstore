@@ -51,7 +51,7 @@ namespace Smartstore.Core.Rules.Rendering
                     // Get display names of selected options.
                     if (context.Value.HasValue())
                     {
-                        var selectedValues = context.Value.SplitSafe(",");
+                        var selectedValues = context.Value.SplitSafe(',');
                         Options.AddRange(options.Where(x => selectedValues.Contains(x.Value)));
                     }
                 }

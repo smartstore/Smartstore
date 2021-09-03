@@ -207,7 +207,7 @@ namespace Smartstore.Core.Catalog.Attributes
                         {
                             var valueId = selectedItems.FirstOrDefault()
                                 ?.Value
-                                ?.SplitSafe(",")
+                                ?.SplitSafe(',')
                                 ?.FirstOrDefault()
                                 ?.ToInt() ?? 0;
 
@@ -221,7 +221,7 @@ namespace Smartstore.Core.Catalog.Attributes
                     case AttributeControlType.Checkboxes:
                         foreach (var item in selectedItems)
                         {
-                            var valueId = item.Value.SplitSafe(",").FirstOrDefault()?.ToInt() ?? 0;
+                            var valueId = item.Value.SplitSafe(',').FirstOrDefault()?.ToInt() ?? 0;
                             if (valueId > 0)
                             {
                                 selection.AddAttributeValue(pva.Id, valueId);

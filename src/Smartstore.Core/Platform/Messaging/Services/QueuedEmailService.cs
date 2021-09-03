@@ -171,8 +171,8 @@ namespace Smartstore.Core.Messaging
         {
             target.AddRange(addresses
                 .Trim()
-                .SplitSafe(";")
-                .Where(x => x.Trim().HasValue())
+                .SplitSafe(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Where(x => x.HasValue())
                 .Select(x => new MailAddress(x)));
 
             return target;

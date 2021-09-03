@@ -36,7 +36,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> AllAccessPermissions(string selected)
         {
             var systemNames = await Services.Permissions.GetAllSystemNamesAsync();
-            var selectedArr = selected.SplitSafe(",");
+            var selectedArr = selected.SplitSafe(',');
 
             var data = systemNames
                 .Select(x => new ChoiceListItem

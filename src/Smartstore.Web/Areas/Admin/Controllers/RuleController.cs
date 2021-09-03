@@ -660,7 +660,7 @@ namespace Smartstore.Admin.Controllers
                 .ToList();
 
             // Mark selected items.
-            var selectedValues = rawValue.SplitSafe(",");
+            var selectedValues = rawValue.SplitSafe(',');
 
             data.Each(x => x.Selected = selectedValues.Contains(x.Id));
 

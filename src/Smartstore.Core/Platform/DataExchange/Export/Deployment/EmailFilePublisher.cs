@@ -24,7 +24,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
         public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken)
         {
             var emailAddresses = deployment.EmailAddresses
-                .SplitSafe(",")
+                .SplitSafe(',')
                 .Where(x => x.IsEmail())
                 .ToArray();
 

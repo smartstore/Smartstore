@@ -291,7 +291,7 @@ namespace Smartstore.Core.Catalog.Attributes
             }
 
             var result = source
-                .SelectMany(x => x.SplitSafe(","))
+                .SelectMany(x => x.SplitSafe(','))
                 .Select(x => x.ToInt())
                 .Where(x => x != 0);
 

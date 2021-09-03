@@ -48,13 +48,13 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
                             request.Form?.Keys
                                 .Where(x => x.HasValue())
                                 .Select(x => new { key = x, val = request.Form[x] })
-                                .Each(x => _queryItems.AddRange(x.key, x.val.SelectMany(y => y.SplitSafe(","))));
+                                .Each(x => _queryItems.AddRange(x.key, x.val.SelectMany(y => y.SplitSafe(','))));
                         }
 
                         request.Query?.Keys
                             .Where(x => x.HasValue())
                             .Select(x => new { key = x, val = request.Query[x] })
-                            .Each(x => _queryItems.AddRange(x.key, x.val.SelectMany(y => y.SplitSafe(","))));
+                            .Each(x => _queryItems.AddRange(x.key, x.val.SelectMany(y => y.SplitSafe(','))));
                     }
                 }
 
@@ -124,7 +124,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
             if (key.EndsWith("-date"))
             {
                 // Convert from one query string item.
-                var dateItems = value.SplitSafe("-");
+                var dateItems = value.SplitSafe('-');
                 year = dateItems.ElementAtOrDefault(0).ToInt();
                 month = dateItems.ElementAtOrDefault(1).ToInt();
                 day = dateItems.ElementAtOrDefault(2).ToInt();
@@ -162,7 +162,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 
         protected virtual void ConvertVariant(ProductVariantQuery query, string key, ICollection<string> values)
         {
-            var ids = key.Replace("pvari", "").SplitSafe("-").ToArray();
+            var ids = key.Replace("pvari", string.Empty).SplitSafe('-').ToArray();
             if (ids.Length < 4)
             {
                 return;
@@ -211,7 +211,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 
         protected virtual void ConvertVariantAlias(ProductVariantQuery query, string key, ICollection<string> values, int languageId)
         {
-            var ids = key.SplitSafe("-").ToArray();
+            var ids = key.SplitSafe('-').ToArray();
             var len = ids.Length;
             if (len < 4)
             {
@@ -274,7 +274,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
                     var optionId = 0;
                     string valueAlias = null;
 
-                    var valueIds = value.SplitSafe("-").ToArray();
+                    var valueIds = value.SplitSafe('-').ToArray();
                     if (valueIds.Length >= 2)
                     {
                         optionId = valueIds.ElementAtOrDefault(valueIds.Length - 1).ToInt();
@@ -302,7 +302,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 
         protected virtual void ConvertGiftCard(ProductVariantQuery query, string key, string value)
         {
-            var elements = key.Replace("giftcard", "").SplitSafe("-").ToArray();
+            var elements = key.Replace("giftcard", "").SplitSafe('-').ToArray();
             if (elements.Length > 2)
             {
                 var giftCard = new GiftCardQueryItem(elements[2], value)
@@ -317,7 +317,7 @@ namespace Smartstore.Core.Catalog.Attributes.Modelling
 
         protected virtual void ConvertCheckoutAttribute(ProductVariantQuery query, string key, ICollection<string> values)
         {
-            var ids = key.Replace("cattr", "").SplitSafe("-").ToArray();
+            var ids = key.Replace("cattr", string.Empty).SplitSafe('-').ToArray();
             if (ids.Length <= 0)
             {
                 return;

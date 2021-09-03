@@ -129,7 +129,7 @@ namespace Smartstore.Web.Models.Common
             }
 
             string salutations = _addressSettings.GetLocalizedSetting(x => x.Salutations);
-            foreach (var sal in salutations.SplitSafe(","))
+            foreach (var sal in salutations.SplitSafe(','))
             {
                 to.AvailableSalutations.Add(new SelectListItem { Value = sal, Text = sal });
             }            

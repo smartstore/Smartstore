@@ -51,7 +51,7 @@ namespace Smartstore.Core.DataExchange.Export
             if (ctx.Parameters.ContainsKey("SelectedIds"))
             {
                 request.EntitiesToExport = ctx.Parameters["SelectedIds"]
-                    .SplitSafe(",")
+                    .SplitSafe(',')
                     .Select(x => x.ToInt())
                     .ToList();
             }
