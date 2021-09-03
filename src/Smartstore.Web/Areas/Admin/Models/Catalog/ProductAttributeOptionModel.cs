@@ -25,10 +25,12 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*ColorSquaresRgb")]
         [UIHint("Color")]
         public string Color { get; set; }
+        public bool HasColor => Color.HasValue();
         public bool IsListTypeAttribute { get; set; }
 
-        [UIHint("Media"), AdditionalMetadata("album", "catalog")]
         [LocalizedDisplay("*Picture")]
+        [UIHint("Media")]
+        [AdditionalMetadata("album", "catalog"), AdditionalMetadata("transientUpload", true)]
         public int PictureId { get; set; }
 
         [LocalizedDisplay("*PriceAdjustment")]
@@ -59,10 +61,11 @@ namespace Smartstore.Admin.Models.Catalog
         public string LinkedProductName { get; set; }
         public string LinkedProductTypeName { get; set; }
         public string LinkedProductTypeLabelHint { get; set; }
+        public string LinkedProductEditUrl { get; set; }
 
         [LocalizedDisplay("*Quantity")]
         public int Quantity { get; set; }
-        public string QuantityInfo { get; set; }
+        public string QuantityInfo => Quantity > 1 ? $" × {Quantity}" : null;
 
         public List<ProductAttributeOptionLocalizedModel> Locales { get; set; } = new();
     }

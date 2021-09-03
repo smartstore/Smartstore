@@ -6,6 +6,7 @@
     const string strRoot = "Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.Fields.";
     var nameStr = T(strRoot + "Name");
     var aliasStr = T(strRoot + "Alias");
+    var linkedProductStr = T(strRoot + "LinkedProduct");
     var priceAdjustmentStr = T(strRoot + "PriceAdjustment");
     var weightAdjustmentStr = T(strRoot + "WeightAdjustment");
     var isPreSelectedStr = T(strRoot + "IsPreSelected");
@@ -56,22 +57,41 @@
     <detail-view>
         <div class="datagrid-root">
             <sm-datagrid 
+                :id="'product-attribute-options-grid' + item.row.Id"
                 :options="{ keyMemberName: 'Id', vborders: true, hover: true, striped: true }" 
-                :data-source="{ read: '@Url.Action("ProductAttributeOptionsList")?optionsSetId=' + item.row.Id }"@*TODO: (mg) (core) Find the set ID somehow.*@
+                :data-source="{ read: '@Url.Action("ProductAttributeOptionList")?optionsSetId=' + item.row.Id }"
                 :columns="[ 
-                    { member: 'Name', name: 'Name', visible: true, title: '@nameStr' }, @*TODO: (mg) (core) Use template somehow.*@
-                    { member: 'Alias', name: 'Alias', visible: true, title: '@aliasStr' },
-                    { member: 'PriceAdjustmentString', name: 'PriceAdjustmentString', visible: true, halign: 'center', title: '@priceAdjustmentStr' },
-                    { member: 'WeightAdjustmentString', name: 'WeightAdjustmentString', visible: true, halign: 'center', title: '@weightAdjustmentStr' },
+                    { member: 'ProductAttributeOptionsSetId', name: 'ProductAttributeOptionsSetId', visible: false },
+                    { member: 'Name', name: '@nameStr', visible: true, title: '@nameStr' },
+                    { member: 'Alias', name: '@aliasStr', visible: true, title: '@aliasStr' },
+                    { member: 'LinkedProductName', name: '@linkedProductStr', visible: true, title: '@linkedProductStr', entityMember: 'LinkedProductId' },
+                    { member: 'PriceAdjustmentString', name: '@priceAdjustmentStr', visible: true, halign: 'center', title: '@priceAdjustmentStr', entityMember: 'PriceAdjustment' },
+                    { member: 'WeightAdjustmentString', name: '@weightAdjustmentStr', visible: true, halign: 'center', title: '@weightAdjustmentStr', entityMember: 'WeightAdjustment' },
                     { member: 'IsPreSelected', name: 'IsPreSelected', visible: true, halign: 'center', type: 'boolean', title: '@isPreSelectedStr' },
                     { member: 'DisplayOrder', name: 'DisplayOrder', visible: true, halign: 'center', type: 'int', title: '@displayOrderStr' },
                 ]" 
-                :paging="{ enabled: true, pageSize: 15, pageIndex: 1 }" 
-                :sorting="{ enabled: true, descriptors: [] }">
+                :paging="{ enabled: false }" 
+                :sorting="{ enabled: false }">
+                <template v-slot:display-name="item">
+                    <i :class='item.row.TypeNameClass' :title='item.row.TypeName'></i>
+                    <span class="color-container" v-if="item.row.HasColor"><span class='color' :style='{ background: item.row.Color }' :title='item.row.Color'>&nbsp;</span></span>
+                    <span>{{ item.value }} {{ item.row.QuantityInfo }}</span>
+                </template>
+                <template v-slot:display-linkedproductname="item">
+	                <span class='mr-1 badge' :class="'badge-' + item.row.LinkedProductTypeLabelHint">{{ item.row.LinkedProductTypeName }}</span>
+                    <a class="text-truncate" v-bind:href="item.row.LinkedProductEditUrl">{{ item.value }}</a>
+                </template>
+                <template v-slot:rowcommands="item">
+                    <div class="dg-commands-dropdown dropdown-menu dropdown-menu-right">
+                        <a href="#" class="dropdown-item edit-attribute-option" :data-key="item.row.Id" :data-setid="item.row.ProductAttributeOptionsSetId">@T("Common.Edit")</a>
+                        <a href="#" class="dropdown-item" v-on:click.prevent="item.deleteRows(item.row)">@T("Common.Delete")</a>
+                    </div>
+                </template>
                 <template v-slot:toolbar="grid">
                     <div class="dg-toolbar d-flex flex-nowrap">
                         <div class="dg-toolbar-group">
-                            <button type="button" class="btn btn-primary btn-sm btn-flat no-anims mr-auto insert-option" href="#" v-if="!grid.editing.active" v-on:click.prevent="grid.insertRow">
+                            <button type="button" class="btn btn-primary btn-sm btn-flat no-anims mr-auto insert-attribute-option" 
+                                :data-setid="item.row.Id" v-if="!grid.editing.active" v-on:click.prevent="grid.insertRow">
                                 <i class="fa fa-plus"></i>
                                 <span>@T("Admin.Common.AddNew")</span>
                             </button>
@@ -85,30 +105,36 @@
 
 <input type="button" id="btnRefreshOptions" name="btnRefreshOptions" value="" class="d-none" />
 
-<script sm-target-zone="scripts" data-origin="product-attribute-edit">
+<script sm-target-zone="scripts" data-origin="product-attribute-optionsset-edit">
     $(function() {
-        $(document).on('click', '.add-product-attribute-option', function (e) {
+        $(document).on('click', '.insert-attribute-option', function (e) {
             e.preventDefault();
-            //var id = $(this).closest('.t-grid').attr('id').replace('productattributeoptions-grid', '');
-            var optionsSetId = 0; //TODO: get id
+            var optionsSetId = $(this).data('setid');
+            var url = '@Url.Action("ProductAttributeOptionCreatePopup")';
+            url += `?productAttributeOptionsSetId=${optionsSetId}&btnId=btnRefreshOptions&formId=product-attribute-options-grid${optionsSetId}`;
+
             $('#btnRefreshOptions').val(optionsSetId);
-            var url = '@Url.Content("~/Admin/ProductAttribute/ProductAttributeOptionCreatePopup/")' + optionsSetId + '?btnId=btnRefreshOptions&formId=product-attribute-form';
             openPopup(url, true);
-            return false;
         });
 
-        $(document).on('click', '.edit-product-attribute-option', function (e) {
+        $(document).on('click', '.edit-attribute-option', function (e) {
             e.preventDefault();
-            var id = $(this).data("id");
-            $('#btnRefreshOptions').val(id);
-            var url = '@Url.Content("~/Admin/ProductAttribute/ProductAttributeOptionEditPopup/")' + id + '?btnId=btnRefreshOptions&formId=product-attribute-form';
+            var btn = $(this);
+            var optionsSetId = btn.data('setid');
+            var id = btn.data('key');
+            var url = '@Url.Action("ProductAttributeOptionEditPopup")';
+            url += `${id}?btnId=btnRefreshOptions&formId=product-attribute-options-grid${optionsSetId}`;
+
+            $('#btnRefreshOptions').val(optionsSetId);
             openPopup(url, true);
-            return false;
         });
 
-        // Refresh grid after popup edit dialog was closed.
+        // Refresh options set grid after popup dialog was closed.
         $(document).on('click', '#btnRefreshOptions', function () {
-            window["product-attribute-options-grid" + $(this).val()].$children[0].read();
+            // TODO: (mg) (core) find a way to reload the child instead of parent grid.
+            //window['product-attribute-options-grid' + $(this).val()].$children[0].read();
+
+            window['product-attribute-optionsset-grid'].$children[0].read();
             return false;
         });
     });

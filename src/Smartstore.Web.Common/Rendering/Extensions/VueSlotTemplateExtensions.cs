@@ -169,7 +169,7 @@ namespace Smartstore.Web.Rendering
             var colorSpan = new TagBuilder("span");
             colorSpan.Attributes.Add("v-if", "item.row.HasColor");
             colorSpan.Attributes.Add("class", "color-container");
-            colorSpan.InnerHtml.AppendHtml("<span class='color' :style='{ background: item.row.Color }'>&nbsp;</span>");
+            colorSpan.InnerHtml.AppendHtml("<span class='color' :style='{ background: item.row.Color }' :title='item.row.Color'>&nbsp;</span>");
             builder.AppendHtml(colorSpan);
 
             var quantityInfo = "<span>{{ item.value }} {{ item.row.QuantityInfo }}</span>";

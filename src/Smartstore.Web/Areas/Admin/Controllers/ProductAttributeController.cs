@@ -350,29 +350,42 @@ namespace Smartstore.Admin.Controllers
         #region Product attribute options
 
         [Permission(Permissions.Catalog.Variant.Read)]
-        public async Task<IActionResult> ProductAttributeOptionsList(GridCommand command, int optionsSetId)
+        public async Task<IActionResult> ProductAttributeOptionList(int optionsSetId)
         {
             var mapper = MapperFactory.GetMapper<ProductAttributeOption, ProductAttributeOptionModel>();
             var options = await _db.ProductAttributeOptions
                 .AsNoTracking()
                 .ApplyStandardFilter(optionsSetId)
-                .ApplyGridCommand(command, false)
-                .ToPagedList(command)
-                .LoadAsync();
+                .ToListAsync();
+
+            var linkedProductIds = options
+                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
+                .Select(x => x.LinkedProductId)
+                .Distinct()
+                .ToArray();
+
+            var linkedProducts = linkedProductIds.Any()
+                ? await _db.Products.AsNoTracking().Where(x => linkedProductIds.Contains(x.Id)).ToDictionaryAsync(x => x.Id)
+                : new Dictionary<int, Product>();
 
             var rows = await options
-                .SelectAsync(async x => await mapper.MapAsync(x))
+                .SelectAsync(async x =>
+                {
+                    var m = await mapper.MapAsync(x);
+                    await PrepareProductAttributeOptionModel(m, x, linkedProducts);
+                    return m;
+                })
                 .AsyncToList();
 
             return Json(new GridModel<ProductAttributeOptionModel>
             {
                 Rows = rows,
-                Total = options.TotalCount
+                Total = options.Count
             });
         }
 
         [Permission(Permissions.Catalog.Variant.EditSet)]
-        public async Task<IActionResult> ProductAttributeOptionsDelete(GridSelection selection)
+        public async Task<IActionResult> ProductAttributeOptionDelete(GridSelection selection)
         {
             var success = false;
             var ids = selection.GetEntityIds();
@@ -391,9 +404,9 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Catalog.Variant.EditSet)]
-        public async Task<IActionResult> ProductAttributeOptionsCreatePopup(int id)
+        public async Task<IActionResult> ProductAttributeOptionCreatePopup(int productAttributeOptionsSetId, string btnId, string formId)
         {
-            var optionsSet = await _db.ProductAttributeOptionsSets.FindByIdAsync(id);
+            var optionsSet = await _db.ProductAttributeOptionsSets.FindByIdAsync(productAttributeOptionsSetId);
             if (optionsSet == null)
             {
                 return NotFound();
@@ -401,20 +414,22 @@ namespace Smartstore.Admin.Controllers
 
             var model = new ProductAttributeOptionModel
             {
-                ProductAttributeOptionsSetId = id,
-                Color = string.Empty,
-                Quantity = 1
+                Quantity = 1,
+                Color = string.Empty
             };
 
-            await PrepareProductAttributeOptionModel(model, null);
+            await PrepareProductAttributeOptionModel(model, null, null);
             AddLocales(model.Locales);
+
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
 
             return View(model);
         }
 
         [HttpPost]
         [Permission(Permissions.Catalog.Variant.EditSet)]
-        public async Task<IActionResult> ProductAttributeOptionsCreatePopup(string btnId, string formId, ProductAttributeOptionModel model)
+        public async Task<IActionResult> ProductAttributeOptionCreatePopup(ProductAttributeOptionModel model, string btnId, string formId)
         {
             if (ModelState.IsValid)
             {
@@ -446,7 +461,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Catalog.Variant.EditSet)]
-        public async Task<IActionResult> ProductAttributeOptionsEditPopup(int id)
+        public async Task<IActionResult> ProductAttributeOptionEditPopup(int id, string btnId, string formId)
         {
             var option = await _db.ProductAttributeOptions.FindByIdAsync(id, false);
             if (option == null)
@@ -457,15 +472,23 @@ namespace Smartstore.Admin.Controllers
             var mapper = MapperFactory.GetMapper<ProductAttributeOption, ProductAttributeOptionModel>();
             var model = await mapper.MapAsync(option);
 
-            await PrepareProductAttributeOptionModel(model, option);
-            AddLocales(model.Locales);
+            await PrepareProductAttributeOptionModel(model, option, null);
+
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.Name = option.GetLocalized(x => x.Name, languageId, false, false);
+                locale.Alias = option.GetLocalized(x => x.Alias, languageId, false, false);
+            });
+
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
 
             return View(model);
         }
 
         [HttpPost]
         [Permission(Permissions.Catalog.Variant.EditSet)]
-        public async Task<IActionResult> ProductAttributeOptionsEditPopup(string btnId, string formId, ProductAttributeOptionModel model)
+        public async Task<IActionResult> ProductAttributeOptionEditPopup(ProductAttributeOptionModel model, string btnId, string formId)
         {
             var option = await _db.ProductAttributeOptions.FindByIdAsync(model.Id);
             if (option == null)
@@ -502,7 +525,7 @@ namespace Smartstore.Admin.Controllers
 
         #endregion;
 
-        private async Task PrepareProductAttributeOptionModel(ProductAttributeOptionModel model, ProductAttributeOption option)
+        private async Task PrepareProductAttributeOptionModel(ProductAttributeOptionModel model, ProductAttributeOption option, Dictionary<int, Product> linkedProducts)
         {
             // TODO: DRY, similar code in ProductController (ProductAttributeValueList, ProductAttributeValueEditPopup...)
             if (option != null)
@@ -514,19 +537,15 @@ namespace Smartstore.Admin.Controllers
                 model.TypeName = await Services.Localization.GetLocalizedEnumAsync(option.ValueType);
                 model.TypeNameClass = option.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up";
 
-                if (option.LinkedProductId > 0)
+                if (option.LinkedProductId != 0)
                 {
-                    var linkedProduct = await _db.Products.FindByIdAsync(option.LinkedProductId, false);
+                    var linkedProduct = linkedProducts?.Get(option.LinkedProductId) ?? await _db.Products.FindByIdAsync(option.LinkedProductId, false);
                     if (linkedProduct != null)
                     {
                         model.LinkedProductName = linkedProduct.GetLocalized(p => p.Name);
                         model.LinkedProductTypeName = linkedProduct.GetProductTypeLabel(Services.Localization);
                         model.LinkedProductTypeLabelHint = linkedProduct.ProductTypeLabelHint;
-
-                        if (model.Quantity > 1)
-                        {
-                            model.QuantityInfo = $" × {model.Quantity}";
-                        }
+                        model.LinkedProductEditUrl = Url.Action("Edit", "Product", new { id = linkedProduct.Id });
                     }
                 }
             }
@@ -550,6 +569,5 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(option, x => x.Alias, localized.Alias, localized.LanguageId);
             }
         }
-
     }
 }

@@ -1,0 +1,23 @@
+﻿@model ProductAttributeOptionModel
+
+@{    
+	Layout = "_AdminPopupLayout";
+	ViewBag.Title = T("Common.Options.Edit").Value;
+}
+
+<form asp-action="ProductAttributeOptionEditPopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-list-alt"></i>
+            <span>@ViewBag.Title</span>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdateOption" />
+</form>
