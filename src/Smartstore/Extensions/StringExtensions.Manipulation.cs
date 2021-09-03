@@ -359,8 +359,6 @@ namespace Smartstore
             if (string.IsNullOrEmpty(value))
                 return string.Empty;
 
-            Guard.NotNull(pad, nameof(pad));
-
             if (count < 1)
                 return value;
 

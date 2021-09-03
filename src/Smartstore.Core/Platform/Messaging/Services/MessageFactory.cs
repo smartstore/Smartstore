@@ -465,7 +465,7 @@ namespace Smartstore.Core.Messaging
                 { "RecurringPayment", () => GetRandomEntity<RecurringPayment>(x => !x.Deleted) },
                 { "NewsLetterSubscription", () => GetRandomEntity<NewsletterSubscription>(x => true) },
                 { "Campaign", () => GetRandomEntity<Campaign>(x => true) },
-                //{ "ReturnRequest", () => GetRandomEntity<ReturnRequest>(x => true) },
+                { "ReturnRequest", () => GetRandomEntity<ReturnRequest>(x => true) },
                 { "OrderItem", () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted) },
                 //{ "ForumTopic", () => GetRandomEntity<ForumTopic>(x => true) },
                 //{ "ForumPost", () => GetRandomEntity<ForumPost>(x => true) },
@@ -473,7 +473,7 @@ namespace Smartstore.Core.Messaging
                 { "GiftCard", () => GetRandomEntity<GiftCard>(x => true) },
                 { "ProductReview", () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && !x.Product.IsSystemProduct && x.Product.Visibility != ProductVisibility.Hidden && x.Product.Published) },
                 //{ "NewsComment", () => GetRandomEntity<NewsComment>(x => x.NewsItem.Published) },
-                //{ "WalletHistory", () => GetRandomEntity<WalletHistory>(x => true) }
+                { "WalletHistory", () => GetRandomEntity<WalletHistory>(x => true) }
             };
 
             var modelNames = messageContext.MessageTemplate.ModelTypes

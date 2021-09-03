@@ -54,7 +54,7 @@ namespace Smartstore.Core.Messaging
         public ModelTreeMemberKind Kind { get; set; }
     }
 
-    // TODO: (mh) (core) Move Blog, News, Forum and Polls model creation to external modules when they are available.
+    // TODO: (mh) (core) Move Blog, News, Forum and Polls model creation to external modules when they are available (via MessageModelPartMappingEvent)
 
     public partial class MessageModelProvider : IMessageModelProvider
     {
