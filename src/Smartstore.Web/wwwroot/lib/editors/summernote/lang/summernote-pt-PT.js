@@ -1,4 +1,117 @@
-(function($) {
+/*!
+ * 
+ * Super simple wysiwyg editor v0.8.18
+ * https://summernote.org
+ * 
+ * 
+ * Copyright 2013- Alan Hong. and other contributors
+ * summernote may be freely distributed under the MIT license.
+ * 
+ * Date: 2020-05-20T18:09Z
+ * 
+ */
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else {
+		var a = factory();
+		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
+	}
+})(window, function() {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 35);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ 35:
+/***/ (function(module, exports) {
+
+(function ($) {
   $.extend($.summernote.lang, {
     'pt-PT': {
       font: {
@@ -22,17 +135,17 @@
         floatLeft: 'Float Esquerda',
         floatRight: 'Float Direita',
         floatNone: 'Sem Float',
-        shapeRounded: 'Shape: Rounded',
-        shapeCircle: 'Shape: Circle',
-        shapeThumbnail: 'Shape: Thumbnail',
-        shapeNone: 'Shape: None',
+        shapeRounded: 'Forma: Arredondado',
+        shapeCircle: 'Forma: Círculo',
+        shapeThumbnail: 'Forma: Minhatura',
+        shapeNone: 'Forma: Nenhum',
         dragImageHere: 'Arraste uma imagem para aqui',
-        dropImage: 'Drop image or Text',
+        dropImage: 'Arraste uma imagem ou texto',
         selectFromFiles: 'Selecione a partir dos arquivos',
-        maximumFileSize: 'Maximum file size',
-        maximumFileSizeError: 'Maximum file size exceeded.',
+        maximumFileSize: 'Tamanho máximo do fixeiro',
+        maximumFileSizeError: 'Tamanho máximo do fixeiro é maior que o permitido.',
         url: 'Endereço da imagem',
-        remove: 'Remove Image',
+        remove: 'Remover Imagem',
         original: 'Original'
       },
       video: {
@@ -53,20 +166,20 @@
       },
       table: {
         table: 'Tabela',
-        addRowAbove: 'Add row above',
-        addRowBelow: 'Add row below',
-        addColLeft: 'Add column left',
-        addColRight: 'Add column right',
-        delRow: 'Delete row',
-        delCol: 'Delete column',
-        delTable: 'Delete table'
+        addRowAbove: 'Adicionar linha acima',
+        addRowBelow: 'Adicionar linha abaixo',
+        addColLeft: 'Adicionar coluna à Esquerda',
+        addColRight: 'Adicionar coluna à Esquerda',
+        delRow: 'Excluir linha',
+        delCol: 'Excluir coluna',
+        delTable: 'Excluir tabela'
       },
       hr: {
         insert: 'Inserir linha horizontal'
       },
       style: {
         style: 'Estilo',
-        p: 'p',
+        p: 'Parágrafo',
         blockquote: 'Citação',
         pre: 'Código',
         h1: 'Título 1',
@@ -102,7 +215,8 @@
         transparent: 'Transparente',
         setTransparent: 'Fundo transparente',
         reset: 'Restaurar',
-        resetToDefault: 'Restaurar padrão'
+        resetToDefault: 'Restaurar padrão',
+        cpSelect: 'Selecionar'
       },
       shortcut: {
         shortcuts: 'Atalhos do teclado',
@@ -113,33 +227,33 @@
         documentStyle: 'Estilo de documento'
       },
       help: {
-        'insertParagraph': 'Insert Paragraph',
-        'undo': 'Undoes the last command',
-        'redo': 'Redoes the last command',
-        'tab': 'Tab',
-        'untab': 'Untab',
-        'bold': 'Set a bold style',
-        'italic': 'Set a italic style',
-        'underline': 'Set a underline style',
-        'strikethrough': 'Set a strikethrough style',
-        'removeFormat': 'Clean a style',
-        'justifyLeft': 'Set left align',
-        'justifyCenter': 'Set center align',
-        'justifyRight': 'Set right align',
-        'justifyFull': 'Set full align',
-        'insertUnorderedList': 'Toggle unordered list',
-        'insertOrderedList': 'Toggle ordered list',
-        'outdent': 'Outdent on current paragraph',
-        'indent': 'Indent on current paragraph',
-        'formatPara': 'Change current block\'s format as a paragraph(P tag)',
-        'formatH1': 'Change current block\'s format as H1',
-        'formatH2': 'Change current block\'s format as H2',
-        'formatH3': 'Change current block\'s format as H3',
-        'formatH4': 'Change current block\'s format as H4',
-        'formatH5': 'Change current block\'s format as H5',
-        'formatH6': 'Change current block\'s format as H6',
-        'insertHorizontalRule': 'Insert horizontal rule',
-        'linkDialog.show': 'Show Link Dialog'
+        'insertParagraph': 'Inserir Parágrafo',
+        'undo': 'Desfazer o último comando',
+        'redo': 'Refazer o último comando',
+        'tab': 'Maior tabulação',
+        'untab': 'Menor tabulação',
+        'bold': 'Colocar em negrito',
+        'italic': 'Colocar em itálico',
+        'underline': 'Colocar em sublinhado',
+        'strikethrough': 'Colocar em riscado',
+        'removeFormat': 'Limpar o estilo',
+        'justifyLeft': 'Definir alinhado à esquerda',
+        'justifyCenter': 'Definir alinhado ao centro',
+        'justifyRight': 'Definir alinhado à direita',
+        'justifyFull': 'Definir justificado',
+        'insertUnorderedList': 'Alternar lista não ordenada',
+        'insertOrderedList': 'Alternar lista ordenada',
+        'outdent': 'Recuar parágrafo atual',
+        'indent': 'Avançar parágrafo atual',
+        'formatPara': 'Alterar formato do bloco para parágrafo',
+        'formatH1': 'Alterar formato do bloco para Título 1',
+        'formatH2': 'Alterar formato do bloco para Título 2',
+        'formatH3': 'Alterar formato do bloco para Título 3',
+        'formatH4': 'Alterar formato do bloco para Título 4',
+        'formatH5': 'Alterar formato do bloco para Título 5',
+        'formatH6': 'Alterar formato do bloco para Título 6',
+        'insertHorizontalRule': 'Inserir linha horizontal',
+        'linkDialog.show': 'Inserir uma ligração'
       },
       history: {
         undo: 'Desfazer',
@@ -152,3 +266,8 @@
     }
   });
 })(jQuery);
+
+/***/ })
+
+/******/ });
+});

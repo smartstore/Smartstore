@@ -103,131 +103,131 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 17);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 17:
+/***/ 12:
 /***/ (function(module, exports) {
 
 (function ($) {
   $.extend($.summernote.lang, {
-    'fa-IR': {
+    'da-DK': {
       font: {
-        bold: 'درشت',
-        italic: 'خمیده',
-        underline: 'میان خط',
-        clear: 'پاک کردن فرمت فونت',
-        height: 'فاصله ی خطی',
-        name: 'اسم فونت',
-        strikethrough: 'Strike',
-        subscript: 'Subscript',
-        superscript: 'Superscript',
-        size: 'اندازه ی فونت'
+        bold: 'Fed',
+        italic: 'Kursiv',
+        underline: 'Understreget',
+        clear: 'Fjern formatering',
+        height: 'Højde',
+        name: 'Skrifttype',
+        strikethrough: 'Gennemstreget',
+        subscript: 'Sænket skrift',
+        superscript: 'Hævet skrift',
+        size: 'Skriftstørrelse'
       },
       image: {
-        image: 'تصویر',
-        insert: 'وارد کردن تصویر',
-        resizeFull: 'تغییر به اندازه ی کامل',
-        resizeHalf: 'تغییر به اندازه نصف',
-        resizeQuarter: 'تغییر به اندازه یک چهارم',
-        floatLeft: 'چسباندن به چپ',
-        floatRight: 'چسباندن به راست',
-        floatNone: 'بدون چسبندگی',
-        shapeRounded: 'Shape: Rounded',
-        shapeCircle: 'Shape: Circle',
-        shapeThumbnail: 'Shape: Thumbnail',
-        shapeNone: 'Shape: None',
-        dragImageHere: 'یک تصویر را اینجا بکشید',
-        dropImage: 'Drop image or Text',
-        selectFromFiles: 'فایل ها را انتخاب کنید',
-        maximumFileSize: 'حداکثر اندازه پرونده',
-        maximumFileSizeError: 'Maximum file size exceeded.',
-        url: 'آدرس تصویر',
-        remove: 'حذف تصویر',
+        image: 'Billede',
+        insert: 'Indsæt billede',
+        resizeFull: 'Original størrelse',
+        resizeHalf: 'Halv størrelse',
+        resizeQuarter: 'Kvart størrelse',
+        floatLeft: 'Venstrestillet',
+        floatRight: 'Højrestillet',
+        floatNone: 'Fjern formatering',
+        shapeRounded: 'Form: Runde kanter',
+        shapeCircle: 'Form: Cirkel',
+        shapeThumbnail: 'Form: Miniature',
+        shapeNone: 'Form: Ingen',
+        dragImageHere: 'Træk billede hertil',
+        dropImage: 'Slip billede',
+        selectFromFiles: 'Vælg billed-fil',
+        maximumFileSize: 'Maks fil størrelse',
+        maximumFileSizeError: 'Filen er større end maks tilladte fil størrelse!',
+        url: 'Billede URL',
+        remove: 'Fjern billede',
         original: 'Original'
       },
       video: {
-        video: 'ویدیو',
-        videoLink: 'لینک ویدیو',
-        insert: 'افزودن ویدیو',
-        url: 'آدرس ویدیو ؟',
-        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion یا Youku)'
+        video: 'Video',
+        videoLink: 'Video Link',
+        insert: 'Indsæt Video',
+        url: 'Video URL?',
+        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion eller Youku)'
       },
       link: {
-        link: 'لینک',
-        insert: 'اضافه کردن لینک',
-        unlink: 'حذف لینک',
-        edit: 'ویرایش',
-        textToDisplay: 'متن جهت نمایش',
-        url: 'این لینک به چه آدرسی باید برود ؟',
-        openInNewWindow: 'در یک پنجره ی جدید باز شود'
+        link: 'Link',
+        insert: 'Indsæt link',
+        unlink: 'Fjern link',
+        edit: 'Rediger',
+        textToDisplay: 'Visningstekst',
+        url: 'Hvor skal linket pege hen?',
+        openInNewWindow: 'Åbn i nyt vindue'
       },
       table: {
-        table: 'جدول',
-        addRowAbove: 'افزودن ردیف بالا',
-        addRowBelow: 'افزودن ردیف پایین',
-        addColLeft: 'افزودن ستون چپ',
-        addColRight: 'افزودن ستون راست',
-        delRow: 'حذف ردیف',
-        delCol: 'حذف ستون',
-        delTable: 'حذف جدول'
+        table: 'Tabel',
+        addRowAbove: 'Tilføj række over',
+        addRowBelow: 'Tilføj række under',
+        addColLeft: 'Tilføj venstre kolonne',
+        addColRight: 'Tilføj højre kolonne',
+        delRow: 'Slet række',
+        delCol: 'Slet kolonne',
+        delTable: 'Slet tabel'
       },
       hr: {
-        insert: 'افزودن خط افقی'
+        insert: 'Indsæt horisontal linje'
       },
       style: {
-        style: 'استیل',
-        p: 'نرمال',
-        blockquote: 'نقل قول',
-        pre: 'کد',
-        h1: 'سرتیتر 1',
-        h2: 'سرتیتر 2',
-        h3: 'سرتیتر 3',
-        h4: 'سرتیتر 4',
-        h5: 'سرتیتر 5',
-        h6: 'سرتیتر 6'
+        style: 'Stil',
+        p: 'p',
+        blockquote: 'Citat',
+        pre: 'Kode',
+        h1: 'Overskrift 1',
+        h2: 'Overskrift 2',
+        h3: 'Overskrift 3',
+        h4: 'Overskrift 4',
+        h5: 'Overskrift 5',
+        h6: 'Overskrift 6'
       },
       lists: {
-        unordered: 'لیست غیر ترتیبی',
-        ordered: 'لیست ترتیبی'
+        unordered: 'Punktopstillet liste',
+        ordered: 'Nummereret liste'
       },
       options: {
-        help: 'راهنما',
-        fullscreen: 'نمایش تمام صفحه',
-        codeview: 'مشاهده ی کد'
+        help: 'Hjælp',
+        fullscreen: 'Fuld skærm',
+        codeview: 'HTML-Visning'
       },
       paragraph: {
-        paragraph: 'پاراگراف',
-        outdent: 'کاهش تو رفتگی',
-        indent: 'افزایش تو رفتگی',
-        left: 'چپ چین',
-        center: 'میان چین',
-        right: 'راست چین',
-        justify: 'بلوک چین'
+        paragraph: 'Afsnit',
+        outdent: 'Formindsk indryk',
+        indent: 'Forøg indryk',
+        left: 'Venstrestillet',
+        center: 'Centreret',
+        right: 'Højrestillet',
+        justify: 'Blokjuster'
       },
       color: {
-        recent: 'رنگ اخیرا استفاده شده',
-        more: 'رنگ بیشتر',
-        background: 'رنگ پس زمینه',
-        foreground: 'رنگ متن',
-        transparent: 'بی رنگ',
-        setTransparent: 'تنظیم حالت بی رنگ',
-        reset: 'بازنشاندن',
-        resetToDefault: 'حالت پیش فرض'
+        recent: 'Nyligt valgt farve',
+        more: 'Flere farver',
+        background: 'Baggrund',
+        foreground: 'Forgrund',
+        transparent: 'Transparent',
+        setTransparent: 'Sæt transparent',
+        reset: 'Nulstil',
+        resetToDefault: 'Gendan standardindstillinger'
       },
       shortcut: {
-        shortcuts: 'دکمه های میان بر',
-        close: 'بستن',
-        textFormatting: 'فرمت متن',
-        action: 'عملیات',
-        paragraphFormatting: 'فرمت پاراگراف',
-        documentStyle: 'استیل سند',
+        shortcuts: 'Genveje',
+        close: 'Luk',
+        textFormatting: 'Tekstformatering',
+        action: 'Handling',
+        paragraphFormatting: 'Afsnitsformatering',
+        documentStyle: 'Dokumentstil',
         extraKeys: 'Extra keys'
       },
       help: {
-        'insertParagraph': 'افزودن پاراگراف',
+        'insertParagraph': 'Indsæt paragraf',
         'undo': 'Undoes the last command',
         'redo': 'Redoes the last command',
         'tab': 'Tab',
@@ -237,9 +237,9 @@ return /******/ (function(modules) { // webpackBootstrap
         'underline': 'Set a underline style',
         'strikethrough': 'Set a strikethrough style',
         'removeFormat': 'Clean a style',
-        'justifyLeft': 'چپ چین',
-        'justifyCenter': 'وسط چین',
-        'justifyRight': 'راست چین',
+        'justifyLeft': 'Set left align',
+        'justifyCenter': 'Set center align',
+        'justifyRight': 'Set right align',
         'justifyFull': 'Set full align',
         'insertUnorderedList': 'Toggle unordered list',
         'insertOrderedList': 'Toggle ordered list',
@@ -253,15 +253,15 @@ return /******/ (function(modules) { // webpackBootstrap
         'formatH5': 'Change current block\'s format as H5',
         'formatH6': 'Change current block\'s format as H6',
         'insertHorizontalRule': 'Insert horizontal rule',
-        'linkDialog.show': 'Show Link Dialog'
+        'linkDialog.show': 'Vis Link Dialog'
       },
       history: {
-        undo: 'واچیدن',
-        redo: 'بازچیدن'
+        undo: 'Fortryd',
+        redo: 'Annuller fortryd'
       },
       specialChar: {
-        specialChar: 'کاراکتر خاص',
-        select: 'انتخاب کاراکتر خاص'
+        specialChar: 'SPECIAL CHARACTERS',
+        select: 'Vælg special karakterer'
       }
     }
   });

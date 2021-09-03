@@ -33,15 +33,13 @@
      data-lazy="@lazy"
      data-lang="@Html.Raw(culture != null ? $"'{culture}'" : "null")">
 
-    @*<textarea asp-for="@Model"
+    <textarea asp-for="@Model"
               id="@id"
               name="@Html.NameForModel()"
               class="summernote-editor"
               attr-class='(lazy, "d-none")'>
         @Html.Raw(html)
-    </textarea>*@
-
-    @Html.TextArea(string.Empty /* Name suffix */, html /* Initial value */, new { @class = "summernote-editor" + (lazy ? " d-none" : "") })
+    </textarea>
 
     @if (lazy)
     {

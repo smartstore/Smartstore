@@ -103,131 +103,131 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 17);
+/******/ 	return __webpack_require__(__webpack_require__.s = 48);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 17:
+/***/ 48:
 /***/ (function(module, exports) {
 
 (function ($) {
   $.extend($.summernote.lang, {
-    'fa-IR': {
+    'vi-VN': {
       font: {
-        bold: 'درشت',
-        italic: 'خمیده',
-        underline: 'میان خط',
-        clear: 'پاک کردن فرمت فونت',
-        height: 'فاصله ی خطی',
-        name: 'اسم فونت',
-        strikethrough: 'Strike',
+        bold: 'In Đậm',
+        italic: 'In Nghiêng',
+        underline: 'Gạch dưới',
+        clear: 'Bỏ định dạng',
+        height: 'Chiều cao dòng',
+        name: 'Phông chữ',
+        strikethrough: 'Gạch ngang',
         subscript: 'Subscript',
         superscript: 'Superscript',
-        size: 'اندازه ی فونت'
+        size: 'Cỡ chữ'
       },
       image: {
-        image: 'تصویر',
-        insert: 'وارد کردن تصویر',
-        resizeFull: 'تغییر به اندازه ی کامل',
-        resizeHalf: 'تغییر به اندازه نصف',
-        resizeQuarter: 'تغییر به اندازه یک چهارم',
-        floatLeft: 'چسباندن به چپ',
-        floatRight: 'چسباندن به راست',
-        floatNone: 'بدون چسبندگی',
+        image: 'Hình ảnh',
+        insert: 'Chèn',
+        resizeFull: '100%',
+        resizeHalf: '50%',
+        resizeQuarter: '25%',
+        floatLeft: 'Trôi về trái',
+        floatRight: 'Trôi về phải',
+        floatNone: 'Không trôi',
         shapeRounded: 'Shape: Rounded',
         shapeCircle: 'Shape: Circle',
         shapeThumbnail: 'Shape: Thumbnail',
         shapeNone: 'Shape: None',
-        dragImageHere: 'یک تصویر را اینجا بکشید',
+        dragImageHere: 'Thả Ảnh ở vùng này',
         dropImage: 'Drop image or Text',
-        selectFromFiles: 'فایل ها را انتخاب کنید',
-        maximumFileSize: 'حداکثر اندازه پرونده',
+        selectFromFiles: 'Chọn từ File',
+        maximumFileSize: 'Maximum file size',
         maximumFileSizeError: 'Maximum file size exceeded.',
-        url: 'آدرس تصویر',
-        remove: 'حذف تصویر',
+        url: 'URL',
+        remove: 'Xóa',
         original: 'Original'
       },
       video: {
-        video: 'ویدیو',
-        videoLink: 'لینک ویدیو',
-        insert: 'افزودن ویدیو',
-        url: 'آدرس ویدیو ؟',
-        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion یا Youku)'
+        video: 'Video',
+        videoLink: 'Link đến Video',
+        insert: 'Chèn Video',
+        url: 'URL',
+        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion và Youku)'
       },
       link: {
-        link: 'لینک',
-        insert: 'اضافه کردن لینک',
-        unlink: 'حذف لینک',
-        edit: 'ویرایش',
-        textToDisplay: 'متن جهت نمایش',
-        url: 'این لینک به چه آدرسی باید برود ؟',
-        openInNewWindow: 'در یک پنجره ی جدید باز شود'
+        link: 'Link',
+        insert: 'Chèn Link',
+        unlink: 'Gỡ Link',
+        edit: 'Sửa',
+        textToDisplay: 'Văn bản hiển thị',
+        url: 'URL',
+        openInNewWindow: 'Mở ở Cửa sổ mới'
       },
       table: {
-        table: 'جدول',
-        addRowAbove: 'افزودن ردیف بالا',
-        addRowBelow: 'افزودن ردیف پایین',
-        addColLeft: 'افزودن ستون چپ',
-        addColRight: 'افزودن ستون راست',
-        delRow: 'حذف ردیف',
-        delCol: 'حذف ستون',
-        delTable: 'حذف جدول'
+        table: 'Bảng',
+        addRowAbove: 'Add row above',
+        addRowBelow: 'Add row below',
+        addColLeft: 'Add column left',
+        addColRight: 'Add column right',
+        delRow: 'Delete row',
+        delCol: 'Delete column',
+        delTable: 'Delete table'
       },
       hr: {
-        insert: 'افزودن خط افقی'
+        insert: 'Chèn'
       },
       style: {
-        style: 'استیل',
-        p: 'نرمال',
-        blockquote: 'نقل قول',
-        pre: 'کد',
-        h1: 'سرتیتر 1',
-        h2: 'سرتیتر 2',
-        h3: 'سرتیتر 3',
-        h4: 'سرتیتر 4',
-        h5: 'سرتیتر 5',
-        h6: 'سرتیتر 6'
+        style: 'Kiểu chữ',
+        p: 'Chữ thường',
+        blockquote: 'Đoạn trích',
+        pre: 'Mã Code',
+        h1: 'H1',
+        h2: 'H2',
+        h3: 'H3',
+        h4: 'H4',
+        h5: 'H5',
+        h6: 'H6'
       },
       lists: {
-        unordered: 'لیست غیر ترتیبی',
-        ordered: 'لیست ترتیبی'
+        unordered: 'Liệt kê danh sách',
+        ordered: 'Liệt kê theo thứ tự'
       },
       options: {
-        help: 'راهنما',
-        fullscreen: 'نمایش تمام صفحه',
-        codeview: 'مشاهده ی کد'
+        help: 'Trợ giúp',
+        fullscreen: 'Toàn Màn hình',
+        codeview: 'Xem Code'
       },
       paragraph: {
-        paragraph: 'پاراگراف',
-        outdent: 'کاهش تو رفتگی',
-        indent: 'افزایش تو رفتگی',
-        left: 'چپ چین',
-        center: 'میان چین',
-        right: 'راست چین',
-        justify: 'بلوک چین'
+        paragraph: 'Canh lề',
+        outdent: 'Dịch sang trái',
+        indent: 'Dịch sang phải',
+        left: 'Canh trái',
+        center: 'Canh giữa',
+        right: 'Canh phải',
+        justify: 'Canh đều'
       },
       color: {
-        recent: 'رنگ اخیرا استفاده شده',
-        more: 'رنگ بیشتر',
-        background: 'رنگ پس زمینه',
-        foreground: 'رنگ متن',
-        transparent: 'بی رنگ',
-        setTransparent: 'تنظیم حالت بی رنگ',
-        reset: 'بازنشاندن',
-        resetToDefault: 'حالت پیش فرض'
+        recent: 'Màu chữ',
+        more: 'Mở rộng',
+        background: 'Màu nền',
+        foreground: 'Màu chữ',
+        transparent: 'trong suốt',
+        setTransparent: 'Nền trong suốt',
+        reset: 'Thiết lập lại',
+        resetToDefault: 'Trở lại ban đầu'
       },
       shortcut: {
-        shortcuts: 'دکمه های میان بر',
-        close: 'بستن',
-        textFormatting: 'فرمت متن',
-        action: 'عملیات',
-        paragraphFormatting: 'فرمت پاراگراف',
-        documentStyle: 'استیل سند',
+        shortcuts: 'Phím tắt',
+        close: 'Đóng',
+        textFormatting: 'Định dạng Văn bản',
+        action: 'Hành động',
+        paragraphFormatting: 'Định dạng',
+        documentStyle: 'Kiểu văn bản',
         extraKeys: 'Extra keys'
       },
       help: {
-        'insertParagraph': 'افزودن پاراگراف',
+        'insertParagraph': 'Insert Paragraph',
         'undo': 'Undoes the last command',
         'redo': 'Redoes the last command',
         'tab': 'Tab',
@@ -237,9 +237,9 @@ return /******/ (function(modules) { // webpackBootstrap
         'underline': 'Set a underline style',
         'strikethrough': 'Set a strikethrough style',
         'removeFormat': 'Clean a style',
-        'justifyLeft': 'چپ چین',
-        'justifyCenter': 'وسط چین',
-        'justifyRight': 'راست چین',
+        'justifyLeft': 'Set left align',
+        'justifyCenter': 'Set center align',
+        'justifyRight': 'Set right align',
         'justifyFull': 'Set full align',
         'insertUnorderedList': 'Toggle unordered list',
         'insertOrderedList': 'Toggle ordered list',
@@ -256,12 +256,12 @@ return /******/ (function(modules) { // webpackBootstrap
         'linkDialog.show': 'Show Link Dialog'
       },
       history: {
-        undo: 'واچیدن',
-        redo: 'بازچیدن'
+        undo: 'Lùi lại',
+        redo: 'Làm lại'
       },
       specialChar: {
-        specialChar: 'کاراکتر خاص',
-        select: 'انتخاب کاراکتر خاص'
+        specialChar: 'SPECIAL CHARACTERS',
+        select: 'Select Special characters'
       }
     }
   });

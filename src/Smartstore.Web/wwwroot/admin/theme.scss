@@ -20,6 +20,11 @@
 @import "../lib/select2/scss/core.scss";
 @import "../lib/colorpicker/scss/_colorpicker.scss";
 @import "../lib/datetimepicker/scss/_tempusdominus.scss";
+// INFO: Can't be done. We need the font unless we find replacement for table icons (which can't be found in fotawesome or fontastic)
+// which was probably the reason the font files weren't removed earlier.
+//@import "../lib/editors/summernote/summernote.scss";
+
+// TODO: (mh) (core) Remove scss resources when this was approved.
 
 // Button tweaks:
 // Must come BEFORE custom button import because of

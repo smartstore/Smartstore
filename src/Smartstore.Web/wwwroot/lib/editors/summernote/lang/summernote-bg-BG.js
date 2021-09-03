@@ -103,131 +103,132 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 17);
+/******/ 	return __webpack_require__(__webpack_require__.s = 9);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 17:
+/***/ 9:
 /***/ (function(module, exports) {
 
 (function ($) {
   $.extend($.summernote.lang, {
-    'fa-IR': {
+    'bg-BG': {
       font: {
-        bold: 'درشت',
-        italic: 'خمیده',
-        underline: 'میان خط',
-        clear: 'پاک کردن فرمت فونت',
-        height: 'فاصله ی خطی',
-        name: 'اسم فونت',
-        strikethrough: 'Strike',
-        subscript: 'Subscript',
-        superscript: 'Superscript',
-        size: 'اندازه ی فونت'
+        bold: 'Удебелен',
+        italic: 'Наклонен',
+        underline: 'Подчертан',
+        clear: 'Изчисти стиловете',
+        height: 'Височина',
+        name: 'Шрифт',
+        strikethrough: 'Задраскано',
+        subscript: 'Долен индекс',
+        superscript: 'Горен индекс',
+        size: 'Размер на шрифта'
       },
       image: {
-        image: 'تصویر',
-        insert: 'وارد کردن تصویر',
-        resizeFull: 'تغییر به اندازه ی کامل',
-        resizeHalf: 'تغییر به اندازه نصف',
-        resizeQuarter: 'تغییر به اندازه یک چهارم',
-        floatLeft: 'چسباندن به چپ',
-        floatRight: 'چسباندن به راست',
-        floatNone: 'بدون چسبندگی',
+        image: 'Изображение',
+        insert: 'Постави картинка',
+        resizeFull: 'Цял размер',
+        resizeHalf: 'Размер на 50%',
+        resizeQuarter: 'Размер на 25%',
+        floatLeft: 'Подравни в ляво',
+        floatRight: 'Подравни в дясно',
+        floatNone: 'Без подравняване',
         shapeRounded: 'Shape: Rounded',
         shapeCircle: 'Shape: Circle',
         shapeThumbnail: 'Shape: Thumbnail',
         shapeNone: 'Shape: None',
-        dragImageHere: 'یک تصویر را اینجا بکشید',
+        dragImageHere: 'Пуснете изображението тук',
         dropImage: 'Drop image or Text',
-        selectFromFiles: 'فایل ها را انتخاب کنید',
-        maximumFileSize: 'حداکثر اندازه پرونده',
+        selectFromFiles: 'Изберете файл',
+        maximumFileSize: 'Maximum file size',
         maximumFileSizeError: 'Maximum file size exceeded.',
-        url: 'آدرس تصویر',
-        remove: 'حذف تصویر',
+        url: 'URL адрес на изображение',
+        remove: 'Премахни изображение',
         original: 'Original'
       },
       video: {
-        video: 'ویدیو',
-        videoLink: 'لینک ویدیو',
-        insert: 'افزودن ویدیو',
-        url: 'آدرس ویدیو ؟',
-        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion یا Youku)'
+        video: 'Video',
+        videoLink: 'Video Link',
+        insert: 'Insert Video',
+        url: 'Video URL?',
+        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion or Youku)'
       },
       link: {
-        link: 'لینک',
-        insert: 'اضافه کردن لینک',
-        unlink: 'حذف لینک',
-        edit: 'ویرایش',
-        textToDisplay: 'متن جهت نمایش',
-        url: 'این لینک به چه آدرسی باید برود ؟',
-        openInNewWindow: 'در یک پنجره ی جدید باز شود'
+        link: 'Връзка',
+        insert: 'Добави връзка',
+        unlink: 'Премахни връзка',
+        edit: 'Промени',
+        textToDisplay: 'Текст за показване',
+        url: 'URL адрес',
+        openInNewWindow: 'Отвори в нов прозорец'
       },
       table: {
-        table: 'جدول',
-        addRowAbove: 'افزودن ردیف بالا',
-        addRowBelow: 'افزودن ردیف پایین',
-        addColLeft: 'افزودن ستون چپ',
-        addColRight: 'افزودن ستون راست',
-        delRow: 'حذف ردیف',
-        delCol: 'حذف ستون',
-        delTable: 'حذف جدول'
+        table: 'Таблица',
+        addRowAbove: 'Add row above',
+        addRowBelow: 'Add row below',
+        addColLeft: 'Add column left',
+        addColRight: 'Add column right',
+        delRow: 'Delete row',
+        delCol: 'Delete column',
+        delTable: 'Delete table'
       },
       hr: {
-        insert: 'افزودن خط افقی'
+        insert: 'Добави хоризонтална линия'
       },
       style: {
-        style: 'استیل',
-        p: 'نرمال',
-        blockquote: 'نقل قول',
-        pre: 'کد',
-        h1: 'سرتیتر 1',
-        h2: 'سرتیتر 2',
-        h3: 'سرتیتر 3',
-        h4: 'سرتیتر 4',
-        h5: 'سرتیتر 5',
-        h6: 'سرتیتر 6'
+        style: 'Стил',
+        p: 'Нормален',
+        blockquote: 'Цитат',
+        pre: 'Код',
+        h1: 'Заглавие 1',
+        h2: 'Заглавие 2',
+        h3: 'Заглавие 3',
+        h4: 'Заглавие 4',
+        h5: 'Заглавие 5',
+        h6: 'Заглавие 6'
       },
       lists: {
-        unordered: 'لیست غیر ترتیبی',
-        ordered: 'لیست ترتیبی'
+        unordered: 'Символен списък',
+        ordered: 'Цифров списък'
       },
       options: {
-        help: 'راهنما',
-        fullscreen: 'نمایش تمام صفحه',
-        codeview: 'مشاهده ی کد'
+        help: 'Помощ',
+        fullscreen: 'На цял екран',
+        codeview: 'Преглед на код'
       },
       paragraph: {
-        paragraph: 'پاراگراف',
-        outdent: 'کاهش تو رفتگی',
-        indent: 'افزایش تو رفتگی',
-        left: 'چپ چین',
-        center: 'میان چین',
-        right: 'راست چین',
-        justify: 'بلوک چین'
+        paragraph: 'Параграф',
+        outdent: 'Намаляване на отстъпа',
+        indent: 'Абзац',
+        left: 'Подравняване в ляво',
+        center: 'Център',
+        right: 'Подравняване в дясно',
+        justify: 'Разтягане по ширина'
       },
       color: {
-        recent: 'رنگ اخیرا استفاده شده',
-        more: 'رنگ بیشتر',
-        background: 'رنگ پس زمینه',
-        foreground: 'رنگ متن',
-        transparent: 'بی رنگ',
-        setTransparent: 'تنظیم حالت بی رنگ',
-        reset: 'بازنشاندن',
-        resetToDefault: 'حالت پیش فرض'
+        recent: 'Последния избран цвят',
+        more: 'Още цветове',
+        background: 'Цвят на фона',
+        foreground: 'Цвят на шрифта',
+        transparent: 'Прозрачен',
+        setTransparent: 'Направете прозрачен',
+        reset: 'Възстанови',
+        resetToDefault: 'Възстанови оригиналните',
+        cpSelect: 'Изберете'
       },
       shortcut: {
-        shortcuts: 'دکمه های میان بر',
-        close: 'بستن',
-        textFormatting: 'فرمت متن',
-        action: 'عملیات',
-        paragraphFormatting: 'فرمت پاراگراف',
-        documentStyle: 'استیل سند',
+        shortcuts: 'Клавишни комбинации',
+        close: 'Затвори',
+        textFormatting: 'Форматиране на текста',
+        action: 'Действие',
+        paragraphFormatting: 'Форматиране на параграф',
+        documentStyle: 'Стил на документа',
         extraKeys: 'Extra keys'
       },
       help: {
-        'insertParagraph': 'افزودن پاراگراف',
+        'insertParagraph': 'Insert Paragraph',
         'undo': 'Undoes the last command',
         'redo': 'Redoes the last command',
         'tab': 'Tab',
@@ -237,9 +238,9 @@ return /******/ (function(modules) { // webpackBootstrap
         'underline': 'Set a underline style',
         'strikethrough': 'Set a strikethrough style',
         'removeFormat': 'Clean a style',
-        'justifyLeft': 'چپ چین',
-        'justifyCenter': 'وسط چین',
-        'justifyRight': 'راست چین',
+        'justifyLeft': 'Set left align',
+        'justifyCenter': 'Set center align',
+        'justifyRight': 'Set right align',
         'justifyFull': 'Set full align',
         'insertUnorderedList': 'Toggle unordered list',
         'insertOrderedList': 'Toggle ordered list',
@@ -256,12 +257,12 @@ return /******/ (function(modules) { // webpackBootstrap
         'linkDialog.show': 'Show Link Dialog'
       },
       history: {
-        undo: 'واچیدن',
-        redo: 'بازچیدن'
+        undo: 'Назад',
+        redo: 'Напред'
       },
       specialChar: {
-        specialChar: 'کاراکتر خاص',
-        select: 'انتخاب کاراکتر خاص'
+        specialChar: 'SPECIAL CHARACTERS',
+        select: 'Select Special characters'
       }
     }
   });

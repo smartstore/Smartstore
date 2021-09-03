@@ -103,82 +103,79 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 20);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 15:
+/***/ 20:
 /***/ (function(module, exports) {
 
 (function ($) {
   $.extend($.summernote.lang, {
-    'es-ES': {
+    'gl-ES': {
       font: {
         bold: 'Negrita',
         italic: 'Cursiva',
-        underline: 'Subrayado',
-        clear: 'Eliminar estilo de letra',
-        height: 'Altura de línea',
-        name: 'Tipo de letra',
-        strikethrough: 'Tachado',
-        subscript: 'Subíndice',
+        underline: 'Subliñado',
+        clear: 'Quitar estilo de fonte',
+        height: 'Altura de liña',
+        name: 'Fonte',
+        strikethrough: 'Riscado',
         superscript: 'Superíndice',
-        size: 'Tamaño de la fuente',
-        sizeunit: 'Unidad del tamaño de letra'
+        subscript: 'Subíndice',
+        size: 'Tamaño da fonte'
       },
       image: {
-        image: 'Imagen',
-        insert: 'Insertar imagen',
+        image: 'Imaxe',
+        insert: 'Inserir imaxe',
         resizeFull: 'Redimensionar a tamaño completo',
-        resizeHalf: 'Redimensionar a la mitad',
+        resizeHalf: 'Redimensionar á metade',
         resizeQuarter: 'Redimensionar a un cuarto',
-        resizeNone: 'Tamaño original',
-        floatLeft: 'Flotar a la izquierda',
-        floatRight: 'Flotar a la derecha',
-        floatNone: 'No flotar',
+        floatLeft: 'Flotar á esquerda',
+        floatRight: 'Flotar á dereita',
+        floatNone: 'Non flotar',
         shapeRounded: 'Forma: Redondeado',
         shapeCircle: 'Forma: Círculo',
-        shapeThumbnail: 'Forma: Miniatura',
-        shapeNone: 'Forma: Ninguna',
-        dragImageHere: 'Arrastre una imagen o texto aquí',
-        dropImage: 'Suelte una imagen o texto',
-        selectFromFiles: 'Seleccione un fichero',
-        maximumFileSize: 'Tamaño máximo del fichero',
-        maximumFileSizeError: 'Superado el tamaño máximo de fichero.',
-        url: 'URL de la imagen',
-        remove: 'Eliminar la imagen',
+        shapeThumbnail: 'Forma: Marco',
+        shapeNone: 'Forma: Ningunha',
+        dragImageHere: 'Arrastrar unha imaxe ou texto aquí',
+        dropImage: 'Solta a imaxe ou texto',
+        selectFromFiles: 'Seleccionar desde os arquivos',
+        maximumFileSize: 'Tamaño máximo do arquivo',
+        maximumFileSizeError: 'Superaches o tamaño máximo do arquivo.',
+        url: 'URL da imaxe',
+        remove: 'Eliminar imaxe',
         original: 'Original'
       },
       video: {
         video: 'Vídeo',
-        videoLink: 'Enlace del vídeo',
-        insert: 'Insertar un vídeo',
-        url: 'URL del vídeo',
-        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion o Youku)'
+        videoLink: 'Ligazón do vídeo',
+        insert: 'Insertar vídeo',
+        url: 'URL do vídeo?',
+        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion, o Youku)'
       },
       link: {
-        link: 'Enlace',
-        insert: 'Insertar un enlace',
-        unlink: 'Quitar el enlace',
+        link: 'Ligazón',
+        insert: 'Inserir Ligazón',
+        unlink: 'Quitar Ligazón',
         edit: 'Editar',
-        textToDisplay: 'Texto a mostrar',
-        url: '¿A qué URL lleva este enlace?',
-        openInNewWindow: 'Abrir en una nueva ventana',
-        useProtocol: 'Usar el protocolo predefinido'
+        textToDisplay: 'Texto para amosar',
+        url: 'Cara a que URL leva a ligazón?',
+        openInNewWindow: 'Abrir nunha nova xanela'
       },
       table: {
-        table: 'Tabla',
-        addRowAbove: 'Añadir una fila encima',
-        addRowBelow: 'Añadir una fila debajo',
-        addColLeft: 'Añadir una columna a la izquierda',
-        addColRight: 'Añadir una columna a la derecha',
-        delRow: 'Borrar la fila',
-        delCol: 'Borrar la columna',
-        delTable: 'Borrar la tabla'
+        table: 'Táboa',
+        addRowAbove: 'Add row above',
+        addRowBelow: 'Add row below',
+        addColLeft: 'Add column left',
+        addColRight: 'Add column right',
+        delRow: 'Delete row',
+        delCol: 'Delete column',
+        delTable: 'Delete table'
       },
       hr: {
-        insert: 'Insertar una línea horizontal'
+        insert: 'Inserir liña horizontal'
       },
       style: {
         style: 'Estilo',
@@ -193,82 +190,78 @@ return /******/ (function(modules) { // webpackBootstrap
         h6: 'Título 6'
       },
       lists: {
-        unordered: 'Lista',
-        ordered: 'Lista numerada'
+        unordered: 'Lista desordenada',
+        ordered: 'Lista ordenada'
       },
       options: {
-        help: 'Ayuda',
+        help: 'Axuda',
         fullscreen: 'Pantalla completa',
-        codeview: 'Ver el código fuente'
+        codeview: 'Ver código fonte'
       },
       paragraph: {
-        paragraph: 'Párrafo',
-        outdent: 'Reducir la sangría',
-        indent: 'Aumentar la sangría',
-        left: 'Alinear a la izquierda',
-        center: 'Centrar',
-        right: 'Alinear a la derecha',
-        justify: 'Justificar'
+        paragraph: 'Parágrafo',
+        outdent: 'Menos tabulación',
+        indent: 'Máis tabulación',
+        left: 'Aliñar á esquerda',
+        center: 'Aliñar ao centro',
+        right: 'Aliñar á dereita',
+        justify: 'Xustificar'
       },
       color: {
-        recent: 'Último color',
-        more: 'Más colores',
-        background: 'Color de fondo',
-        foreground: 'Color del texto',
+        recent: 'Última cor',
+        more: 'Máis cores',
+        background: 'Cor de fondo',
+        foreground: 'Cor de fuente',
         transparent: 'Transparente',
         setTransparent: 'Establecer transparente',
-        reset: 'Restablecer',
-        resetToDefault: 'Restablecer a los valores predefinidos',
-        cpSelect: 'Seleccionar'
+        reset: 'Restaurar',
+        resetToDefault: 'Restaurar por defecto'
       },
       shortcut: {
-        shortcuts: 'Atajos de teclado',
-        close: 'Cerrar',
+        shortcuts: 'Atallos de teclado',
+        close: 'Pechar',
         textFormatting: 'Formato de texto',
         action: 'Acción',
-        paragraphFormatting: 'Formato de párrafo',
+        paragraphFormatting: 'Formato de parágrafo',
         documentStyle: 'Estilo de documento',
-        extraKeys: 'Teclas adicionales'
+        extraKeys: 'Teclas adicionais'
       },
       help: {
-        insertParagraph: 'Insertar un párrafo',
-        undo: 'Deshacer la última acción',
-        redo: 'Rehacer la última acción',
-        tab: 'Tabular',
-        untab: 'Eliminar tabulación',
-        bold: 'Establecer estilo negrita',
-        italic: 'Establecer estilo cursiva',
-        underline: 'Establecer estilo subrayado',
-        strikethrough: 'Establecer estilo tachado',
-        removeFormat: 'Limpiar estilo',
-        justifyLeft: 'Alinear a la izquierda',
-        justifyCenter: 'Alinear al centro',
-        justifyRight: 'Alinear a la derecha',
-        justifyFull: 'Justificar',
-        insertUnorderedList: 'Insertar lista',
-        insertOrderedList: 'Insertar lista numerada',
-        outdent: 'Reducir sangría del párrafo',
-        indent: 'Aumentar sangría del párrafo',
-        formatPara: 'Cambiar el formato del bloque actual a párrafo (etiqueta P)',
-        formatH1: 'Cambiar el formato del bloque actual a H1',
-        formatH2: 'Cambiar el formato del bloque actual a H2',
-        formatH3: 'Cambiar el formato del bloque actual a H3',
-        formatH4: 'Cambiar el formato del bloque actual a H4',
-        formatH5: 'Cambiar el formato del bloque actual a H5',
-        formatH6: 'Cambiar el formato del bloque actual a H6',
-        insertHorizontalRule: 'Insertar una línea horizontal',
-        'linkDialog.show': 'Mostrar el panel de enlaces'
+        'insertParagraph': 'Inserir parágrafo',
+        'undo': 'Desfacer última acción',
+        'redo': 'Refacer última acción',
+        'tab': 'Tabular',
+        'untab': 'Eliminar tabulación',
+        'bold': 'Establecer estilo negrita',
+        'italic': 'Establecer estilo cursiva',
+        'underline': 'Establecer estilo subliñado',
+        'strikethrough': 'Establecer estilo riscado',
+        'removeFormat': 'Limpar estilo',
+        'justifyLeft': 'Aliñar á esquerda',
+        'justifyCenter': 'Aliñar ao centro',
+        'justifyRight': 'Aliñar á dereita',
+        'justifyFull': 'Xustificar',
+        'insertUnorderedList': 'Inserir lista desordenada',
+        'insertOrderedList': 'Inserir lista ordenada',
+        'outdent': 'Reducir tabulación do parágrafo',
+        'indent': 'Aumentar tabulación do parágrafo',
+        'formatPara': 'Mudar estilo do bloque a parágrafo (etiqueta P)',
+        'formatH1': 'Mudar estilo do bloque a H1',
+        'formatH2': 'Mudar estilo do bloque a H2',
+        'formatH3': 'Mudar estilo do bloque a H3',
+        'formatH4': 'Mudar estilo do bloque a H4',
+        'formatH5': 'Mudar estilo do bloque a H5',
+        'formatH6': 'Mudar estilo do bloque a H6',
+        'insertHorizontalRule': 'Inserir liña horizontal',
+        'linkDialog.show': 'Amosar panel ligazóns'
       },
       history: {
-        undo: 'Deshacer',
-        redo: 'Rehacer'
+        undo: 'Desfacer',
+        redo: 'Refacer'
       },
       specialChar: {
-        specialChar: 'CARACTERES ESPECIALES',
-        select: 'Seleccionar caracteres especiales'
-      },
-      output: {
-        noSelection: '¡No ha seleccionado nada!'
+        specialChar: 'CARACTERES ESPECIAIS',
+        select: 'Selecciona Caracteres especiais'
       }
     }
   });

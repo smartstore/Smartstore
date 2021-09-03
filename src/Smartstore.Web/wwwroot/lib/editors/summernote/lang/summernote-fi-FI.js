@@ -103,165 +103,163 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 42);
+/******/ 	return __webpack_require__(__webpack_require__.s = 18);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 42:
+/***/ 18:
 /***/ (function(module, exports) {
 
 (function ($) {
   $.extend($.summernote.lang, {
-    'sv-SE': {
+    'fi-FI': {
       font: {
-        bold: 'Fet',
-        italic: 'Kursiv',
-        underline: 'Understruken',
-        clear: 'Radera formatering',
-        height: 'Radavstånd',
-        name: 'Teckensnitt',
-        strikethrough: 'Genomstruken',
-        subscript: 'Subscript',
-        superscript: 'Superscript',
-        size: 'Teckenstorlek'
+        bold: 'Lihavointi',
+        italic: 'Kursivointi',
+        underline: 'Alleviivaus',
+        clear: 'Tyhjennä muotoilu',
+        height: 'Riviväli',
+        name: 'Kirjasintyyppi',
+        strikethrough: 'Yliviivaus',
+        subscript: 'Alaindeksi',
+        superscript: 'Yläindeksi',
+        size: 'Kirjasinkoko'
       },
       image: {
-        image: 'Bild',
-        insert: 'Infoga bild',
-        resizeFull: 'Full storlek',
-        resizeHalf: 'Halv storlek',
-        resizeQuarter: 'En fjärdedel i storlek',
-        floatLeft: 'Vänsterjusterad',
-        floatRight: 'Högerjusterad',
-        floatNone: 'Ingen justering',
-        shapeRounded: 'Shape: Rounded',
-        shapeCircle: 'Shape: Circle',
-        shapeThumbnail: 'Shape: Thumbnail',
-        shapeNone: 'Shape: None',
-        dragImageHere: 'Dra en bild hit',
-        dropImage: 'Drop image or Text',
-        selectFromFiles: 'Välj från filer',
-        maximumFileSize: 'Maximum file size',
-        maximumFileSizeError: 'Maximum file size exceeded.',
-        url: 'Länk till bild',
-        remove: 'Ta bort bild',
-        original: 'Original'
+        image: 'Kuva',
+        insert: 'Lisää kuva',
+        resizeFull: 'Koko leveys',
+        resizeHalf: 'Puolikas leveys',
+        resizeQuarter: 'Neljäsosa leveys',
+        floatLeft: 'Sijoita vasemmalle',
+        floatRight: 'Sijoita oikealle',
+        floatNone: 'Ei sijoitusta',
+        shapeRounded: 'Muoto: Pyöristetty',
+        shapeCircle: 'Muoto: Ympyrä',
+        shapeThumbnail: 'Muoto: Esikatselukuva',
+        shapeNone: 'Muoto: Ei muotoilua',
+        dragImageHere: 'Vedä kuva tähän',
+        selectFromFiles: 'Valitse tiedostoista',
+        maximumFileSize: 'Maksimi tiedosto koko',
+        maximumFileSizeError: 'Maksimi tiedosto koko ylitetty.',
+        url: 'URL-osoitteen mukaan',
+        remove: 'Poista kuva',
+        original: 'Alkuperäinen'
       },
       video: {
-        video: 'Filmklipp',
-        videoLink: 'Länk till filmklipp',
-        insert: 'Infoga filmklipp',
-        url: 'Länk till filmklipp',
-        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion eller Youku)'
+        video: 'Video',
+        videoLink: 'Linkki videoon',
+        insert: 'Lisää video',
+        url: 'Videon URL-osoite',
+        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion tai Youku)'
       },
       link: {
-        link: 'Länk',
-        insert: 'Infoga länk',
-        unlink: 'Ta bort länk',
-        edit: 'Redigera',
-        textToDisplay: 'Visningstext',
-        url: 'Till vilken URL ska denna länk peka?',
-        openInNewWindow: 'Öppna i ett nytt fönster'
+        link: 'Linkki',
+        insert: 'Lisää linkki',
+        unlink: 'Poista linkki',
+        edit: 'Muokkaa',
+        textToDisplay: 'Näytettävä teksti',
+        url: 'Linkin URL-osoite',
+        openInNewWindow: 'Avaa uudessa ikkunassa'
       },
       table: {
-        table: 'Tabell',
-        addRowAbove: 'Add row above',
-        addRowBelow: 'Add row below',
-        addColLeft: 'Add column left',
-        addColRight: 'Add column right',
-        delRow: 'Delete row',
-        delCol: 'Delete column',
-        delTable: 'Delete table'
+        table: 'Taulukko',
+        addRowAbove: 'Lisää rivi yläpuolelle',
+        addRowBelow: 'Lisää rivi alapuolelle',
+        addColLeft: 'Lisää sarake vasemmalle puolelle',
+        addColRight: 'Lisää sarake oikealle puolelle',
+        delRow: 'Poista rivi',
+        delCol: 'Poista sarake',
+        delTable: 'Poista taulukko'
       },
       hr: {
-        insert: 'Infoga horisontell linje'
+        insert: 'Lisää vaakaviiva'
       },
       style: {
-        style: 'Stil',
-        p: 'p',
-        blockquote: 'Citat',
-        pre: 'Kod',
-        h1: 'Rubrik 1',
-        h2: 'Rubrik 2',
-        h3: 'Rubrik 3',
-        h4: 'Rubrik 4',
-        h5: 'Rubrik 5',
-        h6: 'Rubrik 6'
+        style: 'Tyyli',
+        p: 'Normaali',
+        blockquote: 'Lainaus',
+        pre: 'Koodi',
+        h1: 'Otsikko 1',
+        h2: 'Otsikko 2',
+        h3: 'Otsikko 3',
+        h4: 'Otsikko 4',
+        h5: 'Otsikko 5',
+        h6: 'Otsikko 6'
       },
       lists: {
-        unordered: 'Punktlista',
-        ordered: 'Numrerad lista'
+        unordered: 'Luettelomerkitty luettelo',
+        ordered: 'Numeroitu luettelo'
       },
       options: {
-        help: 'Hjälp',
-        fullscreen: 'Fullskärm',
-        codeview: 'HTML-visning'
+        help: 'Ohje',
+        fullscreen: 'Koko näyttö',
+        codeview: 'HTML-näkymä'
       },
       paragraph: {
-        paragraph: 'Justera text',
-        outdent: 'Minska indrag',
-        indent: 'Öka indrag',
-        left: 'Vänsterjusterad',
-        center: 'Centrerad',
-        right: 'Högerjusterad',
-        justify: 'Justera text'
+        paragraph: 'Kappale',
+        outdent: 'Pienennä sisennystä',
+        indent: 'Suurenna sisennystä',
+        left: 'Tasaa vasemmalle',
+        center: 'Keskitä',
+        right: 'Tasaa oikealle',
+        justify: 'Tasaa'
       },
       color: {
-        recent: 'Senast använda färg',
-        more: 'Fler färger',
-        background: 'Bakgrundsfärg',
-        foreground: 'Teckenfärg',
-        transparent: 'Genomskinlig',
-        setTransparent: 'Gör genomskinlig',
-        reset: 'Nollställ',
-        resetToDefault: 'Återställ till standard'
+        recent: 'Viimeisin väri',
+        more: 'Lisää värejä',
+        background: 'Korostusväri',
+        foreground: 'Tekstin väri',
+        transparent: 'Läpinäkyvä',
+        setTransparent: 'Aseta läpinäkyväksi',
+        reset: 'Palauta',
+        resetToDefault: 'Palauta oletusarvoksi'
       },
       shortcut: {
-        shortcuts: 'Kortkommandon',
-        close: 'Stäng',
-        textFormatting: 'Textformatering',
-        action: 'Funktion',
-        paragraphFormatting: 'Avsnittsformatering',
-        documentStyle: 'Dokumentstil',
-        extraKeys: 'Extra keys'
+        shortcuts: 'Pikanäppäimet',
+        close: 'Sulje',
+        textFormatting: 'Tekstin muotoilu',
+        action: 'Toiminto',
+        paragraphFormatting: 'Kappaleen muotoilu',
+        documentStyle: 'Asiakirjan tyyli'
       },
       help: {
-        'insertParagraph': 'Insert Paragraph',
-        'undo': 'Undoes the last command',
-        'redo': 'Redoes the last command',
-        'tab': 'Tab',
-        'untab': 'Untab',
-        'bold': 'Set a bold style',
-        'italic': 'Set a italic style',
-        'underline': 'Set a underline style',
-        'strikethrough': 'Set a strikethrough style',
-        'removeFormat': 'Clean a style',
-        'justifyLeft': 'Set left align',
-        'justifyCenter': 'Set center align',
-        'justifyRight': 'Set right align',
-        'justifyFull': 'Set full align',
-        'insertUnorderedList': 'Toggle unordered list',
-        'insertOrderedList': 'Toggle ordered list',
-        'outdent': 'Outdent on current paragraph',
-        'indent': 'Indent on current paragraph',
-        'formatPara': 'Change current block\'s format as a paragraph(P tag)',
-        'formatH1': 'Change current block\'s format as H1',
-        'formatH2': 'Change current block\'s format as H2',
-        'formatH3': 'Change current block\'s format as H3',
-        'formatH4': 'Change current block\'s format as H4',
-        'formatH5': 'Change current block\'s format as H5',
-        'formatH6': 'Change current block\'s format as H6',
-        'insertHorizontalRule': 'Insert horizontal rule',
-        'linkDialog.show': 'Show Link Dialog'
+        'insertParagraph': 'Lisää kappale',
+        'undo': 'Kumoa viimeisin komento',
+        'redo': 'Tee uudelleen kumottu komento',
+        'tab': 'Sarkain',
+        'untab': 'Sarkainmerkin poisto',
+        'bold': 'Lihavointi',
+        'italic': 'Kursiivi',
+        'underline': 'Alleviivaus',
+        'strikethrough': 'Yliviivaus',
+        'removeFormat': 'Poista asetetut tyylit',
+        'justifyLeft': 'Tasaa vasemmalle',
+        'justifyCenter': 'Keskitä',
+        'justifyRight': 'Tasaa oikealle',
+        'justifyFull': 'Tasaa',
+        'insertUnorderedList': 'Luettelomerkillä varustettu lista',
+        'insertOrderedList': 'Numeroitu lista',
+        'outdent': 'Pienennä sisennystä',
+        'indent': 'Suurenna sisennystä',
+        'formatPara': 'Muuta kappaleen formaatti p',
+        'formatH1': 'Muuta kappaleen formaatti H1',
+        'formatH2': 'Muuta kappaleen formaatti H2',
+        'formatH3': 'Muuta kappaleen formaatti H3',
+        'formatH4': 'Muuta kappaleen formaatti H4',
+        'formatH5': 'Muuta kappaleen formaatti H5',
+        'formatH6': 'Muuta kappaleen formaatti H6',
+        'insertHorizontalRule': 'Lisää vaakaviiva',
+        'linkDialog.show': 'Lisää linkki'
       },
       history: {
-        undo: 'Ångra',
-        redo: 'Gör om'
+        undo: 'Kumoa',
+        redo: 'Toista'
       },
       specialChar: {
-        specialChar: 'SPECIAL CHARACTERS',
-        select: 'Select Special characters'
+        specialChar: 'ERIKOISMERKIT',
+        select: 'Valitse erikoismerkit'
       }
     }
   });

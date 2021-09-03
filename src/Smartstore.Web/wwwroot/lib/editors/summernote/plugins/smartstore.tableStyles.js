@@ -178,3 +178,9 @@
 		}
 	});
 });
+
+$('body').on('click', '.popover .dropdown-toggle', function (e) {
+	console.log("clicked inside popover");
+	//e.preventDefault();
+	
+});

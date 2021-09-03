@@ -103,165 +103,165 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 32);
+/******/ 	return __webpack_require__(__webpack_require__.s = 24);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 32:
+/***/ 24:
 /***/ (function(module, exports) {
 
 (function ($) {
   $.extend($.summernote.lang, {
-    'nl-NL': {
+    'id-ID': {
       font: {
-        bold: 'Vet',
-        italic: 'Cursief',
-        underline: 'Onderstrepen',
-        clear: 'Stijl verwijderen',
-        height: 'Regelhoogte',
-        name: 'Lettertype',
-        strikethrough: 'Doorhalen',
+        bold: 'Tebal',
+        italic: 'Miring',
+        underline: 'Garis bawah',
+        clear: 'Bersihkan gaya',
+        height: 'Jarak baris',
+        name: 'Jenis Tulisan',
+        strikethrough: 'Coret',
         subscript: 'Subscript',
         superscript: 'Superscript',
-        size: 'Tekstgrootte'
+        size: 'Ukuran font'
       },
       image: {
-        image: 'Afbeelding',
-        insert: 'Afbeelding invoegen',
-        resizeFull: 'Volledige breedte',
-        resizeHalf: 'Halve breedte',
-        resizeQuarter: 'Kwart breedte',
-        floatLeft: 'Links uitlijnen',
-        floatRight: 'Rechts uitlijnen',
-        floatNone: 'Geen uitlijning',
-        shapeRounded: 'Shape: Rounded',
-        shapeCircle: 'Shape: Circle',
-        shapeThumbnail: 'Shape: Thumbnail',
-        shapeNone: 'Shape: None',
-        dragImageHere: 'Sleep hier een afbeelding naar toe',
-        dropImage: 'Drop image or Text',
-        selectFromFiles: 'Selecteer een bestand',
-        maximumFileSize: 'Maximum file size',
-        maximumFileSizeError: 'Maximum file size exceeded.',
-        url: 'URL van de afbeelding',
-        remove: 'Verwijder afbeelding',
+        image: 'Gambar',
+        insert: 'Sisipkan gambar',
+        resizeFull: 'Ukuran penuh',
+        resizeHalf: 'Ukuran 50%',
+        resizeQuarter: 'Ukuran 25%',
+        floatLeft: 'Rata kiri',
+        floatRight: 'Rata kanan',
+        floatNone: 'Tanpa perataan',
+        shapeRounded: 'Bentuk: Membundar',
+        shapeCircle: 'Bentuk: Bundar',
+        shapeThumbnail: 'Bentuk: Thumbnail',
+        shapeNone: 'Bentuk: Tidak ada',
+        dragImageHere: 'Tarik gambar ke area ini',
+        dropImage: 'Letakkan gambar atau teks',
+        selectFromFiles: 'Pilih gambar dari berkas',
+        maximumFileSize: 'Ukuran maksimal berkas',
+        maximumFileSizeError: 'Ukuran maksimal berkas terlampaui.',
+        url: 'URL gambar',
+        remove: 'Hapus Gambar',
         original: 'Original'
       },
       video: {
         video: 'Video',
-        videoLink: 'Video link',
-        insert: 'Video invoegen',
-        url: 'URL van de video',
-        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion of Youku)'
+        videoLink: 'Link video',
+        insert: 'Sisipkan video',
+        url: 'Tautan video',
+        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion atau Youku)'
       },
       link: {
-        link: 'Link',
-        insert: 'Link invoegen',
-        unlink: 'Link verwijderen',
-        edit: 'Wijzigen',
-        textToDisplay: 'Tekst van link',
-        url: 'Naar welke URL moet deze link verwijzen?',
-        openInNewWindow: 'Open in nieuw venster'
+        link: 'Tautan',
+        insert: 'Tambah tautan',
+        unlink: 'Hapus tautan',
+        edit: 'Edit',
+        textToDisplay: 'Tampilan teks',
+        url: 'Tautan tujuan',
+        openInNewWindow: 'Buka di jendela baru'
       },
       table: {
         table: 'Tabel',
-        addRowAbove: 'Rij hierboven invoegen',
-        addRowBelow: 'Rij hieronder invoegen',
-        addColLeft: 'Kolom links toevoegen',
-        addColRight: 'Kolom rechts toevoegen',
-        delRow: 'Verwijder rij',
-        delCol: 'Verwijder kolom',
-        delTable: 'Verwijder tabel'
+        addRowAbove: 'Tambahkan baris ke atas',
+        addRowBelow: 'Tambahkan baris ke bawah',
+        addColLeft: 'Tambahkan kolom ke kiri',
+        addColRight: 'Tambahkan kolom ke kanan',
+        delRow: 'Hapus baris',
+        delCol: 'Hapus kolom',
+        delTable: 'Hapus tabel'
       },
       hr: {
-        insert: 'Horizontale lijn invoegen'
+        insert: 'Masukkan garis horizontal'
       },
       style: {
-        style: 'Stijl',
-        p: 'Normaal',
-        blockquote: 'Quote',
-        pre: 'Code',
-        h1: 'Kop 1',
-        h2: 'Kop 2',
-        h3: 'Kop 3',
-        h4: 'Kop 4',
-        h5: 'Kop 5',
-        h6: 'Kop 6'
+        style: 'Gaya',
+        p: 'p',
+        blockquote: 'Kutipan',
+        pre: 'Kode',
+        h1: 'Heading 1',
+        h2: 'Heading 2',
+        h3: 'Heading 3',
+        h4: 'Heading 4',
+        h5: 'Heading 5',
+        h6: 'Heading 6'
       },
       lists: {
-        unordered: 'Ongeordende lijst',
-        ordered: 'Geordende lijst'
+        unordered: 'Pencacahan',
+        ordered: 'Penomoran'
       },
       options: {
-        help: 'Help',
-        fullscreen: 'Volledig scherm',
-        codeview: 'Bekijk Code'
+        help: 'Bantuan',
+        fullscreen: 'Layar penuh',
+        codeview: 'Kode HTML'
       },
       paragraph: {
-        paragraph: 'Paragraaf',
-        outdent: 'Inspringen verkleinen',
-        indent: 'Inspringen vergroten',
-        left: 'Links uitlijnen',
-        center: 'Centreren',
-        right: 'Rechts uitlijnen',
-        justify: 'Uitvullen'
+        paragraph: 'Paragraf',
+        outdent: 'Outdent',
+        indent: 'Indent',
+        left: 'Rata kiri',
+        center: 'Rata tengah',
+        right: 'Rata kanan',
+        justify: 'Rata kanan kiri'
       },
       color: {
-        recent: 'Recente kleur',
-        more: 'Meer kleuren',
-        background: 'Achtergrond kleur',
-        foreground: 'Tekst kleur',
-        transparent: 'Transparant',
-        setTransparent: 'Transparant',
-        reset: 'Standaard',
-        resetToDefault: 'Standaard kleur'
+        recent: 'Warna sekarang',
+        more: 'Selengkapnya',
+        background: 'Warna latar',
+        foreground: 'Warna font',
+        transparent: 'Transparan',
+        setTransparent: 'Atur transparansi',
+        reset: 'Atur ulang',
+        resetToDefault: 'Kembalikan kesemula'
       },
       shortcut: {
-        shortcuts: 'Toetsencombinaties',
-        close: 'sluiten',
-        textFormatting: 'Tekststijlen',
-        action: 'Acties',
-        paragraphFormatting: 'Paragraafstijlen',
-        documentStyle: 'Documentstijlen',
-        extraKeys: 'Extra keys'
+        shortcuts: 'Jalan pintas',
+        close: 'Tutup',
+        textFormatting: 'Format teks',
+        action: 'Aksi',
+        paragraphFormatting: 'Format paragraf',
+        documentStyle: 'Gaya dokumen',
+        extraKeys: 'Shortcut tambahan'
       },
       help: {
-        'insertParagraph': 'Alinea invoegen',
-        'undo': 'Laatste handeling ongedaan maken',
-        'redo': 'Laatste handeling opnieuw uitvoeren',
+        'insertParagraph': 'Tambahkan paragraf',
+        'undo': 'Urungkan perintah terakhir',
+        'redo': 'Kembalikan perintah terakhir',
         'tab': 'Tab',
-        'untab': 'Herstel tab',
-        'bold': 'Stel stijl in als vet',
-        'italic': 'Stel stijl in als cursief',
-        'underline': 'Stel stijl in als onderstreept',
-        'strikethrough': 'Stel stijl in als doorgestreept',
-        'removeFormat': 'Verwijder stijl',
-        'justifyLeft': 'Lijn links uit',
-        'justifyCenter': 'Set center align',
-        'justifyRight': 'Lijn rechts uit',
-        'justifyFull': 'Lijn uit op volledige breedte',
-        'insertUnorderedList': 'Zet ongeordende lijstweergave aan',
-        'insertOrderedList': 'Zet geordende lijstweergave aan',
-        'outdent': 'Verwijder inspringing huidige alinea',
-        'indent': 'Inspringen op huidige alinea',
-        'formatPara': 'Wijzig formattering huidig blok in alinea(P tag)',
-        'formatH1': 'Formatteer huidig blok als H1',
-        'formatH2': 'Formatteer huidig blok als H2',
-        'formatH3': 'Formatteer huidig blok als H3',
-        'formatH4': 'Formatteer huidig blok als H4',
-        'formatH5': 'Formatteer huidig blok als H5',
-        'formatH6': 'Formatteer huidig blok als H6',
-        'insertHorizontalRule': 'Invoegen horizontale lijn',
-        'linkDialog.show': 'Toon Link Dialoogvenster'
+        'untab': 'Untab',
+        'bold': 'Mengaktifkan gaya tebal',
+        'italic': 'Mengaktifkan gaya italic',
+        'underline': 'Mengaktifkan gaya underline',
+        'strikethrough': 'Mengaktifkan gaya strikethrough',
+        'removeFormat': 'Hapus semua gaya',
+        'justifyLeft': 'Atur rata kiri',
+        'justifyCenter': 'Atur rata tengah',
+        'justifyRight': 'Atur rata kanan',
+        'justifyFull': 'Atur rata kiri-kanan',
+        'insertUnorderedList': 'Nyalakan urutan tanpa nomor',
+        'insertOrderedList': 'Nyalakan urutan bernomor',
+        'outdent': 'Outdent di paragraf terpilih',
+        'indent': 'Indent di paragraf terpilih',
+        'formatPara': 'Ubah format gaya tulisan terpilih menjadi paragraf',
+        'formatH1': 'Ubah format gaya tulisan terpilih menjadi Heading 1',
+        'formatH2': 'Ubah format gaya tulisan terpilih menjadi Heading 2',
+        'formatH3': 'Ubah format gaya tulisan terpilih menjadi Heading 3',
+        'formatH4': 'Ubah format gaya tulisan terpilih menjadi Heading 4',
+        'formatH5': 'Ubah format gaya tulisan terpilih menjadi Heading 5',
+        'formatH6': 'Ubah format gaya tulisan terpilih menjadi Heading 6',
+        'insertHorizontalRule': 'Masukkan garis horizontal',
+        'linkDialog.show': 'Tampilkan Link Dialog'
       },
       history: {
-        undo: 'Ongedaan maken',
-        redo: 'Opnieuw doorvoeren'
+        undo: 'Kembali',
+        redo: 'Ulang'
       },
       specialChar: {
-        specialChar: 'SPECIALE TEKENS',
-        select: 'Selecteer Speciale Tekens'
+        specialChar: 'KARAKTER KHUSUS',
+        select: 'Pilih karakter khusus'
       }
     }
   });

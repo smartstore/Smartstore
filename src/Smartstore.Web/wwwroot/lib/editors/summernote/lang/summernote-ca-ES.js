@@ -103,69 +103,69 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 42);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 42:
+/***/ 10:
 /***/ (function(module, exports) {
 
 (function ($) {
   $.extend($.summernote.lang, {
-    'sv-SE': {
+    'ca-ES': {
       font: {
-        bold: 'Fet',
-        italic: 'Kursiv',
-        underline: 'Understruken',
-        clear: 'Radera formatering',
-        height: 'Radavstånd',
-        name: 'Teckensnitt',
-        strikethrough: 'Genomstruken',
-        subscript: 'Subscript',
-        superscript: 'Superscript',
-        size: 'Teckenstorlek'
+        bold: 'Negreta',
+        italic: 'Cursiva',
+        underline: 'Subratllat',
+        clear: 'Treure estil de lletra',
+        height: 'Alçada de línia',
+        name: 'Font',
+        strikethrough: 'Ratllat',
+        subscript: 'Subíndex',
+        superscript: 'Superíndex',
+        size: 'Mida de lletra'
       },
       image: {
-        image: 'Bild',
-        insert: 'Infoga bild',
-        resizeFull: 'Full storlek',
-        resizeHalf: 'Halv storlek',
-        resizeQuarter: 'En fjärdedel i storlek',
-        floatLeft: 'Vänsterjusterad',
-        floatRight: 'Högerjusterad',
-        floatNone: 'Ingen justering',
-        shapeRounded: 'Shape: Rounded',
-        shapeCircle: 'Shape: Circle',
-        shapeThumbnail: 'Shape: Thumbnail',
-        shapeNone: 'Shape: None',
-        dragImageHere: 'Dra en bild hit',
-        dropImage: 'Drop image or Text',
-        selectFromFiles: 'Välj från filer',
-        maximumFileSize: 'Maximum file size',
-        maximumFileSizeError: 'Maximum file size exceeded.',
-        url: 'Länk till bild',
-        remove: 'Ta bort bild',
+        image: 'Imatge',
+        insert: 'Inserir imatge',
+        resizeFull: 'Redimensionar a mida completa',
+        resizeHalf: 'Redimensionar a la meitat',
+        resizeQuarter: 'Redimensionar a un quart',
+        floatLeft: 'Alinear a l\'esquerra',
+        floatRight: 'Alinear a la dreta',
+        floatNone: 'No alinear',
+        shapeRounded: 'Forma: Arrodonit',
+        shapeCircle: 'Forma: Cercle',
+        shapeThumbnail: 'Forma: Marc',
+        shapeNone: 'Forma: Cap',
+        dragImageHere: 'Arrossegueu una imatge o text aquí',
+        dropImage: 'Deixa anar aquí una imatge o un text',
+        selectFromFiles: 'Seleccioneu des dels arxius',
+        maximumFileSize: 'Mida màxima de l\'arxiu',
+        maximumFileSizeError: 'La mida màxima de l\'arxiu s\'ha superat.',
+        url: 'URL de la imatge',
+        remove: 'Eliminar imatge',
         original: 'Original'
       },
       video: {
-        video: 'Filmklipp',
-        videoLink: 'Länk till filmklipp',
-        insert: 'Infoga filmklipp',
-        url: 'Länk till filmklipp',
-        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion eller Youku)'
+        video: 'Vídeo',
+        videoLink: 'Enllaç del vídeo',
+        insert: 'Inserir vídeo',
+        url: 'URL del vídeo?',
+        providers: '(YouTube, Vimeo, Vine, Instagram, DailyMotion o Youku)'
       },
       link: {
-        link: 'Länk',
-        insert: 'Infoga länk',
-        unlink: 'Ta bort länk',
-        edit: 'Redigera',
-        textToDisplay: 'Visningstext',
-        url: 'Till vilken URL ska denna länk peka?',
-        openInNewWindow: 'Öppna i ett nytt fönster'
+        link: 'Enllaç',
+        insert: 'Inserir enllaç',
+        unlink: 'Treure enllaç',
+        edit: 'Editar',
+        textToDisplay: 'Text per mostrar',
+        url: 'Cap a quina URL porta l\'enllaç?',
+        openInNewWindow: 'Obrir en una finestra nova'
       },
       table: {
-        table: 'Tabell',
+        table: 'Taula',
         addRowAbove: 'Add row above',
         addRowBelow: 'Add row below',
         addColLeft: 'Add column left',
@@ -175,93 +175,93 @@ return /******/ (function(modules) { // webpackBootstrap
         delTable: 'Delete table'
       },
       hr: {
-        insert: 'Infoga horisontell linje'
+        insert: 'Inserir línia horitzontal'
       },
       style: {
-        style: 'Stil',
+        style: 'Estil',
         p: 'p',
-        blockquote: 'Citat',
-        pre: 'Kod',
-        h1: 'Rubrik 1',
-        h2: 'Rubrik 2',
-        h3: 'Rubrik 3',
-        h4: 'Rubrik 4',
-        h5: 'Rubrik 5',
-        h6: 'Rubrik 6'
+        blockquote: 'Cita',
+        pre: 'Codi',
+        h1: 'Títol 1',
+        h2: 'Títol 2',
+        h3: 'Títol 3',
+        h4: 'Títol 4',
+        h5: 'Títol 5',
+        h6: 'Títol 6'
       },
       lists: {
-        unordered: 'Punktlista',
-        ordered: 'Numrerad lista'
+        unordered: 'Llista desendreçada',
+        ordered: 'Llista endreçada'
       },
       options: {
-        help: 'Hjälp',
-        fullscreen: 'Fullskärm',
-        codeview: 'HTML-visning'
+        help: 'Ajut',
+        fullscreen: 'Pantalla sencera',
+        codeview: 'Veure codi font'
       },
       paragraph: {
-        paragraph: 'Justera text',
-        outdent: 'Minska indrag',
-        indent: 'Öka indrag',
-        left: 'Vänsterjusterad',
-        center: 'Centrerad',
-        right: 'Högerjusterad',
-        justify: 'Justera text'
+        paragraph: 'Paràgraf',
+        outdent: 'Menys tabulació',
+        indent: 'Més tabulació',
+        left: 'Alinear a l\'esquerra',
+        center: 'Alinear al mig',
+        right: 'Alinear a la dreta',
+        justify: 'Justificar'
       },
       color: {
-        recent: 'Senast använda färg',
-        more: 'Fler färger',
-        background: 'Bakgrundsfärg',
-        foreground: 'Teckenfärg',
-        transparent: 'Genomskinlig',
-        setTransparent: 'Gör genomskinlig',
-        reset: 'Nollställ',
-        resetToDefault: 'Återställ till standard'
+        recent: 'Últim color',
+        more: 'Més colors',
+        background: 'Color de fons',
+        foreground: 'Color de lletra',
+        transparent: 'Transparent',
+        setTransparent: 'Establir transparent',
+        reset: 'Restablir',
+        resetToDefault: 'Restablir per defecte'
       },
       shortcut: {
-        shortcuts: 'Kortkommandon',
-        close: 'Stäng',
-        textFormatting: 'Textformatering',
-        action: 'Funktion',
-        paragraphFormatting: 'Avsnittsformatering',
-        documentStyle: 'Dokumentstil',
-        extraKeys: 'Extra keys'
+        shortcuts: 'Dreceres de teclat',
+        close: 'Tancar',
+        textFormatting: 'Format de text',
+        action: 'Acció',
+        paragraphFormatting: 'Format de paràgraf',
+        documentStyle: 'Estil del document',
+        extraKeys: 'Tecles adicionals'
       },
       help: {
-        'insertParagraph': 'Insert Paragraph',
-        'undo': 'Undoes the last command',
-        'redo': 'Redoes the last command',
-        'tab': 'Tab',
-        'untab': 'Untab',
-        'bold': 'Set a bold style',
-        'italic': 'Set a italic style',
-        'underline': 'Set a underline style',
-        'strikethrough': 'Set a strikethrough style',
-        'removeFormat': 'Clean a style',
-        'justifyLeft': 'Set left align',
-        'justifyCenter': 'Set center align',
-        'justifyRight': 'Set right align',
-        'justifyFull': 'Set full align',
-        'insertUnorderedList': 'Toggle unordered list',
-        'insertOrderedList': 'Toggle ordered list',
-        'outdent': 'Outdent on current paragraph',
-        'indent': 'Indent on current paragraph',
-        'formatPara': 'Change current block\'s format as a paragraph(P tag)',
-        'formatH1': 'Change current block\'s format as H1',
-        'formatH2': 'Change current block\'s format as H2',
-        'formatH3': 'Change current block\'s format as H3',
-        'formatH4': 'Change current block\'s format as H4',
-        'formatH5': 'Change current block\'s format as H5',
-        'formatH6': 'Change current block\'s format as H6',
-        'insertHorizontalRule': 'Insert horizontal rule',
-        'linkDialog.show': 'Show Link Dialog'
+        'insertParagraph': 'Inserir paràgraf',
+        'undo': 'Desfer l\'última acció',
+        'redo': 'Refer l\'última acció',
+        'tab': 'Tabular',
+        'untab': 'Eliminar tabulació',
+        'bold': 'Establir estil negreta',
+        'italic': 'Establir estil cursiva',
+        'underline': 'Establir estil subratllat',
+        'strikethrough': 'Establir estil ratllat',
+        'removeFormat': 'Netejar estil',
+        'justifyLeft': 'Alinear a l\'esquerra',
+        'justifyCenter': 'Alinear al centre',
+        'justifyRight': 'Alinear a la dreta',
+        'justifyFull': 'Justificar',
+        'insertUnorderedList': 'Inserir llista desendreçada',
+        'insertOrderedList': 'Inserir llista endreçada',
+        'outdent': 'Reduïr tabulació del paràgraf',
+        'indent': 'Augmentar tabulació del paràgraf',
+        'formatPara': 'Canviar l\'estil del bloc com a un paràgraf (etiqueta P)',
+        'formatH1': 'Canviar l\'estil del bloc com a un H1',
+        'formatH2': 'Canviar l\'estil del bloc com a un H2',
+        'formatH3': 'Canviar l\'estil del bloc com a un H3',
+        'formatH4': 'Canviar l\'estil del bloc com a un H4',
+        'formatH5': 'Canviar l\'estil del bloc com a un H5',
+        'formatH6': 'Canviar l\'estil del bloc com a un H6',
+        'insertHorizontalRule': 'Inserir una línia horitzontal',
+        'linkDialog.show': 'Mostrar panel d\'enllaços'
       },
       history: {
-        undo: 'Ångra',
-        redo: 'Gör om'
+        undo: 'Desfer',
+        redo: 'Refer'
       },
       specialChar: {
-        specialChar: 'SPECIAL CHARACTERS',
-        select: 'Select Special characters'
+        specialChar: 'CARÀCTERS ESPECIALS',
+        select: 'Selecciona caràcters especials'
       }
     }
   });
