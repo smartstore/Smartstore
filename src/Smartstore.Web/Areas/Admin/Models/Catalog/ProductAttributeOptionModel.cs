@@ -65,7 +65,7 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*Quantity")]
         public int Quantity { get; set; }
-        public string QuantityInfo => Quantity > 1 ? $" × {Quantity}" : null;
+        public string QuantityInfo { get; set; }
 
         public List<ProductAttributeOptionLocalizedModel> Locales { get; set; } = new();
     }

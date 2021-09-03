@@ -192,15 +192,15 @@
 
         toggleLinkageButtons();
 
-	    function PickLinkedProduct_Completed(ids, selectedItems, dialog) {
-		    $('#linked-product-name').val(selectedItems[0].name);
-		    return true;
-	    }
-
 	    function toggleLinkageButtons() {
 		    var unlinked = ($('#@Html.IdFor(model => model.LinkedProductId)').val() === '0');
             $('.btn-add-product-linkage').toggle(unlinked);
             $('.btn-remove-product-linkage').toggle(!unlinked);
 	    }
     });
+
+	function PickLinkedProduct_Completed(ids, selectedItems, dialog) {
+		$('#linked-product-name').val(selectedItems[0].name);
+		return true;
+	}
 </script>

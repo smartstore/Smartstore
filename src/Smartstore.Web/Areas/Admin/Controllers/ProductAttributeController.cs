@@ -546,6 +546,11 @@ namespace Smartstore.Admin.Controllers
                         model.LinkedProductTypeName = linkedProduct.GetProductTypeLabel(Services.Localization);
                         model.LinkedProductTypeLabelHint = linkedProduct.ProductTypeLabelHint;
                         model.LinkedProductEditUrl = Url.Action("Edit", "Product", new { id = linkedProduct.Id });
+
+                        if (model.Quantity > 1)
+                        {
+                            model.QuantityInfo = $" × {model.Quantity}";
+                        }
                     }
                 }
             }

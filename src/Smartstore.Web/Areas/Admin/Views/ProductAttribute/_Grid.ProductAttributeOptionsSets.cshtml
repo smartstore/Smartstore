@@ -59,7 +59,7 @@
             <sm-datagrid 
                 :id="'product-attribute-options-grid' + item.row.Id"
                 :options="{ keyMemberName: 'Id', vborders: true, hover: true, striped: true }" 
-                :data-source="{ read: '@Url.Action("ProductAttributeOptionList")?optionsSetId=' + item.row.Id }"
+                :data-source="{ read: '@Url.Action("ProductAttributeOptionList")?optionsSetId=' + item.row.Id, del: '@Url.Action("ProductAttributeOptionDelete")' }"
                 :columns="[ 
                     { member: 'ProductAttributeOptionsSetId', name: 'ProductAttributeOptionsSetId', visible: false },
                     { member: 'Name', name: '@nameStr', visible: true, title: '@nameStr' },
