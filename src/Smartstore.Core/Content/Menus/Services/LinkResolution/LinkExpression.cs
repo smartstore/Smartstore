@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Smartstore.Core.Content.Menus
 {
+    [DebuggerDisplay("LinkExpression: {RawExpression}")]
     public class LinkExpression
     {
         public string RawExpression { get; private set; }
@@ -18,8 +20,11 @@ namespace Smartstore.Core.Content.Menus
 
         public string TargetAndQuery
         {
-            get => Target + Query.LeftPad(pad: '?');
+            get => Target + Query;
         }
+
+        public LinkExpression ChangeTarget(string target)
+            => Parse(Schema + target.EmptyNull().LeftPad(null, ':') + Query);
 
         public static LinkExpression Parse(string expression)
         {
@@ -29,6 +34,7 @@ namespace Smartstore.Core.Content.Menus
             {
                 result.Schema = "url";
                 result.Target = expression.EmptyNull();
+                result.Query = string.Empty;
             }
 
             return result;
@@ -62,11 +68,18 @@ namespace Smartstore.Core.Content.Menus
             var qmIndex = expression.Target.IndexOf('?');
             if (qmIndex > -1)
             {
-                expression.Query = expression.Target[(qmIndex + 1)..];
+                expression.Query = expression.Target[qmIndex..];
                 expression.Target = expression.Target.Substring(0, qmIndex);
+            }
+            else
+            {
+                expression.Query = string.Empty;
             }
 
             return true;
         }
+
+        public override string ToString()
+            => RawExpression;
     }
 }

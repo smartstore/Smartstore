@@ -10,6 +10,10 @@ namespace Smartstore.Core.Content.Menus
 
         public LinkTranslatorEntitySummary EntitySummary { get; set; }
 
+        public LinkStatus Status { get; set; }
+
+        public string Label { get; set; }
+
         public string Link { get; set; }
     }
 
@@ -19,11 +23,11 @@ namespace Smartstore.Core.Content.Menus
         public string Name { get; set; }
         public string Title { get; set; }
         public string ShortTitle { get; set; }
-        public string Label { get; set; }
         public bool Deleted { get; set; }
         public bool Published { get; set; }
         public bool SubjectToAcl { get; set; }
         public bool LimitedToStores { get; set; }
         public int? PictureId { get; set; }
+        public string[] LocalizedPropertyNames { get; set; } = Array.Empty<string>();
     }
 }

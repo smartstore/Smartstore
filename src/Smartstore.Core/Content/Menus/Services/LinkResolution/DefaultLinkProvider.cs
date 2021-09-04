@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -14,12 +15,22 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public interface ILinkTranslator
+    public partial class LinkBuilderMetadata
     {
-        Task<LinkTranslationResult> TranslateAsync(LinkExpression expression, int storeId, int languageId);
+        public int Order { get; init; }
+        public string Schema { get; init; }
+        public string Icon { get; init; }
+        public string ResKey { get; init; }
     }
-    
-    public class DefaultLinkTranslator : ILinkTranslator
+
+    public partial interface ILinkProvider
+    {
+        int Order { get; }
+        Task<LinkTranslationResult> TranslateAsync(LinkExpression expression, int storeId, int languageId);
+        IEnumerable<LinkBuilderMetadata> GetBuilderMetadata();
+    }
+
+    public partial class DefaultLinkProvider : ILinkProvider
     {
         public const string SchemaTopic = "topic";
         public const string SchemaProduct = "product";
@@ -33,16 +44,29 @@ namespace Smartstore.Core.Content.Menus
 
         private readonly SmartDbContext _db;
         private readonly IUrlHelper _urlHelper;
-        protected readonly ILocalizedEntityService _localizedEntityService;
 
-        public DefaultLinkTranslator(SmartDbContext db, IUrlHelper urlHelper, ILocalizedEntityService localizedEntityService)
+        public DefaultLinkProvider(SmartDbContext db, IUrlHelper urlHelper)
         {
             _db = db;
             _urlHelper = urlHelper;
-            _localizedEntityService = localizedEntityService;
         }
 
-        public async Task<LinkTranslationResult> TranslateAsync(LinkExpression expression, int storeId, int languageId)
+        public int Order { get; }
+
+        public virtual IEnumerable<LinkBuilderMetadata> GetBuilderMetadata()
+        {
+            return new[]
+            {
+                new LinkBuilderMetadata { Schema = SchemaProduct, Icon = "fa fa-cube", ResKey = "Common.Entity.Product" },
+                new LinkBuilderMetadata { Schema = SchemaCategory, Icon = "fa fa-sitemap", ResKey = "Common.Entity.Category" },
+                new LinkBuilderMetadata { Schema = SchemaManufacturer, Icon = "far fa-building", ResKey = "Common.Entity.Manufacturer" },
+                new LinkBuilderMetadata { Schema = SchemaTopic, Icon = "far fa-file-alt", ResKey = "Common.Entity.Topic" },
+                new LinkBuilderMetadata { Schema = SchemaFile, Icon = "far fa-folder-open", ResKey = "Common.File", Order = 100 },
+                new LinkBuilderMetadata { Schema = SchemaUrl, Icon = "fa fa-link", ResKey = "Common.Url", Order = 200 }
+            };
+        }
+
+        public virtual async Task<LinkTranslationResult> TranslateAsync(LinkExpression expression, int storeId, int languageId)
         {
             if (!_supportedSchemas.Contains(expression.Schema))
             {
@@ -64,6 +88,7 @@ namespace Smartstore.Core.Content.Menus
 
                     return new LinkTranslationResult { Link = url };
                 case SchemaFile:
+                    // TODO: (core) Really LinkStatus.Ok here without any further checks?
                     return new LinkTranslationResult { Link = expression.Target };
                 case SchemaTopic:
                     entityType = typeof(Topic);
@@ -115,7 +140,10 @@ namespace Smartstore.Core.Content.Menus
             { 
                 EntitySummary = summary,
                 EntityName = entityName,
-                EntityType = entityType
+                EntityType = entityType,
+                Status = summary == null || summary.Deleted 
+                    ? LinkStatus.NotFound 
+                    : summary.Published ? LinkStatus.Ok : LinkStatus.Hidden
             };
         }
 
@@ -158,14 +186,9 @@ namespace Smartstore.Core.Content.Menus
                         ShortTitle = topic.ShortTitle,
                         Published = topic.IsPublished,
                         SubjectToAcl = topic.SubjectToAcl,
-                        LimitedToStores = topic.LimitedToStores
+                        LimitedToStores = topic.LimitedToStores,
+                        LocalizedPropertyNames = new[] { nameof(Topic.ShortTitle), nameof(Topic.Title) }
                     };
-
-                    summary.Label = GetLocalized(topic.Id, nameof(Topic), nameof(Topic.ShortTitle), languageId, null)
-                            ?? GetLocalized(topic.Id, nameof(Topic), "Title", languageId, null)
-                            ?? summary.ShortTitle.NullEmpty()
-                            ?? summary.Title.NullEmpty()
-                            ?? summary.Name;
                 }
             }
             else
@@ -178,16 +201,12 @@ namespace Smartstore.Core.Content.Menus
 
                 if (summary != null)
                 {
-                    summary.Label = GetLocalized(summary.Id, typeof(T).Name, "Name", languageId, summary.Name);
+                    summary.Id = entityId;
+                    summary.LocalizedPropertyNames = new[] { "Name" };
                 }
             }
 
             return summary;
-        }
-
-        private string GetLocalized(int entityId, string localeKeyGroup, string localeKey, int languageId, string defaultValue)
-        {
-            return _localizedEntityService.GetLocalizedValue(languageId, entityId, localeKeyGroup, localeKey).NullEmpty() ?? defaultValue.NullEmpty();
         }
     }
 }

@@ -105,7 +105,7 @@ namespace Smartstore.Core.Content.Menus.Hooks
 
         private static string BuildPatternKey(string entityName, object ident)
         {
-            return LinkResolver.LINKRESOLVER_PATTERN_KEY.FormatInvariant(string.Concat(entityName, ":", ident));
+            return LinkResolver.LinkCacheKeyPattern.FormatInvariant(string.Concat(entityName, ":", ident));
         }
     }
 }

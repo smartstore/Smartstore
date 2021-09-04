@@ -226,7 +226,7 @@ namespace Smartstore.Admin.Controllers
                     foreach (var item in menu.Items.Where(x => x.ProviderName != null && x.ProviderName == "entity"))
                     {
                         var link = await _linkResolver.ResolveAsync(item.Model);
-                        if (link.Type == LinkType.Topic && link.Id == topic.Id)
+                        if (link.Expression.Schema == DefaultLinkProvider.SchemaTopic && link.EntityId == topic.Id)
                         {
                             var url = Url.Action("EditItem", "Menu", new { id = item.Id, area = "Admin" });
 

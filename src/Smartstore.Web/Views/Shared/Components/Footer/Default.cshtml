@@ -4,15 +4,6 @@
 @model FooterModel
 
 @{
-    var footerLinks = new List<LinkResolverResult>
-    {
-        await LinkResolver.ResolveAsync("topic:aboutus"),
-        await LinkResolver.ResolveAsync("topic:imprint"),
-        await LinkResolver.ResolveAsync("topic:disclaimer"),
-        await LinkResolver.ResolveAsync("topic:privacyinfo"),
-        await LinkResolver.ResolveAsync("topic:conditionsofuse")
-    };
-
     var socialLinks = new List<(string link, string cssClass)>();
     if (Model.FacebookLink.HasValue())
     {

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Smartstore.Collections;
 using Smartstore.Core.Localization;
 
@@ -34,27 +35,15 @@ namespace Smartstore.Core.Content.Menus
                 item.Text = result.Label;
             }
 
-            switch (result.Type)
+            if (result.EntityId.HasValue && !request.IsEditMode)
             {
-                case LinkType.Product:
-                case LinkType.Category:
-                case LinkType.Manufacturer:
-                case LinkType.Topic:
-                    if (request.IsEditMode)
-                    {
-                        // Info: node.Value.EntityId is MenuItemRecord.Id for editing MenuItemRecord.
-                    }
-                    else
-                    {
-                        item.EntityId = result.Id;
-                        item.EntityName = result.Type.ToString();
-                    }
-                    break;
+                item.EntityId = result.EntityId.Value;
+                item.EntityName = result.EntityName;
             }
 
             if (request.IsEditMode)
             {
-                var info = result.Type.GetLinkTypeInfo();
+                var info = _linkResolver.GetBuilderMetadata().FirstOrDefault(x => x.Schema == result.Expression.Schema);
                 item.Summary = T(info.ResKey);
                 item.Icon = info.Icon;
 

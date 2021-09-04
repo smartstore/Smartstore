@@ -12,6 +12,7 @@ namespace Smartstore.Core.Bootstrapping
         {
             builder.RegisterType<MenuStorage>().As<IMenuStorage>().InstancePerLifetimeScope();
             builder.RegisterType<LinkResolver>().As<ILinkResolver>().InstancePerLifetimeScope();
+            builder.RegisterType<DefaultLinkProvider>().As<ILinkProvider>().InstancePerLifetimeScope();
             builder.RegisterType<MenuPublisher>().As<IMenuPublisher>().InstancePerLifetimeScope();
             builder.RegisterType<MenuService>().As<IMenuService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultBreadcrumb>().As<IBreadcrumb>().InstancePerLifetimeScope();

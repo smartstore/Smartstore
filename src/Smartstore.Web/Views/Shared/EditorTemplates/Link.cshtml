@@ -1,5 +1,6 @@
 ﻿@using Smartstore.Utilities
 
+@* TODO: (core) Refactor for new link provider system (widgets etc.) *@
 @* TODO: (mh) (core) Restructure CSS (or script) in a way that the last visible button always is rounded right. *@
 
 @functions
@@ -13,20 +14,19 @@
     var rtl = WorkContext.WorkingLanguage.Rtl;
     var rnd = CommonHelper.GenerateRandomInteger();
     var id = Html.IdForModel();
+    var metadata = LinkResolver.GetBuilderMetadata().ToDictionary(x => x.Schema);
     var link = await LinkResolver.ResolveAsync(Value);
+    var expression = link.Expression;
     var hideQueryString = GetMetadata<bool>("hideQueryString");
-
     var arr = GetMetadata<string>("allowedTypes").SplitSafe(',');
-    var allowedTypes = arr.Any()
-        ? arr.Select(x => (LinkType)Enum.Parse(typeof(LinkType), x, true)).ToArray()
-        : new LinkType[] { LinkType.Product, LinkType.Category, LinkType.Manufacturer, LinkType.Topic, LinkType.BlogPost, LinkType.NewsItem, LinkType.File, LinkType.Url };
+    var allowedTypes = arr.Any() ? arr : metadata.Keys;
 }
 
 <div id="link-builder-@rnd" class="link-builder edit-control"
      data-field-id="@id"
      data-editor="link"
-     data-current-type="@(Value != null ? link.Type.ToString().ToLower() : string.Empty)"
-     attr-data-product-picker-callback='(allowedTypes.Contains(LinkType.Product), "lbPickerSelectionCompleted" + rnd.ToString())'>
+     data-current-type="@(Value != null ? expression.Schema : string.Empty)"
+     attr-data-product-picker-callback='(allowedTypes.Contains(DefaultLinkProvider.SchemaProduct), "lbPickerSelectionCompleted" + rnd.ToString())'>
 
     @* Template control that receives the link expression. *@
     <input asp-for="@Model" type="hidden" value="@Value" />
@@ -41,8 +41,8 @@
             <div class="dropdown-menu dropdown-menu-@(rtl ? "right" : "left")">
                 @foreach (var type in allowedTypes)
                 {
-                    var info = type.GetLinkTypeInfo();
-                    <a class="dropdown-item link-type" href="#" data-type="@type.ToString().ToLower()">
+                    var info = metadata[type];
+                    <a class="dropdown-item link-type" href="#" data-type="@type">
                         <i class="fa-fw @info.Icon"></i>
                         <span>@T(info.ResKey)</span>
                     </a>
@@ -53,31 +53,29 @@
         @* 2. main control. *@
         @foreach (var type in allowedTypes)
         {
-            var label = link.Type == type ? link.Label : string.Empty;
-            var value = link.Type == type && link.Value != null
-                ? (type == LinkType.Topic ? link.Id.ToString() : link.Value.ToString())
-                : string.Empty;
+            var label = expression.Schema == type ? link.Label : string.Empty;
+            var value = expression.Schema == expression.Target;
 
-            <div class="flex-grow-1 link-control" attr-class='(link.Type != type, "hide")' data-type="@type.ToString().ToLower()">
-                @if (type == LinkType.Product)
+            <div class="flex-grow-1 link-control" attr-class='(expression.Schema != type, "hide")' data-type="@type.ToString().ToLower()">
+                @if (type == DefaultLinkProvider.SchemaProduct)
                 {
                     <input type="text" class="form-control resettable product-picker-input" value="@label" readonly />
                 }
-                else if (type == LinkType.Category)
+                else if (type == DefaultLinkProvider.SchemaCategory)
                 {
                     <select class="form-control transferable resettable"
                             data-select-url="@Url.Action("AllCategories", "Category", new { area = "Admin" })"
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
                 }
-                else if (type == LinkType.Manufacturer)
+                else if (type == DefaultLinkProvider.SchemaManufacturer)
                 {
                     <select class="form-control transferable resettable"
                             data-select-url="@Url.Action("AllManufacturers", "Manufacturer", new { area = "Admin" })"
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
                 }
-                else if (type == LinkType.Topic)
+                else if (type == DefaultLinkProvider.SchemaTopic)
                 {
                     <select class="form-control transferable resettable"
                             data-select-url="@Url.Action("AllTopics", "Topic", new { area = "Admin" })"
@@ -99,11 +97,11 @@
                                 data-select-selected-id="@value"
                                 data-select-init-text="@label"></select>
                     }*@
-                else if (type == LinkType.Url)
+                else if (type == DefaultLinkProvider.SchemaUrl)
                 {
                     <input type="text" class="form-control transferable resettable" value="@value" />
                 }
-                else if (type == LinkType.File)
+                else if (type == DefaultLinkProvider.SchemaFile)
                 {
                     <input id="lb-file-url-@rnd" type="text" class="form-control transferable resettable" value="@label" readonly />
                 }
@@ -111,9 +109,9 @@
         }
 
         @* 3. append additional controls. *@
-        @if (allowedTypes.Contains(LinkType.Product))
+        @if (allowedTypes.Contains(DefaultLinkProvider.SchemaProduct))
         {
-            <div class="input-group-append link-control" attr-class='(link.Type != LinkType.Product, "hide")' data-type="product">
+            <div class="input-group-append link-control" attr-class='(expression.Schema != DefaultLinkProvider.SchemaProduct, "hide")' data-type="product">
                 <entity-picker max-items="1"
                                append-mode="false"
                                dialog-title=@T("Common.Entity.SelectProduct").JsValue
@@ -121,9 +119,9 @@
             </div>
         }
 
-        @if (allowedTypes.Contains(LinkType.File))
+        @if (allowedTypes.Contains(DefaultLinkProvider.SchemaFile))
         {
-            <div class="input-group-append link-control" attr-class='(link.Type != LinkType.File, "hide")' data-type="file">
+            <div class="input-group-append link-control" attr-class='(expression.Schema != DefaultLinkProvider.SchemaFile, "hide")' data-type="file">
                 @*TODO: (mh) (core) Implement RoxyFileManager when available*@
                 <a href="javascript:;" class="btn btn-light browse-files" data-url="@Url.Content("~/Admin/RoxyFileManager/")" data-field-id="lb-file-url-@rnd">
                     <i class="fa fa-upload"></i>
@@ -140,13 +138,13 @@
             </button>
             @if (!hideQueryString)
             {
-                <button type="button" class="btn btn-light btn-icon btn-query-string" attr-class='(link.Type == LinkType.Url, "hide")'
+                <button type="button" class="btn btn-light btn-icon btn-query-string" attr-class='(expression.Schema == DefaultLinkProvider.SchemaUrl, "hide")'
                         title="@T("Common.QueryString")" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-hashtag @(link.QueryString.HasValue() ? "text-success" : "text-muted")"></i>
+                    <i class="fas fa-hashtag @(expression.Query.HasValue() ? "text-success" : "text-muted")"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
                     <div class="px-2">
-                        <input type="text" class="form-control transferable resettable query-string" value="@link.QueryString" placeholder="@T("Common.QueryString")" style="width: 350px;" />
+                        <input type="text" class="form-control transferable resettable query-string" value="@expression.Query.TrimStart('?')" placeholder="@T("Common.QueryString")" style="width: 350px;" />
                     </div>
                 </div>
             }
