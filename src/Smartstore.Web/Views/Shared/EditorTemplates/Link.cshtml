@@ -31,11 +31,11 @@
     @* Template control that receives the link expression. *@
     <input asp-for="@Model" type="hidden" value="@Value" />
 
-    <div class="d-flex flex-nowrap input-group">
+    <div class="row flex-nowrap xs-gutters">
 
         @* 1. prepend type selector. *@
-        <div class="input-group-prepend link-type-container">
-            <button type="button" class="btn btn-light btn-linktype btn-icon dropdown-toggle" data-toggle="dropdown" title="">
+        <div class="link-type-container col-auto">
+            <button type="button" class="btn btn-secondary btn-linktype btn-icon dropdown-toggle" data-toggle="dropdown" title="">
                 <i class="fa fa-link"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-@(rtl ? "right" : "left")">
@@ -56,10 +56,18 @@
             var label = expression.Schema == type ? link.Label : string.Empty;
             var value = expression.Schema == expression.Target;
 
-            <div class="flex-grow-1 link-control" attr-class='(expression.Schema != type, "hide")' data-type="@type.ToString().ToLower()">
+            <div class="link-control col" attr-class='(expression.Schema != type, "hide")' data-type="@type">
                 @if (type == DefaultLinkProvider.SchemaProduct)
                 {
-                    <input type="text" class="form-control resettable product-picker-input" value="@label" readonly />
+                    <div class="input-group">
+                        <input type="text" class="form-control resettable product-picker-input bg-white text-muted" value="@label" readonly />
+                        <div class="input-group-append">
+                            <entity-picker max-items="1"
+                                            append-mode="false"
+                                            dialog-title=@T("Common.Entity.SelectProduct").JsValue
+                                            caption=@T("Common.Search").JsValue />
+                        </div>
+                    </div>       
                 }
                 else if (type == DefaultLinkProvider.SchemaCategory)
                 {
@@ -103,44 +111,28 @@
                 }
                 else if (type == DefaultLinkProvider.SchemaFile)
                 {
-                    <input id="lb-file-url-@rnd" type="text" class="form-control transferable resettable" value="@label" readonly />
+                    <div class="input-group">
+                        <input id="lb-file-url-@rnd" type="text" class="form-control transferable resettable bg-white text-muted" value="@label" readonly />
+                        <a href="javascript:;" class="btn btn-secondary browse-files" data-url="@Url.Content("~/Admin/RoxyFileManager/")" data-field-id="lb-file-url-@rnd">
+                            <i class="fa fa-upload"></i>
+                            <span>@(T("Common.BrowseFiles"))&hellip;</span>
+                        </a>
+                    </div>         
                 }
             </div>
         }
 
-        @* 3. append additional controls. *@
-        @if (allowedTypes.Contains(DefaultLinkProvider.SchemaProduct))
-        {
-            <div class="input-group-append link-control" attr-class='(expression.Schema != DefaultLinkProvider.SchemaProduct, "hide")' data-type="product">
-                <entity-picker max-items="1"
-                               append-mode="false"
-                               dialog-title=@T("Common.Entity.SelectProduct").JsValue
-                               caption=@T("Common.Search").JsValue />
-            </div>
-        }
-
-        @if (allowedTypes.Contains(DefaultLinkProvider.SchemaFile))
-        {
-            <div class="input-group-append link-control" attr-class='(expression.Schema != DefaultLinkProvider.SchemaFile, "hide")' data-type="file">
-                @*TODO: (mh) (core) Implement RoxyFileManager when available*@
-                <a href="javascript:;" class="btn btn-light browse-files" data-url="@Url.Content("~/Admin/RoxyFileManager/")" data-field-id="lb-file-url-@rnd">
-                    <i class="fa fa-upload"></i>
-                    <span>@(T("Common.BrowseFiles"))&hellip;</span>
-                </a>
-            </div>
-        }
-
         @* 4. append additional buttons. *@
-        <div class="input-group-append">
-            <button type="button" class="btn btn-light btn-icon btn-to-danger btn-reset" title="@T("Common.Remove")">
+        <div class="col-auto">
+            <button type="button" class="btn btn-secondary btn-icon btn-to-danger btn-reset" title="@T("Common.Remove")">
                 @*<i class="fa fa-unlink"></i>*@
                 <span class="fs-h5" style="line-height: 1">&times;</span>
             </button>
             @if (!hideQueryString)
             {
-                <button type="button" class="btn btn-light btn-icon btn-query-string" attr-class='(expression.Schema == DefaultLinkProvider.SchemaUrl, "hide")'
+                <button type="button" class="btn btn-secondary btn-icon btn-query-string" attr-class='(expression.Schema == DefaultLinkProvider.SchemaUrl, "hide")'
                         title="@T("Common.QueryString")" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-hashtag @(expression.Query.HasValue() ? "text-success" : "text-muted")"></i>
+                    <i class="fa fa-question-circle @(expression.Query.HasValue() ? "text-success" : "text-muted")"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
                     <div class="px-2">
