@@ -7,19 +7,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Catalog\Attributes\Exchange\" />
-    <Folder Include="Catalog\Attributes\Migrations\" />
-    <Folder Include="Catalog\Attributes\Events\" />
-    <Folder Include="Catalog\Attributes\Api\" />
-    <Folder Include="Catalog\Attributes\Exceptions\" />
-    <Folder Include="Catalog\Attributes\Commands\" />
-    <Folder Include="Catalog\Attributes\Search\" />
-    <Folder Include="Catalog\Attributes\Providers\" />
-    <Folder Include="Catalog\Attributes\Utils\" />
-    <Folder Include="Checkout\Shipping\Tracking\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
     <PackageReference Include="DotLiquid" Version="2.2.548" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
