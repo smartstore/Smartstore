@@ -45,6 +45,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{5135A2B0
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.ModuleBuilder", "src\Build\Smartstore.ModuleBuilder\src\Smartstore.ModuleBuilder.csproj", "{23B334CE-7FFC-464E-A0A8-FFCB084E8F24}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Forum", "src\Smartstore.Modules\Smartstore.Forum\Smartstore.Forum.csproj", "{BB9E738C-0785-497F-9391-2B4CA242B567}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{23B334CE-7FFC-464E-A0A8-FFCB084E8F24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23B334CE-7FFC-464E-A0A8-FFCB084E8F24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23B334CE-7FFC-464E-A0A8-FFCB084E8F24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB9E738C-0785-497F-9391-2B4CA242B567}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB9E738C-0785-497F-9391-2B4CA242B567}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB9E738C-0785-497F-9391-2B4CA242B567}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB9E738C-0785-497F-9391-2B4CA242B567}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,6 +119,7 @@ Global
 		{62C64D0B-D937-40B2-B89D-198B2409FC84} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{1DE93C7F-22CE-462C-BB6E-7282F4403F2E} = {4C0385CB-1ABE-4569-AA9D-0C3DCBE44479}
 		{23B334CE-7FFC-464E-A0A8-FFCB084E8F24} = {5135A2B0-95B5-46AD-906A-70A2364B892B}
+		{BB9E738C-0785-497F-9391-2B4CA242B567} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}
