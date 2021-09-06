@@ -9,7 +9,6 @@ using FluentMigrator.Infrastructure;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
@@ -27,6 +26,7 @@ namespace Smartstore.Core.Data.Migrations
         private readonly IVersionLoader _versionLoader;
         private readonly RunnerOptions _runnerOptions;
         private readonly IEventPublisher _eventPublisher;
+        private readonly ILogger _logger;
 
         private Exception _lastSeedException;
 
@@ -49,7 +49,8 @@ namespace Smartstore.Core.Data.Migrations
             IMigrationRunner migrationRunner,
             IVersionLoader versionLoader,
             IOptions<RunnerOptions> runnerOptions,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher,
+            ILogger<DbMigrator<TContext>> logger)
             : base(scope, appContext.TypeScanner, versionLoader)
         {
             Guard.NotNull(db, nameof(db));
@@ -62,9 +63,8 @@ namespace Smartstore.Core.Data.Migrations
             _versionLoader = versionLoader;
             _runnerOptions = runnerOptions.Value;
             _eventPublisher = eventPublisher;
+            _logger = logger;
         }
-
-        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         /// <inheritdoc/>
         public override TContext Context => _db;
@@ -150,7 +150,7 @@ namespace Smartstore.Core.Data.Migrations
 
             _versionLoader.LoadVersionInfo();
 
-            Logger.Info($"Database migration successful: {_initialMigration?.Version.ToString() ?? "[Initial]"} >> {migrations.Last().Version}");
+            _logger.Info($"Database migration successful: {_initialMigration?.Version.ToString() ?? "[Initial]"} >> {migrations.Last().Version}");
             return result;
         }
         
@@ -307,14 +307,14 @@ namespace Smartstore.Core.Data.Migrations
                             }
                             catch (Exception ex2)
                             {
-                                Logger.Error(ex2);
+                                _logger.Error(ex2);
                             }
                         }
 
                         throw _lastSeedException;
                     }
 
-                    Logger.Warn(ex, "Seed error in migration '{0}'. The error was ignored because no rollback was requested.", m.Description);
+                    _logger.Warn(ex, "Seed error in migration '{0}'. The error was ignored because no rollback was requested.", m.Description);
                 }
             }
         }
