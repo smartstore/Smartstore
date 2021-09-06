@@ -7,8 +7,5 @@
   "MinAppVersion": "5.0",
   "Order": 1,
   "AssemblyName": "Smartstore.Forum.dll",
-  "ResourceRootKey": "Plugins.Smartstore.Forum",
-  "PrivateReferences": [
-
-  ]
+  "ResourceRootKey": "Plugins.Smartstore.Forum"
 }
