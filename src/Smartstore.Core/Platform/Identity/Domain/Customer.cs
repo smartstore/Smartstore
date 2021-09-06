@@ -357,8 +357,6 @@ namespace Smartstore.Core.Identity
             protected set => _returnRequests = value;
         }
 
-        // TODO: (mg) (core) Complete customer navigation properties (ForumTopic and ForumPost required).
-
         #endregion
 
         #region Utils

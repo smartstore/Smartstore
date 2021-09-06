@@ -1,4 +1,5 @@
-﻿namespace Smartstore.Core.Content.Forums
+﻿// TODO: (mg) (core) move forum string resources to module.
+namespace Smartstore.Forum
 {
     /// <summary>
     /// Represents a forum topic type.

@@ -17,6 +17,7 @@ namespace Smartstore.Forum
         public override async Task InstallAsync()
         {
             await base.InstallAsync();
+            await SaveSettingsAsync<ForumSettings>();
             await ImportLanguageResources();
 			
             Logger.Info($"Plugin installed: SystemName: {Descriptor.SystemName}, Version: {Descriptor.Version}, Description: '{Descriptor.FriendlyName}'");
@@ -25,6 +26,7 @@ namespace Smartstore.Forum
         public override async Task UninstallAsync()
         {
             await base.UninstallAsync();
+            await DeleteSettingsAsync<ForumSettings>();
             await DeleteLanguageResources();
         }
     }
