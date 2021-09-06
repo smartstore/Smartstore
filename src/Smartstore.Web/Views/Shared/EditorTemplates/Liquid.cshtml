@@ -1,6 +1,9 @@
-﻿@{
+﻿@using Smartstore.Utilities
+
+@{
     string value = (string)ViewData.TemplateInfo.FormattedModelValue;
-    string templateName = GetMetadata<string>("TemplateName").NullEmpty();
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    string templateName = attributes["TemplateName"].ToString();
     string width = GetMetadata<string>("width").NullEmpty();
     string height = GetMetadata<string>("height").NullEmpty();
 
@@ -13,13 +16,13 @@
     }
 
     <script src="~/bundle/js/codemirror.js" sm-key="codemirror" sm-target-zone="scripts"></script>
-    <link rel="stylesheet" href="~/bundle/css/codemirror.css" sm-key="codemirror" sm-target-zone="stylesheets"/>
+    <link rel="stylesheet" href="~/bundle/css/codemirror.css" sm-key="codemirror" sm-target-zone="stylesheets" />
 }
 
 <script>
     $(function () {
 		if (window.CodeMirror !== undefined) {
-            var el = $('#@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)');
+            var el = $('#@Html.GenerateIdFromName(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))');
             var cm = CodeMirror.fromTextArea(el[0], {
 				mode: "liquid-html",
 				theme: "eclipse",
@@ -63,6 +66,6 @@
           name="@Html.NameForModel()"
           class="form-control"
           style="max-width: initial;"
-          rows="20"
-          attr-value='(value.HasValue(), value)'>
+          rows="20">
+    @Html.Raw(value)
 </textarea>
