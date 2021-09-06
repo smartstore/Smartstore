@@ -21,6 +21,7 @@ namespace Smartstore.Web.Controllers
         private readonly SeoSettings _seoSettings;
         private readonly IBreadcrumb _breadcrumb;
         private readonly CatalogHelper _helper;
+        private readonly IUrlHelper _urlHelper;
         //private readonly ICookieManager _cookieManager;
 
         public TopicController(
@@ -28,13 +29,15 @@ namespace Smartstore.Web.Controllers
             IStoreMappingService storeMappingService,
             SeoSettings seoSettings,
             IBreadcrumb breadcrumb,
-            CatalogHelper helper)
+            CatalogHelper helper,
+            IUrlHelper urlHelper)
         {
             _aclService = aclService;
             _storeMappingService = storeMappingService;
             _seoSettings = seoSettings;
             _breadcrumb = breadcrumb;
             _helper = helper;
+            _urlHelper = urlHelper;
         }
 
         protected TopicModel PrepareTopicModel(Topic topic)
@@ -69,6 +72,11 @@ namespace Smartstore.Web.Controllers
                 TitleTag = titleTag,
                 RenderAsWidget = topic.RenderAsWidget
             };
+
+            if (_seoSettings.CanonicalUrlsEnabled)
+            {
+                model.CanonicalUrl = _urlHelper.RouteUrl("Topic", new { model.SeName }, Request.Scheme);
+            }
 
             return model;
         }

@@ -18,6 +18,11 @@
         Assets.AppendTitleParts(Model.MetaTitle.NullEmpty() ?? Model.Title);
         Assets.AppendMetaDescriptionParts(Model.MetaDescription);
         Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
+
+        if (Model.CanonicalUrl.HasValue())
+        {
+            Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
+        }
     }
 
     if (Model.HtmlId.HasValue())

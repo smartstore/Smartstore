@@ -32,6 +32,8 @@ namespace Smartstore.Web.Models.Topics
 
         public string SeName { get; set; }
 
+        public string CanonicalUrl { get; set; }
+
         public string TitleTag { get; set; }
 
         public bool RenderAsWidget { get; set; }
