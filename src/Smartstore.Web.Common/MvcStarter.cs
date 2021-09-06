@@ -105,9 +105,9 @@ namespace Smartstore.Web
                 {
                     if (appContext.IsInstalled)
                     {
-                        o.ViewLocationExpanders.Add(new ModuleViewLocationExpander());
                         o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
                         o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
+                        o.ViewLocationExpanders.Add(new ModuleViewLocationExpander());
                         o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
                     }
 
