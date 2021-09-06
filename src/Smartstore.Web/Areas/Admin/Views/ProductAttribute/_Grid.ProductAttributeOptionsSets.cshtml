@@ -14,9 +14,10 @@
 }
 
 <datagrid id="product-attribute-optionsset-grid"
+          allow-edit="true"
           allow-resize="true"
-          preserve-grid-state="true" preserve-command-state="true"
-          allow-column-reordering="true">
+          allow-column-reordering="true"
+          preserve-grid-state="true" preserve-command-state="true">
     <datasource read="@Url.Action("ProductAttributeOptionsSetList", new { productAttributeId = parentModel.Id })"
                 insert="@Url.Action("ProductAttributeOptionsSetInsert", new { productAttributeId = parentModel.Id })"
                 update="@Url.Action("ProductAttributeOptionsSetUpdate")"
@@ -39,12 +40,6 @@
                 <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>
-        <toolbar-group class="omega">
-            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
-                <i class="far fa-trash-alt"></i>
-                <span>@T("Admin.Common.Delete.Selected")</span>
-            </button>
-        </toolbar-group>
     </toolbar>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
@@ -56,9 +51,10 @@
     </columns>
     <detail-view>
         <div class="datagrid-root">
-            <sm-datagrid 
+            <sm-datagrid
+                :ref="'product-attribute-options-grid' + item.row.Id"
                 :id="'product-attribute-options-grid' + item.row.Id"
-                :options="{ keyMemberName: 'Id', vborders: true, hover: true, striped: true }" 
+                :options="{ keyMemberName: 'Id', vborders: true, hover: true, striped: true, allowRowSelection: true }" 
                 :data-source="{ read: '@Url.Action("ProductAttributeOptionList")?optionsSetId=' + item.row.Id, del: '@Url.Action("ProductAttributeOptionDelete")' }"
                 :columns="[ 
                     { member: 'ProductAttributeOptionsSetId', name: 'ProductAttributeOptionsSetId', visible: false },
@@ -96,6 +92,12 @@
                                 <span>@T("Admin.Common.AddNew")</span>
                             </button>
                         </div>
+                        <div class="dg-toolbar-group omega">
+                            <button type="button" class="btn btn-danger btn-sm btn-flat no-anims" href="#" v-bind:class="{ &#x27;disabled&#x27;: !grid.hasSelection }" v-on:click.prevent="grid.deleteSelectedRows">
+                                <i class="far fa-trash-alt"></i>
+                                <span>@T("Admin.Common.Delete.Selected")</span>
+                            <span v-if='grid.hasSelection' class='badge badge-success'>{{ grid.selectedRowsCount }}</span></button>
+                        </div>
                     </div>
                 </template>
             </sm-datagrid>
@@ -129,12 +131,12 @@
             openPopup(url, true);
         });
 
-        // Refresh options set grid after popup dialog was closed.
+        // Refresh options grid after popup dialog was closed.
         $(document).on('click', '#btnRefreshOptions', function () {
-            // TODO: (mg) (core) find a way to reload the child instead of parent grid.
-            //window['product-attribute-options-grid' + $(this).val()].$children[0].read();
+            var childGridId = 'product-attribute-options-grid' + $(this).val();
+            var childGrid = window['product-attribute-optionsset-grid'].$refs[childGridId];
+            childGrid.read();
 
-            window['product-attribute-optionsset-grid'].$children[0].read();
             return false;
         });
     });

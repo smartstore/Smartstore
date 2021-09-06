@@ -296,13 +296,14 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
+        [HttpPost]
         [Permission(Permissions.Catalog.Variant.EditSet)]
-        public async Task<IActionResult> ProductAttributeOptionsSetInsert(ProductAttributeOptionsSetModel model)
+        public async Task<IActionResult> ProductAttributeOptionsSetInsert(ProductAttributeOptionsSetModel model, int productAttributeId)
         {
             var optionsSet = new ProductAttributeOptionsSet
             {
                 Name = model.Name,
-                ProductAttributeId = model.ProductAttributeId
+                ProductAttributeId = productAttributeId
             };
 
             _db.ProductAttributeOptionsSets.Add(optionsSet);
@@ -311,6 +312,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new { success = true });
         }
 
+        [HttpPost]
         [Permission(Permissions.Catalog.Variant.EditSet)]
         public async Task<IActionResult> ProductAttributeOptionsSetUpdate(ProductAttributeOptionsSetModel model)
         {
@@ -326,6 +328,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new { success = true });
         }
 
+        [HttpPost]
         [Permission(Permissions.Catalog.Variant.EditSet)]
         public async Task<IActionResult> ProductAttributeOptionsSetDelete(GridSelection selection)
         {
@@ -384,6 +387,7 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
+        [HttpPost]
         [Permission(Permissions.Catalog.Variant.EditSet)]
         public async Task<IActionResult> ProductAttributeOptionDelete(GridSelection selection)
         {

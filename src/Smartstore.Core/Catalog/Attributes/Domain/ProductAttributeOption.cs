@@ -15,11 +15,12 @@ namespace Smartstore.Core.Catalog.Attributes
     {
         public void Configure(EntityTypeBuilder<ProductAttributeOption> builder)
         {
+            // INFO: DeleteBehavior.Cascade required otherwise System.InvalidOperationException when deleting ProductAttributeOptionsSet.
             builder.HasOne(c => c.ProductAttributeOptionsSet)
                 .WithMany(c => c.ProductAttributeOptions)
                 .HasForeignKey(c => c.ProductAttributeOptionsSetId)
                 .IsRequired(false)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
