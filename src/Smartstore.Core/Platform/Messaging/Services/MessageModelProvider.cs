@@ -365,7 +365,9 @@ namespace Smartstore.Core.Messaging
                     name = type.Name;
                 }
             }
-            catch { }
+            catch 
+            { 
+            }
 
             return name;
         }

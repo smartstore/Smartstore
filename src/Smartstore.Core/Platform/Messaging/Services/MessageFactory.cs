@@ -151,7 +151,8 @@ namespace Smartstore.Core.Messaging
             {
                 Priority = 5,
                 From = messageContext.SenderMailAddress ?? messageContext.EmailAccount.ToMailAddress(),
-                // INFO: (mh) Works like a charm
+                // TODO: (mh) (core) Exception is raised because the model token in MessageContext is named "News-->l<--etterSubscription" (after portation),
+                // but the token in the template is still "News-->L<--etterSubscription" (capital L). Find a way to add the token as "NewsLetterSubscription" (even if it looks ugly).
                 To = to.ToString(),
                 Bcc = bcc,
                 ReplyTo = replyTo?.ToString(),
