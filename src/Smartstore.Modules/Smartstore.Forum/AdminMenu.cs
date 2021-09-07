@@ -15,7 +15,7 @@ namespace Smartstore.Forum
                 .Text("Manage forums")
                 .ResKey("Admin.ContentManagement.Forums")
                 .Icon("fa fa-users")
-                .PermissionNames(ForumPermissions.Cms.Forum.Self)
+                .PermissionNames(ForumPermissions.Self)
                 .Action("Configure", "Forum", new { area = "Admin" })
                 .AsItem());
 

@@ -21,7 +21,7 @@ namespace Smartstore.Forum.Controllers
             _localizedEntityService = localizedEntityService;
         }
 
-        [AuthorizeAdmin, Permission(ForumPermissions.Cms.Forum.Read)]
+        [AuthorizeAdmin, Permission(ForumPermissions.Read)]
         [LoadSetting]
         public IActionResult Configure(ForumSettings settings, int storeScope)
         {
@@ -37,7 +37,7 @@ namespace Smartstore.Forum.Controllers
             return View(model);
         }
 
-        [AuthorizeAdmin, Permission(ForumPermissions.Cms.Forum.Update)]
+        [AuthorizeAdmin, Permission(ForumPermissions.Update)]
         [HttpPost, SaveSetting]
         public async Task<IActionResult> Configure(ConfigurationModel model, ForumSettings settings, int storeScope)
         {
@@ -59,7 +59,7 @@ namespace Smartstore.Forum.Controllers
             return RedirectToAction("Configure");
         }
 
-        [Permission(ForumPermissions.Cms.Forum.Read)]
+        [Permission(ForumPermissions.Read)]
         public IActionResult SearchSettings()
         {
             return Content("TODO: configure search settings....");

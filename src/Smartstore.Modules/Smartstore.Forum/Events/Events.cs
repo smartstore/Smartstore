@@ -15,7 +15,7 @@ namespace Smartstore.Forum.Events
         {
             if (message.TabStripName.EqualsNoCase("searchsettings-edit"))
             {
-                if (await permissions.AuthorizeAsync(ForumPermissions.Cms.Forum.Read))
+                if (await permissions.AuthorizeAsync(ForumPermissions.Read))
                 {
                     await message.TabFactory.AddAsync(builder => builder
                         .Text(T("Admin.Configuration.Settings.Forums"))
