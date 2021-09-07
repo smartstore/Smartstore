@@ -59,6 +59,7 @@ var summernote_image_upload_url;
 	summernote_global_config = {
 		disableDragAndDrop: false,
 		dialogsInBody: true,
+		container: 'body',
 		dialogsFade: true,
 		height: 300,
 		prettifyHtml: true,
@@ -80,15 +81,6 @@ var summernote_image_upload_url;
         callbacks: {
 			onFocus: function () {
 				$(this).next().addClass('focus');
-			},
-			onBlur: function (e) {
-				var inside = $(e.relatedTarget).closest('.note-editable').length || $(e.relatedTarget).closest('.note-popover').length;
-				if (!inside) {
-					 // Close all popovers
-					_.delay(function () { $('.note-popover').hide(); }, 50);
-
-					$(this).next().removeClass('focus');
-				}
 			},
 			onImageUpload: function (files) {
 				sendFile(files[0], this);

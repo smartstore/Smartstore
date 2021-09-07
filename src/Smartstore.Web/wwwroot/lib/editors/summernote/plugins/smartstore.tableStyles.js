@@ -41,6 +41,15 @@
 				$editable = context.layoutInfo.editable,
 				editable = $editable[0];
 
+			// Fix blur event
+			let module = context.modules.tablePopover;
+			module.events['summernote.disable summernote.blur'] = function (we, e) {
+				const evt = e.originalEvent;
+				if (evt.type === 'blur' && !$(evt.relatedTarget).closest('.note-custom').length) {
+					module.hide();
+                }
+			};
+
 			context.memo("button.tableStyles", function () {
 				var button = ui.buttonGroup([
 					ui.button({
@@ -50,9 +59,10 @@
 							btn.data("placement", "bottom");
 							btn.data("trigger", "hover");
 							btn.attr("title", lang.tableStyles.tooltip);
+							btn.attr("tabindex", "-1");
 							btn.tooltip();
 
-							btn.on('click', function () {
+							btn.on('click', function (e) {
 								self.updateTableMenuState(btn);
 							});
 						},
@@ -177,10 +187,4 @@
 			};
 		}
 	});
-});
-
-$('body').on('click', '.popover .dropdown-toggle', function (e) {
-	console.log("clicked inside popover");
-	//e.preventDefault();
-	
 });

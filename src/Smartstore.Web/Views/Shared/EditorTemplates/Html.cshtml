@@ -30,7 +30,7 @@
 <div class="html-editor-root edit-control"
      data-summernote-image-upload-url="@Html.Raw(Url.Action("ProcessRequest", "RoxyFileManager"))"
      data-editor="html"
-     data-lazy="@lazy"
+     attr-data-lazy='(lazy, "true")'
      data-lang="@Html.Raw(culture != null ? $"'{culture}'" : "null")">
 
     <textarea asp-for="@Model"
