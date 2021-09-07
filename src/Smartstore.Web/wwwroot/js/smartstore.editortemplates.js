@@ -37,7 +37,7 @@
             summernote_image_upload_url = $el.data("summernote-image-upload-url");
 
             if (!$el.data("lazy")) {
-                $el.summernote($.extend(true, {}, summernote_global_config, { lang: $el.data("lang") }));
+                $el.find("> .summernote-editor").summernote($.extend(true, {}, summernote_global_config, { lang: $el.data("lang") }));
             }
         },
         // RuleSets
