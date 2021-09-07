@@ -14,19 +14,19 @@
     var rtl = WorkContext.WorkingLanguage.Rtl;
     var rnd = CommonHelper.GenerateRandomInteger();
     var id = Html.IdForModel();
-    var metadata = LinkResolver.GetBuilderMetadata().ToDictionary(x => x.Schema);
+    var metadata = LinkResolver.GetBuilderMetadata().ToDictionarySafe(x => x.Schema);
     var link = await LinkResolver.ResolveAsync(Value);
     var expression = link.Expression;
     var hideQueryString = GetMetadata<bool>("hideQueryString");
-    var arr = GetMetadata<string>("allowedTypes").SplitSafe(',');
-    var allowedTypes = arr.Any() ? arr : metadata.Keys;
+    var arr = GetMetadata<string>("allowedSchemas").SplitSafe(',');
+    var allowedSchemas = arr.Any() ? arr : metadata.Keys;
 }
 
 <div id="link-builder-@rnd" class="link-builder edit-control"
      data-field-id="@id"
      data-editor="link"
      data-current-type="@(Value != null ? expression.Schema : string.Empty)"
-     attr-data-product-picker-callback='(allowedTypes.Contains(DefaultLinkProvider.SchemaProduct), "lbPickerSelectionCompleted" + rnd.ToString())'>
+     attr-data-product-picker-callback='(allowedSchemas.Contains(DefaultLinkProvider.SchemaProduct), "lbPickerSelectionCompleted" + rnd.ToString())'>
 
     @* Template control that receives the link expression. *@
     <input asp-for="@Model" type="hidden" value="@Value" />
@@ -39,10 +39,10 @@
                 <i class="fa fa-link"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-@(rtl ? "right" : "left")">
-                @foreach (var type in allowedTypes)
+                @foreach (var schema in allowedSchemas)
                 {
-                    var info = metadata[type];
-                    <a class="dropdown-item link-type" href="#" data-type="@type">
+                    var info = metadata[schema];
+                    <a class="dropdown-item link-type" href="#" data-type="@schema">
                         <i class="fa-fw @info.Icon"></i>
                         <span>@T(info.ResKey)</span>
                     </a>
@@ -51,13 +51,18 @@
         </div>
 
         @* 2. main control. *@
-        @foreach (var type in allowedTypes)
+        @foreach (var schema in allowedSchemas)
         {
-            var label = expression.Schema == type ? link.Label : string.Empty;
+            var label = expression.Schema == schema ? link.Label : string.Empty;
             var value = expression.Schema == expression.Target;
+            var info = metadata[schema];
 
-            <div class="link-control col" attr-class='(expression.Schema != type, "hide")' data-type="@type">
-                @if (type == DefaultLinkProvider.SchemaProduct)
+            <div class="link-control col" attr-class='(expression.Schema != schema, "hide")' data-type="@schema">
+                @if (info.Widget != null)
+                {
+                    await info.Widget.InvokeAsync(ViewContext);
+                }
+                else if (schema == DefaultLinkProvider.SchemaProduct)
                 {
                     <div class="input-group">
                         <input type="text" class="form-control resettable product-picker-input bg-white text-muted" value="@label" readonly />
@@ -69,28 +74,28 @@
                         </div>
                     </div>       
                 }
-                else if (type == DefaultLinkProvider.SchemaCategory)
+                else if (schema == DefaultLinkProvider.SchemaCategory)
                 {
                     <select class="form-control transferable resettable"
                             data-select-url="@Url.Action("AllCategories", "Category", new { area = "Admin" })"
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
                 }
-                else if (type == DefaultLinkProvider.SchemaManufacturer)
+                else if (schema == DefaultLinkProvider.SchemaManufacturer)
                 {
                     <select class="form-control transferable resettable"
                             data-select-url="@Url.Action("AllManufacturers", "Manufacturer", new { area = "Admin" })"
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
                 }
-                else if (type == DefaultLinkProvider.SchemaTopic)
+                else if (schema == DefaultLinkProvider.SchemaTopic)
                 {
                     <select class="form-control transferable resettable"
                             data-select-url="@Url.Action("AllTopics", "Topic", new { area = "Admin" })"
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
                 }
-                @*TODO: (mh) (core) Must be provided & injected by forum and news modules*@
+                @* TODO: (mh) (core) Must be provided & injected by forum and news modules (see widget above) *@
                 @*else if (type == LinkType.BlogPost)
                     {
                         <select class="form-control transferable resettable"
@@ -105,11 +110,11 @@
                                 data-select-selected-id="@value"
                                 data-select-init-text="@label"></select>
                     }*@
-                else if (type == DefaultLinkProvider.SchemaUrl)
+                else if (schema == DefaultLinkProvider.SchemaUrl)
                 {
                     <input type="text" class="form-control transferable resettable" value="@value" />
                 }
-                else if (type == DefaultLinkProvider.SchemaFile)
+                else if (schema == DefaultLinkProvider.SchemaFile)
                 {
                     <div class="input-group">
                         <input id="lb-file-url-@rnd" type="text" class="form-control transferable resettable bg-white text-muted" value="@label" readonly />

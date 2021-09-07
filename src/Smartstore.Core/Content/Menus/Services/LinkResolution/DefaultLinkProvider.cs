@@ -11,6 +11,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Widgets;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus
@@ -21,6 +22,7 @@ namespace Smartstore.Core.Content.Menus
         public string Schema { get; init; }
         public string Icon { get; init; }
         public string ResKey { get; init; }
+        public WidgetInvoker Widget { get; init; }
     }
 
     public partial interface ILinkProvider

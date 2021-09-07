@@ -16,7 +16,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus.Hooks
 {
-    internal partial class LinkResolverInvalidator : AsyncDbSaveHook<BaseEntity>
+    internal partial class DefaultLinkInvalidator : AsyncDbSaveHook<BaseEntity>
     {
         private readonly SmartDbContext _db;
         private readonly ICacheManager _cache;
@@ -40,7 +40,7 @@ namespace Smartstore.Core.Content.Menus.Hooks
             nameof(UrlRecord.Slug)
         };
 
-        public LinkResolverInvalidator(SmartDbContext db, ICacheManager cache)
+        public DefaultLinkInvalidator(SmartDbContext db, ICacheManager cache)
         {
             _db = db;
             _cache = cache;

@@ -1,432 +1,201 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
-using Smartstore.Core.Catalog.Brands;
-using Smartstore.Core.Catalog.Categories;
-using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Seo;
-using Smartstore.Core.Content.Topics;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
-using Smartstore.Net;
 
 namespace Smartstore.Core.Content.Menus
 {
-    //public partial class LinkResolver : ILinkResolver
-    //{
-    //    /// <remarks>
-    //    /// {0} : Expression w/o q
-    //    /// {1} : LanguageId
-    //    /// {2} : Store
-    //    /// {3} : RolesIdent
-    //    /// </remarks>
-    //    internal const string LINKRESOLVER_KEY = "linkresolver:{0}-{1}-{2}-{3}";
+    public partial class LinkResolver : ILinkResolver
+    {
+        /// <remarks>
+        /// {0} : Expression w/o q
+        /// {1} : LanguageId
+        /// {2} : Store
+        /// {3} : RolesIdent
+        /// </remarks>
+        public const string LinkCacheKey = "linkresolver:{0}-{1}-{2}-{3}";
 
-    //    // 0: Expression
-    //    internal const string LINKRESOLVER_PATTERN_KEY = "linkresolver:{0}-*";
+        // 0: Expression
+        public const string LinkCacheKeyPattern = "linkresolver:{0}-*";
 
-    //    protected readonly SmartDbContext _db;
-    //    protected readonly IWorkContext _workContext;
-    //    protected readonly IStoreContext _storeContext;
-    //    protected readonly ICacheManager _cache;
-    //    protected readonly ILocalizedEntityService _localizedEntityService;
-    //    protected readonly IAclService _aclService;
-    //    protected readonly IStoreMappingService _storeMappingService;
-    //    protected readonly IUrlHelper _urlHelper;
-    //    protected readonly IUrlService _urlService;
+        private readonly ILinkProvider[] _providers;
+        private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
+        private readonly ICacheFactory _cacheFactory;
+        private readonly IAclService _aclService;
+        private readonly IStoreMappingService _storeMappingService;
+        private readonly ILocalizedEntityService _localizedEntityService;
+        private readonly IUrlHelper _urlHelper;
+        private readonly IUrlService _urlService;
 
-    //    public LinkResolver(
-    //        SmartDbContext db,
-    //        IWorkContext workContext,
-    //        IStoreContext storeContext,
-    //        ICacheManager cache,
-    //        ILocalizedEntityService localizedEntityService,
-    //        IAclService aclService,
-    //        IStoreMappingService storeMappingService,
-    //        IUrlHelper urlHelper,
-    //        IUrlService urlService)
-    //    {
-    //        _db = db;
-    //        _workContext = workContext;
-    //        _storeContext = storeContext;
-    //        _cache = cache;
-    //        _localizedEntityService = localizedEntityService;
-    //        _aclService = aclService;
-    //        _storeMappingService = storeMappingService;
-    //        _urlHelper = urlHelper;
-    //        _urlService = urlService;
-    //    }
+        private static readonly object _lock = new(); 
+        private static LinkBuilderMetadata[] _metadata;
 
-    //    public virtual async Task<LinkResolverResult> ResolveAsync(string linkExpression, IEnumerable<CustomerRole> roles = null, int languageId = 0, int storeId = 0)
-    //    {
-    //        if (linkExpression.IsEmpty())
-    //        {
-    //            return new LinkResolverResult { Type = LinkType.Url, Status = LinkStatus.NotFound };
-    //        }
+        public LinkResolver(
+            IEnumerable<ILinkProvider> providers,
+            IWorkContext workContext,
+            IStoreContext storeContext,
+            ICacheFactory cacheFactory,
+            IAclService aclService,
+            IStoreMappingService storeMappingService,
+            ILocalizedEntityService localizedEntityService,
+            IUrlHelper urlHelper,
+            IUrlService urlService)
+        {
+            _providers = providers.OrderBy(x => x.Order).ToArray();
+            _workContext = workContext;
+            _storeContext = storeContext;
+            _cacheFactory = cacheFactory;
+            _aclService = aclService;
+            _storeMappingService = storeMappingService;
+            _localizedEntityService = localizedEntityService;
+            _urlHelper = urlHelper;
+            _urlService = urlService;
 
-    //        if (roles == null)
-    //        {
-    //            roles = _workContext.CurrentCustomer.CustomerRoleMappings.Select(x => x.CustomerRole);
-    //        }
+            InitializeMetadata(_providers);
+        }
 
-    //        if (languageId == 0)
-    //        {
-    //            languageId = _workContext.WorkingLanguage.Id;
-    //        }
+        private static void InitializeMetadata(ILinkProvider[] providers)
+        {
+            if (_metadata == null)
+            {
+                lock (_lock)
+                {
+                    if (_metadata == null)
+                    {
+                        _metadata = providers.SelectMany(x => x.GetBuilderMetadata()).OrderBy(x => x.Order).ToArray();
+                    }
+                }
+            }
+        }
 
-    //        if (storeId == 0)
-    //        {
-    //            storeId = _storeContext.CurrentStore.Id;
-    //        }
+        public virtual IEnumerable<LinkBuilderMetadata> GetBuilderMetadata()
+            => _metadata;
 
-    //        var d = Parse(linkExpression);
-    //        var queryString = d.QueryString;
+        public virtual async Task<LinkResolutionResult> ResolveAsync(LinkExpression expression, IEnumerable<CustomerRole> roles = null, int languageId = 0, int storeId = 0)
+        {
+            Guard.NotNull(expression, nameof(expression));
 
-    //        if (d.Type == LinkType.Url)
-    //        {
-    //            var url = d.Value.ToString();
-    //            if (url.EmptyNull().StartsWith("~"))
-    //            {
-    //                url = _urlHelper.Content(url);
-    //            }
-    //            d.Link = d.Label = url;
-    //        }
-    //        else if (d.Type == LinkType.File)
-    //        {
-    //            d.Link = d.Label = d.Value.ToString();
-    //        }
-    //        else
-    //        {
-    //            var cacheKey = LINKRESOLVER_KEY.FormatInvariant(
-    //                d.Expression.EmptyNull().ToLower(),
-    //                languageId,
-    //                storeId,
-    //                string.Join(",", roles.Where(x => x.Active).Select(x => x.Id)));
+            if (expression.Target.IsEmpty())
+            {
+                return new LinkResolutionResult(expression, LinkStatus.NotFound);
+            }
 
-    //            d = await _cache.GetAsync(cacheKey, async () =>
-    //            {
-    //                var d2 = d.Clone();
+            if (roles == null)
+            {
+                roles = _workContext.CurrentCustomer.CustomerRoleMappings.Select(x => x.CustomerRole);
+            }
 
-    //                switch (d2.Type)
-    //                {
-    //                    case LinkType.Product:
-    //                        await GetEntityDataAsync<Product>(d2, storeId, languageId, x => new ResolverEntitySummary
-    //                        {
-    //                            Name = x.Name,
-    //                            Published = x.Published,
-    //                            Deleted = x.Deleted,
-    //                            SubjectToAcl = x.SubjectToAcl,
-    //                            LimitedToStores = x.LimitedToStores,
-    //                            PictureId = x.MainPictureId
-    //                        });
-    //                        break;
-    //                    case LinkType.Category:
-    //                        await GetEntityDataAsync<Category>(d2, storeId, languageId, x => new ResolverEntitySummary
-    //                        {
-    //                            Name = x.Name,
-    //                            Published = x.Published,
-    //                            Deleted = x.Deleted,
-    //                            SubjectToAcl = x.SubjectToAcl,
-    //                            LimitedToStores = x.LimitedToStores,
-    //                            PictureId = x.MediaFileId
-    //                        });
-    //                        break;
-    //                    case LinkType.Manufacturer:
-    //                        await GetEntityDataAsync<Manufacturer>(d2, storeId, languageId, x => new ResolverEntitySummary
-    //                        {
-    //                            Name = x.Name,
-    //                            Published = x.Published,
-    //                            Deleted = x.Deleted,
-    //                            LimitedToStores = x.LimitedToStores,
-    //                            PictureId = x.MediaFileId
-    //                        });
-    //                        break;
-    //                    case LinkType.Topic:
-    //                        await GetEntityDataAsync<Topic>(d2, storeId, languageId, x => null);
-    //                        break;
+            if (languageId == 0)
+            {
+                languageId = _workContext.WorkingLanguage.Id;
+            }
 
-    //                    // TODO: (mh) (core) Develop LinkExpressionProvider so modules can hook into this.
+            if (storeId == 0)
+            {
+                storeId = _storeContext.CurrentStore.Id;
+            }
 
-    //                    //case LinkType.BlogPost:
-    //                    //    await GetEntityDataAsync<BlogPost>(d2, storeId, languageId, x => new ResolverEntitySummary
-    //                    //    {
-    //                    //        Name = x.Title,
-    //                    //        Published = x.IsPublished,
-    //                    //        LimitedToStores = x.LimitedToStores,
-    //                    //        PictureId = x.MediaFileId
-    //                    //    });
-    //                    //    break;
-    //                    //case LinkType.NewsItem:
-    //                    //    await GetEntityDataAsync<NewsItem>(d2, storeId, languageId, x => new ResolverEntitySummary
-    //                    //    {
-    //                    //        Name = x.Title,
-    //                    //        Published = x.Published,
-    //                    //        LimitedToStores = x.LimitedToStores,
-    //                    //        PictureId = x.MediaFileId
-    //                    //    });
-    //                    //    break;
-    //                    default:
-    //                        throw new SmartException("Unknown link builder type.");
-    //                }
+            var cacheKey = LinkCacheKey.FormatInvariant(
+                expression.SchemaAndTarget.ToLower(),
+                languageId,
+                storeId,
+                string.Join(",", roles.Where(x => x.Active).Select(x => x.Id)));
 
-    //                return d2;
-    //            });
-    //        }
+            var cachedResult = await _cacheFactory.GetMemoryCache().GetAsync(cacheKey, async () => 
+            {
+                LinkTranslationResult result = null;
 
-    //        var result = new LinkResolverResult
-    //        {
-    //            Type = d.Type,
-    //            Status = d.Status,
-    //            Value = d.Value,
-    //            Link = d.Link,
-    //            QueryString = queryString,
-    //            Label = d.Label,
-    //            Id = d.Id,
-    //            PictureId = d.PictureId
-    //        };
-            
-    //        // Check ACL and limited to stores.
-    //        switch (d.Type)
-    //        {
-    //            case LinkType.Product:
-    //            case LinkType.Category:
-    //            case LinkType.Manufacturer:
-    //            case LinkType.Topic:
-    //            case LinkType.BlogPost:
-    //            case LinkType.NewsItem:
-    //                var entityName = d.Type.ToString();
+                foreach (var translator in _providers)
+                {
+                    result = await translator.TranslateAsync(expression, storeId, languageId);
+                    if (result != null)
+                        break;
+                }
 
-    //                if (d.CheckLimitedToStores &&
-    //                    d.LimitedToStores &&
-    //                    d.Status == LinkStatus.Ok &&
-    //                    !await _storeMappingService.AuthorizeAsync(entityName, d.Id, storeId))
-    //                {
-    //                    result.Status = LinkStatus.NotFound;
-    //                }
-    //                else if (d.SubjectToAcl &&
-    //                    d.Status == LinkStatus.Ok &&
-    //                    !_db.QuerySettings.IgnoreAcl &&
-    //                    !await _aclService.AuthorizeAsync(entityName, d.Id, roles))
-    //                {
-    //                    result.Status = LinkStatus.Forbidden;
-    //                }
-    //                break;
-    //        }
+                if (result == null)
+                {
+                    throw new SmartException($"Unknown schema or invalid link expression '{expression.RawExpression}'.");
+                }
 
-    //        return result;
-    //    }
+                if (result.Link == null && result.EntitySummary != null)
+                {
+                    var summary = result.EntitySummary;
+                    var slug = 
+                        (await _urlService.GetActiveSlugAsync(summary.Id, result.EntityName, languageId)).NullEmpty() ??
+                        await _urlService.GetActiveSlugAsync(summary.Id, result.EntityName, 0);
 
-    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //    private static bool TokenizeExpression(string expression, out string type, out string path, out string query)
-    //    {
-    //        type = null;
-    //        path = null;
-    //        query = null;
+                    if (!string.IsNullOrEmpty(slug))
+                    {
+                        result.Link = _urlHelper.RouteUrl(result.EntityName, new { SeName = slug });
+                    }
+                }
 
-    //        if (string.IsNullOrWhiteSpace(expression))
-    //        {
-    //            return false;
-    //        }
+                EnsureLocalizedLabel(result, languageId);
 
-    //        var colonIndex = expression.IndexOf(':');
-    //        if (colonIndex > -1)
-    //        {
-    //            type = expression.Substring(0, colonIndex);
-    //            if (type.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-    //            {
-    //                type = null;
-    //                colonIndex = -1;
-    //            }
-    //        }
+                return result;
+            });
 
-    //        path = expression[(colonIndex + 1)..];
+            var entitySummary = cachedResult.EntitySummary;
+            var status = cachedResult.Status;
 
-    //        var qmIndex = path.IndexOf('?');
-    //        if (qmIndex > -1)
-    //        {
-    //            query = path[(qmIndex + 1)..];
-    //            path = path.Substring(0, qmIndex);
-    //        }
+            // Check final status by authorizing store & ACL
+            if (entitySummary != null && status == LinkStatus.Ok)
+            {
+                if (entitySummary.LimitedToStores && 
+                    !await _storeMappingService.AuthorizeAsync(cachedResult.EntityName, entitySummary.Id, storeId))
+                {
+                    status = LinkStatus.NotFound;
+                }
 
-    //        return true;
-    //    }
+                if (status == LinkStatus.Ok && entitySummary.SubjectToAcl && 
+                    !await _aclService.AuthorizeAsync(cachedResult.EntityName, entitySummary.Id, roles))
+                {
+                    status = LinkStatus.Forbidden;
+                }
+            }
 
-    //    protected virtual string GetLocalized(int entityId, string localeKeyGroup, string localeKey, int languageId, string defaultValue)
-    //    {
-    //        return _localizedEntityService.GetLocalizedValue(languageId, entityId, localeKeyGroup, localeKey).NullEmpty() ?? defaultValue.NullEmpty();
-    //    }
+            return new LinkResolutionResult(expression, cachedResult, status);
+        }
 
-    //    protected virtual LinkResolverData Parse(string linkExpression)
-    //    {
-    //        if (TokenizeExpression(linkExpression, out var type, out var path, out var query))
-    //        {
-    //            if (!string.IsNullOrWhiteSpace(type) && Enum.TryParse(type, true, out LinkType linkType))
-    //            {
-    //                var result = new LinkResolverData { Type = linkType, Expression = string.Concat(type, ":", path) };
+        private void EnsureLocalizedLabel(LinkTranslationResult result, int languageId)
+        {
+            if (result.Label.HasValue())
+            {
+                return;
+            }
 
-    //                switch (linkType)
-    //                {
-    //                    case LinkType.Product:
-    //                    case LinkType.Category:
-    //                    case LinkType.Manufacturer:
-    //                    case LinkType.Topic:
-    //                    case LinkType.BlogPost:
-    //                    case LinkType.NewsItem:
-    //                        if (int.TryParse(path, out var id))
-    //                        {
-    //                            // Reduce thrown exceptions in console
-    //                            result.Value = id;
-    //                        }
-    //                        else
-    //                        {
-    //                            result.Value = path;
-    //                        }
+            var summary = result.EntitySummary;
+            if (summary == null)
+            {
+                result.Label = result.Link;
+                return;
+            }
 
-    //                        result.QueryString = query;
-    //                        break;
-    //                    case LinkType.Url:
-    //                        result.Value = path + (query.HasValue() ? "?" + query : "");
-    //                        break;
-    //                    case LinkType.File:
-    //                        result.Value = path;
-    //                        result.QueryString = query;
-    //                        break;
-    //                    default:
-    //                        throw new SmartException("Unknown link builder type.");
-    //                }
+            if (summary.LocalizedPropertyNames != null)
+            {
+                foreach (var propName in summary.LocalizedPropertyNames)
+                {
+                    result.Label = _localizedEntityService.GetLocalizedValue(languageId, summary.Id, result.EntityName, propName);
+                    if (result.Label.HasValue())
+                    {
+                        break;
+                    }
+                }
+            }
 
-    //                return result;
-    //            }
-    //        }
-
-    //        return new LinkResolverData { Type = LinkType.Url, Value = linkExpression.EmptyNull() };
-    //    }
-
-    //    internal async Task GetEntityDataAsync<T>(
-    //        LinkResolverData data,
-    //        int storeId,
-    //        int languageId,
-    //        Expression<Func<T, ResolverEntitySummary>> selector) where T : BaseEntity
-    //    {
-    //        ResolverEntitySummary summary = null;
-    //        string systemName = null;
-
-    //        if (data.Value is string str)
-    //        {
-    //            data.Id = 0;
-    //            systemName = str;
-    //        }
-    //        else
-    //        {
-    //            data.Id = (int)data.Value;
-    //        }
-
-    //        if (data.Type == LinkType.Topic)
-    //        {
-    //            Topic topic = null;
-
-    //            if (string.IsNullOrEmpty(systemName))
-    //            {
-    //                topic = await _db.Topics.FindByIdAsync(data.Id, false);
-    //            }
-    //            else
-    //            {
-    //                topic = await _db.Topics
-    //                    .AsNoTracking()
-    //                    .ApplyStandardFilter(true, null, storeId)
-    //                    .FirstOrDefaultAsync(x => x.SystemName == systemName);
-
-    //                data.CheckLimitedToStores = false;
-    //            }
-
-    //            if (topic != null)
-    //            {
-    //                summary = new ResolverEntitySummary
-    //                {
-    //                    Id = topic.Id,
-    //                    Name = topic.SystemName,
-    //                    Title = topic.Title,
-    //                    ShortTitle = topic.ShortTitle,
-    //                    Published = topic.IsPublished,
-    //                    SubjectToAcl = topic.SubjectToAcl,
-    //                    LimitedToStores = topic.LimitedToStores
-    //                };
-    //            }
-    //        }
-    //        else
-    //        {
-    //            summary = await _db.Set<T>()
-    //                .AsNoTracking()
-    //                .Where(x => x.Id == data.Id)
-    //                .Select(selector)
-    //                .SingleOrDefaultAsync();
-    //        }
-
-    //        if (summary != null)
-    //        {
-    //            var entityName = data.Type.ToString();
-
-    //            data.Id = summary.Id != 0 ? summary.Id : data.Id;
-    //            data.SubjectToAcl = summary.SubjectToAcl;
-    //            data.LimitedToStores = summary.LimitedToStores;
-    //            data.PictureId = summary.PictureId;
-    //            data.Status = summary.Deleted
-    //                ? LinkStatus.NotFound
-    //                : summary.Published ? LinkStatus.Ok : LinkStatus.Hidden;
-
-    //            switch (data.Type)
-    //            {
-    //                case LinkType.Topic:
-    //                    data.Label = GetLocalized(data.Id, entityName, nameof(Topic.ShortTitle), languageId, null)
-    //                        ?? GetLocalized(data.Id, entityName, "Title", languageId, null)
-    //                        ?? summary.ShortTitle.NullEmpty()
-    //                        ?? summary.Title.NullEmpty()
-    //                        ?? summary.Name;
-    //                    break;
-    //                case LinkType.BlogPost:
-    //                case LinkType.NewsItem:
-    //                    data.Label = GetLocalized(data.Id, entityName, "Title", languageId, summary.Name);
-    //                    break;
-    //                default:
-    //                    data.Label = GetLocalized(data.Id, entityName, "Name", languageId, summary.Name);
-    //                    break;
-    //            }
-
-    //            var slug = await _urlService.GetActiveSlugAsync(data.Id, entityName, languageId);
-    //            data.Slug = slug.NullEmpty() ?? await _urlService.GetActiveSlugAsync(data.Id, entityName, 0);
-    //            if (!string.IsNullOrEmpty(data.Slug))
-    //            {
-    //                data.Link = _urlHelper.RouteUrl(entityName, new { SeName = data.Slug });
-    //            }
-    //        }
-    //        else
-    //        {
-    //            data.Label = systemName;
-    //            data.Status = LinkStatus.NotFound;
-    //        }
-    //    }
-    //}
-
-    //internal class ResolverEntitySummary
-    //{
-    //    public int Id { get; set; }
-    //    public string Name { get; set; }
-    //    public string Title { get; set; }
-    //    public string ShortTitle { get; set; }
-    //    public bool Deleted { get; set; }
-    //    public bool Published { get; set; }
-    //    public bool SubjectToAcl { get; set; }
-    //    public bool LimitedToStores { get; set; }
-    //    public int? PictureId { get; set; }
-    //}
+            if (result.Label.IsEmpty())
+            {
+                result.Label = summary.ShortTitle.NullEmpty() ?? summary.Title.NullEmpty() ?? summary.Name;
+            }
+        }
+    }
 }

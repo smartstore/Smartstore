@@ -38,7 +38,11 @@ namespace Smartstore.Web.Razor
 
         public void PopulateValues(ViewLocationExpanderContext context)
         {
-            if (context.ActionContext.ActionDescriptor is ControllerActionDescriptor actionDescriptor)
+            if (context.ActionContext.RouteData.DataTokens.TryGetValue("module", out var value) && value is string str)
+            {
+                context.Values[ParamKey] = str;
+            }
+            else if (context.ActionContext.ActionDescriptor is ControllerActionDescriptor actionDescriptor)
             {
                 var moduleCatalog = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IModuleCatalog>();
                 var module = moduleCatalog.GetModuleByAssembly(actionDescriptor.ControllerTypeInfo.Assembly);
