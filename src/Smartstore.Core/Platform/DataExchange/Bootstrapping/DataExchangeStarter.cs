@@ -10,7 +10,7 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal class DataExchangeStarter : StarterBase
     {
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<ExportProfileService>().As<IExportProfileService>().InstancePerLifetimeScope();
             builder.RegisterType<ImportProfileService>().As<IImportProfileService>().InstancePerLifetimeScope();

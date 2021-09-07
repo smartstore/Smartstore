@@ -9,7 +9,7 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal class RuleStarter : StarterBase
     {
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<RuleService>().As<IRuleService>().InstancePerLifetimeScope();
 

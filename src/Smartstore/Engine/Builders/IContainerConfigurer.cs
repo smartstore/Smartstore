@@ -9,10 +9,6 @@ namespace Smartstore.Engine.Builders
         /// </summary>
         /// <param name="builder">The container builder instance.</param>
         /// <param name="appContext">The application context instance.</param>
-        /// <param name="isActiveModule">
-        /// Indicates whether the assembly containing this configurer instance is an active (installed) plugin assembly.
-        /// The value is always <c>true</c> if the containing assembly is not a plugin type.
-        /// </param>
-        void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule);
+        void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext);
     }
 }

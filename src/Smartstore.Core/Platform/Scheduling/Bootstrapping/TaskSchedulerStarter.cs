@@ -21,7 +21,7 @@ namespace Smartstore.Core.Bootstrapping
             });
         }
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.AddTaskScheduler<DbTaskStore>(appContext);
             builder.RegisterType<TaskContextVirtualizer>().As<ITaskContextVirtualizer>().InstancePerLifetimeScope();

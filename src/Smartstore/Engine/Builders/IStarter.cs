@@ -30,11 +30,7 @@ namespace Smartstore.Engine.Builders
         /// </summary>
         /// <param name="services">The collection of service descriptors.</param>
         /// <param name="appContext">The application context instance.</param>
-        /// <param name="isActiveModule">
-        /// Indicates whether the assembly containing this starter instance is an active (installed) module assembly.
-        /// The value is always <c>true</c> if the containing assembly is not a module type.
-        /// </param>
-        void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule);
+        void ConfigureServices(IServiceCollection services, IApplicationContext appContext);
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure MVC services.
@@ -42,11 +38,7 @@ namespace Smartstore.Engine.Builders
         /// <param name="mvcBuilder">MVC builder.</param>
         /// <param name="services">The collection of service descriptors.</param>
         /// <param name="appContext">The application context instance.</param>
-        /// <param name="isActiveModule">
-        /// Indicates whether the assembly containing this starter instance is an active (installed) module assembly.
-        /// The value is always <c>true</c> if the containing assembly is not a module type.
-        /// </param>
-        void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext, bool isActiveModule);
+        void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext);
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the application's request pipeline.

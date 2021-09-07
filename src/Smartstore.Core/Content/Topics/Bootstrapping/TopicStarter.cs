@@ -12,7 +12,7 @@ namespace Smartstore.Core.Bootstrapping
         public override bool Matches(IApplicationContext appContext)
             => appContext.IsInstalled;
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<TopicXmlSitemapPublisher>().As<IXmlSitemapPublisher>().InstancePerLifetimeScope();
         }

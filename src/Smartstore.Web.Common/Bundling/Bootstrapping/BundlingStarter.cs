@@ -32,7 +32,7 @@ namespace Smartstore.Web.Bootstrapping
             return appContext.ModuleCatalog.GetModuleByName(moduleName, true)?.WebRoot;
         }
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             // Configure & register asset file provider
             var assetFileProvider = new AssetFileProvider(appContext.WebRoot);

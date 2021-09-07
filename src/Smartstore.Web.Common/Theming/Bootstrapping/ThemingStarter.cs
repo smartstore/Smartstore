@@ -10,7 +10,7 @@ namespace Smartstore.Web.Bootstrapping
 {
     internal sealed class ThemingStarter : StarterBase
     {
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterModule(new ThemesModule());
             builder.RegisterType<ThemeVariableRepository>().AsSelf().InstancePerLifetimeScope();

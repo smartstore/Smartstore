@@ -34,7 +34,7 @@ namespace Smartstore.Core.Bootstrapping
             }
         }
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             //// Utils
             builder.RegisterType<MediaHelper>().InstancePerLifetimeScope();

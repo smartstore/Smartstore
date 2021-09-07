@@ -18,7 +18,7 @@ namespace Smartstore.Redis
         public override bool Matches(IApplicationContext appContext)
             => appContext.IsInstalled;
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             // Create and register configuration
             var config = appContext.Configuration;
@@ -34,7 +34,7 @@ namespace Smartstore.Redis
                 .As<IRedisConnectionFactory>()
                 .SingleInstance();
 
-            if (isActiveModule && hasMessageBusConString)
+            if (hasMessageBusConString)
             {
                 builder.Register<RedisMessageBus>(ResolveDefaultMessageBus)
                     .As<IMessageBus>()
@@ -42,7 +42,7 @@ namespace Smartstore.Redis
                     .SingleInstance();
             }
 
-            if (isActiveModule && hasCacheConString)
+            if (hasCacheConString)
             {
                 builder.RegisterType<RedisAsyncState>()
                     .As<IAsyncState>()
@@ -50,7 +50,7 @@ namespace Smartstore.Redis
                     .SingleInstance();
             }
 
-            if (isActiveModule && hasCacheConString)
+            if (hasCacheConString)
             {
                 builder.RegisterType<RedisCacheStore>()
                     .As<ICacheStore>()

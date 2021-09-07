@@ -10,7 +10,7 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal sealed class CommonStarter : StarterBase
     {
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<GeoCountryLookup>().As<IGeoCountryLookup>().SingleInstance();
             builder.RegisterType<CurrencyService>().As<ICurrencyService>().InstancePerLifetimeScope();

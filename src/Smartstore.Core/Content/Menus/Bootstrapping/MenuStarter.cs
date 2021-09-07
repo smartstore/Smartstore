@@ -8,7 +8,7 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal class MenuStarter : StarterBase
     {
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<MenuStorage>().As<IMenuStorage>().InstancePerLifetimeScope();
             builder.RegisterType<LinkResolver>().As<ILinkResolver>().InstancePerLifetimeScope();

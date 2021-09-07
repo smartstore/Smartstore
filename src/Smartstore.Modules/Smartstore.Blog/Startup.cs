@@ -18,7 +18,7 @@ namespace Smartstore.Blog
         public override bool Matches(IApplicationContext appContext)
             => appContext.IsInstalled;
 
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
             //services.AddScoped<IBlogService, BlogService>();
 

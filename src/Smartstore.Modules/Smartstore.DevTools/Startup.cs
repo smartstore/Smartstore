@@ -21,11 +21,8 @@ namespace Smartstore.DevTools
         public override bool Matches(IApplicationContext appContext) 
             => appContext.IsInstalled;
 
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
-            if (!isActiveModule)
-                return;
-
             services.AddScoped<IChronometer, MiniProfilerChronometer>();
 
             services.AddMiniProfiler(o =>

@@ -7,7 +7,7 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal sealed class WidgetStarter : StarterBase
     {
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
             services.AddScoped<IWidgetProvider, DefaultWidgetProvider>();
             services.AddScoped<IWidgetSelector, DefaultWidgetSelector>();

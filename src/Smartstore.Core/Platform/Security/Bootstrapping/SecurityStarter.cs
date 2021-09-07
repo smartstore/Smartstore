@@ -9,7 +9,7 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal class SecurityStarter : StarterBase
     {
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<HttpsUrlFilter>().As<IUrlFilter>().SingleInstance();
             builder.RegisterType<Encryptor>().As<IEncryptor>().InstancePerLifetimeScope();

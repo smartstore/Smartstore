@@ -43,7 +43,7 @@ namespace Smartstore.Web
             RunAfter<WebStarter>();
         }
 
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
             // Add action context accessor
             services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
@@ -60,7 +60,7 @@ namespace Smartstore.Web
             services.AddSingleton<TempDataSerializer, SmartTempDataSerializer>();
         }
 
-        public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
         {
             // Populate application parts with modules
             mvcBuilder.PartManager.PopulateModules(appContext);
@@ -190,7 +190,7 @@ namespace Smartstore.Web
             }
         }
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             // Register all module entry types in service container
             builder.RegisterModule(new ModularityModule(appContext));

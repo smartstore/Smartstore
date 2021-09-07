@@ -18,7 +18,7 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal sealed class IdentityStarter : StarterBase
     {
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
             services.AddIdentity<Customer, CustomerRole>()
                 .AddDefaultTokenProviders()
@@ -67,7 +67,7 @@ namespace Smartstore.Core.Bootstrapping
             // RE: This won't be needed right now. Will be implemented when we offer real 2FA.
         }
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<UserStore>().As<IUserStore>().As<IUserStore<Customer>>().InstancePerLifetimeScope();
             builder.RegisterType<RoleStore>().As<IRoleStore>().As<IRoleStore<CustomerRole>>().InstancePerLifetimeScope();

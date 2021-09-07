@@ -22,7 +22,7 @@ namespace Smartstore.Core.Bootstrapping
     {
         public override int Order => (int)StarterOrdering.Early;
 
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
             RegisterTypeConverters();
 
@@ -67,7 +67,7 @@ namespace Smartstore.Core.Bootstrapping
             TypeConverterFactory.RegisterListConverter<GiftCardCouponCode>(new GiftCardCouponCodeConverter());
         }
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<LiquidTemplateEngine>().As<ITemplateEngine>().SingleInstance();
             

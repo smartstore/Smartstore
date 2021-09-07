@@ -18,16 +18,16 @@ namespace Smartstore.Engine.Builders
         public virtual bool Matches(IApplicationContext appContext) => true;
 
         /// <inheritdoc />
-        public virtual void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        public virtual void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
         }
 
         /// <inheritdoc />
-        public virtual void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        public virtual void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
         }
 
-        public virtual void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        public virtual void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
         {
         }
 

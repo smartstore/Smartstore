@@ -211,13 +211,14 @@ namespace Smartstore.Engine
                 // Configure all modular services
                 foreach (var starter in _starters)
                 {
-                    var isActiveModule = IsActiveModule(starter);
+                    if (IsActiveModule(starter))
+                    {
+                        // Call modular service configurers
+                        starter.ConfigureServices(services, _appContext);
 
-                    // Call modular service configurers
-                    starter.ConfigureServices(services, _appContext, isActiveModule);
-
-                    // Call modular MVC configurers
-                    starter.ConfigureMvc(mvcBuilder, services, _appContext, isActiveModule);
+                        // Call modular MVC configurers
+                        starter.ConfigureMvc(mvcBuilder, services, _appContext);
+                    }
                 }
             }
 
@@ -230,7 +231,10 @@ namespace Smartstore.Engine
                 // Configure all modular services by Autofac
                 foreach (var starter in _starters.OfType<IContainerConfigurer>())
                 {
-                    starter.ConfigureContainer(builder, _appContext, IsActiveModule(starter));
+                    if (IsActiveModule(starter))
+                    {
+                        starter.ConfigureContainer(builder, _appContext);
+                    }
                 }
             }
 
