@@ -1,0 +1,262 @@
+﻿@model ConfigurationModel
+
+@{
+    Layout = "_ConfigureModule";
+}
+
+@await Component.InvokeAsync("StoreScope")
+
+<form asp-action="Configure">
+    <widget target-zone="admin_button_toolbar_before">
+        <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+            <i class="fa fa-check"></i>
+            <span>@T("Admin.Common.Save")</span> 
+        </button>
+    </widget>
+
+    <div asp-validation-summary="All"></div>
+
+    <tabstrip id="forumsettings-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ForumsEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ForumsEnabled" data-toggler-for="#pnlForumsEnabled"></setting-editor>
+                        <span asp-validation-for="ForumsEnabled"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="adminContent" id="pnlForumsEnabled">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SignaturesEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SignaturesEnabled"></setting-editor>
+                        <span asp-validation-for="SignaturesEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="RelativeDateTimeFormattingEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="RelativeDateTimeFormattingEnabled"></setting-editor>
+                        <span asp-validation-for="RelativeDateTimeFormattingEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowCustomersPostCount" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowCustomersPostCount"></setting-editor>
+                        <span asp-validation-for="ShowCustomersPostCount"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowGuestsToCreatePosts" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowGuestsToCreatePosts"></setting-editor>
+                        <span asp-validation-for="AllowGuestsToCreatePosts"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowGuestsToCreateTopics" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowGuestsToCreateTopics"></setting-editor>
+                        <span asp-validation-for="AllowGuestsToCreateTopics"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowCustomersToEditPosts" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowCustomersToEditPosts"></setting-editor>
+                        <span asp-validation-for="AllowCustomersToEditPosts"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowCustomersToDeletePosts" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowCustomersToDeletePosts"></setting-editor>
+                        <span asp-validation-for="AllowCustomersToDeletePosts"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowCustomersToManageSubscriptions" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowCustomersToManageSubscriptions"></setting-editor>
+                        <span asp-validation-for="AllowCustomersToManageSubscriptions"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowCustomersToVoteOnPosts" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowCustomersToVoteOnPosts" data-toggler-for="#pnlAllowVoting"></setting-editor>
+                        <span asp-validation-for="AllowCustomersToVoteOnPosts"></span>
+                    </div>
+                </div>
+                <div class="adminRow" id="pnlAllowVoting">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowGuestsToVoteOnPosts" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowGuestsToVoteOnPosts"></setting-editor>
+                        <span asp-validation-for="AllowGuestsToVoteOnPosts"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ForumEditor" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ForumEditor"></setting-editor>
+                        <span asp-validation-for="ForumEditor"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminSeparator">
+                        <hr />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowSorting" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowSorting"></setting-editor>
+                        <span asp-validation-for="AllowSorting"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TopicsPageSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TopicsPageSize"></setting-editor>
+                        <span asp-validation-for="TopicsPageSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PostsPageSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PostsPageSize"></setting-editor>
+                        <span asp-validation-for="PostsPageSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SearchResultsPageSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="SearchResultsPageSize"></setting-editor>
+                        <span asp-validation-for="SearchResultsPageSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminSeparator">
+                        <hr />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowPrivateMessages" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowPrivateMessages" data-toggler-for="#pnlPrivateMessages"></setting-editor>
+                        <span asp-validation-for="AllowPrivateMessages"></span>
+                    </div>
+                </div>
+                <div id="pnlPrivateMessages">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ShowAlertForPM" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="ShowAlertForPM"></setting-editor>
+                            <span asp-validation-for="ShowAlertForPM"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="NotifyAboutPrivateMessages" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="NotifyAboutPrivateMessages"></setting-editor>
+                            <span asp-validation-for="NotifyAboutPrivateMessages"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminSeparator">
+                        <hr />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ForumFeedsEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ForumFeedsEnabled" data-toggler-for="#pnlForumFeeds"></setting-editor>
+                        <span asp-validation-for="ForumFeedsEnabled"></span>
+                    </div>
+                </div>
+                <div id="pnlForumFeeds">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ForumFeedCount" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="ForumFeedCount"></setting-editor>
+                            <span asp-validation-for="ForumFeedCount"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ActiveDiscussionsFeedEnabled" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="ActiveDiscussionsFeedEnabled"></setting-editor>
+                            <span asp-validation-for="ActiveDiscussionsFeedEnabled"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ActiveDiscussionsFeedCount" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="ActiveDiscussionsFeedCount"></setting-editor>
+                            <span asp-validation-for="ActiveDiscussionsFeedCount"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.SeoTab.Title")">
+            <div class="adminContent">
+                <div>
+                    @*// TODO: (mg) (core) ISeoModel usage in forum.*@
+                    @*<editor asp-for="this" asp-template="SeoModel"></editor>*@
+                </div>
+            </div>
+        </tab>
+    </tabstrip>
+</form>

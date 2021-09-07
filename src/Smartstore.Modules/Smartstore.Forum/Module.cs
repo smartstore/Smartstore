@@ -8,9 +8,10 @@ namespace Smartstore.Forum
 {
     internal class Module : ModuleBase, IConfigurable
     {
+        public static string SystemName => "Smartstore.Forum";
+
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        // TODO: (mg) (core) forum configuration route.
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "Forum", new { area = "Admin" });
 

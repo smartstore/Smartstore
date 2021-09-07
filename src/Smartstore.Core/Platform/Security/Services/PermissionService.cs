@@ -687,7 +687,10 @@ namespace Smartstore.Core.Security
                 var resources = await _db.LocaleStringResources
                     .AsNoTracking()
                     .Where(x => x.LanguageId == languageId && 
-                        (x.ResourceName.StartsWith("Permissions.DisplayName.") || x.ResourceName.StartsWith("Plugins.Permissions.DisplayName.") || allKeys.Contains(x.ResourceName)) &&
+                        (x.ResourceName.StartsWith("Permissions.DisplayName.") 
+                        || x.ResourceName.StartsWith("Plugins.Permissions.DisplayName.")
+                        || x.ResourceName.StartsWith("Modules.Permissions.DisplayName.")
+                        || allKeys.Contains(x.ResourceName)) &&
                         !string.IsNullOrEmpty(x.ResourceValue))
                     .ToListAsync();
 
