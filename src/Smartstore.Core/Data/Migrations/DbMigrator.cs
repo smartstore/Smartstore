@@ -138,7 +138,7 @@ namespace Smartstore.Core.Data.Migrations
         /// <returns>The number of seeded migrations.</returns>
         public async Task<int> SeedPendingLocaleResourcesAsync(long fromVersion, CancellationToken cancelToken = default)
         {
-            Guard.IsPositive(fromVersion, nameof(fromVersion));
+            Guard.NotNegative(fromVersion, nameof(fromVersion));
 
             if (Context is not SmartDbContext db)
             {
