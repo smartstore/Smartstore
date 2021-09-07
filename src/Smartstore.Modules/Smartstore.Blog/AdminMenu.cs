@@ -23,19 +23,17 @@ namespace Smartstore.Blog
             var blogMenuItem = new MenuItem().ToBuilder()
                 .ResKey("Admin.ContentManagement.Blog")
                 .Icon("fa fa-blog")
-                .PermissionNames(BlogPermissions.Read)
+                .PermissionNames(BlogPermissions.Self)
                 .AsItem();
 
             var blogPostsMenuItem = new MenuItem().ToBuilder()
                 .ResKey("Admin.ContentManagement.Blog.BlogPosts")
                 .Action("Posts", "Blog", new { area = "Admin" })
-                .PermissionNames(BlogPermissions.Read)
                 .AsItem();
 
             var blogCommentsMenuItem = new MenuItem().ToBuilder()
                 .ResKey("Admin.ContentManagement.Blog.Comments")
                 .Action("Comments", "Blog", new { area = "Admin" })
-                .PermissionNames(BlogPermissions.Read)
                 .AsItem();
 
             var blogNode = new TreeNode<MenuItem>(blogMenuItem);
