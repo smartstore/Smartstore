@@ -7,22 +7,17 @@ using Smartstore.Web.Rendering.Events;
 
 namespace Smartstore.Forum.Events
 {
+    // TODO: (mg) (core) New convention in modules: declare event consumers
+    // in "Events.cs" in module root. Split only if file gets too large.
     public class SettingsTabEventConsumer : IConsumer
     {
-        private readonly IPermissionService _permissions;
-
-        public SettingsTabEventConsumer(IPermissionService permissions)
-        {
-            _permissions = permissions;
-        }
-
         public Localizer T { get; set; }
 
-        public async Task HandleEventAsync(TabStripCreated message)
+        public async Task HandleEventAsync(TabStripCreated message, IPermissionService permissions)
         {
             if (message.TabStripName.EqualsNoCase("searchsettings-edit"))
             {
-                if (await _permissions.AuthorizeAsync(ForumPermissions.Cms.Forum.Read))
+                if (await permissions.AuthorizeAsync(ForumPermissions.Cms.Forum.Read))
                 {
                     await message.TabFactory.AddAsync(builder => builder
                         .Text(T("Admin.Configuration.Settings.Forums"))

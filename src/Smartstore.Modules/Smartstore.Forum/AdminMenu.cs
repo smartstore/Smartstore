@@ -8,6 +8,9 @@ namespace Smartstore.Forum
     {
         protected override void BuildMenuCore(TreeNode<MenuItem> modulesNode)
         {
+            // TODO: (mg) (core) Restore menu structure exactly as it was before (CMS --> Topics | [News] | [Blogs] | FORUM).
+            // Means: After Blogs or News or Topics. Module Order is important here.
+            // INFO: (mg) (core) Generally speaking: dont't do extra plugin-centric stuff here. Just restore things as they were before.
             var menuItem = new MenuItem().ToBuilder()
                 .Text("Manage forums")
                 .ResKey("Admin.ContentManagement.Forums")

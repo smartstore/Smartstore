@@ -9,6 +9,10 @@ using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.Forum.Controllers
 {
+    // TODO: (mg) (core) We need 2 controllers: ForumAdminController & ForumController. This one is actually
+    // "ForumAdminController". It needs [Route] attribute on controller level to specify the path prefix, which
+    // should be: "/admin/forum/blabla" (instead of "/forumadmin/blabla").
+    
     [Area("Admin")]
     public class ForumController : ModuleController
     {

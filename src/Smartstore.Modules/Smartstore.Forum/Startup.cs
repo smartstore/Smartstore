@@ -26,6 +26,7 @@ namespace Smartstore.Forum
         {
             builder.MapRoutes(0, routes =>
             {
+                // TODO: (mg) (core) Remove this. We always prefer attribute routing over conventional routing. See controller.
                 routes.MapControllerRoute(
                     Module.SystemName,
                     "Module/Smartstore.Forum/{controller}/{action}/{id?}",
