@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+		<Product>Smartstore Blog</Product>
+		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Blog</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Remove="Localization\resources.de-de.xml" />
+    <Content Remove="Views\Blog\Comments.cshtml" />
+    <Content Remove="Views\Blog\Configure.cshtml" />
+    <Content Remove="Views\Blog\Posts.cshtml" />
+    <Content Remove="wwwroot\admin.scss" />
+    <Content Remove="wwwroot\public.scss" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Localization\resources.en-us.xml" />
+    <None Remove="Views\_ViewImports.cshtml" />
+    <None Remove="Views\_ViewStart.cshtml" />
+  </ItemGroup>
+</Project>

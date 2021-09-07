@@ -1,0 +1,9 @@
+﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
+    <LocaleResource Name="Plugins.FriendlyName.SmartStore.DevTools" AppendRootKey="false">
+        <Value>Developer Tools</Value>
+    </LocaleResource>
+    <LocaleResource Name="Settings">
+        <Value>Blog settings</Value>
+    </LocaleResource>
+
+</Language>

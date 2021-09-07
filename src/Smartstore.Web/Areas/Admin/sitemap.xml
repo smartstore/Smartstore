@@ -65,10 +65,6 @@
                 <siteMapNode id="news-items" title="News items" resKey="Admin.ContentManagement.News.NewsItems" controller="News" action="List" area="Admin" />
                 <siteMapNode id="news-comments" title="News comments" resKey="Admin.ContentManagement.News.Comments" controller="News" action="Comments" area="Admin" />
             </siteMapNode>
-            <siteMapNode id="blog" iconClass="fa fa-blog" title="Blog" resKey="Admin.ContentManagement.Blog" permissionNames="cms.blog">
-                <siteMapNode id="blog-posts" title="Blog posts" resKey="Admin.ContentManagement.Blog.BlogPosts" controller="Blog" action="List" area="Admin" />
-                <siteMapNode id="blog-comments" title="Blog comments" resKey="Admin.ContentManagement.Blog.Comments" controller="Blog" action="Comments" area="Admin" />
-            </siteMapNode>
             <siteMapNode id="forums" iconClass="fa fa-users" title="Manage forums" resKey="Admin.ContentManagement.Forums" permissionNames="cms.forum" controller="Forum" action="List" area="Admin" />
             <siteMapNode id="message-templates" iconClass="far fa-envelope" title="Message templates" resKey="Admin.ContentManagement.MessageTemplates" permissionNames="cms.messagetemplate" controller="MessageTemplate" action="List" area="Admin" />
             <siteMapNode id="polls" iconClass="fa fa-tasks" title="Polls" resKey="Admin.ContentManagement.Polls" permissionNames="cms.poll" controller="Poll" action="List" area="Admin" />

@@ -6,7 +6,7 @@
 //using Microsoft.EntityFrameworkCore.Metadata.Builders;
 //using Smartstore.Core.Identity;
 
-//namespace Smartstore.Core.Content.Blogs
+//namespace Smartstore.Blog
 //{
 //    internal class BlogCommentMap : IEntityTypeConfiguration<BlogComment>
 //    {
