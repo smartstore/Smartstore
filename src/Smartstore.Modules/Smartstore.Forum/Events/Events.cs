@@ -7,9 +7,7 @@ using Smartstore.Web.Rendering.Events;
 
 namespace Smartstore.Forum.Events
 {
-    // TODO: (mg) (core) New convention in modules: declare event consumers
-    // in "Events.cs" in module root. Split only if file gets too large.
-    public class SettingsTabEventConsumer : IConsumer
+    public class Events : IConsumer
     {
         public Localizer T { get; set; }
 
@@ -23,7 +21,7 @@ namespace Smartstore.Forum.Events
                         .Text(T("Admin.Configuration.Settings.Forums"))
                         .Name("tab-search-forum")
                         .LinkHtmlAttributes(new { data_tab_name = "Forum" })
-                        .Route(Module.SystemName, new { controller = "Forum", action = "SearchSettings", area = "Admin" })
+                        .Action("SearchSettings", "ForumAdmin", new { area = "Admin" })
                         .Ajax());
                 }
             }
