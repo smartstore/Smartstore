@@ -905,10 +905,10 @@ legend {
             border-bottom-color: #fff;
         }
     }
+}
 
-    > .nav-locales > .tab-content > .tab-pane > .adminContent {
-        @extend .adminContent-boxed;
-    }
+.locale-editor-content > .adminContent {
+    @extend .adminContent-boxed;
 }
 
 .locale-editor-content[data-rtl="true"] {
