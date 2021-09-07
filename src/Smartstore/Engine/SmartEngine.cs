@@ -90,7 +90,7 @@ namespace Smartstore.Engine
 
                 LoadModules();
 
-                _starters = _appContext.TypeScanner.FindTypes<IStarter>()
+                _starters = _appContext.TypeScanner.FindTypes<IStarter>(ignoreInactiveModules: true)
                     .Select(t => (IStarter)Activator.CreateInstance(t))
                     .Where(x => x.Matches(_appContext))
                     .ToList();
@@ -211,14 +211,11 @@ namespace Smartstore.Engine
                 // Configure all modular services
                 foreach (var starter in _starters)
                 {
-                    if (IsActiveModule(starter))
-                    {
-                        // Call modular service configurers
-                        starter.ConfigureServices(services, _appContext);
+                    // Call modular service configurers
+                    starter.ConfigureServices(services, _appContext);
 
-                        // Call modular MVC configurers
-                        starter.ConfigureMvc(mvcBuilder, services, _appContext);
-                    }
+                    // Call modular MVC configurers
+                    starter.ConfigureMvc(mvcBuilder, services, _appContext);
                 }
             }
 
@@ -231,20 +228,15 @@ namespace Smartstore.Engine
                 // Configure all modular services by Autofac
                 foreach (var starter in _starters.OfType<IContainerConfigurer>())
                 {
-                    if (IsActiveModule(starter))
-                    {
-                        starter.ConfigureContainer(builder, _appContext);
-                    }
+                    starter.ConfigureContainer(builder, _appContext);
                 }
             }
 
             public void ConfigureApplication(IApplicationBuilder app)
             {
-                var activeModuleStarters = _starters.Where(IsActiveModule).ToArray();
-
                 // Configure all modular pipelines
                 var pipelineBuilder = new RequestPipelineBuilder { ApplicationBuilder = app, ApplicationContext = _appContext };
-                foreach (var starter in activeModuleStarters)
+                foreach (var starter in _starters)
                 {
                     starter.BuildPipeline(pipelineBuilder);
                 }
@@ -254,7 +246,7 @@ namespace Smartstore.Engine
                 app.UseEndpoints(endpoints =>
                 {
                     var routeBuilder = new EndpointRoutingBuilder { ApplicationBuilder = app, ApplicationContext = _appContext, RouteBuilder = endpoints };
-                    foreach (var starter in activeModuleStarters)
+                    foreach (var starter in _starters)
                     {
                         starter.MapRoutes(routeBuilder);
                     }
@@ -269,16 +261,6 @@ namespace Smartstore.Engine
                     .OrderBy(x => x.Key)
                     .SelectMany(x => x.ToArray().SortTopological(StringComparer.OrdinalIgnoreCase))
                     .Cast<IStarter>();
-            }
-
-            private bool IsActiveModule(IStarter starter)
-            {
-                return _engine.Application.ModuleCatalog.IsActiveModuleAssembly(starter.GetType().Assembly);
-            }
-
-            private bool IsActiveModule(IContainerConfigurer configurer)
-            {
-                return _engine.Application.ModuleCatalog.IsActiveModuleAssembly(configurer.GetType().Assembly);
             }
 
             public void Dispose()
