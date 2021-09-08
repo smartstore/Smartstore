@@ -31,11 +31,14 @@ namespace Smartstore.Core.Widgets
         }
 
         public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext)
+            => InvokeAsync(viewContext, null);
+
+        public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model)
         {
             var helper = CreateViewComponentHelper(viewContext);
-            return _componentType != null 
-                ? helper.InvokeAsync(_componentType, _arguments)
-                : helper.InvokeAsync(_componentName, _arguments);
+            return _componentType != null
+                ? helper.InvokeAsync(_componentType, model ?? _arguments)
+                : helper.InvokeAsync(_componentName, model ?? _arguments);
         }
 
         private static IViewComponentHelper CreateViewComponentHelper(ViewContext viewContext)

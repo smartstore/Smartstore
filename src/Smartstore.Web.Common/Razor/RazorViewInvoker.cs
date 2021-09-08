@@ -50,9 +50,9 @@ namespace Smartstore.Web.Razor
             _mvcViewOptions = mvcViewOptions;
         }
 
-        public Task<string> InvokeViewAsync(string viewName, object model, bool isPartial = true)
+        public Task<string> InvokeViewAsync(string viewName, string module, object model, bool isPartial = true)
         {
-            var actionContext = GetActionContext();
+            var actionContext = GetActionContext(module);
             var viewData = new ViewDataDictionary(_metadataProvider, actionContext.ModelState)
             {
                 Model = model
@@ -61,9 +61,9 @@ namespace Smartstore.Web.Razor
             return InvokeViewAsync(viewName, actionContext, viewData, isPartial);
         }
 
-        public Task<string> InvokeViewAsync(string viewName, ViewDataDictionary viewData, bool isPartial = true)
+        public Task<string> InvokeViewAsync(string viewName, string module, ViewDataDictionary viewData, bool isPartial = true)
         {
-            return InvokeViewAsync(viewName, GetActionContext(), viewData, isPartial);
+            return InvokeViewAsync(viewName, GetActionContext(module), viewData, isPartial);
         }
 
         protected virtual async Task<string> InvokeViewAsync(string viewName, ActionContext actionContext, ViewDataDictionary viewData, bool isPartial = true)
@@ -108,7 +108,7 @@ namespace Smartstore.Web.Razor
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             using var output = new StringWriter(sb);
 
-            var actionContext = GetActionContext();
+            var actionContext = GetActionContext(null);
             var viewContext = CreateViewContext(
                 actionContext, 
                 actionContext.HttpContext.RequestServices.GetService<IViewDataAccessor>().ViewData, 
@@ -125,7 +125,7 @@ namespace Smartstore.Web.Razor
         {
             Guard.NotNull(viewData, nameof(viewData));
 
-            var actionContext = GetActionContext();
+            var actionContext = GetActionContext(null);
             var helper = actionContext.HttpContext.RequestServices?.GetService<IViewComponentHelper>();
             if (helper == null)
             {
@@ -143,14 +143,26 @@ namespace Smartstore.Web.Razor
             return output.ToString();
         }
 
-        private ActionContext GetActionContext()
+        private ActionContext GetActionContext(string module)
         {
+            module ??= "Smartstore.Blog";
+
             var context = _actionContextAccessor.ActionContext;
 
             if (context == null)
             {
                 var httpContext = _httpContextAccessor.HttpContext ?? new DefaultHttpContext { RequestServices = _serviceProvider };
-                context = new ActionContext(httpContext, httpContext.GetRouteData() ?? new RouteData(), new ActionDescriptor());
+                context = new ActionContext(
+                    httpContext, 
+                    httpContext.GetRouteData() ?? new RouteData(), 
+                    new ActionDescriptor());
+            }
+
+            if (module.HasValue())
+            {
+                context = new ActionContext(context);
+                context.RouteData = new RouteData(context.RouteData);
+                context.RouteData.DataTokens["module"] = module;
             }
 
             return context;

@@ -6,7 +6,6 @@ using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Controllers
 {
@@ -30,7 +29,6 @@ namespace Smartstore.Web.Controllers
     [AuthorizeAdmin]
     [ValidateAdminIpAddress]
     [RequireSsl]
-    [AdminThemed]
     [TrackActivity(Order = 100)]
     [SaveChanges(typeof(SmartDbContext), Order = int.MaxValue)]
     public abstract class AdminController : ManageController

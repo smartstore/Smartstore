@@ -16,8 +16,9 @@ namespace Smartstore.Core.Widgets
         }
 
         public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext)
-        {
-            return Task.FromResult(_html);
-        }
+            => Task.FromResult(_html);
+
+        public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model)
+            => Task.FromResult(_html);
     }
 }
