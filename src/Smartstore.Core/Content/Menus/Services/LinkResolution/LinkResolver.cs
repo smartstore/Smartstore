@@ -166,6 +166,15 @@ namespace Smartstore.Core.Content.Menus
             return new LinkResolutionResult(expression, cachedResult, status);
         }
 
+        public virtual void InvalidateLink(string schema, object target)
+        {
+            Guard.NotEmpty(schema, nameof(schema));
+            Guard.NotNull(target, nameof(target));
+
+            var keyPattern = LinkCacheKeyPattern.FormatInvariant(string.Concat(schema, ":", target));
+            _cacheFactory.GetMemoryCache().RemoveByPattern(keyPattern);
+        }
+
         private void EnsureLocalizedLabel(LinkTranslationResult result, int languageId)
         {
             if (result.Label.HasValue())

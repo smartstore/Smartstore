@@ -95,12 +95,12 @@ namespace Smartstore.Core.Content.Menus
                 case SchemaTopic:
                     entityType = typeof(Topic);
                     entityName = nameof(Topic);
-                    summary = await GetEntityDataAsync<Topic>(expression, storeId, languageId, x => null);
+                    summary = await GetEntityDataAsync<Topic>(expression, storeId, x => null);
                     break;
                 case SchemaProduct:
                     entityType = typeof(Product);
                     entityName = nameof(Product);
-                    summary = await GetEntityDataAsync<Product>(expression, storeId, languageId, x => new LinkTranslatorEntitySummary
+                    summary = await GetEntityDataAsync<Product>(expression, storeId, x => new LinkTranslatorEntitySummary
                     {
                         Name = x.Name,
                         Published = x.Published,
@@ -113,7 +113,7 @@ namespace Smartstore.Core.Content.Menus
                 case SchemaCategory:
                     entityType = typeof(Category);
                     entityName = nameof(Category);
-                    summary = await GetEntityDataAsync<Category>(expression, storeId, languageId, x => new LinkTranslatorEntitySummary
+                    summary = await GetEntityDataAsync<Category>(expression, storeId, x => new LinkTranslatorEntitySummary
                     {
                         Name = x.Name,
                         Published = x.Published,
@@ -126,7 +126,7 @@ namespace Smartstore.Core.Content.Menus
                 case SchemaManufacturer:
                     entityType = typeof(Manufacturer);
                     entityName = nameof(Manufacturer);
-                    summary = await GetEntityDataAsync<Manufacturer>(expression, storeId, languageId, x => new LinkTranslatorEntitySummary
+                    summary = await GetEntityDataAsync<Manufacturer>(expression, storeId, x => new LinkTranslatorEntitySummary
                     {
                         Name = x.Name,
                         Published = x.Published,
@@ -149,10 +149,8 @@ namespace Smartstore.Core.Content.Menus
             };
         }
 
-        private async Task<LinkTranslatorEntitySummary> GetEntityDataAsync<T>(LinkExpression expression,
-            int storeId,
-            int languageId,
-            Expression<Func<T, LinkTranslatorEntitySummary>> selector) where T : BaseEntity
+        private async Task<LinkTranslatorEntitySummary> GetEntityDataAsync<T>(LinkExpression expression, int storeId, Expression<Func<T, LinkTranslatorEntitySummary>> selector) 
+            where T : BaseEntity
         {
             LinkTranslatorEntitySummary summary = null;
             string systemName = null;

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Caching;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
@@ -19,7 +18,7 @@ namespace Smartstore.Core.Content.Menus.Hooks
     internal partial class DefaultLinkInvalidator : AsyncDbSaveHook<BaseEntity>
     {
         private readonly SmartDbContext _db;
-        private readonly ICacheManager _cache;
+        private readonly ILinkResolver _linkResolver;
 
         private static readonly HashSet<string> _toxicProps = new()
         {
@@ -40,10 +39,10 @@ namespace Smartstore.Core.Content.Menus.Hooks
             nameof(UrlRecord.Slug)
         };
 
-        public DefaultLinkInvalidator(SmartDbContext db, ICacheManager cache)
+        public DefaultLinkInvalidator(SmartDbContext db, ILinkResolver linkResolver)
         {
             _db = db;
-            _cache = cache;
+            _linkResolver = linkResolver;
         }
 
         public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
@@ -69,21 +68,21 @@ namespace Smartstore.Core.Content.Menus.Hooks
 
             if (e is Topic t)
             {
-                await _cache.RemoveByPatternAsync(BuildPatternKey("topic", t.Id));
-                await _cache.RemoveByPatternAsync(BuildPatternKey("topic", t.SystemName));
+                _linkResolver.InvalidateLink("topic", t.Id);
+                _linkResolver.InvalidateLink("topic", t.SystemName);
             }
             else if (e is Category || e is Product || e is Manufacturer)
             {
-                await _cache.RemoveByPatternAsync(BuildPatternKey(e.GetEntityName().ToLowerInvariant(), e.Id));
+                _linkResolver.InvalidateLink(e.GetEntityName().ToLowerInvariant(), e.Id);
             }
             else if (e is UrlRecord ur)
             {
-                await _cache.RemoveByPatternAsync(BuildPatternKey(ur.EntityName.ToLowerInvariant(), ur.EntityId));
+                _linkResolver.InvalidateLink(ur.EntityName.ToLowerInvariant(), ur.EntityId);
                 evictTopicId = ur.EntityId;
             }
             else if (e is StoreMapping sm)
             {
-                await _cache.RemoveByPatternAsync(BuildPatternKey(sm.EntityName.ToLowerInvariant(), sm.EntityId));
+                _linkResolver.InvalidateLink(sm.EntityName.ToLowerInvariant(), sm.EntityId);
                 evictTopicId = sm.EntityId;
             }
 
@@ -96,16 +95,11 @@ namespace Smartstore.Core.Content.Menus.Hooks
 
                 if (systemName.HasValue())
                 {
-                    await _cache.RemoveByPatternAsync(BuildPatternKey("topic", systemName));
+                    _linkResolver.InvalidateLink("topic", systemName);
                 }
             }
 
             return HookResult.Ok;
-        }
-
-        private static string BuildPatternKey(string entityName, object ident)
-        {
-            return LinkResolver.LinkCacheKeyPattern.FormatInvariant(string.Concat(entityName, ":", ident));
         }
     }
 }

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Autofac;
 using Smartstore.Blog.Services;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
@@ -13,9 +9,10 @@ namespace Smartstore.Blog
 {
     internal class Startup : StarterBase
     {
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
-            services.AddScoped<IBlogService, BlogService>();
+            builder.RegisterType<BlogService>().As<IBlogService>().InstancePerLifetimeScope();
+            builder.RegisterType<BlogLinkProvider>().As<ILinkProvider>().InstancePerLifetimeScope();
         }
     }
 }

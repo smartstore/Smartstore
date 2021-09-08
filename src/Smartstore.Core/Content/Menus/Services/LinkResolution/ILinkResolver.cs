@@ -43,6 +43,11 @@ namespace Smartstore.Core.Content.Menus
         /// <param name="storeId">Store identifier. 0 to use current store.</param>
         /// <returns>LinkResolutionResult</returns>
         Task<LinkResolutionResult> ResolveAsync(LinkExpression expression, IEnumerable<CustomerRole> roles = null, int languageId = 0, int storeId = 0);
+
+        /// <summary>
+        /// Removes all links for given <paramref name="schema"/> and <paramref name="target"/> from memory cache.
+        /// </summary>
+        void InvalidateLink(string schema, object target);
     }
 
     public static class ILinkResolverExtensions
