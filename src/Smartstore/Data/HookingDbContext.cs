@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -221,7 +222,7 @@ namespace Smartstore.Data
 
         #region Model bootstrapping
 
-        protected void CreateModel(ModelBuilder modelBuilder, params Assembly[] assemblies)
+        protected void CreateModel(ModelBuilder modelBuilder, IEnumerable<Assembly> assemblies)
         {
             Guard.NotNull(assemblies, nameof(assemblies));
 
@@ -230,7 +231,7 @@ namespace Smartstore.Data
             ApplyConventions(modelBuilder);
         }
 
-        private static void RegisterEntities(ModelBuilder modelBuilder, params Assembly[] assemblies)
+        private static void RegisterEntities(ModelBuilder modelBuilder, IEnumerable<Assembly> assemblies)
         {
             var entityTypes = assemblies
                 .SelectMany(x => x.GetExportedTypes())
@@ -244,7 +245,7 @@ namespace Smartstore.Data
             }
         }
 
-        private static void RegisterEntityMappings(ModelBuilder modelBuilder, params Assembly[] assemblies)
+        private static void RegisterEntityMappings(ModelBuilder modelBuilder, IEnumerable<Assembly> assemblies)
         {
             foreach (var assembly in assemblies)
             {

@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Autofac;
+using FluentMigrator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.ComponentModel;
@@ -11,8 +14,10 @@ using Smartstore.Core.Data;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Providers;
+using Smartstore.Domain;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Engine.Modularity;
 using Smartstore.Templating;
 using Smartstore.Templating.Liquid;
 
@@ -41,7 +46,22 @@ namespace Smartstore.Core.Bootstrapping
                 {
                     builder
                         .UseSecondLevelCache()
-                        .UseDbFactory();
+                        .UseDbFactory(b => 
+                        {
+                            // Add all core models from Smartstore.Core assembly
+                            b.AddModelAssembly(typeof(SmartDbContext).Assembly);
+
+                            var moduleAssemblies = appContext.ModuleCatalog.GetInstalledModules()
+                                .Select(x => x.Module.Assembly)
+                                .Where(x => x.GetLoadableTypes().Any(IsDbModelCandidate))
+                                .Distinct();
+
+                            // Add all module assemblies containing domain entities or migrations
+                            b.AddModelAssemblies(moduleAssemblies);
+
+                            // Add provider specific entity configurations
+                            b.AddModelAssembly(DataSettings.Instance.DbFactory.GetType().Assembly);
+                        });
                 }, appContext.AppConfiguration.DbContextPoolSize);
 
                 services.AddDbQuerySettings();
@@ -50,6 +70,16 @@ namespace Smartstore.Core.Bootstrapping
             services.AddDbMigrator(appContext);
 
             services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<SmartDbContext>>().CreateDbContext());
+        }
+
+        private static bool IsDbModelCandidate(Type type)
+        {
+            if (typeof(BaseEntity).IsAssignableFrom(type) || typeof(IMigration).IsAssignableFrom(type))
+            {
+                return !type.IsAbstract && !type.IsInterface;
+            }
+
+            return false;
         }
 
         internal static void RegisterTypeConverters()

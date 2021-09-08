@@ -101,17 +101,7 @@ namespace Smartstore.Core.Data.Migrations
             return false;
         }
 
-        /// <summary>
-        /// Creates the schema for the current model in the database. The database must exist physically or this method
-        /// will raise an exception. To specify the table names that the database should contain in order to satisfy the model, annotate
-        /// the DbContext class with <see cref="CheckTablesAttribute"/>. 
-        /// If all given tables already exist in the database, this method will exit.
-        /// After the schema was created, the migration version info table is populated with all found migrations
-        /// for the current model.
-        /// </summary>
-        /// <returns>
-        /// <see langword="true" /> if the schema was created, <see langword="false" /> if it already existed.
-        /// </returns>
+        /// <inheritdoc cref="EnsureSchemaPopulated" />
         public async Task<bool> EnsureSchemaPopulatedAsync(CancellationToken cancelToken = default)
         {
             var creator = Context.Database.GetFacadeDependencies().DatabaseCreator as RelationalDatabaseCreator;

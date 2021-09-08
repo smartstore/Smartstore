@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
+using Smartstore.Data.Providers;
 using Smartstore.Engine;
 
 namespace Smartstore.Core.Data
@@ -43,12 +45,9 @@ namespace Smartstore.Core.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            CreateModel(
-                modelBuilder,
-                // Contains all entities
-                typeof(SmartDbContext).Assembly,
-                // Contains provider specific entity configurations
-                DataSettings.Instance.DbFactory.GetType().Assembly); 
+            var options = this.Options.FindExtension<DbFactoryOptionsExtension>();
+
+            CreateModel(modelBuilder, options.ModelAssemblies); 
 
             base.OnModelCreating(modelBuilder);
         }

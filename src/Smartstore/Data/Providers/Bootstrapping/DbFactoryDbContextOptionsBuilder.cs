@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -66,10 +68,17 @@ namespace Smartstore.Data.Providers
             => WithOption(e => e.WithQuerySplittingBehavior(querySplittingBehavior));
 
         /// <summary>
-        /// Configures the assembly where migrations are maintained for this context.
+        /// Configures an assembly where entity models and migrations are maintained for this context.
         /// </summary>
-        /// <param name="assemblyName">The name of the assembly.</param>
-        public virtual DbFactoryDbContextOptionsBuilder MigrationsAssembly(string migrationsAssembly)
-            => WithOption(e => e.WithMigrationsAssembly(migrationsAssembly));
+        /// <param name="assembly">The assembly to add.</param>
+        public virtual DbFactoryDbContextOptionsBuilder AddModelAssembly(Assembly assembly)
+            => WithOption(e => e.WithModelAssemblies(new[] { Guard.NotNull(assembly, nameof(assembly)) }));
+
+        /// <summary>
+        /// Configures the assemblies where entity models and migrations are maintained for this context.
+        /// </summary>
+        /// <param name="assemblies">The assemblies to add.</param>
+        public virtual DbFactoryDbContextOptionsBuilder AddModelAssemblies(IEnumerable<Assembly> assemblies)
+            => WithOption(e => e.WithModelAssemblies(Guard.NotNull(assemblies, nameof(assemblies))));
     }
 }

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
+using AngleSharp.Common;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -46,7 +49,10 @@ namespace Smartstore.Data.Providers
 
         public void Validate(IDbContextOptions options)
         {
-            // Nothing to validate
+            if (ModelAssemblies == null || !ModelAssemblies.Any())
+            {
+                throw new InvalidOperationException("At least one assembly containing entity models and migrations must be specified.");
+            }
         }
 
         #region Options
@@ -106,11 +112,15 @@ namespace Smartstore.Data.Providers
             return clone;
         }
 
-        public string MigrationsAssembly { get; private set; }
-        public DbFactoryOptionsExtension WithMigrationsAssembly(string migrationsAssembly)
+        public IEnumerable<Assembly> ModelAssemblies { get; private set; }
+        public DbFactoryOptionsExtension WithModelAssemblies(IEnumerable<Assembly> assemblies)
         {
+            Guard.NotNull(assemblies, nameof(assemblies));
+
             var clone = Clone();
-            clone.MigrationsAssembly = migrationsAssembly;
+            clone.ModelAssemblies = ModelAssemblies == null
+                ? assemblies
+                : ModelAssemblies.Concat(assemblies);
             return clone;
         }
 
@@ -144,7 +154,11 @@ namespace Smartstore.Data.Providers
                     hashCode.Add(Extension.MaxBatchSize);
                     hashCode.Add(Extension.UseRelationalNulls);
                     hashCode.Add(Extension.QuerySplittingBehavior);
-                    hashCode.Add(Extension.MigrationsAssembly);
+                    
+                    if (Extension.ModelAssemblies != null)
+                    {
+                        Extension.ModelAssemblies.Each(x => hashCode.Add(x.GetHashCode()));
+                    }
 
                     _serviceProviderHash = hashCode.ToHashCode();
                 }
