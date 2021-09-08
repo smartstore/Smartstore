@@ -78,7 +78,7 @@
                 if (partial && !(isNumberInput && partial === 'OfferActions') && !(isDateTime && partial === 'Variants')) {
                     // ...fetch the updated html from the corresponding AJAX result object's properties
                     if (data.Partials && data.Partials.hasOwnProperty(partial)) {
-                        if (partial === 'Variants') {
+                        if (partial === 'Variants' || partial === 'BundleItemVariants') {
                             $el.find('[data-toggle=tooltip], .tooltip-toggle').tooltip('hide');
                         }
 
