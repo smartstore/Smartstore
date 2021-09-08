@@ -15,6 +15,9 @@ namespace Smartstore.Core.Content.Menus
 {
     public partial class LinkResolver : ILinkResolver
     {
+        public const string SchemaUrl = "url";
+        public const string SchemaFile = "file";
+
         /// <remarks>
         /// {0} : Expression w/o q
         /// {1} : LanguageId
@@ -71,7 +74,15 @@ namespace Smartstore.Core.Content.Menus
                 {
                     if (_metadata == null)
                     {
-                        _metadata = providers.SelectMany(x => x.GetBuilderMetadata()).OrderBy(x => x.Order).ToArray();
+                        _metadata = providers
+                            .SelectMany(x => x.GetBuilderMetadata())
+                            .Concat(new[]
+                            {
+                                new LinkBuilderMetadata { Schema = SchemaFile, Icon = "far fa-folder-open", ResKey = "Common.File", Order = 100 },
+                                new LinkBuilderMetadata { Schema = SchemaUrl, Icon = "fa fa-link", ResKey = "Common.Url", Order = 200 }
+                            })
+                            .OrderBy(x => x.Order)
+                            .ToArray();
                     }
                 }
             }
@@ -87,6 +98,21 @@ namespace Smartstore.Core.Content.Menus
             if (expression.Target.IsEmpty())
             {
                 return new LinkResolutionResult(expression, LinkStatus.NotFound);
+            }
+
+            if (expression.Schema == SchemaUrl)
+            {
+                var url = expression.TargetAndQuery;
+                if (url.StartsWith('~'))
+                {
+                    url = _urlHelper.Content(url);
+                }
+
+                return new LinkResolutionResult(expression, new LinkTranslationResult { Link = url }, LinkStatus.Ok);
+            }
+            else if (expression.Schema == SchemaFile)
+            {
+                return new LinkResolutionResult(expression, new LinkTranslationResult { Link = expression.Target }, LinkStatus.Ok);
             }
 
             if (roles == null)

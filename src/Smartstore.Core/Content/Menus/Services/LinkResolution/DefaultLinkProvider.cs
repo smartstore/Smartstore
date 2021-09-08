@@ -16,33 +16,15 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public partial class LinkBuilderMetadata
-    {
-        public int Order { get; init; }
-        public string Schema { get; init; }
-        public string Icon { get; init; }
-        public string ResKey { get; init; }
-        public WidgetInvoker Widget { get; init; }
-    }
-
-    public partial interface ILinkProvider
-    {
-        int Order { get; }
-        Task<LinkTranslationResult> TranslateAsync(LinkExpression expression, int storeId, int languageId);
-        IEnumerable<LinkBuilderMetadata> GetBuilderMetadata();
-    }
-
     public partial class DefaultLinkProvider : ILinkProvider
     {
         public const string SchemaTopic = "topic";
         public const string SchemaProduct = "product";
         public const string SchemaCategory = "category";
         public const string SchemaManufacturer = "manufacturer";
-        public const string SchemaUrl = "url";
-        public const string SchemaFile = "file";
 
         private static string[] _supportedSchemas =
-            new[] { SchemaTopic, SchemaProduct, SchemaCategory, SchemaManufacturer, SchemaUrl, SchemaFile };
+            new[] { SchemaTopic, SchemaProduct, SchemaCategory, SchemaManufacturer };
 
         private readonly SmartDbContext _db;
         private readonly IUrlHelper _urlHelper;
@@ -63,8 +45,6 @@ namespace Smartstore.Core.Content.Menus
                 new LinkBuilderMetadata { Schema = SchemaCategory, Icon = "fa fa-sitemap", ResKey = "Common.Entity.Category" },
                 new LinkBuilderMetadata { Schema = SchemaManufacturer, Icon = "far fa-building", ResKey = "Common.Entity.Manufacturer" },
                 new LinkBuilderMetadata { Schema = SchemaTopic, Icon = "far fa-file-alt", ResKey = "Common.Entity.Topic" },
-                new LinkBuilderMetadata { Schema = SchemaFile, Icon = "far fa-folder-open", ResKey = "Common.File", Order = 100 },
-                new LinkBuilderMetadata { Schema = SchemaUrl, Icon = "fa fa-link", ResKey = "Common.Url", Order = 200 }
             };
         }
 
@@ -81,17 +61,6 @@ namespace Smartstore.Core.Content.Menus
 
             switch (expression.Schema)
             {
-                case SchemaUrl:
-                    var url = expression.TargetAndQuery;
-                    if (url.StartsWith('~'))
-                    {
-                        url = _urlHelper.Content(url);
-                    }
-
-                    return new LinkTranslationResult { Link = url };
-                case SchemaFile:
-                    // TODO: (core) Really LinkStatus.Ok here without any further checks?
-                    return new LinkTranslationResult { Link = expression.Target };
                 case SchemaTopic:
                     entityType = typeof(Topic);
                     entityName = nameof(Topic);
