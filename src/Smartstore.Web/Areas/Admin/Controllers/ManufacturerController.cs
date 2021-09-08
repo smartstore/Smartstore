@@ -134,7 +134,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Manufacturer.Read)]
         public async Task<IActionResult> ManufacturerList(GridCommand command, ManufacturerListModel model)
         {
-            var mapper = MapperFactory.GetMapper<Manufacturer, ManufacturerModel>();
             var query = _db.Manufacturers.AsNoTracking();
 
             if (model.SearchManufacturerName.HasValue())

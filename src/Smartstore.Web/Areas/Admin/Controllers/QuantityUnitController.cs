@@ -180,7 +180,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Configuration.Measure.Update)]
         public async Task<IActionResult> EditQuantityUnitPopup(QuantityUnitModel model, string btnId, string formId)
         {
