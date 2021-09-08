@@ -5,6 +5,7 @@ using System.Linq.Dynamic.Core;
 using Autofac;
 using Smartstore.Blog;
 using Smartstore.Blog.Domain;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
@@ -40,6 +41,8 @@ namespace Smartstore
         {
             Guard.NotNull(query, nameof(query));
 
+            // TODO: (mh) (core) Seriously? What a fucked up method with billions parameters! Granularity please.
+
             if (dateFrom.HasValue)
             {
                 query = query.Where(b => dateFrom.Value <= b.CreatedOnUtc);
@@ -57,17 +60,18 @@ namespace Smartstore
 
             if (title.HasValue())
             {
-                query = query.Where(b => b.Title.Contains(title));
+                // INFO: (mh) (core) Please always apply a search filter to string members.
+                query = query.ApplySearchFilterFor(x => x.Title, title);
             }
 
             if (intro.HasValue())
             {
-                query = query.Where(b => b.Intro.Contains(intro));
+                query = query.ApplySearchFilterFor(x => x.Intro, intro);
             }
 
             if (body.HasValue())
             {
-                query = query.Where(b => b.Body.Contains(body));
+                query = query.ApplySearchFilterFor(x => x.Body, body);
             }
 
             if (languageId != 0)
