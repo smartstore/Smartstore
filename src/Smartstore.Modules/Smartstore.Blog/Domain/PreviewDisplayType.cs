@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Blog
+﻿namespace Smartstore.Blog.Domain
 {
     public enum PreviewDisplayType
     {

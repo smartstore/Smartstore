@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Blog.Domain;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Seo;
 using Smartstore.Web.Modelling;

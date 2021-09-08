@@ -6,10 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Blog.Domain;
 using Smartstore.Core.Data;
 using Smartstore.Core.Seo;
 
-namespace Smartstore.Blog
+namespace Smartstore.Blog.Services
 {
     public partial class BlogService : IBlogService, IXmlSitemapPublisher
     {

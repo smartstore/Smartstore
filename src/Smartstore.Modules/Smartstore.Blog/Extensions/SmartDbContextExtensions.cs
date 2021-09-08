@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Smartstore.Blog.Domain;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Blog

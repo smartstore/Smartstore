@@ -12,7 +12,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 
-namespace Smartstore.Blog
+namespace Smartstore.Blog.Domain
 {
     internal class BlogPostMap : IEntityTypeConfiguration<BlogPost>
     {

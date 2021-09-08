@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Identity;
 
-namespace Smartstore.Blog
+namespace Smartstore.Blog.Domain
 {
     internal class BlogCommentMap : IEntityTypeConfiguration<BlogComment>
     {

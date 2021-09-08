@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Blog.Services;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 

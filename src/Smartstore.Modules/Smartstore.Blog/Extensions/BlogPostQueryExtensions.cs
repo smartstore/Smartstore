@@ -1,10 +1,10 @@
-﻿//using System;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Autofac;
 using Smartstore.Blog;
+using Smartstore.Blog.Domain;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
