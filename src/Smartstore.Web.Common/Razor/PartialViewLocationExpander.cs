@@ -10,9 +10,11 @@ namespace Smartstore.Web.Razor
 
         public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
         {
+            var doExpand = context.Values.ContainsKey(ParamKey);
+
             foreach (var format in viewLocations)
             {
-                if (context.Values.ContainsKey(ParamKey))
+                if (doExpand)
                 {
                     yield return format.Replace("{0}", "Layouts/{0}");
                     yield return format.Replace("{0}", "Partials/{0}");

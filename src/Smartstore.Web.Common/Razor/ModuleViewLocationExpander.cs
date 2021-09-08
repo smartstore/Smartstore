@@ -25,11 +25,13 @@ namespace Smartstore.Web.Razor
 
                 if (module != null)
                 {
-                    return viewLocations.Union(new[]
+                    var moduleViewLocations = new[]
                     {
                         $"{module.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension,
                         $"{module.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension,
-                    });
+                    };
+                    
+                    return moduleViewLocations.Union(viewLocations);
                 }
             }
 

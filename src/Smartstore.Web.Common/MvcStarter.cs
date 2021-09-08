@@ -106,8 +106,8 @@ namespace Smartstore.Web
                     if (appContext.IsInstalled)
                     {
                         o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
-                        o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
                         o.ViewLocationExpanders.Add(new ModuleViewLocationExpander());
+                        //o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
                         o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
                     }
 
@@ -203,10 +203,10 @@ namespace Smartstore.Web
             builder.Register<IUrlHelper>(c =>
             {
                 var httpContext = c.Resolve<IHttpContextAccessor>().HttpContext;
-                if (httpContext?.Items != null && httpContext.Items.TryGetValue(typeof(IUrlHelper), out var value) && value is IUrlHelper)
+                if (httpContext?.Items != null && httpContext.Items.TryGetValue(typeof(IUrlHelper), out var value) && value is IUrlHelper urlHelper)
                 {
                     // We know for sure that IUrlHelper is saved in HttpContext.Items
-                    return (IUrlHelper)value;
+                    return urlHelper;
                 }
 
                 var actionContext = c.Resolve<IActionContextAccessor>().ActionContext;

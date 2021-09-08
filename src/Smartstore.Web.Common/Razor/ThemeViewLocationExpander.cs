@@ -18,19 +18,19 @@ namespace Smartstore.Web.Razor
             {
                 var themeRegistry = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IThemeRegistry>();
                 var descriptor = themeRegistry.GetThemeDescriptor(themeName);
-                var themeLocations = new List<string>(4);
+                var themeViewLocations = new List<string>(4);
 
                 while (descriptor != null)
                 {
                     // INFO: we won't rely on ModularFileProvider's ability to find files in the 
                     // theme hierarchy chain, because of possible view path mismatches. Any mismatch
                     // start the razor compiler, and we don't want that.
-                    themeLocations.Add($"{descriptor.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
-                    themeLocations.Add($"{descriptor.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
+                    themeViewLocations.Add($"{descriptor.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
+                    themeViewLocations.Add($"{descriptor.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
                     descriptor = descriptor.BaseTheme;
                 }
 
-                return themeLocations.Union(viewLocations);
+                return themeViewLocations.Union(viewLocations);
             }
             
             return viewLocations;
