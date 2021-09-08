@@ -27,12 +27,10 @@ namespace Smartstore.Core.Content.Menus
             new[] { SchemaTopic, SchemaProduct, SchemaCategory, SchemaManufacturer };
 
         private readonly SmartDbContext _db;
-        private readonly IUrlHelper _urlHelper;
 
-        public DefaultLinkProvider(SmartDbContext db, IUrlHelper urlHelper)
+        public DefaultLinkProvider(SmartDbContext db)
         {
             _db = db;
-            _urlHelper = urlHelper;
         }
 
         public int Order { get; }

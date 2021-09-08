@@ -93,7 +93,6 @@ namespace Smartstore.Blog.Services
             _linkResolver = linkResolver;
         }
 
-        // TODO: (mh) (core) || TODO: (mc) (core) Hook runs for any entity
         protected override HookResult OnUpdating(BlogPost entity, IHookedEntity entry)
         {
             if (entry.Entry.IsPropertyModified(nameof(BlogPost.IsPublished)))

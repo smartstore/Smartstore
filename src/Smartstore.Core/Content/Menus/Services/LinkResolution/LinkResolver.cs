@@ -36,7 +36,7 @@ namespace Smartstore.Core.Content.Menus
         private readonly IAclService _aclService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly ILocalizedEntityService _localizedEntityService;
-        private readonly IUrlHelper _urlHelper;
+        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly IUrlService _urlService;
 
         private static readonly object _lock = new(); 
@@ -50,7 +50,7 @@ namespace Smartstore.Core.Content.Menus
             IAclService aclService,
             IStoreMappingService storeMappingService,
             ILocalizedEntityService localizedEntityService,
-            IUrlHelper urlHelper,
+            Lazy<IUrlHelper> urlHelper,
             IUrlService urlService)
         {
             _providers = providers.OrderBy(x => x.Order).ToArray();
@@ -105,7 +105,7 @@ namespace Smartstore.Core.Content.Menus
                 var url = expression.TargetAndQuery;
                 if (url.StartsWith('~'))
                 {
-                    url = _urlHelper.Content(url);
+                    url = _urlHelper.Value.Content(url);
                 }
 
                 return new LinkResolutionResult(expression, new LinkTranslationResult { Link = url }, LinkStatus.Ok);
@@ -161,7 +161,7 @@ namespace Smartstore.Core.Content.Menus
 
                     if (!string.IsNullOrEmpty(slug))
                     {
-                        result.Link = _urlHelper.RouteUrl(result.EntityName, new { SeName = slug });
+                        result.Link = _urlHelper.Value.RouteUrl(result.EntityName, new { SeName = slug });
                     }
                 }
 
