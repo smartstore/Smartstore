@@ -95,11 +95,11 @@ namespace Smartstore.Core.Bootstrapping
                 if (x.IsGenericType)
                 {
                     var gtd = x.GetGenericTypeDefinition();
-                    if (gtd == typeof(AsyncDbSaveHook<>))
+                    if (gtd == typeof(AsyncDbSaveHook<>) || gtd == typeof(DbSaveHook<>))
                     {
                         return (typeof(SmartDbContext), x.GetGenericArguments()[0]);
                     }
-                    if (gtd == typeof(AsyncDbSaveHook<,>))
+                    if (gtd == typeof(AsyncDbSaveHook<,>) || gtd == typeof(DbSaveHook<,>))
                     {
                         var args = x.GetGenericArguments();
                         return (args[0], args[1]);
