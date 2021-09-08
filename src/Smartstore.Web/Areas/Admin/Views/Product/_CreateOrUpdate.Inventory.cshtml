@@ -136,8 +136,8 @@
     </div>
 </div>
 
-<script sm-target-zone="Scripts" data-origin="Product-Inventory">
-	$(function () {
+<script>
+    $(function () {
 		$("#@Html.IdFor(model => model.ManageInventoryMethodId)").change(toggleManageStock);
 		$("#@Html.IdFor(model => model.BackorderModeId)").change(toggleManageStock);
 
