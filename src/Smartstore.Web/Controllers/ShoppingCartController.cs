@@ -472,7 +472,7 @@ namespace Smartstore.Web.Controllers
                     var model = await cart.MapAsync();
 
                     cartHtml = await this.InvokeViewAsync("CartItems", model);
-                    totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+                    totalsHtml = await this.InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
                 }
             }
 
@@ -540,7 +540,7 @@ namespace Smartstore.Web.Controllers
                 var model = await cart.MapAsync();
 
                 cartHtml = await this.InvokeViewAsync("CartItems", model);
-                totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+                totalsHtml = await this.InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
             }
 
             // Updated cart.
@@ -854,7 +854,7 @@ namespace Smartstore.Web.Controllers
                     var model = await cart.MapAsync();
 
                     cartHtml = await this.InvokeViewAsync("CartItems", model);
-                    totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+                    totalsHtml = await this.InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
                     message = T("Products.ProductHasBeenAddedToTheWishlist");
                 }
             }
@@ -1292,7 +1292,7 @@ namespace Smartstore.Web.Controllers
             customer.GenericAttributes.DiscountCouponCode = null;
 
             var discountHtml = await this.InvokeViewAsync("_DiscountBox", model.DiscountBox);
-            var totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+            var totalsHtml = await this.InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
             // Updated cart.
             return Json(new
@@ -1393,7 +1393,7 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            var totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+            var totalsHtml = await this.InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
             // Updated cart.
             return Json(new

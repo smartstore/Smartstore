@@ -37,7 +37,7 @@ namespace Smartstore.Web.Razor
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        Task<string> InvokeViewComponentAsync(string componentName, ViewDataDictionary viewData, object arguments);
+        Task<string> InvokeComponentAsync(string componentName, ViewDataDictionary viewData, object arguments);
 
         /// <summary>
         /// Invokes a view component and returns its html content.
@@ -50,7 +50,7 @@ namespace Smartstore.Web.Razor
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        Task<string> InvokeViewComponentAsync(Type componentType, ViewDataDictionary viewData, object arguments);
+        Task<string> InvokeComponentAsync(Type componentType, ViewDataDictionary viewData, object arguments);
 
         /// <summary>
         /// Invokes a widget and returns its html content.

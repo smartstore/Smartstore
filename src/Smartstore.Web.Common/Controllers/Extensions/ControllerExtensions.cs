@@ -96,12 +96,12 @@ namespace Smartstore.Web.Controllers
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        public static Task<string> InvokeViewComponentAsync(this ControllerBase controller, string componentName, ViewDataDictionary viewData, object arguments = null)
+        public static Task<string> InvokeComponentAsync(this ControllerBase controller, string componentName, ViewDataDictionary viewData, object arguments = null)
         {
             Guard.NotNull(controller, nameof(controller));
 
             var renderer = controller.HttpContext.RequestServices.GetRequiredService<IRazorViewInvoker>();
-            return renderer.InvokeViewComponentAsync(componentName, viewData, arguments);
+            return renderer.InvokeComponentAsync(componentName, viewData, arguments);
         }
 
         /// <summary>
@@ -115,12 +115,12 @@ namespace Smartstore.Web.Controllers
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        public static Task<string> InvokeViewComponentAsync(this ControllerBase controller, Type componentType, ViewDataDictionary viewData, object arguments = null)
+        public static Task<string> InvokeComponentAsync(this ControllerBase controller, Type componentType, ViewDataDictionary viewData, object arguments = null)
         {
             Guard.NotNull(controller, nameof(controller));
 
             var renderer = controller.HttpContext.RequestServices.GetRequiredService<IRazorViewInvoker>();
-            return renderer.InvokeViewComponentAsync(componentType, viewData, arguments);
+            return renderer.InvokeComponentAsync(componentType, viewData, arguments);
         }
 
         /// <summary>
