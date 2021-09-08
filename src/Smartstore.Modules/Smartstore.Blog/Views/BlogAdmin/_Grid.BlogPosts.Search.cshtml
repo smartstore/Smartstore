@@ -1,0 +1,41 @@
+﻿@model BlogListModel
+
+@{
+    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+    var isSingleLanguageMode = (bool)ViewBag.IsSingleLanguageMode;
+}
+
+<div class="form-group">
+    <smart-label asp-for="SearchTitle" />
+    <input asp-for="SearchTitle" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchIntro" />
+    <input asp-for="SearchIntro" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchBody" />
+    <input asp-for="SearchBody" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchTags" />
+    <input asp-for="SearchTags" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchStartDate" />
+    <editor asp-for="SearchStartDate" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchEndDate" />
+    <editor asp-for="SearchEndDate" />
+</div>
+<div sm-if="!isSingleStoreMode" class="form-group">
+    <smart-label asp-for="SearchStoreId" />
+    <editor asp-for="SearchStoreId" />
+</div>
+<div sm-if="!isSingleLanguageMode" class="form-group">
+    <smart-label asp-for="SearchLanguageId" />
+    <select asp-for="SearchLanguageId" asp-items="ViewBag.AvailableLanguages">
+        <option>@T("Common.International")</option>
+    </select>
+</div>

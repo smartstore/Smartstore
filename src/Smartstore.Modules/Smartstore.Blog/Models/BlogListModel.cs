@@ -36,10 +36,5 @@ namespace Smartstore.Blog.Models
 
         [LocalizedDisplay("*Language")]
         public int SearchLanguageId { get; set; }
-        //public List<SelectListItem> AvailableLanguages { get; set; }
-
-        public bool IsSingleStoreMode { get; set; }
-        public bool IsSingleLanguageMode { get; set; }
-        public int GridPageSize { get; set; }
     }
 }

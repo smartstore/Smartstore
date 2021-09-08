@@ -1,0 +1,69 @@
+﻿@model BlogPostModel
+
+@{
+    var parentModel = ViewData["Parent"] as BlogListModel;
+    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+    var isSingleLanguageMode = (bool)ViewBag.IsSingleLanguageMode;
+}
+
+<datagrid id="blogposts-grid"
+          allow-resize="true"
+          allow-column-reordering="true"
+          allow-row-selection="true"
+          onrowclass="blogpostsGrid_onRowClass">
+    <datasource read="@Url.Action("BlogPostList")"
+                delete="@Url.Action("DeleteSelection")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="CreatedOnUtc" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")…</span>
+            </a>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_after"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.BlogPosts.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        @*TODO: (mh) (core) Add more columns*@
+        <column for="Id" halign="center" visible="false" />
+        <column for="Title" hideable="false" width="2fr">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="Comments">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.CommentsUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="IsPublished" halign="center" />
+        @if (!isSingleStoreMode)
+        {
+            <column for="LimitedToStores" halign="center" />
+        }
+        @if (!isSingleLanguageMode)
+        {
+            <column for="LanguageName" halign="center" />
+        }
+        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
+    </columns>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="blogposts-grid">
+    function blogpostsGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.IsPublished
+        };
+    }
+</script>

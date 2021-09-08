@@ -96,6 +96,11 @@ namespace Smartstore
         /// </summary>
         public static IQueryable<BlogPost> ApplyTagFilter(this IQueryable<BlogPost> query, string tag)
         {
+            if (tag == null || !tag.HasValue())
+            {
+                return query;
+            }
+
             tag = tag.Trim();
 
             var seoSettings = EngineContext.Current.Application.Services.Resolve<SeoSettings>();

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Web.Rendering.Builders;
 
@@ -28,7 +27,7 @@ namespace Smartstore.Blog
 
             var blogPostsMenuItem = new MenuItem().ToBuilder()
                 .ResKey("Admin.ContentManagement.Blog.BlogPosts")
-                .Action("Posts", "Blog", new { area = "Admin" })
+                .Action("List", "Blog", new { area = "Admin" })
                 .AsItem();
 
             var blogCommentsMenuItem = new MenuItem().ToBuilder()
@@ -45,8 +44,6 @@ namespace Smartstore.Blog
             var blogCommentsNode = new TreeNode<MenuItem>(blogCommentsMenuItem);
             blogNode.Append(blogPostsNode);
             blogNode.Append(blogCommentsNode);
-            //blogPostsNode.InsertAfter(blogNode);
-            //blogCommentsNode.InsertAfter(blogNode);
         }
     }
 }

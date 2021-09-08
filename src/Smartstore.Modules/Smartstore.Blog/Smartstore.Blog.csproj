@@ -6,9 +6,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="Localization\resources.de-de.xml" />
+    <Content Remove="Views\BlogAdmin\Create.cshtml" />
+    <Content Remove="Views\BlogAdmin\Edit.cshtml" />
+    <Content Remove="Views\BlogAdmin\List.cshtml" />
+    <Content Remove="Views\BlogAdmin\_CreateOrUpdate.cshtml" />
+    <Content Remove="Views\BlogAdmin\_Grid.BlogPosts.cshtml" />
+    <Content Remove="Views\BlogAdmin\_Grid.BlogPosts.Search.cshtml" />
     <Content Remove="Views\Blog\Comments.cshtml" />
     <Content Remove="Views\Blog\Configure.cshtml" />
-    <Content Remove="Views\Blog\Posts.cshtml" />
     <Content Remove="wwwroot\admin.scss" />
     <Content Remove="wwwroot\public.scss" />
   </ItemGroup>
@@ -16,5 +21,8 @@
     <None Remove="Localization\resources.en-us.xml" />
     <None Remove="Views\_ViewImports.cshtml" />
     <None Remove="Views\_ViewStart.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\Blog\" />
   </ItemGroup>
 </Project>

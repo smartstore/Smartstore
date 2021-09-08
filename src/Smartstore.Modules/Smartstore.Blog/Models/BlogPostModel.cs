@@ -23,20 +23,24 @@ namespace Smartstore.Blog.Models
         [LocalizedDisplay("Admin.Configuration.Seo.SeName")]
         public string SeName { get; set; }
 
+
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 6)]
         [LocalizedDisplay("*Intro")]
         public string Intro { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*Body")]
         public string Body { get; set; }
 
         [LocalizedDisplay("*PreviewDisplayType")]
         public PreviewDisplayType PreviewDisplayType { get; set; }
 
-        [UIHint("Media"), AdditionalMetadata("album", "content")]
+        [UIHint("Media"), AdditionalMetadata("album", "content"), AdditionalMetadata("transientUpload", true)]
         [LocalizedDisplay("*Picture")]
         public int? PictureId { get; set; }
 
-        [UIHint("Media"), AdditionalMetadata("album", "content")]
+        [UIHint("Media"), AdditionalMetadata("album", "content"), AdditionalMetadata("transientUpload", true)]
         [LocalizedDisplay("*PreviewPicture")]
         public int? PreviewPictureId { get; set; }
 
@@ -68,9 +72,13 @@ namespace Smartstore.Blog.Models
         [LocalizedDisplay("*MetaKeywords")]
         public string MetaKeywords { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 3)]
         [LocalizedDisplay("Admin.Configuration.Seo.MetaDescription")]
         public string MetaDescription { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 1)]
         [LocalizedDisplay("Admin.Configuration.Seo.MetaTitle")]
         public string MetaTitle { get; set; }
 
@@ -79,12 +87,9 @@ namespace Smartstore.Blog.Models
 
         [LocalizedDisplay("*Language")]
         public int? LanguageId { get; set; }
-        //public List<SelectListItem> AvailableLanguages { get; set; }
 
         [LocalizedDisplay("*Language")]
         public string LanguageName { get; set; }
-
-        public bool IsSingleLanguageMode { get; set; }
 
         [UIHint("Stores")]
         [AdditionalMetadata("multiple", true)]
@@ -95,6 +100,8 @@ namespace Smartstore.Blog.Models
         public bool LimitedToStores { get; set; }
 
         public List<BlogPostLocalizedModel> Locales { get; set; } = new();
+        public string EditUrl { get; set; }
+        public string CommentsUrl { get; set; }
     }
 
     [LocalizedDisplay("Admin.ContentManagement.Blog.BlogPosts.Fields.")]
@@ -108,22 +115,28 @@ namespace Smartstore.Blog.Models
         [LocalizedDisplay("Admin.Configuration.Seo.SeName")]
         public string SeName { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 6)]
         [LocalizedDisplay("*Intro")]
         public string Intro { get; set; }
 
+        [UIHint("Html")]
         [LocalizedDisplay("*Body")]
         public string Body { get; set; }
 
         [LocalizedDisplay("*MetaKeywords")]
         public string MetaKeywords { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 3)]
         [LocalizedDisplay("Admin.Configuration.Seo.MetaDescription")]
         public string MetaDescription { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 1)]
         [LocalizedDisplay("Admin.Configuration.Seo.MetaTitle")]
         public string MetaTitle { get; set; }
     }
-
 
     public partial class BlogPostValidator : AbstractValidator<BlogPostModel>
     {
