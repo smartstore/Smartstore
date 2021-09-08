@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Rules;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {

@@ -25,7 +25,8 @@ using Smartstore.Core.Stores;
 using Smartstore.Scheduling;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Models;
 
 namespace Smartstore.Admin.Controllers
 {

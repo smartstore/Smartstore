@@ -13,7 +13,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {

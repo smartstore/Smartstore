@@ -20,7 +20,7 @@ using Smartstore.Engine;
 using Smartstore.Net.Mail;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Web.Areas.Admin.Controllers
 {

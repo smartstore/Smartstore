@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Models;
 
 namespace Smartstore.Admin.Controllers
 {

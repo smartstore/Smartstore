@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Smartstore.Web.Modelling.DataGrid
+namespace Smartstore.Web.Models.DataGrid
 {
     public interface IGridModel
     {

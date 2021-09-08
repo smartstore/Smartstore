@@ -11,7 +11,7 @@ using Smartstore.Http;
 using Smartstore.Utilities;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
 using System;
 using System.Collections.Generic;
 using System.Linq;

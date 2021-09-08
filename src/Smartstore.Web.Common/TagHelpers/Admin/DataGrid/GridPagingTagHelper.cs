@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace Smartstore.Web.Modelling.DataGrid
+namespace Smartstore.Web.Models.DataGrid
 {
     public interface IGridCommandStateStore
     {

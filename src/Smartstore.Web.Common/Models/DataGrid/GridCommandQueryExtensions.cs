@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using Smartstore.Collections;
 
-namespace Smartstore.Web.Modelling.DataGrid
+namespace Smartstore.Web.Models.DataGrid
 {
     public static class GridCommandQueryExtensions
     {

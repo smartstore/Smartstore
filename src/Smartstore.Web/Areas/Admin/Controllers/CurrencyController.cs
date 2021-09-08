@@ -20,7 +20,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {

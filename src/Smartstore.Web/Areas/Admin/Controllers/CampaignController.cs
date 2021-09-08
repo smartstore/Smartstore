@@ -11,7 +11,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {

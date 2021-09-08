@@ -13,7 +13,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {

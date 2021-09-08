@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin

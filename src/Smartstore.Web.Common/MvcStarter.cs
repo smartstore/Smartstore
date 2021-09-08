@@ -29,7 +29,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Engine.Modularity.ApplicationParts;
 using Smartstore.Net;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Razor;

@@ -2,7 +2,7 @@
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace Smartstore.Web.Modelling.DataGrid
+namespace Smartstore.Web.Models.DataGrid
 {
     public class GridSelection
     {

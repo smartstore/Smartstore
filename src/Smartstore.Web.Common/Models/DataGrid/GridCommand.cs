@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace Smartstore.Web.Modelling.DataGrid
+namespace Smartstore.Web.Models.DataGrid
 {
     public class SortDescriptor
     {

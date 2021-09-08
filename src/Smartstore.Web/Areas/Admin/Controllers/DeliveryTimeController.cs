@@ -15,7 +15,8 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.DataGrid;
+using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Models;
 
 namespace Smartstore.Admin.Controllers
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Smartstore.Web.Modelling
+namespace Smartstore.Web.Models
 {
     /// <summary>
     /// Represents a selectable list item.
