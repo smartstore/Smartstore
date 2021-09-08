@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using Smartstore.Forum.Domain;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Forum.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Forums.")]
-    public class ConfigurationModel : ModelBase, ISeoModel
+    public class ForumSettingsModel : ModelBase, ISeoModel
     {
         [LocalizedDisplay("*ForumsEnabled")]
         public bool ForumsEnabled { get; set; }

@@ -39,6 +39,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.DataGrid;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;
@@ -725,25 +726,15 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Setting.Read)]
         public async Task<IActionResult> Search()
         {
-            var storeScope = this.GetActiveStoreScopeConfiguration();
+            var storeScope = GetActiveStoreScopeConfiguration();
             var searchSettings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
-
-            // TODO: (mh) (core) Uncomment when _pluginFinder is available.
-            //var megaSearchDescriptor = _pluginFinder.GetPluginDescriptorBySystemName("SmartStore.MegaSearch");
-            //var megaSearchPlusDescriptor = _pluginFinder.GetPluginDescriptorBySystemName("SmartStore.MegaSearchPlus");
-
-            var megaSearchDescriptor = new object();
-            var megaSearchPlusDescriptor = new object();
+            var megaSearchDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearch");
+            var megaSearchPlusDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus");
 
             var model = new SearchSettingsModel();
             MiniMapper.Map(searchSettings, model);
 
             model.IsMegaSearchInstalled = megaSearchDescriptor != null;
-
-            // TODO: (mh) (core) Implement in forum module (by tab injection).
-            //var fsettings = Services.Settings.LoadSetting<ForumSearchSettings>(storeScope);
-            //MiniMapper.Map(fsettings, model.ForumSearchSettings);
-            //model.ForumSearchSettings.AvailableDefaultSortOrders = fsettings.DefaultSortOrder.ToSelectList();
 
             var availableSearchFields = new List<SelectListItem>();
             var availableSearchModes = new List<SelectListItem>();
@@ -759,9 +750,6 @@ namespace Smartstore.Admin.Controllers
                 });
 
                 availableSearchModes = searchSettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
-
-                // TODO: (mh) (core) Implement in forum module (by tab injection).
-                //model.ForumSearchSettings.AvailableSearchModes = fsettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
             }
             else
             {
@@ -787,20 +775,10 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 availableSearchModes = searchSettings.SearchMode.ToSelectList().ToList();
-
-                // TODO: (mh) (core) Implement in forum module (by tab injection).
-                //model.ForumSearchSettings.AvailableSearchModes = fsettings.SearchMode.ToSelectList().ToList();
             }
 
             ViewBag.AvailableSearchFields = availableSearchFields;
             ViewBag.AvailableSearchModes = availableSearchModes;
-
-            // TODO: (mh) (core) Implement in forum module (by tab injection).
-            //model.ForumSearchSettings.AvailableSearchFields = new List<SelectListItem>
-            //{
-            //    new SelectListItem { Text = T("Admin.Customers.Customers.Fields.Username"), Value = "username" },
-            //    new SelectListItem { Text = T("Forum.PostText"), Value = "text" },
-            //};
 
             // Common facets.
             model.BrandFacet.Disabled = searchSettings.BrandDisabled;
@@ -816,14 +794,6 @@ namespace Smartstore.Admin.Controllers
             model.AvailabilityFacet.IncludeNotAvailable = searchSettings.IncludeNotAvailable;
             model.NewArrivalsFacet.Disabled = searchSettings.NewArrivalsDisabled;
             model.NewArrivalsFacet.DisplayOrder = searchSettings.NewArrivalsDisplayOrder;
-
-            // TODO: (mh) (core) Implement in forum module (by tab injection).
-            //model.ForumSearchSettings.ForumFacet.Disabled = fsettings.ForumDisabled;
-            //model.ForumSearchSettings.ForumFacet.DisplayOrder = fsettings.ForumDisplayOrder;
-            //model.ForumSearchSettings.CustomerFacet.Disabled = fsettings.CustomerDisabled;
-            //model.ForumSearchSettings.CustomerFacet.DisplayOrder = fsettings.CustomerDisplayOrder;
-            //model.ForumSearchSettings.DateFacet.Disabled = fsettings.DateDisabled;
-            //model.ForumSearchSettings.DateFacet.DisplayOrder = fsettings.DateDisplayOrder;
 
             await _storeDependingSettingHelper.GetOverrideKeysAsync(searchSettings, model, storeScope);
 
@@ -883,27 +853,10 @@ namespace Smartstore.Admin.Controllers
                     Alias = Services.Settings.GetSettingByKey<string>(newArrivalsFacetAliasSettingsKey, storeId: storeScope)
                 });
 
-                // TODO: (mh) (core) Implement in forum module (by tab injection).
-                //model.ForumSearchSettings.ForumFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
-                //{
-                //    LanguageId = language.Id,
-                //    Alias = Services.Settings.GetSettingByKey<string>(FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Forum, language.Id, "Forum"))
-                //});
-                //model.ForumSearchSettings.CustomerFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
-                //{
-                //    LanguageId = language.Id,
-                //    Alias = Services.Settings.GetSettingByKey<string>(FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Customer, language.Id, "Forum"))
-                //});
-                //model.ForumSearchSettings.DateFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
-                //{
-                //    LanguageId = language.Id,
-                //    Alias = Services.Settings.GetSettingByKey<string>(FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Date, language.Id, "Forum"))
-                //});
-
                 i++;
             }
 
-            //// Facet settings (CommonFacetSettingsModel).
+            // Facet settings (CommonFacetSettingsModel).
             foreach (var prefix in new string[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
             {
                 await _storeDependingSettingHelper.GetOverrideKeyAsync(prefix + "Facet.Disabled", prefix + "Disabled", searchSettings, storeScope);
@@ -912,14 +865,6 @@ namespace Smartstore.Admin.Controllers
 
             // Facet settings with a non-prefixed name.
             await _storeDependingSettingHelper.GetOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", searchSettings, storeScope);
-
-            // TODO: (mh) (core) Implement in forum module (by tab injection).
-            //StoreDependingSettings.GetOverrideKeys(fsettings, model.ForumSearchSettings, storeScope, Services.Settings, false);
-            //foreach (var prefix in new string[] { "ForumSearchSettings.Forum", "ForumSearchSettings.Customer", "ForumSearchSettings.Date" })
-            //{
-            //    StoreDependingSettings.GetOverrideKey(prefix + "Facet.Disabled", prefix + "Disabled", fsettings, storeScope, Services.Settings);
-            //    StoreDependingSettings.GetOverrideKey(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", fsettings, storeScope, Services.Settings);
-            //}
 
             return View(model);
         }
@@ -1006,6 +951,8 @@ namespace Smartstore.Admin.Controllers
             {
                 await Services.EventPublisher.PublishAsync(new CategoryTreeChangedEvent(categoriesChange.Value));
             }
+
+            await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, settings, form));
 
             #region TODO: (mh) (core) Implement in forum module (by tab injection).
 

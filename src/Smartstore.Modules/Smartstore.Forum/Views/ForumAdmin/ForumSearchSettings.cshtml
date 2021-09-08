@@ -1,0 +1,143 @@
+﻿@using Smartstore.Core.Search
+
+@model ForumSearchSettingsModel
+
+@{
+    Layout = "";
+
+    var isMegaSearchInstalled = (bool)ViewBag.IsMegaSearchInstalled;
+
+    ViewDataDictionary CreateFacetViewData(string fieldPrefix)
+    {
+        // Current prefix: CustomProperties[ForumSearchSettings]
+        var viewData = new ViewDataDictionary(ViewData);
+        // Append facet prefix to get CustomProperties[ForumSearchSettings].<Forum|Customer|Date>Facet.<Property>
+        viewData.TemplateInfo.HtmlFieldPrefix += "." + fieldPrefix;
+        return viewData;
+    }
+}
+
+@* VERY IMPORTANT for proper model binding *@
+<input type="hidden" name="CustomProperties[ForumSearchSettings].__Type__" value="@Model.GetType().AssemblyQualifiedName" />
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SearchMode" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="SearchMode">
+                <select asp-for="SearchMode" asp-items="ViewBag.SearchModes"></select>
+            </setting-editor>
+            <span asp-validation-for="SearchMode"></span>
+        </div>
+        <div class="adminRow hide" id="forum-wildcard-note">
+            <div class="adminTitle"></div>
+            <div class="adminData">
+                <div class="alert alert-warning">
+                    @T("Admin.Configuration.Settings.Search.WildcardSearchNote")
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SearchFields" />
+            </div>
+            <div class="adminData">
+                <select asp-for="SearchFields" asp-items='new MultiSelectList(ViewBag.SearchFields, "Value", "Text")' multiple="multiple"></select>
+                <span asp-validation-for="SearchFields"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DefaultSortOrder" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="DefaultSortOrder">
+                    <select asp-for="DefaultSortOrder" asp-items="Html.GetLocalizedEnumSelectList(typeof(ForumTopicSorting))"></select>
+                </setting-editor>
+                <span asp-validation-for="DefaultSortOrder"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Search.InstantSearch")</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="InstantSearchEnabled" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="InstantSearchEnabled" data-toggler-for="#pnlForumInstantSearch"></setting-editor>
+                <span asp-validation-for="InstantSearchEnabled"></span>
+            </div>
+        </div>
+        <div id="pnlForumInstantSearch">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="InstantSearchNumberOfHits" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="InstantSearchNumberOfHits"></setting-editor>
+                    <span asp-validation-for="InstantSearchNumberOfHits"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="InstantSearchTermMinLength" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="InstantSearchTermMinLength"></setting-editor>
+                    <span asp-validation-for="InstantSearchTermMinLength"></span>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Search.ResultFiltering")</div>
+            </div>
+        </div>
+        <div sm-if="isMegaSearchInstalled" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="FilterMinHitCount" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="FilterMinHitCount"></setting-editor>
+                <span asp-validation-for="FilterMinHitCount"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="FilterMaxChoicesCount" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="FilterMaxChoicesCount"></setting-editor>
+                <span asp-validation-for="FilterMaxChoicesCount"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <tabstrip id="common-forum-facets-settings" sm-nav-style="Material">
+        <tab sm-title="@T("Search.Facet.Forum")" sm-selected="true">
+            <partial name="_ForumFacet" model="Model.ForumFacet" view-data="@CreateFacetViewData("ForumFacet")" />
+        </tab>
+        <tab sm-title="@T("Search.Facet.Customer")">
+            <partial name="_ForumFacet" model="Model.CustomerFacet" view-data="@CreateFacetViewData("CustomerFacet")" />
+        </tab>
+        <tab sm-title="@T("Search.Facet.Date")">
+            <partial name="_ForumFacet" model="Model.DateFacet" view-data="@CreateFacetViewData("DateFacet")" />
+        </tab>
+    </tabstrip>
+</div>
+
+<script sm-target-zone="scripts" data-origin="forum-search-settings">
+    $(function() {
+        // Toggle wildcard note.
+        $('#@(Html.IdFor(x => x.SearchMode))').on('change', function () {
+			$('#forum-wildcard-note').toggle($(this).val() === '@((int)SearchMode.Contains)');
+        }).trigger('change');
+	});
+</script>

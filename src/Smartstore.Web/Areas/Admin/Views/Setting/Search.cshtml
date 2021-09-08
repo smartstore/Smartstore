@@ -1,4 +1,5 @@
-﻿@using Smartstore.Core.Catalog.Products
+﻿@using Smartstore.Core.Search
+@using Smartstore.Core.Catalog.Products
 
 @model SearchSettingsModel
 
@@ -40,7 +41,7 @@
                         <span asp-validation-for="SearchMode"></span>
                     </div>
                 </div>
-                <div class="adminRow wildcard-note hide">
+                <div class="adminRow hide" id="catalog-wildcard-note">
                     <div class="adminTitle"></div>
                     <div class="adminData">
                         <div class="alert alert-warning">
@@ -179,10 +180,17 @@
                 </tabstrip>
             </div>
         </tab>
-
-        @*TODO: (mh) (core) Inject forum tab here*@
     </tabstrip>
 </form>
+
+<script sm-target-zone="scripts" data-origin="search-settings">
+    $(function() {
+        // Toggle wildcard note.
+        $('#@(Html.IdFor(x => x.SearchMode))').on('change', function () {
+			$('#catalog-wildcard-note').toggle($(this).val() === '@((int)SearchMode.Contains)');
+        }).trigger('change');
+	});
+</script>
 
 @functions
 {
@@ -194,4 +202,3 @@
         return viewData;
     }
 }
-

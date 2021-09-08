@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Identity;
 
-namespace Smartstore.Forum
+namespace Smartstore.Forum.Domain
 {
     internal class ForumPostVoteMap : IEntityTypeConfiguration<ForumPostVote>
     {

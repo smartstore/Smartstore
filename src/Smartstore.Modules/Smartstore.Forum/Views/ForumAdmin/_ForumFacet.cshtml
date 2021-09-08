@@ -1,0 +1,60 @@
+﻿@model ForumFacetSettingsModel
+
+@{
+    var fieldPrefix = ViewData.TemplateInfo.HtmlFieldPrefix;
+}
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Disabled" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="Disabled"></setting-editor>
+            <span asp-validation-for="Disabled"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DisplayOrder" />
+        </div>
+        <div class="adminData">
+            <setting-editor asp-for="DisplayOrder"></setting-editor>
+            <span asp-validation-for="DisplayOrder"></span>
+        </div>
+    </div>
+</div>
+
+@if (Model.Locales.Count == 1)
+{
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Locales[0].Alias" />
+            </div>
+            <div class="adminData">
+                <input type="hidden" asp-for="Locales[0].LanguageId" />
+                <setting-editor asp-for="Locales[0].Alias"></setting-editor>
+                <span asp-validation-for="Locales[0].Alias"></span>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @(Html.LocalizedEditor<ForumFacetSettingsModel, ForumFacetSettingsLocalizedModel>(fieldPrefix + "-localized",
+	@<div class="adminContent">
+		<div class="adminRow">
+			<div class="adminTitle">
+				<smart-label asp-for="Locales[item].Alias" />
+			</div>
+            <div class="adminData">
+                @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language*@
+                <input type="hidden" asp-for="Locales[item].LanguageId" />
+                <setting-editor asp-for="Locales[item].Alias"></setting-editor>
+                <span asp-validation-for="Locales[item].Alias"></span>
+            </div>
+		</div>
+	</div>
+	, null))
+}

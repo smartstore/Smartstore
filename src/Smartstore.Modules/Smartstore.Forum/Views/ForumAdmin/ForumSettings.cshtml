@@ -1,18 +1,25 @@
-﻿@model ConfigurationModel
+﻿@model ForumSettingsModel
 
 @{
-    Layout = "_ConfigureModule";
+    Layout = "_SettingLayout";
+    ViewBag.Title = T("Admin.Configuration.Settings.Forums").Value;
 }
 
-@await Component.InvokeAsync("StoreScope")
+<form asp-action="Settings">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-users"></i>
+            <span>@ViewBag.Title</span>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
 
-<form asp-action="Configure">
-    <widget target-zone="admin_button_toolbar_before">
-        <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
-            <i class="fa fa-check"></i>
-            <span>@T("Admin.Common.Save")</span> 
-        </button>
-    </widget>
+    @await Component.InvokeAsync("StoreScope")
 
     <div asp-validation-summary="All"></div>
 

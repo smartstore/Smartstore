@@ -1,5 +1,4 @@
-﻿// TODO: (mg) (core) move forum string resources to module.
-namespace Smartstore.Forum
+﻿namespace Smartstore.Forum.Domain
 {
     /// <summary>
     /// Represents a forum topic type.

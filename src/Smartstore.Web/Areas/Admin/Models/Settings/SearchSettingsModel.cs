@@ -8,7 +8,7 @@ using Smartstore.Web.Modelling;
 namespace Smartstore.Admin.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Search.")]
-    public partial class SearchSettingsModel : ModelBase
+    public partial class SearchSettingsModel : TabbableModel
     {
         public string SearchFieldsNote { get; set; }
         public bool IsMegaSearchInstalled { get; set; }
@@ -50,10 +50,6 @@ namespace Smartstore.Admin.Models
         public CommonFacetSettingsModel DeliveryTimeFacet { get; set; } = new();
         public CommonFacetSettingsModel AvailabilityFacet { get; set; } = new();
         public CommonFacetSettingsModel NewArrivalsFacet { get; set; } = new();
-
-        // TODO: (mh) (core) Must be injected by Forum module.
-        // Property name must equal settings class name.
-        //public ForumSearchSettingsModel ForumSearchSettings { get; set; }
     }
 
     public class CommonFacetSettingsModel : ModelBase, ILocalizedModel<CommonFacetSettingsLocalizedModel>
@@ -82,18 +78,18 @@ namespace Smartstore.Admin.Models
 
     public class SearchSettingValidator : AbstractValidator<SearchSettingsModel>
     {
-        public static int MaxInstantSearchItems => 16;
+        private const int MAX_INSTANT_SEARCH_ITEMS = 16;
 
-        // TODO: (mh) (core) Throws with "Cannot resolve parameter addRule"
+        // TODO: (mg) (core) Throws with "Cannot resolve parameter addRule"
         // RE: Because "Func<string, bool>" is an unknown IoC dependency. We need to find a way to instantiate this class manually.
         public SearchSettingValidator(Localizer T/*, Func<string, bool> addRule*/)
         {
             //if (addRule("InstantSearchNumberOfProducts"))
             //{
                 RuleFor(x => x.InstantSearchNumberOfProducts)
-                    .Must(x => x >= 1 && x <= MaxInstantSearchItems)
+                    .Must(x => x >= 1 && x <= MAX_INSTANT_SEARCH_ITEMS)
                     .When(x => x.InstantSearchEnabled)
-                    .WithMessage(T("Admin.Validation.ValueRange", 1, MaxInstantSearchItems));
+                    .WithMessage(T("Admin.Validation.ValueRange", 1, MAX_INSTANT_SEARCH_ITEMS));
             //}
         }
     }

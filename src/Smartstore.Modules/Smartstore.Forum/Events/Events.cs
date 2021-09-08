@@ -2,6 +2,7 @@
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Events;
+using Smartstore.Forum.Models;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering.Events;
 
@@ -13,15 +14,16 @@ namespace Smartstore.Forum.Events
 
         public async Task HandleEventAsync(TabStripCreated message, IPermissionService permissions)
         {
+            // Render tab with forum search settings.
             if (message.TabStripName.EqualsNoCase("searchsettings-edit"))
             {
                 if (await permissions.AuthorizeAsync(ForumPermissions.Read))
                 {
                     await message.TabFactory.AddAsync(builder => builder
-                        .Text(T("Admin.Configuration.Settings.Forums"))
+                        .Text(T("Forum.Forum"))
                         .Name("tab-search-forum")
-                        .LinkHtmlAttributes(new { data_tab_name = "Forum" })
-                        .Action("SearchSettings", "ForumAdmin", new { area = "Admin" })
+                        .LinkHtmlAttributes(new { data_tab_name = "ForumSearchSettings" })
+                        .Action("ForumSearchSettings", "ForumAdmin", new { area = "Admin" })
                         .Ajax());
                 }
             }
@@ -29,10 +31,18 @@ namespace Smartstore.Forum.Events
 
         public Task HandleEventAsync(ModelBoundEvent message)
         {
-            // TODO: (mg) (core) none of settings models is tabbable.
-            // TODO: (mg) (core) ModelBoundEvent never published when saving settings.
+            var model = message.BoundModel.CustomProperties.ContainsKey("ForumSearchSettings")
+                ? message.BoundModel.CustomProperties["ForumSearchSettings"] as ForumSearchSettingsModel
+                : null;
 
-            $"-- ModelBoundEvent".Dump();
+            if (model == null)
+            {
+                return Task.CompletedTask;
+            }
+
+            $"-- Bound ForumSearchSettingsModel".Dump();
+
+
             return Task.CompletedTask;
         }
     }

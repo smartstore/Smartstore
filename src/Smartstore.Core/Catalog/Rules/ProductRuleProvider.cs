@@ -421,7 +421,7 @@ namespace Smartstore.Core.Catalog.Rules
                 }
             };
 
-            if (_services.ApplicationContext.ModuleCatalog.GetModuleByName("SmartStore.MegaSearchPlus") != null)
+            if (_services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus") != null)
             {
                 ISearchFilter[] filters(string fieldName, int parentId, int[] valueIds)
                 {

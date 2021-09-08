@@ -9,7 +9,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Domain;
 
-namespace Smartstore.Forum
+namespace Smartstore.Forum.Domain
 {
     internal class ForumMap : IEntityTypeConfiguration<Forum>
     {

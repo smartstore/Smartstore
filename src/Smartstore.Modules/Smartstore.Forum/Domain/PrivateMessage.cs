@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Identity;
 using Smartstore.Domain;
 
-namespace Smartstore.Forum
+namespace Smartstore.Forum.Domain
 {
     internal class PrivateMessageMap : IEntityTypeConfiguration<PrivateMessage>
     {

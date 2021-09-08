@@ -11,7 +11,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 
-namespace Smartstore.Forum
+namespace Smartstore.Forum.Domain
 {
     /// <summary>
     /// Represents a forum group.

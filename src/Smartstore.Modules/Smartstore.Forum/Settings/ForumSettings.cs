@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Configuration;
+using Smartstore.Forum.Domain;
 
 namespace Smartstore.Forum
 {
