@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Blog.Data;
 using Smartstore.Blog.Models;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -25,8 +26,8 @@ namespace Smartstore.Blog.Controllers
     [Route("[area]/blog/[action]/{id?}")]
     public class BlogAdminController : AdminController
     {
-        //private readonly BlogDbContext _dbBlog;
-        //private readonly IBlogService _blogService;
+        private readonly SmartDbContext _db;
+        private readonly IBlogService _blogService;
         private readonly IUrlService _urlService;
         private readonly ILanguageService _languageService;
         private readonly IDateTimeHelper _dateTimeHelper;
@@ -35,8 +36,8 @@ namespace Smartstore.Blog.Controllers
         private readonly ICustomerService _customerService;
 
         public BlogAdminController(
-            //BlogDbContext dbBlog,
-            //IBlogService blogService,
+            SmartDbContext db,
+            IBlogService blogService,
             IUrlService urlService,
             ILanguageService languageService,
             IDateTimeHelper dateTimeHelper,
@@ -44,8 +45,8 @@ namespace Smartstore.Blog.Controllers
             IStoreMappingService storeMappingService,
             ICustomerService customerService)
         {
-            //_dbBlog = dbBlog;
-            //_blogService = blogService;
+            _db = db;
+            _blogService = blogService;
             _urlService = urlService;
             _languageService = languageService;
             _dateTimeHelper = dateTimeHelper;

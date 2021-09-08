@@ -216,15 +216,15 @@ namespace Smartstore.Blog
             set => _language = value;
         }
 
-        //private ICollection<BlogComment> _blogComments;
-        ///// <summary>
-        ///// Gets or sets the blog comments.
-        ///// </summary>
-        //public virtual ICollection<BlogComment> BlogComments
-        //{
-        //    get => _blogComments ?? LazyLoader.Load(this, ref _blogComments) ?? (_blogComments ??= new HashSet<BlogComment>());
-        //    protected set => _blogComments = value;
-        //}
+        private ICollection<BlogComment> _blogComments;
+        /// <summary>
+        /// Gets or sets the blog comments.
+        /// </summary>
+        public virtual ICollection<BlogComment> BlogComments
+        {
+            get => _blogComments ?? LazyLoader.Load(this, ref _blogComments) ?? (_blogComments ??= new HashSet<BlogComment>());
+            protected set => _blogComments = value;
+        }
 
         /// <inheritdoc/>
         public string GetDisplayName()
