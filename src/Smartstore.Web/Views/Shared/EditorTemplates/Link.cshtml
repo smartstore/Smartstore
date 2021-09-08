@@ -110,11 +110,11 @@
                                 data-select-selected-id="@value"
                                 data-select-init-text="@label"></select>
                     }*@
-                else if (schema == DefaultLinkProvider.SchemaUrl)
+                else if (schema == "url")
                 {
                     <input type="text" class="form-control transferable resettable" value="@value" />
                 }
-                else if (schema == DefaultLinkProvider.SchemaFile)
+                else if (schema == "file")
                 {
                     <div class="input-group">
                         <input id="lb-file-url-@rnd" type="text" class="form-control transferable resettable bg-white text-muted" value="@label" readonly />
@@ -135,7 +135,7 @@
             </button>
             @if (!hideQueryString)
             {
-                <button type="button" class="btn btn-secondary btn-icon btn-query-string" attr-class='(expression.Schema == DefaultLinkProvider.SchemaUrl, "hide")'
+                <button type="button" class="btn btn-secondary btn-icon btn-query-string" attr-class='(expression.Schema == "url", "hide")'
                         title="@T("Common.QueryString")" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-question-circle @(expression.Query.HasValue() ? "text-success" : "text-muted")"></i>
                 </button>

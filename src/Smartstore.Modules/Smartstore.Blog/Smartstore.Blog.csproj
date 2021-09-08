@@ -25,4 +25,10 @@
   <ItemGroup>
     <Folder Include="Views\Blog\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
+      <Private>false</Private>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
