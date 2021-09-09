@@ -199,6 +199,7 @@ namespace Smartstore.Web.Infrastructure.Menus
             foreach (var item in root.Children)
             {
                 item.Value.RouteValues["area"] = "Admin";
+                item.Id = item.Value.Id;
             }
 
             return Task.FromResult(root);
