@@ -322,6 +322,7 @@ namespace Smartstore.Admin.Models
     {
         public CustomerUserSettingsValidator()
         {
+            // TODO: (mh) (core) Validation fails if store scope was selected.
             RuleFor(x => x.CustomerSettings.PasswordMinLength).GreaterThanOrEqualTo(4);
         }
     }
