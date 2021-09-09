@@ -6,13 +6,18 @@ using Smartstore.Data;
 using Smartstore.Domain;
 using Smartstore.Forum.Domain;
 
-namespace Smartstore.Forum.Data.Migrations
+namespace Smartstore.Forum.Migrations
 {
     [MigrationVersion("2021-09-08 20:00:00", "Forum: add initial entities")]
-    public class InitialMigration : Migration
+    internal class Initial : Migration
     {
         public override void Up()
         {
+            // INFO: (mg) (core) IfDatabase(provider) is NOT necessary for schema access. Therefore our extension methods are not necessary.
+            // INFO: (mg) (core) DeleteTables & DeleteColumns not necessary, because we will use AutoReversing migrations most of the time.
+            // INFO: (mg) (core) For correct file ordering, we should apply the old EF migration conventions to migration class files: [Timestamp]_[MigrationName].cs
+            // INFO: (mg) (core) All migration classes should be internal
+
             // INFO: without a name an index becomes IX_Forums_Forum_DisplayOrder instead of IX_DisplayOrder.
             const string forumGroup = "Forums_Group";
             const string forum = "Forums_Forum";
@@ -23,10 +28,8 @@ namespace Smartstore.Forum.Data.Migrations
             const string privateMessage = "Forums_PrivateMessage";
             const string id = nameof(BaseEntity.Id);
 
-            var dbSystem = DataSettings.Instance.DbFactory.DbSystem.ToString();
-
             // ForumGroup.
-            if (!this.HasTable(dbSystem, forumGroup))
+            if (!Schema.Table(forumGroup).Exists())
             {
                 Create.Table(forumGroup)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -43,7 +46,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // Forum.
-            if (!this.HasTable(dbSystem, forum))
+            if (!Schema.Table(forum).Exists())
             {
                 Create.Table(forum)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -71,7 +74,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // ForumTopic.
-            if (!this.HasTable(dbSystem, forumTopic))
+            if (!Schema.Table(forumTopic).Exists())
             {
                 Create.Table(forumTopic)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -109,7 +112,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // ForumPost.
-            if (!this.HasTable(dbSystem, forumPost))
+            if (!Schema.Table(forumPost).Exists())
             {
                 Create.Table(forumPost)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -127,7 +130,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // ForumSubscription.
-            if (!this.HasTable(dbSystem, forumSubscription))
+            if (!Schema.Table(forumSubscription).Exists())
             {
                 Create.Table(forumSubscription)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -142,7 +145,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // ForumPostVote.
-            if (!this.HasTable(dbSystem, forumPostVote))
+            if (!Schema.Table(forumPostVote).Exists())
             {
                 Create.Table(forumPostVote)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -156,7 +159,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // PrivateMessage.
-            if (!this.HasTable(dbSystem, privateMessage))
+            if (!Schema.Table(privateMessage).Exists())
             {
                 Create.Table(privateMessage)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
