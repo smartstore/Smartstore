@@ -171,24 +171,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 		public const string POLLS_PATTERN_KEY = "pres:poll:*";
 
 		/// <summary>
-		/// Key for blog tag list model
-		/// </summary>
-		/// <remarks>
-		/// {0} : language ID
-		/// {1} : store ID
-		/// </remarks>
-		public const string BLOG_TAGS_MODEL_KEY = "pres:blog:tags-{0}-{1}";
-		/// <summary>
-		/// Key for blog archive (years, months) block model
-		/// </summary>
-		/// <remarks>
-		/// {0} : language ID
-		/// {1} : current store ID
-		/// </remarks>
-		public const string BLOG_MONTHS_MODEL_KEY = "pres:blog:months-{0}-{1}";
-		public const string BLOG_PATTERN_KEY = "pres:blog:*";
-
-		/// <summary>
 		/// Key for home page news
 		/// </summary>
 		/// <remarks>
@@ -255,7 +237,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 			TypeHelper.NameOf<CatalogSettings>(x => x.NumberOfProductTags, true),
 			TypeHelper.NameOf<CatalogSettings>(x => x.ManufacturerItemsToDisplayOnHomepage, true),
 			TypeHelper.NameOf<CatalogSettings>(x => x.NumberOfBestsellersOnHomepage, true),
-			//TypeHelper.NameOf<BlogSettings>(x => x.NumberOfTags, true),
 			//TypeHelper.NameOf<NewsSettings>(x => x.MainPageNewsCount, true)
 		};
 
