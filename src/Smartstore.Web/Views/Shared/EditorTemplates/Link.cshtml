@@ -1,8 +1,5 @@
 ﻿@using Smartstore.Utilities
 
-@* TODO: (core) Refactor for new link provider system (widgets etc.) *@
-@* TODO: (mh) (core) Restructure CSS (or script) in a way that the last visible button always is rounded right. *@
-
 @functions
 {
     private string Value => ViewData.Model != null ? Convert.ToString(ViewData.Model) : null;
@@ -25,8 +22,7 @@
 <div id="link-builder-@rnd" class="link-builder edit-control"
      data-field-id="@id"
      data-editor="link"
-     data-current-type="@(Value != null ? expression.Schema : string.Empty)"
-     attr-data-product-picker-callback='(allowedSchemas.Contains(DefaultLinkProvider.SchemaProduct), "lbPickerSelectionCompleted" + rnd.ToString())'>
+     data-current-type="@(Value != null ? expression.Schema : string.Empty)">
 
     @* Template control that receives the link expression. *@
     <input asp-for="@Model" type="hidden" value="@Value" />
@@ -53,14 +49,16 @@
         @* 2. main control. *@
         @foreach (var schema in allowedSchemas)
         {
-            var label = expression.Schema == schema ? link.Label : string.Empty;
-            var value = expression.Schema == expression.Target;
             var info = metadata[schema];
+            var label = expression.Schema == schema ? link.Label : string.Empty;
+            var value = expression.Schema == schema && expression.Target != null 
+                ? (link.EntityId.HasValue ? link.EntityId.Value.ToStringInvariant() : expression.Target.EmptyNull()) 
+                : string.Empty;
 
             <div class="link-control col" attr-class='(expression.Schema != schema, "hide")' data-type="@schema">
                 @if (info.Widget != null)
                 {
-                    await info.Widget.InvokeAsync(ViewContext);
+                    @await info.Widget.InvokeAsync(ViewContext, (link, label, value))
                 }
                 else if (schema == DefaultLinkProvider.SchemaProduct)
                 {
@@ -68,9 +66,11 @@
                         <input type="text" class="form-control resettable product-picker-input bg-white text-muted" value="@label" readonly />
                         <div class="input-group-append">
                             <entity-picker max-items="1"
-                                            append-mode="false"
-                                            dialog-title=@T("Common.Entity.SelectProduct").JsValue
-                                            caption=@T("Common.Search").JsValue />
+                                           onselectioncompleted="lbPickerSelectionCompleted@(rnd.ToString())"
+                                           append-mode="false"
+                                           icon-css-class=""
+                                           dialog-title=@T("Common.Entity.SelectProduct").JsValue
+                                           caption="&hellip;" />
                         </div>
                     </div>       
                 }
@@ -96,14 +96,7 @@
                             data-select-init-text="@label"></select>
                 }
                 @* TODO: (mh) (core) Must be provided & injected by forum and news modules (see widget above) *@
-                @*else if (type == LinkType.BlogPost)
-                    {
-                        <select class="form-control transferable resettable"
-                                data-select-url="@Url.Action("AllBlogPosts", "Blog", new { area = "admin" })"
-                                data-select-selected-id="@value"
-                                data-select-init-text="@label"></select>
-                    }
-                    else if (type == LinkType.NewsItem)
+                @*else if (type == LinkType.NewsItem)
                     {
                         <select class="form-control transferable resettable"
                                 data-select-url="@Url.Action("AllNews", "News", new { area = "admin" })"
@@ -118,10 +111,12 @@
                 {
                     <div class="input-group">
                         <input id="lb-file-url-@rnd" type="text" class="form-control transferable resettable bg-white text-muted" value="@label" readonly />
-                        <a href="javascript:;" class="btn btn-secondary browse-files" data-url="@Url.Content("~/Admin/RoxyFileManager/")" data-field-id="lb-file-url-@rnd">
-                            <i class="fa fa-upload"></i>
-                            <span>@(T("Common.BrowseFiles"))&hellip;</span>
-                        </a>
+                        <div class="input-group-append">
+                            <a href="javascript:;" class="btn btn-secondary browse-files" data-url="@Url.Content("~/Admin/RoxyFileManager/")" data-field-id="lb-file-url-@rnd">
+                                <i class="fa fa-upload"></i>
+                                <span>@(T("Common.BrowseFiles"))&hellip;</span>
+                            </a>
+                        </div>
                     </div>         
                 }
             </div>
@@ -130,8 +125,8 @@
         @* 4. append additional buttons. *@
         <div class="col-auto">
             <button type="button" class="btn btn-secondary btn-icon btn-to-danger btn-reset" title="@T("Common.Remove")">
-                @*<i class="fa fa-unlink"></i>*@
-                <span class="fs-h5" style="line-height: 1">&times;</span>
+                <i class="fa fa-unlink"></i>
+                @*<span class="fs-h5" style="line-height: 1">&times;</span>*@
             </button>
             @if (!hideQueryString)
             {
@@ -148,3 +143,23 @@
         </div>
     </div>
 </div>
+
+@if (allowedSchemas.Contains(DefaultLinkProvider.SchemaProduct))
+{
+    <script>
+        function lbPickerSelectionCompleted@(rnd)(ids, selectedItems) {
+            var cnt = $("#link-builder-@rnd");
+            var val = 'product:' + ids[0];
+            var qs = cnt.find(".query-string").val() || '';
+            while (qs.startsWith('?')) {
+                qs = qs.substring(1);
+            }
+            if (!_.isEmpty(qs)) {
+                val = val + '?' + qs;
+            }
+            $('#@id').val(val).trigger("change");
+            cnt.find(".product-picker-input").val(selectedItems[0].name);
+            return true;
+        }
+    </script>
+} 

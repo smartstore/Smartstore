@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace Smartstore.Core.Content.Menus
 {
+    /// <summary>
+    /// The parsed representation of a link expression.
+    /// </summary>
     [DebuggerDisplay("LinkExpression: {RawExpression}")]
     public class LinkExpression
     {

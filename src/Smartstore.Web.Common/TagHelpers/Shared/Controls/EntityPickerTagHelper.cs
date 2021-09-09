@@ -189,7 +189,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 NullValueHandling = NullValueHandling.Ignore
             });
 
-            output.PostElement.AppendHtmlLine(@$"<script data-origin='EntityPicker'>$(function() {{ $('#{buttonId}').entityPicker({json}); }})</script>");
+            output.PreElement.AppendHtmlLine(@$"<script data-origin='EntityPicker'>$(function() {{ $('#{buttonId}').entityPicker({json}); }})</script>");
         }
     }
 }

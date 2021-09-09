@@ -8,6 +8,7 @@ using Smartstore.Blog.Domain;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
+using Smartstore.Web.Razor;
 
 namespace Smartstore.Blog.Services
 {
@@ -28,8 +29,13 @@ namespace Smartstore.Blog.Services
         {
             return new[]
             {
-                // TODO: (mh) (core) Implement builder widget. But wait for PartialWidgetInvoker to be finished.
-                new LinkBuilderMetadata { Schema = SchemaBlog, Icon = "fa fa-blog", ResKey = "Common.Entity.BlogPost", Widget = null },
+                new LinkBuilderMetadata 
+                { 
+                    Schema = SchemaBlog, 
+                    Icon = "fa fa-blog", 
+                    ResKey = "Common.Entity.BlogPost", 
+                    Widget = new PartialViewWidgetInvoker("BlogLinkBuilder", "Smartstore.Blog") 
+                },
                 // TODO: (mh) (core) Copy to News module later
                 //new LinkBuilderMetadata { Schema = SchemaNewsItem, Icon = "far fa-newspaper", ResKey = "Common.Entity.NewsItem" }
             };
