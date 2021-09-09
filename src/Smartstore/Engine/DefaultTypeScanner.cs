@@ -16,20 +16,27 @@ namespace Smartstore.Engine
         public DefaultTypeScanner(IEnumerable<Assembly> coreAssemblies, IModuleCatalog moduleCatalog, ILogger logger)
         {
             Guard.NotNull(coreAssemblies, nameof(coreAssemblies));
-            Guard.NotNull(moduleCatalog, nameof(moduleCatalog));
             Guard.NotNull(logger, nameof(logger));
-
-            // TODO: (core) Impl > PluginManager stuff etc.
 
             Logger = logger;
 
             var assemblies = new HashSet<Assembly>(coreAssemblies);
 
             // Add all module assemblies to assemblies list
-            assemblies.AddRange(moduleCatalog.GetInstalledModules().Select(x => x.Module.Assembly));
+            if (moduleCatalog != null)
+            {
+                assemblies.AddRange(moduleCatalog.GetInstalledModules().Select(x => x.Module.Assembly));
+            }
 
-            // (Perf) Create a list with all active module assemblies only
-            _activeAssemblies.AddRange(assemblies.Where(x => moduleCatalog.IsActiveModuleAssembly(x)));
+            if (moduleCatalog == null)
+            {
+                _activeAssemblies.AddRange(assemblies);
+            }
+            else
+            {
+                // (perf) Create a list with all active module assemblies only
+                _activeAssemblies.AddRange(assemblies.Where(x => moduleCatalog.IsActiveModuleAssembly(x)));
+            }
 
             // No edit allowed from now on
             Assemblies = assemblies.AsReadOnly();

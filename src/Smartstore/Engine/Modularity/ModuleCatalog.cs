@@ -48,12 +48,11 @@ namespace Smartstore.Engine.Modularity
             return assembly != null && !_inactiveAssemblies.Contains(assembly);
         }
 
-        public IModuleDescriptor GetModuleByAssembly(Assembly assembly, bool installedOnly = true)
+        public IModuleDescriptor GetModuleByAssembly(Assembly assembly)
         {
             if (assembly != null && _assemblyMap.TryGetValue(assembly, out var descriptor))
             {
-                if (!installedOnly || descriptor.IsInstalled())
-                    return descriptor;
+                return descriptor;
             }
 
             return null;

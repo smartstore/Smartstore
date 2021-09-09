@@ -18,6 +18,8 @@ namespace Smartstore.Engine.Modularity
         public virtual Task InstallAsync()
         {
             ModularState.Instance.InstalledModules.Add(Descriptor.SystemName);
+            ModularState.Instance.Save();
+
             return Task.CompletedTask;
         }
 
@@ -25,6 +27,8 @@ namespace Smartstore.Engine.Modularity
         public virtual Task UninstallAsync()
         {
             ModularState.Instance.InstalledModules.Remove(Descriptor.SystemName);
+            ModularState.Instance.Save();
+
             return Task.CompletedTask;
         }
 

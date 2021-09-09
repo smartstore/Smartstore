@@ -37,9 +37,8 @@ namespace Smartstore.Engine.Modularity
         /// Gets a module by assembly.
         /// </summary>
         /// <param name="assembly">The module assembly</param>
-        /// <param name="installedOnly">Return the module only if it is installed.</param>
         /// <returns>Descriptor</returns>
-        IModuleDescriptor GetModuleByAssembly(Assembly assembly, bool installedOnly = true);
+        IModuleDescriptor GetModuleByAssembly(Assembly assembly);
 
         /// <summary>
         /// Gets a module by system name.

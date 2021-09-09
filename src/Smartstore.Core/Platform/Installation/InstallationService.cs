@@ -368,8 +368,6 @@ namespace Smartstore.Core.Installation
                     }
                 }
             }
-
-            ModularState.Instance.Save();
         }
 
         private void CheckFileSystemAccessRights(List<string> errors)
