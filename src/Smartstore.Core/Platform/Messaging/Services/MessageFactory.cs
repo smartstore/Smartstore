@@ -151,8 +151,6 @@ namespace Smartstore.Core.Messaging
             {
                 Priority = 5,
                 From = messageContext.SenderMailAddress ?? messageContext.EmailAccount.ToMailAddress(),
-                // TODO: (mh) (core) Exception is raised because the model token in MessageContext is named "News-->l<--etterSubscription" (after portation),
-                // but the token in the template is still "News-->L<--etterSubscription" (capital L). Find a way to add the token as "NewsLetterSubscription" (even if it looks ugly).
                 To = to.ToString(),
                 Bcc = bcc,
                 ReplyTo = replyTo?.ToString(),
@@ -464,7 +462,7 @@ namespace Smartstore.Core.Messaging
                 { "Shipment", () => GetRandomEntity<Shipment>(x => !x.Order.Deleted) },
                 { "OrderNote", () => GetRandomEntity<OrderNote>(x => !x.Order.Deleted) },
                 { "RecurringPayment", () => GetRandomEntity<RecurringPayment>(x => !x.Deleted) },
-                { "NewsLetterSubscription", () => GetRandomEntity<NewsletterSubscription>(x => true) },
+                { "NewsletterSubscription", () => GetRandomEntity<NewsletterSubscription>(x => true) },
                 { "Campaign", () => GetRandomEntity<Campaign>(x => true) },
                 { "ReturnRequest", () => GetRandomEntity<ReturnRequest>(x => true) },
                 { "OrderItem", () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted) },
