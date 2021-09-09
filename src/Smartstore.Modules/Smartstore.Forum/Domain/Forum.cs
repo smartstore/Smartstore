@@ -26,7 +26,6 @@ namespace Smartstore.Forum.Domain
     /// Represents a forum.
     /// </summary>
     [Table("Forums_Forum")]
-    [Index(nameof(ForumGroupId), Name = "IX_Forums_Forum_ForumGroupId")]
     [Index(nameof(DisplayOrder), Name = "IX_Forums_Forum_DisplayOrder")]
     [Index(nameof(ForumGroupId), nameof(DisplayOrder), Name = "IX_ForumGroupId_DisplayOrder")]
     public partial class Forum : BaseEntity, IAuditable, ILocalizedEntity, ISlugSupported

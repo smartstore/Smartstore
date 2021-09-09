@@ -6,7 +6,7 @@ using Smartstore.Forum.Models;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering.Events;
 
-namespace Smartstore.Forum.Events
+namespace Smartstore.Forum
 {
     public class Events : IConsumer
     {
@@ -23,7 +23,7 @@ namespace Smartstore.Forum.Events
                         .Text(T("Forum.Forum"))
                         .Name("tab-search-forum")
                         .LinkHtmlAttributes(new { data_tab_name = "ForumSearchSettings" })
-                        .Action("ForumSearchSettings", "ForumAdmin", new { area = "Admin" })
+                        .Action("ForumSearchSettings", "Forum", new { area = "Admin" })
                         .Ajax());
                 }
             }

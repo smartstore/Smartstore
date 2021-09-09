@@ -42,6 +42,7 @@ namespace Smartstore.Forum.Models
         public ForumFacetSettingsModel DateFacet { get; set; } = new();
     }
 
+    // TODO: (mg) (core) use CommonFacetSettingsModel and move it to Smartstore.Web.Common.
     public class ForumFacetSettingsModel : ModelBase, ILocalizedModel<ForumFacetSettingsLocalizedModel>
     {
         public int LanguageId { get; set; }

@@ -6,17 +6,17 @@
     public enum ForumTopicType
     {
         /// <summary>
-        /// Normal
+        /// Normal.
         /// </summary>
         Normal = 10,
 
         /// <summary>
-        /// Sticky
+        /// Sticky.
         /// </summary>
-        
         Sticky = 15,
+
         /// <summary>
-        /// Announcement
+        /// Announcement.
         /// </summary>
         Announcement = 20,
     }
@@ -39,12 +39,12 @@
     public enum EditorType
     {
         /// <summary>
-        /// SimpleTextBox
+        /// Simple text box.
         /// </summary>
         SimpleTextBox = 10,
 
         /// <summary>
-        /// BBCode Editor
+        /// BBCode editor.
         /// </summary>
         BBCodeEditor = 20
     }

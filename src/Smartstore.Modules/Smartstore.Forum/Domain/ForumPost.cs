@@ -17,7 +17,8 @@ namespace Smartstore.Forum.Domain
         {
             builder.HasOne(c => c.ForumTopic)
                 .WithMany()
-                .HasForeignKey(c => c.TopicId);
+                .HasForeignKey(c => c.TopicId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(c => c.Customer)
                 .WithMany()
