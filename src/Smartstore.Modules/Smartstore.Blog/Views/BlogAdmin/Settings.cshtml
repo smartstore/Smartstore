@@ -1,18 +1,24 @@
-﻿@model ConfigurationModel
+﻿@model BlogSettingsModel
 
 @{
-    Layout = "_ConfigureModule";
+    Layout = "_SettingLayout";
 }
 
-@await Component.InvokeAsync("StoreScope")
+<form asp-action="Settings">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-edit"></i>
+            @T("Admin.Configuration.Settings.Blog")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
 
-<form asp-action="Configure">
-    <widget target-zone="admin_button_toolbar_before">
-        <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
-            <i class="fa fa-check"></i>
-            <span>@T("Admin.Common.Save")</span>
-        </button>
-    </widget>
+    @await Component.InvokeAsync("StoreScope")
 
     <div asp-validation-summary="All"></div>
 
@@ -88,8 +94,8 @@
             </div>
         </tab>
         <tab sm-title="@T("Admin.Configuration.SeoTab.Title")">
-            @*TODO: (mh) (core) Test again if this works fine along with store scope configuration *@ 
-            @*<editor asp-for="SeoModel" asp-template="SeoModel" />*@
+            @*TODO: (mh) (core) Test again if this works fine along with store scope configuration *@
+            <editor asp-for="SeoModel" asp-template="SeoModel" />
         </tab>
     </tabstrip>
 </form>

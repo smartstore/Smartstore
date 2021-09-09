@@ -4,7 +4,7 @@ using Smartstore.Web.Modelling;
 namespace Smartstore.Blog.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Blog.")]
-    public class ConfigurationModel : ModelBase
+    public class BlogSettingsModel : ModelBase
     {
         [LocalizedDisplay("*Enabled")]
         public bool Enabled { get; set; }
@@ -27,7 +27,7 @@ namespace Smartstore.Blog.Models
         [LocalizedDisplay("*ShowHeaderRSSUrl")]
         public bool ShowHeaderRssUrl { get; set; }
 
-        public SeoModel SeoModel { get; set; }
+        public SeoModel SeoModel { get; set; } = new();
     }
 
     // INFO: Had to do it this way to call <editor asp-for="SeoModel" asp-template="SeoModel" />

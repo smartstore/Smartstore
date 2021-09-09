@@ -66,25 +66,49 @@ namespace Smartstore.Blog.Controllers
 
         [AuthorizeAdmin, Permission(BlogPermissions.Read)]
         [LoadSetting]
-        public IActionResult Configure(BlogSettings settings)
+        public IActionResult Settings(BlogSettings settings, int storeId)
         {
-            var model = MiniMapper.Map<BlogSettings, ConfigurationModel>(settings);
+            var model = MiniMapper.Map<BlogSettings, BlogSettingsModel>(settings);
+
+            // TODO: (mh) (core) Localization is broken in core.
+            model.SeoModel.MetaTitle = settings.MetaTitle;
+            model.SeoModel.MetaDescription = settings.MetaDescription;
+            model.SeoModel.MetaKeywords = settings.MetaKeywords;
+
+            AddLocales(model.SeoModel.Locales, (locale, languageId) =>
+            {
+                locale.MetaTitle = settings.GetLocalizedSetting(x => x.MetaTitle, languageId, storeId, false, false);
+                locale.MetaDescription = settings.GetLocalizedSetting(x => x.MetaDescription, languageId, storeId, false, false);
+                locale.MetaKeywords = settings.GetLocalizedSetting(x => x.MetaKeywords, languageId, storeId, false, false);
+            });
+
             return View(model);
         }
 
         [AuthorizeAdmin, Permission(BlogPermissions.Update)]
         [HttpPost, SaveSetting]
-        public IActionResult Configure(ConfigurationModel model, BlogSettings settings)
+        public async Task<IActionResult> Settings(BlogSettingsModel model, BlogSettings settings, int storeId)
         {
             if (!ModelState.IsValid)
             {
-                return Configure(settings);
+                return Settings(settings, storeId);
             }
 
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
-            return RedirectToAction("Configure");
+            settings.MetaTitle = model.SeoModel.MetaTitle;
+            settings.MetaDescription = model.SeoModel.MetaDescription;
+            settings.MetaKeywords = model.SeoModel.MetaKeywords;
+
+            foreach (var localized in model.SeoModel.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId, storeId);
+                await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId, storeId);
+                await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaKeywords, localized.MetaKeywords, localized.LanguageId, storeId);
+            }
+
+            return RedirectToAction("Settings");
         }
 
         #endregion
