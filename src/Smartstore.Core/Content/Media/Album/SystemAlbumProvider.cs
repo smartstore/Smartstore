@@ -145,8 +145,6 @@ namespace Smartstore.Core.Content.Media
             else if (albumName == Content)
             {
                 // TODO: (core) Move Blog/News media tracker to external modules
-                //table.Register<BlogPost>(x => x.MediaFileId);
-                //table.Register<BlogPost>(x => x.PreviewMediaFileId);
                 //table.Register<NewsItem>(x => x.MediaFileId);
                 //table.Register<NewsItem>(x => x.PreviewMediaFileId);
                 table.Register<Store>(x => x.LogoMediaFileId);
