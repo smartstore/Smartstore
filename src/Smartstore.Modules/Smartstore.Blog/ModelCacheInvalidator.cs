@@ -30,6 +30,8 @@ namespace Smartstore.Blog.Hooks
         public const string BLOG_MONTHS_MODEL_KEY = "pres:blog:months-{0}-{1}";
         public const string BLOG_PATTERN_KEY = "pres:blog:*";
 
+        private readonly static string NumberOfTagsName = TypeHelper.NameOf<BlogSettings>(x => x.NumberOfTags, true);
+
         private readonly ICacheManager _cache;
 
         public ModelCacheInvalidator(ICacheManager cache)
@@ -50,7 +52,7 @@ namespace Smartstore.Blog.Hooks
             {
                 var setting = entity as Setting;
                 
-                if (TypeHelper.NameOf<BlogSettings>(x => x.NumberOfTags, true) == setting.Name)
+                if (setting.Name == NumberOfTagsName)
                 {
                     await _cache.RemoveByPatternAsync(BLOG_PATTERN_KEY); // depends on BlogSettings.NumberOfTags
                 }
