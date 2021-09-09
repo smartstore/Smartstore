@@ -334,15 +334,13 @@ namespace Smartstore.Core.Messaging
                 else
                 {
                     // Put part to model as new property.
-                    if (name == "NewsletterSubscription")
+                    model[name] = modelPart;
+
+                    if (name == nameof(NewsletterSubscription))
                     {
                         // Info: Legacy code to support old message template tokens. 
                         // TODO: (mh) (core) Write migration to translate this token in the database. Then change it in all email templates.
                         model["NewsLetterSubscription"] = modelPart;
-                    }
-                    else
-                    {
-                        model[name] = modelPart;
                     }
                 }
             }
