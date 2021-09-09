@@ -1,4 +1,5 @@
-﻿namespace Smartstore.Forum.Domain
+﻿// TODO: (mg) (core) move forum enum string resources to module.
+namespace Smartstore.Forum.Domain
 {
     /// <summary>
     /// Represents a forum topic type.

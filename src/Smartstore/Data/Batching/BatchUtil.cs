@@ -47,7 +47,7 @@ namespace Smartstore.Data.Batching
             (string sql, string tableAlias, string tableAliasSufixAs, string topStatement, string leadingComments, IEnumerable<object> parameters)
                 = GetBatchSql(query, context, isUpdate: false);
 
-            tableAlias = context.DataProvider.ProviderType == DbSystemType.Sqlite ? tableAlias : $"[{tableAlias}]";
+            tableAlias = context.DataProvider.ProviderType == DbSystemType.SqlServer ? $"[{tableAlias}]" : tableAlias;
 
             var resultQuery = $"{leadingComments}DELETE {topStatement}{tableAlias}{sql}";
             return (resultQuery, new List<object>(parameters));

@@ -8,7 +8,7 @@ using Smartstore.Forum.Domain;
 
 namespace Smartstore.Forum.Data.Migrations
 {
-    [MigrationVersion("2021-09-08 20:00:00", "Add forum initial entities")]
+    [MigrationVersion("2021-09-08 20:00:00", "Forum: add initial entities")]
     public class InitialMigration : Migration
     {
         public override void Up()
@@ -26,7 +26,7 @@ namespace Smartstore.Forum.Data.Migrations
             var dbSystem = DataSettings.Instance.DbFactory.DbSystem.ToString();
 
             // ForumGroup.
-            if (!IfDatabase(dbSystem).Schema.Table(forumGroup).Exists())
+            if (!this.HasTable(dbSystem, forumGroup))
             {
                 Create.Table(forumGroup)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -43,7 +43,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // Forum.
-            if (!IfDatabase(dbSystem).Schema.Table(forum).Exists())
+            if (!this.HasTable(dbSystem, forum))
             {
                 Create.Table(forum)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -71,7 +71,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // ForumTopic.
-            if (!IfDatabase(dbSystem).Schema.Table(forumTopic).Exists())
+            if (!this.HasTable(dbSystem, forumTopic))
             {
                 Create.Table(forumTopic)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -109,7 +109,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // ForumPost.
-            if (!IfDatabase(dbSystem).Schema.Table(forumPost).Exists())
+            if (!this.HasTable(dbSystem, forumPost))
             {
                 Create.Table(forumPost)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -127,7 +127,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // ForumSubscription.
-            if (!IfDatabase(dbSystem).Schema.Table(forumSubscription).Exists())
+            if (!this.HasTable(dbSystem, forumSubscription))
             {
                 Create.Table(forumSubscription)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -142,7 +142,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // ForumPostVote.
-            if (!IfDatabase(dbSystem).Schema.Table(forumPostVote).Exists())
+            if (!this.HasTable(dbSystem, forumPostVote))
             {
                 Create.Table(forumPostVote)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
@@ -156,7 +156,7 @@ namespace Smartstore.Forum.Data.Migrations
             }
 
             // PrivateMessage.
-            if (!IfDatabase(dbSystem).Schema.Table(privateMessage).Exists())
+            if (!this.HasTable(dbSystem, privateMessage))
             {
                 Create.Table(privateMessage)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
