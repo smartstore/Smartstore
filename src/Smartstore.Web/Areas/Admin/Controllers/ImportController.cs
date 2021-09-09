@@ -645,7 +645,7 @@ namespace Smartstore.Admin.Controllers
                     case ImportEntityType.Customer:
                         availableKeyFieldNames = CustomerImporter.SupportedKeyFields;
                         break;
-                    case ImportEntityType.NewsLetterSubscription:
+                    case ImportEntityType.NewsletterSubscription:
                         availableKeyFieldNames = NewsletterSubscriptionImporter.SupportedKeyFields;
                         break;
                 }
@@ -787,7 +787,7 @@ namespace Smartstore.Admin.Controllers
                 ImportEntityType.Product => new[] { "Name", "Sku", "ManufacturerPartNumber", "Gtin", "SeName" },
                 ImportEntityType.Category => new[] { "Name", "SeName" },
                 ImportEntityType.Customer => new[] { "CustomerGuid", "Email" },
-                ImportEntityType.NewsLetterSubscription => new[] { "Email" },
+                ImportEntityType.NewsletterSubscription => new[] { "Email" },
                 _ => Array.Empty<string>(),
             };
         }

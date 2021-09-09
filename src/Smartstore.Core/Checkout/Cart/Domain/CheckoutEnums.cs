@@ -3,7 +3,7 @@
     /// <summary>
     /// Setting for newsletter subscription in checkout
     /// </summary>
-    public enum CheckoutNewsLetterSubscription
+    public enum CheckoutNewsletterSubscription
     {
         /// <summary>
         /// No newsletter subscription checkbox

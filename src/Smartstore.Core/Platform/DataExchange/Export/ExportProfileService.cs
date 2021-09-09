@@ -453,7 +453,7 @@ namespace Smartstore.Core.DataExchange.Export
     [SystemName("Exports.SmartStoreNewsSubscriptionCsv")]
     public class SubscriberCsvExportProvider : ExportProviderBase
     {
-        public override ExportEntityType EntityType => ExportEntityType.NewsLetterSubscription;
+        public override ExportEntityType EntityType => ExportEntityType.NewsletterSubscription;
         public override string FileExtension => "CSV";
         protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
     }

@@ -37,7 +37,7 @@
             <input type="hidden" id="customercommenthidden" name="customercommenthidden" />
 
             <div sm-if="Model.TermsOfServiceEnabled
-                || Model.NewsLetterSubscription != CheckoutNewsLetterSubscription.None
+                || Model.NewsLetterSubscription != CheckoutNewsletterSubscription.None
                 || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None
                 || consentZoneHasValue"
                  id="terms-of-service-consent-box" class="card mb-3">
@@ -58,8 +58,8 @@
                         </modal>
                     }
 
-                    <div sm-if="Model.NewsLetterSubscription != CheckoutNewsLetterSubscription.None" class="form-check">
-                        <input attr-checked='(Model.NewsLetterSubscription == CheckoutNewsLetterSubscription.Activated, "checked")'
+                    <div sm-if="Model.NewsLetterSubscription != CheckoutNewsletterSubscription.None" class="form-check">
+                        <input attr-checked='(Model.NewsLetterSubscription == CheckoutNewsletterSubscription.Activated, "checked")'
                                type="checkbox" id="SubscribeToNewsLetter" name="SubscribeToNewsLetter" class="form-check-input" />
                         <label class="form-check-label" for="SubscribeToNewsLetter">
                             <span>@T("Checkout.SubscribeToNewsLetter")</span>

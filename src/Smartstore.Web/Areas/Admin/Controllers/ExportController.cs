@@ -619,7 +619,7 @@ namespace Smartstore.Admin.Controllers
 
                 gridModel = new GridModel<ExportPreviewCustomerModel> { Rows = rows, Total = normalizedTotal };
             }
-            else if (provider.Value.EntityType == ExportEntityType.NewsLetterSubscription)
+            else if (provider.Value.EntityType == ExportEntityType.NewsletterSubscription)
             {
                 var rows = previewResult.Data
                     .Select(x =>

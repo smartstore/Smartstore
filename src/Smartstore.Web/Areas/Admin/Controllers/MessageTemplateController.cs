@@ -379,7 +379,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         }
 
         [Permission(Permissions.Cms.MessageTemplate.Read)]
-        public async Task<IActionResult> PreviewBodyAsync(string token)
+        public IActionResult PreviewBody(string token)
         {
             var body = GetPreviewMailModel(token)?.Body;
 

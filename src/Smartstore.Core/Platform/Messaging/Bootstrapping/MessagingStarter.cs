@@ -17,7 +17,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<MessageFactory>().As<IMessageFactory>().InstancePerLifetimeScope();
             builder.RegisterType<MessageModelProvider>().As<IMessageModelProvider>().InstancePerLifetimeScope();
             builder.RegisterType<CampaignService>().As<ICampaignService>().InstancePerLifetimeScope();
-            builder.RegisterType<NewsletterSubscriptionImporter>().Keyed<IEntityImporter>(ImportEntityType.NewsLetterSubscription).InstancePerLifetimeScope();
+            builder.RegisterType<NewsletterSubscriptionImporter>().Keyed<IEntityImporter>(ImportEntityType.NewsletterSubscription).InstancePerLifetimeScope();
         }
     }
 }

@@ -495,7 +495,7 @@ namespace Smartstore.Core.Data.Migrations
                 ["SmartStore.Core.Domain.DataExchange.ExportHttpTransmissionType"] = nameof(ExportHttpTransmissionType),
                 ["SmartStore.Core.Domain.DataExchange.ExportOrderStatusChange"] = nameof(ExportOrderStatusChange),
                 ["SmartStore.Core.Domain.DataExchange.ImportFileType"] = nameof(ImportFileType),
-                ["SmartStore.Core.Domain.Orders.CheckoutNewsLetterSubscription"] = nameof(CheckoutNewsLetterSubscription),
+                ["SmartStore.Core.Domain.Orders.CheckoutNewsletterSubscription"] = nameof(CheckoutNewsletterSubscription),
                 ["SmartStore.Core.Domain.Orders.CheckoutThirdPartyEmailHandOver"] = nameof(CheckoutThirdPartyEmailHandOver),
                 ["SmartStore.Core.Domain.Customers.CustomerNumberMethod"] = nameof(CustomerNumberMethod),
                 ["SmartStore.Core.Domain.Customers.CustomerNumberVisibility"] = nameof(CustomerNumberVisibility),

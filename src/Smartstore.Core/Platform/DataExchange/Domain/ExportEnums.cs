@@ -12,7 +12,7 @@ namespace Smartstore.Core.DataExchange
         Manufacturer,
         Customer,
         Order,
-        NewsLetterSubscription,
+        NewsletterSubscription,
         ShoppingCartItem
     }
 

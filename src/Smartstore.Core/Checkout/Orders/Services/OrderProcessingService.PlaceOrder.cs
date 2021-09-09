@@ -1034,7 +1034,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Newsletter subscription.
-            if (_shoppingCartSettings.NewsLetterSubscription != CheckoutNewsLetterSubscription.None && ctx.ExtraData.TryGetValue("SubscribeToNewsLetter", out var addSubscription))
+            if (_shoppingCartSettings.NewsletterSubscription != CheckoutNewsletterSubscription.None && ctx.ExtraData.TryGetValue("SubscribeToNewsLetter", out var addSubscription))
             {
                 var subscriptionResult = await _newsletterSubscriptionService.ApplySubscriptionAsync(addSubscription.ToBool(), ctx.Customer.Email, order.StoreId);
                 if (subscriptionResult.HasValue)

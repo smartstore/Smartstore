@@ -14,8 +14,8 @@
         public const string OrderCancelledCustomer = "OrderCancelled.CustomerNotification";
         public const string OrderNoteAddedCustomer = "Customer.NewOrderNote";
         public const string RecurringPaymentCancelledStoreOwner = "RecurringPaymentCancelled.StoreOwnerNotification";
-        public const string NewsLetterSubscriptionActivation = "NewsLetterSubscription.ActivationMessage";
-        public const string NewsLetterSubscriptionDeactivation = "NewsLetterSubscription.DeactivationMessage";
+        public const string NewsletterSubscriptionActivation = "NewsletterSubscription.ActivationMessage";
+        public const string NewsletterSubscriptionDeactivation = "NewsletterSubscription.DeactivationMessage";
         public const string ShareProduct = "Service.EmailAFriend";
         public const string ShareWishlist = "Wishlist.EmailAFriend";
         public const string ProductQuestion = "Product.AskQuestion";

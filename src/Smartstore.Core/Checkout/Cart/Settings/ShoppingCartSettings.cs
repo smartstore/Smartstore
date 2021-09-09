@@ -83,7 +83,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets or sets a value indicating whether to show a checkbox to subscribe to newsletters
         /// </summary>
-        public CheckoutNewsLetterSubscription NewsLetterSubscription { get; set; }
+        public CheckoutNewsletterSubscription NewsletterSubscription { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to show a checkbox to let the customer accept to hand over email address to third party

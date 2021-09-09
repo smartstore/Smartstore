@@ -138,7 +138,7 @@ namespace Smartstore.Admin.Models.Export
         public DateTime LastActivityDate { get; set; }
     }
 
-    [LocalizedDisplay("Admin.Promotions.NewsLetterSubscriptions.Fields.")]
+    [LocalizedDisplay("Admin.Promotions.NewsletterSubscriptions.Fields.")]
     public class ExportPreviewNewsletterSubscriptionModel : EntityModelBase
     {
         [LocalizedDisplay("*Email")]

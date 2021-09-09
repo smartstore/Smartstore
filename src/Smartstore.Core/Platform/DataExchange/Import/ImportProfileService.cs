@@ -142,7 +142,7 @@ namespace Smartstore.Core.DataExchange.Import
                 case ImportEntityType.Customer:
                     profile.KeyFieldNames = string.Join(",", CustomerImporter.DefaultKeyFields);
                     break;
-                case ImportEntityType.NewsLetterSubscription:
+                case ImportEntityType.NewsletterSubscription:
                     profile.KeyFieldNames = string.Join(",", NewsletterSubscriptionImporter.DefaultKeyFields);
                     break;
             }
@@ -215,7 +215,7 @@ namespace Smartstore.Core.DataExchange.Import
                             { ImportEntityType.Product, new[] { "Name", "ShortDescription", "FullDescription", "MetaKeywords", "MetaDescription", "MetaTitle", "SeName" } },
                             { ImportEntityType.Category, new[] { "Name", "FullName", "Description", "BottomDescription", "MetaKeywords", "MetaDescription", "MetaTitle", "SeName" } },
                             { ImportEntityType.Customer, Array.Empty<string>() },
-                            { ImportEntityType.NewsLetterSubscription, Array.Empty<string>() }
+                            { ImportEntityType.NewsletterSubscription, Array.Empty<string>() }
                         };
 
                         // There is no 'FindEntityTypeByDisplayName'.
@@ -316,7 +316,7 @@ namespace Smartstore.Core.DataExchange.Import
                         ? "Address.Fields." + property.Substring(property.IndexOf('.') + 1)
                         : "Admin.Customers.Customers.Fields." + property;
                     break;
-                case ImportEntityType.NewsLetterSubscription:
+                case ImportEntityType.NewsletterSubscription:
                     key = "Admin.Promotions.NewsLetterSubscriptions.Fields." + property;
                     break;
             }

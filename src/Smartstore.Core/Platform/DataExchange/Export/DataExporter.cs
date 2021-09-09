@@ -313,7 +313,7 @@ namespace Smartstore.Core.DataExchange.Export
                 case ExportEntityType.Customer:
                     data.Cast<Customer>().Each(x => result.Data.Add(ToDynamic(x)));
                     break;
-                case ExportEntityType.NewsLetterSubscription:
+                case ExportEntityType.NewsletterSubscription:
                     data.Cast<NewsletterSubscription>().Each(x => result.Data.Add(ToDynamic(x, ctx)));
                     break;
                 case ExportEntityType.ShoppingCartItem:
@@ -811,7 +811,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                 result = query;
             }
-            else if (entityType == ExportEntityType.NewsLetterSubscription)
+            else if (entityType == ExportEntityType.NewsletterSubscription)
             {
                 var query =
                     from ns in _db.NewsletterSubscriptions.AsNoTracking()
@@ -1068,7 +1068,7 @@ namespace Smartstore.Core.DataExchange.Export
                             return x is ShoppingCartItem || x is Customer || x is Product || x is ProductVariantAttributeCombination;
                         });
                         break;
-                    case ExportEntityType.NewsLetterSubscription:
+                    case ExportEntityType.NewsletterSubscription:
                         _db.DetachEntities(x =>
                         {
                             return x is NewsletterSubscription || x is Customer;
@@ -1220,7 +1220,7 @@ namespace Smartstore.Core.DataExchange.Export
                     offset, PageSize, limit, recordsPerSegment, totalRecords
                 );
             }
-            else if (entityType == ExportEntityType.NewsLetterSubscription)
+            else if (entityType == ExportEntityType.NewsletterSubscription)
             {
                 ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<NewsletterSubscription>
                 (

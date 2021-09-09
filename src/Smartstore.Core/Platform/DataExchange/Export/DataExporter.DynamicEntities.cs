@@ -232,7 +232,7 @@ namespace Smartstore.Core.DataExchange.Export
             await _services.EventPublisher.PublishAsync(new RowExportingEvent
             {
                 Row = dynObject,
-                EntityType = ExportEntityType.NewsLetterSubscription,
+                EntityType = ExportEntityType.NewsletterSubscription,
                 ExportRequest = ctx.Request,
                 ExecuteContext = ctx.ExecuteContext
             });

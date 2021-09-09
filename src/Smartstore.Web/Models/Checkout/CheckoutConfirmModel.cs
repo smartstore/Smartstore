@@ -13,7 +13,7 @@ namespace Smartstore.Web.Models.Checkout
         public bool? SubscribeToNewsLetter { get; set; }
         public bool? AcceptThirdPartyEmailHandOver { get; set; }
         public string ThirdPartyEmailHandOverLabel { get; set; }
-        public CheckoutNewsLetterSubscription NewsLetterSubscription { get; set; }
+        public CheckoutNewsletterSubscription NewsLetterSubscription { get; set; }
         public CheckoutThirdPartyEmailHandOver ThirdPartyEmailHandOver { get; set; }
     }
 }

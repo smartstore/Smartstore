@@ -28,7 +28,7 @@ namespace Smartstore.Core.Messaging
         ///	The passed object instance (<paramref name="part"/>) will be converted to a special type which the underlying <see cref="ITemplateEngine"/> can handle.
         /// <para>
         ///		Supported types are: <see cref="Order"/>, <see cref="Product"/>, <see cref="Address"/>, <see cref="Shipment"/>, <see cref="OrderNote"/>, 
-        ///		<see cref="RecurringPayment"/>, <see cref="ReturnRequest"/>, <see cref="GiftCard"/>, <see cref="NewsLetterSubscription"/>, <see cref="Campaign"/>, 
+        ///		<see cref="RecurringPayment"/>, <see cref="ReturnRequest"/>, <see cref="GiftCard"/>, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
         ///		<see cref="ProductReview"/>, <see cref="BlogComment"/>, <see cref="NewsComment"/>, <see cref="ForumTopic"/>, <see cref="ForumPost"/>, 
         ///		<see cref="Forum"/>, <see cref="PrivateMessage"/>
         /// </para>
@@ -54,7 +54,7 @@ namespace Smartstore.Core.Messaging
         /// Creates a serializable model object for the passed entity/object.
         /// <para>
         ///		Supported types are: <see cref="Order"/>, <see cref="Product"/>, <see cref="Address"/>, <see cref="Shipment"/>, <see cref="OrderNote"/>, 
-        ///		<see cref="RecurringPayment"/>, <see cref="ReturnRequest"/>, <see cref="GiftCard"/>, <see cref="NewsLetterSubscription"/>, <see cref="Campaign"/>, 
+        ///		<see cref="RecurringPayment"/>, <see cref="ReturnRequest"/>, <see cref="GiftCard"/>, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
         ///		<see cref="ProductReview"/>, <see cref="BlogComment"/>, <see cref="NewsComment"/>, <see cref="ForumTopic"/>, <see cref="ForumPost"/>, 
         ///		<see cref="Forum"/>, <see cref="PrivateMessage"/>
         /// </para>
