@@ -48,7 +48,6 @@ namespace Smartstore.Core.Seo.Routing
                     };
                 default:
                     //case "newsitem": // TODO: (core) Move newsitem and blogpost to external modules
-                    //case "blogpost":
                     return new RouteValueDictionary
                     {
                         { "area", string.Empty },
@@ -71,7 +70,6 @@ namespace Smartstore.Core.Seo.Routing
 
             // TODO: (core) Move these slug routes to external modules somehow
             //routes.MapControllerRoute("NewsItem", UrlPatternFor("NewsItem"), new { controller = "News", action = "NewsItem" });
-            //routes.MapControllerRoute("BlogPost", UrlPatternFor("BlogPost"), new { controller = "Blog", action = "BlogPost" });
         }
     }
 }
