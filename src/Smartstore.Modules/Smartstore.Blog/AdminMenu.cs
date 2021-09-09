@@ -8,16 +8,6 @@ namespace Smartstore.Blog
     {
         protected override void BuildMenuCore(TreeNode<MenuItem> modulesNode)
         {
-            // Prepend menu item for configure view.
-            var menuItem = new MenuItem().ToBuilder()
-                .ResKey("Plugins.CMS.Blog.Settings")
-                .Icon("fa fa-blog")
-                .PermissionNames(BlogPermissions.Read)
-                .Action("Configure", "Blog", new { area = "Admin" })
-                .AsItem();
-
-            modulesNode.Prepend(menuItem);
-
             // Insert menu items for list views.
             var blogMenuItem = new MenuItem().ToBuilder()
                 .ResKey("Admin.ContentManagement.Blog")

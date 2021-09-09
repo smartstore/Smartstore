@@ -11,7 +11,7 @@ namespace Smartstore.Blog
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public RouteInfo GetConfigurationRoute()
-            => new("Configure", "Blog", new { area = "Admin" });
+            => new("Settings", "Blog", new { area = "Admin" });
 
         public override async Task InstallAsync()
         {

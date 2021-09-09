@@ -60,7 +60,6 @@ namespace Smartstore
 
             if (title.HasValue())
             {
-                // INFO: (mh) (core) Please always apply a search filter to string members.
                 query = query.ApplySearchFilterFor(x => x.Title, title);
             }
 
