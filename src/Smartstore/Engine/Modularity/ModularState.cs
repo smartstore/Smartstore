@@ -110,6 +110,11 @@ namespace Smartstore.Engine.Modularity
                 var lines = content.GetLines(true, true)
                     .Select(x => isLegacy ? x.Replace("SmartStore", "Smartstore") : x);
 
+                if (isLegacy)
+                {
+                    lines = lines.Concat(new[] { "Smartstore.Blog", "Smartstore.Forum", "Smartstore.News", "Smartstore.Polls" });
+                }
+
                 _installedModules.AddRange(lines);
             }
         }
