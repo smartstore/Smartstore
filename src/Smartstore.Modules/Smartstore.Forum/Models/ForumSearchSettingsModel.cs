@@ -64,16 +64,16 @@ namespace Smartstore.Forum.Models
         public string Alias { get; set; }
     }
 
-    public class ForumSearchSettingValidator : AbstractValidator<ForumSearchSettingsModel>
-    {
-        private const int MAX_INSTANT_SEARCH_ITEMS = 16;
+    //public class ForumSearchSettingValidator : AbstractValidator<ForumSearchSettingsModel>
+    //{
+    //    private const int MAX_INSTANT_SEARCH_ITEMS = 16;
 
-        public ForumSearchSettingValidator(Localizer T)
-        {
-            RuleFor(x => x.InstantSearchNumberOfHits)
-                .Must(x => x >= 1 && x <= MAX_INSTANT_SEARCH_ITEMS)
-                .When(x => x.InstantSearchEnabled)
-                .WithMessage(T("Admin.Validation.ValueRange", 1, MAX_INSTANT_SEARCH_ITEMS));
-        }
-    }
+    //    public ForumSearchSettingValidator(Localizer T)
+    //    {
+    //        RuleFor(x => x.InstantSearchNumberOfHits)
+    //            .Must(x => x >= 1 && x <= MAX_INSTANT_SEARCH_ITEMS)
+    //            .When(x => x.InstantSearchEnabled)
+    //            .WithMessage(T("Admin.Validation.ValueRange", 1, MAX_INSTANT_SEARCH_ITEMS));
+    //    }
+    //}
 }

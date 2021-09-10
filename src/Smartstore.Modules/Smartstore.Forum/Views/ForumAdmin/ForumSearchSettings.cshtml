@@ -141,5 +141,9 @@
         $('#@(Html.IdFor(x => x.SearchMode))').on('change', function () {
 			$('#forum-wildcard-note').toggle($(this).val() === '@((int)SearchMode.Contains)');
         }).trigger('change');
+
+        $('#@(Html.IdFor(x => x.InstantSearchEnabled))').trigger('change');
+
+        // TODO: (mg) (core) AJAX loaded partial (ForumSearchSettings tab) does not react on JavaScript events like 'click'.
 	});
 </script>

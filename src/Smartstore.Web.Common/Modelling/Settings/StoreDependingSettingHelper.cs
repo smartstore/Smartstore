@@ -258,7 +258,7 @@ namespace Smartstore.Web.Modelling.Settings
             await _db.SaveChangesAsync();
         }
 
-        public async Task UpdateSettingAsync(
+        public async Task ApplySettingAsync(
             string formKey,
             string settingName,
             object settings,
@@ -282,8 +282,6 @@ namespace Smartstore.Web.Modelling.Settings
                 var key = string.Concat(settingType.Name, ".", settingName);
                 await _settingService.RemoveSettingAsync(key, storeId);
             }
-
-            await _db.SaveChangesAsync();
         }
     }
 }

@@ -5,9 +5,8 @@
 //using System.Threading.Tasks;
 //using Smartstore.Core.Identity;
 
-//namespace Smartstore.Core.Search
+//namespace Smartstore.Forum
 //{
-//    // TODO: (mg) (core) Put forum specific search stuff to external module Smartstore.Forums
 //    public static partial class ForumPostQueryExtensions
 //    {
 //        public static IQueryable<Customer> ApplyCustomersByNumberOfPostsFilter(this IQueryable<ForumPost> query, int storeId, int minHitCount = 1)
