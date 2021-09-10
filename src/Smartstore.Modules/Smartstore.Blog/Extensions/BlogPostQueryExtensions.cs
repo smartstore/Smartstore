@@ -18,60 +18,16 @@ namespace Smartstore
         /// Applies standard filter and sorts descending by <see cref="BlogPost.CreatedOnUtc"/>.
         /// </summary>
         /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
-        /// <param name="dateFrom">Applies lower limit date time filter by <see cref="BlogPost.CreatedOnUtc"/>.</param>
-        /// <param name="dateTo">Applies upper limit date time filter by <see cref="BlogPost.CreatedOnUtc"/>.</param>
         /// <param name="languageId">Language identifier to apply filter by <see cref="Language.Id"/>.</param>
         /// <param name="includeHidden">Applies filter by <see cref="BlogPost.Published"/>.</param>
-        /// <param name="maxAge">Applies maximum age date time filter by <see cref="BlogPost.CreatedOnUtc"/>.</param>
-        /// <param name="title">Applies filter by <see cref="BlogPost.Title"/>.</param>
-        /// <param name="intro">Applies filter by <see cref="BlogPost.Intro"/>.</param>
-        /// <param name="body">Applies filter by <see cref="BlogPost.Body"/>.</param>
         /// <returns>Ordered blog post query.</returns>
         public static IOrderedQueryable<BlogPost> ApplyStandardFilter(
             this IQueryable<BlogPost> query,
             int storeId,
-            DateTime? dateFrom,
-            DateTime? dateTo,
             int languageId = 0,
-            bool includeHidden = false,
-            DateTime? maxAge = null,
-            string title = "",
-            string intro = "",
-            string body = "")
+            bool includeHidden = false)
         {
             Guard.NotNull(query, nameof(query));
-
-            // TODO: (mh) (core) Seriously? What a fucked up method with billions parameters! Granularity please.
-
-            if (dateFrom.HasValue)
-            {
-                query = query.Where(b => dateFrom.Value <= b.CreatedOnUtc);
-            }
-
-            if (dateTo.HasValue)
-            {
-                query = query.Where(b => dateTo.Value >= b.CreatedOnUtc);
-            }
-
-            if (maxAge.HasValue)
-            {
-                query = query.Where(b => b.CreatedOnUtc >= maxAge.Value);
-            }
-
-            if (title.HasValue())
-            {
-                query = query.ApplySearchFilterFor(x => x.Title, title);
-            }
-
-            if (intro.HasValue())
-            {
-                query = query.ApplySearchFilterFor(x => x.Intro, intro);
-            }
-
-            if (body.HasValue())
-            {
-                query = query.ApplySearchFilterFor(x => x.Body, body);
-            }
 
             if (languageId != 0)
             {
@@ -89,6 +45,40 @@ namespace Smartstore
             if (storeId > 0)
             {
                 query = query.ApplyStoreFilter(storeId);
+            }
+
+            return query.OrderByDescending(x => x.CreatedOnUtc);
+        }
+
+        /// <summary>
+        /// Applies a time filter and sorts by <see cref="BlogPost.CreatedOnUtc"/> descending.
+        /// </summary>
+        /// <param name="query">BlogPost query.</param>
+        /// <param name="dateFrom">Applies lower limit date time filter by <see cref="BlogPost.CreatedOnUtc"/>.</param>
+        /// <param name="dateTo">Applies upper limit date time filter by <see cref="BlogPost.CreatedOnUtc"/>.</param>
+        /// /// <param name="maxAge">Applies maximum age date time filter by <see cref="BlogPost.CreatedOnUtc"/>.</param>
+        /// <returns>BlogPost query.</returns>
+        public static IOrderedQueryable<BlogPost> ApplyTimeFilter(
+            this IQueryable<BlogPost> query, 
+            DateTime? dateFrom = null, 
+            DateTime? dateTo = null,
+            DateTime? maxAge = null)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            if (dateFrom.HasValue)
+            {
+                query = query.Where(x => x.CreatedOnUtc >= dateFrom.Value);
+            }
+
+            if (dateTo.HasValue)
+            {
+                query = query.Where(x => x.CreatedOnUtc <= dateTo.Value);
+            }
+
+            if (maxAge.HasValue)
+            {
+                query = query.Where(b => b.CreatedOnUtc >= maxAge.Value);
             }
 
             return query.OrderByDescending(x => x.CreatedOnUtc);

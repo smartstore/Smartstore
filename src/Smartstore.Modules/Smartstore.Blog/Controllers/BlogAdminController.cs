@@ -230,18 +230,24 @@ namespace Smartstore.Blog.Controllers
         {
             var query = _db.BlogPosts().AsNoTracking();
 
+            if (model.SearchTitle.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Title, model.SearchTitle);
+            }
+
+            if (model.SearchIntro.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Intro, model.SearchIntro);
+            }
+
+            if (model.SearchBody.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Body, model.SearchBody);
+            }
+
             query = query
-                .ApplyStandardFilter(
-                    model.SearchStoreId,
-                    model.SearchStartDate,
-                    model.SearchEndDate,
-                    model.SearchLanguageId,
-                    model.SearchIsPublished ?? false,
-                    null,
-                    model.SearchTitle ?? string.Empty,
-                    model.SearchIntro ?? string.Empty,
-                    model.SearchBody ?? string.Empty
-                 );
+                .ApplyTimeFilter(model.SearchStartDate, model.SearchEndDate)
+                .ApplyStandardFilter(model.SearchStoreId, model.SearchLanguageId, model.SearchIsPublished ?? false);
 
             var blogPosts = await query.ApplyTagFilter(model.SearchTags)
                 .ApplyGridCommand(command, false)
