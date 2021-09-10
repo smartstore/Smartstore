@@ -29,21 +29,20 @@ namespace Smartstore.Forum
             }
         }
 
-        public Task HandleEventAsync(ModelBoundEvent message)
+        public async Task HandleEventAsync(ModelBoundEvent message, IPermissionService permissions)
         {
             var model = message.BoundModel.CustomProperties.ContainsKey("ForumSearchSettings")
                 ? message.BoundModel.CustomProperties["ForumSearchSettings"] as ForumSearchSettingsModel
                 : null;
 
-            if (model == null)
+            if (model == null || !await permissions.AuthorizeAsync(ForumPermissions.Read))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             $"-- Bound ForumSearchSettingsModel".Dump();
 
 
-            return Task.CompletedTask;
         }
     }
 }

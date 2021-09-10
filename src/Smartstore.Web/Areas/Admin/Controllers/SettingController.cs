@@ -882,7 +882,9 @@ namespace Smartstore.Admin.Controllers
                 new SearchSettingValidator(T).Validate(model);
             }
 
-            if (!ModelState.IsValid)
+            // INFO: model state of a tabbable model is always invalid if it contains CustomProperty form fields because they are in an unvalidated state.
+            //if (!ModelState.IsValid)
+            if (ModelState.ErrorCount > 0)
             {
                 return await Search();
             }
