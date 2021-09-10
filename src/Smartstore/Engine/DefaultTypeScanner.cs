@@ -13,9 +13,18 @@ namespace Smartstore.Engine
     {
         private HashSet<Assembly> _activeAssemblies = new();
 
+        public DefaultTypeScanner(params Assembly[] assemblies)
+        {
+            _activeAssemblies.AddRange(assemblies);
+
+            // No edit allowed from now on
+            Assemblies = assemblies.AsReadOnly();
+        }
+
         public DefaultTypeScanner(IEnumerable<Assembly> coreAssemblies, IModuleCatalog moduleCatalog, ILogger logger)
         {
             Guard.NotNull(coreAssemblies, nameof(coreAssemblies));
+            Guard.NotNull(moduleCatalog, nameof(moduleCatalog));
             Guard.NotNull(logger, nameof(logger));
 
             Logger = logger;
@@ -23,20 +32,10 @@ namespace Smartstore.Engine
             var assemblies = new HashSet<Assembly>(coreAssemblies);
 
             // Add all module assemblies to assemblies list
-            if (moduleCatalog != null)
-            {
-                assemblies.AddRange(moduleCatalog.GetInstalledModules().Select(x => x.Module.Assembly));
-            }
+            assemblies.AddRange(moduleCatalog.GetInstalledModules().Select(x => x.Module.Assembly));
 
-            if (moduleCatalog == null)
-            {
-                _activeAssemblies.AddRange(assemblies);
-            }
-            else
-            {
-                // (perf) Create a list with all active module assemblies only
-                _activeAssemblies.AddRange(assemblies.Where(x => moduleCatalog.IsActiveModuleAssembly(x)));
-            }
+            // (perf) Create a list with all active module assemblies only
+            _activeAssemblies.AddRange(assemblies.Where(x => moduleCatalog.IsActiveModuleAssembly(x)));
 
             // No edit allowed from now on
             Assemblies = assemblies.AsReadOnly();

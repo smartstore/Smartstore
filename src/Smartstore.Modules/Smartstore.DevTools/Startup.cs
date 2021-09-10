@@ -3,9 +3,13 @@ using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
+using Smartstore.Core.Data;
 using Smartstore.Core.Web;
+using Smartstore.Data;
+using Smartstore.Data.Providers;
 using Smartstore.DevTools.Filters;
 using Smartstore.DevTools.Services;
 using Smartstore.Diagnostics;
@@ -23,6 +27,8 @@ namespace Smartstore.DevTools
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
+            services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
+
             services.AddScoped<IChronometer, MiniProfilerChronometer>();
 
             services.AddMiniProfiler(o =>
@@ -120,6 +126,17 @@ namespace Smartstore.DevTools
         internal static bool ResultsAuthorize(HttpRequest request)
         {
             return request.HttpContext.RequestServices.GetRequiredService<IWorkContext>().CurrentCustomer.IsAdmin();
+        }
+
+        class SmartDbContextConfigurer : IDbContextConfigurationSource<SmartDbContext>
+        {
+            public void Configure(IServiceProvider services, DbContextOptionsBuilder builder)
+            {
+                builder.UseDbFactory(b =>
+                {
+                    b.AddModelAssembly(this.GetType().Assembly);
+                });
+            }
         }
     }
 }

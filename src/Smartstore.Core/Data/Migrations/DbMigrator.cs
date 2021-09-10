@@ -8,8 +8,6 @@ using System.Transactions;
 using Autofac;
 using FluentMigrator;
 using FluentMigrator.Runner;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
@@ -26,14 +24,18 @@ namespace Smartstore.Core.Data.Migrations
         private readonly ITypeScanner _typeScanner;
         private readonly IVersionLoader _versionLoader;
 
-        protected DbMigrator(ILifetimeScope scope, ITypeScanner typeScanner, IVersionLoader versionLoader)
+        protected DbMigrator(ILifetimeScope scope, ITypeScanner typeScanner, IMigrationTable migrationTable, IVersionLoader versionLoader)
         {
             _scope = scope;
             _typeScanner = typeScanner;
             _versionLoader = versionLoader;
+
+            MigrationTable = migrationTable;
         }
 
         public abstract HookingDbContext Context { get; }
+
+        public virtual IMigrationTable MigrationTable { get; }
 
         /// <summary>
         /// Migrates the database to the latest version.
@@ -47,6 +49,20 @@ namespace Smartstore.Core.Data.Migrations
         /// <param name="targetVersion">The target migration version.</param>
         /// <returns>The number of applied migrations.</returns>
         public abstract Task<int> MigrateAsync(long? targetVersion = null, CancellationToken cancelToken = default);
+
+        /// <summary>
+        /// Creates an instance of the migration class.
+        /// </summary>
+        /// <param name="migrationClass">
+        /// The <see cref="Type" /> for the migration class, as obtained from the <see cref="GetMigrations()" /> dictionary.
+        /// </param>
+        /// <returns>The migration instance.</returns>
+        protected IMigration CreateMigration(Type migrationClass)
+        {
+            Guard.NotNull(migrationClass, nameof(migrationClass));
+
+            return (IMigration)_scope.ResolveUnregistered(migrationClass);
+        }
 
         #region Database initialization
 
@@ -135,7 +151,7 @@ namespace Smartstore.Core.Data.Migrations
                 return 0;
             }
 
-            var localMigrations = GetMigrations();
+            var localMigrations = MigrationTable.GetMigrations();
             if (!localMigrations.Any())
             {
                 return 0;
@@ -143,8 +159,8 @@ namespace Smartstore.Core.Data.Migrations
 
             var succeeded = 0;
             var providers = localMigrations
-                .Where(x => x.Key > fromVersion)
-                .Select(x => CreateMigration(x.Value.Type) as ILocaleResourcesProvider)
+                .Where(x => x.Version > fromVersion)
+                .Select(x => CreateMigration(x.Type) as ILocaleResourcesProvider)
                 .Where(x => x != null)
                 .ToArray();
 
@@ -169,9 +185,9 @@ namespace Smartstore.Core.Data.Migrations
 
         private void PostPopulateSchema()
         {
-            var appliedMigrations = GetAppliedMigrations().ToArray();
+            var appliedMigrations = MigrationTable.GetAppliedMigrations().ToArray();
             
-            foreach (var migration in GetMigrations().Values)
+            foreach (var migration in MigrationTable.GetMigrations())
             {
                 if (!appliedMigrations.Contains(migration.Version))
                 {
@@ -180,86 +196,6 @@ namespace Smartstore.Core.Data.Migrations
             }
 
             _versionLoader.LoadVersionInfo();
-        }
-
-        #endregion
-
-        #region Migration history
-
-        /// <summary>
-        ///  The assembly that contains the migrations, usually the assembly containing the DbContext.
-        /// </summary>
-        public Assembly MigrationAssembly
-        {
-            get 
-            {
-                Assembly Resolve()
-                {
-                    var assemblyName = RelationalOptionsExtension.Extract(Context.Options)?.MigrationsAssembly;
-                    return assemblyName == null
-                        ? Context.GetType().Assembly
-                        : Assembly.Load(new AssemblyName(assemblyName));
-                }
-                
-                return _assembly ??= Resolve();
-            }
-        }
-
-        /// <summary>
-        /// Gets all the migrations that are defined in the configured migrations assembly.
-        /// </summary>
-        public IReadOnlyDictionary<long, MigrationDescriptor> GetMigrations()
-        {
-            IReadOnlyDictionary<long, MigrationDescriptor> Create()
-            {
-                var result = new SortedList<long, MigrationDescriptor>();
-
-                var items
-                    = from t in _typeScanner.FindTypes<IMigration>(new[] { MigrationAssembly })
-                      let descriptor = new MigrationDescriptor(t)
-                      where descriptor.Version > 0
-                      orderby descriptor.Version
-                      select descriptor;
-
-                foreach (var descriptor in items)
-                {
-                    result.Add(descriptor.Version, descriptor);
-                }
-
-                return result;
-            }
-
-            return _migrations ??= Create();
-        }
-
-        /// <summary>
-        /// Gets all migrations that have been applied to the target database.
-        /// </summary>
-        public IEnumerable<long> GetAppliedMigrations()
-        {
-            return GetMigrations().Select(x => x.Key).Intersect(_versionLoader.VersionInfo.AppliedMigrations());
-        }
-
-        /// <summary>
-        /// Gets all migrations that are defined in the assembly but haven't been applied to the target database.
-        /// </summary>
-        public IEnumerable<long> GetPendingMigrations()
-        {
-            return GetMigrations().Select(x => x.Key).Except(GetAppliedMigrations());
-        }
-
-        /// <summary>
-        /// Creates an instance of the migration class.
-        /// </summary>
-        /// <param name="migrationClass">
-        /// The <see cref="Type" /> for the migration class, as obtained from the <see cref="GetMigrations()" /> dictionary.
-        /// </param>
-        /// <returns>The migration instance.</returns>
-        protected IMigration CreateMigration(Type migrationClass)
-        {
-            Guard.NotNull(migrationClass, nameof(migrationClass));
-
-            return (IMigration)_scope.ResolveUnregistered(migrationClass);
         }
 
         #endregion

@@ -48,20 +48,21 @@ namespace Smartstore.Core.Bootstrapping
                         .UseSecondLevelCache()
                         .UseDbFactory(b => 
                         {
-                            // Add all core models from Smartstore.Core assembly
-                            b.AddModelAssembly(typeof(SmartDbContext).Assembly);
-
-                            var moduleAssemblies = appContext.ModuleCatalog.GetInstalledModules()
-                                .Select(x => x.Module.Assembly)
-                                .Where(x => x.GetLoadableTypes().Any(IsDbModelCandidate))
-                                .Distinct();
-
-                            // Add all module assemblies containing domain entities or migrations
-                            b.AddModelAssemblies(moduleAssemblies);
-
-                            // Add provider specific entity configurations
-                            b.AddModelAssembly(DataSettings.Instance.DbFactory.GetType().Assembly);
+                            b.AddModelAssemblies(new[] 
+                            { 
+                                // Add all core models from Smartstore.Core assembly
+                                typeof(SmartDbContext).Assembly,
+                                // Add provider specific entity configurations
+                                DataSettings.Instance.DbFactory.GetType().Assembly
+                            });
                         });
+
+                    var configurers = c.GetServices<IDbContextConfigurationSource<SmartDbContext>>();
+                    foreach (var configurer in configurers)
+                    {
+                        configurer.Configure(c, builder);
+                    }
+
                 }, appContext.AppConfiguration.DbContextPoolSize);
 
                 services.AddDbQuerySettings();

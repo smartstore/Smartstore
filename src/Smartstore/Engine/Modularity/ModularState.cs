@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Smartstore.IO;
 using Smartstore.Utilities;
 
@@ -53,6 +51,7 @@ namespace Smartstore.Engine.Modularity
 
         const string FileName = "InstalledModules.txt";
         const string LegacyFileName = "InstalledPlugins.txt";
+        const string PendingModulesFileName = "PendingModules.txt";
 
         private readonly static Lazy<ModularState> _instance = new(() => new ModularState(), true);
         private readonly static object _lock = new();
@@ -65,6 +64,7 @@ namespace Smartstore.Engine.Modularity
         private IApplicationContext _appContext;
         private bool? _hasChanged;
         private readonly HashSet<string> _installedModules = new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _pendingModules = new(StringComparer.OrdinalIgnoreCase);
 
         private ModularState()
         {
@@ -88,6 +88,7 @@ namespace Smartstore.Engine.Modularity
         private void InternalReload()
         {
             _installedModules.Clear();
+            _pendingModules.Clear();
             _hasChanged = null;
 
             if (_appContext.TenantRoot == null)
@@ -117,10 +118,19 @@ namespace Smartstore.Engine.Modularity
 
                 _installedModules.AddRange(lines);
             }
+
+            // Pending modules
+            file = _appContext.TenantRoot.GetFile(PendingModulesFileName);
+            if (file.Exists)
+            {
+                var content = file.ReadAllText();
+                _pendingModules.AddRange(content.GetLines(true, true));
+            }
         }
 
         public void Save()
         {
+            // InstalledModules.txt
             if (_installedModules.Count == 0)
             {
                 _appContext.TenantRoot.TryDeleteFile(FileName);
@@ -130,10 +140,24 @@ namespace Smartstore.Engine.Modularity
                 var content = string.Join(Environment.NewLine, _installedModules);
                 _appContext.TenantRoot.WriteAllText(FileName, content);
             }
+
+            // PendingModules.txt
+            if (_pendingModules.Count == 0)
+            {
+                _appContext.TenantRoot.TryDeleteFile(PendingModulesFileName);
+            }
+            else
+            {
+                var content = string.Join(Environment.NewLine, _pendingModules);
+                _appContext.TenantRoot.WriteAllText(PendingModulesFileName, content);
+            }
         }
 
         public ISet<string> InstalledModules
             => _installedModules;
+
+        public ISet<string> PendingModules
+            => _pendingModules;
 
         public string[] IgnoredModules
             => _appContext.AppConfiguration.IgnoredModules ?? Array.Empty<string>();

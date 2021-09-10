@@ -53,11 +53,18 @@ namespace Smartstore.Data.Providers
             Guard.NotNull(factory, nameof(factory));
             Guard.NotEmpty(connectionString, nameof(connectionString));
 
-            optionsBuilder
-                .ReplaceService<IConventionSetBuilder, FixedRuntimeConventionSetBuilder>()
-                //.EnableSensitiveDataLogging(true)
-                .ConfigureWarnings(w =>
-                {
+            var extension = optionsBuilder.Options.FindExtension<DbFactoryOptionsExtension>();
+            var hasExtension = extension != null;
+
+            if (!hasExtension)
+            {
+                extension = new DbFactoryOptionsExtension(optionsBuilder.Options);
+
+                optionsBuilder
+                    .ReplaceService<IConventionSetBuilder, FixedRuntimeConventionSetBuilder>()
+                    //.EnableSensitiveDataLogging(true)
+                    .ConfigureWarnings(w =>
+                    {
                     // EF throws when query is untracked otherwise
                     w.Ignore(CoreEventId.DetachedLazyLoadingWarning);
 
@@ -67,8 +74,8 @@ namespace Smartstore.Data.Providers
                     ////w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
                     #endregion
                 });
+            }
 
-            var extension = GetOrCreateExtension(optionsBuilder);
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
             
             if (optionsAction != null)
@@ -76,7 +83,11 @@ namespace Smartstore.Data.Providers
                 optionsAction?.Invoke(new DbFactoryDbContextOptionsBuilder(optionsBuilder));
             }
 
-            factory.ConfigureDbContext(optionsBuilder, connectionString);
+            if (!hasExtension)
+            {
+                // Run this only once
+                factory.ConfigureDbContext(optionsBuilder, connectionString);
+            } 
 
             return optionsBuilder;
         }

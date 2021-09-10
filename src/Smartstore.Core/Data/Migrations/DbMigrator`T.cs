@@ -43,6 +43,7 @@ namespace Smartstore.Core.Data.Migrations
         public DbMigrator(
             TContext db,
             SmartDbContext dbCore,
+            IMigrationTable<TContext> migrationTable,
             IApplicationContext appContext,
             ILifetimeScope scope,
             IMigrationRunnerConventions migrationRunnerConventions,
@@ -51,7 +52,7 @@ namespace Smartstore.Core.Data.Migrations
             IOptions<RunnerOptions> runnerOptions,
             IEventPublisher eventPublisher,
             ILogger<DbMigrator<TContext>> logger)
-            : base(scope, appContext.TypeScanner, versionLoader)
+            : base(scope, appContext.TypeScanner, migrationTable, versionLoader)
         {
             Guard.NotNull(db, nameof(db));
             Guard.NotNull(dbCore, nameof(dbCore));
@@ -70,6 +71,10 @@ namespace Smartstore.Core.Data.Migrations
         public override TContext Context => _db;
 
         /// <inheritdoc/>
+        public override IMigrationTable<TContext> MigrationTable 
+            => (IMigrationTable<TContext>)base.MigrationTable;
+
+        /// <inheritdoc/>
         public override Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default)
         {
             return MigrateAsync(null, cancelToken);
@@ -84,30 +89,30 @@ namespace Smartstore.Core.Data.Migrations
                 throw _lastSeedException;
             }
 
-            var localMigrations = GetMigrations();
+            var localMigrations = MigrationTable.GetMigrations();
             if (localMigrations.Count == 0)
             {
                 return 0;
             }
 
-            if (targetVersion > 0 && !localMigrations.ContainsKey(targetVersion.Value))
+            if (targetVersion > 0 && MigrationTable.GetMigrationByVersion(targetVersion.Value) == null)
             {
                 throw new DbMigrationException($"{_db.GetType().Name} does not contain a database migration with version {targetVersion.Value}.");
             }
 
-            var appliedMigrations = GetAppliedMigrations().ToArray();
+            var appliedMigrations = MigrationTable.GetAppliedMigrations().ToArray();
             var lastAppliedVersion = appliedMigrations.LastOrDefault();
             var versions = Enumerable.Empty<long>();
             var down = false;
             var result = 0;
 
-            _initialMigration = localMigrations.GetValueOrDefault(lastAppliedVersion);
+            _initialMigration = MigrationTable.GetMigrationByVersion(lastAppliedVersion);
             _lastSuccessfulMigration = null;
 
             if (targetVersion == null)
             {
                 // null = run pending migrations up to last (inclusive).
-                versions = GetPendingMigrations();
+                versions = MigrationTable.GetPendingMigrations();
             }
             else if (targetVersion == -1)
             {
@@ -124,7 +129,7 @@ namespace Smartstore.Core.Data.Migrations
             else if (targetVersion > lastAppliedVersion)
             {
                 // Migrate up to given version (inclusive).
-                versions = localMigrations.Select(x => x.Key).Where(x => x > lastAppliedVersion && x <= targetVersion);
+                versions = localMigrations.Select(x => x.Version).Where(x => x > lastAppliedVersion && x <= targetVersion);
             }
 
             if (!versions.Any())
@@ -135,7 +140,7 @@ namespace Smartstore.Core.Data.Migrations
 
             var migrations = 
                 from v in versions
-                let descriptor = localMigrations[v]
+                let descriptor = MigrationTable.GetMigrationByVersion(v)
                 let instance = CreateMigration(descriptor.Type)
                 select _migrationRunnerConventions.GetMigrationInfoForMigration(instance);
 

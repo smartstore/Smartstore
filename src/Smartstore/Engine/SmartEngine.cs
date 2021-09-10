@@ -102,8 +102,8 @@ namespace Smartstore.Engine
             private void LoadModules()
             {
                 // Create temporary type scanner
-                var coreAssemblies = ResolveCoreAssemblies();
-                _appContext.TypeScanner = new DefaultTypeScanner(coreAssemblies, null, _appContext.Logger);
+                var coreAssemblies = ResolveCoreAssemblies().ToArray();
+                _appContext.TypeScanner = new DefaultTypeScanner(coreAssemblies);
 
                 var modules = DiscoverModules();
                 var isInstalled = _appContext.IsInstalled;
