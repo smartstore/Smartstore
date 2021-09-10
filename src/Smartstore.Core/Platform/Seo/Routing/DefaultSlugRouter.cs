@@ -46,18 +46,18 @@ namespace Smartstore.Core.Seo.Routing
                         { "topicId", urlRecord.EntityId },
                         { "entity", urlRecord }
                     };
-                default:
-                    //case "newsitem": // TODO: (core) Move newsitem and blogpost to external modules
-                    return new RouteValueDictionary
-                    {
-                        { "area", string.Empty },
-                        { "controller", "Home" },
-                        { "action", "Slug" },
-                        { "entity", urlRecord }
-                    };
+                //default:
+                //    //case "newsitem": // TODO: (core) Move newsitem and blogpost to external modules
+                //    return new RouteValueDictionary
+                //    {
+                //        { "area", string.Empty },
+                //        { "controller", "Home" },
+                //        { "action", "Slug" },
+                //        { "entity", urlRecord }
+                //    };
             }
 
-            //return null;
+            return null;
         }
 
         public override void MapRoutes(IEndpointRouteBuilder routes)

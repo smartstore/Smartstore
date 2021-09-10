@@ -140,11 +140,7 @@ namespace Smartstore.Blog.Controllers
             model.Tags = blogPost.ParseTags().Select(x => new BlogPostTagModel
             {
                 Name = x,
-                SeName = SeoHelper.BuildSlug(x,
-                    _seoSettings.ConvertNonWesternChars,
-                    _seoSettings.AllowUnicodeCharsInUrls,
-                    true,
-                    _seoSettings.SeoNameCharConversion)
+                SeName = SeoHelper.BuildSlug(x)
             }).ToList();
 
             if (prepareComments)
@@ -201,25 +197,20 @@ namespace Smartstore.Blog.Controllers
             DateTime? dateFrom = command.GetFromMonth();
             DateTime? dateTo = command.GetToMonth();
 
-            IPagedList<BlogPost> blogPosts;
+            var query = _db.BlogPosts().AsNoTracking().ApplyStandardFilter(storeId, languageId, isAdmin).AsQueryable();
+
             if (!command.Tag.HasValue())
             {
-                blogPosts = await _db.BlogPosts()
-                    .AsNoTracking()
-                    .ApplyStandardFilter(storeId, languageId, isAdmin)
-                    .ApplyTimeFilter(dateFrom, dateTo)
-                    .ToPagedList(command.PageNumber - 1, command.PageSize)
-                    .LoadAsync();
+                query = query.ApplyTimeFilter(dateFrom, dateTo);
             }
             else
             {
-                blogPosts = await _db.BlogPosts()
-                    .AsNoTracking()
-                    .ApplyStandardFilter(storeId, languageId, isAdmin)
-                    .ApplyTagFilter(command.Tag)
-                    .ToPagedList(command.PageNumber - 1, command.PageSize)
-                    .LoadAsync();
+                query = query.ApplyTagFilter(command.Tag);
             }
+
+            var blogPosts = await query
+                .ToPagedList(command.PageNumber - 1, command.PageSize)
+                .LoadAsync();
 
             model.PagingFilteringContext.LoadPagedList(blogPosts);
 
@@ -289,13 +280,14 @@ namespace Smartstore.Blog.Controllers
                 maxAge = DateTime.UtcNow.AddDays(-maxAgeInDays.Value);
             }
 
+            // TODO: (mh) (core) refactor like above
             IPagedList<BlogPost> blogPosts;
             if (!postsWithTag.IsEmpty())
             {
                 blogPosts = await _db.BlogPosts()
                     .AsNoTracking()
-                    .ApplyStandardFilter(storeId, languageId, isAdmin)
                     .ApplyTimeFilter(maxAge: maxAge)
+                    .ApplyStandardFilter(storeId, languageId, isAdmin)
                     .ApplyTagFilter(postsWithTag)
                     .ToPagedList(0, maxPostAmount ?? 100)
                     .LoadAsync();
@@ -304,8 +296,8 @@ namespace Smartstore.Blog.Controllers
             {
                 blogPosts = await _db.BlogPosts()
                     .AsNoTracking()
-                    .ApplyStandardFilter(storeId, languageId, isAdmin)
                     .ApplyTimeFilter(maxAge: maxAge)
+                    .ApplyStandardFilter(storeId, languageId, isAdmin)
                     .ToPagedList(0, maxPostAmount ?? 100)
                     .LoadAsync();
             }
@@ -326,7 +318,7 @@ namespace Smartstore.Blog.Controllers
 
         #endregion
 
-        #region methods 
+        #region Methods 
 
         [LocalizedRoute("blog", Name = "Blog")]
         public async Task<IActionResult> List(BlogPagingFilteringModel command)
@@ -430,8 +422,8 @@ namespace Smartstore.Blog.Controllers
             var items = new List<SyndicationItem>();
             var blogPosts = await _db.BlogPosts()
                 .AsNoTracking()
-                .ApplyStandardFilter(store.Id, language.Id)
                 .ApplyTimeFilter(maxAge)
+                .ApplyStandardFilter(store.Id, language.Id)
                 .ToListAsync();
 
             foreach (var blogPost in blogPosts)

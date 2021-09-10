@@ -82,7 +82,7 @@ namespace Smartstore
         /// <param name="separator">If <c>null</c> then value is searched for a common delimiter like pipe, semicolon or comma</param>
         /// <returns>Separated string tokens</returns>
         [DebuggerStepThrough]
-        public static IEnumerable<string> SplitSafe(this string input, string separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries)
+        public static IEnumerable<string> SplitSafe(this string input, string separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         {
             if (string.IsNullOrEmpty(input))
             {
@@ -134,7 +134,7 @@ namespace Smartstore
         /// <returns>Separated string tokens</returns>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable<string> SplitSafe(this string input, char separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries)
+        public static IEnumerable<string> SplitSafe(this string input, char separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         {
             return string.IsNullOrEmpty(input) 
                 ? Enumerable.Empty<string>() 

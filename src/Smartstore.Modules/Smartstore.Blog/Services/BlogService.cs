@@ -27,6 +27,9 @@ namespace Smartstore.Blog.Services
 
             var approvedCommentCount = 0;
             var notApprovedCommentCount = 0;
+
+            // TODO: (mh) (core) DONT load all comments just to calc some numbers. First check if loaded.
+            // If NOT loaded: use LINQ aggregate functions to determine counts in DB.
             var blogComments = blogPost.BlogComments;
 
             foreach (var bc in blogComments)
@@ -47,39 +50,34 @@ namespace Smartstore.Blog.Services
             await _db.SaveChangesAsync();
         }
 
-        public virtual async Task<IList<BlogPostTag>> GetAllBlogPostTagsAsync(int storeId, int languageId = 0, bool includeHidden = false)
+        public virtual async Task<ISet<BlogPostTag>> GetAllBlogPostTagsAsync(int storeId, int languageId = 0, bool includeHidden = false)
         {
             var blogPostTags = new List<BlogPostTag>();
+            var tagsMap = new Dictionary<string, BlogPostTag>(StringComparer.OrdinalIgnoreCase);
             var blogPosts = await _db.BlogPosts()
                 .ApplyStandardFilter(storeId, languageId, includeHidden)
+                .Where(x => !string.IsNullOrEmpty(x.Tags))
+                .Select(x => new { x.Id, x.Tags })
                 .ToListAsync();
 
             foreach (var blogPost in blogPosts)
             {
-                var tags = blogPost.ParseTags();
+                var tags = blogPost.Tags.SplitSafe(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
                 foreach (string tag in tags)
                 {
-                    var foundBlogPostTag = blogPostTags.Find(bpt => bpt.Name.Equals(tag, StringComparison.InvariantCultureIgnoreCase));
-
-                    if (foundBlogPostTag == null)
+                    if (tagsMap.TryGetValue(tag, out var postTag))
                     {
-                        foundBlogPostTag = new BlogPostTag
-                        {
-                            Name = tag,
-                            BlogPostCount = 1
-                        };
-
-                        blogPostTags.Add(foundBlogPostTag);
+                        postTag.BlogPostCount++;
                     }
                     else
                     {
-                        foundBlogPostTag.BlogPostCount++;
+                        tagsMap[tag] = new BlogPostTag { Name = tag, BlogPostCount = 1 };
                     }
                 }
             }
 
-            return blogPostTags;
+            return new HashSet<BlogPostTag>(tagsMap.Values);
         }
 
         #region XML Sitemap

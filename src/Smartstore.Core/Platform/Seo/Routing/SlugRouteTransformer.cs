@@ -50,9 +50,9 @@ namespace Smartstore.Core.Seo.Routing
         }
 
         /// <summary>
-        /// Gets all registered slug routers as ordered readonly sequence.
+        /// Gets all registered slug routers as ordered readonly collection.
         /// </summary>
-        public static IEnumerable<SlugRouter> Routers { get; } = _routers.OrderBy(x => x.Order);
+        public static IReadOnlyCollection<SlugRouter> Routers { get; } = _routers;
 
         /// <summary>
         /// Registers a router that can generate route values for a matched <see cref="UrlRecord"/> entity.
@@ -62,6 +62,7 @@ namespace Smartstore.Core.Seo.Routing
         {
             Guard.NotNull(router, nameof(router));
             _routers.Add(router);
+            _routers.Sort((x, y) => x.Order.CompareTo(y.Order));
         }
 
         /// <summary>
@@ -214,7 +215,7 @@ namespace Smartstore.Core.Seo.Routing
                 return null;
             }
 
-            var transformedValues = Routers.Select(x => x.GetRouteValues(urlRecord, values)).FirstOrDefault();
+            var transformedValues = Routers.Select(x => x.GetRouteValues(urlRecord, values)).FirstOrDefault(x => x != null);
             if (transformedValues == null)
             {
                 return null;

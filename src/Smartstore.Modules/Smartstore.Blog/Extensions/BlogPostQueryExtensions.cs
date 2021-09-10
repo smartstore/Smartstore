@@ -8,7 +8,6 @@ using Smartstore.Blog.Domain;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Engine;
 
 namespace Smartstore
 {
@@ -51,14 +50,14 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Applies a time filter and sorts by <see cref="BlogPost.CreatedOnUtc"/> descending.
+        /// Applies a time filter.
         /// </summary>
         /// <param name="query">BlogPost query.</param>
         /// <param name="dateFrom">Applies lower limit date time filter by <see cref="BlogPost.CreatedOnUtc"/>.</param>
         /// <param name="dateTo">Applies upper limit date time filter by <see cref="BlogPost.CreatedOnUtc"/>.</param>
         /// /// <param name="maxAge">Applies maximum age date time filter by <see cref="BlogPost.CreatedOnUtc"/>.</param>
         /// <returns>BlogPost query.</returns>
-        public static IOrderedQueryable<BlogPost> ApplyTimeFilter(
+        public static IQueryable<BlogPost> ApplyTimeFilter(
             this IQueryable<BlogPost> query, 
             DateTime? dateFrom = null, 
             DateTime? dateTo = null,
@@ -81,7 +80,7 @@ namespace Smartstore
                 query = query.Where(b => b.CreatedOnUtc >= maxAge.Value);
             }
 
-            return query.OrderByDescending(x => x.CreatedOnUtc);
+            return query;
         }
 
         /// <summary>
@@ -89,6 +88,8 @@ namespace Smartstore
         /// </summary>
         public static IQueryable<BlogPost> ApplyTagFilter(this IQueryable<BlogPost> query, string tag)
         {
+            // TODO: (mh) (core) Very dangerous concept! This is NOT a filter, because it applies AFTER data was loaded.
+            // Refactor --> IEnumerable<BlogPost> FilterByTag(this IList<BlogPost> posts, string tag)
             if (tag == null || !tag.HasValue())
             {
                 return query;
@@ -96,18 +97,13 @@ namespace Smartstore
 
             tag = tag.Trim();
 
-            var seoSettings = EngineContext.Current.Application.Services.Resolve<SeoSettings>();
             var taggedBlogPosts = new List<BlogPost>();
 
-            foreach (var blogPost in query)
+            foreach (var blogPost in query) // INFO: (mh) (core) You can't just iterate over a query! Fetch result first, THEN iterate. Query iteration can lead to unexpected behaviour.
             {
-                var tags = blogPost.ParseTags().Select(x => SeoHelper.BuildSlug(x,
-                    seoSettings.ConvertNonWesternChars,
-                    seoSettings.AllowUnicodeCharsInUrls,
-                    true,
-                    seoSettings.SeoNameCharConversion));
+                var tags = blogPost.ParseTags().Select(x => SeoHelper.BuildSlug(x));
 
-                if (tags.FirstOrDefault(t => t.Equals(tag, StringComparison.InvariantCultureIgnoreCase)).HasValue())
+                if (tags.FirstOrDefault(t => t.EqualsNoCase(tag)).HasValue())
                 {
                     taggedBlogPosts.Add(blogPost);
                 }

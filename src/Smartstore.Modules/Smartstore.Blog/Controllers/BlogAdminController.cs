@@ -137,11 +137,7 @@ namespace Smartstore.Blog.Controllers
             if (blogPost != null)
             {
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(blogPost);
-
-                model.Tags = blogPost.Tags
-                    .SplitSafe(",")
-                    .Select(x => x = x.Trim())
-                    .ToArray();
+                model.Tags = blogPost.ParseTags();
             }
 
             var allTags = await _blogService.GetAllBlogPostTagsAsync(0, 0, true);
@@ -163,6 +159,7 @@ namespace Smartstore.Blog.Controllers
         // AJAX.
         public IActionResult AllBlogPosts(string selectedIds)
         {
+            // TODO: (mh) (core) ALWAYS make DB access async!!! Don't just copy & paste shit over!
             var query = _db.BlogPosts().AsNoTracking();
             var pager = new FastPager<BlogPost>(query, 500);
             var allBlogPosts = new List<dynamic>();
@@ -230,6 +227,12 @@ namespace Smartstore.Blog.Controllers
         {
             var query = _db.BlogPosts().AsNoTracking();
 
+            query = query
+                .ApplyTimeFilter(model.SearchStartDate, model.SearchEndDate)
+                .ApplyStandardFilter(model.SearchStoreId, model.SearchLanguageId, model.SearchIsPublished ?? false);
+
+            // INFO: (mh) (core) While building a query, always start with the most restrictive (or most performant predicate).
+            // Put generic (or slow) predicates to the end.
             if (model.SearchTitle.HasValue())
             {
                 query = query.ApplySearchFilterFor(x => x.Title, model.SearchTitle);
@@ -245,11 +248,8 @@ namespace Smartstore.Blog.Controllers
                 query = query.ApplySearchFilterFor(x => x.Body, model.SearchBody);
             }
 
-            query = query
-                .ApplyTimeFilter(model.SearchStartDate, model.SearchEndDate)
-                .ApplyStandardFilter(model.SearchStoreId, model.SearchLanguageId, model.SearchIsPublished ?? false);
-
-            var blogPosts = await query.ApplyTagFilter(model.SearchTags)
+            var blogPosts = await query
+                .ApplyTagFilter(model.SearchTags)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -258,7 +258,8 @@ namespace Smartstore.Blog.Controllers
                 .SelectAsync(async x =>
                 {
                     var model = await MapperFactory.MapAsync<BlogPost, BlogPostModel>(x);
-                    model.EditUrl = Url.Action(nameof(Edit), "Blog", new { id = x.Id });
+                    // TODO: (mh) (core) WRONG URL!
+                    model.EditUrl = Url.Action(nameof(Edit), "Blog", new { id = x.Id }); 
                     model.CommentsUrl = Url.Action(nameof(Comments), "Blog", new { filterByBlogPostId = x.Id });
                     model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                     return model;
@@ -297,7 +298,6 @@ namespace Smartstore.Blog.Controllers
             {
                 var mapper = MapperFactory.GetMapper<BlogPostModel, BlogPost>();
                 var blogPost = await mapper.MapAsync(model);
-                blogPost.CreatedOnUtc = model.CreatedOnUtc;
                 blogPost.StartDateUtc = model.StartDate;
                 blogPost.EndDateUtc = model.EndDate;
 
@@ -310,7 +310,6 @@ namespace Smartstore.Blog.Controllers
 
                 await UpdateLocalesAsync(blogPost, model);
                 await SaveStoreMappingsAsync(blogPost, model.SelectedStoreIds);
-                await _db.SaveChangesAsync();
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, blogPost, form));
 
                 NotifySuccess(T("Admin.ContentManagement.Blog.BlogPosts.Added"));
@@ -345,7 +344,6 @@ namespace Smartstore.Blog.Controllers
                 locale.SeName = await blogPost.GetActiveSlugAsync(languageId, false, false);
             });
 
-            model.CreatedOnUtc = blogPost.CreatedOnUtc;
             model.StartDate = blogPost.StartDateUtc;
             model.EndDate = blogPost.EndDateUtc;
 
@@ -369,7 +367,6 @@ namespace Smartstore.Blog.Controllers
             {
                 await MapperFactory.MapAsync(model, blogPost);
 
-                blogPost.CreatedOnUtc = model.CreatedOnUtc;
                 blogPost.StartDateUtc = model.StartDate;
                 blogPost.EndDateUtc = model.EndDate;
 
@@ -378,7 +375,6 @@ namespace Smartstore.Blog.Controllers
                 model.SeName = validateSlugResult.Slug;
 
                 await UpdateLocalesAsync(blogPost, model);
-                await _db.SaveChangesAsync();
                 await SaveStoreMappingsAsync(blogPost, model.SelectedStoreIds);
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, blogPost, form));
 

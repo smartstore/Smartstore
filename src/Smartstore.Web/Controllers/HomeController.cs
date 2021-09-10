@@ -837,49 +837,43 @@ namespace Smartstore.Web.Controllers
             return query.ToList();
         }
 
-        public IActionResult Slug()
-        {
-            var e = (UrlRecord)HttpContext.GetRouteData().Values["entity"];
-            return Content($"Slug matched >>> Entity: {e.EntityName} {e.EntityId}, Id: {e.Id}, Language: {e.LanguageId}, Slug: {e.Slug}, IsActive: {e.IsActive}");
-        }
+        //public async Task<IActionResult> MhTest()
+        //{
+        //    //// QuantityUnit
+        //    //// Get QuantityUnit by Id
+        //    //var qu = _db.QuantityUnits.ApplyQuantityUnitFilter(1).FirstOrDefault();
 
-        public async Task<IActionResult> MhTest()
-        {
-            //// QuantityUnit
-            //// Get QuantityUnit by Id
-            //var qu = _db.QuantityUnits.ApplyQuantityUnitFilter(1).FirstOrDefault();
+        //    //// Save hook > TODO: BROKEN > Why?
+        //    //qu.IsDefault = true;
+        //    //_db.SaveChanges();
+        //    //// TODO Test: Assert.OnlyOne has Default = true, 
 
-            //// Save hook > TODO: BROKEN > Why?
-            //qu.IsDefault = true;
-            //_db.SaveChanges();
-            //// TODO Test: Assert.OnlyOne has Default = true, 
+        //    //// Delete hook
+        //    //var qu2 = _db.QuantityUnits.ApplyQuantityUnitFilter(22).FirstOrDefault();
 
-            //// Delete hook
-            //var qu2 = _db.QuantityUnits.ApplyQuantityUnitFilter(22).FirstOrDefault();
+        //    //if (qu2 != null)
+        //    //{
+        //    //    _db.QuantityUnits.Remove(qu2);
+        //    //    await _db.SaveChangesAsync();
+        //    //}
 
-            //if (qu2 != null)
-            //{
-            //    _db.QuantityUnits.Remove(qu2);
-            //    await _db.SaveChangesAsync();
-            //}
+        //    //// StateProvince
+        //    //var sp = _db.StateProvinces
+        //    //    .ApplyCountryFilter(1)
+        //    //    .ApplyAbbreviationFilter("BE")
+        //    //    .FirstOrDefault();
+        //    //// TODO Test: Assert name of entity is Berlin
 
-            //// StateProvince
-            //var sp = _db.StateProvinces
-            //    .ApplyCountryFilter(1)
-            //    .ApplyAbbreviationFilter("BE")
-            //    .FirstOrDefault();
-            //// TODO Test: Assert name of entity is Berlin
+        //    //// DeliveryTime
+        //    ////var dt = _db.DeliveryTimes.GetDeliveryTimeFilter(1);
 
-            //// DeliveryTime
-            ////var dt = _db.DeliveryTimes.GetDeliveryTimeFilter(1);
+        //    //var menuItems = await _db.MenuItems
+        //    //    .AsNoTracking()
+        //    //    .ApplyMenuFilter(6, "")
+        //    //    .ToListAsync();
 
-            //var menuItems = await _db.MenuItems
-            //    .AsNoTracking()
-            //    .ApplyMenuFilter(6, "")
-            //    .ToListAsync();
-
-            return Content("");
-        }
+        //    return Content("");
+        //}
 
         #endregion
 

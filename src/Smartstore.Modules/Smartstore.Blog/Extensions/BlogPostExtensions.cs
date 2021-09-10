@@ -12,28 +12,7 @@ namespace Smartstore.Blog
         /// </summary>
         /// <returns>Array of parsed tags.</returns>
         public static string[] ParseTags(this BlogPost blogPost)
-        {
-            if (blogPost == null)
-                throw new ArgumentNullException(nameof(blogPost));
-
-            var parsedTags = new List<string>();
-
-            if (blogPost.Tags.HasValue())
-            {
-                var tags = blogPost.Tags.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (var tag in tags)
-                {
-                    var tmp = tag.Trim();
-                    if (tmp.HasValue())
-                    {
-                        parsedTags.Add(tmp);
-                    }
-                }
-            }
-
-            return parsedTags.ToArray();
-        }
+            => Guard.NotNull(blogPost, nameof(blogPost)).Tags.SplitSafe(',').ToArray();
 
         /// <summary>
         /// Returns all blog posts published between the two dates.
