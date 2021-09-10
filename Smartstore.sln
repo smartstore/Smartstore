@@ -47,7 +47,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.ModuleBuilder", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Forum", "src\Smartstore.Modules\Smartstore.Forum\Smartstore.Forum.csproj", "{BB9E738C-0785-497F-9391-2B4CA242B567}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smartstore.Blog", "src\Smartstore.Modules\Smartstore.Blog\Smartstore.Blog.csproj", "{944E4667-6CA2-4AD6-B9B0-F8E8C7903473}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Blog", "src\Smartstore.Modules\Smartstore.Blog\Smartstore.Blog.csproj", "{944E4667-6CA2-4AD6-B9B0-F8E8C7903473}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

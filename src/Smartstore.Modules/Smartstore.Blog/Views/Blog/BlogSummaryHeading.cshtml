@@ -1,0 +1,54 @@
+﻿@model BlogPostListModel
+
+@if (Model.BlogPosts.Count == 0)
+{
+    return;
+}
+
+<div class="page-title row">
+    <div class="col">
+        <div class="heading">
+            <h3 class="heading-title">
+                @if (!Model.PagingFilteringContext.Tag.HasValue())
+                {
+                    if (Model.PagingFilteringContext.GetParsedMonth().HasValue)
+                    {
+                        @T("Blog.FilteredByMonth", Model.PagingFilteringContext.GetParsedMonth().Value.Year, Model.PagingFilteringContext.GetParsedMonth().Value.ToNativeString("MMMM"))
+                    }
+                    else
+                    {
+                        if (Model.BlogHeading.HasValue())
+                        {
+                            @Model.BlogHeading
+                        }
+                        else
+                        {
+                            @T("Blog");
+                        }
+                    }
+                }
+                else
+                {
+                    @T("Blog.TaggedWith", Model.PagingFilteringContext.Tag)
+                }
+            </h3>
+        </div>
+    </div>
+
+    <div class="col-auto text-right">
+        @if (Model.RssToLinkButton)
+        {
+            <a class="btn btn-warning" asp-route="Blog" title="@T("SmartStore.Blog.Button.Hint")">
+                <i class="fa fa-blog"></i>
+                <span>@T("SmartStore.Blog.Button")</span>
+            </a>
+        }
+        else
+        {
+            <a class="btn btn-warning" asp-route="BlogRSS" title="@T("Blog.RSS.Hint")">
+                <i class="fa fa-rss"></i>
+                <span>@T("Blog.RSS")</span>
+            </a>
+        }
+    </div>
+</div>

@@ -1,0 +1,45 @@
+﻿@model BlogPostListModel
+
+@{
+    Layout = "_Layout";
+
+    Assets.AppendTitleParts(Model.MetaTitle);
+    Assets.AppendMetaDescriptionParts(Model.MetaDescription);
+    Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
+    Assets.AppendScriptFiles("~/lib/imagesloaded/imagesloaded.pkgd.min.js");
+}
+
+<widget target-zone="right">
+    @await Component.InvokeAsync("MonthNavigation")
+    <zone name="blog_right_months_after" />
+    @await Component.InvokeAsync("TagNavigation")
+    @*TODO: (mh) (core) Try to insert pool block here if Blog module is active when iplementing Poll module*@
+    <zone name="blog_right_bottom" />
+</widget>
+
+<div class="page blog-page">
+    <partial name="BlogSummaryHeading" model="Model" />
+
+    <div class="page-body">
+        <zone name="bloglist_page_before_posts" />
+
+        <div class="blogposts mb-4" style="visibility: hidden;">
+            <partial name="BlogSummaryList" model="Model" />
+        </div>
+
+        <pagination sm-list-items="Model.PagingFilteringContext"
+                    sm-show-first="false"
+                    sm-show-last="false"
+                    sm-max-pages="6"
+                    sm-style="Blog"
+                    sm-query-param="pagenumber" />
+
+        <zone name="bloglist_page_after_posts" />
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="blog-list">
+    $(function () {
+        $(".blogposts").masonryGrid(".bloglist-item");
+    });
+</script>

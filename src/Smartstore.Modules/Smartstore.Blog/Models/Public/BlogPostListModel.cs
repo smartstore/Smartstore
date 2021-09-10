@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Blog.Models.Public
@@ -14,9 +10,10 @@ namespace Smartstore.Blog.Models.Public
         public bool RssToLinkButton { get; set; }
         public bool DisableCommentCount { get; set; }
         public BlogPagingFilteringModel PagingFilteringContext { get; set; } = new();
-        public List<BlogPostModel> BlogPosts { get; set; } = new();
+        public List<PublicBlogPostModel> BlogPosts { get; set; } = new();
         public string MetaTitle { get; set; }
         public string MetaDescription { get; set; }
         public string MetaKeywords { get; set; }
+        public string StoreName { get; set; }
     }
 }

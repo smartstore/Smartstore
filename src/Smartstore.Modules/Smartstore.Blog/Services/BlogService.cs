@@ -51,7 +51,7 @@ namespace Smartstore.Blog.Services
         {
             var blogPostTags = new List<BlogPostTag>();
             var blogPosts = await _db.BlogPosts()
-                .ApplyStandardFilter(storeId, null, null, languageId, includeHidden)
+                .ApplyStandardFilter(storeId, languageId, includeHidden)
                 .ToListAsync();
 
             foreach (var blogPost in blogPosts)
@@ -93,7 +93,7 @@ namespace Smartstore.Blog.Services
 
             var query = _db.BlogPosts()
                 .AsNoTracking()
-                .ApplyStandardFilter(context.RequestStoreId, null, null);
+                .ApplyStandardFilter(context.RequestStoreId);
 
             return new BlogPostXmlSitemapResult { Query = query };
         }

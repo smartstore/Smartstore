@@ -10,10 +10,6 @@ namespace Smartstore.Blog.Models.Public
 {
     public partial class PublicBlogPostModel : EntityModelBase
     {
-        // TODO: (mh) (core) We should avoid a reference to Smartstore.Web from modules as far as we can.
-        // It turns out that this has a heavy impact on build performance and the amount of files being copied to target.
-        // I'll start with moving common models to Smartstore.Web.Common, rest is up to you.
-
         public string MetaKeywords { get; set; }
         public string MetaDescription { get; set; }
         public string MetaTitle { get; set; }
@@ -24,7 +20,7 @@ namespace Smartstore.Blog.Models.Public
 
         public string Title { get; set; }
 
-        public ImageModel Images { get; set; }
+        public ImageModel Image { get; set; }
 
         public ImageModel Preview { get; set; }
 

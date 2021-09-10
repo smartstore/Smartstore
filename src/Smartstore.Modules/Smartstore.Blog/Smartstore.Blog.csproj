@@ -4,6 +4,13 @@
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Blog</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Remove="Views\Blog\BlogSummaryHeading.cshtml" />
+    <Content Remove="Views\Blog\BlogSummaryList.cshtml" />
+    <Content Remove="Views\Shared\Components\MenuItem\Default.cshtml" />
+    <Content Remove="Views\Shared\Components\MonthNavigation\Default.cshtml" />
+    <Content Remove="Views\Shared\Components\TagNavigation\Default.cshtml" />
+  </ItemGroup>
   <!--<ItemGroup>
     <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
       <Private>false</Private>
