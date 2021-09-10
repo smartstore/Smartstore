@@ -42,12 +42,7 @@ namespace Smartstore.Core.Widgets
         /// <param name="prepend"><c>true</c> to insert <paramref name="parts"/> at the beginning of the current parts list.</param>
         void AddMetaKeywordParts(IEnumerable<string> parts, bool prepend = false);
 
-        /// <summary>
-        /// Pushes canonical url parts to the currently rendered page.
-        /// </summary>
-        /// <param name="parts">The parts to push.</param>
-        /// <param name="prepend"><c>true</c> to insert <paramref name="parts"/> at the beginning of the current parts list.</param>
-        void AddCanonicalUrlParts(IEnumerable<string> parts, bool prepend = false);
+        // TODO: (mh) (core) WTF bro?! There are two extension methods for canonical URLs already.
 
         /// <summary>
         /// Adds script files to the currently rendered page.

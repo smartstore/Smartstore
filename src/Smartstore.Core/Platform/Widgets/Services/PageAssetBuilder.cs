@@ -65,32 +65,6 @@ namespace Smartstore.Core.Widgets
         public virtual void AddMetaKeywordParts(IEnumerable<string> parts, bool prepend = false)
             => AddPartsInternal(ref _metaKeywordParts, parts, prepend);
 
-        public virtual void AddCanonicalUrlParts(IEnumerable<string> parts, bool prepend = false)
-        {
-            const string zoneName = "head_canonical";
-            
-            if (parts == null || !parts.Any())
-            {
-                return;
-            }
-
-            foreach (var href in parts.Where(IsValidPart).Select(x => x.Trim()))
-            {
-                var partKey = "canonical:" + href;
-                
-                if (!WidgetProvider.ContainsWidget(zoneName, partKey))
-                {
-                    WidgetProvider.RegisterWidget(
-                        zoneName, 
-                        new HtmlWidgetInvoker(new HtmlString("<link rel=\"canonical\" href=\"{0}\" />".FormatInvariant(href))) 
-                        { 
-                            Key = partKey, 
-                            Prepend = prepend 
-                        });
-                }
-            }
-        }
-
         public virtual void AddScriptFiles(IEnumerable<string> urls, AssetLocation location, bool prepend = false)
         {
             if (urls == null || !urls.Any())

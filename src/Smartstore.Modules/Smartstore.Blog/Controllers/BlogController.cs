@@ -333,7 +333,7 @@ namespace Smartstore.Blog.Controllers
             if (_seoSettings.CanonicalUrlsEnabled)
             {
                 var url = Url.RouteUrl("Blog", null, Request.Scheme);
-                _pageAssetBuilder.AddCanonicalUrlParts(new List<string> { url });
+                _pageAssetBuilder.AppendCanonicalUrlParts(url);
             }
 
             return View("List", model);
@@ -366,7 +366,7 @@ namespace Smartstore.Blog.Controllers
             if (_seoSettings.CanonicalUrlsEnabled)
             {
                 var blogUrl = Url.RouteUrl("BlogByTag", new { tag }, Request.Scheme);
-                _pageAssetBuilder.AddCanonicalUrlParts(new List<string> { blogUrl });
+                _pageAssetBuilder.AppendCanonicalUrlParts(blogUrl);
             }
 
             var model = await PrepareBlogPostListModelAsync(command);
@@ -387,7 +387,7 @@ namespace Smartstore.Blog.Controllers
             if (_seoSettings.CanonicalUrlsEnabled)
             {
                 var blogUrl = Url.RouteUrl("BlogByMonth", new { month }, Request.Scheme);
-                _pageAssetBuilder.AddCanonicalUrlParts(new List<string> { blogUrl });
+                _pageAssetBuilder.AppendCanonicalUrlParts(blogUrl);
             }
 
             var model = await PrepareBlogPostListModelAsync(command);
