@@ -22,7 +22,6 @@ namespace Smartstore.Web.Components
         private readonly ICommonServices _services;
         private readonly ICacheManager _cacheManager;
         private readonly BlogSettings _blogSettings;
-        private readonly SeoSettings _seoSettings;
 
         public TagNavigationViewComponent(
             SmartDbContext db,
@@ -37,7 +36,6 @@ namespace Smartstore.Web.Components
             _services = services;
             _cacheManager = cacheManager;
             _blogSettings = blogSettings;
-            _seoSettings = seoSettings;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
@@ -66,13 +64,8 @@ namespace Smartstore.Web.Components
                 {
                     model.Tags.Add(new BlogPostTagModel
                     {
-                        Name = tag.Name,
-                        //SeName = tag.GetSeName(),          
-                        SeName = SeoHelper.BuildSlug(tag.Name,
-                            _seoSettings.ConvertNonWesternChars,
-                            _seoSettings.AllowUnicodeCharsInUrls,
-                            true,
-                            _seoSettings.SeoNameCharConversion),
+                        Name = tag.Name,        
+                        SeName = SeoHelper.BuildSlug(tag.Name),
                         BlogPostCount = tag.BlogPostCount
                     });
                 }
