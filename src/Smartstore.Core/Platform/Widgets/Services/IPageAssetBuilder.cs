@@ -43,6 +43,13 @@ namespace Smartstore.Core.Widgets
         void AddMetaKeywordParts(IEnumerable<string> parts, bool prepend = false);
 
         /// <summary>
+        /// Pushes canonical url parts to the currently rendered page.
+        /// </summary>
+        /// <param name="parts">The parts to push.</param>
+        /// <param name="prepend"><c>true</c> to insert <paramref name="parts"/> at the beginning of the current parts list.</param>
+        void AddCanonicalUrlParts(IEnumerable<string> parts, bool prepend = false);
+
+        /// <summary>
         /// Adds script files to the currently rendered page.
         /// </summary>
         /// <param name="urls">The file urls to add.</param>
