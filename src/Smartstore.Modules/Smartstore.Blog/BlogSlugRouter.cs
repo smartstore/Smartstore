@@ -7,7 +7,7 @@ namespace Smartstore.Blog.Seo.Routing
 {
     public class BlogSlugRouter : SlugRouter
     {
-        // TODO: (mh) (core) Register SlugRouter by calling SlugRouteTransformer.RegisterRouter() in Startup
+        // TODO: (mh) (core) Make this work!
         public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values)
         {
             if (urlRecord.EntityName.ToLowerInvariant() == "blogpost")
@@ -16,8 +16,8 @@ namespace Smartstore.Blog.Seo.Routing
                 {
                     { "area", string.Empty },
                     { "controller", "Blog" },
-                    // TODO: (mh) (core) Id param is missing
                     { "action", "BlogPost" },
+                    { "blogPostId", urlRecord.EntityId },
                     { "entity", urlRecord }
                 };
             }
