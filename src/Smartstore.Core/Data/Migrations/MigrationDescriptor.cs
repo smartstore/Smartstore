@@ -28,5 +28,8 @@ namespace Smartstore.Core.Data.Migrations
         public string Description { get; }
         public Type Type { get; }
         public bool BreakingChange { get; }
+
+        public override string ToString()
+            => $"MigrationDescriptor: {Name}, Version: {Version}, Description: {Description}";
     }
 }
