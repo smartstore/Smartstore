@@ -80,17 +80,12 @@ namespace Smartstore.Admin.Models
     {
         private const int MAX_INSTANT_SEARCH_ITEMS = 16;
 
-        // TODO: (mg) (core) Throws with "Cannot resolve parameter addRule"
-        // RE: Because "Func<string, bool>" is an unknown IoC dependency. We need to find a way to instantiate this class manually.
-        public SearchSettingValidator(Localizer T/*, Func<string, bool> addRule*/)
+        public SearchSettingValidator(Localizer T)
         {
-            //if (addRule("InstantSearchNumberOfProducts"))
-            //{
-                RuleFor(x => x.InstantSearchNumberOfProducts)
-                    .Must(x => x >= 1 && x <= MAX_INSTANT_SEARCH_ITEMS)
-                    .When(x => x.InstantSearchEnabled)
-                    .WithMessage(T("Admin.Validation.ValueRange", 1, MAX_INSTANT_SEARCH_ITEMS));
-            //}
+            RuleFor(x => x.InstantSearchNumberOfProducts)
+                .Must(x => x >= 1 && x <= MAX_INSTANT_SEARCH_ITEMS)
+                .When(x => x.InstantSearchEnabled)
+                .WithMessage(T("Admin.Validation.ValueRange", 1, MAX_INSTANT_SEARCH_ITEMS));
         }
     }
 }

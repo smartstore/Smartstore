@@ -877,16 +877,14 @@ namespace Smartstore.Admin.Controllers
             var storeScope = GetActiveStoreScopeConfiguration();
             var settings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
 
-            // TODO: (mh) (core) TBD
-            //var validator = new SearchSettingValidator(T, x =>
-            //{
-            //    return storeScope == 0 || _storeDependingSettingHelper.IsOverrideChecked(settings, x, form);
-            //});
-            //validator.Validate(model);
+            if (storeScope == 0 || _storeDependingSettingHelper.IsOverrideChecked(settings, nameof(model.InstantSearchNumberOfProducts), form))
+            {
+                new SearchSettingValidator(T).Validate(model);
+            }
 
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await Search();
             }
 
             CategoryTreeChangeReason? categoriesChange = model.AvailabilityFacet.IncludeNotAvailable != settings.IncludeNotAvailable
@@ -954,7 +952,7 @@ namespace Smartstore.Admin.Controllers
 
             await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, settings, form));
 
-            #region TODO: (mh) (core) Implement in forum module (by tab injection).
+            #region TODO: (mg) (core) Implement in forum module (by tab injection).
 
             //var fsettings = Services.Settings.LoadSetting<ForumSearchSettings>(storeScope);
             //var fvalidator = new ForumSearchSettingValidator(T, x =>
