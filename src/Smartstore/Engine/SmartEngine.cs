@@ -106,12 +106,13 @@ namespace Smartstore.Engine
                 _appContext.TypeScanner = new DefaultTypeScanner(coreAssemblies);
 
                 var modules = DiscoverModules();
-                var isInstalled = _appContext.IsInstalled;
-                var installedModules = ModularState.Instance.InstalledModules;
+                var appIsInstalled = _appContext.IsInstalled;
+                var loadedModules = ModularState.Instance.InstalledModules;
+                var pendingModules = ModularState.Instance.PendingModules;
 
                 foreach (var module in modules)
                 {
-                    if (!isInstalled || installedModules.Contains(module.Name))
+                    if (!appIsInstalled || loadedModules.Contains(module.Name) || pendingModules.Contains(module.Name))
                     {
                         LoadModule(module);
                     }

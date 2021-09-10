@@ -56,8 +56,7 @@ namespace Smartstore.Web
             // level in appsettings.json to "Information".
             app.UseSerilogRequestLogging();
 
-            // Executes IApplicationInitializer implementations
-            // during the very first request.
+            // Executes IApplicationInitializer implementations during the very first request.
             if (_appContext.IsInstalled)
             {
                 app.UseApplicationInitializer();

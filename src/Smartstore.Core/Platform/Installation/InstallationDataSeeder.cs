@@ -407,7 +407,7 @@ namespace Smartstore.Core.Installation
             {
                 Type settingType = setting.GetType();
                 int storeId = settingType.Equals(typeof(ThemeSettings)) ? _defaultStoreId : 0;
-                await SettingFactory.SaveSettingsAsync(_db, setting, storeId);
+                await SettingFactory.SaveSettingsAsync(_db, setting, storeId: storeId);
             }
         }
 

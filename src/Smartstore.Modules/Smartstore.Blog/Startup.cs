@@ -2,7 +2,6 @@
 using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Blog.Seo.Routing;
 using Smartstore.Blog.Services;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;

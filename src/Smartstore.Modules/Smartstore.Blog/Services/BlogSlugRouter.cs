@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 
-namespace Smartstore.Blog.Seo.Routing
+namespace Smartstore.Blog.Services
 {
     public class BlogSlugRouter : SlugRouter
     {

@@ -11,7 +11,6 @@ namespace Smartstore.Blog.Hooks
 {
     internal partial class ModelCacheInvalidator : IDbSaveHook
     {
-
         /// <summary>
         /// Key for blog tag list model
         /// </summary>

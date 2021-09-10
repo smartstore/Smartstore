@@ -17,10 +17,10 @@ namespace Smartstore.Forum
 
         public override async Task InstallAsync()
         {
-            await base.InstallAsync();
             await TrySaveSettingsAsync<ForumSettings>();
             await ImportLanguageResources();
-			
+            await base.InstallAsync();
+
             Logger.Info($"Plugin installed: SystemName: {Descriptor.SystemName}, Version: {Descriptor.Version}, Description: '{Descriptor.FriendlyName}'");
         }
 

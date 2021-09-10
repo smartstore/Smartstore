@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -30,9 +31,9 @@ namespace Smartstore.Blog
 
         public override async Task InstallAsync()
         {
-            await base.InstallAsync();
             await TrySaveSettingsAsync<BlogSettings>();
             await ImportLanguageResources();
+            await base.InstallAsync();
         }
 
         public override async Task UninstallAsync()

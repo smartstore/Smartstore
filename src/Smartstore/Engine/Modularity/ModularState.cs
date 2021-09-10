@@ -153,12 +153,21 @@ namespace Smartstore.Engine.Modularity
             }
         }
 
+        /// <summary>
+        /// Modules that are loaded and installed.
+        /// </summary>
         public ISet<string> InstalledModules
             => _installedModules;
 
+        /// <summary>
+        /// Modules that are loaded but are not yet installed.
+        /// </summary>
         public ISet<string> PendingModules
             => _pendingModules;
 
+        /// <summary>
+        /// Modules that should be ignored during installation.
+        /// </summary>
         public string[] IgnoredModules
             => _appContext.AppConfiguration.IgnoredModules ?? Array.Empty<string>();
 

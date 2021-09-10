@@ -112,6 +112,12 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Each<T>(this IEnumerable<T> source, Action<T> action)
         {
+            if (source is List<T> list)
+            {
+                list.ForEach(action);
+                return;
+            }
+            
             foreach (T t in source)
             {
                 action(t);
