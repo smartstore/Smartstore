@@ -7,7 +7,6 @@ namespace Smartstore.Blog.Seo.Routing
 {
     public class BlogSlugRouter : SlugRouter
     {
-        // TODO: (mh) (core) Make this work!
         public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values)
         {
             if (urlRecord.EntityName.ToLowerInvariant() == "blogpost")

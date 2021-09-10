@@ -17,18 +17,13 @@ namespace Smartstore.Core.Data.Migrations
 {
     public abstract class DbMigrator
     {
-        private Assembly _assembly;
-        private IReadOnlyDictionary<long, MigrationDescriptor> _migrations;
-
         private readonly ILifetimeScope _scope;
         private readonly ITypeScanner _typeScanner;
-        private readonly IVersionLoader _versionLoader;
 
-        protected DbMigrator(ILifetimeScope scope, ITypeScanner typeScanner, IMigrationTable migrationTable, IVersionLoader versionLoader)
+        protected DbMigrator(ILifetimeScope scope, ITypeScanner typeScanner, IMigrationTable migrationTable)
         {
             _scope = scope;
             _typeScanner = typeScanner;
-            _versionLoader = versionLoader;
 
             MigrationTable = migrationTable;
         }
@@ -177,7 +172,7 @@ namespace Smartstore.Core.Data.Migrations
                 var resEntries = builder.Build();
                 var resMigrator = new LocaleResourcesMigrator(db);
                 await resMigrator.MigrateAsync(resEntries);
-                ++succeeded;
+                succeeded++;
             }
 
             return succeeded;
@@ -191,11 +186,11 @@ namespace Smartstore.Core.Data.Migrations
             {
                 if (!appliedMigrations.Contains(migration.Version))
                 {
-                    _versionLoader.UpdateVersionInfo(migration.Version, migration.Description ?? migration.Type.Name);
+                    MigrationTable.UpdateVersionInfo(migration.Version, migration.Description ?? migration.Type.Name);
                 } 
             }
 
-            _versionLoader.LoadVersionInfo();
+            MigrationTable.Reload();
         }
 
         #endregion

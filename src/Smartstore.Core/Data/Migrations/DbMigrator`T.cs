@@ -23,7 +23,6 @@ namespace Smartstore.Core.Data.Migrations
         private readonly SmartDbContext _dbCore;
         private readonly IMigrationRunnerConventions _migrationRunnerConventions;
         private readonly IMigrationRunner _migrationRunner;
-        private readonly IVersionLoader _versionLoader;
         private readonly RunnerOptions _runnerOptions;
         private readonly IEventPublisher _eventPublisher;
         private readonly ILogger _logger;
@@ -48,11 +47,10 @@ namespace Smartstore.Core.Data.Migrations
             ILifetimeScope scope,
             IMigrationRunnerConventions migrationRunnerConventions,
             IMigrationRunner migrationRunner,
-            IVersionLoader versionLoader,
             IOptions<RunnerOptions> runnerOptions,
             IEventPublisher eventPublisher,
             ILogger<DbMigrator<TContext>> logger)
-            : base(scope, appContext.TypeScanner, migrationTable, versionLoader)
+            : base(scope, appContext.TypeScanner, migrationTable)
         {
             Guard.NotNull(db, nameof(db));
             Guard.NotNull(dbCore, nameof(dbCore));
@@ -61,7 +59,6 @@ namespace Smartstore.Core.Data.Migrations
             _dbCore = dbCore;
             _migrationRunnerConventions = migrationRunnerConventions;
             _migrationRunner = migrationRunner;
-            _versionLoader = versionLoader;
             _runnerOptions = runnerOptions.Value;
             _eventPublisher = eventPublisher;
             _logger = logger;
@@ -153,7 +150,7 @@ namespace Smartstore.Core.Data.Migrations
                 result = MigrateDown(migrations.ToArray(), cancelToken);
             }
 
-            _versionLoader.LoadVersionInfo();
+            MigrationTable.Reload();
 
             _logger.Info($"Database migration successful: {_initialMigration?.Version.ToString() ?? "[Initial]"} >> {migrations.Last().Version}");
             return result;

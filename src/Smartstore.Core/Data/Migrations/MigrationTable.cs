@@ -32,6 +32,18 @@ namespace Smartstore.Core.Data.Migrations
         /// Gets all migrations that are defined in the assemblies but haven't been applied to the target database.
         /// </summary>
         IEnumerable<long> GetPendingMigrations();
+
+        /// <summary>
+        /// Loads all version data stored in the version table.
+        /// </summary>
+        void Reload();
+
+        /// <summary>
+        /// Adds the version information to the version table in the database.
+        /// </summary>
+        /// <param name="version">The version number</param>
+        /// <param name="description">The optional version description</param>
+        void UpdateVersionInfo(long version, string description);
     }
 
     /// <inheritdoc cref="IMigrationTable" />
@@ -99,16 +111,18 @@ namespace Smartstore.Core.Data.Migrations
         /// Gets all migrations that have been applied to the target database.
         /// </summary>
         public virtual IEnumerable<long> GetAppliedMigrations()
-        {
-            return GetMigrations().Select(x => x.Version).Intersect(_versionLoader.VersionInfo.AppliedMigrations());
-        }
+            => GetMigrations().Select(x => x.Version).Intersect(_versionLoader.VersionInfo.AppliedMigrations());
 
         /// <summary>
         /// Gets all migrations that are defined in the assemblies but haven't been applied to the target database.
         /// </summary>
         public virtual IEnumerable<long> GetPendingMigrations()
-        {
-            return GetMigrations().Select(x => x.Version).Except(GetAppliedMigrations());
-        }
+            => GetMigrations().Select(x => x.Version).Except(GetAppliedMigrations());
+
+        public virtual void Reload()
+            => _versionLoader.LoadVersionInfo();
+
+        public virtual void UpdateVersionInfo(long version, string description = null)
+            => _versionLoader.UpdateVersionInfo(version, description);
     }
 }
