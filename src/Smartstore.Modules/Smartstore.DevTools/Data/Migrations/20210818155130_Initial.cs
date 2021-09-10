@@ -1,19 +1,16 @@
 ﻿using FluentMigrator;
 using Smartstore.Core.Data.Migrations;
-using Smartstore.Data;
 
 namespace Smartstore.DevTools.Data.Migrations
 {
     [MigrationVersion("2021-08-18 15:51:30", "DevTools: add test entity")]
-    public class InitialMigration : Migration
+    internal class Initial : Migration
     {
         private const string TABLE_NAME = "DevToolsTestEntity";
 
         public override void Up()
         {
-            var dbSystem = DataSettings.Instance.DbFactory.DbSystem.ToString();
-
-            if (!IfDatabase(dbSystem).Schema.Table(TABLE_NAME).Exists())
+            if (!Schema.Table(TABLE_NAME).Exists())
             {
                 Create.Table(TABLE_NAME)
                     .WithColumn("Id").AsInt32().PrimaryKey().Identity().NotNullable()
@@ -32,9 +29,7 @@ namespace Smartstore.DevTools.Data.Migrations
 
         public override void Down()
         {
-            var dbSystem = DataSettings.Instance.DbFactory.DbSystem.ToString();
-
-            if (IfDatabase(dbSystem).Schema.Table(TABLE_NAME).Exists())
+            if (Schema.Table(TABLE_NAME).Exists())
             {
                 Delete.Table(TABLE_NAME);
             }

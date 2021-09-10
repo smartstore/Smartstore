@@ -5,7 +5,7 @@ using Smartstore.Core.Data.Migrations;
 namespace Smartstore.DevTools.Data.Migrations
 {
     [MigrationVersion("2021-08-19 14:39:12", "DevTools: insert some test data")]
-    public class InsertTestDataMigration : Migration
+    internal class InsertTestData : Migration
     {
         public override void Up()
         {

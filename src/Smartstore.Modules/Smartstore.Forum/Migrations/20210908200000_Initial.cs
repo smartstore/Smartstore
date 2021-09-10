@@ -2,7 +2,6 @@
 using FluentMigrator;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Identity;
-using Smartstore.Data;
 using Smartstore.Domain;
 using Smartstore.Forum.Domain;
 
@@ -13,11 +12,6 @@ namespace Smartstore.Forum.Migrations
     {
         public override void Up()
         {
-            // INFO: (mg) (core) IfDatabase(provider) is NOT necessary for schema access. Therefore our extension methods are not necessary.
-            // INFO: (mg) (core) DeleteTables & DeleteColumns not necessary, because we will use AutoReversing migrations most of the time.
-            // INFO: (mg) (core) For correct file ordering, we should apply the old EF migration conventions to migration class files: [Timestamp]_[MigrationName].cs
-            // INFO: (mg) (core) All migration classes should be internal
-
             // INFO: without a name an index becomes IX_Forums_Forum_DisplayOrder instead of IX_DisplayOrder.
             const string forumGroup = "Forums_Group";
             const string forum = "Forums_Forum";
