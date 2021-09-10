@@ -16,10 +16,6 @@ namespace Smartstore.Events
             foreach (var consumer in consumers)
             {
                 var metadata = consumer.Metadata;
-
-                if (!metadata.IsActive)
-                    continue;
-
                 var methods = FindMethods(metadata);
                 var messageTypes = new Dictionary<Type, MethodInfo>();
 

@@ -65,7 +65,6 @@ namespace Smartstore.Bootstrapping
                     .Keyed<IConsumer>(consumerType);
 
                 var moduleDescriptor = moduleCatalog.GetModuleByAssembly(consumerType.Assembly);
-                var isActive = moduleCatalog.IsActiveModuleAssembly(consumerType.Assembly);
                 var lifetime = consumerType.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
                 if (lifetime == ServiceLifetime.Singleton)
                 {
@@ -82,7 +81,6 @@ namespace Smartstore.Bootstrapping
 
                 registration.WithMetadata<EventConsumerMetadata>(m =>
                 {
-                    m.For(em => em.IsActive, isActive);
                     m.For(em => em.ContainerType, consumerType);
                     m.For(em => em.ModuleDescriptor, moduleDescriptor);
                 });

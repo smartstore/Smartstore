@@ -92,7 +92,7 @@ namespace Smartstore.Core.Bootstrapping
                 return;
             }
 
-            var providerTypes = _appContext.TypeScanner.FindTypes<IProvider>(ignoreInactiveModules: true).ToList();
+            var providerTypes = _appContext.TypeScanner.FindTypes<IProvider>().ToList();
 
             foreach (var type in providerTypes)
             {

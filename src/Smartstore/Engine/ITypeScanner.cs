@@ -20,9 +20,8 @@ namespace Smartstore.Engine
         /// </summary>
         /// <param name="baseType">The base type to check for.</param>
         /// <param name="concreteTypesOnly">Whether abstract types should be skipped.</param>
-        /// <param name="ignoreInactiveModules">Specifies whether inactive module's assemblies should be ignored.</param>
         /// <returns>Matching types</returns>
-        IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true, bool ignoreInactiveModules = false);
+        IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true);
 
         /// <summary>
         /// Find all types that are subclasses of <paramref name="baseType"/> in all passed <paramref name="assemblies"/>.
@@ -41,11 +40,10 @@ namespace Smartstore.Engine
         /// </summary>
         /// <typeparam name="T">The base type to check for</typeparam>
         /// <param name="concreteTypesOnly">Whether abstract types should be skipped.</param>
-        /// <param name="ignoreInactiveModules">Speciifies whether inactive module's assemblies should be ignored.</param>
         /// <returns>Matching types</returns>
-        public static IEnumerable<Type> FindTypes<T>(this ITypeScanner scanner, bool concreteTypesOnly = true, bool ignoreInactiveModules = false)
+        public static IEnumerable<Type> FindTypes<T>(this ITypeScanner scanner, bool concreteTypesOnly = true)
         {
-            return scanner.FindTypes(typeof(T), concreteTypesOnly, ignoreInactiveModules);
+            return scanner.FindTypes(typeof(T), concreteTypesOnly);
         }
 
         /// <summary>
@@ -65,12 +63,9 @@ namespace Smartstore.Engine
     {
         public static ITypeScanner Instance { get; } = new NullTypeScanner();
 
-        public void AddAssemblies(params Assembly[] assemblies)
-        {
-        }
         public IEnumerable<Assembly> Assemblies { get; } = Enumerable.Empty<Assembly>();
 
-        public IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true, bool ignoreInactiveModules = false)
+        public IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true)
             => Enumerable.Empty<Type>();
 
         public IEnumerable<Type> FindTypes(Type baseType, IEnumerable<Assembly> assemblies, bool concreteTypesOnly = true)

@@ -69,7 +69,7 @@ namespace Smartstore.Admin.Controllers
                 var normalizedTypeName = _taskActivator.GetNormalizedTypeName(task);
                 var taskType = _taskActivator.GetTaskClrType(normalizedTypeName);
 
-                if (moduleCatalog.IsActiveModuleAssembly(taskType?.Assembly))
+                if (taskType != null)
                 {
                     lastExecutionInfos.TryGetValue(task.Id, out var lastExecutionInfo);
 

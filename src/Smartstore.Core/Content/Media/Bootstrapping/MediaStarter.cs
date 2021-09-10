@@ -77,14 +77,14 @@ namespace Smartstore.Core.Bootstrapping
             }
 
             // Register all album providers
-            var albumProviderTypes = appContext.TypeScanner.FindTypes<IAlbumProvider>(ignoreInactiveModules: true);
+            var albumProviderTypes = appContext.TypeScanner.FindTypes<IAlbumProvider>();
             foreach (var type in albumProviderTypes)
             {
                 builder.RegisterType(type).As<IAlbumProvider>().Keyed<IAlbumProvider>(type).InstancePerLifetimeScope();
             }
 
             // Register all track detectors
-            var trackDetectorTypes = appContext.TypeScanner.FindTypes<IMediaTrackDetector>(ignoreInactiveModules: true);
+            var trackDetectorTypes = appContext.TypeScanner.FindTypes<IMediaTrackDetector>();
             foreach (var type in trackDetectorTypes)
             {
                 builder.RegisterType(type).As<IMediaTrackDetector>().Keyed<IMediaTrackDetector>(type).InstancePerLifetimeScope();

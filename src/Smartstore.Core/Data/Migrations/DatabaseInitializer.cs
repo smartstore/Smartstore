@@ -152,7 +152,7 @@ namespace Smartstore.Core.Data.Migrations
 
         protected virtual IEnumerable<(Type SeederType, Type ContextType)> DiscoverDataSeeders()
         {
-            var seederTypes = _typeScanner.FindTypes(typeof(IDataSeeder<>), ignoreInactiveModules: true);
+            var seederTypes = _typeScanner.FindTypes(typeof(IDataSeeder<>));
 
             foreach (var seederType in seederTypes)
             {

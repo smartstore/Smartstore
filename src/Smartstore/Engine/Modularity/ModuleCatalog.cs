@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Smartstore.Engine.Modularity
 {
     public class ModuleCatalog : IModuleCatalog
     {
-        // TODO: (core) Implement Tenant stuff
         private readonly Dictionary<string, IModuleDescriptor> _nameMap = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<Assembly, IModuleDescriptor> _assemblyMap = new();
-        private readonly HashSet<Assembly> _inactiveAssemblies = new();
 
         public ModuleCatalog(IEnumerable<IModuleDescriptor> modules)
         {
@@ -24,6 +23,11 @@ namespace Smartstore.Engine.Modularity
                     _assemblyMap[module.Module.Assembly] = module;
                 }
             }
+
+            IncompatibleModules = modules
+                .Where(x => x.Incompatible)
+                .Select(x => x.SystemName)
+                .ToArray();
         }
 
         public IEnumerable<IModuleDescriptor> Modules
@@ -41,11 +45,6 @@ namespace Smartstore.Engine.Modularity
         public bool HasModule(string systemName)
         {
             return _nameMap.ContainsKey(systemName);
-        }
-
-        public bool IsActiveModuleAssembly(Assembly assembly)
-        {
-            return assembly != null && !_inactiveAssemblies.Contains(assembly);
         }
 
         public IModuleDescriptor GetModuleByAssembly(Assembly assembly)

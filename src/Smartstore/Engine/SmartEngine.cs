@@ -90,7 +90,7 @@ namespace Smartstore.Engine
 
                 LoadModules();
 
-                _starters = _appContext.TypeScanner.FindTypes<IStarter>(ignoreInactiveModules: true)
+                _starters = _appContext.TypeScanner.FindTypes<IStarter>()
                     .Select(t => (IStarter)Activator.CreateInstance(t))
                     .Where(x => x.Matches(_appContext))
                     .ToList();

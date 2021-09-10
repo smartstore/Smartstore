@@ -439,7 +439,7 @@ namespace Smartstore.Core.Checkout.Payment
                 {
                     if (_paymentMethodFilterTypes == null)
                     {
-                        _paymentMethodFilterTypes = _typeScanner.FindTypes<IPaymentMethodFilter>(ignoreInactiveModules: true).ToList();
+                        _paymentMethodFilterTypes = _typeScanner.FindTypes<IPaymentMethodFilter>().ToList();
                     }
                 }
             }

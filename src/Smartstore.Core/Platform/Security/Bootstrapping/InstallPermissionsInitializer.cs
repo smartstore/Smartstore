@@ -47,7 +47,7 @@ namespace Smartstore.Core.Bootstrapping
                 // nobody touches the binaries usually.
 
                 // Core permission provider and all module providers.
-                var types = _typeScanner.FindTypes<IPermissionProvider>(ignoreInactiveModules: true).ToList();
+                var types = _typeScanner.FindTypes<IPermissionProvider>().ToList();
                 foreach (var type in types)
                 {
                     if (Activator.CreateInstance(type) is IPermissionProvider provider)

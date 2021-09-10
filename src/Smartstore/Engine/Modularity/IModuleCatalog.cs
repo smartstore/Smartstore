@@ -27,13 +27,6 @@ namespace Smartstore.Engine.Modularity
         bool HasModule(string systemName);
 
         /// <summary>
-        /// Gets a value indicating whether the module assembly was properly installed and is active.
-        /// </summary>
-        /// <param name="assembly">The assembly to check for</param>
-        /// <returns><c>true</c> when the assembly is loaded and active.</returns>
-        bool IsActiveModuleAssembly(Assembly assembly);
-
-        /// <summary>
         /// Gets a module by assembly.
         /// </summary>
         /// <param name="assembly">The module assembly</param>
@@ -44,7 +37,7 @@ namespace Smartstore.Engine.Modularity
         /// Gets a module by system name.
         /// </summary>
         /// <param name="name">The module's system name.</param>
-        /// <param name="installedOnly">Return the module only if it is installed.</param>
+        /// <param name="installedOnly">Return the module only if it is installed/loaded.</param>
         /// <returns>Descriptor</returns>
         IModuleDescriptor GetModuleByName(string name, bool installedOnly = true);
     }

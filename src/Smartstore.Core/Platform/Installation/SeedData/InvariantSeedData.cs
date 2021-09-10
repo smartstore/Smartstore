@@ -588,7 +588,7 @@ namespace Smartstore.Core.Installation
         public IList<ISettings> Settings()
         {
             var typeScanner = EngineContext.Current.Application.TypeScanner;
-            var settings = typeScanner.FindTypes<ISettings>(ignoreInactiveModules: true)
+            var settings = typeScanner.FindTypes<ISettings>()
                 .Select(x => Activator.CreateInstance(x))
                 .OfType<ISettings>()
                 .ToList();

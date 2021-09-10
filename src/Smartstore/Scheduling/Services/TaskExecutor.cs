@@ -78,11 +78,6 @@ namespace Smartstore.Scheduling
                 normalizedTypeName = _taskActivator.GetNormalizedTypeName(task);
                 taskType = _taskActivator.GetTaskClrType(normalizedTypeName, true);
 
-                if (!_appContext.ModuleCatalog.IsActiveModuleAssembly(taskType?.Assembly))
-                {
-                    return;
-                }
-
                 await _taskStore.InsertExecutionInfoAsync(executionInfo);
             }
             catch (TaskActivationException)

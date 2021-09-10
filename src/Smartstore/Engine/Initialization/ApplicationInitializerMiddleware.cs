@@ -152,7 +152,7 @@ namespace Smartstore.Engine.Initialization
         {
             if (_initModuleInfos == null)
             {
-                _initModuleInfos = _appContext.TypeScanner.FindTypes<IApplicationInitializer>(true, true)
+                _initModuleInfos = _appContext.TypeScanner.FindTypes<IApplicationInitializer>()
                     .Select(x => new InitModuleInfo { ModuleType = x })
                     .ToList();
             }

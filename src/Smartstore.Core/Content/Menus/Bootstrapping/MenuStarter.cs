@@ -17,7 +17,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<MenuService>().As<IMenuService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultBreadcrumb>().As<IBreadcrumb>().InstancePerLifetimeScope();
 
-            var menuResolverTypes = appContext.TypeScanner.FindTypes<IMenuResolver>(ignoreInactiveModules: true);
+            var menuResolverTypes = appContext.TypeScanner.FindTypes<IMenuResolver>();
             foreach (var type in menuResolverTypes)
             {
                 builder.RegisterType(type).As<IMenuResolver>().PropertiesAutowired(PropertyWiringOptions.None).InstancePerLifetimeScope();
@@ -25,13 +25,13 @@ namespace Smartstore.Core.Bootstrapping
 
             builder.RegisterType<DatabaseMenu>().Named<IMenu>("database").InstancePerDependency();
 
-            var menuTypes = appContext.TypeScanner.FindTypes<IMenu>(ignoreInactiveModules: true);
+            var menuTypes = appContext.TypeScanner.FindTypes<IMenu>();
             foreach (var type in menuTypes.Where(x => x.IsVisible))
             {
                 builder.RegisterType(type).As<IMenu>().PropertiesAutowired(PropertyWiringOptions.None).InstancePerLifetimeScope();
             }
 
-            var menuItemProviderTypes = appContext.TypeScanner.FindTypes<IMenuItemProvider>(ignoreInactiveModules: true);
+            var menuItemProviderTypes = appContext.TypeScanner.FindTypes<IMenuItemProvider>();
             foreach (var type in menuItemProviderTypes)
             {
                 var attribute = type.GetAttribute<MenuItemProviderAttribute>(false);

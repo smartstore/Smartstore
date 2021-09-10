@@ -160,7 +160,7 @@ namespace Smartstore.Core.Identity
                 {
                     if (_cookiePublisherTypes == null)
                     {
-                        _cookiePublisherTypes = _typeScanner.FindTypes<ICookiePublisher>(ignoreInactiveModules: true).ToList();
+                        _cookiePublisherTypes = _typeScanner.FindTypes<ICookiePublisher>().ToList();
                     }
                 }
             }

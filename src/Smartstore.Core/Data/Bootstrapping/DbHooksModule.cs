@@ -29,7 +29,7 @@ namespace Smartstore.Core.Bootstrapping
                 .InstancePerLifetimeScope();
 
             var appInstalled = _appContext.IsInstalled;
-            var hookTypes = _appContext.TypeScanner.FindTypes<IDbSaveHook>(ignoreInactiveModules: true);
+            var hookTypes = _appContext.TypeScanner.FindTypes<IDbSaveHook>();
 
             foreach (var hookType in hookTypes)
             {

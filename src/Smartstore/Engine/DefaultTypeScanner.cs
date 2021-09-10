@@ -34,9 +34,6 @@ namespace Smartstore.Engine
             // Add all module assemblies to assemblies list
             assemblies.AddRange(moduleCatalog.GetInstalledModules().Select(x => x.Module.Assembly));
 
-            // (perf) Create a list with all active module assemblies only
-            _activeAssemblies.AddRange(assemblies.Where(x => moduleCatalog.IsActiveModuleAssembly(x)));
-
             // No edit allowed from now on
             Assemblies = assemblies.AsReadOnly();
         }
@@ -47,12 +44,11 @@ namespace Smartstore.Engine
         public IEnumerable<Assembly> Assemblies { get; private set; }
 
         /// <inheritdoc/>
-        public IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true, bool ignoreInactiveModules = false)
+        public IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true)
         {
             Guard.NotNull(baseType, nameof(baseType));
 
-            var assemblies = ignoreInactiveModules ? _activeAssemblies : Assemblies;
-            return FindTypes(baseType, assemblies, concreteTypesOnly);
+            return FindTypes(baseType, Assemblies, concreteTypesOnly);
         }
 
         /// <inheritdoc/>

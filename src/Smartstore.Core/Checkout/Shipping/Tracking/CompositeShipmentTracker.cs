@@ -36,7 +36,7 @@ namespace Smartstore.Core.Checkout.Shipping
                     if (_trackerTypes == null)
                     {
                         _trackerTypes = _typeScanner
-                            .FindTypes<IShipmentTracker>(ignoreInactiveModules: true)
+                            .FindTypes<IShipmentTracker>()
                             .Where(x => x.IsPublic)
                             .ToArray();
                     }

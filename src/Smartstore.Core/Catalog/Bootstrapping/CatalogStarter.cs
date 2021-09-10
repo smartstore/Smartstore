@@ -87,7 +87,7 @@ namespace Smartstore.Core.Bootstrapping
 
         private void DiscoverCalculators(ContainerBuilder builder, IApplicationContext appContext)
         {
-            var calculatorTypes = appContext.TypeScanner.FindTypes<IPriceCalculator>(ignoreInactiveModules: true);
+            var calculatorTypes = appContext.TypeScanner.FindTypes<IPriceCalculator>();
 
             foreach (var calculatorType in calculatorTypes)
             {

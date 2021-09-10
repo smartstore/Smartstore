@@ -25,7 +25,7 @@ namespace Smartstore.Bootstrapping
             builder.Register<IHostedService>(c => c.Resolve<ITaskScheduler>()).SingleInstance();
 
             // Register all ITask impls
-            var taskTypes = _appContext.TypeScanner.FindTypes<ITask>(ignoreInactiveModules: true);
+            var taskTypes = _appContext.TypeScanner.FindTypes<ITask>();
 
             foreach (var taskType in taskTypes)
             {

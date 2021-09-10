@@ -32,7 +32,7 @@ namespace Smartstore.Core.Content.Menus
                 var allInstances = _requestCache.Get("sm.menu.allproviders", () =>
                 {
                     var instances = new List<IMenuProvider>();
-                    var providerTypes = _typeScanner.FindTypes<IMenuProvider>(ignoreInactiveModules: true);
+                    var providerTypes = _typeScanner.FindTypes<IMenuProvider>();
 
                     foreach (var type in providerTypes)
                     {

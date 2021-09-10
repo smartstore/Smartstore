@@ -12,7 +12,7 @@ namespace Smartstore.Web.Bundling
             Guard.NotNull(bundles, nameof(bundles));
 
             var bundleProviders = appContext.TypeScanner
-                .FindTypes<IBundleProvider>(ignoreInactiveModules: true)
+                .FindTypes<IBundleProvider>()
                 .Select(providerType => Activator.CreateInstance(providerType) as IBundleProvider)
                 .OrderByDescending(provider => provider.Priority)
                 .ToList();
