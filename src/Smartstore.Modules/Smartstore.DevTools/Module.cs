@@ -18,7 +18,7 @@ namespace Smartstore.DevTools
         public override async Task InstallAsync()
         {
             await base.InstallAsync();
-            await SaveSettingsAsync<ProfilerSettings>();
+            await TrySaveSettingsAsync<ProfilerSettings>();
             await ImportLanguageResources();
             Logger.Info(string.Format("Plugin installed: SystemName: {0}, Version: {1}, Description: '{2}'", Descriptor.SystemName, Descriptor.Version, Descriptor.FriendlyName));
         }

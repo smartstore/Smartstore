@@ -31,7 +31,7 @@ namespace Smartstore.Blog
         public override async Task InstallAsync()
         {
             await base.InstallAsync();
-            await SaveSettingsAsync<BlogSettings>();
+            await TrySaveSettingsAsync<BlogSettings>();
             await ImportLanguageResources();
         }
 

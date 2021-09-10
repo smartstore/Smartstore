@@ -54,18 +54,50 @@ namespace Smartstore.Engine.Modularity
             return Services.Localization.DeleteLocaleStringResourcesAsync(Descriptor.ResourceRootKey);
         }
 
+        /// <summary>
+        /// Saves the default state of a setting class to the database overwriting any existing value.
+        /// </summary>
+        /// <returns>The number of inserted or updated setting properties.</returns>
         protected Task<int> SaveSettingsAsync<T>()
              where T : ISettings, new()
         {
             return Services.SettingFactory.SaveSettingsAsync(new T());
         }
 
+        /// <summary>
+        /// Saves <paramref name="settings"/> to the database overwriting any existing value.
+        /// </summary>
+        /// <returns>The number of inserted or updated setting properties.</returns>
         protected Task<int> SaveSettingsAsync<T>(T settings)
              where T : ISettings, new()
         {
             return Services.SettingFactory.SaveSettingsAsync(settings);
         }
 
+        /// <summary>
+        /// Saves the default state of a setting class to the database without overwriting existing values.
+        /// </summary>
+        /// <returns>The number of inserted or updated setting properties.</returns>
+        protected Task<int> TrySaveSettingsAsync<T>()
+             where T : ISettings, new()
+        {
+            return SettingFactory.SaveSettingsAsync(Services.DbContext, new T(), false);
+        }
+
+        /// <summary>
+        /// Saves <paramref name="settings"/> to the database without overwriting existing values.
+        /// </summary>
+        /// <returns>The number of inserted or updated setting properties.</returns>
+        protected Task<int> TrySaveSettingsAsync<T>(T settings)
+             where T : ISettings, new()
+        {
+            return SettingFactory.SaveSettingsAsync(Services.DbContext, settings, false);
+        }
+
+        /// <summary>
+        /// Deletes all properties from <typeparamref name="T"/> settings from the database.
+        /// </summary>
+        /// <returns>The number of deleted setting properties.</returns>
         protected async Task<int> DeleteSettingsAsync<T>()
              where T : ISettings, new()
         {

@@ -115,7 +115,7 @@ namespace Smartstore.Core.Configuration
             // INFO: Let SettingService's hook handler handle cache invalidation
             using (GetOrCreateDbContext(out var db))
             {
-                var numSaved = await SaveSettingsAsync(db, settings, storeId);
+                var numSaved = await SaveSettingsAsync(db, settings, true, storeId);
                 if (numSaved > 0)
                 {
                     // Prevent reloading from DB on next hit
@@ -132,7 +132,7 @@ namespace Smartstore.Core.Configuration
         /// <summary>
         /// Internal API.
         /// </summary>
-        public static async Task<int> SaveSettingsAsync(SmartDbContext db, ISettings settings, int storeId = 0)
+        public static async Task<int> SaveSettingsAsync(SmartDbContext db, ISettings settings, bool overwriteExisting = true, int storeId = 0)
         {
             Guard.NotNull(db, nameof(db));
             Guard.NotNull(settings, nameof(settings));
@@ -158,7 +158,7 @@ namespace Smartstore.Core.Configuration
 
                 if (rawSettings.TryGetValue(key, out var setting))
                 {
-                    if (setting.Value != currentValue)
+                    if (overwriteExisting && setting.Value != currentValue)
                     {
                         // Update
                         setting.Value = currentValue;
