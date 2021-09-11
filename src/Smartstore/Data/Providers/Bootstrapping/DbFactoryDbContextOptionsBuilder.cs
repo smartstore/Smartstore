@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Smartstore.Data.Migrations;
 
 namespace Smartstore.Data.Providers
 {
@@ -80,5 +81,15 @@ namespace Smartstore.Data.Providers
         /// <param name="assemblies">The assemblies to add.</param>
         public virtual DbFactoryDbContextOptionsBuilder AddModelAssemblies(IEnumerable<Assembly> assemblies)
             => WithOption(e => e.WithModelAssemblies(Guard.NotNull(assemblies, nameof(assemblies))));
+
+        /// <summary>
+        /// Adds a global data seeder to the context. Global seeders are instantiated and executed on every application startup.
+        /// The seeder type must be compatible with the configured <see cref="DbContext"/> type, otherwise an exception is raised.
+        /// </summary>
+        /// <typeparam name="TSeeder">Concrete type of data seeder to add</typeparam>
+        public virtual DbFactoryDbContextOptionsBuilder AddDataSeeder<TContext, TSeeder>()
+            where TContext : HookingDbContext
+            where TSeeder : IDataSeeder<TContext>, new()
+            => WithOption(e => e.WithDataSeeder<TContext, TSeeder>());
     }
 }

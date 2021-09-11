@@ -9,15 +9,18 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine;
+using Smartstore.Data.Migrations;
 
 namespace Smartstore.Data.Providers
 {
     public class DbFactoryOptionsExtension : IDbContextOptionsExtension
     {
         private DbContextOptionsExtensionInfo _info;
+        private DbContextOptions _options;
 
-        public DbFactoryOptionsExtension(DbContextOptions options = null)
+        public DbFactoryOptionsExtension(DbContextOptions options)
         {
+            _options = options;
             var appConfig = EngineContext.Current.Application.Services.ResolveOptional<SmartConfiguration>();
             if (appConfig?.DbCommandTimeout != null)
             {
@@ -29,11 +32,15 @@ namespace Smartstore.Data.Providers
         {
             Guard.NotNull(copyFrom, nameof(copyFrom));
 
+            _options = copyFrom._options;
+
             CommandTimeout = copyFrom.CommandTimeout;
             MinBatchSize = copyFrom.MinBatchSize;
             MaxBatchSize = copyFrom.MaxBatchSize;
             UseRelationalNulls = copyFrom.UseRelationalNulls;
             QuerySplittingBehavior = copyFrom.QuerySplittingBehavior;
+            ModelAssemblies = copyFrom.ModelAssemblies;
+            DataSeederTypes = copyFrom.DataSeederTypes;
         }
 
         public DbContextOptionsExtensionInfo Info
@@ -124,6 +131,21 @@ namespace Smartstore.Data.Providers
             return clone;
         }
 
+        public IEnumerable<Type> DataSeederTypes { get; private set; }
+        public DbFactoryOptionsExtension WithDataSeeder<TContext, TSeeder>()
+            where TContext : HookingDbContext
+            where TSeeder : IDataSeeder<TContext>, new()
+        {
+            if (!_options.ContextType.IsAssignableFrom(typeof(TContext)))
+            {
+                throw new InvalidOperationException($"The data seeder '{typeof(TSeeder)}' is not compatible with the configured DbContext type '{_options.ContextType}'.");
+            }
+            
+            var clone = Clone();
+            clone.DataSeederTypes = (DataSeederTypes ?? Enumerable.Empty<Type>()).Concat(new[] { typeof(TSeeder) });
+            return clone;
+        }
+
         #endregion
 
         #region Nested ExtensionInfo
@@ -158,6 +180,11 @@ namespace Smartstore.Data.Providers
                     if (Extension.ModelAssemblies != null)
                     {
                         Extension.ModelAssemblies.Each(x => hashCode.Add(x.GetHashCode()));
+                    }
+
+                    if (Extension.DataSeederTypes != null)
+                    {
+                        Extension.DataSeederTypes.Each(x => hashCode.Add(x.GetHashCode()));
                     }
 
                     _serviceProviderHash = hashCode.ToHashCode();

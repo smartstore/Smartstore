@@ -11,6 +11,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Providers;
@@ -48,6 +49,8 @@ namespace Smartstore.Core.Bootstrapping
                         .UseSecondLevelCache()
                         .UseDbFactory(b => 
                         {
+                            b.AddDataSeeder<SmartDbContext, SmartDbContextDataSeeder>();
+                            
                             b.AddModelAssemblies(new[] 
                             { 
                                 // Add all core models from Smartstore.Core assembly

@@ -26,30 +26,27 @@ using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
 using Smartstore.Domain;
 using Smartstore.Engine;
-using Smartstore.Events;
 using Smartstore.IO;
 
 namespace Smartstore.Core.Installation
 {
-    public partial class InstallationDataSeeder : IDataSeeder<SmartDbContext>
+    public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     {
         private readonly DbMigrator<SmartDbContext> _migrator;
         private readonly SeedDataConfiguration _config;
-        private readonly ILogger _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
         
-        private SmartDbContext _db;
         private InvariantSeedData _data;
-        private CancellationToken _cancelToken;
         private IXmlResourceManager _xmlResourceManager;
         private IUrlService _urlService;
         private int _defaultStoreId;
 
         public InstallationDataSeeder(
             DbMigrator<SmartDbContext> migrator,
-            SeedDataConfiguration configuration, 
-            ILogger logger, 
+            SeedDataConfiguration configuration,
+            ILogger logger,
             IHttpContextAccessor httpContextAccessor)
+            : base(logger)
         {
             Guard.NotNull(migrator, nameof(migrator));
             Guard.NotNull(configuration, nameof(configuration));
@@ -59,7 +56,6 @@ namespace Smartstore.Core.Installation
 
             _migrator = migrator;
             _config = configuration;
-            _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             _data = configuration.Data;
         }
@@ -71,7 +67,7 @@ namespace Smartstore.Core.Installation
                 if (_urlService == null)
                 {
                     _urlService = new UrlService(
-                        _db,
+                        Context,
                         NullCache.Instance,
                         _httpContextAccessor,
                         null, // IWorkContext not accessed
@@ -94,7 +90,7 @@ namespace Smartstore.Core.Installation
                 if (_xmlResourceManager == null)
                 {
                     _xmlResourceManager = new XmlResourceManager(
-                        _db,
+                        Context,
                         NullRequestCache.Instance,
                         null /* ILanguageService: not needed during install */,
                         null /* ILocalizationService: not needed during install */);
@@ -106,72 +102,66 @@ namespace Smartstore.Core.Installation
 
         #region IDataSeeder
 
-        public bool RollbackOnFailure => false;
-
-        public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
+        protected override async Task SeedCoreAsync()
         {
-            Guard.NotNull(context, nameof(context));
+            _data.Initialize(Context, _config.Language, EngineContext.Current.Application);
 
-            _db = context;
-            _data.Initialize(_db, _config.Language, EngineContext.Current.Application);
-            _cancelToken = cancelToken;
-
-            _db.ChangeTracker.AutoDetectChangesEnabled = false;
-            _db.MinHookImportance = HookImportance.Essential;
+            Context.ChangeTracker.AutoDetectChangesEnabled = false;
+            Context.MinHookImportance = HookImportance.Essential;
 
             _config.ProgressMessageCallback("Progress.CreatingRequiredData");
 
             // special mandatory (non-visible) settings
-            await _db.MigrateSettingsAsync(x =>
+            await Context.MigrateSettingsAsync(x =>
             {
                 x.Add("Media.Storage.Provider", _config.StoreMediaInDB ? DatabaseMediaStorageProvider.SystemName : FileSystemMediaStorageProvider.SystemName);
             });
 
-            await Populate("PopulatePictures", _data.Pictures().Where(x => x != null));
-            await Populate("PopulateCurrencies", PopulateCurrencies);
-            await Populate("PopulateStores", PopulateStores);
-            await Populate("InstallLanguages", () => PopulateLanguage(_config.Language));
-            await Populate("PopulateMeasureDimensions", _data.MeasureDimensions());
-            await Populate("PopulateMeasureWeights", _data.MeasureWeights());
-            await Populate("PopulateTaxCategories", PopulateTaxCategories);
-            await Populate("PopulateCountriesAndStates", PopulateCountriesAndStates);
-            await Populate("PopulateShippingMethods", PopulateShippingMethods);
-            await Populate("PopulateDeliveryTimes", _data.DeliveryTimes());
-            await Populate("PopulateQuantityUnits", _data.QuantityUnits());
-            await Populate("PopulateCustomersAndUsers", async () => await PopulateCustomersAndUsers(_config.DefaultUserName, _config.DefaultUserPassword));
-            await Populate("PopulateEmailAccounts", _data.EmailAccounts());
-            await Populate("PopulateMessageTemplates", PopulateMessageTemplates);
-            await Populate("PopulateTopics", PopulateTopics);
-            await Populate("PopulateSettings", PopulateSettings);
-            await Populate("PopulateActivityLogTypes", _data.ActivityLogTypes());
-            await Populate("PopulateCustomersAndUsers", async () => await HashDefaultCustomerPassword(_config.DefaultUserName, _config.DefaultUserPassword));
-            await Populate("PopulateProductTemplates", _data.ProductTemplates());
-            await Populate("PopulateCategoryTemplates", _data.CategoryTemplates());
-            await Populate("PopulateManufacturerTemplates", _data.ManufacturerTemplates());
-            await Populate("PopulateScheduleTasks", _data.TaskDescriptors());
-            await Populate("PopulateLocaleResources", async () => await PopulateLocaleResources(_config.Language));
-            await Populate("PopulateMenus", _data.Menus());
+            await PopulateAsync("PopulatePictures", _data.Pictures().Where(x => x != null));
+            await PopulateAsync("PopulateCurrencies", PopulateCurrencies);
+            await PopulateAsync("PopulateStores", PopulateStores);
+            await PopulateAsync("InstallLanguages", () => PopulateLanguage(_config.Language));
+            await PopulateAsync("PopulateMeasureDimensions", _data.MeasureDimensions());
+            await PopulateAsync("PopulateMeasureWeights", _data.MeasureWeights());
+            await PopulateAsync("PopulateTaxCategories", PopulateTaxCategories);
+            await PopulateAsync("PopulateCountriesAndStates", PopulateCountriesAndStates);
+            await PopulateAsync("PopulateShippingMethods", PopulateShippingMethods);
+            await PopulateAsync("PopulateDeliveryTimes", _data.DeliveryTimes());
+            await PopulateAsync("PopulateQuantityUnits", _data.QuantityUnits());
+            await PopulateAsync("PopulateCustomersAndUsers", async () => await PopulateCustomersAndUsers(_config.DefaultUserName, _config.DefaultUserPassword));
+            await PopulateAsync("PopulateEmailAccounts", _data.EmailAccounts());
+            await PopulateAsync("PopulateMessageTemplates", PopulateMessageTemplates);
+            await PopulateAsync("PopulateTopics", PopulateTopics);
+            await PopulateAsync("PopulateSettings", PopulateSettings);
+            await PopulateAsync("PopulateActivityLogTypes", _data.ActivityLogTypes());
+            await PopulateAsync("PopulateCustomersAndUsers", async () => await HashDefaultCustomerPassword(_config.DefaultUserName, _config.DefaultUserPassword));
+            await PopulateAsync("PopulateProductTemplates", _data.ProductTemplates());
+            await PopulateAsync("PopulateCategoryTemplates", _data.CategoryTemplates());
+            await PopulateAsync("PopulateManufacturerTemplates", _data.ManufacturerTemplates());
+            await PopulateAsync("PopulateScheduleTasks", _data.TaskDescriptors());
+            await PopulateAsync("PopulateLocaleResources", async () => await PopulateLocaleResources(_config.Language));
+            await PopulateAsync("PopulateMenus", _data.Menus());
 
             if (_config.SeedSampleData)
             {
-                _logger.Info("Seeding sample data");
+                Logger.Info("Seeding sample data");
 
                 _config.ProgressMessageCallback("Progress.CreatingSampleData");
 
-                await Populate("PopulateSpecificationAttributes", _data.SpecificationAttributes());
-                await Populate("PopulateProductAttributes", _data.ProductAttributes());
-                await Populate("PopulateProductAttributeOptionsSets", _data.ProductAttributeOptionsSets());
-                await Populate("PopulateProductAttributeOptions", _data.ProductAttributeOptions());
-                await Populate("PopulateCampaigns", _data.Campaigns());
-                await Populate("PopulateRuleSets", _data.RuleSets());
-                await Populate("PopulateDiscounts", _data.Discounts());
-                await Populate("PopulateCategories", PopulateCategories);
-                await Populate("PopulateManufacturers", PopulateManufacturers);
-                await Populate("PopulateProducts", PopulateProducts);
-                await Populate("PopulateProductBundleItems", _data.ProductBundleItems());
-                await Populate("PopulateProductVariantAttributes", _data.ProductVariantAttributes());
-                await Populate("ProductVariantAttributeCombinations", _data.ProductVariantAttributeCombinations());
-                await Populate("PopulateProductTags", _data.ProductTags());
+                await PopulateAsync("PopulateSpecificationAttributes", _data.SpecificationAttributes());
+                await PopulateAsync("PopulateProductAttributes", _data.ProductAttributes());
+                await PopulateAsync("PopulateProductAttributeOptionsSets", _data.ProductAttributeOptionsSets());
+                await PopulateAsync("PopulateProductAttributeOptions", _data.ProductAttributeOptions());
+                await PopulateAsync("PopulateCampaigns", _data.Campaigns());
+                await PopulateAsync("PopulateRuleSets", _data.RuleSets());
+                await PopulateAsync("PopulateDiscounts", _data.Discounts());
+                await PopulateAsync("PopulateCategories", PopulateCategories);
+                await PopulateAsync("PopulateManufacturers", PopulateManufacturers);
+                await PopulateAsync("PopulateProducts", PopulateProducts);
+                await PopulateAsync("PopulateProductBundleItems", _data.ProductBundleItems());
+                await PopulateAsync("PopulateProductVariantAttributes", _data.ProductVariantAttributes());
+                await PopulateAsync("ProductVariantAttributeCombinations", _data.ProductVariantAttributeCombinations());
+                await PopulateAsync("PopulateProductTags", _data.ProductTags());
                 ////////await Populate("PopulateForumsGroups", _data.ForumGroups());
                 ////////await Populate("PopulateForums", _data.Forums());
                 ////////await Populate("PopulateBlogPosts", PopulateBlogPosts);
@@ -180,10 +170,10 @@ namespace Smartstore.Core.Installation
                 Populate("FinalizeSamples", () => _data.FinalizeSamples());
             }
 
-            await Populate("MoveMedia", MoveMedia);
+            await PopulateAsync("MoveMedia", MoveMedia);
 
             // Perf
-            _db.DetachEntities<BaseEntity>();
+            Context.DetachEntities<BaseEntity>();
         }
 
         #endregion
@@ -193,14 +183,14 @@ namespace Smartstore.Core.Installation
         private async Task PopulateStores()
         {
             var stores = _data.Stores();
-            await SaveRange(stores);
+            await SaveRangeAsync(stores);
             _defaultStoreId = stores.First().Id;
         }
 
         private async Task PopulateTaxCategories()
         {
             var taxCategories = _data.TaxCategories();
-            await SaveRange(taxCategories);
+            await SaveRangeAsync(taxCategories);
 
             // Add tax rates to fixed rate provider
             int i = 0;
@@ -214,20 +204,20 @@ namespace Smartstore.Core.Installation
                 }
                 i++;
 
-                _db.Settings.Add(new Setting 
+                Context.Settings.Add(new Setting 
                 {
                     Name = string.Format("Tax.TaxProvider.FixedRate.TaxCategoryId{0}", id).ToLowerInvariant(),
                     Value = rate.Convert<string>(),
                 });
             }
 
-            await _db.SaveChangesAsync();
+            await Context.SaveChangesAsync();
         }
 
         private Task PopulateLanguage(Language primaryLanguage)
         {
             primaryLanguage.Published = true;
-            return Save(primaryLanguage);
+            return SaveAsync(primaryLanguage);
         }
 
         private async Task PopulateLocaleResources(Language language)
@@ -249,7 +239,7 @@ namespace Smartstore.Core.Installation
             var xmlResourceManager = XmlResourceManager;
 
             // Perf
-            _db.DetachEntities<BaseEntity>();
+            Context.DetachEntities<BaseEntity>();
 
             // Save resources
             foreach (var file in locDir.EnumerateFiles("*.smres.xml"))
@@ -267,7 +257,7 @@ namespace Smartstore.Core.Installation
                 // already without AutoDetectChanges(), so it's fast.
 
                 // Perf
-                _db.DetachEntities<LocaleStringResource>();
+                Context.DetachEntities<LocaleStringResource>();
             }
 
             await SeedPendingLocaleResources(locDir);
@@ -300,23 +290,23 @@ namespace Smartstore.Core.Installation
 
         private async Task PopulateCurrencies()
         {
-            await SaveRange(_data.Currencies().Where(x => x != null));
+            await SaveRangeAsync(_data.Currencies().Where(x => x != null));
         }
 
         private async Task PopulateCountriesAndStates()
         {
-            await SaveRange(_data.Countries().Where(x => x != null));
+            await SaveRangeAsync(_data.Countries().Where(x => x != null));
         }
 
         private Task PopulateShippingMethods()
         {
-            return SaveRange(_data.ShippingMethods(_config.SeedSampleData).Where(x => x != null));
+            return SaveRangeAsync(_data.ShippingMethods(_config.SeedSampleData).Where(x => x != null));
         }
 
         private async Task PopulateCustomersAndUsers(string defaultUserEmail, string defaultUserPassword)
         {
             var customerRoles = _data.CustomerRoles(_config.SeedSampleData);
-            await SaveRange(customerRoles.Where(x => x != null));
+            await SaveRangeAsync(customerRoles.Where(x => x != null));
 
             //admin user
             var adminUser = new Customer
@@ -345,11 +335,11 @@ namespace Smartstore.Core.Installation
             adminUser.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = adminUser.Id, CustomerRoleId = adminRole.Id });
             adminUser.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = adminUser.Id, CustomerRoleId = forumRole.Id });
             adminUser.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = adminUser.Id, CustomerRoleId = registeredRole.Id });
-            await Save(adminUser);
+            await SaveAsync(adminUser);
 
             // Set default customer name
             var firstAddress = adminUser.Addresses.FirstOrDefault();
-            _db.GenericAttributes.AddRange(new[] 
+            Context.GenericAttributes.AddRange(new[] 
             {
                 new GenericAttribute
                 {
@@ -367,37 +357,37 @@ namespace Smartstore.Core.Installation
                 }
             });
 
-            await _db.SaveChangesAsync();
+            await Context.SaveChangesAsync();
 
             // Built-in user for search engines (crawlers)
             var guestRole = customerRoles.FirstOrDefault(x => x.SystemName == SystemCustomerRoleNames.Guests);
 
             var customer = _data.SearchEngineUser();
             customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
-            await Save(customer);
+            await SaveAsync(customer);
 
             // Built-in user for background tasks
             customer = _data.BackgroundTaskUser();
             customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
-            await Save(customer);
+            await SaveAsync(customer);
 
             // Built-in user for the PDF converter
             customer = _data.PdfConverterUser();
             customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
-            await Save(customer);
+            await SaveAsync(customer);
         }
 
         private async Task HashDefaultCustomerPassword(string defaultUserEmail, string defaultUserPassword)
         {
             var encryptor = new Encryptor(new SecuritySettings());
             var saltKey = encryptor.CreateSaltKey(5);
-            var adminUser = await _db.Customers.FirstOrDefaultAsync(x => x.Email == _config.DefaultUserName);
+            var adminUser = await Context.Customers.FirstOrDefaultAsync(x => x.Email == _config.DefaultUserName);
 
             adminUser.PasswordSalt = saltKey;
             adminUser.PasswordFormat = PasswordFormat.Hashed;
             adminUser.Password = encryptor.CreatePasswordHash(defaultUserPassword, saltKey, new CustomerSettings().HashedPasswordFormat);
 
-            await _db.SaveChangesAsync();
+            await Context.SaveChangesAsync();
         }
 
         private async Task PopulateSettings()
@@ -407,43 +397,43 @@ namespace Smartstore.Core.Installation
             {
                 Type settingType = setting.GetType();
                 int storeId = settingType.Equals(typeof(ThemeSettings)) ? _defaultStoreId : 0;
-                await SettingFactory.SaveSettingsAsync(_db, setting, storeId: storeId);
+                await SettingFactory.SaveSettingsAsync(Context, setting, storeId: storeId);
             }
         }
 
         private async Task PopulateMessageTemplates()
         {
-            var converter = new MessageTemplateConverter(_db, EngineContext.Current.Application);
+            var converter = new MessageTemplateConverter(Context, EngineContext.Current.Application);
             await converter.ImportAllAsync(_config.Language);
         }
 
         private async Task PopulateCategories()
         {
             var categoriesFirstLevel = _data.CategoriesFirstLevel();
-            await SaveRange(categoriesFirstLevel);
+            await SaveRangeAsync(categoriesFirstLevel);
             await PopulateUrlRecordsFor(categoriesFirstLevel);
 
             var categoriesSecondLevel = _data.CategoriesSecondLevel();
-            await SaveRange(categoriesSecondLevel);
+            await SaveRangeAsync(categoriesSecondLevel);
             await PopulateUrlRecordsFor(categoriesSecondLevel);
         }
 
         private async Task PopulateManufacturers()
         {
             var manufacturers = _data.Manufacturers();
-            await SaveRange(manufacturers);
+            await SaveRangeAsync(manufacturers);
             await PopulateUrlRecordsFor(manufacturers);
         }
 
         private async Task PopulateProducts()
         {
             var products = _data.Products();
-            await SaveRange(products);
+            await SaveRangeAsync(products);
 
             _data.AddDownloads(products);
 
             // Fix MainPictureId
-            await ProductPictureHelper.FixProductMainPictureIds(_db);
+            await ProductPictureHelper.FixProductMainPictureIds(Context);
 
             await PopulateUrlRecordsFor(products);
 
@@ -453,7 +443,7 @@ namespace Smartstore.Core.Installation
         private async Task PopulateTopics()
         {
             var topics = _data.Topics();
-            await SaveRange(topics);
+            await SaveRangeAsync(topics);
             await PopulateUrlRecordsFor(topics);
         }
 
@@ -467,9 +457,9 @@ namespace Smartstore.Core.Installation
             // All pictures have initially been stored in the DB. Move the binaries to disk as configured.
             var fileSystemStorageProvider = EngineContext.Current.ResolveService<Func<IMediaStorageProvider>>().Invoke();
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: true))
+            using (var scope = new DbContextScope(Context, autoDetectChanges: true))
             {
-                var mediaFiles = await _db.MediaFiles
+                var mediaFiles = await Context.MediaFiles
                     .Include(x => x.MediaStorage)
                     .Where(x => x.MediaStorageId != null)
                     .ToListAsync();
@@ -515,68 +505,6 @@ namespace Smartstore.Core.Installation
 
                 await scope.CommitAsync();
             }
-        }
-
-        private async Task Populate<TEntity>(string stage, IEnumerable<TEntity> entities)
-            where TEntity : BaseEntity
-        {
-            try
-            {
-                _cancelToken.ThrowIfCancellationRequested();
-                _logger.Debug("Populate: {0}", stage);
-                //entities = entities.Where(x => x != null);
-                await SaveRange(entities);
-            }
-            catch (Exception ex)
-            {
-                var ex2 = new SeedDataException(stage, ex);
-                _logger.Error(ex2);
-                throw ex2;
-            }
-        }
-
-        private async Task Populate(string stage, Func<Task> populateAction)
-        {
-            try
-            {
-                _cancelToken.ThrowIfCancellationRequested();
-                _logger.Debug("Populate: {0}", stage);
-                await populateAction();
-            }
-            catch (Exception ex)
-            {
-                var ex2 = new SeedDataException(stage, ex);
-                _logger.Error(ex2);
-                throw ex2;
-            }
-        }
-
-        private void Populate(string stage, Action populateAction)
-        {
-            try
-            {
-                _cancelToken.ThrowIfCancellationRequested();
-                _logger.Debug("Populate: {0}", stage);
-                populateAction();
-            }
-            catch (Exception ex)
-            {
-                var ex2 = new SeedDataException(stage, ex);
-                _logger.Error(ex2);
-                throw ex2;
-            }
-        }
-
-        private Task Save<TEntity>(TEntity entity) where TEntity : BaseEntity
-        {
-            _db.Set<TEntity>().Add(entity);
-            return _db.SaveChangesAsync();
-        }
-
-        private Task SaveRange<TEntity>(IEnumerable<TEntity> entities) where TEntity : BaseEntity
-        {
-            _db.Set<TEntity>().AddRange(entities);
-            return _db.SaveChangesAsync();
         }
 
         #endregion
