@@ -1,7 +1,50 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Smartstore.Engine.Modularity
 {
+    public enum ModuleInstallationStage
+    {
+        /// <summary>
+        /// Application is in installation stage.
+        /// </summary>
+        AppInstallation,
+
+        /// <summary>
+        /// Application is installed and bootstrapped. The module should be installed by user request.
+        /// </summary>
+        ModuleInstallation
+    }
+    
+    /// <summary>
+    /// Module installation context.
+    /// </summary>
+    public sealed class ModuleInstallationContext
+    {
+        /// <summary>
+        /// Gets a value indicating whether sample data should be seeded. During 
+        /// app installation, reflects the choice the user made in the install wizard.
+        /// During module installation value is always <c>null</c>; in this case the module
+        /// author should decide whether to seed sample data or not.
+        /// </summary>
+        public bool? SeedSampleData { get; init; }
+
+        /// <summary>
+        /// ISO culture code of the primary installation language.
+        /// </summary>
+        public string Culture { get; init; }
+
+        /// <summary>
+        /// Installation stage.
+        /// </summary>
+        public ModuleInstallationStage Stage { get; init; }
+
+        /// <summary>
+        /// Logger to use.
+        /// </summary>
+        public ILogger Logger { get; init; }
+    }
+    
     /// <summary>
     /// Responsible for installing or uninstalling modules.
     /// Implementations are auto-discovered on app startup and registered as transient
@@ -18,7 +61,7 @@ namespace Smartstore.Engine.Modularity
         /// Executed when a module is installed. This method should perform
         /// common data seeding tasks like importing language resources, saving initial settings data etc.
         /// </summary>
-        Task InstallAsync();
+        Task InstallAsync(ModuleInstallationContext context);
 
         /// <summary>
         /// Executed when a module is uninstalled. This method should remove module specific

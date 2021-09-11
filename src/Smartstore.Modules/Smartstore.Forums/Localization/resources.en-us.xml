@@ -1,0 +1,11 @@
+﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Boards" AppendRootKey="false">
+        <Value>Forums</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Boards" AppendRootKey="false">
+        <Value>Smartstore Forums</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Permissions.DisplayName.Boards" AppendRootKey="false">
+        <Value>Forums</Value>
+    </LocaleResource>
+</Language>

@@ -2,36 +2,24 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Blog.Migrations;
-using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
+using Smartstore.Forums.Migrations;
 using Smartstore.Http;
 
-namespace Smartstore.Blog
+namespace Smartstore.Forums
 {
-    internal class Module : ModuleBase, IConfigurable, IWidget
+    internal class Module : ModuleBase, IConfigurable
     {
+        public static string SystemName => "Smartstore.Forum";
+
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public RouteInfo GetConfigurationRoute()
-            => new("Settings", "Blog", new { area = "Admin" });
-
-        // TODO: (mh) (core) Won't be called. Why???
-        public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
-        {
-            //return new HtmlWidgetInvoker(new HtmlString("<a class='menubar-link' href='@Url.RouteUrl('Blog')'>@T('Blog')</a>"));
-
-            return new ComponentWidgetInvoker("MenuItem", new { widgetZone, model, storeId }) { };
-        }
-
-        public string[] GetWidgetZones()
-        {
-            return new string[] { "header_menu_special" };
-        }
+            => new("Configure", "Forum", new { area = "Admin" });
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
-            await TrySaveSettingsAsync<BlogSettings>();
+            await TrySaveSettingsAsync<ForumSettings>();
             await ImportLanguageResources();
             await TrySeedData(context);
 
@@ -44,19 +32,19 @@ namespace Smartstore.Blog
             {
                 try
                 {
-                    var seeder = new BlogSampleDataSeeder(context);
+                    var seeder = new ForumsSampleDataSeeder(context);
                     await seeder.SeedAsync(Services.DbContext);
                 }
                 catch (Exception ex)
                 {
-                    context.Logger.Error(ex, "BlogSampleDataSeeder failed.");
+                    context.Logger.Error(ex, "ForumsSampleDataSeeder failed.");
                 }
             }
         }
 
         public override async Task UninstallAsync()
         {
-            await DeleteSettingsAsync<BlogSettings>();
+            await DeleteSettingsAsync<ForumSettings>();
             await DeleteLanguageResources();
 
             await base.UninstallAsync();

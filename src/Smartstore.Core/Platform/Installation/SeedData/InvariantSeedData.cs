@@ -1481,7 +1481,7 @@ namespace Smartstore.Core.Installation
 
         public virtual UrlRecord CreateUrlRecordFor<T>(T entity) where T : BaseEntity, ISlugSupported, new()
         {
-            var name = string.Empty;
+            string name;
 
             if (entity is Topic topic)
             {

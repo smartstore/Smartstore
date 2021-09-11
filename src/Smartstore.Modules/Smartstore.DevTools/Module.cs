@@ -13,21 +13,20 @@ namespace Smartstore.DevTools
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public RouteInfo GetConfigurationRoute()
-            => new RouteInfo("Configure", "DevTools", new { area = "Admin" });
+            => new("Configure", "DevTools", new { area = "Admin" });
 
-        public override async Task InstallAsync()
+        public override async Task InstallAsync(ModuleInstallationContext context)
         {
             await TrySaveSettingsAsync<ProfilerSettings>();
             await ImportLanguageResources();
-            await base.InstallAsync();
-            Logger.Info(string.Format("Plugin installed: SystemName: {0}, Version: {1}, Description: '{2}'", Descriptor.SystemName, Descriptor.Version, Descriptor.FriendlyName));
+            await base.InstallAsync(context);
         }
 
         public override async Task UninstallAsync()
         {
-            await base.UninstallAsync();
             await DeleteSettingsAsync<ProfilerSettings>();
             await DeleteLanguageResources();
+            await base.UninstallAsync();
         }
     }
 }

@@ -243,7 +243,7 @@ namespace Smartstore.Core.Installation
                 });
 
                 // ===>>> Install modules
-                await InstallModules(dbContext, richScope, cancelToken);
+                await InstallModules(model, dbContext, richScope, cancelToken);
 
                 // Detect media file tracks (must come after plugins installation)
                 UpdateResult(x =>
@@ -332,10 +332,8 @@ namespace Smartstore.Core.Installation
             }
         }
 
-        private async Task InstallModules(SmartDbContext db, ILifetimeScope scope, CancellationToken cancelToken = default)
+        private async Task InstallModules(InstallationModel model, SmartDbContext db, ILifetimeScope scope, CancellationToken cancelToken = default)
         {
-            // TODO: (core) InstalledModules.txt & ModulesIgnoredDuringInstallation
-
             var idx = 0;
             var modularState = ModularState.Instance;
             var modules = modularState.IgnoredModules.Length == 0 
@@ -346,6 +344,14 @@ namespace Smartstore.Core.Installation
 
             using (var dbScope = new DbContextScope(db, minHookImportance: HookImportance.Essential, retainConnection: true))
             {
+                var installContext = new ModuleInstallationContext
+                {
+                    SeedSampleData = model.InstallSampleData,
+                    Culture = model.PrimaryLanguage,
+                    Stage = ModuleInstallationStage.AppInstallation,
+                    Logger = Logger
+                };
+
                 foreach (var module in modules)
                 {
                     try
@@ -358,7 +364,7 @@ namespace Smartstore.Core.Installation
                         });
 
                         var moduleInstance = scope.Resolve<Func<IModuleDescriptor, IModule>>().Invoke(module);
-                        await moduleInstance.InstallAsync();
+                        await moduleInstance.InstallAsync(installContext);
                         await dbScope.CommitAsync(cancelToken);
                     }
                     catch (Exception ex)

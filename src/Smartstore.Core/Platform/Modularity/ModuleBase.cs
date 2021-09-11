@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Smartstore.Core;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
@@ -15,10 +16,11 @@ namespace Smartstore.Engine.Modularity
         protected internal ICommonServices Services { get; set; }
 
         /// <inheritdoc />
-        public virtual Task InstallAsync()
+        public virtual Task InstallAsync(ModuleInstallationContext context)
         {
             ModularState.Instance.InstalledModules.Add(Descriptor.SystemName);
             ModularState.Instance.Save();
+            context.Logger.Info($"Module installed: SystemName: {Descriptor.SystemName}, Version: {Descriptor.Version}, Description: '{Descriptor.FriendlyName.NaIfEmpty()}'");
 
             return Task.CompletedTask;
         }
@@ -28,7 +30,7 @@ namespace Smartstore.Engine.Modularity
         {
             ModularState.Instance.InstalledModules.Remove(Descriptor.SystemName);
             ModularState.Instance.Save();
-
+            
             return Task.CompletedTask;
         }
 

@@ -45,7 +45,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{5135A2B0
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.ModuleBuilder", "src\Build\Smartstore.ModuleBuilder\src\Smartstore.ModuleBuilder.csproj", "{23B334CE-7FFC-464E-A0A8-FFCB084E8F24}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Forum", "src\Smartstore.Modules\Smartstore.Forum\Smartstore.Forum.csproj", "{BB9E738C-0785-497F-9391-2B4CA242B567}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Forums", "src\Smartstore.Modules\Smartstore.Forums\Smartstore.Forums.csproj", "{BB9E738C-0785-497F-9391-2B4CA242B567}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Blog", "src\Smartstore.Modules\Smartstore.Blog\Smartstore.Blog.csproj", "{944E4667-6CA2-4AD6-B9B0-F8E8C7903473}"
 EndProject

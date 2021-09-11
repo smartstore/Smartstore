@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Localization;
 using Smartstore.Engine.Initialization;
 
 namespace Smartstore.Engine.Modularity
@@ -29,8 +30,16 @@ namespace Smartstore.Engine.Modularity
 
             var moduleCatalog = httpContext.RequestServices.GetRequiredService<IModuleCatalog>();
             var moduleManager = httpContext.RequestServices.GetRequiredService<ModuleManager>();
+            var languageService = httpContext.RequestServices.GetRequiredService<ILanguageService>();
             var processedModules = new List<string>(modularState.PendingModules.Count);
             var exceptions = new List<(string, Exception)>(modularState.PendingModules.Count);
+
+            var installContext = new ModuleInstallationContext
+            {
+                Culture = languageService.GetMasterLanguageSeoCode(),
+                Stage = ModuleInstallationStage.ModuleInstallation,
+                Logger = Logger
+            };
 
             foreach (var pendingModule in modularState.PendingModules)
             {
@@ -52,7 +61,7 @@ namespace Smartstore.Engine.Modularity
                     try
                     {
                         var module = moduleManager.CreateInstance(descriptor);
-                        await module.InstallAsync();
+                        await module.InstallAsync(installContext);
                         Logger.Info("Successfully Installed module '{0}'.", pendingModule);
                     }
                     catch (Exception ex)
