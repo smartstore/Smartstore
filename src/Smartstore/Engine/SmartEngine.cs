@@ -170,7 +170,14 @@ namespace Smartstore.Engine
 
             public void LoadModule(IModuleDescriptor descriptor)
             {
-                _moduleLoader.LoadModule(descriptor as ModuleDescriptor);
+                try
+                {
+                    _moduleLoader.LoadModule(descriptor as ModuleDescriptor);
+                }
+                catch (Exception ex)
+                {
+                    _appContext.Logger.Error(ex, "Failed to load module '{0}'.", descriptor.Name);
+                }
             }
 
             public void ConfigureServices(IServiceCollection services)
