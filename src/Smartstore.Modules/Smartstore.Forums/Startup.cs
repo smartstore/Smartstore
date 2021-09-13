@@ -2,11 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Data;
+using Smartstore.Core.Seo;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Forums.Search;
 using Smartstore.Forums.Search.Modelling;
+using Smartstore.Forums.Services;
 
 namespace Smartstore.Forums
 {
@@ -16,10 +19,13 @@ namespace Smartstore.Forums
         {
             services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
 
+            services.AddScoped<IForumService, ForumService>();
+            services.AddScoped<IXmlSitemapPublisher, ForumService>();
+
             // Search.
             services.AddScoped<IForumSearchQueryAliasMapper, ForumSearchQueryAliasMapper>();
             services.AddScoped<IForumSearchQueryFactory, ForumSearchQueryFactory>();
-            //builder.RegisterType<ForumSearchService>().As<IForumSearchService>().InstancePerRequest();
+            services.AddScoped<IForumSearchService, ForumSearchService>();
             //builder.RegisterType<LinqForumSearchService>().Named<IForumSearchService>("linq").InstancePerRequest();
         }
 

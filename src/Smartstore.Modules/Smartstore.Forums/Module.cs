@@ -10,7 +10,7 @@ namespace Smartstore.Forums
 {
     internal class Module : ModuleBase, IConfigurable
     {
-        public static string SystemName => "Smartstore.Forum";
+        public static string SystemName => "Smartstore.Forums";
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

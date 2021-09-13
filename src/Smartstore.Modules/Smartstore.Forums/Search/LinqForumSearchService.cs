@@ -31,6 +31,8 @@ namespace Smartstore.Forums.Search
             _customerSettings = customerSettings;
         }
 
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
         public IQueryable<ForumPost> PrepareQuery(ForumSearchQuery searchQuery, IQueryable<ForumPost> baseQuery = null)
         {
             return GetPostQuery(searchQuery, baseQuery);
@@ -144,7 +146,6 @@ namespace Smartstore.Forums.Search
         protected virtual async Task<IDictionary<string, FacetGroup>> GetFacetsAsync(ForumSearchQuery searchQuery, int totalHits)
         {
             var result = new Dictionary<string, FacetGroup>();
-            var customer = _services.WorkContext.CurrentCustomer;
             var storeId = searchQuery.StoreId ?? _services.StoreContext.CurrentStore.Id;
             var languageId = searchQuery.LanguageId ?? _services.WorkContext.WorkingLanguage.Id;
 
@@ -157,6 +158,7 @@ namespace Smartstore.Forums.Search
                 if (kind == FacetGroupKind.Forum)
                 {
                     var enoughFacets = false;
+                    var customer = _services.WorkContext.CurrentCustomer;
 
                     var groups = await _db.ForumGroups()
                         .Include(x => x.Forums)
@@ -193,12 +195,62 @@ namespace Smartstore.Forums.Search
                 else if (kind == FacetGroupKind.Customer)
                 {
                     // Get customers with most posts.
-                    // TODO: (mg) (core) GetCustomersByNumberOfPosts
-                    var forumPostsQuery = _db.ForumPosts()
+                    // Limit the result. Do not allow to get all customers.
+                    var maxChoices = descriptor.MaxChoicesCount > 0 ? descriptor.MaxChoicesCount : 20;
+                    var take = maxChoices * 3;
+
+                    var forumPostQuery = _db.ForumPosts()
                         .AsNoTracking()
                         .ApplyStoreFilter(storeId);
 
+                    forumPostQuery = forumPostQuery.Where(x => 
+                        x.Customer.CustomerRoleMappings.FirstOrDefault(y => y.CustomerRole.SystemName == SystemCustomerRoleNames.Guests) == null && x.Customer.Active && !x.Customer.IsSystemAccount);
 
+                    var groupQuery =
+                        from fp in forumPostQuery
+                        group fp by fp.CustomerId into grp
+                        select new
+                        {
+                            Count = grp.Count(),
+                            CustomerId = grp.Key
+                        };
+
+                    if (descriptor.MinHitCount > 1)
+                    {
+                        groupQuery = groupQuery.Where(x => x.Count >= descriptor.MinHitCount);
+                    }
+
+                    var customerIdQuery = groupQuery
+                        .OrderByDescending(x => x.Count)
+                        .Select(x => x.CustomerId);
+
+                    var customers = await _db.Customers
+                        .Include(x => x.BillingAddress)
+                        .Include(x => x.ShippingAddress)
+                        .Include(x => x.Addresses)
+                        .AsNoTracking()
+                        .Where(x => customerIdQuery.Contains(x.Id))
+                        .OrderBy(x => x.Id)
+                        .Take(take)
+                        .ToListAsync();
+
+                    foreach (var customer in customers)
+                    {
+                        var name = customer.FormatUserName(_customerSettings, T, true);
+                        if (name.HasValue())
+                        {
+                            facets.Add(new Facet(new FacetValue(customer.Id, IndexTypeCode.Int32)
+                            {
+                                IsSelected = descriptor.Values.Any(x => x.IsSelected && x.Value.Equals(customer.Id)),
+                                Label = name,
+                                DisplayOrder = 0
+                            }));
+                            if (facets.Count >= maxChoices)
+                            {
+                                break;
+                            }
+                        }
+                    }
                 }
                 else if (kind == FacetGroupKind.Date)
                 {

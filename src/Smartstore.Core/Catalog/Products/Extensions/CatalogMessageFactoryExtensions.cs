@@ -17,7 +17,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="personalMessage">Message text.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Create message result.</returns>
-        public static async Task<CreateMessageResult> SendShareProductMessageAsync(
+        public static Task<CreateMessageResult> SendShareProductMessageAsync(
             this IMessageFactory factory, 
             Customer customer,
             Product product,
@@ -36,7 +36,7 @@ namespace Smartstore.Core.Catalog.Products
                 ["To"] = toEmail.NullEmpty()
             };
 
-            return await factory.CreateMessageAsync(
+            return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.ShareProduct, languageId, customer: customer), 
                 true, 
                 product, 
@@ -58,7 +58,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="isQuoteRequest">A value indicating whether the message is a quote request.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Create message result.</returns>
-        public static async Task<CreateMessageResult> SendProductQuestionMessageAsync(
+        public static Task<CreateMessageResult> SendProductQuestionMessageAsync(
             this IMessageFactory factory,
             Customer customer, 
             Product product,
@@ -85,7 +85,7 @@ namespace Smartstore.Core.Catalog.Products
                 ["SenderPhone"] = senderPhone.NullEmpty()
             };
 
-            return await factory.CreateMessageAsync(
+            return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.ProductQuestion, languageId, customer: customer), 
                 true, 
                 product, 
@@ -99,11 +99,11 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="productReview">Product review</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Create message result.</returns>
-        public static async Task<CreateMessageResult> SendProductReviewNotificationMessageAsync(this IMessageFactory factory, ProductReview productReview, int languageId = 0)
+        public static Task<CreateMessageResult> SendProductReviewNotificationMessageAsync(this IMessageFactory factory, ProductReview productReview, int languageId = 0)
         {
             Guard.NotNull(productReview, nameof(productReview));
 
-            return await factory.CreateMessageAsync(
+            return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.ProductReviewStoreOwner, languageId, customer: productReview.Customer),
                 true,
                 productReview,
@@ -117,11 +117,11 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="product">Product.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Create message result.</returns>
-        public static async Task<CreateMessageResult> SendQuantityBelowStoreOwnerNotificationAsync(this IMessageFactory factory, Product product, int languageId = 0)
+        public static Task<CreateMessageResult> SendQuantityBelowStoreOwnerNotificationAsync(this IMessageFactory factory, Product product, int languageId = 0)
         {
             Guard.NotNull(product, nameof(product));
 
-            return await factory.CreateMessageAsync(
+            return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.QuantityBelowStoreOwner, languageId), 
                 true, 
                 product);
@@ -133,14 +133,14 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="factory">Message factory.</param>
         /// <param name="subscription">Back in stock subscription.</param>
         /// <returns>Create message result.</returns>
-        public static async Task<CreateMessageResult> SendBackInStockNotificationAsync(this IMessageFactory factory, BackInStockSubscription subscription)
+        public static Task<CreateMessageResult> SendBackInStockNotificationAsync(this IMessageFactory factory, BackInStockSubscription subscription)
         {
             Guard.NotNull(subscription, nameof(subscription));
 
             var customer = subscription.Customer;
             var languageId = customer.GenericAttributes.LanguageId ?? 0;
 
-            return await factory.CreateMessageAsync(
+            return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.BackInStockCustomer, languageId, subscription.StoreId, customer),
                 true,
                 subscription.Product);
