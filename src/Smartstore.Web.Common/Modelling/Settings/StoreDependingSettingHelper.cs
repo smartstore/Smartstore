@@ -44,13 +44,13 @@ namespace Smartstore.Web.Modelling.Settings
             get => ViewData[ViewDataKey] as StoreDependingSettingData;
         }
 
-        public bool IsOverrideChecked(object settings, string name, IFormCollection form)
+        public static bool IsOverrideChecked(object settings, string name, IFormCollection form)
         {
             var key = settings.GetType().Name + "." + name;
             return IsOverrideChecked(key, form);
         }
 
-        private bool IsOverrideChecked(string settingKey, IFormCollection form)
+        private static bool IsOverrideChecked(string settingKey, IFormCollection form)
         {
             var rawOverrideKey = settingKey + "_OverrideForStore";
             if (form.ContainsKey(rawOverrideKey))
@@ -106,17 +106,18 @@ namespace Smartstore.Web.Modelling.Settings
                 return;
             }
 
+            var fieldPrefix = ViewData?.TemplateInfo?.HtmlFieldPrefix.NullEmpty();
             var data = Data ?? new StoreDependingSettingData();
             var settingType = settings.GetType();
-            var modelType = model.GetType();
             var settingName = settingType.Name;
+            var modelType = model.GetType();
             var modelProperties = modelType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var localizedModelLocal = model as ILocalizedLocaleModel;
 
             foreach (var prop in modelProperties)
             {
+                string key = null;
                 var name = propertyNameMapper?.Invoke(prop.Name) ?? prop.Name;
-
                 var settingProperty = settingType.GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
 
                 if (settingProperty == null)
@@ -125,14 +126,11 @@ namespace Smartstore.Web.Modelling.Settings
                     continue;
                 }
 
-                string key = null;
-
                 if (localizedModelLocal == null)
                 {
-                    key = settingName + "." + name;
-                    if (await _settingService.GetSettingByKeyAsync<string>(key, storeId: storeId) == null)
+                    if (await _settingService.GetSettingByKeyAsync<string>(settingName + "." + name, storeId: storeId) != null)
                     {
-                        key = null;
+                        key = $"{fieldPrefix ?? settingName}.{name}";
                     }
                 }
                 else if (localeIndex.HasValue)
@@ -140,7 +138,7 @@ namespace Smartstore.Web.Modelling.Settings
                     var value = await _leService.GetLocalizedValueAsync(localizedModelLocal.LanguageId, storeId, settingName, name);
                     if (!string.IsNullOrEmpty(value))
                     {
-                        key = settingName + "." + "Locales[" + localeIndex.ToString() + "]." + name;
+                        key = $"{fieldPrefix ?? settingName}.Locales[{localeIndex.Value}].{name}";
                     }
                 }
 
@@ -185,7 +183,7 @@ namespace Smartstore.Web.Modelling.Settings
         /// <param name="storeId">Id of the configured store dependency.</param>
         public async Task GetOverrideKeyAsync(string formKey, string settingName, object settings, int storeId)
         {
-            await GetOverrideKeyAsync(formKey, string.Concat(settings.GetType().Name, ".", settingName), storeId);
+            await GetOverrideKeyAsync(formKey, settings.GetType().Name + "." + settingName, storeId);
         }
 
         /// <summary>
@@ -237,12 +235,12 @@ namespace Smartstore.Web.Modelling.Settings
             {
                 var name = propertyNameMapper?.Invoke(prop.Name) ?? prop.Name;
 
-                if (!name.HasValue())
+                if (name.IsEmpty())
                 {
                     continue;
                 }
 
-                var key = string.Concat(settingName, ".", name);
+                var key = settingName + "." + name;
 
                 if (storeId == 0 || IsOverrideChecked(key, form))
                 {
@@ -273,13 +271,13 @@ namespace Smartstore.Web.Modelling.Settings
                 if (prop != null)
                 {
                     dynamic value = prop.GetValue(settings);
-                    var key = string.Concat(settingType.Name, ".", settingName);
+                    var key = settingType.Name + "." + settingName;
                     await _settingService.ApplySettingAsync(key, value ?? string.Empty, storeId);
                 }
             }
             else if (storeId > 0)
             {
-                var key = string.Concat(settingType.Name, ".", settingName);
+                var key = settingType.Name + "." + settingName;
                 await _settingService.RemoveSettingAsync(key, storeId);
             }
         }

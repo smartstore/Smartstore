@@ -15,8 +15,6 @@ namespace Smartstore.Forums
                 return;
             }
 
-            var insertBeforeNode = cms.SelectNodeById("message-templates") ?? cms.SelectNodeById("polls") ?? cms.SelectNodeById("widgets");
-
             var forumNode = new TreeNode<MenuItem>(new MenuItem().ToBuilder()
                 .Text("Manage forums")
                 .ResKey("Admin.ContentManagement.Forums")
@@ -25,9 +23,11 @@ namespace Smartstore.Forums
                 .Action("List", "Forum", new { area = "Admin" })
                 .AsItem());
 
-            if (insertBeforeNode != null)
+            var refNode = cms.SelectNodeById("message-templates") ?? cms.SelectNodeById("polls") ?? cms.SelectNodeById("widgets");
+
+            if (refNode != null)
             {
-                forumNode.InsertBefore(insertBeforeNode);
+                forumNode.InsertBefore(refNode);
             }
             else
             {

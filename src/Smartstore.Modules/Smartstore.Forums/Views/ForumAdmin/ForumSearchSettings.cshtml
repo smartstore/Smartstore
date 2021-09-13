@@ -144,6 +144,7 @@
 
         $('#@(Html.IdFor(x => x.InstantSearchEnabled))').trigger('change');
 
-        // TODO: (mg) (core) AJAX loaded partial (ForumSearchSettings tab) does not react on JavaScript events like 'click'.
+        // TODO: (mg) (core) AJAX loaded settings partial (ForumSearchSettings tab) broken and not reacting on JavaScript events like 'click'.
+        // -> tabstrip of localized editor do not switch language, numberinput-up|down not working, disabled controls are not disabled etc.
 	});
 </script>

@@ -1,7 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
@@ -11,6 +12,7 @@ using Smartstore.Forums.Models;
 using Smartstore.Forums.Settings;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Settings;
+using Smartstore.Web.Rendering.Builders;
 using Smartstore.Web.Rendering.Events;
 
 namespace Smartstore.Forums
@@ -19,6 +21,31 @@ namespace Smartstore.Forums
     {
         public Localizer T { get; set; }
 
+        // Add menu item for ForumSettings to settings menu.
+        public async Task HandleEventAsync(MenuBuiltEvent message, IPermissionService permissions)
+        {
+            if (message.Name.EqualsNoCase("Settings"))
+            {
+                if (await permissions.AuthorizeAsync(ForumPermissions.Read))
+                {
+                    var refNode = message.Root.SelectNodeById("dataexchange") ?? message.Root.LastChild;
+                    if (refNode != null)
+                    {
+                        var forumNode = new TreeNode<MenuItem>(new MenuItem().ToBuilder()
+                            .Text("Forums")
+                            .ResKey("Forum.Forums")
+                            .Icon("fa fa-fw fa-users")
+                            .PermissionNames(ForumPermissions.Read)
+                            .Action("ForumSettings", "Forum", new { area = "Admin" })
+                            .AsItem());
+
+                        forumNode.InsertBefore(refNode);
+                    }
+                }
+            }
+        }
+
+        // Add tab for ForumSearchSettings to search settings page.
         public async Task HandleEventAsync(TabStripCreated message, IPermissionService permissions)
         {
             // Render tab with forum search settings.
@@ -36,10 +63,11 @@ namespace Smartstore.Forums
             }
         }
 
+        // Save ForumSearchSettings.
         public async Task HandleEventAsync(
             ModelBoundEvent message, 
             ICommonServices services,
-            StoreDependingSettingHelper storeDependingSettingHelper
+            StoreDependingSettingHelper settingHelper
             /*Lazy<IForumSearchQueryAliasMapper> forumSearchQueryAliasMapper*/)
         {
             var model = message.BoundModel.CustomProperties.ContainsKey("ForumSearchSettings")
@@ -52,11 +80,9 @@ namespace Smartstore.Forums
             }
 
             var storeId = services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
-            var store = services.StoreContext.GetStoreById(storeId);
-            var storeScope = store?.Id ?? 0;    
+            var storeScope = services.StoreContext.GetStoreById(storeId)?.Id ?? 0;    
+            var settingsProperties = FastProperty.GetProperties(typeof(ForumSearchSettings)).Values;
             var settings = await services.SettingFactory.LoadSettingsAsync<ForumSearchSettings>(storeScope);
-
-            $"-- Bound ForumSearchSettingsModel: {storeScope}".Dump();
 
             MiniMapper.Map(model, settings);
             settings.ForumDisabled = model.ForumFacet.Disabled;
@@ -66,7 +92,17 @@ namespace Smartstore.Forums
             settings.DateDisabled = model.DateFacet.Disabled;
             settings.DateDisplayOrder = model.DateFacet.DisplayOrder;
 
-            // TODO: (mg) (core) no validation of ForumSearchSettingsModel? Too late for ModelBoundEvent.
+            foreach (var prop in settingsProperties)
+            {
+                await settingHelper.ApplySettingAsync(
+                    $"CustomProperties[ForumSearchSettings].{prop.Name}",
+                    prop.Name,
+                    settings,
+                    message.Form,
+                    storeScope);
+            }
+
+            // Poor validation because ModelBoundEvent comes too late for ModelState.
             if (settings.InstantSearchEnabled)
             {
                 if (settings.InstantSearchNumberOfHits < 1)
@@ -79,19 +115,17 @@ namespace Smartstore.Forums
                 }
             }
 
-            // TODO: (mg) (core) storeDependingSettingHelper cannot work for models binded by CustomProperties (was never designed for it).
-            // Actual key:   CustomProperties[ForumSearchSettings].SearchMode_OverrideForStore
-            // Expected key: ForumSearchSettings.SearchMode_OverrideForStore
-            await storeDependingSettingHelper.UpdateSettingsAsync(settings, message.Form, storeScope);
-            
+            // We need to save here for subsequent ApplySettingAsync to work correctly.
+            await services.DbContext.SaveChangesAsync();
+
             await services.Settings.ApplySettingAsync(settings, x => x.SearchFields);
 
             if (storeScope != 0)
             {
                 foreach (var prefix in new[] { "Forum", "Customer", "Date" })
                 {
-                    await storeDependingSettingHelper.ApplySettingAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings, message.Form, storeScope);
-                    await storeDependingSettingHelper.ApplySettingAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, message.Form, storeScope);
+                    await settingHelper.ApplySettingAsync($"CustomProperties[ForumSearchSettings].{prefix}Facet.Disabled", prefix + "Disabled", settings, message.Form, storeScope);
+                    await settingHelper.ApplySettingAsync($"CustomProperties[ForumSearchSettings].{prefix}Facet.DisplayOrder", prefix + "DisplayOrder", settings, message.Form, storeScope);
                 }
             }
 

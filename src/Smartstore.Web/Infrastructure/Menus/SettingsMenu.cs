@@ -143,7 +143,7 @@ namespace Smartstore.Web.Infrastructure.Menus
                 ActionName = "Media"
             });
 
-            // TODO: (mh) (core) Blog, News & Forum must be ported in corresponding module.
+            // TODO: (mh) (core) Blog & News must be ported in corresponding module.
 
             //root.Append(new MenuItem
             //{
@@ -153,16 +153,6 @@ namespace Smartstore.Web.Infrastructure.Menus
             //    PermissionNames = perm,
             //    ControllerName = "Setting",
             //    ActionName = "News"
-            //});
-
-            //root.Append(new MenuItem
-            //{
-            //    Id = "forum",
-            //    Text = T("Forum.Forums"),
-            //    Icon = "fa fa-fw fa-users",
-            //    PermissionNames = perm,
-            //    ControllerName = "Setting",
-            //    ActionName = "Forum"
             //});
 
             root.Append(new MenuItem

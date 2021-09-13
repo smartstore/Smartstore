@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
@@ -23,16 +22,16 @@ namespace Smartstore.Forums.Controllers
     {
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly ILanguageService _languageService;
-        private readonly StoreDependingSettingHelper _storeDependingSettingHelper;
+        private readonly StoreDependingSettingHelper _settingHelper;
 
         public ForumAdminController(
             ILocalizedEntityService localizedEntityService,
             ILanguageService languageService,
-            StoreDependingSettingHelper storeDependingSettingHelper)
+            StoreDependingSettingHelper settingHelper)
         {
             _localizedEntityService = localizedEntityService;
             _languageService = languageService;
-            _storeDependingSettingHelper = storeDependingSettingHelper;
+            _settingHelper = settingHelper;
         }
 
         [Permission(ForumPermissions.Read)]
@@ -88,6 +87,9 @@ namespace Smartstore.Forums.Controllers
         [Permission(ForumPermissions.Read)]
         public async Task<IActionResult> ForumSearchSettings()
         {
+            // INFO: set HtmlFieldPrefix early because StoreDependingSettingHelper use it to create override key names.
+            ViewData.TemplateInfo.HtmlFieldPrefix = "CustomProperties[ForumSearchSettings]";
+
             var i = 0;
             var storeScope = GetActiveStoreScopeConfiguration();
             var languages = await _languageService.GetAllLanguagesAsync(true);
@@ -104,7 +106,7 @@ namespace Smartstore.Forums.Controllers
             model.DateFacet.Disabled = settings.DateDisabled;
             model.DateFacet.DisplayOrder = settings.DateDisplayOrder;
 
-            await _storeDependingSettingHelper.GetOverrideKeysAsync(settings, model, storeScope);
+            await _settingHelper.GetOverrideKeysAsync(settings, model, storeScope);
 
             foreach (var language in _languageService.GetAllLanguages(true))
             {
@@ -112,9 +114,9 @@ namespace Smartstore.Forums.Controllers
                 var customerKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Customer, language.Id, "Forum");
                 var dateKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Date, language.Id, "Forum");
 
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"ForumFacet.Locales[{i}].Alias", forumKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"CustomerFacet.Locales[{i}].Alias", forumKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"DateFacet.Locales[{i}].Alias", forumKey, storeScope);
+                await _settingHelper.GetOverrideKeyAsync($"CustomProperties[ForumSearchSettings].ForumFacet.Locales[{i}].Alias", forumKey, storeScope);
+                await _settingHelper.GetOverrideKeyAsync($"CustomProperties[ForumSearchSettings].CustomerFacet.Locales[{i}].Alias", forumKey, storeScope);
+                await _settingHelper.GetOverrideKeyAsync($"CustomProperties[ForumSearchSettings].DateFacet.Locales[{i}].Alias", forumKey, storeScope);
 
                 model.ForumFacet.Locales.Add(new ForumFacetSettingsLocalizedModel
                 {
@@ -137,8 +139,8 @@ namespace Smartstore.Forums.Controllers
 
             foreach (var prefix in new string[] { "Forum", "Customer", "Date" })
             {
-                await _storeDependingSettingHelper.GetOverrideKeyAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, storeScope);
+                await _settingHelper.GetOverrideKeyAsync($"CustomProperties[ForumSearchSettings].{prefix}Facet.Disabled", prefix + "Disabled", settings, storeScope);
+                await _settingHelper.GetOverrideKeyAsync($"CustomProperties[ForumSearchSettings].{prefix}Facet.DisplayOrder", prefix + "DisplayOrder", settings, storeScope);
             }
 
 
@@ -154,11 +156,7 @@ namespace Smartstore.Forums.Controllers
                 new SelectListItem { Text = T("Forum.PostText"), Value = "text" },
             };
 
-            var result = PartialView(model);
-
-            result.ViewData.TemplateInfo.HtmlFieldPrefix = "CustomProperties[ForumSearchSettings]";
-
-            return result;
+            return PartialView(model);
         }
 
         #endregion

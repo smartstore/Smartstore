@@ -877,7 +877,7 @@ namespace Smartstore.Admin.Controllers
             var storeScope = GetActiveStoreScopeConfiguration();
             var settings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
 
-            if (storeScope == 0 || _storeDependingSettingHelper.IsOverrideChecked(settings, nameof(model.InstantSearchNumberOfProducts), form))
+            if (storeScope == 0 || StoreDependingSettingHelper.IsOverrideChecked(settings, nameof(model.InstantSearchNumberOfProducts), form))
             {
                 new SearchSettingValidator(T).Validate(model);
             }
@@ -1168,7 +1168,7 @@ namespace Smartstore.Admin.Controllers
             });
 
             // Special case DefaultTaxAddressId\DefaultTaxAddress.
-            if (storeScope == 0 || _storeDependingSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
+            if (storeScope == 0 || StoreDependingSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
             {
                 var addressId = await Services.Settings.SettingExistsAsync(settings, x => x.DefaultTaxAddressId, storeScope) ? settings.DefaultTaxAddressId : 0;
                 var originAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
@@ -1359,7 +1359,7 @@ namespace Smartstore.Admin.Controllers
             });
 
             // Special case ShippingOriginAddressId\ShippingOriginAddress.
-            if (storeScope == 0 || _storeDependingSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
+            if (storeScope == 0 || StoreDependingSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
             {
                 var addressId = await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope) ? settings.ShippingOriginAddressId : 0;
                 var originAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
