@@ -1,0 +1,20 @@
+﻿@model CommentListModel
+
+@if (Model.Comments.Count == 0)
+{
+    return;
+}
+
+<div class="block comment-list mb-5">
+    <h4 class="block-title comment-list-title">
+        <span>@T("News.Comments")</span>
+        <small class="text-muted lrm">(@Model.NumberOfComments)</small>
+    </h4>
+
+    <div class="block-body p-0">
+        @foreach (var comment in Model.Comments)
+        {
+            <partial name="Comment.Item" model="comment" />
+        }
+    </div>
+</div>

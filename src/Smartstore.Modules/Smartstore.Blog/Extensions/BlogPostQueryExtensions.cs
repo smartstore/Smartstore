@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Autofac;
-using Smartstore.Blog;
 using Smartstore.Blog.Domain;
 using Smartstore.Core.Rules.Filters;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 
 namespace Smartstore
@@ -81,35 +78,6 @@ namespace Smartstore
             }
 
             return query;
-        }
-
-        /// <summary>
-        /// Applies filter by <see cref="BlogPost.Tags"/>.
-        /// </summary>
-        public static IQueryable<BlogPost> ApplyTagFilter(this IQueryable<BlogPost> query, string tag)
-        {
-            // TODO: (mh) (core) Very dangerous concept! This is NOT a filter, because it applies AFTER data was loaded.
-            // Refactor --> IEnumerable<BlogPost> FilterByTag(this IList<BlogPost> posts, string tag)
-            if (tag == null || !tag.HasValue())
-            {
-                return query;
-            }
-
-            tag = tag.Trim();
-
-            var taggedBlogPosts = new List<BlogPost>();
-
-            foreach (var blogPost in query) // INFO: (mh) (core) You can't just iterate over a query! Fetch result first, THEN iterate. Query iteration can lead to unexpected behaviour.
-            {
-                var tags = blogPost.ParseTags().Select(x => SeoHelper.BuildSlug(x));
-
-                if (tags.FirstOrDefault(t => t.EqualsNoCase(tag)).HasValue())
-                {
-                    taggedBlogPosts.Add(blogPost);
-                }
-            }
-
-            return taggedBlogPosts.AsQueryable();
         }
     }
 }

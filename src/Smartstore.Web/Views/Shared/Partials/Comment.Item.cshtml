@@ -1,0 +1,31 @@
+﻿@model CommentModel
+
+<div class="row comment-item">
+    <div class="col-auto comment-avatar-col">
+        <partial name="Customer.Avatar" model="Model.Avatar" />
+    </div>
+    <div class="col comment-content-col">
+        <div class="comment-content">
+            <div class="comment-meta">
+                @if (Model.AllowViewingProfiles)
+                {
+                    <a class="comment-user" asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" rel="nofollow">@(Model.CustomerName)</a>
+                }
+                else
+                {
+                    <span class="comment-user font-weight-medium">@(Model.CustomerName)</span>
+                }
+                <span class="px-2 text-muted">|</span>
+                <span class="comment-time text-muted">
+                    @Model.CreatedOnPretty
+                </span>
+            </div>
+            <h5 sm-if="Model.CommentTitle.HasValue()" class="comment-title fs-h6 font-weight-bold mt-2" dir="auto">
+                @Html.Raw(Model.CommentTitle)
+            </h5>
+            <p class="comment-body fs-h6 mt-3 mb-0" dir="auto">
+                @Html.Raw(Smartstore.Utilities.Html.HtmlUtils.ConvertPlainTextToHtml(Model.CommentText))
+            </p>
+        </div>
+    </div>
+</div>

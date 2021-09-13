@@ -5,9 +5,13 @@ using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Blog.Domain;
+using Smartstore.Blog.Messaging;
 using Smartstore.Blog.Models.Public;
+using Smartstore.Blog.Services;
 using Smartstore.Caching.OutputCache;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -18,6 +22,8 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Core.Logging;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -41,8 +47,12 @@ namespace Smartstore.Blog.Controllers
         private readonly IWebHelper _webHelper;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IPageAssetBuilder _pageAssetBuilder;
-        
+        private readonly IBlogService _blogService;
+        private readonly IActivityLogger _activityLogger;
+        private readonly IMessageFactory _messageFactory;
+
         private readonly BlogSettings _blogSettings;
+        private readonly LocalizationSettings _localizationSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly SeoSettings _seoSettings;
@@ -55,7 +65,11 @@ namespace Smartstore.Blog.Controllers
             IWebHelper webHelper,
             IStoreMappingService storeMappingService,
             IPageAssetBuilder pageAssetBuilder,
+            IBlogService blogService,
+            IActivityLogger activityLogger,
+            IMessageFactory messageFactory,
             BlogSettings blogSettings,
+            LocalizationSettings localizationSettings,
             CustomerSettings customerSettings,
             CaptchaSettings captchaSettings,
             SeoSettings seoSettings)
@@ -67,8 +81,12 @@ namespace Smartstore.Blog.Controllers
             _webHelper = webHelper;
             _storeMappingService = storeMappingService;
             _pageAssetBuilder = pageAssetBuilder;
+            _blogService = blogService;
+            _activityLogger = activityLogger;
+            _messageFactory = messageFactory;
 
             _blogSettings = blogSettings;
+            _localizationSettings = localizationSettings;
             _customerSettings = customerSettings;
             _captchaSettings = captchaSettings;
             _seoSettings = seoSettings;
@@ -172,6 +190,7 @@ namespace Smartstore.Blog.Controllers
             }
 
             ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
+            ViewBag.StoreName = _services.StoreContext.CurrentStore.Name;
 
             Services.DisplayControl.Announce(blogPost);
         }
@@ -203,16 +222,20 @@ namespace Smartstore.Blog.Controllers
             {
                 query = query.ApplyTimeFilter(dateFrom, dateTo);
             }
-            else
+            
+            var blogPosts = await query.ToListAsync();
+
+            if (command.Tag.HasValue())
             {
-                query = query.ApplyTagFilter(command.Tag);
+                blogPosts = blogPosts.FilterByTag(command.Tag).ToList();
             }
 
-            var blogPosts = await query
+            var pagedBlogPosts = await blogPosts
+                .AsQueryable()
                 .ToPagedList(command.PageNumber - 1, command.PageSize)
                 .LoadAsync();
 
-            model.PagingFilteringContext.LoadPagedList(blogPosts);
+            model.PagingFilteringContext.LoadPagedList(pagedBlogPosts);
 
             // Prepare SEO model.
             var parsedMonth = model.PagingFilteringContext.GetParsedMonth();
@@ -239,9 +262,9 @@ namespace Smartstore.Blog.Controllers
 
             model.StoreName = _services.StoreContext.CurrentStore.Name;
 
-            Services.DisplayControl.AnnounceRange(blogPosts);
+            Services.DisplayControl.AnnounceRange(pagedBlogPosts);
 
-            model.BlogPosts = await blogPosts
+            model.BlogPosts = await pagedBlogPosts
                 .SelectAsync(async x =>
                 {
                     var blogPostModel = new PublicBlogPostModel();
@@ -280,27 +303,22 @@ namespace Smartstore.Blog.Controllers
                 maxAge = DateTime.UtcNow.AddDays(-maxAgeInDays.Value);
             }
 
-            // TODO: (mh) (core) refactor like above
-            IPagedList<BlogPost> blogPosts;
+            var query = _db.BlogPosts()
+                .AsNoTracking()
+                .ApplyStandardFilter(storeId, languageId, isAdmin)
+                .ApplyTimeFilter(maxAge: maxAge)
+                .AsQueryable();
+
+            var blogPosts = await query.ToListAsync();
+
             if (!postsWithTag.IsEmpty())
             {
-                blogPosts = await _db.BlogPosts()
-                    .AsNoTracking()
-                    .ApplyTimeFilter(maxAge: maxAge)
-                    .ApplyStandardFilter(storeId, languageId, isAdmin)
-                    .ApplyTagFilter(postsWithTag)
-                    .ToPagedList(0, maxPostAmount ?? 100)
-                    .LoadAsync();
+                blogPosts = blogPosts.FilterByTag(postsWithTag).ToList();
             }
-            else
-            {
-                blogPosts = await _db.BlogPosts()
-                    .AsNoTracking()
-                    .ApplyTimeFilter(maxAge: maxAge)
-                    .ApplyStandardFilter(storeId, languageId, isAdmin)
-                    .ToPagedList(0, maxPostAmount ?? 100)
-                    .LoadAsync();
-            }
+
+            var pagedBlogPosts = await blogPosts
+                .ToPagedList(0, maxPostAmount ?? 100)
+                .LoadAsync();
 
             Services.DisplayControl.AnnounceRange(blogPosts);
 
@@ -455,6 +473,7 @@ namespace Smartstore.Blog.Controllers
         }
 
         [GdprConsent]
+        [LocalizedRoute("blog/month/{month}", Name = "BlogPost")]
         public async Task<IActionResult> BlogPost(int blogPostId)
         {
             if (!_blogSettings.Enabled)
@@ -486,7 +505,7 @@ namespace Smartstore.Blog.Controllers
             return View(model);
         }
 
-        [HttpPost, ActionName("BlogPost")]
+        [HttpPost]
         [ValidateCaptcha, ValidateHoneypot]
         [GdprConsent]
         public async Task<IActionResult> BlogCommentAdd(int blogPostId, PublicBlogPostModel model, string captchaError)
@@ -515,27 +534,27 @@ namespace Smartstore.Blog.Controllers
 
             if (ModelState.IsValid)
             {
-                // TODO: (mh) (core) Do this correctly
-                //var comment = new BlogComment
-                //{
-                //    BlogPostId = blogPost.Id,
-                //    CustomerId = customer.Id,
-                //    IpAddress = _webHelper.GetCurrentIpAddress(),
-                //    CommentText = model.AddNewComment.CommentText,
-                //    IsApproved = true
-                //};
+                var comment = new BlogComment
+                {
+                    BlogPostId = blogPost.Id,
+                    CustomerId = customer.Id,
+                    IpAddress = _webHelper.GetClientIpAddress().ToString(),
+                    CommentText = model.AddNewComment.CommentText,
+                    IsApproved = true
+                };
 
-                //_customerContentService.InsertCustomerContent(comment);
+                _db.CustomerContent.Add(comment);
+                await _db.SaveChangesAsync();
 
-                //_blogService.UpdateCommentTotals(blogPost);
+                await _blogService.UpdateCommentTotalsAsync(blogPost);
 
                 //// Notify a store owner.
-                //if (_blogSettings.NotifyAboutNewBlogComments)
-                //{
-                //    Services.MessageFactory.SendBlogCommentNotificationMessage(comment, _localizationSettings.DefaultAdminLanguageId);
-                //}
+                if (_blogSettings.NotifyAboutNewBlogComments)
+                {
+                    await _messageFactory.SendBlogCommentNotificationMessage(comment, _localizationSettings.DefaultAdminLanguageId);
+                }
 
-                //_customerActivityService.InsertActivity("PublicStore.AddBlogComment", T("ActivityLog.PublicStore.AddBlogComment"));
+                _activityLogger.LogActivity(KnownActivityLogTypes.PublicStoreAddBlogComment, T("ActivityLog.PublicStore.AddBlogComment"));
 
                 NotifySuccess(T("Blog.Comments.SuccessfullyAdded"));
 
@@ -551,14 +570,14 @@ namespace Smartstore.Blog.Controllers
                 //    fragment: "new-comment",
                 //    routeValues: new RouteValueDictionary(new { blogPostId = blogPost.Id, SeName = seName }),
                 //    routeCollection: RouteTable.Routes,
-                //    requestContext: this.ControllerContext.RequestContext,
+                //    requestContext: ControllerContext.Request,
                 //    includeImplicitMvcValues: true /*helps fill in the nulls above*/
                 //);
 
                 //return Redirect(url);
             }
 
-            // If we got this far, something failed, redisplay form.
+            // If we got this far something failed. Redisplay form.
             await PrepareBlogPostModelAsync(model, blogPost, true);
             return View(model);
         }

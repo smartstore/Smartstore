@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Blog.Domain;
+using Smartstore.Core.Seo;
 
 namespace Smartstore.Blog
 {
@@ -27,6 +28,33 @@ namespace Smartstore.Blog
 
             list.TrimExcess();
             return list;
+        }
+
+        /// <summary>
+        /// Filter a list by <see cref="BlogPost.Tags"/>.
+        /// </summary>
+        public static IEnumerable<BlogPost> FilterByTag(this IList<BlogPost> posts, string tag)
+        {
+            if (tag == null || !tag.HasValue())
+            {
+                return posts;
+            }
+
+            tag = tag.Trim();
+
+            var taggedBlogPosts = new List<BlogPost>();
+
+            foreach (var blogPost in posts)
+            {
+                var tags = blogPost.ParseTags().Select(x => SeoHelper.BuildSlug(x));
+
+                if (tags.FirstOrDefault(t => t.EqualsNoCase(tag)).HasValue())
+                {
+                    taggedBlogPosts.Add(blogPost);
+                }
+            }
+
+            return taggedBlogPosts;
         }
     }
 }

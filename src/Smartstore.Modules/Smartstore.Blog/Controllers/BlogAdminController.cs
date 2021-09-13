@@ -26,6 +26,7 @@ using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models;
+using Smartstore.Collections;
 
 namespace Smartstore.Blog.Controllers
 {
@@ -229,10 +230,9 @@ namespace Smartstore.Blog.Controllers
 
             query = query
                 .ApplyTimeFilter(model.SearchStartDate, model.SearchEndDate)
-                .ApplyStandardFilter(model.SearchStoreId, model.SearchLanguageId, model.SearchIsPublished ?? false);
+                .ApplyStandardFilter(model.SearchStoreId, model.SearchLanguageId, true)
+                .Where(x => x.IsPublished == model.SearchIsPublished || model.SearchIsPublished == null);
 
-            // INFO: (mh) (core) While building a query, always start with the most restrictive (or most performant predicate).
-            // Put generic (or slow) predicates to the end.
             if (model.SearchTitle.HasValue())
             {
                 query = query.ApplySearchFilterFor(x => x.Title, model.SearchTitle);
@@ -248,8 +248,12 @@ namespace Smartstore.Blog.Controllers
                 query = query.ApplySearchFilterFor(x => x.Body, model.SearchBody);
             }
 
+            if (model.SearchTags.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Tags, model.SearchTags);
+            }
+
             var blogPosts = await query
-                .ApplyTagFilter(model.SearchTags)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -259,6 +263,7 @@ namespace Smartstore.Blog.Controllers
                 {
                     var model = await MapperFactory.MapAsync<BlogPost, BlogPostModel>(x);
                     // TODO: (mh) (core) WRONG URL!
+                    // INFO: It's correct. 
                     model.EditUrl = Url.Action(nameof(Edit), "Blog", new { id = x.Id }); 
                     model.CommentsUrl = Url.Action(nameof(Comments), "Blog", new { filterByBlogPostId = x.Id });
                     model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);

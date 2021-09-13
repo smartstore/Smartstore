@@ -35,14 +35,13 @@
         <partial name="_Grid.BlogPosts.Search" model="parentModel" />
     </search-panel>
     <columns>
-        @*TODO: (mh) (core) Add more columns*@
         <column for="Id" halign="center" visible="false" />
         <column for="Title" hideable="false" width="2fr">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
-        <column for="Comments">
+        <column for="Comments" halign="center">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.CommentsUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
@@ -56,6 +55,7 @@
         {
             <column for="LanguageName" halign="center" />
         }
+        <column for="AllowComments" halign="center" visible="false" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
     </columns>
 </datagrid>
