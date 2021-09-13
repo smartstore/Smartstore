@@ -35,43 +35,41 @@ namespace Smartstore.Core.Bootstrapping
             // CodePages dependency required by ExcelDataReader to avoid NotSupportedException "No data is available for encoding 1252."
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            if (!appContext.IsInstalled)
+            services.AddDbQuerySettings();
+            services.AddDbMigrator(appContext);
+
+            // Application DbContext as pooled factory
+            services.AddPooledDbContextFactory<SmartDbContext>((c, builder) =>
             {
-                services.AddSingleton<IDbContextFactory<SmartDbContext>>(
-                    new SimpleDbContextFactory<SmartDbContext>(appContext.AppConfiguration.DbMigrationCommandTimeout));
-            }
-            else
-            {
-                // Application DbContext as pooled factory
-                services.AddPooledDbContextFactory<SmartDbContext>((c, builder) =>
+                if (appContext.IsInstalled)
                 {
-                    builder
-                        .UseSecondLevelCache()
-                        .UseDbFactory(b => 
-                        {
-                            b.AddDataSeeder<SmartDbContext, SmartDbContextDataSeeder>();
-                            
-                            b.AddModelAssemblies(new[] 
-                            { 
-                                // Add all core models from Smartstore.Core assembly
-                                typeof(SmartDbContext).Assembly,
-                                // Add provider specific entity configurations
-                                DataSettings.Instance.DbFactory.GetType().Assembly
-                            });
+                    builder.UseSecondLevelCache();
+                }
+                    
+                builder
+                    .UseDbFactory(b => 
+                    {
+                        b.AddModelAssemblies(new[]
+                        { 
+                            // Add all core models from Smartstore.Core assembly
+                            typeof(SmartDbContext).Assembly,
+                            // Add provider specific entity configurations
+                            DataSettings.Instance.DbFactory.GetType().Assembly
                         });
 
-                    var configurers = c.GetServices<IDbContextConfigurationSource<SmartDbContext>>();
-                    foreach (var configurer in configurers)
-                    {
-                        configurer.Configure(c, builder);
-                    }
+                        if (appContext.IsInstalled)
+                        {
+                            b.AddDataSeeder<SmartDbContext, SmartDbContextDataSeeder>();
+                        }
+                    });
 
-                }, appContext.AppConfiguration.DbContextPoolSize);
+                var configurers = c.GetServices<IDbContextConfigurationSource<SmartDbContext>>();
+                foreach (var configurer in configurers)
+                {
+                    configurer.Configure(c, builder);
+                }
 
-                services.AddDbQuerySettings();
-            }
-
-            services.AddDbMigrator(appContext);
+            }, appContext.AppConfiguration.DbContextPoolSize);
 
             services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<SmartDbContext>>().CreateDbContext());
         }

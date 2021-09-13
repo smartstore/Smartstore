@@ -17,12 +17,12 @@ namespace Smartstore.Forums.Domain
             builder.HasOne(c => c.FromCustomer)
                 .WithMany()
                 .HasForeignKey(c => c.FromCustomerId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(c => c.ToCustomer)
                 .WithMany()
                 .HasForeignKey(c => c.ToCustomerId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 

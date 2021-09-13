@@ -15,10 +15,10 @@ namespace Smartstore.Forums.Domain
     {
         public void Configure(EntityTypeBuilder<Forum> builder)
         {
-            builder.HasOne(c => c.ForumGroup)
-                .WithMany(c => c.Forums)
-                .HasForeignKey(c => c.ForumGroupId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder.HasOne(c => c.ForumGroup)
+            //    .WithMany(c => c.Forums)
+            //    .HasForeignKey(c => c.ForumGroupId)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

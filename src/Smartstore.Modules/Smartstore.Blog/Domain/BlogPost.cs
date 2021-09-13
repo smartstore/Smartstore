@@ -18,20 +18,20 @@ namespace Smartstore.Blog.Domain
     {
         public void Configure(EntityTypeBuilder<BlogPost> builder)
         {
-            builder.HasOne(c => c.Language)
-                .WithMany()
-                .HasForeignKey(c => c.LanguageId)
-                .OnDelete(DeleteBehavior.SetNull);
+            //builder.HasOne(c => c.Language)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.LanguageId)
+            //    .OnDelete(DeleteBehavior.SetNull);
 
-            builder.HasOne(c => c.MediaFile)
-                .WithMany()
-                .HasForeignKey(c => c.MediaFileId)
-                .OnDelete(DeleteBehavior.SetNull);
+            //builder.HasOne(c => c.MediaFile)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.MediaFileId)
+            //    .OnDelete(DeleteBehavior.SetNull);
 
-            builder.HasOne(c => c.PreviewMediaFile)
-                .WithMany()
-                .HasForeignKey(c => c.PreviewMediaFileId)
-                .OnDelete(DeleteBehavior.SetNull);
+            //builder.HasOne(c => c.PreviewMediaFile)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.PreviewMediaFileId)
+            //    .OnDelete(DeleteBehavior.SetNull);
         }
     }
 

@@ -15,14 +15,14 @@ namespace Smartstore.Forums.Domain
     {
         public void Configure(EntityTypeBuilder<ForumTopic> builder)
         {
-            builder.HasOne(c => c.Forum)
-                .WithMany()
-                .HasForeignKey(c => c.ForumId);
+            //builder.HasOne(c => c.Forum)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.ForumId);
 
-            builder.HasOne(c => c.Customer)
-                .WithMany()
-                .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.SetNull);
+            //builder.HasOne(c => c.Customer)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.CustomerId)
+            //    .OnDelete(DeleteBehavior.SetNull);
         }
     }
 

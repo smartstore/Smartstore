@@ -115,7 +115,7 @@
         <div sm-if="item.Comments.AllowComments && !Model.DisableCommentCount" class="comments-overlay">
             <a class="fs-xs m-2 btn btn-secondary btn-circle"
                attr-class='(item.Comments.NumberOfComments > 0, "vivid")'
-               asp-route="BlogPost" SeName="@item.SeName"
+               asp-route="BlogPost" asp-route-SeName="@item.SeName"
                title="@T("Blog.CommentsLink", item.Comments.NumberOfComments)">
                 <span class="blogpost-comments-icon fa fa-comment-alt pr-1"></span>
                 <span class="blogpost-comments-count">@item.Comments.NumberOfComments</span>

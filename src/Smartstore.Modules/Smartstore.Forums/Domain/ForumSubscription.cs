@@ -13,10 +13,10 @@ namespace Smartstore.Forums.Domain
     {
         public void Configure(EntityTypeBuilder<ForumSubscription> builder)
         {
-            builder.HasOne(c => c.Customer)
-                .WithMany()
-                .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.SetNull);
+            //builder.HasOne(c => c.Customer)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.CustomerId)
+            //    .OnDelete(DeleteBehavior.SetNull);
         }
     }
 

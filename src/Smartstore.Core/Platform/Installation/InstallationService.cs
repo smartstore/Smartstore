@@ -295,7 +295,7 @@ namespace Smartstore.Core.Installation
                     }
                 }
 
-                // Clear provider settings if something got wrong
+                //// Clear provider settings if something got wrong
                 DataSettings.Delete();
 
                 var msg = ex.Message;

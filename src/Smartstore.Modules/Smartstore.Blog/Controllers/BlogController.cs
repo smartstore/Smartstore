@@ -472,7 +472,7 @@ namespace Smartstore.Blog.Controllers
         }
 
         [GdprConsent]
-        [LocalizedRoute("blog/month/{month}", Name = "BlogPost")] // TODO: (mh) (core) Sure about this?
+        //[LocalizedRoute("blog/month/{month}", Name = "BlogPost")] // TODO: (mh) (core) Sure about this?
         public async Task<IActionResult> BlogPost(int blogPostId)
         {
             if (!_blogSettings.Enabled)

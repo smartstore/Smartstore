@@ -26,7 +26,7 @@ namespace Smartstore.Blog.Services
 
         public override void MapRoutes(IEndpointRouteBuilder routes)
         {
-            routes.MapControllerRoute("BlogPost", UrlPatternFor("BlogPost"), new { controller = "Blog", action = "BlogPost" });
+            routes.MapLocalizedControllerRoute("BlogPost", UrlPatternFor("BlogPost"), new { controller = "Blog", action = "BlogPost" });
         }
     }
 }

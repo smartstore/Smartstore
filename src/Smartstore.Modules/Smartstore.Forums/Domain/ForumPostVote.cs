@@ -11,10 +11,10 @@ namespace Smartstore.Forums.Domain
     {
         public void Configure(EntityTypeBuilder<ForumPostVote> builder)
         {
-            builder.HasOne(c => c.ForumPost)
-                .WithMany(c => c.ForumPostVotes)
-                .HasForeignKey(c => c.ForumPostId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder.HasOne(c => c.ForumPost)
+            //    .WithMany(c => c.ForumPostVotes)
+            //    .HasForeignKey(c => c.ForumPostId)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
