@@ -23,6 +23,7 @@ namespace Smartstore.Forums
                 return query;
             }
 
+            // TODO: (mg) (core) Why can't we use the generic ApplyStoreFilter() extension method here?
             query =
                 from fp in query
                 join sm in db.StoreMappings.AsNoTracking() on new { eid = fp.ForumTopic.Forum.ForumGroupId, ename = "ForumGroup" }
