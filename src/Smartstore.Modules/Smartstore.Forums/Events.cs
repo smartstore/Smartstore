@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
@@ -9,7 +10,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Events;
 using Smartstore.Forums.Models;
-using Smartstore.Forums.Settings;
+using Smartstore.Forums.Search.Modelling;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering.Builders;
@@ -67,8 +68,8 @@ namespace Smartstore.Forums
         public async Task HandleEventAsync(
             ModelBoundEvent message, 
             ICommonServices services,
-            StoreDependingSettingHelper settingHelper
-            /*Lazy<IForumSearchQueryAliasMapper> forumSearchQueryAliasMapper*/)
+            StoreDependingSettingHelper settingHelper,
+            Lazy<IForumSearchQueryAliasMapper> forumSearchQueryAliasMapper)
         {
             var model = message.BoundModel.CustomProperties.ContainsKey("ForumSearchSettings")
                 ? message.BoundModel.CustomProperties["ForumSearchSettings"] as ForumSearchSettingsModel
@@ -138,8 +139,7 @@ namespace Smartstore.Forums
 
             if (num > 0)
             {
-                // TODO: (mg) (core) add IForumSearchQueryAliasMapper.
-                //await forumSearchQueryAliasMapper.Value.ClearCommonFacetCacheAsync();
+                await forumSearchQueryAliasMapper.Value.ClearCommonFacetCacheAsync();
             }
         }
 

@@ -9,7 +9,6 @@ using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
 using Smartstore.Forums.Models;
-using Smartstore.Forums.Settings;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;

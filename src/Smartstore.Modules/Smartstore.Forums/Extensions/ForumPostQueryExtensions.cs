@@ -1,51 +1,37 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using Smartstore.Core.Identity;
+﻿using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Data;
+using Smartstore.Forums.Domain;
 
-//namespace Smartstore.Forums
-//{
-//    public static partial class ForumPostQueryExtensions
-//    {
-//        public static IQueryable<Customer> ApplyCustomersByNumberOfPostsFilter(this IQueryable<ForumPost> query, int storeId, int minHitCount = 1)
-//        {
-//            var postQuery = forumPostRepository.TableUntracked
-//                .Expand(x => x.Customer)
-//                .Expand(x => x.Customer.BillingAddress)
-//                .Expand(x => x.Customer.ShippingAddress)
-//                .Expand(x => x.Customer.Addresses);
+namespace Smartstore.Forums
+{
+    internal static partial class ForumPostQueryExtensions
+    {
+        /// <summary>
+        /// Applies a filter for store through associated <see cref="ForumGroup"/>.
+        /// </summary>
+        /// <param name="query">Forum post query.</param>
+        /// <param name="storeId">Store identifier.</param>
+        /// <returns>Forum post query.</returns>
+        internal static IQueryable<ForumPost> ApplyStoreFilter(this IQueryable<ForumPost> query, int storeId)
+        {
+            Guard.NotNull(query, nameof(query));
 
-//            if (storeId > 0)
-//            {
-//                postQuery =
-//                    from p in postQuery
-//                    join sm in storeMappingRepository.TableUntracked on new { eid = p.ForumTopic.Forum.ForumGroupId, ename = "ForumGroup" } equals new { eid = sm.EntityId, ename = sm.EntityName } into gsm
-//                    from sm in gsm.DefaultIfEmpty()
-//                    where !p.ForumTopic.Forum.ForumGroup.LimitedToStores || sm.StoreId == storeId
-//                    select p;
-//            }
+            var db = query.GetDbContext<SmartDbContext>();
+            if (storeId == 0 || db.QuerySettings.IgnoreMultiStore)
+            {
+                return query;
+            }
 
-//            var groupQuery =
-//                from p in postQuery
-//                group p by p.CustomerId into grp
-//                select new
-//                {
-//                    Count = grp.Count(),
-//                    grp.FirstOrDefault().Customer   // Cannot be null.
-//                };
+            query =
+                from fp in query
+                join sm in db.StoreMappings.AsNoTracking() on new { eid = fp.ForumTopic.Forum.ForumGroupId, ename = "ForumGroup" }
+                equals new { eid = sm.EntityId, ename = sm.EntityName } into fpsm
+                from sm in fpsm.DefaultIfEmpty()
+                where !fp.ForumTopic.Forum.ForumGroup.LimitedToStores || sm.StoreId == storeId
+                select fp;
 
-//            groupQuery = minHitCount > 1
-//                ? groupQuery.Where(x => x.Count >= minHitCount)
-//                : groupQuery;
-
-//            var query = groupQuery
-//                .OrderByDescending(x => x.Count)
-//                .Select(x => x.Customer)
-//                .Where(x => x.CustomerRoleMappings.FirstOrDefault(y => y.CustomerRole.SystemName == SystemCustomerRoleNames.Guests) == null && !x.Deleted && x.Active && !x.IsSystemAccount);
-
-//            return query;
-//        }
-//    }
-//}
+            return query;
+        }
+    }
+}

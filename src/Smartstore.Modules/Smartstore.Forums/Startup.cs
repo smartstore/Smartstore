@@ -6,6 +6,7 @@ using Smartstore.Data;
 using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Forums.Search.Modelling;
 
 namespace Smartstore.Forums
 {
@@ -14,6 +15,12 @@ namespace Smartstore.Forums
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
             services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
+
+            // Search.
+            services.AddScoped<IForumSearchQueryAliasMapper, ForumSearchQueryAliasMapper>();
+            services.AddScoped<IForumSearchQueryFactory, ForumSearchQueryFactory>();
+            //builder.RegisterType<ForumSearchService>().As<IForumSearchService>().InstancePerRequest();
+            //builder.RegisterType<LinqForumSearchService>().Named<IForumSearchService>("linq").InstancePerRequest();
         }
 
         class SmartDbContextConfigurer : IDbContextConfigurationSource<SmartDbContext>

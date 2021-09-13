@@ -4,30 +4,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
-using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
+using Smartstore.Forums.Domain;
 
-namespace Smartstore.Core.Catalog.Search
+namespace Smartstore.Forums.Search
 {
-    public partial class CatalogSearchResult
+    public partial class ForumSearchResult
     {
-        private readonly DbSet<Product> _dbSet;
-        private IPagedList<Product> _hits;
+        private readonly DbSet<ForumPost> _dbSet;
+        private IPagedList<ForumPost> _hits;
 
-        /// <summary>
-        /// Constructor to get an instance without any search hits.
-        /// </summary>
-        /// <param name="query">Catalog search query</param>
-        public CatalogSearchResult(CatalogSearchQuery query)
-            : this(null, query, null, 0, null, null, null)
-        {
-        }
-
-        public CatalogSearchResult(
+        public ForumSearchResult(
             ISearchEngine engine,
-            CatalogSearchQuery query,
-            DbSet<Product> dbSet,
+            ForumSearchQuery query,
+            DbSet<ForumPost> dbSet,
             int totalHitsCount,
             int[] hitsEntityIds,
             string[] spellCheckerSuggestions,
@@ -45,16 +36,25 @@ namespace Smartstore.Core.Catalog.Search
         }
 
         /// <summary>
-        /// The original catalog search query.
+        /// Constructor to get an instance without any search hits.
         /// </summary>
-        public CatalogSearchQuery Query { get; }
+        /// <param name="query">Forum search query.</param>
+        public ForumSearchResult(ForumSearchQuery query)
+            : this(null, query, null, 0, null, null, null)
+        {
+        }
 
         /// <summary>
-        /// Entity identifiers of found products.
+        /// Entity identifiers of found forum posts.
         /// </summary>
         public int[] HitsEntityIds { get; }
 
         public int TotalHitsCount { get; }
+
+        /// <summary>
+        /// The original forum search query.
+        /// </summary>
+        public ForumSearchQuery Query { get; }
 
         /// <summary>
         /// Gets spell checking suggestions/corrections.
@@ -66,16 +66,16 @@ namespace Smartstore.Core.Catalog.Search
         public ISearchEngine Engine { get; }
 
         /// <summary>
-        /// Gets the product hits. Once loaded, the result is cached so that
+        /// Gets the forum posts hits. Once loaded, the result is cached so that
         /// subsequent calls to this method do not hit the database again.
         /// </summary>
-        public async Task<IPagedList<Product>> GetHitsAsync()
+        public async Task<IPagedList<ForumPost>> GetHitsAsync()
         {
             if (_hits == null)
             {
                 var products = TotalHitsCount > 0 && _dbSet != null && Query.GetHitsFactory() != null
                     ? await Query.GetHitsFactory().Invoke(_dbSet, HitsEntityIds)
-                    : Enumerable.Empty<Product>();
+                    : Enumerable.Empty<ForumPost>();
 
                 _hits = products.ToPagedList(Query.PageIndex, Query.Take, TotalHitsCount);
             }

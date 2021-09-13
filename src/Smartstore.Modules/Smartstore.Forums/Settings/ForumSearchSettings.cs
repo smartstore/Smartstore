@@ -3,7 +3,7 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Search;
 using Smartstore.Forums.Domain;
 
-namespace Smartstore.Forums.Settings
+namespace Smartstore.Forums
 {
     public class ForumSearchSettings : ISettings
     {

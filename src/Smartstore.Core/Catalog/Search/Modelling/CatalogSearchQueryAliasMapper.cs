@@ -400,9 +400,9 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             return mappings.Get(FacetUtility.GetFacetAliasSettingKey(kind, languageId));
         }
 
-        public async Task ClearCommonFacetCacheAsync()
+        public Task ClearCommonFacetCacheAsync()
         {
-            await _cache.RemoveAsync(ALL_COMMONFACET_ALIAS_BY_KIND_KEY);
+            return _cache.RemoveAsync(ALL_COMMONFACET_ALIAS_BY_KIND_KEY);
         }
 
         protected virtual IDictionary<string, string> GetCommonFacetAliasByGroupKindMappings()
