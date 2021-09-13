@@ -5,15 +5,12 @@ using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Blog.Domain;
 using Smartstore.Blog.Messaging;
 using Smartstore.Blog.Models.Public;
 using Smartstore.Blog.Services;
 using Smartstore.Caching.OutputCache;
-using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Common.Services;
@@ -230,6 +227,7 @@ namespace Smartstore.Blog.Controllers
                 blogPosts = blogPosts.FilterByTag(command.Tag).ToList();
             }
 
+            // TODO: (mh) (core) I don't like this AT ALL!
             var pagedBlogPosts = await blogPosts
                 .AsQueryable()
                 .ToPagedList(command.PageNumber - 1, command.PageSize)
@@ -316,6 +314,7 @@ namespace Smartstore.Blog.Controllers
                 blogPosts = blogPosts.FilterByTag(postsWithTag).ToList();
             }
 
+            // TODO: (mh) (core) BAD! TBD with MC.
             var pagedBlogPosts = await blogPosts
                 .ToPagedList(0, maxPostAmount ?? 100)
                 .LoadAsync();
@@ -473,7 +472,7 @@ namespace Smartstore.Blog.Controllers
         }
 
         [GdprConsent]
-        [LocalizedRoute("blog/month/{month}", Name = "BlogPost")]
+        [LocalizedRoute("blog/month/{month}", Name = "BlogPost")] // TODO: (mh) (core) Sure about this?
         public async Task<IActionResult> BlogPost(int blogPostId)
         {
             if (!_blogSettings.Enabled)

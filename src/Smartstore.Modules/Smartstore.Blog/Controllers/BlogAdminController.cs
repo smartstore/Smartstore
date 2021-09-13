@@ -250,6 +250,7 @@ namespace Smartstore.Blog.Controllers
 
             if (model.SearchTags.HasValue())
             {
+                // TODO: (mh) (core) Not a good idea to search in comma-separated terms. Remove this filter.
                 query = query.ApplySearchFilterFor(x => x.Tags, model.SearchTags);
             }
 
@@ -262,8 +263,6 @@ namespace Smartstore.Blog.Controllers
                 .SelectAsync(async x =>
                 {
                     var model = await MapperFactory.MapAsync<BlogPost, BlogPostModel>(x);
-                    // TODO: (mh) (core) WRONG URL!
-                    // INFO: It's correct. 
                     model.EditUrl = Url.Action(nameof(Edit), "Blog", new { id = x.Id }); 
                     model.CommentsUrl = Url.Action(nameof(Comments), "Blog", new { filterByBlogPostId = x.Id });
                     model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
