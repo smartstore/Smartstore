@@ -58,6 +58,9 @@ namespace Smartstore.Web
             // Replace BsonTempDataSerializer that was registered by AddNewtonsoftJson()
             // with our own serializer which is capable of serializing more stuff.
             services.AddSingleton<TempDataSerializer, SmartTempDataSerializer>();
+
+            // Provide custom database related exceptions to DeveloperExceptionPageMiddleware
+            services.AddDatabaseDeveloperPageExceptionFilter();
         }
 
         public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
@@ -215,7 +218,7 @@ namespace Smartstore.Web
                     return c.Resolve<IUrlHelperFactory>().GetUrlHelper(actionContext);
                 }
 
-                return null;
+                throw new InvalidOperationException($"Cannot resolve '{nameof(IUrlHelper)}' because '{nameof(ActionContext)}' was null. Pass '{typeof(Lazy<IUrlHelper>).Name}' or '{typeof(IUrlHelperFactory).Name}' to the constructor instead.");
             }).InstancePerDependency();
 
             if (appContext.IsInstalled)

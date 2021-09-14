@@ -44,7 +44,7 @@ namespace Smartstore.Core.Seo.Routing
                     // We may need the original endpoint for logging and error handling purposes later,
                     // but the ExeptionHandler middleware sets endpoint to null in order to re-execute correctly.
                     // Therefore we gonna save it here, but only if we're not in re-execution.
-                    policy.Endpoint = context.GetEndpoint();
+                    policy.Endpoint = endpoint;
                 }
 
                 // Apply all registered url filters

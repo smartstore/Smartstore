@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.IO;
 using Smartstore.Web.Models.Diagnostics;
 
 namespace Smartstore.Web.Controllers
@@ -71,6 +72,12 @@ namespace Smartstore.Web.Controllers
             if (isAccessDeniedException)
             {
                 return View("AccessDenied", model);
+            }
+
+            if (httpStatusCode == HttpStatusCode.NotFound && model.Path.HasValue() && MimeTypes.TryMapNameToMimeType(model.Path, out var mime))
+            {
+                HttpContext.Response.StatusCode = 404;
+                return Content("Resource not found", mime);
             }
 
             switch (httpStatusCode)
