@@ -17,15 +17,16 @@ namespace Smartstore.Core.Logging
         public void Configure(EntityTypeBuilder<ActivityLog> builder)
         {
             builder
-                .HasOne(x => x.ActivityLogType)
-                .WithOne(navigationName: null)
-                .HasForeignKey<ActivityLog>(x => x.ActivityLogTypeId);
+                .HasOne(c => c.ActivityLogType)
+                .WithMany()
+                .HasForeignKey(c => c.ActivityLogTypeId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder
-                .HasOne(x => x.Customer)
-                .WithOne(navigationName: null)
+                .HasOne(c => c.Customer)
+                .WithMany()
                 .IsRequired(false)
-                .HasForeignKey<ActivityLog>(x => x.CustomerId)
+                .HasForeignKey(c => c.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

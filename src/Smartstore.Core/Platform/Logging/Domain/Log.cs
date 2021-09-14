@@ -32,7 +32,7 @@ namespace Smartstore.Core.Logging
             builder.HasOne(c => c.Customer)
                 .WithMany()
                 .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
