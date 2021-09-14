@@ -1,10 +1,12 @@
 ﻿using System;
-using Autofac;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Blog.Filter;
 using Smartstore.Blog.Services;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
@@ -21,7 +23,13 @@ namespace Smartstore.Blog
 
             services.AddScoped<IBlogService, BlogService>();
             services.AddScoped<ILinkProvider, BlogLinkProvider>();
+
             SlugRouteTransformer.RegisterRouter(new BlogSlugRouter());
+
+            services.Configure<MvcOptions>(o =>
+            {
+                o.Filters.Add<TopBarMenuFilter>();
+            });
         }
 
         class SmartDbContextConfigurer : IDbContextConfigurationSource<SmartDbContext>
