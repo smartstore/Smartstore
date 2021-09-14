@@ -12,9 +12,10 @@ namespace Smartstore.Blog.Domain
     {
         public void Configure(EntityTypeBuilder<BlogComment> builder)
         {
-            //builder.HasOne(c => c.BlogPost)
-            //    .WithMany()
-            //    .HasForeignKey(c => c.BlogPostId);
+            builder.HasOne(c => c.BlogPost)
+                .WithMany(c => c.BlogComments)          // INFO: Important! Must be set in this case else CustomerContent retrieval of type BlogComment will fail.
+                .HasForeignKey(c => c.BlogPostId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
@@ -49,7 +50,7 @@ namespace Smartstore.Blog.Domain
         /// <summary>
         /// Gets or sets the blog post.
         /// </summary>
-        public virtual BlogPost BlogPost
+        public BlogPost BlogPost
         {
             get => _blogPost ?? LazyLoader.Load(this, ref _blogPost);
             set => _blogPost = value;

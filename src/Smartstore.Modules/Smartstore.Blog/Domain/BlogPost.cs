@@ -18,20 +18,20 @@ namespace Smartstore.Blog.Domain
     {
         public void Configure(EntityTypeBuilder<BlogPost> builder)
         {
-            //builder.HasOne(c => c.Language)
-            //    .WithMany()
-            //    .HasForeignKey(c => c.LanguageId)
-            //    .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(c => c.Language)
+                .WithMany()
+                .HasForeignKey(c => c.LanguageId)
+                .OnDelete(DeleteBehavior.NoAction);
 
-            //builder.HasOne(c => c.MediaFile)
-            //    .WithMany()
-            //    .HasForeignKey(c => c.MediaFileId)
-            //    .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(c => c.MediaFile)
+                .WithMany()
+                .HasForeignKey(c => c.MediaFileId)
+                .OnDelete(DeleteBehavior.NoAction);
 
-            //builder.HasOne(c => c.PreviewMediaFile)
-            //    .WithMany()
-            //    .HasForeignKey(c => c.PreviewMediaFileId)
-            //    .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(c => c.PreviewMediaFile)
+                .WithMany()
+                .HasForeignKey(c => c.PreviewMediaFileId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 
@@ -97,7 +97,6 @@ namespace Smartstore.Blog.Domain
             get => _mediaFile ?? LazyLoader.Load(this, ref _mediaFile);
             set => _mediaFile = value;
         }
-
 
         /// <summary>
         /// Gets or sets the preview media file identifier.
@@ -198,7 +197,7 @@ namespace Smartstore.Blog.Domain
         /// <summary>
         /// Gets or sets the date and time of entity creation.
         /// </summary>
-        public virtual DateTime CreatedOnUtc { get; set; }
+        public DateTime CreatedOnUtc { get; set; }
 
         /// <summary>
         /// Gets or sets a language identifier for which the blog post should be displayed.
@@ -210,7 +209,7 @@ namespace Smartstore.Blog.Domain
         /// Gets or sets the language.
         /// </summary>
         [NotMapped]
-        public virtual Language Language
+        public Language Language
         {
             get => _language ?? LazyLoader.Load(this, ref _language);
             set => _language = value;
@@ -220,7 +219,7 @@ namespace Smartstore.Blog.Domain
         /// <summary>
         /// Gets or sets the blog comments.
         /// </summary>
-        public virtual ICollection<BlogComment> BlogComments
+        public ICollection<BlogComment> BlogComments
         {
             get => _blogComments ?? LazyLoader.Load(this, ref _blogComments) ?? (_blogComments ??= new HashSet<BlogComment>());
             protected set => _blogComments = value;
