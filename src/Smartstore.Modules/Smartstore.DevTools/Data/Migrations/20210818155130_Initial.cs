@@ -22,8 +22,8 @@ namespace Smartstore.DevTools.Data.Migrations
                     .WithColumn("Published").AsBoolean().NotNullable()
                     .WithColumn("Deleted").AsBoolean().NotNullable().Indexed("IX_Deleted")
                     .WithColumn("DisplayOrder").AsInt32().NotNullable().Indexed("IX_DisplayOrder")
-                    .WithColumn("CreatedOnUtc").AsDateTime().NotNullable()
-                    .WithColumn("UpdatedOnUtc").AsDateTime().NotNullable();
+                    .WithColumn("CreatedOnUtc").AsDateTime2().NotNullable()
+                    .WithColumn("UpdatedOnUtc").AsDateTime2().NotNullable();
             }
         }
 

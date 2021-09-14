@@ -31,8 +31,8 @@ namespace Smartstore.Forums.Migrations
                     .WithColumn(nameof(ForumGroup.Description)).AsString(int.MaxValue).Nullable()
                     .WithColumn(nameof(ForumGroup.DisplayOrder)).AsInt32().NotNullable()
                         .Indexed("IX_DisplayOrder")
-                    .WithColumn(nameof(ForumGroup.CreatedOnUtc)).AsDateTime().NotNullable()
-                    .WithColumn(nameof(ForumGroup.UpdatedOnUtc)).AsDateTime().NotNullable()
+                    .WithColumn(nameof(ForumGroup.CreatedOnUtc)).AsDateTime2().NotNullable()
+                    .WithColumn(nameof(ForumGroup.UpdatedOnUtc)).AsDateTime2().NotNullable()
                     .WithColumn(nameof(ForumGroup.LimitedToStores)).AsBoolean().NotNullable()
                         .Indexed("IX_LimitedToStores")
                     .WithColumn(nameof(ForumGroup.SubjectToAcl)).AsBoolean().NotNullable()
@@ -53,11 +53,11 @@ namespace Smartstore.Forums.Migrations
                     .WithColumn(nameof(Domain.Forum.LastTopicId)).AsInt32().NotNullable()
                     .WithColumn(nameof(Domain.Forum.LastPostId)).AsInt32().NotNullable()
                     .WithColumn(nameof(Domain.Forum.LastPostCustomerId)).AsInt32().NotNullable()
-                    .WithColumn(nameof(Domain.Forum.LastPostTime)).AsDateTime().Nullable()
+                    .WithColumn(nameof(Domain.Forum.LastPostTime)).AsDateTime2().Nullable()
                     .WithColumn(nameof(Domain.Forum.DisplayOrder)).AsInt32().NotNullable()
                         .Indexed("IX_Forums_Forum_DisplayOrder")
-                    .WithColumn(nameof(Domain.Forum.CreatedOnUtc)).AsDateTime().NotNullable()
-                    .WithColumn(nameof(Domain.Forum.UpdatedOnUtc)).AsDateTime().NotNullable();
+                    .WithColumn(nameof(Domain.Forum.CreatedOnUtc)).AsDateTime2().NotNullable()
+                    .WithColumn(nameof(Domain.Forum.UpdatedOnUtc)).AsDateTime2().NotNullable();
 
                 Create.Index("IX_ForumGroupId_DisplayOrder")
                     .OnTable(forum)
@@ -84,10 +84,10 @@ namespace Smartstore.Forums.Migrations
                     .WithColumn(nameof(ForumTopic.Views)).AsInt32().NotNullable()
                     .WithColumn(nameof(ForumTopic.LastPostId)).AsInt32().NotNullable()
                     .WithColumn(nameof(ForumTopic.LastPostCustomerId)).AsInt32().NotNullable()
-                    .WithColumn(nameof(ForumTopic.LastPostTime)).AsDateTime().Nullable()
-                    .WithColumn(nameof(ForumTopic.CreatedOnUtc)).AsDateTime().NotNullable()
+                    .WithColumn(nameof(ForumTopic.LastPostTime)).AsDateTime2().Nullable()
+                    .WithColumn(nameof(ForumTopic.CreatedOnUtc)).AsDateTime2().NotNullable()
                         .Indexed("IX_CreatedOnUtc")
-                    .WithColumn(nameof(ForumTopic.UpdatedOnUtc)).AsDateTime().NotNullable()
+                    .WithColumn(nameof(ForumTopic.UpdatedOnUtc)).AsDateTime2().NotNullable()
                     .WithColumn(nameof(ForumTopic.Published)).AsBoolean().NotNullable();
 
                 Create.Index("IX_ForumId_Published")
@@ -116,9 +116,9 @@ namespace Smartstore.Forums.Migrations
                         .Indexed().ForeignKey(nameof(Customer), id)
                     .WithColumn(nameof(ForumPost.Text)).AsString(int.MaxValue).NotNullable()
                     .WithColumn(nameof(ForumPost.IPAddress)).AsString(100).Nullable()
-                    .WithColumn(nameof(ForumPost.CreatedOnUtc)).AsDateTime().NotNullable()
+                    .WithColumn(nameof(ForumPost.CreatedOnUtc)).AsDateTime2().NotNullable()
                         .Indexed("IX_CreatedOnUtc")
-                    .WithColumn(nameof(ForumPost.UpdatedOnUtc)).AsDateTime().NotNullable()
+                    .WithColumn(nameof(ForumPost.UpdatedOnUtc)).AsDateTime2().NotNullable()
                     .WithColumn(nameof(ForumPost.Published)).AsBoolean().NotNullable()
                         .Indexed("IX_Published");
             }
@@ -135,7 +135,7 @@ namespace Smartstore.Forums.Migrations
                         .Indexed("IX_Forums_Subscription_ForumId")
                     .WithColumn(nameof(ForumSubscription.TopicId)).AsInt32().NotNullable()
                         .Indexed("IX_Forums_Subscription_TopicId")
-                    .WithColumn(nameof(ForumPost.CreatedOnUtc)).AsDateTime().NotNullable();
+                    .WithColumn(nameof(ForumPost.CreatedOnUtc)).AsDateTime2().NotNullable();
             }
 
             // ForumPostVote.
@@ -167,7 +167,7 @@ namespace Smartstore.Forums.Migrations
                     .WithColumn(nameof(PrivateMessage.IsRead)).AsBoolean().NotNullable()
                     .WithColumn(nameof(PrivateMessage.IsDeletedByAuthor)).AsBoolean().NotNullable()
                     .WithColumn(nameof(PrivateMessage.IsDeletedByRecipient)).AsBoolean().NotNullable()
-                    .WithColumn(nameof(PrivateMessage.CreatedOnUtc)).AsDateTime().NotNullable();
+                    .WithColumn(nameof(PrivateMessage.CreatedOnUtc)).AsDateTime2().NotNullable();
             }
         }
 
