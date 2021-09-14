@@ -44,7 +44,7 @@ namespace Smartstore.Blog
 
             var taggedBlogPosts = new List<BlogPost>();
 
-            foreach (var blogPost in posts)
+            foreach (var blogPost in posts.Where(x => x.Tags.Any()))
             {
                 var tags = blogPost.ParseTags().Select(x => SeoHelper.BuildSlug(x));
 

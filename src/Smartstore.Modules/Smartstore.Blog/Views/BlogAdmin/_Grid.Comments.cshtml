@@ -1,0 +1,40 @@
+﻿@model BlogCommentModel
+
+<datagrid id="comments-grid"
+          allow-resize="true"
+          allow-column-reordering="true"
+          allow-row-selection="true">
+    <datasource read="@Url.Action("Comments", "Blog", new { filterByBlogPostId = ViewData["FilterByBlogPostId"] })"
+                delete="@Url.Action("DeleteCommentSelection")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" />
+    </sorting>
+    <toolbar>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Id" halign="center" visible="false" />
+        <column for="BlogPostTitle" hideable="false" width="2fr">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditBlogPostUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="CustomerName" halign="center">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditCustomerUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="Comment" />
+        <column for="IpAddress" halign="center" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>

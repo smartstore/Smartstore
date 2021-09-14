@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -27,6 +26,8 @@ using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models;
 using Smartstore.Collections;
+using Smartstore.Utilities.Html;
+using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Blog.Controllers
 {
@@ -226,7 +227,7 @@ namespace Smartstore.Blog.Controllers
         [Permission(BlogPermissions.Read)]
         public async Task<IActionResult> BlogPostList(GridCommand command, BlogListModel model)
         {
-            var query = _db.BlogPosts().AsNoTracking();
+            var query = _db.BlogPosts().Include(x => x.Language).AsNoTracking();
 
             query = query
                 .ApplyTimeFilter(model.SearchStartDate, model.SearchEndDate)
@@ -250,7 +251,6 @@ namespace Smartstore.Blog.Controllers
 
             if (model.SearchTags.HasValue())
             {
-                // TODO: (mh) (core) Not a good idea to search in comma-separated terms. Remove this filter.
                 query = query.ApplySearchFilterFor(x => x.Tags, model.SearchTags);
             }
 
@@ -263,9 +263,24 @@ namespace Smartstore.Blog.Controllers
                 .SelectAsync(async x =>
                 {
                     var model = await MapperFactory.MapAsync<BlogPost, BlogPostModel>(x);
+                    if (x.StartDateUtc.HasValue)
+                    {
+                        model.StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc.Value, DateTimeKind.Utc);
+                    }
+                    if (x.EndDateUtc.HasValue)
+                    {
+                        model.EndDate = _dateTimeHelper.ConvertToUserTime(x.EndDateUtc.Value, DateTimeKind.Utc);
+                    }
+                    if (x.LanguageId.HasValue)
+                    {
+                        model.LanguageName = x.Language?.Name;
+                    }
+
                     model.EditUrl = Url.Action(nameof(Edit), "Blog", new { id = x.Id }); 
                     model.CommentsUrl = Url.Action(nameof(Comments), "Blog", new { filterByBlogPostId = x.Id });
                     model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                    model.Comments = x.ApprovedCommentCount + x.NotApprovedCommentCount;
+
                     return model;
                 })
                 .AsyncToList();
@@ -277,6 +292,23 @@ namespace Smartstore.Blog.Controllers
             };
 
             return Json(gridModel);
+        }
+
+        [HttpPost]
+        [Permission(BlogPermissions.Update)]
+        public async Task<IActionResult> BlogPostUpdate(BlogPostModel model)
+        {
+            var success = false;
+            var blogPosts = await _db.BlogPosts().FindByIdAsync(model.Id);
+
+            if (blogPosts != null)
+            {
+                await MapperFactory.MapAsync(model, blogPosts);
+                await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { success });
         }
 
         [Permission(BlogPermissions.Create)]
@@ -436,14 +468,83 @@ namespace Smartstore.Blog.Controllers
         #region Comments
 
         [Permission(BlogPermissions.Read)]
-        public ActionResult Comments(int? filterByBlogPostId)
+        public IActionResult Comments(int? filterByBlogPostId)
         {
             ViewBag.FilterByBlogPostId = filterByBlogPostId;
 
             return View();
         }
 
+        [HttpPost]
+        [Permission(BlogPermissions.Read)]
+        public async Task<IActionResult> Comments(int? filterByBlogPostId, GridCommand command)
+        {
+            var query = _db.CustomerContent
+                    .AsNoTracking()
+                    .OfType<BlogComment>();
 
+            if (filterByBlogPostId.HasValue)
+            {
+                query = query.Where(x => x.BlogPostId == filterByBlogPostId.Value);
+            }
+
+            var comments = await query
+                .Include(x => x.BlogPost)
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .ToPagedList(command.Page - 1, command.PageSize)
+                .LoadAsync();
+
+            var customerIds = comments.Select(x => x.CustomerId).Distinct().ToArray();
+            var customers = (await _db.Customers.GetManyAsync(customerIds)).ToDictionarySafe(x => x.Id);
+            var commentsModel = comments.Select(blogComment =>
+            {
+                customers.TryGetValue(blogComment.CustomerId, out var customer);
+
+                var commentModel = new BlogCommentModel
+                {
+                    Id = blogComment.Id,
+                    BlogPostId = blogComment.BlogPostId,
+                    BlogPostTitle = blogComment.BlogPost.GetLocalized(x => x.Title),
+                    CustomerId = blogComment.CustomerId,
+                    IpAddress = blogComment.IpAddress,
+                    CreatedOn = _dateTimeHelper.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
+                    Comment = HtmlUtils.ConvertPlainTextToHtml(blogComment.CommentText.HtmlEncode()),
+                    CustomerName = customer.GetDisplayName(T),
+                    EditBlogPostUrl = Url.Action(nameof(Edit), "Blog", new { id = blogComment.BlogPostId }),
+                    EditCustomerUrl = Url.Action("Edit", "Customer", new { id = blogComment.CustomerId })
+                };
+
+                return commentModel;
+            });
+
+            var gridModel = new GridModel<BlogCommentModel>
+            {
+                Rows = commentsModel,
+                Total = await comments.GetTotalCountAsync()
+            };
+
+            return Json(gridModel);
+        }
+
+        [HttpPost]
+        [Permission(BlogPermissions.EditComment)]
+        public async Task<IActionResult> DeleteCommentSelection(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                var blogComments = await _db.BlogComments().GetManyAsync(ids, true);
+                _db.BlogComments().RemoveRange(blogComments);
+
+                numDeleted = await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
+        }
 
         #endregion
     }

@@ -1,1 +1,14 @@
-﻿
+﻿@{
+    ViewBag.Title = T("Admin.ContentManagement.Blog.Comments").Value;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-comments"></i>
+        @T("Admin.ContentManagement.Blog.Comments")
+    </div>
+    <div class="options">
+    </div>
+</div>
+
+<partial name="_Grid.Comments" model="null" />

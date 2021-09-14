@@ -49,7 +49,6 @@
             else if (!item.SectionBg.HasValue() && hasImage)
             {
                 <div class="bloglist-item-header">
-                    @*TODO: (mh) (core) Test link*@
                     <a class="d-block h-100" asp-route="BlogPost" asp-route-SeName="@item.SeName">
                         <img class="bloglist-item-img box-scale" src="@imageUrl" alt="@item.Preview.Alt" title="@item.Preview.Title" itemprop="image">
                     </a>
@@ -76,7 +75,6 @@
                     <meta itemprop="publisher" content="@Model.StoreName" />
 
                     <h3 class="fs-h6 mb-3 mt-1 font-weight-medium">
-                        @*TODO: (mh) (core) Test link*@
                         <a asp-route="BlogPost" asp-route-SeName="@item.SeName" class="blogpost-title">
                             @item.Title
                         </a>
@@ -111,7 +109,6 @@
 
     async Task RenderComments(PublicBlogPostModel item)
     {
-        //TODO: (mh) (core) Test link
         <div sm-if="item.Comments.AllowComments && !Model.DisableCommentCount" class="comments-overlay">
             <a class="fs-xs m-2 btn btn-secondary btn-circle"
                attr-class='(item.Comments.NumberOfComments > 0, "vivid")'

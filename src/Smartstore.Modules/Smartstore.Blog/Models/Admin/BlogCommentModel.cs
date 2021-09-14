@@ -24,5 +24,8 @@ namespace Smartstore.Blog.Models
 
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
+
+        public string EditBlogPostUrl { get; set; }
+        public string EditCustomerUrl { get; set; }
     }
 }

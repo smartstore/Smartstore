@@ -10,8 +10,10 @@
           allow-resize="true"
           allow-column-reordering="true"
           allow-row-selection="true"
+          allow-edit="true"
           onrowclass="blogpostsGrid_onRowClass">
     <datasource read="@Url.Action("BlogPostList")"
+                update="@Url.Action("BlogPostUpdate")"
                 delete="@Url.Action("DeleteSelection")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
@@ -29,6 +31,12 @@
                 <span>@T("Admin.Common.AddNew")…</span>
             </a>
         </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
         <zone name="datagrid_toolbar_after"></zone>
     </toolbar>
     <search-panel>
@@ -41,7 +49,7 @@
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
-        <column for="Comments" halign="center">
+        <column for="Comments" halign="center" readonly="true" sortable="false">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.CommentsUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
@@ -49,15 +57,25 @@
         <column for="IsPublished" halign="center" />
         @if (!isSingleStoreMode)
         {
-            <column for="LimitedToStores" halign="center" />
+            <column for="LimitedToStores" halign="center" readonly="true" />
         }
         @if (!isSingleLanguageMode)
         {
-            <column for="LanguageName" halign="center" />
+            <column for="LanguageName" entity-member="LanguageId" halign="center" readonly="true" />
         }
         <column for="AllowComments" halign="center" visible="false" />
+        <column for="DisplayTagsInPreview" halign="center" visible="false" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
+        @*TODO: (mh) (core) Won't be displayed. Why? *@
+        <column for="StartDate" entity-member="StartDateUtc" visible="false" />
+        <column for="EndDate" entity-member="EndDateUtc" visible="false" />
+        @*TODO: (mh) (core) Render select box on edit *@
+        @*<column for="Tags" visible="false" readonly="true" />*@
     </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
 </datagrid>
 
 <script sm-target-zone="scripts" data-origin="blogposts-grid">

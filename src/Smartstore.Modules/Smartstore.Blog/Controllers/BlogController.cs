@@ -227,7 +227,6 @@ namespace Smartstore.Blog.Controllers
                 blogPosts = blogPosts.FilterByTag(command.Tag).ToList();
             }
 
-            // TODO: (mh) (core) I don't like this AT ALL!
             var pagedBlogPosts = await blogPosts
                 .AsQueryable()
                 .ToPagedList(command.PageNumber - 1, command.PageSize)
@@ -314,7 +313,6 @@ namespace Smartstore.Blog.Controllers
                 blogPosts = blogPosts.FilterByTag(postsWithTag).ToList();
             }
 
-            // TODO: (mh) (core) BAD! TBD with MC.
             var pagedBlogPosts = await blogPosts
                 .ToPagedList(0, maxPostAmount ?? 100)
                 .LoadAsync();
@@ -472,7 +470,6 @@ namespace Smartstore.Blog.Controllers
         }
 
         [GdprConsent]
-        //[LocalizedRoute("blog/month/{month}", Name = "BlogPost")] // TODO: (mh) (core) Sure about this?
         public async Task<IActionResult> BlogPost(int blogPostId)
         {
             if (!_blogSettings.Enabled)
