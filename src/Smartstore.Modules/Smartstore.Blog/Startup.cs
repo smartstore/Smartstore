@@ -28,7 +28,7 @@ namespace Smartstore.Blog
 
             services.Configure<MvcOptions>(o =>
             {
-                o.Filters.Add<TopBarMenuFilter>();
+                o.Filters.Add<BlogMenuItemFilter>();
             });
         }
 

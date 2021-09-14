@@ -8,14 +8,14 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Blog.Filters
 {
-    public class TopBarMenuFilter : IResultFilter
+    public class BlogMenuItemFilter : IResultFilter
     {
         private readonly BlogSettings _blogSettings;
         private readonly IWidgetProvider _widgetProvider;
         private readonly ICommonServices _services;
         private readonly Lazy<IUrlHelper> _urlHelper;
 
-        public TopBarMenuFilter(BlogSettings blogSettings, IWidgetProvider widgetProvider, ICommonServices services, Lazy<IUrlHelper> urlHelper)
+        public BlogMenuItemFilter(BlogSettings blogSettings, IWidgetProvider widgetProvider, ICommonServices services, Lazy<IUrlHelper> urlHelper)
         {
             _blogSettings = blogSettings;
             _widgetProvider = widgetProvider;
