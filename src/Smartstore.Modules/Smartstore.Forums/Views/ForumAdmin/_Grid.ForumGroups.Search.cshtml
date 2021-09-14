@@ -1,0 +1,14 @@
+﻿@model ForumGroupListModel
+
+@{
+    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+}
+
+<div class="form-group">
+    <smart-label asp-for="SearchName" />
+    <input asp-for="SearchName" />
+</div>
+<div sm-if="!isSingleStoreMode" class="form-group">
+    <smart-label asp-for="SearchStoreId" />
+    <editor asp-for="SearchStoreId" />
+</div>

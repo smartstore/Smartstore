@@ -1,16 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
+using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
+using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Forums.Controllers
@@ -19,15 +26,18 @@ namespace Smartstore.Forums.Controllers
     [Route("[area]/forum/[action]/{id?}")]
     public class ForumAdminController : AdminController
     {
+        private readonly SmartDbContext _db;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly ILanguageService _languageService;
         private readonly StoreDependingSettingHelper _settingHelper;
 
         public ForumAdminController(
+            SmartDbContext db,
             ILocalizedEntityService localizedEntityService,
             ILanguageService languageService,
             StoreDependingSettingHelper settingHelper)
         {
+            _db = db;
             _localizedEntityService = localizedEntityService;
             _languageService = languageService;
             _settingHelper = settingHelper;
@@ -40,7 +50,49 @@ namespace Smartstore.Forums.Controllers
 
             //...
 
+            ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
+
             return View(model);
+        }
+
+        [HttpPost]
+        [Permission(ForumPermissions.Read)]
+        public async Task<IActionResult> ForumGroupList(GridCommand command, ForumGroupListModel model)
+        {
+            var mapper = MapperFactory.GetMapper<ForumGroup, ForumGroupModel>();
+            var query = _db.ForumGroups()
+                .Include(x => x.Forums)
+                .ApplyStoreFilter(model.SearchStoreId)
+                .AsNoTracking();
+
+            if (model.SearchName.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Name, model.SearchName);
+            }
+
+            var groups = await query
+                .OrderBy(x => x.DisplayOrder)
+                .ApplyGridCommand(command, false)
+                .ToListAsync();
+
+            var rows = groups
+                .Select(x => new ForumGroupModel
+                {
+                    Id = x.Id,
+                    Name = x.GetLocalized(x => x.Name),
+                    DisplayOrder = x.DisplayOrder,
+                    LimitedToStores = x.LimitedToStores,
+                    SubjectToAcl = x.SubjectToAcl,
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                    EditUrl = Url.Action("EditForumGroup", "Forum", new { id = x.Id, area = "Admin" })
+                })
+                .ToList();
+
+            return Json(new GridModel<ForumGroupModel>
+            {
+                Rows = rows,
+                Total = groups.Count
+            });
         }
 
         #region Settings

@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using FluentValidation;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
 using Smartstore.Forums.Domain;
 using Smartstore.Web.Modelling;
@@ -63,17 +61,4 @@ namespace Smartstore.Forums.Models
         [LocalizedDisplay("Admin.Configuration.Settings.Search.CommonFacet.Alias")]
         public string Alias { get; set; }
     }
-
-    //public class ForumSearchSettingValidator : AbstractValidator<ForumSearchSettingsModel>
-    //{
-    //    private const int MAX_INSTANT_SEARCH_ITEMS = 16;
-
-    //    public ForumSearchSettingValidator(Localizer T)
-    //    {
-    //        RuleFor(x => x.InstantSearchNumberOfHits)
-    //            .Must(x => x >= 1 && x <= MAX_INSTANT_SEARCH_ITEMS)
-    //            .When(x => x.InstantSearchEnabled)
-    //            .WithMessage(T("Admin.Validation.ValueRange", 1, MAX_INSTANT_SEARCH_ITEMS));
-    //    }
-    //}
 }

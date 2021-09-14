@@ -3,6 +3,9 @@
 @{  
     ViewBag.Title = T("Admin.ContentManagement.Forums.Manage").Value;
     Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
 }
 
 <div class="section-header">
@@ -16,4 +19,4 @@
     </div>
 </div>
 
-TODO: (mg) (core) forum list.
+<partial name="_Grid.ForumGroups" model="null" view-data="gridViewData" />
