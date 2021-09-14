@@ -6,7 +6,7 @@ using Smartstore.Core;
 using Smartstore.Core.Widgets;
 using Smartstore.Web.Controllers;
 
-namespace Smartstore.Blog.Filter
+namespace Smartstore.Blog.Filters
 {
     public class TopBarMenuFilter : IResultFilter
     {

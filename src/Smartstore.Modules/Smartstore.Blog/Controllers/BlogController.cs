@@ -220,17 +220,13 @@ namespace Smartstore.Blog.Controllers
                 query = query.ApplyTimeFilter(dateFrom, dateTo);
             }
             
-            var blogPosts = await query.ToListAsync();
+            var blogPosts = command.Tag.HasValue() 
+                ? (await query.ToListAsync())
+                    .FilterByTag(command.Tag)
+                    .ToPagedList(command.PageNumber - 1, command.PageSize)
+                : query.ToPagedList(command.PageNumber - 1, command.PageSize);
 
-            if (command.Tag.HasValue())
-            {
-                blogPosts = blogPosts.FilterByTag(command.Tag).ToList();
-            }
-
-            var pagedBlogPosts = await blogPosts
-                .AsQueryable()
-                .ToPagedList(command.PageNumber - 1, command.PageSize)
-                .LoadAsync();
+            var pagedBlogPosts = await blogPosts.LoadAsync();
 
             model.PagingFilteringContext.LoadPagedList(pagedBlogPosts);
 
