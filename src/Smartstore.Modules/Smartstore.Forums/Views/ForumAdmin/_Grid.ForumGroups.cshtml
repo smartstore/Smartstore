@@ -3,13 +3,17 @@
 @{
     var parentModel = ViewData["Parent"] as ForumGroupListModel;
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+
+    var nameStr = T("Admin.ContentManagement.Forums.Forum.Fields.Name");
+    var createdOnStr = T("Common.CreatedOn");
+    var displayOrderStr = T("Common.DisplayOrder");
 }
 
 <datagrid id="forum-groups-grid"
           allow-resize="true"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("ForumGroupList")" />
+    <datasource read="@Url.Action("ForumGroupList", "Forum")" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="DisplayOrder" />
     </sorting>
@@ -23,7 +27,7 @@
             </button>
         </toolbar-group>
         <toolbar-group>
-            <a asp-action="Create" class="btn btn-primary btn-flat">
+            <a asp-action="Create" asp-controller="Forum" class="btn btn-primary btn-flat">
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Common.AddNew")</span>
             </a>
@@ -44,5 +48,35 @@
         <column for="SubjectToAcl" visible="false" halign="center" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
     </columns>
-
+    <detail-view>
+        <div class="datagrid-root">
+            <sm-datagrid
+                :ref="'forums-grid' + item.row.Id"
+                :id="'forums-grid' + item.row.Id"
+                :options="{ keyMemberName: 'Id', vborders: true, hover: true, striped: true }"
+                :data-source="{ read: '@Url.Action("ForumList", "Forum")?forumGroupId=' + item.row.Id }"
+                :columns="[ 
+                    { member: 'ForumGroupIdId', name: 'ForumGroupIdId', visible: false },
+                    { member: 'Name', name: '@nameStr', visible: true, title: '@nameStr' },
+                    { member: 'DisplayOrder', name: 'DisplayOrder', visible: true, halign: 'center', type: 'int', title: '@displayOrderStr' },
+                    { member: 'CreatedOnStr', name: '@createdOnStr', visible: true, title: '@createdOnStr', entityMember: 'CreatedOnUtc' },
+                ]" 
+                :paging="{ enabled: false }" 
+                :sorting="{ enabled: false }">
+                <template v-slot:display-name="item">
+                    <div class='text-truncate'><a :href='item.row.EditUrl' class='text-truncate'>{{ item.value }}</a></div>
+                </template>
+                <template v-slot:toolbar="grid">
+                    <div class="dg-toolbar d-flex flex-nowrap">
+                        <div class="dg-toolbar-group">
+                            <a class="btn btn-primary btn-sm btn-flat" :href="'@Url.Action("ForumInsert", "Forum")?forumGroupId=' + item.row.Id">
+                                <i class="fa fa-plus"></i>
+                                <span>@T("Admin.Common.AddNew")</span>
+                            </a>
+                        </div>
+                    </div>
+                </template>
+            </sm-datagrid>
+        </div>
+    </detail-view>
 </datagrid>

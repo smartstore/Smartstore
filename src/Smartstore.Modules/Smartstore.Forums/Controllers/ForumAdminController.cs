@@ -59,7 +59,6 @@ namespace Smartstore.Forums.Controllers
         [Permission(ForumPermissions.Read)]
         public async Task<IActionResult> ForumGroupList(GridCommand command, ForumGroupListModel model)
         {
-            var mapper = MapperFactory.GetMapper<ForumGroup, ForumGroupModel>();
             var query = _db.ForumGroups()
                 .Include(x => x.Forums)
                 .ApplyStoreFilter(model.SearchStoreId)
@@ -92,6 +91,33 @@ namespace Smartstore.Forums.Controllers
             {
                 Rows = rows,
                 Total = groups.Count
+            });
+        }
+
+        [HttpPost]
+        [Permission(ForumPermissions.Read)]
+        public async Task<IActionResult> ForumList(int forumGroupId)
+        {
+            var forums = await _db.Forums()
+                .AsNoTracking()
+                .ApplyStandardFilter(forumGroupId)
+                .ToListAsync();
+
+            var rows = forums
+                .Select(x => new ForumModel
+                {
+                    Id = x.Id,
+                    Name = x.GetLocalized(x => x.Name),
+                    DisplayOrder = x.DisplayOrder,
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                    EditUrl = Url.Action("EditForum", "Forum", new { id = x.Id, area = "Admin" })
+                })
+                .ToList();
+
+            return Json(new GridModel<ForumModel>
+            {
+                Rows = rows,
+                Total = forums.Count
             });
         }
 
