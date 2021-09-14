@@ -65,7 +65,7 @@ namespace Smartstore.Forums.Domain
         /// <summary>
         /// Gets or sets the collection of forums.
         /// </summary>
-        public virtual ICollection<Forum> Forums
+        public ICollection<Forum> Forums
         {
             get => LazyLoader?.Load(this, ref _forums) ?? (_forums ??= new HashSet<Forum>());
             protected set => _forums = value;

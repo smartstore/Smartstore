@@ -93,7 +93,7 @@ namespace Smartstore.Forums.Domain
         /// <summary>
         /// Gets the customer who sent the message.
         /// </summary>
-        public virtual Customer FromCustomer
+        public Customer FromCustomer
         {
             get => _fromCustomer ?? LazyLoader.Load(this, ref _fromCustomer);
             set => _fromCustomer = value;
@@ -103,7 +103,7 @@ namespace Smartstore.Forums.Domain
         /// <summary>
         /// Gets the customer who should receive the message.
         /// </summary>
-        public virtual Customer ToCustomer
+        public Customer ToCustomer
         {
             get => _toCustomer ?? LazyLoader.Load(this, ref _toCustomer);
             set => _toCustomer = value;

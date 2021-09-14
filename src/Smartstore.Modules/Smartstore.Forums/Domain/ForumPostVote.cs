@@ -48,7 +48,7 @@ namespace Smartstore.Forums.Domain
         /// <summary>
         /// Forum post entity.
         /// </summary>
-        public virtual ForumPost ForumPost
+        public ForumPost ForumPost
         {
             get => _forumPost ?? LazyLoader.Load(this, ref _forumPost);
             protected set => _forumPost = value;

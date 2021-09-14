@@ -102,7 +102,7 @@ namespace Smartstore.Forums.Domain
         /// <summary>
         /// Gets the ForumGroup.
         /// </summary>
-        public virtual ForumGroup ForumGroup
+        public ForumGroup ForumGroup
         {
             get => _forumGroup ?? LazyLoader.Load(this, ref _forumGroup);
             set => _forumGroup = value;

@@ -131,7 +131,7 @@ namespace Smartstore.Forums.Domain
         /// <summary>
         /// Gets the forum.
         /// </summary>
-        public virtual Forum Forum
+        public Forum Forum
         {
             get => _forum ?? LazyLoader.Load(this, ref _forum);
             set => _forum = value;
@@ -141,7 +141,7 @@ namespace Smartstore.Forums.Domain
         /// <summary>
         /// Gets the customer.
         /// </summary>
-        public virtual Customer Customer
+        public Customer Customer
         {
             get => _customer ?? LazyLoader.Load(this, ref _customer);
             set => _customer = value;

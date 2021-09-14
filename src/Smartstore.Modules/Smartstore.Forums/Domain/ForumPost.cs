@@ -86,7 +86,7 @@ namespace Smartstore.Forums.Domain
         /// <summary>
         /// Gets the topic.
         /// </summary>
-        public virtual ForumTopic ForumTopic
+        public ForumTopic ForumTopic
         {
             get => _forumTopic ?? LazyLoader.Load(this, ref _forumTopic);
             protected set => _forumTopic = value;
@@ -96,7 +96,7 @@ namespace Smartstore.Forums.Domain
         /// <summary>
         /// Gets the customer.
         /// </summary>
-        public virtual Customer Customer
+        public Customer Customer
         {
             get => _customer ?? LazyLoader.Load(this, ref _customer);
             protected set => _customer = value;
@@ -106,7 +106,7 @@ namespace Smartstore.Forums.Domain
         /// <summary>
         /// Forum post votes.
         /// </summary>
-        public virtual ICollection<ForumPostVote> ForumPostVotes
+        public ICollection<ForumPostVote> ForumPostVotes
         {
             get => LazyLoader?.Load(this, ref _forumPostVotes) ?? (_forumPostVotes ??= new HashSet<ForumPostVote>());
             protected set => _forumPostVotes = value;

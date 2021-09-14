@@ -65,7 +65,7 @@ namespace Smartstore.Forums.Domain
         /// <summary>
         /// Gets the customer.
         /// </summary>
-        public virtual Customer Customer
+        public Customer Customer
         {
             get => _customer ?? LazyLoader.Load(this, ref _customer);
             set => _customer = value;
