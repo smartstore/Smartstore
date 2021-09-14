@@ -34,6 +34,7 @@ namespace Smartstore.Forums.Domain
     [Index(nameof(Subject), Name = "IX_Subject")]
     [Index(nameof(NumPosts), Name = "IX_NumPosts")]
     [Index(nameof(CreatedOnUtc), Name = "IX_CreatedOnUtc")]
+    [Index(nameof(ForumId), Name = "IX_Forums_Topic_ForumId")]
     [Index(nameof(ForumId), nameof(Published), Name = "IX_ForumId_Published")]
     [Index(nameof(TopicTypeId), nameof(LastPostTime), Name = "IX_TopicTypeId_LastPostTime")]
     public partial class ForumTopic : BaseEntity, IAuditable
