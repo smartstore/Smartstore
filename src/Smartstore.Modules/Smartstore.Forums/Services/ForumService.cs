@@ -21,12 +21,10 @@ namespace Smartstore.Forums.Services
     public partial class ForumService : AsyncDbSaveHook<Forum>, IForumService, IXmlSitemapPublisher
     {
         private readonly SmartDbContext _db;
-        private readonly SeoSettings _seoSettings;
 
-        public ForumService(SmartDbContext db, SeoSettings seoSettings)
+        public ForumService(SmartDbContext db)
         {
             _db = db;
-            _seoSettings = seoSettings;
         }
 
         protected override Task<HookResult> OnDeletedAsync(Forum entity, IHookedEntity entry, CancellationToken cancelToken)
@@ -42,6 +40,7 @@ namespace Smartstore.Forums.Services
                 .Select(x => x.Id)
                 .ToList();
 
+            // TODO: (mg) (core) Are you sure that Forum.Id is still > 0 after physical deletion?
             if (deletedForumIds.Any())
             {
                 var topicIds = await _db.ForumTopics()
@@ -65,13 +64,10 @@ namespace Smartstore.Forums.Services
 
         public virtual string BuildSlug(ForumTopic forumTopic)
         {
+            // TODO: (mg) (core) If this is the only method in IForumService: make this an extension method and remove ForumService.
             const int maxLength = 100;
 
-            var slug = SeoHelper.BuildSlug(forumTopic.Subject,
-                _seoSettings.ConvertNonWesternChars,
-                _seoSettings.AllowUnicodeCharsInUrls,
-                true,
-                _seoSettings.SeoNameCharConversion);
+            var slug = SeoHelper.BuildSlug(forumTopic.Subject);
 
             // Trim SE name to avoid URLs that are too long.
             if (slug.Length > maxLength)

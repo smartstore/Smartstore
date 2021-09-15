@@ -3,7 +3,7 @@
 <div asp-validation-summary="All"></div>
 <input type="hidden" asp-for="Id" />
 
-<tabstrip id="forumgroup-edit" sm-nav-style="Material">
+<tabstrip id="forum-edit" sm-nav-style="Material">
 	<tab sm-title="@T("Admin.Common.General")" sm-selected="true">
         @(Html.LocalizedEditor<ForumModel, ForumLocalizedModel>("forum-localized",
 	    @<text>

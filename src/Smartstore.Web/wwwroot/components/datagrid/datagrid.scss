@@ -119,7 +119,7 @@ input.form-control-plaintext {
         top: 0;
         background-color: var(--dg-header-bg);
         border-bottom: 1px solid var(--dg-border-color);
-        z-index: 1;
+        z-index: 2;
         user-select: none;
         overflow-x: hidden; // Removes annoying x-scrollbar
     }
