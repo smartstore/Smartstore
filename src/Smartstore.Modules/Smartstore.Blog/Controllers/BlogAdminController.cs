@@ -505,7 +505,8 @@ namespace Smartstore.Blog.Controllers
                     CustomerId = blogComment.CustomerId,
                     IpAddress = blogComment.IpAddress,
                     CreatedOn = _dateTimeHelper.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
-                    Comment = HtmlUtils.ConvertPlainTextToHtml(blogComment.CommentText.HtmlEncode()),
+                    //Comment = HtmlUtils.ConvertPlainTextToHtml(blogComment.CommentText.HtmlEncode()),
+                    Comment = blogComment.CommentText.Truncate(270, "...").HtmlEncode(),
                     CustomerName = blogComment.Customer.GetDisplayName(T),
                     EditBlogPostUrl = Url.Action(nameof(Edit), "Blog", new { id = blogComment.BlogPostId }),
                     EditCustomerUrl = Url.Action("Edit", "Customer", new { id = blogComment.CustomerId })

@@ -23,6 +23,7 @@ namespace Smartstore.Blog.Domain
                 .HasForeignKey(c => c.LanguageId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            // TODO: SetNull and test this!!!
             builder.HasOne(c => c.MediaFile)
                 .WithMany()
                 .HasForeignKey(c => c.MediaFileId)
@@ -144,7 +145,7 @@ namespace Smartstore.Blog.Domain
 
         /// <summary>
         /// Gets or sets the total number of approved comments.
-        /// <remarks>The same as if we run newsItem.NewsComments.Where(n => n.IsApproved).Count().
+        /// <remarks>The same as if we run blogItem.Comments.Where(n => n.IsApproved).Count().
         /// We use this property for performance optimization (no SQL command executed).
         /// </remarks>
         /// </summary>
@@ -152,7 +153,7 @@ namespace Smartstore.Blog.Domain
 
         /// <summary>
         /// Gets or sets the total number of not approved comments.
-        /// <remarks>The same as if we run newsItem.NewsComments.Where(n => !n.IsApproved).Count().
+        /// <remarks>The same as if we run blogItem.Comments.Where(n => !n.IsApproved).Count().
         /// We use this property for performance optimization (no SQL command executed).</remarks>
         /// </summary>
         public int NotApprovedCommentCount { get; set; }

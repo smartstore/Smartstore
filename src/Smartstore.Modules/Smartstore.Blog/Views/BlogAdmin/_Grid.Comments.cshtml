@@ -30,7 +30,7 @@
                 <div class="text-truncate"><a :href="item.row.EditCustomerUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
-        <column for="Comment" width="2fr" />
+        <column for="Comment" width="2fr" wrap="true" />
         <column for="IpAddress" halign="center" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
     </columns>

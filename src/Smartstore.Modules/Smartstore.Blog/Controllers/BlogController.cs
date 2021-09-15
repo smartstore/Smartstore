@@ -538,7 +538,7 @@ namespace Smartstore.Blog.Controllers
                 _db.CustomerContent.Add(comment);
                 await _db.SaveChangesAsync();
 
-                //// Notify a store owner.
+                // Notify the store owner.
                 if (_blogSettings.NotifyAboutNewBlogComments)
                 {
                     await _messageFactory.SendBlogCommentNotificationMessage(comment, _localizationSettings.DefaultAdminLanguageId);
