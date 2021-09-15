@@ -277,7 +277,7 @@ namespace Smartstore.Blog.Controllers
                     }
 
                     model.EditUrl = Url.Action(nameof(Edit), "Blog", new { id = x.Id }); 
-                    model.CommentsUrl = Url.Action(nameof(Comments), "Blog", new { filterByBlogPostId = x.Id });
+                    model.CommentsUrl = Url.Action(nameof(Comments), "Blog", new { blogPostId = x.Id });
                     model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                     model.Comments = x.ApprovedCommentCount + x.NotApprovedCommentCount;
 
@@ -468,38 +468,35 @@ namespace Smartstore.Blog.Controllers
         #region Comments
 
         [Permission(BlogPermissions.Read)]
-        public IActionResult Comments(int? filterByBlogPostId)
+        public IActionResult Comments(int? blogPostId)
         {
-            ViewBag.FilterByBlogPostId = filterByBlogPostId;
+            ViewBag.BlogPostId = blogPostId;
 
             return View();
         }
 
         [HttpPost]
         [Permission(BlogPermissions.Read)]
-        public async Task<IActionResult> Comments(int? filterByBlogPostId, GridCommand command)
+        public async Task<IActionResult> Comments(int? blogPostId, GridCommand command)
         {
             var query = _db.CustomerContent
                     .AsNoTracking()
                     .OfType<BlogComment>();
 
-            if (filterByBlogPostId.HasValue)
+            if (blogPostId.HasValue)
             {
-                query = query.Where(x => x.BlogPostId == filterByBlogPostId.Value);
+                query = query.Where(x => x.BlogPostId == blogPostId.Value);
             }
 
             var comments = await query
                 .Include(x => x.BlogPost)
+                .Include(x => x.Customer)
                 .OrderByDescending(x => x.CreatedOnUtc)
                 .ToPagedList(command.Page - 1, command.PageSize)
                 .LoadAsync();
 
-            var customerIds = comments.Select(x => x.CustomerId).Distinct().ToArray();
-            var customers = (await _db.Customers.GetManyAsync(customerIds)).ToDictionarySafe(x => x.Id);
             var commentsModel = comments.Select(blogComment =>
             {
-                customers.TryGetValue(blogComment.CustomerId, out var customer);
-
                 var commentModel = new BlogCommentModel
                 {
                     Id = blogComment.Id,
@@ -509,7 +506,7 @@ namespace Smartstore.Blog.Controllers
                     IpAddress = blogComment.IpAddress,
                     CreatedOn = _dateTimeHelper.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
                     Comment = HtmlUtils.ConvertPlainTextToHtml(blogComment.CommentText.HtmlEncode()),
-                    CustomerName = customer.GetDisplayName(T),
+                    CustomerName = blogComment.Customer.GetDisplayName(T),
                     EditBlogPostUrl = Url.Action(nameof(Edit), "Blog", new { id = blogComment.BlogPostId }),
                     EditCustomerUrl = Url.Action("Edit", "Customer", new { id = blogComment.CustomerId })
                 };

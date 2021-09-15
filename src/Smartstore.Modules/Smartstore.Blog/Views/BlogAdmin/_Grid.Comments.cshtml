@@ -4,7 +4,7 @@
           allow-resize="true"
           allow-column-reordering="true"
           allow-row-selection="true">
-    <datasource read="@Url.Action("Comments", "Blog", new { filterByBlogPostId = ViewData["FilterByBlogPostId"] })"
+    <datasource read="@Url.Action("Comments", "Blog", new { blogPostId = ViewData["BlogPostId"] })"
                 delete="@Url.Action("DeleteCommentSelection")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
@@ -20,7 +20,7 @@
     </toolbar>
     <columns>
         <column for="Id" halign="center" visible="false" />
-        <column for="BlogPostTitle" hideable="false" width="2fr">
+        <column for="BlogPostTitle" hideable="false">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.EditBlogPostUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
@@ -30,7 +30,7 @@
                 <div class="text-truncate"><a :href="item.row.EditCustomerUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
-        <column for="Comment" />
+        <column for="Comment" width="2fr" />
         <column for="IpAddress" halign="center" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
     </columns>

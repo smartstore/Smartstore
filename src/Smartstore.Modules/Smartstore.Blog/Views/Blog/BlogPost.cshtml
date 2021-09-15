@@ -78,6 +78,7 @@
             <div class="col-12">
                 <div class="block blog-comment-form mt-5">
                     <form asp-action="BlogCommentAdd">
+                        <input type="hidden" asp-for="@Model.Id" />
                         <fieldset class="blog-comment-form content-group mt-5">
                             <legend><span>@T("Blog.Comments.LeaveYourComment")</span></legend>
 

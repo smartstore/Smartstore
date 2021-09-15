@@ -500,14 +500,14 @@ namespace Smartstore.Blog.Controllers
         [HttpPost]
         [ValidateCaptcha, ValidateHoneypot]
         [GdprConsent]
-        public async Task<IActionResult> BlogCommentAdd(int blogPostId, PublicBlogPostModel model, string captchaError)
+        public async Task<IActionResult> BlogCommentAdd(PublicBlogPostModel model, string captchaError)
         {
             if (!_blogSettings.Enabled)
             {
                 return NotFound();
             }
 
-            var blogPost = await _db.BlogPosts().FindByIdAsync(blogPostId, false);
+            var blogPost = await _db.BlogPosts().FindByIdAsync(model.Id, false);
             if (blogPost == null || !blogPost.AllowComments)
             {
                 return NotFound();
@@ -571,7 +571,7 @@ namespace Smartstore.Blog.Controllers
 
             // If we got this far something failed. Redisplay form.
             await PrepareBlogPostModelAsync(model, blogPost, true);
-            return View(model);
+            return View("BlogPost", model);
         }
 
         // TODO: (mh) (core) RssHeaderLink ??? :-/
