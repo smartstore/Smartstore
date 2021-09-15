@@ -68,10 +68,10 @@ namespace Smartstore.Web.TagHelpers.Shared
         internal TabContentHeaderTagHelper TabContentHeader { get; set; }
 
         /// <summary>
-        /// Whether to hide tabstrip nav if there's only one tab item. Default = false.
+        /// Whether to hide tabstrip nav if there's only one tab item. Default = true.
         /// </summary>
         [HtmlAttributeName(HideSingleItemAttributeName)]
-        public bool HideSingleItem { get; set; }
+        public bool HideSingleItem { get; set; } = true;
 
         /// <summary>
         /// Whether to hide tabstrip if there's only one tab item. Default = false.
