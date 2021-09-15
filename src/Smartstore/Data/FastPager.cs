@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Domain;
@@ -87,14 +88,15 @@ namespace Smartstore.Data
             return true;
         }
 
-        public async Task<AsyncOut<IList<T>>> ReadNextPageAsync<TShape>()
+        public Task<AsyncOut<IList<T>>> ReadNextPageAsync<TShape>(CancellationToken cancelToken = default)
         {
-            return await ReadNextPageAsync(x => x, x => x.Id);
+            return ReadNextPageAsync(x => x, x => x.Id, cancelToken);
         }
 
         public async Task<AsyncOut<IList<TShape>>> ReadNextPageAsync<TShape>(
             Expression<Func<T, TShape>> shaper,
-            Func<TShape, int> idSelector)
+            Func<TShape, int> idSelector,
+            CancellationToken cancelToken = default)
         {
             Guard.NotNull(shaper, nameof(shaper));
 
@@ -113,7 +115,7 @@ namespace Smartstore.Data
                 .OrderByDescending(x => x.Id)
                 .Take(_pageSize)
                 .Select(shaper)
-                .ToListAsync();
+                .ToListAsync(cancelToken);
 
             if (page.Count == 0)
             {

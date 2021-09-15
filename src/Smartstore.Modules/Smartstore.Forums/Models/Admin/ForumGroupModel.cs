@@ -22,7 +22,7 @@ namespace Smartstore.Forums.Models
     }
 
     [LocalizedDisplay("Admin.ContentManagement.Forums.ForumGroup.Fields.")]
-    public class ForumGroupModel : EntityModelBase
+    public class ForumGroupModel : EntityModelBase, ILocalizedModel<ForumGroupLocalizedModel>
     {
         [LocalizedDisplay("*Name")]
         public string Name { get; set; }
@@ -30,6 +30,8 @@ namespace Smartstore.Forums.Models
         [LocalizedDisplay("Admin.Configuration.Seo.SeName")]
         public string SeName { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 4)]
         [LocalizedDisplay("*Description")]
         public string Description { get; set; }
 
@@ -72,6 +74,8 @@ namespace Smartstore.Forums.Models
         [LocalizedDisplay("Admin.Configuration.Seo.SeName")]
         public string SeName { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 4)]
         [LocalizedDisplay("*Description")]
         public string Description { get; set; }
     }

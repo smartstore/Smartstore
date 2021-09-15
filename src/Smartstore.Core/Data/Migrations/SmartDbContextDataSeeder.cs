@@ -390,6 +390,8 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Promotions.Discounts.BackToList",
             //    "Admin.Promotions.Discounts.Info",
             //    "Admin.Catalog.Attributes.ProductAttributes.BackToList",
+            //    "Admin.ContentManagement.Forums.ForumGroup.BackToList",
+            //    "Admin.ContentManagement.Forums.Forum.BackToList",
             //    );
 
             #endregion

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using FluentValidation;
 using Smartstore.ComponentModel;
@@ -21,6 +22,8 @@ namespace Smartstore.Forums.Models
         [LocalizedDisplay("Admin.Configuration.Seo.SeName")]
         public string SeName { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 4)]
         [LocalizedDisplay("*Description")]
         public string Description { get; set; }
 
@@ -34,7 +37,6 @@ namespace Smartstore.Forums.Models
             => CreatedOn.ToString();
 
         public string EditUrl { get; set; }
-        //public List<ForumGroupModel> ForumGroups { get; set; } = new();
         public List<ForumLocalizedModel> Locales { get; set; } = new();
     }
 
@@ -49,6 +51,8 @@ namespace Smartstore.Forums.Models
         [LocalizedDisplay("Admin.Configuration.Seo.SeName")]
         public string SeName { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 4)]
         [LocalizedDisplay("*Description")]
         public string Description { get; set; }
     }

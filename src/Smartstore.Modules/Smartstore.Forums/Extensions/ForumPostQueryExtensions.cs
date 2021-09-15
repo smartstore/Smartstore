@@ -8,7 +8,7 @@ namespace Smartstore.Forums
     internal static partial class ForumPostQueryExtensions
     {
         /// <summary>
-        /// Applies a filter for store through associated <see cref="ForumGroup"/>.
+        /// Applies a store filter through associated <see cref="ForumGroup"/>.
         /// </summary>
         /// <param name="query">Forum post query.</param>
         /// <param name="storeId">Store identifier.</param>

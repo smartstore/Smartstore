@@ -88,7 +88,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Variant.Read)]
         public IActionResult List()
         {
-            return View();
+            return View(new ProductAttributeListModel());
         }
 
         [HttpPost]

@@ -12,10 +12,12 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -30,32 +32,38 @@ namespace Smartstore.Forums.Controllers
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly ILanguageService _languageService;
         private readonly StoreDependingSettingHelper _settingHelper;
+        private readonly IStoreMappingService _storeMappingService;
+        private readonly IAclService _aclService;
+        private readonly IUrlService _urlService;
 
         public ForumAdminController(
             SmartDbContext db,
             ILocalizedEntityService localizedEntityService,
             ILanguageService languageService,
-            StoreDependingSettingHelper settingHelper)
+            StoreDependingSettingHelper settingHelper,
+            IStoreMappingService storeMappingService,
+            IAclService aclService,
+            IUrlService urlService)
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
             _languageService = languageService;
             _settingHelper = settingHelper;
+            _storeMappingService = storeMappingService;
+            _aclService = aclService;
+            _urlService = urlService;
         }
 
         [Permission(ForumPermissions.Read)]
         public IActionResult List()
         {
-            var model = new ForumGroupListModel();
-
-            //...
-
             ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
 
-            return View(model);
+            return View(new ForumGroupListModel());
         }
 
-        [HttpPost]
+        #region Forum group
+
         [Permission(ForumPermissions.Read)]
         public async Task<IActionResult> ForumGroupList(GridCommand command, ForumGroupListModel model)
         {
@@ -94,6 +102,156 @@ namespace Smartstore.Forums.Controllers
             });
         }
 
+        [Permission(ForumPermissions.Create)]
+        public IActionResult ForumGroupInsert()
+        {
+            var model = new ForumGroupModel 
+            {
+                DisplayOrder = 1
+            };
+
+            AddLocales(model.Locales);
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [Permission(ForumPermissions.Create)]
+        public async Task<IActionResult> ForumGroupInsert(ForumGroupModel model, bool continueEditing)
+        {
+            if (ModelState.IsValid)
+            {
+                var group = MiniMapper.Map<ForumGroupModel, ForumGroup>(model);
+                _db.ForumGroups().Add(group);
+
+                await _db.SaveChangesAsync();
+
+                var validateSlugResult = await group.ValidateSlugAsync(group.Name, true, 0);
+                await _urlService.ApplySlugAsync(validateSlugResult);
+                model.SeName = validateSlugResult.Slug;
+
+                await ApplyLocales(model, group);
+                await _storeMappingService.ApplyStoreMappingsAsync(group, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(group, model.SelectedCustomerRoleIds);
+
+                await _db.SaveChangesAsync();
+
+                NotifySuccess(T("Admin.ContentManagement.Forums.ForumGroup.Added"));
+
+                return continueEditing
+                    ? RedirectToAction("ForumGroupInsert", new { id = group.Id })
+                    : RedirectToAction("List");
+            }
+
+            await PrepareForumGroupModel(model, null);
+
+            return View(model);
+        }
+
+        [Permission(ForumPermissions.Read)]
+        public async Task<IActionResult> ForumGroupUpdate(int id)
+        {
+            var group = await _db.ForumGroups().FindByIdAsync(id, false);
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            var mapper = MapperFactory.GetMapper<ForumGroup, ForumGroupModel>();
+            var model = await mapper.MapAsync(group);
+
+            AddLocales(model.Locales, async (locale, languageId) =>
+            {
+                locale.Name = group.GetLocalized(x => x.Name, languageId, false, false);
+                locale.Description = group.GetLocalized(x => x.Description, languageId, false, false);
+                locale.SeName = await group.GetActiveSlugAsync(languageId, false, false);
+            });
+
+            await PrepareForumGroupModel(model, group);
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [Permission(ForumPermissions.Update)]
+        public async Task<IActionResult> ForumGroupUpdate(ForumGroupModel model, bool continueEditing)
+        {
+            var group = await _db.ForumGroups().FindByIdAsync(model.Id);
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                MiniMapper.Map(model, group);
+
+                var validateSlugResult = await group.ValidateSlugAsync(group.Name, true, 0);
+                await _urlService.ApplySlugAsync(validateSlugResult);
+                model.SeName = validateSlugResult.Slug;
+
+                await ApplyLocales(model, group);
+                await _storeMappingService.ApplyStoreMappingsAsync(group, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(group, model.SelectedCustomerRoleIds);
+
+                await _db.SaveChangesAsync();
+
+                NotifySuccess(T("Admin.ContentManagement.Forums.ForumGroup.Updated"));
+
+                return continueEditing
+                    ? RedirectToAction("ForumGroupUpdate", new { id = group.Id })
+                    : RedirectToAction("List");
+            }
+
+            await PrepareForumGroupModel(model, group);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(ForumPermissions.Delete)]
+        public async Task<IActionResult> ForumGroupDelete(int id)
+        {
+            var group = await _db.ForumGroups().FindByIdAsync(id);
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            _db.ForumGroups().Remove(group);
+            await _db.SaveChangesAsync();
+
+            NotifySuccess(T("Admin.ContentManagement.Forums.ForumGroup.Deleted"));
+
+            return RedirectToAction("List");
+        }
+
+        private async Task PrepareForumGroupModel(ForumGroupModel model, ForumGroup group)
+        {
+            if (group != null)
+            {
+                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(group.CreatedOnUtc, DateTimeKind.Utc);
+                model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(group);
+                model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(group);
+            }
+        }
+
+        private async Task ApplyLocales(ForumGroupModel model, ForumGroup group)
+        {
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedValueAsync(group, x => x.Name, localized.Name, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(group, x => x.Description, localized.Description, localized.LanguageId);
+
+                var validateSlugResult = await group.ValidateSlugAsync(localized.Name, false, localized.LanguageId);
+                await _urlService.ApplySlugAsync(validateSlugResult);
+            }
+        }
+
+        #endregion
+
+        #region Forum
+
         [HttpPost]
         [Permission(ForumPermissions.Read)]
         public async Task<IActionResult> ForumList(int forumGroupId)
@@ -120,6 +278,155 @@ namespace Smartstore.Forums.Controllers
                 Total = forums.Count
             });
         }
+
+        [Permission(ForumPermissions.Create)]
+        public async Task<IActionResult> ForumInsert(int forumGroupId)
+        {
+            var model = new ForumModel 
+            { 
+                DisplayOrder = 1,
+                ForumGroupId = forumGroupId
+            };
+
+            AddLocales(model.Locales);
+            await PrepareForumModel(model);
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [Permission(ForumPermissions.Create)]
+        public async Task<IActionResult> ForumInsert(ForumModel model, bool continueEditing)
+        {
+            if (ModelState.IsValid)
+            {
+                var forum = MiniMapper.Map<ForumModel, Forum>(model);
+                _db.Forums().Add(forum);
+
+                await _db.SaveChangesAsync();
+
+                var validateSlugResult = await forum.ValidateSlugAsync(forum.Name, true, 0);
+                await _urlService.ApplySlugAsync(validateSlugResult);
+                model.SeName = validateSlugResult.Slug;
+
+                await ApplyLocales(model, forum);
+
+                await _db.SaveChangesAsync();
+
+                NotifySuccess(T("Admin.ContentManagement.Forums.Forum.Added"));
+
+                return continueEditing
+                    ? RedirectToAction("ForumInsert", new { id = forum.Id })
+                    : RedirectToAction("List");
+            }
+
+            await PrepareForumModel(model);
+
+            return View(model);
+        }
+
+        [Permission(ForumPermissions.Read)]
+        public async Task<IActionResult> ForumUpdate(int id)
+        {
+            var forum = await _db.Forums().FindByIdAsync(id, false);
+            if (forum == null)
+            {
+                return NotFound();
+            }
+
+            var mapper = MapperFactory.GetMapper<Forum, ForumModel>();
+            var model = await mapper.MapAsync(forum);
+
+            AddLocales(model.Locales, async (locale, languageId) =>
+            {
+                locale.Name = forum.GetLocalized(x => x.Name, languageId, false, false);
+                locale.Description = forum.GetLocalized(x => x.Description, languageId, false, false);
+                locale.SeName = await forum.GetActiveSlugAsync(languageId, false, false);
+            });
+
+            await PrepareForumModel(model);
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [Permission(ForumPermissions.Update)]
+        public async Task<IActionResult> ForumUpdate(ForumModel model, bool continueEditing)
+        {
+            var forum = await _db.Forums().FindByIdAsync(model.Id);
+            if (forum == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                MiniMapper.Map(model, forum);
+
+                var validateSlugResult = await forum.ValidateSlugAsync(forum.Name, true, 0);
+                await _urlService.ApplySlugAsync(validateSlugResult);
+                model.SeName = validateSlugResult.Slug;
+
+                await ApplyLocales(model, forum);
+
+                await _db.SaveChangesAsync();
+
+                NotifySuccess(T("Admin.ContentManagement.Forums.Forum.Updated"));
+
+                return continueEditing
+                    ? RedirectToAction("ForumUpdate", new { id = forum.Id })
+                    : RedirectToAction("List");
+            }
+
+            await PrepareForumModel(model);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(ForumPermissions.Delete)]
+        public async Task<IActionResult> ForumDelete(int id)
+        {
+            var forum = await _db.Forums().FindByIdAsync(id);
+            if (forum == null)
+            {
+                return NotFound();
+            }
+
+            // INFO: hook in ForumService deletes associated forum and topic subscriptions.
+            _db.Forums().Remove(forum);
+            await _db.SaveChangesAsync();
+
+            NotifySuccess(T("Admin.ContentManagement.Forums.Forum.Deleted"));
+
+            return RedirectToAction("List");
+        }
+
+        private async Task PrepareForumModel(ForumModel model)
+        {
+            var groups = await _db.ForumGroups()
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            ViewBag.ForumGroups = groups
+                .Select(x => new SelectListItem { Text = x.GetLocalized(y => y.Name), Value = x.Id.ToString(), Selected = x.Id == model.ForumGroupId })
+                .ToList();
+        }
+
+        private async Task ApplyLocales(ForumModel model, Forum forum)
+        {
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedValueAsync(forum, x => x.Name, localized.Name, localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(forum, x => x.Description, localized.Description, localized.LanguageId);
+
+                var validateSlugResult = await forum.ValidateSlugAsync(localized.Name, false, localized.LanguageId);
+                await _urlService.ApplySlugAsync(validateSlugResult);
+            }
+        }
+
+        #endregion
 
         #region Settings
 
