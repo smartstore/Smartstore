@@ -12,6 +12,7 @@ using Smartstore.Data;
 using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Web.Controllers;
 
 namespace Smartstore.Blog
 {
@@ -28,7 +29,8 @@ namespace Smartstore.Blog
 
             services.Configure<MvcOptions>(o =>
             {
-                o.Filters.Add<BlogMenuItemFilter>();
+                o.Filters.AddConditional<BlogMenuItemFilter>(
+                    context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
             });
         }
 

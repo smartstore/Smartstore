@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.DevTools.Filters
 {
@@ -29,9 +28,6 @@ namespace Smartstore.DevTools.Filters
         public void OnResultExecuting(ResultExecutingContext filterContext)
         {
             if (!_profilerSettings.DisplayMachineName)
-                return;
-
-            if (filterContext.Controller is not SmartController)
                 return;
 
             var result = filterContext.Result;

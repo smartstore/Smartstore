@@ -15,6 +15,7 @@ using Smartstore.DevTools.Services;
 using Smartstore.Diagnostics;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Web.Controllers;
 using StackExchange.Profiling;
 using StackExchange.Profiling.Internal;
 
@@ -62,9 +63,12 @@ namespace Smartstore.DevTools
                     // Remove the original filter, we built a custom one.
                     o.Filters.Remove(originalFilter);
                 }
-                
-                o.Filters.Add<ProfilerFilter>();
-                o.Filters.Add<MachineNameFilter>();
+
+                o.Filters.AddConditional<ProfilerFilter>(
+                    context => ShouldProfile(context.HttpContext.Request));
+
+                o.Filters.AddConditional<MachineNameFilter>(
+                    context => context.ControllerIs<SmartController>());
             });
         }
 

@@ -7,15 +7,12 @@ using StackExchange.Profiling;
 
 namespace Smartstore.DevTools.Filters
 {
-    public class ProfilerFilter : IActionFilter, IResultFilter
+    internal class ProfilerFilter : IActionFilter, IResultFilter
     {
         private readonly ICommonServices _services;
         private readonly IWidgetProvider _widgetProvider;
-        private bool? _shouldProfile;
 
-        public ProfilerFilter(
-            ICommonServices services, 
-            IWidgetProvider widgetProvider)
+        public ProfilerFilter(ICommonServices services, IWidgetProvider widgetProvider)
         {
             _services = services;
             _widgetProvider = widgetProvider;
@@ -23,27 +20,18 @@ namespace Smartstore.DevTools.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            if (!ShouldProfile(context))
-                return;
-
             var routeIdent = context.RouteData.Values.GenerateRouteIdentifier();
             _services.Chronometer.StepStart("ActionFilter", "Action: " + routeIdent);
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
-            if (!ShouldProfile(context))
-                return;
-
             if (!context.Result.IsHtmlViewResult())
                 _services.Chronometer.StepStop("ActionFilter");
         }
 
         public void OnResultExecuting(ResultExecutingContext context)
         {
-            if (!ShouldProfile(context))
-                return;
-
             // Should only run on a full view rendering result
             if (!context.Result.IsHtmlViewResult())
                 return;
@@ -65,9 +53,6 @@ namespace Smartstore.DevTools.Filters
 
         public void OnResultExecuted(ResultExecutedContext context)
         {
-            if (!ShouldProfile(context))
-                return;
-
             // Should only run on a full view rendering result
             if (!context.Result.IsHtmlViewResult())
                 return;
@@ -75,8 +60,5 @@ namespace Smartstore.DevTools.Filters
             _services.Chronometer.StepStop("ResultFilter");
             _services.Chronometer.StepStop("ActionFilter");
         }
-
-        private bool ShouldProfile(FilterContext context)
-            => _shouldProfile ??= Startup.ShouldProfile(context.HttpContext.Request);
     }
 }

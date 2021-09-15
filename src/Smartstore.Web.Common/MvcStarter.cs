@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
@@ -22,16 +24,16 @@ using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Web;
-using Smartstore.Data;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity;
 using Smartstore.Engine.Modularity.ApplicationParts;
 using Smartstore.Net;
+using Smartstore.Web.Filters;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Modelling.Validation;
+using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Razor;
 
 namespace Smartstore.Web
@@ -47,6 +49,9 @@ namespace Smartstore.Web
         {
             // Add action context accessor
             services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
+
+            services.TryAddEnumerable(
+                ServiceDescriptor.Singleton<IFilterProvider, ConditionalFilterProvider>());
 
             services.AddRouting(o =>
             {
