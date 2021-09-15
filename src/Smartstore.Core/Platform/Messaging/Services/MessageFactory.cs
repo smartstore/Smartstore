@@ -682,7 +682,6 @@ namespace Smartstore.Core.Messaging
                 else
                 {
                     result = _templateEngine.CreateTestModelFor(entity, entity.GetEntityName());
-                    result = null;
                 }
             }
 

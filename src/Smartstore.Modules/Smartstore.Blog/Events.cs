@@ -5,6 +5,7 @@ using Smartstore.Blog.Domain;
 using Smartstore.Core.Data;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Events;
+using Smartstore.Templating;
 using Smartstore.Utilities;
 
 namespace Smartstore.Blog
@@ -18,15 +19,15 @@ namespace Smartstore.Blog
             _db = db;
         }
 
-        public async Task HandleEventAsync(PreviewModelResolveEvent message)
+        public async Task HandleEventAsync(PreviewModelResolveEvent message, ITemplateEngine engine)
         {
             if (message.ModelName == "BlogComment")
             {
-                message.Result = await GetRandomEntity();
+                message.Result = await GetRandomEntity(engine);
             }
         }
 
-        private async Task<BlogComment> GetRandomEntity()
+        private async Task<object> GetRandomEntity(ITemplateEngine engine)
         {
             var query = _db.BlogComments().AsNoTracking();
             var count = await query.CountAsync();
@@ -41,10 +42,13 @@ namespace Smartstore.Blog
             }
             else
             {
-                result = new BlogComment { 
+                result = new BlogComment 
+                { 
                     CommentText = @"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
                                     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua."
                 };
+
+                return engine.CreateTestModelFor(result, result.GetEntityName());
             }
 
             return result;
