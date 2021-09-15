@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Razor.Hosting;
 
 namespace Smartstore.Engine.Modularity.ApplicationParts
@@ -26,12 +27,32 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
 
         class CompiledItem : RazorCompiledItem
         {
+            private readonly string _pathPrefix;
+            
             public CompiledItem(string pathPrefix, RazorCompiledItem other)
             {
+                _pathPrefix = pathPrefix;
+
                 Identifier = pathPrefix + other.Identifier;
                 Kind = other.Kind;
-                Metadata = other.Metadata;
+                Metadata = other.Metadata.Select(NormalizeMetadata).ToArray();
                 Type = other.Type;
+            }
+
+            private object NormalizeMetadata(object metadata)
+            {
+                if (metadata is IRazorSourceChecksumMetadata checksum)
+                {
+                    return new RazorSourceChecksumAttribute(
+                        checksum.ChecksumAlgorithm,
+                        checksum.Checksum,
+                        // We have to prefix the checksum identifier - actually the unrooted path to the view file, starting with "/Views/..." -
+                        // with the module's root path, e.g. "/Modules/Smartstore.Blog". Otherwise checksum validation will fail
+                        // and the compiled view's source file will never be watched for changes.
+                        _pathPrefix + checksum.Identifier);
+                }
+
+                return metadata;
             }
 
             public override string Identifier { get; }

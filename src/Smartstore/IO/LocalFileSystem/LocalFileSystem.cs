@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Physical;
@@ -7,12 +8,13 @@ using Microsoft.Extensions.Primitives;
 namespace Smartstore.IO
 {
     /// <summary>
-    /// Looks up files using the on-disk file system
+    /// Looks up files using the local disk file system
     /// </summary>
     /// <remarks>
     /// When the environment variable "DOTNET_USE_POLLING_FILE_WATCHER" is set to "1" or "true", calls to
     /// <see cref="Watch(string)" /> will use <see cref="PollingFileChangeToken" />.
     /// </remarks>
+    [DebuggerDisplay("LocalFileSystem - Root: {Root}, UseActivePolling: {UseActivePolling}, UsePollingFileWatcher: {UsePollingFileWatcher}")]
     public class LocalFileSystem : FileSystemBase, IFileProvider
     {
         private readonly PhysicalFileProvider _provider;
