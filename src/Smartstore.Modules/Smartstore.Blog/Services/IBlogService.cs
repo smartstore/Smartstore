@@ -10,11 +10,6 @@ namespace Smartstore.Blog.Services
     public partial interface IBlogService
     {
         /// <summary>
-        /// Updates blog post comment totals.
-        /// </summary>
-        Task UpdateCommentTotalsAsync(BlogPost blogPost);
-
-        /// <summary>
         /// Gets all blog post tags.
         /// </summary>
         /// <param name="storeId">The store identifier. Pass 0 to get all blog posts.</param>

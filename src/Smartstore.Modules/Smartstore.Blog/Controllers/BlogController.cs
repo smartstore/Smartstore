@@ -538,8 +538,6 @@ namespace Smartstore.Blog.Controllers
                 _db.CustomerContent.Add(comment);
                 await _db.SaveChangesAsync();
 
-                await _blogService.UpdateCommentTotalsAsync(blogPost);
-
                 //// Notify a store owner.
                 if (_blogSettings.NotifyAboutNewBlogComments)
                 {

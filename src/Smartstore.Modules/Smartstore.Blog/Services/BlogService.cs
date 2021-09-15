@@ -21,35 +21,6 @@ namespace Smartstore.Blog.Services
             _db = db;
         }
 
-        public virtual async Task UpdateCommentTotalsAsync(BlogPost blogPost)
-        {
-            Guard.NotNull(blogPost, nameof(blogPost));
-
-            var approvedCommentCount = 0;
-            var notApprovedCommentCount = 0;
-
-            // TODO: (mh) (core) DONT load all comments just to calc some numbers. First check if loaded.
-            // If NOT loaded: use LINQ aggregate functions to determine counts in DB.
-            var blogComments = blogPost.BlogComments;
-
-            foreach (var bc in blogComments)
-            {
-                if (bc.IsApproved)
-                {
-                    approvedCommentCount++;
-                }
-                else
-                {
-                    notApprovedCommentCount++;
-                }
-            }
-
-            blogPost.ApprovedCommentCount = approvedCommentCount;
-            blogPost.NotApprovedCommentCount = notApprovedCommentCount;
-
-            await _db.SaveChangesAsync();
-        }
-
         public virtual async Task<ISet<BlogPostTag>> GetAllBlogPostTagsAsync(int storeId, int languageId = 0, bool includeHidden = false)
         {
             var blogPostTags = new List<BlogPostTag>();
