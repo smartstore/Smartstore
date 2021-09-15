@@ -229,8 +229,6 @@ namespace Smartstore.Core.Messaging
                 return Task.FromResult<string>(null);
             }
 
-            // INFO: Fails to render email address
-            // Tested with {{ NewsLetterSubscription.Email }} model had the correct property.
             return _templateEngine.RenderAsync(template, ctx.Model, ctx.FormatProvider);
         }
 
@@ -453,8 +451,7 @@ namespace Smartstore.Core.Messaging
         {
             var templateName = messageContext.MessageTemplate?.Name ?? messageContext.MessageTemplateName;
 
-            // TODO: (mh) (core) Move Blog, News, Forum and Polls model creation to external modules when they are available.
-            // TODO: (mh) (core) uncomment missing entities when available.
+            // TODO: (mh) (core) Move News, Forum and Polls model creation to external modules when they are available.
             if (_testModelFactories == null)
             {
                 _testModelFactories = new Dictionary<string, Func<Task<object>>>(StringComparer.OrdinalIgnoreCase)
@@ -473,7 +470,6 @@ namespace Smartstore.Core.Messaging
                     { nameof(ProductReview), () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && !x.Product.IsSystemProduct && x.Product.Visibility != ProductVisibility.Hidden && x.Product.Published) },
                     //{ "ForumTopic", () => GetRandomEntity<ForumTopic>(x => true) },
                     //{ "ForumPost", () => GetRandomEntity<ForumPost>(x => true) },
-                    //{ "BlogComment", () => GetRandomEntity<BlogComment>(x => true) },
                     //{ "PrivateMessage", () => GetRandomEntity<PrivateMessage>(x => true) },
                     //{ "NewsComment", () => GetRandomEntity<NewsComment>(x => x.NewsItem.Published) },
                     { nameof(WalletHistory), () => GetRandomEntity<WalletHistory>(x => true) }
