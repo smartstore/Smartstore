@@ -32,6 +32,8 @@ namespace Smartstore.Core.Messaging
     {
         const string LoremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
 
+        private Dictionary<string, Func<Task<object>>> _testModelFactories = new(StringComparer.OrdinalIgnoreCase);
+
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly ITemplateEngine _templateEngine;
@@ -453,39 +455,38 @@ namespace Smartstore.Core.Messaging
 
             // TODO: (mh) (core) Move Blog, News, Forum and Polls model creation to external modules when they are available.
             // TODO: (mh) (core) uncomment missing entities when available.
-            var factories = new Dictionary<string, Func<Task<object>>>(StringComparer.OrdinalIgnoreCase)
+            if (_testModelFactories == null)
             {
-                //{ "BlogComment", () => GetRandomEntity<BlogComment>(x => true) },
-                { "Product", () => GetRandomEntity<Product>(x => !x.Deleted && !x.IsSystemProduct && x.Visibility != ProductVisibility.Hidden && x.Published) },
-                { "Customer", () => GetRandomEntity<Customer>(x => !x.Deleted && !x.IsSystemAccount && !string.IsNullOrEmpty(x.Email)) },
-                { "Order", () => GetRandomEntity<Order>(x => !x.Deleted) },
-                { "Shipment", () => GetRandomEntity<Shipment>(x => !x.Order.Deleted) },
-                { "OrderNote", () => GetRandomEntity<OrderNote>(x => !x.Order.Deleted) },
-                { "RecurringPayment", () => GetRandomEntity<RecurringPayment>(x => !x.Deleted) },
-                { "NewsletterSubscription", () => GetRandomEntity<NewsletterSubscription>(x => true) },
-                { "Campaign", () => GetRandomEntity<Campaign>(x => true) },
-                { "ReturnRequest", () => GetRandomEntity<ReturnRequest>(x => true) },
-                { "OrderItem", () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted) },
-                //{ "ForumTopic", () => GetRandomEntity<ForumTopic>(x => true) },
-                //{ "ForumPost", () => GetRandomEntity<ForumPost>(x => true) },
-                //{ "PrivateMessage", () => GetRandomEntity<PrivateMessage>(x => true) },
-                { "GiftCard", () => GetRandomEntity<GiftCard>(x => true) },
-                { "ProductReview", () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && !x.Product.IsSystemProduct && x.Product.Visibility != ProductVisibility.Hidden && x.Product.Published) },
-                //{ "NewsComment", () => GetRandomEntity<NewsComment>(x => x.NewsItem.Published) },
-                { "WalletHistory", () => GetRandomEntity<WalletHistory>(x => true) }
-            };
+                _testModelFactories = new Dictionary<string, Func<Task<object>>>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { nameof(Product), () => GetRandomEntity<Product>(x => !x.Deleted && !x.IsSystemProduct && x.Visibility != ProductVisibility.Hidden && x.Published) },
+                    { nameof(Customer), () => GetRandomEntity<Customer>(x => !x.Deleted && !x.IsSystemAccount && !string.IsNullOrEmpty(x.Email)) },
+                    { nameof(Order), () => GetRandomEntity<Order>(x => !x.Deleted) },
+                    { nameof(Shipment), () => GetRandomEntity<Shipment>(x => !x.Order.Deleted) },
+                    { nameof(OrderNote), () => GetRandomEntity<OrderNote>(x => !x.Order.Deleted) },
+                    { nameof(RecurringPayment), () => GetRandomEntity<RecurringPayment>(x => !x.Deleted) },
+                    { nameof(NewsletterSubscription), () => GetRandomEntity<NewsletterSubscription>(x => true) },
+                    { nameof(Campaign), () => GetRandomEntity<Campaign>(x => true) },
+                    { nameof(ReturnRequest), () => GetRandomEntity<ReturnRequest>(x => true) },
+                    { nameof(OrderItem), () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted) },
+                    { nameof(GiftCard), () => GetRandomEntity<GiftCard>(x => true) },
+                    { nameof(ProductReview), () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && !x.Product.IsSystemProduct && x.Product.Visibility != ProductVisibility.Hidden && x.Product.Published) },
+                    //{ "ForumTopic", () => GetRandomEntity<ForumTopic>(x => true) },
+                    //{ "ForumPost", () => GetRandomEntity<ForumPost>(x => true) },
+                    //{ "BlogComment", () => GetRandomEntity<BlogComment>(x => true) },
+                    //{ "PrivateMessage", () => GetRandomEntity<PrivateMessage>(x => true) },
+                    //{ "NewsComment", () => GetRandomEntity<NewsComment>(x => x.NewsItem.Published) },
+                    { nameof(WalletHistory), () => GetRandomEntity<WalletHistory>(x => true) }
+                };
+            }
 
-            var modelNames = messageContext.MessageTemplate.ModelTypes
-                .SplitSafe(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Distinct()
-                .ToArray();
-
+            var modelNames = messageContext.MessageTemplate.ModelTypes.SplitSafe(',').Distinct().ToArray();
             var models = new Dictionary<string, object>();
             var result = new List<object>();
 
             foreach (var modelName in modelNames)
             {
-                var model = await GetModelFromExpressionAsync(modelName, models, factories);
+                var model = await GetModelFromExpressionAsync(modelName, models, _testModelFactories);
                 if (model != null)
                 {
                     result.Add(model);
@@ -546,7 +547,7 @@ namespace Smartstore.Core.Messaging
             return result.ToArray();
         }
 
-        private static async Task<object> GetModelFromExpressionAsync(string expression, IDictionary<string, object> models, Dictionary<string, Func<Task<object>>> factories)
+        private async Task<object> GetModelFromExpressionAsync(string expression, IDictionary<string, object> models, Dictionary<string, Func<Task<object>>> factories)
         {
             object currentModel = null;
             int dotIndex = 0;
@@ -577,7 +578,7 @@ namespace Smartstore.Core.Messaging
                     {
                         // It's a simple dot-less expression where the token
                         // is actually the model name
-                        currentModel = await factories.Get(token)?.Invoke();
+                        currentModel = await ResolveTestModel(token);
                     }
                     else
                     {
@@ -593,7 +594,7 @@ namespace Smartstore.Core.Messaging
                         {
                             // When the parent model is a test model, we need to create a random instance
                             // instead of using the property value (which is null/void in this case)
-                            currentModel = await factories.Get(propName)?.Invoke();
+                            currentModel = await ResolveTestModel(propName);
                         }
                         else
                         {
@@ -632,6 +633,22 @@ namespace Smartstore.Core.Messaging
             }
 
             return currentModel;
+
+            async Task<object> ResolveTestModel(string modelName)
+            {
+                if (!factories.TryGetValue(modelName, out var factory))
+                {
+                    var e = new PreviewModelResolveEvent { ModelName = modelName };
+                    await _eventPublisher.PublishAsync(e);
+
+                    if (e.Result != null)
+                    {
+                        return e.Result;
+                    }
+                }
+
+                return factory?.Invoke();
+            }
         }
 
         private async Task<object> GetRandomEntity<T>(Expression<Func<T, bool>> predicate) where T : BaseEntity, new()
