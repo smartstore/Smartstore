@@ -348,10 +348,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 			//{
 			//	_cache.RemoveByPatternAsync(POLLS_PATTERN_KEY);
 			//}
-			//else if (entity is BlogPost)
-			//{
-			//	_cache.RemoveByPatternAsync(BLOG_PATTERN_KEY);
-			//}
 			//else if (entity is NewsItem)
 			//{
 			//	_cache.RemoveByPatternAsync(NEWS_PATTERN_KEY);
@@ -381,7 +377,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 					await _cache.RemoveByPatternAsync(HOMEPAGE_BESTSELLERS_REPORT_PATTERN_KEY); // depends on CatalogSettings.NumberOfBestsellersOnHomepage
 
 					//// TODO: (core) Move to external module
-					//await _cache.RemoveByPatternAsync(BLOG_PATTERN_KEY); // depends on BlogSettings.NumberOfTags
 					//await _cache.RemoveByPatternAsync(NEWS_PATTERN_KEY); // depends on NewsSettings.MainPageNewsCount
 				}
 			}

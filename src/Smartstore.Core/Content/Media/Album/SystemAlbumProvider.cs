@@ -277,24 +277,6 @@ namespace Smartstore.Core.Content.Media
             // Content
             if (albumName == Content)
             {
-                //// TODO: (core) Move Blog/News tracker code to external module
-                //// Blog
-                //{
-                //    var name = nameof(BlogPost);
-                //    var p = new FastPager<BlogPost>(ctx.Set<BlogPost>().AsNoTracking().Where(x => x.MediaFileId.HasValue || x.PreviewMediaFileId.HasValue));
-                //    while (p.ReadNextPage(x => new { x.Id, x.MediaFileId, x.PreviewMediaFileId }, x => x.Id, out var list))
-                //    {
-                //        foreach (var x in list)
-                //        {
-                //            if (x.MediaFileId.HasValue)
-                //                yield return new MediaTrack { EntityId = x.Id, EntityName = name, MediaFileId = x.MediaFileId.Value, Property = nameof(x.MediaFileId) };
-                //            if (x.PreviewMediaFileId.HasValue)
-                //                yield return new MediaTrack { EntityId = x.Id, EntityName = name, MediaFileId = x.PreviewMediaFileId.Value, Property = nameof(x.PreviewMediaFileId) };
-                //        }
-                //        list.Clear();
-                //    }
-                //}
-
                 //// NewsItem
                 //{
                 //    var name = nameof(NewsItem);
