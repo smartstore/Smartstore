@@ -4,7 +4,10 @@ using System.Globalization;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
+using Humanizer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Blog.Domain;
 using Smartstore.Blog.Messaging;
@@ -31,12 +34,14 @@ using Smartstore.Net;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Common;
+using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Blog.Controllers
 {
     public class BlogController : PublicController
     {
+        // TODO: (mh) (core) Consider more Lazy stuff
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly IMediaService _mediaService;
@@ -47,6 +52,7 @@ namespace Smartstore.Blog.Controllers
         private readonly IBlogService _blogService;
         private readonly IActivityLogger _activityLogger;
         private readonly IMessageFactory _messageFactory;
+        private readonly Lazy<LinkGenerator> _linkGenerator;
 
         private readonly BlogSettings _blogSettings;
         private readonly LocalizationSettings _localizationSettings;
@@ -65,6 +71,7 @@ namespace Smartstore.Blog.Controllers
             IBlogService blogService,
             IActivityLogger activityLogger,
             IMessageFactory messageFactory,
+            Lazy<LinkGenerator> linkGenerator,
             BlogSettings blogSettings,
             LocalizationSettings localizationSettings,
             CustomerSettings customerSettings,
@@ -81,6 +88,7 @@ namespace Smartstore.Blog.Controllers
             _blogService = blogService;
             _activityLogger = activityLogger;
             _messageFactory = messageFactory;
+            _linkGenerator = linkGenerator;
 
             _blogSettings = blogSettings;
             _localizationSettings = localizationSettings;
@@ -175,12 +183,11 @@ namespace Smartstore.Blog.Controllers
                         CustomerName = bc.Customer.FormatUserName(_customerSettings, T, false),
                         CommentText = bc.CommentText,
                         CreatedOn = _dateTimeHelper.ConvertToUserTime(bc.CreatedOnUtc, DateTimeKind.Utc),
-                        //CreatedOnPretty = bc.CreatedOnUtc.RelativeFormat(true, "f"),                          // TODO: (mh) (core) Do this correctly
+                        CreatedOnPretty = _services.DateTimeHelper.ConvertToUserTime(bc.CreatedOnUtc, DateTimeKind.Utc).Humanize(false),
                         AllowViewingProfiles = _customerSettings.AllowViewingProfiles && !isGuest
                     };
 
-                    // TODO: (mh) (core) Do this correctly
-                    //commentModel.Avatar = bc.Customer.ToAvatarModel(_genericAttributeService, _customerSettings, _mediaSettings, commentModel.CustomerName);
+                    commentModel.Avatar = bc.Customer.ToAvatarModel(null, false);
 
                     model.Comments.Comments.Add(commentModel);
                 }
@@ -473,7 +480,10 @@ namespace Smartstore.Blog.Controllers
                 return NotFound();
             }
 
-            var blogPost = await _db.BlogPosts().FindByIdAsync(blogPostId, false);
+            var blogPost = await _db.BlogPosts()
+                .Include(x => x.BlogComments)
+                .ThenInclude(x => x.Customer)
+                .FindByIdAsync(blogPostId, false);
             if (blogPost == null)
             {
                 return NotFound();
@@ -549,22 +559,8 @@ namespace Smartstore.Blog.Controllers
                 NotifySuccess(T("Blog.Comments.SuccessfullyAdded"));
 
                 var seName = await blogPost.GetActiveSlugAsync(ensureTwoPublishedLanguages: false);
-
-                // TODO: (mh) (core) Do this correctly
-                //var url = UrlHelper.GenerateUrl(
-                //    routeName: "BlogPost",
-                //    actionName: null,
-                //    controllerName: null,
-                //    protocol: null,
-                //    hostName: null,
-                //    fragment: "new-comment",
-                //    routeValues: new RouteValueDictionary(new { blogPostId = blogPost.Id, SeName = seName }),
-                //    routeCollection: RouteTable.Routes,
-                //    requestContext: ControllerContext.Request,
-                //    includeImplicitMvcValues: true /*helps fill in the nulls above*/
-                //);
-
-                //return Redirect(url);
+                var url = _linkGenerator.Value.GetPathByRouteValues("BlogPost", new { SeName = seName }, fragment: new FragmentString("#new-comment"));
+                return Redirect(url);
             }
 
             // If we got this far something failed. Redisplay form.
