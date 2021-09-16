@@ -60,18 +60,18 @@ namespace Smartstore.Blog
             return result;
         }
 
-        public async Task HandleEventAsync(MessageModelPartMappingEvent message, IUrlHelper _urlHelper, ICommonServices _services)
+        public async Task HandleEventAsync(MessageModelPartMappingEvent message, IUrlHelper urlHelper, IEventPublisher eventPublisher)
         {
             if (message.Source is BlogComment part)
             {
                 var messageContext = message.MessageContext;
                 var blogPost = await _db.BlogPosts().FindByIdAsync(part.BlogPostId);
-                var url = _urlHelper.RouteUrl("BlogPost", new { SeName = await blogPost.GetActiveSlugAsync(messageContext.Language.Id) });
+                var url = urlHelper.RouteUrl("BlogPost", new { SeName = await blogPost.GetActiveSlugAsync(messageContext.Language.Id) });
                 var title = blogPost.GetLocalized(x => x.Title, messageContext.Language).Value.NullEmpty();
 
                 message.Result = CreateModelPart(part, messageContext, url, title);
 
-                await _services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<BlogComment>(part, message.Result));
+                await eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<BlogComment>(part, message.Result));
             }
         }
 

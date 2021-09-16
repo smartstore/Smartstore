@@ -40,10 +40,13 @@ namespace Smartstore.Blog.Hooks
             foreach (var postId in postIds)
             {
                 var blogPost = await _db.BlogPosts().FindByIdAsync(postId);
-                var query = _db.BlogComments();
+                if (blogPost != null)
+                {
+                    var query = _db.BlogComments();
 
-                blogPost.ApprovedCommentCount = query.Where(x => x.BlogPostId == postId && x.IsApproved).Count();
-                blogPost.NotApprovedCommentCount = query.Where(x => x.BlogPostId == postId && !x.IsApproved).Count();
+                    blogPost.ApprovedCommentCount = query.Where(x => x.BlogPostId == postId && x.IsApproved).Count();
+                    blogPost.NotApprovedCommentCount = query.Where(x => x.BlogPostId == postId && !x.IsApproved).Count();
+                }
             }
 
             await _db.SaveChangesAsync(cancelToken);

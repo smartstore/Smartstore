@@ -66,7 +66,7 @@ namespace Smartstore.Core.Identity
 
 		public Task<Dictionary<string, object>> ExportCustomerAsync(Customer customer)
         {
-			// TODO: (core) Port GdprTool.ExportCustomer (too many missing parts at this moment)
+			// TODO: (mh) (core) Port GdprTool.ExportCustomer (too many missing parts at this moment)
 			throw new NotImplementedException();
         }
 
