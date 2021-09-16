@@ -32,7 +32,7 @@ namespace Smartstore.Forums
             {
                 try
                 {
-                    var seeder = new ForumsSampleDataSeeder(context);
+                    var seeder = new ForumSampleDataSeeder(context);
                     await seeder.SeedAsync(Services.DbContext);
                 }
                 catch (Exception ex)

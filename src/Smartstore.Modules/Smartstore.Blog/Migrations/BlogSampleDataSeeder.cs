@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Blog.Domain;
 using Smartstore.Core.Data;
-using Smartstore.Data.Migrations;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Blog.Migrations
