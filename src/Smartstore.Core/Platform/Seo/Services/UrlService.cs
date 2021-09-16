@@ -508,6 +508,7 @@ namespace Smartstore.Core.Seo
             if (string.IsNullOrWhiteSpace(seName) && !string.IsNullOrWhiteSpace(displayName))
             {
                 // TODO: (core) ValidateSlugAsync returns a slug even if ensureNotEmpty is False -> slug for a specific language can no longer be deleted using "URL alias" field.
+                // RE: I don't get it. This code here bahaves exactly like before. Hmmm ??
                 seName = displayName;
             }
 
