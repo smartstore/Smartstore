@@ -35,34 +35,15 @@ namespace Smartstore.Blog.Hooks
                 .OfType<BlogComment>()
                 .ToList();
 
-            //var postIds = comments.Select(x => x.BlogPostId).Distinct().ToArray();
+            var postIds = comments.Select(x => x.BlogPostId).Distinct().ToArray();
 
-            //foreach (var postId in postIds)
-            //{
-            //    var blogPost = await _db.BlogPosts().FindByIdAsync(postId);
-
-            //    var q = _db.BlogComments()
-            //        .Where(x => x.BlogPostId == postId && x.IsApproved)
-            //        .Count();
-
-            //    //blogPost.ApprovedCommentCount = blogComments.Where(x => x.IsApproved).Count();
-            //    //blogPost.NotApprovedCommentCount = blogComments.Where(x => !x.IsApproved).Count();
-            //}
-
-            foreach (var comment in comments)
+            foreach (var postId in postIds)
             {
-                var blogPost = await _db.BlogPosts().FindByIdAsync(comment.BlogPostId);
-                var blogComments = await _db.BlogComments()
-                    .AsNoTracking()
-                    .Where(x => x.BlogPostId == blogPost.Id)
-                    .ToListAsync();
+                var blogPost = await _db.BlogPosts().FindByIdAsync(postId);
+                var query = _db.BlogComments();
 
-                var q = _db.BlogComments()
-                    .Where(x => x.BlogPostId == comment.BlogPostId && x.IsApproved)
-                    .Count();
-
-                blogPost.ApprovedCommentCount = blogComments.Where(x => x.IsApproved).Count();
-                blogPost.NotApprovedCommentCount = blogComments.Where(x => !x.IsApproved).Count();
+                blogPost.ApprovedCommentCount = query.Where(x => x.BlogPostId == postId && x.IsApproved).Count();
+                blogPost.NotApprovedCommentCount = query.Where(x => x.BlogPostId == postId && !x.IsApproved).Count();
             }
 
             await _db.SaveChangesAsync(cancelToken);
