@@ -250,9 +250,6 @@ namespace Smartstore.Core.Messaging
                 case ProductReview x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
-                //case BlogComment x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
                 //case NewsComment x:
                 //    modelPart = await CreateModelPartAsync(x, messageContext);
                 //    break;
@@ -292,7 +289,7 @@ namespace Smartstore.Core.Messaging
 
                     if (partType.IsPlainObjectType() && !partType.IsAnonymous())
                     {
-                        var evt = new MessageModelPartMappingEvent(part);
+                        var evt = new MessageModelPartMappingEvent(part, messageContext);
                         await _services.EventPublisher.PublishAsync(evt);
 
                         if (evt.Result != null && !object.ReferenceEquals(evt.Result, part))
@@ -834,23 +831,6 @@ namespace Smartstore.Core.Messaging
 
 //            return m;
 //        }
-
-        //protected virtual async Task<object> CreateModelPartAsync(BlogComment part, MessageContext messageContext)
-        //{
-        //    Guard.NotNull(messageContext, nameof(messageContext));
-        //    Guard.NotNull(part, nameof(part));
-
-        //    var m = new Dictionary<string, object>
-        //    {
-        //        {  "PostTitle", part.BlogPost.GetLocalized(x => x.Title, messageContext.Language).Value.NullEmpty() },
-        //        {  "PostUrl", BuildRouteUrl("BlogPost", new { SeName = part.BlogPost.GetActiveSlugAsync(messageContext.Language.Id) }, messageContext) },
-        //        {  "Text", part.CommentText.NullEmpty() }
-        //    };
-
-        //    await PublishModelPartCreatedEventAsync(part, m);
-
-        //    return m;
-        //}
 
         //protected virtual async Task<object> CreateModelPartAsync(NewsComment part, MessageContext messageContext)
         //{

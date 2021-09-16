@@ -8,15 +8,21 @@
     /// </summary>
     public class MessageModelPartMappingEvent
     {
-        public MessageModelPartMappingEvent(object source)
+        public MessageModelPartMappingEvent(object source, MessageContext messageContext)
         {
             Source = source;
+            MessageContext = messageContext;
         }
 
         /// <summary>
         /// The source object for which a model part should be created.
         /// </summary>
         public object Source { get; init; }
+
+        /// <summary>
+        /// The message context.
+        /// </summary>
+        public MessageContext MessageContext { get; init; }
 
         /// <summary>
         /// The resulting model part.
@@ -28,5 +34,4 @@
         /// </summary>
         public string ModelPartName { get; set; }
     }
-
 }

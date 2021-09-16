@@ -1,9 +1,15 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Blog.Domain;
+using Smartstore.Core;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Messaging.Events;
+using Smartstore.Core.Seo;
 using Smartstore.Events;
 using Smartstore.Templating;
 using Smartstore.Utilities;
@@ -21,7 +27,7 @@ namespace Smartstore.Blog
 
         public async Task HandleEventAsync(PreviewModelResolveEvent message, ITemplateEngine engine)
         {
-            if (message.ModelName == "BlogComment")
+            if (message.ModelName == nameof(BlogComment))
             {
                 message.Result = await GetRandomEntity(engine);
             }
@@ -52,6 +58,37 @@ namespace Smartstore.Blog
             }
 
             return result;
+        }
+
+        public async Task HandleEventAsync(MessageModelPartMappingEvent message, IUrlHelper _urlHelper, ICommonServices _services)
+        {
+            if (message.Source is BlogComment part)
+            {
+                var messageContext = message.MessageContext;
+                var blogPost = await _db.BlogPosts().FindByIdAsync(part.BlogPostId);
+                var url = _urlHelper.RouteUrl("BlogPost", new { SeName = await blogPost.GetActiveSlugAsync(messageContext.Language.Id) });
+                var title = blogPost.GetLocalized(x => x.Title, messageContext.Language).Value.NullEmpty();
+
+                message.Result = CreateModelPart(part, messageContext, url, title);
+
+                await _services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<BlogComment>(part, message.Result));
+            }
+        }
+
+        // TODO: (mh) (core) I would like to throw this method away and handle everything where it is called (in HandleEventAsync).
+        private static object CreateModelPart(BlogComment part, MessageContext messageContext, string url, string title)
+        {
+            Guard.NotNull(messageContext, nameof(messageContext));
+            Guard.NotNull(part, nameof(part));
+
+            var m = new Dictionary<string, object>
+            {
+                {  "PostTitle", title },
+                {  "PostUrl", MessageModelProvider.BuildUrl(url, messageContext) },
+                {  "Text", part.CommentText.NullEmpty() }
+            };
+
+            return m;
         }
     }
 }

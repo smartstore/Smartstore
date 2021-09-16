@@ -28,9 +28,9 @@ namespace Smartstore.Core.Messaging
             model["UpdatedOn"] = ToUserDate(content.UpdatedOnUtc, ctx);
         }
 
-        private static string BuildUrl(string url, MessageContext ctx)
+        public static string BuildUrl(string url, MessageContext ctx)
         {
-            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + url.EnsureStartsWith("/");
+            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + url.EnsureStartsWith('/');
         }
 
         private string BuildRouteUrl(object routeValues, MessageContext ctx)
