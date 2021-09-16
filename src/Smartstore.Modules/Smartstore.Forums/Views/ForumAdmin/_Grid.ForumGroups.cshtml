@@ -14,6 +14,7 @@
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("ForumGroupList", "Forum")" />
+    <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="DisplayOrder" />
     </sorting>
@@ -29,7 +30,7 @@
         <toolbar-group>
             <a asp-action="ForumGroupInsert" asp-controller="Forum" class="btn btn-primary btn-flat">
                 <i class="fa fa-plus"></i>
-                <span>@T("Admin.Common.AddNew")</span>
+                <span>@T("Admin.ContentManagement.Forums.ForumGroup.CreateForumGroup")</span>
             </a>
         </toolbar-group>
     </toolbar>
@@ -71,7 +72,7 @@
                         <div class="dg-toolbar-group">
                             <a class="btn btn-primary btn-sm btn-flat" :href="'@Url.Action("ForumInsert", "Forum")?forumGroupId=' + item.row.Id">
                                 <i class="fa fa-plus"></i>
-                                <span>@T("Admin.Common.AddNew")</span>
+                                <span>@T("Admin.ContentManagement.Forums.Forum.CreateForum")</span>
                             </a>
                         </div>
                     </div>

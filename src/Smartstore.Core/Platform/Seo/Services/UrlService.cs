@@ -507,6 +507,7 @@ namespace Smartstore.Core.Seo
             // Use entity DisplayName if seName is not specified
             if (string.IsNullOrWhiteSpace(seName) && !string.IsNullOrWhiteSpace(displayName))
             {
+                // TODO: (core) ValidateSlugAsync returns a slug even if ensureNotEmpty is False -> slug for a specific language can no longer be deleted using "URL alias" field.
                 seName = displayName;
             }
 

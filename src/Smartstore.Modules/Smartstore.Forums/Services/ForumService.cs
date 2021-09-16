@@ -27,39 +27,49 @@ namespace Smartstore.Forums.Services
             _db = db;
         }
 
-        protected override Task<HookResult> OnDeletedAsync(Forum entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnDeletingAsync(Forum entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
-        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        public override async Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            // Delete topic and forum subscriptions.
-            var deletedForumIds = entries
+            var deletingForumIds = entries
                 .Where(x => x.State == Data.EntityState.Deleted)
                 .Select(x => x.Entity)
                 .OfType<Forum>()
                 .Select(x => x.Id)
-                .ToList();
+                .ToArray();
 
-            // TODO: (mg) (core) Are you sure that Forum.Id is still > 0 after physical deletion?
-            if (deletedForumIds.Any())
+            await DeleteSubscriptionsByForumIdsAsync(deletingForumIds, cancelToken);
+        }
+
+        public virtual async Task<int> DeleteSubscriptionsByForumIdsAsync(int[] forumIds, CancellationToken cancelToken = default)
+        {
+            if (!forumIds.Any())
             {
-                var topicIds = await _db.ForumTopics()
-                    .AsNoTracking()
-                    .Where(x => deletedForumIds.Contains(x.ForumId))
-                    .Select(x => x.Id)
-                    .ToListAsync(cancelToken);
+                return 0;
+            }
 
-                if (topicIds.Any())
-                {
-                    await _db.ForumSubscriptions()
-                        .Where(x => topicIds.Contains(x.TopicId))
-                        .BatchDeleteAsync(cancelToken);
-                }
+            var numDeleted = 0;
+            var topicIds = await _db.ForumTopics()
+                .AsNoTracking()
+                .Where(x => forumIds.Contains(x.ForumId))
+                .Select(x => x.Id)
+                .ToListAsync(cancelToken);
 
-                await _db.ForumSubscriptions()
-                    .Where(x => deletedForumIds.Contains(x.ForumId))
+            // Delete topic subscriptions.
+            if (topicIds.Any())
+            {
+                numDeleted += await _db.ForumSubscriptions()
+                    .Where(x => topicIds.Contains(x.TopicId))
                     .BatchDeleteAsync(cancelToken);
             }
+
+            // Delete forum subscriptions.
+            numDeleted += await _db.ForumSubscriptions()
+                .Where(x => forumIds.Contains(x.ForumId))
+                .BatchDeleteAsync(cancelToken);
+
+            return numDeleted;
         }
 
         public virtual string BuildSlug(ForumTopic forumTopic)

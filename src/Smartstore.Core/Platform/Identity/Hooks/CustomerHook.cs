@@ -99,6 +99,7 @@ namespace Smartstore.Core.Identity
 
 		public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
 		{
+			// TODO: (mg) (core) this looks like duplicate code. See hook "UserStore".
 			var softDeletedCustomers = entries
 				.Where(x => x.IsSoftDeleted == true)
 				.Select(x => x.Entity)
@@ -122,7 +123,7 @@ namespace Smartstore.Core.Identity
 
 					_gdprTool.Value.AnonymizeData(customer, x => x.LastIpAddress, IdentifierDataType.IpAddress, language);
 
-					// TODO: (mg) (core) Complete customer navigation properties (ForumTopic and ForumPost required).
+					// TODO: (mg) (core) Anonymize IPAddress of form posts. Should be done by publishing a new event.
 					//foreach (var post in customer.ForumPosts)
 					//{
 					//	_gdprTool.Value.AnonymizeData(post, x => x.IPAddress, IdentifierDataType.IpAddress, language);

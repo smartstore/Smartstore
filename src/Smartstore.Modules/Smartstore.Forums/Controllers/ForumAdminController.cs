@@ -86,12 +86,12 @@ namespace Smartstore.Forums.Controllers
                 .Select(x => new ForumGroupModel
                 {
                     Id = x.Id,
-                    Name = x.GetLocalized(x => x.Name),
+                    Name = x.Name,
                     DisplayOrder = x.DisplayOrder,
                     LimitedToStores = x.LimitedToStores,
                     SubjectToAcl = x.SubjectToAcl,
                     CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                    EditUrl = Url.Action("EditForumGroup", "Forum", new { id = x.Id, area = "Admin" })
+                    EditUrl = Url.Action("ForumGroupUpdate", "Forum", new { id = x.Id, area = "Admin" })
                 })
                 .ToList();
 
@@ -139,7 +139,7 @@ namespace Smartstore.Forums.Controllers
                 NotifySuccess(T("Admin.ContentManagement.Forums.ForumGroup.Added"));
 
                 return continueEditing
-                    ? RedirectToAction("ForumGroupInsert", new { id = group.Id })
+                    ? RedirectToAction("ForumGroupUpdate", new { id = group.Id })
                     : RedirectToAction("List");
             }
 
@@ -265,10 +265,10 @@ namespace Smartstore.Forums.Controllers
                 .Select(x => new ForumModel
                 {
                     Id = x.Id,
-                    Name = x.GetLocalized(x => x.Name),
+                    Name = x.Name,
                     DisplayOrder = x.DisplayOrder,
                     CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                    EditUrl = Url.Action("EditForum", "Forum", new { id = x.Id, area = "Admin" })
+                    EditUrl = Url.Action("ForumUpdate", "Forum", new { id = x.Id, area = "Admin" })
                 })
                 .ToList();
 
@@ -316,7 +316,7 @@ namespace Smartstore.Forums.Controllers
                 NotifySuccess(T("Admin.ContentManagement.Forums.Forum.Added"));
 
                 return continueEditing
-                    ? RedirectToAction("ForumInsert", new { id = forum.Id })
+                    ? RedirectToAction("ForumUpdate", new { id = forum.Id })
                     : RedirectToAction("List");
             }
 

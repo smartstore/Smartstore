@@ -390,7 +390,7 @@ namespace Smartstore.Core.DataExchange.Import
                 if (_customerSettings.FaxEnabled)
                     SetGenericAttribute<string>(SystemCustomerAttributeNames.Fax, row);
 
-                // TODO: (mg) (core) complete CustomerImporter (ForumSettings required).
+                // TODO: (mg) (core) CustomerImporter: do not import forum stuff anymore.
                 //if (_forumSettings.ForumsEnabled)
                 //    SetGenericAttribute<int>(SystemCustomerAttributeNames.ForumPostCount, row);
 
@@ -627,10 +627,6 @@ namespace Smartstore.Core.DataExchange.Import
             if (context.DataSegmenter.HasColumn("IsAdministrator"))
             {
                 context.Result.AddInfo("Deprecated field. Use CustomerRoleSystemNames instead.", null, "IsAdministrator");
-            }
-            if (context.DataSegmenter.HasColumn("IsForumModerator"))
-            {
-                context.Result.AddInfo("Deprecated field. Use CustomerRoleSystemNames instead.", null, "IsForumModerator");
             }
         }
 

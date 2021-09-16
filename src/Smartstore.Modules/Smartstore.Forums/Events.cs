@@ -1,16 +1,24 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Content.Menus;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Domain;
 using Smartstore.Events;
+using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models;
 using Smartstore.Forums.Search.Modelling;
+using Smartstore.Templating;
+using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering.Builders;
@@ -140,6 +148,56 @@ namespace Smartstore.Forums
             if (num > 0)
             {
                 await forumSearchQueryAliasMapper.Value.ClearCommonFacetCacheAsync();
+            }
+        }
+
+        public Task HandleEventAsync(MessageModelPartMappingEvent message)
+        {
+            // TODO: (mg) (core) handle MessageModelPartMappingEvent.
+            if (message.Source is ForumPost post)
+            {
+            }
+
+            return Task.CompletedTask;
+        }
+
+        // Add random forum data for message template preview.
+        public async Task HandleEventAsync(PreviewModelResolveEvent message, ITemplateEngine engine, SmartDbContext db)
+        {
+            switch (message.ModelName)
+            {
+                case nameof(ForumTopic):
+                    message.Result = await GetRandomEntity<ForumTopic>();
+                    break;
+                case nameof(Forum):
+                    message.Result = await GetRandomEntity<Forum>();
+                    break;
+                case nameof(ForumPost):
+                    message.Result = await GetRandomEntity<ForumPost>();
+                    break;
+                case nameof(ForumPostVote):
+                    message.Result = await GetRandomEntity<ForumPostVote>();
+                    break;
+                case nameof(PrivateMessage):
+                    message.Result = await GetRandomEntity<PrivateMessage>();
+                    break;
+            }
+
+            async Task<object> GetRandomEntity<T>() where T : BaseEntity, new()
+            {
+                var query = db.Set<T>().AsNoTracking();
+                var count = await query.CountAsync();
+
+                if (count > 0)
+                {
+                    var skip = CommonHelper.GenerateRandomInteger(0, count);
+                    return await query.OrderBy(x => x.Id).Skip(skip).FirstOrDefaultAsync();
+                }
+                else
+                {
+                    var entity = Activator.CreateInstance<T>();
+                    return engine.CreateTestModelFor(entity, entity.GetEntityName());
+                }
             }
         }
 
