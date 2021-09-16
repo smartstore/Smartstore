@@ -190,7 +190,7 @@ namespace Smartstore.Core.Content.Media
 
         /// <summary>
         /// Internally used for migration stuff only.
-        /// 0 = needs migration 'cause existed in previous versions already, 1 = was migrated by migrator, 2 = relations has been detected.
+        /// 0 = needs migration because existed in previous versions already, 1 = was migrated by migrator, 2 = relations has been detected.
         /// </summary>
         [JsonIgnore]
         public int Version { get; set; } = 2;

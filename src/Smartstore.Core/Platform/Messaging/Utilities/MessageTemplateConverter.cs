@@ -31,16 +31,16 @@ namespace Smartstore.Core.Messaging.Utilities
         /// Loads a single message template from file and deserializes its XML content.
         /// </summary>
         /// <param name="templateName">Name of template without extension, e.g. 'GiftCard.Notification'</param>
-        /// <param name="language">Language</param>
-        /// <param name="virtualRootPath">The virtual root path of template to load, e.g. "~/Modules/MyModule/EmailTemplates". Default is "~/App_Data/EmailTemplates".</param>
+        /// <param name="culture">Language ISO code</param>
+        /// <param name="rootPath">The application root path of template to load, e.g. "/Modules/MyModule/App_Data/EmailTemplates". Default is "/App_Data/EmailTemplates".</param>
         /// <returns>Deserialized template xml</returns>
-        public MessageTemplate Load(string templateName, Language language, string virtualRootPath = null)
+        public MessageTemplate Load(string templateName, string culture, string rootPath = null)
         {
             Guard.NotEmpty(templateName, nameof(templateName));
-            Guard.NotNull(language, nameof(language));
+            Guard.NotEmpty(culture, nameof(culture));
 
             var root = _appContext.ContentRoot;
-            var dir = ResolveTemplateDirectory(language, virtualRootPath);
+            var dir = ResolveTemplateDirectory(culture, rootPath);
             var file = root.GetFile(root.PathCombine(dir.SubPath, templateName + ".xml"));
 
             if (!file.Exists)
@@ -52,16 +52,16 @@ namespace Smartstore.Core.Messaging.Utilities
         }
 
         /// <summary>
-        /// Loads all message templates from disk (~/App_Data/EmailTemplates/)
+        /// Loads all message templates from disk
         /// </summary>
-        /// <param name="language">Language</param>
-        /// <param name="virtualRootPath">The virtual root path of templates to load, e.g. "~/Modules/MyModule/EmailTemplates". Default is "~/App_Data/EmailTemplates".</param>
+        /// <param name="culture">Language ISO code</param>
+        /// <param name="rootPath">The application root path of templates to load, e.g. "/Modules/MyModule/App_Data/EmailTemplates". Default is "/App_Data/EmailTemplates".</param>
         /// <returns>List of deserialized template xml</returns>
-        public IEnumerable<MessageTemplate> LoadAll(Language language, string virtualRootPath = null)
+        public IEnumerable<MessageTemplate> LoadAll(string culture, string rootPath = null)
         {
-            Guard.NotNull(language, nameof(language));
+            Guard.NotEmpty(culture, nameof(culture));
 
-            var dir = ResolveTemplateDirectory(language, virtualRootPath);
+            var dir = ResolveTemplateDirectory(culture, rootPath);
             var files = dir.EnumerateFiles("*.xml");
 
             foreach (var file in files)
@@ -82,10 +82,10 @@ namespace Smartstore.Core.Messaging.Utilities
             return template;
         }
 
-        public XmlDocument Save(MessageTemplate template, Language language)
+        public XmlDocument Save(MessageTemplate template, string culture)
         {
             Guard.NotNull(template, nameof(template));
-            Guard.NotNull(language, nameof(language));
+            Guard.NotEmpty(culture, nameof(culture));
 
             var doc = new XmlDocument();
             doc.LoadXml("<?xml version=\"1.0\" encoding=\"utf-8\"?><MessageTemplate></MessageTemplate>");
@@ -99,7 +99,7 @@ namespace Smartstore.Core.Messaging.Utilities
             docRoot.AppendChild(doc.CreateElement("Body")).AppendChild(doc.CreateCDataSection(template.Body));
 
             var root = _appContext.ContentRoot;
-            var dir = root.GetDirectory(root.PathCombine("/App_Data/EmailTemplates", language.GetTwoLetterISOLanguageName()));
+            var dir = root.GetDirectory(root.PathCombine("/App_Data/EmailTemplates", culture));
             dir.Create();
 
             // File path
@@ -114,10 +114,10 @@ namespace Smartstore.Core.Messaging.Utilities
         /// <summary>
         /// Imports all template xml files to <see cref="MessageTemplate"/> table.
         /// </summary>
-        /// <param name="virtualRootPath">The virtual root path of templates to import, e.g. "~/Modules/MyModule/EmailTemplates". Default is "~/App_Data/EmailTemplates".</param>
-        public async Task ImportAllAsync(Language language, string virtualRootPath = null)
+        /// <param name="rootPath">The application root path of templates to import, e.g. "/Modules/MyModule/App_Data/EmailTemplates". Default is "/App_Data/EmailTemplates".</param>
+        public async Task ImportAllAsync(string culture, string rootPath = null)
         {
-            var sourceTemplates = LoadAll(language, virtualRootPath);
+            var sourceTemplates = LoadAll(culture, rootPath);
             var dbTemplatesMap = (await _db.MessageTemplates
                 .ToListAsync())
                 .ToMultimap(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
@@ -156,18 +156,19 @@ namespace Smartstore.Core.Messaging.Utilities
             await _db.SaveChangesAsync();
         }
 
-        private IDirectory ResolveTemplateDirectory(Language language, string virtualRootPath = null)
+        private IDirectory ResolveTemplateDirectory(string culture, string rootPath = null)
         {
             var root = _appContext.ContentRoot;
-            var dir = root.GetDirectory(virtualRootPath.NullEmpty() ?? "/App_Data/EmailTemplates/");
-            var testPaths = new[]
-            {
-                language.LanguageCulture,
-                language.GetTwoLetterISOLanguageName(),
-                "en"
-            };
+            var dir = root.GetDirectory(rootPath.NullEmpty() ?? "/App_Data/EmailTemplates/");
 
-            foreach (var path in testPaths.Select(x => root.PathCombine(dir.SubPath, x)))
+            // de-DE, de, en
+            var testPaths = new List<string>(3) { culture, "en" };
+            if (culture.IndexOf('-') > -1)
+            {
+                testPaths.Insert(1, culture.Substring(0, 2));
+            }
+
+            foreach (var path in testPaths.Select(x => PathUtility.Combine(dir.SubPath, x)))
             {
                 var subDir = root.GetDirectory(path);
                 if (subDir.Exists)
@@ -176,7 +177,7 @@ namespace Smartstore.Core.Messaging.Utilities
                 }
             }
 
-            throw new DirectoryNotFoundException($"Could not obtain an email templates path for language {language.LanguageCulture}. Fallback to 'en' failed, because directory does not exist.");
+            throw new DirectoryNotFoundException($"Could not obtain an email templates path for language {culture}. Fallback to 'en' failed, because directory does not exist.");
         }
 
         private static MessageTemplate DeserializeTemplate(IFile file)

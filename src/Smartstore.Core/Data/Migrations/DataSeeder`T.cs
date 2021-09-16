@@ -5,11 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Core.Content.Media;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
 using Smartstore.Domain;
-using Smartstore.IO;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -38,14 +36,6 @@ namespace Smartstore.Core.Data.Migrations
         protected TContext Context { get; set; }
         protected ILogger Logger { get; set; } = NullLogger.Instance;
         protected CancellationToken CancelToken { get; set; } = CancellationToken.None;
-
-        public bool TryLoadSampleFile(string path, out IFile file, out MediaFile mediaFile)
-        {
-            file = null;
-            mediaFile = null;
-
-            return false; 
-        }
 
         protected async Task PopulateAsync<TEntity>(string stage, IEnumerable<TEntity> entities)
             where TEntity : BaseEntity

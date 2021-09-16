@@ -164,7 +164,6 @@ namespace Smartstore.Core.Installation
                 await PopulateAsync("PopulateProductTags", _data.ProductTags());
                 ////////await Populate("PopulateForumsGroups", _data.ForumGroups());
                 ////////await Populate("PopulateForums", _data.Forums());
-                ////////await Populate("PopulateBlogPosts", PopulateBlogPosts);
                 ////////await Populate("PopulateNews", PopulateNewsItems);
                 ////////await Populate("PopulatePolls", _data.Polls());
                 Populate("FinalizeSamples", () => _data.FinalizeSamples());
@@ -404,7 +403,7 @@ namespace Smartstore.Core.Installation
         private async Task PopulateMessageTemplates()
         {
             var converter = new MessageTemplateConverter(Context, EngineContext.Current.Application);
-            await converter.ImportAllAsync(_config.Language);
+            await converter.ImportAllAsync(_config.Language.LanguageCulture);
         }
 
         private async Task PopulateCategories()

@@ -26,17 +26,14 @@ namespace Smartstore.Blog
 
         private async Task TrySeedData(ModuleInstallationContext context)
         {
-            if (context.SeedSampleData == null || context.SeedSampleData == true)
+            try
             {
-                try
-                {
-                    var seeder = new BlogSampleDataSeeder(context);
-                    await seeder.SeedAsync(Services.DbContext);
-                }
-                catch (Exception ex)
-                {
-                    context.Logger.Error(ex, "BlogSampleDataSeeder failed.");
-                }
+                var seeder = new BlogInstallationDataSeeder(context);
+                await seeder.SeedAsync(Services.DbContext);
+            }
+            catch (Exception ex)
+            {
+                context.Logger.Error(ex, "BlogSampleDataSeeder failed.");
             }
         }
 

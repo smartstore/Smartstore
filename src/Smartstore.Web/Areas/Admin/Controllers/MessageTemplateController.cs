@@ -450,7 +450,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             try
             {
                 var converter = new MessageTemplateConverter(_db, _appContext);
-                converter.Save(template, Services.WorkContext.WorkingLanguage);
+                converter.Save(template, Services.WorkContext.WorkingLanguage.LanguageCulture);
             }
             catch (Exception ex)
             {
@@ -491,7 +491,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         {
             // Hidden action for admins.
             var converter = new MessageTemplateConverter(_db, _appContext);
-            await converter.ImportAllAsync(Services.WorkContext.WorkingLanguage);
+            await converter.ImportAllAsync(Services.WorkContext.WorkingLanguage.LanguageCulture);
 
             NotifySuccess("All file based message templates imported successfully.");
 

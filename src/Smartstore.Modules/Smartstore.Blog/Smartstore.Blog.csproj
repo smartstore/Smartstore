@@ -4,6 +4,11 @@
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Blog</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
+	<ItemGroup>
+		<Content Include="App_Data\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
   <!--<ItemGroup>
     <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
       <Private>false</Private>

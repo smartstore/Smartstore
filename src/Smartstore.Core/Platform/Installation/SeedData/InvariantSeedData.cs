@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -39,8 +38,6 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 using Smartstore.Engine;
-using Smartstore.Imaging;
-using Smartstore.IO;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Installation
@@ -50,7 +47,7 @@ namespace Smartstore.Core.Installation
         private SmartDbContext _db;
         private Language _language;
         private IApplicationContext _appContext;
-        private IFileSystem _sampleImagesRoot;
+        private SampleMediaUtility _mediaUtility;
 
         protected InvariantSeedData()
         {
@@ -61,7 +58,7 @@ namespace Smartstore.Core.Installation
             _db = db;
             _language = primaryLanguage;
             _appContext = appContext;
-            _sampleImagesRoot = new LocalFileSystem(appContext.AppDataRoot.MapPath("Samples/"));
+            _mediaUtility = new SampleMediaUtility(db, "/App_Data/Samples");
         }
 
         #region Mandatory data creators
@@ -1475,9 +1472,11 @@ namespace Smartstore.Core.Installation
 
         #region Helpers
 
-        protected SmartDbContext DbContext => _db;
+        protected SmartDbContext DbContext 
+            => _db;
 
-        protected IFileSystem SampleImagesRoot => _sampleImagesRoot;
+        protected SampleMediaUtility MediaUtility 
+            => _mediaUtility;
 
         public virtual UrlRecord CreateUrlRecordFor<T>(T entity) where T : BaseEntity, ISlugSupported, new()
         {
@@ -1510,54 +1509,9 @@ namespace Smartstore.Core.Installation
             return null;
         }
 
-        protected MediaFile CreatePicture(string fileName, string seoFilename = null)
+        protected MediaFile CreatePicture(string fileName, string seoFileName = null)
         {
-            var file = _sampleImagesRoot.GetFile(fileName);
-
-            if (!file.Exists)
-            {
-                throw new FileNotFoundException($"Sample image file '{fileName}' does not exist.");
-            }
-
-            try
-            {
-                var ext = file.Extension;
-                var path = file.PhysicalPath;
-                var mimeType = MimeTypes.MapNameToMimeType(ext);
-                var buffer = file.ReadAllBytes();
-                var pixelSize = ImageHeader.GetPixelSize(buffer, mimeType);
-                var now = DateTime.UtcNow;
-
-                var name = seoFilename.HasValue()
-                    ? seoFilename.Truncate(100) + ext
-                    : file.Name.ToLower().Replace('_', '-');
-
-                var mediaFile = new MediaFile
-                {
-                    Name = name,
-                    MediaType = "image",
-                    MimeType = mimeType,
-                    Extension = ext.EmptyNull().TrimStart('.'),
-                    CreatedOnUtc = now,
-                    UpdatedOnUtc = now,
-                    Size = buffer.Length,
-                    MediaStorage = new MediaStorage { Data = buffer },
-                    Version = 1 // so that FolderId is set later during track detection
-                };
-
-                if (!pixelSize.IsEmpty)
-                {
-                    mediaFile.Width = pixelSize.Width;
-                    mediaFile.Height = pixelSize.Height;
-                }
-
-                return mediaFile;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-                throw;
-            }
+            return _mediaUtility.CreateMediaFileAsync(fileName, seoFileName).GetAwaiter().GetResult();
         }
 
         protected void AddProductPicture(

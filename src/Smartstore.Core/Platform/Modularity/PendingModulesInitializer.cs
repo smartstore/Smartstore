@@ -28,7 +28,7 @@ namespace Smartstore.Engine.Modularity
             if (modularState.PendingModules.Count == 0)
                 return;
 
-            var moduleCatalog = httpContext.RequestServices.GetRequiredService<IModuleCatalog>();
+            var appContext = httpContext.RequestServices.GetRequiredService<IApplicationContext>();
             var moduleManager = httpContext.RequestServices.GetRequiredService<ModuleManager>();
             var languageService = httpContext.RequestServices.GetRequiredService<ILanguageService>();
             var processedModules = new List<string>(modularState.PendingModules.Count);
@@ -36,6 +36,7 @@ namespace Smartstore.Engine.Modularity
 
             var installContext = new ModuleInstallationContext
             {
+                ApplicationContext = appContext,
                 Culture = languageService.GetMasterLanguageSeoCode(),
                 Stage = ModuleInstallationStage.ModuleInstallation,
                 Logger = Logger
@@ -50,7 +51,7 @@ namespace Smartstore.Engine.Modularity
                     continue;
                 }
                 
-                var descriptor = moduleCatalog.GetModuleByName(pendingModule);
+                var descriptor = appContext.ModuleCatalog.GetModuleByName(pendingModule);
 
                 if (descriptor == null)
                 {
@@ -61,6 +62,7 @@ namespace Smartstore.Engine.Modularity
                     try
                     {
                         var module = moduleManager.CreateInstance(descriptor);
+                        installContext.ModuleDescriptor = descriptor;
                         await module.InstallAsync(installContext);
                         Logger.Info("Successfully Installed module '{0}'.", pendingModule);
                     }

@@ -22,6 +22,16 @@ namespace Smartstore.Engine.Modularity
     public sealed class ModuleInstallationContext
     {
         /// <summary>
+        /// The application context.
+        /// </summary>
+        public IApplicationContext ApplicationContext { get; init; }
+
+        /// <summary>
+        /// The descriptor of module currently being installed.
+        /// </summary>
+        public IModuleDescriptor ModuleDescriptor { get; internal set; }
+        
+        /// <summary>
         /// Gets a value indicating whether sample data should be seeded. During 
         /// app installation, reflects the choice the user made in the install wizard.
         /// During module installation value is always <c>null</c>; in this case the module
@@ -30,7 +40,7 @@ namespace Smartstore.Engine.Modularity
         public bool? SeedSampleData { get; init; }
 
         /// <summary>
-        /// ISO culture code of the primary installation language.
+        /// ISO code of primary installation language.
         /// </summary>
         public string Culture { get; init; }
 

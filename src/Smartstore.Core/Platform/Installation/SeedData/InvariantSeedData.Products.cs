@@ -3807,67 +3807,34 @@ namespace Smartstore.Core.Installation
             {
                 if (product.Sku.EqualsNoCase("P-1017"))
                 {
-                    var buffer = _sampleImagesRoot.ReadAllBytes("download/beethoven-fur-elise.mp3");
                     product.SampleDownload = new Download
                     {
                         EntityId = product.Id,
                         EntityName = nameof(Product),
                         DownloadGuid = Guid.NewGuid(),
-                        MediaFile = new MediaFile
-                        {
-                            Name = "beethoven-fur-elise.mp3",
-                            MediaType = "audio",
-                            MimeType = "audio/mp3",
-                            Extension = "mp3",
-                            Size = buffer.Length,
-                            UpdatedOnUtc = now,
-                            CreatedOnUtc = now,
-                            MediaStorage = new MediaStorage { Data = buffer }
-                        },
+                        MediaFile = _mediaUtility.CreateMediaFileAsync("download/beethoven-fur-elise.mp3").Await(),
                         UpdatedOnUtc = now
                     };
                 }
                 else if (product.Sku.EqualsNoCase("P-1016"))
                 {
-                    var buffer = _sampleImagesRoot.ReadAllBytes("download/vivaldi-four-seasons-spring.mp3");
                     product.SampleDownload = new Download
                     {
                         EntityId = product.Id,
                         EntityName = nameof(Product),
                         DownloadGuid = Guid.NewGuid(),
-                        MediaFile = new MediaFile
-                        {
-                            Name = "vivaldi-four-seasons-spring.mp3",
-                            MediaType = "audio",
-                            MimeType = "audio/mp3",
-                            Extension = "mp3",
-                            Size = buffer.Length,
-                            UpdatedOnUtc = now,
-                            CreatedOnUtc = now,
-                            MediaStorage = new MediaStorage { Data = buffer }
-                        },
+                        MediaFile = _mediaUtility.CreateMediaFileAsync("download/vivaldi-four-seasons-spring.mp3").Await(),
                         UpdatedOnUtc = DateTime.UtcNow
                     };
                 }
                 else if (product.Sku.EqualsNoCase("P-6001"))
                 {
-                    var buffer = _sampleImagesRoot.ReadAllBytes("download/Stone_of_the_wise_preview.pdf");
                     product.SampleDownload = new Download
                     {
                         EntityId = product.Id,
                         EntityName = nameof(Product),
                         DownloadGuid = Guid.NewGuid(),
-                        MediaFile = new MediaFile
-                        {
-                            Name = "Stone_of_the_wise_preview.pdf",
-                            MediaType = "document",
-                            MimeType = "application/pdf",
-                            Extension = "pdf",
-                            Size = buffer.Length,
-                            UpdatedOnUtc = now,
-                            CreatedOnUtc = now,
-                            MediaStorage = new MediaStorage { Data = buffer }
-                        },
+                        MediaFile = _mediaUtility.CreateMediaFileAsync("download/Stone_of_the_wise_preview.pdf").Await(),
                         UpdatedOnUtc = DateTime.UtcNow
                     };
                 }

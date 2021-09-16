@@ -346,6 +346,7 @@ namespace Smartstore.Core.Installation
             {
                 var installContext = new ModuleInstallationContext
                 {
+                    ApplicationContext = _appContext,
                     SeedSampleData = model.InstallSampleData,
                     Culture = model.PrimaryLanguage,
                     Stage = ModuleInstallationStage.AppInstallation,
@@ -364,6 +365,7 @@ namespace Smartstore.Core.Installation
                         });
 
                         var moduleInstance = scope.Resolve<Func<IModuleDescriptor, IModule>>().Invoke(module);
+                        installContext.ModuleDescriptor = module;
                         await moduleInstance.InstallAsync(installContext);
                         await dbScope.CommitAsync(cancelToken);
                     }
