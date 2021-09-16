@@ -878,23 +878,6 @@ namespace Smartstore.Core.Messaging
         //    return m;
         //}
 
-        //protected virtual async Task<object> CreateModelPartAsync(ForumPost part, MessageContext messageContext)
-        //{
-        //    Guard.NotNull(messageContext, nameof(messageContext));
-        //    Guard.NotNull(part, nameof(part));
-
-        //    var m = new Dictionary<string, object>
-        //    {
-        //        { "Author", part.Customer.FormatUserName().NullEmpty() },
-        //        // TODO: (mh) (core) Uncomment when forum services are available.
-        //        //{ "Body", part.FormatPostText().NullEmpty() }
-        //    };
-
-        //    await PublishModelPartCreatedEventAsync(part, m);
-
-        //    return m;
-        //}
-
         //protected virtual async Task<object> CreateModelPartAsync(ForumPostVote part, MessageContext messageContext)
         //{
         //    Guard.NotNull(messageContext, nameof(messageContext));

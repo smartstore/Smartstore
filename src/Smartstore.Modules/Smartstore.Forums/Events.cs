@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ using Smartstore.Events;
 using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models;
 using Smartstore.Forums.Search.Modelling;
+using Smartstore.Forums.Services;
 using Smartstore.Templating;
 using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
@@ -151,14 +153,48 @@ namespace Smartstore.Forums
             }
         }
 
-        public Task HandleEventAsync(MessageModelPartMappingEvent message)
+        public async Task HandleEventAsync(MessageModelPartMappingEvent message, ICommonServices services, IForumService forumService)
         {
             // TODO: (mg) (core) handle MessageModelPartMappingEvent.
-            if (message.Source is ForumPost post)
+            if (message.Source is ForumTopic topic)
             {
-            }
+                var customer = services.WorkContext.CurrentCustomer;
+                var pageIndex = message.MessageContext.Model.GetFromBag<int>("TopicPageIndex");
+                var firstPost = await services.DbContext.ForumPosts()
+                    .AsNoTracking()
+                    .ApplyStandardFilter(customer, topic.Id)
+                    .FirstOrDefaultAsync();
 
-            return Task.CompletedTask;
+                // TODO: (mg) (core) build localized route URL for message model part.
+                //var url = pageIndex > 0 ?
+                //    BuildRouteUrl("TopicSlugPaged", new { id = part.Id, slug = part.GetSeName(), page = pageIndex }, messageContext) :
+                //    BuildRouteUrl("TopicSlug", new { id = part.Id, slug = part.GetSeName() }, messageContext);
+                string url = null;
+
+                message.Result = new Dictionary<string, object>
+                {
+                    { "Subject", topic.Subject.NullEmpty() },
+                    { "NumReplies", topic.NumReplies },
+                    { "NumPosts", topic.NumPosts },
+                    { "NumViews", topic.Views },
+                    { "Body", forumService.FormatPostText(firstPost).NullEmpty() },
+                    { "Url", url }
+                };
+
+                await services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<ForumTopic>(topic, message.Result));
+            }
+            else if (message.Source is ForumPost post)
+            {
+                await services.DbContext.LoadReferenceAsync(post, x => x.Customer);
+
+                message.Result = new Dictionary<string, object>
+                {
+                    { "Author", post.Customer.FormatUserName().NullEmpty() },
+                    { "Body", forumService.FormatPostText(post).NullEmpty() }
+                };
+
+                await services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<ForumPost>(post, message.Result));
+            }
         }
 
         // Add random forum data for message template preview.

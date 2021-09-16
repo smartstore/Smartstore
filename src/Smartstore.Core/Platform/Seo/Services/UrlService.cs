@@ -509,6 +509,7 @@ namespace Smartstore.Core.Seo
             {
                 // TODO: (core) ValidateSlugAsync returns a slug even if ensureNotEmpty is False -> slug for a specific language can no longer be deleted using "URL alias" field.
                 // RE: I don't get it. This code here bahaves exactly like before. Hmmm ??
+                // Edit ForumGroup > add localized name for all languages > save (localized URL alias is not empty anymore) > try to remove localized URL alias > save > localized URL alias not removed.
                 seName = displayName;
             }
 

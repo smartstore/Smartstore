@@ -15,16 +15,19 @@ using Smartstore.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 using Smartstore.Forums.Domain;
+using Smartstore.Utilities.Html;
 
 namespace Smartstore.Forums.Services
 {
     public partial class ForumService : AsyncDbSaveHook<Forum>, IForumService, IXmlSitemapPublisher
     {
         private readonly SmartDbContext _db;
+        private readonly ForumSettings _forumSettings;
 
-        public ForumService(SmartDbContext db)
+        public ForumService(SmartDbContext db, ForumSettings forumSettings)
         {
             _db = db;
+            _forumSettings = forumSettings;
         }
 
         protected override Task<HookResult> OnDeletingAsync(Forum entity, IHookedEntity entry, CancellationToken cancelToken)
@@ -86,6 +89,25 @@ namespace Smartstore.Forums.Services
             }
 
             return slug;
+        }
+
+        public virtual string FormatPostText(ForumPost forumPost)
+        {
+            var text = forumPost?.Text;
+            if (text.IsEmpty())
+            {
+                return string.Empty;
+            }
+
+            text = HtmlUtils.ConvertPlainTextToHtml(text.HtmlEncode());
+
+            if (_forumSettings.ForumEditor == EditorType.BBCodeEditor)
+            {
+                // TODO: (mg) (core) uncomment when BBCodeHelper is available.
+                //text = BBCodeHelper.ToHtml(text);
+            }
+
+            return text;
         }
 
         public XmlSitemapProvider PublishXmlSitemap(XmlSitemapBuildContext context)
