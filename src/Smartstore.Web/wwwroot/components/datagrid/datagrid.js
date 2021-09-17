@@ -736,10 +736,9 @@ Vue.component("sm-datagrid", {
 
             const self = this;
             self.cancelEdit();
-            self.isBusy = true;
-
+            
             const input = document.querySelector('input[name=__RequestVerificationToken]');
-            const command = $.extend(true, { __RequestVerificationToken: input.value }, this.command, {
+            const command = $.extend(true, { __RequestVerificationToken: input?.value }, this.command, {
                 initialRequest: initial,
                 gridId: this.options.stateKey,
                 path: location.pathname + location.search
@@ -756,8 +755,9 @@ Vue.component("sm-datagrid", {
             // Apply search filters to command
             this._applySearchFilters(command);
 
+            self.isBusy = true;
             self.$emit("data-binding", command);
-            
+
             $.ajax({
                 url: this.dataSource.read,
                 type: 'POST',
