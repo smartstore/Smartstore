@@ -12,7 +12,6 @@ namespace Smartstore.Blog.Migrations
     [MigrationVersion("2021-09-14 13:30:00", "Blog: Initial")]
     internal class Initial : Migration
     {
-        // TODO: (mh) (core) Check if database was initialized correctly when sample data is finished.
         public override void Up()
         {
             const string blogPost = "BlogPost";
@@ -24,7 +23,8 @@ namespace Smartstore.Blog.Migrations
             {
                 Create.Table(blogPost)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
-                    .WithColumn(nameof(BlogPost.Title)).AsString(4000).NotNullable()
+                    .WithColumn(nameof(BlogPost.Title)).AsString(450).NotNullable()
+                        .Indexed("IX_Title")
                     .WithColumn(nameof(BlogPost.Body)).AsString(int.MaxValue).Nullable()
                     .WithColumn(nameof(BlogPost.AllowComments)).AsBoolean().NotNullable()
                     .WithColumn(nameof(BlogPost.ApprovedCommentCount)).AsInt32().NotNullable()
@@ -57,12 +57,13 @@ namespace Smartstore.Blog.Migrations
             {
                 Create.Table(blogComment)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
-                        .Indexed("IX_Id")
-                        .ForeignKey(nameof(CustomerContent), id).OnDelete(Rule.None)
                     .WithColumn(nameof(BlogComment.CommentText)).AsString(int.MaxValue).Nullable()
                     .WithColumn(nameof(BlogComment.BlogPostId)).AsInt32().NotNullable()
-                        .Indexed("IX_BlogPostId")
-                        .ForeignKey(blogPost, id).OnDelete(Rule.None);
+                        .ForeignKey(blogPost, id).OnDelete(Rule.Cascade);
+
+                Create.ForeignKey()
+                    .FromTable(blogComment).ForeignColumn(id)
+                    .ToTable(nameof(CustomerContent)).PrimaryColumn(id);
             }
         }
 

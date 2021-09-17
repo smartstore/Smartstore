@@ -554,8 +554,7 @@ namespace Smartstore.Blog.Controllers
                 NotifySuccess(T("Blog.Comments.SuccessfullyAdded"));
 
                 var seName = await blogPost.GetActiveSlugAsync(ensureTwoPublishedLanguages: false);
-                // TODO: (mh) (core) #new-comment
-                var url = _linkGenerator.Value.GetPathByRouteValues("BlogPost", new { SeName = seName }, fragment: new FragmentString("#new-comment"));
+                var url = _linkGenerator.Value.GetPathByRouteValues("BlogPost", new { SeName = seName }, fragment: new FragmentString("#customer-comment-list"));
                 return Redirect(url);
             }
 

@@ -159,15 +159,14 @@ namespace Smartstore.Blog.Controllers
         #region Blog posts
 
         // AJAX.
-        public IActionResult AllBlogPosts(string selectedIds)
+        public async Task<IActionResult> AllBlogPostsAsync(string selectedIds)
         {
-            // TODO: (mh) (core) ALWAYS make DB access async!!! Don't just copy & paste shit over!
             var query = _db.BlogPosts().AsNoTracking();
             var pager = new FastPager<BlogPost>(query, 500);
             var allBlogPosts = new List<dynamic>();
             var ids = selectedIds.ToIntArray().ToList();
 
-            while (pager.ReadNextPage(out var blogPosts))
+            while ((await pager.ReadNextPageAsync<BlogPost>()).Out(out var blogPosts))
             {
                 foreach (var blogPost in blogPosts)
                 {

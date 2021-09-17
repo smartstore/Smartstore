@@ -206,7 +206,7 @@ namespace Smartstore.Web.Infrastructure
                 item.Value.RouteValues["area"] = string.Empty;
             }
 
-            // TODO: (mh) (core) Append items from Forum module.
+            // TODO: (mh) (core) Append items from Forum external module.
             //if (_forumSettings.ForumsEnabled && _forumSettings.AllowCustomersToManageSubscriptions)
             //{
             //    root.Append(new MenuItem

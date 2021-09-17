@@ -66,11 +66,15 @@
         <column for="AllowComments" halign="center" visible="false" />
         <column for="DisplayTagsInPreview" halign="center" visible="false" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
-        @*TODO: (mh) (core) Won't be displayed. Why? *@
         <column for="StartDate" entity-member="StartDateUtc" visible="false" />
         <column for="EndDate" entity-member="EndDateUtc" visible="false" />
-        @*TODO: (mh) (core) Render select box on edit *@
-        @*<column for="Tags" visible="false" readonly="true" />*@
+        <column for="Tags" readonly="true">
+            <display-template>
+                <span v-for="tag in item.value" class="badge p-1 badge-primary"> 
+                    {{ tag }} 
+                </span>
+            </display-template>
+        </column>
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>

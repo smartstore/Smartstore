@@ -66,7 +66,7 @@ namespace Smartstore.Admin.Controllers
 
                     if (specOptions.ContainsKey(attributeId))
                     {
-                        psaModel.SpecificationAttributeOptionsUrl = Url.Action("GetOptionsByAttributeId", "SpecificationAttribute", new { attributeId = attributeId });
+                        psaModel.SpecificationAttributeOptionsUrl = Url.Action("GetOptionsByAttributeId", "SpecificationAttribute", new { attributeId });
                     }
 
                     return psaModel;

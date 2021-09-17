@@ -11,7 +11,7 @@ namespace Smartstore.Blog.Filters
     {
         private readonly BlogSettings _blogSettings;
         private readonly IWidgetProvider _widgetProvider;
-        private readonly ICommonServices _services;
+        private readonly ICommonServices _services; // TODO: Use Localization Service
         private readonly Lazy<IUrlHelper> _urlHelper;
 
         public BlogMenuItemFilter(BlogSettings blogSettings, IWidgetProvider widgetProvider, ICommonServices services, Lazy<IUrlHelper> urlHelper)
