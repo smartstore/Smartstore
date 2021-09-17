@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Blog.Domain;
-using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -103,6 +102,17 @@ namespace Smartstore.Blog
             if (blogComments.Any())
             {
                 message.Result["BlogComments"] = blogComments.Select(async x => await messageModelProvider.CreateModelPartAsync(x, true)).ToList();
+            }
+        }
+
+        public static void HandleEvent(CustomerAnonymizedEvent message)
+        {
+            foreach (var item in message.Customer.CustomerContent)
+            {
+                if (item is BlogComment comment)
+                {
+                    message.AnonymizeData(comment, x => x.CommentText, IdentifierDataType.LongText, message.Language);
+                }
             }
         }
     }

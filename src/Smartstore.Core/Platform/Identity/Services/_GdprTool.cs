@@ -143,13 +143,6 @@ namespace Smartstore.Core.Identity
 				//	model["NewsComments"] = newsComments.Select(x => _messageModelProvider.CreateModelPart(x, true)).ToList();
 				//}
 
-				//// Blog comments
-				//var blogComments = customer.CustomerContent.OfType<BlogComment>();
-				//if (blogComments.Any())
-				//{
-				//	model["BlogComments"] = blogComments.Select(x => _messageModelProvider.CreateModelPart(x, true)).ToList();
-				//}
-
 				// Product review helpfulness
 				var helpfulness = customer.CustomerContent.OfType<ProductReviewHelpfulness>();
 				if (helpfulness.Any())
@@ -331,6 +324,8 @@ namespace Smartstore.Core.Identity
 			await _db.ShoppingCartItems
 				.ApplyExpiredCartItemsFilter(DateTime.UtcNow, customer)
 				.BatchDeleteAsync();
+
+			await _eventPublisher.PublishAsync(new CustomerAnonymizedEvent(customer, language, this));
 
 			// Log
 			Logger.Info(T("Gdpr.Anonymize.Success", language.Id, customerName));
