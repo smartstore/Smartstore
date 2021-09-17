@@ -15,7 +15,6 @@ using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
 using Smartstore.Events;
 using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models;
@@ -32,7 +31,7 @@ namespace Smartstore.Forums
 {
     public class Events : IConsumer
     {
-        public Localizer T { get; set; }
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         // Add menu item for ForumSettings to settings menu.
         public async Task HandleEventAsync(MenuBuiltEvent message, IPermissionService permissions)
@@ -285,15 +284,55 @@ namespace Smartstore.Forums
                 var count = await db.ForumPosts().CountAsync();
                 var skip = CommonHelper.GenerateRandomInteger(0, count);
 
-                message.Result = await db.ForumPosts()
-                    .Include(x => x.ForumTopic)
-                    .ThenInclude(x => x.Forum)
-                    .Include(x => x.ForumPostVotes)
-                    .Include(x => x.Customer)
-                    .AsNoTracking()
-                    .OrderBy(x => x.Id)
-                    .Skip(skip)
-                    .FirstOrDefaultAsync();
+                if (count > 0)
+                {
+                    message.Result = await db.ForumPosts()
+                        .Include(x => x.ForumTopic)
+                        .ThenInclude(x => x.Forum)
+                        .Include(x => x.ForumPostVotes)
+                        .Include(x => x.Customer)
+                        .AsNoTracking()
+                        .OrderBy(x => x.Id)
+                        .Skip(skip)
+                        .FirstOrDefaultAsync();
+                }
+                else
+                {
+                    var post = new ForumPost
+                    {
+                        Text = "Seamlessly plagiarize intermandated 'outside the box' leading-edge process improvements. Collaboratively optimize markets vis-a-vis resource-leveling.",
+                        CreatedOnUtc = DateTime.UtcNow
+                    };
+
+                    message.Result = engine.CreateTestModelFor(post, post.GetEntityName());
+                }
+            }
+            else if (message.ModelName.EqualsNoCase(nameof(ForumTopic)))
+            {
+                var count = await db.ForumTopics().CountAsync();
+                var skip = CommonHelper.GenerateRandomInteger(0, count);
+
+                if (count > 0)
+                {
+                    message.Result = await db.ForumTopics()
+                        .Include(x => x.Forum)
+                        .Include(x => x.Customer)
+                        .AsNoTracking()
+                        .OrderBy(x => x.Id)
+                        .Skip(skip)
+                        .FirstOrDefaultAsync();
+                }
+                else
+                {
+                    var topic = new ForumTopic
+                    {
+                        Subject = "Synergistically whiteboard timely action items before parallel collaboration and idea-sharing. Enthusiastically deliver.",
+                        CreatedOnUtc = DateTime.UtcNow,
+                        Views = 254
+                    };
+
+                    message.Result = engine.CreateTestModelFor(topic, topic.GetEntityName());
+                }
             }
         }
 

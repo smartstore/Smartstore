@@ -31,7 +31,7 @@ namespace Smartstore.Core.Seo
                 "passwordrecovery",
                 "subscribenewsletter",
                 "blog",
-                "boards",
+                "forum",
                 "inboxupdate",
                 "sentupdate",
                 "news",
