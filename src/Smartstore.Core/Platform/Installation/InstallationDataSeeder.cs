@@ -15,7 +15,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messaging.Utilities;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Theming;
@@ -29,6 +29,7 @@ namespace Smartstore.Core.Installation
     public partial class InstallationDataSeeder : DataSeeder<SmartDbContext>
     {
         private readonly DbMigrator<SmartDbContext> _migrator;
+        private readonly IMessageTemplateService _messageTemplateService;
         private readonly SeedDataConfiguration _config;
         private readonly IHttpContextAccessor _httpContextAccessor;
         
@@ -40,6 +41,7 @@ namespace Smartstore.Core.Installation
         public InstallationDataSeeder(
             IApplicationContext appContext,
             DbMigrator<SmartDbContext> migrator,
+            IMessageTemplateService messageTemplateService,
             SeedDataConfiguration configuration,
             ILogger logger,
             IHttpContextAccessor httpContextAccessor)
@@ -52,6 +54,7 @@ namespace Smartstore.Core.Installation
             Guard.NotNull(httpContextAccessor, nameof(httpContextAccessor));
 
             _migrator = migrator;
+            _messageTemplateService = messageTemplateService;
             _config = configuration;
             _httpContextAccessor = httpContextAccessor;
             _data = configuration.Data;
@@ -374,8 +377,7 @@ namespace Smartstore.Core.Installation
 
         private async Task PopulateMessageTemplates()
         {
-            var converter = new MessageTemplateConverter(Context, EngineContext.Current.Application);
-            await converter.ImportAllAsync(_config.Language.LanguageCulture);
+            await _messageTemplateService.ImportAllTemplatesAsync(_config.Language.LanguageCulture);
         }
 
         private async Task PopulateCategories()

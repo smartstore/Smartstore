@@ -8,33 +8,93 @@ using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
 using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Messaging.Utilities
+namespace Smartstore.Core.Messaging
 {
-    public sealed class MessageTemplateConverter
+    public class MessageTemplateService : IMessageTemplateService
     {
         private readonly SmartDbContext _db;
         private readonly IApplicationContext _appContext;
+        private readonly ILanguageService _languageService;
+        private readonly ILocalizedEntityService _locEntityService;
+        private readonly IStoreMappingService _storeMappingService;
         private readonly EmailAccount _defaultEmailAccount;
 
-        public MessageTemplateConverter(SmartDbContext db, IApplicationContext appContext)
+        public MessageTemplateService(
+            SmartDbContext db, 
+            IApplicationContext appContext,
+            ILanguageService languageService,
+            ILocalizedEntityService locEntityService,
+            IStoreMappingService storeMappingService)
         {
-            _db = Guard.NotNull(db, nameof(db));
-            _appContext = Guard.NotNull(appContext, nameof(appContext));
+            _db = db;
+            _appContext = appContext;
+            _languageService = languageService;
+            _locEntityService = locEntityService;
+            _storeMappingService = storeMappingService;
             _defaultEmailAccount = _db.Set<EmailAccount>().FirstOrDefault(x => x.Email != null);
         }
 
-        /// <summary>
-        /// Loads a single message template from file and deserializes its XML content.
-        /// </summary>
-        /// <param name="templateName">Name of template without extension, e.g. 'GiftCard.Notification'</param>
-        /// <param name="culture">Language ISO code</param>
-        /// <param name="rootPath">The application root path of template to load, e.g. "/Modules/MyModule/App_Data/EmailTemplates". Default is "/App_Data/EmailTemplates".</param>
-        /// <returns>Deserialized template xml</returns>
-        public MessageTemplate Load(string templateName, string culture, string rootPath = null)
+        public async Task<MessageTemplate> CopyTemplateAsync(MessageTemplate source)
+        {
+            Guard.NotNull(source, nameof(source));
+
+            var copy = new MessageTemplate
+            {
+                Name = source.Name,
+                To = source.To,
+                ReplyTo = source.ReplyTo,
+                ModelTypes = source.ModelTypes,
+                LastModelTree = source.LastModelTree,
+                BccEmailAddresses = source.BccEmailAddresses,
+                Subject = source.Subject,
+                Body = source.Body,
+                IsActive = source.IsActive,
+                EmailAccountId = source.EmailAccountId,
+                LimitedToStores = source.LimitedToStores
+                // INFO: we do not copy attachments
+            };
+
+            _db.MessageTemplates.Add(copy);
+            await _db.SaveChangesAsync();
+
+            var languages = await _languageService.GetAllLanguagesAsync(true);
+
+            // Localization
+            foreach (var lang in languages)
+            {
+                var bccEmailAddresses = source.GetLocalized(x => x.BccEmailAddresses, lang, false, false);
+                if (bccEmailAddresses.HasValue())
+                    await _locEntityService.ApplyLocalizedValueAsync(copy, x => x.BccEmailAddresses, bccEmailAddresses, lang.Id);
+
+                var subject = source.GetLocalized(x => x.Subject, lang, false, false);
+                if (subject.HasValue())
+                    await _locEntityService.ApplyLocalizedValueAsync(copy, x => x.Subject, subject, lang.Id);
+
+                var body = source.GetLocalized(x => x.Body, lang, false, false);
+                if (body.HasValue())
+                    await _locEntityService.ApplyLocalizedValueAsync(copy, x => x.Body, subject, lang.Id);
+
+                var emailAccountId = source.GetLocalized(x => x.EmailAccountId, lang, false, false);
+                if (emailAccountId > 0)
+                    await _locEntityService.ApplyLocalizedValueAsync(copy, x => x.EmailAccountId, emailAccountId, lang.Id);
+            }
+
+            // Store mappings
+            var selectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(source);
+            await _storeMappingService.ApplyStoreMappingsAsync(copy, selectedStoreIds);
+
+            // Save now
+            await _db.SaveChangesAsync();
+
+            return copy;
+        }
+
+        public MessageTemplate LoadTemplate(string templateName, string culture, string rootPath = null)
         {
             Guard.NotEmpty(templateName, nameof(templateName));
             Guard.NotEmpty(culture, nameof(culture));
@@ -51,13 +111,7 @@ namespace Smartstore.Core.Messaging.Utilities
             return DeserializeTemplate(file);
         }
 
-        /// <summary>
-        /// Loads all message templates from disk
-        /// </summary>
-        /// <param name="culture">Language ISO code</param>
-        /// <param name="rootPath">The application root path of templates to load, e.g. "/Modules/MyModule/App_Data/EmailTemplates". Default is "/App_Data/EmailTemplates".</param>
-        /// <returns>List of deserialized template xml</returns>
-        public IEnumerable<MessageTemplate> LoadAll(string culture, string rootPath = null)
+        public IEnumerable<MessageTemplate> LoadAllTemplates(string culture, string rootPath = null)
         {
             Guard.NotEmpty(culture, nameof(culture));
 
@@ -72,7 +126,7 @@ namespace Smartstore.Core.Messaging.Utilities
             }
         }
 
-        public MessageTemplate Deserialize(string xml, string templateName)
+        public MessageTemplate DeserializeTemplate(string xml, string templateName)
         {
             Guard.NotEmpty(xml, nameof(xml));
             Guard.NotEmpty(templateName, nameof(templateName));
@@ -82,7 +136,7 @@ namespace Smartstore.Core.Messaging.Utilities
             return template;
         }
 
-        public XmlDocument Save(MessageTemplate template, string culture)
+        public XmlDocument SaveTemplate(MessageTemplate template, string culture)
         {
             Guard.NotNull(template, nameof(template));
             Guard.NotEmpty(culture, nameof(culture));
@@ -111,13 +165,9 @@ namespace Smartstore.Core.Messaging.Utilities
             return doc;
         }
 
-        /// <summary>
-        /// Imports all template xml files to <see cref="MessageTemplate"/> table.
-        /// </summary>
-        /// <param name="rootPath">The application root path of templates to import, e.g. "/Modules/MyModule/App_Data/EmailTemplates". Default is "/App_Data/EmailTemplates".</param>
-        public async Task ImportAllAsync(string culture, string rootPath = null)
+        public async Task ImportAllTemplatesAsync(string culture, string rootPath = null)
         {
-            var sourceTemplates = LoadAll(culture, rootPath);
+            var sourceTemplates = LoadAllTemplates(culture, rootPath);
             var dbTemplatesMap = (await _db.MessageTemplates
                 .ToListAsync())
                 .ToMultimap(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);

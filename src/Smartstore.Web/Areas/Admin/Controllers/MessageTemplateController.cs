@@ -12,7 +12,6 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
-using Smartstore.Core.Messaging.Utilities;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -30,6 +29,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         private readonly IApplicationContext _appContext;
         private readonly IMemoryCache _memCache;
         private readonly ICampaignService _campaignService;
+        private readonly IMessageTemplateService _messageTemplateService;
         private readonly IMessageFactory _messageFactory;
         private readonly IEmailAccountService _emailAccountService;
         private readonly IMailService _mailService;
@@ -46,6 +46,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             IApplicationContext appContext,
             IMemoryCache memCache,
             ICampaignService campaignService,
+            IMessageTemplateService messageTemplateService,
             IMessageFactory messageFactory,
             IEmailAccountService emailAccountService,
             IMailService mailService,
@@ -61,6 +62,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             _appContext = appContext;
             _memCache = memCache;
             _campaignService = campaignService;
+            _messageTemplateService = messageTemplateService;
             _messageFactory = messageFactory;
             _emailAccountService = emailAccountService;
             _mailService = mailService;
@@ -446,11 +448,10 @@ namespace Smartstore.Web.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-
+            
             try
             {
-                var converter = new MessageTemplateConverter(_db, _appContext);
-                converter.Save(template, Services.WorkContext.WorkingLanguage.LanguageCulture);
+                _messageTemplateService.SaveTemplate(template, Services.WorkContext.WorkingLanguage.LanguageCulture);
             }
             catch (Exception ex)
             {
@@ -473,11 +474,9 @@ namespace Smartstore.Web.Areas.Admin.Controllers
 
             try
             {
-                // TODO: (mh) (core) No service method to copy MessageTemplate available. Implement!
-                //var newMessageTemplate = _messageTemplateService.CopyMessageTemplate(messageTemplate);
-                NotifySuccess(_localizationService.GetResource("Admin.ContentManagement.MessageTemplates.SuccessfullyCopied"));
-                //return RedirectToAction("Edit", new { id = newMessageTemplate.Id });
-                return RedirectToAction("Edit", new { id = model.Id });
+                var newTemplate = await _messageTemplateService.CopyTemplateAsync(template);
+                NotifySuccess(T("Admin.ContentManagement.MessageTemplates.SuccessfullyCopied"));
+                return RedirectToAction("Edit", new { id = newTemplate.Id });
             }
             catch (Exception exc)
             {
@@ -490,8 +489,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
         public async Task<IActionResult> ImportAllTemplates()
         {
             // Hidden action for admins.
-            var converter = new MessageTemplateConverter(_db, _appContext);
-            await converter.ImportAllAsync(Services.WorkContext.WorkingLanguage.LanguageCulture);
+            await _messageTemplateService.ImportAllTemplatesAsync(Services.WorkContext.WorkingLanguage.LanguageCulture);
 
             NotifySuccess("All file based message templates imported successfully.");
 

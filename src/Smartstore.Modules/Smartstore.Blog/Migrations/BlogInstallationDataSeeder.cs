@@ -4,7 +4,7 @@ using Smartstore.Blog.Domain;
 using Smartstore.Blog.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
-using Smartstore.Core.Messaging.Utilities;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
@@ -14,11 +14,13 @@ namespace Smartstore.Blog.Migrations
     internal class BlogInstallationDataSeeder : DataSeeder<SmartDbContext>
     {
         private readonly ModuleInstallationContext _installContext;
+        private readonly IMessageTemplateService _messageTemplateService;
 
-        public BlogInstallationDataSeeder(ModuleInstallationContext installContext)
+        public BlogInstallationDataSeeder(ModuleInstallationContext installContext, IMessageTemplateService messageTemplateService)
             : base(installContext.ApplicationContext, installContext.Logger)
         {
             _installContext = Guard.NotNull(installContext, nameof(installContext));
+            _messageTemplateService = Guard.NotNull(messageTemplateService, nameof(messageTemplateService));
         }
 
         protected override async Task SeedCoreAsync()
@@ -33,8 +35,7 @@ namespace Smartstore.Blog.Migrations
 
         private async Task PopulateMessageTemplates()
         {
-            var converter = new MessageTemplateConverter(Context, _installContext.ApplicationContext);
-            await converter.ImportAllAsync(
+            await _messageTemplateService.ImportAllTemplatesAsync(
                 _installContext.Culture, 
                 PathUtility.Combine(_installContext.ModuleDescriptor.Path, "App_Data/EmailTemplates"));
         }

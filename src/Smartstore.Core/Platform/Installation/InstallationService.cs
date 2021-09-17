@@ -18,6 +18,7 @@ using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Providers;
@@ -236,7 +237,8 @@ namespace Smartstore.Core.Installation
                 cancelToken.ThrowIfCancellationRequested();
 
                 // ===>>> Seeds data.
-                var seeder = new InstallationDataSeeder(_appContext, migrator, seedConfiguration, Logger, _httpContextAccessor);
+                var templateService = scope.Resolve<IMessageTemplateService>(TypedParameter.From(db));
+                var seeder = new InstallationDataSeeder(_appContext, migrator, templateService, seedConfiguration, Logger, _httpContextAccessor);
                 await seeder.SeedAsync(db, cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 
