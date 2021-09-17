@@ -27,10 +27,8 @@ namespace Smartstore.Blog.Filters
             if (!_blogSettings.Enabled)
                 return;
 
-            var result = filterContext.Result;
-
             // should only run on a full view rendering result or HTML ContentResult
-            if (!result.IsHtmlViewResult())
+            if (!filterContext.Result.IsHtmlViewResult())
                 return;
 
             var html = $"<a class='menubar-link' href='{_urlHelper.Value.RouteUrl("Blog")}'>{_services.Localization.GetResource("Blog")}</a>";

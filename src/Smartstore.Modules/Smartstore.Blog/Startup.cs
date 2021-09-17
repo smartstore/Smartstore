@@ -30,6 +30,10 @@ namespace Smartstore.Blog
             {
                 o.Filters.AddConditional<BlogMenuItemFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
+
+                // INFO: (mh) (core) Filters don't inject by magic
+                o.Filters.AddConditional<RssHeaderLinkFilter>(
+                    context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
             });
         }
 
