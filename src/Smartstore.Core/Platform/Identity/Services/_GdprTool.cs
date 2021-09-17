@@ -27,7 +27,6 @@ namespace Smartstore.Core.Identity
     {
 		private readonly SmartDbContext _db;
 		private readonly IMessageModelProvider _messageModelProvider;
-		private readonly IGenericAttributeService _genericAttributeService;
 		private readonly IWorkContext _workContext;
 		private readonly IEventPublisher _eventPublisher;
 
@@ -36,13 +35,11 @@ namespace Smartstore.Core.Identity
 		public GdprTool(
 			SmartDbContext db,
 			IMessageModelProvider messageModelProvider,
-			IGenericAttributeService genericAttributeService,
 			IWorkContext workContext,
 			IEventPublisher eventPublisher)
 		{
 			_db = db;
 			_messageModelProvider = messageModelProvider;
-			_genericAttributeService = genericAttributeService;
 			_workContext = workContext;
 			_eventPublisher = eventPublisher;
 		}
@@ -68,14 +65,15 @@ namespace Smartstore.Core.Identity
 				model["CustomerRoles"] = customer.CustomerRoleMappings.Select(x => x.CustomerRole.Name).ToArray();
 
 				// Generic attributes
-				var attributes = _genericAttributeService.GetAttributesForEntity("Customer", customer.Id);
+				var attributes = customer.GenericAttributes;
 				if (attributes.Entities.Any())
 				{
-					model["Attributes"] = await _messageModelProvider.CreateModelPartAsync(attributes, true);
+					// INFO: (mh) (core) Be careful please!! This shit here will result in pesky runtime errors later.
+					model["Attributes"] = await _messageModelProvider.CreateModelPartAsync(attributes.Entities, true);
 				}
 
 				// Order history
-				var orders = customer.Orders.Where(x => !x.Deleted);
+				var orders = customer.Orders; // INFO: (mh) (core) Global query filter!
 				if (orders.Any())
 				{
 					ignoreMemberNames = new string[]
@@ -87,21 +85,22 @@ namespace Smartstore.Core.Identity
 						"Billing.NameLine", "Billing.StreetLine", "Billing.CityLine", "Billing.CountryLine",
 						"Shipping.NameLine", "Shipping.StreetLine", "Shipping.CityLine", "Shipping.CountryLine"
 					};
-					model["Orders"] = orders.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).ToList();
+					// INFO: (mh) (core) WTF!!!!!!
+					model["Orders"] = await orders.SelectAsync(x => _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).AsyncToList();
 				}
 
 				// Return Request
 				var returnRequests = customer.ReturnRequests;
 				if (returnRequests.Any())
 				{
-					model["ReturnRequests"] = returnRequests.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, "Url")).ToList();
+					model["ReturnRequests"] = await returnRequests.SelectAsync(x => _messageModelProvider.CreateModelPartAsync(x, true, "Url")).AsyncToList();
 				}
 
 				// Wallet
 				var walletHistory = customer.WalletHistory;
 				if (walletHistory.Any())
 				{
-					model["WalletHistory"] = walletHistory.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, "WalletUrl")).ToList();
+					model["WalletHistory"] = await walletHistory.SelectAsync(x => _messageModelProvider.CreateModelPartAsync(x, true, "WalletUrl")).AsyncToList();
 				}
 
 				// TODO: (mg) (core) Handle in external module
@@ -132,7 +131,7 @@ namespace Smartstore.Core.Identity
 				var productReviews = customer.CustomerContent.OfType<ProductReview>();
 				if (productReviews.Any())
 				{
-					model["ProductReviews"] = productReviews.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true)).ToList();
+					model["ProductReviews"] = await productReviews.SelectAsync(x => _messageModelProvider.CreateModelPartAsync(x, true)).AsyncToList();
 				}
 
 				// TODO: (mh) (core) Handle in external module
@@ -148,7 +147,7 @@ namespace Smartstore.Core.Identity
 				if (helpfulness.Any())
 				{
 					ignoreMemberNames = new string[] { "CustomerId", "UpdatedOn" };
-					model["ProductReviewHelpfulness"] = helpfulness.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).ToList();
+					model["ProductReviewHelpfulness"] = await helpfulness.SelectAsync(x => _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).AsyncToList();
 				}
 
 				// TODO: (mh) (core) Handle in external module
@@ -176,7 +175,7 @@ namespace Smartstore.Core.Identity
 					
 				if (backInStockSubscriptions.Any())
 				{
-					model["BackInStockSubscriptions"] = backInStockSubscriptions.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, "CustomerId")).ToList();
+					model["BackInStockSubscriptions"] = await backInStockSubscriptions.SelectAsync(x => _messageModelProvider.CreateModelPartAsync(x, true, "CustomerId")).AsyncToList();
 				}
 
 				// INFO: we're not going to export: 
@@ -193,6 +192,7 @@ namespace Smartstore.Core.Identity
 
 		public async Task AnonymizeCustomerAsync(Customer customer, bool pseudomyzeContent)
         {
+			// TODO: (mh) (core) AnonymizeCustomerHook is missing
 			Guard.NotNull(customer, nameof(customer));
 
 			var language = GetLanguage(customer);
@@ -204,6 +204,7 @@ namespace Smartstore.Core.Identity
 			// Unassign roles
 			await _db.LoadCollectionAsync(customer, x => x.CustomerRoleMappings);
 			var roleMappings = customer.CustomerRoleMappings.ToList();
+			// TODO: (mh) (core) Wrong and fragile. Does not what it is meant to do.
 			var guestRole = await _db.CustomerRoles.FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Guests);
 			var insertGuestMapping = !roleMappings.Any(x => x.CustomerRoleId == guestRole.Id);
 
@@ -238,6 +239,11 @@ namespace Smartstore.Core.Identity
 			AnonymizeData(customer, x => x.Username, IdentifierDataType.UserName, language);
 			AnonymizeData(customer, x => x.Email, IdentifierDataType.EmailAddress, language);
 			AnonymizeData(customer, x => x.LastIpAddress, IdentifierDataType.IpAddress, language);
+			// TODO: (mh) (core) Why were these missing?
+			AnonymizeData(customer, x => x.FirstName, IdentifierDataType.Name, language);
+			AnonymizeData(customer, x => x.LastName, IdentifierDataType.Name, language);
+			AnonymizeData(customer, x => x.BirthDate, IdentifierDataType.DateTime, language);
+
 			if (pseudomyzeContent)
 			{
 				AnonymizeData(customer, x => x.AdminComment, IdentifierDataType.LongText, language);
@@ -325,7 +331,7 @@ namespace Smartstore.Core.Identity
 				.ApplyExpiredCartItemsFilter(DateTime.UtcNow, customer)
 				.BatchDeleteAsync();
 
-			await _eventPublisher.PublishAsync(new CustomerAnonymizedEvent(customer, language, this));
+			await _eventPublisher.PublishAsync(new CustomerAnonymizedEvent(this, customer, language));
 
 			// Log
 			Logger.Info(T("Gdpr.Anonymize.Success", language.Id, customerName));
@@ -436,7 +442,7 @@ namespace Smartstore.Core.Identity
 				}
 
 				// Keep the first 3 bytes and append ".0"
-				return string.Join(".", ip.GetAddressBytes().Take(3)) + ".0";
+				return string.Join('.', ip.GetAddressBytes().Take(3)) + ".0";
 			}
 			catch
 			{

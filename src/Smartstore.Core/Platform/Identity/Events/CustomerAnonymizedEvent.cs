@@ -10,33 +10,17 @@ namespace Smartstore.Core.Identity
     /// </summary>
     public class CustomerAnonymizedEvent
     {
-        private readonly IGdprTool _gdprTool;
-
-        public CustomerAnonymizedEvent(Customer customer, Language language, IGdprTool gdprTool)
+        public CustomerAnonymizedEvent(IGdprTool tool, Customer customer, Language language)
         {
-            Guard.NotNull(customer, nameof(customer));
-
-            Customer = customer;
-            Language = language;
-            _gdprTool = gdprTool;
+            GdprTool = Guard.NotNull(tool, nameof(tool));
+            Customer = Guard.NotNull(customer, nameof(customer));
+            Language = Guard.NotNull(language, nameof(language));
         }
 
-        public Customer Customer { get; private set; }
+        public IGdprTool GdprTool { get; }
 
-        public Language Language { get; private set; }
+        public Customer Customer { get; }
 
-        /// <summary>
-        /// Anonymizes a part of the customer entity.
-        /// </summary>
-        /// <typeparam name="T">The type of the entity to anonymize.</typeparam>
-		/// <param name="entity">The entity instance that contains the data.</param>
-		/// <param name="expression">The expression to the property that holds the data.</param>
-		/// <param name="type">The value kind.</param>
-		/// <param name="language">Language for data masking.</param>
-        public void AnonymizeData<TEntity>(TEntity entity, Expression<Func<TEntity, object>> expression, IdentifierDataType type, Language language = null)
-            where TEntity : BaseEntity
-        {
-            _gdprTool.AnonymizeData(entity, expression, type, language);
-        }
+        public Language Language { get; }
     }
 }

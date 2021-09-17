@@ -25,7 +25,8 @@ namespace Smartstore.Blog
             _db = db;
         }
 
-        public async Task HandleEventAsync(PreviewModelResolveEvent message, ITemplateEngine engine)
+        public async Task HandleEventAsync(PreviewModelResolveEvent message, 
+            ITemplateEngine engine)
         {
             if (message.ModelName == nameof(BlogComment))
             {
@@ -60,7 +61,9 @@ namespace Smartstore.Blog
             return result;
         }
 
-        public async Task HandleEventAsync(MessageModelPartMappingEvent message, IUrlHelper urlHelper, IEventPublisher eventPublisher)
+        public async Task HandleEventAsync(MessageModelPartMappingEvent message, 
+            IUrlHelper urlHelper, 
+            IEventPublisher eventPublisher)
         {
             if (message.Source is BlogComment part)
             {
@@ -91,28 +94,26 @@ namespace Smartstore.Blog
             return m;
         }
 
-        public async Task HandleEventAsync(CustomerExportedEvent message, MessageModelProvider messageModelProvider)
+        public async Task HandleEventAsync(CustomerExportedEvent message, 
+            IMessageModelProvider messageModelProvider)
         {
-            var blogComments = await _db.CustomerContent
-                .AsNoTracking()
-                .OfType<BlogComment>()
-                .Where(x => x.CustomerId == message.Customer.Id)
-                .ToListAsync();
+            // INFO: (mh) (core) Why accessing DB?! The data is present already!!!
+            var blogComments = message.Customer.CustomerContent.OfType<BlogComment>();
 
             if (blogComments.Any())
             {
-                message.Result["BlogComments"] = blogComments.Select(async x => await messageModelProvider.CreateModelPartAsync(x, true)).ToList();
+                // TODO: (mh) (core) WHAT IS THIS FOR?!!! Why do you call IMessageModelProvider.CreateModelPartAsync()??!!!! You implemented your own CreateModelPart() in THIS class!
+                message.Result["BlogComments"] = await blogComments.SelectAsync(x => messageModelProvider.CreateModelPartAsync(x, true)).AsyncToList();
             }
         }
 
         public static void HandleEvent(CustomerAnonymizedEvent message)
         {
-            foreach (var item in message.Customer.CustomerContent)
+            var tool = message.GdprTool;
+            
+            foreach (var comment in message.Customer.CustomerContent.OfType<BlogComment>())
             {
-                if (item is BlogComment comment)
-                {
-                    message.AnonymizeData(comment, x => x.CommentText, IdentifierDataType.LongText, message.Language);
-                }
+                tool.AnonymizeData(comment, x => x.CommentText, IdentifierDataType.LongText, message.Language);
             }
         }
     }
