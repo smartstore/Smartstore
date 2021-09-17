@@ -6,12 +6,12 @@ namespace Smartstore.Forums.Services
 {
     public partial class BBCodeHelper
     {
-        private static readonly Regex regexBold = new Regex(@"\[b\](.+?)\[/b\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex regexItalic = new Regex(@"\[i\](.+?)\[/i\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex regexUnderLine = new Regex(@"\[u\](.+?)\[/u\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex regexUrl1 = new Regex(@"\[url\=([^\]]+)\]([^\]]+)\[/url\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex regexUrl2 = new Regex(@"\[url\](.+?)\[/url\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex regexQuote = new Regex(@"\[quote(=.+?)?\](.+?)\[/quote\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex regexBold = new(@"\[b\](.+?)\[/b\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex regexItalic = new(@"\[i\](.+?)\[/i\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex regexUnderLine = new(@"\[u\](.+?)\[/u\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex regexUrl1 = new(@"\[url\=([^\]]+)\]([^\]]+)\[/url\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex regexUrl2 = new(@"\[url\](.+?)\[/url\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex regexQuote = new(@"\[quote(=.+?)?\](.+?)\[/quote\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Formats the text
@@ -33,7 +33,7 @@ namespace Smartstore.Forums.Services
             bool replaceCode = true,
             bool replaceQuote = true)
         {
-            if (String.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
             if (replaceBold)
@@ -79,10 +79,10 @@ namespace Smartstore.Forums.Services
 
                         if (quote.IsEmpty())
                         {
-                            return "";
+                            return string.Empty;
                         }
 
-                        string result = "";
+                        string result = string.Empty;
                         if (from.HasValue())
                         {
                             result += "<span class='quotefrom'>{0}:</span>".FormatCurrent(from.Substring(1));
@@ -111,8 +111,8 @@ namespace Smartstore.Forums.Services
         /// <returns>string</returns>
         public static string RemoveQuotes(string str)
         {
-            str = Regex.Replace(str, @"\[quote=(.+?)\]", String.Empty, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            str = Regex.Replace(str, @"\[/quote\]", String.Empty, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            str = Regex.Replace(str, @"\[quote=(.+?)\]", string.Empty, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            str = Regex.Replace(str, @"\[/quote\]", string.Empty, RegexOptions.Compiled | RegexOptions.IgnoreCase);
             return str;
         }
     }

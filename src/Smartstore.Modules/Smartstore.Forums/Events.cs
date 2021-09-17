@@ -7,9 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
@@ -34,7 +36,8 @@ namespace Smartstore.Forums
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         // Add menu item for ForumSettings to settings menu.
-        public async Task HandleEventAsync(MenuBuiltEvent message, IPermissionService permissions)
+        public async Task HandleEventAsync(MenuBuiltEvent message, 
+            IPermissionService permissions)
         {
             if (message.Name.EqualsNoCase("Settings"))
             {
@@ -58,7 +61,8 @@ namespace Smartstore.Forums
         }
 
         // Add tab for ForumSearchSettings to search settings page.
-        public async Task HandleEventAsync(TabStripCreated message, IPermissionService permissions)
+        public async Task HandleEventAsync(TabStripCreated message, 
+            IPermissionService permissions)
         {
             // Render tab with forum search settings.
             if (message.TabStripName.EqualsNoCase("searchsettings-edit"))
@@ -76,8 +80,7 @@ namespace Smartstore.Forums
         }
 
         // Save ForumSearchSettings.
-        public async Task HandleEventAsync(
-            ModelBoundEvent message, 
+        public async Task HandleEventAsync(ModelBoundEvent message, 
             ICommonServices services,
             StoreDependingSettingHelper settingHelper,
             Lazy<IForumSearchQueryAliasMapper> forumSearchQueryAliasMapper)
@@ -154,17 +157,18 @@ namespace Smartstore.Forums
             }
         }
 
-        public async Task HandleEventAsync(
-            MessageModelPartMappingEvent message, 
-            ICommonServices services, 
+        public async Task HandleEventAsync(MessageModelPartMappingEvent message,
+            SmartDbContext db,
+            IEventPublisher eventPublisher,
             IForumService forumService,
-            IUrlHelper urlHelper)
+            IUrlHelper urlHelper,
+            IDateTimeHelper dtHelper)
         {
             var ctx = message.MessageContext;
 
             if (message.Source is ForumTopic topic)
             {
-                var firstPost = await services.DbContext.ForumPosts()
+                var firstPost = await db.ForumPosts()
                     .AsNoTracking()
                     .ApplyStandardFilter(ctx.Customer, topic.Id)
                     .FirstOrDefaultAsync();
@@ -182,14 +186,15 @@ namespace Smartstore.Forums
                     { "NumPosts", topic.NumPosts },
                     { "NumViews", topic.Views },
                     { "Body", forumService.FormatPostText(firstPost).NullEmpty() },
-                    { "Url", url }
+                    // INFO: (mg) (core) That's NOT how MH did it. URLs in messages must be absolute (including scheme + host etc.)
+                    { "Url", MessageModelProvider.BuildUrl(url, ctx) }
                 };
 
                 await PublishEvent(topic);
             }
             else if (message.Source is Forum forum)
             {
-                await services.DbContext.LoadReferenceAsync(forum, x => x.ForumGroup);
+                await db.LoadReferenceAsync(forum, x => x.ForumGroup);
 
                 var url = urlHelper.RouteUrl("ForumSlug", new { id = forum.Id, slug = await forum.GetActiveSlugAsync(ctx.Language.Id) });
 
@@ -199,14 +204,14 @@ namespace Smartstore.Forums
                     { "GroupName", forum.ForumGroup?.GetLocalized(x => x.Name, ctx.Language)?.Value.NullEmpty() },
                     { "NumPosts", forum.NumPosts },
                     { "NumTopics", forum.NumTopics },
-                    { "Url", url }
+                    { "Url", MessageModelProvider.BuildUrl(url, ctx) }
                 };
 
                 await PublishEvent(forum);
             }
             else if (message.Source is ForumPost post)
             {
-                await services.DbContext.LoadReferenceAsync(post, x => x.Customer);
+                await db.LoadReferenceAsync(post, x => x.Customer);
 
                 message.Result = new Dictionary<string, object>
                 {
@@ -218,9 +223,9 @@ namespace Smartstore.Forums
             }
             else if (message.Source is ForumPostVote vote)
             {
-                await services.DbContext.LoadReferenceAsync(vote, x => x.ForumPost, false, x => x.Include(y => y.ForumTopic));
+                await db.LoadReferenceAsync(vote, x => x.ForumPost, false, x => x.Include(y => y.ForumTopic));
 
-                var timeZone = services.DateTimeHelper.GetCustomerTimeZone(ctx.Customer);
+                var timeZone = dtHelper.GetCustomerTimeZone(ctx.Customer);
 
                 message.Result = new Dictionary<string, object>
                 {
@@ -230,15 +235,15 @@ namespace Smartstore.Forums
                     { "TopicSubject", vote.ForumPost?.ForumTopic?.Subject.NullEmpty() },
                     { "CustomerId", vote.CustomerId },
                     { "IpAddress", vote.IpAddress },
-                    { "CreatedOn", services.DateTimeHelper.ConvertToUserTime(vote.CreatedOnUtc, TimeZoneInfo.Utc, timeZone) },
-                    { "UpdatedOn", services.DateTimeHelper.ConvertToUserTime(vote.UpdatedOnUtc, timeZone) }
+                    { "CreatedOn", dtHelper.ConvertToUserTime(vote.CreatedOnUtc, TimeZoneInfo.Utc, timeZone) },
+                    { "UpdatedOn", dtHelper.ConvertToUserTime(vote.UpdatedOnUtc, timeZone) }
                 };
 
                 await PublishEvent(vote);
             }
             else if (message.Source is ForumSubscription subscription)
             {
-                var timeZone = services.DateTimeHelper.GetCustomerTimeZone(ctx.Customer);
+                var timeZone = dtHelper.GetCustomerTimeZone(ctx.Customer);
 
                 message.Result = new Dictionary<string, object>
                 {
@@ -246,15 +251,15 @@ namespace Smartstore.Forums
                     { "CustomerId", subscription.CustomerId },
                     { "ForumId", subscription.ForumId },
                     { "TopicId", subscription.TopicId },
-                    { "CreatedOn", services.DateTimeHelper.ConvertToUserTime(subscription.CreatedOnUtc, timeZone) }
+                    { "CreatedOn", dtHelper.ConvertToUserTime(subscription.CreatedOnUtc, timeZone) }
                 };
 
                 await PublishEvent(subscription);
             }
             else if (message.Source is PrivateMessage pm)
             {
-                await services.DbContext.LoadReferenceAsync(pm, x => x.FromCustomer);
-                await services.DbContext.LoadReferenceAsync(pm, x => x.ToCustomer);
+                await db.LoadReferenceAsync(pm, x => x.FromCustomer);
+                await db.LoadReferenceAsync(pm, x => x.ToCustomer);
 
                 message.Result = new Dictionary<string, object>
                 {
@@ -264,7 +269,7 @@ namespace Smartstore.Forums
                     { "ToEmail", pm.ToCustomer?.FindEmail().NullEmpty() },
                     { "FromName", pm.FromCustomer?.GetFullName().NullEmpty() },
                     { "ToName", pm.ToCustomer?.GetFullName().NullEmpty() },
-                    { "Url", urlHelper.Action("View", "PrivateMessages", new { id = pm.Id, area = string.Empty }) }
+                    { "Url", MessageModelProvider.BuildUrl(urlHelper.Action("View", "PrivateMessages", new { id = pm.Id, area = string.Empty }), ctx) }
                 };
 
                 await PublishEvent(pm);
@@ -272,12 +277,14 @@ namespace Smartstore.Forums
 
             Task PublishEvent<T>(T source) where T : class
             {
-                return services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, message.Result));
+                return eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, message.Result));
             }
         }
 
         // Add random forum data for message template preview.
-        public async Task HandleEventAsync(PreviewModelResolveEvent message, ITemplateEngine engine, SmartDbContext db)
+        public async Task HandleEventAsync(PreviewModelResolveEvent message, 
+            ITemplateEngine engine, 
+            SmartDbContext db)
         {
             if (message.ModelName.EqualsNoCase(nameof(ForumPost)))
             {

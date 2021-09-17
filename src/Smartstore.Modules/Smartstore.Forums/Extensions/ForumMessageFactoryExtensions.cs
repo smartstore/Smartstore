@@ -5,12 +5,13 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums
 {
+    // INFO: (mg) (core) Not necessary to make methods of internal classes internal.
     internal static partial class ForumMessageFactoryExtensions
     {
         /// <summary>
         /// Sends a forum topic message to a customer.
         /// </summary>
-        internal static Task<CreateMessageResult> SendNewForumTopicMessageAsync(
+        public static Task<CreateMessageResult> SendNewForumTopicMessageAsync(
             this IMessageFactory factory, 
             Customer customer,
             ForumTopic forumTopic,
@@ -30,7 +31,7 @@ namespace Smartstore.Forums
         /// Sends a forum post message to a customer.
         /// </summary>
         /// <param name="topicPageIndex">Friendly forum topic page to use for URL generation (1-based).</param>
-        internal static Task<CreateMessageResult> SendNewForumPostMessageAsync(
+        public static Task<CreateMessageResult> SendNewForumPostMessageAsync(
             this IMessageFactory factory, 
             Customer customer,
             ForumPost forumPost,
@@ -57,7 +58,7 @@ namespace Smartstore.Forums
         /// <summary>
         /// Sends a private message notification.
         /// </summary>
-        internal static Task<CreateMessageResult> SendPrivateMessageNotificationAsync(
+        public static Task<CreateMessageResult> SendPrivateMessageNotificationAsync(
             this IMessageFactory factory, 
             Customer customer, 
             PrivateMessage privateMessage, 

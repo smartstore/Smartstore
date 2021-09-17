@@ -69,12 +69,6 @@ namespace Smartstore.Utilities.Html.CodeFormatter
                     csf.Alternate = options.AlternateLineNumbers;
                     return HttpUtility.HtmlDecode(csf.FormatCode(text));
 
-                case "vb":
-                    var vbf = new VisualBasicFormat();
-                    vbf.LineNumbers = options.DisplayLineNumbers;
-                    vbf.Alternate = options.AlternateLineNumbers;
-                    return vbf.FormatCode(text);
-
                 case "js":
                     var jsf = new JavaScriptFormat();
                     jsf.LineNumbers = options.DisplayLineNumbers;
@@ -103,12 +97,6 @@ namespace Smartstore.Utilities.Html.CodeFormatter
                     tsqlf.LineNumbers = options.DisplayLineNumbers;
                     tsqlf.Alternate = options.AlternateLineNumbers;
                     return HttpUtility.HtmlDecode(tsqlf.FormatCode(text));
-
-                case "msh":
-                    var mshf = new MshFormat();
-                    mshf.LineNumbers = options.DisplayLineNumbers;
-                    mshf.Alternate = options.AlternateLineNumbers;
-                    return HttpUtility.HtmlDecode(mshf.FormatCode(text));
 
             }
 
