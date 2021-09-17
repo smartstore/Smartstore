@@ -35,6 +35,7 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly IShoppingCartValidator _cartValidator;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly Currency _primaryCurrency;
 
         public ShoppingCartService(
@@ -45,7 +46,8 @@ namespace Smartstore.Core.Checkout.Cart
             IEventPublisher eventPublisher,
             IShoppingCartValidator cartValidator,
             IProductAttributeMaterializer productAttributeMaterializer,
-            ICheckoutAttributeMaterializer checkoutAttributeMaterializer)
+            ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+            ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
             _workContext = workContext;
@@ -55,7 +57,7 @@ namespace Smartstore.Core.Checkout.Cart
             _cartValidator = cartValidator;
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-
+            _shoppingCartSettings = shoppingCartSettings;
             _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
         }
 
@@ -171,7 +173,7 @@ namespace Smartstore.Core.Checkout.Cart
                 : null;
 
             // Add item to cart (if no warnings accured)
-            if (existingCartItem != null)
+            if (existingCartItem != null && !_shoppingCartSettings.AddProductsToBasketInSinglePositions)
             {
                 // Product is already in cart, find existing item
                 var newQuantity = ctx.Quantity + existingCartItem.Quantity;

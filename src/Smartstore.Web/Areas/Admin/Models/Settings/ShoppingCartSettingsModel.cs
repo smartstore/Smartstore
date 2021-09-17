@@ -96,6 +96,9 @@ namespace Smartstore.Admin.Models
         public string ThirdPartyEmailHandOverLabel { get; set; }
 
         public List<ShoppingCartSettingsLocalizedModel> Locales { get; set; } = new();
+
+        [LocalizedDisplay("*AddProductsToBasketInSinglePositions")]
+        public bool AddProductsToBasketInSinglePositions { get; set; }
     }
 
 

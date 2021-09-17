@@ -148,5 +148,10 @@ namespace Smartstore.Core.Checkout.Cart
         /// Gets or sets a value indicating whether to show the quantity of linked product attribute value
         /// </summary>
         public bool ShowLinkedAttributeValueQuantity { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to add products to the basket in single positions
+        /// </summary>
+        public bool AddProductsToBasketInSinglePositions { get; set; }
     }
 }
