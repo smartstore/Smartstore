@@ -280,40 +280,20 @@ namespace Smartstore.Forums
         // Add random forum data for message template preview.
         public async Task HandleEventAsync(PreviewModelResolveEvent message, ITemplateEngine engine, SmartDbContext db)
         {
-            switch (message.ModelName)
+            if (message.ModelName.EqualsNoCase(nameof(ForumPost)))
             {
-                case nameof(ForumTopic):
-                    message.Result = await GetRandomEntity<ForumTopic>();
-                    break;
-                case nameof(Forum):
-                    message.Result = await GetRandomEntity<Forum>();
-                    break;
-                case nameof(ForumPost):
-                    message.Result = await GetRandomEntity<ForumPost>();
-                    break;
-                case nameof(ForumPostVote):
-                    message.Result = await GetRandomEntity<ForumPostVote>();
-                    break;
-                case nameof(PrivateMessage):
-                    message.Result = await GetRandomEntity<PrivateMessage>();
-                    break;
-            }
+                var count = await db.ForumPosts().CountAsync();
+                var skip = CommonHelper.GenerateRandomInteger(0, count);
 
-            async Task<object> GetRandomEntity<T>() where T : BaseEntity, new()
-            {
-                var query = db.Set<T>().AsNoTracking();
-                var count = await query.CountAsync();
-
-                if (count > 0)
-                {
-                    var skip = CommonHelper.GenerateRandomInteger(0, count);
-                    return await query.OrderBy(x => x.Id).Skip(skip).FirstOrDefaultAsync();
-                }
-                else
-                {
-                    var entity = Activator.CreateInstance<T>();
-                    return engine.CreateTestModelFor(entity, entity.GetEntityName());
-                }
+                message.Result = await db.ForumPosts()
+                    .Include(x => x.ForumTopic)
+                    .ThenInclude(x => x.Forum)
+                    .Include(x => x.ForumPostVotes)
+                    .Include(x => x.Customer)
+                    .AsNoTracking()
+                    .OrderBy(x => x.Id)
+                    .Skip(skip)
+                    .FirstOrDefaultAsync();
             }
         }
 

@@ -575,8 +575,6 @@ namespace Smartstore.Core.Messaging
                     }
                     else
                     {
-                        // TODO: (core) message factory ignores test models with sub-tokens like ForumPost.ForumTopic, ForumPost.ForumTopic.Forum etc.
-
                         // Sub-token, e.g. "Order.Customer"
                         // Get "Customer" part, this is our property name, NOT the model name
                         var propName = token[(dotIndex + 1)..];
