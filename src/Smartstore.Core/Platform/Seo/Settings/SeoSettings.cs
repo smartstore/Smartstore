@@ -31,6 +31,7 @@ namespace Smartstore.Core.Seo
                 "passwordrecovery",
                 "subscribenewsletter",
                 "blog",
+                "boards", // INFO: (mg) (core) SEO: we cannot just discard legacy links
                 "forum",
                 "inboxupdate",
                 "sentupdate",

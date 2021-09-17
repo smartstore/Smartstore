@@ -286,6 +286,8 @@ namespace Smartstore.Forums
             ITemplateEngine engine, 
             SmartDbContext db)
         {
+            // TODO: (mg) (core) PrivateMessage is missing
+            
             if (message.ModelName.EqualsNoCase(nameof(ForumPost)))
             {
                 var count = await db.ForumPosts().CountAsync();
