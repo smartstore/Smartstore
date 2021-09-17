@@ -36,7 +36,7 @@ namespace Smartstore.Core.Installation
             {
                 Name = "Warner Home Video Games",
                 ManufacturerTemplateId = gridOrLinesTemplate.Id,
-                MediaFile = CreatePicture("brand/wb.png", GetSeName("Warner Home Video Games")),
+                MediaFile = CreatePicture("brand/wb.png", BuildSlug("Warner Home Video Games")),
                 Published = true,
                 DisplayOrder = 1
             };
@@ -145,7 +145,7 @@ namespace Smartstore.Core.Installation
             {
                 Name = "Microsoft",
                 ManufacturerTemplateId = gridOrLinesTemplate.Id,
-                MediaFile = CreatePicture("brand/microsoft-icon.png", GetSeName("Microsoft")),
+                MediaFile = CreatePicture("brand/microsoft-icon.png", BuildSlug("Microsoft")),
                 Published = true,
                 DisplayOrder = 6
             };

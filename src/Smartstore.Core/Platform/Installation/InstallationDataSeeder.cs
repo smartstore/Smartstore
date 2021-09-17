@@ -42,11 +42,12 @@ namespace Smartstore.Core.Installation
         private int _defaultStoreId;
 
         public InstallationDataSeeder(
+            IApplicationContext appContext,
             DbMigrator<SmartDbContext> migrator,
             SeedDataConfiguration configuration,
             ILogger logger,
             IHttpContextAccessor httpContextAccessor)
-            : base(logger)
+            : base(appContext, logger)
         {
             Guard.NotNull(migrator, nameof(migrator));
             Guard.NotNull(configuration, nameof(configuration));
@@ -58,29 +59,6 @@ namespace Smartstore.Core.Installation
             _config = configuration;
             _httpContextAccessor = httpContextAccessor;
             _data = configuration.Data;
-        }
-
-        protected IUrlService UrlService
-        {
-            get
-            {
-                if (_urlService == null)
-                {
-                    _urlService = new UrlService(
-                        Context,
-                        NullCache.Instance,
-                        _httpContextAccessor,
-                        null, // IWorkContext not accessed
-                        null, // IStoreContext not accessed
-                        null, // ILanguageService not accessed
-                        new LocalizationSettings(),
-                        new SeoSettings { LoadAllUrlAliasesOnStartup = false },
-                        new PerformanceSettings(),
-                        new SecuritySettings());
-                }
-
-                return _urlService;
-            }
         }
 
         protected IXmlResourceManager XmlResourceManager
@@ -446,6 +424,9 @@ namespace Smartstore.Core.Installation
             await PopulateUrlRecordsFor(topics);
         }
 
+        private Task PopulateUrlRecordsFor<T>(IEnumerable<T> entities) where T : BaseEntity, ISlugSupported, new()
+            => PopulateUrlRecordsFor(entities, entity => _data.CreateUrlRecordFor(entity));
+
         private async Task MoveMedia()
         {
             if (_config.StoreMediaInDB)
@@ -470,35 +451,6 @@ namespace Smartstore.Core.Installation
                         await fileSystemStorageProvider.SaveAsync(mediaFile, MediaStorageItem.FromStream(mediaFile.MediaStorage.Data.ToStream()));
                         mediaFile.MediaStorageId = null;
                         mediaFile.MediaStorage = null;
-                    }
-                }
-
-                await scope.CommitAsync();
-            }
-        }
-
-        #endregion
-
-        #region Utils
-
-        private async Task PopulateUrlRecordsFor<T>(IEnumerable<T> entities) 
-            where T : BaseEntity, ISlugSupported, new()
-        {
-            using (var scope = UrlService.CreateBatchScope())
-            {
-                foreach (var entity in entities)
-                {
-                    var ur = _data.CreateUrlRecordFor(entity);
-                    if (ur != null)
-                    {
-                        scope.ApplySlugs(new ValidateSlugResult 
-                        {
-                            Source = entity,
-                            Found = ur,
-                            Slug = ur.Slug,
-                            LanguageId = 0,
-                            FoundIsSelf = true,
-                        });
                     }
                 }
 

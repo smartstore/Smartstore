@@ -3,20 +3,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Caching;
+using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
 using Smartstore.Domain;
+using Smartstore.Engine;
 
 namespace Smartstore.Core.Data.Migrations
 {
     public abstract class DataSeeder<TContext> : IDataSeeder<TContext>
         where TContext : HookingDbContext
     {
-        public DataSeeder(ILogger logger)
+        private IUrlService _urlService;
+
+        public DataSeeder(IApplicationContext appContext, ILogger logger)
         {
-            Logger = logger;
+            ApplicationContext = Guard.NotNull(appContext, nameof(appContext));
+
+            if (logger != null)
+            {
+                Logger = logger;
+            }
         }
 
         /// <inheritdoc/>
@@ -34,8 +50,49 @@ namespace Smartstore.Core.Data.Migrations
         protected abstract Task SeedCoreAsync();
 
         protected TContext Context { get; set; }
+
+        protected IApplicationContext ApplicationContext { get; set; }
+
         protected ILogger Logger { get; set; } = NullLogger.Instance;
+
         protected CancellationToken CancelToken { get; set; } = CancellationToken.None;
+
+        #region Protected utils
+
+        protected IUrlService UrlService
+        {
+            get
+            {
+                if (_urlService == null)
+                {
+                    var httpContextAccessor = ApplicationContext.Services.Resolve<IHttpContextAccessor>();
+
+                    if (ApplicationContext.IsInstalled)
+                    {
+                        _urlService = httpContextAccessor.HttpContext?.RequestServices?.GetService<IUrlService>();
+                    }
+
+                    if (Context is not SmartDbContext db)
+                    {
+                        db = httpContextAccessor.HttpContext.RequestServices.GetService<SmartDbContext>();
+                    }
+                    
+                    _urlService ??= new UrlService(
+                        db,
+                        NullCache.Instance,
+                        httpContextAccessor,
+                        null, // IWorkContext not accessed
+                        null, // IStoreContext not accessed
+                        null, // ILanguageService not accessed
+                        new LocalizationSettings(),
+                        new SeoSettings { LoadAllUrlAliasesOnStartup = false },
+                        new PerformanceSettings(),
+                        new SecuritySettings());
+                }
+
+                return _urlService;
+            }
+        }
 
         protected async Task PopulateAsync<TEntity>(string stage, IEnumerable<TEntity> entities)
             where TEntity : BaseEntity
@@ -95,6 +152,37 @@ namespace Smartstore.Core.Data.Migrations
             }
         }
 
+        protected async Task PopulateUrlRecordsFor<T>(IEnumerable<T> entities, Func<T, UrlRecord> factory)
+            where T : BaseEntity, ISlugSupported, new()
+        {
+            Guard.NotNull(entities, nameof(entities));
+            Guard.NotNull(factory, nameof(factory));
+
+            using (var scope = UrlService.CreateBatchScope())
+            {
+                foreach (var entity in entities)
+                {
+                    var ur = factory(entity);
+                    if (ur != null)
+                    {
+                        scope.ApplySlugs(new ValidateSlugResult
+                        {
+                            Source = entity,
+                            Found = ur,
+                            Slug = ur.Slug,
+                            LanguageId = 0,
+                            FoundIsSelf = true,
+                        });
+                    }
+                }
+                
+                await scope.CommitAsync();
+            }
+        }
+
+        protected string BuildSlug(string name)
+            => SeoHelper.BuildSlug(name);
+
         protected Task SaveAsync<TEntity>(TEntity entity) where TEntity : BaseEntity
         {
             Context.Set<TEntity>().Add(Guard.NotNull(entity, nameof(entity)));
@@ -106,5 +194,7 @@ namespace Smartstore.Core.Data.Migrations
             Context.Set<TEntity>().AddRange(Guard.NotNull(entities, nameof(entities)));
             return Context.SaveChangesAsync();
         }
+
+        #endregion
     }
 }

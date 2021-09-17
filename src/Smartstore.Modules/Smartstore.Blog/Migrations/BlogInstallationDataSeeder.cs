@@ -5,6 +5,7 @@ using Smartstore.Blog.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Messaging.Utilities;
+using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 
@@ -15,7 +16,7 @@ namespace Smartstore.Blog.Migrations
         private readonly ModuleInstallationContext _installContext;
 
         public BlogInstallationDataSeeder(ModuleInstallationContext installContext)
-            : base(installContext.Logger)
+            : base(installContext.ApplicationContext, installContext.Logger)
         {
             _installContext = Guard.NotNull(installContext, nameof(installContext));
         }
@@ -47,7 +48,28 @@ namespace Smartstore.Blog.Migrations
 
             var converter = new BlogPostConverter(Context, _installContext);
             var blogPosts = await converter.ImportAllAsync();
-            //PopulateUrlRecordsFor(blogPosts);
+            await PopulateUrlRecordsFor(blogPosts, post => CreateUrlRecordFor(post));
+        }
+
+        public UrlRecord CreateUrlRecordFor(BlogPost post)
+        {
+            var name = BuildSlug(post.GetDisplayName()).Truncate(400);
+
+            if (name.HasValue())
+            {
+                var result = new UrlRecord
+                {
+                    EntityId = post.Id,
+                    EntityName = post.GetEntityName(),
+                    LanguageId = 0,
+                    Slug = name,
+                    IsActive = true
+                };
+
+                return result;
+            }
+
+            return null;
         }
     }
 }

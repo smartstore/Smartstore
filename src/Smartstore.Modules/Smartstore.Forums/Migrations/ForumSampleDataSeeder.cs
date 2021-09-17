@@ -17,7 +17,7 @@ namespace Smartstore.Forums.Migrations
         private readonly ModuleInstallationContext _installContext;
 
         public ForumSampleDataSeeder(ModuleInstallationContext installContext)
-            : base(installContext.Logger)
+            : base(installContext.ApplicationContext, installContext.Logger)
         {
             _installContext = Guard.NotNull(installContext, nameof(installContext));
         }

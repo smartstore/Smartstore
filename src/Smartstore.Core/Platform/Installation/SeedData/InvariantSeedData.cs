@@ -1484,11 +1484,11 @@ namespace Smartstore.Core.Installation
 
             if (entity is Topic topic)
             {
-                name = GetSeName(topic.SystemName).Truncate(400);
+                name = BuildSlug(topic.SystemName).Truncate(400);
             }
             else
             {
-                name = GetSeName(entity.GetDisplayName()).Truncate(400);
+                name = BuildSlug(entity.GetDisplayName()).Truncate(400);
             }
 
             if (name.HasValue())
@@ -1522,7 +1522,7 @@ namespace Smartstore.Core.Installation
         {
             if (seName == null)
             {
-                seName = GetSeName(Path.GetFileNameWithoutExtension(imageName));
+                seName = BuildSlug(Path.GetFileNameWithoutExtension(imageName));
             }
 
             var picture = CreatePicture(imageName, seName);
@@ -1536,10 +1536,8 @@ namespace Smartstore.Core.Installation
             }
         }
 
-        protected string GetSeName(string name)
-        {
-            return SeoHelper.BuildSlug(name);
-        }
+        protected string BuildSlug(string name)
+            => SeoHelper.BuildSlug(name);
 
         protected static Currency CreateCurrency(string locale, decimal rate = 1M, string formatting = "", bool published = false, int order = 1)
         {

@@ -230,7 +230,7 @@ namespace Smartstore.Core.Installation
                 cancelToken.ThrowIfCancellationRequested();
 
                 // ===>>> Seeds data.
-                var seeder = new InstallationDataSeeder(migrator, seedConfiguration, Logger, _httpContextAccessor);
+                var seeder = new InstallationDataSeeder(_appContext, migrator, seedConfiguration, Logger, _httpContextAccessor);
                 await seeder.SeedAsync(dbContext, cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 
