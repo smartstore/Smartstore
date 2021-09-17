@@ -36,7 +36,7 @@ namespace Smartstore.Core.Identity
 		/// <param name="customer">The customer to export data for.</param>
 		/// <returns>The exported data</returns>
 		/// <remarks>This method fulfills the "GDPR Data Portability" requirement.</remarks>
-		Task<Dictionary<string, object>> ExportCustomerAsync(Customer customer);
+		Task<IDictionary<string, object>> ExportCustomerAsync(Customer customer);
 
 		/// <summary>
 		/// Anonymizes a customer's (personal) data and saves the result.

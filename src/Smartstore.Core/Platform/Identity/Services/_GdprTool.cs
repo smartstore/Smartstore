@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -17,7 +16,6 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
-using Smartstore.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Domain;
 using Smartstore.Events;
@@ -28,12 +26,8 @@ namespace Smartstore.Core.Identity
     public partial class GdprTool : IGdprTool
     {
 		private readonly SmartDbContext _db;
-		private readonly ICustomerService _customerService;
 		private readonly IMessageModelProvider _messageModelProvider;
 		private readonly IGenericAttributeService _genericAttributeService;
-		private readonly IShoppingCartService _shoppingCartService;
-		private readonly IStockSubscriptionService _stockSubscriptionService;
-		private readonly ILanguageService _languageService;
 		private readonly IWorkContext _workContext;
 		private readonly IEventPublisher _eventPublisher;
 
@@ -41,22 +35,14 @@ namespace Smartstore.Core.Identity
 
 		public GdprTool(
 			SmartDbContext db,
-			ICustomerService customerService,
 			IMessageModelProvider messageModelProvider,
 			IGenericAttributeService genericAttributeService,
-			IShoppingCartService shoppingCartService,
-			IStockSubscriptionService stockSubscriptionService,
-			ILanguageService languageService,
 			IWorkContext workContext,
 			IEventPublisher eventPublisher)
 		{
 			_db = db;
-			_customerService = customerService;
 			_messageModelProvider = messageModelProvider;
 			_genericAttributeService = genericAttributeService;
-			_shoppingCartService = shoppingCartService;
-			_stockSubscriptionService = stockSubscriptionService;
-			_languageService = languageService;
 			_workContext = workContext;
 			_eventPublisher = eventPublisher;
 		}
@@ -64,13 +50,155 @@ namespace Smartstore.Core.Identity
 		public LocalizerEx T { get; set; } = NullLocalizer.InstanceEx;
 		public ILogger Logger { get; set; } = NullLogger.Instance;
 
-		public Task<Dictionary<string, object>> ExportCustomerAsync(Customer customer)
+		public async Task<IDictionary<string, object>> ExportCustomerAsync(Customer customer)
         {
-			// TODO: (mh) (core) Port GdprTool.ExportCustomer (too many missing parts at this moment)
-			throw new NotImplementedException();
-        }
+			Guard.NotNull(customer, nameof(customer));
+			var ignoreMemberNames = new string[]
+			{
+				"WishlistUrl", "EditUrl", "PasswordRecoveryURL",
+				"BillingAddress.NameLine", "BillingAddress.StreetLine", "BillingAddress.CityLine", "BillingAddress.CountryLine",
+				"ShippingAddress.NameLine", "ShippingAddress.StreetLine", "ShippingAddress.CityLine", "ShippingAddress.CountryLine"
+			};
 
-        public async Task AnonymizeCustomerAsync(Customer customer, bool pseudomyzeContent)
+			var model = await _messageModelProvider.CreateModelPartAsync(customer, true, ignoreMemberNames) as IDictionary<string, object>;
+
+			if (model != null)
+			{
+				// Roles
+				model["CustomerRoles"] = customer.CustomerRoleMappings.Select(x => x.CustomerRole.Name).ToArray();
+
+				// Generic attributes
+				var attributes = _genericAttributeService.GetAttributesForEntity("Customer", customer.Id);
+				if (attributes.Entities.Any())
+				{
+					model["Attributes"] = await _messageModelProvider.CreateModelPartAsync(attributes, true);
+				}
+
+				// Order history
+				var orders = customer.Orders.Where(x => !x.Deleted);
+				if (orders.Any())
+				{
+					ignoreMemberNames = new string[]
+					{
+						"Disclaimer", "ConditionsOfUse", "Url", "CheckoutAttributes",
+						"Items.DownloadUrl",
+						"Items.Product.Description", "Items.Product.Url", "Items.Product.Thumbnail", "Items.Product.ThumbnailLg",
+						"Items.BundleItems.Product.Description", "Items.BundleItems.Product.Url", "Items.BundleItems.Product.Thumbnail", "Items.BundleItems.Product.ThumbnailLg",
+						"Billing.NameLine", "Billing.StreetLine", "Billing.CityLine", "Billing.CountryLine",
+						"Shipping.NameLine", "Shipping.StreetLine", "Shipping.CityLine", "Shipping.CountryLine"
+					};
+					model["Orders"] = orders.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).ToList();
+				}
+
+				// Return Request
+				var returnRequests = customer.ReturnRequests;
+				if (returnRequests.Any())
+				{
+					model["ReturnRequests"] = returnRequests.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, "Url")).ToList();
+				}
+
+				// Wallet
+				var walletHistory = customer.WalletHistory;
+				if (walletHistory.Any())
+				{
+					model["WalletHistory"] = walletHistory.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, "WalletUrl")).ToList();
+				}
+
+				// TODO: (mg) (core) Handle in external module
+
+				//// Forum topics
+				//var forumTopics = customer.ForumTopics;
+				//if (forumTopics.Any())
+				//{
+				//	model["ForumTopics"] = forumTopics.Select(x => _messageModelProvider.CreateModelPart(x, true, "Url")).ToList();
+				//}
+
+				//// Forum posts
+				//var forumPosts = customer.ForumPosts;
+				//if (forumPosts.Any())
+				//{
+				//	model["ForumPosts"] = forumPosts.Select(x => _messageModelProvider.CreateModelPart(x, true)).ToList();
+				//}
+
+				//// Forum post votes
+				//var forumPostVotes = customer.CustomerContent.OfType<ForumPostVote>();
+				//if (forumPostVotes.Any())
+				//{
+				//	ignoreMemberNames = new string[] { "CustomerId", "UpdatedOn" };
+				//	model["ForumPostVotes"] = forumPostVotes.Select(x => _messageModelProvider.CreateModelPart(x, true, ignoreMemberNames)).ToList();
+				//}
+
+				// Product reviews
+				var productReviews = customer.CustomerContent.OfType<ProductReview>();
+				if (productReviews.Any())
+				{
+					model["ProductReviews"] = productReviews.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true)).ToList();
+				}
+
+				// TODO: (mh) (core) Handle in external module
+				//// News comments
+				//var newsComments = customer.CustomerContent.OfType<NewsComment>();
+				//if (newsComments.Any())
+				//{
+				//	model["NewsComments"] = newsComments.Select(x => _messageModelProvider.CreateModelPart(x, true)).ToList();
+				//}
+
+				//// Blog comments
+				//var blogComments = customer.CustomerContent.OfType<BlogComment>();
+				//if (blogComments.Any())
+				//{
+				//	model["BlogComments"] = blogComments.Select(x => _messageModelProvider.CreateModelPart(x, true)).ToList();
+				//}
+
+				// Product review helpfulness
+				var helpfulness = customer.CustomerContent.OfType<ProductReviewHelpfulness>();
+				if (helpfulness.Any())
+				{
+					ignoreMemberNames = new string[] { "CustomerId", "UpdatedOn" };
+					model["ProductReviewHelpfulness"] = helpfulness.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).ToList();
+				}
+
+				// TODO: (mh) (core) Handle in external module
+				// Poll voting
+				//var pollVotings = customer.CustomerContent.OfType<PollVotingRecord>();
+				//if (pollVotings.Any())
+				//{
+				//	ignoreMemberNames = new string[] { "CustomerId", "UpdatedOn" };
+				//	model["PollVotings"] = pollVotings.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).ToList();
+				//}
+
+				// TODO: (mg) (core) Handle in external module
+				// Forum subscriptions
+				//var forumSubscriptions = _forumService.GetAllSubscriptions(customer.Id, 0, 0, 0, int.MaxValue);
+				//if (forumSubscriptions.Any())
+				//{
+				//	model["ForumSubscriptions"] = forumSubscriptions.Select(x => _messageModelProvider.CreateModelPart(x, true, "CustomerId")).ToList();
+				//}
+
+				// BackInStock subscriptions
+				var backInStockSubscriptions = await _db.BackInStockSubscriptions
+					.AsNoTracking()
+					.ApplyStandardFilter(customerId: customer.Id)
+					.ToListAsync();
+					
+				if (backInStockSubscriptions.Any())
+				{
+					model["BackInStockSubscriptions"] = backInStockSubscriptions.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, "CustomerId")).ToList();
+				}
+
+				// INFO: we're not going to export: 
+				// - Private messages
+				// - Activity log
+				// It doesn't feel right and GDPR rules are not very clear about this. Let's wait and see :-)
+
+				// Publish event to give plugin devs a chance to attach external data.
+				await _eventPublisher.PublishAsync(new CustomerExportedEvent(customer, model));
+			}
+
+			return model;
+		}
+
+		public async Task AnonymizeCustomerAsync(Customer customer, bool pseudomyzeContent)
         {
 			Guard.NotNull(customer, nameof(customer));
 
