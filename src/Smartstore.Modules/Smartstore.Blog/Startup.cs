@@ -6,7 +6,6 @@ using Smartstore.Blog.Filters;
 using Smartstore.Blog.Services;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
-using Smartstore.Core.Messaging;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
