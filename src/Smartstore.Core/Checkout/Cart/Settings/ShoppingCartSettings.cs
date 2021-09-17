@@ -153,5 +153,6 @@ namespace Smartstore.Core.Checkout.Cart
         /// Gets or sets a value indicating whether to add products to the basket in single positions
         /// </summary>
         public bool AddProductsToBasketInSinglePositions { get; set; }
+        // TODO: (mh) (core) A really fucked up name for something that I don't understand! What is a "single position"? Better name and explanation please.
     }
 }
