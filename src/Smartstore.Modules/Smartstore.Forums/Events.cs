@@ -166,6 +166,7 @@ namespace Smartstore.Forums
                     .FirstOrDefaultAsync();
 
                 // TODO: (mg) (core) build localized route URL for message model part.
+                // RE: MH has done this already in Blog module. Please have a look.
                 //var url = pageIndex > 0 ?
                 //    BuildRouteUrl("TopicSlugPaged", new { id = part.Id, slug = part.GetSeName(), page = pageIndex }, messageContext) :
                 //    BuildRouteUrl("TopicSlug", new { id = part.Id, slug = part.GetSeName() }, messageContext);

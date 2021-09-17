@@ -104,6 +104,7 @@ namespace Smartstore.Forums.Services
             if (_forumSettings.ForumEditor == EditorType.BBCodeEditor)
             {
                 // TODO: (mg) (core) uncomment when BBCodeHelper is available.
+                // RE: Please port BBCodeHelper, but not in Core. Move it to Forum module instead. But leave the CodeFormatter part in Core.
                 //text = BBCodeHelper.ToHtml(text);
             }
 
