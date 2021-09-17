@@ -76,13 +76,14 @@ namespace Smartstore.Engine.Initialization
 
         private async Task Initialize(HttpContext context)
         {
+            var scope = context.GetServiceScope();
             var pendingModules = GetInitModuleInfos();
 
             var modules = pendingModules
                 .Select(x => new InitModule
                 {
                     Info = x,
-                    Instance = context.GetServiceScope().ResolveUnregistered(x.ModuleType) as IApplicationInitializer
+                    Instance = scope.InjectProperties(scope.ResolveUnregistered(x.ModuleType) as IApplicationInitializer)
                 })
                 //.Where(x => x.Info.Attempts < Math.Max(1, x.Instance.MaxAttempts))
                 .OrderBy(x => x.Instance.Order)

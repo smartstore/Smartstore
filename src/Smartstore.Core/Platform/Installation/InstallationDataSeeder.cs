@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products.Utilities;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
@@ -21,9 +19,7 @@ using Smartstore.Core.Messaging.Utilities;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Theming;
-using Smartstore.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Data.Migrations;
 using Smartstore.Domain;
 using Smartstore.Engine;
 using Smartstore.IO;
@@ -146,8 +142,6 @@ namespace Smartstore.Core.Installation
                 ////////await Populate("PopulatePolls", _data.Polls());
                 Populate("FinalizeSamples", () => _data.FinalizeSamples());
             }
-
-            await PopulateAsync("MoveMedia", MoveMedia);
 
             // Perf
             Context.DetachEntities<BaseEntity>();
@@ -426,37 +420,6 @@ namespace Smartstore.Core.Installation
 
         private Task PopulateUrlRecordsFor<T>(IEnumerable<T> entities) where T : BaseEntity, ISlugSupported, new()
             => PopulateUrlRecordsFor(entities, entity => _data.CreateUrlRecordFor(entity));
-
-        private async Task MoveMedia()
-        {
-            if (_config.StoreMediaInDB)
-            {
-                return;
-            }
-            
-            // All pictures have initially been stored in the DB. Move the binaries to disk as configured.
-            var fileSystemStorageProvider = EngineContext.Current.ResolveService<Func<IMediaStorageProvider>>().Invoke();
-
-            using (var scope = new DbContextScope(Context, autoDetectChanges: true))
-            {
-                var mediaFiles = await Context.MediaFiles
-                    .Include(x => x.MediaStorage)
-                    .Where(x => x.MediaStorageId != null)
-                    .ToListAsync();
-
-                foreach (var mediaFile in mediaFiles)
-                {
-                    if (mediaFile.MediaStorage?.Data?.LongLength > 0)
-                    {
-                        await fileSystemStorageProvider.SaveAsync(mediaFile, MediaStorageItem.FromStream(mediaFile.MediaStorage.Data.ToStream()));
-                        mediaFile.MediaStorageId = null;
-                        mediaFile.MediaStorage = null;
-                    }
-                }
-
-                await scope.CommitAsync();
-            }
-        }
 
         #endregion
     }

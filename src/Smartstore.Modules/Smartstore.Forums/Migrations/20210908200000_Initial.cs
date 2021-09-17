@@ -7,7 +7,7 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums.Migrations
 {
-    [MigrationVersion("2021-09-08 20:00:00", "Forum: add initial entities")]
+    [MigrationVersion("2021-09-08 20:00:00", "Forum: Initial")]
     internal class Initial : Migration
     {
         public override void Up()

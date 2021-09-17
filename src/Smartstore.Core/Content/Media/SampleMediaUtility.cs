@@ -93,6 +93,7 @@ namespace Smartstore.Core.Content.Media
             
             var buffer = await source.ReadAllBytesAsync();
             mediaFile.Size = buffer.Length;
+            mediaFile.MediaStorage = new MediaStorage { Data = buffer };
 
             // So that FolderId is set later during track detection
             mediaFile.Version = 1;

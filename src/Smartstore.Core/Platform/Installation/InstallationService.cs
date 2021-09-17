@@ -9,10 +9,12 @@ using System.Xml;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Localization;
@@ -37,6 +39,7 @@ namespace Smartstore.Core.Installation
         private readonly IFilePermissionChecker _filePermissionChecker;
         private readonly IAsyncState _asyncState;
         private readonly IUrlHelper _urlHelper;
+        private readonly Func<IMediaStorageProvider> _mediaStorageProvider;
         private readonly IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> _seedDatas;
 
         public InstallationService(
@@ -45,6 +48,7 @@ namespace Smartstore.Core.Installation
             IFilePermissionChecker filePermissionChecker,
             IAsyncState asyncState,
             IUrlHelper urlHelper,
+            Func<IMediaStorageProvider> mediaStorageProvider,
             IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> seedDatas)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -52,7 +56,10 @@ namespace Smartstore.Core.Installation
             _filePermissionChecker = filePermissionChecker;
             _asyncState = asyncState;
             _urlHelper = urlHelper;
+            _mediaStorageProvider = mediaStorageProvider;
             _seedDatas = seedDatas;
+
+            Logger = _appContext.Logger;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -142,8 +149,7 @@ namespace Smartstore.Core.Installation
                 });
             }
 
-            ILifetimeScope richScope = null;
-            SmartDbContext dbContext = null;
+            SmartDbContext db = null;
             var shouldDeleteDbOnFailure = false;
 
             try
@@ -175,16 +181,16 @@ namespace Smartstore.Core.Installation
                 }
 
                 // Now it is safe to create the DbContext instance
-                dbContext = scope.Resolve<SmartDbContext>();
+                db = scope.Resolve<SmartDbContext>();
 
                 // Delete only on failure if WE created the database.
-                var canConnectDatabase = await dbContext.Database.CanConnectAsync(cancelToken);
+                var canConnectDatabase = await db.Database.CanConnectAsync(cancelToken);
                 shouldDeleteDbOnFailure = !canConnectDatabase;
 
                 cancelToken.ThrowIfCancellationRequested();
 
                 // Create Language domain object from lazyLanguage
-                var languages = dbContext.Languages;
+                var languages = db.Languages;
                 var primaryLanguage = new Language 
                 {
                     Name = lazyLanguage.Metadata.Name,
@@ -221,39 +227,37 @@ namespace Smartstore.Core.Installation
                 //});
 
                 // ===>>> Creates database
-                await dbContext.Database.EnsureCreatedSchemalessAsync(cancelToken);
+                await db.Database.EnsureCreatedSchemalessAsync(cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 
                 // ===>>> Populates latest schema
-                var migrator = scope.Resolve<DbMigrator<SmartDbContext>>(TypedParameter.From(dbContext));
+                var migrator = scope.Resolve<DbMigrator<SmartDbContext>>(TypedParameter.From(db));
                 await migrator.EnsureSchemaPopulatedAsync(cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 
                 // ===>>> Seeds data.
                 var seeder = new InstallationDataSeeder(_appContext, migrator, seedConfiguration, Logger, _httpContextAccessor);
-                await seeder.SeedAsync(dbContext, cancelToken);
+                await seeder.SeedAsync(db, cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 
-                // ===>>> Create rich scope for complex tasks.
-                richScope = scope.BeginLifetimeScope(c =>
-                {
-                    // At this stage (after the database has been created and seeded completely) we can create a richer service scope
-                    // to minimize the risk of dependency resolution exceptions during more complex install operations.
-                    c.RegisterInstance(dbContext);
-                });
-
                 // ===>>> Install modules
-                await InstallModules(model, dbContext, richScope, cancelToken);
+                await InstallModules(model, db, scope, cancelToken);
 
-                // Detect media file tracks (must come after plugins installation)
+                // Move media and detect media file tracks (must come after module installation)
                 UpdateResult(x =>
                 {
                     x.ProgressMessage = GetResource("Progress.ProcessingMedia");
                     Logger.Info(x.ProgressMessage);
                 });
 
-                var mediaTracker = richScope.Resolve<IMediaTracker>();
-                foreach (var album in richScope.Resolve<IAlbumRegistry>().GetAlbumNames(true))
+                if (!seedConfiguration.StoreMediaInDB)
+                {
+                    // All pictures have initially been stored in the DB. Move the binaries to disk as configured.
+                    await MoveMedia(db);
+                }
+
+                var mediaTracker = scope.Resolve<IMediaTracker>();
+                foreach (var album in scope.Resolve<IAlbumRegistry>().GetAlbumNames(true))
                 {
                     await mediaTracker.DetectAllTracksAsync(album, cancelToken);
                 }
@@ -283,12 +287,12 @@ namespace Smartstore.Core.Installation
                 Logger.Error(ex);
 
                 // Delete Db if it was auto generated
-                if (dbContext != null && shouldDeleteDbOnFailure)
+                if (db != null && shouldDeleteDbOnFailure)
                 {
                     try
                     {
                         Logger.Debug("Deleting database");
-                        await dbContext.Database.EnsureDeletedAsync(cancelToken);
+                        await db.Database.EnsureDeletedAsync(cancelToken);
                     }
                     catch 
                     { 
@@ -317,18 +321,6 @@ namespace Smartstore.Core.Installation
                     x.Completed = true;
                     x.RedirectUrl = null;
                 });
-            }
-            finally
-            {
-                if (dbContext != null)
-                {
-                    dbContext.Dispose();
-                }
-
-                if (richScope != null)
-                {
-                    richScope.Dispose();
-                }
             }
         }
 
@@ -375,6 +367,32 @@ namespace Smartstore.Core.Installation
                         modularState.InstalledModules.Remove(module.SystemName);
                     }
                 }
+            }
+        }
+
+        private async Task MoveMedia(SmartDbContext db)
+        {
+            // All pictures have initially been stored in the DB. Move the binaries to disk as configured.
+            var fileSystemStorageProvider = _mediaStorageProvider.Invoke();
+            
+            using (var scope = new DbContextScope(db, autoDetectChanges: true))
+            {
+                var mediaFiles = await db.MediaFiles
+                    .Include(x => x.MediaStorage)
+                    .Where(x => x.MediaStorageId != null)
+                    .ToListAsync();
+
+                foreach (var mediaFile in mediaFiles)
+                {
+                    if (mediaFile.MediaStorage?.Data?.LongLength > 0)
+                    {
+                        await fileSystemStorageProvider.SaveAsync(mediaFile, MediaStorageItem.FromStream(mediaFile.MediaStorage.Data.ToStream()));
+                        mediaFile.MediaStorageId = null;
+                        mediaFile.MediaStorage = null;
+                    }
+                }
+
+                await scope.CommitAsync();
             }
         }
 

@@ -9,7 +9,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Blog.Migrations
 {
-    [MigrationVersion("2021-09-14 13:30:00", "Blog: add initial entities")]
+    [MigrationVersion("2021-09-14 13:30:00", "Blog: Initial")]
     internal class Initial : Migration
     {
         // TODO: (mh) (core) Check if database was initialized correctly when sample data is finished.
