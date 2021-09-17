@@ -10,13 +10,11 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums.Migrations
 {
-    // TODO: (core) Handle MediaFile correctly (distinct between app and module installation, latter uses current storage provider)
-    // TODO: (core) Implement concept to prevent duplicate entity seeding (e.g. "AddOrUpdate()")
-    internal class ForumSampleDataSeeder : DataSeeder<SmartDbContext>
+    internal class ForumInstallationDataSeeder : DataSeeder<SmartDbContext>
     {
         private readonly ModuleInstallationContext _installContext;
 
-        public ForumSampleDataSeeder(ModuleInstallationContext installContext)
+        public ForumInstallationDataSeeder(ModuleInstallationContext installContext)
             : base(installContext.ApplicationContext, installContext.Logger)
         {
             _installContext = Guard.NotNull(installContext, nameof(installContext));
@@ -24,15 +22,18 @@ namespace Smartstore.Forums.Migrations
 
         protected override async Task SeedCoreAsync()
         {
-            if (await Context.Set<ForumGroup>().AnyAsync() || await Context.Set<Forum>().AnyAsync())
+            if (_installContext.SeedSampleData == null || _installContext.SeedSampleData == true)
             {
-                return;
-            } 
-            
-            var groups = ForumGroups();
-            
-            await PopulateAsync("PopulateForumGroups", groups);
-            await PopulateAsync("PopulateForums", Forums(groups));
+                if (await Context.Set<ForumGroup>().AnyAsync() || await Context.Set<Forum>().AnyAsync())
+                {
+                    return;
+                }
+
+                var groups = ForumGroups();
+
+                await PopulateAsync("PopulateForumGroups", groups);
+                await PopulateAsync("PopulateForums", Forums(groups));
+            }
         }
 
         private List<ForumGroup> ForumGroups()

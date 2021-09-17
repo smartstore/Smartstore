@@ -28,17 +28,14 @@ namespace Smartstore.Forums
 
         private async Task TrySeedData(ModuleInstallationContext context)
         {
-            if (context.SeedSampleData == null || context.SeedSampleData == true)
+            try
             {
-                try
-                {
-                    var seeder = new ForumSampleDataSeeder(context);
-                    await seeder.SeedAsync(Services.DbContext);
-                }
-                catch (Exception ex)
-                {
-                    context.Logger.Error(ex, "ForumsSampleDataSeeder failed.");
-                }
+                var seeder = new ForumInstallationDataSeeder(context);
+                await seeder.SeedAsync(Services.DbContext);
+            }
+            catch (Exception ex)
+            {
+                context.Logger.Error(ex, "ForumsSampleDataSeeder failed.");
             }
         }
 
