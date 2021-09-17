@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Blog.Domain;
 using Smartstore.Core;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Messaging.Events;
@@ -89,6 +90,20 @@ namespace Smartstore.Blog
             };
 
             return m;
+        }
+
+        public async Task HandleEventAsync(CustomerExportedEvent message, MessageModelProvider messageModelProvider)
+        {
+            var blogComments = await _db.CustomerContent
+                .AsNoTracking()
+                .OfType<BlogComment>()
+                .Where(x => x.CustomerId == message.Customer.Id)
+                .ToListAsync();
+
+            if (blogComments.Any())
+            {
+                message.Result["BlogComments"] = blogComments.Select(async x => await messageModelProvider.CreateModelPartAsync(x, true)).ToList();
+            }
         }
     }
 }
