@@ -77,7 +77,6 @@ namespace Smartstore.Forums.Services
 
         public virtual string BuildSlug(ForumTopic forumTopic)
         {
-            // TODO: (mg) (core) If this is the only method in IForumService: make this an extension method and remove ForumService.
             const int maxLength = 100;
 
             var slug = SeoHelper.BuildSlug(forumTopic.Subject);
@@ -103,9 +102,7 @@ namespace Smartstore.Forums.Services
 
             if (_forumSettings.ForumEditor == EditorType.BBCodeEditor)
             {
-                // TODO: (mg) (core) uncomment when BBCodeHelper is available.
-                // RE: Please port BBCodeHelper, but not in Core. Move it to Forum module instead. But leave the CodeFormatter part in Core.
-                //text = BBCodeHelper.ToHtml(text);
+                text = BBCodeHelper.ToHtml(text);
             }
 
             return text;

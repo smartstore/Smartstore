@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -12,6 +13,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 using Smartstore.Events;
@@ -153,24 +155,26 @@ namespace Smartstore.Forums
             }
         }
 
-        public async Task HandleEventAsync(MessageModelPartMappingEvent message, ICommonServices services, IForumService forumService)
+        public async Task HandleEventAsync(
+            MessageModelPartMappingEvent message, 
+            ICommonServices services, 
+            IForumService forumService,
+            IUrlHelper urlHelper)
         {
-            // TODO: (mg) (core) handle MessageModelPartMappingEvent.
+            var ctx = message.MessageContext;
+
             if (message.Source is ForumTopic topic)
             {
-                var customer = services.WorkContext.CurrentCustomer;
-                var pageIndex = message.MessageContext.Model.GetFromBag<int>("TopicPageIndex");
                 var firstPost = await services.DbContext.ForumPosts()
                     .AsNoTracking()
-                    .ApplyStandardFilter(customer, topic.Id)
+                    .ApplyStandardFilter(ctx.Customer, topic.Id)
                     .FirstOrDefaultAsync();
 
-                // TODO: (mg) (core) build localized route URL for message model part.
-                // RE: MH has done this already in Blog module. Please have a look.
-                //var url = pageIndex > 0 ?
-                //    BuildRouteUrl("TopicSlugPaged", new { id = part.Id, slug = part.GetSeName(), page = pageIndex }, messageContext) :
-                //    BuildRouteUrl("TopicSlug", new { id = part.Id, slug = part.GetSeName() }, messageContext);
-                string url = null;
+                // TODO: (mg) (core) verify forum frontend route URLs. See URLs below also.
+                var pageIndex = ctx.Model.GetFromBag<int>("TopicPageIndex");
+                var url = pageIndex > 0 ?
+                    urlHelper.RouteUrl("TopicSlugPaged", new { id = topic.Id, slug = forumService.BuildSlug(topic), page = pageIndex }) :
+                    urlHelper.RouteUrl("TopicSlug", new { id = topic.Id, slug = forumService.BuildSlug(topic) });
 
                 message.Result = new Dictionary<string, object>
                 {
@@ -182,7 +186,24 @@ namespace Smartstore.Forums
                     { "Url", url }
                 };
 
-                await services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<ForumTopic>(topic, message.Result));
+                await PublishEvent(topic);
+            }
+            else if (message.Source is Forum forum)
+            {
+                await services.DbContext.LoadReferenceAsync(forum, x => x.ForumGroup);
+
+                var url = urlHelper.RouteUrl("ForumSlug", new { id = forum.Id, slug = await forum.GetActiveSlugAsync(ctx.Language.Id) });
+
+                message.Result = new Dictionary<string, object>
+                {
+                    { "Name", forum.GetLocalized(x => x.Name, ctx.Language).Value.NullEmpty() },
+                    { "GroupName", forum.ForumGroup?.GetLocalized(x => x.Name, ctx.Language)?.Value.NullEmpty() },
+                    { "NumPosts", forum.NumPosts },
+                    { "NumTopics", forum.NumTopics },
+                    { "Url", url }
+                };
+
+                await PublishEvent(forum);
             }
             else if (message.Source is ForumPost post)
             {
@@ -194,7 +215,65 @@ namespace Smartstore.Forums
                     { "Body", forumService.FormatPostText(post).NullEmpty() }
                 };
 
-                await services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<ForumPost>(post, message.Result));
+                await PublishEvent(post);
+            }
+            else if (message.Source is ForumPostVote vote)
+            {
+                await services.DbContext.LoadReferenceAsync(vote, x => x.ForumPost, false, x => x.Include(y => y.ForumTopic));
+
+                var timeZone = services.DateTimeHelper.GetCustomerTimeZone(ctx.Customer);
+
+                message.Result = new Dictionary<string, object>
+                {
+                    { "ForumPostId", vote.ForumPostId },
+                    { "Vote", vote.Vote },
+                    { "TopicId", vote.ForumPost?.TopicId },
+                    { "TopicSubject", vote.ForumPost?.ForumTopic?.Subject.NullEmpty() },
+                    { "CustomerId", vote.CustomerId },
+                    { "IpAddress", vote.IpAddress },
+                    { "CreatedOn", services.DateTimeHelper.ConvertToUserTime(vote.CreatedOnUtc, TimeZoneInfo.Utc, timeZone) },
+                    { "UpdatedOn", services.DateTimeHelper.ConvertToUserTime(vote.UpdatedOnUtc, timeZone) }
+                };
+
+                await PublishEvent(vote);
+            }
+            else if (message.Source is ForumSubscription subscription)
+            {
+                var timeZone = services.DateTimeHelper.GetCustomerTimeZone(ctx.Customer);
+
+                message.Result = new Dictionary<string, object>
+                {
+                    { "SubscriptionGuid", subscription.SubscriptionGuid },
+                    { "CustomerId", subscription.CustomerId },
+                    { "ForumId", subscription.ForumId },
+                    { "TopicId", subscription.TopicId },
+                    { "CreatedOn", services.DateTimeHelper.ConvertToUserTime(subscription.CreatedOnUtc, timeZone) }
+                };
+
+                await PublishEvent(subscription);
+            }
+            else if (message.Source is PrivateMessage pm)
+            {
+                await services.DbContext.LoadReferenceAsync(pm, x => x.FromCustomer);
+                await services.DbContext.LoadReferenceAsync(pm, x => x.ToCustomer);
+
+                message.Result = new Dictionary<string, object>
+                {
+                    { "Subject", pm.Subject.NullEmpty() },
+                    { "Text", pm.FormatPrivateMessageText().NullEmpty() },
+                    { "FromEmail", pm.FromCustomer?.FindEmail().NullEmpty() },
+                    { "ToEmail", pm.ToCustomer?.FindEmail().NullEmpty() },
+                    { "FromName", pm.FromCustomer?.GetFullName().NullEmpty() },
+                    { "ToName", pm.ToCustomer?.GetFullName().NullEmpty() },
+                    { "Url", urlHelper.Action("View", "PrivateMessages", new { id = pm.Id, area = string.Empty }) }
+                };
+
+                await PublishEvent(pm);
+            }
+
+            Task PublishEvent<T>(T source) where T : class
+            {
+                return services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, message.Result));
             }
         }
 

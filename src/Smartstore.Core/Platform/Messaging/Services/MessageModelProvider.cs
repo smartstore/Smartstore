@@ -54,7 +54,7 @@ namespace Smartstore.Core.Messaging
         public ModelTreeMemberKind Kind { get; set; }
     }
 
-    // TODO: (mh) (core) Move Blog, News, Forum and Polls model creation to external modules when they are available (via MessageModelPartMappingEvent)
+    // TODO: (mh) (core) Move Blog, News and Polls model creation to external modules when they are available (via MessageModelPartMappingEvent)
 
     public partial class MessageModelProvider : IMessageModelProvider
     {
@@ -253,21 +253,6 @@ namespace Smartstore.Core.Messaging
                 //case NewsComment x:
                 //    modelPart = await CreateModelPartAsync(x, messageContext);
                 //    break;
-                //case ForumTopic x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
-                //case ForumPost x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
-                //case ForumPostVote x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
-                //case Forum x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
-                //case PrivateMessage x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
                 case IEnumerable<GenericAttribute> x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
@@ -277,9 +262,6 @@ namespace Smartstore.Core.Messaging
                 case ProductReviewHelpfulness x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
-                //case ForumSubscription x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
                 case BackInStockSubscription x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
@@ -810,28 +792,6 @@ namespace Smartstore.Core.Messaging
         //    return m;
         //}
 
-//        protected virtual async Task<object> CreateModelPartAsync(PrivateMessage part, MessageContext messageContext)
-//        {
-//            Guard.NotNull(messageContext, nameof(messageContext));
-//            Guard.NotNull(part, nameof(part));
-
-//            var m = new Dictionary<string, object>
-//            {
-//                {  "Subject", part.Subject.NullEmpty() },
-//                // TODO: (mh) (core) Uncomment when forum services are available.
-////                {  "Text", part.FormatPrivateMessageText().NullEmpty() },
-//                {  "FromEmail", part.FromCustomer?.FindEmail().NullEmpty() },
-//                {  "ToEmail", part.ToCustomer?.FindEmail().NullEmpty() },
-//                {  "FromName", part.FromCustomer?.GetFullName().NullEmpty() },
-//                {  "ToName", part.ToCustomer?.GetFullName().NullEmpty() },
-//                {  "Url", BuildActionUrl("View", "PrivateMessages", new { id = part.Id, area = "" }, messageContext) }
-//            };
-
-//            await PublishModelPartCreatedEventAsync(part, m);
-
-//            return m;
-//        }
-
         //protected virtual async Task<object> CreateModelPartAsync(NewsComment part, MessageContext messageContext)
         //{
         //    Guard.NotNull(messageContext, nameof(messageContext));
@@ -843,92 +803,6 @@ namespace Smartstore.Core.Messaging
         //        {  "Title", part.CommentTitle.NullEmpty() },
         //        {  "Text", HtmlUtils.StripTags(part.CommentText).NullEmpty() },
         //        {  "NewsUrl", BuildRouteUrl("NewsItem", new { SeName = part.NewsItem.GetActiveSlugAsync(messageContext.Language.Id) }, messageContext) }
-        //    };
-
-        //    await PublishModelPartCreatedEventAsync(part, m);
-
-        //    return m;
-        //}
-
-        //protected virtual async Task<object> CreateModelPartAsync(ForumTopic part, MessageContext messageContext)
-        //{
-        //    Guard.NotNull(messageContext, nameof(messageContext));
-        //    Guard.NotNull(part, nameof(part));
-
-        //    var pageIndex = messageContext.Model.GetFromBag<int>("TopicPageIndex");
-
-        //    // TODO: (mh) (core) What to do here? ForumTopic wasn't ISlugSupported...
-        //    //var url = pageIndex > 0 ?
-        //    //    BuildRouteUrl("TopicSlugPaged", new { id = part.Id, slug = part.GetActiveSlugAsync(), page = pageIndex }, messageContext) :
-        //    //    BuildRouteUrl("TopicSlug", new { id = part.Id, slug = part.GetActiveSlugAsync() }, messageContext);
-
-        //    var m = new Dictionary<string, object>
-        //    {
-        //        { "Subject", part.Subject.NullEmpty() },
-        //        { "NumReplies", part.NumReplies },
-        //        { "NumPosts", part.NumPosts },
-        //        { "NumViews", part.Views },
-        //        // TODO: (mh) (core) Uncomment when forum services are available.
-        //        //{ "Body", part.GetFirstPost(_services.Resolve<IForumService>())?.FormatPostText().NullEmpty() },
-        //        //{ "Url", url },
-        //    };
-
-        //    await PublishModelPartCreatedEventAsync(part, m);
-
-        //    return m;
-        //}
-
-        //protected virtual async Task<object> CreateModelPartAsync(ForumPostVote part, MessageContext messageContext)
-        //{
-        //    Guard.NotNull(messageContext, nameof(messageContext));
-        //    Guard.NotNull(part, nameof(part));
-
-        //    var m = new Dictionary<string, object>
-        //    {
-        //        { "ForumPostId", part.ForumPostId },
-        //        { "Vote", part.Vote },
-        //        { "TopicId", part.ForumPost.TopicId },
-        //        { "TopicSubject", part.ForumPost.ForumTopic.Subject.NullEmpty() },
-        //    };
-
-        //    ApplyCustomerContentPart(m, part, messageContext);
-
-        //    await PublishModelPartCreatedEventAsync(part, m);
-
-        //    return m;
-        //}
-
-        //protected virtual async Task<object> CreateModelPartAsync(Forum part, MessageContext messageContext)
-        //{
-        //    Guard.NotNull(messageContext, nameof(messageContext));
-        //    Guard.NotNull(part, nameof(part));
-
-        //    var m = new Dictionary<string, object>
-        //    {
-        //        { "Name", part.GetLocalized(x => x.Name, messageContext.Language).Value.NullEmpty() },
-        //        { "GroupName", part.ForumGroup?.GetLocalized(x => x.Name, messageContext.Language)?.Value.NullEmpty() },
-        //        { "NumPosts", part.NumPosts },
-        //        { "NumTopics", part.NumTopics },
-        //        { "Url", BuildRouteUrl("ForumSlug", new {  id = part.Id, slug = part.GetActiveSlugAsync(messageContext.Language.Id) }, messageContext) },
-        //    };
-
-        //    await PublishModelPartCreatedEventAsync(part, m);
-
-        //    return m;
-        //}
-
-        //protected virtual async Task<object> CreateModelPartAsync(ForumSubscription part, MessageContext messageContext)
-        //{
-        //    Guard.NotNull(messageContext, nameof(messageContext));
-        //    Guard.NotNull(part, nameof(part));
-
-        //    var m = new Dictionary<string, object>
-        //    {
-        //        {  "SubscriptionGuid", part.SubscriptionGuid },
-        //        {  "CustomerId",  part.CustomerId },
-        //        {  "ForumId",  part.ForumId },
-        //        {  "TopicId",  part.TopicId },
-        //        {  "CreatedOn", ToUserDate(part.CreatedOnUtc, messageContext) }
         //    };
 
         //    await PublishModelPartCreatedEventAsync(part, m);
