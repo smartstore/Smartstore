@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Blog.Domain;
 using Smartstore.Blog.Messaging;
 using Smartstore.Blog.Models.Public;
-using Smartstore.Blog.Services;
 using Smartstore.Caching.OutputCache;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
@@ -41,17 +40,15 @@ namespace Smartstore.Blog.Controllers
 {
     public class BlogController : PublicController
     {
-        // TODO: (mh) (core) Consider more Lazy stuff
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly IMediaService _mediaService;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly IWebHelper _webHelper;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IPageAssetBuilder _pageAssetBuilder;
-        private readonly IBlogService _blogService;
-        private readonly IActivityLogger _activityLogger;
-        private readonly IMessageFactory _messageFactory;
+        private readonly Lazy<IWebHelper> _webHelper;
+        private readonly Lazy<IActivityLogger> _activityLogger;
+        private readonly Lazy<IMessageFactory> _messageFactory;
         private readonly Lazy<LinkGenerator> _linkGenerator;
 
         private readonly BlogSettings _blogSettings;
@@ -65,12 +62,11 @@ namespace Smartstore.Blog.Controllers
             ICommonServices services,
             IMediaService mediaService,
             IDateTimeHelper dateTimeHelper,
-            IWebHelper webHelper,
             IStoreMappingService storeMappingService,
             IPageAssetBuilder pageAssetBuilder,
-            IBlogService blogService,
-            IActivityLogger activityLogger,
-            IMessageFactory messageFactory,
+            Lazy<IWebHelper> webHelper,
+            Lazy<IActivityLogger> activityLogger,
+            Lazy<IMessageFactory> messageFactory,
             Lazy<LinkGenerator> linkGenerator,
             BlogSettings blogSettings,
             LocalizationSettings localizationSettings,
@@ -82,10 +78,9 @@ namespace Smartstore.Blog.Controllers
             _services = services;
             _mediaService = mediaService;
             _dateTimeHelper = dateTimeHelper;
-            _webHelper = webHelper;
             _storeMappingService = storeMappingService;
             _pageAssetBuilder = pageAssetBuilder;
-            _blogService = blogService;
+            _webHelper = webHelper;
             _activityLogger = activityLogger;
             _messageFactory = messageFactory;
             _linkGenerator = linkGenerator;
@@ -416,7 +411,7 @@ namespace Smartstore.Blog.Controllers
         public async Task<IActionResult> ListRss()
         {
             DateTime? maxAge = null;
-            var protocol = _webHelper.IsCurrentConnectionSecured() ? "https" : "http";
+            var protocol = _webHelper.Value.IsCurrentConnectionSecured() ? "https" : "http";
             var selfLink = Url.RouteUrl("BlogRSS", null, protocol);
             var blogLink = Url.RouteUrl("Blog", null, protocol);
             var language = _services.WorkContext.WorkingLanguage;
@@ -540,7 +535,7 @@ namespace Smartstore.Blog.Controllers
                 {
                     BlogPostId = blogPost.Id,
                     CustomerId = customer.Id,
-                    IpAddress = _webHelper.GetClientIpAddress().ToString(),
+                    IpAddress = _webHelper.Value.GetClientIpAddress().ToString(),
                     CommentText = model.AddNewComment.CommentText,
                     IsApproved = true
                 };
@@ -551,14 +546,15 @@ namespace Smartstore.Blog.Controllers
                 // Notify the store owner.
                 if (_blogSettings.NotifyAboutNewBlogComments)
                 {
-                    await _messageFactory.SendBlogCommentNotificationMessage(comment, _localizationSettings.DefaultAdminLanguageId);
+                    await _messageFactory.Value.SendBlogCommentNotificationMessage(comment, _localizationSettings.DefaultAdminLanguageId);
                 }
 
-                _activityLogger.LogActivity(KnownActivityLogTypes.PublicStoreAddBlogComment, T("ActivityLog.PublicStore.AddBlogComment"));
+                _activityLogger.Value.LogActivity(KnownActivityLogTypes.PublicStoreAddBlogComment, T("ActivityLog.PublicStore.AddBlogComment"));
 
                 NotifySuccess(T("Blog.Comments.SuccessfullyAdded"));
 
                 var seName = await blogPost.GetActiveSlugAsync(ensureTwoPublishedLanguages: false);
+                // TODO: (mh) (core) #new-comment
                 var url = _linkGenerator.Value.GetPathByRouteValues("BlogPost", new { SeName = seName }, fragment: new FragmentString("#new-comment"));
                 return Redirect(url);
             }
@@ -567,8 +563,6 @@ namespace Smartstore.Blog.Controllers
             await PrepareBlogPostModelAsync(model, blogPost, true);
             return View("BlogPost", model);
         }
-
-        // TODO: (mh) (core) RssHeaderLink ??? :-/
 
         #endregion
     }
