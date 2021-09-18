@@ -126,25 +126,25 @@ Vue.component("sm-datagrid", {
 
                                     <td v-for="(column, columnIndex) in columns"
                                         class="dg-td"
-                                        :class="getDataCellClass(row[column.member], column, row)"
+                                        :class="getDataCellClass(getColumnValue(column, row), column, row)"
                                         v-show="column.visible"
                                         :data-index="columnIndex"
                                         :key="row[options.keyMemberName] + '-' + columnIndex"
                                         @dblclick="onCellDblClick($event, row)">
 
                                         <div class="dg-cell" :class="getCellClass(row, column)" :style="getCellStyles(row, column, false)">
-                                            <slot v-if="!isInlineEditCell(row, column)" :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                                            <slot v-if="!isInlineEditCell(row, column)" :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: getColumnValue(column, row) }">
                                                 <template v-if="column.type === 'boolean'">
-                                                    <div class="dg-cell-value"><i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i></div>
+                                                    <div class="dg-cell-value"><i class="fa fa-fw" :class="'icon-active-' + getColumnValue(column, row)"></i></div>
                                                 </template>
                                                 <template v-else>
-                                                    <div class="dg-cell-value" v-if="column.encoded" v-html="renderCellValue(row[column.member], column, row)"></div>
-                                                    <div class="dg-cell-value" v-else>{{ renderCellValue(row[column.member], column, row) }}</div>
+                                                    <div class="dg-cell-value" v-if="column.encoded" v-html="renderCellValue(getColumnValue(column, row), column, row)"></div>
+                                                    <div class="dg-cell-value" v-else>{{ renderCellValue(getColumnValue(column, row), column, row) }}</div>
                                                 </template>
                                             </slot>
                                             <template v-if="isInlineEditCell(row, column)">
                                                 <div class="dg-cell-edit-controls">
-                                                    <slot :name="'edit-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                                                    <slot :name="'edit-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: getColumnValue(column, row) }">
                                                     </slot>
                                                 </div>
                                             </template>
@@ -681,6 +681,15 @@ Vue.component("sm-datagrid", {
                     return { member: c.member, visible: c.visible, width: c.width };
                 })
             };
+        },
+
+        getColumnValue(column, row) {
+            if (column.member.indexOf('.') === -1) {
+                return row[column.member];
+            }
+
+            const tokens = column.member.split('.');
+            return _.property(tokens)(row);
         },
 
         renderCellValue(value, column, row) {

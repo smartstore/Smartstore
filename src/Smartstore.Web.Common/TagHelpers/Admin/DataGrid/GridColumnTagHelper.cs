@@ -203,7 +203,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeNotBound]
         public string MemberName 
         {
-            get => For.Metadata.Name;
+            get => For.Name;
         }
 
         [HtmlAttributeNotBound]

@@ -68,11 +68,13 @@
         <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
         <column for="StartDate" entity-member="StartDateUtc" visible="false" />
         <column for="EndDate" entity-member="EndDateUtc" visible="false" />
-        <column for="Tags" readonly="true">
+        <column for="Tags" readonly="true" wrap="true" sortable="false">
             <display-template>
-                <span v-for="tag in item.value" class="badge p-1 badge-primary"> 
-                    {{ tag }} 
-                </span>
+                <div>
+                    <span v-for="tag in item.value" class="badge p-1 badge-secondary">
+                        {{ tag }}
+                    </span>
+                </div>
             </display-template>
         </column>
     </columns>
