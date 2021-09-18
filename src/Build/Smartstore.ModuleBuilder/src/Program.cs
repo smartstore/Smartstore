@@ -40,11 +40,12 @@ namespace Smartstore.ModuleBuilder
             foreach (var path in modulePaths)
             {
                 var fullModulePath = Path.GetFullPath(path).Trim('"');
+                var moduleName = Path.GetFileName(fullModulePath);
 
-                Console.WriteLine($"DeployModule: {Path.GetFileName(fullModulePath)}");
+                Console.WriteLine($"DeployModule: {moduleName}");
 
                 DeployModule(fullModulePath);
-                DeleteRefs(fullModulePath);
+                DeleteJunk(fullModulePath, moduleName);
             }
         }
 
@@ -125,16 +126,36 @@ namespace Smartstore.ModuleBuilder
             }
         }
 
-        static void DeleteRefs(string modulePath)
+        static void DeleteJunk(string modulePath, string moduleName)
         {
-            Directory.Delete(Path.Combine(modulePath, "ref"), true);
-            Directory.Delete(Path.Combine(modulePath, "refs"), true);
+            var dir = new DirectoryInfo(modulePath);
+            if (!dir.Exists)
+            {
+                return;
+            }
+
+            var entries = dir.GetFileSystemInfos("*", SearchOption.TopDirectoryOnly);
+            foreach (var entry in entries)
+            {
+                if (entry is DirectoryInfo di && (entry.Name == "ref" || entry.Name == "refs"))
+                {
+                    di.Delete(true);
+                }
+
+                if (entry is FileInfo fi)
+                {
+                    if (entry.Name.StartsWith("Smartstore.Data.") || entry.Name == $"{moduleName}.StaticWebAssets.xml")
+                    {
+                        fi.Delete();
+                    }
+                }
+            }
         }
 
-        static string[] GetLibNames(DependencyContext context)
-        {
-            return context.CompileLibraries.Where(x => x.Type == "package").Select(x => x.Name).ToArray();
-        }
+        //static string[] GetLibNames(DependencyContext context)
+        //{
+        //    return context.CompileLibraries.Where(x => x.Type == "package").Select(x => x.Name).ToArray();
+        //}
 
         class ModuleDescriptor
         {
