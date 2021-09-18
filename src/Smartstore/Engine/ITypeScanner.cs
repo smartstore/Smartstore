@@ -66,9 +66,9 @@ namespace Smartstore.Engine
         public IEnumerable<Assembly> Assemblies { get; } = Enumerable.Empty<Assembly>();
 
         public IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true)
-            => Enumerable.Empty<Type>();
+            => Type.EmptyTypes;
 
         public IEnumerable<Type> FindTypes(Type baseType, IEnumerable<Assembly> assemblies, bool concreteTypesOnly = true)
-            => Enumerable.Empty<Type>();
+            => Type.EmptyTypes;
     }
 }

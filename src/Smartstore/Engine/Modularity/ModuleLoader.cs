@@ -16,7 +16,7 @@ namespace Smartstore.Engine.Modularity
 
         public void LoadModule(ModuleDescriptor descriptor)
         {
-            if (descriptor == null)
+            if (descriptor == null || descriptor.Incompatible)
             {
                 return;
             }

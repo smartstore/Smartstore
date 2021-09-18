@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Smartstore.IO;
 using Smartstore.Utilities;
 
@@ -26,8 +27,7 @@ namespace Smartstore.Engine.Modularity
                 var hashCombiner = new HashCodeCombiner();
 
                 // Add each *.dll and module.json file of compatible modules.
-                var arrModules = _appContext.ModuleCatalog.Modules
-                    .Where(x => !x.Incompatible)
+                var arrModules = _appContext.ModuleCatalog.GetInstalledModules()
                     .OrderBy(x => x.SystemName)
                     .ToArray();
 
@@ -35,7 +35,6 @@ namespace Smartstore.Engine.Modularity
                 {
                     var manifestFile = new FileInfo(Path.Combine(m.PhysicalPath, "module.json"));
                     
-                    hashCombiner.Add(m.IsInstalled());
                     hashCombiner.Add(manifestFile);
 
                     var dir = new DirectoryInfo(m.PhysicalPath);
@@ -53,12 +52,13 @@ namespace Smartstore.Engine.Modularity
         const string LegacyFileName = "InstalledPlugins.txt";
         const string PendingModulesFileName = "PendingModules.txt";
 
-        private readonly static Lazy<ModularState> _instance = new(() => new ModularState(), true);
+        private ModulesHasher _hasher;
+        private static ModularState _instance;
         private readonly static object _lock = new();
 
         public static ModularState Instance
         {
-            get => _instance.Value;
+            get => LazyInitializer.EnsureInitialized(ref _instance, () => new ModularState());
         }
 
         private IApplicationContext _appContext;
@@ -75,6 +75,11 @@ namespace Smartstore.Engine.Modularity
             }
 
             InternalReload();
+        }
+
+        private ModulesHasher Hasher
+        {
+            get => LazyInitializer.EnsureInitialized(ref _hasher, () => new ModulesHasher(_appContext));
         }
 
         public void Reload()
@@ -176,10 +181,10 @@ namespace Smartstore.Engine.Modularity
         /// </summary>
         public bool HasChanged
         {
-            get => _hasChanged ??= new ModulesHasher(_appContext).HasChanged;
+            get => _hasChanged ??= Hasher.HasChanged;
         }
 
         public void SaveStateHash()
-            => new ModulesHasher(_appContext).Persist();
+            => Hasher.Persist();
     }
 }

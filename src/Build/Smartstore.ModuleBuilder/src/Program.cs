@@ -45,7 +45,7 @@ namespace Smartstore.ModuleBuilder
                 Console.WriteLine($"DeployModule: {moduleName}");
 
                 DeployModule(fullModulePath);
-                DeleteJunk(fullModulePath, moduleName);
+                DeleteJunk(fullModulePath);
             }
         }
 
@@ -126,7 +126,7 @@ namespace Smartstore.ModuleBuilder
             }
         }
 
-        static void DeleteJunk(string modulePath, string moduleName)
+        static void DeleteJunk(string modulePath)
         {
             var dir = new DirectoryInfo(modulePath);
             if (!dir.Exists)
@@ -144,7 +144,7 @@ namespace Smartstore.ModuleBuilder
 
                 if (entry is FileInfo fi)
                 {
-                    if (entry.Name.StartsWith("Smartstore.Data.") || entry.Name == $"{moduleName}.StaticWebAssets.xml")
+                    if (entry.Name.StartsWith("Smartstore.Data.") || entry.Name.EndsWith(".StaticWebAssets.xml"))
                     {
                         fi.Delete();
                     }

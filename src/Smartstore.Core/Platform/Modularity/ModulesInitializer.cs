@@ -12,9 +12,10 @@ using Smartstore.Engine.Initialization;
 namespace Smartstore.Engine.Modularity
 {
     /// <summary>
-    /// Installs pending modules on app startup.
+    /// Installs pending modules on app startup and checks whether any module has changed
+    /// and refreshes all module locale resources.
     /// </summary>
-    internal class PendingModulesInitializer : IApplicationInitializer
+    internal class ModulesInitializer : IApplicationInitializer
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
@@ -24,11 +25,17 @@ namespace Smartstore.Engine.Modularity
 
         public async Task InitializeAsync(HttpContext httpContext)
         {
+            var appContext = httpContext.RequestServices.GetRequiredService<IApplicationContext>();
+            var resourceManager = httpContext.RequestServices.GetRequiredService<IXmlResourceManager>();
+
+            // Discover and refresh changed module locale resources
+            await TryRefreshLocaleResources(appContext.ModuleCatalog, resourceManager);
+
+            // Install pending modules
             var modularState = ModularState.Instance;
             if (modularState.PendingModules.Count == 0)
                 return;
 
-            var appContext = httpContext.RequestServices.GetRequiredService<IApplicationContext>();
             var moduleManager = httpContext.RequestServices.GetRequiredService<ModuleManager>();
             var languageService = httpContext.RequestServices.GetRequiredService<ILanguageService>();
             var processedModules = new List<string>(modularState.PendingModules.Count);
@@ -97,5 +104,19 @@ namespace Smartstore.Engine.Modularity
 
         public Task OnFailAsync(Exception exception, bool willRetry)
             => Task.CompletedTask;
+
+        private static async Task TryRefreshLocaleResources(IModuleCatalog moduleCatalog, IXmlResourceManager resourceManager)
+        {
+            var modules = moduleCatalog.GetInstalledModules().ToArray();
+
+            foreach (var module in modules)
+            {
+                var hasher = resourceManager.CreateModuleResourcesHasher(module);
+                if (hasher.HasChanged)
+                {
+                    await resourceManager.ImportModuleResourcesFromXmlAsync(module, null, false);
+                }
+            }
+        }
     }
 }

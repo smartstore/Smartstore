@@ -115,12 +115,12 @@ namespace Smartstore.IO
             if (_searchPattern.HasValue() && _searchPattern != "*")
                 key += "_" + _searchPattern.ToLower().ToValidFileName("x");
 
-            return key.Trim(new char[] { '/', '\\' });
+            return key.Trim(PathUtility.PathSeparators);
         }
 
         private static int ConvertHash(string val)
         {
-            if (Int32.TryParse(val, NumberStyles.Integer, CultureInfo.InvariantCulture, out var outVal))
+            if (int.TryParse(val, NumberStyles.Integer, CultureInfo.InvariantCulture, out var outVal))
             {
                 return outVal;
             }

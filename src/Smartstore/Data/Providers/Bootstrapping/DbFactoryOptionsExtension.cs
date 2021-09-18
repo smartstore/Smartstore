@@ -142,7 +142,7 @@ namespace Smartstore.Data.Providers
             }
             
             var clone = Clone();
-            clone.DataSeederTypes = (DataSeederTypes ?? Enumerable.Empty<Type>()).Concat(new[] { typeof(TSeeder) });
+            clone.DataSeederTypes = (DataSeederTypes ?? Type.EmptyTypes).Concat(new[] { typeof(TSeeder) });
             return clone;
         }
 
