@@ -42,10 +42,7 @@ namespace Smartstore.Web.Bundling.Processors
                     };
                 }
 
-                var watch = Stopwatch.StartNew();
                 var result = Scss.ConvertToCss(asset.Content, sassOptions);
-                watch.Stop();
-                Debug.WriteLine($"LibSass time for {asset.Path}: {watch.ElapsedMilliseconds} ms.");
 
                 context.IncludedFiles.AddRange(result.IncludedFiles);
 
