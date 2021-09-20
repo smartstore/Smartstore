@@ -134,6 +134,8 @@ namespace Smartstore.Forums.Migrations
 
         private List<ActivityLogType> ActivityLogTypes()
         {
+            // TODO: (mg) (core) We shouldn't seed such data without any duplicate check. I originally intended to build
+            // an extension method for this (AddOrUpdate()) but canceled it due to complexity. We have to do it manually.
             return new List<ActivityLogType>
             {
                 new ActivityLogType
