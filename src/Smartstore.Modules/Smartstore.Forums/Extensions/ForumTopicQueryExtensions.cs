@@ -14,7 +14,7 @@ namespace Smartstore.Forums
         /// <param name="customer">Customer, usually the current customer.</param>
         /// <param name="includeHidden">Applies filter by <see cref="ForumTopic.Published"/> if <paramref name="customer"/> is not a forum moderator.</param>
         /// <returns>Forum topic query.</returns>
-        internal static IOrderedQueryable<ForumTopic> ApplyStandardFilter(
+        public static IOrderedQueryable<ForumTopic> ApplyStandardFilter(
             this IQueryable<ForumTopic> query,
             Customer customer,
             bool includeHidden = false)

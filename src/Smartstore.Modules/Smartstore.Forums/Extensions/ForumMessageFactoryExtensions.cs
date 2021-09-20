@@ -5,7 +5,6 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums
 {
-    // INFO: (mg) (core) Not necessary to make methods of internal classes internal.
     internal static partial class ForumMessageFactoryExtensions
     {
         /// <summary>

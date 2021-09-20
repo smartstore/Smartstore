@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
-using Smartstore.Core.Localization;
-using Smartstore.Domain;
+﻿using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Identity
 {
@@ -10,11 +7,12 @@ namespace Smartstore.Core.Identity
     /// </summary>
     public class CustomerAnonymizedEvent
     {
-        public CustomerAnonymizedEvent(IGdprTool tool, Customer customer, Language language)
+        public CustomerAnonymizedEvent(IGdprTool tool, Customer customer, Language language, bool pseudomyzeContent)
         {
             GdprTool = Guard.NotNull(tool, nameof(tool));
             Customer = Guard.NotNull(customer, nameof(customer));
             Language = Guard.NotNull(language, nameof(language));
+            PseudomyzeContent = pseudomyzeContent;
         }
 
         public IGdprTool GdprTool { get; }
@@ -22,5 +20,7 @@ namespace Smartstore.Core.Identity
         public Customer Customer { get; }
 
         public Language Language { get; }
+
+        public bool PseudomyzeContent { get; }
     }
 }

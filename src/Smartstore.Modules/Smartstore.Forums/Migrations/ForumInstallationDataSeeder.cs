@@ -2,26 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
+using Smartstore.Core.Messaging;
 using Smartstore.Engine.Modularity;
 using Smartstore.Forums.Domain;
+using Smartstore.IO;
 
 namespace Smartstore.Forums.Migrations
 {
     internal class ForumInstallationDataSeeder : DataSeeder<SmartDbContext>
     {
         private readonly ModuleInstallationContext _installContext;
+        private readonly IMessageTemplateService _messageTemplateService;
+        private readonly bool _deSeedData;
 
         public ForumInstallationDataSeeder(ModuleInstallationContext installContext)
             : base(installContext.ApplicationContext, installContext.Logger)
         {
             _installContext = Guard.NotNull(installContext, nameof(installContext));
+
+            _messageTemplateService = installContext.ApplicationContext.Services.Resolve<IMessageTemplateService>();
+
+            _deSeedData = _installContext.Culture?.StartsWith("de", StringComparison.OrdinalIgnoreCase) ?? false;
         }
 
         protected override async Task SeedCoreAsync()
         {
+            await PopulateAsync("PopulateForumMessageTemplates", PopulateMessageTemplates);
+
             if (_installContext.SeedSampleData == null || _installContext.SeedSampleData == true)
             {
                 if (await Context.Set<ForumGroup>().AnyAsync() || await Context.Set<Forum>().AnyAsync())
@@ -36,14 +47,20 @@ namespace Smartstore.Forums.Migrations
             }
         }
 
+        private async Task PopulateMessageTemplates()
+        {
+            await _messageTemplateService.ImportAllTemplatesAsync(
+                _installContext.Culture,
+                PathUtility.Combine(_installContext.ModuleDescriptor.Path, "App_Data/EmailTemplates"));
+        }
+
         private List<ForumGroup> ForumGroups()
         {
-            // TODO: (mg) (core) Handle localization.
             return new List<ForumGroup> 
             {
                 new ForumGroup
                 {
-                    Name = "General",
+                    Name = _deSeedData ? "Allgemein" :  "General",
                     Description = string.Empty,
                     DisplayOrder = 1
                 }
@@ -52,7 +69,6 @@ namespace Smartstore.Forums.Migrations
 
         private List<Forum> Forums(List<ForumGroup> groups)
         {
-            // TODO: (mg) (core) Handle localization.
             var group = groups.FirstOrDefault(c => c.DisplayOrder == 1);
 
             return new List<Forum>
@@ -60,15 +76,15 @@ namespace Smartstore.Forums.Migrations
                 new Forum
                 {
                     ForumGroup = group,
-                    Name = "New Products",
-                    Description = "Discuss new products and industry trends",
+                    Name = _deSeedData ? "Neue Produkte" : "New Products",
+                    Description = _deSeedData ? "Diskutieren Sie aktuelle oder neue Produkte" : "Discuss new products and industry trends",
                     DisplayOrder = 1
                 },
                 new Forum
                 {
                     ForumGroup = group,
-                    Name = "Packaging & Shipping",
-                    Description = "Discuss packaging & shipping",
+                    Name = _deSeedData ? "Verpackung & Versand" : "Packaging & Shipping",
+                    Description = _deSeedData ? "Haben Sie Fragen oder Anregungen zu Verpackung & Versand?" : "Discuss packaging & shipping",
                     DisplayOrder = 20
                 }
             };

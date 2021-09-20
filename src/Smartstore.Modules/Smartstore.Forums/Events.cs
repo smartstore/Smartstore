@@ -10,6 +10,7 @@ using Smartstore.Core;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Messaging.Events;
@@ -17,6 +18,7 @@ using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Batching;
 using Smartstore.Events;
 using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models;
@@ -186,7 +188,6 @@ namespace Smartstore.Forums
                     { "NumPosts", topic.NumPosts },
                     { "NumViews", topic.Views },
                     { "Body", forumService.FormatPostText(firstPost).NullEmpty() },
-                    // INFO: (mg) (core) That's NOT how MH did it. URLs in messages must be absolute (including scheme + host etc.)
                     { "Url", MessageModelProvider.BuildUrl(url, ctx) }
                 };
 
@@ -286,8 +287,6 @@ namespace Smartstore.Forums
             ITemplateEngine engine, 
             SmartDbContext db)
         {
-            // TODO: (mg) (core) PrivateMessage is missing
-            
             if (message.ModelName.EqualsNoCase(nameof(ForumPost)))
             {
                 var count = await db.ForumPosts().CountAsync();
@@ -341,6 +340,82 @@ namespace Smartstore.Forums
                     };
 
                     message.Result = engine.CreateTestModelFor(topic, topic.GetEntityName());
+                }
+            }
+            else if (message.ModelName.EqualsNoCase(nameof(PrivateMessage)))
+            {
+                var count = await db.PrivateMessages().CountAsync();
+                var skip = CommonHelper.GenerateRandomInteger(0, count);
+
+                if (count > 0)
+                {
+                    message.Result = await db.PrivateMessages()
+                        .Include(x => x.FromCustomer)
+                        .Include(x => x.ToCustomer)
+                        .AsNoTracking()
+                        .OrderBy(x => x.Id)
+                        .Skip(skip)
+                        .FirstOrDefaultAsync();
+                }
+                else
+                {
+                    var pm = new PrivateMessage
+                    {
+                        Subject = "Efficiently synergize cross-unit vortals via user friendly markets.",
+                        Text = "Holisticly matrix maintainable supply chains for strategic synergy. Uniquely maintain cross-platform. Dynamically provide access to holistic initiatives after.",
+                        CreatedOnUtc = DateTime.UtcNow
+                    };
+
+                    message.Result = engine.CreateTestModelFor(pm, pm.GetEntityName());
+                }
+            }
+        }
+
+        // Anonymize any forum data of a customer.
+        public async Task HandleEventAsync(CustomerAnonymizedEvent message,
+            SmartDbContext db)
+        {
+            var tool = message.GdprTool;
+            var customer = message.Customer;
+            var language = message.Language;
+
+            await db.ForumSubscriptions()
+                .Where(x => x.CustomerId == customer.Id)
+                .BatchDeleteAsync();
+
+            var posts = await db.ForumPosts()
+                .Where(x => x.CustomerId == customer.Id)
+                .ToListAsync();
+
+            foreach (var post in posts)
+            {
+                tool.AnonymizeData(post, x => x.IPAddress, IdentifierDataType.IpAddress, language);
+
+                if (message.PseudomyzeContent)
+                {
+                    tool.AnonymizeData(post, x => x.Text, IdentifierDataType.LongText, language);
+                }
+            }
+
+            if (message.PseudomyzeContent)
+            {
+                var privateMessages = await db.PrivateMessages()
+                    .Where(x => x.FromCustomerId == customer.Id)
+                    .ToListAsync();
+
+                foreach (var pm in privateMessages)
+                {
+                    tool.AnonymizeData(pm, x => x.Subject, IdentifierDataType.Text, language);
+                    tool.AnonymizeData(pm, x => x.Text, IdentifierDataType.LongText, language);
+                }
+
+                var topics = await db.ForumTopics()
+                    .Where(x => x.CustomerId == customer.Id)
+                    .ToListAsync();
+
+                foreach (var topic in topics)
+                {
+                    tool.AnonymizeData(topic, x => x.Subject, IdentifierDataType.Text, language);
                 }
             }
         }

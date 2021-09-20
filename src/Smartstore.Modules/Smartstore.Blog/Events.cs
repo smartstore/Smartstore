@@ -107,10 +107,11 @@ namespace Smartstore.Blog
             }
         }
 
-        public static void HandleEvent(CustomerAnonymizedEvent message)
+        // INFO: (mh) (core) the event handler was static and thus never executed.
+        public void HandleEvent(CustomerAnonymizedEvent message)
         {
             var tool = message.GdprTool;
-            
+
             foreach (var comment in message.Customer.CustomerContent.OfType<BlogComment>())
             {
                 tool.AnonymizeData(comment, x => x.CommentText, IdentifierDataType.LongText, message.Language);

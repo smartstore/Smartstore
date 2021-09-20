@@ -20,6 +20,7 @@ namespace Smartstore.Forums
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
             await TrySaveSettingsAsync<ForumSettings>();
+            await TrySaveSettingsAsync<ForumSearchSettings>();
             await ImportLanguageResources();
             await TrySeedData(context);
 
@@ -41,6 +42,7 @@ namespace Smartstore.Forums
 
         public override async Task UninstallAsync()
         {
+            await DeleteSettingsAsync<ForumSearchSettings>();
             await DeleteSettingsAsync<ForumSettings>();
             await DeleteLanguageResources();
 

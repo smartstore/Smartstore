@@ -1,12 +1,82 @@
-﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
-	<LocaleResource Name="Plugins.FriendlyName.Smartstore.Boards" AppendRootKey="false">
+﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
+	<LocaleResource Name="Plugins.FriendlyName.Smartstore.Forums" AppendRootKey="false">
 		<Value>Forums</Value>
 	</LocaleResource>
-	<LocaleResource Name="Plugins.Description.Smartstore.Boards" AppendRootKey="false">
+	<LocaleResource Name="Plugins.Description.Smartstore.Forums" AppendRootKey="false">
 		<Value>Smartstore Forums</Value>
 	</LocaleResource>
-	<LocaleResource Name="Plugins.Permissions.DisplayName.Boards" AppendRootKey="false">
+	<LocaleResource Name="Plugins.Permissions.DisplayName.Forums" AppendRootKey="false">
 		<Value>Forums</Value>
+	</LocaleResource>
+
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicType.Announcement">
+		<Value>Announcement</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicType.Normal">
+		<Value>Normal</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicType.Sticky">
+		<Value>Sticky</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumDateFilter.LastMonth">
+		<Value>Last month</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumDateFilter.LastSixMonths">
+		<Value>Last 6 months</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumDateFilter.LastThreeMonths">
+		<Value>Last 3 months</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumDateFilter.LastTwoWeeks">
+		<Value>Last 2 weeks</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumDateFilter.LastVisit">
+		<Value>Since last visit</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumDateFilter.LastWeek">
+		<Value>Last week</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumDateFilter.LastYear">
+		<Value>Last year</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumDateFilter.Yesterday">
+		<Value>Yesterday</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.EditorType.BBCodeEditor">
+		<Value>BBCode editor</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.EditorType.SimpleTextBox">
+		<Value>Simple textbox</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicSorting.CreatedOnAsc">
+		<Value>Created on: Oldest first</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicSorting.CreatedOnDesc">
+		<Value>Created on: Newest first</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicSorting.Initial">
+		<Value>Position</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicSorting.PostsAsc">
+		<Value>Post number: ascending</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicSorting.PostsDesc">
+		<Value>Post number: descending</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicSorting.Relevance">
+		<Value>Relevance</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicSorting.SubjectAsc">
+		<Value>Title: A to Z</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicSorting.SubjectDesc">
+		<Value>Title: Z to A</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicSorting.UserNameAsc">
+		<Value>User name: A to Z</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.Smartstore.Forums.Domain.ForumTopicSorting.UserNameDesc">
+		<Value>User name: Z to A</Value>
 	</LocaleResource>
 
 	<LocaleResource Name="List.SearchName">

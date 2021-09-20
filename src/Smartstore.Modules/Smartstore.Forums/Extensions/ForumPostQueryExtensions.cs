@@ -17,7 +17,7 @@ namespace Smartstore.Forums
         /// <param name="includeHidden">Applies filter by <see cref="ForumPost.Published"/> if <paramref name="customer"/> is not a forum moderator.</param>
         /// <param name="sortDesc">A value indicating whether to sort descending or ascending.</param>
         /// <returns>Forum post query.</returns>
-        internal static IOrderedQueryable<ForumPost> ApplyStandardFilter(
+        public static IOrderedQueryable<ForumPost> ApplyStandardFilter(
             this IQueryable<ForumPost> query,
             Customer customer,
             int? forumTopicId = null,
@@ -56,7 +56,7 @@ namespace Smartstore.Forums
         /// <param name="query">Forum post query.</param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns>Forum post query.</returns>
-        internal static IQueryable<ForumPost> ApplyStoreFilter(this IQueryable<ForumPost> query, int storeId)
+        public static IQueryable<ForumPost> ApplyStoreFilter(this IQueryable<ForumPost> query, int storeId)
         {
             Guard.NotNull(query, nameof(query));
 

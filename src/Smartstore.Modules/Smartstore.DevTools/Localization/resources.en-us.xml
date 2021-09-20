@@ -1,4 +1,4 @@
-﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
+﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
     <LocaleResource Name="Plugins.FriendlyName.SmartStore.DevTools" AppendRootKey="false">
         <Value>Developer Tools</Value>
     </LocaleResource>

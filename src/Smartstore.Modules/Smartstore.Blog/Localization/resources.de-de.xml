@@ -1,5 +1,5 @@
 ﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
-  <LocaleResource Name="Plugins.FriendlyName.SmartStore.Blog" AppendRootKey="false">
+  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Blog" AppendRootKey="false">
     <Value>Blog</Value>
   </LocaleResource>
   <LocaleResource Name="Settings">

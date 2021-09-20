@@ -266,8 +266,7 @@ namespace Smartstore.Forums.Search.Modelling
                     : new FacetValue(dt, null, IndexTypeCode.DateTime, true, false);
 
                 value.DisplayOrder = ++count;
-                // TODO: (mg) (core) update forum string resource key.
-                value.Label = _services.Localization.GetResource("Enums.SmartStore.Core.Domain.Forums.ForumDateFilter." + filter.ToString());
+                value.Label = _services.Localization.GetResource("Enums.Smartstore.Forums.Domain.ForumDateFilter." + filter.ToString());
 
                 if (selectedFrom.HasValue)
                 {

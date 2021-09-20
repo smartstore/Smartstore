@@ -198,9 +198,6 @@ namespace Smartstore.Core.Identity
 			var language = GetLanguage(customer);
 			var customerName = customer.GetFullName() ?? customer.Username ?? customer.FindEmail();
 
-			// Set to deleted
-			customer.Deleted = true;
-
 			// Unassign roles
 			await _db.LoadCollectionAsync(customer, x => x.CustomerRoleMappings);
 			var roleMappings = customer.CustomerRoleMappings.ToList();
@@ -216,14 +213,6 @@ namespace Smartstore.Core.Identity
 			{
 				_db.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
 			}
-
-			//// TODO: (core) Delete forum subscriptions for GDPR anonymization per external module (publish event)
-			//// Delete forum subscriptions
-			//var forumSubscriptions = _forumService.GetAllSubscriptions(customer.Id, 0, 0, 0, int.MaxValue);
-			//foreach (var forumSub in forumSubscriptions)
-			//{
-			//	_forumService.DeleteSubscription(forumSub);
-			//}
 
 			// Delete all customers stock subscribtions
 			var backInStockSubscriptions = await _db.BackInStockSubscriptions
@@ -257,39 +246,6 @@ namespace Smartstore.Core.Identity
 				AnonymizeAddress(address, language);
 			}
 
-			//// Private messages
-			//if (pseudomyzeContent)
-			//{
-			//	//// TODO: (core) Anonymize private messages per external module (publish event)
-			//	var privateMessages = _forumService.GetAllPrivateMessages(0, customer.Id, 0, null, null, null, 0, int.MaxValue);
-			//	foreach (var msg in privateMessages)
-			//	{
-			//		AnonymizeData(msg, x => x.Subject, IdentifierDataType.Text, language);
-			//		AnonymizeData(msg, x => x.Text, IdentifierDataType.LongText, language);
-			//	}
-			//}
-
-			//// Forum topics
-			//if (pseudomyzeContent)
-			//{
-			//	//// TODO: (core) Anonymize ForumTopics per external module (publish event)
-			//	foreach (var topic in customer.ForumTopics)
-			//	{
-			//		AnonymizeData(topic, x => x.Subject, IdentifierDataType.Text, language);
-			//	}
-			//}
-
-			//// Forum posts
-			//// TODO: (core) Anonymize ForumPosts per external module (publish event)
-			//foreach (var post in customer.ForumPosts)
-			//{
-			//	AnonymizeData(post, x => x.IPAddress, IdentifierDataType.IpAddress, language);
-			//	if (pseudomyzeContent)
-			//	{
-			//		AnonymizeData(post, x => x.Text, IdentifierDataType.LongText, language);
-			//	}
-			//}
-
 			// Customer Content
 			foreach (var item in customer.CustomerContent)
 			{
@@ -308,10 +264,6 @@ namespace Smartstore.Core.Identity
 						//	AnonymizeData(c, x => x.CommentText, IdentifierDataType.LongText, language);
 						//	AnonymizeData(c, x => x.CommentTitle, IdentifierDataType.Text, language);
 						//	break;
-						////// TODO: (core) Anonymize BlogComment per external module (publish event)
-						//case BlogComment c:
-						//	AnonymizeData(c, x => x.CommentText, IdentifierDataType.LongText, language);
-						//	break;
 					}
 				}
 			}
@@ -323,6 +275,12 @@ namespace Smartstore.Core.Identity
 			//	AnonymizeData(order, x => x.CustomerIp, IdentifierDataType.IpAddress, language);
 			//}
 
+			await _eventPublisher.PublishAsync(new CustomerAnonymizedEvent(this, customer, language, pseudomyzeContent));
+
+			// INFO: because of global 'Deleted' customer query filter, soft-deletion should be done as late as possible (after publishing events).
+			// Otherwise subsequent queries might not return expected customer related data if SaveChangesAsync was prior executed.
+			customer.Deleted = true;
+
 			// SAVE!!!
 			await _db.SaveChangesAsync();
 
@@ -330,8 +288,6 @@ namespace Smartstore.Core.Identity
 			await _db.ShoppingCartItems
 				.ApplyExpiredCartItemsFilter(DateTime.UtcNow, customer)
 				.BatchDeleteAsync();
-
-			await _eventPublisher.PublishAsync(new CustomerAnonymizedEvent(this, customer, language));
 
 			// Log
 			Logger.Info(T("Gdpr.Anonymize.Success", language.Id, customerName));
