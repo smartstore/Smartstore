@@ -12,6 +12,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Engine.Modularity;
 using Smartstore.Forums.Domain;
+using Smartstore.Forums.Services;
 using Smartstore.IO;
 
 namespace Smartstore.Forums.Migrations
@@ -36,7 +37,7 @@ namespace Smartstore.Forums.Migrations
         {
             await PopulateAsync("PopulateForumMessageTemplates", PopulateMessageTemplates);
             await PopulateAsync("PopulateForumMenuItems", PopulateMenuItems);
-            await PopulateAsync("PopulateForumActivityLogTypes", ForumActivityLogTypes());
+            await PopulateAsync("PopulateForumActivityLogTypes", ActivityLogTypes());
 
             if (_installContext.SeedSampleData == null || _installContext.SeedSampleData == true)
             {
@@ -131,49 +132,49 @@ namespace Smartstore.Forums.Migrations
             };
         }
 
-        private List<ActivityLogType> ForumActivityLogTypes()
+        private List<ActivityLogType> ActivityLogTypes()
         {
             return new List<ActivityLogType>
             {
                 new ActivityLogType
                 {
-                    SystemKeyword = "PublicStore.SendPM",
+                    SystemKeyword = ForumActivityLogTypes.PublicStoreSendPM,
                     Enabled = false,
                     Name = _deSeedData ? "Öffentlicher Shop. PN an Kunden geschickt" : "Public store. Send PM"
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "PublicStore.AddForumTopic",
+                    SystemKeyword = ForumActivityLogTypes.PublicStoreAddForumTopic,
                     Enabled = false,
                     Name = _deSeedData ? "Öffentlicher Shop. Foren-Thema erstellt" : "Public store. Add forum topic"
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "PublicStore.EditForumTopic",
+                    SystemKeyword = ForumActivityLogTypes.PublicStoreEditForumTopic,
                     Enabled = false,
                     Name = _deSeedData ? "Öffentlicher Shop. Foren-Thema bearbeitet" : "Public store. Edit forum topic"
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "PublicStore.DeleteForumTopic",
+                    SystemKeyword = ForumActivityLogTypes.PublicStoreDeleteForumTopic,
                     Enabled = false,
                     Name = _deSeedData ? "Öffentlicher Shop. Foren-Thema gelöscht" : "Public store. Delete forum topic"
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "PublicStore.AddForumPost",
+                    SystemKeyword = ForumActivityLogTypes.PublicStoreAddForumPost,
                     Enabled = false,
                     Name = _deSeedData ? "Öffentlicher Shop. Foren-Beitrag erstellt" : "Public store. Add forum post"
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "PublicStore.EditForumPost",
+                    SystemKeyword = ForumActivityLogTypes.PublicStoreEditForumPost,
                     Enabled = false,
                     Name = _deSeedData ? "Öffentlicher Shop. Foren-Beitrag bearbeitet" : "Public store. Edit forum post"
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "PublicStore.DeleteForumPost",
+                    SystemKeyword = ForumActivityLogTypes.PublicStoreDeleteForumPost,
                     Enabled = false,
                     Name = _deSeedData ? "Öffentlicher Shop. Foren-Beitrag gelöscht" : "Public store. Delete forum post"
                 }
