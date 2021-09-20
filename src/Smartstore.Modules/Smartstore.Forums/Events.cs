@@ -422,7 +422,7 @@ namespace Smartstore.Forums
         }
 
         // Download customer forum data for "GDPR Data Portability".
-        public async Task HandleEventAsync(CustomerExportedEvent message,
+        public async Task HandleEventAsync(GdprCustomerDataExportedEvent message,
             SmartDbContext db,
             IForumService forumService,
             IDateTimeHelper dtHelper)

@@ -146,7 +146,7 @@ namespace Smartstore.Web.Controllers
 
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), customer);
 
-                    await Services.EventPublisher.PublishAsync(new CustomerLoggedInEvent { Customer = customer });
+                    await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = customer });
 
                     if (returnUrl.IsEmpty() 
                         || returnUrl.Contains("/login?", StringComparison.OrdinalIgnoreCase) 
@@ -548,7 +548,7 @@ namespace Smartstore.Web.Controllers
 
                         Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), customer);
 
-                        await Services.EventPublisher.PublishAsync(new CustomerLoggedInEvent { Customer = customer });
+                        await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = customer });
                     }
 
                     // Display errors to user.

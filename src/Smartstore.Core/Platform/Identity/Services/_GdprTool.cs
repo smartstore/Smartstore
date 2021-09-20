@@ -149,7 +149,7 @@ namespace Smartstore.Core.Identity
 				// It doesn't feel right and GDPR rules are not very clear about this. Let's wait and see :-)
 
 				// Publish event to give plugin devs a chance to attach external data.
-				await _eventPublisher.PublishAsync(new CustomerExportedEvent(customer, model));
+				await _eventPublisher.PublishAsync(new GdprCustomerDataExportedEvent(customer, model));
 			}
 
 			return model;

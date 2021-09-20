@@ -94,7 +94,7 @@ namespace Smartstore.Blog
             return m;
         }
 
-        public async Task HandleEventAsync(CustomerExportedEvent message, 
+        public async Task HandleEventAsync(GdprCustomerDataExportedEvent message, 
             IMessageModelProvider messageModelProvider)
         {
             var blogComments = message.Customer.CustomerContent.OfType<BlogComment>();
