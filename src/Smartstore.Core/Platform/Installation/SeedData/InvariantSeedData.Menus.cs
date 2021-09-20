@@ -28,7 +28,6 @@ namespace Smartstore.Core.Installation
                 "Products.Compare.List",
                 "ContactUs",
                 "Blog",
-                "Forum.Forums",
                 "Account.Login",
                 "Menu.ServiceMenu"
             };
@@ -40,7 +39,6 @@ namespace Smartstore.Core.Installation
                TypeHelper.NameOf<CatalogSettings>(x => x.CompareProductsEnabled, true),
                TypeHelper.NameOf<CustomerSettings>(x => x.UserRegistrationType, true)
                 //"BlogSettings.Enabled",
-                //"ForumSettings.ForumsEnabled"
             };
 
             Dictionary<string, string> resources = null;
@@ -162,7 +160,7 @@ namespace Smartstore.Core.Installation
                 Title = GetResource("ContactUs"),
                 DisplayOrder = ++order
             });
-            // TODO: (core) Seed Blog/Forum menu items by external module
+            // TODO: (mh) (core) Seed Blog menu items by external module
             //menuItemSet.Add(new MenuItemEntity
             //{
             //    MenuId = footerService.Id,
@@ -171,15 +169,6 @@ namespace Smartstore.Core.Installation
             //    Title = GetResource("Blog"),
             //    DisplayOrder = ++order,
             //    Published = GetSetting("BlogSettings.Enabled", true)
-            //});
-            //menuItemSet.Add(new MenuItemEntity
-            //{
-            //    MenuId = footerService.Id,
-            //    ProviderName = routeProvider,
-            //    Model = routeTemplate.FormatInvariant("Boards"),
-            //    Title = GetResource("Forum.Forums"),
-            //    DisplayOrder = ++order,
-            //    Published = GetSetting("ForumSettings.ForumsEnabled", true)
             //});
             footerServiceMenu.Items.Add(new MenuItemEntity
             {

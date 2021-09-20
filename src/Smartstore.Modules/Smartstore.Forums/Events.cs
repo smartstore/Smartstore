@@ -159,6 +159,7 @@ namespace Smartstore.Forums
             }
         }
 
+        // Add forum message model parts.
         public async Task HandleEventAsync(MessageModelPartMappingEvent message,
             SmartDbContext db,
             IEventPublisher eventPublisher,
@@ -188,7 +189,7 @@ namespace Smartstore.Forums
                     { "NumPosts", topic.NumPosts },
                     { "NumViews", topic.Views },
                     { "Body", forumService.FormatPostText(firstPost).NullEmpty() },
-                    { "Url", MessageModelProvider.BuildUrl(url, ctx) }
+                    //{ "Url", MessageModelProvider.BuildUrl(url, ctx) }
                 };
 
                 await PublishEvent(topic);
@@ -205,7 +206,7 @@ namespace Smartstore.Forums
                     { "GroupName", forum.ForumGroup?.GetLocalized(x => x.Name, ctx.Language)?.Value.NullEmpty() },
                     { "NumPosts", forum.NumPosts },
                     { "NumTopics", forum.NumTopics },
-                    { "Url", MessageModelProvider.BuildUrl(url, ctx) }
+                    //{ "Url", MessageModelProvider.BuildUrl(url, ctx) }
                 };
 
                 await PublishEvent(forum);
@@ -237,7 +238,7 @@ namespace Smartstore.Forums
                     { "CustomerId", vote.CustomerId },
                     { "IpAddress", vote.IpAddress },
                     { "CreatedOn", dtHelper.ConvertToUserTime(vote.CreatedOnUtc, TimeZoneInfo.Utc, timeZone) },
-                    { "UpdatedOn", dtHelper.ConvertToUserTime(vote.UpdatedOnUtc, timeZone) }
+                    { "UpdatedOn", dtHelper.ConvertToUserTime(vote.UpdatedOnUtc, TimeZoneInfo.Utc, timeZone) }
                 };
 
                 await PublishEvent(vote);
@@ -252,7 +253,7 @@ namespace Smartstore.Forums
                     { "CustomerId", subscription.CustomerId },
                     { "ForumId", subscription.ForumId },
                     { "TopicId", subscription.TopicId },
-                    { "CreatedOn", dtHelper.ConvertToUserTime(subscription.CreatedOnUtc, timeZone) }
+                    { "CreatedOn", dtHelper.ConvertToUserTime(subscription.CreatedOnUtc, TimeZoneInfo.Utc, timeZone) }
                 };
 
                 await PublishEvent(subscription);
@@ -371,7 +372,7 @@ namespace Smartstore.Forums
             }
         }
 
-        // Anonymize any forum data of a customer.
+        // Anonymize customer forum data (GDPR).
         public async Task HandleEventAsync(CustomerAnonymizedEvent message,
             SmartDbContext db)
         {
@@ -417,6 +418,100 @@ namespace Smartstore.Forums
                 {
                     tool.AnonymizeData(topic, x => x.Subject, IdentifierDataType.Text, language);
                 }
+            }
+        }
+
+        // Download customer forum data for "GDPR Data Portability".
+        public async Task HandleEventAsync(CustomerExportedEvent message,
+            SmartDbContext db,
+            IForumService forumService,
+            IDateTimeHelper dtHelper)
+        {
+            // INFO: we're not going to export private messages.
+            // It doesn't feel right and GDPR rules are not very clear about this. Let's wait and see :-)
+
+            var customer = message.Customer;
+            var timeZone = dtHelper.GetCustomerTimeZone(customer);
+
+            var posts = await db.ForumPosts()
+                .AsNoTracking()
+                .ApplyStandardFilter(customer, null, true)
+                .ToListAsync();
+
+            var topics = await db.ForumTopics()
+                .AsNoTracking()
+                .ApplyStandardFilter(customer, true)
+                .ToListAsync();
+
+            if (topics.Any())
+            {
+                var postsMap = posts.ToMultimap(x => x.TopicId, x => x);
+
+                message.Result["ForumTopics"] = topics.Select(x =>
+                {
+                    postsMap.TryGetValues(x.Id, out var topicPosts);
+
+                    return new Dictionary<string, object>
+                    {
+                        { "Subject", x.Subject.NullEmpty() },
+                        { "NumReplies", x.NumReplies },
+                        { "NumPosts", x.NumPosts },
+                        { "NumViews", x.Views },
+                        { "Body", forumService.FormatPostText(topicPosts?.FirstOrDefault()).NullEmpty() }
+                    };
+                })
+                .ToList();
+            }
+
+            if (posts.Any())
+            {
+                var author = customer.FormatUserName().NullEmpty();
+
+                message.Result["ForumPosts"] = posts.Select(x => new Dictionary<string, object>
+                {
+                    { "Author", author },
+                    { "Body", forumService.FormatPostText(x).NullEmpty() }
+                })
+                .ToList();
+            }
+
+            var votes = await db.CustomerContent
+                .AsNoTracking()
+                .Where(x => x.CustomerId == customer.Id)
+                .OfType<ForumPostVote>()
+                .Include(x => x.ForumPost)
+                .ThenInclude(x => x.ForumTopic)
+                .ToListAsync();
+
+            if (votes.Any())
+            {
+                message.Result["ForumPostVotes"] = votes.Select(x => new Dictionary<string, object>
+                {
+                    { "ForumPostId", x.ForumPostId },
+                    { "Vote", x.Vote },
+                    { "TopicId", x.ForumPost?.TopicId },
+                    { "TopicSubject", x.ForumPost?.ForumTopic?.Subject.NullEmpty() },
+                    { "IpAddress", x.IpAddress },
+                    { "CreatedOn", dtHelper.ConvertToUserTime(x.CreatedOnUtc, TimeZoneInfo.Utc, timeZone) }
+                })
+                .ToList();
+            }
+
+            var subscriptions = await db.ForumSubscriptions()
+                .AsNoTracking()
+                .Where(x => x.CustomerId == customer.Id)
+                .ToListAsync();
+
+            if (subscriptions.Any())
+            {
+                message.Result["ForumSubscriptions"] = subscriptions.Select(x => new Dictionary<string, object>
+                {
+                    { "SubscriptionGuid", x.SubscriptionGuid },
+                    { "ForumId", x.ForumId },
+                    { "TopicId", x.TopicId },
+                    { "CreatedOn", dtHelper.ConvertToUserTime(x.CreatedOnUtc, TimeZoneInfo.Utc, timeZone) }
+                })
+                .ToList();
             }
         }
 

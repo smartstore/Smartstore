@@ -59,12 +59,6 @@
         public const string PublicStoreAddProductReview = "PublicStore.AddProductReview";
         public const string PublicStoreAddNewsComment = "PublicStore.AddNewsComment";
         public const string PublicStoreAddBlogComment = "PublicStore.AddBlogComment";
-        public const string PublicStoreAddForumTopic = "PublicStore.AddForumTopic";
-        public const string PublicStoreEditForumTopic = "PublicStore.EditForumTopic";
-        public const string PublicStoreDeleteForumTopic = "PublicStore.DeleteForumTopic";
-        public const string PublicStoreAddForumPost = "PublicStore.AddForumPost";
-        public const string PublicStoreEditForumPost = "PublicStore.EditForumPost";
-        public const string PublicStoreDeleteForumPost = "PublicStore.DeleteForumPost";
         public const string EditOrder = "EditOrder";
     }
 }

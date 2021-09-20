@@ -781,61 +781,6 @@ namespace Smartstore.Core.Installation
 
         #region Sample data creators
 
-        //public IList<ForumGroup> ForumGroups()
-        //{
-        //    var forumGroupGeneral = new ForumGroup
-        //    {
-        //        Name = "General",
-        //        Description = "",
-        //        DisplayOrder = 1
-        //    };
-
-        //    var entities = new List<ForumGroup>
-        //    {
-        //        forumGroupGeneral
-        //    };
-
-        //    Alter(entities);
-        //    return entities;
-        //}
-
-        //public IList<Forum> Forums()
-        //{
-        //    var group = _db.Set<ForumGroup>().FirstOrDefault(c => c.DisplayOrder == 1);
-
-        //    var newProductsForum = new Forum
-        //    {
-        //        ForumGroup = group,
-        //        Name = "New Products",
-        //        Description = "Discuss new products and industry trends",
-        //        NumTopics = 0,
-        //        NumPosts = 0,
-        //        LastPostCustomerId = 0,
-        //        LastPostTime = null,
-        //        DisplayOrder = 1
-        //    };
-
-        //    var packagingShippingForum = new Forum
-        //    {
-        //        ForumGroup = group,
-        //        Name = "Packaging & Shipping",
-        //        Description = "Discuss packaging & shipping",
-        //        NumTopics = 0,
-        //        NumPosts = 0,
-        //        LastPostTime = null,
-        //        DisplayOrder = 20
-        //    };
-
-
-        //    var entities = new List<Forum>
-        //    {
-        //        newProductsForum, packagingShippingForum
-        //    };
-
-        //    Alter(entities);
-        //    return entities;
-        //}
-
         public IList<Discount> Discounts()
         {
             var ruleSets = _db.RuleSets.Include(x => x.Rules).AsQueryable();
@@ -1417,14 +1362,6 @@ namespace Smartstore.Core.Installation
         protected virtual void Alter(IList<Product> entities)
         {
         }
-
-        //protected virtual void Alter(IList<ForumGroup> entities)
-        //{
-        //}
-
-        //protected virtual void Alter(IList<Forum> entities)
-        //{
-        //}
 
         //protected virtual void Alter(IList<BlogPost> entities)
         //{

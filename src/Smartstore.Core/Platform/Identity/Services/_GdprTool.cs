@@ -101,30 +101,6 @@ namespace Smartstore.Core.Identity
 					model["WalletHistory"] = await walletHistory.SelectAsync(x => _messageModelProvider.CreateModelPartAsync(x, true, "WalletUrl")).AsyncToList();
 				}
 
-				// TODO: (mg) (core) Handle in external module
-
-				//// Forum topics
-				//var forumTopics = customer.ForumTopics;
-				//if (forumTopics.Any())
-				//{
-				//	model["ForumTopics"] = forumTopics.Select(x => _messageModelProvider.CreateModelPart(x, true, "Url")).ToList();
-				//}
-
-				//// Forum posts
-				//var forumPosts = customer.ForumPosts;
-				//if (forumPosts.Any())
-				//{
-				//	model["ForumPosts"] = forumPosts.Select(x => _messageModelProvider.CreateModelPart(x, true)).ToList();
-				//}
-
-				//// Forum post votes
-				//var forumPostVotes = customer.CustomerContent.OfType<ForumPostVote>();
-				//if (forumPostVotes.Any())
-				//{
-				//	ignoreMemberNames = new string[] { "CustomerId", "UpdatedOn" };
-				//	model["ForumPostVotes"] = forumPostVotes.Select(x => _messageModelProvider.CreateModelPart(x, true, ignoreMemberNames)).ToList();
-				//}
-
 				// Product reviews
 				var productReviews = customer.CustomerContent.OfType<ProductReview>();
 				if (productReviews.Any())
@@ -157,14 +133,6 @@ namespace Smartstore.Core.Identity
 				//	model["PollVotings"] = pollVotings.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).ToList();
 				//}
 
-				// TODO: (mg) (core) Handle in external module
-				// Forum subscriptions
-				//var forumSubscriptions = _forumService.GetAllSubscriptions(customer.Id, 0, 0, 0, int.MaxValue);
-				//if (forumSubscriptions.Any())
-				//{
-				//	model["ForumSubscriptions"] = forumSubscriptions.Select(x => _messageModelProvider.CreateModelPart(x, true, "CustomerId")).ToList();
-				//}
-
 				// BackInStock subscriptions
 				var backInStockSubscriptions = await _db.BackInStockSubscriptions
 					.AsNoTracking()
@@ -177,7 +145,6 @@ namespace Smartstore.Core.Identity
 				}
 
 				// INFO: we're not going to export: 
-				// - Private messages
 				// - Activity log
 				// It doesn't feel right and GDPR rules are not very clear about this. Let's wait and see :-)
 

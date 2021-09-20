@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Configuration;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Messaging;
@@ -32,6 +34,7 @@ namespace Smartstore.Forums.Migrations
         protected override async Task SeedCoreAsync()
         {
             await PopulateAsync("PopulateForumMessageTemplates", PopulateMessageTemplates);
+            await PopulateAsync("PopulateForumMenuItems", PopulateMenuItems);
 
             if (_installContext.SeedSampleData == null || _installContext.SeedSampleData == true)
             {
@@ -52,6 +55,42 @@ namespace Smartstore.Forums.Migrations
             await _messageTemplateService.ImportAllTemplatesAsync(
                 _installContext.Culture,
                 PathUtility.Combine(_installContext.ModuleDescriptor.Path, "App_Data/EmailTemplates"));
+        }
+
+        private async Task PopulateMenuItems()
+        {
+            // TODO: (mg) (core) verify forum route name.
+            const string routeModel = "{\"routename\":\"Forums\"}";
+
+            var menuItemsSet = Context.Set<MenuItemEntity>();
+
+            // Add forum link to footer service menu.
+            var refItem = await menuItemsSet
+                .AsNoTracking()
+                .Where(x => x.Menu.IsSystemMenu && x.Menu.SystemName == "FooterService")
+                .OrderByDescending(x => x.DisplayOrder)
+                .FirstOrDefaultAsync();
+
+            if (refItem != null && !await menuItemsSet.AnyAsync(x => x.MenuId == refItem.MenuId && x.Model == routeModel))
+            {
+                var forumsEnabled = await Context.Set<Setting>()
+                    .Where(x => x.StoreId == 0 && x.Name == "ForumSettings.ForumsEnabled")
+                    .Select(x => x.Value)
+                    .FirstOrDefaultAsync() ?? "true";
+
+                var forumMenuItem = new MenuItemEntity
+                {
+                    MenuId = refItem.MenuId,
+                    ProviderName = "route",
+                    Model = routeModel,
+                    Title = _deSeedData ? "Forum" : "Forums",
+                    DisplayOrder = refItem.DisplayOrder + 1,
+                    Published = forumsEnabled.EqualsNoCase("true")
+                };
+
+                menuItemsSet.Add(forumMenuItem);
+                await Context.SaveChangesAsync();
+            }
         }
 
         private List<ForumGroup> ForumGroups()
