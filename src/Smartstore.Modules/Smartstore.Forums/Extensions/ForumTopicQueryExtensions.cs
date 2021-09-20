@@ -4,7 +4,7 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums
 {
-    internal static partial class ForumTopicQueryExtensions
+    public static partial class ForumTopicQueryExtensions
     {
         /// <summary>
         /// Applies standard filter and sorts by <see cref="ForumTopic.TopicTypeId"/> descending, then by <see cref="ForumTopic.LastPostTime"/> descending,

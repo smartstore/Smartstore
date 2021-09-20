@@ -4,7 +4,7 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums
 {
-    internal static class SmartDbContextExtensions
+    public static class SmartDbContextExtensions
     {
         public static DbSet<ForumGroup> ForumGroups(this SmartDbContext db)
             => db.Set<ForumGroup>();

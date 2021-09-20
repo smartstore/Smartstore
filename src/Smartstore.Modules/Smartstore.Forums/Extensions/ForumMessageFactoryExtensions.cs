@@ -5,7 +5,7 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums
 {
-    internal static partial class ForumMessageFactoryExtensions
+    public static partial class ForumMessageFactoryExtensions
     {
         /// <summary>
         /// Sends a forum topic message to a customer.

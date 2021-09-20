@@ -4,7 +4,7 @@ using Smartstore.Utilities.Html;
 
 namespace Smartstore.Forums
 {
-    internal static class PrivateMessageExtensions
+    public static class PrivateMessageExtensions
     {
         /// <summary>
         /// Formats the private message text.

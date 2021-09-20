@@ -3,7 +3,8 @@ using Smartstore.Core.Identity;
 
 namespace Smartstore.Forums
 {
-    internal static partial class CustomerExtensions
+    // INFO: (mg) (core) We shouldn't limit 3rd party devs. Imagine a module dev wants to implement some forum extending module.
+    public static partial class CustomerExtensions
     {
         /// <summary>
         /// Gets a value indicating whether customer is a forum moderator.

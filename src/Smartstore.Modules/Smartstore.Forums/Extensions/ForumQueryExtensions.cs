@@ -3,7 +3,7 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums
 {
-    internal static class ForumQueryExtensions
+    public static class ForumQueryExtensions
     {
         /// <summary>
         /// Applies a standard filter and sorts by <see cref="Forum.DisplayOrder"/>, then by <see cref="Forum.Name"/>.

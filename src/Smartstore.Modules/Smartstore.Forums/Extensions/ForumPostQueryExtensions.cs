@@ -6,7 +6,7 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums
 {
-    internal static partial class ForumPostQueryExtensions
+    public static partial class ForumPostQueryExtensions
     {
         /// <summary>
         /// Applies standard filter and sorts by <see cref="ForumPost.CreatedOnUtc"/>, then by <see cref="ForumPost.Id"/>.
