@@ -68,12 +68,11 @@ namespace Smartstore.Core.Identity
 				var attributes = customer.GenericAttributes;
 				if (attributes.Entities.Any())
 				{
-					// INFO: (mh) (core) Be careful please!! This shit here will result in pesky runtime errors later.
 					model["Attributes"] = await _messageModelProvider.CreateModelPartAsync(attributes.Entities, true);
 				}
 
 				// Order history
-				var orders = customer.Orders; // INFO: (mh) (core) Global query filter!
+				var orders = customer.Orders; 
 				if (orders.Any())
 				{
 					ignoreMemberNames = new string[]
@@ -85,7 +84,6 @@ namespace Smartstore.Core.Identity
 						"Billing.NameLine", "Billing.StreetLine", "Billing.CityLine", "Billing.CountryLine",
 						"Shipping.NameLine", "Shipping.StreetLine", "Shipping.CityLine", "Shipping.CountryLine"
 					};
-					// INFO: (mh) (core) WTF!!!!!!
 					model["Orders"] = await orders.SelectAsync(x => _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).AsyncToList();
 				}
 
@@ -193,6 +191,7 @@ namespace Smartstore.Core.Identity
 		public async Task AnonymizeCustomerAsync(Customer customer, bool pseudomyzeContent)
         {
 			// TODO: (mh) (core) AnonymizeCustomerHook is missing
+			// RE: ??? (You've implmented this method.)
 			Guard.NotNull(customer, nameof(customer));
 
 			var language = GetLanguage(customer);
@@ -202,6 +201,7 @@ namespace Smartstore.Core.Identity
 			await _db.LoadCollectionAsync(customer, x => x.CustomerRoleMappings);
 			var roleMappings = customer.CustomerRoleMappings.ToList();
 			// TODO: (mh) (core) Wrong and fragile. Does not what it is meant to do.
+			// RE: ???
 			var guestRole = await _db.CustomerRoles.FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Guests);
 			var insertGuestMapping = !roleMappings.Any(x => x.CustomerRoleId == guestRole.Id);
 
@@ -229,6 +229,7 @@ namespace Smartstore.Core.Identity
 			AnonymizeData(customer, x => x.Email, IdentifierDataType.EmailAddress, language);
 			AnonymizeData(customer, x => x.LastIpAddress, IdentifierDataType.IpAddress, language);
 			// TODO: (mh) (core) Why were these missing?
+			// RE: I don't know. You've implmented this method.
 			AnonymizeData(customer, x => x.FirstName, IdentifierDataType.Name, language);
 			AnonymizeData(customer, x => x.LastName, IdentifierDataType.Name, language);
 			AnonymizeData(customer, x => x.BirthDate, IdentifierDataType.DateTime, language);

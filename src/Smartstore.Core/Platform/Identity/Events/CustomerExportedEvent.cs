@@ -13,7 +13,6 @@ namespace Smartstore.Core.Identity
             Result = Guard.NotNull(result, nameof(result));
         }
 
-        // INFO: (mh) (core) Private setter can be omitted if prop is assigned by ctor only.
         public Customer Customer { get; }
         public IDictionary<string, object> Result { get; }
     }
