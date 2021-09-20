@@ -101,8 +101,6 @@ namespace Smartstore.Blog
 
             if (blogComments.Any())
             {
-                // TODO: (mh) (core) WHAT IS THIS FOR?!!! Why do you call IMessageModelProvider.CreateModelPartAsync()??!!!! You implemented your own CreateModelPart() in THIS class!
-                // RE: Convenience. MessageContext is missing here!
                 message.Result["BlogComments"] = await blogComments.SelectAsync(x => messageModelProvider.CreateModelPartAsync(x, true)).AsyncToList();
             }
         }
