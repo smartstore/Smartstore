@@ -2004,7 +2004,6 @@ namespace Smartstore.Core.Installation
                 .Alter("PublicStore.ViewManufacturer", x => x.Name = "Öffentlicher Shop. Hat eine Hersteller-Detailseite angesehen")
                 .Alter("PublicStore.ViewProduct", x => x.Name = "Öffentlicher Shop. Hat eine Produkt-Detailseite angesehen")
                 .Alter("PublicStore.PlaceOrder", x => x.Name = "Öffentlicher Shop. Hat einen neuen Auftrag erteilt")
-                .Alter("PublicStore.SendPM", x => x.Name = "Öffentlicher Shop. PN an Kunden geschickt")
                 .Alter("PublicStore.ContactUs", x => x.Name = "Öffentlicher Shop. Kontaktformular benutzt")
                 .Alter("PublicStore.AddToCompareList", x => x.Name = "Öffentlicher Shop. Produkt zur Vergleichsliste hinzugefügt")
                 .Alter("PublicStore.AddToShoppingCart", x => x.Name = "Öffentlicher Shop. Produkt in den Warenkorb gelegt")
@@ -2014,16 +2013,10 @@ namespace Smartstore.Core.Installation
                 .Alter("PublicStore.AddProductReview", x => x.Name = "Öffentlicher Shop. Produktrezension hinzugefügt")
                 .Alter("PublicStore.AddNewsComment", x => x.Name = "Öffentlicher Shop. News-Kommentar hinzugefügt")
                 .Alter("PublicStore.AddBlogComment", x => x.Name = "Öffentlicher Shop. Blogeintrag hinzugefügt")
-                .Alter("PublicStore.AddForumTopic", x => x.Name = "Öffentlicher Shop. Foren-Thema erstellt")
-                .Alter("PublicStore.EditForumTopic", x => x.Name = "Öffentlicher Shop. Foren-Thema bearbeitet")
-                .Alter("PublicStore.DeleteForumTopic", x => x.Name = "Öffentlicher Shop. Foren-Thema gelöscht")
-                .Alter("PublicStore.AddForumPost", x => x.Name = "Öffentlicher Shop. Foren-Beitrag erstellt")
-                .Alter("PublicStore.EditForumPost", x => x.Name = "Öffentlicher Shop. Foren-Beitrag bearbeitet")
-                .Alter("PublicStore.DeleteForumPost", x => x.Name = "Öffentlicher Shop. Foren-Beitrag gelöscht")
                 .Alter("EditThemeVars", x => x.Name = "Theme-Variablen geändert")
                 .Alter("ResetThemeVars", x => x.Name = "Theme-Variablen zurückgesetzt")
-                .Alter("ImportThemeVars", x => x.Name = "Theme Variablen importiert")
-                .Alter("ExportThemeVars", x => x.Name = "Theme Variablen exportiert");
+                .Alter("ImportThemeVars", x => x.Name = "Theme-Variablen importiert")
+                .Alter("ExportThemeVars", x => x.Name = "Theme-Variablen exportiert");
         }
 
         protected override void Alter(IList<TaskDescriptor> entities)

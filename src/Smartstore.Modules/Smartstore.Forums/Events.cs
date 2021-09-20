@@ -28,6 +28,7 @@ using Smartstore.Templating;
 using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Settings;
+using Smartstore.Web.Rendering;
 using Smartstore.Web.Rendering.Builders;
 using Smartstore.Web.Rendering.Events;
 
@@ -38,12 +39,14 @@ namespace Smartstore.Forums
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         // Add menu item for ForumSettings to settings menu.
-        public async Task HandleEventAsync(MenuBuiltEvent message, 
-            IPermissionService permissions)
+        public async Task HandleEventAsync(MenuBuiltEvent message,
+            ICommonServices services,
+            IUrlHelper urlHelper,
+            ForumSettings forumSettings)
         {
             if (message.Name.EqualsNoCase("Settings"))
             {
-                if (await permissions.AuthorizeAsync(ForumPermissions.Read))
+                if (await services.Permissions.AuthorizeAsync(ForumPermissions.Read))
                 {
                     var refNode = message.Root.SelectNodeById("dataexchange") ?? message.Root.LastChild;
                     if (refNode != null)
@@ -58,6 +61,44 @@ namespace Smartstore.Forums
 
                         forumNode.InsertBefore(refNode);
                     }
+                }
+            }
+            else if (message.Name.EqualsNoCase("MyAccount"))
+            {
+                // TODO: (mg) (core) verify forum frontend URLs. See URL below also.
+                if (forumSettings.ForumsEnabled && forumSettings.AllowCustomersToManageSubscriptions)
+                {
+                    message.Root.Append(new MenuItem
+                    {
+                        Id = "forumsubscriptions",
+                        Text = T("Account.ForumSubscriptions"),
+                        Icon = "fal fa-bell",
+                        Url = urlHelper.Action("CustomerSubscriptions", "Forum", new { area = string.Empty })   // old: Customer.ForumSubscriptions
+                    });
+                }
+
+                if (forumSettings.AllowPrivateMessages)
+                {
+                    var numUnreadMessages = 0;
+                    var customer = services.WorkContext.CurrentCustomer;
+
+                    if (!customer.IsGuest())
+                    {
+                        numUnreadMessages = await services.DbContext.PrivateMessages()
+                            .ApplyStatusFilter(false, null, false)
+                            .ApplyStandardFilter(null, customer.Id, services.StoreContext.CurrentStore.Id)
+                            .CountAsync();
+                    }
+
+                    message.Root.Append(new MenuItem
+                    {
+                        Id = "privatemessages",
+                        Text = T("PrivateMessages.Inbox"),
+                        Icon = "fal fa-envelope",
+                        Url = urlHelper.RouteUrl("PrivateMessages", new { tab = "inbox" }),
+                        BadgeText = numUnreadMessages > 0 ? numUnreadMessages.ToString() : null,
+                        BadgeStyle = (int)BadgeStyle.Warning
+                    });
                 }
             }
         }

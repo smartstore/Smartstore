@@ -302,12 +302,6 @@ namespace Smartstore.Core.Installation
                 },
                 new ActivityLogType
                 {
-                    SystemKeyword = "PublicStore.SendPM",
-                    Enabled = false,
-                    Name = "Public store. Send PM"
-                },
-                new ActivityLogType
-                {
                     SystemKeyword = "PublicStore.ContactUs",
                     Enabled = false,
                     Name = "Public store. Use contact us form"
@@ -359,42 +353,6 @@ namespace Smartstore.Core.Installation
                     SystemKeyword = "PublicStore.AddBlogComment",
                     Enabled = false,
                     Name = "Public store. Add blog comment"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.AddForumTopic",
-                    Enabled = false,
-                    Name = "Public store. Add forum topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.EditForumTopic",
-                    Enabled = false,
-                    Name = "Public store. Edit forum topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.DeleteForumTopic",
-                    Enabled = false,
-                    Name = "Public store. Delete forum topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.AddForumPost",
-                    Enabled = false,
-                    Name = "Public store. Add forum post"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.EditForumPost",
-                    Enabled = false,
-                    Name = "Public store. Edit forum post"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = "PublicStore.DeleteForumPost",
-                    Enabled = false,
-                    Name = "Public store. Delete forum post"
                 },
 			//new ActivityLogType
 			//      {

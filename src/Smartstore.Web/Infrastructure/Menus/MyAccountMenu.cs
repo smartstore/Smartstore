@@ -206,39 +206,6 @@ namespace Smartstore.Web.Infrastructure
                 item.Value.RouteValues["area"] = string.Empty;
             }
 
-            // TODO: (mh) (core) Append items from Forum external module.
-            //if (_forumSettings.ForumsEnabled && _forumSettings.AllowCustomersToManageSubscriptions)
-            //{
-            //    root.Append(new MenuItem
-            //    {
-            //        Id = "forumsubscriptions",
-            //        Text = T("Account.ForumSubscriptions"),
-            //        Icon = "fal fa-bell",
-            //        Url = _urlHelper.Action("ForumSubscriptions", "Customer", new { area = "" })
-            //    });
-            //}
-
-            //if (_forumSettings.AllowPrivateMessages)
-            //{
-            //    var numUnreadMessages = 0;
-
-            //    if (_forumSettings.AllowPrivateMessages && !customer.IsGuest())
-            //    {
-            //        var privateMessages = _forumService.Value.GetAllPrivateMessages(store.Id, 0, customer.Id, false, null, false, 0, 1);
-            //        numUnreadMessages = privateMessages.TotalCount;
-            //    }
-
-            //    root.Append(new MenuItem
-            //    {
-            //        Id = "privatemessages",
-            //        Text = T("PrivateMessages.Inbox"),
-            //        Icon = "fal fa-envelope",
-            //        Url = _urlHelper.RouteUrl("PrivateMessages", new { tab = "inbox" }),
-            //        BadgeText = numUnreadMessages > 0 ? numUnreadMessages.ToString() : null,
-            //        BadgeStyle = BadgeStyle.Warning
-            //    });
-            //}
-
             return root;
         }
     }

@@ -49,7 +49,6 @@
         public const string PublicStoreViewManufacturer = "PublicStore.ViewManufacturer";
         public const string PublicStoreViewProduct = "PublicStore.ViewProduct";
         public const string PublicStorePlaceOrder = "PublicStore.PlaceOrder";
-        public const string PublicStoreSendPM = "PublicStore.SendPM";
         public const string PublicStoreContactUs = "PublicStore.ContactUs";
         public const string PublicStoreAddToCompareList = "PublicStore.AddToCompareList";
         public const string PublicStoreAddToShoppingCart = "PublicStore.AddToShoppingCart";
