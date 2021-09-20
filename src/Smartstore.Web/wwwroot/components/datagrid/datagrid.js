@@ -56,6 +56,8 @@ Vue.component("sm-datagrid", {
                     <sm-datagrid-pager v-bind="{ options, columns, paging, command, rows, total }"></sm-datagrid-pager>
                 </div>
                 <component :is="options.allowEdit ? 'form' : 'div'" ref="tableWrapper" class="dg-table-wrapper">
+
+                    <input name="__RequestVerificationToken" type="hidden" :value="options.antiforgeryToken" />
                     <table ref="table"
                         :class="getTableClass()"
                         :style="getTableStyles()">
@@ -745,8 +747,8 @@ Vue.component("sm-datagrid", {
 
             const self = this;
             self.cancelEdit();
-            
-            const input = document.querySelector('input[name=__RequestVerificationToken]');
+
+            const input = this.$refs.grid.querySelector('input[name=__RequestVerificationToken]');
             const command = $.extend(true, { __RequestVerificationToken: input?.value }, this.command, {
                 initialRequest: initial,
                 gridId: this.options.stateKey,

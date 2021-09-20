@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Web.Models.DataGrid;
@@ -50,10 +52,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string OnCellClassAttributeName = "oncellclass";
 
         private readonly IGridCommandStateStore _gridCommandStateStore;
+        private readonly IAntiforgery _antiforgery;
 
-        public GridTagHelper(IGridCommandStateStore gridCommandStateStore)
+        public GridTagHelper(IGridCommandStateStore gridCommandStateStore, IAntiforgery antiforgery)
         {
             _gridCommandStateStore = gridCommandStateStore;
+            _antiforgery = antiforgery;
         }
 
         public override void Init(TagHelperContext context)
@@ -307,6 +311,13 @@ namespace Smartstore.Web.TagHelpers.Admin
                 { "el", "#" + Id }
             };
 
+            string antiforgeryToken = null;
+            if (!ViewContext.FormContext.CanRenderAtEndOfForm || !ViewContext.FormContext.HasAntiforgeryToken)
+            {
+                var tokenSet = _antiforgery.GetAndStoreTokens(ViewContext.HttpContext);
+                antiforgeryToken = tokenSet.RequestToken;
+            }
+
             var data = new
             {
                 options = new
@@ -332,7 +343,8 @@ namespace Smartstore.Web.TagHelpers.Admin
                     onDataBound = OnDataBound,
                     onRowSelected = OnRowSelected,
                     onRowClass = OnRowClass,
-                    onCellClass = OnCellClass
+                    onCellClass = OnCellClass,
+                    antiforgeryToken
                 },
                 dataSource = DataSource?.ToPlainObject(),
                 columns = Columns.Select(c => c.ToPlainObject()).ToList(),
