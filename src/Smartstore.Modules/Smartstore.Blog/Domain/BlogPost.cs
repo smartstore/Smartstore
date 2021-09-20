@@ -40,9 +40,6 @@ namespace Smartstore.Blog.Domain
     /// Represents a blog post.
     /// </summary>
     [Index(nameof(Title), Name = "IX_Title")]
-    [Index(nameof(MediaFileId), Name = "IX_MediaFileId")]
-    [Index(nameof(PreviewMediaFileId), Name = "IX_PreviewMediaFileId")]
-    [Index(nameof(LanguageId), Name = "IX_LanguageId")]
     public partial class BlogPost : BaseEntity, ILocalizedEntity, ISlugSupported, IStoreRestricted
     {
         #region static

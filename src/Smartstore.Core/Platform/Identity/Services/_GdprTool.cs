@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
@@ -157,8 +156,6 @@ namespace Smartstore.Core.Identity
 
 		public async Task AnonymizeCustomerAsync(Customer customer, bool pseudomyzeContent)
         {
-			// TODO: (mh) (core) AnonymizeCustomerHook is missing
-			// RE: ??? (You've implmented this method.)
 			Guard.NotNull(customer, nameof(customer));
 
 			var language = GetLanguage(customer);
@@ -167,8 +164,6 @@ namespace Smartstore.Core.Identity
 			// Unassign roles
 			await _db.LoadCollectionAsync(customer, x => x.CustomerRoleMappings);
 			var roleMappings = customer.CustomerRoleMappings.ToList();
-			// TODO: (mh) (core) Wrong and fragile. Does not what it is meant to do.
-			// RE: ???
 			var guestRole = await _db.CustomerRoles.FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Guests);
 			var insertGuestMapping = !roleMappings.Any(x => x.CustomerRoleId == guestRole.Id);
 
