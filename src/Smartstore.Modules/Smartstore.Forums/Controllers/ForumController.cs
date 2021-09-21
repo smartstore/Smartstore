@@ -39,6 +39,7 @@ namespace Smartstore.Forums.Controllers
             _customerSettings = customerSettings;
         }
 
+        // TODO: (mg) (core) If you really want to change a route (boards --> forum), then do not forget to create a legacy HTTP 302 redirect route.
         [LocalizedRoute("forum", Name = "Forum")]
         public async Task<IActionResult> Index()
         {

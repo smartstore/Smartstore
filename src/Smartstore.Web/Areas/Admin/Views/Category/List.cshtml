@@ -11,6 +11,9 @@
 
 @if (!Display.ZoneHasContent("datagrid_toolbar_after"))
 {
+	// TODO: (mg) (core) We shouldn't render antiforgery tokens outside of forms. Please read my e-mail:
+	// If your grid is editable or selectable, the token is created by the TagHelper for you. Otherwise you have to
+	// decorate your read actions with IgnoreAntiforgeryTokenAttribute.
 	@Html.AntiForgeryToken()
 }
 

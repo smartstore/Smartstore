@@ -39,7 +39,7 @@ namespace Smartstore.Core.Identity
 			{
 				if (customer.Deleted && customer.IsSystemAccount)
 				{
-					_hookErrorMessage = $"System customer account '{customer.SystemName}' cannot not be deleted.";
+					_hookErrorMessage = $"System customer account '{customer.SystemName}' cannot be deleted.";
 				}
 				else if (entry.InitialState == EState.Added)
 				{
