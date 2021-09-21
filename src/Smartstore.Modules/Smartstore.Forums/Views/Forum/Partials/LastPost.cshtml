@@ -1,0 +1,33 @@
+﻿@model PublicForumPostModel
+
+<div sm-if="Model?.Id > 0" class="last-post text-muted">
+    <div class="createdon">@Model.PostCreatedOnStr</div>
+    <div sm-if="Model.ShowTopic">
+		<div class="d-inline-flex">
+			<span>@T("Forum.In"):&nbsp;</span>
+			<a asp-route="ForumTopicBySlug" asp-route-id="@Model.ForumTopicId" asp-route-slug="@Model.ForumTopicSlug" title="@Model.ForumTopicSubject">
+				@Model.ForumTopicSubject.Truncate(24, "…")
+			</a>
+		</div>
+    </div>
+	<div sm-if="Model.CustomerId > 0">
+		<div>
+			<div class="d-inline-flex">
+				<span class="pr-1">@T("Forum.By"):</span>
+				@if (Model.HasCustomerProfile)
+				{
+					<a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId">
+						@Model.CustomerName.NaIfEmpty()
+					</a>
+				}
+				else
+				{
+					<span>@Model.CustomerName</span>
+				}
+			</div>
+		</div>
+	</div>
+</div>
+<div sm-if="Model == null" class="nopost text-muted">
+    @T("Forum.NoPosts")
+</div>

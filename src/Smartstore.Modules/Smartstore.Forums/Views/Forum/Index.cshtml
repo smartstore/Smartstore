@@ -18,6 +18,7 @@
         </div>
     </div>
 
+    @*TODO: (mg) (core) move topic ForumWelcomeMessage to forum module.*@
     @await Component.InvokeAsync("TopicBlock", new { systemName = "ForumWelcomeMessage" }) 
     
     @foreach (var group in Model.ForumGroups)

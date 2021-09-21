@@ -20,7 +20,7 @@ namespace Smartstore.Forums.Models.Public
         public bool IsCustomerAllowedToDeletePost { get; set; }
         public bool IsCustomerForumModerator { get; set; }
         public bool IsCustomerGuest { get; set; }
-        public bool AllowViewingProfiles { get; set; }
+        public bool HasCustomerProfile { get; set; }
         public CustomerAvatarModel Avatar { get; set; }
 
         public string PostCreatedOnStr { get; set; }
