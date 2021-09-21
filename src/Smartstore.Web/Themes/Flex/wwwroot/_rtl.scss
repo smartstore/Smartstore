@@ -415,39 +415,6 @@
 		}
 	}
 
-
-	// Forum
-	// ------
-
-	.forum-topic {
-		.block .block-title {
-			a {
-				padding-left: 0.75rem;
-				padding-right: initial;
-			}
-
-			i {
-				padding-left: 0.25rem;
-				padding-right: initial;
-			}
-		}
-	}
-
-	.forum-search-box {
-		text-align: left;
-	}
-
-	.basic-search,
-	#advanced-search-block label {
-		padding-left: 10px;
-		padding-right: 0;
-
-		@include media-breakpoint-up(sm) {
-			text-align: left;
-		}
-	}
-
-
 	// Menu
 	// ----
 

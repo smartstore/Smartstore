@@ -896,6 +896,10 @@ namespace Smartstore.Web.Controllers
             //await migrator2.SeedPendingLocaleResourcesAsync(null);
             //await migrator2.SeedPendingLocaleResourcesAsync("UpdateTestEntityMigration");
 
+            //var guestCustomer = await _db.Customers.FindByIdAsync(2670508);
+            //guestCustomer.Deleted = true;
+            //await _db.SaveChangesAsync();
+
 
             //await Services.Localization.DeleteLocaleStringResourcesAsync("Plugins.SmartStore.MyTestPlugin");
             //var parameter = "Plugins.SmartStore.MyTestPlugin.%";

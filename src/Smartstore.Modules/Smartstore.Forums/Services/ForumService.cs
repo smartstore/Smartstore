@@ -90,6 +90,29 @@ namespace Smartstore.Forums.Services
             return slug;
         }
 
+        public virtual string StripSubject(ForumTopic forumTopic)
+        {
+            var subject = forumTopic?.Subject;
+            if (subject.IsEmpty())
+            {
+                return subject;
+            }
+
+            var maxLength = _forumSettings.StrippedTopicMaxLength;
+            if (maxLength > 0 && subject.Length > maxLength)
+            {
+                var index = subject.IndexOf(" ", maxLength);
+                if (index > 0)
+                {
+                    subject = subject.Substring(0, index);
+                    subject += "…";
+                }
+            }
+
+            return subject;
+        }
+
+
         public virtual string FormatPostText(ForumPost forumPost)
         {
             var text = forumPost?.Text;

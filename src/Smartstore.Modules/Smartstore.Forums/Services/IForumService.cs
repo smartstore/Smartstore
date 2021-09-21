@@ -16,6 +16,7 @@ namespace Smartstore.Forums.Services
         Task<int> DeleteSubscriptionsByForumIdsAsync(int[] forumIds, CancellationToken cancelToken = default);
 
         string BuildSlug(ForumTopic forumTopic);
+        string StripSubject(ForumTopic forumTopic);
         string FormatPostText(ForumPost forumPost);
     }
 }

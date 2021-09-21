@@ -1,0 +1,13 @@
+﻿@model PublicForumGroupModel
+
+<div class="forum-group table-responsive">
+    <div class="group-title">
+        <h1 class="fs-h3" sm-language-attributes-for="Model.Name">
+            <a asp-route="ForumGroupBySlug" asp-route-id="@Model.Id" asp-route-slug="@Model.Slug">
+                @Model.Name.Value
+            </a>
+
+        </h1>
+    </div>
+
+</div>

@@ -1,0 +1,28 @@
+﻿@model PublicForumGroupListModel
+
+@{
+    Layout = "_Layout";
+
+    Assets.AppendTitleParts(Model.MetaTitle);
+    Assets.AppendMetaDescriptionParts(Model.MetaDescription);
+    Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
+}
+
+<div class="page forums-main">
+    <div class="forums-main-header">
+        <div class="current-time">
+            @Model.CurrentTime.ToNativeString("F")
+        </div>
+        <div class="mt-2 w-75">
+            @* TODO: SearchBox *@
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("TopicBlock", new { systemName = "ForumWelcomeMessage" }) 
+    
+    @foreach (var group in Model.ForumGroups)
+    {
+        <partial name="ForumGroup" model="group" />
+    }
+
+</div>

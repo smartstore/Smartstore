@@ -22,7 +22,6 @@ namespace Smartstore.Core.Identity
 {
     public partial class CustomerService : ICustomerService
     {
-		// TODO: (mg) (core) add new event to delete forum data of guest customers.
 		#region Raw SQL
 
 		const string SqlGenericAttributes = @"

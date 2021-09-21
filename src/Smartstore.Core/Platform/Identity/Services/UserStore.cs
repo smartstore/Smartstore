@@ -121,13 +121,7 @@ namespace Smartstore.Core.Identity
                 {
                     _gdprTool.Value.AnonymizeData(customer, x => x.LastIpAddress, IdentifierDataType.IpAddress);
 
-                    // TODO: (core) Anonymize ForumPosts.IpAddress per external module.
-                    //foreach (var post in user.ForumPosts)
-                    //{
-                    //    _gdprTool.Value.AnonymizeData(post, x => x.IPAddress, IdentifierDataType.IpAddress);
-                    //}
-
-                    // Customer Content
+                    // Customer Content.
                     foreach (var item in customer.CustomerContent)
                     {
                         _gdprTool.Value.AnonymizeData(item, x => x.IpAddress, IdentifierDataType.IpAddress);

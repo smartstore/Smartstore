@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,27 +22,16 @@ namespace Smartstore.Core.Identity
 		};
 
 		private readonly SmartDbContext _db;
-		private readonly IWorkContext _workContext;
-		private readonly Lazy<IGdprTool> _gdprTool;
 		private readonly CustomerSettings _customerSettings;
 		private string _hookErrorMessage;
 
-		public CustomerHook(
-			SmartDbContext db,
-			Lazy<IGdprTool> gdprTool,
-			IWorkContext workContext, 
-			CustomerSettings customerSettings)
+		public CustomerHook(SmartDbContext db, CustomerSettings customerSettings)
         {
 			_db = db;
-			_gdprTool = gdprTool;
-			_workContext = workContext;
 			_customerSettings = customerSettings;
         }
 
 		public Localizer T { get; set; } = NullLocalizer.Instance;
-
-		protected override Task<HookResult> OnUpdatedAsync(Customer entity, IHookedEntity entry, CancellationToken cancelToken)
-			=> Task.FromResult(HookResult.Ok);
 
 		public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
 		{
@@ -95,48 +83,6 @@ namespace Smartstore.Core.Identity
 			}
 
 			return Task.CompletedTask;
-		}
-
-		public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-		{
-			// TODO: (mg) (core) this looks like duplicate code. See hook "UserStore".
-			var softDeletedCustomers = entries
-				.Where(x => x.IsSoftDeleted == true)
-				.Select(x => x.Entity)
-				.OfType<Customer>()
-				.ToList();
-
-			// Anonymize IP addresses.
-			if (softDeletedCustomers.Any())
-			{
-				var languages = await _db.Languages
-					.AsNoTracking()
-					.Where(x => x.Published)
-					.ToDictionaryAsync(x => x.Id);
-
-				foreach (var customer in softDeletedCustomers)
-				{
-					if (!languages.TryGetValue(customer.GenericAttributes.LanguageId ?? 0, out var language))
-					{
-						language = _workContext.WorkingLanguage;
-					}
-
-					_gdprTool.Value.AnonymizeData(customer, x => x.LastIpAddress, IdentifierDataType.IpAddress, language);
-
-					// TODO: (mg) (core) Anonymize IPAddress of form posts. Should be done by publishing a new event.
-					//foreach (var post in customer.ForumPosts)
-					//{
-					//	_gdprTool.Value.AnonymizeData(post, x => x.IPAddress, IdentifierDataType.IpAddress, language);
-					//}
-
-					foreach (var item in customer.CustomerContent)
-					{
-						_gdprTool.Value.AnonymizeData(item, x => x.IpAddress, IdentifierDataType.IpAddress, language);
-					}
-				}
-
-				await _db.SaveChangesAsync(cancelToken);
-			}
 		}
 
 		private static HookResult RevertChanges(IHookedEntity entry)
