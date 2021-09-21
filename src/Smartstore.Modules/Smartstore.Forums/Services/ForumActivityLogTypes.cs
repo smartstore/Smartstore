@@ -9,5 +9,8 @@
         public const string PublicStoreAddForumPost = "PublicStore.AddForumPost";
         public const string PublicStoreEditForumPost = "PublicStore.EditForumPost";
         public const string PublicStoreDeleteForumPost = "PublicStore.DeleteForumPost";
+
+        public static string[] All => new[] { PublicStoreSendPM, PublicStoreAddForumTopic, PublicStoreEditForumTopic, PublicStoreDeleteForumTopic,
+            PublicStoreAddForumPost, PublicStoreEditForumPost, PublicStoreDeleteForumPost };
     }
 }

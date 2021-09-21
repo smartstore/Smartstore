@@ -37,7 +37,7 @@ namespace Smartstore.Forums.Migrations
         {
             await PopulateAsync("PopulateForumMessageTemplates", PopulateMessageTemplates);
             await PopulateAsync("PopulateForumMenuItems", PopulateMenuItems);
-            await PopulateAsync("PopulateForumActivityLogTypes", ActivityLogTypes());
+            await PopulateAsync("PopulateForumActivityLogTypes", PopulateActivityLogTypes);
 
             if (_installContext.SeedSampleData == null || _installContext.SeedSampleData == true)
             {
@@ -96,6 +96,46 @@ namespace Smartstore.Forums.Migrations
             }
         }
 
+        private async Task PopulateActivityLogTypes()
+        {
+            var allTypes = ForumActivityLogTypes.All;
+            var logTypeSet = Context.Set<ActivityLogType>();
+
+            var existingLogTypes = await logTypeSet
+                .Where(x => allTypes.Contains(x.SystemKeyword))
+                .Select(x => x.SystemKeyword)
+                .ToListAsync();
+
+            var newlogTypes = new List<ActivityLogType>();
+            AddType(ForumActivityLogTypes.PublicStoreSendPM, _deSeedData ? "Öffentlicher Shop. PN an Kunden geschickt" : "Public store. Send PM");
+            AddType(ForumActivityLogTypes.PublicStoreAddForumTopic, _deSeedData ? "Öffentlicher Shop. Foren-Thema erstellt" : "Public store. Add forum topic");
+            AddType(ForumActivityLogTypes.PublicStoreEditForumTopic, _deSeedData ? "Öffentlicher Shop. Foren-Thema bearbeitet" : "Public store. Edit forum topic");
+            AddType(ForumActivityLogTypes.PublicStoreDeleteForumTopic, _deSeedData ? "Öffentlicher Shop. Foren-Thema gelöscht" : "Public store. Delete forum topic");
+            AddType(ForumActivityLogTypes.PublicStoreAddForumPost, _deSeedData ? "Öffentlicher Shop. Foren-Beitrag erstellt" : "Public store. Add forum post");
+            AddType(ForumActivityLogTypes.PublicStoreEditForumPost, _deSeedData ? "Öffentlicher Shop. Foren-Beitrag bearbeitet" : "Public store. Edit forum post");
+            AddType(ForumActivityLogTypes.PublicStoreDeleteForumPost, _deSeedData ? "Öffentlicher Shop. Foren-Beitrag gelöscht" : "Public store. Delete forum post");
+
+            if (newlogTypes.Any())
+            {
+                logTypeSet.AddRange(newlogTypes);
+                await Context.SaveChangesAsync();
+            }
+
+            void AddType(string keyword, string name)
+            {
+                if (!existingLogTypes.Contains(keyword))
+                {
+                    newlogTypes.Add(new ActivityLogType
+                    {
+                        SystemKeyword = keyword,
+                        // Forum log types are always disabled by default.
+                        Enabled = false,
+                        Name = name
+                    });
+                }
+            }
+        }
+
         private List<ForumGroup> ForumGroups()
         {
             return new List<ForumGroup> 
@@ -128,57 +168,6 @@ namespace Smartstore.Forums.Migrations
                     Name = _deSeedData ? "Verpackung & Versand" : "Packaging & Shipping",
                     Description = _deSeedData ? "Haben Sie Fragen oder Anregungen zu Verpackung & Versand?" : "Discuss packaging & shipping",
                     DisplayOrder = 20
-                }
-            };
-        }
-
-        private List<ActivityLogType> ActivityLogTypes()
-        {
-            // TODO: (mg) (core) We shouldn't seed such data without any duplicate check. I originally intended to build
-            // an extension method for this (AddOrUpdate()) but canceled it due to complexity. We have to do it manually.
-            return new List<ActivityLogType>
-            {
-                new ActivityLogType
-                {
-                    SystemKeyword = ForumActivityLogTypes.PublicStoreSendPM,
-                    Enabled = false,
-                    Name = _deSeedData ? "Öffentlicher Shop. PN an Kunden geschickt" : "Public store. Send PM"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = ForumActivityLogTypes.PublicStoreAddForumTopic,
-                    Enabled = false,
-                    Name = _deSeedData ? "Öffentlicher Shop. Foren-Thema erstellt" : "Public store. Add forum topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = ForumActivityLogTypes.PublicStoreEditForumTopic,
-                    Enabled = false,
-                    Name = _deSeedData ? "Öffentlicher Shop. Foren-Thema bearbeitet" : "Public store. Edit forum topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = ForumActivityLogTypes.PublicStoreDeleteForumTopic,
-                    Enabled = false,
-                    Name = _deSeedData ? "Öffentlicher Shop. Foren-Thema gelöscht" : "Public store. Delete forum topic"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = ForumActivityLogTypes.PublicStoreAddForumPost,
-                    Enabled = false,
-                    Name = _deSeedData ? "Öffentlicher Shop. Foren-Beitrag erstellt" : "Public store. Add forum post"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = ForumActivityLogTypes.PublicStoreEditForumPost,
-                    Enabled = false,
-                    Name = _deSeedData ? "Öffentlicher Shop. Foren-Beitrag bearbeitet" : "Public store. Edit forum post"
-                },
-                new ActivityLogType
-                {
-                    SystemKeyword = ForumActivityLogTypes.PublicStoreDeleteForumPost,
-                    Enabled = false,
-                    Name = _deSeedData ? "Öffentlicher Shop. Foren-Beitrag gelöscht" : "Public store. Delete forum post"
                 }
             };
         }
