@@ -39,8 +39,7 @@ namespace Smartstore.Forums.Controllers
             _customerSettings = customerSettings;
         }
 
-        // TODO: (mg) (core) If you really want to change a route (boards --> forum), then do not forget to create a legacy HTTP 302 redirect route.
-        [LocalizedRoute("forum", Name = "Forum")]
+        [LocalizedRoute("boards", Name = "Forum")]
         public async Task<IActionResult> Index()
         {
             if (!_forumSettings.ForumsEnabled)
@@ -74,17 +73,19 @@ namespace Smartstore.Forums.Controllers
             return View(model);
         }
 
-        [LocalizedRoute("forum/group/{id:int}/{slug?}", Name = "ForumGroupBySlug")]
+        [LocalizedRoute("boards/forumgroup/{id:int}/{slug?}", Name = "ForumGroupBySlug")]
         public Task<IActionResult> ForumGroup(int id)
         {
             throw new NotImplementedException();
         }
 
+        [LocalizedRoute("boards/topic/{id:int}/{slug?}", Name = "ForumTopicBySlug")]
         public Task<IActionResult> ForumTopic(int id)
         {
             throw new NotImplementedException();
         }
 
+        [LocalizedRoute("boards/forum/{id:int}/{slug?}", Name = "ForumBySlug")]
         public Task<IActionResult> Forum(int id)
         {
             throw new NotImplementedException();
@@ -146,6 +147,7 @@ namespace Smartstore.Forums.Controllers
         private PublicForumPostModel PreparePostModel(ForumPost post)
         {
             var createdOn = Services.DateTimeHelper.ConvertToUserTime(post.CreatedOnUtc, DateTimeKind.Utc);
+            var isGuest = post.Customer.IsGuest();
 
             var model = new PublicForumPostModel
             {
@@ -154,9 +156,9 @@ namespace Smartstore.Forums.Controllers
                 ForumTopicSlug = _forumService.BuildSlug(post.ForumTopic),
                 ForumTopicSubject = _forumService.StripSubject(post.ForumTopic),
                 CustomerId = post.CustomerId,
-                AllowViewingProfiles = _customerSettings.AllowViewingProfiles,
                 CustomerName = post.Customer.FormatUserName(true),
-                IsCustomerGuest = post.Customer.IsGuest(),
+                IsCustomerGuest = isGuest,
+                HasCustomerProfile = _customerSettings.AllowViewingProfiles && !isGuest,
                 Published = post.Published,
                 PostCreatedOnStr = _forumSettings.RelativeDateTimeFormattingEnabled
                     ? post.CreatedOnUtc.Humanize(false)
