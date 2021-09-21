@@ -1,4 +1,5 @@
-﻿using DinkToPdf;
+﻿using System.Globalization;
+using System.Text;
 
 namespace Smartstore.Pdf
 {
@@ -41,10 +42,42 @@ namespace Smartstore.Pdf
 
         public bool HasText => TextLeft.HasValue() || TextCenter.HasValue() || TextRight.HasValue();
 
-        /// <inheritdoc/>
-        protected internal override void Apply(string flag, HtmlToPdfDocument document)
+        public override void Process(string flag, StringBuilder builder)
         {
-            // TODO: (core) Apply PdfHeaderFooterOptions
+            if (Spacing.HasValue)
+            {
+                builder.AppendFormat(CultureInfo.InvariantCulture, " --{0}-spacing {1}", flag, Spacing.Value);
+            }
+
+            if (ShowLine)
+            {
+                builder.AppendFormat(" --{0}-line", flag);
+            }
+
+            if (HasText)
+            {
+                if (FontName.HasValue())
+                {
+                    builder.AppendFormat(CultureInfo.InvariantCulture, " --{0}-font-name \"{1}\"", flag, FontName);
+                }
+                if (FontSize.HasValue)
+                {
+                    builder.AppendFormat(CultureInfo.InvariantCulture, " --{0}-font-size {1}", flag, FontSize.Value);
+                }
+            }
+
+            if (TextLeft.HasValue())
+            {
+                builder.AppendFormat(CultureInfo.CurrentCulture, " --{0}-left \"{1}\"", flag, TextLeft);
+            }
+            if (TextCenter.HasValue())
+            {
+                builder.AppendFormat(CultureInfo.CurrentCulture, " --{0}-center \"{1}\"", flag, TextCenter);
+            }
+            if (TextRight.HasValue())
+            {
+                builder.AppendFormat(CultureInfo.CurrentCulture, " --{0}-right \"{1}\"", flag, TextRight);
+            }
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using DinkToPdf;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Http;
 
@@ -50,10 +49,10 @@ namespace Smartstore.Pdf
             return _tempFilePath ?? _html;
         }
 
-        protected internal override void Apply(string flag, HtmlToPdfDocument document)
-        {
-            // TODO: (core) Apply PdfHtmlContent
-        }
+        //protected internal override void Apply(string flag, HtmlToPdfDocument document)
+        //{
+        //    // TODO: (core) Apply PdfHtmlContent
+        //}
 
         private void CreateTempFile()
         {
@@ -84,7 +83,9 @@ namespace Smartstore.Pdf
                 {
                     File.Delete(_tempFilePath);
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
 
             _kind = PdfContentKind.Html;

@@ -1,20 +1,23 @@
 ﻿namespace Smartstore.Pdf
 {
-    public class PdfConvertSettings
+    public class PdfConversionSettings
     {
         /// <summary>
         /// The title of the generated pdf file (The title of the first document is used if not specified)
         /// </summary>
+        [PdfOption("--title")]
         public string Title { get; set; }
 
         /// <summary>
         /// Get or set option to generate grayscale PDF 
         /// </summary>
+        [PdfOption("-g")]
         public bool Grayscale { get; set; }
 
         /// <summary>
         /// Get or set option to generate low quality PDF (shrink the result document space) 
         /// </summary>
+        [PdfOption("-l")]
         public bool LowQuality { get; set; }
 
         /// <summary>
@@ -25,22 +28,26 @@
         /// <summary>
         /// Get or set PDF page orientation
         /// </summary>
-        public PdfPagePrientation Orientation { get; set; } = PdfPagePrientation.Default;
+        [PdfOption("-O")]
+        public PdfPageOrientation? Orientation { get; set; }
+
+        /// <summary>
+        /// Get or set PDF page size 
+        /// </summary>
+        [PdfOption("--page-size")]
+        public PdfPageSize? Size { get; set; }
 
         /// <summary>
         /// Get or set PDF page width (in mm)
         /// </summary>
+        [PdfOption("--page-width")]
         public float? PageWidth { get; set; }
 
         /// <summary>
         /// Get or set PDF page height (in mm) 
         /// </summary>
+        [PdfOption("--page-height")]
         public float? PageHeight { get; set; }
-
-        /// <summary>
-        /// Get or set PDF page orientation 
-        /// </summary>
-        public PdfPageSize Size { get; set; } = PdfPageSize.Default;
 
         /// <summary>
         /// Custom global pdf tool options

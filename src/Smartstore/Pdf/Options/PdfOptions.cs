@@ -1,15 +1,15 @@
-﻿using DinkToPdf;
+﻿using System.Text;
 
 namespace Smartstore.Pdf
 {
     public abstract class PdfOptions
     {
         /// <summary>
-        /// Processes the options by converting them to library specific settings.
+        /// Processes the options by converting them to native arguments
         /// </summary>
         /// <param name="flag">The section flag</param>
-        /// <param name="document">The library document instance</param>
+        /// <param name="builder">The builder</param>
         /// <remarks>Possible flags are: page | header | footer | cover | toc</remarks>
-        protected internal abstract void Apply(string flag, HtmlToPdfDocument document);
+        public abstract void Process(string flag, StringBuilder builder);
     }
 }

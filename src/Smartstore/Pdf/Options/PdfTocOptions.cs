@@ -1,4 +1,4 @@
-﻿using DinkToPdf;
+﻿using System.Text;
 
 namespace Smartstore.Pdf
 {
@@ -34,11 +34,34 @@ namespace Smartstore.Pdf
         /// </summary>
         public float? TocTextSizeShrink { get; set; }
 
-        /// <inheritdoc/>
-        protected internal override void Apply(string flag, HtmlToPdfDocument document)
+        public override void Process(string flag, StringBuilder builder)
         {
-            base.Apply(flag, document);
-            // TODO: (core) Apply PdfTocOptions
+            builder.Append(" toc");
+
+            if (TocHeaderText.HasValue())
+            {
+                builder.AppendFormat(" --toc-header-text \"{0}\"", TocHeaderText.Replace("\"", "\\\""));
+            }
+
+            if (DisableDottedLines)
+            {
+                builder.Append(" --disable-dotted-lines");
+            }
+
+            if (DisableTocLinks)
+            {
+                builder.Append(" --disable-toc-links");
+            }
+
+            if (TocLevelIndendation.HasValue())
+            {
+                builder.AppendFormat(" --toc-level-indentation {0}", TocLevelIndendation);
+            }
+
+            if (TocTextSizeShrink.HasValue)
+            {
+                builder.AppendFormat(" --toc-text-size-shrink {0}", TocTextSizeShrink.Value);
+            }
         }
     }
 }

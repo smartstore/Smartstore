@@ -168,7 +168,7 @@ namespace Smartstore.Web.Controllers
                     ["lid"] = Services.WorkContext.WorkingLanguage.Id
                 };
                 
-                var settings = new PdfConvertSettings
+                var settings = new PdfConversionSettings
                 {
                     Size = _pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
                     Margins = new PdfPageMargins { Top = 35, Bottom = 35 },

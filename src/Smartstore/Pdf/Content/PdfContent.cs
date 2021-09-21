@@ -1,6 +1,5 @@
 ﻿using System;
 using Autofac;
-using DinkToPdf;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Engine;
 
@@ -39,7 +38,7 @@ namespace Smartstore.Pdf
 
         public abstract string ProcessContent(string flag);
 
-        protected internal abstract void Apply(string flag, HtmlToPdfDocument document);
+        //protected internal abstract void Apply(string flag, HtmlToPdfDocument document);
 
         public virtual void Teardown()
         {

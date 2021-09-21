@@ -1,4 +1,5 @@
-﻿using DinkToPdf;
+﻿using System.Globalization;
+using System.Text;
 
 namespace Smartstore.Pdf
 {
@@ -29,10 +30,32 @@ namespace Smartstore.Pdf
         /// </summary>
         public string CustomFlags { get; set; }
 
-        /// <inheritdoc/>
-        protected internal override void Apply(string flag, HtmlToPdfDocument document)
+        public override void Process(string flag, StringBuilder builder)
         {
-            // TODO: (core) Apply PdfPageOptions
+            if (UserStylesheetUrl.HasValue())
+            {
+                builder.AppendFormat(CultureInfo.InvariantCulture, " --user-style-sheet \"{0}\"", UserStylesheetUrl);
+            }
+
+            if (UsePrintMediaType)
+            {
+                builder.Append(" --print-media-type");
+            }
+
+            if (BackgroundDisabled)
+            {
+                builder.Append(" --no-background");
+            }
+
+            if (Zoom != 1 /*&& flag.IsCaseInsensitiveEqual("page")*/)
+            {
+                builder.AppendFormat(" --zoom {0}", Zoom);
+            }
+
+            if (CustomFlags.HasValue())
+            {
+                builder.AppendFormat(" {0}", CustomFlags);
+            }
         }
     }
 }

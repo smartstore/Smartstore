@@ -13,12 +13,12 @@ namespace Smartstore.Pdf
         /// </summary>
         /// <param name="settings">The settings to be used for the conversion process</param>
         /// <returns>The PDF binary data</returns>
-        Task<byte[]> ConvertAsync(PdfConvertSettings settings);
+        Task<byte[]> ConvertAsync(PdfConversionSettings settings);
     }
 
     internal class NullPdfConverter : IPdfConverter
     {
-        public Task<byte[]> ConvertAsync(PdfConvertSettings settings)
+        public Task<byte[]> ConvertAsync(PdfConversionSettings settings)
         {
             throw new NotSupportedException();
         }

@@ -54,7 +54,6 @@
     <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
     <PackageReference Include="CronExpressionDescriptor" Version="2.16.0" />
-    <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="HtmlSanitizer" Version="5.0.372" />
     <PackageReference Include="Humanizer" Version="2.8.26" />
     <PackageReference Include="MailKit" Version="2.10.0" />

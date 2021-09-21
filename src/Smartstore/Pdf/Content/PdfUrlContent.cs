@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using DinkToPdf;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Http;
 
@@ -74,9 +73,9 @@ namespace Smartstore.Pdf
             return GetAbsoluteUrl();
         }
 
-        protected internal override void Apply(string flag, HtmlToPdfDocument document)
-        {
-            // TODO: (core) Apply PdfUrlContent
-        }
+        //protected internal override void Apply(string flag, HtmlToPdfDocument document)
+        //{
+        //    // TODO: (core) Apply PdfUrlContent
+        //}
     }
 }
