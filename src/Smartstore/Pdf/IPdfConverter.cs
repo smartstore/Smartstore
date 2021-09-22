@@ -5,7 +5,6 @@ namespace Smartstore.Pdf
 {
     public interface IPdfConverter
     {
-        // TODO: (core) Implement PdfConverter (DinkToPdf)
         // TODO: (core) Find a way to (externally) package and deploy native libraries (e.g. with https://github.com/olegtarasov/NativeLibraryManager)
 
         /// <summary>

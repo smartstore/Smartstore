@@ -1,9 +1,6 @@
-﻿using System.Globalization;
-using System.Text;
-
-namespace Smartstore.Pdf
+﻿namespace Smartstore.Pdf
 {
-    public class PdfPageOptions : PdfOptions
+    public partial class PdfPageOptions
     {
         /// <summary>
         /// Get or set zoom factor. Default = 1.
@@ -13,7 +10,7 @@ namespace Smartstore.Pdf
         /// <summary>
         /// Indicates whether the page background should be disabled.
         /// </summary>
-        public bool BackgroundDisabled { get; set; }
+        public bool DisableBackground { get; set; }
 
         /// <summary>
         /// Use print media-type instead of screen. Default = true.
@@ -26,36 +23,33 @@ namespace Smartstore.Pdf
         public string UserStylesheetUrl { get; set; }
 
         /// <summary>
-        /// Custom page pdf tool options
+        /// Do not load or print images.
         /// </summary>
-        public string CustomFlags { get; set; }
+        public bool DisableImages { get; set; }
 
-        public override void Process(string flag, StringBuilder builder)
-        {
-            if (UserStylesheetUrl.HasValue())
-            {
-                builder.AppendFormat(CultureInfo.InvariantCulture, " --user-style-sheet \"{0}\"", UserStylesheetUrl);
-            }
+        /// <summary>
+        /// Enable installed plugins (plugins will likely not work)
+        /// </summary>
+        public bool EnablePlugins { get; set; }
 
-            if (UsePrintMediaType)
-            {
-                builder.Append(" --print-media-type");
-            }
+        /// <summary>
+        /// Do not allow web pages to run javascript.
+        /// </summary>
+        public bool DisableJavascript { get; set; }
 
-            if (BackgroundDisabled)
-            {
-                builder.Append(" --no-background");
-            }
+        /// <summary>
+        /// Disable the intelligent shrinking strategy used by WebKit that makes the pixel/dpi ratio non-constant
+        /// </summary>
+        public bool DisableSmartShrinking { get; set; }
 
-            if (Zoom != 1 /*&& flag.IsCaseInsensitiveEqual("page")*/)
-            {
-                builder.AppendFormat(" --zoom {0}", Zoom);
-            }
+        /// <summary>
+        /// Minimum font size
+        /// </summary>
+        public int? MinimumFontSize { get; set; }
 
-            if (CustomFlags.HasValue())
-            {
-                builder.AppendFormat(" {0}", CustomFlags);
-            }
-        }
+        /// <summary>
+        /// Custom page PDF tool arguments/options
+        /// </summary>
+        public string CustomArguments { get; set; }
     }
 }

@@ -1,8 +1,6 @@
-﻿using System.Text;
-
-namespace Smartstore.Pdf
+﻿namespace Smartstore.Pdf
 {
-    public class PdfTocOptions : PdfPageOptions
+    public partial class PdfTocOptions : PdfPageOptions
     {
         /// <summary>
         /// TOC creation enabled
@@ -33,35 +31,5 @@ namespace Smartstore.Pdf
         /// For each level of headings in the toc the font is scaled by this factor (default 0.8)
         /// </summary>
         public float? TocTextSizeShrink { get; set; }
-
-        public override void Process(string flag, StringBuilder builder)
-        {
-            builder.Append(" toc");
-
-            if (TocHeaderText.HasValue())
-            {
-                builder.AppendFormat(" --toc-header-text \"{0}\"", TocHeaderText.Replace("\"", "\\\""));
-            }
-
-            if (DisableDottedLines)
-            {
-                builder.Append(" --disable-dotted-lines");
-            }
-
-            if (DisableTocLinks)
-            {
-                builder.Append(" --disable-toc-links");
-            }
-
-            if (TocLevelIndendation.HasValue())
-            {
-                builder.AppendFormat(" --toc-level-indentation {0}", TocLevelIndendation);
-            }
-
-            if (TocTextSizeShrink.HasValue)
-            {
-                builder.AppendFormat(" --toc-text-size-shrink {0}", TocTextSizeShrink.Value);
-            }
-        }
     }
 }
