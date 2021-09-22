@@ -15,16 +15,23 @@ namespace Smartstore.Forums
         /// then by <see cref="ForumTopic.Id"/> descending.
         /// </summary>
         /// <param name="query">Forum topic query.</param>
-        /// <param name="customer">Customer, usually the current customer.</param>
+        /// <param name="customer">Filter by customer, usually <see cref="IWorkContext.CurrentCustomer"/>.</param>
+        /// <param name="forumId">Filter by forum identifier.</param>
         /// <param name="includeHidden">Applies filter by <see cref="ForumTopic.Published"/> if <paramref name="customer"/> is not a forum moderator.</param>
         /// <returns>Forum topic query.</returns>
         public static IOrderedQueryable<ForumTopic> ApplyStandardFilter(
             this IQueryable<ForumTopic> query,
             Customer customer,
+            int? forumId = null,
             bool includeHidden = false)
         {
             Guard.NotNull(query, nameof(query));
             Guard.NotNull(customer, nameof(customer));
+
+            if (forumId.HasValue)
+            {
+                query = query.Where(x => x.ForumId == forumId.Value);
+            }
 
             if (!includeHidden && !customer.IsForumModerator())
             {

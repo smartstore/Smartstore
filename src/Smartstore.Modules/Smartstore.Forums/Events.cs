@@ -481,7 +481,7 @@ namespace Smartstore.Forums
 
             var topics = await db.ForumTopics()
                 .AsNoTracking()
-                .ApplyStandardFilter(customer, true)
+                .ApplyStandardFilter(customer, null, true)
                 .ToListAsync();
 
             if (topics.Any())
@@ -540,7 +540,7 @@ namespace Smartstore.Forums
 
             var subscriptions = await db.ForumSubscriptions()
                 .AsNoTracking()
-                .Where(x => x.CustomerId == customer.Id)
+                .ApplyStandardFilter(customer.Id)
                 .ToListAsync();
 
             if (subscriptions.Any())

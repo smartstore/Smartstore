@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Forums.Domain;
@@ -12,7 +13,7 @@ namespace Smartstore.Forums
         /// Applies standard filter and sorts by <see cref="ForumPost.CreatedOnUtc"/>, then by <see cref="ForumPost.Id"/>.
         /// </summary>
         /// <param name="query">Forum post query.</param>
-        /// <param name="customer">Customer, usually the current customer.</param>
+        /// <param name="customer">Filter by customer, usually <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="forumTopicId">Filter by forum topic identifier.</param>
         /// <param name="includeHidden">Applies filter by <see cref="ForumPost.Published"/> if <paramref name="customer"/> is not a forum moderator.</param>
         /// <param name="sortDesc">A value indicating whether to sort descending or ascending.</param>

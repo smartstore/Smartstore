@@ -61,7 +61,7 @@ namespace Smartstore.Forums.Models.Mappers
             to.Id = from.Id;
             to.Name = from.GetLocalized(x => x.Name);
             to.Description = from.GetLocalized(x => x.Description);
-            to.Slug = from.GetActiveSlug();
+            to.Slug = await from.GetActiveSlugAsync();
 
             to.Forums = await from.Forums
                 .OrderBy(x => x.DisplayOrder)

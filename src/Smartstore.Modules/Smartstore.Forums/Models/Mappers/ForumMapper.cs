@@ -48,7 +48,7 @@ namespace Smartstore.Forums.Models.Mappers
             MiniMapper.Map(from, to);
 
             to.Name = from.GetLocalized(x => x.Name);
-            to.Slug = from.GetActiveSlug();
+            to.Slug = await from.GetActiveSlugAsync();
             to.Description = from.GetLocalized(x => x.Description);
 
             if (from.LastPostId != 0 && lastPosts.TryGetValue(from.LastPostId, out var lastPost) && lastPost != null)
