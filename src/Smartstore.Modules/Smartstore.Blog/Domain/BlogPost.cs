@@ -23,7 +23,7 @@ namespace Smartstore.Blog.Domain
                 .HasForeignKey(c => c.LanguageId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            // TODO: SetNull and test this!!!
+            // TODO: (mh) (core) SetNull and test this!!!
             builder.HasOne(c => c.MediaFile)
                 .WithMany()
                 .HasForeignKey(c => c.MediaFileId)

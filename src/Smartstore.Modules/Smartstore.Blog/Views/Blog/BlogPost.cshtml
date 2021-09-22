@@ -9,9 +9,9 @@
     Assets.AppendMetaDescriptionParts(Model.MetaDescription);
     Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
 
-    var blogPostUrl = Url.RouteUrl("BlogPost", new { SeName = Model.SeName }, this.Request.Scheme);
     if (ViewBag.CanonicalUrlsEnabled)
     {
+        var blogPostUrl = Url.RouteUrl("BlogPost", new { SeName = Model.SeName }, this.Request.Scheme);
         Assets.AppendCanonicalUrlParts(blogPostUrl);
     }
 }

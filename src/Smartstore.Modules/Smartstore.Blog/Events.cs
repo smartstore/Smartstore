@@ -13,6 +13,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Events;
 using Smartstore.Templating;
 using Smartstore.Utilities;
+using Smartstore.Utilities.Html;
 
 namespace Smartstore.Blog
 {
@@ -88,7 +89,7 @@ namespace Smartstore.Blog
             {
                 {  "PostTitle", title },
                 {  "PostUrl", MessageModelProvider.BuildUrl(url, messageContext) },
-                {  "Text", part.CommentText.NullEmpty() }
+                {  "Text", HtmlUtils.StripTags(part.CommentText).NullEmpty() }
             };
 
             return m;

@@ -35,9 +35,7 @@ namespace Smartstore.Blog.Services
                     Icon = "fa fa-blog", 
                     ResKey = "Common.Entity.BlogPost", 
                     Widget = new PartialViewWidgetInvoker("BlogLinkBuilder", "Smartstore.Blog") 
-                },
-                // TODO: (mh) (core) Copy to News module later
-                //new LinkBuilderMetadata { Schema = SchemaNewsItem, Icon = "far fa-newspaper", ResKey = "Common.Entity.NewsItem" }
+                }
             };
         }
 

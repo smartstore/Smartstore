@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Core;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
 
 namespace Smartstore.Blog.Filters
@@ -10,15 +10,19 @@ namespace Smartstore.Blog.Filters
     public class BlogMenuItemFilter : IResultFilter
     {
         private readonly BlogSettings _blogSettings;
-        private readonly IWidgetProvider _widgetProvider;
-        private readonly ICommonServices _services; // TODO: Use Localization Service
+        private readonly Lazy<IWidgetProvider> _widgetProvider;
+        private readonly Lazy<ILocalizationService> _localizationService;
         private readonly Lazy<IUrlHelper> _urlHelper;
 
-        public BlogMenuItemFilter(BlogSettings blogSettings, IWidgetProvider widgetProvider, ICommonServices services, Lazy<IUrlHelper> urlHelper)
+        public BlogMenuItemFilter(
+            BlogSettings blogSettings,
+            Lazy<IWidgetProvider> widgetProvider,
+            Lazy<ILocalizationService> localizationService, 
+            Lazy<IUrlHelper> urlHelper)
         {
             _blogSettings = blogSettings;
             _widgetProvider = widgetProvider;
-            _services = services;
+            _localizationService = localizationService;
             _urlHelper = urlHelper;
         }
 
@@ -31,9 +35,9 @@ namespace Smartstore.Blog.Filters
             if (!filterContext.Result.IsHtmlViewResult())
                 return;
 
-            var html = $"<a class='menubar-link' href='{_urlHelper.Value.RouteUrl("Blog")}'>{_services.Localization.GetResource("Blog")}</a>";
+            var html = $"<a class='menubar-link' href='{_urlHelper.Value.RouteUrl("Blog")}'>{_localizationService.Value.GetResource("Blog")}</a>";
 
-            _widgetProvider.RegisterHtml(new[] { "header_menu_special" }, new HtmlString(html));
+            _widgetProvider.Value.RegisterHtml(new[] { "header_menu_special" }, new HtmlString(html));
         }
 
         public void OnResultExecuted(ResultExecutedContext filterContext)

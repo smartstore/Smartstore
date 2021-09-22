@@ -11,7 +11,6 @@ using Smartstore.Blog.Models;
 using Smartstore.Blog.Services;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -22,12 +21,9 @@ using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models;
-using Smartstore.Collections;
-using Smartstore.Utilities.Html;
-using Smartstore.Core.Catalog.Products;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Blog.Controllers
 {
@@ -196,7 +192,7 @@ namespace Smartstore.Blog.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("Posts");
+            return RedirectToAction("List");
         }
 
         [Permission(BlogPermissions.Read)]
@@ -360,7 +356,6 @@ namespace Smartstore.Blog.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var blogPost = await _db.BlogPosts().FindByIdAsync(id, false);
-
             if (blogPost == null)
             {
                 return NotFound();
@@ -392,7 +387,6 @@ namespace Smartstore.Blog.Controllers
         public async Task<IActionResult> Edit(BlogPostModel model, bool continueEditing, IFormCollection form)
         {
             var blogPost = await _db.BlogPosts().FindByIdAsync(model.Id);
-
             if (blogPost == null)
             {
                 return NotFound();

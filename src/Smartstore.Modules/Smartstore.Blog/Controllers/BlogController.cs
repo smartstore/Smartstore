@@ -47,8 +47,8 @@ namespace Smartstore.Blog.Controllers
         private readonly IStoreMappingService _storeMappingService;
         private readonly IPageAssetBuilder _pageAssetBuilder;
         private readonly Lazy<IWebHelper> _webHelper;
-        private readonly Lazy<IActivityLogger> _activityLogger; // TODO: (mh) (core) Why lazy? RE: Only used if someone adds a comment.
-        private readonly Lazy<IMessageFactory> _messageFactory; // TODO: (mh) (core) Why lazy? RE: Only used if someone adds a comment.
+        private readonly Lazy<IActivityLogger> _activityLogger; 
+        private readonly Lazy<IMessageFactory> _messageFactory;
         private readonly Lazy<LinkGenerator> _linkGenerator;
 
         private readonly BlogSettings _blogSettings;
