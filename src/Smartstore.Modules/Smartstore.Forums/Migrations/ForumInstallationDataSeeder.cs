@@ -39,6 +39,7 @@ namespace Smartstore.Forums.Migrations
             await PopulateAsync("PopulateForumMessageTemplates", PopulateMessageTemplates);
             await PopulateAsync("PopulateForumMenuItems", PopulateMenuItems);
             await PopulateAsync("PopulateForumActivityLogTypes", PopulateActivityLogTypes);
+            // TODO: (mg) (core) Needs duplicate echeck
             await PopulateAsync("PopulateTopicsRelatedToForums", Topics());
 
             if (_installContext.SeedSampleData == null || _installContext.SeedSampleData == true)
