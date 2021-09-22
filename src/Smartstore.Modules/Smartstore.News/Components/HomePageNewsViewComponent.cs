@@ -14,14 +14,14 @@ namespace Smartstore.Web.Components
     /// <summary>
     /// Component to render new section on the homepage.
     /// </summary>
-    public class HomePageNewsViewComponent : SmartViewComponent
+    public class HomepageNewsViewComponent : SmartViewComponent
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly ICacheManager _cacheManager;
         private readonly NewsSettings _newsSettings;
 
-        public HomePageNewsViewComponent(
+        public HomepageNewsViewComponent(
             SmartDbContext db,
             ICommonServices services,
             ICacheManager cacheManager,

@@ -7,9 +7,11 @@ namespace Smartstore.News.Services
 {
     public class NewsSlugRouter : SlugRouter
     {
+        const string EntityName = "newsitem";
+        
         public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values)
         {
-            if (urlRecord.EntityName.ToLowerInvariant() == "newsitem")
+            if (urlRecord.EntityName.ToLowerInvariant() == EntityName)
             {
                 return new RouteValueDictionary
                 {

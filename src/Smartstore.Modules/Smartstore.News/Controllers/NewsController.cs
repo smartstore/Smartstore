@@ -185,11 +185,10 @@ namespace Smartstore.News.Controllers
             var cachedModel = await _cache.GetAsync(cacheKey, async () =>
             {
                 var newsItems = await _db.NewsItems()
-                .AsNoTracking()
-                .ApplyStandardFilter(storeId, languageId, includeHidden)
-                .ToPagedList(0, _newsSettings.MainPageNewsCount)
-                .LoadAsync();
-                
+                    .AsNoTracking()
+                    .ApplyStandardFilter(storeId, languageId, includeHidden)
+                    .ToPagedList(0, _newsSettings.MainPageNewsCount)
+                    .LoadAsync();
                 
                 Services.DisplayControl.AnnounceRange(newsItems);
 

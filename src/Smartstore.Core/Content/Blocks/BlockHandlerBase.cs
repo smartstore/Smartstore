@@ -157,7 +157,8 @@ namespace Smartstore.Core.Content.Blocks
                 textWriter,
 				mvcViewOptions.Value.HtmlHelperOptions);
 
-            return viewResult.View.RenderAsync(viewContext);
+			// TODO: (core) Use IRazorViewInvoker?
+			return viewResult.View.RenderAsync(viewContext);
         }
 
 		protected virtual async Task RenderByWidgetAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)

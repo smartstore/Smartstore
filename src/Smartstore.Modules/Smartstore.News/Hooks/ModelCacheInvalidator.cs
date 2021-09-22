@@ -32,6 +32,9 @@ namespace Smartstore.News.Hooks
             _cache = cache;
         }
 
+        public Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Void);
+
         public async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
             var entity = entry.Entity;
@@ -64,8 +67,5 @@ namespace Smartstore.News.Hooks
 
         public Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
             => Task.CompletedTask;
-
-        public Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Void);
     }
 }

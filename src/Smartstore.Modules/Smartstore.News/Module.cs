@@ -8,6 +8,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.Core.Widgets;
+using Smartstore.Web.Components;
 
 namespace Smartstore.News
 {
@@ -20,7 +21,7 @@ namespace Smartstore.News
 
         public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
         {
-            return new ComponentWidgetInvoker("HomePageNews", null) { };
+            return new ComponentWidgetInvoker(typeof(HomepageNewsViewComponent), null);
         }
 
         public string[] GetWidgetZones()

@@ -32,7 +32,7 @@ namespace Smartstore.News.Media
         {
             var name = nameof(NewsItem);
             var p = new FastPager<NewsItem>(_db.NewsItems().AsNoTracking().Where(x => x.MediaFileId.HasValue || x.PreviewMediaFileId.HasValue));
-            while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId, x.PreviewMediaFileId }, x => x.Id)).Out(out var list))
+            while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId, x.PreviewMediaFileId }, x => x.Id, cancelToken)).Out(out var list))
             {
                 foreach (var x in list)
                 {

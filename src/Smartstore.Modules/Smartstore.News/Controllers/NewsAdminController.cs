@@ -217,7 +217,6 @@ namespace Smartstore.News.Controllers
                 .ApplyStandardFilter(model.SearchStoreId, model.SearchLanguageId, true)
                 .Where(x => x.Published == model.SearchIsPublished || model.SearchIsPublished == null);
 
-            // TODO: (mh) (core) Somethings wrong here: Search for Die RMS Titanic give's many hits > SearchTitle, SearchShort & SearchFull
             if (model.SearchTitle.HasValue())
             {
                 query = query.ApplySearchFilterFor(x => x.Title, model.SearchTitle);
