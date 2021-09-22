@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Widgets;
 
 namespace Smartstore.Core.Content.Blocks
 {
@@ -158,14 +160,25 @@ namespace Smartstore.Core.Content.Blocks
             return viewResult.View.RenderAsync(viewContext);
         }
 
-		protected virtual Task RenderByComponentAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
+		protected virtual async Task RenderByWidgetAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
         {
 			Guard.NotNull(element, nameof(element));
 			Guard.NotNull(templates, nameof(templates));
 			Guard.NotNull(htmlHelper, nameof(htmlHelper));
 			Guard.NotNull(textWriter, nameof(textWriter));
 
-			// TODO: (core) Implement BlockHandlerBase.RenderByComponentAsync()
+			var widget = templates.Select(x => GetWidget(element, x)).FirstOrDefault(x => x != null);
+			if (widget == null)
+			{
+				throw new InvalidOperationException("The return value of the 'GetWidget()' method cannot be NULL.");
+			}
+
+			// TODO: (core) Implement BlockHandlerBase.RenderByWidgetAsync() properly
+			await widget.InvokeAsync(htmlHelper.ViewContext);
+		}
+
+		protected virtual WidgetInvoker GetWidget(IBlockContainer element, string template)
+		{
 			throw new NotImplementedException();
 		}
 
