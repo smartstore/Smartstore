@@ -10,7 +10,6 @@ namespace Smartstore.Forums.Models.Public
         public string ForumTopicSlug { get; set; }
         public string ForumTopicSubject { get; set; }
         public int CurrentTopicPage { get; set; }
-        public bool ShowTopic { get; set; } = true;
 
         public string FormattedText { get; set; }
 

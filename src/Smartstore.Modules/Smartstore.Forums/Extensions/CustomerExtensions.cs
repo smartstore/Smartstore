@@ -3,7 +3,6 @@ using Smartstore.Core.Identity;
 
 namespace Smartstore.Forums
 {
-    // INFO: (mg) (core) We shouldn't limit 3rd party devs. Imagine a module dev wants to implement some forum extending module.
     public static partial class CustomerExtensions
     {
         /// <summary>

@@ -6,6 +6,7 @@ using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Menus;
+using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Logging;
@@ -38,6 +39,7 @@ namespace Smartstore.Forums.Migrations
             await PopulateAsync("PopulateForumMessageTemplates", PopulateMessageTemplates);
             await PopulateAsync("PopulateForumMenuItems", PopulateMenuItems);
             await PopulateAsync("PopulateForumActivityLogTypes", PopulateActivityLogTypes);
+            await PopulateAsync("PopulateTopicsRelatedToForums", Topics());
 
             if (_installContext.SeedSampleData == null || _installContext.SeedSampleData == true)
             {
@@ -62,8 +64,7 @@ namespace Smartstore.Forums.Migrations
 
         private async Task PopulateMenuItems()
         {
-            // TODO: (mg) (core) verify forum route name.
-            const string routeModel = "{\"routename\":\"Forums\"}";
+            const string routeModel = "{\"routename\":\"Boards\"}";
 
             var menuItemsSet = Context.Set<MenuItemEntity>();
 
@@ -168,6 +169,25 @@ namespace Smartstore.Forums.Migrations
                     Name = _deSeedData ? "Verpackung & Versand" : "Packaging & Shipping",
                     Description = _deSeedData ? "Haben Sie Fragen oder Anregungen zu Verpackung & Versand?" : "Discuss packaging & shipping",
                     DisplayOrder = 20
+                }
+            };
+        }
+
+        private List<Topic> Topics()
+        {
+            return new List<Topic>
+            {
+                new Topic
+                {
+                    SystemName = "ForumWelcomeMessage",
+                    IncludeInSitemap = false,
+                    IsPasswordProtected = false,
+                    RenderAsWidget = true,
+                    WidgetWrapContent = false,
+                    Title = _deSeedData ? "Foren" : "Forums",
+                    Body = _deSeedData 
+                        ? "<p>Fügen Sie eine Willkommens-Nachricht für das Forum hier ein. Diesen Text können Sie auch im Administrations-Bereich editieren.</p>" 
+                        : "<p>Put your welcome message here. You can edit this in the admin site.</p>"
                 }
             };
         }

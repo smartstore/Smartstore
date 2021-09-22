@@ -64,8 +64,9 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         [Permission(Permissions.Configuration.Store.Read)]
-        public async Task<IActionResult> StoreList(GridCommand command, StoreModel model)
+        public async Task<IActionResult> StoreList(GridCommand command)
         {
             var storeModels = await Services.StoreContext.GetAllStores()
                 .AsQueryable()

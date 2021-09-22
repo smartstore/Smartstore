@@ -14,11 +14,10 @@
             @Model.CurrentTime.ToNativeString("F")
         </div>
         <div class="mt-2 w-75">
-            @* TODO: SearchBox *@
+            @* TODO: (mg) (core) SearchBox *@
         </div>
     </div>
 
-    @*TODO: (mg) (core) move topic ForumWelcomeMessage to forum module.*@
     @await Component.InvokeAsync("TopicBlock", new { systemName = "ForumWelcomeMessage" }) 
     
     @foreach (var group in Model.ForumGroups)
@@ -26,4 +25,5 @@
         <partial name="ForumGroup" model="group" />
     }
 
+    @await Component.InvokeAsync("ActiveDiscussions")
 </div>

@@ -51,6 +51,7 @@ namespace Smartstore.Admin.Controllers
             return View();
         }
 
+        [IgnoreAntiforgeryToken]
         [Permission(Permissions.System.ScheduleTask.Read)]
         public async Task<IActionResult> TaskList()
         {

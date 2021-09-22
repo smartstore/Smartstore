@@ -446,7 +446,7 @@ namespace Smartstore.Core.Installation
 
         public IList<EmailAccount> EmailAccounts()
         {
-            var entities = new List<EmailAccount>()
+            var entities = new List<EmailAccount>
             {
                 new EmailAccount
                 {
@@ -467,7 +467,7 @@ namespace Smartstore.Core.Installation
 
         public IList<Topic> Topics()
         {
-            var entities = new List<Topic>()
+            var entities = new List<Topic>
             {
                 new Topic
                     {
@@ -507,23 +507,13 @@ namespace Smartstore.Core.Installation
                     },
                 new Topic
                     {
-                        SystemName = "ForumWelcomeMessage",
-                        IncludeInSitemap = false,
-                        IsPasswordProtected = false,
-                        RenderAsWidget = true,
-                        WidgetWrapContent = false,
-                        Title = "Forums",
-                        Body = "<p>Put your welcome message here. You can edit this in the admin site.</p>"
-                    },
-                new Topic
-                    {
                         SystemName = "HomePageText",
                         IncludeInSitemap = false,
                         IsPasswordProtected = false,
                         RenderAsWidget = true,
                         WidgetWrapContent = false,
                         Title = "Welcome to our store",
-                        Body = "<p>Online shopping is the process consumers go through to purchase products or services over the Internet. You can edit this in the admin site.</p></p>"
+                        Body = "<p>Online shopping is the process consumers go through to purchase products or services over the Internet. You can edit this in the admin site.</p>"
                     },
                 new Topic
                     {
@@ -559,7 +549,7 @@ namespace Smartstore.Core.Installation
                         IncludeInSitemap = false,
                         IsPasswordProtected = false,
                         Title = "Imprint",
-                        Body = @"<p>Put your imprint information here. YOu can edit this in the admin site.</p>"
+                        Body = "<p>Put your imprint information here. YOu can edit this in the admin site.</p>"
                     },
                 new Topic
                     {

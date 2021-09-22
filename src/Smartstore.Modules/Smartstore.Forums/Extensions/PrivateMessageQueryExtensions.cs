@@ -3,7 +3,7 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums
 {
-    internal static partial class PrivateMessageQueryExtensions
+    public static partial class PrivateMessageQueryExtensions
     {
         /// <summary>
         /// Applies standard filter and sorts by <see cref="PrivateMessage.CreatedOnUtc"/> descending.

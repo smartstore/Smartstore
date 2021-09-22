@@ -27,7 +27,6 @@
 <div>
     @if (gridId.HasValue())
     {
-        @Html.AntiForgeryToken()
         <partial name="_Grid.Preview.@(gridId)" model="null" view-data="gridViewData" />
     }
     else

@@ -1,0 +1,123 @@
+﻿@model ActiveDiscussionsModel
+
+<div sm-if="!Model.IsForumGroupsPage" class="mt-2 w-75">
+    @* TODO: (mg) (core) SearchBox *@
+</div>
+<div class="active-discussions mt-5">
+    <div class="row">
+        <div class="col">
+            <div class="heading mb-4">
+                <h1 class="heading-title @(Model.IsForumGroupsPage ? "fs-h3" : "fs-h1")">
+                    @T("Forum.ActiveDiscussions")
+                </h1>
+            </div>
+        </div>
+        <div class="col col-auto mb-3 mb-0-sm">
+            @if (Model.ActiveDiscussionsFeedEnabled)
+            {
+                <a asp-action="ActiveDiscussionsRSS" asp-controller="Forum" title="@T("Forum.ActiveDiscussionsRSSLinkTitle")">
+                    <i class="fa fa-rss"></i>
+                    <span>@T("Forum.RSS")</span>                
+                </a>
+            }
+            @if (Model.IsForumGroupsPage)
+            {
+                <a asp-action="ActiveDiscussions" asp-controller="Forum" class="btn btn-outline-info btn-flat">
+                    <i class="fa fa-th-list"></i>
+                    <span>@T("Forum.ActiveDiscussions.ViewAll")</span>
+                </a>
+            }
+        </div>
+    </div>
+    <div class="active-discussionstopics table-responsive clearfix">
+        <table class="table">
+            <thead sm-if="Model.ForumTopics.Any()">
+                <tr class="active-discussions-header">
+                    <th></th>
+                    <th class="topic-name">
+                        @T("Forum.TopicTitle")
+                    </th>
+                    <th class="replies d-none d-md-table-cell">
+                        @T("Forum.Replies")
+                    </th>
+                    <th class="views d-none d-md-table-cell">
+                        @T("Forum.Views")
+                    </th>
+                    <th class="last-post d-none d-md-table-cell">
+                        @T("Forum.LatestPost")
+                    </th>
+                </tr>
+            </thead>
+            @foreach (var topic in Model.ForumTopics)
+            {
+                <tr class="topic">
+                    <td class="image">
+                        <partial name="Customer.Avatar" model="topic.Avatar" />
+                    </td>
+                    <td class="topic-name">
+                        <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="topic-title">
+                            @topic.Subject
+                        </a>
+                        <div>
+                            <div class="topic-starter text-muted pull-left d-inline-flex">
+                                <div sm-if="topic.CustomerId > 0">
+                                    <span class="pr-1">@T("Forum.Author"):</span>
+				                    @if (topic.HasCustomerProfile)
+				                    {
+					                    <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId">
+						                    @topic.CustomerName.NaIfEmpty()
+					                    </a>
+				                    }
+				                    else
+				                    {
+					                    <span>@topic.CustomerName</span>
+				                    }
+                                </div>
+                            </div>
+                            @if (topic.NumPosts > Model.PostsPageSize)
+                            {
+                                @* TODO: (mg) (core) use PaginationTagHelper or ForumPaginationTagHelper somehow *@
+                                @* 
+                                @(Html.SmartStore().Pager(topic.TotalPostPages)
+                                    .QueryParam("page")
+                                    .HtmlAttributes(new { @class = "topics-pager" })
+                                    .WithRenderer<ForumTopicPagerRenderer>()
+                                    .ShowPrevious(false)
+                                    .ShowNext(false)
+                                    .ItemTitleFormatString(T("Forum.Topics.GotoPostPager"))
+                                    .Alignment(PagerAlignment.Left)
+                                    .Size(PagerSize.Mini)
+                                    .Route("TopicSlug", new { id = topic.Id, slug = topic.SeName }))
+
+                                @(Html.SmartStore().Pager(Model.PagingFilteringContext)
+                                        .Name("pagination-bottom")
+                                        .QueryParam("pagenumber")
+                                        .ShowFirst(false)
+                                        .ShowLast(false)
+                                        .Style(PagerStyle.Pagination)
+                                        .MaxPagesToDisplay(6))
+
+                                <pagination sm-list-items="Model.PagingFilteringContext"
+                                            sm-show-first="false"
+                                            sm-show-last="false"
+                                            sm-max-pages="6"
+                                            sm-style="Blog"
+                                            sm-query-param="pagenumber" />
+                                *@
+                            }
+                        </div>
+                    </td>
+                    <td class="replies d-none d-md-table-cell">
+                        @topic.NumReplies.ToString("N0")
+                    </td>
+                    <td class="views d-none d-md-table-cell">
+                        @topic.Views.ToString("N0")
+                    </td>
+                    <td class="last-post d-none d-md-table-cell">
+                        <partial name="LastPost" model="topic.LastPost" />
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>

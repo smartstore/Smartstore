@@ -1816,11 +1816,6 @@ namespace Smartstore.Core.Installation
                     x.Title = "Kontakt";
                     x.Body = "<p>Fügen Sie Ihre Kontaktdaten hier ein. Diesen Text können Sie auch im Administrations-Bereich editieren.</p>";
                 })
-                .Alter("ForumWelcomeMessage", x =>
-                {
-                    x.Title = "Foren";
-                    x.Body = "<p>Fügen Sie eine Willkommens-Nachricht für das Forum hier ein. Diesen Text können Sie auch im Administrations-Bereich editieren.</p>";
-                })
                 .Alter("HomePageText", x =>
                 {
                     x.Title = "Herzlich Willkommen";

@@ -1,8 +1,12 @@
 ﻿@model PublicForumPostModel
 
+@{
+	var showTopic = (ViewBag.ShowTopic as bool?) ?? true;
+}
+
 <div sm-if="Model?.Id > 0" class="last-post text-muted">
     <div class="createdon">@Model.PostCreatedOnStr</div>
-    <div sm-if="Model.ShowTopic">
+    <div sm-if="showTopic">
 		<div class="d-inline-flex">
 			<span>@T("Forum.In"):&nbsp;</span>
 			<a asp-route="ForumTopicBySlug" asp-route-id="@Model.ForumTopicId" asp-route-slug="@Model.ForumTopicSlug" title="@Model.ForumTopicSubject">
