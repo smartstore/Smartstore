@@ -54,7 +54,7 @@ namespace Smartstore.Core.Messaging
         public ModelTreeMemberKind Kind { get; set; }
     }
 
-    // TODO: (mh) (core) Move Blog, News and Polls model creation to external modules when they are available (via MessageModelPartMappingEvent)
+    // TODO: (mh) (core) Move poll model creation to external modules when they are available (via MessageModelPartMappingEvent)
 
     public partial class MessageModelProvider : IMessageModelProvider
     {
@@ -250,9 +250,6 @@ namespace Smartstore.Core.Messaging
                 case ProductReview x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
-                //case NewsComment x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
                 case IEnumerable<GenericAttribute> x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
@@ -788,24 +785,6 @@ namespace Smartstore.Core.Messaging
         //    ApplyCustomerContentPart(m, part, messageContext);
 
         //    PublishModelPartCreatedEvent<PollVotingRecord>(part, m);
-
-        //    return m;
-        //}
-
-        //protected virtual async Task<object> CreateModelPartAsync(NewsComment part, MessageContext messageContext)
-        //{
-        //    Guard.NotNull(messageContext, nameof(messageContext));
-        //    Guard.NotNull(part, nameof(part));
-
-        //    var m = new Dictionary<string, object>
-        //    {
-        //        {  "NewsTitle", part.NewsItem.GetLocalized(x => x.Title, messageContext.Language).Value.NullEmpty() },
-        //        {  "Title", part.CommentTitle.NullEmpty() },
-        //        {  "Text", HtmlUtils.StripTags(part.CommentText).NullEmpty() },
-        //        {  "NewsUrl", BuildRouteUrl("NewsItem", new { SeName = part.NewsItem.GetActiveSlugAsync(messageContext.Language.Id) }, messageContext) }
-        //    };
-
-        //    await PublishModelPartCreatedEventAsync(part, m);
 
         //    return m;
         //}

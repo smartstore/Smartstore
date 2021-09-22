@@ -1,0 +1,107 @@
+﻿@using Microsoft.AspNetCore.Http.Extensions
+
+@model PublicNewsItemModel
+
+@{
+    Layout = "_Layout";
+
+    Assets.AppendTitleParts(Model.MetaTitle.HasValue() ? Model.MetaTitle : Model.Title);
+    Assets.AppendMetaDescriptionParts(Model.MetaDescription);
+    Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
+
+    if (ViewBag.CanonicalUrlsEnabled)
+    {
+        var newsItemUrl = Url.RouteUrl("NewsItem", new { SeName = Model.SeName }, this.Request.Scheme);
+        Assets.AppendCanonicalUrlParts(newsItemUrl);
+    }
+
+    var imageUrl = Model.PictureModel.File.GetUrl();
+}
+
+@*TODO: (mh) (core)*@
+@*@{ Html.RenderAction("MetaPropertiesNews", "Common", new { newsItem = Model }); }*@
+
+<article class="page news-item-page" itemscope itemtype="http://schema.org/NewsArticle">
+    @if (Model.DisplayAdminLink)
+    {
+        <a class="btn btn-secondary btn-flat btn-admin-edit" asp-action="Edit" asp-controller="News" asp-route-id="@Model.Id" asp-route-area="admin" target="admin-newsitem" rel="nofollow">
+            <i class="fa fa-cog"></i>
+            <span>@T("Common.Cms.EditNewsItem")</span>
+        </a>
+    }
+
+    @if (imageUrl.HasValue())
+    {
+        <meta itemprop="image" content="@imageUrl" />
+        <div class="shadow-sm shadow-primary mb-3">
+            <figure class="single-media-item-image">
+                <img sm-file="Model.PictureModel.File" class="img-fluid" />
+            </figure>
+        </div>
+    }
+
+    <div class="news-date text-muted mb-2">
+        @Model.CreatedOn.ToNativeString("D")
+    </div>
+
+    <meta itemprop="datePublished" content="@Model.CreatedOnUTC.ToString("u")" />
+    <meta itemprop="author" content="@ViewBag.StoreName" />
+    <meta itemprop="publisher" content="@ViewBag.StoreName" />
+    <meta itemprop="url" content="@Request.GetDisplayUrl()" />
+
+    <div class="page-title mb-4">
+        <h1 class="fs-h2" itemprop="headline">@Model.Title</h1>
+    </div>
+
+    <div class="news-body">
+        <zone name="newsitem_page_before_body" />
+        <div class="news-content long-text html-editor-content" itemprop="articleBody">
+            @Html.Raw(Model.Full)
+        </div>
+        <zone name="newsitem_page_before_comments" />
+
+        <div sm-if="Model.Comments.AllowComments" class="row">
+            <div class="col-12">
+                <div class="block news-comment-form mt-5">
+                    <form asp-action="NewsCommentAdd">
+                        <input type="hidden" asp-for="@Model.Id" />
+                        <fieldset class="news-comment-form content-group mt-5">
+                            <legend><span>@T("News.Comments.LeaveYourComment")</span></legend>
+
+                            @if (ViewContext.ViewData.ModelState.ContainsKey(""))
+                            {
+                                <div asp-validation-summary="All"></div>
+                            }
+
+                            <honeypot sm-enabled="true" />
+
+                            <div class="form-group">
+                                <input asp-for="AddNewComment.CommentTitle" class="form-control-lg" placeholder="@Html.DisplayNameFor(m => m.AddNewComment.CommentTitle)" />
+                                <span asp-validation-for="AddNewComment.CommentTitle"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <textarea asp-for="AddNewComment.com" class="form-control-lg" placeholder="@Html.DisplayNameFor(m => m.AddNewComment.CommentText)" rows="6"></textarea>
+                                <span asp-validation-for="AddNewComment.CommentText"></span>
+                            </div>
+
+                            <zone name="gdpr_consent" />
+
+                            <captcha sm-enabled="Model.AddNewComment.DisplayCaptcha" class="form-group" />
+
+                            <div class="form-group">
+                                <button type="submit" name="add-comment" value="add-comment" class="btn btn-primary btn-lg">
+                                    @T("News.Comments.SubmitButton")
+                                </button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+
+                <partial name="Comment.List" model="Model.Comments" />
+            </div>
+        </div>
+        
+        <zone name="newsitem_page_after_comments" />
+    </div>
+</article>

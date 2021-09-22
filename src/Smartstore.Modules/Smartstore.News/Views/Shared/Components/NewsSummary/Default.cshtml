@@ -1,0 +1,15 @@
+﻿@model NewsItemListModel
+
+@{
+    Layout = "";
+}
+
+@*TODO: (mh) (core) Find out whether this works*@
+
+<div sm-if="Model.RenderHeading">
+    @{ Html.RenderPartial("NewsSummaryHeading", Model); }
+</div>
+
+<div class="news-items row">
+    @{ Html.RenderPartial("NewsSummaryList", Model); }
+</div>

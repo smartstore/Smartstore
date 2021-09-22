@@ -143,18 +143,6 @@ namespace Smartstore.Web.Infrastructure.Menus
                 ActionName = "Media"
             });
 
-            // TODO: (mh) (core) Blog & News must be ported in corresponding module.
-
-            //root.Append(new MenuItem
-            //{
-            //    Id = "news",
-            //    Text = T("News"),
-            //    Icon = "far fa-fw fa-rss",
-            //    PermissionNames = perm,
-            //    ControllerName = "Setting",
-            //    ActionName = "News"
-            //});
-
             root.Append(new MenuItem
             {
                 Id = "dataexchange",

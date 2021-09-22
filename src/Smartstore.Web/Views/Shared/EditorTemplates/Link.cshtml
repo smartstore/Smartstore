@@ -95,14 +95,6 @@
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
                 }
-                @* TODO: (mh) (core) Must be provided & injected by forum and news modules (see widget above) *@
-                @*else if (type == LinkType.NewsItem)
-                    {
-                        <select class="form-control transferable resettable"
-                                data-select-url="@Url.Action("AllNews", "News", new { area = "admin" })"
-                                data-select-selected-id="@value"
-                                data-select-init-text="@label"></select>
-                    }*@
                 else if (schema == "url")
                 {
                     <input type="text" class="form-control transferable resettable" value="@value" />

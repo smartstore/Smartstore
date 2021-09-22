@@ -22,7 +22,7 @@ namespace Smartstore.Web.Infrastructure.Hooks
 {
     internal partial class ModelCacheInvalidator : IDbSaveHook
 	{
-        // TODO: (core) Move Blog/News/Forum stuff to external modules.
+        // TODO: (mh) (core) Move Poll stuff to external module.
 		
 		#region Consts
 
@@ -171,18 +171,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 		public const string POLLS_PATTERN_KEY = "pres:poll:*";
 
 		/// <summary>
-		/// Key for home page news
-		/// </summary>
-		/// <remarks>
-		/// {0} : language ID
-		/// {1} : store ID
-		/// {2} : news count setting.
-		/// {3} : whether to include hidden news.
-		/// </remarks>
-		public const string HOMEPAGE_NEWSMODEL_KEY = "pres:news:homepage-{0}-{1}-{2}-{3}";
-		public const string NEWS_PATTERN_KEY = "pres:news:*";
-
-		/// <summary>
 		/// Key for states by country id
 		/// </summary>
 		/// <remarks>
@@ -237,7 +225,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 			TypeHelper.NameOf<CatalogSettings>(x => x.NumberOfProductTags, true),
 			TypeHelper.NameOf<CatalogSettings>(x => x.ManufacturerItemsToDisplayOnHomepage, true),
 			TypeHelper.NameOf<CatalogSettings>(x => x.NumberOfBestsellersOnHomepage, true),
-			//TypeHelper.NameOf<NewsSettings>(x => x.MainPageNewsCount, true)
 		};
 
 		private readonly ICacheManager _cache;
@@ -348,10 +335,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 			//{
 			//	_cache.RemoveByPatternAsync(POLLS_PATTERN_KEY);
 			//}
-			//else if (entity is NewsItem)
-			//{
-			//	_cache.RemoveByPatternAsync(NEWS_PATTERN_KEY);
-			//}
 			else if (entity is StateProvince)
 			{
 				await _cache.RemoveByPatternAsync(STATEPROVINCES_PATTERN_KEY);
@@ -375,9 +358,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 					await _cache.RemoveByPatternAsync(PRODUCTTAG_POPULAR_PATTERN_KEY); // depends on CatalogSettings.NumberOfProductTags
 					await _cache.RemoveByPatternAsync(MANUFACTURER_NAVIGATION_PATTERN_KEY); // depends on CatalogSettings.ManufacturerItemsToDisplayOnHomepage
 					await _cache.RemoveByPatternAsync(HOMEPAGE_BESTSELLERS_REPORT_PATTERN_KEY); // depends on CatalogSettings.NumberOfBestsellersOnHomepage
-
-					//// TODO: (core) Move to external module
-					//await _cache.RemoveByPatternAsync(NEWS_PATTERN_KEY); // depends on NewsSettings.MainPageNewsCount
 				}
 			}
 			else

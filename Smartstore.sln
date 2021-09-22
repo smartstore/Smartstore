@@ -49,6 +49,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Forums", "src\Sm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Blog", "src\Smartstore.Modules\Smartstore.Blog\Smartstore.Blog.csproj", "{944E4667-6CA2-4AD6-B9B0-F8E8C7903473}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.News", "src\Smartstore.Modules\Smartstore.News\Smartstore.News.csproj", "{EC56AF56-625F-4E37-AE5D-30CD544C8DBF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +113,10 @@ Global
 		{944E4667-6CA2-4AD6-B9B0-F8E8C7903473}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{944E4667-6CA2-4AD6-B9B0-F8E8C7903473}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{944E4667-6CA2-4AD6-B9B0-F8E8C7903473}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC56AF56-625F-4E37-AE5D-30CD544C8DBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC56AF56-625F-4E37-AE5D-30CD544C8DBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC56AF56-625F-4E37-AE5D-30CD544C8DBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC56AF56-625F-4E37-AE5D-30CD544C8DBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,6 +133,7 @@ Global
 		{23B334CE-7FFC-464E-A0A8-FFCB084E8F24} = {5135A2B0-95B5-46AD-906A-70A2364B892B}
 		{BB9E738C-0785-497F-9391-2B4CA242B567} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{944E4667-6CA2-4AD6-B9B0-F8E8C7903473} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{EC56AF56-625F-4E37-AE5D-30CD544C8DBF} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}

@@ -1,0 +1,195 @@
+﻿@model HomePageNewsItemsModel
+
+<div sm-if="Model.NewsItems.Count > 0" class="block news-list-homepage my-5">
+    <div class="row">
+        <div class="col">
+            <div class="heading">
+                <h3 class="heading-title fs-h1">@T("News")</h3>
+            </div>
+        </div>
+        <div class="col col-auto">
+            <a class="btn btn-warning" asp-action="rss" title="@T("News.RSS.Hint")">
+                <i class="fa fa-rss"></i>
+                <span>@T("News.RSS")</span>
+            </a>
+            <a class="btn btn-outline-info btn-flat" asp-action="NewsArchive">
+                <span>@T("News.ViewAll")</span>
+                <i class="fa fa-angle-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="block-body news-items">
+        @if (Model.NewsItems.Count == 1)
+        {
+            var item = Model.NewsItems.FirstOrDefault();
+            var fileModel = item.PreviewPictureModel.File != null ? item.PreviewPictureModel : item.PictureModel;
+            var imageUrl = fileModel.File?.GetUrl();
+
+            <article class="row" itemscope itemtype="http://schema.org/NewsArticle">
+                
+                <figure sm-if="imageUrl.HasValue()" class="col-12 col-md-6" style="--img-aspect-ratio: 0.6;">
+                    <a class="newsitem-picture img-center-container shadow-sm shadow-primary" asp-route="NewsItem" asp-route-SeName="@item.SeName">
+                        <img sm-model="fileModel" itemprop="image" />
+                    </a>
+                </figure>
+                
+                <div class="col-12 col-md mt-3 mt-md-0">
+                    <h4 class="newsitem-title mb-2">
+                        <a class="newsitem-title-link" asp-route="NewsItem" asp-route-SeName="@item.SeName" itemprop="headline">
+                            @item.Title.Truncate(60, "...")
+                        </a>
+                    </h4>
+                    <div class="newsitem-date rfs" itemprop="dateCreated">
+                        @item.CreatedOn.ToNativeString("D")
+                    </div>
+                    <p class="newsitem-description rfs my-3" itemprop="description">
+                        @Html.Raw(item.Short)
+                    </p>
+                    <div>
+                        <a class="btn btn-primary rfs" asp-route="NewsItem" asp-route-SeName="@item.SeName" >
+                            @T("Common.Cms.ReadMore")
+                        </a>
+                    </div>
+                </div>
+            </article>
+        }
+        else if (Model.NewsItems.Count == 2)
+        {
+            <div class="row" style="--img-aspect-ratio: 0.5;">
+                <article class="d-flex flex-column col-12 col-md-6" itemscope itemtype="http://schema.org/NewsArticle">
+                    @{ await FirstNewsItem(Model.NewsItems.First()); }
+                </article>
+                <article class="d-flex flex-column col-12 col-md-6" itemscope itemtype="http://schema.org/NewsArticle">
+                    @{ await FirstNewsItem(Model.NewsItems.ElementAt(1)); }
+                </article>
+            </div>
+        }
+        else if (Model.NewsItems.Count <= 4)
+        {
+            <div class="row">
+                <article class="col-12 col-md-5" itemscope itemtype="http://schema.org/NewsArticle">
+                    @{ await FirstNewsItem(Model.NewsItems.First()); }
+                </article>
+                <div class="col-12 col-md mt-3 mt-md-0">
+                    @{ await NewsItemList(Model.NewsItems.Skip(1), false); }
+                </div>
+            </div>
+        }
+        else if (Model.NewsItems.Count > 4)
+        {
+            var aspectRatio = 0.5;
+            if (Model.NewsItems.Count >= 10)
+            {
+                aspectRatio = 0.7;
+            }
+            else if (Model.NewsItems.Count >= 10)
+            {
+                aspectRatio = 1;
+            }
+
+            <div class="row">
+                <article class="col-12 col-md-5" itemscope itemtype="http://schema.org/NewsArticle" style="--img-aspect-ratio: @(aspectRatio.ToString().Replace(",", "."));">
+                    @{ await FirstNewsItem(Model.NewsItems.FirstOrDefault()); }
+                </article>
+                <div class="col-12 col-md mt-3 mt-md-0">
+                    <div class="row">
+                        @{ await NewsItemList(Model.NewsItems, true); }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@{
+    async Task FirstNewsItem(PublicNewsItemModel item)
+    {
+        var fileModel = item.PreviewPictureModel.File != null ? item.PreviewPictureModel : item.PictureModel;
+        var imageUrl = fileModel.File?.GetUrl();
+
+        <figure sm-if="imageUrl.HasValue()" class="mb-4">
+            <a asp-route="NewsItem" asp-route-SeName="@item.SeName" class="newsitem-picture img-center-container shadow-sm shadow-primary">
+                <img sm-model="fileModel" itemprop="image" />
+            </a>
+        </figure>
+
+        <h4 class="newsitem-title mt-3 mb-2">
+            <a class="newsitem-title-link" asp-route="NewsItem" asp-route-SeName="@item.SeName" itemprop="headline">@item.Title</a>
+        </h4>
+
+        <div class="newsitem-date" itemprop="datePublished">
+            @item.CreatedOn.ToNativeString("D")
+        </div>
+
+        <p class="newsitem-description my-3 flex-grow-1" itemprop="description">
+            @Html.Raw(item.Short)
+        </p>
+
+        <div>
+            <a class="btn btn-primary" asp-route="NewsItem" asp-route-SeName="@item.SeName">
+                @T("Common.Cms.ReadMore")
+            </a>
+        </div>
+    }
+
+    async Task NewsItemList(IEnumerable<PublicNewsItemModel> items, bool isMinimal)
+    {
+        foreach (var item in items)
+        {
+            var fileModel = item.PreviewPictureModel.File != null ? item.PreviewPictureModel : item.PictureModel;
+            var imageUrl = fileModel.File?.GetUrl();
+            var btnClasses = isMinimal ? "p-0" : "btn btn-sm btn-primary";
+
+            <article class="row sm-gutters mb-4@(isMinimal ? " col-12 col-md-6" : "")" itemscope itemtype="http://schema.org/NewsArticle">
+                <div sm-if="imageUrl.HasValue()" class="col-12 col-md-4">
+                    <a asp-route="NewsItem" asp-route-SeName="@item.SeName" class="newsitem-picture img-center-container shadow-sm shadow-primary">
+                        <img sm-model="fileModel" itemprop="image" />
+                    </a>
+                </div>
+
+                <div class="col-12 col-md mt-3 mt-md-0">
+                    @{ await RenderTitle(item.Title, item.SeName, isMinimal); }
+
+                    <div sm-if="!isMinimal" class="newsitem-date rfs mb-1" itemprop="datePublished">
+                        @item.CreatedOn.ToNativeString("D")
+                    </div>
+
+                    @{ await RenderDescription(item.Short, isMinimal); }
+
+                    <div sm-if="!isMinimal" class="mt-1">
+                        <a class="@btnClasses" asp-route="NewsItem" asp-route-SeName="@item.SeName">
+                            @T("Common.Cms.ReadMore")
+                        </a>
+                    </div>
+                </div>
+            </article>
+        }
+    }
+
+    async Task RenderTitle(string title, string seName, bool isMinimal)
+    {
+        var maxLength = isMinimal ? 50 : 80;
+
+        <h4 class="newsitem-title @(isMinimal ? "mb-1 fs-sm" : "mb-2 fs-h5")">
+            <a class="newsitem-title-link" asp-route="NewsItem" asp-route-SeName="@seName" itemprop="headline" title="@title" alt="@title">
+                @title.Truncate(maxLength, "...")
+            </a>
+        </h4>
+    }
+
+    async Task RenderDescription(string description, bool isMinimal)
+    {
+        var maxLength = isMinimal ? 50 : 140;
+        var titleTag = string.Empty;
+
+        if (description.Length >= maxLength)
+        {
+            titleTag = description;
+        }
+
+        <p class="newsitem-description rfs pt-1 @(isMinimal ? "fs-sm" : "fs-h6")" itemprop="description" attr-title='(titleTag.HasValue(), titleTag)'>
+            @Html.Raw(description.Truncate(maxLength, "..."))
+        </p>
+    }
+}

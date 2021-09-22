@@ -46,15 +46,6 @@ namespace Smartstore.Core.Seo.Routing
                         { "topicId", urlRecord.EntityId },
                         { "entity", urlRecord }
                     };
-                //default:
-                //    //case "newsitem": // TODO: (core) Move newsitem and blogpost to external modules
-                //    return new RouteValueDictionary
-                //    {
-                //        { "area", string.Empty },
-                //        { "controller", "Home" },
-                //        { "action", "Slug" },
-                //        { "entity", urlRecord }
-                //    };
             }
 
             return null;
@@ -67,9 +58,6 @@ namespace Smartstore.Core.Seo.Routing
             routes.MapLocalizedControllerRoute("Category", UrlPatternFor("Category"), new { controller = "Catalog", action = "Category" });
             routes.MapLocalizedControllerRoute("Manufacturer", UrlPatternFor("Manufacturer"), new { controller = "Catalog", action = "Manufacturer" });
             routes.MapLocalizedControllerRoute("Topic", UrlPatternFor("Topic"), new { controller = "Topic", action = "TopicDetails" });
-
-            // TODO: (core) Move these slug routes to external modules somehow
-            //routes.MapControllerRoute("NewsItem", UrlPatternFor("NewsItem"), new { controller = "News", action = "NewsItem" });
         }
     }
 }

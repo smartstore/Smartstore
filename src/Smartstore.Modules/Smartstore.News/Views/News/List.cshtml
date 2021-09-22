@@ -1,0 +1,34 @@
+﻿@model NewsItemListModel
+
+@{
+    Layout = "_Layout";
+
+    Assets.AppendTitleParts(Model.MetaTitle);
+    Assets.AppendMetaDescriptionParts(Model.MetaDescription);
+    Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
+
+    if (ViewBag.CanonicalUrlsEnabled)
+    {
+        var newsUrl = Url.RouteUrl("NewsArchive", null, this.Request.Scheme);
+        Assets.AppendCanonicalUrlParts(newsUrl);
+    }
+}
+
+<div class="page news-list-page">
+    <partial name="NewsSummaryHeading" model="Model" />
+
+    <div class="page-body">
+        <zone name="newslist_page_before_items" />
+
+        <div class="news-items mb-5 row">
+            <partial name="NewsSummaryList" model="Model" />
+        </div>
+
+        <pagination sm-list-items="Model.PagingFilteringContext"
+                    sm-max-pages="6"
+                    sm-style="Pagination"
+                    sm-query-param="pagenumber" />
+
+        <zone name="newslist_page_after_items" />
+    </div>
+</div>

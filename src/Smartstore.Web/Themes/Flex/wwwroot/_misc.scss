@@ -1,6 +1,23 @@
 /// <reference path="theme.scss" />
 
 //
+// Generic (used for single blog post page & single news item page)
+// -------------------------------------------------
+
+.single-media-item-image {
+    max-height: 300px;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+
+    > img {
+        object-fit: cover;
+        width: 100%;
+    }
+}
+
+
+//
 // Brands
 // -------------------------------------------------
 

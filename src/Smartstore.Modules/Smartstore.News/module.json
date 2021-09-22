@@ -1,0 +1,11 @@
+{
+  "Group": "CMS",
+  "SystemName": "Smartstore.News",
+  "FriendlyName": "Smartstore News",
+  "Description": "",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Order": 1,
+  "AssemblyName": "Smartstore.News.dll",
+  "ResourceRootKey": "Plugins.CMS.News"
+}

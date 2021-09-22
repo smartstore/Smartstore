@@ -61,10 +61,6 @@
         <siteMapNode id="cms" title="CMS" resKey="Admin.ContentManagement" permissionNames="cms" iconClass="icm icm-site-map">
             <siteMapNode id="topics" iconClass="far fa-file-alt" title="Pages &amp; Topics" resKey="Admin.ContentManagement.Topics" permissionNames="cms.topic" controller="Topic" action="List" area="Admin" />
             <siteMapNode id="menus" iconClass="far fa-stream" title="Menus" resKey="Admin.ContentManagement.Menus" permissionNames="cms.menu" controller="Menu" action="List" area="Admin" />
-            <siteMapNode id="news" iconClass="far fa-newspaper" title="News" resKey="Admin.ContentManagement.News" permissionNames="cms.news" area="Admin" >
-                <siteMapNode id="news-items" title="News items" resKey="Admin.ContentManagement.News.NewsItems" controller="News" action="List" area="Admin" />
-                <siteMapNode id="news-comments" title="News comments" resKey="Admin.ContentManagement.News.Comments" controller="News" action="Comments" area="Admin" />
-            </siteMapNode>
             <siteMapNode id="message-templates" iconClass="far fa-envelope" title="Message templates" resKey="Admin.ContentManagement.MessageTemplates" permissionNames="cms.messagetemplate" controller="MessageTemplate" action="List" area="Admin" />
             <siteMapNode id="polls" iconClass="fa fa-tasks" title="Polls" resKey="Admin.ContentManagement.Polls" permissionNames="cms.poll" controller="Poll" action="List" area="Admin" />
             <siteMapNode id="widgets" iconClass="fa fa-plus-square" title="Widgets" resKey="Admin.ContentManagement.Widgets" permissionNames="cms.widget" controller="Widget" action="Providers" area="Admin" />

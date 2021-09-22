@@ -107,14 +107,6 @@ namespace Smartstore.Core.Identity
 					model["ProductReviews"] = await productReviews.SelectAsync(x => _messageModelProvider.CreateModelPartAsync(x, true)).AsyncToList();
 				}
 
-				// TODO: (mh) (core) Handle in external module
-				//// News comments
-				//var newsComments = customer.CustomerContent.OfType<NewsComment>();
-				//if (newsComments.Any())
-				//{
-				//	model["NewsComments"] = newsComments.Select(x => _messageModelProvider.CreateModelPart(x, true)).ToList();
-				//}
-
 				// Product review helpfulness
 				var helpfulness = customer.CustomerContent.OfType<ProductReviewHelpfulness>();
 				if (helpfulness.Any())
@@ -222,11 +214,6 @@ namespace Smartstore.Core.Identity
 							AnonymizeData(c, x => x.ReviewText, IdentifierDataType.LongText, language);
 							AnonymizeData(c, x => x.Title, IdentifierDataType.Text, language);
 							break;
-						////// TODO: (core) Anonymize NewsComment per external module (publish event)
-						//case NewsComment c:
-						//	AnonymizeData(c, x => x.CommentText, IdentifierDataType.LongText, language);
-						//	AnonymizeData(c, x => x.CommentTitle, IdentifierDataType.Text, language);
-						//	break;
 					}
 				}
 			}

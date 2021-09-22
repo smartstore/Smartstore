@@ -144,9 +144,6 @@ namespace Smartstore.Core.Content.Media
             }
             else if (albumName == Content)
             {
-                // TODO: (core) Move Blog/News media tracker to external modules
-                //table.Register<NewsItem>(x => x.MediaFileId);
-                //table.Register<NewsItem>(x => x.PreviewMediaFileId);
                 table.Register<Store>(x => x.LogoMediaFileId);
                 table.Register<Store>(x => x.FavIconMediaFileId);
                 table.Register<Store>(x => x.PngIconMediaFileId);
@@ -277,23 +274,6 @@ namespace Smartstore.Core.Content.Media
             // Content
             if (albumName == Content)
             {
-                //// NewsItem
-                //{
-                //    var name = nameof(NewsItem);
-                //    var p = new FastPager<NewsItem>(ctx.Set<NewsItem>().AsNoTracking().Where(x => x.MediaFileId.HasValue || x.PreviewMediaFileId.HasValue));
-                //    while (p.ReadNextPage(x => new { x.Id, x.MediaFileId, x.PreviewMediaFileId }, x => x.Id, out var list))
-                //    {
-                //        foreach (var x in list)
-                //        {
-                //            if (x.MediaFileId.HasValue)
-                //                yield return new MediaTrack { EntityId = x.Id, EntityName = name, MediaFileId = x.MediaFileId.Value, Property = nameof(x.MediaFileId) };
-                //            if (x.PreviewMediaFileId.HasValue)
-                //                yield return new MediaTrack { EntityId = x.Id, EntityName = name, MediaFileId = x.PreviewMediaFileId.Value, Property = nameof(x.PreviewMediaFileId) };
-                //        }
-                //        list.Clear();
-                //    }
-                //}
-
                 // Store
                 {
                     var name = nameof(Store);

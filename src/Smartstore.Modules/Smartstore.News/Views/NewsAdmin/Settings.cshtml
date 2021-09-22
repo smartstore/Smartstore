@@ -1,0 +1,110 @@
+﻿@model NewsSettingsModel
+
+@{
+    Layout = "_SettingLayout";
+}
+
+<form asp-action="Settings">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-rss"></i>
+            @T("Admin.Configuration.Settings.News")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("StoreScope")
+
+    <div asp-validation-summary="All"></div>
+
+    <tabstrip id="newssettings-edit" sm-nav-style="Material" sm-nav-position="Top">
+        <tab sm-title="@T("Admin.Configuration.Settings.News")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Enabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="Enabled" data-toggler-for="#pnlNewsEnabled"></setting-editor>
+                        <span asp-validation-for="Enabled"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pnlNewsEnabled" class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowNotRegisteredUsersToLeaveComments" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowNotRegisteredUsersToLeaveComments"></setting-editor>
+                        <span asp-validation-for="AllowNotRegisteredUsersToLeaveComments"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="NotifyAboutNewNewsComments" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="NotifyAboutNewNewsComments"></setting-editor>
+                        <span asp-validation-for="NotifyAboutNewNewsComments"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowNewsOnMainPage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowNewsOnMainPage"></setting-editor>
+                        <span asp-validation-for="ShowNewsOnMainPage"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MainPageNewsCount" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MainPageNewsCount"></setting-editor>
+                        <span asp-validation-for="MainPageNewsCount"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="NewsArchivePageSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="NewsArchivePageSize"></setting-editor>
+                        <span asp-validation-for="NewsArchivePageSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MaxAgeInDays" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MaxAgeInDays" sm-postfix="@T("Time.Days")"></setting-editor>
+                        <span asp-validation-for="MaxAgeInDays"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowHeaderRssUrl" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowHeaderRssUrl"></setting-editor>
+                        <span asp-validation-for="ShowHeaderRssUrl"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.SeoTab.Title")">
+            @*TODO: (mh) (core) Test again if this works fine along with store scope configuration *@
+            <editor asp-for="SeoModel" asp-template="SeoModel" />
+        </tab>
+    </tabstrip>
+</form>

@@ -1,0 +1,83 @@
+﻿@model NewsItemModel
+
+@{
+    var parentModel = ViewData["Parent"] as NewsListModel;
+    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+    var isSingleLanguageMode = (bool)ViewBag.IsSingleLanguageMode;
+}
+
+<datagrid id="newsitem-grid"
+          allow-resize="true"
+          allow-column-reordering="true"
+          allow-row-selection="true"
+          allow-edit="true"
+          onrowclass="newsitemGrid_onRowClass">
+    <datasource read="@Url.Action("NewsItemList")"
+                update="@Url.Action("NewsItemUpdate")"
+                delete="@Url.Action("DeleteSelection")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")…</span>
+            </a>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_after"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.NewsItems.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" halign="center" visible="false" />
+        <column for="Title" hideable="false" width="2fr">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="Comments" halign="center" readonly="true" sortable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.CommentsUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="Published" halign="center" />
+        @if (!isSingleStoreMode)
+        {
+            <column for="LimitedToStores" halign="center" readonly="true" />
+        }
+        @if (!isSingleLanguageMode)
+        {
+            <column for="LanguageName" entity-member="LanguageId" halign="center" readonly="true" />
+        }
+        <column for="AllowComments" halign="center" visible="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
+        <column for="StartDate" entity-member="StartDateUtc" visible="false" />
+        <column for="EndDate" entity-member="EndDateUtc" visible="false" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="newsitem-grid">
+    function newsitemGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.Published
+        };
+    }
+</script>
