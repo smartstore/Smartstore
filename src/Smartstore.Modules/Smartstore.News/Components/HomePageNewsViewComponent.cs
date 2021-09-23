@@ -7,6 +7,7 @@ using Smartstore.Core.Data;
 using Smartstore.News;
 using Smartstore.News.Domain;
 using Smartstore.News.Hooks;
+using Smartstore.News.Models.Mappers;
 using Smartstore.News.Models.Public;
 using Smartstore.Web.Components;
 
@@ -57,9 +58,7 @@ namespace Smartstore.News.Components
                 {
                     NewsItems = await newsItems.SelectAsync(async x =>
                     {
-                        var mapper = MapperFactory.GetMapper<NewsItem, PublicNewsItemModel>();
-                        var newsItemModel = await mapper.MapAsync(x, new { PrepareComments = false });
-                        return newsItemModel;
+                        return await x.MapAsync(new { PrepareComments = false });
                     })
                     .AsyncToList()
                 };

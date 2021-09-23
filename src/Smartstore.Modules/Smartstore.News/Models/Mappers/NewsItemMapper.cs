@@ -17,6 +17,22 @@ using Smartstore.Web.Models.Media;
 
 namespace Smartstore.News.Models.Mappers
 {
+    public static partial class NewsMappingExtensions
+    {
+        public static async Task<PublicNewsItemModel> MapAsync(this NewsItem entity, dynamic parameters = null)
+        {
+            var model = new PublicNewsItemModel();
+            await MapAsync(entity, model, parameters);
+
+            return model;
+        }
+
+        public static async Task MapAsync(this NewsItem entity, PublicNewsItemModel model, dynamic parameters = null)
+        {
+            await MapperFactory.MapAsync(entity, model, parameters);
+        }
+    }
+
     public class NewsItemMapper : Mapper<NewsItem, PublicNewsItemModel>
     {
         private readonly ICommonServices _services;

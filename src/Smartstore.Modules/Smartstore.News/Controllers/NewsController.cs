@@ -29,6 +29,7 @@ using Smartstore.Net;
 using Smartstore.News.Domain;
 using Smartstore.News.Hooks;
 using Smartstore.News.Messaging;
+using Smartstore.News.Models.Mappers;
 using Smartstore.News.Models.Public;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Filters;
@@ -121,9 +122,7 @@ namespace Smartstore.News.Controllers
                 {
                     NewsItems = await newsItems.SelectAsync(async x =>
                     {
-                        var mapper = MapperFactory.GetMapper<NewsItem, PublicNewsItemModel>();
-                        var newsItemModel = await mapper.MapAsync(x, new { PrepareComments = false });
-                        return newsItemModel;
+                        return await x.MapAsync(new { PrepareComments = false });
                     })
                     .AsyncToList()
                 };
@@ -262,8 +261,7 @@ namespace Smartstore.News.Controllers
                 }
             }
 
-            var mapper = MapperFactory.GetMapper<NewsItem, PublicNewsItemModel>();
-            var model = await mapper.MapAsync(newsItem, new { PrepareComments = true });
+            var model = await newsItem.MapAsync(new { PrepareComments = true });
 
             ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
             ViewBag.StoreName = _services.StoreContext.CurrentStore.Name;
@@ -328,9 +326,8 @@ namespace Smartstore.News.Controllers
             }
 
             // If we got this far something failed. Redisplay form.
-            var mapper = MapperFactory.GetMapper<NewsItem, PublicNewsItemModel>();
-            model = await mapper.MapAsync(newsItem, new { PrepareComments = true });
-           
+            model = await newsItem.MapAsync(new { PrepareComments = true });
+
             return View("NewsItem", model);
         }
     }
