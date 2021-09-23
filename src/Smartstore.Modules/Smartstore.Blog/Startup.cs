@@ -29,7 +29,7 @@ namespace Smartstore.Blog
             services.Configure<MvcOptions>(o =>
             {
                 o.Filters.AddConditional<BlogMenuItemFilter>(
-                    context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
+                    context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest(), 200);
 
                 o.Filters.AddConditional<RssHeaderLinkFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());

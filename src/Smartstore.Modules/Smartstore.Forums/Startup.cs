@@ -39,7 +39,7 @@ namespace Smartstore.Forums
             services.Configure<MvcOptions>(o =>
             {
                 o.Filters.AddConditional<ForumMenuItemFilter>(
-                    context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
+                    context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest(), 300);
             });
         }
 

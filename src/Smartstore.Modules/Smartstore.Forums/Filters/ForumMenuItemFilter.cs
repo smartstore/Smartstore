@@ -32,9 +32,7 @@ namespace Smartstore.Forums.Filters
         {
             if (_forumSettings.ForumsEnabled && filterContext.Result.IsHtmlViewResult())
             {
-                var html = "<a class='menubar-link' href='{0}'>{1}</a>".FormatInvariant(
-                    _urlHelper.Value.RouteUrl("Boards"),
-                    _localizationService.Value.GetResource("Forum.Forums"));
+                var html = $"<a class='menubar-link' href='{_urlHelper.Value.RouteUrl("Boards")}'>{_localizationService.Value.GetResource("Forum.Forums")}</a>";
 
                 _widgetProvider.RegisterHtml(new[] { "header_menu_special" }, new HtmlString(html), MENU_ITEM_ORDER);
             }

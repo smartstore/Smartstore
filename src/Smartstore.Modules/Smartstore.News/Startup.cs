@@ -32,7 +32,7 @@ namespace Smartstore.News
             services.Configure<MvcOptions>(o =>
             {
                 o.Filters.AddConditional<NewsMenuItemFilter>(
-                    context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
+                    context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest(), 100);
 
                 o.Filters.AddConditional<RssHeaderLinkFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
