@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
-using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.News.Domain;
-using Smartstore.News.Messaging;
-using Smartstore.News.Models.Public;
+using Smartstore.Caching;
 using Smartstore.Caching.OutputCache;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
@@ -30,13 +26,12 @@ using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
 using Smartstore.Http;
 using Smartstore.Net;
+using Smartstore.News.Domain;
+using Smartstore.News.Hooks;
+using Smartstore.News.Messaging;
+using Smartstore.News.Models.Public;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Filters;
-using Smartstore.Web.Models.Common;
-using Smartstore.Web.Models.Customers;
-using Smartstore.Web.Models.Media;
-using Smartstore.News.Hooks;
-using Smartstore.Caching;
 
 namespace Smartstore.News.Controllers
 {
@@ -49,6 +44,7 @@ namespace Smartstore.News.Controllers
         private readonly IStoreMappingService _storeMappingService;
         private readonly IPageAssetBuilder _pageAssetBuilder;
         private readonly ICacheManager _cache;
+        private readonly NewsHelper _helper;
         private readonly Lazy<IWebHelper> _webHelper;
         private readonly Lazy<IActivityLogger> _activityLogger;
         private readonly Lazy<IMessageFactory> _messageFactory;
@@ -68,6 +64,7 @@ namespace Smartstore.News.Controllers
             IStoreMappingService storeMappingService,
             IPageAssetBuilder pageAssetBuilder,
             ICacheManager cache,
+            NewsHelper helper,
             Lazy<IWebHelper> webHelper,
             Lazy<IActivityLogger> activityLogger,
             Lazy<IMessageFactory> messageFactory,
@@ -85,6 +82,7 @@ namespace Smartstore.News.Controllers
             _storeMappingService = storeMappingService;
             _pageAssetBuilder = pageAssetBuilder;
             _cache = cache;
+            _helper = helper;
             _webHelper = webHelper;
             _activityLogger = activityLogger;
             _messageFactory = messageFactory;
@@ -96,79 +94,6 @@ namespace Smartstore.News.Controllers
             _captchaSettings = captchaSettings;
             _seoSettings = seoSettings;
         }
-
-        #region Utilities
-
-        [NonAction]
-        protected async Task<NewsItemListModel> PrepareNewsItemListModelAsync(NewsPagingFilteringModel command)
-        {
-            Guard.NotNull(command, nameof(command));
-
-            if (command.PageSize <= 0)
-                command.PageSize = _newsSettings.NewsArchivePageSize;
-            if (command.PageNumber <= 0)
-                command.PageNumber = 1;
-
-            var model = await PrepareNewsItemListModelAsync(true, null, false, command.PageNumber - 1, command.PageSize, true);
-            return model;
-        }
-
-        [NonAction]
-        protected async Task<NewsItemListModel> PrepareNewsItemListModelAsync(
-            bool renderHeading,
-            string newsHeading,
-            bool disableCommentCount,
-            int? pageIndex = null,
-            int? maxPostAmount = null,
-            bool displayPaging = false,
-            int? maxAgeInDays = null)
-        {
-            var model = new NewsItemListModel
-            {
-                NewsHeading = newsHeading,
-                RenderHeading = renderHeading,
-                DisableCommentCount = disableCommentCount
-            };
-
-            var query = _db.NewsItems().AsNoTracking();
-
-            if (maxAgeInDays.HasValue)
-            {
-                DateTime? maxAge = null;
-                maxAge = DateTime.UtcNow.AddDays(-maxAgeInDays.Value);
-                query = query.Where(n => n.CreatedOnUtc >= maxAge.Value);
-            }
-
-            var newsItems = await query
-                .ApplyStandardFilter(_services.StoreContext.CurrentStore.Id, _services.WorkContext.WorkingLanguage.Id, _services.WorkContext.CurrentCustomer.IsAdmin())
-                .ToPagedList(pageIndex ?? 0, maxPostAmount ?? _newsSettings.NewsArchivePageSize)
-                .LoadAsync();
-
-            if (displayPaging)
-            {
-                model.PagingFilteringContext.LoadPagedList(newsItems);
-            }
-
-            model.NewsItems = await newsItems
-                .SelectAsync(async x =>
-                {
-                    var mapper = MapperFactory.GetMapper<NewsItem, PublicNewsItemModel>();
-                    var newsItemModel = await mapper.MapAsync(x, new { PrepareComments = false });
-                    return newsItemModel;
-                })
-                .AsyncToList();
-
-            Services.DisplayControl.AnnounceRange(newsItems);
-
-            ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
-            ViewBag.StoreName = _services.StoreContext.CurrentStore.Name;
-
-            return model;
-        }
-
-        #endregion
-
-        #region Methods
 
         public async Task<IActionResult> HomePageNews()
         {
@@ -224,7 +149,7 @@ namespace Smartstore.News.Controllers
                 return NotFound();
             }
 
-            var model = await PrepareNewsItemListModelAsync(command);
+            var model = await _helper.PrepareNewsItemListModelAsync(command);
             var storeId = _services.StoreContext.CurrentStore.Id;
 
             model.StoreName = _services.StoreContext.CurrentStore.Name;
@@ -238,6 +163,7 @@ namespace Smartstore.News.Controllers
             }
 
             ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
+            ViewBag.StoreName = _services.StoreContext.CurrentStore.Name;
 
             return View(model);
         }
@@ -407,7 +333,5 @@ namespace Smartstore.News.Controllers
            
             return View("NewsItem", model);
         }
-
-        #endregion
     }
 }

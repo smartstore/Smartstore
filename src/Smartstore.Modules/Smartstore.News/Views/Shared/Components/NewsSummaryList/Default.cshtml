@@ -11,13 +11,13 @@
     var imageUrl = fileModel.File?.GetUrl();
 
     <article class="newslist-item news-preview-lg mb-5 col-12 col-md-6 col-lg-4 d-flex flex-column" attr-class='(!item.Published, "unpublished")' itemscope itemtype="http://schema.org/NewsArticle">
-        
+
         <figure sm-if="imageUrl.HasValue()" style="--img-aspect-ratio: 0.5;">
             <a asp-route="NewsItem" asp-route-SeName="@item.SeName" class="newsitem-picture img-center-container shadow-sm shadow-primary">
                 <img sm-model="fileModel" itemprop="image" />
             </a>
         </figure>
-        
+
         <h4 class="newsitem-title fs-h5">
             <a class="newsitem-title-link" asp-route="NewsItem" asp-route-SeName="@item.SeName">
                 @item.Title.Truncate(60, "...")

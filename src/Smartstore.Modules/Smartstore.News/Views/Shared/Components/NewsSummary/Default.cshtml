@@ -4,12 +4,9 @@
     Layout = "";
 }
 
-@*TODO: (mh) (core) Find out whether this works*@
-
 <div sm-if="Model.RenderHeading">
-    @{ Html.RenderPartial("NewsSummaryHeading", Model); }
+    @await Component.InvokeAsync("NewsSummaryHeading", new { model = Model })
 </div>
-
 <div class="news-items row">
-    @{ Html.RenderPartial("NewsSummaryList", Model); }
+    @await Component.InvokeAsync("NewsSummaryList", new { model = Model })
 </div>

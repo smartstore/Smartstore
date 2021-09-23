@@ -8,8 +8,9 @@ using Smartstore.News;
 using Smartstore.News.Domain;
 using Smartstore.News.Hooks;
 using Smartstore.News.Models.Public;
+using Smartstore.Web.Components;
 
-namespace Smartstore.Web.Components
+namespace Smartstore.News.Components
 {
     /// <summary>
     /// Component to render new section on the homepage.
@@ -51,10 +52,6 @@ namespace Smartstore.Web.Components
                     .ApplyStandardFilter(storeId, languageId)
                     .ToPagedList(0, _newsSettings.MainPageNewsCount)
                     .LoadAsync();
-                
-                // TODO: (mh) (core) Remove this
-                // INFO: Items will already be anounced in mapper
-                //Services.DisplayControl.AnnounceRange(newsItems);
 
                 return new HomePageNewsItemsModel
                 {

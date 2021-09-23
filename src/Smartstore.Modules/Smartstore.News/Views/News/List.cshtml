@@ -15,13 +15,14 @@
 }
 
 <div class="page news-list-page">
-    <partial name="NewsSummaryHeading" model="Model" />
+    
+    @await Component.InvokeAsync("NewsSummaryHeading", new { model = Model })
 
     <div class="page-body">
         <zone name="newslist_page_before_items" />
 
         <div class="news-items mb-5 row">
-            <partial name="NewsSummaryList" model="Model" />
+            @await Component.InvokeAsync("NewsSummaryList", new { model = Model })
         </div>
 
         <pagination sm-list-items="Model.PagingFilteringContext"

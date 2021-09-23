@@ -2,13 +2,13 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.News.Migrations;
 using Smartstore.Core;
 using Smartstore.Core.Messaging;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
-using Smartstore.Core.Widgets;
-using Smartstore.Web.Components;
+using Smartstore.News.Components;
+using Smartstore.News.Migrations;
 
 namespace Smartstore.News
 {

@@ -13,6 +13,8 @@ using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Web.Controllers;
 using Smartstore.Core.Seo;
+using Smartstore.News.Controllers;
+using Autofac;
 
 namespace Smartstore.News
 {
@@ -35,6 +37,14 @@ namespace Smartstore.News
                 o.Filters.AddConditional<RssHeaderLinkFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
             });
+        }
+
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
+        {
+            if (appContext.IsInstalled)
+            {
+                builder.RegisterType<NewsHelper>().InstancePerLifetimeScope();
+            }
         }
 
         class SmartDbContextConfigurer : IDbContextConfigurationSource<SmartDbContext>
