@@ -30,11 +30,14 @@ namespace Smartstore.Forums.Filters
 
         public void OnResultExecuting(ResultExecutingContext filterContext)
         {
-            if (_forumSettings.ForumsEnabled && filterContext.Result.IsHtmlViewResult())
+            if (_forumSettings.ForumsEnabled)
             {
-                var html = $"<a class='menubar-link' href='{_urlHelper.Value.RouteUrl("Boards")}'>{_localizationService.Value.GetResource("Forum.Forums")}</a>";
-
-                _widgetProvider.RegisterHtml(new[] { "header_menu_special" }, new HtmlString(html), MENU_ITEM_ORDER);
+                var isExpectedResult = filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult();
+                if (isExpectedResult)
+                {
+					var html = $"<a class='menubar-link' href='{_urlHelper.Value.RouteUrl("Boards")}'>{_localizationService.Value.GetResource("Forum.Forums")}</a>";
+                    _widgetProvider.RegisterHtml(new[] { "header_menu_special" }, new HtmlString(html), MENU_ITEM_ORDER);
+                }
             }
         }
 

@@ -51,31 +51,13 @@ namespace Smartstore.Forums.Components
                 return Empty();
             }
 
-            var lastPostIds = topics
-                .Where(x => x.LastPostId != 0)
-                .Select(x => x.LastPostId)
-                .Distinct()
-                .ToArray();
-
-            var lastPosts = await _db.ForumPosts()
-                .Include(x => x.ForumTopic)
-                .Include(x => x.Customer)
-                .AsNoTracking()
-                .Where(x => lastPostIds.Contains(x.Id))
-                .ToDictionaryAsync(x => x.Id);
-
             var model = new ActiveDiscussionsModel
             {
                 IsForumGroupsPage = true,
                 ActiveDiscussionsFeedEnabled = _forumSettings.ActiveDiscussionsFeedEnabled,
-                PostsPageSize = _forumSettings.PostsPageSize
+                PostsPageSize = _forumSettings.PostsPageSize,
+                ForumTopics = await topics.MapAsync(_db)
             };
-
-            model.ForumTopics = await topics
-                .SelectAsync(async x => await x.MapAsync(lastPosts, null))
-                .AsyncToList();
-
-            ViewBag.ShowTopic = false;
 
             return View(model);
         }

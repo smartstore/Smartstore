@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -45,19 +44,6 @@ namespace Smartstore.Forums.Models.Mappers
             Guard.NotNull(to, nameof(to));
             Guard.NotNull(from.Forums, nameof(from.Forums));
 
-            var lastPostIds = from.Forums
-                .Where(x => x.LastPostId != 0)
-                .Select(x => x.LastPostId)
-                .Distinct()
-                .ToArray();
-
-            var lastPosts = await _db.ForumPosts()
-                .Include(x => x.ForumTopic)
-                .Include(x => x.Customer)
-                .AsNoTracking()
-                .Where(x => lastPostIds.Contains(x.Id))
-                .ToDictionaryAsync(x => x.Id);
-
             to.Id = from.Id;
             to.Name = from.GetLocalized(x => x.Name);
             to.Description = from.GetLocalized(x => x.Description);
@@ -65,8 +51,7 @@ namespace Smartstore.Forums.Models.Mappers
 
             to.Forums = await from.Forums
                 .OrderBy(x => x.DisplayOrder)
-                .SelectAsync(async x => await x.MapAsync(lastPosts))
-                .AsyncToList();
+                .MapAsync(_db);
         }
     }
 }

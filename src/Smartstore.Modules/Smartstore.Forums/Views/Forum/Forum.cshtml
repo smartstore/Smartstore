@@ -1,0 +1,145 @@
+﻿@model PublicForumPageModel
+
+@{
+    Layout = "_Layout";
+
+    Assets.AppendTitleParts(Model.Name);
+    Assets.AppendMetaDescriptionParts(Model.Name);
+
+    if (ViewBag.CanonicalUrlsEnabled)
+    {
+        var forumUrl = Url.RouteUrl("Boards", new { SeName = Model.Slug }, this.Request.Scheme);
+        Assets.AppendCanonicalUrlParts(forumUrl);
+    }
+
+    var lastPostViewData = new ViewDataDictionary(ViewData) { { "ShowTopic", false } };
+}
+
+<div class="page forum">
+    <div class="mt-2 w-75">
+        @* TODO: (mg) (core) SearchBox *@
+    </div>
+    <div class="row mt-5">
+        <div class="col">
+            <div class="heading mb-4">
+                <h1 class="heading-title fs-h2" sm-language-attributes-for="Model.Name">@Model.Name</h1>
+            </div>
+        </div>
+        <div class="col col-auto">
+            @if (Model.ForumFeedsEnabled)
+            {
+                <a asp-action="ForumRss" asp-controller="Forum" asp-route-id="@Model.Id" class="btn btn-warning" title="@T("Forum.ForumRSSLinkTitle")">
+                    <i class="fa fa-rss"></i>
+                    <span>@T("Forum.RSS")</span>
+                </a>
+            }
+        </div>
+    </div>
+
+    <p class="lead" sm-language-attributes-for="Model.Description">@Model.Description</p>
+
+    <div>
+        <div class="actions my-3 row sm-gutters">
+            <div class="col col-sm-auto mt-1 mt-sm-0">
+                <a asp-action="TopicCreate" asp-controller="Forum" asp-route-id="@Model.Id" class="btn btn-primary newtopic btn-block" rel="nofollow">
+                    <i class="fa fa-plus"></i>
+                    <span>@T("Forum.NewTopic")</span>
+                </a>
+            </div>
+            <div class="col col-sm-auto mt-1 mt-sm-0">
+                @if (Model.IsCustomerAllowedToSubscribe)
+                {
+                    <form id="watch-forum-form" sm-ajax method="post" asp-action="ForumWatch" asp-controller="Forum" sm-oncomplete="onWatchForumCompleted">
+                        <input type="hidden" asp-for="Id" />
+
+                        <button type="submit" id="watch-forum" class="btn btn-outline-primary font-weight-bold btn-block watch-forum">
+                            <i class="fa fa-bookmark"></i>
+                            <span class="watch-forum-text">@T(Model.IsCustomerSubscribed ? "Forum.UnwatchForum" : "Forum.WatchForum")</span>
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+        @* TODO: (mg) (core) add pager *@
+    </div>
+    <div class="topics-group table-responsive">
+        <table class="table">
+            <thead sm-if="Model.ForumTopics.Any()">
+                <tr class="forum-header">
+                    <th></th>
+                    <th class="topic-name">
+                        @T("Forum.TopicTitle")
+                    </th>
+                    <th class="replies d-none d-md-table-cell">
+                        @T("Forum.Replies")
+                    </th>
+                    <th class="views d-none d-md-table-cell">
+                        @T("Forum.Views")
+                    </th>
+                    <th class="last-post d-none d-md-table-cell">
+                        @T("Forum.LatestPost")
+                    </th>
+                </tr>
+            </thead>
+            @foreach (var topic in Model.ForumTopics)
+            {
+                <tr class="topic" attr-class='(!topic.Published, "disabled")'>
+                    <td class="image">
+                        <partial name="Customer.Avatar" model="topic.Avatar" />
+                    </td>
+                    <td class="topic-name">
+                        <span sm-if="topic.ForumTopicType == ForumTopicType.Sticky" class="topictype">
+                            <label class="badge badge-success">@T("Forum.Sticky")</label>
+                        </span>
+                        <span sm-if="topic.ForumTopicType == ForumTopicType.Announcement" class="topictype">
+                            <label class="badge badge-info">@T("Forum.Announcement")</label>
+                        </span>
+                        <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="topic-title">
+                            @topic.Subject
+                        </a>
+                        <div>
+                            <div class="topic-starter text-muted d-inline-flex">
+                                <div sm-if="topic.CustomerId > 0">
+                                    <span class="pr-1">@T("Forum.Author"):</span>
+				                    @if (topic.HasCustomerProfile)
+				                    {
+					                    <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId">
+						                    @topic.CustomerName.NaIfEmpty()
+					                    </a>
+				                    }
+				                    else
+				                    {
+					                    <span>@topic.CustomerName</span>
+				                    }
+                                </div>
+                            </div>
+                            @if (topic.NumPosts > Model.PostsPageSize)
+                            {
+                                @* TODO: (mg) (core) add pager *@
+                            }
+                        </div>
+                    </td>
+                    <td class="replies d-none d-md-table-cell">
+                        @topic.NumReplies.ToString("N0")
+                    </td>
+                    <td class="views d-none d-md-table-cell">
+                        @topic.Views.ToString("N0")
+                    </td>
+                    <td class="last-post d-none d-md-table-cell">
+                        <partial name="LastPost" model="topic.LastPost" view-data="lastPostViewData" />
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+    @* TODO: (mg) (core) add pager *@
+</div>
+
+<script sm-target-zone="scripts" data-origin="forum">
+    function onWatchForumCompleted(data) {
+        var response = data.responseJSON;
+        var btn = $('#watch-forum');
+        btn.toggleClass('btn-outline-warning', !response.Subscribed);
+        btn.find('.watch-forum-text').html(response.Text);
+    }
+</script>

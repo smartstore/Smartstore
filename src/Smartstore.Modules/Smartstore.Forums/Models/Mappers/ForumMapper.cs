@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Forums.Domain;
@@ -12,6 +15,44 @@ namespace Smartstore.Forums.Models.Mappers
 {
     public static partial class ForumMappingExtensions
     {
+        public static async Task<List<PublicForumModel>> MapAsync(this IEnumerable<Forum> entities, SmartDbContext db)
+        {
+            Guard.NotNull(entities, nameof(entities));
+
+            dynamic parameters = new ExpandoObject();
+
+            var lastPostIds = entities
+                .Where(x => x.LastPostId != 0)
+                .Select(x => x.LastPostId)
+                .Distinct()
+                .ToArray();
+
+            if (lastPostIds.Any())
+            {
+                parameters.LastPosts = await db.ForumPosts()
+                    .Include(x => x.ForumTopic)
+                    .Include(x => x.Customer)
+                    .AsNoTracking()
+                    .Where(x => lastPostIds.Contains(x.Id))
+                    .ToDictionaryAsync(x => x.Id);
+            }
+            else
+            {
+                parameters.LastPosts = new Dictionary<int, ForumPost>();
+            }
+
+            var models = await entities
+                .SelectAsync(async x =>
+                {
+                    var model = new PublicForumModel();
+                    await MapperFactory.MapAsync(x, model, parameters);
+                    return model;
+                })
+                .AsyncToList();
+
+            return models;
+        }
+
         public static async Task<PublicForumModel> MapAsync(this Forum entity, Dictionary<int, ForumPost> lastPosts)
         {
             var model = new PublicForumModel();
