@@ -136,7 +136,7 @@ namespace Smartstore.Scheduling
         public virtual async Task<List<TaskDescriptor>> GetPendingTasksAsync()
         {
             var now = DateTime.UtcNow;
-            var machineName = _appContext.MachineName;
+            var machineName = _appContext.RuntimeInfo.MachineName;
 
             var query = (
                 from t in _db.TaskDescriptors
@@ -330,7 +330,7 @@ namespace Smartstore.Scheduling
             {
                 TaskDescriptorId = task.Id,
                 IsRunning = true,
-                MachineName = _appContext.MachineName.EmptyNull(),
+                MachineName = _appContext.RuntimeInfo.MachineName.EmptyNull(),
                 StartedOnUtc = DateTime.UtcNow
             };
         }

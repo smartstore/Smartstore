@@ -60,7 +60,7 @@ namespace Smartstore.DevTools.Filters
 	            }
             </style>";
 
-            var html = $"<div class='devtools-machinename'>{_appContext.EnvironmentIdentifier}</div>";
+            var html = $"<div class='devtools-machinename'>{_appContext.RuntimeInfo.EnvironmentIdentifier}</div>";
 
             _widgetProvider.RegisterHtml(
                 new[] { "body_end_html_tag_before", "admin_content_after" },

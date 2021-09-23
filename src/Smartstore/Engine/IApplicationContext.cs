@@ -66,14 +66,9 @@ namespace Smartstore.Engine
         bool IsWebHost { get; }
 
         /// <summary>
-        /// Gets the current machines's name.
+        /// Gets runtime information about application instance.
         /// </summary>
-        string MachineName { get; }
-
-        /// <summary>
-        /// Get a unique environment identifier.
-        /// </summary>
-        string EnvironmentIdentifier { get; }
+        RuntimeInfo RuntimeInfo { get; }
 
         /// <summary>
         /// Gets information about current OS user.

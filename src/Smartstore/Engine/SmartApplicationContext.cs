@@ -39,7 +39,6 @@ namespace Smartstore.Engine
 
             ConfigureFileSystem(hostEnvironment);
             DataSettings.SetApplicationContext(this, OnDataSettingsLoaded);
-            OSIdentity = new GenericOSIdentity();
 
             // Create app configuration
             // TODO: (core) Try to incorporate IOptionsMonitor<SmartConfiguration> somehow.
@@ -128,13 +127,8 @@ namespace Smartstore.Engine
             get => DataSettings.DatabaseIsInstalled();
         }
 
-        public string MachineName => Environment.MachineName;
-
-        // Use the current host and the process id as two servers could run on the same machine
-        public string EnvironmentIdentifier => Environment.MachineName + "-" + Environment.ProcessId;
-
-        public IOSIdentity OSIdentity { get; }
-
+        public RuntimeInfo RuntimeInfo { get; } = new();
+        public IOSIdentity OSIdentity { get; } = new GenericOSIdentity();
         public IFileSystem ContentRoot => (IFileSystem)HostEnvironment.ContentRootFileProvider;
         public IFileSystem WebRoot { get; private set; }
         public IFileSystem ThemesRoot { get; private set; }

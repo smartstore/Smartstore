@@ -42,7 +42,7 @@ namespace Smartstore.Redis.Caching
         {
             return Database.Publish(
                 channel,
-                "_publisher:" + _appContext.EnvironmentIdentifier + "/" + message,
+                "_publisher:" + _appContext.RuntimeInfo.EnvironmentIdentifier + "/" + message,
                 CommandFlags.FireAndForget);
         }
 
@@ -50,7 +50,7 @@ namespace Smartstore.Redis.Caching
         {
             return Database.PublishAsync(
                 channel,
-                "_publisher:" + _appContext.EnvironmentIdentifier + "/" + message,
+                "_publisher:" + _appContext.RuntimeInfo.EnvironmentIdentifier + "/" + message,
                 CommandFlags.FireAndForget);
         }
 
@@ -138,7 +138,7 @@ namespace Smartstore.Redis.Caching
             }
 
             // ignore self sent messages
-            if (ignoreLoopback && publisher.HasValue() && _appContext.EnvironmentIdentifier.Equals(publisher, StringComparison.OrdinalIgnoreCase))
+            if (ignoreLoopback && publisher.HasValue() && _appContext.RuntimeInfo.EnvironmentIdentifier.Equals(publisher, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
