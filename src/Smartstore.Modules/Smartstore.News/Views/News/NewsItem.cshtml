@@ -3,8 +3,6 @@
 @model PublicNewsItemModel
 
 @{
-    Layout = "_Layout";
-
     Assets.AppendTitleParts(Model.MetaTitle.HasValue() ? Model.MetaTitle : Model.Title);
     Assets.AppendMetaDescriptionParts(Model.MetaDescription);
     Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
