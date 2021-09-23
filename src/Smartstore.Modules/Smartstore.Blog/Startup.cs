@@ -1,7 +1,9 @@
 ﻿using System;
+using Autofac;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Blog.Controllers;
 using Smartstore.Blog.Filters;
 using Smartstore.Blog.Services;
 using Smartstore.Core.Content.Menus;
@@ -34,6 +36,14 @@ namespace Smartstore.Blog
                 o.Filters.AddConditional<RssHeaderLinkFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
             });
+        }
+
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
+        {
+            if (appContext.IsInstalled)
+            {
+                builder.RegisterType<BlogHelper>().InstancePerLifetimeScope();
+            }
         }
 
         class SmartDbContextConfigurer : IDbContextConfigurationSource<SmartDbContext>

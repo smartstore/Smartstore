@@ -1,37 +1,32 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Smartstore.Blog;
 using Smartstore.Blog.Hooks;
 using Smartstore.Blog.Models.Public;
 using Smartstore.Blog.Services;
 using Smartstore.Caching;
 using Smartstore.Core;
-using Smartstore.Core.Data;
 using Smartstore.Core.Seo;
+using Smartstore.Web.Components;
 
-namespace Smartstore.Web.Components
+namespace Smartstore.Blog.Components
 {
     /// <summary>
     /// Component to render tag navigation on the right side of blog item list.
     /// </summary>
     public class TagNavigationViewComponent : SmartViewComponent
     {
-        private readonly SmartDbContext _db;
         private readonly IBlogService _blogService;
         private readonly ICommonServices _services;
         private readonly ICacheManager _cacheManager;
         private readonly BlogSettings _blogSettings;
 
         public TagNavigationViewComponent(
-            SmartDbContext db,
             IBlogService blogService,
             ICommonServices services,
             ICacheManager cacheManager,
-            BlogSettings blogSettings,
-            SeoSettings seoSettings)
+            BlogSettings blogSettings)
         {
-            _db = db;
             _blogService = blogService;
             _services = services;
             _cacheManager = cacheManager;

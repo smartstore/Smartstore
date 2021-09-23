@@ -17,14 +17,7 @@
                     }
                     else
                     {
-                        if (Model.BlogHeading.HasValue())
-                        {
-                            @Model.BlogHeading
-                        }
-                        else
-                        {
-                            @T("Blog");
-                        }
+                        @(Model.BlogHeading.HasValue() ? Model.BlogHeading : T("Blog").Value)
                     }
                 }
                 else

@@ -16,13 +16,14 @@
 </widget>
 
 <div class="page blog-page">
-    <partial name="BlogSummaryHeading" model="Model" />
+
+    @await Component.InvokeAsync("BlogSummaryHeading", new { model = Model })
 
     <div class="page-body">
         <zone name="bloglist_page_before_posts" />
 
         <div class="blogposts mb-4" style="visibility: hidden;">
-            <partial name="BlogSummaryList" model="Model" />
+            @await Component.InvokeAsync("BlogSummaryList", new { model = Model })
         </div>
 
         <pagination sm-list-items="Model.PagingFilteringContext"

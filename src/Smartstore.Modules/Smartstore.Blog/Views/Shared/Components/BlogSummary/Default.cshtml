@@ -1,0 +1,23 @@
+﻿@model BlogPostListModel
+
+@{
+    Layout = "";
+    Assets.AppendScriptFiles("~/lib/imagesloaded/imagesloaded.pkgd.min.js");
+}
+
+@if (Model.RenderHeading)
+{
+    <div>
+        @await Component.InvokeAsync("BlogSummaryHeading", new { model = Model })
+    </div>
+}
+
+<div class="blogposts blog-summary" style="visibility: hidden;">
+    @await Component.InvokeAsync("BlogSummaryList", new { model = Model })
+</div>
+
+<script sm-target-zone="scripts" data-origin="BlogSummaryViewComponent">
+    $(function () {
+        $(".blogposts").masonryGrid(".bloglist-item");
+    });
+</script>

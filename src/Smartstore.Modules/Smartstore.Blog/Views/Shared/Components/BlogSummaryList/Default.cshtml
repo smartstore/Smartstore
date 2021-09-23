@@ -38,7 +38,7 @@
             @if (hasBgImage)
             {
                 await RenderTags(item, false);
-                await RenderComments(item); 
+                await RenderComments(item);
 
                 <div class="card-img h-100">
                     <img class="card-img h-100 box-scale" src="@imageUrl" alt="@item.Preview.Alt" title="@item.Preview.Title" itemprop="image">
@@ -53,16 +53,16 @@
                         <img class="bloglist-item-img box-scale" src="@imageUrl" alt="@item.Preview.Alt" title="@item.Preview.Title" itemprop="image">
                     </a>
 
-                    @{ 
-                        await RenderTags(item, true); 
-                        await RenderComments(item); 
+                    @{
+                        await RenderTags(item, true);
+                        await RenderComments(item);
                     }
                 </div>
             }
             else
             {
                 await RenderTags(item, true);
-                await RenderComments(item); 
+                await RenderComments(item);
             }
 
             <div class="@(hasBgImage ? " card-img-overlay d-flex flex-column justify-content-end p-0" : "bloglist-item-body" )">

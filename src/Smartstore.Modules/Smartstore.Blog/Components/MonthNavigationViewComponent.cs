@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Blog;
 using Smartstore.Blog.Hooks;
 using Smartstore.Blog.Models.Public;
 using Smartstore.Caching;
 using Smartstore.Core;
 using Smartstore.Core.Data;
+using Smartstore.Web.Components;
 
-namespace Smartstore.Web.Components
+namespace Smartstore.Blog.Components
 {
     /// <summary>
     /// Component to render month navigation on the right side of blog item list.
