@@ -223,12 +223,12 @@ namespace Smartstore.Http
             Guard.NotEmpty(path, nameof(path));
             Guard.NotNull(request, nameof(request));
 
-            if (!request.Host.HasValue)
+            if (path.Contains(Uri.SchemeDelimiter))
             {
                 return path;
             }
 
-            if (path.Contains(Uri.SchemeDelimiter))
+            if (!request.Host.HasValue)
             {
                 return path;
             }

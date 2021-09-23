@@ -2,20 +2,18 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Smartstore.Core;
 using Smartstore.Engine;
 using Smartstore.Utilities;
 
 namespace Smartstore.Pdf.WkHtml
 {
-    public class WkHtmlToPdfConverter
+    // TODO: (core) Implement BatchMode
+    public class WkHtmlToPdfConverter : IPdfConverter
     {
         private readonly static object _lock = new();
         private readonly static string[] _ignoreErrLines = new string[] 
@@ -29,20 +27,45 @@ namespace Smartstore.Pdf.WkHtml
         };
 
         private Process _process;
-        private bool _batchMode = false;
 
         private readonly IWkHtmlCommandBuilder _commandBuilder;
         private readonly IApplicationContext _appContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly WkHtmlToPdfOptions _options;
 
-        public WkHtmlToPdfConverter(IWkHtmlCommandBuilder commandBuilder, IApplicationContext appContext, IOptions<WkHtmlToPdfOptions> options)
+        public WkHtmlToPdfConverter(
+            IWkHtmlCommandBuilder commandBuilder, 
+            IApplicationContext appContext,
+            IHttpContextAccessor httpContextAccessor,
+            IOptions<WkHtmlToPdfOptions> options)
         {
             _commandBuilder = commandBuilder;
             _appContext = appContext;
+            _httpContextAccessor = httpContextAccessor;
             _options = options.Value;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
+
+        /// <summary>
+        /// Occurs when log line is received from WkHtmlToPdf process
+        /// </summary>
+        /// <remarks>
+        /// Quiet mode should be disabled if you want to get wkhtmltopdf info/debug messages
+        /// </remarks>
+        public event EventHandler<DataReceivedEventArgs> LogReceived;
+
+        public virtual IPdfInput CreateUrlInput(string url)
+        {
+            Guard.NotEmpty(url, nameof(url));
+            return new WkUrlInput(url, _options, _httpContextAccessor.HttpContext);
+        }
+
+        public virtual IPdfInput CreateHtmlInput(string html)
+        {
+            Guard.NotEmpty(html, nameof(html));
+            return new WkHtmlInput(html, _options, _httpContextAccessor.HttpContext);
+        }
 
         public Task ConvertAsync(PdfConversionSettings settings, Stream output)
         {
@@ -59,39 +82,36 @@ namespace Smartstore.Pdf.WkHtml
 
         protected virtual async Task GeneratePdfAsync(PdfConversionSettings settings, Stream output)
         {
-            if (!_batchMode)
-            {
-                EnsureWkHtmlLibs();
-            }
+            // Ensure that native library is available
+            EnsureWkHtmlLibs();
 
+            // Check that process is not already running
             CheckProcess();
             
-            IReadOnlyList<PdfInput> inputs = null;
+            string outputPdfFileName = null;
 
             try
             {
+                // Build command / arguments
                 using var psb = StringBuilderPool.Instance.Get(out var sb);
-                inputs = await _commandBuilder.BuildCommandAsync(settings, sb);
+                await _commandBuilder.BuildCommandAsync(settings, sb);
+
+                // Create output PDF temp file name
+                outputPdfFileName = Path.Combine(GetTempPath(), "pdfgen-" + Path.GetRandomFileName() + ".pdf");
+                sb.AppendFormat(" \"{0}\" ", outputPdfFileName);
 
                 var arguments = sb.ToString();
 
-                if (_batchMode)
-                {
-                    await InvokeProcessInBatchAsync(arguments);
-                }
-                else
-                {
-                    await InvokeProcessAsync(arguments, settings.Page, output);
-                }
+                // Invoke process
+                await InvokeProcessAsync(arguments, settings.Page, output);
 
-                // TODO: (core) Copy input to output stream
+                // Copy wkhtml output from temp file to given output stream
+                using var fileStream = new FileStream(outputPdfFileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                await fileStream.CopyToAsync(output);
             }
             catch (Exception ex)
             {
-                if (!_batchMode)
-                {
-                    EnsureProcessStopped();
-                }
+                EnsureProcessStopped();
 
                 Logger.Error(ex, $"Html to Pdf conversion error: {ex.Message}.");
                 throw;
@@ -99,60 +119,93 @@ namespace Smartstore.Pdf.WkHtml
             }
             finally
             {
-                if (inputs != null)
+                // Delete output temp file
+                if (outputPdfFileName.HasValue() && File.Exists(outputPdfFileName))
                 {
-                    inputs.Each(x => x.Teardown());
-                }
-            }
-        }
-
-        public IAsyncDisposable BeginBatch()
-        {
-            if (_batchMode)
-            {
-                throw new InvalidOperationException("PdfConverter is already in batch mode.");
-            }
-
-            _batchMode = true;
-            EnsureWkHtmlLibs();
-
-            return new AsyncActionDisposable(EndBatchAsync);
-        }
-
-        public async ValueTask EndBatchAsync()
-        {
-            if (!_batchMode)
-            {
-                throw new InvalidOperationException("PdfConverter is not in batch mode.");
-            }
-
-            _batchMode = false;
-
-            if (_process != null)
-            {
-                if (!_process.HasExited)
-                {
-                    _process.StandardInput.Close();
-                    await _process.WaitForExitAsync();
-                    _process.Close();
+                    try
+                    {
+                        File.Delete(outputPdfFileName);
+                    }
+                    catch
+                    {
+                    }
                 }
 
-                _process = null;
+                // Teardown / clear inputs
+                settings.Page.Teardown();
+                settings.Header?.Teardown();
+                settings.Footer?.Teardown();
+                settings.Cover?.Teardown();
             }
         }
 
         #region WkHtml utilities
 
-        private Task InvokeProcessAsync(string arguments, PdfInput input, Stream output)
+        private async Task InvokeProcessAsync(string arguments, IPdfInput input, Stream output)
         {
-            // TODO: (core) Implement InvokeProcessAsync()
-            return Task.CompletedTask;
+            var lastErrorLine = string.Empty;
+            DataReceivedEventHandler onDataReceived = ((o, e) =>
+            {
+                if (e.Data == null) return;
+                if (e.Data.HasValue()) 
+                {
+                    lastErrorLine = e.Data;
+                    Logger.Debug("WkHtml data received: {0}.", e.Data);
+                }
+                LogReceived?.Invoke(this, e);
+            });
+
+            try
+            {
+                _process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = GetToolExePath(),
+                    WorkingDirectory = _options.PdfToolPath,
+                    Arguments = arguments,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                });
+
+                if (_options.ProcessPriority != ProcessPriorityClass.Normal)
+                {
+                    _process.PriorityClass = _options.ProcessPriority;
+                }  
+                if (_options.ProcessProcessorAffinity.HasValue)
+                {
+                    _process.ProcessorAffinity = _options.ProcessProcessorAffinity.Value;
+                }
+
+                _process.ErrorDataReceived += onDataReceived;
+                _process.BeginErrorReadLine();
+
+                if (input.Kind == PdfInputKind.Html)
+                {
+                    using var sIn = _process.StandardInput;
+                    sIn.WriteLine(input.Content);
+                }
+
+                await ReadStdOutToStreamAsync(_process, output);
+                await WaitForExitAsync(_options.ExecutionTimeout);
+            }
+            finally
+            {
+                EnsureProcessStopped();
+            }
         }
 
-        private Task InvokeProcessInBatchAsync(string arguments)
+        private string GetTempPath()
         {
-            // TODO: (core) Implement InvokeProcessInBatchAsync()
-            return Task.CompletedTask;
+            // TODO: (core) Make GetTempPath() globally available
+            if (_options.TempFilesPath.HasValue() && !Directory.Exists(_options.TempFilesPath))
+            {
+                Directory.CreateDirectory(_options.TempFilesPath);
+            }
+                
+            return _options.TempFilesPath ?? Path.GetTempPath();
         }
 
         private void EnsureWkHtmlLibs()
@@ -162,17 +215,9 @@ namespace Smartstore.Pdf.WkHtml
 
         private void CheckProcess()
         {
-            if (!_batchMode && _process != null)
+            if (_process != null)
             {
                 throw new InvalidOperationException("WkHtmlToPdf process has already been started.");
-            }
-        }
-
-        private static void CheckExitCode(int exitCode, string lastErrLine, bool outputNotEmpty)
-        {
-            if (exitCode != 0 && (exitCode != 1 || Array.IndexOf(_ignoreErrLines, lastErrLine.Trim()) < 0 || !outputNotEmpty))
-            {
-                throw new WkHtmlToPdfException(exitCode, lastErrLine);
             }
         }
 
@@ -196,34 +241,6 @@ namespace Smartstore.Pdf.WkHtml
         private static Task ReadStdOutToStreamAsync(Process proc, Stream output)
         {
             return proc.StandardOutput.BaseStream.CopyToAsync(output);
-        }
-
-        private async Task WaitForFileAsync(string fullPath, TimeSpan? timeout)
-        {
-            double num = (timeout.HasValue && (timeout.Value != TimeSpan.Zero)) ? timeout.Value.TotalMilliseconds : 60000.0;
-            int num2 = 0;
-            while (num > 0.0)
-            {
-                num2++;
-                num -= 50.0;
-                try
-                {
-                    using FileStream stream = new(fullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None, 100);
-                    stream.ReadByte();
-                    break;
-                }
-                catch (Exception)
-                {
-                    await Task.Delay((num2 < 10) ? 50 : 100);
-                    continue;
-                }
-            }
-            if (((num == 0.0) && (_process != null)) && !_process.HasExited)
-            {
-                _process.StandardInput.Close();
-                await _process.WaitForExitAsync();
-            }
-
         }
 
         private async Task WaitForExitAsync(TimeSpan? timeout)

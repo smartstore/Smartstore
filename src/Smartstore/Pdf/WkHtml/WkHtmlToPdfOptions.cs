@@ -43,5 +43,10 @@ namespace Smartstore.Pdf.WkHtml
         /// Temp files are used for providing cover page/header/footer HTML templates to wkhtmltopdf tool.
         /// </remarks>
         public string TempFilesPath { get; set; }
+
+        /// <summary>
+        /// Set this to your store's base url when the automatic url resolution fails (e.g. 'http://www.mystore.com')
+        /// </summary>
+        public Uri BaseUrl { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
-using Autofac;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Engine;
 
@@ -11,6 +10,27 @@ namespace Smartstore.Pdf
     {
         Html,
         Url
+    }
+
+    /// <summary>
+    /// Represents PDF input for page, cover or header/footer section.
+    /// </summary>
+    public interface IPdfInput
+    {
+        /// <summary>
+        /// The input type.
+        /// </summary>
+        PdfInputKind Kind { get; }
+
+        /// <summary>
+        /// The content. Either Html or Url according to <see cref="Kind"/>.
+        /// </summary>
+        string Content { get; }
+
+        /// <summary>
+        /// Cleans up resources and resets state.
+        /// </summary>
+        void Teardown();
     }
 
     public abstract class PdfInput

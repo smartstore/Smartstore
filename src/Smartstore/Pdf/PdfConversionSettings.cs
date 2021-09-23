@@ -1,5 +1,12 @@
 ﻿namespace Smartstore.Pdf
 {
+    /// <summary>
+    /// Marker interface for PDF options.
+    /// </summary>
+    public interface IPdfOptions
+    {
+    }
+    
     public class PdfConversionSettings
     {
         /// <summary>
@@ -48,16 +55,16 @@
         public float? PageHeight { get; set; }
 
         /// <summary>
-        /// Custom global pdf tool options
+        /// Custom global pdf tool arguments/options
         /// </summary>
-        public string CustomFlags { get; set; }
+        public string CustomArguments { get; set; }
 
 
 
         /// <summary>
         /// Cover content
         /// </summary>
-        public PdfInput Cover { get; set; }
+        public IPdfInput Cover { get; set; }
 
         /// <summary>
         /// Cover content options
@@ -72,7 +79,7 @@
         /// <summary>
         /// Page content (required)
         /// </summary>
-        public PdfInput Page { get; set; }
+        public IPdfInput Page { get; set; }
 
         /// <summary>
         /// Page content options
@@ -82,7 +89,7 @@
         /// <summary>
         /// Footer content
         /// </summary>
-        public PdfInput Footer { get; set; }
+        public IPdfInput Footer { get; set; }
 
         /// <summary>
         /// Footer content options
@@ -92,7 +99,7 @@
         /// <summary>
         /// Header content
         /// </summary>
-        public PdfInput Header { get; set; }
+        public IPdfInput Header { get; set; }
 
         /// <summary>
         /// Header content options

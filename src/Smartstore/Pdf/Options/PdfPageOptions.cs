@@ -1,6 +1,6 @@
 ﻿namespace Smartstore.Pdf
 {
-    public partial class PdfPageOptions
+    public partial class PdfPageOptions : IPdfOptions
     {
         /// <summary>
         /// Get or set zoom factor. Default = 1.

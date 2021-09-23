@@ -1,6 +1,6 @@
 ﻿namespace Smartstore.Pdf
 {
-    public partial class PdfSectionOptions
+    public partial class PdfSectionOptions : IPdfOptions
     {
         /// <summary>
         /// Spacing between footer and content in mm. Default = 5.

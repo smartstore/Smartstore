@@ -1,63 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace Smartstore.Pdf.WkHtml
 {
     public interface IWkHtmlCommandBuilder
     {
-        Task<IReadOnlyList<PdfInput>> BuildCommandAsync(PdfConversionSettings settings, StringBuilder builder);
+        Task BuildCommandAsync(PdfConversionSettings settings, StringBuilder builder);
     }
 
-    // TODO: (core) Initialize StringBuilder with CustomArgs
-    // TODO: (core) Implement PdfHtmlContent & PdfUrlContent
-    // TODO: (core) CustomArgs should skip build process (?)
     // TODO: (core) ToolPath
     // TODO: (core) TempFilesPath
-    // TODO: (core) Apply cover & toc (?) Converter Line 118
     public partial class WkHtmlCommandBuilder : IWkHtmlCommandBuilder
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        
-        public WkHtmlCommandBuilder(IHttpContextAccessor httpContextAccessor)
+        public virtual async Task BuildCommandAsync(PdfConversionSettings settings, StringBuilder builder)
         {
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        public virtual async Task<IReadOnlyList<PdfInput>> BuildCommandAsync(PdfConversionSettings settings, StringBuilder builder)
-        {
-            var httpContext = _httpContextAccessor.HttpContext;
-
-            var inputs = new List<PdfInput>(4);
-
             // Global
             BuildGlobalCommandFragment(settings, builder);
 
-            // Main page
-            inputs.Add(settings.Page);
-            await settings.Page.ProcessInputAsync("page", httpContext);
-            settings.Page.BuildCommandFragment("page", httpContext, builder);
-            if (settings.PageOptions != null)
+            // Header content & options
+            await ProcessSectionAsync("header", settings.Header, settings.HeaderOptions, builder);
+
+            // Footer content & options
+            await ProcessSectionAsync("footer", settings.Footer, settings.FooterOptions, builder);
+
+            // Custom global args
+            if (settings.CustomArguments.HasValue())
             {
-                BuildPageCommandFragment(settings.PageOptions, builder);
+                builder.Append(" " + settings.CustomArguments);
             }
 
             // Cover
             if (settings.Cover != null)
             {
-                inputs.Add(settings.Cover);
-                var path = await settings.Cover.ProcessInputAsync("cover", httpContext);
-                if (path.HasValue())
+                await ProcessInputAsync("cover", settings.Cover);
+                if (settings.Cover.Content.HasValue())
                 {
-                    TryAppendOption("cover", path, builder);
-                    settings.Cover.BuildCommandFragment("cover", httpContext, builder);
-                    if (settings.CoverOptions != null)
-                    {
-                        BuildPageCommandFragment(settings.CoverOptions, builder);
-                    }
+                    TryAppendOption("cover", settings.Cover.Content, builder);
+                    BuildPageCommandFragment(settings.CoverOptions, builder);
                 }
             }
 
@@ -67,40 +48,49 @@ namespace Smartstore.Pdf.WkHtml
                 BuildTocCommandFragment(settings.TocOptions, builder);
             }
 
-            // Header content & options
-            if (settings.Header != null)
+            // Main page
+            await ProcessInputAsync("page", settings.Page);
+            if (settings.PageOptions != null)
             {
-                inputs.Add(settings.Header);
-                var path = await settings.Header.ProcessInputAsync("header", httpContext);
-                if (path.HasValue())
-                {
-                    TryAppendOption("--header-html", path, builder);
-                    settings.Header.BuildCommandFragment("header", httpContext, builder);
-                }
-            }
-            if (settings.HeaderOptions != null && (settings.Header != null || settings.HeaderOptions.HasText))
-            {
-                BuildSectionCommandFragment(settings.HeaderOptions, "header", builder);
+                BuildPageCommandFragment(settings.PageOptions, builder);
             }
 
-            // Footer content & options
-            if (settings.Footer != null)
-            {
-                inputs.Add(settings.Footer);
-                var path = await settings.Footer.ProcessInputAsync("footer", httpContext);
-                if (path.HasValue())
-                {
-                    TryAppendOption("--footer-html", path, builder);
-                    settings.Footer.BuildCommandFragment("footer", httpContext, builder);
-                }
-            }
-            if (settings.FooterOptions != null && (settings.Footer != null || settings.FooterOptions.HasText))
-            {
-                BuildSectionCommandFragment(settings.FooterOptions, "footer", builder);
-            }
-
-            return inputs;
+            // INFO: Output file comes later in converter
         }
+
+        #region Input processing
+
+        private async Task ProcessSectionAsync(string flag, IPdfInput input, PdfSectionOptions options, StringBuilder builder)
+        {
+            if (input != null)
+            {
+                await ProcessInputAsync(flag, input);
+                if (input.Content.HasValue())
+                {
+                    TryAppendOption($"--{flag}-html", input.Content, builder);
+                    BuildSectionCommandFragment(options, "header", builder);
+                }
+            }
+        }
+
+        protected virtual Task ProcessInputAsync(string flag, IPdfInput input)
+        {
+            if (input is WkHtmlInput html)
+            {
+                return html.ProcessAsync(flag);
+            }
+            else if (input is WkUrlInput)
+            {
+                // No processable content
+                return Task.CompletedTask;
+            }
+
+            throw new ArgumentException($"Unknown input type '{input?.GetType()?.Name.NaIfEmpty()}'.", nameof(input));
+        }
+
+        #endregion
+
+        #region Options
 
         protected virtual void BuildGlobalCommandFragment(PdfConversionSettings settings, StringBuilder builder)
         {
@@ -125,6 +115,9 @@ namespace Smartstore.Pdf.WkHtml
 
         protected virtual void BuildPageCommandFragment(PdfPageOptions options, StringBuilder builder)
         {
+            if (options == null)
+                return;
+
             TryAppendOption("--user-style-sheet", options.UserStylesheetUrl, builder);
             TryAppendOption("--print-media-type", options.UsePrintMediaType, builder);
             TryAppendOption("--no-background", options.DisableBackground, builder);
@@ -147,9 +140,12 @@ namespace Smartstore.Pdf.WkHtml
 
         protected virtual void BuildTocCommandFragment(PdfTocOptions options, StringBuilder builder)
         {
+            if (options == null)
+                return;
+
             builder.Append(" toc");
 
-            TryAppendOption("--toc-header-text", options.TocHeaderText, builder);
+            TryAppendOption("--toc-header-text", options.TocHeaderText.Replace("\"", "\\\""), builder);
             TryAppendOption("--toc-level-indentation", options.TocLevelIndendation, builder, false);
             TryAppendOption("--toc-text-size-shrink", options.TocTextSizeShrink, builder);
             TryAppendOption("--disable-dotted-lines", options.DisableDottedLines, builder);
@@ -160,6 +156,9 @@ namespace Smartstore.Pdf.WkHtml
 
         protected virtual void BuildSectionCommandFragment(PdfSectionOptions options, string flag, StringBuilder builder)
         {
+            if (options == null)
+                return;
+            
             TryAppendOption(() => $"--{flag}-spacing", options.Spacing, builder);
             TryAppendOption(() => $"--{flag}-line", options.ShowLine, builder);
 
@@ -178,6 +177,8 @@ namespace Smartstore.Pdf.WkHtml
                 builder.Append(" " + options.CustomArguments);
             }
         }
+
+        #endregion
 
         #region TryAppendOption...
 
