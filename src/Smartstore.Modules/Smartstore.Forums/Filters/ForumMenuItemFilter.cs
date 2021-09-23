@@ -36,6 +36,7 @@ namespace Smartstore.Forums.Filters
                 if (isExpectedResult)
                 {
 					var html = $"<a class='menubar-link' href='{_urlHelper.Value.RouteUrl("Boards")}'>{_localizationService.Value.GetResource("Forum.Forums")}</a>";
+
                     _widgetProvider.RegisterHtml(new[] { "header_menu_special" }, new HtmlString(html), MENU_ITEM_ORDER);
                 }
             }

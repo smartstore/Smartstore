@@ -32,12 +32,12 @@ namespace Smartstore.Blog.Filters
                 return;
 
             // should only run on a full view rendering result or HTML ContentResult
-            if (!filterContext.Result.IsHtmlViewResult())
-                return;
+            if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
+            {
+                var html = $"<a class='menubar-link' href='{_urlHelper.Value.RouteUrl("Blog")}'>{_localizationService.Value.GetResource("Blog")}</a>";
 
-            var html = $"<a class='menubar-link' href='{_urlHelper.Value.RouteUrl("Blog")}'>{_localizationService.Value.GetResource("Blog")}</a>";
-
-            _widgetProvider.Value.RegisterHtml(new[] { "header_menu_special" }, new HtmlString(html));
+                _widgetProvider.Value.RegisterHtml(new[] { "header_menu_special" }, new HtmlString(html));
+            }
         }
 
         public void OnResultExecuted(ResultExecutedContext filterContext)
