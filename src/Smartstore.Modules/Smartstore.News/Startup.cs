@@ -29,6 +29,11 @@ namespace Smartstore.News
 
             SlugRouteTransformer.RegisterRouter(new NewsSlugRouter());
 
+            if (appContext.IsInstalled)
+            {
+                services.AddScoped<NewsHelper>();
+            }
+
             services.Configure<MvcOptions>(o =>
             {
                 o.Filters.AddConditional<NewsMenuItemFilter>(
@@ -37,14 +42,6 @@ namespace Smartstore.News
                 o.Filters.AddConditional<RssHeaderLinkFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
             });
-        }
-
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
-        {
-            if (appContext.IsInstalled)
-            {
-                builder.RegisterType<NewsHelper>().InstancePerLifetimeScope();
-            }
         }
 
         class SmartDbContextConfigurer : IDbContextConfigurationSource<SmartDbContext>

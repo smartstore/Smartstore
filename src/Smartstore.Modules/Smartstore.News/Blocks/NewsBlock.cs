@@ -48,7 +48,7 @@ namespace Smartstore.News.Blocks
                 renderHeading = block.RenderHeading,
                 newsHeading = element.Title,
                 disableCommentCount = block.DisableCommentCount,
-            }) { };
+            });
         }
     }
 

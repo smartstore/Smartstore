@@ -1,5 +1,7 @@
 ﻿@using Smartstore.News.Blocks
 
+@addTagHelper Smartstore.Web.TagHelpers.Admin.*, Smartstore.Web.Common
+
 @model NewsBlock
 
 <div class="adminContent">
@@ -8,7 +10,7 @@
             <smart-label asp-for="RenderHeading" />
         </div>
         <div class="adminData">
-             <editor asp-for="RenderHeading" data-toggler-for=".news-heading" />
+            <editor asp-for="RenderHeading" data-toggler-for=".news-heading" />
             <span asp-validation-for="RenderHeading"></span>
         </div>
     </div>
