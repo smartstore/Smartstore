@@ -20,7 +20,7 @@
     
     @foreach (var group in Model.ForumGroups)
     {
-        <partial name="ForumGroup" model="group" />
+        <partial name="_ForumGroup" model="group" />
     }
 
     @await Component.InvokeAsync("ActiveDiscussions")
