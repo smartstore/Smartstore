@@ -26,6 +26,11 @@ namespace Smartstore.Blog
             services.AddScoped<IBlogService, BlogService>();
             services.AddScoped<ILinkProvider, BlogLinkProvider>();
 
+            if (appContext.IsInstalled)
+            {
+                services.AddScoped<BlogHelper>();
+            }
+
             SlugRouteTransformer.RegisterRouter(new BlogSlugRouter());
 
             services.Configure<MvcOptions>(o =>
@@ -36,14 +41,6 @@ namespace Smartstore.Blog
                 o.Filters.AddConditional<RssHeaderLinkFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
             });
-        }
-
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
-        {
-            if (appContext.IsInstalled)
-            {
-                builder.RegisterType<BlogHelper>().InstancePerLifetimeScope();
-            }
         }
 
         class SmartDbContextConfigurer : IDbContextConfigurationSource<SmartDbContext>
