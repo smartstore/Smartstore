@@ -198,11 +198,14 @@ namespace Smartstore.Forums.Controllers
             var forumLink = Url.RouteUrl("ForumBySlug", new { id = forum.Id, slug = await forum.GetActiveSlugAsync() }, protocol);
             var feed = new SmartSyndicationFeed(new Uri(forumLink), store.Name, T("Forum.ForumFeedDescription"));
 
+            feed.AddNamespaces(false);
+            feed.Init(selfLink, language.LanguageCulture.EmptyNull().ToLower());
+
             if (!_forumSettings.ForumFeedsEnabled ||
                 !await _storeMappingService.AuthorizeAsync(forum.ForumGroup) ||
                 !await _aclService.AuthorizeAsync(forum.ForumGroup))
             {
-                return new RssActionResult { Feed = feed };
+                return new RssActionResult(feed);
             }
 
             feed.Title = new TextSyndicationContent("{0} - {1}".FormatInvariant(store.Name, forum.GetLocalized(x => x.Name, language)));
@@ -225,7 +228,7 @@ namespace Smartstore.Forums.Controllers
             })
             .ToList();
 
-            return new RssActionResult { Feed = feed };
+            return new RssActionResult(feed);
         }
 
         [HttpPost]

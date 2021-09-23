@@ -187,11 +187,11 @@ namespace Smartstore.News.Controllers
             var feed = new SmartSyndicationFeed(new Uri(newsLink), title);
 
             feed.AddNamespaces(true);
-            feed.Init(selfLink, language.LanguageCulture);
+            feed.Init(selfLink, language.LanguageCulture.EmptyNull().ToLower());
 
             if (!_newsSettings.Enabled)
             {
-                return new RssActionResult { Feed = feed };
+                return new RssActionResult(feed);
             }
 
             var items = new List<SyndicationItem>();
@@ -228,7 +228,7 @@ namespace Smartstore.News.Controllers
 
             Services.DisplayControl.AnnounceRange(newsItems);
 
-            return new RssActionResult { Feed = feed };
+            return new RssActionResult(feed);
         }
 
         [GdprConsent]

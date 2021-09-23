@@ -167,11 +167,11 @@ namespace Smartstore.Blog.Controllers
 
             var feed = new SmartSyndicationFeed(new Uri(blogLink), title);
             feed.AddNamespaces(false);
-            feed.Init(selfLink, language.LanguageCulture);
+            feed.Init(selfLink, language.LanguageCulture.EmptyNull().ToLower());
 
             if (!_blogSettings.Enabled)
             {
-                return new RssActionResult { Feed = feed };
+                return new RssActionResult(feed);
             }
 
             var items = new List<SyndicationItem>();
@@ -206,7 +206,7 @@ namespace Smartstore.Blog.Controllers
 
             Services.DisplayControl.AnnounceRange(blogPosts);
 
-            return new RssActionResult { Feed = feed };
+            return new RssActionResult(feed);
         }
 
         [GdprConsent]

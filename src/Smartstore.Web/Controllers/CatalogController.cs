@@ -485,11 +485,11 @@ namespace Smartstore.Web.Controllers
             var feed = new SmartSyndicationFeed(new Uri(recentProductsLink), title, T("RSS.InformationAboutProducts"));
 
             feed.AddNamespaces(true);
-            feed.Init(selfLink, Services.WorkContext.WorkingLanguage.LanguageCulture);
+            feed.Init(selfLink, Services.WorkContext.WorkingLanguage.LanguageCulture.EmptyNull().ToLower());
 
             if (!_catalogSettings.RecentlyAddedProductsEnabled || _catalogSettings.RecentlyAddedProductsNumber <= 0)
             {
-                return new RssActionResult { Feed = feed };
+                return new RssActionResult(feed);
             }
 
             var items = new List<SyndicationItem>();
@@ -553,7 +553,7 @@ namespace Smartstore.Web.Controllers
 
             Services.DisplayControl.AnnounceRange(hits);
 
-            return new RssActionResult { Feed = feed };
+            return new RssActionResult(feed);
         }
 
         [LocalizedRoute("/recentlyviewedproducts", Name = "RecentlyViewedProducts")]
