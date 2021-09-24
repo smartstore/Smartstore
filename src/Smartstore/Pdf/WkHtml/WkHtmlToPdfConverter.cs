@@ -91,8 +91,6 @@ namespace Smartstore.Pdf.WkHtml
             // Check that process is not already running
             CheckProcess();
             
-            string outputFileName = null;
-
             try
             {
                 // Build command / arguments
@@ -100,7 +98,7 @@ namespace Smartstore.Pdf.WkHtml
                 await _commandBuilder.BuildCommandAsync(settings, sb);
 
                 // Create output PDF temp file name
-                outputFileName = GetTempFileName(_options, ".pdf");
+                var outputFileName = GetTempFileName(_options, ".pdf");
                 sb.AppendFormat(" \"{0}\" ", outputFileName);
 
                 var arguments = sb.ToString();
@@ -131,18 +129,6 @@ namespace Smartstore.Pdf.WkHtml
             }
             finally
             {
-                // Delete output temp file
-                if (outputFileName.HasValue() && File.Exists(outputFileName))
-                {
-                    try
-                    {
-                        File.Delete(outputFileName);
-                    }
-                    catch
-                    {
-                    }
-                }
-
                 // Teardown / clear inputs
                 settings.Page.Teardown();
                 settings.Header?.Teardown();
