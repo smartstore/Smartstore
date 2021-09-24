@@ -1395,6 +1395,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> LowStockReportList(GridCommand command)
         {
