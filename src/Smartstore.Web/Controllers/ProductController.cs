@@ -25,6 +25,7 @@ using Smartstore.Core.Web;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Catalog;
+using Smartstore.Web.Models.Catalog.Mappers;
 
 namespace Smartstore.Web.Controllers
 {
@@ -165,6 +166,8 @@ namespace Smartstore.Web.Controllers
             {
                 model.CanonicalUrl = _urlHelper.Value.RouteUrl("Product", new { model.SeName }, Request.Scheme);
             }
+
+            model.MetaProperties =  await model.MapMetaPropertiesAsync();
 
             // Save as recently viewed
             _recentlyViewedProductsService.AddProductToRecentlyViewedList(product.Id);

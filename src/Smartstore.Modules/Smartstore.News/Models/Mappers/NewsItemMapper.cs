@@ -82,6 +82,7 @@ namespace Smartstore.News.Models.Mappers
             to.Comments.AllowComments = from.AllowComments;
             to.Comments.NumberOfComments = from.ApprovedCommentCount;
             to.Comments.AllowCustomersToUploadAvatars = _customerSettings.AllowCustomersToUploadAvatars;
+            to.MetaProperties = await to.MapMetaPropertiesAsync();
 
             if (prepareComments)
             {

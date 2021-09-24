@@ -14,6 +14,7 @@ namespace Smartstore.Blog.Models.Public
         public string MetaDescription { get; set; }
         public string MetaTitle { get; set; }
         public string SeName { get; set; }
+        public MetaPropertiesModel MetaProperties { get; set; } = new();
         public DateTime CreatedOn { get; set; }
         public DateTime CreatedOnUTC { get; set; }
         public List<BlogPostTagModel> Tags { get; set; } = new();

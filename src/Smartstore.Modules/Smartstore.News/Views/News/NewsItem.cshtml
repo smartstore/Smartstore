@@ -16,8 +16,7 @@
     var imageUrl = Model.PictureModel.File.GetUrl();
 }
 
-@*TODO: (mh) (core)*@
-@*@{ Html.RenderAction("MetaPropertiesNews", "Common", new { newsItem = Model }); }*@
+<partial name="MetaProperties" model="Model.MetaProperties" />
 
 <article class="page news-item-page" itemscope itemtype="http://schema.org/NewsArticle">
     @if (Model.DisplayAdminLink)

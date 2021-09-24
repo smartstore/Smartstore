@@ -240,6 +240,9 @@ namespace Smartstore.Blog.Controllers
 
             var model = await blogPost.MapAsync(new { PrepareComments = true });
 
+            ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
+            ViewBag.StoreName = _services.StoreContext.CurrentStore.Name;
+
             return View(model);
         }
 

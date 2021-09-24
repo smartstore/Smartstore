@@ -104,6 +104,8 @@ namespace Smartstore.Blog.Models.Mappers
                 SeName = SeoHelper.BuildSlug(x)
             }).ToList();
 
+            to.MetaProperties = await to.MapMetaPropertiesAsync();
+
             if (prepareComments)
             {
                 var blogComments = from.BlogComments
@@ -130,10 +132,6 @@ namespace Smartstore.Blog.Models.Mappers
                     to.Comments.Comments.Add(commentModel);
                 }
             }
-
-            // TODO: (mh) (core)
-            //ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
-            //ViewBag.StoreName = _services.StoreContext.CurrentStore.Name;
 
             _services.DisplayControl.Announce(from);
         }

@@ -36,6 +36,7 @@ using Smartstore.Diagnostics;
 using Smartstore.Http;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
+using Smartstore.Web.Models.Catalog.Mappers;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
 
@@ -177,8 +178,8 @@ namespace Smartstore.Web.Controllers
                 SeName = await manufacturer.GetActiveSlugAsync()
             };
 
-            model.MetaProperties = PrepareMetaPropertiesBrand(model);
-
+            model.MetaProperties = await model.MapMetaPropertiesAsync();
+            
             return model;
         }
 
@@ -369,7 +370,7 @@ namespace Smartstore.Web.Controllers
                 SeName = await category.GetActiveSlugAsync()
             };
 
-            model.MetaProperties = PrepareMetaPropertiesCategory(model);
+            model.MetaProperties = await model.MapMetaPropertiesAsync();
 
             return model;
         }
@@ -1973,92 +1974,6 @@ namespace Smartstore.Web.Controllers
 
             // Return for chaining
             return file;
-        }
-
-        #endregion
-
-        #region Metaproperties
-
-        public MetaPropertiesModel PrepareMetaPropertiesProduct(ProductDetailsModel product)
-        {
-            var model = new MetaPropertiesModel
-            {
-                Url = _urlHelper.RouteUrl("Product", new { SeName = product.SeName }, _httpRequest.Scheme),
-                Title = product.Name.Value,
-                Type = "product"
-            };
-
-            var shortDescription = product.ShortDescription.Value.HasValue() ? product.ShortDescription : product.MetaDescription;
-            if (shortDescription.Value.HasValue())
-            {
-                model.Description = shortDescription.Value;
-            }
-
-            var fileInfo = product.MediaGalleryModel.Files?.ElementAtOrDefault(product.MediaGalleryModel.GalleryStartIndex);
-
-            PrepareMetaPropertiesModel(model, fileInfo);
-
-            return model;
-        }
-
-        public MetaPropertiesModel PrepareMetaPropertiesCategory(CategoryModel category)
-        {
-            var model = new MetaPropertiesModel
-            {
-                Url = _urlHelper.RouteUrl("Category", new { category.SeName }, _httpRequest.Scheme),
-                Title = category.Name.Value,
-                Description = category.MetaDescription?.Value,
-                Type = "product"
-            };
-
-            var fileInfo = category.Image?.File;
-            PrepareMetaPropertiesModel(model, fileInfo);
-
-            return model;
-        }
-
-        public MetaPropertiesModel PrepareMetaPropertiesBrand(BrandModel brand)
-        {
-            var model = new MetaPropertiesModel
-            {
-                Url = _urlHelper.RouteUrl("Manufacturer", new { brand.SeName }, _httpRequest.Scheme),
-                Title = brand.Name.Value,
-                Description = brand.MetaDescription?.Value,
-                Type = "product"
-            };
-
-            var fileInfo = brand.Image?.File;
-            PrepareMetaPropertiesModel(model, fileInfo);
-
-            return model;
-        }
-
-        public void PrepareMetaPropertiesModel(MetaPropertiesModel model, MediaFileInfo fileInfo)
-        {
-            model.Site = _urlHelper.RouteUrl("HomePage", null, _httpRequest.Scheme);
-            model.SiteName = _services.StoreContext.CurrentStore.Name;
-
-            var imageUrl = fileInfo?.GetUrl();
-            if (fileInfo != null && imageUrl.HasValue())
-            {
-                imageUrl = WebHelper.GetAbsoluteUrl(imageUrl, _httpRequest, true);
-                model.ImageUrl = imageUrl;
-                model.ImageType = fileInfo.MimeType;
-
-                if (fileInfo.Alt.HasValue())
-                {
-                    model.ImageAlt = fileInfo.Alt;
-                }
-
-                if (fileInfo.Size.Width > 0 && fileInfo.Size.Height > 0)
-                {
-                    model.ImageWidth = fileInfo.Size.Width;
-                    model.ImageHeight = fileInfo.Size.Height;
-                }
-            }
-
-            model.TwitterSite = _socialSettings.TwitterSite;
-            model.FacebookAppId = _socialSettings.FacebookAppId;
         }
 
         #endregion
