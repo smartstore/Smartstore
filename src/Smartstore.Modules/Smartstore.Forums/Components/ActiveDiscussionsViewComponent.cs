@@ -29,7 +29,7 @@ namespace Smartstore.Forums.Components
             _forumSettings = forumSettings;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IViewComponentResult> InvokeAsync(bool isActiveDiscussionsPage = false, int? forumId = null)
         {
             if (!_forumSettings.ForumsEnabled)
             {
@@ -39,21 +39,25 @@ namespace Smartstore.Forums.Components
             var store = _services.StoreContext.CurrentStore;
             var customer = _services.WorkContext.CurrentCustomer;
 
+            var take = isActiveDiscussionsPage
+                ? _forumSettings.ActiveDiscussionsPageTopicCount
+                : _forumSettings.HomePageActiveDiscussionsTopicCount;
+
             var topics = await _db.ForumTopics()
                 .Include(x => x.Customer)
                 .AsNoTracking()
-                .ApplyActiveFilter(store, customer)
-                .Take(_forumSettings.HomePageActiveDiscussionsTopicCount)
+                .ApplyActiveFilter(store, customer, forumId)
+                .Take(take)
                 .ToListAsync();
 
-            if (!topics.Any())
+            if (!isActiveDiscussionsPage && !topics.Any())
             {
                 return Empty();
             }
 
             var model = new ActiveDiscussionsModel
             {
-                IsForumGroupsPage = true,
+                IsActiveDiscussionsPage = isActiveDiscussionsPage,
                 ActiveDiscussionsFeedEnabled = _forumSettings.ActiveDiscussionsFeedEnabled,
                 PostsPageSize = _forumSettings.PostsPageSize,
                 ForumTopics = await topics.MapAsync(_db)

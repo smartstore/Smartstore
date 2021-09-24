@@ -70,7 +70,7 @@ namespace Smartstore.Forums
 
             query = query.Where(x => x.LastPostTime.HasValue);
 
-            if (forumId.HasValue)
+            if (forumId.GetValueOrDefault() > 0)
             {
                 query = query.Where(x => x.ForumId == forumId.Value);
             }

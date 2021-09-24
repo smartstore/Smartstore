@@ -114,7 +114,7 @@ namespace Smartstore.Forums.Models.Mappers
             to.Slug = _forumService.BuildSlug(from);
             to.FirstPostId = firstPost?.Id ?? from.FirstPostId;
             to.HasCustomerProfile = _customerSettings.AllowViewingProfiles && !isGuest;
-            to.IsCustomerGuest = isGuest;
+            to.IsGuest = isGuest;
             to.CustomerName = from.Customer.FormatUserName(true);
             to.PostsPageSize = _forumSettings.PostsPageSize;
             

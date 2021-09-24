@@ -22,14 +22,15 @@ namespace Smartstore.Forums.Models.Public
         public LocalizedValue<string> Description { get; set; }
         public string Slug { get; set; }
 
-        public bool IsCustomerAllowedToSubscribe { get; set; }
-        public bool IsCustomerSubscribed { get; set; }
+        public bool IsAllowedToSubscribe { get; set; }
+        public bool IsSubscribed { get; set; }
         public bool ForumFeedsEnabled { get; set; }
         public int PostsPageSize { get; set; }
 
         public int TopicPageSize { get; set; }
         public int TopicTotalRecords { get; set; }
         public int TopicPageIndex { get; set; }
+
         public List<PublicForumTopicModel> ForumTopics { get; set; }
     }
 }

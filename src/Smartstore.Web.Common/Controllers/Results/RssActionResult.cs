@@ -14,7 +14,7 @@ namespace Smartstore.Web.Controllers
 
         public RssActionResult(SyndicationFeed feed)
         {
-            _feed = feed;
+            _feed = Guard.NotNull(feed, nameof(feed));
         }
 
         public override async Task ExecuteResultAsync(ActionContext context)

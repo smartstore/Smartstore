@@ -1,0 +1,118 @@
+﻿@model PublicForumPostModel
+
+@{
+    var postLinkRouteName = Model.CurrentTopicPage == 1 ? "ForumTopicBySlug" : "ForumTopicBySlugPaged";
+    var postLinkRouteValues = Model.CurrentTopicPage == 1
+        ? (object)(new { id = Model.ForumTopicId, slug = Model.ForumTopicSlug })
+        : (object)(new { id = Model.ForumTopicId, slug = Model.ForumTopicSlug, page = Model.CurrentTopicPage });
+}
+
+@Html.Raw("<a name=\"{0}\"></a>".FormatInvariant(Model.Id))
+
+<div class="block block-bordered forum-post card" id="post@(Model.Id)" data-id="@Model.Id">
+	<div class="block-title card-header">
+        <div sm-if="Model.CustomerId > 0">
+            @if (Model.HasCustomerProfile)
+            {
+                <a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" class="username">
+                    @Model.CustomerName.NaIfEmpty()
+                </a>
+            }
+            else
+            {
+                <span class="username">@Model.CustomerName</span>
+            }
+        </div>
+        <div class="d-flex align-items-center">
+            @if (Model.IsAllowedToEditPost)
+            {
+                <i class="far fa-edit"></i>
+                <a asp-action="PostEdit" asp-controller="Forum" asp-route-id="@Model.Id" class="edit-post-link-button">@T("Forum.EditPost")</a>
+            }
+            @if (Model.IsAllowedToDeletePost)
+            {
+                <i class="fa fa-times"></i>
+                <a asp-action="PostEdit" asp-controller="Forum" asp-route-id="@Model.Id" class="delete-post-link-button confirm">@T("Forum.DeletePost")</a>
+            }
+            <a href="@(Url.RouteUrl(postLinkRouteName, postLinkRouteValues))#@Model.Id" class="post-link" title="@T("Forum.PostLinkTitle")">#@Model.Id</a>
+        </div>
+	</div>
+
+    <div class="block-body card-body row" attr-class='(!Model.Published, "disabled")'>
+        <div class="post-info col-2 d-none d-sm-block">
+            <div class="user-info mt-3 text-center">
+                <div class="avatar">
+                    <partial name="Customer.Avatar" model="Model.Avatar" />
+                </div>
+                <div class="user-stats mt-2">
+                    <div sm-if="Model.IsForumModerator" class="status">
+                        <span class="pr-1">@T("Forum.Status"):</span>
+                        <span class="stat-value">@T("Forum.Moderator")</span>
+                    </div>
+                    <div sm-if="Model.ShowCustomersPostCount" class="totalposts">
+                        <span class="pr-1">@T("Forum.TotalPosts"):</span>
+                        <span class="stat-value">@Model.ForumPostCount.ToString("N0")</span>
+                    </div>
+                    <div sm-if="Model.ShowCustomersJoinDate && !Model.IsGuest" class="joined">
+                        <span class="pr-1">@T("Forum.Joined"):</span>
+                        <span class="stat-value">@Model.CustomerJoinDate.ToNativeString("d")</span>
+                    </div>
+                    <div sm-if="Model.ShowCustomersLocation && !Model.IsGuest && Model.CustomerLocation.HasValue()" class="location">
+                        <span class="pr-1">@T("Forum.Location"):</span>
+                        <span class="stat-value">@Model.CustomerLocation</span>
+                    </div>
+                    @if (Model.AllowPrivateMessages && !Model.IsGuest)
+                    {
+                        @*TODO: (mg) (core) verify forum frontend URLs. See below also.*@
+                        <a asp-action="Send" asp-controller="PrivateMessages" asp-route-id="@Model.CustomerId" class="btn btn btn-outline-info btn-flat button-pm mt-2" rel="nofollow">
+                            <i class="fa fa-user"></i>
+                            <span>@T("Forum.PrivateMessages.PM")</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="post-content col col-sm-10">
+            <div class="post-stats text-muted mb-1">
+                <span class="posttime">
+                    <span class="pr-1">@T("Forum.Posted"):</span>
+                    <span class="stat-value">@Model.PostCreatedOnStr</span>
+                </span>
+                <span class="votes" attr-class='(Model.VoteCount == 0, "hide")' title="@T("Common.Liked")">
+                    <span class="pl-1 pr-1">&middot;</span>
+                    <span><i class="fa fa-thumbs-up"></i></span>
+                    <span class="vote-count stat-value">@Model.VoteCount.ToString("N0")</span>
+                </span>
+            </div>
+            <div class="post-body">
+                <div class="posttext" dir="auto">
+                    @Html.Raw(HtmlUtils.SanitizeHtml(Model.FormattedText))
+                </div>
+                <input type="hidden" asp-for="Id" />
+            </div>
+            <div sm-if="Model.SignaturesEnabled && Model.FormattedSignature.HasValue()" class="signature text-muted" dir="auto">
+                @Html.Raw(Model.FormattedSignature)
+            </div>
+        </div>
+    </div>
+
+    <div class="text-right">
+        <div class="functions">
+            <a href="#" class="btn btn-link btn-sm font-weight-600">
+                @T("Forum.Top")
+            </a>
+            <a asp-action="PostCreate" asp-controller="Forum" asp-route-id="Model.ForumTopicId" asp-route-quote="Model.Id" class="btn btn-outline-info btn-flat btn-sm">
+                <i class="fa fa-quote-left"></i>
+                <span>@T("Forum.QuotePost")</span>
+            </a>
+            <button sm-if="Model.AllowVoting" type="button" class="btn btn-outline-success btn-flat btn-sm post-vote-button post-vote-up" attr-class='(Model.Vote, "hide")' value="true">
+                <i class="fa fa-thumbs-up"></i>
+                <span>@T("Common.LikeIt")</span>
+            </button>
+            <button sm-if="Model.AllowVoting" type="button" class="btn btn-outline-danger btn-flat btn-sm post-vote-button post-vote-down" attr-class='(!Model.Vote, "hide")' value="false">
+                <i class="fa fa-thumbs-down"></i>
+                <span>@T("Common.DoNotLikeIt")</span>
+            </button>
+        </div>
+    </div>
+</div>

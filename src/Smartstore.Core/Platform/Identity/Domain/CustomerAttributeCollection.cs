@@ -134,12 +134,6 @@ namespace Smartstore.Core.Identity
             set => Set(SystemCustomerAttributeNames.AvatarColor, value);
         }
 
-        public int ForumPostCount
-        {
-            get => Get<int>(SystemCustomerAttributeNames.ForumPostCount);
-            set => Set(SystemCustomerAttributeNames.ForumPostCount, value);
-        }
-
         public string Signature
         {
             get => Get<string>(SystemCustomerAttributeNames.Signature);

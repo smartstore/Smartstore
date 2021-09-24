@@ -1,0 +1,55 @@
+﻿@model PublicForumTopicPageModel
+
+@{
+    Assets.AppendTitleParts(Model.Subject);
+    Assets.AppendMetaDescriptionParts(Model.Subject);
+}
+
+<div class="page forum-topic">
+    <div class="mt-2 mb-4 w-75">
+        @* TODO: (mg) (core) SearchBox *@
+    </div>
+    <div class="title">
+        <h1 class="fs-h2">@Model.Subject</h1>
+    </div>
+    <div sm-if="Model.IsAllowedToEditTopic || Model.IsAllowedToDeleteTopic || Model.IsAllowedToMoveTopic" class="manage btn-group my-3">
+        @if (Model.IsAllowedToEditTopic)
+        {
+            <a asp-action="TopicEdit" asp-controller="Forum" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">
+                <i class="far fa-edit"></i>
+                <span>@T("Forum.EditTopic")</span>            
+            </a>
+        }
+        @if (Model.IsAllowedToDeleteTopic)
+		{
+            <a asp-action="TopicDelete" asp-controller="Forum" asp-route-id="@Model.Id" class="btn btn-secondary confirm" rel="nofollow">
+				<i class="far fa-trash-alt"></i>
+				<span>@T("Forum.DeleteTopic")</span>
+			</a>
+		}
+        @if (Model.IsAllowedToMoveTopic)
+		{
+            <a asp-action="TopicMove" asp-controller="Forum" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">
+				<i class="fa fa-arrows-alt"></i>
+				<span>@T("Forum.MoveTopic")</span>
+			</a>
+		}
+    </div>
+
+    @* TODO: (mg) (core) add pager *@
+
+    <div class="posts">
+        @foreach (var post in Model.ForumPosts)
+        {
+            <partial name="_ForumPost" model="post" />
+        }
+    </div>
+
+    @* TODO: (mg) (core) add pager *@
+</div>
+
+<script sm-target-zone="scripts" data-origin="forum-topic">
+    $(function () {
+        @* TODO: (mg) (core) .... *@
+    });
+</script>

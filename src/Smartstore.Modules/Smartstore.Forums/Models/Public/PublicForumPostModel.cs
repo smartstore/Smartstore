@@ -15,10 +15,10 @@ namespace Smartstore.Forums.Models.Public
 
         public int CustomerId { get; set; }
         public string CustomerName { get; set; }
-        public bool IsCustomerAllowedToEditPost { get; set; }
-        public bool IsCustomerAllowedToDeletePost { get; set; }
-        public bool IsCustomerForumModerator { get; set; }
-        public bool IsCustomerGuest { get; set; }
+        public bool IsAllowedToEditPost { get; set; }
+        public bool IsAllowedToDeletePost { get; set; }
+        public bool IsForumModerator { get; set; }
+        public bool IsGuest { get; set; }
         public bool HasCustomerProfile { get; set; }
         public CustomerAvatarModel Avatar { get; set; }
 

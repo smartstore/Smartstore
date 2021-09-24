@@ -47,14 +47,14 @@
                 </a>
             </div>
             <div class="col col-sm-auto mt-1 mt-sm-0">
-                @if (Model.IsCustomerAllowedToSubscribe)
+                @if (Model.IsAllowedToSubscribe)
                 {
                     <form id="watch-forum-form" sm-ajax method="post" asp-action="ForumWatch" asp-controller="Forum" sm-oncomplete="onWatchForumCompleted">
                         <input type="hidden" asp-for="Id" />
 
                         <button type="submit" id="watch-forum" class="btn btn-outline-primary font-weight-bold btn-block watch-forum">
                             <i class="fa fa-bookmark"></i>
-                            <span class="watch-forum-text">@T(Model.IsCustomerSubscribed ? "Forum.UnwatchForum" : "Forum.WatchForum")</span>
+                            <span class="watch-forum-text">@T(Model.IsSubscribed ? "Forum.UnwatchForum" : "Forum.WatchForum")</span>
                         </button>
                     </form>
                 }

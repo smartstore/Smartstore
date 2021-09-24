@@ -1,0 +1,13 @@
+﻿@model ActiveDiscussionsModel
+
+@{
+    Assets.AppendTitleParts(T("Forum.PageTitle.ActiveDiscussions"));
+}
+
+<div class="page active-discussions-page">
+    <div class="mt-2 w-75">
+        @* TODO: (mg) (core) SearchBox *@
+    </div>
+
+    @await Component.InvokeAsync("ActiveDiscussions", new { isActiveDiscussionsPage = true, forumId = ViewBag.ForumId as int? })
+</div>

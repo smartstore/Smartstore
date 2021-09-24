@@ -12,7 +12,17 @@ namespace Smartstore.Forums
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsForumModerator(this Customer customer, bool onlyActiveRoles = true)
         {
+            // TODO: (mg) (core) Customer.IsInRole only works if CustomerRoleMappings and CustomerRoleMappings.CustomerRole are included (very error-prone)!!
             return customer.IsInRole(SystemCustomerRoleNames.ForumModerators, onlyActiveRoles);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the customer is allowed to subscribe to a forum.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsAllowedToSubscribe(this Customer customer)
+        {
+            return !customer.IsGuest();
         }
     }
 }

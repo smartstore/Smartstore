@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -22,11 +24,16 @@ namespace Smartstore.Forums.Services
     public partial class ForumService : AsyncDbSaveHook<Forum>, IForumService, IXmlSitemapPublisher
     {
         private readonly SmartDbContext _db;
+        private readonly ICommonServices _services;
         private readonly ForumSettings _forumSettings;
 
-        public ForumService(SmartDbContext db, ForumSettings forumSettings)
+        public ForumService(
+            SmartDbContext db,
+            ICommonServices services,
+            ForumSettings forumSettings)
         {
             _db = db;
+            _services = services;
             _forumSettings = forumSettings;
         }
 
@@ -75,11 +82,11 @@ namespace Smartstore.Forums.Services
             return numDeleted;
         }
 
-        public virtual string BuildSlug(ForumTopic forumTopic)
+        public virtual string BuildSlug(ForumTopic topic)
         {
             const int maxLength = 100;
 
-            var slug = SeoHelper.BuildSlug(forumTopic.Subject);
+            var slug = SeoHelper.BuildSlug(topic.Subject);
 
             // Trim SE name to avoid URLs that are too long.
             if (slug.Length > maxLength)
@@ -90,9 +97,9 @@ namespace Smartstore.Forums.Services
             return slug;
         }
 
-        public virtual string StripSubject(ForumTopic forumTopic)
+        public virtual string StripSubject(ForumTopic topic)
         {
-            var subject = forumTopic?.Subject;
+            var subject = topic?.Subject;
             if (subject.IsEmpty())
             {
                 return subject;
@@ -112,10 +119,9 @@ namespace Smartstore.Forums.Services
             return subject;
         }
 
-
-        public virtual string FormatPostText(ForumPost forumPost)
+        public virtual string FormatPostText(ForumPost post)
         {
-            var text = forumPost?.Text;
+            var text = post?.Text;
             if (text.IsEmpty())
             {
                 return string.Empty;
@@ -130,6 +136,111 @@ namespace Smartstore.Forums.Services
 
             return text;
         }
+
+        // TODO: (mg) (core) what about to make a single method here that returns a Flags Enum with all moderation permits?
+        public virtual bool IsAllowedToCreateTopic(Customer customer = null)
+        {
+            customer ??= _services.WorkContext.CurrentCustomer;
+
+            return !(customer.IsGuest() && !_forumSettings.AllowGuestsToCreateTopics);
+        }
+
+        public virtual bool IsAllowedToEditTopic(ForumTopic topic, Customer customer = null)
+        {
+            Guard.NotNull(topic, nameof(topic));
+
+            customer ??= _services.WorkContext.CurrentCustomer;
+
+            return customer.IsForumModerator() || (_forumSettings.AllowCustomersToEditPosts && topic.Published && customer.Id == topic.CustomerId);
+        }
+
+        public virtual bool IsAllowedToMoveTopic(Customer customer = null)
+        {
+            customer ??= _services.WorkContext.CurrentCustomer;
+
+            return customer.IsForumModerator();
+        }
+
+        public virtual bool IsAllowedToDeleteTopic(ForumTopic topic, Customer customer = null)
+        {
+            Guard.NotNull(topic, nameof(topic));
+
+            customer ??= _services.WorkContext.CurrentCustomer;
+
+            return customer.IsForumModerator() || (_forumSettings.AllowCustomersToDeletePosts && topic.Published && customer.Id == topic.CustomerId);
+        }
+
+        public virtual bool IsAllowedToCreatePost(Customer customer = null)
+        {
+            customer ??= _services.WorkContext.CurrentCustomer;
+
+            return !(customer.IsGuest() && !_forumSettings.AllowGuestsToCreatePosts);
+        }
+
+        public virtual bool IsAllowedToEditPost(ForumPost post, Customer customer = null)
+        {
+            Guard.NotNull(post, nameof(post));
+
+            customer ??= _services.WorkContext.CurrentCustomer;
+
+            return customer.IsForumModerator() || (_forumSettings.AllowCustomersToEditPosts && post.Published && customer.Id == post.CustomerId);
+        }
+
+        public virtual bool IsAllowedToDeletePost(ForumPost post, Customer customer = null)
+        {
+            Guard.NotNull(post, nameof(post));
+
+            customer ??= _services.WorkContext.CurrentCustomer;
+
+            return customer.IsForumModerator() || (_forumSettings.AllowCustomersToDeletePosts && post.Published && customer.Id == post.CustomerId);
+        }
+
+        /*
+        public interface IForumAuthor
+        {
+            int CustomerId { get; set; }
+            bool Published { get; set; }
+        }
+
+        public virtual bool IsModerationPermitted(ForumModeration moderation, Customer customer, object entity)
+        {
+            if (customer == null || entity == null)
+            {
+                return false;
+            }
+
+            var fs = _forumSettings;
+
+            if (entity is ForumTopic topic)
+            {
+                switch (moderation)
+                {
+                    case ForumModeration.Create:
+                        return !(customer.IsGuest() && !fs.AllowGuestsToCreateTopics);
+
+                    case ForumModeration.Update:
+                    case ForumModeration.Delete:
+                        return customer.IsForumModerator() || (fs.AllowCustomersToEditPosts && topic.Published && customer.Id == topic.CustomerId);
+
+                    case ForumModeration.Move:
+                        return customer.IsForumModerator();
+                }
+            }
+            else if (entity is Forum)
+            {
+                switch (moderation)
+                {
+                    case ForumModeration.Create:
+                        return !(customer.IsGuest() && !fs.AllowGuestsToCreateTopics);
+                }
+            }
+            else if (entity is ForumPost post)
+            {
+            }
+
+            return false;
+        }
+        */
 
         public XmlSitemapProvider PublishXmlSitemap(XmlSitemapBuildContext context)
         {

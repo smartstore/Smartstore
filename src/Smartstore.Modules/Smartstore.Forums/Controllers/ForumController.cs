@@ -24,7 +24,7 @@ using Smartstore.Web.Filters;
 namespace Smartstore.Forums.Controllers
 {
     // TODO: (mg) (core) add forum activity logs. They have never been used in frontend!?
-    public class ForumController : PublicController
+    public partial class ForumController : PublicController
     {
         private readonly SmartDbContext _db;
         private readonly IForumService _forumService;
@@ -132,7 +132,6 @@ namespace Smartstore.Forums.Controllers
             }
 
             var customer = Services.WorkContext.CurrentCustomer;
-            var isGuest = customer.IsGuest();
             var pageSize = _forumSettings.TopicsPageSize > 0 ? _forumSettings.TopicsPageSize : 20;
 
             var topics = await _db.ForumTopics()
@@ -151,14 +150,14 @@ namespace Smartstore.Forums.Controllers
                 TopicPageSize = topics.PageSize,
                 TopicTotalRecords = topics.TotalCount,
                 TopicPageIndex = topics.PageIndex,
-                IsCustomerAllowedToSubscribe = !isGuest,
+                IsAllowedToSubscribe = customer.IsAllowedToSubscribe(),
                 ForumFeedsEnabled = _forumSettings.ForumFeedsEnabled,
                 PostsPageSize = _forumSettings.PostsPageSize
             };
 
-            if (!isGuest)
+            if (model.IsAllowedToSubscribe)
             {
-                model.IsCustomerSubscribed = await _db.ForumSubscriptions()
+                model.IsSubscribed = await _db.ForumSubscriptions()
                     .AsNoTracking()
                     .ApplyStandardFilter(customer.Id, forum.Id)
                     .FirstOrDefaultAsync() != null;
@@ -208,7 +207,7 @@ namespace Smartstore.Forums.Controllers
                 return new RssActionResult(feed);
             }
 
-            feed.Title = new TextSyndicationContent("{0} - {1}".FormatInvariant(store.Name, forum.GetLocalized(x => x.Name, language)));
+            feed.Title = new TextSyndicationContent($"{store.Name} - {forum.GetLocalized(x => x.Name, language)}");
 
             string viewsText = T("Forum.Views");
             string repliesText = T("Forum.Replies");
@@ -222,7 +221,7 @@ namespace Smartstore.Forums.Controllers
             feed.Items = topics.Select(x =>
             {
                 var topicUrl = Url.RouteUrl("ForumTopicBySlug", new { id = x.Id, slug = _forumService.BuildSlug(x) }, protocol);
-                var synopsis = "{0}: {1}, {2}: {3}".FormatInvariant(repliesText, x.NumReplies, viewsText, x.Views);
+                var synopsis = $"{repliesText}: {x.NumReplies}, {viewsText}: {x.Views}";
 
                 return feed.CreateItem(x.Subject, synopsis, topicUrl, x.LastPostTime ?? x.UpdatedOnUtc);
             })
@@ -284,18 +283,171 @@ namespace Smartstore.Forums.Controllers
             return Json(new { Subscribed = subscribed, Text = returnText });
         }
 
+        public IActionResult ActiveDiscussions(int? forumId = null)
+        {
+            if (!_forumSettings.ForumsEnabled)
+            {
+                return NotFound();
+            }
+
+            ViewBag.ForumId = forumId;
+
+            return View();
+        }
+
+        public async Task<IActionResult> ActiveDiscussionsRss(int? forumId = null)
+        {
+            if (!_forumSettings.ForumsEnabled)
+            {
+                return NotFound();
+            }
+
+            var store = Services.StoreContext.CurrentStore;
+            var customer = Services.WorkContext.CurrentCustomer;
+            var language = Services.WorkContext.WorkingLanguage;
+            var protocol = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
+            var selfLink = Url.Action("ActiveDiscussionsRss", "Forum", null, protocol);
+            var discussionLink = Url.Action("ActiveDiscussions", "Foorum", null, protocol);
+            var feed = new SmartSyndicationFeed(new Uri(discussionLink), $"{store.Name} - {T("Forum.ActiveDiscussionsFeedTitle")}", T("Forum.ActiveDiscussionsFeedDescription"));
+
+            feed.AddNamespaces(false);
+            feed.Init(selfLink, language.LanguageCulture.EmptyNull().ToLower());
+
+            if (!_forumSettings.ActiveDiscussionsFeedEnabled)
+            {
+                return new RssActionResult(feed);
+            }
+
+            string viewsText = T("Forum.Views");
+            string repliesText = T("Forum.Replies");
+
+            var topics = await _db.ForumTopics()
+                .Include(x => x.Customer)
+                .AsNoTracking()
+                .ApplyActiveFilter(store, customer, forumId)
+                .Take(_forumSettings.ActiveDiscussionsFeedCount)
+                .ToListAsync();
+
+            feed.Items = topics.Select(x =>
+            {
+                var topicUrl = Url.RouteUrl("ForumTopicBySlug", new { id = x.Id, slug = _forumService.BuildSlug(x) }, protocol);
+                var synopsis = $"{repliesText}: {x.NumReplies}, {viewsText}: {x.Views}";
+
+                return feed.CreateItem(x.Subject, synopsis, topicUrl, x.LastPostTime ?? x.UpdatedOnUtc);
+            })
+            .ToList();
+
+            return new RssActionResult(feed);
+        }
+
         #region Topic
 
         [LocalizedRoute("boards/topic/{id:int}/{slug?}", Name = "ForumTopicBySlug")]
-        public Task<IActionResult> ForumTopic(int id)
+        [LocalizedRoute("boards/topic/{id:int}/{slug?}/page/{page:int}", Name = "ForumTopicBySlugPaged")]
+        public async Task<IActionResult> ForumTopic(int id, int page = 1)
         {
-            throw new NotImplementedException();
+            if (!_forumSettings.ForumsEnabled)
+            {
+                return NotFound();
+            }
+
+            var customer = Services.WorkContext.CurrentCustomer;
+            var topic = await _db.ForumTopics()
+                .Include(x => x.Forum)
+                .ThenInclude(x => x.ForumGroup)
+                .FindByIdAsync(id);
+
+            if (!await IsTopicVisible(topic, customer))
+            {
+                return NotFound();
+            }
+
+            var posts = await _db.ForumPosts()
+                .Include(x => x.Customer)
+                .Include(x => x.ForumTopic)
+                .Include(x => x.ForumPostVotes)
+                .AsNoTracking()
+                .ApplyStandardFilter(customer, topic.Id)
+                .ToPagedList(page - 1, _forumSettings.PostsPageSize)
+                .LoadAsync();
+
+            // If no posts area loaded, redirect to the first page.
+            if (posts.Count == 0 && page > 1)
+            {
+                return RedirectToRoute("ForumTopicBySlug", new { id = topic.Id, slug = _forumService.BuildSlug(topic) });
+            }
+
+            // Update view count.
+            try
+            {
+                if (!customer.Deleted && customer.Active && !customer.IsSystemAccount)
+                {
+                    topic.Views += 1;
+                    await _db.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            var model = new PublicForumTopicPageModel
+            {
+                Id = topic.Id,
+                Subject = topic.Subject,
+                Slug = _forumService.BuildSlug(topic),
+                PostsPageIndex = posts.PageIndex,
+                PostsPageSize = posts.PageSize,
+                PostsTotalRecords = posts.TotalCount,
+                IsAllowedToEditTopic = _forumService.IsAllowedToEditTopic(topic, customer),
+                IsAllowedToDeleteTopic = _forumService.IsAllowedToDeleteTopic(topic, customer),
+                IsAllowedToMoveTopic = _forumService.IsAllowedToMoveTopic(customer),
+                IsAllowedToSubscribe = customer.IsAllowedToSubscribe()
+            };
+
+            if (model.IsAllowedToSubscribe)
+            {
+                model.IsSubscribed = await _db.ForumSubscriptions()
+                    .AsNoTracking()
+                    .ApplyStandardFilter(customer.Id, null, topic.Id)
+                    .FirstOrDefaultAsync() != null;
+            }
+
+            model.ForumPosts = await posts
+                .SelectAsync(async x => await x.MapAsync(false, page))
+                .AsyncToList();
+
+            await CreateForumBreadcrumb(topic: topic);
+            await SaveLastForumVisit(customer);
+
+            return View(model);
         }
 
         [GdprConsent]
         public Task<IActionResult> TopicCreate(int id)
         {
             throw new NotImplementedException();
+        }
+
+        private async Task<bool> IsTopicVisible(ForumTopic topic, Customer customer)
+        {
+            if (topic == null)
+            {
+                return false;
+            }
+
+            if (!topic.Published && topic.CustomerId != customer.Id && !customer.IsForumModerator())
+            {
+                return false;
+            }
+
+            if (!await _storeMappingService.AuthorizeAsync(topic.Forum.ForumGroup) ||
+                !await _aclService.AuthorizeAsync(topic.Forum.ForumGroup))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         #endregion

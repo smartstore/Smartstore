@@ -15,20 +15,18 @@
 		</div>
     </div>
 	<div sm-if="Model.CustomerId > 0">
-		<div>
-			<div class="d-inline-flex">
-				<span class="pr-1">@T("Forum.By"):</span>
-				@if (Model.HasCustomerProfile)
-				{
-					<a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId">
-						@Model.CustomerName.NaIfEmpty()
-					</a>
-				}
-				else
-				{
-					<span>@Model.CustomerName</span>
-				}
-			</div>
+		<div class="d-inline-flex">
+			<span class="pr-1">@T("Forum.By"):</span>
+			@if (Model.HasCustomerProfile)
+			{
+				<a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId">
+					@Model.CustomerName.NaIfEmpty()
+				</a>
+			}
+			else
+			{
+				<span>@Model.CustomerName</span>
+			}
 		</div>
 	</div>
 </div>
