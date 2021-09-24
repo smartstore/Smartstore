@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Localization;
 using Smartstore.Web.Rendering.Pager;
 
 namespace Smartstore.Web.TagHelpers.Shared

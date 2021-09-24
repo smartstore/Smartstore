@@ -60,7 +60,11 @@
                 }
             </div>
         </div>
-        @* TODO: (mg) (core) add pager *@
+        @* TODO: (mg) (core) Provide paged list of forum topics *@
+        @*<forum-pagination sm-list-items="Model.ForumTopics"
+                          sm-query-param="page"  
+                          sm-alignment="Right"></forum-pagination>*@
+
     </div>
     <div class="topics-group table-responsive">
         <table class="table">
@@ -101,21 +105,29 @@
                             <div class="topic-starter text-muted d-inline-flex">
                                 <div sm-if="topic.CustomerId > 0">
                                     <span class="pr-1">@T("Forum.Author"):</span>
-				                    @if (topic.HasCustomerProfile)
-				                    {
-					                    <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId">
-						                    @topic.CustomerName.NaIfEmpty()
-					                    </a>
-				                    }
-				                    else
-				                    {
-					                    <span>@topic.CustomerName</span>
-				                    }
+                                    @if (topic.HasCustomerProfile)
+                                    {
+                                        <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId">
+                                            @topic.CustomerName.NaIfEmpty()
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span>@topic.CustomerName</span>
+                                    }
                                 </div>
                             </div>
                             @if (topic.NumPosts > Model.PostsPageSize)
                             {
-                                @* TODO: (mg) (core) add pager *@
+                                @* TODO: (mg) (core) Provide paged list of TopicPosts *@
+                                @*<forum-pagination sm-list-items="Model.TopicPosts"
+                                                  sm-query-param="page"
+                                                  class="topics-pager"
+                                                  sm-show-previous="false"
+                                                  sm-show-next="false"
+                                                  sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
+                                                  sm-alignment="Left"
+                                                  sm-size="Small"></forum-pagination>*@
                             }
                         </div>
                     </td>
