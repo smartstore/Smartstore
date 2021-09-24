@@ -1,0 +1,25 @@
+﻿@using Smartstore.Admin.Models.Orders
+
+@model CheckoutAttributeValueModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.Attributes.CheckoutAttributes.Values.EditValueDetails").Value;
+    Layout = "_AdminPopupLayout";
+}
+
+<form asp-action="ValueEditPopup" id="checkout-attribute-values" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Catalog.Attributes.CheckoutAttributes.Values.EditValueDetails")
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdateValue" model="Model" />
+</form>
+

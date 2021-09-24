@@ -1,0 +1,55 @@
+﻿@using Smartstore.Admin.Models.Orders
+
+@model CheckoutAttributeModel
+
+<datagrid id="checkout-attribute-grid" 
+          allow-resize="true" 
+          allow-row-selection="true" 
+          allow-edit="true"
+          allow-column-reordering="true"
+          onrowclass="checkout_attributeGrid_onRowClass">
+    <datasource read="@Url.Action("CheckoutAttributeList", "CheckoutAttribute")"
+                update="@Url.Action("Update", "CheckoutAttribute")"
+                delete="@Url.Action("DeleteSelection", "CheckoutAttribute")" />
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="2fr" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="TextPrompt" />
+        <column for="AttributeControlTypeName" entity-member="AttributeControlType" sortable="false" />
+        <column for="IsActive" halign="center" />
+        <column for="IsRequired" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+        <column for="LimitedToStores" halign="center" readonly="true" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="rules-grid">
+    function checkout_attributeGrid_onRowClass(row) {
+        return { "text-muted": !row.IsActive };
+    }
+</script>

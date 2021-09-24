@@ -1,0 +1,96 @@
+﻿@using Smartstore.Admin.Models.Orders
+
+@model CheckoutAttributeValueModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="CheckoutAttributeId" type="hidden" />
+<input asp-for="IsListTypeAttribute" type="hidden" />
+
+@(Html.LocalizedEditor<CheckoutAttributeValueModel, CheckoutAttributeValueLocalizedModel>("checkoutattributevalue-localized",
+	@<div class="adminContent">
+		<div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Locales[item].Name" />
+            </div>
+            <div class="adminData">
+			    @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                <input asp-for="Locales[item].LanguageId" type="hidden" />
+                <input asp-for="Locales[item].Name" />
+                <span asp-validation-for="Locales[item].Name"></span>
+            </div>
+		</div>
+	</div>
+	,
+	@<div class="adminContent">
+		<div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Name" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+		</div>
+	</div>
+))
+
+<div class="adminContent">
+    @if (Model.IsListTypeAttribute)
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MediaFileId" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="MediaFileId" />
+                <span asp-validation-for="MediaFileId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Color" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Color" />
+                <span asp-validation-for="Color"></span>
+            </div>
+        </div>
+    }
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PriceAdjustment" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="PriceAdjustment" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+            <span asp-validation-for="PriceAdjustment"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="WeightAdjustment" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="WeightAdjustment" sm-postfix="@Model.BaseWeightIn" />
+            <span asp-validation-for="WeightAdjustment"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IsPreSelected" />
+        </div>
+        <div class="adminData">
+            <input asp-for="IsPreSelected" />
+            <span asp-validation-for="IsPreSelected"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DisplayOrder" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="DisplayOrder" />
+            <span asp-validation-for="DisplayOrder"></span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,146 @@
+﻿@using Smartstore.Admin.Models.Orders
+@using Smartstore.Core.Catalog.Attributes
+ 
+@model CheckoutAttributeModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<tabstrip id="checkoutattribute-edit" sm-nav-style="Material" sm-nav-position="Top">
+    <tab sm-title="@T("Admin.Catalog.Attributes.CheckoutAttributes.Info")" sm-selected="true">
+        @(Html.LocalizedEditor<CheckoutAttributeModel, CheckoutAttributeLocalizedModel>("checkoutattribute-localized",
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Name" />
+                    </div>
+                    <div class="adminData">
+				        @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input asp-for="Locales[item].LanguageId" type="hidden" />
+
+                        <input asp-for="Locales[item].Name" />
+                        <span asp-validation-for="Locales[item].Name"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].TextPrompt" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Locales[item].TextPrompt" />
+                        <span asp-validation-for="Locales[item].TextPrompt"></span>
+                    </div>
+                </div>
+            </div>
+            ,
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Name" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Name" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TextPrompt" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="TextPrompt" />
+                        <span asp-validation-for="TextPrompt"></span>
+                    </div>
+                </div>
+            </div>
+        ))
+
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IsActive" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="IsActive" />
+                    <span asp-validation-for="IsActive"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IsRequired" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="IsRequired" />
+                    <span asp-validation-for="IsRequired"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="ShippableProductRequired" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="ShippableProductRequired" />
+                    <span asp-validation-for="ShippableProductRequired"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IsTaxExempt" />
+                </div>
+                <div class="adminData">
+                    @Html.CheckBoxFor(model => model.IsTaxExempt, new { data_toggler_for = "#pnlTaxCategory" })
+                    <span asp-validation-for="IsTaxExempt"></span>
+                </div>
+            </div>
+            <div class="adminRow" id="pnlTaxCategory">
+                <div class="adminTitle">
+                    <smart-label asp-for="TaxCategoryId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="TaxCategoryId" asp-items="ViewBag.AvailableTaxCategories" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                    <span asp-validation-for="TaxCategoryId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="AttributeControlTypeId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="AttributeControlTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(AttributeControlType))"></select>
+                    <span asp-validation-for="AttributeControlTypeId"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayOrder" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="DisplayOrder" />
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedStoreIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedStoreIds" />
+                    <span asp-validation-for="SelectedStoreIds"></span>
+                </div>
+            </div>
+        </div>
+    </tab>
+    <tab sm-title="@T("Admin.Catalog.Attributes.CheckoutAttributes.Values")">
+        @if (Model.Id > 0)
+        {
+            var gridViewData = new ViewDataDictionary(ViewData);
+            gridViewData["CheckoutAttributeId"] = Model.Id;
+
+            <partial name="_Grid.CheckoutAttributeValues" model="null" view-data="gridViewData" />
+        }
+        else
+        {
+            @T("Admin.Configuration.Countries.States.SaveBeforeEdit")
+        }
+    </tab>
+</tabstrip>

@@ -1,0 +1,33 @@
+﻿@using Smartstore.Admin.Models.Orders
+
+@model CheckoutAttributeModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.Attributes.CheckoutAttributes.EditAttributeDetails").Value;
+}
+
+<form asp-action="Edit" id="checkoutattribute-form">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Catalog.Attributes.CheckoutAttributes.EditAttributeDetails") - @Model.Name
+            <a asp-action="List">(@T("Admin.Catalog.Attributes.CheckoutAttributes.BackToList"))</a>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <span id="checkoutattribute-delete" name="checkoutattribute-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </span>
+            <confirm button-id="checkoutattribute-delete" />
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" model="Model" />
+</form>
+

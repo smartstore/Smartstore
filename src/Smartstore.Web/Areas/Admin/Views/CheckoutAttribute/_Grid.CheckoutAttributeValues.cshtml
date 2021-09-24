@@ -1,0 +1,89 @@
+﻿@using Smartstore.Admin.Models.Orders
+
+@model CheckoutAttributeValueModel
+
+@{
+    var checkoutAttributeId = ViewData["CheckoutAttributeId"];
+}
+
+<datagrid id="checkout-attribute-values-grid" 
+          allow-resize="true" 
+          allow-row-selection="true" 
+          allow-edit="true" 
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("ValueList", "CheckoutAttribute", new { checkoutAttributeId = checkoutAttributeId })"
+                update="@Url.Action("ValueUpdate", "CheckoutAttribute")"
+                delete="@Url.Action("DeleteValueSelection", "CheckoutAttribute")" />
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a href="#" class="add-checkout-attribute-value btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="2fr" hideable="false">
+            <display-template>
+                <div class="d-block">
+                    <span v-if="item.row.Color" class='color-container'>
+                        <span class='color' :style='{background: item.row.Color}'>&nbsp;</span>
+                    </span>
+                    <a href="#" class="grid-edit-checkout-attribute-value text-truncate" :data-key="item.row.Id">
+                        {{ item.value }}
+                    </a>
+                </div>
+            </display-template>
+        </column>
+        <column for="PriceAdjustment" />
+        <column for="WeightAdjustment" />
+        <column for="IsPreSelected" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="grid-edit-checkout-attribute-value" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
+
+<script sm-target-zone="scripts" data-origin="checkout-attribute-value-grid">
+    $(function () {
+        $(document).on('click', '.add-checkout-attribute-value', function (e) {
+            e.preventDefault();
+
+            var href = "@Url.Content("~/Admin/CheckoutAttribute/ValueCreatePopup/")?checkoutAttributeId=@(checkoutAttributeId)&btnId=btnRefresh&formId=checkout-attribute-values";
+            openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-edit-checkout-attribute-value', function (e) {
+            e.preventDefault();
+
+            var id = $(this).data("key");
+            var href = "@Url.Content("~/Admin/CheckoutAttribute/ValueEditPopup/")" + id + "?btnId=btnRefresh&formId=checkout-attribute-values";
+            openPopup(href);
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefresh', function () {
+
+            console.log("dddd");
+
+            window["checkout-attribute-values-grid"].$children[0].read();
+            return false;
+        });
+    });
+</script>

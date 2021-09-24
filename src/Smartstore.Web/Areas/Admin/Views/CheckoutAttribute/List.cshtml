@@ -1,0 +1,16 @@
+﻿@{
+    ViewBag.Title = T("Admin.Catalog.Attributes.CheckoutAttributes").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<form id="checkout-attributes">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-clock"></i>
+            @T("Admin.Catalog.Attributes.CheckoutAttributes")
+        </div>
+    </div>
+    <input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
+</form>
+
+<partial name="_Grid.CheckoutAttributes" model="null" />
