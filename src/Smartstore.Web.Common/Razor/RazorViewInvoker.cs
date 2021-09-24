@@ -145,8 +145,6 @@ namespace Smartstore.Web.Razor
 
         private ActionContext GetActionContext(string module)
         {
-            module ??= "Smartstore.Blog";
-
             var context = _actionContextAccessor.ActionContext;
 
             if (context == null)

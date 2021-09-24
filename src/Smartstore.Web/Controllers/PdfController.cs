@@ -30,8 +30,8 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ReceiptHeader(PdfSectionVariables vars, int storeId = 0, bool isPartial = false)
         {
             var model = await PreparePdfReceiptSectionModelAsync(storeId);
-            model.Variables = vars;
 
+            ViewBag.SectionVars = vars;
             ViewBag.IsPartial = isPartial;
 
             if (isPartial)
@@ -43,8 +43,8 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ReceiptFooter(PdfSectionVariables vars, int storeId = 0, bool isPartial = false)
         {
             var model = await PreparePdfReceiptSectionModelAsync(storeId);
-            model.Variables = vars;
 
+            ViewBag.SectionVars = vars;
             ViewBag.IsPartial = isPartial;
 
             if (isPartial)

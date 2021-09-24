@@ -24,7 +24,7 @@ namespace Smartstore.Web.Razor
                 {
                     // INFO: we won't rely on ModularFileProvider's ability to find files in the 
                     // theme hierarchy chain, because of possible view path mismatches. Any mismatch
-                    // start the razor compiler, and we don't want that.
+                    // starts the razor compiler, and we don't want that.
                     themeViewLocations.Add($"{descriptor.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension);
                     themeViewLocations.Add($"{descriptor.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension);
                     descriptor = descriptor.BaseTheme;

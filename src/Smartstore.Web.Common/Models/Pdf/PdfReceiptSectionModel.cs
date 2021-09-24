@@ -16,7 +16,5 @@ namespace Smartstore.Web.Models.Pdf
         public ContactDataSettings MerchantContactData { get; set; }
 
         public string MerchantFormattedAddress { get; set; }
-
-        public PdfSectionVariables Variables { get; set; }
     }
 }

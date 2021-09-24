@@ -15,13 +15,19 @@ namespace Smartstore.Web.Razor
     internal class ModuleViewLocationExpander : IViewLocationExpander
     {
         const string ParamKey = "module";
-        
+
+        private readonly IModuleCatalog _moduleCatalog;
+
+        public ModuleViewLocationExpander(IModuleCatalog moduleCatalog)
+        {
+            _moduleCatalog = Guard.NotNull(moduleCatalog, nameof(moduleCatalog));
+        }
+
         public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
         {
             if (context.Values.TryGetValue(ParamKey, out var moduleName))
             {
-                var moduleCatalog = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IModuleCatalog>();
-                var module = moduleCatalog.GetModuleByName(moduleName);
+                var module = _moduleCatalog.GetModuleByName(moduleName);
 
                 if (module != null)
                 {
@@ -46,8 +52,7 @@ namespace Smartstore.Web.Razor
             }
             else if (context.ActionContext.ActionDescriptor is ControllerActionDescriptor actionDescriptor)
             {
-                var moduleCatalog = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IModuleCatalog>();
-                var module = moduleCatalog.GetModuleByAssembly(actionDescriptor.ControllerTypeInfo.Assembly);
+                var module = _moduleCatalog.GetModuleByAssembly(actionDescriptor.ControllerTypeInfo.Assembly);
 
                 if (module != null)
                 {
