@@ -98,6 +98,7 @@ namespace Smartstore.News.Controllers
 
         public async Task<IActionResult> HomePageNews()
         {
+            // TODO: (mh) (core) What is this action for? Forgot to delete?
             if (!_newsSettings.Enabled || !_newsSettings.ShowNewsOnMainPage)
             {
                 return new EmptyResult();
@@ -108,7 +109,7 @@ namespace Smartstore.News.Controllers
             var includeHidden = _services.WorkContext.CurrentCustomer.IsAdmin();
             var cacheKey = string.Format(ModelCacheInvalidator.HOMEPAGE_NEWSMODEL_KEY, languageId, storeId, _newsSettings.MainPageNewsCount, includeHidden);
 
-            var cachedModel = await _cache.GetAsync(cacheKey, async () =>
+            var cachedModel = await Services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
                 var newsItems = await _db.NewsItems()
                     .AsNoTracking()
@@ -118,7 +119,7 @@ namespace Smartstore.News.Controllers
                 
                 Services.DisplayControl.AnnounceRange(newsItems);
 
-                return new HomePageNewsItemsModel
+                return new HomepageNewsItemsModel
                 {
                     NewsItems = await newsItems.SelectAsync(async x =>
                     {
@@ -131,7 +132,7 @@ namespace Smartstore.News.Controllers
             // "Comments" property of "NewsItemModel" object depends on the current customer.
             // Furthermore, we just don't need it for home page news. So let's update reset it.
             // But first we need to clone the cached model (the updated one should not be cached)
-            var model = (HomePageNewsItemsModel)cachedModel.Clone();
+            var model = (HomepageNewsItemsModel)cachedModel.Clone();
             foreach (var newsItemModel in model.NewsItems)
             {
                 newsItemModel.Comments.Comments.Clear();

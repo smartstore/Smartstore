@@ -4,7 +4,7 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.News.Models.Public
 {
-    public partial class HomePageNewsItemsModel : ModelBase, ICloneable
+    public partial class HomepageNewsItemsModel : ModelBase, ICloneable
     {
         public List<PublicNewsItemModel> NewsItems { get; set; } = new();
 

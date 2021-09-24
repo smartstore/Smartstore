@@ -18,18 +18,18 @@ namespace Smartstore.News.Components
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
-        private readonly ICacheManager _cacheManager;
+        private readonly ICacheFactory _cacheFactory;
         private readonly NewsSettings _newsSettings;
 
         public HomepageNewsViewComponent(
             SmartDbContext db,
             ICommonServices services,
-            ICacheManager cacheManager,
+            ICacheFactory cacheFactory,
             NewsSettings newsSettings)
         {
             _db = db;
             _services = services;
-            _cacheManager = cacheManager;
+            _cacheFactory = cacheFactory;
             _newsSettings = newsSettings;
         }
 
@@ -45,14 +45,15 @@ namespace Smartstore.News.Components
             var includeHidden = _services.WorkContext.CurrentCustomer.IsAdmin();
             var cacheKey = string.Format(ModelCacheInvalidator.HOMEPAGE_NEWSMODEL_KEY, languageId, storeId, _newsSettings.MainPageNewsCount, includeHidden);
 
-            var cachedModel = await _cacheManager.GetAsync(cacheKey, async () =>
+            var cachedModel = await _cacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
+                // INFO: (mh) (core) Beware of unserializable models. They cannot be cached in distributed cache stores like Redis.
                 var newsItems = await _db.NewsItems()
                     .ApplyStandardFilter(storeId, languageId)
                     .ToPagedList(0, _newsSettings.MainPageNewsCount)
                     .LoadAsync();
 
-                return new HomePageNewsItemsModel
+                return new HomepageNewsItemsModel
                 {
                     NewsItems = await newsItems.SelectAsync(async x =>
                     {
@@ -65,7 +66,7 @@ namespace Smartstore.News.Components
             // "Comments" property of "NewsItemModel" object depends on the current customer.
             // Furthermore, we just don't need it for home page news. So let's update reset it.
             // But first we need to clone the cached model (the updated one should not be cached)
-            var model = (HomePageNewsItemsModel)cachedModel.Clone();
+            var model = (HomepageNewsItemsModel)cachedModel.Clone();
             foreach (var newsItemModel in model.NewsItems)
             {
                 newsItemModel.Comments.Comments.Clear();
