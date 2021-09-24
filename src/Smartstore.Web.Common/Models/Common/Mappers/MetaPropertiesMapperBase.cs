@@ -15,9 +15,17 @@ namespace Smartstore.Web.Models.Common.Mappers
         where TFrom : EntityModelBase
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+
         protected MetaPropertiesMapperBase(IHttpContextAccessor httpContextAccessor)
         {
+            Guard.NotNull(httpContextAccessor.HttpContext, nameof(httpContextAccessor.HttpContext));
+
             _httpContextAccessor = httpContextAccessor;
+        }
+
+        protected HttpContext HttpContext
+        {
+            get => _httpContextAccessor.HttpContext;
         }
 
         public async Task MapAsync(TFrom from, MetaPropertiesModel to, dynamic parameters = null)
@@ -34,8 +42,8 @@ namespace Smartstore.Web.Models.Common.Mappers
 
         protected void PrepareMetaPropertiesModel(MetaPropertiesModel model, MediaFileInfo fileInfo)
         {
-            var request = _httpContextAccessor.HttpContext?.Request;
-            var services = _httpContextAccessor.HttpContext?.RequestServices;
+            var request = HttpContext.Request;
+            var services = HttpContext.RequestServices;
             var storeContext = services.GetRequiredService<IStoreContext>();
             var urlHelper = services.GetRequiredService<IUrlHelper>();
             var socialSettings = services.GetRequiredService<SocialSettings>();

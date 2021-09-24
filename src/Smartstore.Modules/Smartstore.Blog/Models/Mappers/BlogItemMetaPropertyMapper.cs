@@ -23,14 +23,12 @@ namespace Smartstore.Blog.Models.Mappers
 
     public class BlogPostModelMetaPropertyMapper : MetaPropertiesMapperBase<PublicBlogPostModel>
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUrlHelper _urlHelper;
 
         public BlogPostModelMetaPropertyMapper(IHttpContextAccessor httpContextAccessor, IUrlHelper urlHelper)
             : base(httpContextAccessor)
         {
             _urlHelper = urlHelper;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         protected override MediaFileInfo GetMediaFile(PublicBlogPostModel from)
@@ -40,7 +38,7 @@ namespace Smartstore.Blog.Models.Mappers
 
         protected override Task MapCoreAsync(PublicBlogPostModel source, MetaPropertiesModel model, dynamic parameters = null)
         {
-            model.Url = _urlHelper.RouteUrl("BlogPost", new { source.SeName }, _httpContextAccessor.HttpContext?.Request.Scheme);
+            model.Url = _urlHelper.RouteUrl("BlogPost", new { source.SeName }, HttpContext.Request.Scheme);
             model.Title = source.MetaTitle;
             model.Description = source.MetaDescription;
             model.PublishedTime = source.CreatedOnUTC;

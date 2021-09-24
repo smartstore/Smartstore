@@ -22,14 +22,12 @@ namespace Smartstore.News.Models.Mappers
 
     public class NewsItemMetaPropertyMapper : MetaPropertiesMapperBase<PublicNewsItemModel>
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUrlHelper _urlHelper;
 
         public NewsItemMetaPropertyMapper(IHttpContextAccessor httpContextAccessor, IUrlHelper urlHelper)
             : base(httpContextAccessor)
         {
             _urlHelper = urlHelper;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         protected override MediaFileInfo GetMediaFile(PublicNewsItemModel from)
@@ -39,7 +37,7 @@ namespace Smartstore.News.Models.Mappers
 
         protected override Task MapCoreAsync(PublicNewsItemModel source, MetaPropertiesModel model, dynamic parameters = null)
         {
-            model.Url = _urlHelper.RouteUrl("NewsItem", new { source.SeName }, _httpContextAccessor.HttpContext?.Request.Scheme);
+            model.Url = _urlHelper.RouteUrl("NewsItem", new { source.SeName }, HttpContext.Request.Scheme);
             model.Title = source.MetaTitle;
             model.Description = source.MetaDescription;
             model.PublishedTime = source.CreatedOnUTC;

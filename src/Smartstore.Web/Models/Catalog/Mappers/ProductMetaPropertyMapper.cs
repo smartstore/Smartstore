@@ -22,14 +22,12 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 
     public class ProductMetaPropertyMapper : MetaPropertiesMapperBase<ProductDetailsModel>
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUrlHelper _urlHelper;
 
         public ProductMetaPropertyMapper(IHttpContextAccessor httpContextAccessor, IUrlHelper urlHelper)
             : base(httpContextAccessor)
         {
             _urlHelper = urlHelper;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         protected override MediaFileInfo GetMediaFile(ProductDetailsModel from)
@@ -39,7 +37,7 @@ namespace Smartstore.Web.Models.Catalog.Mappers
 
         protected override Task MapCoreAsync(ProductDetailsModel source, MetaPropertiesModel model, dynamic parameters = null)
         {
-            model.Url = _urlHelper.RouteUrl("Product", new { SeName = source.SeName }, _httpContextAccessor.HttpContext?.Request.Scheme);
+            model.Url = _urlHelper.RouteUrl("Product", new { SeName = source.SeName }, HttpContext.Request.Scheme);
             model.Title = source.Name.Value;
             model.Type = "product";
         

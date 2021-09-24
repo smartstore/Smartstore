@@ -58,7 +58,7 @@ namespace Smartstore.Blog.Models.Mappers
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
             
-            var prepareComments = Convert.ToBoolean(parameters?.PrepareComments as bool?);
+            var prepareComments = parameters?.PrepareComments == true;
 
             MiniMapper.Map(from, to);
 
