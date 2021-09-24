@@ -148,28 +148,27 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Country.Delete)]
-        public async Task<IActionResult> Delete(CountryModel model)
+        public async Task<IActionResult> Delete(int id)
         {
-            // TODO: (mh) (core) Why pass model??!! Id is sufficient!
-            var country = await _db.Countries.FindByIdAsync(model.Id);
+            var country = await _db.Countries.FindByIdAsync(id);
             if (country == null)
             {
                 return RedirectToAction("List");
             }
 
             // Don't delete associated countries.
-            if (!await _db.Addresses.Where(x => x.CountryId == model.Id).AnyAsync())
+            if (!await _db.Addresses.Where(x => x.CountryId == id).AnyAsync())
             {
                 _db.Countries.Remove(country);
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Configuration.Countries.Deleted"));
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
             else
             {
                 NotifyError(T("Admin.Configuration.Countries.CannotDeleteDueToAssociatedAddresses"));
-                return RedirectToAction("Edit", new { id = model.Id });
+                return RedirectToAction(nameof(Edit), new { id = id });
             }
         }
 

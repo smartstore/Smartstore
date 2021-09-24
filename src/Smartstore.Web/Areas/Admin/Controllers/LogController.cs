@@ -135,9 +135,9 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.System.Log.Delete)]
-        public async Task<IActionResult> Delete(LogModel model)
+        public async Task<IActionResult> Delete(int id)
         {
-            var log = await _db.Logs.FindByIdAsync(model.Id);
+            var log = await _db.Logs.FindByIdAsync(id);
             if (log == null)
             {
                 return RedirectToAction(nameof(List));

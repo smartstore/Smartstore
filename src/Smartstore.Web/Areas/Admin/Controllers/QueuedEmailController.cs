@@ -99,11 +99,11 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
-        [Permission(Permissions.System.Message.Delete)]
         [HttpPost]
-        public async Task<IActionResult> Delete(QueuedEmailModel model)
+        [Permission(Permissions.System.Message.Delete)]
+        public async Task<IActionResult> Delete(int id)
         {
-            var email = await _db.QueuedEmails.FindByIdAsync(model.Id);
+            var email = await _db.QueuedEmails.FindByIdAsync(id);
             if (email == null)
             {
                 return NotFound();
@@ -113,7 +113,7 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             NotifySuccess(T("Admin.System.QueuedEmails.Deleted"));
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]

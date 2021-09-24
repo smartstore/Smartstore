@@ -296,11 +296,11 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [Permission(Permissions.Cms.Topic.Delete)]
-        public async Task<IActionResult> Delete(TopicModel model)
+        public async Task<IActionResult> Delete(int id)
         {
-            var topic = await _db.Topics.FindByIdAsync(model.Id);
+            var topic = await _db.Topics.FindByIdAsync(id);
             if (topic == null)
             {
                 return RedirectToAction(nameof(List));
