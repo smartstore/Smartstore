@@ -138,6 +138,7 @@ namespace Smartstore.Forums.Services
         }
 
         // TODO: (mg) (core) what about to make a single method here that returns a Flags Enum with all moderation permits?
+        // RE: Very good idea!
         public virtual bool IsAllowedToCreateTopic(Customer customer = null)
         {
             customer ??= _services.WorkContext.CurrentCustomer;
