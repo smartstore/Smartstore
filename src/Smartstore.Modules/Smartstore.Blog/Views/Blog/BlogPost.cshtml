@@ -1,4 +1,6 @@
-﻿@using Microsoft.AspNetCore.Http.Extensions
+﻿@addTagHelper Smartstore.Web.TagHelpers.Public.*, Smartstore.Web.Common
+
+@using Microsoft.AspNetCore.Http.Extensions
 
 @model PublicBlogPostModel
 
@@ -40,7 +42,7 @@
             <img sm-file="Model.Image.File" />
         </figure>
     </div>
-    
+
     <div class="blogpost-date text-muted">
         @Model.CreatedOn.ToNativeString("D")
     </div>

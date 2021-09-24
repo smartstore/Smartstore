@@ -1,6 +1,8 @@
 ﻿@model NewsItemListModel
 
 @{
+    Layout = "_Layout";
+
     Assets.AppendTitleParts(Model.MetaTitle);
     Assets.AppendMetaDescriptionParts(Model.MetaDescription);
     Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
@@ -13,7 +15,7 @@
 }
 
 <div class="page news-list-page">
-    
+
     @await Component.InvokeAsync("NewsSummaryHeading", new { model = Model })
 
     <div class="page-body">

@@ -1,6 +1,8 @@
 ﻿@model BlogPostListModel
 
 @{
+    Layout = "_Layout";
+
     Assets.AppendTitleParts(Model.MetaTitle);
     Assets.AppendMetaDescriptionParts(Model.MetaDescription);
     Assets.AppendMetaKeywordsParts(Model.MetaKeywords);

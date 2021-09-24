@@ -1,8 +1,12 @@
-﻿@using Microsoft.AspNetCore.Http.Extensions
+﻿@addTagHelper Smartstore.Web.TagHelpers.Public.*, Smartstore.Web.Common
+
+@using Microsoft.AspNetCore.Http.Extensions
 
 @model PublicNewsItemModel
 
 @{
+    Layout = "_Layout";
+
     Assets.AppendTitleParts(Model.MetaTitle.HasValue() ? Model.MetaTitle : Model.Title);
     Assets.AppendMetaDescriptionParts(Model.MetaDescription);
     Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
@@ -98,7 +102,7 @@
                 <partial name="Comment.List" model="Model.Comments" />
             </div>
         </div>
-        
+
         <zone name="newsitem_page_after_comments" />
     </div>
 </article>
