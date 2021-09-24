@@ -7,7 +7,6 @@ using Smartstore.Core.Widgets;
 
 namespace Smartstore.News.Filters
 {
-    // TODO: (mh) (core) Order somehow
     public class NewsMenuItemFilter : IResultFilter
     {
         private readonly NewsSettings _newsSettings;

@@ -4,8 +4,6 @@ using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Data;
-using Smartstore.News;
-using Smartstore.News.Domain;
 using Smartstore.News.Hooks;
 using Smartstore.News.Models.Mappers;
 using Smartstore.News.Models.Public;

@@ -741,22 +741,6 @@ namespace Smartstore.Web.Controllers
             return Content(msg);
         }
 
-        [Route("messagemodel")]
-        public async Task<IActionResult> Messages()
-        {
-            var model = new TestModelMH();
-
-            model.CampaingCount = await _db.Campaigns.AsNoTracking().CountAsync();
-
-            var campaignService = Services.Resolve<ICampaignService>();
-            var campaign = await _db.Campaigns.AsNoTracking().FirstOrDefaultAsync();
-
-            // TODO: (mh) (core) Test again when LiquidTemplateEngine is available.
-            //var test = await campaignService.PreviewAsync(campaign);
-
-            return View(model);
-        }
-
         [Route("env")]
         public IActionResult Env()
         {
@@ -836,44 +820,6 @@ namespace Smartstore.Web.Controllers
 
             return query.ToList();
         }
-
-        //public async Task<IActionResult> MhTest()
-        //{
-        //    //// QuantityUnit
-        //    //// Get QuantityUnit by Id
-        //    //var qu = _db.QuantityUnits.ApplyQuantityUnitFilter(1).FirstOrDefault();
-
-        //    //// Save hook > TODO: BROKEN > Why?
-        //    //qu.IsDefault = true;
-        //    //_db.SaveChanges();
-        //    //// TODO Test: Assert.OnlyOne has Default = true, 
-
-        //    //// Delete hook
-        //    //var qu2 = _db.QuantityUnits.ApplyQuantityUnitFilter(22).FirstOrDefault();
-
-        //    //if (qu2 != null)
-        //    //{
-        //    //    _db.QuantityUnits.Remove(qu2);
-        //    //    await _db.SaveChangesAsync();
-        //    //}
-
-        //    //// StateProvince
-        //    //var sp = _db.StateProvinces
-        //    //    .ApplyCountryFilter(1)
-        //    //    .ApplyAbbreviationFilter("BE")
-        //    //    .FirstOrDefault();
-        //    //// TODO Test: Assert name of entity is Berlin
-
-        //    //// DeliveryTime
-        //    ////var dt = _db.DeliveryTimes.GetDeliveryTimeFilter(1);
-
-        //    //var menuItems = await _db.MenuItems
-        //    //    .AsNoTracking()
-        //    //    .ApplyMenuFilter(6, "")
-        //    //    .ToListAsync();
-
-        //    return Content("");
-        //}
 
         #endregion
 
