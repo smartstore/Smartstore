@@ -10,8 +10,6 @@ namespace Smartstore.Pdf.WkHtml
         Task BuildCommandAsync(PdfConversionSettings settings, StringBuilder builder);
     }
 
-    // TODO: (core) ToolPath
-    // TODO: (core) TempFilesPath
     public partial class WkHtmlCommandBuilder : IWkHtmlCommandBuilder
     {
         public virtual async Task BuildCommandAsync(PdfConversionSettings settings, StringBuilder builder)
@@ -50,10 +48,11 @@ namespace Smartstore.Pdf.WkHtml
 
             // Main page
             await ProcessInputAsync("page", settings.Page);
-            if (settings.PageOptions != null)
-            {
-                BuildPageCommandFragment(settings.PageOptions, builder);
-            }
+            var content = settings.Page.Kind == PdfInputKind.Html
+                ? "-" // we gonna pump in via StdInput
+                : settings.Page.Content;
+            builder.Append($" \"{content}\"");
+            BuildPageCommandFragment(settings.PageOptions, builder);
 
             // INFO: Output file comes later in converter
         }
@@ -68,7 +67,7 @@ namespace Smartstore.Pdf.WkHtml
                 if (input.Content.HasValue())
                 {
                     TryAppendOption($"--{flag}-html", input.Content, builder);
-                    BuildSectionCommandFragment(options, "header", builder);
+                    BuildSectionCommandFragment(options, flag, builder);
                 }
             }
         }
@@ -79,7 +78,7 @@ namespace Smartstore.Pdf.WkHtml
             {
                 return html.ProcessAsync(flag);
             }
-            else if (input is WkUrlInput)
+            else if (input is WkFileInput)
             {
                 // No processable content
                 return Task.CompletedTask;

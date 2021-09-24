@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Smartstore.Pdf.WkHtml
 {
     public class WkHtmlToPdfOptions
     {
-        public WkHtmlToPdfOptions()
-        {
-            // TODO: (core) Determine PdfToolPath, PdfToolName & TempFilesPath for current OS and bitness
-        }
-
         /// <summary>
         /// Get or set maximum execution time for PDF generation process (Default: null --> no timeout) 
         /// </summary>

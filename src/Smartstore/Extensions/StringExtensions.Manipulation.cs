@@ -362,7 +362,14 @@ namespace Smartstore
                 right = string.Format(CultureInfo.InvariantCulture, format, value);
             }
 
-            return left + right;
+            if (right.StartsWith(left))
+            {
+                return right;
+            }
+            else
+            {
+                return left + right;
+            }
         }
 
         /// <summary>

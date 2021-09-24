@@ -85,9 +85,9 @@ namespace Smartstore.Pdf.WkHtml
                 _html = WrapPartialHtml(_html);
             }
 
-            _tempFilePath = Path.Combine(_options.TempFilesPath, "pdfgen-" + Path.GetRandomFileName() + ".html");
+            _tempFilePath = WkHtmlToPdfConverter.GetTempFileName(_options, ".html");
             await File.WriteAllBytesAsync(_tempFilePath, Encoding.UTF8.GetBytes(_html));
-            Kind = PdfInputKind.Url;
+            Kind = PdfInputKind.File;
         }
 
         private static string WrapPartialHtml(string html)

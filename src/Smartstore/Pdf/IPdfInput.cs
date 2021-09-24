@@ -8,8 +8,15 @@ namespace Smartstore.Pdf
 {
     public enum PdfInputKind
     {
+        /// <summary>
+        /// Input is HTML content
+        /// </summary>
         Html,
-        Url
+
+        /// <summary>
+        /// Input is an absolute or relative URL, or a physical file path.
+        /// </summary>
+        File
     }
 
     /// <summary>
@@ -23,7 +30,7 @@ namespace Smartstore.Pdf
         PdfInputKind Kind { get; }
 
         /// <summary>
-        /// The content. Either Html or Url according to <see cref="Kind"/>.
+        /// The content. Either HTML or path according to <see cref="Kind"/>.
         /// </summary>
         string Content { get; }
 

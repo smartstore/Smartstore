@@ -1,21 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Smartstore.Engine;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 
 namespace Smartstore.Pdf.WkHtml
 {
+    // TODO: (core) Deploy native libs for Linux and MacOS
     // TODO: (core) Implement BatchMode
     public class WkHtmlToPdfConverter : IPdfConverter
     {
-        private readonly static object _lock = new();
+        private static string _tempPath;
+        private static string _toolExePath;
         private readonly static string[] _ignoreErrLines = new string[] 
         { 
             "Exit with code 1 due to network error: ContentNotFoundError", 
@@ -29,20 +33,23 @@ namespace Smartstore.Pdf.WkHtml
         private Process _process;
 
         private readonly IWkHtmlCommandBuilder _commandBuilder;
-        private readonly IApplicationContext _appContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly WkHtmlToPdfOptions _options;
+        private readonly AsyncRunner _asyncRunner;
 
         public WkHtmlToPdfConverter(
             IWkHtmlCommandBuilder commandBuilder, 
-            IApplicationContext appContext,
             IHttpContextAccessor httpContextAccessor,
-            IOptions<WkHtmlToPdfOptions> options)
+            IOptions<WkHtmlToPdfOptions> options,
+            AsyncRunner asyncRunner,
+            ILogger<WkHtmlToPdfConverter> logger)
         {
             _commandBuilder = commandBuilder;
-            _appContext = appContext;
             _httpContextAccessor = httpContextAccessor;
             _options = options.Value;
+            _asyncRunner = asyncRunner;
+
+            Logger = logger;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -55,10 +62,10 @@ namespace Smartstore.Pdf.WkHtml
         /// </remarks>
         public event EventHandler<DataReceivedEventArgs> LogReceived;
 
-        public virtual IPdfInput CreateUrlInput(string url)
+        public virtual IPdfInput CreateFileInput(string urlOrPath)
         {
-            Guard.NotEmpty(url, nameof(url));
-            return new WkUrlInput(url, _options, _httpContextAccessor.HttpContext);
+            Guard.NotEmpty(urlOrPath, nameof(urlOrPath));
+            return new WkFileInput(urlOrPath, _options, _httpContextAccessor.HttpContext);
         }
 
         public virtual IPdfInput CreateHtmlInput(string html)
@@ -67,28 +74,24 @@ namespace Smartstore.Pdf.WkHtml
             return new WkHtmlInput(html, _options, _httpContextAccessor.HttpContext);
         }
 
-        public Task ConvertAsync(PdfConversionSettings settings, Stream output)
+        public Task<Stream> GeneratePdfAsync(PdfConversionSettings settings, CancellationToken cancelToken = default)
         {
             Guard.NotNull(settings, nameof(settings));
-            Guard.NotNull(output, nameof(output));
 
             if (settings.Page == null)
             {
                 throw new ArgumentException($"The '{nameof(settings.Page)}' property of the '{nameof(settings)}' argument cannot be null.", nameof(settings));
             }
 
-            return GeneratePdfAsync(settings, output);
+            return GeneratePdfCoreAsync(settings, cancelToken);
         }
 
-        protected virtual async Task GeneratePdfAsync(PdfConversionSettings settings, Stream output)
+        protected virtual async Task<Stream> GeneratePdfCoreAsync(PdfConversionSettings settings, CancellationToken cancelToken = default)
         {
-            // Ensure that native library is available
-            EnsureWkHtmlLibs();
-
             // Check that process is not already running
             CheckProcess();
             
-            string outputPdfFileName = null;
+            string outputFileName = null;
 
             try
             {
@@ -97,17 +100,26 @@ namespace Smartstore.Pdf.WkHtml
                 await _commandBuilder.BuildCommandAsync(settings, sb);
 
                 // Create output PDF temp file name
-                outputPdfFileName = Path.Combine(GetTempPath(), "pdfgen-" + Path.GetRandomFileName() + ".pdf");
-                sb.AppendFormat(" \"{0}\" ", outputPdfFileName);
+                outputFileName = GetTempFileName(_options, ".pdf");
+                sb.AppendFormat(" \"{0}\" ", outputFileName);
 
                 var arguments = sb.ToString();
 
-                // Invoke process
-                await InvokeProcessAsync(arguments, settings.Page, output);
+                // Run process
+                var compositeCancelToken = CreateCancellationToken(cancelToken);
+                await RunProcessAsync(arguments, settings.Page, compositeCancelToken);
 
-                // Copy wkhtml output from temp file to given output stream
-                using var fileStream = new FileStream(outputPdfFileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                await fileStream.CopyToAsync(output);
+                compositeCancelToken.ThrowIfCancellationRequested();
+
+                // Return wkhtml output file as temp file stream (auto-deletes on close)
+                if (File.Exists(outputFileName))
+                {
+                    return new FileStream(outputFileName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.DeleteOnClose);
+                }
+                else
+                {
+                    throw new FileNotFoundException($"PDF converter cannot find output file '{outputFileName}'.");
+                }
             }
             catch (Exception ex)
             {
@@ -120,11 +132,11 @@ namespace Smartstore.Pdf.WkHtml
             finally
             {
                 // Delete output temp file
-                if (outputPdfFileName.HasValue() && File.Exists(outputPdfFileName))
+                if (outputFileName.HasValue() && File.Exists(outputFileName))
                 {
                     try
                     {
-                        File.Delete(outputPdfFileName);
+                        File.Delete(outputFileName);
                     }
                     catch
                     {
@@ -141,7 +153,69 @@ namespace Smartstore.Pdf.WkHtml
 
         #region WkHtml utilities
 
-        private async Task InvokeProcessAsync(string arguments, IPdfInput input, Stream output)
+        internal static string GetTempFileName(WkHtmlToPdfOptions options, string extension)
+        {
+            return Path.Combine(GetTempPath(options), "pdfgen-" + Path.GetRandomFileName() + extension.EmptyNull());
+        }
+
+        internal static string GetTempPath(WkHtmlToPdfOptions options)
+        {
+            LazyInitializer.EnsureInitialized(ref _tempPath, () =>
+            {
+                if (options.TempFilesPath.HasValue() && !Directory.Exists(options.TempFilesPath))
+                {
+                    Directory.CreateDirectory(options.TempFilesPath);
+                }
+
+                return options.TempFilesPath ?? Path.GetTempPath();
+            });
+
+            return _tempPath;
+        }
+
+        private static string GetToolExePath(WkHtmlToPdfOptions options)
+        {
+            LazyInitializer.EnsureInitialized(ref _toolExePath, () =>
+            {
+                if (options.PdfToolPath.IsEmpty())
+                {
+                    throw new ArgumentException($"{nameof(options.PdfToolPath)} property is not initialized with path to wkhtmltopdf binaries.");
+                }
+
+                if (options.PdfToolName.IsEmpty())
+                {
+                    throw new ArgumentException($"{nameof(options.PdfToolName)} property is not initialized with name to wkhtmltopdf binary.");
+                }
+
+                var path = Path.Combine(options.PdfToolPath, options.PdfToolName);
+
+                if (!File.Exists(path))
+                {
+                    var gzPath = path + ".gz";
+                    if (File.Exists(gzPath))
+                    {
+                        // Archive exists, but was not uncompressed yet.
+                        using (var archive = File.OpenRead(gzPath))
+                        using (var input = new GZipStream(archive, CompressionMode.Decompress, false))
+                        using (var output = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+                        {
+                            input.CopyTo(output);
+                        }
+                    }
+                }
+
+                if (!File.Exists(path))
+                {
+                    throw new FileNotFoundException("wkhtmltopdf executable does not exist. Attempted path: " + path);
+                }
+
+                return path;
+            });
+
+            return _toolExePath;
+        }
+
+        private async Task RunProcessAsync(string arguments, IPdfInput input, CancellationToken cancelToken)
         {
             var lastErrorLine = string.Empty;
             DataReceivedEventHandler onDataReceived = ((o, e) =>
@@ -150,7 +224,7 @@ namespace Smartstore.Pdf.WkHtml
                 if (e.Data.HasValue()) 
                 {
                     lastErrorLine = e.Data;
-                    Logger.Debug("WkHtml data received: {0}.", e.Data);
+                    Logger.Error("WkHtml error: {0}.", e.Data);
                 }
                 LogReceived?.Invoke(this, e);
             });
@@ -159,14 +233,15 @@ namespace Smartstore.Pdf.WkHtml
             {
                 _process = Process.Start(new ProcessStartInfo
                 {
-                    FileName = GetToolExePath(),
+                    FileName = GetToolExePath(_options),
                     WorkingDirectory = _options.PdfToolPath,
                     Arguments = arguments,
                     WindowStyle = ProcessWindowStyle.Hidden,
                     CreateNoWindow = true,
                     UseShellExecute = false,
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
+                    StandardInputEncoding = Encoding.UTF8,
+                    RedirectStandardInput = input.Kind == PdfInputKind.Html,
+                    RedirectStandardOutput = false,
                     RedirectStandardError = true
                 });
 
@@ -188,29 +263,12 @@ namespace Smartstore.Pdf.WkHtml
                     sIn.WriteLine(input.Content);
                 }
 
-                await ReadStdOutToStreamAsync(_process, output);
-                await WaitForExitAsync(_options.ExecutionTimeout);
+                await _process.WaitForExitAsync(cancelToken);
             }
             finally
             {
                 EnsureProcessStopped();
             }
-        }
-
-        private string GetTempPath()
-        {
-            // TODO: (core) Make GetTempPath() globally available
-            if (_options.TempFilesPath.HasValue() && !Directory.Exists(_options.TempFilesPath))
-            {
-                Directory.CreateDirectory(_options.TempFilesPath);
-            }
-                
-            return _options.TempFilesPath ?? Path.GetTempPath();
-        }
-
-        private void EnsureWkHtmlLibs()
-        {
-            // TODO: (core) Implement EnsureWkHtmlLibs()
         }
 
         private void CheckProcess()
@@ -221,43 +279,16 @@ namespace Smartstore.Pdf.WkHtml
             }
         }
 
-        private string GetToolExePath()
+        private CancellationToken CreateCancellationToken(CancellationToken userCancelToken = default)
         {
-            if (_options.PdfToolPath.IsEmpty())
+            var result = _asyncRunner.CreateCompositeCancellationToken(userCancelToken);
+            if (_options.ExecutionTimeout.HasValue)
             {
-                throw new ArgumentException($"{nameof(_options.PdfToolPath)} property is not initialized with path to wkhtmltopdf binaries.");
+                var cts = new CancellationTokenSource(_options.ExecutionTimeout.Value);
+                result = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, result).Token;
             }
-
-            var path = Path.Combine(_options.PdfToolPath, _options.PdfToolName);
-            if (!File.Exists(path))
-            {
-                throw new FileNotFoundException("wkhtmltopdf executable does not exist. Attempted path: " + path);
-            }
-
-            return path;
-
-        }
-
-        private static Task ReadStdOutToStreamAsync(Process proc, Stream output)
-        {
-            return proc.StandardOutput.BaseStream.CopyToAsync(output);
-        }
-
-        private async Task WaitForExitAsync(TimeSpan? timeout)
-        {
-            if (timeout.HasValue)
-            {
-                if (!_process.WaitForExit((int)timeout.Value.TotalMilliseconds))
-                {
-                    EnsureProcessStopped();
-                    throw new WkHtmlToPdfException(-2, $"WkHtmlToPdf process exceeded execution timeout ({timeout}) and was aborted");
-                }
-            }
-            else
-            {
-                await _process.WaitForExitAsync();
-            }
-
+            
+            return result;
         }
 
         private void EnsureProcessStopped()

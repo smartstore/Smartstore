@@ -33,6 +33,8 @@ namespace Smartstore.Web.Controllers
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly IProviderManager _providerManager;
+        private readonly Lazy<IUrlHelper> _urlHelper;
+        private readonly IPdfConverter _pdfConverter;
         private readonly PdfSettings _pdfSettings;
         
         public OrderController(
@@ -44,6 +46,8 @@ namespace Smartstore.Web.Controllers
             IDateTimeHelper dateTimeHelper, 
             IProviderManager providerManager,
             ProductUrlHelper productUrlHelper,
+            Lazy<IUrlHelper> urlHelper,
+            IPdfConverter pdfConverter,
             PdfSettings pdfSettings)
         {
             _db = db;
@@ -54,6 +58,8 @@ namespace Smartstore.Web.Controllers
             _dateTimeHelper = dateTimeHelper;
             _providerManager = providerManager;
             _productUrlHelper = productUrlHelper;
+            _urlHelper = urlHelper;
+            _pdfConverter = pdfConverter;
             _pdfSettings = pdfSettings;
         }
 
@@ -94,7 +100,7 @@ namespace Smartstore.Web.Controllers
             var model = await _orderHelper.PrepareOrderDetailsModelAsync(order);
             var fileName = T("Order.PdfInvoiceFileName", order.Id);
 
-            return PrintCore(new List<OrderDetailsModel> { model }, pdf, fileName);
+            return await PrintCore(new List<OrderDetailsModel> { model }, pdf, fileName);
         }
 
         [AuthorizeAdmin]
@@ -149,15 +155,14 @@ namespace Smartstore.Web.Controllers
                 .SelectAsync(async x => await _orderHelper.PrepareOrderDetailsModelAsync(x))
                 .AsyncToList();
 
-            return PrintCore(listModel, pdf, "orders.pdf");
+            return await PrintCore(listModel, pdf, "orders.pdf");
         }
 
-        private ActionResult PrintCore(List<OrderDetailsModel> model, bool pdf, string pdfFileName)
+        private async Task<IActionResult> PrintCore(List<OrderDetailsModel> model, bool pdf, string pdfFileName)
         {
             ViewBag.PdfMode = pdf;
             var viewName = "Details.Print";
 
-            // TODO: (mh) (core) Finish PDF printing when PdfResult is available.
             if (pdf)
             {
                 // TODO: (mc) this is bad for multi-document processing, where orders can originate from different stores.
@@ -167,17 +172,19 @@ namespace Smartstore.Web.Controllers
                     ["storeId"] = storeId,
                     ["lid"] = Services.WorkContext.WorkingLanguage.Id
                 };
-                
-                var settings = new PdfConversionSettings
+                var pdfSettings = Services.SettingFactory.LoadSettings<PdfSettings>(storeId);
+
+                var conversionSettings = new PdfConversionSettings
                 {
-                    Size = _pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
+                    Size = pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
                     Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
-                    //Page = new PdfViewContent(viewName, model, this.ControllerContext),
-                    //Header = new PdfRouteContent("PdfReceiptHeader", "Common", routeValues, ControllerContext),
-                    //Footer = new PdfRouteContent("PdfReceiptFooter", "Common", routeValues, ControllerContext)
+                    Header = _pdfConverter.CreateFileInput(_urlHelper.Value.Action("ReceiptHeader", "Pdf", routeValues)),
+                    Footer = _pdfConverter.CreateFileInput(_urlHelper.Value.Action("ReceiptFooter", "Pdf", routeValues)),
+                    Page = _pdfConverter.CreateHtmlInput(await this.InvokeViewAsync(viewName, model, false))
                 };
 
-                //return new PdfResult(_pdfConverter, settings) { FileName = pdfFileName };
+                var output = await _pdfConverter.GeneratePdfAsync(conversionSettings);
+                return File(output, "application/pdf", pdfFileName);
             }
 
             return View(viewName, model);

@@ -6,6 +6,7 @@ using Autofac;
 using FluentMigrator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Bootstrapping;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
@@ -37,6 +38,7 @@ namespace Smartstore.Core.Bootstrapping
 
             services.AddDbQuerySettings();
             services.AddDbMigrator(appContext);
+            services.AddWkHtmlToPdf();
 
             // Application DbContext as pooled factory
             services.AddPooledDbContextFactory<SmartDbContext>((c, builder) =>
@@ -72,16 +74,6 @@ namespace Smartstore.Core.Bootstrapping
             }, appContext.AppConfiguration.DbContextPoolSize);
 
             services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<SmartDbContext>>().CreateDbContext());
-        }
-
-        private static bool IsDbModelCandidate(Type type)
-        {
-            if (typeof(BaseEntity).IsAssignableFrom(type) || typeof(IMigration).IsAssignableFrom(type))
-            {
-                return !type.IsAbstract && !type.IsInterface;
-            }
-
-            return false;
         }
 
         internal static void RegisterTypeConverters()

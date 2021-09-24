@@ -1,0 +1,34 @@
+﻿@using Smartstore.Web.Models.Pdf
+
+@model PdfReceiptSectionModel
+
+@{
+	Layout = ViewBag.IsPartial == true ? "" : "_Print";
+
+	var imageUrl = await Url.MediaAsync(Model.LogoId, 0, null, false);
+}
+
+<header>
+    <zone name="invoice_header_before"></zone>
+
+    <table style="height: 100px;">
+        <tr>
+            <td style="width: 50%; text-align: left; vertical-align: middle">
+                @if (imageUrl.HasValue())
+                {
+                    <img src="@imageUrl" alt="" style="max-height: 100px" />
+                }
+                else
+                {
+                    <h2>@Model.StoreName</h2>
+                }
+            </td>
+            <td style="width: 50%; text-align: right;">
+                <zone name="invoice_header_right"></zone>
+            </td>
+        </tr>
+    </table>
+
+    <zone name="invoice_header_after"></zone>
+</header>
+

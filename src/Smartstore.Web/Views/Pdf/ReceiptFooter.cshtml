@@ -1,0 +1,45 @@
+﻿@using Smartstore.Web.Models.Pdf
+
+@model PdfReceiptSectionModel
+
+@{
+    Layout = ViewBag.IsPartial == true ? "" : "_Print";
+
+    var company = Model.MerchantCompanyInfo;
+    var bank = Model.MerchantBankAccount;
+    var contact = Model.MerchantContactData;
+
+}
+
+<footer>
+    <zone name="invoice_footer_before"></zone>
+
+    <table class="text-muted text-smallest">
+        <tr>
+            <td style="width: 33%;">
+                @Html.Raw(Model.MerchantFormattedAddress)
+            </td>
+            <td style="width: 33%;">
+                <div>@T("PDFInvoice.Footer.Url", Model.StoreUrl)</div>
+                <div sm-if="@contact.ContactEmailAddress.HasValue()">@T("PDFInvoice.Footer.Mail", contact.ContactEmailAddress)</div>
+                <div sm-if="contact.CompanyTelephoneNumber.HasValue()">@T("PDFInvoice.Footer.Fon", contact.CompanyTelephoneNumber)</div>
+                <div sm-if="contact.CompanyFaxNumber.HasValue()">@T("PDFInvoice.Footer.Fax", contact.CompanyFaxNumber)</div>
+                <div sm-if="company.TaxNumber.HasValue()">@T("PDFInvoice.TaxNumber") @company.TaxNumber</div>
+                <div sm-if="company.VatId.HasValue()">@T("PDFInvoice.VatId") @company.VatId</div>
+                <div sm-if="company.CommercialRegister.HasValue()">@T("PDFInvoice.CommercialRegisterHeading") @company.CommercialRegister</div>
+            </td>
+            <td style="width: 33%;">
+                <div sm-if="bank.Bankname.HasValue()">@bank.Bankname</div>
+                <div sm-if="bank.Bankcode.HasValue()">@T("PDFInvoice.Footer.Bankcode", bank.Bankcode)</div>
+                <div sm-if="bank.AccountNumber.HasValue()">@T("PDFInvoice.Footer.AccountNumber", bank.AccountNumber)</div>
+                <div sm-if="bank.AccountHolder.HasValue()">@T("PDFInvoice.Footer.AccountHolder", bank.AccountHolder)</div>
+                <div sm-if="bank.Iban.HasValue()">@T("PDFInvoice.Footer.Iban", bank.Iban)</div>
+                <div sm-if="bank.Bic.HasValue()">@T("PDFInvoice.Footer.Bic", bank.Bic)</div>
+            </td>
+        </tr>
+    </table>
+
+    <zone name="invoice_footer_after"></zone>
+
+</footer>
+

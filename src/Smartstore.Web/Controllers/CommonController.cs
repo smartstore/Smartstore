@@ -19,7 +19,6 @@ using Smartstore.Core.Theming;
 using Smartstore.Core.Web;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.Common;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Controllers
 {
@@ -285,8 +284,6 @@ namespace Smartstore.Web.Controllers
         }
 
         // TODO: (mh) (core) Implement GetUnreadPrivateMessages in forum module
-
-        // TODO: (mh) (core) PdfReceiptHeader, PdfReceiptFooter, PreparePdfReceiptHeaderFooterModel
 
         #region CookieManager
 

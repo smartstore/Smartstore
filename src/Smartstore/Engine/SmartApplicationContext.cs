@@ -158,9 +158,9 @@ namespace Smartstore.Engine
 
             if (subDirectory.HasValue())
             {
-                var path = fs.PathCombine(TempDirName, subDirectory);
-                fs.TryCreateDirectory(path);
-                return fs.GetDirectory(TempDirName);
+                var subdir = fs.GetDirectory(fs.PathCombine(TempDirName, subDirectory));
+                subdir.Create();
+                return subdir;
             }
             else
             {

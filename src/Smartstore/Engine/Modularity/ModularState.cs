@@ -118,7 +118,7 @@ namespace Smartstore.Engine.Modularity
 
                 if (isLegacy)
                 {
-                    lines = lines.Concat(new[] { "Smartstore.Blog", "Smartstore.Forum", "Smartstore.News", "Smartstore.Polls" });
+                    lines = lines.Concat(new[] { "Smartstore.Blog", "Smartstore.Forums", "Smartstore.News", "Smartstore.Polls" });
                 }
 
                 _installedModules.AddRange(lines);
