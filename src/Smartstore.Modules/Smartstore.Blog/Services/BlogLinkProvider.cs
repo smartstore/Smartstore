@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Blog.Domain;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using Smartstore.Core.Widgets;
 using Smartstore.Data.Hooks;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Blog.Services
 {

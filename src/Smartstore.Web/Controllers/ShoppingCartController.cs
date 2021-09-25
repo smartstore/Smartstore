@@ -32,6 +32,7 @@ using Smartstore.Utilities.Html;
 using Smartstore.Web.Components;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Cart;
+using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
 {
@@ -465,14 +466,14 @@ namespace Smartstore.Web.Controllers
                     var model = new WishlistModel();
                     await cart.MapAsync(model);
 
-                    cartHtml = await this.InvokeViewAsync("WishlistItems", model);
+                    cartHtml = await InvokePartialViewAsync("WishlistItems", model);
                 }
                 else
                 {
                     var model = await cart.MapAsync();
 
-                    cartHtml = await this.InvokeViewAsync("CartItems", model);
-                    totalsHtml = await this.InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+                    cartHtml = await InvokePartialViewAsync("CartItems", model);
+                    totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
                 }
             }
 
@@ -533,14 +534,14 @@ namespace Smartstore.Web.Controllers
                 var model = new WishlistModel();
                 await cart.MapAsync(model);
 
-                cartHtml = await this.InvokeViewAsync("WishlistItems", model);
+                cartHtml = await InvokePartialViewAsync("WishlistItems", model);
             }
             else
             {
                 var model = await cart.MapAsync();
 
-                cartHtml = await this.InvokeViewAsync("CartItems", model);
-                totalsHtml = await this.InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+                cartHtml = await InvokePartialViewAsync("CartItems", model);
+                totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
             }
 
             // Updated cart.
@@ -846,15 +847,15 @@ namespace Smartstore.Web.Controllers
                     var model = new WishlistModel();
                     await cart.MapAsync(model);
 
-                    cartHtml = await this.InvokeViewAsync("WishlistItems", model);
+                    cartHtml = await InvokePartialViewAsync("WishlistItems", model);
                     message = T("Products.ProductHasBeenAddedToTheCart");
                 }
                 else
                 {
                     var model = await cart.MapAsync();
 
-                    cartHtml = await this.InvokeViewAsync("CartItems", model);
-                    totalsHtml = await this.InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+                    cartHtml = await InvokePartialViewAsync("CartItems", model);
+                    totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
                     message = T("Products.ProductHasBeenAddedToTheWishlist");
                 }
             }
@@ -1291,8 +1292,8 @@ namespace Smartstore.Web.Controllers
 
             customer.GenericAttributes.DiscountCouponCode = null;
 
-            var discountHtml = await this.InvokeViewAsync("_DiscountBox", model.DiscountBox);
-            var totalsHtml = await this.InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+            var discountHtml = await InvokePartialViewAsync("_DiscountBox", model.DiscountBox);
+            var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
             // Updated cart.
             return Json(new
@@ -1393,7 +1394,7 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            var totalsHtml = await this.InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+            var totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
             // Updated cart.
             return Json(new

@@ -378,7 +378,7 @@ namespace Smartstore.Web.Controllers
                         model.SelectedCombination);
 
                     galleryStartIndex = mediaModel.GalleryStartIndex;
-                    galleryHtml = (await this.InvokeViewAsync("Product.Media", mediaModel)).ToString();
+                    galleryHtml = await InvokePartialViewAsync("Product.Media", mediaModel);
                 }
 
                 model.PriceDisplayStyle = _catalogSettings.PriceDisplayStyle;
@@ -391,9 +391,9 @@ namespace Smartstore.Web.Controllers
             {
                 partials = new
                 {
-                    BundleItemPrice = await this.InvokeViewAsync("Product.Offer.Price", model),
-                    BundleItemStock = await this.InvokeViewAsync("Product.StockInfo", model),
-                    BundleItemVariants = await this.InvokeViewAsync("Product.Variants", model.ProductVariantAttributes)
+                    BundleItemPrice = await InvokePartialViewAsync("Product.Offer.Price", model),
+                    BundleItemStock = await InvokePartialViewAsync("Product.StockInfo", model),
+                    BundleItemVariants = await InvokePartialViewAsync("Product.Variants", model.ProductVariantAttributes)
                 };
             }
             else
@@ -403,13 +403,13 @@ namespace Smartstore.Web.Controllers
 
                 partials = new
                 {
-                    Attrs = await this.InvokeViewAsync("Product.Attrs", model),
-                    Price = await this.InvokeViewAsync("Product.Offer.Price", model),
-                    Stock = await this.InvokeViewAsync("Product.StockInfo", model),
-                    Variants = await this.InvokeViewAsync("Product.Variants", model.ProductVariantAttributes),
-                    OfferActions = await this.InvokeViewAsync("Product.Offer.Actions", dataDictAddToCart),
-                    TierPrices = await this.InvokeViewAsync("Product.TierPrices", model.TierPrices),
-                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await this.InvokeViewAsync("Product.Bundle.Price", model) : null
+                    Attrs = await InvokePartialViewAsync("Product.Attrs", model),
+                    Price = await InvokePartialViewAsync("Product.Offer.Price", model),
+                    Stock = await InvokePartialViewAsync("Product.StockInfo", model),
+                    Variants = await InvokePartialViewAsync("Product.Variants", model.ProductVariantAttributes),
+                    OfferActions = await InvokePartialViewAsync("Product.Offer.Actions", dataDictAddToCart),
+                    TierPrices = await InvokePartialViewAsync("Product.TierPrices", model.TierPrices),
+                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await InvokePartialViewAsync("Product.Bundle.Price", model) : null
                 };
             }
 

@@ -547,7 +547,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // TODO: (mh) (core) Test that invoke widget works as intended.
-            return Content(await this.InvokeWidgetAsync(infoWidget));
+            return Content(await InvokeWidgetAsync(infoWidget));
         }
 
         public async Task<IActionResult> Confirm()

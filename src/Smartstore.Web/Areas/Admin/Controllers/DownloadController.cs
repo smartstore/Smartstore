@@ -7,6 +7,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Razor;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -88,7 +89,7 @@ namespace Smartstore.Admin.Controllers
             {
                 success = true,
                 downloadId = download.Id,
-                html = this.InvokeViewAsync(DOWNLOAD_TEMPLATE, download.Id, new { minimalMode, fieldName })
+                html = await InvokePartialViewAsync(DOWNLOAD_TEMPLATE, download.Id, new { minimalMode, fieldName })
             });
         }
 
@@ -194,7 +195,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new
             {
                 success = true,
-                html = await this.InvokeViewAsync(DOWNLOAD_TEMPLATE, null, new { minimalMode, fieldName })
+                html = await InvokePartialViewAsync(DOWNLOAD_TEMPLATE, null, new { minimalMode, fieldName })
             });
         }
     }

@@ -15,6 +15,7 @@ using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -63,6 +64,7 @@ using Smartstore.Utilities.Html;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.Common;
+using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
 {

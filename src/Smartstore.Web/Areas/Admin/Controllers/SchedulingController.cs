@@ -15,6 +15,7 @@ using Smartstore.Threading;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Razor;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -75,8 +76,8 @@ namespace Smartstore.Admin.Controllers
                     lastExecutionInfos.TryGetValue(task.Id, out var lastExecutionInfo);
 
                     var model = await task.MapAsync(lastExecutionInfo);
-                    model.LastRunInfo = await this.InvokeViewAsync("_LastRun", model);
-                    model.NextRunInfo = await this.InvokeViewAsync("_NextRun", model);
+                    model.LastRunInfo = await InvokePartialViewAsync("_LastRun", model);
+                    model.NextRunInfo = await InvokePartialViewAsync("_NextRun", model);
 
                     models.Add(model);
                 }
@@ -130,8 +131,8 @@ namespace Smartstore.Admin.Controllers
             }
 
             var model = await task.MapAsync(lastExecutionInfo);
-            var lastRunHtml = await this.InvokeViewAsync("_LastRun", model);
-            var nextRunHtml = await this.InvokeViewAsync("_NextRun", model);
+            var lastRunHtml = await InvokePartialViewAsync("_LastRun", model);
+            var nextRunHtml = await InvokePartialViewAsync("_NextRun", model);
 
             return Json(new { lastRunHtml, nextRunHtml });
         }

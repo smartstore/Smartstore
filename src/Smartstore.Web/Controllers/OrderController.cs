@@ -20,6 +20,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.Pdf;
 using Smartstore.Web.Models.Orders;
+using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
 {
@@ -180,7 +181,7 @@ namespace Smartstore.Web.Controllers
                     Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
                     Header = _pdfConverter.CreateFileInput(_urlHelper.Value.Action("ReceiptHeader", "Pdf", routeValues)),
                     Footer = _pdfConverter.CreateFileInput(_urlHelper.Value.Action("ReceiptFooter", "Pdf", routeValues)),
-                    Page = _pdfConverter.CreateHtmlInput(await this.InvokeViewAsync(viewName, model, false))
+                    Page = _pdfConverter.CreateHtmlInput(await InvokeViewAsync(viewName, model))
                 };
 
                 var output = await _pdfConverter.GeneratePdfAsync(conversionSettings);

@@ -3,9 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core.Widgets;
 
-namespace Smartstore.Web.Razor
+namespace Smartstore.Core.Widgets
 {
     public class PartialViewWidgetInvoker : WidgetInvoker
     {
@@ -27,18 +26,14 @@ namespace Smartstore.Web.Razor
 
         public override async Task<IHtmlContent> InvokeAsync(ViewContext viewContext)
         {
-            var viewInvoker = viewContext.HttpContext.RequestServices.GetService<IRazorViewInvoker>();
-            var result = await viewInvoker.InvokeViewAsync(_partialName, _module, viewContext.ViewData, true);
-
-            return new HtmlString(result);
+            var viewInvoker = viewContext.HttpContext.RequestServices.GetRequiredService<IViewInvoker>();
+            return await viewInvoker.InvokePartialViewAsync(_partialName, module: _module, viewData: viewContext.ViewData);
         }
 
         public override async Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model)
         {
-            var viewInvoker = viewContext.HttpContext.RequestServices.GetService<IRazorViewInvoker>();
-            var result = await viewInvoker.InvokeViewAsync(_partialName, _module, model, true);
-
-            return new HtmlString(result);
+            var viewInvoker = viewContext.HttpContext.RequestServices.GetRequiredService<IViewInvoker>();
+            return await viewInvoker.InvokePartialViewAsync(_partialName, module: _module, model: model);
         }
     }
 }

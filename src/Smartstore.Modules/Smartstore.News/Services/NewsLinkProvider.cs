@@ -8,7 +8,7 @@ using Smartstore.News.Domain;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Web.Razor;
+using Smartstore.Core.Widgets;
 
 namespace Smartstore.News.Services
 {

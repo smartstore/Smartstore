@@ -8,10 +8,12 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
 using Smartstore.Core;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;
 using Smartstore.Web.Bootstrapping;
+using Smartstore.Web.Razor;
 
 namespace Smartstore.Web
 {
@@ -53,6 +55,7 @@ namespace Smartstore.Web
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
+            builder.RegisterType<DefaultViewInvoker>().As<IViewInvoker>().InstancePerLifetimeScope();
             builder.RegisterType<WebWorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
             builder.RegisterType<SlugRouteTransformer>().InstancePerLifetimeScope();
         }

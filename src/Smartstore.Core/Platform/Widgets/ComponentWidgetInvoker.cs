@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.Core.Widgets
@@ -11,14 +9,21 @@ namespace Smartstore.Core.Widgets
     public class ComponentWidgetInvoker : WidgetInvoker
     {
         private readonly string _componentName;
+        private readonly string _module;
         private readonly Type _componentType;
         private readonly object _arguments;
 
         public ComponentWidgetInvoker(string componentName, object arguments)
+            : this(componentName, null, arguments)
+        {
+        }
+
+        public ComponentWidgetInvoker(string componentName, string module, object arguments)
         {
             Guard.NotEmpty(componentName, nameof(componentName));
 
             _componentName = componentName;
+            _module = module;
             _arguments = arguments;
         }
 
@@ -33,23 +38,12 @@ namespace Smartstore.Core.Widgets
         public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext)
             => InvokeAsync(viewContext, null);
 
-        public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model)
+        public override async Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model)
         {
-            var helper = CreateViewComponentHelper(viewContext);
+            var viewInvoker = viewContext.HttpContext.RequestServices.GetService<IViewInvoker>();
             return _componentType != null
-                ? helper.InvokeAsync(_componentType, model ?? _arguments)
-                : helper.InvokeAsync(_componentName, model ?? _arguments);
-        }
-
-        private static IViewComponentHelper CreateViewComponentHelper(ViewContext viewContext)
-        {
-            var viewComponentHelper = viewContext.HttpContext.RequestServices.GetService<IViewComponentHelper>();
-            if (viewComponentHelper is IViewContextAware viewContextAware)
-            {
-                viewContextAware.Contextualize(viewContext);
-            }
-
-            return viewComponentHelper;
+                ? await viewInvoker.InvokeComponentAsync(_componentType, viewContext.ViewData, model ?? _arguments)
+                : await viewInvoker.InvokeComponentAsync(_componentName, _module, viewContext.ViewData, model ?? _arguments);
         }
     }
 }

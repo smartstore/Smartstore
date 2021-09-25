@@ -34,6 +34,7 @@ using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
 using Smartstore.Web.Rendering;
+using Smartstore.Web.Razor;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -794,8 +795,8 @@ namespace Smartstore.Admin.Controllers
                         .ToList();
                 }
 
-                ViewBag.ConditionsOrButton = await this.InvokeViewAsync("_RuleSetConditionsButton", model, new { ruleOperator = LogicalRuleOperator.Or });
-                ViewBag.ConditionsAndButton = await this.InvokeViewAsync("_RuleSetConditionsButton", model, new { ruleOperator = LogicalRuleOperator.And });
+                ViewBag.ConditionsOrButton = await InvokePartialViewAsync("_RuleSetConditionsButton", model, new { ruleOperator = LogicalRuleOperator.Or });
+                ViewBag.ConditionsAndButton = await InvokePartialViewAsync("_RuleSetConditionsButton", model, new { ruleOperator = LogicalRuleOperator.And });
             }
         }
 

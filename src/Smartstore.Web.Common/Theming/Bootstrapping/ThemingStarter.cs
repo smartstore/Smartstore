@@ -3,7 +3,6 @@ using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Web.Razor;
 using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Bootstrapping
@@ -16,7 +15,6 @@ namespace Smartstore.Web.Bootstrapping
             builder.RegisterType<ThemeVariableRepository>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<DefaultThemeVariableService>().As<IThemeVariableService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultThemeContext>().As<IThemeContext>().InstancePerLifetimeScope();
-            builder.RegisterType<RazorViewInvoker>().As<IRazorViewInvoker>().InstancePerLifetimeScope();
         }
     }
 }
