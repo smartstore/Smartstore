@@ -37,18 +37,18 @@ namespace Smartstore.Forums.Components
             }
 
             var store = _services.StoreContext.CurrentStore;
-            var customer = _services.WorkContext.CurrentCustomer;
+            var currentCustomer = _services.WorkContext.CurrentCustomer;
 
-            var take = isActiveDiscussionsPage
+            var pageSize = isActiveDiscussionsPage
                 ? _forumSettings.ActiveDiscussionsPageTopicCount
                 : _forumSettings.HomePageActiveDiscussionsTopicCount;
 
             var topics = await _db.ForumTopics()
-                .Include(x => x.Customer)
+                .IncludeCustomer()
                 .AsNoTracking()
-                .ApplyActiveFilter(store, customer, forumId)
-                .Take(take)
-                .ToListAsync();
+                .ApplyActiveFilter(store, currentCustomer, forumId)
+                .ToPagedList(0, pageSize)
+                .LoadAsync();
 
             if (!isActiveDiscussionsPage && !topics.Any())
             {

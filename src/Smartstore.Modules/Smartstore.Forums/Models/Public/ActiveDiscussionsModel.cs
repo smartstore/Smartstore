@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Smartstore.Collections;
 
 namespace Smartstore.Forums.Models.Public
 {
@@ -8,6 +9,6 @@ namespace Smartstore.Forums.Models.Public
         public bool ActiveDiscussionsFeedEnabled { get; set; }
         public int PostsPageSize { get; set; }
 
-        public List<PublicForumTopicModel> ForumTopics { get; set; }
+        public IPagedList<PublicForumTopicModel> ForumTopics { get; set; }
     }
 }

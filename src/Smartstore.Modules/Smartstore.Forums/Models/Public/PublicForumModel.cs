@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Smartstore.Collections;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 
@@ -22,7 +23,7 @@ namespace Smartstore.Forums.Models.Public
         public LocalizedValue<string> Description { get; set; }
         public string Slug { get; set; }
 
-        public bool IsAllowedToSubscribe { get; set; }
+        public bool CanSubscribe { get; set; }
         public bool IsSubscribed { get; set; }
         public bool ForumFeedsEnabled { get; set; }
         public int PostsPageSize { get; set; }
@@ -31,6 +32,6 @@ namespace Smartstore.Forums.Models.Public
         public int TopicTotalRecords { get; set; }
         public int TopicPageIndex { get; set; }
 
-        public List<PublicForumTopicModel> ForumTopics { get; set; }
+        public IPagedList<PublicForumTopicModel> ForumTopics { get; set; }
     }
 }

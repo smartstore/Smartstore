@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Forums.Domain;
 
@@ -26,5 +29,27 @@ namespace Smartstore.Forums
 
         public static DbSet<PrivateMessage> PrivateMessages(this SmartDbContext db)
             => db.Set<PrivateMessage>();
+
+        public static async Task<Dictionary<int, ForumPost>> GetForumPostsByIdsAsync(this SmartDbContext db, IEnumerable<int> forumPostIds)
+        {
+            var ids = forumPostIds
+                .Where(x => x != 0)
+                .Distinct()
+                .ToArray();
+
+            if (ids.Any())
+            {
+                return await db.ForumPosts()
+                    .Include(x => x.ForumTopic)
+                    .IncludeCustomer()
+                    .AsNoTracking()
+                    .Where(x => ids.Contains(x.Id))
+                    .ToDictionaryAsync(x => x.Id);
+            }
+            else
+            {
+                return new Dictionary<int, ForumPost>();
+            }
+        }
     }
 }

@@ -24,7 +24,6 @@ namespace Smartstore.Forums.Models.Public
 
         public int CustomerId { get; set; }
         public string CustomerName { get; set; }
-        public bool IsGuest { get; set; }
         public bool HasCustomerProfile { get; set; }
 
         public PublicForumPostModel LastPost { get; set; }
@@ -38,16 +37,26 @@ namespace Smartstore.Forums.Models.Public
     {
         public string Subject { get; set; }
         public string Slug { get; set; }
-        public string WatchTopicText { get; set; }
 
         public int PostsPageIndex { get; set; }
         public int PostsPageSize { get; set; }
         public int PostsTotalRecords { get; set; }
 
-        public bool IsAllowedToEditTopic { get; set; }
-        public bool IsAllowedToDeleteTopic { get; set; }
-        public bool IsAllowedToMoveTopic { get; set; }
-        public bool IsAllowedToSubscribe { get; set; }
+        public ForumModerationPermits ModerationPermits { get; set; }
+        public bool CanEditTopic
+        {
+            get => ModerationPermits.HasFlag(ForumModerationPermits.CanEditTopic);
+        }
+        public bool CanMoveTopic
+        {
+            get => ModerationPermits.HasFlag(ForumModerationPermits.CanMoveTopic);
+        }
+        public bool CanDeleteTopic
+        {
+            get => ModerationPermits.HasFlag(ForumModerationPermits.CanDeleteTopic);
+        }
+
+        public bool CanSubscribe { get; set; }
         public bool IsSubscribed { get; set; }
 
         public List<PublicForumPostModel> ForumPosts { get; set; }

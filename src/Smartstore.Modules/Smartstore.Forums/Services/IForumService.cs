@@ -15,13 +15,6 @@ namespace Smartstore.Forums.Services
         string BuildSlug(ForumTopic topic);
         string StripSubject(ForumTopic topic);
         string FormatPostText(ForumPost post);
-
-        bool IsAllowedToCreateTopic(Customer customer = null);
-        bool IsAllowedToEditTopic(ForumTopic topic, Customer customer = null);
-        bool IsAllowedToMoveTopic(Customer customer = null);
-        bool IsAllowedToDeleteTopic(ForumTopic topic, Customer customer = null);
-        bool IsAllowedToCreatePost(Customer customer = null);
-        bool IsAllowedToEditPost(ForumPost post, Customer customer = null);
-        bool IsAllowedToDeletePost(ForumPost post, Customer customer = null);
+        ForumModerationPermits GetModerationPermits(ForumTopic topic = null, ForumPost post = null, Customer customer = null);
     }
 }

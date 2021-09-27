@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -16,32 +16,13 @@ namespace Smartstore.Forums.Models.Mappers
 {
     public static partial class ForumTopicMappingExtensions
     {
-        public static async Task<List<PublicForumTopicModel>> MapAsync(this IEnumerable<ForumTopic> entities, SmartDbContext db)
+        public static async Task<IPagedList<PublicForumTopicModel>> MapAsync(this IPagedList<ForumTopic> entities, SmartDbContext db)
         {
             Guard.NotNull(entities, nameof(entities));
 
             dynamic parameters = new ExpandoObject();
             parameters.FirstPost = null;
-
-            var lastPostIds = entities
-                .Where(x => x.LastPostId != 0)
-                .Select(x => x.LastPostId)
-                .Distinct()
-                .ToArray();
-
-            if (lastPostIds.Any())
-            {
-                parameters.LastPosts = await db.ForumPosts()
-                    .Include(x => x.ForumTopic)
-                    .Include(x => x.Customer)
-                    .AsNoTracking()
-                    .Where(x => lastPostIds.Contains(x.Id))
-                    .ToDictionaryAsync(x => x.Id);
-            }
-            else
-            {
-                parameters.LastPosts = new Dictionary<int, ForumPost>();
-            }
+            parameters.LastPosts = await db.GetForumPostsByIdsAsync(entities.Select(x => x.LastPostId));
 
             var models = await entities
                 .SelectAsync(async x =>
@@ -52,7 +33,7 @@ namespace Smartstore.Forums.Models.Mappers
                 })
                 .AsyncToList();
 
-            return models;
+            return new PagedList<PublicForumTopicModel>(models, entities.PageIndex, entities.PageSize, entities.TotalCount);
         }
 
         public static async Task<PublicForumTopicModel> MapAsync(this ForumTopic entity,
@@ -114,10 +95,8 @@ namespace Smartstore.Forums.Models.Mappers
             to.Slug = _forumService.BuildSlug(from);
             to.FirstPostId = firstPost?.Id ?? from.FirstPostId;
             to.HasCustomerProfile = _customerSettings.AllowViewingProfiles && !isGuest;
-            to.IsGuest = isGuest;
             to.CustomerName = from.Customer.FormatUserName(true);
-            to.PostsPageSize = _forumSettings.PostsPageSize;
-            
+            to.PostsPageSize = _forumSettings.PostsPageSize;            
             to.Avatar = from.Customer.ToAvatarModel(to.CustomerName);
 
             if (from.LastPostId != 0 && lastPosts.TryGetValue(from.LastPostId, out var lastPost) && lastPost != null)

@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering.Pager;
+using Smartstore.Web.TagHelpers.Shared;
 
-namespace Smartstore.Web.TagHelpers.Shared
+namespace Smartstore.Forums.TagHelpers
 {
     [OutputElementHint("div")]
     [HtmlTargetElement("forum-pagination", TagStructure = TagStructure.WithoutEndTag)]

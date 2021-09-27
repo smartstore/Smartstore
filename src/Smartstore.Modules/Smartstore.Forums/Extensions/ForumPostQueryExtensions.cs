@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -76,6 +77,20 @@ namespace Smartstore.Forums
                 select fp;
 
             return query;
+        }
+
+        /// <summary>
+        /// Includes <see cref="ForumPost.Customer"/>, <see cref="Customer.CustomerRoleMappings"/> and 
+        /// <see cref="CustomerRoleMapping.CustomerRole"/> for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<ForumPost, CustomerRole> IncludeCustomer(this IQueryable<ForumPost> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole);
         }
     }
 }

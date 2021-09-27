@@ -24,7 +24,7 @@ using Smartstore.Web.Filters;
 namespace Smartstore.Forums.Controllers
 {
     // TODO: (mg) (core) add forum activity logs. They have never been used in frontend!?
-    public partial class ForumController : PublicController
+    public partial class BoardsController : PublicController
     {
         private readonly SmartDbContext _db;
         private readonly IForumService _forumService;
@@ -34,7 +34,7 @@ namespace Smartstore.Forums.Controllers
         private readonly ForumSettings _forumSettings;
         private readonly SeoSettings _seoSettings;
 
-        public ForumController(
+        public BoardsController(
             SmartDbContext db,
             IForumService forumService,
             IStoreMappingService storeMappingService,
@@ -52,7 +52,7 @@ namespace Smartstore.Forums.Controllers
             _seoSettings = seoSettings;
         }
 
-        [LocalizedRoute("boards", Name = "Boards")]
+        [Route("boards", Name = "Boards")]
         public async Task<IActionResult> Index()
         {
             if (!_forumSettings.ForumsEnabled)
@@ -131,13 +131,13 @@ namespace Smartstore.Forums.Controllers
                 return NotFound();
             }
 
-            var customer = Services.WorkContext.CurrentCustomer;
+            var currentCustomer = Services.WorkContext.CurrentCustomer;
             var pageSize = _forumSettings.TopicsPageSize > 0 ? _forumSettings.TopicsPageSize : 20;
 
             var topics = await _db.ForumTopics()
-                .Include(x => x.Customer)
+                .IncludeCustomer()
                 .AsNoTracking()
-                .ApplyStandardFilter(customer, forum.Id)
+                .ApplyStandardFilter(currentCustomer, forum.Id)
                 .ToPagedList(page - 1, pageSize)
                 .LoadAsync();
 
@@ -150,16 +150,16 @@ namespace Smartstore.Forums.Controllers
                 TopicPageSize = topics.PageSize,
                 TopicTotalRecords = topics.TotalCount,
                 TopicPageIndex = topics.PageIndex,
-                IsAllowedToSubscribe = customer.IsAllowedToSubscribe(),
+                CanSubscribe = !currentCustomer.IsGuest(),
                 ForumFeedsEnabled = _forumSettings.ForumFeedsEnabled,
                 PostsPageSize = _forumSettings.PostsPageSize
             };
 
-            if (model.IsAllowedToSubscribe)
+            if (model.CanSubscribe)
             {
                 model.IsSubscribed = await _db.ForumSubscriptions()
                     .AsNoTracking()
-                    .ApplyStandardFilter(customer.Id, forum.Id)
+                    .ApplyStandardFilter(currentCustomer.Id, forum.Id)
                     .FirstOrDefaultAsync() != null;
             }
 
@@ -168,7 +168,7 @@ namespace Smartstore.Forums.Controllers
             ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
 
             await CreateForumBreadcrumb(null, forum);
-            await SaveLastForumVisit(customer);
+            await SaveLastForumVisit(currentCustomer);
 
             return View(model);
         }
@@ -190,7 +190,7 @@ namespace Smartstore.Forums.Controllers
             }
             
             var store = Services.StoreContext.CurrentStore;
-            var customer = Services.WorkContext.CurrentCustomer;
+            var currentCustomer = Services.WorkContext.CurrentCustomer;
             var language = Services.WorkContext.WorkingLanguage;
             var protocol = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
             var selfLink = Url.Action("ForumRss", "Forum", null, protocol);
@@ -214,7 +214,7 @@ namespace Smartstore.Forums.Controllers
 
             var topics = await _db.ForumTopics()
                 .AsNoTracking()
-                .ApplyStandardFilter(customer, forum.Id)
+                .ApplyStandardFilter(currentCustomer, forum.Id)
                 .Take(_forumSettings.ForumFeedCount)
                 .ToListAsync();
 
@@ -303,7 +303,7 @@ namespace Smartstore.Forums.Controllers
             }
 
             var store = Services.StoreContext.CurrentStore;
-            var customer = Services.WorkContext.CurrentCustomer;
+            var currentCustomer = Services.WorkContext.CurrentCustomer;
             var language = Services.WorkContext.WorkingLanguage;
             var protocol = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
             var selfLink = Url.Action("ActiveDiscussionsRss", "Forum", null, protocol);
@@ -322,9 +322,8 @@ namespace Smartstore.Forums.Controllers
             string repliesText = T("Forum.Replies");
 
             var topics = await _db.ForumTopics()
-                .Include(x => x.Customer)
                 .AsNoTracking()
-                .ApplyActiveFilter(store, customer, forumId)
+                .ApplyActiveFilter(store, currentCustomer, forumId)
                 .Take(_forumSettings.ActiveDiscussionsFeedCount)
                 .ToListAsync();
 
@@ -344,30 +343,30 @@ namespace Smartstore.Forums.Controllers
 
         [LocalizedRoute("boards/topic/{id:int}/{slug?}", Name = "ForumTopicBySlug")]
         [LocalizedRoute("boards/topic/{id:int}/{slug?}/page/{page:int}", Name = "ForumTopicBySlugPaged")]
-        public async Task<IActionResult> ForumTopic(int id, int page = 1)
+        public async Task<IActionResult> Topic(int id, int page = 1)
         {
             if (!_forumSettings.ForumsEnabled)
             {
                 return NotFound();
             }
 
-            var customer = Services.WorkContext.CurrentCustomer;
+            var currentCustomer = Services.WorkContext.CurrentCustomer;
             var topic = await _db.ForumTopics()
                 .Include(x => x.Forum)
                 .ThenInclude(x => x.ForumGroup)
                 .FindByIdAsync(id);
 
-            if (!await IsTopicVisible(topic, customer))
+            if (!await IsTopicVisible(topic, currentCustomer))
             {
                 return NotFound();
             }
 
             var posts = await _db.ForumPosts()
-                .Include(x => x.Customer)
                 .Include(x => x.ForumTopic)
                 .Include(x => x.ForumPostVotes)
+                .IncludeCustomer()
                 .AsNoTracking()
-                .ApplyStandardFilter(customer, topic.Id)
+                .ApplyStandardFilter(currentCustomer, topic.Id)
                 .ToPagedList(page - 1, _forumSettings.PostsPageSize)
                 .LoadAsync();
 
@@ -380,7 +379,7 @@ namespace Smartstore.Forums.Controllers
             // Update view count.
             try
             {
-                if (!customer.Deleted && customer.Active && !customer.IsSystemAccount)
+                if (!currentCustomer.Deleted && currentCustomer.Active && !currentCustomer.IsSystemAccount)
                 {
                     topic.Views += 1;
                     await _db.SaveChangesAsync();
@@ -399,17 +398,15 @@ namespace Smartstore.Forums.Controllers
                 PostsPageIndex = posts.PageIndex,
                 PostsPageSize = posts.PageSize,
                 PostsTotalRecords = posts.TotalCount,
-                IsAllowedToEditTopic = _forumService.IsAllowedToEditTopic(topic, customer),
-                IsAllowedToDeleteTopic = _forumService.IsAllowedToDeleteTopic(topic, customer),
-                IsAllowedToMoveTopic = _forumService.IsAllowedToMoveTopic(customer),
-                IsAllowedToSubscribe = customer.IsAllowedToSubscribe()
+                ModerationPermits = _forumService.GetModerationPermits(topic, null, currentCustomer),
+                CanSubscribe = !currentCustomer.IsGuest()
             };
 
-            if (model.IsAllowedToSubscribe)
+            if (model.CanSubscribe)
             {
                 model.IsSubscribed = await _db.ForumSubscriptions()
                     .AsNoTracking()
-                    .ApplyStandardFilter(customer.Id, null, topic.Id)
+                    .ApplyStandardFilter(currentCustomer.Id, null, topic.Id)
                     .FirstOrDefaultAsync() != null;
             }
 
@@ -418,7 +415,7 @@ namespace Smartstore.Forums.Controllers
                 .AsyncToList();
 
             await CreateForumBreadcrumb(topic: topic);
-            await SaveLastForumVisit(customer);
+            await SaveLastForumVisit(currentCustomer);
 
             return View(model);
         }
@@ -448,6 +445,16 @@ namespace Smartstore.Forums.Controllers
             }
 
             return true;
+        }
+
+        #endregion
+
+        #region Forum post
+
+        [Route("boards/postcreate/{id:int}/{quote?}", Name = "ForumPostCreate")]
+        public Task<IActionResult> PostCreate(int id, int? quote)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

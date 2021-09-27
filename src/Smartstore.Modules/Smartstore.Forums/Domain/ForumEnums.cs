@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Forums.Domain
+﻿using System;
+
+namespace Smartstore.Forums.Domain
 {
     /// <summary>
     /// Represents a forum topic type.
@@ -103,5 +105,25 @@
         /// Number of posts: High to Low
         /// </summary>
         PostsDesc
+    }
+
+    [Flags]
+    public enum ForumModerationPermits
+    {
+        None = 0,
+        
+        CanCreateTopics = 1 << 0,
+        CanEditTopic = 1 << 1,
+        CanMoveTopic = 1 << 2,
+        CanDeleteTopic = 1 << 3,
+        
+        CanCreatePosts = 1 << 4,
+        CanEditPost = 1 << 5,
+        CanDeletePost = 1 << 6,
+
+        CanCreatePrivateMessages = 1 << 7,
+
+        All = CanCreateTopics | CanEditTopic | CanMoveTopic | CanDeleteTopic |
+            CanCreatePosts | CanEditPost | CanDeletePost | CanCreatePrivateMessages,            
     }
 }

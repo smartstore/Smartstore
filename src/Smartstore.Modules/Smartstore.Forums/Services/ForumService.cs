@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -137,111 +138,52 @@ namespace Smartstore.Forums.Services
             return text;
         }
 
-        // TODO: (mg) (core) what about to make a single method here that returns a Flags Enum with all moderation permits?
-        // RE: Very good idea!
-        public virtual bool IsAllowedToCreateTopic(Customer customer = null)
+        public virtual ForumModerationPermits GetModerationPermits(ForumTopic topic = null, ForumPost post = null, Customer customer = null)
         {
             customer ??= _services.WorkContext.CurrentCustomer;
 
-            return !(customer.IsGuest() && !_forumSettings.AllowGuestsToCreateTopics);
-        }
+            var permits = ForumModerationPermits.None;
 
-        public virtual bool IsAllowedToEditTopic(ForumTopic topic, Customer customer = null)
-        {
-            Guard.NotNull(topic, nameof(topic));
-
-            customer ??= _services.WorkContext.CurrentCustomer;
-
-            return customer.IsForumModerator() || (_forumSettings.AllowCustomersToEditPosts && topic.Published && customer.Id == topic.CustomerId);
-        }
-
-        public virtual bool IsAllowedToMoveTopic(Customer customer = null)
-        {
-            customer ??= _services.WorkContext.CurrentCustomer;
-
-            return customer.IsForumModerator();
-        }
-
-        public virtual bool IsAllowedToDeleteTopic(ForumTopic topic, Customer customer = null)
-        {
-            Guard.NotNull(topic, nameof(topic));
-
-            customer ??= _services.WorkContext.CurrentCustomer;
-
-            return customer.IsForumModerator() || (_forumSettings.AllowCustomersToDeletePosts && topic.Published && customer.Id == topic.CustomerId);
-        }
-
-        public virtual bool IsAllowedToCreatePost(Customer customer = null)
-        {
-            customer ??= _services.WorkContext.CurrentCustomer;
-
-            return !(customer.IsGuest() && !_forumSettings.AllowGuestsToCreatePosts);
-        }
-
-        public virtual bool IsAllowedToEditPost(ForumPost post, Customer customer = null)
-        {
-            Guard.NotNull(post, nameof(post));
-
-            customer ??= _services.WorkContext.CurrentCustomer;
-
-            return customer.IsForumModerator() || (_forumSettings.AllowCustomersToEditPosts && post.Published && customer.Id == post.CustomerId);
-        }
-
-        public virtual bool IsAllowedToDeletePost(ForumPost post, Customer customer = null)
-        {
-            Guard.NotNull(post, nameof(post));
-
-            customer ??= _services.WorkContext.CurrentCustomer;
-
-            return customer.IsForumModerator() || (_forumSettings.AllowCustomersToDeletePosts && post.Published && customer.Id == post.CustomerId);
-        }
-
-        /*
-        public interface IForumAuthor
-        {
-            int CustomerId { get; set; }
-            bool Published { get; set; }
-        }
-
-        public virtual bool IsModerationPermitted(ForumModeration moderation, Customer customer, object entity)
-        {
-            if (customer == null || entity == null)
+            if (customer.IsForumModerator())
             {
-                return false;
+                permits = ForumModerationPermits.All;
             }
-
-            var fs = _forumSettings;
-
-            if (entity is ForumTopic topic)
+            else
             {
-                switch (moderation)
+                var isGuest = customer.IsGuest();
+
+                if (!(isGuest && !_forumSettings.AllowGuestsToCreateTopics))
+                    permits |= ForumModerationPermits.CanCreateTopics;
+
+                if (!(isGuest && !_forumSettings.AllowGuestsToCreatePosts))
+                    permits |= ForumModerationPermits.CanCreatePosts;
+
+                if (_forumSettings.AllowPrivateMessages && !isGuest)
+                    permits |= ForumModerationPermits.CanCreatePrivateMessages;
+
+                if (topic != null && topic.Published && topic.CustomerId == customer.Id)
                 {
-                    case ForumModeration.Create:
-                        return !(customer.IsGuest() && !fs.AllowGuestsToCreateTopics);
+                    if (_forumSettings.AllowCustomersToEditPosts)
+                        permits |= ForumModerationPermits.CanEditTopic;
 
-                    case ForumModeration.Update:
-                    case ForumModeration.Delete:
-                        return customer.IsForumModerator() || (fs.AllowCustomersToEditPosts && topic.Published && customer.Id == topic.CustomerId);
-
-                    case ForumModeration.Move:
-                        return customer.IsForumModerator();
+                    if (_forumSettings.AllowCustomersToDeletePosts)
+                        permits |= ForumModerationPermits.CanDeleteTopic;
                 }
-            }
-            else if (entity is Forum)
-            {
-                switch (moderation)
+
+                if (post != null && post.Published && post.CustomerId == customer.Id)
                 {
-                    case ForumModeration.Create:
-                        return !(customer.IsGuest() && !fs.AllowGuestsToCreateTopics);
+                    if (_forumSettings.AllowCustomersToEditPosts)
+                        permits |= ForumModerationPermits.CanEditPost;
+
+                    if (_forumSettings.AllowCustomersToDeletePosts)
+                        permits |= ForumModerationPermits.CanDeletePost;
                 }
-            }
-            else if (entity is ForumPost post)
-            {
+
+                // ...
             }
 
-            return false;
+            return permits;
         }
-        */
 
         public XmlSitemapProvider PublishXmlSitemap(XmlSitemapBuildContext context)
         {

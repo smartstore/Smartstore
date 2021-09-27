@@ -83,13 +83,11 @@ namespace Smartstore.Forums.Models.Mappers
             to.CustomerName = from.Customer.FormatUserName(stripLongUserNames);
             to.IsGuest = from.Customer.IsGuest();
             to.IsForumModerator = from.Customer.IsForumModerator();
-            to.IsAllowedToEditPost = _forumService.IsAllowedToEditPost(from);
-            to.IsAllowedToDeletePost = _forumService.IsAllowedToDeletePost(from);
+            to.ModerationPermits = _forumService.GetModerationPermits(from.ForumTopic, from, currentCustomer);
             to.ShowCustomersPostCount = _forumSettings.ShowCustomersPostCount;
             to.ForumPostCount = from.Customer.GenericAttributes.Get<int>("ForumPostCount");
             to.ShowCustomersJoinDate = _customerSettings.ShowCustomersJoinDate;
             to.CustomerJoinDate = from.Customer.CreatedOnUtc;
-            to.AllowPrivateMessages = _forumSettings.AllowPrivateMessages;
             to.SignaturesEnabled = _forumSettings.SignaturesEnabled;
             to.FormattedSignature = HtmlUtils.ConvertPlainTextToHtml(from.Customer.GenericAttributes.Signature.HtmlEncode());
             to.HasCustomerProfile = _customerSettings.AllowViewingProfiles && !to.IsGuest;
@@ -106,13 +104,13 @@ namespace Smartstore.Forums.Models.Mappers
             {
                 if (!_forumSettings.AllowGuestsToVoteOnPosts && currentCustomer.IsGuest())
                 {
-                    to.AllowVoting = false;
+                    to.CanVote = false;
                 }
                 else
                 {
                     await _services.DbContext.LoadCollectionAsync(from, x => x.ForumPostVotes);
 
-                    to.AllowVoting = true;
+                    to.CanVote = true;
                     to.Vote = from.ForumPostVotes.FirstOrDefault(x => x.CustomerId == currentCustomer.Id)?.Vote ?? false;
                     to.VoteCount = from.ForumPostVotes.Count;
                 }

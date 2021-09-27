@@ -1,4 +1,5 @@
 ﻿using System;
+using Smartstore.Forums.Domain;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Customers;
 
@@ -15,12 +16,24 @@ namespace Smartstore.Forums.Models.Public
 
         public int CustomerId { get; set; }
         public string CustomerName { get; set; }
-        public bool IsAllowedToEditPost { get; set; }
-        public bool IsAllowedToDeletePost { get; set; }
         public bool IsForumModerator { get; set; }
         public bool IsGuest { get; set; }
         public bool HasCustomerProfile { get; set; }
         public CustomerAvatarModel Avatar { get; set; }
+
+        public ForumModerationPermits ModerationPermits { get; set; }
+        public bool CanEditPost
+        {
+            get => ModerationPermits.HasFlag(ForumModerationPermits.CanEditPost);
+        }
+        public bool CanDeletePost
+        {
+            get => ModerationPermits.HasFlag(ForumModerationPermits.CanDeletePost);
+        }
+        public bool CanCreatePrivateMessages
+        {
+            get => ModerationPermits.HasFlag(ForumModerationPermits.CanCreatePrivateMessages);
+        }
 
         public string PostCreatedOnStr { get; set; }
         public bool Published { get; set; }
@@ -34,12 +47,10 @@ namespace Smartstore.Forums.Models.Public
         public bool ShowCustomersLocation { get; set; }
         public string CustomerLocation { get; set; }
 
-        public bool AllowPrivateMessages { get; set; }
-
         public bool SignaturesEnabled { get; set; }
         public string FormattedSignature { get; set; }
 
-        public bool AllowVoting { get; set; }
+        public bool CanVote { get; set; }
         public bool Vote { get; set; }
         public int VoteCount { get; set; }
     }

@@ -12,31 +12,31 @@
     <div class="title">
         <h1 class="fs-h2">@Model.Subject</h1>
     </div>
-    <div sm-if="Model.IsAllowedToEditTopic || Model.IsAllowedToDeleteTopic || Model.IsAllowedToMoveTopic" class="manage btn-group my-3">
-        @if (Model.IsAllowedToEditTopic)
+    <div sm-if="Model.CanEditTopic || Model.CanDeleteTopic || Model.CanMoveTopic" class="manage btn-group my-3">
+        @if (Model.CanEditTopic)
         {
-            <a asp-action="TopicEdit" asp-controller="Forum" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">
+            <a asp-action="TopicEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">
                 <i class="far fa-edit"></i>
                 <span>@T("Forum.EditTopic")</span>            
             </a>
         }
-        @if (Model.IsAllowedToDeleteTopic)
+        @if (Model.CanDeleteTopic)
 		{
-            <a asp-action="TopicDelete" asp-controller="Forum" asp-route-id="@Model.Id" class="btn btn-secondary confirm" rel="nofollow">
+            <a asp-action="TopicDelete" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-secondary confirm" rel="nofollow">
 				<i class="far fa-trash-alt"></i>
 				<span>@T("Forum.DeleteTopic")</span>
 			</a>
 		}
-        @if (Model.IsAllowedToMoveTopic)
+        @if (Model.CanMoveTopic)
 		{
-            <a asp-action="TopicMove" asp-controller="Forum" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">
+            <a asp-action="TopicMove" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">
 				<i class="fa fa-arrows-alt"></i>
 				<span>@T("Forum.MoveTopic")</span>
 			</a>
 		}
     </div>
 
-    @* TODO: (mg) (core) add pager *@
+    <partial name="_PostListToolbar" />
 
     <div class="posts">
         @foreach (var post in Model.ForumPosts)
@@ -45,7 +45,7 @@
         }
     </div>
 
-    @* TODO: (mg) (core) add pager *@
+    <partial name="_PostListToolbar" />
 </div>
 
 <script sm-target-zone="scripts" data-origin="forum-topic">

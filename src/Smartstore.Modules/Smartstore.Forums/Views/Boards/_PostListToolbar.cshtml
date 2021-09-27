@@ -1,0 +1,35 @@
+﻿@model PublicForumTopicPageModel
+
+@{
+@*    var pager = Html.SmartStore().Pager(Model.PostsPageIndex, Model.PostsPageSize, Model.PostsTotalRecords)
+        .Name("paginator")
+        .QueryParam("page")
+        .Size(PagerSize.Small)
+        .Alignment(PagerAlignment.Centered)
+        .Route("TopicSlug", new RouteValues { id = Model.Id, slug = Model.SeName });
+*@
+}
+
+<div class="topic-options row sm-gutters my-2">
+	<div class="col col-sm-auto mt-sm-0">
+		<a asp-action="PostCreate" asp-route-id="@Model.Id" class="btn btn-primary">
+			<i class="fa fa-share"></i>
+			<span>@T("Forum.Reply")</span>
+		</a>
+	</div>
+    @if (Model.CanSubscribe)
+    {
+        <div class="col col-sm-auto mt-sm-0">
+            <form id="watch-topic-form" sm-ajax method="post" asp-action="TopicWatch" sm-sm-onsuccess="onWatchTopicSuccess">
+                <input type="hidden" asp-for="Id" />
+
+                <button type="submit" id="watch-topic" class="btn btn-outline-primary btn-block watch-topic-link-button">
+                    <i class="fa fa-bookmark"></i>
+                    <span class="watch-topic-text">@T(Model.IsSubscribed ? "Forum.UnwatchTopic" : "Forum.WatchTopic")</span>
+                </button>
+            </form>
+        </div>        
+    }
+
+    @* TODO: (mg) (core) add pager *@
+</div>

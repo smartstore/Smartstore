@@ -24,15 +24,16 @@
             }
         </div>
         <div class="d-flex align-items-center">
-            @if (Model.IsAllowedToEditPost)
+            @*TODO: (mg) (core) verify forum frontend URLs. See below also.*@
+            @if (Model.CanEditPost)
             {
                 <i class="far fa-edit"></i>
-                <a asp-action="PostEdit" asp-controller="Forum" asp-route-id="@Model.Id" class="edit-post-link-button">@T("Forum.EditPost")</a>
+                <a asp-action="PostEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="edit-post-link-button">@T("Forum.EditPost")</a>
             }
-            @if (Model.IsAllowedToDeletePost)
+            @if (Model.CanDeletePost)
             {
                 <i class="fa fa-times"></i>
-                <a asp-action="PostEdit" asp-controller="Forum" asp-route-id="@Model.Id" class="delete-post-link-button confirm">@T("Forum.DeletePost")</a>
+                <a asp-action="PostDelete" asp-controller="Boards" asp-route-id="@Model.Id" class="delete-post-link-button confirm">@T("Forum.DeletePost")</a>
             }
             <a href="@(Url.RouteUrl(postLinkRouteName, postLinkRouteValues))#@Model.Id" class="post-link" title="@T("Forum.PostLinkTitle")">#@Model.Id</a>
         </div>
@@ -61,10 +62,10 @@
                         <span class="pr-1">@T("Forum.Location"):</span>
                         <span class="stat-value">@Model.CustomerLocation</span>
                     </div>
-                    @if (Model.AllowPrivateMessages && !Model.IsGuest)
+                    @if (Model.CanCreatePrivateMessages)
                     {
                         @*TODO: (mg) (core) verify forum frontend URLs. See below also.*@
-                        <a asp-action="Send" asp-controller="PrivateMessages" asp-route-id="@Model.CustomerId" class="btn btn btn-outline-info btn-flat button-pm mt-2" rel="nofollow">
+                        <a asp-action="Send" asp-controller="PrivateMessages" asp-route-id="@Model.CustomerId" class="btn btn-outline-info btn-flat button-pm mt-2" rel="nofollow">
                             <i class="fa fa-user"></i>
                             <span>@T("Forum.PrivateMessages.PM")</span>
                         </a>
@@ -101,15 +102,15 @@
             <a href="#" class="btn btn-link btn-sm font-weight-600">
                 @T("Forum.Top")
             </a>
-            <a asp-action="PostCreate" asp-controller="Forum" asp-route-id="Model.ForumTopicId" asp-route-quote="Model.Id" class="btn btn-outline-info btn-flat btn-sm">
+            <a asp-route="ForumPostCreate" asp-route-id="@Model.ForumTopicId" asp-route-quote="@Model.Id" class="btn btn-outline-info btn-flat btn-sm">
                 <i class="fa fa-quote-left"></i>
                 <span>@T("Forum.QuotePost")</span>
             </a>
-            <button sm-if="Model.AllowVoting" type="button" class="btn btn-outline-success btn-flat btn-sm post-vote-button post-vote-up" attr-class='(Model.Vote, "hide")' value="true">
+            <button sm-if="Model.CanVote" type="button" class="btn btn-outline-success btn-flat btn-sm post-vote-button post-vote-up" attr-class='(Model.Vote, "hide")' value="true">
                 <i class="fa fa-thumbs-up"></i>
                 <span>@T("Common.LikeIt")</span>
             </button>
-            <button sm-if="Model.AllowVoting" type="button" class="btn btn-outline-danger btn-flat btn-sm post-vote-button post-vote-down" attr-class='(!Model.Vote, "hide")' value="false">
+            <button sm-if="Model.CanVote" type="button" class="btn btn-outline-danger btn-flat btn-sm post-vote-button post-vote-down" attr-class='(!Model.Vote, "hide")' value="false">
                 <i class="fa fa-thumbs-down"></i>
                 <span>@T("Common.DoNotLikeIt")</span>
             </button>
