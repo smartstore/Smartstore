@@ -26,7 +26,6 @@ using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Web;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Engine.Modularity;
 using Smartstore.Engine.Modularity.ApplicationParts;
 using Smartstore.Net;
 using Smartstore.Web.Filters;
@@ -127,7 +126,7 @@ namespace Smartstore.Web
                 .AddRazorRuntimeCompilation(o =>
                 {
                     o.FileProviders.Clear();
-                    o.FileProviders.Add(new ModularFileProvider(appContext, true));
+                    o.FileProviders.Add(new RazorRuntimeFileProvider(appContext, true));
 
                 })
                 .AddFluentValidation(c =>

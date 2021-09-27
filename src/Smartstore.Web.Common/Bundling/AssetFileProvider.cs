@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Primitives;
 using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 
 namespace Smartstore.Web.Bundling
 {
+    /// <summary>
+    /// Marker interface for asset file provider.
+    /// </summary>
     public interface IAssetFileProvider : IFileProvider
     {
-        IFileProvider ResolveFileProvider(ref string path);
     }
-    
-    public class AssetFileProvider : IAssetFileProvider
+
+    public class AssetFileProvider : ModularFileProvider, IAssetFileProvider
     {
         private readonly IFileSystem _webRoot;
         private readonly Dictionary<string, Func<string, IApplicationContext, IFileProvider>> _providers = new(StringComparer.OrdinalIgnoreCase);
@@ -20,21 +22,6 @@ namespace Smartstore.Web.Bundling
         public AssetFileProvider(IFileSystem webRoot)
         {
             _webRoot = Guard.NotNull(webRoot, nameof(webRoot));
-        }
-
-        public virtual IDirectoryContents GetDirectoryContents(string subpath)
-        {
-            return ResolveFileProvider(ref subpath).GetDirectoryContents(subpath);
-        }
-
-        public virtual IFileInfo GetFileInfo(string subpath)
-        {
-            return ResolveFileProvider(ref subpath).GetFileInfo(subpath);
-        }
-
-        public virtual IChangeToken Watch(string filter)
-        {
-            return ResolveFileProvider(ref filter).Watch(filter);
         }
 
         /// <summary>
@@ -60,7 +47,7 @@ namespace Smartstore.Web.Bundling
             _providers[pathPrefix] = resolver;
         }
 
-        public virtual IFileProvider ResolveFileProvider(ref string path)
+        protected override IFileProvider ResolveFileProvider(ref string path)
         {
             var path2 = path.TrimStart(PathUtility.PathSeparators);
 
