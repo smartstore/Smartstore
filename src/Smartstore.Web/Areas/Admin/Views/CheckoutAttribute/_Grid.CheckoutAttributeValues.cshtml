@@ -79,9 +79,6 @@
 
         // Refresh grid after popup edit dialog was closed.
         $(document).on('click', '#btnRefresh', function () {
-
-            console.log("dddd");
-
             window["checkout-attribute-values-grid"].$children[0].read();
             return false;
         });
