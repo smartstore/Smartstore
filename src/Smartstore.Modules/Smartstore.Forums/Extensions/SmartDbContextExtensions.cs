@@ -30,6 +30,7 @@ namespace Smartstore.Forums
         public static DbSet<PrivateMessage> PrivateMessages(this SmartDbContext db)
             => db.Set<PrivateMessage>();
 
+        // TODO: (mg) (core) This should be an extension method for DbSet<ForumPost>
         public static async Task<Dictionary<int, ForumPost>> GetForumPostsByIdsAsync(this SmartDbContext db, IEnumerable<int> forumPostIds)
         {
             var ids = forumPostIds

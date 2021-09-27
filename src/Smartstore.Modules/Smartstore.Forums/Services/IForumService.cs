@@ -16,6 +16,7 @@ namespace Smartstore.Forums.Services
         string StripSubject(ForumTopic topic);
         string FormatPostText(ForumPost post);
 
+        // TODO: (mg) (core) Rename: GetModerationPermits --> GetModerationPermissions
         ForumModerationPermits GetModerationPermits(ForumTopic topic = null, ForumPost post = null, Customer customer = null);
 
         Task ApplyForumStatisticsAsync(Forum forum);
