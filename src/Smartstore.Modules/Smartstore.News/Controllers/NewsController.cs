@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Caching.OutputCache;
@@ -49,7 +48,7 @@ namespace Smartstore.News.Controllers
         private readonly Lazy<IWebHelper> _webHelper;
         private readonly Lazy<IActivityLogger> _activityLogger;
         private readonly Lazy<IMessageFactory> _messageFactory;
-        private readonly Lazy<LinkGenerator> _linkGenerator;
+        private readonly Lazy<IUrlHelper> _urlHelper;
 
         private readonly NewsSettings _newsSettings;
         private readonly LocalizationSettings _localizationSettings;
@@ -69,7 +68,7 @@ namespace Smartstore.News.Controllers
             Lazy<IWebHelper> webHelper,
             Lazy<IActivityLogger> activityLogger,
             Lazy<IMessageFactory> messageFactory,
-            Lazy<LinkGenerator> linkGenerator,
+            Lazy<IUrlHelper> urlHelper,
             NewsSettings newsSettings,
             LocalizationSettings localizationSettings,
             CustomerSettings customerSettings,
@@ -87,7 +86,7 @@ namespace Smartstore.News.Controllers
             _webHelper = webHelper;
             _activityLogger = activityLogger;
             _messageFactory = messageFactory;
-            _linkGenerator = linkGenerator;
+            _urlHelper = urlHelper;
 
             _newsSettings = newsSettings;
             _localizationSettings = localizationSettings;
@@ -322,7 +321,13 @@ namespace Smartstore.News.Controllers
                 NotifySuccess(T("News.Comments.SuccessfullyAdded"));
 
                 var seName = await newsItem.GetActiveSlugAsync(ensureTwoPublishedLanguages: false);
-                var url = _linkGenerator.Value.GetPathByRouteValues("NewsItem", new { SeName = seName }, fragment: new FragmentString("#customer-comment-list"));
+                var url = _urlHelper.Value.RouteUrl(new UrlRouteContext
+                {
+                    RouteName = "NewsItem",
+                    Values = new { SeName = seName },
+                    Fragment = "customer-comment-list"
+                });
+
                 return Redirect(url);
             }
 
