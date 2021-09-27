@@ -46,18 +46,15 @@
                     <span>@T("Forum.NewTopic")</span>
                 </a>
             </div>
-            <div class="col col-sm-auto mt-1 mt-sm-0">
-                @if (Model.CanSubscribe)
-                {
-                    <form id="watch-forum-form" sm-ajax method="post" asp-action="ForumWatch" asp-controller="Boards" sm-oncomplete="onWatchForumCompleted">
-                        <input type="hidden" asp-for="Id" />
+            <div sm-if="Model.CanSubscribe" class="col col-sm-auto mt-1 mt-sm-0">
+                <form id="watch-forum-form" sm-ajax method="post" asp-action="ForumWatch" asp-controller="Boards" sm-oncomplete="onWatchForumCompleted">
+                    <input type="hidden" asp-for="Id" />
 
-                        <button type="submit" id="watch-forum" class="btn btn-outline-primary btn-block watch-forum">
-                            <i class="fa fa-bookmark"></i>
-                            <span class="watch-forum-text">@T(Model.IsSubscribed ? "Forum.UnwatchForum" : "Forum.WatchForum")</span>
-                        </button>
-                    </form>
-                }
+                    <button type="submit" id="watch-forum" class="btn btn-outline-primary btn-block watch-forum">
+                        <i class="fa fa-bookmark"></i>
+                        <span class="watch-forum-text">@T(Model.IsSubscribed ? "Forum.UnwatchForum" : "Forum.WatchForum")</span>
+                    </button>
+                </form>
             </div>
         </div>
         @* TODO: (mg) (core) Provide paged list of forum topics *@

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Smartstore.Collections;
 using Smartstore.Forums.Domain;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Customers;
@@ -38,10 +39,6 @@ namespace Smartstore.Forums.Models.Public
         public string Subject { get; set; }
         public string Slug { get; set; }
 
-        public int PostsPageIndex { get; set; }
-        public int PostsPageSize { get; set; }
-        public int PostsTotalRecords { get; set; }
-
         public ForumModerationPermits ModerationPermits { get; set; }
         public bool CanEditTopic
         {
@@ -59,6 +56,6 @@ namespace Smartstore.Forums.Models.Public
         public bool CanSubscribe { get; set; }
         public bool IsSubscribed { get; set; }
 
-        public List<PublicForumPostModel> ForumPosts { get; set; }
+        public IPagedList<PublicForumPostModel> ForumPosts { get; set; }
     }
 }

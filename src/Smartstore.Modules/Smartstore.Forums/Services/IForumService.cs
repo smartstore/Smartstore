@@ -15,6 +15,10 @@ namespace Smartstore.Forums.Services
         string BuildSlug(ForumTopic topic);
         string StripSubject(ForumTopic topic);
         string FormatPostText(ForumPost post);
+
         ForumModerationPermits GetModerationPermits(ForumTopic topic = null, ForumPost post = null, Customer customer = null);
+
+        Task ApplyForumStatisticsAsync(Forum forum);
+        Task ApplyTopicStatisticsAsync(ForumTopic topic);
     }
 }
