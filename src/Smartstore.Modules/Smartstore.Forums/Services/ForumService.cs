@@ -190,70 +190,81 @@ namespace Smartstore.Forums.Services
             return permits;
         }
 
-        public virtual async Task ApplyForumStatisticsAsync(Forum forum)
-        {
-            if (forum == null)
-            {
-                return;
-            }
+        // TODO: (mg) (core) Hook and hook and hook.
+        //public virtual async Task ApplyForumStatisticsAsync(Forum forum)
+        //{
+        //    if (forum == null)
+        //    {
+        //        return;
+        //    }
 
-            var query = 
-                from ft in _db.ForumTopics()
-                join fp in _db.ForumPosts() on ft.Id equals fp.TopicId
-                where ft.ForumId == forum.Id && ft.Published && fp.Published
-                orderby fp.CreatedOnUtc descending, ft.CreatedOnUtc descending
-                select new
-                {
-                    LastTopicId = ft.Id,
-                    LastPostId = fp.Id,
-                    LastPostCustomerId = fp.CustomerId,
-                    LastPostTime = fp.CreatedOnUtc
-                };
+        //    var query = 
+        //        from ft in _db.ForumTopics()
+        //        join fp in _db.ForumPosts() on ft.Id equals fp.TopicId
+        //        where ft.ForumId == forum.Id && ft.Published && fp.Published
+        //        orderby fp.CreatedOnUtc descending, ft.CreatedOnUtc descending
+        //        select new
+        //        {
+        //            LastTopicId = ft.Id,
+        //            LastPostId = fp.Id,
+        //            LastPostCustomerId = fp.CustomerId,
+        //            LastPostTime = fp.CreatedOnUtc
+        //        };
 
-            var lastValues = await query.FirstOrDefaultAsync();
+        //    var lastValues = await query.FirstOrDefaultAsync();
 
-            forum.LastTopicId = lastValues?.LastTopicId ?? 0;
-            forum.LastPostId = lastValues?.LastPostId ?? 0;
-            forum.LastPostCustomerId = lastValues?.LastPostCustomerId ?? 0;
-            forum.LastPostTime = lastValues?.LastPostTime;
+        //    forum.LastTopicId = lastValues?.LastTopicId ?? 0;
+        //    forum.LastPostId = lastValues?.LastPostId ?? 0;
+        //    forum.LastPostCustomerId = lastValues?.LastPostCustomerId ?? 0;
+        //    forum.LastPostTime = lastValues?.LastPostTime;
 
-            forum.NumTopics = await _db.ForumTopics().CountAsync(x => x.ForumId == forum.Id && x.Published);
+        //    forum.NumTopics = await _db.ForumTopics().CountAsync(x => x.ForumId == forum.Id && x.Published);
 
-            var numPostsQuery =
-                from ft in _db.ForumTopics()
-                join fp in _db.ForumPosts() on ft.Id equals fp.TopicId
-                where ft.ForumId == forum.Id && ft.Published && fp.Published
-                select fp.Id;
+        //    var numPostsQuery =
+        //        from ft in _db.ForumTopics()
+        //        join fp in _db.ForumPosts() on ft.Id equals fp.TopicId
+        //        where ft.ForumId == forum.Id && ft.Published && fp.Published
+        //        select fp.Id;
 
-            forum.NumPosts = await numPostsQuery.CountAsync();
-        }
+        //    forum.NumPosts = await numPostsQuery.CountAsync();
+        //}
 
-        public virtual async Task ApplyTopicStatisticsAsync(ForumTopic topic)
-        {
-            if (topic == null)
-            {
-                return;
-            }
+        //public virtual async Task ApplyTopicStatisticsAsync(ForumTopic topic)
+        //{
+        //    if (topic == null)
+        //    {
+        //        return;
+        //    }
 
-            var lastValues = await _db.ForumPosts()
-                .Where(x => x.TopicId == topic.Id && x.Published)
-                .OrderByDescending(x => x.CreatedOnUtc)
-                .Select(x => new
-                {
-                    LastPostId = x.Id,
-                    LastPostCustomerId = x.CustomerId,
-                    LastPostTime = x.CreatedOnUtc
-                })
-                .FirstOrDefaultAsync();
+        //    var lastValues = await _db.ForumPosts()
+        //        .Where(x => x.TopicId == topic.Id && x.Published)
+        //        .OrderByDescending(x => x.CreatedOnUtc)
+        //        .Select(x => new
+        //        {
+        //            LastPostId = x.Id,
+        //            LastPostCustomerId = x.CustomerId,
+        //            LastPostTime = x.CreatedOnUtc
+        //        })
+        //        .FirstOrDefaultAsync();
 
-            topic.LastPostId = lastValues?.LastPostId ?? 0;
-            topic.LastPostCustomerId = lastValues?.LastPostCustomerId ?? 0;
-            topic.LastPostTime = lastValues?.LastPostTime;
+        //    topic.LastPostId = lastValues?.LastPostId ?? 0;
+        //    topic.LastPostCustomerId = lastValues?.LastPostCustomerId ?? 0;
+        //    topic.LastPostTime = lastValues?.LastPostTime;
 
-            topic.NumPosts = topic.Published
-                ? await _db.ForumPosts().CountAsync(x => x.TopicId == topic.Id && x.Published)
-                : 0;
-        }
+        //    topic.NumPosts = topic.Published
+        //        ? await _db.ForumPosts().CountAsync(x => x.TopicId == topic.Id && x.Published)
+        //        : 0;
+        //}
+
+        //public virtual async Task ApplyCustomerStatistics(Customer customer)
+        //{
+        //    if (customer != null)
+        //    {
+        //        var numPosts = await _db.ForumPosts().CountAsync(x => x.CustomerId == customer.Id && x.ForumTopic.Published && x.Published);
+
+        //        customer.GenericAttributes.Set("ForumPostCount", numPosts);
+        //    }
+        //}
 
         public XmlSitemapProvider PublishXmlSitemap(XmlSitemapBuildContext context)
         {

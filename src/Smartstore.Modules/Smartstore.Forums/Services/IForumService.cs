@@ -18,8 +18,5 @@ namespace Smartstore.Forums.Services
 
         // TODO: (mg) (core) Rename: GetModerationPermits --> GetModerationPermissions
         ForumModerationPermits GetModerationPermits(ForumTopic topic = null, ForumPost post = null, Customer customer = null);
-
-        Task ApplyForumStatisticsAsync(Forum forum);
-        Task ApplyTopicStatisticsAsync(ForumTopic topic);
     }
 }
