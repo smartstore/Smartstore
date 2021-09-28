@@ -54,8 +54,6 @@ namespace Smartstore.Core.Messaging
         public ModelTreeMemberKind Kind { get; set; }
     }
 
-    // TODO: (mh) (core) Move poll model creation to external modules when they are available (via MessageModelPartMappingEvent)
-
     public partial class MessageModelProvider : IMessageModelProvider
     {
         private readonly SmartDbContext _db;
@@ -64,6 +62,7 @@ namespace Smartstore.Core.Messaging
         private readonly IEmailAccountService _emailAccountService;
         private readonly ILocalizationService _localizationService;
         private readonly ModuleManager _moduleManager;
+        private readonly MessageModelHelper _helper;
         private readonly IUrlHelper _urlHelper;
         
         public MessageModelProvider(
@@ -73,6 +72,7 @@ namespace Smartstore.Core.Messaging
             IEmailAccountService emailAccountService,
             ILocalizationService localizationService,
             ModuleManager moduleManager,
+            MessageModelHelper helper,
             IUrlHelper urlHelper)
         {
             _db = db;
@@ -81,6 +81,7 @@ namespace Smartstore.Core.Messaging
             _emailAccountService = emailAccountService;
             _localizationService = localizationService;
             _moduleManager = moduleManager;
+            _helper = helper;
             _urlHelper = urlHelper;
         }
 
@@ -205,7 +206,6 @@ namespace Smartstore.Core.Messaging
 
             object modelPart = null;
 
-            // TODO: (mh) (core) Uncomment when available.
             switch (part)
             {
                 case INamedModelPart x:
@@ -253,9 +253,6 @@ namespace Smartstore.Core.Messaging
                 case IEnumerable<GenericAttribute> x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
-                //case PollVotingRecord x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
                 case ProductReviewHelpfulness x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
@@ -385,16 +382,16 @@ namespace Smartstore.Core.Messaging
 
             dynamic m = new HybridExpando(settings, true);
 
-            m.NameLine = Concat(settings.Salutation, settings.Title, settings.Firstname, settings.Lastname);
-            m.StreetLine = Concat(settings.Street, settings.Street2);
-            m.CityLine = Concat(settings.ZipCode, settings.City);
+            m.NameLine = _helper.Concat(settings.Salutation, settings.Title, settings.Firstname, settings.Lastname);
+            m.StreetLine = _helper.Concat(settings.Street, settings.Street2);
+            m.CityLine = _helper.Concat(settings.ZipCode, settings.City);
 
             if (country != null)
             {
-                m.CountryLine = Concat(country.GetLocalized(x => x.Name), settings.Region);
+                m.CountryLine = _helper.Concat(country.GetLocalized(x => x.Name), settings.Region);
             }
 
-            await PublishModelPartCreatedEventAsync<CompanyInformationSettings>(settings, m);
+            await _helper.PublishModelPartCreatedEventAsync<CompanyInformationSettings>(settings, m);
             return m;
         }
 
@@ -402,7 +399,7 @@ namespace Smartstore.Core.Messaging
         {
             var settings = await _services.SettingFactory.LoadSettingsAsync<BankConnectionSettings>(messageContext.Store.Id);
             var m = new HybridExpando(settings, true);
-            await PublishModelPartCreatedEventAsync(settings, m);
+            await _helper.PublishModelPartCreatedEventAsync(settings, m);
             return m;
         }
 
@@ -428,7 +425,7 @@ namespace Smartstore.Core.Messaging
                 Contact = settings.ContactEmailAddress.NullEmpty()
             };
 
-            await PublishModelPartCreatedEventAsync<ContactDataSettings>(settings, contact);
+            await _helper.PublishModelPartCreatedEventAsync<ContactDataSettings>(settings, contact);
 
             return contact;
         }
@@ -479,7 +476,7 @@ namespace Smartstore.Core.Messaging
             var he = new HybridExpando(true);
             he.Merge(m, true);
 
-            await PublishModelPartCreatedEventAsync(part, he);
+            await _helper.PublishModelPartCreatedEventAsync(part, he);
 
             return he;
         }
@@ -520,7 +517,7 @@ namespace Smartstore.Core.Messaging
                 Alt = alt
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -543,8 +540,8 @@ namespace Smartstore.Core.Messaging
 
             var slug = await part.GetActiveSlugAsync(messageContext.Language.Id);
             var productUrl = await productUrlHelper.GetProductUrlAsync(part.Id, slug, attrSelection);
-            var url = BuildUrl(productUrl, messageContext);
-            var file = await GetMediaFileFor(part, attrSelection);
+            var url = _helper.BuildUrl(productUrl, messageContext);
+            var file = await _helper.GetMediaFileFor(part, attrSelection);
             var name = part.GetLocalized(x => x.Name, messageContext.Language.Id).Value;
             var alt = T("Media.Product.ImageAlternateTextFormat", messageContext.Language.Id, name).ToString();
 
@@ -580,7 +577,7 @@ namespace Smartstore.Core.Messaging
                 m["QtyUnit"] = qu.GetLocalized(x => x.Name, messageContext.Language).Value;
             }
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -608,22 +605,22 @@ namespace Smartstore.Core.Messaging
                 ["Email"] = email,
                 ["IsTaxExempt"] = part.IsTaxExempt,
                 ["LastIpAddress"] = part.LastIpAddress,
-                ["CreatedOn"] = ToUserDate(part.CreatedOnUtc, messageContext),
-                ["LastLoginOn"] = ToUserDate(part.LastLoginDateUtc, messageContext),
-                ["LastActivityOn"] = ToUserDate(part.LastActivityDateUtc, messageContext),
-                ["FullName"] = GetDisplayNameForCustomer(part).NullEmpty(),
+                ["CreatedOn"] = _helper.ToUserDate(part.CreatedOnUtc, messageContext),
+                ["LastLoginOn"] = _helper.ToUserDate(part.LastLoginDateUtc, messageContext),
+                ["LastActivityOn"] = _helper.ToUserDate(part.LastActivityDateUtc, messageContext),
+                ["FullName"] = _helper.GetDisplayNameForCustomer(part).NullEmpty(),
                 ["VatNumber"] = part.GenericAttributes.VatNumber,
                 ["VatNumberStatus"] = customerVatStatus.GetLocalizedEnum(messageContext.Language.Id).NullEmpty(),
                 ["CustomerNumber"] = part.CustomerNumber.NullEmpty(),
                 ["IsRegistered"] = part.IsRegistered(),
 
                 // URLs
-                ["WishlistUrl"] = BuildRouteUrl("Wishlist", new { customerGuid = part.CustomerGuid }, messageContext),
-                ["EditUrl"] = BuildActionUrl("Edit", "Customer", new { id = part.Id, area = "Admin" }, messageContext),
-                ["PasswordRecoveryURL"] = pwdRecoveryToken == null ? null : BuildActionUrl("passwordrecoveryconfirm", "customer",
+                ["WishlistUrl"] = _helper.BuildRouteUrl("Wishlist", new { customerGuid = part.CustomerGuid }, messageContext),
+                ["EditUrl"] = _helper.BuildActionUrl("Edit", "Customer", new { id = part.Id, area = "Admin" }, messageContext),
+                ["PasswordRecoveryURL"] = pwdRecoveryToken == null ? null : _helper.BuildActionUrl("passwordrecoveryconfirm", "customer",
                     new { token = pwdRecoveryToken, email, area = "" }, 
                     messageContext),
-                ["AccountActivationURL"] = accountActivationToken == null ? null : BuildActionUrl("activation", "customer", 
+                ["AccountActivationURL"] = accountActivationToken == null ? null : _helper.BuildActionUrl("activation", "customer", 
                     new { token = accountActivationToken, email, area = "" }, 
                     messageContext),
 
@@ -638,7 +635,7 @@ namespace Smartstore.Core.Messaging
                 //["RewardPointsHistory"] = part.RewardPointsHistory.Count == 0 ? null : part.RewardPointsHistory.Select(x => CreateModelPart(x, messageContext)).ToList(),
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -655,7 +652,7 @@ namespace Smartstore.Core.Messaging
                 { "SenderEmail", part.SenderEmail.NullEmpty() },
                 { "RecipientName", part.RecipientName.NullEmpty() },
                 { "RecipientEmail", part.RecipientEmail.NullEmpty() },
-                { "Amount", FormatPrice(part.Amount, messageContext) },
+                { "Amount", _helper.FormatPrice(part.Amount, messageContext) },
                 { "CouponCode", part.GiftCardCouponCode.NullEmpty() }
             };
 
@@ -673,11 +670,11 @@ namespace Smartstore.Core.Messaging
             if (order != null)
             {
                 var remainingAmountBase = _services.Resolve<IGiftCardService>().GetRemainingAmount(part);
-                remainingAmount = FormatPrice(remainingAmountBase.Amount, order, messageContext);
+                remainingAmount = _helper.FormatPrice(remainingAmountBase.Amount, order, messageContext);
             }
             m["RemainingAmount"] = remainingAmount;
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -693,8 +690,8 @@ namespace Smartstore.Core.Messaging
             {
                 { "Id", part.Id },
                 { "Email", part.Email.NullEmpty() },
-                { "ActivationUrl", gid == Guid.Empty ? null : BuildRouteUrl("NewsletterActivation", new { token = part.NewsletterSubscriptionGuid, active = true }, messageContext) },
-                { "DeactivationUrl", gid == Guid.Empty ? null : BuildRouteUrl("NewsletterActivation", new { token = part.NewsletterSubscriptionGuid, active = false }, messageContext) }
+                { "ActivationUrl", gid == Guid.Empty ? null : _helper.BuildRouteUrl("NewsletterActivation", new { token = part.NewsletterSubscriptionGuid, active = true }, messageContext) },
+                { "DeactivationUrl", gid == Guid.Empty ? null : _helper.BuildRouteUrl("NewsletterActivation", new { token = part.NewsletterSubscriptionGuid, active = false }, messageContext) }
             };
 
             var customer = messageContext.Customer;
@@ -704,7 +701,7 @@ namespace Smartstore.Core.Messaging
                 m["FullName"] = customer.GetFullName();
             }
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -726,10 +723,10 @@ namespace Smartstore.Core.Messaging
                 { "Id", part.Id },
                 { "Subject", part.Subject.NullEmpty() },
                 { "Body", WebHelper.MakeAllUrlsAbsolute(body, protocol, host).NullEmpty() },
-                { "CreatedOn", ToUserDate(part.CreatedOnUtc, messageContext) }
+                { "CreatedOn", _helper.ToUserDate(part.CreatedOnUtc, messageContext) }
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -746,7 +743,7 @@ namespace Smartstore.Core.Messaging
                 { "Rating", part.Rating }
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -763,9 +760,9 @@ namespace Smartstore.Core.Messaging
                 { "WasHelpful", part.WasHelpful }
             };
 
-            ApplyCustomerContentPart(m, part, messageContext);
+            _helper.ApplyCustomerContentPart(m, part, messageContext);
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -834,12 +831,12 @@ namespace Smartstore.Core.Messaging
                 { "Fax", settings.FaxEnabled ? part.FaxNumber : null }
             };
 
-            m["NameLine"] = Concat(salutation, title, firstName, lastName);
-            m["StreetLine"] = Concat(street1, street2);
-            m["CityLine"] = Concat(zip, city);
-            m["CountryLine"] = Concat(country, state);
+            m["NameLine"] = _helper.Concat(salutation, title, firstName, lastName);
+            m["StreetLine"] = _helper.Concat(street1, street2);
+            m["CityLine"] = _helper.Concat(zip, city);
+            m["CountryLine"] = _helper.Concat(country, state);
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -852,14 +849,14 @@ namespace Smartstore.Core.Messaging
             var m = new Dictionary<string, object>
             {
                 { "Id", part.Id },
-                { "CreatedOn", ToUserDate(part.CreatedOnUtc, messageContext) },
+                { "CreatedOn", _helper.ToUserDate(part.CreatedOnUtc, messageContext) },
                 { "Message", part.Message.NullEmpty() },
                 { "Points", part.Points },
                 { "PointsBalance", part.PointsBalance },
                 { "UsedAmount", part.UsedAmount }
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -876,7 +873,7 @@ namespace Smartstore.Core.Messaging
                 m[attr.Key] = attr.Value;
             }
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -891,10 +888,10 @@ namespace Smartstore.Core.Messaging
                 {  "StoreId", part.StoreId },
                 {  "CustomerId",  part.CustomerId },
                 {  "ProductId",  part.ProductId },
-                {  "CreatedOn", ToUserDate(part.CreatedOnUtc, messageContext) }
+                {  "CreatedOn", _helper.ToUserDate(part.CreatedOnUtc, messageContext) }
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }

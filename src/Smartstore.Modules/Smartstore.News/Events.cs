@@ -64,7 +64,8 @@ namespace Smartstore.News
 
         public async Task HandleEventAsync(MessageModelPartMappingEvent message, 
             IUrlHelper urlHelper, 
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher,
+            MessageModelHelper messageModelHelper)
         {
             if (message.Source is NewsComment part)
             {
@@ -73,14 +74,14 @@ namespace Smartstore.News
                 var url = urlHelper.RouteUrl("NewsItem", new { SeName = await newsItem.GetActiveSlugAsync(messageContext.Language.Id) });
                 var title = newsItem.GetLocalized(x => x.Title, messageContext.Language).Value.NullEmpty();
 
-                message.Result = CreateModelPart(part, messageContext, url, title);
+                message.Result = CreateModelPart(part, messageContext, messageModelHelper, url, title);
 
                 await eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<NewsComment>(part, message.Result));
             }
         }
 
         // TODO: (mh) (core) I would like to throw this method away and handle everything where it is called (in HandleEventAsync).
-        private static object CreateModelPart(NewsComment part, MessageContext messageContext, string url, string title)
+        private static object CreateModelPart(NewsComment part, MessageContext messageContext, MessageModelHelper helper, string url, string title)
         {
             Guard.NotNull(messageContext, nameof(messageContext));
             Guard.NotNull(part, nameof(part));
@@ -88,7 +89,7 @@ namespace Smartstore.News
             var m = new Dictionary<string, object>
             {
                 {  "NewsTitle", title },
-                {  "NewsUrl", MessageModelProvider.BuildUrl(url, messageContext) },
+                {  "NewsUrl", helper.BuildUrl(url, messageContext) },
                 {  "Title", part.CommentTitle.RemoveHtml().NullEmpty() },
                 {  "Text", HtmlUtility.SanitizeHtml(part.CommentText, HtmlSanitizerOptions.UserCommentSuitable).NullEmpty() }
             };

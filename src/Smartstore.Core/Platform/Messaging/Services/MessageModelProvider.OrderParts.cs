@@ -66,11 +66,11 @@ namespace Smartstore.Core.Messaging
             }
             d.CustomerEmail = part.BillingAddress.Email.NullEmpty();
             d.CustomerComment = part.CustomerOrderComment.NullEmpty();
-            d.Disclaimer = await GetTopicAsync("Disclaimer", messageContext);
-            d.ConditionsOfUse = await GetTopicAsync("ConditionsOfUse", messageContext);
+            d.Disclaimer = await _helper.GetTopicAsync("Disclaimer", messageContext);
+            d.ConditionsOfUse = await _helper.GetTopicAsync("ConditionsOfUse", messageContext);
             d.Status = await part.OrderStatus.GetLocalizedEnumAsync(messageContext.Language.Id);
-            d.CreatedOn = ToUserDate(part.CreatedOnUtc, messageContext);
-            d.PaidOn = ToUserDate(part.PaidDateUtc, messageContext);
+            d.CreatedOn = _helper.ToUserDate(part.CreatedOnUtc, messageContext);
+            d.PaidOn = _helper.ToUserDate(part.PaidDateUtc, messageContext);
 
             // Payment method
             var paymentMethodName = part.PaymentMethodSystemName;
@@ -82,12 +82,12 @@ namespace Smartstore.Core.Messaging
             d.PaymentMethod = paymentMethodName.NullEmpty();
 
             d.Url = part.Customer != null && !part.Customer.IsGuest()
-                ? BuildActionUrl("Details", "Order", new { id = part.Id, area = "" }, messageContext)
+                ? _helper.BuildActionUrl("Details", "Order", new { id = part.Id, area = "" }, messageContext)
                 : null;
 
             // Overrides
             m.Properties["OrderNumber"] = part.GetOrderNumber().NullEmpty();
-            m.Properties["AcceptThirdPartyEmailHandOver"] = GetBoolResource(part.AcceptThirdPartyEmailHandOver, messageContext);
+            m.Properties["AcceptThirdPartyEmailHandOver"] = _helper.GetBoolResource(part.AcceptThirdPartyEmailHandOver, messageContext);
 
             // Items, Totals & Co.
             d.Items = await part.OrderItems.Where(x => x.Product != null).SelectAsync(async x => await CreateModelPartAsync(x, messageContext)).AsyncToList();
@@ -99,7 +99,7 @@ namespace Smartstore.Core.Messaging
                 d.CheckoutAttributes = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(part.CheckoutAttributeDescription)).NullEmpty();
             }
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -165,7 +165,7 @@ namespace Smartstore.Core.Messaging
                     displayTaxRates = taxSettings.DisplayTaxRates && taxRates.Count > 0;
                     displayTax = !displayTaxRates;
 
-                    cusTaxTotal = FormatPrice(order.OrderTax, order, messageContext);
+                    cusTaxTotal = _helper.FormatPrice(order.OrderTax, order, messageContext);
                 }
             }
 
@@ -173,7 +173,7 @@ namespace Smartstore.Core.Messaging
             bool dislayDiscount = false;
             if (order.OrderDiscount > decimal.Zero)
             {
-                cusDiscount = FormatPrice(-order.OrderDiscount, order, messageContext);
+                cusDiscount = _helper.FormatPrice(-order.OrderDiscount, order, messageContext);
                 dislayDiscount = true;
             }
 
@@ -209,7 +209,7 @@ namespace Smartstore.Core.Messaging
                 return new
                 {
                     Rate = T("Order.TaxRateLine", language.Id, taxService.FormatTaxRate(x.Key)).ToString(),
-                    Value = FormatPrice(x.Value, order, messageContext)
+                    Value = _helper.FormatPrice(x.Value, order, messageContext)
                 };
             }).ToArray();
 
@@ -222,8 +222,8 @@ namespace Smartstore.Core.Messaging
                 return new
                 {
                     GiftCard = T("Order.GiftCardInfo", language.Id, x.GiftCard.GiftCardCouponCode).ToString(),
-                    UsedAmount = FormatPrice(-x.UsedValue, order, messageContext),
-                    RemainingAmount = FormatPrice(remainingAmount.Amount, order, messageContext)
+                    UsedAmount = _helper.FormatPrice(-x.UsedValue, order, messageContext),
+                    RemainingAmount = _helper.FormatPrice(remainingAmount.Amount, order, messageContext)
                 };
             }).ToArray();
 
@@ -231,10 +231,10 @@ namespace Smartstore.Core.Messaging
             m.RedeemedRewardPoints = order.RedeemedRewardPointsEntry == null ? null : new
             {
                 Title = T("Order.RewardPoints", language.Id, -order.RedeemedRewardPointsEntry.Points).ToString(),
-                Amount = FormatPrice(-order.RedeemedRewardPointsEntry.UsedAmount, order, messageContext)
+                Amount = _helper.FormatPrice(-order.RedeemedRewardPointsEntry.UsedAmount, order, messageContext)
             };
 
-            await PublishModelPartCreatedEventAsync(order, m);
+            await _helper.PublishModelPartCreatedEventAsync(order, m);
 
             return m;
         }
@@ -249,20 +249,20 @@ namespace Smartstore.Core.Messaging
             var payment = isNet ? order.PaymentMethodAdditionalFeeExclTax : order.PaymentMethodAdditionalFeeInclTax;
 
             // Subtotal
-            var cusSubTotal = FormatPrice(subTotal, order, messageContext);
+            var cusSubTotal = _helper.FormatPrice(subTotal, order, messageContext);
 
             // Shipping
-            var cusShipTotal = FormatPrice(shipping, order, messageContext);
+            var cusShipTotal = _helper.FormatPrice(shipping, order, messageContext);
 
             // Payment method additional fee
-            var cusPaymentMethodFee = FormatPrice(payment, order, messageContext);
+            var cusPaymentMethodFee = _helper.FormatPrice(payment, order, messageContext);
 
             // Discount (applied to order subtotal)
             Money cusSubTotalDiscount = new();
             bool dislaySubTotalDiscount = false;
             if (subTotalDiscount > decimal.Zero)
             {
-                cusSubTotalDiscount = FormatPrice(-subTotalDiscount, order, messageContext);
+                cusSubTotalDiscount = _helper.FormatPrice(-subTotalDiscount, order, messageContext);
                 dislaySubTotalDiscount = true;
             }
 
@@ -306,13 +306,13 @@ namespace Smartstore.Core.Messaging
             
             var m = new Dictionary<string, object>
             {
-                { "DownloadUrl", !downloadService.IsDownloadAllowed(part) ? null : BuildActionUrl("GetDownload", "Download", new { id = part.OrderItemGuid, area = "" }, messageContext) },
+                { "DownloadUrl", !downloadService.IsDownloadAllowed(part) ? null : _helper.BuildActionUrl("GetDownload", "Download", new { id = part.OrderItemGuid, area = "" }, messageContext) },
                 { "AttributeDescription", part.AttributeDescription.NullEmpty() },
                 { "Weight", part.ItemWeight },
                 { "TaxRate", part.TaxRate },
                 { "Qty", part.Quantity },
-                { "UnitPrice", FormatPrice(isNet ? part.UnitPriceExclTax : part.UnitPriceInclTax, part.Order, messageContext) },
-                { "LineTotal", FormatPrice(isNet ? part.PriceExclTax : part.PriceInclTax, part.Order, messageContext) },
+                { "UnitPrice", _helper.FormatPrice(isNet ? part.UnitPriceExclTax : part.UnitPriceInclTax, part.Order, messageContext) },
+                { "LineTotal", _helper.FormatPrice(isNet ? part.PriceExclTax : part.PriceInclTax, part.Order, messageContext) },
                 { "Product", await CreateModelPartAsync(product, messageContext, part.AttributeSelection) },
                 { "BundleItems", bundleItems },
                 { "IsGross", !isNet },
@@ -332,7 +332,7 @@ namespace Smartstore.Core.Messaging
                 }
             }
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -344,7 +344,7 @@ namespace Smartstore.Core.Messaging
             Guard.NotNull(product, nameof(product));
             Guard.NotNull(messageContext, nameof(messageContext));
 
-            var priceWithDiscount = FormatPrice(part.PriceWithDiscount, orderItem.Order, messageContext);
+            var priceWithDiscount = _helper.FormatPrice(part.PriceWithDiscount, orderItem.Order, messageContext);
 
             var m = new Dictionary<string, object>
             {
@@ -355,7 +355,7 @@ namespace Smartstore.Core.Messaging
                 { "Product", await CreateModelPartAsync(product, messageContext, part.AttributeSelection) }
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -368,11 +368,11 @@ namespace Smartstore.Core.Messaging
             var m = new Dictionary<string, object>
             {
                 { "Id", part.Id },
-                { "CreatedOn", ToUserDate(part.CreatedOnUtc, messageContext) },
+                { "CreatedOn", _helper.ToUserDate(part.CreatedOnUtc, messageContext) },
                 { "Text", part.FormatOrderNoteText().NullEmpty() }
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -389,7 +389,7 @@ namespace Smartstore.Core.Messaging
                 { "Product", await CreateModelPartAsync(part.Product, messageContext, part.AttributeSelection) },
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -446,14 +446,14 @@ namespace Smartstore.Core.Messaging
                 { "TrackingNumber", part.TrackingNumber.NullEmpty() },
                 { "TrackingUrl", trackingUrl.NullEmpty() },
                 { "TotalWeight", part.TotalWeight },
-                { "CreatedOn", ToUserDate(part.CreatedOnUtc, messageContext) },
-                { "DeliveredOn", ToUserDate(part.DeliveryDateUtc, messageContext) },
-                { "ShippedOn", ToUserDate(part.ShippedDateUtc, messageContext) },
-                { "Url", BuildActionUrl("ShipmentDetails", "Order", new { id = part.Id, area = "" }, messageContext)},
+                { "CreatedOn", _helper.ToUserDate(part.CreatedOnUtc, messageContext) },
+                { "DeliveredOn", _helper.ToUserDate(part.DeliveryDateUtc, messageContext) },
+                { "ShippedOn", _helper.ToUserDate(part.ShippedDateUtc, messageContext) },
+                { "Url", _helper.BuildActionUrl("ShipmentDetails", "Order", new { id = part.Id, area = "" }, messageContext)},
                 { "Items", itemParts },
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -466,17 +466,17 @@ namespace Smartstore.Core.Messaging
             var m = new Dictionary<string, object>
             {
                 { "Id", part.Id },
-                { "CreatedOn", ToUserDate(part.CreatedOnUtc, messageContext) },
-                { "StartedOn", ToUserDate(part.StartDateUtc, messageContext) },
-                { "NextOn", ToUserDate(part.NextPaymentDate, messageContext) },
+                { "CreatedOn", _helper.ToUserDate(part.CreatedOnUtc, messageContext) },
+                { "StartedOn", _helper.ToUserDate(part.StartDateUtc, messageContext) },
+                { "NextOn", _helper.ToUserDate(part.NextPaymentDate, messageContext) },
                 { "CycleLength", part.CycleLength },
                 { "CyclePeriod", part.CyclePeriod.GetLocalizedEnum(messageContext.Language.Id) },
                 { "CyclesRemaining", part.CyclesRemaining },
                 { "TotalCycles", part.TotalCycles },
-                { "Url", BuildActionUrl("Edit", "RecurringPayment", new { id = part.Id, area = "Admin" }, messageContext) }
+                { "Url", _helper.BuildActionUrl("Edit", "RecurringPayment", new { id = part.Id, area = "Admin" }, messageContext) }
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }
@@ -496,10 +496,10 @@ namespace Smartstore.Core.Messaging
                 { "StaffNotes", HtmlUtility.StripTags(part.StaffNotes).NullEmpty() },
                 { "Quantity", part.Quantity },
                 { "RefundToWallet", part.RefundToWallet },
-                { "Url", BuildActionUrl("Edit", "ReturnRequest", new { id = part.Id, area = "Admin" }, messageContext) }
+                { "Url", _helper.BuildActionUrl("Edit", "ReturnRequest", new { id = part.Id, area = "Admin" }, messageContext) }
             };
 
-            await PublishModelPartCreatedEventAsync(part, m);
+            await _helper.PublishModelPartCreatedEventAsync(part, m);
 
             return m;
         }

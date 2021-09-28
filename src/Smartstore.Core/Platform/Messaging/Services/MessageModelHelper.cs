@@ -9,18 +9,47 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
+using Smartstore.Templating;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Messaging
 {
-    public partial class MessageModelProvider
+    public partial class MessageModelHelper
     {
-        private void ApplyCustomerContentPart(IDictionary<string, object> model, CustomerContent content, MessageContext ctx)
+        private readonly SmartDbContext _db;
+        private readonly ICommonServices _services;
+        private readonly ITemplateEngine _templateEngine;
+        private readonly IEmailAccountService _emailAccountService;
+        private readonly ILocalizationService _localizationService;
+        private readonly ModuleManager _moduleManager;
+        private readonly IUrlHelper _urlHelper;
+
+        public MessageModelHelper(
+            SmartDbContext db,
+            ICommonServices services,
+            ITemplateEngine templateEngine,
+            IEmailAccountService emailAccountService,
+            ILocalizationService localizationService,
+            ModuleManager moduleManager,
+            IUrlHelper urlHelper)
+        {
+            _db = db;
+            _services = services;
+            _templateEngine = templateEngine;
+            _emailAccountService = emailAccountService;
+            _localizationService = localizationService;
+            _moduleManager = moduleManager;
+            _urlHelper = urlHelper;
+        }
+
+        public void ApplyCustomerContentPart(IDictionary<string, object> model, CustomerContent content, MessageContext ctx)
         {
             model["CustomerId"] = content.CustomerId;
             model["IpAddress"] = content.IpAddress;
@@ -28,35 +57,35 @@ namespace Smartstore.Core.Messaging
             model["UpdatedOn"] = ToUserDate(content.UpdatedOnUtc, ctx);
         }
 
-        public static string BuildUrl(string url, MessageContext ctx)
+        public string BuildUrl(string url, MessageContext ctx)
         {
             return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + url.EnsureStartsWith('/');
         }
 
-        private string BuildRouteUrl(object routeValues, MessageContext ctx)
+        public string BuildRouteUrl(object routeValues, MessageContext ctx)
         {
             // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
             return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.RouteUrl(routeValues);
         }
 
-        private string BuildRouteUrl(string routeName, object routeValues, MessageContext ctx)
+        public string BuildRouteUrl(string routeName, object routeValues, MessageContext ctx)
         {
             // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
             return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.RouteUrl(routeName, routeValues);
         }
 
-        private string BuildActionUrl(string action, string controller, object routeValues, MessageContext ctx)
+        public string BuildActionUrl(string action, string controller, object routeValues, MessageContext ctx)
         {
             // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
             return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.Action(action, controller, routeValues);
         }
 
-        private async Task PublishModelPartCreatedEventAsync<T>(T source, dynamic part) where T : class
+        public async Task PublishModelPartCreatedEventAsync<T>(T source, dynamic part) where T : class
         {
             await _services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, part));
         }
 
-        private async Task<object> GetTopicAsync(string topicSystemName, MessageContext ctx)
+        public async Task<object> GetTopicAsync(string topicSystemName, MessageContext ctx)
         {
             var topic = await _db.Topics
                 .AsNoTracking()
@@ -76,17 +105,17 @@ namespace Smartstore.Core.Messaging
             };
         }
 
-        private static string GetDisplayNameForCustomer(Customer customer)
+        public string GetDisplayNameForCustomer(Customer customer)
         {
             return customer.GetFullName().NullEmpty() ?? customer.Username ?? customer.FindEmail();
         }
 
-        private string GetBoolResource(bool value, MessageContext ctx)
+        public string GetBoolResource(bool value, MessageContext ctx)
         {
             return _localizationService.GetResource(value ? "Common.Yes" : "Common.No", ctx.Language.Id);
         }
 
-        private DateTime? ToUserDate(DateTime? utcDate, MessageContext messageContext)
+        public DateTime? ToUserDate(DateTime? utcDate, MessageContext messageContext)
         {
             if (utcDate == null)
                 return null;
@@ -97,17 +126,17 @@ namespace Smartstore.Core.Messaging
                 _services.DateTimeHelper.GetCustomerTimeZone(messageContext.Customer));
         }
 
-        private Money FormatPrice(decimal price, Order order, MessageContext messageContext)
+        public Money FormatPrice(decimal price, Order order, MessageContext messageContext)
         {
             return FormatPrice(price, order.CustomerCurrencyCode, messageContext, order.CurrencyRate);
         }
 
-        private Money FormatPrice(decimal price, MessageContext messageContext, decimal exchangeRate = 1)
+        public Money FormatPrice(decimal price, MessageContext messageContext, decimal exchangeRate = 1)
         {
             return FormatPrice(price, (Currency)null, messageContext, exchangeRate);
         }
 
-        private Money FormatPrice(decimal price, string currencyCode, MessageContext messageContext, decimal exchangeRate = 1)
+        public Money FormatPrice(decimal price, string currencyCode, MessageContext messageContext, decimal exchangeRate = 1)
         {
             // Currencies are cached, so no need for async in this simple case.
             var currency = _db.Currencies
@@ -122,7 +151,7 @@ namespace Smartstore.Core.Messaging
                 exchangeRate);
         }
 
-        private Money FormatPrice(decimal price, Currency currency, MessageContext messageContext, decimal exchangeRate = 1)
+        public Money FormatPrice(decimal price, Currency currency, MessageContext messageContext, decimal exchangeRate = 1)
         {
             currency ??= _services.Resolve<IWorkContext>().WorkingCurrency;
 
@@ -134,7 +163,7 @@ namespace Smartstore.Core.Messaging
             return new(price, currency);
         }
 
-        private async Task<MediaFileInfo> GetMediaFileFor(Product product, ProductVariantAttributeSelection attrSelection = null)
+        public async Task<MediaFileInfo> GetMediaFileFor(Product product, ProductVariantAttributeSelection attrSelection = null)
         {
             var attrParser = _services.Resolve<IProductAttributeMaterializer>();
             var mediaService = _services.Resolve<IMediaService>();
@@ -177,7 +206,7 @@ namespace Smartstore.Core.Messaging
             return file;
         }
 
-        private static object[] Concat(params object[] values)
+        public object[] Concat(params object[] values)
         {
             return values.Where(x => CommonHelper.IsTruthy(x)).ToArray();
         }
