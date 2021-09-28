@@ -122,7 +122,7 @@ namespace Smartstore.Blog.Models.Mappers
                         Id = bc.Id,
                         CustomerId = bc.CustomerId,
                         CustomerName = bc.Customer.FormatUserName(_customerSettings, T, false),
-                        CommentText = HtmlUtils.StripTags(bc.CommentText),
+                        CommentText = HtmlUtils.SanitizeHtml(bc.CommentText),
                         CreatedOn = _dateTimeHelper.ConvertToUserTime(bc.CreatedOnUtc, DateTimeKind.Utc),
                         CreatedOnPretty = _services.DateTimeHelper.ConvertToUserTime(bc.CreatedOnUtc, DateTimeKind.Utc).Humanize(false),
                         AllowViewingProfiles = _customerSettings.AllowViewingProfiles && !isGuest

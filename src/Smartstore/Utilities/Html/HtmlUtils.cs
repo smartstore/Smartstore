@@ -59,7 +59,7 @@ namespace Smartstore.Utilities.Html
 
             using (var doc = parser.ParseDocument(html))
             {
-                List<IElement> removeElements = new List<IElement>();
+                List<IElement> removeElements = new();
 
                 foreach (var el in doc.All)
                 {

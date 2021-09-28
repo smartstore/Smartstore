@@ -284,7 +284,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Cart.CheckoutAttribute.Delete)]
-        public async Task<IActionResult> DeleteSelection(GridSelection selection)
+        public async Task<IActionResult> CheckoutAttributeDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;
