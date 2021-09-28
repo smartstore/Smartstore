@@ -121,7 +121,7 @@ namespace Smartstore.Web.Controllers
             };
 
             // TODO: (mh) (core) Check if routes are still the same, when everything is finished. 
-            // TODO: (mh) (core) Some kind of provider is needed here to include module paths here (e.g. Boards, Polls etc.). 
+            // TODO: (mh) (core) Some kind of provider is needed here to include external module paths here (e.g. Boards, Polls etc.). 
             var localizableDisallowPaths = new List<string>()
             {
                 "/Boards/ForumWatch",
