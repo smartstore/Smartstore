@@ -24,7 +24,7 @@
                 @Html.Raw(Model.CommentTitle)
             </h5>
             <p class="comment-body fs-h6 mt-3 mb-0" dir="auto">
-                @Html.Raw(Smartstore.Utilities.Html.HtmlUtils.ConvertPlainTextToHtml(Model.CommentText))
+                @Html.Raw(Smartstore.Utilities.Html.HtmlUtility.ConvertPlainTextToHtml(Model.CommentText))
             </p>
         </div>
     </div>

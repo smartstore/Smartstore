@@ -127,7 +127,7 @@ namespace Smartstore.Core.Catalog.Attributes
                         else if (pva.AttributeControlType == AttributeControlType.MultilineTextbox)
                         {
                             string attributeName = pva.ProductAttribute.GetLocalized(x => x.Name, languageId);
-                            pvaAttribute = $"{(htmlEncode ? attributeName.HtmlEncode() : attributeName)}: {HtmlUtils.ConvertPlainTextToHtml(valueStr.HtmlEncode())}";
+                            pvaAttribute = $"{(htmlEncode ? attributeName.HtmlEncode() : attributeName)}: {HtmlUtility.ConvertPlainTextToHtml(valueStr.HtmlEncode())}";
                         }
                         else if (pva.AttributeControlType == AttributeControlType.FileUpload)
                         {

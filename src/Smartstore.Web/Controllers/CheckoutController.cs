@@ -644,7 +644,7 @@ namespace Smartstore.Web.Controllers
 
                 if (!placeOrderResult.Success)
                 {
-                    model.Warnings.AddRange(placeOrderResult.Errors.Select(x => HtmlUtils.ConvertPlainTextToHtml(x)));
+                    model.Warnings.AddRange(placeOrderResult.Errors.Select(x => HtmlUtility.ConvertPlainTextToHtml(x)));
                 }
             }
             catch (Exception ex)

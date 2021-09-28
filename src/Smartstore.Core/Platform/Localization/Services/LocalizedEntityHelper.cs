@@ -89,7 +89,7 @@ namespace Smartstore.Core.Localization
             {
                 str = _localizedEntityService.GetLocalizedValue(requestLanguage.Id, id, localeKeyGroup, localeKey);
 
-                if (detectEmptyHtml && HtmlUtils.IsEmptyHtml(str))
+                if (detectEmptyHtml && HtmlUtility.IsEmptyHtml(str))
                 {
                     str = string.Empty;
                 }

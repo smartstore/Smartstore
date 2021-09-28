@@ -180,7 +180,7 @@ namespace Smartstore.Core.Common.Services
 
             if (newLineToBr)
             {
-                result = HtmlUtils.ConvertPlainTextToHtml(result);
+                result = HtmlUtility.ConvertPlainTextToHtml(result);
             }
 
             return result;

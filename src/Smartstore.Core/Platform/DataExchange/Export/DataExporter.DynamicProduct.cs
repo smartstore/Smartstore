@@ -652,13 +652,15 @@ namespace Smartstore.Core.DataExchange.Export
                     //Regex reg = new Regex("<[^>]+>", RegexOptions.IgnoreCase);
                     //description = HttpUtility.HtmlDecode(reg.Replace(description, ""));
 
-                    description = HtmlUtils.ConvertHtmlToPlainText(description);
-                    description = HtmlUtils.StripTags(HttpUtility.HtmlDecode(description));
+                    description = HtmlUtility.ConvertHtmlToPlainText(description);
+                    description = HtmlUtility.StripTags(HttpUtility.HtmlDecode(description));
                 }
 
                 dynObject.FullDescription = description.TrimSafe();
             }
-            catch { }
+            catch 
+            { 
+            }
         }
     }
 

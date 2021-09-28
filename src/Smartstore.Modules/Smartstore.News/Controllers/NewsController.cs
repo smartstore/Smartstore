@@ -30,6 +30,7 @@ using Smartstore.News.Hooks;
 using Smartstore.News.Messaging;
 using Smartstore.News.Models.Mappers;
 using Smartstore.News.Models.Public;
+using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Filters;
 
@@ -257,8 +258,8 @@ namespace Smartstore.News.Controllers
                     NewsItemId = newsItem.Id,
                     CustomerId = _services.WorkContext.CurrentCustomer.Id,
                     IpAddress = _webHelper.Value.GetClientIpAddress().ToString(),
-                    CommentTitle = model.AddNewComment.CommentTitle,
-                    CommentText = model.AddNewComment.CommentText,
+                    CommentTitle = model.AddNewComment.CommentTitle?.RemoveHtml(),
+                    CommentText = HtmlUtility.SanitizeHtml(model.AddNewComment.CommentText, HtmlSanitizerOptions.UserCommentSuitable),
                     IsApproved = true
                 };
 

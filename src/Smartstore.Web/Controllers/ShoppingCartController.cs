@@ -1010,7 +1010,7 @@ namespace Smartstore.Web.Controllers
                 customer,
                 model.YourEmailAddress,
                 model.FriendEmail,
-                HtmlUtils.ConvertPlainTextToHtml(model.PersonalMessage.HtmlEncode()));
+                HtmlUtility.ConvertPlainTextToHtml(model.PersonalMessage.HtmlEncode()));
 
             model.SuccessfullySent = true;
             model.Result = T("Wishlist.EmailAFriend.SuccessfullySent");

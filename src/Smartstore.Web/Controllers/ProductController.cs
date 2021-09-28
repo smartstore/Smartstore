@@ -684,8 +684,8 @@ namespace Smartstore.Web.Controllers
                     model.SenderEmail,
                     model.SenderName,
                     model.SenderPhone,
-                    HtmlUtils.ConvertPlainTextToHtml(model.Question.HtmlEncode()),
-                    HtmlUtils.ConvertPlainTextToHtml(model.SelectedAttributes.HtmlEncode()),
+                    HtmlUtility.ConvertPlainTextToHtml(model.Question.HtmlEncode()),
+                    HtmlUtility.ConvertPlainTextToHtml(model.SelectedAttributes.HtmlEncode()),
                     model.ProductUrl,
                     model.IsQuoteRequest);
 
@@ -796,7 +796,7 @@ namespace Smartstore.Web.Controllers
                     product,
                     model.YourEmailAddress,
                     model.FriendEmail,
-                    HtmlUtils.ConvertPlainTextToHtml(model.PersonalMessage.HtmlEncode()));
+                    HtmlUtility.ConvertPlainTextToHtml(model.PersonalMessage.HtmlEncode()));
 
                 NotifySuccess(T("Products.EmailAFriend.SuccessfullySent"));
 

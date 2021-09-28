@@ -96,7 +96,7 @@ namespace Smartstore.Core.Messaging
             // Checkout Attributes
             if (part.CheckoutAttributeDescription.HasValue())
             {
-                d.CheckoutAttributes = HtmlUtils.ConvertPlainTextToTable(HtmlUtils.ConvertHtmlToPlainText(part.CheckoutAttributeDescription)).NullEmpty();
+                d.CheckoutAttributes = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(part.CheckoutAttributeDescription)).NullEmpty();
             }
 
             await PublishModelPartCreatedEventAsync(part, m);
@@ -492,8 +492,8 @@ namespace Smartstore.Core.Messaging
                 { "Reason", part.ReasonForReturn.NullEmpty() },
                 { "Status", await part.ReturnRequestStatus.GetLocalizedEnumAsync(messageContext.Language.Id) },
                 { "RequestedAction", part.RequestedAction.NullEmpty() },
-                { "CustomerComments", HtmlUtils.StripTags(part.CustomerComments).NullEmpty() },
-                { "StaffNotes", HtmlUtils.StripTags(part.StaffNotes).NullEmpty() },
+                { "CustomerComments", HtmlUtility.StripTags(part.CustomerComments).NullEmpty() },
+                { "StaffNotes", HtmlUtility.StripTags(part.StaffNotes).NullEmpty() },
                 { "Quantity", part.Quantity },
                 { "RefundToWallet", part.RefundToWallet },
                 { "Url", BuildActionUrl("Edit", "ReturnRequest", new { id = part.Id, area = "Admin" }, messageContext) }

@@ -89,7 +89,7 @@ namespace Smartstore.Blog
             {
                 {  "PostTitle", title },
                 {  "PostUrl", MessageModelProvider.BuildUrl(url, messageContext) },
-                {  "Text", HtmlUtils.StripTags(part.CommentText).NullEmpty() }
+                {  "Text", HtmlUtility.SanitizeHtml(part.CommentText, HtmlSanitizerOptions.UserCommentSuitable).NullEmpty() }
             };
 
             return m;

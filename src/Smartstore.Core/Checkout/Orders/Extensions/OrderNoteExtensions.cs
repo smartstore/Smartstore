@@ -19,7 +19,7 @@ namespace Smartstore
                 return string.Empty;
             }
 
-            return HtmlUtils.ConvertPlainTextToHtml(orderNote.Note);
+            return HtmlUtility.ConvertPlainTextToHtml(orderNote.Note);
         }
     }
 }

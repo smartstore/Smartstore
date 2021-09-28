@@ -91,7 +91,7 @@
             </div>
             <div class="post-body">
                 <div class="posttext" dir="auto">
-                    @Html.Raw(HtmlUtils.SanitizeHtml(Model.FormattedText))
+                    @Html.Raw(HtmlUtility.SanitizeHtml(Model.FormattedText))
                 </div>
                 <input type="hidden" asp-for="Id" />
             </div>

@@ -89,8 +89,8 @@ namespace Smartstore.News
             {
                 {  "NewsTitle", title },
                 {  "NewsUrl", MessageModelProvider.BuildUrl(url, messageContext) },
-                {  "Title", part.CommentTitle.NullEmpty() },
-                {  "Text", HtmlUtils.StripTags(part.CommentText).NullEmpty() }
+                {  "Title", part.CommentTitle.RemoveHtml().NullEmpty() },
+                {  "Text", HtmlUtility.SanitizeHtml(part.CommentText, HtmlSanitizerOptions.UserCommentSuitable).NullEmpty() }
             };
 
             return m;

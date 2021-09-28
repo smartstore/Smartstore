@@ -29,7 +29,7 @@
                     <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Date")</dt>
                     <dd class="col-sm-8">@item.CreatedOn.ToNativeString()</dd>
                     <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Comments")</dt>
-                    <dd class="col-sm-8" dir="auto">@Html.Raw(Smartstore.Utilities.Html.HtmlUtils.ConvertPlainTextToHtml(item.Comments))</dd>
+                    <dd class="col-sm-8" dir="auto">@Html.Raw(Smartstore.Utilities.Html.HtmlUtility.ConvertPlainTextToHtml(item.Comments))</dd>
                 </dl>
             </div>
         </div>

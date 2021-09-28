@@ -21,7 +21,7 @@ namespace Smartstore.Forums
                 return string.Empty;
             }
 
-            text = HtmlUtils.ConvertPlainTextToHtml(text.HtmlEncode());
+            text = HtmlUtility.ConvertPlainTextToHtml(text.HtmlEncode());
             return BBCodeHelper.ToHtml(text);
         }
     }

@@ -177,8 +177,8 @@ namespace Smartstore.Web.Models.Cart
                 to.MeasureUnitName = measure.GetLocalized(x => x.Name);
             }
 
-            to.CheckoutAttributeInfo = HtmlUtils.ConvertPlainTextToTable(
-                HtmlUtils.ConvertHtmlToPlainText(
+            to.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(
+                HtmlUtility.ConvertHtmlToPlainText(
                     await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer)));
 
             // Gift card and gift card boxes.

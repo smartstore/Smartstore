@@ -15,37 +15,67 @@ namespace Smartstore.Utilities.Html
     /// <summary>
     /// Utility class for html manipulation or creation
     /// </summary>
-    public static partial class HtmlUtils
+    public static partial class HtmlUtility
     {
         private readonly static Regex _paragraphStartRegex = new("<p>", RegexOptions.IgnoreCase);
         private readonly static Regex _paragraphEndRegex = new("</p>", RegexOptions.IgnoreCase);
         //private static Regex ampRegex = new Regex("&(?!(?:#[0-9]{2,4};|[a-z0-9]+;))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+        /// <inheritdoc cref="SanitizeHtml(string, HtmlSanitizerOptions, bool)"/>
+        public static string SanitizeHtml(string html, bool isFragment = true)
+            => SanitizeHtml(html, HtmlSanitizerOptions.Default, isFragment);
+
         /// <summary>
         /// Cleans HTML fragments and documents from constructs that can lead to XSS attacks.
         /// </summary>
+        /// <remarks>
+        /// XSS attacks can occur at several levels within an HTML document or fragment:
+        /// <list type="bullet">
+        ///     <item>HTML Tags (e.g. the &lt;script&gt; tag)</item>
+        ///     <item>HTML attributes (e.g. the "onload" attribute)</item>
+        ///     <item>CSS styles (url property values)</item>
+        ///     <item>malformed HTML or HTML that exploits parser bugs in specific browsers</item>
+        /// </list>
         /// <param name="html">Input HTML</param>
+        /// <param name="options">Sanitization options</param>
         /// <param name="isFragment">Whether given HTML is a partial fragment or a document.</param>
         /// <returns>Sanitized HTML</returns>
-        public static string SanitizeHtml(string html, bool isFragment = true)
+        public static string SanitizeHtml(string html, HtmlSanitizerOptions options, bool isFragment = true)
         {
             if (string.IsNullOrEmpty(html))
                 return string.Empty;
 
-            var sanitizer = new HtmlSanitizer();
+            Guard.NotNull(options, nameof(options));
 
-            if (isFragment)
+            var sanitizer = new HtmlSanitizer(
+                allowedTags: MergeSets(options.AllowedTags, options.DisallowedTags, HtmlSanitizerOptions.DefaultAllowedTags),
+                allowedAttributes: MergeSets(options.AllowedAttributes, options.DisallowedAttributes, HtmlSanitizerOptions.DefaultAllowedAttributes),
+                uriAttributes: options.UriAttributes) 
             {
-                return sanitizer.Sanitize(html);
+                KeepChildNodes = options.KeepChildNodes,
+                AllowDataAttributes = options.AllowDataAttributes
+            };
+
+            if (options.AllowedCssClasses != null)
+            {
+                sanitizer.AllowedClasses.AddRange(options.AllowedCssClasses);
             }
-            else
+
+            return isFragment
+                ? sanitizer.Sanitize(html)
+                : sanitizer.SanitizeDocument(html);
+
+            static IEnumerable<string> MergeSets(IEnumerable<string> allows, IEnumerable<string> disallows, ISet<string> defaults)
             {
-                return sanitizer.SanitizeDocument(html);
+                return disallows != null
+                    ? (allows ?? defaults).Except(disallows)
+                    : allows;
             }
         }
 
         /// <summary>
-        /// Strips all tags from an HTML document or fragment.
+        /// Strips all tags from an HTML document or fragment and returns just the text content. Also
+        /// removes all <c>script</c>, <c>style</c>, <c>svg</c> and <c>img</c> tags completely from DOM.
         /// </summary>
         /// <param name="html">Input HTML</param>
         /// <returns>Clean text</returns>

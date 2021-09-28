@@ -82,7 +82,7 @@ namespace Smartstore.Core.Checkout.Attributes
                                 attributeName = HttpUtility.HtmlEncode(attributeName);
                             }
 
-                            attributeStr = $"{attributeName}: {HtmlUtils.ConvertPlainTextToHtml(currentValue.EmptyNull().Replace(":", string.Empty).HtmlEncode())}";
+                            attributeStr = $"{attributeName}: {HtmlUtility.ConvertPlainTextToHtml(currentValue.EmptyNull().Replace(":", string.Empty).HtmlEncode())}";
                         }
                         else if (currentAttribute.AttributeControlType is AttributeControlType.FileUpload)
                         {

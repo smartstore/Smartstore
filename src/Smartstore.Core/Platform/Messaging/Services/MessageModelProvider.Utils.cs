@@ -66,7 +66,7 @@ namespace Smartstore.Core.Messaging
             string body = topic?.GetLocalized(x => x.Body, ctx.Language);
             if (body.HasValue())
             {
-                body = HtmlUtils.RelativizeFontSizes(body);
+                body = HtmlUtility.RelativizeFontSizes(body);
             }
 
             return new

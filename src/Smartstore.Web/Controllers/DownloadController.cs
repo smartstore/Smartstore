@@ -300,8 +300,8 @@ namespace Smartstore.Web.Controllers
             
             if (asPlainText ?? false)
             {
-                var agreement = HtmlUtils.ConvertHtmlToPlainText(product.UserAgreementText);
-                agreement = HtmlUtils.StripTags(HttpUtility.HtmlDecode(agreement));
+                var agreement = HtmlUtility.ConvertHtmlToPlainText(product.UserAgreementText);
+                agreement = HtmlUtility.StripTags(HttpUtility.HtmlDecode(agreement));
 
                 return Content(agreement);
             }

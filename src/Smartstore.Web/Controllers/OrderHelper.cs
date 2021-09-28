@@ -518,7 +518,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Checkout attributes.
-            model.CheckoutAttributeInfo = HtmlUtils.ConvertPlainTextToTable(HtmlUtils.ConvertHtmlToPlainText(order.CheckoutAttributeDescription));
+            model.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(order.CheckoutAttributeDescription));
 
             // Order notes.
             await _db.LoadCollectionAsync(order, x => x.OrderNotes);

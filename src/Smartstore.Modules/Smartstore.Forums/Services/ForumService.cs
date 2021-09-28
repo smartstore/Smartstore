@@ -133,7 +133,7 @@ namespace Smartstore.Forums.Services
                 return string.Empty;
             }
 
-            text = HtmlUtils.ConvertPlainTextToHtml(text.HtmlEncode());
+            text = HtmlUtility.ConvertPlainTextToHtml(text.HtmlEncode());
 
             if (_forumSettings.ForumEditor == EditorType.BBCodeEditor)
             {

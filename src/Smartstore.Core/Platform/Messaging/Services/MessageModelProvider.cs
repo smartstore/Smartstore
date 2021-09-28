@@ -663,7 +663,7 @@ namespace Smartstore.Core.Messaging
             var message = (string)null;
             if (part.Message.HasValue())
             {
-                message = HtmlUtils.StripTags(part.Message);
+                message = HtmlUtility.StripTags(part.Message);
             }
             m["Message"] = message;
 
@@ -716,7 +716,7 @@ namespace Smartstore.Core.Messaging
 
             var protocol = messageContext.BaseUri.Scheme;
             var host = messageContext.BaseUri.Authority + messageContext.BaseUri.AbsolutePath;
-            var body = HtmlUtils.RelativizeFontSizes(part.Body.EmptyNull());
+            var body = HtmlUtility.RelativizeFontSizes(part.Body.EmptyNull());
 
             // We must render the body separately.
             body = await _templateEngine.RenderAsync(body, messageContext.Model, messageContext.FormatProvider);
@@ -742,7 +742,7 @@ namespace Smartstore.Core.Messaging
             var m = new Dictionary<string, object>
             {
                 { "Title", part.Title.NullEmpty() },
-                { "Text", HtmlUtils.StripTags(part.ReviewText).NullEmpty() },
+                { "Text", HtmlUtility.StripTags(part.ReviewText).NullEmpty() },
                 { "Rating", part.Rating }
             };
 

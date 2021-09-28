@@ -25,6 +25,7 @@ using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
 using Smartstore.Http;
 using Smartstore.Net;
+using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Filters;
 
@@ -281,7 +282,7 @@ namespace Smartstore.Blog.Controllers
                     BlogPostId = blogPost.Id,
                     CustomerId = customer.Id,
                     IpAddress = _webHelper.Value.GetClientIpAddress().ToString(),
-                    CommentText = model.AddNewComment.CommentText,
+                    CommentText = HtmlUtility.SanitizeHtml(model.AddNewComment.CommentText, HtmlSanitizerOptions.UserCommentSuitable),
                     IsApproved = true
                 };
 

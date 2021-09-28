@@ -260,7 +260,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string RemoveHtml(this string source)
         {
-            return HtmlUtils.StripTags(source).Trim().HtmlDecode();
+            return HtmlUtility.StripTags(source).Trim().HtmlDecode();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
