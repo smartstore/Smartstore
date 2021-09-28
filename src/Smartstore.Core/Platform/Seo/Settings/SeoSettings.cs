@@ -6,6 +6,64 @@ namespace Smartstore.Core.Seo
 {
     public class SeoSettings : ISettings
     {
+        public static ISet<string> DefaultRobotDisallows { get; } = new HashSet<string>
+        {
+                "/bin/",
+                "/Exchange/",
+                "/Country/GetStatesByCountryId",
+                "/Install$",
+                "/Product/SetReviewHelpfulness",
+        };
+
+        public static ISet<string> DefaultRobotLocalizableDisallows { get; } = new HashSet<string>
+        {
+                //"/Boards/ForumWatch", // TODO: (mg) (core) Add in module starter to this set
+                //"/Boards/PostEdit",
+                //"/Boards/PostDelete",
+                //"/Boards/PostCreate",
+                //"/Boards/TopicEdit",
+                //"/Boards/TopicDelete",
+                //"/Boards/TopicCreate",
+                //"/Boards/TopicMove",
+                //"/Boards/TopicWatch",
+                "/Cart$",
+                "/Checkout",
+                "/Product/ClearCompareList",
+                "/CompareProducts",
+                "/Customer/Avatar",
+                "/Customer/Activation",
+                "/Customer/Addresses",
+                "/Customer/BackInStockSubscriptions",
+                "/Customer/ChangePassword",
+                "/Customer/CheckUsernameAvailability",
+                "/Customer/DownloadableProducts",
+                "/Customer/ForumSubscriptions",
+                "/Customer/DeleteForumSubscriptions",
+                "/Customer/Info",
+                "/Customer/Orders",
+                "/Customer/ReturnRequests",
+                "/Customer/RewardPoints",
+                //"/PrivateMessages", // // TODO: (mg) (core) Add in module starter to this set
+                "/Newsletter/SubscriptionActivation",
+                "/Order$",
+                "/PasswordRecovery",
+                "/Poll/Vote", // // TODO: (mh) (core) Add in module starter to this set
+                "/ReturnRequest",
+                "/Newsletter/Subscribe",
+                "/Topic/Authenticate",
+                "/Wishlist",
+                "/Product/AskQuestion",
+                "/Product/EmailAFriend",
+                "/Cookiemanager",
+				//"/Search",
+				"/Config$",
+                "/Settings$",
+                "/Login$",
+                "/Login?*",
+                "/Register$",
+                "/Register?*"
+        };
+
         public SeoSettings()
         {
             ExtraRobotsDisallows = new List<string> { "/blog/tag/", "/blog/month/", "/producttags/" };

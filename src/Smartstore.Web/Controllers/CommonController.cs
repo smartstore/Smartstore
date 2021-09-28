@@ -111,65 +111,10 @@ namespace Smartstore.Web.Controllers
             #region DisallowPaths
 
             // TODO: (mh) (core) Check if routes are still the same, when everything is finished. 
-            var disallowPaths = new List<string>()
-            {
-                "/bin/",
-                "/Exchange/",
-                "/Country/GetStatesByCountryId",    
-                "/Install$",
-                "/Product/SetReviewHelpfulness",
-            };
+            var disallowPaths = SeoSettings.DefaultRobotDisallows;
 
             // TODO: (mh) (core) Check if routes are still the same, when everything is finished. 
-            // TODO: (mh) (core) Some kind of provider is needed here to include external module paths here (e.g. Boards, Polls etc.). 
-            var localizableDisallowPaths = new List<string>()
-            {
-                "/Boards/ForumWatch",
-                "/Boards/PostEdit",
-                "/Boards/PostDelete",
-                "/Boards/PostCreate",
-                "/Boards/TopicEdit",
-                "/Boards/TopicDelete",
-                "/Boards/TopicCreate",
-                "/Boards/TopicMove",
-                "/Boards/TopicWatch",
-                "/Cart$",
-                "/Checkout",
-                "/Product/ClearCompareList",
-                "/CompareProducts",
-                "/Customer/Avatar",
-                "/Customer/Activation",
-                "/Customer/Addresses",
-                "/Customer/BackInStockSubscriptions",
-                "/Customer/ChangePassword",
-                "/Customer/CheckUsernameAvailability",
-                "/Customer/DownloadableProducts",
-                "/Customer/ForumSubscriptions",
-                "/Customer/DeleteForumSubscriptions",
-                "/Customer/Info",
-                "/Customer/Orders",
-                "/Customer/ReturnRequests",
-                "/Customer/RewardPoints",
-                "/PrivateMessages",
-                "/Newsletter/SubscriptionActivation",
-                "/Order$",
-                "/PasswordRecovery",
-                "/Poll/Vote",
-                "/ReturnRequest",
-                "/Newsletter/Subscribe",
-                "/Topic/Authenticate",
-                "/Wishlist",
-                "/Product/AskQuestion",
-                "/Product/EmailAFriend",
-                "/Cookiemanager",
-				//"/Search",
-				"/Config$",
-                "/Settings$",
-                "/Login$",
-                "/Login?*",
-                "/Register$",
-                "/Register?*"
-            };
+            var localizableDisallowPaths = SeoSettings.DefaultRobotLocalizableDisallows;
 
             #endregion
 
