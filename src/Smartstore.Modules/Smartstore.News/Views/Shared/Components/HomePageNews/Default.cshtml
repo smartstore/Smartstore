@@ -8,11 +8,11 @@
             </div>
         </div>
         <div class="col col-auto">
-            <a class="btn btn-warning" asp-action="rss" title="@T("News.RSS.Hint")">
+            <a class="btn btn-warning" asp-route="NewsRSS" title="@T("News.RSS.Hint")">
                 <i class="fa fa-rss"></i>
                 <span>@T("News.RSS")</span>
             </a>
-            <a class="btn btn-outline-info btn-flat" asp-action="NewsArchive">
+            <a class="btn btn-outline-info btn-flat" asp-route="NewsArchive">
                 <span>@T("News.ViewAll")</span>
                 <i class="fa fa-angle-right"></i>
             </a>

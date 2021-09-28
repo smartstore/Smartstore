@@ -4,6 +4,7 @@ using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Blog.Domain;
@@ -39,7 +40,7 @@ namespace Smartstore.Blog.Controllers
         private readonly Lazy<IWebHelper> _webHelper;
         private readonly Lazy<IActivityLogger> _activityLogger; 
         private readonly Lazy<IMessageFactory> _messageFactory;
-        private readonly Lazy<LinkGenerator> _linkGenerator;
+        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly BlogSettings _blogSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly CaptchaSettings _captchaSettings;
@@ -54,7 +55,7 @@ namespace Smartstore.Blog.Controllers
             Lazy<IWebHelper> webHelper,
             Lazy<IActivityLogger> activityLogger,
             Lazy<IMessageFactory> messageFactory,
-            Lazy<LinkGenerator> linkGenerator,
+            Lazy<IUrlHelper> urlHelper,
             BlogSettings blogSettings,
             LocalizationSettings localizationSettings,
             CaptchaSettings captchaSettings,
@@ -68,7 +69,7 @@ namespace Smartstore.Blog.Controllers
             _webHelper = webHelper;
             _activityLogger = activityLogger;
             _messageFactory = messageFactory;
-            _linkGenerator = linkGenerator;
+            _urlHelper = urlHelper;
             _blogSettings = blogSettings;
             _localizationSettings = localizationSettings;
             _captchaSettings = captchaSettings;
@@ -265,12 +266,12 @@ namespace Smartstore.Blog.Controllers
             var customer = _services.WorkContext.CurrentCustomer;
             if (customer.IsGuest() && !_blogSettings.AllowNotRegisteredUsersToLeaveComments)
             {
-                ModelState.AddModelError("", T("Blog.Comments.OnlyRegisteredUsersLeaveComments"));
+                ModelState.AddModelError(string.Empty, T("Blog.Comments.OnlyRegisteredUsersLeaveComments"));
             }
 
             if (_captchaSettings.ShowOnBlogCommentPage && captchaError.HasValue())
             {
-                ModelState.AddModelError("", captchaError);
+                ModelState.AddModelError(string.Empty, captchaError);
             }
 
             if (ModelState.IsValid)
@@ -298,12 +299,22 @@ namespace Smartstore.Blog.Controllers
                 NotifySuccess(T("Blog.Comments.SuccessfullyAdded"));
 
                 var seName = await blogPost.GetActiveSlugAsync(ensureTwoPublishedLanguages: false);
-                var url = _linkGenerator.Value.GetPathByRouteValues("BlogPost", new { SeName = seName }, fragment: new FragmentString("#customer-comment-list"));
+                var url = _urlHelper.Value.RouteUrl(new UrlRouteContext
+                {
+                    RouteName = "BlogPost",
+                    Values = new { SeName = seName },
+                    Fragment = "customer-comment-list"
+                });
+
                 return Redirect(url);
             }
 
             // If we got this far something failed. Redisplay form.
             model = await blogPost.MapAsync(new { PrepareComments = true });
+
+            ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
+            ViewBag.StoreName = _services.StoreContext.CurrentStore.Name;
+
             return View("BlogPost", model);
         }
     }

@@ -198,7 +198,7 @@ namespace Smartstore.Admin.Controllers
             await _db.ActivityLogs.DeleteAllAsync();
             await _db.SaveChangesAsync();
         
-            return RedirectToAction("ListLogs");
+            return RedirectToAction(nameof(ActivityLogs));
         }
 
         #endregion

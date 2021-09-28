@@ -95,51 +95,6 @@ namespace Smartstore.News.Controllers
             _seoSettings = seoSettings;
         }
 
-        public async Task<IActionResult> HomePageNews()
-        {
-            // TODO: (mh) (core) What is this action for? Forgot to delete?
-            if (!_newsSettings.Enabled || !_newsSettings.ShowNewsOnMainPage)
-            {
-                return new EmptyResult();
-            }
-
-            var storeId = _services.StoreContext.CurrentStore.Id;
-            var languageId = _services.WorkContext.WorkingLanguage.Id;
-            var includeHidden = _services.WorkContext.CurrentCustomer.IsAdmin();
-            var cacheKey = string.Format(ModelCacheInvalidator.HOMEPAGE_NEWSMODEL_KEY, languageId, storeId, _newsSettings.MainPageNewsCount, includeHidden);
-
-            var cachedModel = await Services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
-            {
-                var newsItems = await _db.NewsItems()
-                    .AsNoTracking()
-                    .ApplyStandardFilter(storeId, languageId, includeHidden)
-                    .ToPagedList(0, _newsSettings.MainPageNewsCount)
-                    .LoadAsync();
-                
-                Services.DisplayControl.AnnounceRange(newsItems);
-
-                return new HomepageNewsItemsModel
-                {
-                    NewsItems = await newsItems.SelectAsync(async x =>
-                    {
-                        return await x.MapAsync(new { PrepareComments = false });
-                    })
-                    .AsyncToList()
-                };
-            });
-
-            // "Comments" property of "NewsItemModel" object depends on the current customer.
-            // Furthermore, we just don't need it for home page news. So let's update reset it.
-            // But first we need to clone the cached model (the updated one should not be cached)
-            var model = (HomepageNewsItemsModel)cachedModel.Clone();
-            foreach (var newsItemModel in model.NewsItems)
-            {
-                newsItemModel.Comments.Comments.Clear();
-            }
-
-            return View(model);
-        }
-
         [LocalizedRoute("news", Name = "NewsArchive")]
         public async Task<IActionResult> List(NewsPagingFilteringModel command)
         {
@@ -287,12 +242,12 @@ namespace Smartstore.News.Controllers
 
             if (_captchaSettings.ShowOnNewsCommentPage && captchaError.HasValue())
             {
-                ModelState.AddModelError("", captchaError);
+                ModelState.AddModelError(string.Empty, captchaError);
             }
 
             if (_services.WorkContext.CurrentCustomer.IsGuest() && !_newsSettings.AllowNotRegisteredUsersToLeaveComments)
             {
-                ModelState.AddModelError("", T("News.Comments.OnlyRegisteredUsersLeaveComments"));
+                ModelState.AddModelError(string.Empty, T("News.Comments.OnlyRegisteredUsersLeaveComments"));
             }
 
             if (ModelState.IsValid)
@@ -333,6 +288,9 @@ namespace Smartstore.News.Controllers
 
             // If we got this far something failed. Redisplay form.
             model = await newsItem.MapAsync(new { PrepareComments = true });
+            
+            ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
+            ViewBag.StoreName = _services.StoreContext.CurrentStore.Name;
 
             return View("NewsItem", model);
         }

@@ -14,6 +14,7 @@ using Smartstore.Blog.Models.Public;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Media;
+using Smartstore.Utilities.Html;
 
 namespace Smartstore.Blog.Models.Mappers
 {
@@ -121,7 +122,7 @@ namespace Smartstore.Blog.Models.Mappers
                         Id = bc.Id,
                         CustomerId = bc.CustomerId,
                         CustomerName = bc.Customer.FormatUserName(_customerSettings, T, false),
-                        CommentText = bc.CommentText,
+                        CommentText = HtmlUtils.StripTags(bc.CommentText),
                         CreatedOn = _dateTimeHelper.ConvertToUserTime(bc.CreatedOnUtc, DateTimeKind.Utc),
                         CreatedOnPretty = _services.DateTimeHelper.ConvertToUserTime(bc.CreatedOnUtc, DateTimeKind.Utc).Humanize(false),
                         AllowViewingProfiles = _customerSettings.AllowViewingProfiles && !isGuest

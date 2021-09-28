@@ -25,7 +25,6 @@ namespace Smartstore.News
                 .Action("Comments", "News", new { area = "Admin" })
                 .AsItem();
 
-            // TODO: (mh) (core) Insert after blog.
             var newsNode = new TreeNode<MenuItem>(newsMenuItem);
             var parent = modulesNode.Root.SelectNodeById("cms");
             var menus = parent.SelectNodeById("menus");

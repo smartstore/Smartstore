@@ -2,6 +2,7 @@
 
 @model DeliveryTimeModel
 
+<div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
 
 @(Html.LocalizedEditor<DeliveryTimeModel, DeliveryTimeLocalizedModel>("delivery-time-info-localized",

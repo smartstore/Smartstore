@@ -8,7 +8,7 @@
 @foreach (var item in Model.BlogPosts)
 {
     var hasImage = item.Preview != null;
-    var imageUrl = hasImage ? item.Preview.File.GetUrl() : string.Empty;
+    var imageUrl = hasImage ? item.Preview.File?.GetUrl() : string.Empty;
     var hasBgImage = item.HasBgImage && hasImage;
 
     var cssClass = (new[] { "bloglist-item-root", "card", "rounded", "shadow-sm", "border-0", "mb-3 mb-md-2" }).ToList();

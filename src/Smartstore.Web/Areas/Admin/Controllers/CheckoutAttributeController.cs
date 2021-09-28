@@ -161,7 +161,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Cart.CheckoutAttribute.Update)]
-        public async Task<IActionResult> Update(CheckoutAttributeModel model)
+        public async Task<IActionResult> CheckoutAttributeUpdate(CheckoutAttributeModel model)
         {
             var success = false;
             var checkoutAttribute = await _db.CheckoutAttributes.FindByIdAsync(model.Id);

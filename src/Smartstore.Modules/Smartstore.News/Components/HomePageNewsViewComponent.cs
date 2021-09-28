@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
@@ -47,8 +48,8 @@ namespace Smartstore.News.Components
 
             var cachedModel = await _cacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
-                // INFO: (mh) (core) Beware of unserializable models. They cannot be cached in distributed cache stores like Redis.
                 var newsItems = await _db.NewsItems()
+                    .AsNoTracking()
                     .ApplyStandardFilter(storeId, languageId)
                     .ToPagedList(0, _newsSettings.MainPageNewsCount)
                     .LoadAsync();

@@ -27,8 +27,9 @@ namespace Smartstore.Blog
 
             var blogNode = new TreeNode<MenuItem>(blogMenuItem);
             var parent = modulesNode.Root.SelectNodeById("cms");
-            var menus = parent.SelectNodeById("menus");
-            blogNode.InsertAfter(menus);
+            var refNode = parent.SelectNodeById("news") ?? parent.SelectNodeById("menus");
+
+            blogNode.InsertAfter(refNode);
 
             var blogPostsNode = new TreeNode<MenuItem>(blogPostsMenuItem);
             var blogCommentsNode = new TreeNode<MenuItem>(blogCommentsMenuItem);

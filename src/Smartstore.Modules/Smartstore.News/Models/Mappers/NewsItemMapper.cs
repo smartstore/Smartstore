@@ -11,6 +11,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.News.Domain;
 using Smartstore.News.Models.Public;
+using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Media;
@@ -96,8 +97,8 @@ namespace Smartstore.News.Models.Mappers
                         Id = nc.Id,
                         CustomerId = nc.CustomerId,
                         CustomerName = nc.Customer.FormatUserName(_customerSettings, T, false),
-                        CommentTitle = nc.CommentTitle,
-                        CommentText = nc.CommentText,
+                        CommentTitle = HtmlUtils.StripTags(nc.CommentTitle),
+                        CommentText = HtmlUtils.StripTags(nc.CommentText),
                         CreatedOn = _dateTimeHelper.ConvertToUserTime(nc.CreatedOnUtc, DateTimeKind.Utc),
                         CreatedOnPretty = _services.DateTimeHelper.ConvertToUserTime(nc.CreatedOnUtc, DateTimeKind.Utc).Humanize(false),
                         AllowViewingProfiles = _customerSettings.AllowViewingProfiles && !isGuest,

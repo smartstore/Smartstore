@@ -347,11 +347,12 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new List<AddressModel>();
+            var countries = await GetAllCountriesAsync();
 
             foreach (var address in customer.Addresses)
             {
                 var addressModel = new AddressModel();
-                await address.MapAsync(addressModel, countries: await GetAllCountriesAsync());
+                await address.MapAsync(addressModel, countries: countries);
                 model.Add(addressModel);
             }
 
@@ -817,7 +818,7 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
-        // TODO: (mh) (core) Forum subscriptions must be implemented in Forum module.
+        // TODO: (mh) (core) Forum subscriptions must be implemented in Forum external module.
 
         #region Reward points
 
@@ -1001,7 +1002,7 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            // TODO: (mh) (core) Make taghelpers or some other generic solution for this always repeating code.
+            // TODO: (mh) (core) Create some generic solution for this always repeating code.
             // Countries and states.
             if (_customerSettings.CountryEnabled)
             {
@@ -1082,7 +1083,7 @@ namespace Smartstore.Web.Controllers
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
             model.AllowUsersToChangeUsernames = _customerSettings.AllowUsersToChangeUsernames;
             model.CheckUsernameAvailabilityEnabled = _customerSettings.CheckUsernameAvailabilityEnabled;
-            // TODO: (mh) (core) This must be injected by Forum module somehow.
+            // TODO: (mh) (core) This must be injected by Forum external module somehow.
             //model.SignatureEnabled = _forumSettings.ForumsEnabled && _forumSettings.SignaturesEnabled;
             model.DisplayCustomerNumber = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled
                 && _customerSettings.CustomerNumberVisibility != CustomerNumberVisibility.None;

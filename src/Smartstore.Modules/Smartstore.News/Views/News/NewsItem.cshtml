@@ -17,7 +17,7 @@
         Assets.AppendCanonicalUrlParts(newsItemUrl);
     }
 
-    var imageUrl = Model.PictureModel.File.GetUrl();
+    var imageUrl = Model.PictureModel?.File?.GetUrl();
 }
 
 <partial name="MetaProperties" model="Model.MetaProperties" />
