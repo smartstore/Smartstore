@@ -1,0 +1,15 @@
+﻿@using Smartstore.Admin.Models.Modularity
+@using Newtonsoft.Json;
+
+@model LocalModulesModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Plugins").Value;
+
+    var allPluginsSelectList = Model.AllModules.Select(x => new SelectListItem { Value = x.SystemName, Text = x.FriendlyName });
+    var availableStores = JsonConvert.SerializeObject(Model.AvailableStores.Select(x => new { value = x.Id, text = x.Name }).ToArray());
+}
+
+<form id="modules-form" method="post" asp-action="ExecuteTasks">
+
+</form>

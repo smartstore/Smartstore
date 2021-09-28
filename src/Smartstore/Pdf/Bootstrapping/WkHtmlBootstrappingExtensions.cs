@@ -10,7 +10,6 @@ using Smartstore.Pdf.WkHtml;
 
 namespace Smartstore.Bootstrapping
 {
-    // TODO: (core) Options: transient or singleton?
     public static class WkHtmlBootstrappingExtensions
     {
         public static IServiceCollection AddWkHtmlToPdf(this IServiceCollection services)
