@@ -45,7 +45,9 @@ namespace Smartstore.Core.Data.Migrations
         {
             var name = TypeHelper.NameOf<WidgetSettings>(y => y.ActiveWidgetSystemNames, true);
             var setting = context.Settings.FirstOrDefault(x => x.Name == name);
-            if (setting != null && !setting.Value.Contains("Smartstore.News"))
+            var newsEnabledOnHomepage = context.Settings.FirstOrDefault(x => x.Name == "newssettings.shownewsonmainpage");
+            if (setting != null && !setting.Value.Contains("Smartstore.News") && 
+                newsEnabledOnHomepage != null && !(setting.Value == "True"))
             {
                 setting.Value += ",Smartstore.News";
             }
