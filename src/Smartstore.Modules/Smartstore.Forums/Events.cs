@@ -65,7 +65,6 @@ namespace Smartstore.Forums
             }
             else if (message.Name.EqualsNoCase("MyAccount"))
             {
-                // TODO: (mg) (core) verify forum frontend URLs. See URL below also.
                 if (forumSettings.ForumsEnabled && forumSettings.AllowCustomersToManageSubscriptions)
                 {
                     message.Root.Append(new MenuItem
@@ -73,7 +72,7 @@ namespace Smartstore.Forums
                         Id = "forumsubscriptions",
                         Text = T("Account.ForumSubscriptions"),
                         Icon = "fal fa-bell",
-                        Url = urlHelper.Action("CustomerSubscriptions", "Forum", new { area = string.Empty })   // old: Customer.ForumSubscriptions
+                        Url = urlHelper.Action("CustomerSubscriptions", "Boards", new { area = string.Empty })
                     });
                 }
 
@@ -90,6 +89,7 @@ namespace Smartstore.Forums
                             .CountAsync();
                     }
 
+                    // TODO: (mg) (core) verify private message route URL.
                     message.Root.Append(new MenuItem
                     {
                         Id = "privatemessages",
@@ -217,11 +217,10 @@ namespace Smartstore.Forums
                     .ApplyStandardFilter(ctx.Customer, topic.Id)
                     .FirstOrDefaultAsync();
 
-                // TODO: (mg) (core) verify forum frontend route URLs. See URLs below also.
                 var pageIndex = ctx.Model.GetFromBag<int>("TopicPageIndex");
                 var url = pageIndex > 0 ?
-                    urlHelper.RouteUrl("TopicSlugPaged", new { id = topic.Id, slug = forumService.BuildSlug(topic), page = pageIndex }) :
-                    urlHelper.RouteUrl("TopicSlug", new { id = topic.Id, slug = forumService.BuildSlug(topic) });
+                    urlHelper.RouteUrl("ForumTopicBySlugPaged", new { id = topic.Id, slug = forumService.BuildSlug(topic), page = pageIndex }) :
+                    urlHelper.RouteUrl("ForumTopicBySlug", new { id = topic.Id, slug = forumService.BuildSlug(topic) });
 
                 message.Result = new Dictionary<string, object>
                 {
@@ -230,7 +229,7 @@ namespace Smartstore.Forums
                     { "NumPosts", topic.NumPosts },
                     { "NumViews", topic.Views },
                     { "Body", forumService.FormatPostText(firstPost).NullEmpty() },
-                    //{ "Url", MessageModelProvider.BuildUrl(url, ctx) }
+                    { "Url", MessageModelProvider.BuildUrl(url, ctx) }
                 };
 
                 await PublishEvent(topic);
@@ -239,7 +238,7 @@ namespace Smartstore.Forums
             {
                 await db.LoadReferenceAsync(forum, x => x.ForumGroup);
 
-                var url = urlHelper.RouteUrl("ForumSlug", new { id = forum.Id, slug = await forum.GetActiveSlugAsync(ctx.Language.Id) });
+                var url = urlHelper.RouteUrl("ForumBySlug", new { id = forum.Id, slug = await forum.GetActiveSlugAsync(ctx.Language.Id) });
 
                 message.Result = new Dictionary<string, object>
                 {
@@ -247,7 +246,7 @@ namespace Smartstore.Forums
                     { "GroupName", forum.ForumGroup?.GetLocalized(x => x.Name, ctx.Language)?.Value.NullEmpty() },
                     { "NumPosts", forum.NumPosts },
                     { "NumTopics", forum.NumTopics },
-                    //{ "Url", MessageModelProvider.BuildUrl(url, ctx) }
+                    { "Url", MessageModelProvider.BuildUrl(url, ctx) }
                 };
 
                 await PublishEvent(forum);
@@ -304,6 +303,9 @@ namespace Smartstore.Forums
                 await db.LoadReferenceAsync(pm, x => x.FromCustomer);
                 await db.LoadReferenceAsync(pm, x => x.ToCustomer);
 
+                // TODO: (mg) (core) verify private message frontend URL.
+                var url = urlHelper.Action("View", "PrivateMessages", new { id = pm.Id, area = string.Empty });
+
                 message.Result = new Dictionary<string, object>
                 {
                     { "Subject", pm.Subject.NullEmpty() },
@@ -312,7 +314,7 @@ namespace Smartstore.Forums
                     { "ToEmail", pm.ToCustomer?.FindEmail().NullEmpty() },
                     { "FromName", pm.FromCustomer?.GetFullName().NullEmpty() },
                     { "ToName", pm.ToCustomer?.GetFullName().NullEmpty() },
-                    { "Url", MessageModelProvider.BuildUrl(urlHelper.Action("View", "PrivateMessages", new { id = pm.Id, area = string.Empty }), ctx) }
+                    { "Url", MessageModelProvider.BuildUrl(url, ctx) }
                 };
 
                 await PublishEvent(pm);

@@ -6,7 +6,6 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums.Services
 {
-    // TODO: (mg) (core) verify ForumSlugRouter when forum public controller is ready.
     public class ForumSlugRouter : SlugRouter
     {
         private static readonly string[] _entitiesWithSlugs = new[] { nameof(ForumGroup), nameof(ForumTopic), nameof(Forum) };
@@ -15,9 +14,9 @@ namespace Smartstore.Forums.Services
         {
             return entity.EntityName.EmptyNull().ToLower() switch
             {
-                "forumgroup" => GetRouteValues(nameof(ForumGroup)),
-                "forumtopic" => GetRouteValues(nameof(ForumTopic)),
-                "forum" => GetRouteValues(nameof(Forum)),
+                "forumgroup" => GetRouteValues("ForumGroup"),
+                "forumtopic" => GetRouteValues("Topic"),
+                "forum" => GetRouteValues("Forum"),
                 _ => null,
             };
 
@@ -26,7 +25,7 @@ namespace Smartstore.Forums.Services
                 return new RouteValueDictionary
                 {
                     { "area", string.Empty },
-                    { "controller", "Forum" },
+                    { "controller", "Boards" },
                     { "action", action },
                     { "id", entity.EntityId },
                     { "entity", entity }
@@ -36,10 +35,9 @@ namespace Smartstore.Forums.Services
 
         public override void MapRoutes(IEndpointRouteBuilder routes)
         {
-            foreach (var entity in new[] { nameof(ForumGroup), nameof(ForumTopic), nameof(Forum) })
-            {
-                routes.MapLocalizedControllerRoute(entity, UrlPatternFor(entity), new { controller = "forum", action = entity, area = string.Empty });
-            }
+            routes.MapLocalizedControllerRoute(nameof(ForumGroup), UrlPatternFor(nameof(ForumGroup)), new { controller = "Boards", action = "ForumGroup", area = string.Empty });
+            routes.MapLocalizedControllerRoute(nameof(ForumTopic), UrlPatternFor(nameof(ForumTopic)), new { controller = "Boards", action = "Topic", area = string.Empty });
+            routes.MapLocalizedControllerRoute(nameof(Forum), UrlPatternFor(nameof(Forum)), new { controller = "Boards", action = "Forum", area = string.Empty });
         }
     }
 }

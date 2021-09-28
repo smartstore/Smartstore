@@ -1,0 +1,25 @@
+﻿using System.Collections.Generic;
+using Smartstore.Collections;
+using Smartstore.Web.Modelling;
+
+namespace Smartstore.Forums.Models.Public
+{
+    public partial class CustomerForumSubscriptionsModel : PagedListBase
+    {
+        public CustomerForumSubscriptionsModel(IPageable pageable) 
+            : base(pageable)
+        {
+        }
+
+        public List<CustomerForumSubscriptionModel> ForumSubscriptions { get; set; }
+    }
+
+    public partial class CustomerForumSubscriptionModel : EntityModelBase
+    {
+        public int ForumId { get; set; }
+        public int ForumTopicId { get; set; }
+        public bool TopicSubscription { get; set; }
+        public string Title { get; set; }
+        public string Slug { get; set; }
+    }
+}

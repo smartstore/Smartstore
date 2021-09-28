@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -1562,6 +1563,117 @@ namespace Smartstore.Forums.Controllers
             await PrepareSearchResult(model, renderedTopicIds);
 
             return PartialView("SearchHits", model);
+        }
+
+        #endregion
+
+        #region Subscriptions
+
+        public async Task<IActionResult> CustomerSubscriptions(int? page)
+        {
+            if (!_forumSettings.AllowCustomersToManageSubscriptions)
+            {
+                return RedirectToAction("Info", "Customer");
+            }
+
+            var currentCustomer = Services.WorkContext.CurrentCustomer;
+            var pageIndex = (page ?? 1) - 1;
+            var pageSize = _forumSettings.ForumSubscriptionsPageSize;
+
+            var subscriptions = await _db.ForumSubscriptions()
+                .AsNoTracking()
+                .ApplyStandardFilter(currentCustomer.Id)
+                .ToPagedList(pageIndex, pageSize)
+                .LoadAsync();
+
+            var subscriptionModels = await subscriptions.SelectAsync(async x =>
+            {
+                var sm = new CustomerForumSubscriptionModel
+                {
+                    Id = x.Id,
+                    ForumTopicId = x.TopicId,
+                    ForumId = x.ForumId,
+                    TopicSubscription = x.TopicId > 0,
+                    Title = string.Empty,
+                    Slug = string.Empty
+                };
+
+                if (x.TopicId > 0)
+                {
+                    var forumTopic = await _db.ForumTopics().FindByIdAsync(x.TopicId, false);
+                    if (forumTopic != null)
+                    {
+                        sm.Title = forumTopic.Subject;
+                        sm.Slug = _forumService.BuildSlug(forumTopic);
+                    }
+                }
+                else
+                {
+                    var forum = await _db.Forums().FindByIdAsync(x.ForumId, false);
+                    if (forum != null)
+                    {
+                        sm.Title = forum.GetLocalized(x => x.Name);
+                        sm.Slug = await forum.GetActiveSlugAsync();
+                    }
+                }
+
+                return sm;
+            })
+            .AsyncToList();
+
+            var model = new CustomerForumSubscriptionsModel(subscriptions)
+            {
+                ForumSubscriptions = subscriptionModels
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CustomerSubscriptions(IFormCollection form)
+        {
+            var currentCustomer = Services.WorkContext.CurrentCustomer;
+            var toDelete = new List<ForumSubscription>();
+
+            foreach (var key in form.Keys)
+            {
+                var value = form[key].FirstOrDefault();
+
+                if (value.EqualsNoCase("on") && key.StartsWith("fs", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (int.TryParse(key.Replace("fs", "").Trim(), out var subscriptionId))
+                    {
+                        var subscription = await _db.ForumSubscriptions().FindByIdAsync(subscriptionId);
+                        if (subscription != null && subscription.CustomerId == currentCustomer.Id)
+                        {
+                            toDelete.Add(subscription);
+                        }
+                    }
+                }
+            }
+
+            if (toDelete.Any())
+            {
+                _db.ForumSubscriptions().RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
+            }
+
+            return RedirectToAction("CustomerSubscriptions");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteCustomerSubscription(int id)
+        {
+            var subscription = await _db.ForumSubscriptions().FindByIdAsync(id);
+            if (subscription == null || subscription.CustomerId != Services.WorkContext.CurrentCustomer.Id)
+            {
+                return NotFound();
+            }
+
+            _db.ForumSubscriptions().Remove(subscription);
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction("CustomerSubscriptions");
         }
 
         #endregion

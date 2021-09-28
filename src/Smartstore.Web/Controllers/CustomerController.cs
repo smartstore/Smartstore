@@ -274,7 +274,7 @@ namespace Smartstore.Web.Controllers
                     {
                         await _newsletterSubscriptionService.ApplySubscriptionAsync(model.Newsletter, customer.Email, Services.StoreContext.CurrentStore.Id);
                     }
-                    // TODO: (mh) (core) Forum module stuff.
+                    // TODO: (mg) (core) Forum module stuff.
                     //if (_forumSettings.ForumsEnabled && _forumSettings.SignaturesEnabled)
                     //{
                     //    customer.GenericAttributes.Signature = model.Signature;
@@ -818,8 +818,6 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
-        // TODO: (mh) (core) Forum subscriptions must be implemented in Forum external module.
-
         #region Reward points
 
         [RequireSsl]
@@ -1083,7 +1081,7 @@ namespace Smartstore.Web.Controllers
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
             model.AllowUsersToChangeUsernames = _customerSettings.AllowUsersToChangeUsernames;
             model.CheckUsernameAvailabilityEnabled = _customerSettings.CheckUsernameAvailabilityEnabled;
-            // TODO: (mh) (core) This must be injected by Forum external module somehow.
+            // TODO: (mg) (core) This must be injected by Forum external module somehow.
             //model.SignatureEnabled = _forumSettings.ForumsEnabled && _forumSettings.SignaturesEnabled;
             model.DisplayCustomerNumber = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled
                 && _customerSettings.CustomerNumberVisibility != CustomerNumberVisibility.None;

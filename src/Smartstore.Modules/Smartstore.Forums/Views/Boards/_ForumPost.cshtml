@@ -7,7 +7,7 @@
         : (object)(new { id = Model.ForumTopicId, slug = Model.ForumTopicSlug, page = Model.CurrentTopicPage });
 }
 
-@Html.Raw("<a name=\"{0}\"></a>".FormatInvariant(Model.Id))
+@Html.Raw($"<a name=\"{Model.Id}\"></a>")
 
 <div class="block block-bordered forum-post card" id="post@(Model.Id)" data-id="@Model.Id">
 	<div class="block-title card-header">
@@ -24,7 +24,6 @@
             }
         </div>
         <div class="d-flex align-items-center">
-            @*TODO: (mg) (core) verify forum frontend URLs. See below also.*@
             @if (Model.CanEditPost)
             {
                 <i class="far fa-edit"></i>
@@ -69,7 +68,7 @@
                     </div>
                     @if (Model.CanCreatePrivateMessages)
                     {
-                        @*TODO: (mg) (core) verify forum frontend URLs. See below also.*@
+                        @*TODO: (mg) (core) verify private message frontend URL.*@
                         <a asp-action="Send" asp-controller="PrivateMessages" asp-route-id="@Model.CustomerId" class="btn btn-outline-info btn-flat button-pm mt-2" rel="nofollow">
                             <i class="fa fa-user"></i>
                             <span>@T("Forum.PrivateMessages.PM")</span>
