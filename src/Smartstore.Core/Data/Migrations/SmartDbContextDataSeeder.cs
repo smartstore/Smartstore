@@ -24,9 +24,7 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Seo;
-using Smartstore.Core.Widgets;
 using Smartstore.Data.Migrations;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -38,22 +36,14 @@ namespace Smartstore.Core.Data.Migrations
         {
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
             await MigrateEnumResources(context, cancelToken);
-            await MigrateSettingsAsync(context, cancelToken);
+            //await MigrateSettingsAsync(context, cancelToken);
         }
 
-        public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
-        {
-            var name = TypeHelper.NameOf<WidgetSettings>(y => y.ActiveWidgetSystemNames, true);
-            var setting = context.Settings.FirstOrDefault(x => x.Name == name);
-            var newsEnabledOnHomepage = context.Settings.FirstOrDefault(x => x.Name == "newssettings.shownewsonmainpage");
-            if (setting != null && !setting.Value.Contains("Smartstore.News") && 
-                newsEnabledOnHomepage != null && !(setting.Value == "True"))
-            {
-                setting.Value += ",Smartstore.News";
-            }
-
-            await context.SaveChangesAsync(cancelToken);
-        }
+        //public Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
+        //{
+        //    // Nothing in here yet
+        //    return Task.CompletedTask;
+        //}
 
         public static void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {

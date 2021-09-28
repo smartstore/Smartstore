@@ -42,7 +42,7 @@ namespace Smartstore.News
         {
             try
             {
-                var seeder = new NewsInstallationDataSeeder(context, Services.Resolve<IMessageTemplateService>());
+                var seeder = new NewsInstallationDataSeeder(context, Services.Resolve<IMessageTemplateService>(), Services.Resolve<IWidgetService>());
                 await seeder.SeedAsync(Services.DbContext);
             }
             catch (Exception ex)

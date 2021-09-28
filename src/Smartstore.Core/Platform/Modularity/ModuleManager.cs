@@ -26,6 +26,7 @@ namespace Smartstore.Engine.Modularity
         private readonly ILocalizationService _locService;
         private readonly ISettingFactory _settingFactory;
         private readonly ISettingService _settingService;
+        private readonly IWidgetService _widgetService;
         private readonly Func<string, IModule> _moduleByNameFactory;
         private readonly Func<IModuleDescriptor, IModule> _moduleByDescriptorFactory;
 
@@ -36,6 +37,7 @@ namespace Smartstore.Engine.Modularity
             ILocalizationService locService, 
             ISettingFactory settingFactory, 
             ISettingService settingService,
+            IWidgetService widgetService,
             Func<string, IModule> moduleByNameFactory,
             Func<IModuleDescriptor, IModule> moduleByDescriptorFactory)
         {
@@ -45,6 +47,7 @@ namespace Smartstore.Engine.Modularity
             _locService = locService;
             _settingFactory = settingFactory;
             _settingService = settingService;
+            _widgetService = widgetService;
             _moduleByNameFactory = moduleByNameFactory;
             _moduleByDescriptorFactory = moduleByDescriptorFactory;
         }
@@ -292,24 +295,7 @@ namespace Smartstore.Engine.Modularity
 
             foreach (var systemName in parent.DependentWidgets)
             {
-                var widget = _ctx.ResolveOptionalNamed<Lazy<IWidget, ProviderMetadata>>(systemName);
-                if (widget != null)
-                {
-                    var widgetSettings = _ctx.Resolve<WidgetSettings>();
-                    var isActive = widget.IsWidgetActive(widgetSettings);
-
-                    if (isActive && !activate)
-                    {
-                        widgetSettings.ActiveWidgetSystemNames.Remove(systemName);
-                        await _settingFactory.SaveSettingsAsync(widgetSettings);
-                    }
-
-                    if (!isActive && activate)
-                    {
-                        widgetSettings.ActiveWidgetSystemNames.Add(systemName);
-                        await _settingFactory.SaveSettingsAsync(widgetSettings);
-                    }
-                }
+                await _widgetService.ActivateWidgetAsync(systemName, activate);
             }
         }
 

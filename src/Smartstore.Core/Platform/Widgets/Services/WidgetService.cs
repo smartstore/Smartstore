@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Smartstore.Caching;
 using Smartstore.Collections;
+using Smartstore.Core.Configuration;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Widgets
@@ -16,19 +18,20 @@ namespace Smartstore.Core.Widgets
         private readonly WidgetSettings _widgetSettings;
         private readonly IProviderManager _providerManager;
         private readonly ICacheManager _cache;
+        private readonly ISettingFactory _settingFactory;
         private readonly IRequestCache _requestCache;
-
-        private static readonly Multimap<(int StoreId, string Zone), Type> _zoneWidgetMap = new();
 
         public WidgetService(
             WidgetSettings widgetSettings, 
             IProviderManager providerManager,
             ICacheManager cache,
+            ISettingFactory settingFactory,
             IRequestCache requestCache)
         {
             _widgetSettings = widgetSettings;
             _providerManager = providerManager;
             _cache = cache;
+            _settingFactory = settingFactory;
             _requestCache = requestCache;
         }
 
@@ -62,6 +65,29 @@ namespace Smartstore.Core.Widgets
             }
 
             return Enumerable.Empty<Provider<IWidget>>();
+        }
+
+        public virtual async Task ActivateWidgetAsync(string systemName, bool activate)
+        {
+            Guard.NotNull(systemName, nameof(systemName));
+
+            var widget = _providerManager.GetProvider<IWidget>(systemName);
+            if (widget != null)
+            {
+                var isActive = widget.IsWidgetActive(_widgetSettings);
+
+                if (isActive && !activate)
+                {
+                    _widgetSettings.ActiveWidgetSystemNames.Remove(systemName);
+                    await _settingFactory.SaveSettingsAsync(_widgetSettings);
+                }
+
+                if (!isActive && activate)
+                {
+                    _widgetSettings.ActiveWidgetSystemNames.Add(systemName);
+                    await _settingFactory.SaveSettingsAsync(_widgetSettings);
+                }
+            }
         }
 
         protected virtual Multimap<string, ProviderMetadata> GetWidgetMetadataMap()

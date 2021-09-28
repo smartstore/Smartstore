@@ -1,13 +1,15 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.News.Domain;
-using Smartstore.News.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
+using Smartstore.News.Domain;
+using Smartstore.News.Services;
+using Smartstore.Utilities;
 
 namespace Smartstore.News.Migrations
 {
@@ -15,21 +17,36 @@ namespace Smartstore.News.Migrations
     {
         private readonly ModuleInstallationContext _installContext;
         private readonly IMessageTemplateService _messageTemplateService;
+        private readonly IWidgetService _widgetService;
 
-        public NewsInstallationDataSeeder(ModuleInstallationContext installContext, IMessageTemplateService messageTemplateService)
+        public NewsInstallationDataSeeder(ModuleInstallationContext installContext, IMessageTemplateService messageTemplateService, IWidgetService widgetService)
             : base(installContext.ApplicationContext, installContext.Logger)
         {
             _installContext = Guard.NotNull(installContext, nameof(installContext));
             _messageTemplateService = Guard.NotNull(messageTemplateService, nameof(messageTemplateService));
+            _widgetService = Guard.NotNull(widgetService, nameof(widgetService));
         }
 
         protected override async Task SeedCoreAsync()
         {
             await PopulateAsync("PopulateNewsMessageTemplates", PopulateMessageTemplates);
+            await TryActivateWidgetAsync();
 
             if (_installContext.SeedSampleData == null || _installContext.SeedSampleData == true)
             {
                 await PopulateAsync("PopulateNewsItems", PopulateNewsPosts);
+            }
+        }
+
+        private async Task TryActivateWidgetAsync()
+        {
+            var showOnHomepagePropName = TypeHelper.NameOf<NewsSettings>(y => y.ShowNewsOnMainPage, true);
+            var showOnHomepageSetting = await Context.Settings.FirstOrDefaultAsync(x => x.Name == showOnHomepagePropName);
+            
+            if (showOnHomepageSetting?.Value?.Convert<bool?>() == true)
+            {
+                // Activate the news homepage widget
+                await _widgetService.ActivateWidgetAsync("Smartstore.News", true);
             }
         }
 
