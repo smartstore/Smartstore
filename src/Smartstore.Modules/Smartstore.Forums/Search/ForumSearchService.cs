@@ -136,8 +136,8 @@ namespace Smartstore.Forums.Search
 
         protected virtual async Task<ForumSearchResult> SearchDirectAsync(ForumSearchQuery searchQuery)
         {
-            var linqCatalogSearchService = _services.ResolveNamed<IForumSearchService>("linq");
-            var result = await linqCatalogSearchService.SearchAsync(searchQuery, true);
+            var linqForumSearchService = _services.ResolveNamed<IForumSearchService>("linq");
+            var result = await linqForumSearchService.SearchAsync(searchQuery, true);
 
             return result;
         }

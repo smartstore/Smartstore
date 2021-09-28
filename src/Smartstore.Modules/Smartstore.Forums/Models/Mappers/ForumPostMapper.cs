@@ -83,7 +83,7 @@ namespace Smartstore.Forums.Models.Mappers
             to.CustomerName = from.Customer.FormatUserName(stripLongUserNames);
             to.IsGuest = from.Customer.IsGuest();
             to.IsForumModerator = from.Customer.IsForumModerator();
-            to.ModerationPermits = _forumService.GetModerationPermits(from.ForumTopic, from, currentCustomer);
+            to.ModerationPermissions = _forumService.GetModerationPermissions(from.ForumTopic, from, currentCustomer);
             to.ShowCustomersPostCount = _forumSettings.ShowCustomersPostCount;
             to.ForumPostCount = from.Customer.GenericAttributes.Get<int>("ForumPostCount");
             to.ShowCustomersJoinDate = _customerSettings.ShowCustomersJoinDate;

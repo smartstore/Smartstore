@@ -39,18 +39,18 @@ namespace Smartstore.Forums.Models.Public
         public string Subject { get; set; }
         public string Slug { get; set; }
 
-        public ForumModerationPermits ModerationPermits { get; set; }
+        public ForumModerationPermissionFlags ModerationPermissions { get; set; }
         public bool CanEditTopic
         {
-            get => ModerationPermits.HasFlag(ForumModerationPermits.CanEditTopic);
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanEditTopic);
         }
         public bool CanMoveTopic
         {
-            get => ModerationPermits.HasFlag(ForumModerationPermits.CanMoveTopic);
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanMoveTopic);
         }
         public bool CanDeleteTopic
         {
-            get => ModerationPermits.HasFlag(ForumModerationPermits.CanDeleteTopic);
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanDeleteTopic);
         }
 
         public bool CanSubscribe { get; set; }

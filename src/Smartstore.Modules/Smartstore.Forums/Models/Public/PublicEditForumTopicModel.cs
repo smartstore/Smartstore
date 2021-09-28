@@ -28,10 +28,14 @@ namespace Smartstore.Forums.Models.Public
         public bool CanSubscribe { get; set; }
         public bool IsSubscribed { get; set; }
 
-        public ForumModerationPermits ModerationPermits { get; set; }
+        public ForumModerationPermissionFlags ModerationPermissions { get; set; }
+        public bool CanCreateTopics
+        {
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanCreateTopics);
+        }
         public bool CanEditTopic
         {
-            get => ModerationPermits.HasFlag(ForumModerationPermits.CanEditTopic);
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanEditTopic);
         }
     }
 

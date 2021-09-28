@@ -10,6 +10,11 @@ using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums.Search
 {
+    public interface IForumSearchResultModel
+    {
+        ForumSearchResult SearchResult { get; }
+    }
+
     public partial class ForumSearchResult
     {
         private readonly DbSet<ForumPost> _dbSet;

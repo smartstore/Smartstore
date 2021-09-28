@@ -9,10 +9,10 @@ namespace Smartstore.Forums.Models.Public
         public int SelectedForumId { get; set; }
         public string TopicSlug { get; set; }
 
-        public ForumModerationPermits ModerationPermits { get; set; }
+        public ForumModerationPermissionFlags ModerationPermissions { get; set; }
         public bool CanMoveTopic
         {
-            get => ModerationPermits.HasFlag(ForumModerationPermits.CanMoveTopic);
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanMoveTopic);
         }
     }
 }

@@ -107,9 +107,8 @@ namespace Smartstore.Forums.Domain
         PostsDesc
     }
 
-    // TODO: (mg) (core) Rename: ForumModerationPermits --> ForumModerationPermissionFlags
     [Flags]
-    public enum ForumModerationPermits
+    public enum ForumModerationPermissionFlags
     {
         None = 0,
         

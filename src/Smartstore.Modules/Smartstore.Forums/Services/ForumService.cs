@@ -143,45 +143,45 @@ namespace Smartstore.Forums.Services
             return text;
         }
 
-        public virtual ForumModerationPermits GetModerationPermits(ForumTopic topic = null, ForumPost post = null, Customer customer = null)
+        public virtual ForumModerationPermissionFlags GetModerationPermissions(ForumTopic topic = null, ForumPost post = null, Customer customer = null)
         {
             customer ??= _services.WorkContext.CurrentCustomer;
 
-            var permits = ForumModerationPermits.None;
+            var permits = ForumModerationPermissionFlags.None;
 
             if (customer.IsForumModerator())
             {
-                permits = ForumModerationPermits.All;
+                permits = ForumModerationPermissionFlags.All;
             }
             else
             {
                 var isGuest = customer.IsGuest();
 
                 if (!(isGuest && !_forumSettings.AllowGuestsToCreateTopics))
-                    permits |= ForumModerationPermits.CanCreateTopics;
+                    permits |= ForumModerationPermissionFlags.CanCreateTopics;
 
                 if (!(isGuest && !_forumSettings.AllowGuestsToCreatePosts))
-                    permits |= ForumModerationPermits.CanCreatePosts;
+                    permits |= ForumModerationPermissionFlags.CanCreatePosts;
 
                 if (_forumSettings.AllowPrivateMessages && !isGuest)
-                    permits |= ForumModerationPermits.CanCreatePrivateMessages;
+                    permits |= ForumModerationPermissionFlags.CanCreatePrivateMessages;
 
                 if (topic != null && topic.Published && topic.CustomerId == customer.Id)
                 {
                     if (_forumSettings.AllowCustomersToEditPosts)
-                        permits |= ForumModerationPermits.CanEditTopic;
+                        permits |= ForumModerationPermissionFlags.CanEditTopic;
 
                     if (_forumSettings.AllowCustomersToDeletePosts)
-                        permits |= ForumModerationPermits.CanDeleteTopic;
+                        permits |= ForumModerationPermissionFlags.CanDeleteTopic;
                 }
 
                 if (post != null && post.Published && post.CustomerId == customer.Id)
                 {
                     if (_forumSettings.AllowCustomersToEditPosts)
-                        permits |= ForumModerationPermits.CanEditPost;
+                        permits |= ForumModerationPermissionFlags.CanEditPost;
 
                     if (_forumSettings.AllowCustomersToDeletePosts)
-                        permits |= ForumModerationPermits.CanDeletePost;
+                        permits |= ForumModerationPermissionFlags.CanDeletePost;
                 }
 
                 // ...

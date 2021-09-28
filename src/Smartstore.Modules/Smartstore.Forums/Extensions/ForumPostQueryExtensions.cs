@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core;
@@ -92,5 +94,54 @@ namespace Smartstore.Forums
                 .ThenInclude(x => x.CustomerRoleMappings)
                 .ThenInclude(x => x.CustomerRole);
         }
+
+        public static async Task<Dictionary<int, ForumPost>> GetForumPostsByIdsAsync(this DbSet<ForumPost> forumPosts, IEnumerable<int> forumPostIds)
+        {
+            var ids = forumPostIds
+                .Where(x => x != 0)
+                .Distinct()
+                .ToArray();
+
+            if (ids.Any())
+            {
+                return await forumPosts
+                    .Include(x => x.ForumTopic)
+                    .IncludeCustomer()
+                    .AsNoTracking()
+                    .Where(x => ids.Contains(x.Id))
+                    .ToDictionaryAsync(x => x.Id);
+            }
+            else
+            {
+                return new Dictionary<int, ForumPost>();
+            }
+        }
+
+        public static async Task<int> GetTopicPageIndexAsync(this DbSet<ForumPost> forumPosts, 
+            Customer customer,
+            int topicId, 
+            int pageSize, 
+            int postId)
+        {
+            if (pageSize > 0 && postId != 0)
+            {
+                var postIds = await forumPosts
+                    .AsNoTracking()
+                    .ApplyStandardFilter(customer, topicId, true)
+                    .Select(x => x.Id)
+                    .ToListAsync();
+                    
+                for (var i = 0; i < postIds.Count; ++i)
+                {
+                    if (postIds[i] == postId)
+                    {
+                        return i / pageSize;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
     }
 }

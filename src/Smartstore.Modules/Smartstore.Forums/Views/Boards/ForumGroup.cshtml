@@ -6,7 +6,7 @@
 
 <div class="page forum-group-page">
     <div class="mt-2 mb-4 w-75">
-        @* TODO: (mg) (core) SearchBox *@
+        @await Component.InvokeAsync("ForumSearchBox")
     </div>
     <div class="forum-group">
         <partial name="_ForumGroup" model="Model" />

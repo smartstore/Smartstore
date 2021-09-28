@@ -8,7 +8,7 @@
 		</a>
 	</div>
     <div sm-if="Model.CanSubscribe" class="col col-sm-auto">
-        <form id="watch-topic-form" sm-ajax method="post" asp-action="TopicWatch" asp-controller="Boards" sm-oncomplete="onWatchTopicCompleted">
+        <form id="watch-topic-form" sm-ajax="true" method="post" asp-action="TopicWatch" asp-controller="Boards" sm-oncomplete="onWatchTopicCompleted">
             <input type="hidden" asp-for="Id" />
 
             <button type="submit" id="watch-topic" class="btn btn-outline-primary btn-block watch-topic-link-button">

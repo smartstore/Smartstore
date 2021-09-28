@@ -7,8 +7,6 @@ using Smartstore.Core.Web;
 
 namespace Smartstore.Web.Models.Search
 {
-    // TODO: (core) Implement IForumSearchResultModel in external module
-
     public interface ISearchResultModel
     {
         CatalogSearchResult SearchResult { get; }

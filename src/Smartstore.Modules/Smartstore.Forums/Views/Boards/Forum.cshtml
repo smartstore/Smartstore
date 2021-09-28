@@ -17,7 +17,7 @@
 
 <div class="page forum">
     <div class="mt-2 w-75">
-        @* TODO: (mg) (core) SearchBox *@
+        @await Component.InvokeAsync("ForumSearchBox")
     </div>
     <div class="row mt-5">
         <div class="col">
@@ -47,7 +47,7 @@
                 </a>
             </div>
             <div sm-if="Model.CanSubscribe" class="col col-sm-auto mt-1 mt-sm-0">
-                <form id="watch-forum-form" sm-ajax method="post" asp-action="ForumWatch" asp-controller="Boards" sm-oncomplete="onWatchForumCompleted">
+                <form id="watch-forum-form" sm-ajax="true" method="post" asp-action="ForumWatch" asp-controller="Boards" sm-oncomplete="onWatchForumCompleted">
                     <input type="hidden" asp-for="Id" />
 
                     <button type="submit" id="watch-forum" class="btn btn-outline-primary btn-block watch-forum">

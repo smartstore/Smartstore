@@ -32,8 +32,13 @@
             }
             @if (Model.CanDeletePost)
             {
-                <i class="fa fa-times"></i>
-                <a asp-action="PostDelete" asp-controller="Boards" asp-route-id="@Model.Id" class="delete-post-link-button confirm">@T("Forum.DeletePost")</a>
+                <form method="post" asp-action="PostDelete" asp-controller="Boards">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-secondary delete-post-link-button confirm">
+				        <i class="fa fa-times"></i>
+				        <span>@T("Forum.DeletePost")</span>
+                    </button>
+                </form>
             }
             <a href="@(Url.RouteUrl(postLinkRouteName, postLinkRouteValues))#@Model.Id" class="post-link" title="@T("Forum.PostLinkTitle")">#@Model.Id</a>
         </div>

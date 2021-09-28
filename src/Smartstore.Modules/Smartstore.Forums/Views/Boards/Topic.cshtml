@@ -7,7 +7,7 @@
 
 <div class="page forum-topic">
     <div class="mt-2 mb-4 w-75">
-        @* TODO: (mg) (core) SearchBox *@
+        @await Component.InvokeAsync("ForumSearchBox")
     </div>
     <div class="title">
         <h1 class="fs-h2">@Model.Subject</h1>
@@ -22,17 +22,23 @@
         }
         @if (Model.CanDeleteTopic)
 		{
-            <a asp-action="TopicDelete" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-secondary confirm" rel="nofollow">
-				<i class="far fa-trash-alt"></i>
-				<span>@T("Forum.DeleteTopic")</span>
-			</a>
+            <form method="post" asp-action="TopicDelete" asp-controller="Boards">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-secondary confirm">
+				    <i class="far fa-trash-alt"></i>
+				    <span>@T("Forum.DeleteTopic")</span>
+                </button>
+            </form>
 		}
         @if (Model.CanMoveTopic)
 		{
-            <a asp-action="TopicMove" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">
-				<i class="fa fa-arrows-alt"></i>
-				<span>@T("Forum.MoveTopic")</span>
-			</a>
+            <form method="post" asp-action="TopicMove" asp-controller="Boards">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-secondary confirm">
+				    <i class="fa fa-arrows-alt"></i>
+				    <span>@T("Forum.MoveTopic")</span>
+                </button>
+            </form>
 		}
     </div>
 

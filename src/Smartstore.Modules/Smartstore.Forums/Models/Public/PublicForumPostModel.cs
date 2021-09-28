@@ -21,18 +21,18 @@ namespace Smartstore.Forums.Models.Public
         public bool HasCustomerProfile { get; set; }
         public CustomerAvatarModel Avatar { get; set; }
 
-        public ForumModerationPermits ModerationPermits { get; set; }
+        public ForumModerationPermissionFlags ModerationPermissions { get; set; }
         public bool CanEditPost
         {
-            get => ModerationPermits.HasFlag(ForumModerationPermits.CanEditPost);
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanEditPost);
         }
         public bool CanDeletePost
         {
-            get => ModerationPermits.HasFlag(ForumModerationPermits.CanDeletePost);
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanDeletePost);
         }
         public bool CanCreatePrivateMessages
         {
-            get => ModerationPermits.HasFlag(ForumModerationPermits.CanCreatePrivateMessages);
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanCreatePrivateMessages);
         }
 
         public string PostCreatedOnStr { get; set; }
