@@ -2,7 +2,7 @@
 using Smartstore.Core.Content.Menus;
 using Smartstore.Web.Rendering.Builders;
 
-namespace Smartstore.News
+namespace Smartstore.Polls
 {
     public class AdminMenu : AdminMenuProvider
     {
@@ -12,7 +12,7 @@ namespace Smartstore.News
             var newsMenuItem = new MenuItem().ToBuilder()
                 .ResKey("Admin.ContentManagement.News")
                 .Icon("far fa-newspaper")
-                .PermissionNames(NewsPermissions.Self)
+                .PermissionNames(PollPermissions.Self)
                 .AsItem();
 
             var newsItemsMenuItem = new MenuItem().ToBuilder()
