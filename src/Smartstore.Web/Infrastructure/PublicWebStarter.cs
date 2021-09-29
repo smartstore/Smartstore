@@ -15,7 +15,6 @@ namespace Smartstore.Web.Infrastructure
             {
                 builder.RegisterType<CatalogHelper>().InstancePerLifetimeScope();
                 builder.RegisterType<OrderHelper>().InstancePerLifetimeScope();
-                builder.RegisterType<MessageModelHelper>().InstancePerLifetimeScope();
             }
         }
     }

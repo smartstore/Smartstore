@@ -323,7 +323,7 @@ namespace Smartstore.Forums
 
             Task PublishEvent<T>(T source) where T : class
             {
-                return eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, message.Result));
+                return messageModelHelper.PublishModelPartCreatedEventAsync(source, message.Result);
             }
         }
 

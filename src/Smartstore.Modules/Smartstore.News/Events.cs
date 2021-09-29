@@ -64,7 +64,6 @@ namespace Smartstore.News
 
         public async Task HandleEventAsync(MessageModelPartMappingEvent message, 
             IUrlHelper urlHelper, 
-            IEventPublisher eventPublisher,
             MessageModelHelper messageModelHelper)
         {
             if (message.Source is NewsComment part)
@@ -76,7 +75,7 @@ namespace Smartstore.News
 
                 message.Result = CreateModelPart(part, messageContext, messageModelHelper, url, title);
 
-                await eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<NewsComment>(part, message.Result));
+                await messageModelHelper.PublishModelPartCreatedEventAsync(part, message.Result);
             }
         }
 

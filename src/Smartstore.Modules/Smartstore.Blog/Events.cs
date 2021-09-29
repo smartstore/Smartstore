@@ -64,7 +64,6 @@ namespace Smartstore.Blog
 
         public async Task HandleEventAsync(MessageModelPartMappingEvent message, 
             IUrlHelper urlHelper, 
-            IEventPublisher eventPublisher,
             MessageModelHelper messageModelHelper)
         {
             if (message.Source is BlogComment part)
@@ -81,7 +80,7 @@ namespace Smartstore.Blog
                     {  "Text", HtmlUtility.SanitizeHtml(part.CommentText, HtmlSanitizerOptions.UserCommentSuitable).NullEmpty() }
                 };
 
-                await eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<BlogComment>(part, message.Result));
+                await messageModelHelper.PublishModelPartCreatedEventAsync(part, message.Result);
             }
         }
 

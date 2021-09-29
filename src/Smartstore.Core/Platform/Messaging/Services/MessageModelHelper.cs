@@ -8,6 +8,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -28,6 +29,10 @@ namespace Smartstore.Core.Messaging
         private readonly ITemplateEngine _templateEngine;
         private readonly IEmailAccountService _emailAccountService;
         private readonly ILocalizationService _localizationService;
+        private readonly IWorkContext _workContext;
+        private readonly IMediaService _mediaService;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+        private readonly IDateTimeHelper _dtHelper;
         private readonly ModuleManager _moduleManager;
         private readonly IUrlHelper _urlHelper;
 
@@ -37,6 +42,10 @@ namespace Smartstore.Core.Messaging
             ITemplateEngine templateEngine,
             IEmailAccountService emailAccountService,
             ILocalizationService localizationService,
+            IWorkContext workContext,
+            IMediaService mediaService,
+            IProductAttributeMaterializer productAttributeMaterializer,
+            IDateTimeHelper dtHelper,
             ModuleManager moduleManager,
             IUrlHelper urlHelper)
         {
@@ -45,6 +54,10 @@ namespace Smartstore.Core.Messaging
             _templateEngine = templateEngine;
             _emailAccountService = emailAccountService;
             _localizationService = localizationService;
+            _workContext = workContext;
+            _mediaService = mediaService;
+            _productAttributeMaterializer = productAttributeMaterializer;
+            _dtHelper = dtHelper;
             _moduleManager = moduleManager;
             _urlHelper = urlHelper;
         }
@@ -120,10 +133,10 @@ namespace Smartstore.Core.Messaging
             if (utcDate == null)
                 return null;
 
-            return _services.DateTimeHelper.ConvertToUserTime(
+            return _dtHelper.ConvertToUserTime(
                 utcDate.Value,
                 TimeZoneInfo.Utc,
-                _services.DateTimeHelper.GetCustomerTimeZone(messageContext.Customer));
+                _dtHelper.GetCustomerTimeZone(messageContext.Customer));
         }
 
         public Money FormatPrice(decimal price, Order order, MessageContext messageContext)
@@ -153,7 +166,7 @@ namespace Smartstore.Core.Messaging
 
         public Money FormatPrice(decimal price, Currency currency, MessageContext messageContext, decimal exchangeRate = 1)
         {
-            currency ??= _services.Resolve<IWorkContext>().WorkingCurrency;
+            currency ??= _workContext.WorkingCurrency;
 
             if (exchangeRate != 1)
             {
@@ -165,28 +178,25 @@ namespace Smartstore.Core.Messaging
 
         public async Task<MediaFileInfo> GetMediaFileFor(Product product, ProductVariantAttributeSelection attrSelection = null)
         {
-            var attrParser = _services.Resolve<IProductAttributeMaterializer>();
-            var mediaService = _services.Resolve<IMediaService>();
-
             MediaFileInfo file = null;
 
             if (attrSelection != null)
             {
-                var combination = await attrParser.FindAttributeCombinationAsync(product.Id, attrSelection);
+                var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, attrSelection);
 
                 if (combination != null)
                 {
                     var fileIds = combination.GetAssignedMediaIds();
                     if (fileIds?.Any() ?? false)
                     {
-                        file = await mediaService.GetFileByIdAsync(fileIds[0], MediaLoadFlags.AsNoTracking);
+                        file = await _mediaService.GetFileByIdAsync(fileIds[0], MediaLoadFlags.AsNoTracking);
                     }
                 }
             }
 
             if (file == null)
             {
-                file = await mediaService.GetFileByIdAsync(product.MainPictureId ?? 0, MediaLoadFlags.AsNoTracking);
+                file = await _mediaService.GetFileByIdAsync(product.MainPictureId ?? 0, MediaLoadFlags.AsNoTracking);
             }
 
             if (file == null && product.Visibility == ProductVisibility.Hidden && product.ParentGroupedProductId > 0)
@@ -199,7 +209,7 @@ namespace Smartstore.Core.Messaging
 
                 if (productFile?.MediaFile != null)
                 {
-                    file = mediaService.ConvertMediaFile(productFile.MediaFile);
+                    file = _mediaService.ConvertMediaFile(productFile.MediaFile);
                 }
             }
 
