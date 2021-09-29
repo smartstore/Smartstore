@@ -64,7 +64,8 @@ namespace Smartstore.Blog
 
         public async Task HandleEventAsync(MessageModelPartMappingEvent message, 
             IUrlHelper urlHelper, 
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher,
+            MessageModelHelper messageModelHelper)
         {
             if (message.Source is BlogComment part)
             {
@@ -73,26 +74,15 @@ namespace Smartstore.Blog
                 var url = urlHelper.RouteUrl("BlogPost", new { SeName = await blogPost.GetActiveSlugAsync(messageContext.Language.Id) });
                 var title = blogPost.GetLocalized(x => x.Title, messageContext.Language).Value.NullEmpty();
 
-                message.Result = CreateModelPart(part, messageContext, url, title);
+                message.Result = new Dictionary<string, object>
+                {
+                    {  "PostTitle", title },
+                    {  "PostUrl", messageModelHelper.BuildUrl(url, messageContext) },
+                    {  "Text", HtmlUtility.SanitizeHtml(part.CommentText, HtmlSanitizerOptions.UserCommentSuitable).NullEmpty() }
+                };
 
                 await eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<BlogComment>(part, message.Result));
             }
-        }
-
-        // TODO: (mh) (core) I would like to throw this method away and handle everything where it is called (in HandleEventAsync).
-        private static object CreateModelPart(BlogComment part, MessageContext messageContext, string url, string title)
-        {
-            Guard.NotNull(messageContext, nameof(messageContext));
-            Guard.NotNull(part, nameof(part));
-
-            var m = new Dictionary<string, object>
-            {
-                {  "PostTitle", title },
-                {  "PostUrl", MessageModelProvider.BuildUrl(url, messageContext) },
-                {  "Text", HtmlUtility.SanitizeHtml(part.CommentText, HtmlSanitizerOptions.UserCommentSuitable).NullEmpty() }
-            };
-
-            return m;
         }
 
         public async Task HandleEventAsync(GdprCustomerDataExportedEvent message, 
