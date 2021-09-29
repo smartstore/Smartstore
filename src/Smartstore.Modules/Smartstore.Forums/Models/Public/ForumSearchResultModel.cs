@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Smartstore.Collections;
+using Smartstore.Core.Catalog;
 using Smartstore.Forums.Search;
+using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Search;
 
 namespace Smartstore.Forums.Models.Public
 {
-    public partial class ForumSearchResultModel : SearchResultModelBase, IForumSearchResultModel
+    public partial class ForumSearchResultModel : SearchResultModelBase, IForumSearchResultModel, IListActions
     {
         public ForumSearchResultModel(ForumSearchQuery query)
         {
@@ -34,7 +37,12 @@ namespace Smartstore.Forums.Models.Public
         public int? CurrentSortOrder { get; set; }
         public string CurrentSortOrderName { get; set; }
         public string RelevanceSortOrderName { get; set; }
-        public IDictionary<int, string> AvailableSortOptions { get; set; }
+        public Dictionary<int, string> AvailableSortOptions { get; set; }
         public IPageable PagedList { get; set; }
+
+        public ProductSummaryViewMode ViewMode => throw new NotImplementedException();
+        public GridColumnSpan GridColumnSpan => throw new NotImplementedException();
+        public bool AllowViewModeChanging => throw new NotImplementedException();
+        public IEnumerable<int> AvailablePageSizes => throw new NotImplementedException();
     }
 }

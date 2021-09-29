@@ -84,6 +84,24 @@
                 }
             });
         });
+
+        // Delete post.
+        $('.delete-post-link-button').on('click', function (e) {
+            e.preventDefault();
+            var self = $(this);
+
+            confirm2({
+                message: @(T("Admin.Common.AskToProceed").JsValue),
+                icon: { type: 'question' },
+                callback: accepted => {
+                    if (accepted) {
+                        self.closest('form').submit();
+                    }
+                }
+            });
+
+            return false;
+        });
     });
 
     function onWatchTopicCompleted(data) {

@@ -1,7 +1,7 @@
 ﻿@model PublicForumPostModel
 
 @{
-	var showTopic = (ViewData["ShowTopic"] as bool?) ?? true;
+	var showTopic = (ViewData["ShowTopic"] as bool?) ?? false;
 }
 
 <div sm-if="Model?.Id > 0" class="last-post text-muted">

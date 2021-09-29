@@ -1,0 +1,175 @@
+﻿@model ForumSearchResultModel
+
+@{
+    var hits = Model.PagedList;
+    var encodedTerm = Model.Term.EmptyNull().HtmlEncode();
+    var encodedAttemptedTerm = Model.AttemptedTerm.EmptyNull().HtmlEncode();
+    var suggestions = new string[0];
+    var title = string.Empty;
+    var countHtml= string.Empty;
+
+    if (encodedTerm.HasValue())
+    {
+        title = T("Search.PageTitle", "<small class='search-term'>" + encodedTerm + "</small>");
+        Assets.AppendTitleParts(T("Search.PageTitle", "\"" + encodedTerm + "\""));
+    }
+    else
+    {
+        title = T("Forum.Search");
+        Assets.AppendTitleParts(title);
+    }
+
+    if (Model.TotalCount > 0)
+    {
+        suggestions = Model.SearchResult.SpellCheckerSuggestions;
+        countHtml = $"<span class='cumulative-count'>{Model.CumulativeHitCount.ToString("N0")}</span>";
+
+        if (hits.HasNextPage)
+        {
+            countHtml += "<span class='more-hits-sign'>+</span>";
+        }
+    }
+}
+
+<div class="page forum-search">
+    <div class="page-title">
+        <h1 class="h3">@title</h1>
+    </div>
+    <div class="page-body">
+        <div class="search-input mt-4">
+            <div sm-if="Model.SearchResult.Facets.Any()" class="mb-4">
+                <partial name="_SearchFilters" />
+            </div>
+            <div class="w-75 mb-4">
+                @await Component.InvokeAsync("ForumSearchBox")
+            </div>
+			<div sm-if="encodedAttemptedTerm.HasValue()" class="alert alert-warning">
+				@T("Search.TermCorrectedHint", "<strong>\"" + encodedTerm + "\"</strong>", "<strong>\"" + encodedAttemptedTerm + "\"</strong>")
+			</div>
+			<div sm-if="Model.Error.HasValue()" class="alert alert-danger">
+				@Model.Error
+			</div>
+			<div sm-if="Model.Error.IsEmpty() && Model.TotalCount == 0 && encodedTerm.HasValue()" class="alert alert-info">
+				@T("Forum.SearchNoResultsText")
+			</div>
+			<p sm-if="suggestions.Any()" class="search-suggestions">
+				<strong>@(T(encodedAttemptedTerm.HasValue() || Model.TotalCount == 0 ? "Search.DidYouMean" : "Search.RelatedSearchTerms")):</strong>
+
+				@Html.Raw(string.Join(", ", suggestions.Select(x => "<a href='" + Url.RouteUrl("ForumSearch", new { q = x }) + "'>{0}</a>".FormatCurrentUI(x))))
+			</p>
+        </div>
+        <div sm-if="Model.TotalCount > 0" class="fsearch-actions fsearch-actions--top d-flex flex-wrap">
+            <div sm-if="Model.AllowSorting" class="fsearch-actions--sort">
+                @{ await Html.RenderPartialAsync("Product.List.FilterSort", Model); }
+            </div>
+            <div id="SearchHitsCount" class="fsearch-actions--page ml-auto pt-3">
+                @T("Search.HitsFor", countHtml, $"<b class='font-weight-medium'>{Model.Term.NaIfEmpty().HtmlEncode()}</b>")
+            </div>
+        </div>
+        <div class="search-results mt-3">
+            <div class="topics-group table-responsive">
+                <table sm-if="Model.TotalCount > 0" id="ForumSearchResult" class="table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="topic-name">@T("Forum.TopicTitle")</th>
+                            <th class="replies">@T("Forum.Replies")</th>
+                            <th class="views">@T("Forum.Views")</th>
+                            <th class="last-post">@T("Forum.LatestPost")</th>
+                        </tr>
+                    </thead>
+                    <partial name="_SearchHits" />
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@* TODO: (mg) (core) Test AJAX paging of forum search results. *@
+<script sm-target-zone="scripts" data-origin="forum-search">
+    $(function () {
+        var result = $('#ForumSearchResult');
+        var loading = false;
+
+        // Sorting changed.
+        $('.fsearch-actions').on('change', '.artlist-action-select', function (e) {
+            var select = $(this);
+            var qname = select.data('qname');
+            var url = select.data('url');
+            var val = select.val();
+
+            url = window.modifyUrl(url, qname, val);
+            window.setLocation(url);
+        });
+
+        // Auto load more search hits.
+        $(document).scroll( function() {           
+            var container = result.find('.load-more:not(.loading)');
+
+            if (container.visible(true, false, 'vertical') && !loading) {
+                var newPage = container.data('page');
+                var url = window.modifyUrl(window.location.href, 'i', newPage);
+                var html, processImmediately = false;
+
+                // IDs of already rendered topics, to avoid rendering them again when the list is extended.
+                var renderedTopicIds = result.find('tr.topic').map(function() {
+                    return $(this).data('id');
+                }).get();
+
+                //console.log(page + '. ' + url + '. ' + renderedTopicIds.toString());
+
+                setTimeout(function () {
+                    processImmediately = true;
+                    processSearchResult(html, container, newPage);
+                    html = null;
+                }, 100);
+
+                $.ajax({
+                    cache: false,
+                    type: 'POST',
+                    async: true,
+                    url: url,
+                    data: { renderedTopicIds: renderedTopicIds },
+                    beforeSend: function () {
+                        loading = true;
+                        container.addClass('loading').append(createCircularSpinner(20, true));
+                    },
+                    success: function (response) {
+                        if (processImmediately) {
+                            processSearchResult(response, container, newPage);
+                        }
+                        else {
+                            html = response;
+                        }
+                    },
+                    complete: function () {
+                        loading = false;
+                    },
+                    error: function (objXml) {
+                        result.find('.load-more:not(.loading)').removeClass('loading');
+
+                        if (objXml && objXml.responseText.length > 0) {
+                            displayNotification(objXml.responseText, 'error');
+                        }
+                    }
+                });
+
+            }
+        });
+
+        function processSearchResult(html, container, newPage) {
+            if (html && html.length > 0) {
+                // Replace empty tbody at table end by page representing tbody.
+                container.replaceWith(html);
+
+                // Update cumulative hit counter.
+                var counter = $('#SearchHitsCount');
+                var pageBody = result.find('tbody[data-page=' + newPage + ']');
+                
+                counter.find('.cumulative-count').text(pageBody.data('cumulativehits'));
+                if (!pageBody.data('hasnextpage')) {
+                    counter.find('.more-hits-sign').hide();
+                }
+            }
+        }
+    }
+</script>

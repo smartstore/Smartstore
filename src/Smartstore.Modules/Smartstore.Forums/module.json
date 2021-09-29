@@ -2,7 +2,7 @@
   "Group": "CMS",
   "SystemName": "Smartstore.Forums",
   "FriendlyName": "Smartstore Forums",
-  "Description": "",
+  "Description": "Adds a forum to the store.",
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Order": 1,

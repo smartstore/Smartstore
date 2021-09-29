@@ -1,0 +1,30 @@
+﻿@model PublicMoveForumTopicModel
+
+@{
+    Assets.AppendTitleParts(T("Forum.PageTitle.MoveTopic"));
+}
+
+<form asp-action="TopicMove">
+    <input type="hidden" asp-for="Id" />
+    <div class="page move-forum-topic">
+        <div class="page-title">
+            <h2>@T("Forum.MoveTopic")</h2>
+        </div>
+        <div class="page-body">
+            <div class="form-group">
+                <label for="@Html.IdFor(x => x.SelectedForumId)">@T("Forum.SelectTheForumToMoveTopic")</label>
+                <select asp-for="SelectedForumId" asp-items="ViewBag.Forums" class="form-control"></select>
+            </div>
+            <div class="options my-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-reply"></i>
+					<span>@T("Forum.Submit")</span>
+				</button>
+                <a asp-route="ForumTopicBySlug" asp-route-id="@Model.Id" asp-route-slug="@Model.TopicSlug">
+                    <i class="fa fa-times"></i>
+                    <span>@T("Forum.Cancel")</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</form>

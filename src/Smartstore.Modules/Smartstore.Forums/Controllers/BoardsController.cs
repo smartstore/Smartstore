@@ -15,6 +15,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Messaging;
+using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -39,6 +40,7 @@ namespace Smartstore.Forums.Controllers
         private readonly IBreadcrumb _breadcrumb;
         private readonly IMessageFactory _messageFactory;
         private readonly IForumSearchService _forumSearchService;
+        private readonly Lazy<IFacetTemplateProvider> _facetTemplateProvider;
         private readonly ForumSettings _forumSettings;
         private readonly SeoSettings _seoSettings;
         private readonly CaptchaSettings _captchaSettings;
@@ -52,6 +54,7 @@ namespace Smartstore.Forums.Controllers
             IBreadcrumb breadcrumb,
             IMessageFactory messageFactory,
             IForumSearchService forumSearchService,
+            Lazy<IFacetTemplateProvider> facetTemplateProvider,
             ForumSettings forumSettings,
             SeoSettings seoSettings,
             CaptchaSettings captchaSettings,
@@ -64,6 +67,7 @@ namespace Smartstore.Forums.Controllers
             _breadcrumb = breadcrumb;
             _messageFactory = messageFactory;
             _forumSearchService = forumSearchService;
+            _facetTemplateProvider = facetTemplateProvider;
             _forumSettings = forumSettings;
             _seoSettings = seoSettings;
             _captchaSettings = captchaSettings;
@@ -624,7 +628,6 @@ namespace Smartstore.Forums.Controllers
 
             await CreateForumBreadcrumb(forum: forum);
 
-            ViewBag.IsEditPage = false;
             ViewBag.ForumTopicTypes = CreateForumTopicTypes();
 
             return View(model);
@@ -766,7 +769,6 @@ namespace Smartstore.Forums.Controllers
             model.IsModerator = currentCustomer.IsForumModerator();
             model.ModerationPermissions = _forumService.GetModerationPermissions(null, null, currentCustomer);
 
-            ViewBag.IsEditPage = false;
             ViewBag.ForumTopicTypes = CreateForumTopicTypes();
 
             return View(model);
@@ -797,8 +799,6 @@ namespace Smartstore.Forums.Controllers
             }
 
             await CreateForumBreadcrumb(null, topic.Forum, topic);
-
-            ViewBag.IsEditPage = true;
 
             return View(model);
         }
@@ -902,7 +902,6 @@ namespace Smartstore.Forums.Controllers
             model.IsModerator = currentCustomer.IsForumModerator();
             model.ModerationPermissions = _forumService.GetModerationPermissions(topic, null, currentCustomer);
 
-            ViewBag.IsEditPage = true;
             ViewBag.ForumTopicTypes = CreateForumTopicTypes();
 
             return View(model);
@@ -1022,8 +1021,6 @@ namespace Smartstore.Forums.Controllers
                 }
             }
 
-            ViewBag.IsEditPage = false;
-
             await CreateForumBreadcrumb(null, topic.Forum, topic);
             return View(model);
         }
@@ -1117,8 +1114,6 @@ namespace Smartstore.Forums.Controllers
             model.IsModerator = currentCustomer.IsForumModerator();
             model.CanSubscribe = !currentCustomer.IsGuest();
 
-            ViewBag.IsEditPage = false;
-
             return View(model);
         }
 
@@ -1151,8 +1146,6 @@ namespace Smartstore.Forums.Controllers
             }
 
             await CreateForumBreadcrumb(null, post.ForumTopic.Forum, post.ForumTopic);
-
-            ViewBag.IsEditPage = true;
 
             return View(model);
         }
@@ -1246,8 +1239,6 @@ namespace Smartstore.Forums.Controllers
             model.CustomerId = currentCustomer.Id;
             model.IsModerator = currentCustomer.IsForumModerator();
             model.CanSubscribe = !currentCustomer.IsGuest();
-
-            ViewBag.IsEditPage = true;
 
             return View(model);
         }
@@ -1525,10 +1516,18 @@ namespace Smartstore.Forums.Controllers
             model.Term = query.Term;
             model.TotalCount = model.SearchResult.TotalHitsCount;
 
+            // Set facet counters to 0 because they refer to posts, not topics, and would confuse here.
+            foreach (var group in model.SearchResult.Facets.Values)
+            {
+                group.Facets.Each(x => x.HitCount = 0);
+            }
+
             await PrepareSearchResult(model, null);
 
             await CreateForumBreadcrumb();
             _breadcrumb.Track(new MenuItem { Text = T("Forum.Search") });
+
+            ViewBag.TemplateProvider = _facetTemplateProvider.Value;
 
             return View(model);
         }
@@ -1562,7 +1561,34 @@ namespace Smartstore.Forums.Controllers
 
             await PrepareSearchResult(model, renderedTopicIds);
 
-            return PartialView("SearchHits", model);
+            return PartialView("_SearchHits", model);
+        }
+
+        private async Task PrepareSearchResult(ForumSearchResultModel model, int[] renderedTopicIds)
+        {
+            // The search result may contain duplicate topics.
+            // Make sure that no topic is rendered more than once.
+            var hits = await model.SearchResult.GetHitsAsync();
+            var lastPosts = await _db.ForumPosts().GetForumPostsByIdsAsync(hits.Select(x => x.ForumTopic.LastPostId));
+            var renderedIds = new HashSet<int>(renderedTopicIds ?? Array.Empty<int>());
+            var hitModels = new List<PublicForumTopicModel>();
+
+            foreach (var post in hits)
+            {
+                if (renderedIds.Add(post.TopicId))
+                {
+                    var hitModel = await post.ForumTopic.MapAsync(lastPosts, post);
+                    hitModels.Add(hitModel);
+                }
+            }
+
+            model.PagedList = new PagedList<PublicForumTopicModel>(
+                hitModels,
+                hits.PageIndex,
+                hits.PageSize,
+                model.TotalCount);
+
+            model.CumulativeHitCount = renderedIds.Count;
         }
 
         #endregion
@@ -1884,33 +1910,6 @@ namespace Smartstore.Forums.Controllers
                     Value = ((int)ForumTopicType.Announcement).ToString()
                 }
             };
-        }
-
-        private async Task PrepareSearchResult(ForumSearchResultModel model, int[] renderedTopicIds)
-        {
-            // The search result may contain duplicate topics.
-            // Make sure that no topic is rendered more than once.
-            var hits = await model.SearchResult.GetHitsAsync();
-            var lastPosts = await _db.ForumPosts().GetForumPostsByIdsAsync(hits.Select(x => x.ForumTopic.LastPostId));
-            var renderedIds = new HashSet<int>(renderedTopicIds ?? Array.Empty<int>());
-            var hitModels = new List<PublicForumTopicModel>();
-
-            foreach (var post in hits)
-            {
-                if (renderedIds.Add(post.TopicId))
-                {
-                    var hitModel = await post.ForumTopic.MapAsync(lastPosts, post);
-                    hitModels.Add(hitModel);
-                }
-            }
-
-            model.PagedList = new PagedList<PublicForumTopicModel>(
-                hitModels,
-                hits.PageIndex,
-                hits.PageSize,
-                model.TotalCount);
-
-            model.CumulativeHitCount = renderedIds.Count;
         }
     }
 }

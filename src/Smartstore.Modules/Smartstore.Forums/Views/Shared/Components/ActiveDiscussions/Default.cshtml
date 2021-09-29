@@ -1,9 +1,5 @@
 ﻿@model ActiveDiscussionsModel
 
-@{
-    var lastPostViewData = new ViewDataDictionary(ViewData) { { "ShowTopic", false } };
-}
-
 <div class="active-discussions mt-5">
     <div class="row">
         <div class="col">
@@ -74,7 +70,7 @@
 				                }
                             </div>
 
-                            @* TODO: (mg) (core) use ForumPaginationTagHelper somehow *@
+                            @* TODO: (mg) (core) Fix insufficient pager. *@
 @*                            @if (topic.NumPosts > Model.PostsPageSize)
                             {
                                 @(Html.SmartStore().Pager(topic.TotalPostPages)
@@ -95,7 +91,7 @@
                                     sm-show-next="false"
                                     sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
                                     sm-alignment="Left"
-                                    sm-size="Small"></forum-pagination>
+                                    sm-size="Small" />
 
                             }*@
                         </div>
@@ -107,7 +103,7 @@
                         @topic.Views.ToString("N0")
                     </td>
                     <td class="last-post d-none d-md-table-cell">
-                        <partial name="_LastPost" model="topic.LastPost" view-data="lastPostViewData" />
+                        <partial name="_LastPost" model="topic.LastPost" />
                     </td>
                 </tr>
             }

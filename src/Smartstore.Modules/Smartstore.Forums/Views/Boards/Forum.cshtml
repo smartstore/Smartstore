@@ -1,8 +1,6 @@
 ﻿@model PublicForumPageModel
 
 @{
-    Layout = "_Layout";
-
     Assets.AppendTitleParts(Model.Name);
     Assets.AppendMetaDescriptionParts(Model.Name);
 
@@ -11,8 +9,6 @@
         var forumUrl = Url.RouteUrl("Boards", new { SeName = Model.Slug }, this.Request.Scheme);
         Assets.AppendCanonicalUrlParts(forumUrl);
     }
-
-    var lastPostViewData = new ViewDataDictionary(ViewData) { { "ShowTopic", false } };
 }
 
 <div class="page forum">
@@ -116,7 +112,7 @@
                             </div>
                             @if (topic.NumPosts > Model.PostsPageSize)
                             {
-                                @* TODO: (mg) (core) Provide paged list of TopicPosts *@
+                                @* TODO: (mg) (core) Fix insufficient pager. *@
                                 @*<forum-pagination sm-list-items="Model.TopicPosts"
                                                   sm-query-param="page"
                                                   class="topics-pager"
@@ -135,7 +131,7 @@
                         @topic.Views.ToString("N0")
                     </td>
                     <td class="last-post d-none d-md-table-cell">
-                        <partial name="_LastPost" model="topic.LastPost" view-data="lastPostViewData" />
+                        <partial name="_LastPost" model="topic.LastPost" />
                     </td>
                 </tr>
             }

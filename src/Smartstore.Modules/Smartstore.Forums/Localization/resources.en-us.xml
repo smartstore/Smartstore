@@ -3,7 +3,7 @@
 		<Value>Forums</Value>
 	</LocaleResource>
 	<LocaleResource Name="Plugins.Description.Smartstore.Forums" AppendRootKey="false">
-		<Value>Smartstore Forums</Value>
+		<Value>Adds a forum to the store.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Plugins.Permissions.DisplayName.Forums" AppendRootKey="false">
 		<Value>Forums</Value>

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog;
 
@@ -21,5 +20,13 @@ namespace Smartstore.Web.Models.Catalog
 
         IPageable PagedList { get; }
         IEnumerable<int> AvailablePageSizes { get; }
+    }
+
+    public enum ProductSummaryViewMode
+    {
+        Mini,
+        Grid,
+        List,
+        Compare
     }
 }

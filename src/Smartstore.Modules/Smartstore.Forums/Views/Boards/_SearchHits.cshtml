@@ -1,0 +1,99 @@
+﻿@model ForumSearchResultModel
+
+@{
+    var hits = Model.PagedList;
+    var textQueried = Model.SearchResult.Engine != null && Model.Query.Fields != null && Model.Query.Fields.Contains("text");
+}
+
+<tbody class="border-0"
+    data-page="@(hits.PageIndex + 1)"
+    data-hasnextpage="@hits.HasNextPage.ToString().ToLower()"
+    data-cumulativehits="@Model.CumulativeHitCount.ToString("N0")">
+    @foreach (PublicForumTopicModel topic in hits)
+    {
+        <tr data-id="@topic.Id" class="topic" attr-class='(!topic.Published, "disabled")'>
+            <td class="image">
+                <partial name="Customer.Avatar" model="topic.Avatar" />
+            </td>
+            <td class="topic-name">
+                <span sm-if="topic.ForumTopicType == ForumTopicType.Sticky" class="topictype">
+                    <label class="badge badge-success">@T("Forum.Sticky")</label>
+                </span>
+                <span sm-if="topic.ForumTopicType == ForumTopicType.Announcement" class="topictype">
+                    <label class="badge badge-info">@T("Forum.Announcement")</label>
+                </span>
+                <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="topic-title">
+                    @Html.Raw(Model.Highlight(topic.Subject, "subject", Model.Query, null, "<mark>", "</mark>"))
+                </a>
+                @if (topic.NumPosts > Model.PostsPageSize)
+                {
+                    @* TODO: (mg) (core) Fix insufficient pager. *@
+@*                                        @(Html.SmartStore().Pager(topic.TotalPostPages)
+                        .QueryParam("page")
+                        .HtmlAttributes(new { @class = "topics-pager" })
+                        .WithRenderer<ForumTopicPagerRenderer>()
+                        .ShowPrevious(false)
+                        .ShowNext(false)
+                        .ItemTitleFormatString(T("Forum.Topics.GotoPostPager"))
+                        .Alignment(PagerAlignment.Left)
+                        .Size(PagerSize.Mini)
+                        .Route("TopicSlug", new { id = topic.Id, slug = topic.SeName }))*@
+                }
+                <div class="topic-starter">
+                    @if (topic.CustomerId > 0)
+                    {
+                        <div class="d-flex text-muted">
+                            <span class="pr-1">@T("Forum.Author"):</span>
+                            <span>
+                                @if (topic.HasCustomerProfile)
+                                {
+                                    <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId">@topic.CustomerName.NaIfEmpty()</a>
+                                }
+                                else
+                                {
+                                    @topic.CustomerName
+                                }
+                            </span>
+                        </div>
+                        <div sm-if="topic.FirstPostId != 0 && textQueried" class="mt-2">
+                            @Html.Raw(Model.SearchResult.Engine.Highlight(topic.FirstPostId, "text", "<mark>", "</mark>", 3))
+                        </div>
+                    }
+                </div>
+            </td>
+            <td class="replies">
+                @topic.NumReplies.ToString("N0")
+            </td>
+            <td class="views">
+                @topic.Views.ToString("N0")
+            </td>
+            <td class="last-post">
+                <partial name="_LastPost" model="topic.LastPost" />
+            </td>
+        </tr>
+    }
+</tbody>
+@if (Model.TotalCount == 0 || !hits.HasNextPage)
+{
+    <tfoot sm-if="hits.TotalPages > 1" class="border-0">
+        <tr>
+            <td colspan="5">
+                <span class="text-muted">@T("Search.NoMoreHitsFound")</span>
+            </td>
+        </tr>
+    </tfoot>
+}
+else if (Model.Error.HasValue())
+{
+    <tfoot class="border-0">
+        <tr>
+            <td colspan="5">
+                <div class="alert alert-danger">@Model.Error</div>
+            </td>
+        </tr>
+    </tfoot>
+}
+else
+{
+    <tbody class="border-0 load-more" data-page="@(hits.PageIndex + 2)"></tbody>
+}

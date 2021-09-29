@@ -216,12 +216,4 @@ namespace Smartstore.Web.Models.Catalog
             public int DisplayOrder { get; set; }
         }
     }
-
-    public enum ProductSummaryViewMode
-    {
-        Mini,
-        Grid,
-        List,
-        Compare
-    }
 }
