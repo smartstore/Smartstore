@@ -246,7 +246,7 @@ namespace Smartstore.Core.Configuration
             var stubs = await _setSettings
                 .AsNoTracking()
                 .Where(x => x.Name.StartsWith(rootKey))
-                .Select(x => new Setting { Id = x.Id })
+                .Select(x => new Setting { Id = x.Id, Name = x.Name, StoreId = x.StoreId })
                 .ToListAsync();
 
             //var stubs = await _setSettings

@@ -15,7 +15,7 @@ namespace Smartstore.Forums
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public RouteInfo GetConfigurationRoute()
-            => new("Configure", "Forum", new { area = "Admin" });
+            => new("List", "ForumAdmin", new { area = "Admin" });
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {

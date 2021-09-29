@@ -6,10 +6,488 @@
 @{
     ViewBag.Title = T("Admin.Configuration.Plugins").Value;
 
-    var allPluginsSelectList = Model.AllModules.Select(x => new SelectListItem { Value = x.SystemName, Text = x.FriendlyName });
+    var allModulesSelectList = Model.AllModules.Select(x => new SelectListItem { Value = x.SystemName, Text = x.FriendlyName });
     var availableStores = JsonConvert.SerializeObject(Model.AvailableStores.Select(x => new { value = x.Id, text = x.Name }).ToArray());
 }
 
 <form id="modules-form" method="post" asp-action="ExecuteTasks">
+    <select asp-items="allModulesSelectList" id="modulesToInstall" name="modulesToInstall" class="d-none noskin" multiple></select>
+    <select asp-items="allModulesSelectList" id="modulesToUninstall" name="modulesToUninstall" class="d-none noskin" multiple></select>
 
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-puzzle-piece"></i>
+            @T("Admin.Configuration.Plugins")
+        </div>
+        <div class="options form-inline">
+            <input type="text" id="filter-query" class="form-control my-0 mr-1" style="width: 350px" placeholder="@T("Common.Search")" />
+            <button id="btn-execute-tasks" type="submit" class="btn btn-secondary mr-1" disabled="disabled">
+                <i class="fa fa-cogs"></i>
+                <span>@T("Admin.Configuration.Plugins.ExecuteTasks")</span>
+                <span class="badge badge-dark label-uninstall-count hide">0</span>
+                <span class="badge badge-warning label-install-count hide">0</span>
+            </button>
+            <a id="uploadpackage" href="#uploadpackage-window" data-toggle="modal" class="btn btn-secondary mr-1" role="button">
+                <i class="fa fa-upload"></i>
+                <span>@T("Admin.Packaging.UploadPlugin")</span>
+            </a>
+            <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" href="#">
+                    @T("Admin.Common.Edit")
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a asp-action="ReloadList" class="dropdown-item">
+                        <i class="fa fa-fw fa-sync"></i>
+                        <span>@T("Admin.Configuration.Plugins.ReloadList")</span>
+                    </a>
+                    <a asp-action="UpdateAllStringResources" class="module-update-allresources dropdown-item">
+                        <i class="fa fa-fw fa-language"></i>
+                        <span>@T("Admin.Configuration.Plugins.Resources.UpdateAll")</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <h4>@T("Admin.Configuration.Plugins.Description")</h4>
+        <ol>
+            <li>@Html.Raw(T("Admin.Configuration.Plugins.Description.Step1", "uploadpackage", "#uploadpackage-window"))</li>
+            <li>@Html.Raw(T("Admin.Configuration.Plugins.Description.Step2"))</li>
+            <li>@Html.Raw(T("Admin.Configuration.Plugins.Description.Step3"))</li>
+            <li>@Html.Raw(T("Admin.Configuration.Plugins.Description.Step4"))</li>
+        </ol>
+    </div>
+
+    <div class="adminContent" id="local-modules">
+        @foreach (var g in Model.Groups.OrderBy(x => x.Key))
+        {
+        <div class="module-list">
+            <h3>@g.Key</h3>
+            @{ await ModuleList(g.Value); }
+        </div>
+        }
+
+        <input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
+    </div>
 </form>
+
+<modal id="module-license-modal" sm-size="Large">
+    <modal-header sm-title="@T("Admin.Common.License")"></modal-header>
+    <modal-body></modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary btn-flat" data-dismiss="modal">
+            <span>@T("Common.Cancel")</span>
+        </button>
+        <button class="btn btn-secondary licensing-reset-status-check" data-dismiss="modal">
+            <span>@T("Admin.Plugins.LicensingResetStatusCheck")</span>
+        </button>
+        <button class="btn btn-primary" data-dismiss="modal">
+            <span>@T("Common.OK")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<partial name="UploadPackage" model="new { isTheme = false }" />
+
+<script sm-target-zone="scripts" data-origin="ModuleList">
+    $(function() {
+		var stores = @Html.Raw(availableStores);
+        var token = $('input[name="__RequestVerificationToken"]').val();
+
+		@*// Multistore
+		$(".store-limiter").editable({
+			type: 'checklist',
+			title: @T("Admin.Common.Store.AvailableFor").JsValue,
+			url: '@Url.Action("SetSelectedStores")',
+			source: stores,
+			unsavedclass: null,
+			placement: "right",
+			emptytext: @T("Common.No").JsValue,
+			autotext: 'always',
+			display: function (value, sourceData) {
+				//display checklist as comma-separated values
+				var html = [],
+					checked = $.fn.editableutils.itemsByValue(value, sourceData);
+
+				if (checked.length) {
+					$.each(checked, function (i, v) { html.push($.fn.editableutils.escape(_.str.truncate(v.text, 40))); });
+					$(this).html(html.join(', '));
+				} else {
+					$(this).empty();
+				}
+			}
+		});*@
+
+		function getModuleFriendlyName(dropdown, systemName) {
+			return dropdown.find('option[value="{0}"]'.format(systemName)).text();
+		}
+
+		var dropdownInstall = $('#modulesToInstall'),
+            dropdownUninstall = $('#modulesToUninstall'),
+			btnExecuteTasks = $('#btn-execute-tasks')
+			inputFilterQuery = $('#filter-query');
+
+		// Execute filtering
+		setTimeout(function() {
+			inputFilterQuery.focus();
+		}, 800);
+
+		var mainContainer = $('#local-modules');
+		inputFilterQuery.on('input propertychange paste', function (e) {
+			var el = $(this);
+
+			// store query
+			sessionStorage.setItem("module-filter-query", el.val());
+
+			// Retrieve the input field text and reset the count to zero
+			var filter = el.val(),
+                rg = new RegExp(filter, "i");
+
+			// Loop through the module items
+			$('.module-list').each(function () {
+				var group = $(this),
+                    count = 0;
+
+				group.find('.module-item').each(function () {
+					// If the list item does not contain the text phrase hide it
+					if (filter.length > 1 && $(this).data('system-name').search(rg) < 0 && $(this).data('friendly-name').search(rg) < 0) {
+						$(this).hide();
+					}
+						// Show the list item if the phrase matches and increase the count by 1
+					else {
+						$(this).show();
+						count++;
+					}
+				});
+
+				if (count > 0) {
+					group.show();
+				}
+				else {
+					group.hide();
+				}
+			});
+
+			if (!mainContainer.visible(true)) {
+				$.scrollTo(mainContainer, 400, { offset: -50 });
+			}
+		});
+
+		// restore search query
+		var data = sessionStorage.getItem('module-filter-query');
+		if (data) {
+			inputFilterQuery.val(data);
+			inputFilterQuery.trigger("paste");
+		}
+
+		// Create tooltip for ExecuteTasks button which informs
+		// about modules to be installed and uninstalled
+		btnExecuteTasks.tooltip({
+			html: true,
+			placement: 'bottom',
+			title: function () {
+				var text = '';
+
+				if (dropdownUninstall.val()) {
+					text = '<div class="al"><b>' + @T("Admin.Configuration.Plugins.Fields.Uninstall").JsValue + ':</b></div>';
+					_.each(dropdownUninstall.val(), function (val, i) {
+						text += '<div class="al">{0}</div>'.format(getModuleFriendlyName(dropdownUninstall, val));
+					});
+				}
+
+				if (dropdownInstall.val()) {
+					if (text) text += '<div style="height: 6px"></div>';
+					text += '<div class="al"><b>' + @T("Admin.Configuration.Plugins.Fields.Install").JsValue + ':</b></div>';
+					_.each(dropdownInstall.val(), function (val, i) {
+						text += '<div class="al">{0}</div>'.format(getModuleFriendlyName(dropdownInstall, val));
+					});
+				}
+
+				return text;
+			}
+		});
+
+		// Add/Remove modules to/from the list of (un)installable modules
+		$('#modules-form').on('click', 'a.module-install, a.module-uninstall', function (e) {
+			e.preventDefault();
+
+			var el = $(this),
+                systemName = el.closest('.module-item').data('system-name'),
+                dropdown = null;
+
+			if (el.hasClass("module-install")) {
+				dropdown = dropdownInstall;
+			}
+			else if (el.hasClass("module-uninstall")) {
+				dropdown = dropdownUninstall;
+			}
+
+			// set the corresponding dropdown's option to selected
+			var wasRemoved = false;
+			var option = dropdown.find('option[value="{0}"]'.format(systemName));
+			if (option.attr('selected')) {
+				option.removeAttr('selected');
+				wasRemoved = true;
+			}
+			else {
+				option.attr('selected', 1);
+			}
+
+			var transferSrc = wasRemoved ? btnExecuteTasks : el;
+			var transferTarget = wasRemoved ? el : btnExecuteTasks;
+
+			transferSrc.stop(true, true).effect("transfer", { to: transferTarget, easing: "easeOutQuad", className: "transfer" }, 400, function () {
+				// Toggle the ExecuteTasks button and it's labels
+				var labelInstall = btnExecuteTasks.find('.label-install-count'),
+                    labelUninstall = btnExecuteTasks.find('.label-uninstall-count'),
+                    installCount = dropdownInstall.val() ? dropdownInstall.val().length : 0,
+                    uninstallCount = dropdownUninstall.val() ? dropdownUninstall.val().length : 0;
+
+				labelInstall.toggleClass('hide', installCount == 0).text(installCount);
+				labelUninstall.toggleClass('hide', uninstallCount == 0).text(uninstallCount);
+
+				if (!installCount && !uninstallCount) {
+					btnExecuteTasks.attr('disabled', 'disabled');
+				}
+				else {
+					btnExecuteTasks.removeAttr('disabled');
+				}
+			});
+
+		});
+
+		// Execute the install actions
+		btnExecuteTasks.on('click', function (e) {
+            e.preventDefault();
+
+            var btn = $(this);
+            var confirmText = @T("Admin.Configuration.Plugins.ExecuteTasks.Confirm").JsValue;
+			var progressText = @T("Admin.Configuration.Plugins.ExecuteTasks.Progress").JsValue;
+
+            confirm2({
+                message: confirmText.unescapeHtml(),
+                icon: { type: 'question' },
+                callback: accepted => {
+                    if (accepted) {
+                        $.throbber.show({
+                            message: progressText
+                        });
+                        btn.closest('form')[0].submit();
+                    }
+                }
+            });
+
+            return false;
+		});
+
+        $('#modules-form').on('click', '.module-update-resources, .module-update-allresources', function (e) {
+			e.preventDefault();
+			var el = $(this);
+
+			var confirmText = @T("Admin.Configuration.Plugins.Resources.UpdateConfirm").JsValue,
+                confirmAllText = @T("Admin.Configuration.Plugins.Resources.UpdateAllConfirm").JsValue,
+                progressText = @T("Admin.Configuration.Plugins.Resources.UpdateProgress").JsValue;
+
+            var isSingleUpdateRequest = !el.hasClass('module-update-allresources');
+
+            confirm2({
+                message: (isSingleUpdateRequest ? confirmText : confirmAllText).unescapeHtml(),
+                icon: { type: 'question' },
+                callback: accepted => {
+                    if (accepted) {
+			            $.throbber.show({
+				            message: progressText,
+				            callback: function () {
+					            $({}).ajax({
+						            type: 'POST',
+						            url: el.attr("href"),
+						            data: {
+							            "__RequestVerificationToken": token,
+							            "systemName": el.attr("data-system-name"),
+							            "returnUrl": '@Request.RawUrl()'
+                                    },
+                                    success: function (data) {
+                                        if (data.Success) {
+                                            displayNotification(data.Message, 'success');
+                                        }
+                                        $.throbber.hide();
+						            }
+					            });
+				            }
+			            });
+                    }
+                }
+            });
+		});
+
+		// edit module
+		$('#modules-form').on('click', '.module-edit', function (e) {
+			openPopup(
+                '{0}?systemName={1}&btnId=btnRefresh&formId=modules-form'.format(
+                    '@Url.Action("EditPopup")',
+                    $(this).data("systemname")
+                )
+            );
+            return false;
+        });
+
+    	// Licence module
+		$(document).on('click', '.module-licence', function (e) {
+			e.preventDefault();
+
+    		var dialog = $('#module-licence-modal'),
+				url = $(this).attr('href');
+
+    		dialog.find('.modal-body').empty();
+
+    		$(this).ajax({
+    			type: 'GET',
+                smallIcon: dialog.find('.modal-body'),
+				data: { __RequestVerificationToken: token },
+    			success: function (resp) {
+    				dialog = $('#module-licence-modal');
+    				dialog.find('.modal-body').html(resp);
+
+    				setTimeout(function() {
+    					dialog.find('[name="Licenses[0].LicenseKey"]').focus();
+    				}, 1000);
+
+    				dialog.find('.btn-primary').click(function(e2) {
+    					e2.preventDefault();
+    					if (confirm(@T("Admin.Configuration.Plugins.ConfirmLicensing").JsValue)) {
+    						dialog.find('form:first').submit();
+    					}
+    					return false;
+    				});
+    			}
+    		});
+
+			dialog.modal('show');
+
+    		return false;
+    	});
+
+		// reset license status
+		$('#module-licence-modal').on('click', '.licensing-reset-status-check', function() {
+            var licenseForm = $('#module-licence-modal').find('.modal-body form:first');
+
+			$({}).ajax({
+				type: 'POST',
+                url: licenseForm.attr('data-resetcheckurl'),
+                data: { __RequestVerificationToken: token },
+				success: function (resp) {
+					if (resp.length > 0) {
+						var systemName = licenseForm.attr('data-systemname');
+						$('#local-modules').find('div[data-system-name="' + systemName + '"]').find('.license-label').html(resp);
+					}
+				}
+			});
+		});
+
+        $('#btnRefresh').click(function () {
+            // reload page
+            setLocation(location.href);
+            return false;
+        });
+    });
+</script>
+
+@{
+    async Task ModuleList(IEnumerable<ModuleModel> modules)
+    {
+        foreach (var module in modules)
+        {
+            <div class="module-item" attr-class='(!module.Installed, "inactive")' data-system-name="@module.SystemName" data-friendly-name="@module.FriendlyName">
+                <div class="module-icon">
+                    <img class="icon img-responsive" src="@Url.Content(module.IconUrl)" />
+                </div>
+                <div class="module-data row">
+                    <!-- General -->
+                    <div class="module-col col-6">
+                        <div class="module-heading">
+                            <div>
+                                <div class="module-title">
+                                    <div class="module-name">@module.FriendlyName</div>
+                                    <div class="module-badges">
+                                        <span class="badge badge-warning" sm-if="module.Installed">@T("Admin.Configuration.Plugins.Fields.Installed")</span>
+                                        <partial name="_LicenseLabel" model="module.LicenseLabel" />
+                                    </div>
+                                </div>
+                                <div sm-if="module.Description.HasValue()" class="module-description w-100">
+                                    @module.Description
+                                </div>
+                            </div>
+
+                            <div sm-if="module.Installed" class="module-actions dropdown">
+                                <button class="btn btn-outline-secondary btn-icon dropdown-toggle no-chevron" type="button" data-toggle="dropdown">
+                                    <i class="fa fa-cog"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a asp-action="UpdateStringResources" class="dropdown-item module-update-resources" data-system-name="@module.SystemName">
+                                        <i class="fa fa-fw fa-language"></i>
+                                        <span>@T("Admin.Configuration.Plugins.Resources.Update")</span>
+                                    </a>
+                                    <a sm-if="module.LicenseLabel.LicenseUrl.HasValue()" class="dropdown-item module-licence" href="@module.LicenseLabel.LicenseUrl">
+                                        <i class="fa fa-fw fa-key"></i>
+                                        <span>@T("Admin.Common.License")</span>
+                                    </a>
+                                    <a sm-if="module.ConfigurationUrl.HasValue()" class="dropdown-item module-configure" href="@module.ConfigurationUrl">
+                                        <i class="fa fa-fw fa-cog"></i>
+                                        <span>@T("Admin.Configuration.Plugins.Fields.Configure")</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="module-info">
+                            <span class="attr">
+                                <span class="attr-name">@T("Admin.Configuration.Plugins.Fields.Version"):</span>
+                                <span class="attr-value">@module.Version</span>
+                            </span>
+                            <span sm-if="module.Author.HasValue()" class="attr">
+                                <span class="attr-name">@T("Admin.Configuration.Plugins.Fields.Author"):</span>
+                                <span class="attr-value">@module.Author</span>
+                            </span>
+                            <span sm-if="module.Url.HasValue()" class="attr">
+                                <i class="fa fa-external-link-alt mr-1"></i>
+                                <a href="@module.Url" target="PluginWebsiteWnd">@T("Common.Website")</a>
+                            </span>
+                            <span class="attr">
+                                <span class="attr-name">@T("Admin.Configuration.Plugins.Fields.SystemName"):</span>
+                                <span class="attr-value">@module.SystemName</span>
+                            </span>
+                        </div>
+                        @if (@Model.AvailableStores.Count > 1)
+                        {
+                            <div class="fs-sm">
+                                <span class="pr-2">@T("Admin.Common.Store.LimitedTo"):</span>
+                                <a href="#" data-pk='@module.SystemName' data-value='[@string.Join(',', module.SelectedStoreIds)]' class="editable editable-click store-limiter">
+                                    <!-- AJAX -->
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="module-col col-6">
+                        @if (module.Installed)
+                        {
+                            <a class="btn btn-secondary btn-to-danger module-uninstall" data-toggle="button" href="#" style="min-width: 180px">
+                                @T("Admin.Configuration.Plugins.Fields.Uninstall")
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-success module-install" data-toggle="button" href="#" style="min-width: 180px">
+                                <i class="far fa-arrow-alt-circle-down"></i>
+                                <span>@T("Admin.Configuration.Plugins.Fields.Install")</span>
+                            </a>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        }
+    }
+}

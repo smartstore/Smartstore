@@ -17,7 +17,7 @@ namespace Smartstore.News
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public RouteInfo GetConfigurationRoute()
-            => new("Settings", "News", new { area = "Admin" });
+            => new("List", "NewsAdmin", new { area = "Admin" });
 
         public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
         {

@@ -183,7 +183,7 @@ namespace Smartstore.IO
 
             return new FileStream(
                 PhysicalPath,
-                FileMode.OpenOrCreate,
+                FileMode.Create,
                 FileAccess.Write,
                 FileShare.None,
                 bufferSize: 4096,

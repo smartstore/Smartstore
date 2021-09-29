@@ -80,6 +80,7 @@ namespace Smartstore.Admin.Controllers
                 if (modulesToInstall != null && modulesToInstall.Any())
                 {
                     ModularState.Instance.PendingModules.AddRange(modulesToInstall);
+                    ModularState.Instance.Save();
                     numTasks += modulesToInstall.Count();
                 }
 
@@ -282,6 +283,9 @@ namespace Smartstore.Admin.Controllers
             // Using GetResource because T could fallback to NullLocalizer here.
             model.Group = Services.Localization.GetResource("Admin.Plugins.KnownGroup." + descriptor.Group);
 
+            model.Installed = descriptor.IsInstalled();
+            model.IsConfigurable = descriptor.Module?.IsConfigurable == true;
+
             if (forList)
             {
                 model.FriendlyName = _moduleManager.GetLocalizedValue(descriptor, x => x.FriendlyName);
@@ -301,11 +305,11 @@ namespace Smartstore.Admin.Controllers
             // Icon
             model.IconUrl = _moduleManager.GetIconUrl(descriptor);
 
-            if (descriptor.IsInstalled())
+            if (model.Installed)
             {
-                // Specify configuration URL only when a module is already installed
-                if (descriptor.Module.IsConfigurable && !forList)
+                if (descriptor.Module.IsConfigurable)
                 {
+                    // Specify configuration URL only when a module is already installed
                     model.ConfigurationUrl = Url.Action("ConfigureModule", new { systemName = descriptor.SystemName });
 
                     if (!forList)
