@@ -62,7 +62,6 @@
             <siteMapNode id="topics" iconClass="far fa-file-alt" title="Pages &amp; Topics" resKey="Admin.ContentManagement.Topics" permissionNames="cms.topic" controller="Topic" action="List" area="Admin" />
             <siteMapNode id="menus" iconClass="far fa-stream" title="Menus" resKey="Admin.ContentManagement.Menus" permissionNames="cms.menu" controller="Menu" action="List" area="Admin" />
             <siteMapNode id="message-templates" iconClass="far fa-envelope" title="Message templates" resKey="Admin.ContentManagement.MessageTemplates" permissionNames="cms.messagetemplate" controller="MessageTemplate" action="List" area="Admin" />
-            <siteMapNode id="polls" iconClass="fa fa-tasks" title="Polls" resKey="Admin.ContentManagement.Polls" permissionNames="cms.poll" controller="Poll" action="List" area="Admin" />
             <siteMapNode id="widgets" iconClass="fa fa-plus-square" title="Widgets" resKey="Admin.ContentManagement.Widgets" permissionNames="cms.widget" controller="Widget" action="Providers" area="Admin" />
         </siteMapNode>
 

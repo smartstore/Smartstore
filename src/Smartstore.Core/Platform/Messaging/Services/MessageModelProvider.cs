@@ -767,25 +767,6 @@ namespace Smartstore.Core.Messaging
             return m;
         }
 
-        //protected virtual object CreateModelPart(PollVotingRecord part, MessageContext messageContext)
-        //{
-        //    Guard.NotNull(messageContext, nameof(messageContext));
-        //    Guard.NotNull(part, nameof(part));
-
-        //    var m = new Dictionary<string, object>
-        //    {
-        //        { "PollAnswerId", part.PollAnswerId },
-        //        { "PollAnswerName", part.PollAnswer.Name },
-        //        { "PollId", part.PollAnswer.PollId }
-        //    };
-
-        //    ApplyCustomerContentPart(m, part, messageContext);
-
-        //    PublishModelPartCreatedEvent<PollVotingRecord>(part, m);
-
-        //    return m;
-        //}
-
         protected virtual async Task<object> CreateModelPartAsync(Address part, MessageContext messageContext)
         {
             Guard.NotNull(messageContext, nameof(messageContext));

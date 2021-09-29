@@ -1,0 +1,5 @@
+﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
+  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Polls" AppendRootKey="false">
+    <Value>Umfragen</Value>
+  </LocaleResource>
+</Language>

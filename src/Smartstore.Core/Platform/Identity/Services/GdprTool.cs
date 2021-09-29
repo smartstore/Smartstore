@@ -115,15 +115,6 @@ namespace Smartstore.Core.Identity
 					model["ProductReviewHelpfulness"] = await helpfulness.SelectAsync(x => _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).AsyncToList();
 				}
 
-				// TODO: (mh) (core) Handle in external module
-				// Poll voting
-				//var pollVotings = customer.CustomerContent.OfType<PollVotingRecord>();
-				//if (pollVotings.Any())
-				//{
-				//	ignoreMemberNames = new string[] { "CustomerId", "UpdatedOn" };
-				//	model["PollVotings"] = pollVotings.Select(async x => await _messageModelProvider.CreateModelPartAsync(x, true, ignoreMemberNames)).ToList();
-				//}
-
 				// BackInStock subscriptions
 				var backInStockSubscriptions = await _db.BackInStockSubscriptions
 					.AsNoTracking()
@@ -182,8 +173,6 @@ namespace Smartstore.Core.Identity
 			AnonymizeData(customer, x => x.Username, IdentifierDataType.UserName, language);
 			AnonymizeData(customer, x => x.Email, IdentifierDataType.EmailAddress, language);
 			AnonymizeData(customer, x => x.LastIpAddress, IdentifierDataType.IpAddress, language);
-			// TODO: (mh) (core) Why were these missing?
-			// RE: I don't know. You've implmented this method.
 			AnonymizeData(customer, x => x.FirstName, IdentifierDataType.Name, language);
 			AnonymizeData(customer, x => x.LastName, IdentifierDataType.Name, language);
 			AnonymizeData(customer, x => x.BirthDate, IdentifierDataType.DateTime, language);

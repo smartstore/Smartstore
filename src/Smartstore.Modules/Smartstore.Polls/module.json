@@ -1,0 +1,11 @@
+{
+  "Group": "CMS",
+  "SystemName": "Smartstore.Polls",
+  "FriendlyName": "Smartstore Polls",
+  "Description": "",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Order": 1,
+  "AssemblyName": "Smartstore.Polls.dll",
+  "ResourceRootKey": "Plugins.CMS.Polls"
+}

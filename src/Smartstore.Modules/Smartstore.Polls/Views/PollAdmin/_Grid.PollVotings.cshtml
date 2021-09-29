@@ -1,0 +1,24 @@
+﻿@model PollVotingRecordModel
+
+@{
+    var usernamesEnabled = (bool)ViewBag.UsernamesEnabled;
+}
+
+<datagrid id="voting-records-grid" allow-resize="true" allow-column-reordering="true">
+    <datasource read="@Url.Action("PollVotesList", new { pollId = ViewData["PollId"] })" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <columns>
+        <column for="Email" hideable="false" width="2fr">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.CustomerUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        @if (!usernamesEnabled)
+        {
+            <column for="Username" />
+        }
+        <column for="FullName" />
+        <column for="AnswerName" />
+        <column for="CreatedOn" />
+    </columns>
+</datagrid>

@@ -22,8 +22,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 {
     internal partial class ModelCacheInvalidator : IDbSaveHook
 	{
-        // TODO: (mh) (core) Move Poll stuff to external module.
-		
 		#region Consts
 
         /// <summary>
@@ -150,25 +148,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 		/// </remarks>
 		public const string PRODUCTS_ALSO_PURCHASED_IDS_KEY = "pres:alsopuchased-{0}-{1}";
 		public const string PRODUCTS_ALSO_PURCHASED_IDS_PATTERN_KEY = "pres:alsopuchased*";
-
-		/// <summary>
-		/// Key for home page polls
-		/// </summary>
-		/// <remarks>
-		/// {0} : language ID
-		/// {1} : current store ID
-		/// </remarks>
-		public const string HOMEPAGE_POLLS_MODEL_KEY = "pres:poll:homepage-{0}-{1}";
-		/// <summary>
-		/// Key for polls by system name
-		/// </summary>
-		/// <remarks>
-		/// {0} : poll system name
-		/// {1} : language ID
-		/// {2} : current store ID
-		/// </remarks>
-		public const string POLL_BY_SYSTEMNAME_MODEL_KEY = "pres:poll:systemname-{0}-{1}-{2}";
-		public const string POLLS_PATTERN_KEY = "pres:poll:*";
 
 		/// <summary>
 		/// Key for states by country id
@@ -331,10 +310,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 				await _cache.RemoveByPatternAsync(STORE_FAVICON_PATTERN_KEY);
 				await _cache.RemoveByPatternAsync(STORE_LOGO_PATTERN_KEY);
 			}
-			//else if (entity is Poll)
-			//{
-			//	_cache.RemoveByPatternAsync(POLLS_PATTERN_KEY);
-			//}
 			else if (entity is StateProvince)
 			{
 				await _cache.RemoveByPatternAsync(STATEPROVINCES_PATTERN_KEY);

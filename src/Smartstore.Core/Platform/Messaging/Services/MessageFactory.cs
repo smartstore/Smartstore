@@ -451,7 +451,6 @@ namespace Smartstore.Core.Messaging
         {
             var templateName = messageContext.MessageTemplate?.Name ?? messageContext.MessageTemplateName;
 
-            // TODO: (mh) (core) Move poll model creation to external modules when they are available.
             if (_testModelFactories == null)
             {
                 _testModelFactories = new Dictionary<string, Func<Task<object>>>(StringComparer.OrdinalIgnoreCase)
