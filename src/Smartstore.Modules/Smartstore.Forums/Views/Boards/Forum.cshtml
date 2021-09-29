@@ -54,10 +54,7 @@
             </div>
         </div>
         @* TODO: (mg) (core) Provide paged list of forum topics *@
-        @*<forum-pagination sm-list-items="Model.ForumTopics"
-                          sm-query-param="page"  
-                          sm-alignment="Right"></forum-pagination>*@
-
+        @*<pagination sm-list-items="Model.ForumTopics" sm-query-param="page" sm-alignment="Right" />*@
     </div>
     <div class="topics-group table-responsive">
         <table class="table">
@@ -113,14 +110,14 @@
                             @if (topic.NumPosts > Model.PostsPageSize)
                             {
                                 @* TODO: (mg) (core) Fix insufficient pager. *@
-                                @*<forum-pagination sm-list-items="Model.TopicPosts"
+                                @*<forumtopic-pagination sm-list-items="Model.TopicPosts"
                                                   sm-query-param="page"
                                                   class="topics-pager"
                                                   sm-show-previous="false"
                                                   sm-show-next="false"
                                                   sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
                                                   sm-alignment="Left"
-                                                  sm-size="Small"></forum-pagination>*@
+                                                  sm-size="Small" />*@
                             }
                         </div>
                     </td>

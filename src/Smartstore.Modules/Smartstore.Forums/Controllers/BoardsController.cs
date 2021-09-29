@@ -215,7 +215,7 @@ namespace Smartstore.Forums.Controllers
             var currentCustomer = Services.WorkContext.CurrentCustomer;
             var language = Services.WorkContext.WorkingLanguage;
             var protocol = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
-            var selfLink = Url.Action("ForumRss", "Forum", null, protocol);
+            var selfLink = Url.Action("ForumRss", "Boards", null, protocol);
             var forumLink = Url.RouteUrl("ForumBySlug", new { id = forum.Id, slug = await forum.GetActiveSlugAsync() }, protocol);
             var feed = new SmartSyndicationFeed(new Uri(forumLink), store.Name, T("Forum.ForumFeedDescription"));
 
@@ -306,7 +306,9 @@ namespace Smartstore.Forums.Controllers
             return Json(new { Subscribed = subscribed, Text = returnText });
         }
 
-        public IActionResult ActiveDiscussions(int? forumId = null)
+        [Route("boards/activediscussions", Name = "ForumActiveDiscussions")]
+        [Route("boards/activediscussions/page/{page:int}", Name = "ForumActiveDiscussionsPaged")]
+        public IActionResult ActiveDiscussions(int? forumId = null, int page = 1)
         {
             if (!_forumSettings.ForumsEnabled)
             {
@@ -314,6 +316,7 @@ namespace Smartstore.Forums.Controllers
             }
 
             ViewBag.ForumId = forumId;
+            ViewBag.PageIndex = page - 1;
 
             return View();
         }
@@ -329,8 +332,8 @@ namespace Smartstore.Forums.Controllers
             var currentCustomer = Services.WorkContext.CurrentCustomer;
             var language = Services.WorkContext.WorkingLanguage;
             var protocol = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
-            var selfLink = Url.Action("ActiveDiscussionsRss", "Forum", null, protocol);
-            var discussionLink = Url.Action("ActiveDiscussions", "Foorum", null, protocol);
+            var selfLink = Url.Action("ActiveDiscussionsRss", "Boards", null, protocol);
+            var discussionLink = Url.RouteUrl("ForumActiveDiscussions", null, protocol);
             var feed = new SmartSyndicationFeed(new Uri(discussionLink), $"{store.Name} - {T("Forum.ActiveDiscussionsFeedTitle")}", T("Forum.ActiveDiscussionsFeedDescription"));
 
             feed.AddNamespaces(false);

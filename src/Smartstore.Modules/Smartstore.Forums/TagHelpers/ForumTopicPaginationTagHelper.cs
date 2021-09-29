@@ -6,10 +6,10 @@ using Smartstore.Web.TagHelpers.Shared;
 namespace Smartstore.Forums.TagHelpers
 {
     [OutputElementHint("div")]
-    [HtmlTargetElement("forum-pagination", TagStructure = TagStructure.WithoutEndTag)]
-    public class ForumPaginationTagHelper : PaginationTagHelper
+    [HtmlTargetElement("forumtopic-pagination", TagStructure = TagStructure.WithoutEndTag)]
+    public class ForumTopicPaginationTagHelper : PaginationTagHelper
     {
-        public ForumPaginationTagHelper() 
+        public ForumTopicPaginationTagHelper() 
             : base()
         {
         }

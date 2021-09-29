@@ -29,7 +29,10 @@ namespace Smartstore.Forums.Components
             _forumSettings = forumSettings;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(bool isActiveDiscussionsPage = false, int? forumId = null)
+        public async Task<IViewComponentResult> InvokeAsync(
+            bool isActiveDiscussionsPage = false, 
+            int? forumId = null,
+            int? pageIndex = null)
         {
             if (!_forumSettings.ForumsEnabled)
             {
@@ -47,7 +50,7 @@ namespace Smartstore.Forums.Components
                 .IncludeCustomer()
                 .AsNoTracking()
                 .ApplyActiveFilter(store, currentCustomer, forumId)
-                .ToPagedList(0, pageSize)
+                .ToPagedList(pageIndex ?? 0, pageSize)
                 .LoadAsync();
 
             if (!isActiveDiscussionsPage && !topics.Any())

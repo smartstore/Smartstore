@@ -19,7 +19,7 @@
             }
             @if (!Model.IsActiveDiscussionsPage)
             {
-                <a asp-action="ActiveDiscussions" asp-controller="Boards" class="btn btn-outline-info btn-flat">
+                <a asp-route="ForumActiveDiscussions" class="btn btn-outline-info btn-flat">
                     <i class="fa fa-th-list"></i>
                     <span>@T("Forum.ActiveDiscussions.ViewAll")</span>
                 </a>
@@ -69,31 +69,16 @@
 					                <span>@topic.CustomerName</span>
 				                }
                             </div>
-
-                            @* TODO: (mg) (core) Fix insufficient pager. *@
-@*                            @if (topic.NumPosts > Model.PostsPageSize)
+                            @if (topic.NumPosts > Model.PostsPageSize)
                             {
-                                @(Html.SmartStore().Pager(topic.TotalPostPages)
-                                    .QueryParam("page")
-                                    .HtmlAttributes(new { @class = "topics-pager" })
-                                    .WithRenderer<ForumTopicPagerRenderer>()
-                                    .ShowPrevious(false)
-                                    .ShowNext(false)
-                                    .ItemTitleFormatString(T("Forum.Topics.GotoPostPager"))
-                                    .Alignment(PagerAlignment.Left)
-                                    .Size(PagerSize.Mini)
-                                    .Route("TopicSlug", new { id = topic.Id, slug = topic.SeName }))
-
-                                <forum-pagination sm-list-items="Model.TopicPosts"
-                                    sm-query-param="page"
-                                    class="topics-pager"
+                                @*TODO: (mg) (core) go on with forumtopic-pagination... stub post list... Route("ForumTopicBySlug", new { id = topic.Id, slug = topic.Slug }) *@
+                                <forumtopic-pagination class="topics-pager"
                                     sm-show-previous="false"
                                     sm-show-next="false"
                                     sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
                                     sm-alignment="Left"
                                     sm-size="Small" />
-
-                            }*@
+                            }
                         </div>
                     </td>
                     <td class="replies d-none d-md-table-cell">
@@ -109,4 +94,9 @@
             }
         </table>
     </div>
+
+    @if (Model.IsActiveDiscussionsPage)
+    {
+        <pagination sm-list-items="Model.ForumTopics" />
+    }
 </div>

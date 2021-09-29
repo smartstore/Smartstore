@@ -9,6 +9,10 @@
         @await Component.InvokeAsync("ForumSearchBox")
     </div>
 
-    @await Component.InvokeAsync("ActiveDiscussions", new { isActiveDiscussionsPage = true, forumId = ViewBag.ForumId as int? })
-    @* TODO: (mg) (core) add paginator to active discussions page (missing in Classic!) *@
+    @await Component.InvokeAsync("ActiveDiscussions", new 
+    {
+        isActiveDiscussionsPage = true, 
+        forumId = ViewBag.ForumId as int?,
+        pageIndex = ViewBag.PageIndex as int?
+    })
 </div>
