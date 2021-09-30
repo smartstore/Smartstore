@@ -8,7 +8,7 @@ using Smartstore.Polls.Domain;
 
 namespace Smartstore.Polls.Migrations
 {
-    [MigrationVersion("2021-09-20 15:00:00", "News: Initial")]
+    [MigrationVersion("2021-09-29 15:00:00", "Polls: Initial")]
     internal class Initial : Migration
     {
         public override void Up()
