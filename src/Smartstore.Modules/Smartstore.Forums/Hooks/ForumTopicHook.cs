@@ -37,13 +37,13 @@ namespace Smartstore.Forums.Hooks
                 .Distinct()
                 .ToArray();
 
-            var numPosts = await _db.ForumPosts().GetForumPostsCountAsync(customerIds);
-            if (numPosts.Any())
+            var numPostsByCustomer = await _db.ForumPosts().GetForumPostCountsByCustomerIdsAsync(customerIds, cancelToken);
+            if (numPostsByCustomer.Any())
             {
                 var entityName = nameof(Customer);
                 await _genericAttributeService.PrefetchAttributesAsync(entityName, customerIds);
                 
-                foreach (var pair in numPosts)
+                foreach (var pair in numPostsByCustomer)
                 {
                     var attributes = _genericAttributeService.GetAttributesForEntity(entityName, pair.Key);
 
@@ -52,6 +52,20 @@ namespace Smartstore.Forums.Hooks
                     attributes.Set(Module.ForumPostCountKey, pair.Value);
                 }
 
+                await _db.SaveChangesAsync(cancelToken);
+            }
+
+            // Update topic statistics.
+            var topicIds = entries
+                .Where(x => x.InitialState == Data.EntityState.Modified)
+                .Select(x => x.Entity)
+                .OfType<ForumTopic>()
+                .Select(x => x.Id)
+                .Distinct()
+                .ToArray();
+
+            if (await _db.ForumPosts().ApplyStatisticsAsync(topicIds, cancelToken) > 0)
+            {
                 await _db.SaveChangesAsync(cancelToken);
             }
         }

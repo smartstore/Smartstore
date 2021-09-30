@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -121,6 +122,33 @@ namespace Smartstore.Forums
                 .ThenInclude(x => x.CustomerRole);
         }
 
+
+        public static async Task<int> GetTopicPageIndexAsync(this DbSet<ForumPost> forumPosts,
+            Customer customer,
+            int topicId,
+            int pageSize,
+            int postId)
+        {
+            if (pageSize > 0 && postId != 0)
+            {
+                var postIds = await forumPosts
+                    .AsNoTracking()
+                    .ApplyStandardFilter(customer, topicId, true)
+                    .Select(x => x.Id)
+                    .ToListAsync();
+
+                for (var i = 0; i < postIds.Count; ++i)
+                {
+                    if (postIds[i] == postId)
+                    {
+                        return i / pageSize;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
         public static async Task<Dictionary<int, ForumPost>> GetForumPostsByIdsAsync(this DbSet<ForumPost> forumPosts, IEnumerable<int> forumPostIds)
         {
             var ids = forumPostIds
@@ -143,33 +171,9 @@ namespace Smartstore.Forums
             }
         }
 
-        public static async Task<int> GetTopicPageIndexAsync(this DbSet<ForumPost> forumPosts, 
-            Customer customer,
-            int topicId, 
-            int pageSize, 
-            int postId)
-        {
-            if (pageSize > 0 && postId != 0)
-            {
-                var postIds = await forumPosts
-                    .AsNoTracking()
-                    .ApplyStandardFilter(customer, topicId, true)
-                    .Select(x => x.Id)
-                    .ToListAsync();
-                    
-                for (var i = 0; i < postIds.Count; ++i)
-                {
-                    if (postIds[i] == postId)
-                    {
-                        return i / pageSize;
-                    }
-                }
-            }
-
-            return 0;
-        }
-
-        public static async Task<Dictionary<int, int>> GetForumPostsCountAsync(this DbSet<ForumPost> forumPosts, int[] customerIds)
+        public static async Task<Dictionary<int, int>> GetForumPostCountsByCustomerIdsAsync(this DbSet<ForumPost> forumPosts, 
+            int[] customerIds,
+            CancellationToken cancelToken = default)
         {
             if (customerIds?.Any() ?? false)
             {
@@ -183,10 +187,64 @@ namespace Smartstore.Forums
                         NumPosts = grp.Count()
                     };
 
-                return await numPostsQuery.ToDictionaryAsync(x => x.CustomerId, x => x.NumPosts);
+                return await numPostsQuery.ToDictionaryAsync(x => x.CustomerId, x => x.NumPosts, cancelToken);
             }
 
             return new Dictionary<int, int>();
+        }
+
+        public static async Task<Dictionary<int, int>> GetForumPostCountsByTopicIdsAsync(this DbSet<ForumPost> forumPosts, 
+            int[] forumTopicIds,
+            CancellationToken cancelToken = default)
+        {
+            if (forumTopicIds?.Any() ?? false)
+            {
+                var numPostsQuery =
+                    from fp in forumPosts
+                    where forumTopicIds.Contains(fp.TopicId) && fp.Published && fp.ForumTopic.Published
+                    group fp by fp.TopicId into grp
+                    select new
+                    {
+                        TopicId = grp.Key,
+                        NumPosts = grp.Count()
+                    };
+
+                return await numPostsQuery.ToDictionaryAsync(x => x.TopicId, x => x.NumPosts, cancelToken);
+            }
+
+            return new Dictionary<int, int>();
+        }
+
+        public static async Task<int> ApplyStatisticsAsync(this DbSet<ForumPost> forumPosts, 
+            int[] forumTopicIds,
+            CancellationToken cancelToken = default)
+        {
+            if (forumTopicIds.Any())
+            {
+                var lastPosts = await forumPosts
+                    .ApplyLastPostFilter(forumTopicIds)
+                    .ToListAsync(cancelToken);
+
+                if (lastPosts.Any())
+                {
+                    var numPostsByTopic = await forumPosts.GetForumPostCountsByTopicIdsAsync(forumTopicIds, cancelToken);
+
+                    foreach (var lastPost in lastPosts)
+                    {
+                        lastPost.ForumTopic.LastPostId = lastPost.Id;
+                        lastPost.ForumTopic.LastPostCustomerId = lastPost.CustomerId;
+                        lastPost.ForumTopic.LastPostTime = lastPost.CreatedOnUtc;
+
+                        lastPost.ForumTopic.NumPosts = numPostsByTopic.TryGetValue(lastPost.TopicId, out var numPosts)
+                            ? numPosts
+                            : 0;
+                    }
+
+                    return lastPosts.Count;
+                }
+            }
+
+            return 0;
         }
     }
 }
