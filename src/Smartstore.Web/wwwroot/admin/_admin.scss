@@ -1262,6 +1262,17 @@ table.payment-method-features td {
     font-size: $font-size-sm;
 }
 
+a.editable {
+    text-decoration: none;
+    border-bottom: 1px dashed $link-color;
+
+    &.editable-empty {
+        font-style: italic;
+        color: $gray-600;
+        border-bottom-color: $gray-600;
+    }
+}
+
 
 //
 // Plugin configuration

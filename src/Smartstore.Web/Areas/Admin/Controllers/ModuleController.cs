@@ -126,26 +126,19 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Module.Update)]
-        public async Task<IActionResult> SetSelectedStores(string pk /* SystemName */, string name, IFormCollection form)
+        public async Task<IActionResult> SetSelectedStores(string systemName, int[] storeIds)
         {
-            // TODO: (core) Replace x-editable
-            // Gets called from x-editable.
             try
             {
-                var descriptor = _moduleCatalog.GetModuleByName(pk, false);
+                var descriptor = _moduleCatalog.GetModuleByName(systemName, false);
                 if (descriptor == null)
                 {
                     return NotFound("The plugin does not exist.");
                 }
 
                 var settingKey = descriptor.GetSettingKey("LimitedToStores");
-                var storeIds = (form["value[]"].ToString().NullEmpty() ?? "0")
-                    .ToIntArray()
-                    .Where(x => x > 0)
-                    .Distinct()
-                    .ToList();
 
-                if (storeIds.Count > 0)
+                if (storeIds.Length > 0)
                 {
                     await Services.Settings.ApplySettingAsync(settingKey, string.Join(',', storeIds));
                 }
@@ -161,7 +154,6 @@ namespace Smartstore.Admin.Controllers
                 return StatusCode(501, ex.Message);
             }
 
-            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
             return StatusCode(200);
         }
 

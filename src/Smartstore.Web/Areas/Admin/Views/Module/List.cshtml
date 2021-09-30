@@ -96,29 +96,91 @@
 		var stores = @Html.Raw(availableStores);
         var token = $('input[name="__RequestVerificationToken"]').val();
 
-		@*// Multistore
-		$(".store-limiter").editable({
-			type: 'checklist',
-			title: @T("Admin.Common.Store.AvailableFor").JsValue,
-			url: '@Url.Action("SetSelectedStores")',
-			source: stores,
-			unsavedclass: null,
-			placement: "right",
-			emptytext: @T("Common.No").JsValue,
-			autotext: 'always',
-			display: function (value, sourceData) {
-				//display checklist as comma-separated values
-				var html = [],
-					checked = $.fn.editableutils.itemsByValue(value, sourceData);
+        // StoreSelector Popover
+        // ------------------------------
+        {
+            $(".store-limiter").popover({
+                container: "body",
+                placement: "auto",
+                boundary: "window",
+                html: true,
+                trigger: "manual",
+                customClass: "popover-store-limiter",
+                title: @T("Admin.Common.Store.AvailableFor").JsValue,
+                content: function () {
+                    let el = $(this);
+                    let selectedIds = el.data("value");
+                    let systemName = el.closest(".module-item").data("module");
+                    let checkboxes = stores.map(store => {
+                        let strChecked = selectedIds.indexOf(store.value) > - 1 ? " checked" : "";
+                        return `
+                            <div class="form-group form-check mb-1">
+                                <input id="chkstore-${store.value}" name="chkstore" type="checkbox" class="form-check-input" value="${store.value}"${strChecked} />
+                                <label for="chkstore-${store.value}" class="form-check-label">${store.text}</label>
+                            </div>`;
+                    });
+                    return `
+                        <form class="row editableform">
+                            <div class="col-auto editable-input">
+                                ${checkboxes.join("")}
+                            </div>
+                            <div class="col-auto editable-buttons">
+                                <button type="button" class="btn btn-warning btn-icon btn-sm editable-submit mr-1" data-module="${systemName}"><i class="fa fa-check"></i></button>
+                                <button type="button" class="btn btn-secondary btn-icon btn-sm editable-cancel"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>`;
+                }
+            });
 
-				if (checked.length) {
-					$.each(checked, function (i, v) { html.push($.fn.editableutils.escape(_.str.truncate(v.text, 40))); });
-					$(this).html(html.join(', '));
-				} else {
-					$(this).empty();
-				}
-			}
-		});*@
+            $("#modules-form").on("click", ".store-limiter", function (e) {
+                e.stopPropagation();
+                $(".store-limiter").popover("hide");
+                $(this).popover("toggle");
+            });
+
+            $(document).on("click", ".editable-cancel", function (e) {
+                $(".store-limiter").popover("hide");
+            });
+
+            $(document).on("click", function (e) {
+                if (!$(e.target).closest(".popover-store-limiter").length) {
+                    $(".store-limiter").popover("hide");
+                }
+            });
+
+            $(document).on("click", ".editable-submit", function (e) {
+                let systemName = $(this).data("module");
+                let storeIds = $(this).closest("form").serializeArray().map(x => parseInt(x.value));
+
+			    $({}).ajax({
+				    type: 'POST',
+				    url: "@Url.Action("SetSelectedStores")",
+                    data: { "__RequestVerificationToken": token, systemName: systemName, storeIds: storeIds },
+                    success: function () {
+                        let editable = $(".store-limiter[data-module='{0}']".format(systemName));
+                        editable.data("value", storeIds);
+                        updateStoreLabel(editable);
+                    },
+                    complete: function() {
+                        $(".store-limiter").popover("hide");
+				    }
+			    });
+            });
+
+            function updateStoreLabel(editable) {
+                editable.each((i, el) => {
+                    //let elModule = $(el).closest(".module-item");
+                    let a = $(el);
+                    let storeIds = a.data("value");
+                    let label = stores.filter(x => storeIds.indexOf(x.value) > -1).map(x => x.text).join(", ");
+                    a.toggleClass("editable-empty", storeIds.length === 0);
+                    a.text(label || @T("Common.No").JsValue);
+
+                });
+            }
+
+            updateStoreLabel($(".store-limiter"));
+        }
 
 		function getModuleFriendlyName(dropdown, systemName) {
 			return dropdown.find('option[value="{0}"]'.format(systemName)).text();
@@ -136,7 +198,7 @@
 
 		var mainContainer = $('#local-modules');
 		inputFilterQuery.on('input propertychange paste', function (e) {
-			var el = $(this);
+			let el = $(this);
 
 			// store query
 			sessionStorage.setItem("module-filter-query", el.val());
@@ -152,7 +214,7 @@
 
 				group.find('.module-item').each(function () {
 					// If the list item does not contain the text phrase hide it
-					if (filter.length > 1 && $(this).data('system-name').search(rg) < 0 && $(this).data('friendly-name').search(rg) < 0) {
+                    if (filter.length > 1 && $(this).data('module').search(rg) < 0 && $(this).data('friendly-name').search(rg) < 0) {
 						$(this).hide();
 					}
 						// Show the list item if the phrase matches and increase the count by 1
@@ -176,7 +238,7 @@
 		});
 
 		// restore search query
-		var data = sessionStorage.getItem('module-filter-query');
+		let data = sessionStorage.getItem('module-filter-query');
 		if (data) {
 			inputFilterQuery.val(data);
 			inputFilterQuery.trigger("paste");
@@ -188,7 +250,7 @@
 			html: true,
 			placement: 'bottom',
 			title: function () {
-				var text = '';
+				let text = '';
 
 				if (dropdownUninstall.val()) {
 					text = '<div class="al"><b>' + @T("Admin.Configuration.Plugins.Fields.Uninstall").JsValue + ':</b></div>';
@@ -214,7 +276,7 @@
 			e.preventDefault();
 
 			var el = $(this),
-                systemName = el.closest('.module-item').data('system-name'),
+                systemName = el.closest('.module-item').data('module'),
                 dropdown = null;
 
 			if (el.hasClass("module-install")) {
@@ -224,8 +286,8 @@
 				dropdown = dropdownUninstall;
 			}
 
-			// set the corresponding dropdown's option to selected
-			var wasRemoved = false;
+			// Set the corresponding dropdown's option to selected
+			let wasRemoved = false;
 			var option = dropdown.find('option[value="{0}"]'.format(systemName));
 			if (option.attr('selected')) {
 				option.removeAttr('selected');
@@ -235,12 +297,12 @@
 				option.attr('selected', 1);
 			}
 
-			var transferSrc = wasRemoved ? btnExecuteTasks : el;
-			var transferTarget = wasRemoved ? el : btnExecuteTasks;
+            let transferSrc = wasRemoved ? btnExecuteTasks : el;
+            let transferTarget = wasRemoved ? el : btnExecuteTasks;
 
 			transferSrc.stop(true, true).effect("transfer", { to: transferTarget, easing: "easeOutQuad", className: "transfer" }, 400, function () {
 				// Toggle the ExecuteTasks button and it's labels
-				var labelInstall = btnExecuteTasks.find('.label-install-count'),
+                let labelInstall = btnExecuteTasks.find('.label-install-count'),
                     labelUninstall = btnExecuteTasks.find('.label-uninstall-count'),
                     installCount = dropdownInstall.val() ? dropdownInstall.val().length : 0,
                     uninstallCount = dropdownUninstall.val() ? dropdownUninstall.val().length : 0;
@@ -262,9 +324,9 @@
 		btnExecuteTasks.on('click', function (e) {
             e.preventDefault();
 
-            var btn = $(this);
-            var confirmText = @T("Admin.Configuration.Plugins.ExecuteTasks.Confirm").JsValue;
-			var progressText = @T("Admin.Configuration.Plugins.ExecuteTasks.Progress").JsValue;
+            let btn = $(this);
+            let confirmText = @T("Admin.Configuration.Plugins.ExecuteTasks.Confirm").JsValue;
+            let progressText = @T("Admin.Configuration.Plugins.ExecuteTasks.Progress").JsValue;
 
             confirm2({
                 message: confirmText.unescapeHtml(),
@@ -284,13 +346,13 @@
 
         $('#modules-form').on('click', '.module-update-resources, .module-update-allresources', function (e) {
 			e.preventDefault();
-			var el = $(this);
+            let el = $(this);
 
-			var confirmText = @T("Admin.Configuration.Plugins.Resources.UpdateConfirm").JsValue,
+            let confirmText = @T("Admin.Configuration.Plugins.Resources.UpdateConfirm").JsValue,
                 confirmAllText = @T("Admin.Configuration.Plugins.Resources.UpdateAllConfirm").JsValue,
                 progressText = @T("Admin.Configuration.Plugins.Resources.UpdateProgress").JsValue;
 
-            var isSingleUpdateRequest = !el.hasClass('module-update-allresources');
+            let isSingleUpdateRequest = !el.hasClass('module-update-allresources');
 
             confirm2({
                 message: (isSingleUpdateRequest ? confirmText : confirmAllText).unescapeHtml(),
@@ -305,7 +367,7 @@
 						            url: el.attr("href"),
 						            data: {
 							            "__RequestVerificationToken": token,
-							            "systemName": el.attr("data-system-name"),
+                                        "systemName": el.data("module"),
 							            "returnUrl": '@Request.RawUrl()'
                                     },
                                     success: function (data) {
@@ -337,7 +399,7 @@
 		$(document).on('click', '.module-licence', function (e) {
 			e.preventDefault();
 
-    		var dialog = $('#module-licence-modal'),
+            let dialog = $('#module-licence-modal'),
 				url = $(this).attr('href');
 
     		dialog.find('.modal-body').empty();
@@ -371,7 +433,7 @@
 
 		// reset license status
 		$('#module-licence-modal').on('click', '.licensing-reset-status-check', function() {
-            var licenseForm = $('#module-licence-modal').find('.modal-body form:first');
+            let licenseForm = $('#module-licence-modal').find('.modal-body form:first');
 
 			$({}).ajax({
 				type: 'POST',
@@ -379,8 +441,8 @@
                 data: { __RequestVerificationToken: token },
 				success: function (resp) {
 					if (resp.length > 0) {
-						var systemName = licenseForm.attr('data-systemname');
-						$('#local-modules').find('div[data-system-name="' + systemName + '"]').find('.license-label').html(resp);
+                        var systemName = licenseForm.attr('data-module');
+                        $('#local-modules').find('div[data-module="' + systemName + '"]').find('.license-label').html(resp);
 					}
 				}
 			});
@@ -399,7 +461,7 @@
     {
         foreach (var module in modules)
         {
-            <div class="module-item" attr-class='(!module.Installed, "inactive")' data-system-name="@module.SystemName" data-friendly-name="@module.FriendlyName">
+            <div class="module-item" attr-class='(!module.Installed, "inactive")' data-module="@module.SystemName" data-friendly-name="@module.FriendlyName">
                 <div class="module-icon">
                     <img class="icon img-responsive" src="@Url.Content(module.IconUrl)" />
                 </div>
@@ -422,10 +484,10 @@
 
                             <div sm-if="module.Installed" class="module-actions dropdown">
                                 <button class="btn btn-outline-secondary btn-icon dropdown-toggle no-chevron" type="button" data-toggle="dropdown">
-                                    <i class="fa fa-cog"></i>
+                                    <i class="fa fa-ellipsis-v"></i>
                                 </button>
-                                <div class="dropdown-menu">
-                                    <a asp-action="UpdateStringResources" class="dropdown-item module-update-resources" data-system-name="@module.SystemName">
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a asp-action="UpdateStringResources" class="dropdown-item module-update-resources" data-module="@module.SystemName">
                                         <i class="fa fa-fw fa-language"></i>
                                         <span>@T("Admin.Configuration.Plugins.Resources.Update")</span>
                                     </a>
@@ -458,15 +520,16 @@
                                 <span class="attr-value">@module.SystemName</span>
                             </span>
                         </div>
-                        @if (@Model.AvailableStores.Count > 1)
-                        {
-                            <div class="fs-sm">
-                                <span class="pr-2">@T("Admin.Common.Store.LimitedTo"):</span>
-                                <a href="#" data-pk='@module.SystemName' data-value='[@string.Join(',', module.SelectedStoreIds)]' class="editable editable-click store-limiter">
-                                    <!-- AJAX -->
-                                </a>
-                            </div>
-                        }
+                        <div sm-if="Model.AvailableStores.Count > 1" class="fs-sm">
+                            <span class="pr-2">@T("Admin.Common.Store.LimitedTo"):</span>
+                            <a href="javascript:;" data-module='@module.SystemName' 
+                               data-value='[@string.Join(',', module.SelectedStoreIds)]'
+                               tabindex="0"
+                               class="editable editable-click store-limiter">
+                                <!-- AJAX -->
+                                Nein
+                            </a>
+                        </div>
                     </div>
 
                     <!-- Buttons -->
