@@ -706,6 +706,28 @@
         // Modal stuff
         $(document).on('hide.bs.modal', '.modal', function (e) { body.addClass('modal-hiding'); });
         $(document).on('hidden.bs.modal', '.modal', function (e) { body.removeClass('modal-hiding'); });
+
+        // Bootstrap Tooltip & Popover custom classes
+        // TODO: Remove customization after BS4 has been updated to latest version or to BS5
+        extendTipComponent($.fn.popover);
+        extendTipComponent($.fn.tooltip);
+
+        function extendTipComponent(component) {
+            if (component) {
+                var ctor = component.Constructor;
+                $.extend(ctor.Default, { customClass: '' });
+
+                var _show = ctor.prototype.show;
+                ctor.prototype.show = function () {
+                    _show.apply(this);
+
+                    if (this.config.customClass) {
+                        var tip = this.getTipElement();
+                        $(tip).addClass(this.config.customClass);
+                    }
+                };
+            }
+        }
     });
 
 })(jQuery, this, document);
