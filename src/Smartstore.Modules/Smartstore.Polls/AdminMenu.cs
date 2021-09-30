@@ -9,31 +9,17 @@ namespace Smartstore.Polls
         protected override void BuildMenuCore(TreeNode<MenuItem> modulesNode)
         {
             // Insert menu items for list views.
-            var newsMenuItem = new MenuItem().ToBuilder()
-                .ResKey("Admin.ContentManagement.News")
-                .Icon("far fa-newspaper")
+            var pollsMenuItem = new MenuItem().ToBuilder()
+                .ResKey("Admin.ContentManagement.Polls")
+                .Icon("fa fa-tasks")
                 .PermissionNames(PollPermissions.Self)
+                .Action("List", "Poll", new { area = "Admin" })
                 .AsItem();
 
-            var newsItemsMenuItem = new MenuItem().ToBuilder()
-                .ResKey("Admin.ContentManagement.News.NewsItems")
-                .Action("List", "News", new { area = "Admin" })
-                .AsItem();
-
-            var newsCommentsMenuItem = new MenuItem().ToBuilder()
-                .ResKey("Admin.ContentManagement.News.Comments")
-                .Action("Comments", "News", new { area = "Admin" })
-                .AsItem();
-
-            var newsNode = new TreeNode<MenuItem>(newsMenuItem);
+            var pollNode = new TreeNode<MenuItem>(pollsMenuItem);
             var parent = modulesNode.Root.SelectNodeById("cms");
-            var menus = parent.SelectNodeById("menus");
-            newsNode.InsertAfter(menus);
-
-            var newsItemsNode = new TreeNode<MenuItem>(newsItemsMenuItem);
-            var newsCommentsNode = new TreeNode<MenuItem>(newsCommentsMenuItem);
-            newsNode.Append(newsItemsNode);
-            newsNode.Append(newsCommentsNode);
+            var messageTemplates = parent.SelectNodeById("message-templates");
+            pollNode.InsertAfter(messageTemplates);
         }
     }
 }

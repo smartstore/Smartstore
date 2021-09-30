@@ -2,13 +2,15 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core;
+using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
-using Smartstore.News.Components;
+using Smartstore.Polls.Components;
 using Smartstore.Polls.Migrations;
 
-namespace Smartstore.News
+namespace Smartstore.Polls
 {
     internal class Module : ModuleBase, IConfigurable, IWidget
     {
@@ -18,7 +20,6 @@ namespace Smartstore.News
         public RouteInfo GetConfigurationRoute()
             => new("Settings", "News", new { area = "Admin" });
 
-        // TODO: (mh) (core) Register accoring to NewsViewComponent
         public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
         {
             return new ComponentWidgetInvoker(typeof(HomepagePollsViewComponent), null);
@@ -41,7 +42,7 @@ namespace Smartstore.News
         {
             try
             {
-                var seeder = new PollsInstallationDataSeeder(context);
+                var seeder = new PollsInstallationDataSeeder(Services.Resolve<SmartDbContext>(), context, Services.Resolve<IWidgetService>());
                 await seeder.SeedAsync(Services.DbContext);
             }
             catch (Exception ex)

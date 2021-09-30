@@ -10,7 +10,7 @@ using Smartstore.Polls.Models.Public;
 
 namespace Smartstore.Polls.Models.Mappers
 {
-    public static partial class BlogMappingExtensions
+    public static partial class PollMappingExtensions
     {
         public static async Task<PublicPollModel> MapAsync(this Poll entity, dynamic parameters = null)
         {

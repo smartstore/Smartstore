@@ -75,13 +75,9 @@ namespace Smartstore.Polls.Extensions
             Guard.NotZero(pollId, nameof(pollId));
             Guard.NotZero(customerId, nameof(customerId));
 
-            var answerList = await pollAnswers
-                .AsNoTracking()
-                .Where(x => x.PollId == pollId)
-                .Select(x => x.PollVotingRecords.Where(y => y.CustomerId == customerId))
-                .ToListAsync();
+            var alreadyVoted = await pollAnswers.AnyAsync(x => x.PollId == pollId && x.PollVotingRecords.Any(y => y.CustomerId == customerId));
 
-            return answerList.Count > 0;
+            return alreadyVoted;
         }
     }
 }

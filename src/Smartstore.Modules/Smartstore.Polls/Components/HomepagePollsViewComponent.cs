@@ -7,14 +7,13 @@ using Smartstore.Caching;
 using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Rules.Filters;
-using Smartstore.News.Hooks;
-using Smartstore.Polls;
 using Smartstore.Polls.Extensions;
+using Smartstore.Polls.Hooks;
 using Smartstore.Polls.Models.Mappers;
 using Smartstore.Polls.Models.Public;
 using Smartstore.Web.Components;
 
-namespace Smartstore.News.Components
+namespace Smartstore.Polls.Components
 {
     /// <summary>
     /// Component to render new section on the homepage.
@@ -44,8 +43,10 @@ namespace Smartstore.News.Components
             {
                 return _db.Polls()
                     .AsNoTracking()
+                    .Include(x => x.PollAnswers)
                     .ApplyStandardFilter(storeId, languageId)
-                    .Where(x => x.ShowOnHomePage == true)
+                    .Where(x => x.ShowOnHomePage == true && x.PollAnswers.Count > 0)
+                    .OrderBy(x => x.DisplayOrder)
                     .SelectAsync(async x =>
                     {
                         return await x.MapAsync(new { SetAlreadyVotedProperty = false });
@@ -53,8 +54,8 @@ namespace Smartstore.News.Components
                     .AsyncToList();
             });
 
-            //"AlreadyVoted" property of "PollModel" object depends on the current customer. Let's update it.
-            //But first we need to clone the cached model (the updated one should not be cached)
+            // "AlreadyVoted" property of "PollModel" object depends on the current customer. Let's update it.
+            // But first we need to clone the cached model (the updated one should not be cached)
             var model = new List<PublicPollModel>();
 
             foreach (var p in cachedModel)

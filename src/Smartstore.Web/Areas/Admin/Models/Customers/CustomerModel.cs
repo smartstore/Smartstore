@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Smartstore.Collections;
+using Smartstore.Core.Security;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Admin.Models.Customers
 {
     [LocalizedDisplay("Admin.Customers.Customers.Fields.")]
     public class CustomerModel : TabbableModel
     {
+        public bool AllowUsersToChangeUsernames { get; set; }
+        public bool UsernamesEnabled { get; set; }
+
         [LocalizedDisplay("*Username")]
         public string Username { get; set; }
 
@@ -152,6 +158,10 @@ namespace Smartstore.Admin.Models.Customers
 
         public bool Deleted { get; set; }
         public string EditUrl { get; set; }
+
+        public TreeNode<IPermissionNode> PermissionTree { get; set; }
+        public List<AddressModel> Addresses { get; set; } = new();
+
 
         #region Nested classes
 

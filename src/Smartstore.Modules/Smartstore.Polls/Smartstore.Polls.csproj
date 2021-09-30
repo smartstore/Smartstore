@@ -11,6 +11,9 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Content Remove="Views\PollAdmin\_CreateOrUpdate.cshtml" />
+	  <Content Remove="Views\Shared\Components\HomepagePolls.cshtml" />
+	  <Content Remove="Views\Shared\Components\PollBlock\Default.cshtml" />
+	  <Content Remove="Views\Shared\Components\Poll\Default.cshtml" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Remove="Views\PollAdmin\Create.cshtml" />

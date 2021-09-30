@@ -5,7 +5,7 @@ using Smartstore.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Polls.Domain;
 
-namespace Smartstore.News.Hooks
+namespace Smartstore.Polls.Hooks
 {
     internal partial class ModelCacheInvalidator : IDbSaveHook
     {

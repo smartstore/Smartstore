@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Polls.Domain;
 
@@ -11,23 +13,39 @@ namespace Smartstore.Polls.Migrations
 {
     internal class PollsInstallationDataSeeder : DataSeeder<SmartDbContext>
     {
+        private readonly SmartDbContext _db;
         private readonly ModuleInstallationContext _installContext;
+        private readonly IWidgetService _widgetService;
         private readonly bool _deSeedData;
 
-        public PollsInstallationDataSeeder(ModuleInstallationContext installContext)
+        public PollsInstallationDataSeeder(SmartDbContext db, ModuleInstallationContext installContext, IWidgetService widgetService)
             : base(installContext.ApplicationContext, installContext.Logger)
         {
+            _db = db;
             _installContext = Guard.NotNull(installContext, nameof(installContext));
+            _widgetService = Guard.NotNull(widgetService, nameof(widgetService));
             _deSeedData = _installContext.Culture?.StartsWith("de", StringComparison.OrdinalIgnoreCase) ?? false;
         }
 
         protected override async Task SeedCoreAsync()
         {
+            await TryActivateWidgetAsync();
+
             if (_installContext.SeedSampleData == null || _installContext.SeedSampleData == true)
             {
                 var polls = PopulatePolls();
                 await PopulateAsync("PopulatePolls", polls);
                 await PopulateAsync("PopulatePollAnswers", PollAnswers(polls));
+            }
+        }
+
+        private async Task TryActivateWidgetAsync()
+        {
+            var hasActivePolls = await _db.Polls().Where(x => x.Published == true).CountAsync() > 0;
+            if (hasActivePolls)
+            {
+                // Activate the news homepage widget
+                await _widgetService.ActivateWidgetAsync("Smartstore.News", true);
             }
         }
 

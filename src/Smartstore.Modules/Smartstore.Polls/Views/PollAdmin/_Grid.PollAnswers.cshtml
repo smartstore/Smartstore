@@ -7,6 +7,7 @@
           allow-edit="true">
     <datasource read="@Url.Action("PollAnswerList", new { pollId = ViewData["PollId"] })" 
                 update="@Url.Action("PollAnswerUpdate")"
+                insert="@Url.Action("PollAnswerInsert", new { pollId = ViewData["PollId"] })"
                 delete="@Url.Action("PollAnswerDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
@@ -29,7 +30,7 @@
     </toolbar>
     <columns>
         <column for="Name" hideable="false" width="2fr"/>
-        <column for="NumberOfVotes" halign="center" />
+        <column for="NumberOfVotes" halign="center" readonly="true" />
         <column for="DisplayOrder1" halign="center" />
     </columns>
     <row-commands>

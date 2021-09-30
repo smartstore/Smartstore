@@ -8,7 +8,7 @@ using Smartstore.Core.Messaging.Events;
 using Smartstore.Events;
 using Smartstore.Polls.Domain;
 
-namespace Smartstore.News
+namespace Smartstore.Polls
 {
     public class Events : IConsumer
     {

@@ -69,7 +69,7 @@ namespace Smartstore.Polls.Migrations
 
         public override void Down()
         {
-            // INFO: no down initial migration. Leave news schema as it is or ask merchant to delete it.
+            // INFO: no down initial migration. Leave poll schema as it is or ask merchant to delete it.
         }
     }
 }

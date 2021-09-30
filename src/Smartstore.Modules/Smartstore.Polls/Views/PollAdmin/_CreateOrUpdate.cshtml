@@ -101,7 +101,7 @@
     <tab sm-title="@T("Admin.ContentManagement.Polls.Answers")">
         @if (Model.Id > 0)
         {
-            <partial name="_Grid.PollAnswers" />
+            <partial name="_Grid.PollAnswers" model="null" />
         }
         else
         {
@@ -111,7 +111,7 @@
     <tab sm-title="@T("Common.Voting")">
         @if (Model.Id > 0)
         {
-            <partial name="_Grid.PollVotings" />
+            <partial name="_Grid.PollVotings" model="null" />
         }
         else
         {

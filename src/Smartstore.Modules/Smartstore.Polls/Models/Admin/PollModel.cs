@@ -8,9 +8,6 @@ namespace Smartstore.Polls.Models
     [LocalizedDisplay("Admin.ContentManagement.Polls.Fields.")]
     public class PollModel : EntityModelBase
     {
-        public bool UsernamesEnabled { get; set; }
-        public int GridPageSize { get; set; }
-
         [LocalizedDisplay("*Language")]
         public int LanguageId { get; set; }
 

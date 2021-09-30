@@ -53,7 +53,7 @@ namespace Smartstore.Polls.Controllers
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(poll);
             }
 
-            model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+            ViewBag.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
 
             var allLanguages = _languageService.GetAllLanguages(true);
             ViewBag.AvailableLanguages = allLanguages
@@ -61,7 +61,11 @@ namespace Smartstore.Polls.Controllers
                 .ToList();
 
             ViewBag.IsSingleLanguageMode = allLanguages.Count <= 1;
-            ViewBag.PollId = poll.Id;
+
+            if (poll != null)
+            {
+                ViewBag.PollId = poll.Id;
+            }
         }
         
         #region Polls
@@ -85,6 +89,7 @@ namespace Smartstore.Polls.Controllers
         {
             var polls = await _db.Polls()
                 .AsNoTracking()
+                .Include(x => x.Language)
                 .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
@@ -230,9 +235,9 @@ namespace Smartstore.Polls.Controllers
 
             if (ids.Any())
             {
-                var newsItems = await _db.Polls().GetManyAsync(ids, true);
+                var polls = await _db.Polls().GetManyAsync(ids, true);
 
-                _db.Polls().RemoveRange(newsItems);
+                _db.Polls().RemoveRange(polls);
 
                 numDeleted = await _db.SaveChangesAsync();
                 success = true;
@@ -275,6 +280,33 @@ namespace Smartstore.Polls.Controllers
             };
 
             return Json(gridModel);
+        }
+
+        [HttpPost]
+        [Permission(PollPermissions.EditAnswer)]
+        public async Task<IActionResult> PollAnswerInsert(PollAnswerModel model, int pollId)
+        {
+            var success = false;
+
+            if (!await _db.PollAnswers().AnyAsync(x => x.Name == model.Name && x.PollId == pollId))
+            {
+                _db.PollAnswers().Add(new PollAnswer
+                {
+                    PollId = pollId,
+                    Name = model.Name,
+                    DisplayOrder = model.DisplayOrder1
+                });
+
+                await _db.SaveChangesAsync();
+                success = true;
+            }
+            else
+            {
+                // TODO: (mh) (core) Add resource
+                NotifyError(T("Admin.CMS.Polls.NoDuplicatesAllowed"));
+            }
+
+            return Json(new { success });
         }
 
         [Permission(PollPermissions.EditAnswer)]

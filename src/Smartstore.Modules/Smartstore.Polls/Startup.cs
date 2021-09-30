@@ -7,7 +7,7 @@ using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
-namespace Smartstore.News
+namespace Smartstore.Polls
 {
     internal class Startup : StarterBase
     {

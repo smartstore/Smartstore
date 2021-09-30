@@ -7,11 +7,11 @@ namespace Smartstore.Polls
 {
     internal static class PollPermissions
     {
-        public const string Self = "cms.polls";
-        public const string Read = "cms.polls.read";
-        public const string Update = "cms.polls.update";
-        public const string Create = "cms.polls.create";
-        public const string Delete = "cms.polls.delete";
+        public const string Self = "cms.poll";
+        public const string Read = "cms.poll.read";
+        public const string Update = "cms.poll.update";
+        public const string Create = "cms.poll.create";
+        public const string Delete = "cms.poll.delete";
         public const string EditAnswer = "cms.poll.editanswer";
     }
 

@@ -1,8 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Web;
+using Smartstore.Core.Widgets;
 using Smartstore.Polls.Domain;
 using Smartstore.Polls.Extensions;
 using Smartstore.Polls.Models.Mappers;
@@ -62,9 +64,10 @@ namespace Smartstore.Polls.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            var model = await poll.MapAsync(new { SetAlreadyVotedProperty = false });
-            // TODO: (mh) (core) Implement partial.
-            return new JsonResult(await InvokePartialViewAsync("_Poll", model));
+            var model = await poll.MapAsync(new { SetAlreadyVotedProperty = true });
+            var widget = new ComponentWidgetInvoker("Poll", new { model });
+
+            return new JsonResult(await InvokeWidgetAsync(widget));
         }
     }
 }
