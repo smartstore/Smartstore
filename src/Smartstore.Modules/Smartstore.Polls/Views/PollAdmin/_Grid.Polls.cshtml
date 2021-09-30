@@ -36,11 +36,11 @@
             </display-template>
         </column>
         <column for="Published" halign="center" />
+        <column for="ShowOnHomePage" halign="center" />
         @if (!isSingleLanguageMode)
         {
-            <column for="LanguageName" entity-member="LanguageId" halign="center" readonly="true" />
+            <column for="LanguageName" entity-member="LanguageId" readonly="true" />
         }
-        <column for="ShowOnHomePage" />
         <column for="StartDate" entity-member="StartDateUtc" />
         <column for="EndDate" entity-member="EndDateUtc" />
         <column for="DisplayOrder" halign="center" />

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Data;
+using Smartstore.Core.Seo;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
 using Smartstore.Engine;
@@ -20,6 +21,9 @@ namespace Smartstore.Polls
         {
             public void Configure(IServiceProvider services, DbContextOptionsBuilder builder)
             {
+                // Add robots.txt entry.
+                SeoSettings.DefaultRobotDisallows.Add("/Poll/Vote");
+
                 builder.UseDbFactory(b => 
                 {
                     b.AddModelAssembly(this.GetType().Assembly);

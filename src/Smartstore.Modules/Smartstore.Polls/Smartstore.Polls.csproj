@@ -9,24 +9,4 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
-	<ItemGroup>
-	  <Content Remove="Views\PollAdmin\_CreateOrUpdate.cshtml" />
-	  <Content Remove="Views\Shared\Components\HomepagePolls.cshtml" />
-	  <Content Remove="Views\Shared\Components\PollBlock\Default.cshtml" />
-	  <Content Remove="Views\Shared\Components\Poll\Default.cshtml" />
-	</ItemGroup>
-	<ItemGroup>
-	  <None Remove="Views\PollAdmin\Create.cshtml" />
-	  <None Remove="Views\PollAdmin\Edit.cshtml" />
-	  <None Remove="Views\PollAdmin\List.cshtml" />
-	  <None Remove="Views\PollAdmin\_Grid.PollAnswers.cshtml" />
-	  <None Remove="Views\PollAdmin\_Grid.Polls.cshtml" />
-	  <None Remove="Views\PollAdmin\_Grid.PollVotings.cshtml" />
-	  <None Remove="Views\PollAdmin\_ViewImports.cshtml" />
-	  <None Remove="Views\PollAdmin\_ViewStart.cshtml" />
-	  <None Remove="Views\_ViewImports.cshtml" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Views\Poll\" />
-	</ItemGroup>
 </Project>

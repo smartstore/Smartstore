@@ -47,7 +47,6 @@ namespace Smartstore.Core.Seo
                 "/Newsletter/SubscriptionActivation",
                 "/Order$",
                 "/PasswordRecovery",
-                "/Poll/Vote", // // TODO: (mh) (core) Add in module starter to this set
                 "/ReturnRequest",
                 "/Newsletter/Subscribe",
                 "/Topic/Authenticate",

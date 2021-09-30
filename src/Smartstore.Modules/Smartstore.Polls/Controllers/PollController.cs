@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Web;
@@ -28,7 +28,10 @@ namespace Smartstore.Polls.Controllers
         [HttpPost]
         public async Task<IActionResult> Vote(int pollAnswerId)
         {
-            var pollAnswer = await _db.PollAnswers().FindByIdAsync(pollAnswerId);
+            var pollAnswer = await _db.PollAnswers()
+                .Include(x => x.Poll)
+                .ThenInclude(x => x.PollAnswers)
+                .FindByIdAsync(pollAnswerId);
 
             if (pollAnswer == null)
             {
@@ -50,7 +53,6 @@ namespace Smartstore.Polls.Controllers
             bool alreadyVoted = await _db.PollAnswers().GetAlreadyVoted(poll.Id, _workContext.CurrentCustomer.Id);
             if (!alreadyVoted)
             {
-                //vote
                 pollAnswer.PollVotingRecords.Add(new PollVotingRecord
                 {
                     PollAnswerId = pollAnswer.Id,
@@ -59,7 +61,7 @@ namespace Smartstore.Polls.Controllers
                     IsApproved = true
                 });
 
-                //update totals
+                // Update totals.
                 pollAnswer.NumberOfVotes = pollAnswer.PollVotingRecords.Count;
                 await _db.SaveChangesAsync();
             }
@@ -67,7 +69,10 @@ namespace Smartstore.Polls.Controllers
             var model = await poll.MapAsync(new { SetAlreadyVotedProperty = true });
             var widget = new ComponentWidgetInvoker("Poll", new { model });
 
-            return new JsonResult(await InvokeWidgetAsync(widget));
+            return Json(new
+            {
+                html = await InvokeWidgetAsync(widget)
+            });
         }
     }
 }
