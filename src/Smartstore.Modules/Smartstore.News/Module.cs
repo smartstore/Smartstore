@@ -32,7 +32,7 @@ namespace Smartstore.News
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
             await TrySaveSettingsAsync<NewsSettings>();
-            await ImportLanguageResources();
+            await ImportLanguageResourcesAsync();
             await TrySeedData(context);
 
             await base.InstallAsync(context);
@@ -54,7 +54,7 @@ namespace Smartstore.News
         public override async Task UninstallAsync()
         {
             await DeleteSettingsAsync<NewsSettings>();
-            await DeleteLanguageResources();
+            await DeleteLanguageResourcesAsync();
 
             await base.UninstallAsync();
         }

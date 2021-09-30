@@ -20,7 +20,7 @@ namespace Smartstore.Blog
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
             await TrySaveSettingsAsync<BlogSettings>();
-            await ImportLanguageResources();
+            await ImportLanguageResourcesAsync();
             await TrySeedData(context);
 
             await base.InstallAsync(context);
@@ -42,7 +42,7 @@ namespace Smartstore.Blog
         public override async Task UninstallAsync()
         {
             await DeleteSettingsAsync<BlogSettings>();
-            await DeleteLanguageResources();
+            await DeleteLanguageResourcesAsync();
 
             await base.UninstallAsync();
         }

@@ -189,7 +189,6 @@ namespace Smartstore.News.Domain
         /// <summary>
         /// Gets or sets the language.
         /// </summary>
-        [NotMapped]
         public Language Language
         {
             get => _language ?? LazyLoader.Load(this, ref _language);
@@ -200,7 +199,6 @@ namespace Smartstore.News.Domain
         /// <summary>
         /// Gets or sets the news comments.
         /// </summary>
-        [NotMapped]
         public ICollection<NewsComment> NewsComments
         {
             get => _newsComments ?? LazyLoader.Load(this, ref _newsComments) ?? (_newsComments ??= new HashSet<NewsComment>());

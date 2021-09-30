@@ -22,7 +22,7 @@ namespace Smartstore.Forums
         {
             await TrySaveSettingsAsync<ForumSettings>();
             await TrySaveSettingsAsync<ForumSearchSettings>();
-            await ImportLanguageResources();
+            await ImportLanguageResourcesAsync();
             await TrySeedData(context);
 
             await base.InstallAsync(context);
@@ -45,7 +45,7 @@ namespace Smartstore.Forums
         {
             await DeleteSettingsAsync<ForumSearchSettings>();
             await DeleteSettingsAsync<ForumSettings>();
-            await DeleteLanguageResources();
+            await DeleteLanguageResourcesAsync();
 
             await base.UninstallAsync();
         }

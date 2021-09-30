@@ -18,14 +18,14 @@ namespace Smartstore.DevTools
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
             await TrySaveSettingsAsync<ProfilerSettings>();
-            await ImportLanguageResources();
+            await ImportLanguageResourcesAsync();
             await base.InstallAsync(context);
         }
 
         public override async Task UninstallAsync()
         {
             await DeleteSettingsAsync<ProfilerSettings>();
-            await DeleteLanguageResources();
+            await DeleteLanguageResourcesAsync();
             await base.UninstallAsync();
         }
     }

@@ -39,14 +39,14 @@ namespace Smartstore.Engine.Modularity
         /// <summary>
         /// Imports all language resources for the current module from xml files in localization directory (if any found).
         /// </summary>
-        protected Task ImportLanguageResources()
+        protected Task ImportLanguageResourcesAsync()
             => Services.Resolve<IXmlResourceManager>().ImportModuleResourcesFromXmlAsync(Descriptor);
 
         /// <summary>
         /// Deletes all language resource for the current module if <see cref="IModuleDescriptor.ResourceRootKey"/> is not empty.
         /// </summary>
         /// <returns></returns>
-        protected Task DeleteLanguageResources()
+        protected Task DeleteLanguageResourcesAsync()
         {
             if (Descriptor.ResourceRootKey.IsEmpty())
             {
