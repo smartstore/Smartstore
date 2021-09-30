@@ -13,6 +13,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Licensing;
+using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
@@ -347,6 +348,180 @@ namespace Smartstore.Admin.Controllers
             }
 
             return model;
+        }
+
+        #endregion
+
+        #region Licensing
+
+        [Permission(Permissions.Configuration.Module.License)]
+        public async Task<IActionResult> LicenseModule(string systemName, string licenseKey)
+        {
+            var descriptor = _moduleCatalog.GetModuleByName(systemName);
+            if (descriptor == null || !descriptor.IsInstalled())
+            {
+                return Content(T("Admin.Common.ResourceNotFound"));
+            }
+
+            var isLicensable = LicenseChecker.IsLicensableModule(descriptor, out bool singleLicenseForAllStores);
+            if (!isLicensable)
+            {
+                return Content(T("Admin.Common.ResourceNotFound"));
+            }
+            
+            var stores = Services.StoreContext.GetAllStores();
+            var model = new LicenseModuleModel
+            {
+                SystemName = systemName,
+                StoreLicenses = new List<StoreLicenseModel>()
+            };
+
+            // Validate store url.
+            foreach (var store in stores)
+            {
+                if (!Services.StoreContext.CurrentStore.IsStoreDataValid())
+                {
+                    model.InvalidDataStoreId = store.Id;
+                    return View(model);
+                }
+            }
+
+            if (singleLicenseForAllStores)
+            {
+                var licenseModel = new StoreLicenseModel();
+                var license = await PrepareLicenseLabelModelAsync(licenseModel.LicenseLabel, descriptor);
+                if (license != null)
+                {
+                    licenseModel.LicenseKey = license.TruncatedLicenseKey;
+                }
+
+                model.StoreLicenses.Add(licenseModel);
+            }
+            else
+            {
+                foreach (var store in stores)
+                {
+                    var licenseModel = new StoreLicenseModel
+                    {
+                        StoreId = store.Id,
+                        StoreName = store.Name,
+                        StoreUrl = store.Url
+                    };
+
+                    var license = await PrepareLicenseLabelModelAsync(licenseModel.LicenseLabel, descriptor, store.Url);
+                    if (license != null)
+                    {
+                        licenseModel.LicenseKey = license.TruncatedLicenseKey;
+                    }
+
+                    model.StoreLicenses.Add(licenseModel);
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Module.License)]
+        public async Task<IActionResult> LicenseModule(string systemName, LicenseModuleModel model)
+        {
+            var descriptor = _moduleCatalog.GetModuleByName(systemName);
+            if (descriptor == null || !descriptor.IsInstalled())
+            {
+                return NotFound();
+            }
+
+            var isLicensable = IsLicensable(descriptor);
+            if (!isLicensable)
+            {
+                return NotFound();
+            }
+
+            if (model.StoreLicenses != null)
+            {
+                foreach (var item in model.StoreLicenses)
+                {
+                    var result = await LicenseChecker.ActivateAsync(item.LicenseKey, descriptor.SystemName, item.StoreUrl);
+                    if (result == null)
+                    {
+                        // Do nothing, skiped.
+                    }
+                    else if (result.Success)
+                    {
+                        NotifySuccess(T("Admin.Configuration.Plugins.LicenseActivated"));
+                    }
+                    else
+                    {
+                        if (result.IsFailureWarning)
+                        {
+                            NotifyWarning(result.ToString());
+                        }
+                        else
+                        {
+                            NotifyError(result.ToString());
+                        }
+
+                        return RedirectToAction("List");
+                    }
+                }
+            }
+
+            return RedirectToAction("List");
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Module.License)]
+        public async Task<IActionResult> LicenseResetStatusCheck(string systemName)
+        {
+            // Reset state for current store.
+            var result = await LicenseChecker.ResetStateAsync(systemName);
+            LicenseCheckerResult subShopResult = null;
+
+            var model = new LicenseLabelModel
+            {
+                IsLicensable = true,
+                LicenseUrl = Url.Action("LicenseModule", new { systemName = systemName }),
+                LicenseState = result.State,
+                TruncatedLicenseKey = result.TruncatedLicenseKey,
+                RemainingDemoUsageDays = result.RemainingDemoDays
+            };
+
+            // Reset state for all other stores.
+            if (result.Success)
+            {
+                var currentStoreId = Services.StoreContext.CurrentStore.Id;
+                var allStores = Services.StoreContext.GetAllStores();
+
+                foreach (var store in allStores.Where(x => x.Id != currentStoreId && x.Url.HasValue()))
+                {
+                    subShopResult = await LicenseChecker.ResetStateAsync(systemName, store.Url);
+                    if (!subShopResult.Success)
+                    {
+                        result = subShopResult;
+                        break;
+                    }
+                }
+            }
+            
+            // Notify about result.
+            if (result.Success)
+            {
+                NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+            }
+            else
+            {
+                var message = HtmlUtility.ConvertPlainTextToHtml(result.ToString());
+                if (result.IsFailureWarning)
+                {
+                    NotifyWarning(message);
+                }
+                else
+                {
+                    NotifyError(message);
+                }
+            }
+
+            return PartialView("_LicenseLabel", model);
         }
 
         #endregion
