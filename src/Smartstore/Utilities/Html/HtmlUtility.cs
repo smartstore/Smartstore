@@ -17,8 +17,12 @@ namespace Smartstore.Utilities.Html
     /// </summary>
     public static partial class HtmlUtility
     {
-        private readonly static Regex _paragraphStartRegex = new("<p>", RegexOptions.IgnoreCase);
-        private readonly static Regex _paragraphEndRegex = new("</p>", RegexOptions.IgnoreCase);
+        private readonly static char[] _textReplacableChars = new[] { '\r', '\n', '\t', ' ' };
+        private readonly static char[] _htmlReplacableChars = new[] { '<', '>', '&' };
+
+        private readonly static Regex _rgAnchor = new(@"<a\b[^>]+>([^<]*(?:(?!</a)<[^<]*)*)</a>", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
+        private readonly static Regex _rgParaStart = new("<p>", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
+        private readonly static Regex _rgParaEnd = new("</p>", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
         //private static Regex ampRegex = new Regex("&(?!(?:#[0-9]{2,4};|[a-z0-9]+;))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <inheritdoc cref="SanitizeHtml(string, HtmlSanitizerOptions, bool)"/>
@@ -166,7 +170,7 @@ namespace Smartstore.Utilities.Html
         }
 
         /// <summary>
-        /// Replace anchor text (remove a tag from the following url <a href="http://example.com">Name</a> and output only the string "Name")
+        /// Replace anchor text (remove &lt;a&gt; tag from the following url <a href="http://example.com">Name</a> and output only the string "Name")
         /// </summary>
         /// <param name="text">Text</param>
         /// <returns>Text</returns>
@@ -175,7 +179,7 @@ namespace Smartstore.Utilities.Html
             if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
-            text = Regex.Replace(text, @"<a\b[^>]+>([^<]*(?:(?!</a)<[^<]*)*)</a>", "$1", RegexOptions.IgnoreCase);
+            text = _rgAnchor.Replace(text, "$1");
             return text;
         }
 
@@ -189,13 +193,21 @@ namespace Smartstore.Utilities.Html
             if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
-            text = text.Replace("\r\n", "<br />");
-            text = text.Replace("\r", "<br />");
-            text = text.Replace("\n", "<br />");
-            text = text.Replace("\t", "&nbsp;&nbsp;");
-            text = text.Replace("  ", "&nbsp;&nbsp;");
+            if (text.IndexOfAny(_textReplacableChars) == -1)
+            {
+                // Nothing to replace, return as is.
+                return text;
+            }
 
-            return text;
+            var sb = new StringBuilder(text, text.Length * 2);
+
+            sb.Replace("\r\n", "<br />");
+            sb.Replace("\r", "<br />");
+            sb.Replace("\n", "<br />");
+            sb.Replace("\t", "&nbsp;&nbsp;");
+            sb.Replace("  ", "&nbsp;&nbsp;");
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -213,14 +225,26 @@ namespace Smartstore.Utilities.Html
             if (decode)
                 text = HttpUtility.HtmlDecode(text);
 
-            text = text.Replace("<br>", "\n");
-            text = text.Replace("<br >", "\n");
-            text = text.Replace("<br />", "\n");
-            text = text.Replace("&nbsp;&nbsp;", "\t");
-            text = text.Replace("&nbsp;&nbsp;", "  ");
+            if (text.IndexOfAny(_htmlReplacableChars) == -1)
+            {
+                // Nothing to replace, return as is.
+                return text;
+            }
 
-            if (replaceAnchorTags)
+            var sb = new StringBuilder(text);
+
+            sb.Replace("<br>", "\n");
+            sb.Replace("<br >", "\n");
+            sb.Replace("<br />", "\n");
+            sb.Replace("&nbsp;&nbsp;", "\t");
+            sb.Replace("&nbsp;&nbsp;", "  ");
+
+            text = sb.ToString();
+
+            if (replaceAnchorTags && text.IndexOf('<') > -1)
+            {
                 text = ReplaceAnchorTags(text);
+            }
 
             return text;
         }
@@ -232,7 +256,7 @@ namespace Smartstore.Utilities.Html
         /// <returns>The formatted (html) string</returns>
         public static string ConvertPlainTextToTable(string text, string tableCssClass = null)
         {
-            if (String.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
             text = text.Replace("\r\n", "\n").Replace("\r", "\n");
@@ -245,32 +269,32 @@ namespace Smartstore.Utilities.Html
                 return string.Empty;
             }
 
-            using var psb = StringBuilderPool.Instance.Get(out var builder);
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
 
-            builder.AppendFormat("<table{0}>", tableCssClass.HasValue() ? "class='" + tableCssClass + "'" : "");
+            sb.AppendFormat("<table{0}>", tableCssClass.HasValue() ? "class='" + tableCssClass + "'" : "");
 
             lines.Where(x => x.HasValue()).Each(x =>
             {
-                builder.Append("<tr>");
+                sb.Append("<tr>");
                 var tokens = x.Split(new char[] { ':' }, 2);
 
                 if (tokens.Length > 1)
                 {
-                    builder.AppendFormat("<td class='attr-caption'>{0}</td>", tokens[0]);
-                    builder.AppendFormat("<td class='attr-value'>{0}</td>", tokens[1]);
+                    sb.AppendFormat("<td class='attr-caption'>{0}</td>", tokens[0]);
+                    sb.AppendFormat("<td class='attr-value'>{0}</td>", tokens[1]);
                 }
                 else
                 {
-                    builder.Append("<td>&nbsp;</td>");
-                    builder.AppendFormat("<td class='attr-value'>{0}</td>", tokens[0]);
+                    sb.Append("<td>&nbsp;</td>");
+                    sb.AppendFormat("<td class='attr-value'>{0}</td>", tokens[0]);
                 }
 
-                builder.Append("</tr>");
+                sb.Append("</tr>");
             });
 
-            builder.Append("</table>");
+            sb.Append("</table>");
 
-            return builder.ToString();
+            return sb.ToString();
         }
 
         /// <summary>
@@ -280,25 +304,32 @@ namespace Smartstore.Utilities.Html
         /// <returns>Formatted text</returns>
         public static string ConvertPlainTextToParagraph(string text)
         {
-            if (String.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
-            text = _paragraphStartRegex.Replace(text, string.Empty);
-            text = _paragraphEndRegex.Replace(text, "\n");
+            if (text.IndexOfAny(new[] { '<', '\r', '\n' }) == -1)
+            {
+                // Nothing to replace, return as is.
+                return text;
+            }
+
+            text = _rgParaStart.Replace(text, string.Empty);
+            text = _rgParaEnd.Replace(text, "\n");
             text = text.Replace("\r\n", "\n").Replace("\r", "\n");
             text += "\n\n";
             text = text.Replace("\n\n", "\n");
-            var strArray = text.Tokenize('\n', StringSplitOptions.TrimEntries);
-            var builder = new StringBuilder();
-            foreach (string str in strArray)
+
+            var lines = text.Tokenize('\n', StringSplitOptions.TrimEntries);
+            var sb = new StringBuilder();
+            foreach (string str in lines)
             {
                 if (str != null && str.Length > 0)
                 {
-                    builder.AppendFormat("<p>{0}</p>\n", str);
+                    sb.AppendFormat("<p>{0}</p>\n", str);
                 }
             }
 
-            return builder.ToString();
+            return sb.ToString();
         }
 
         /// <summary>
