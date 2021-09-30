@@ -71,6 +71,7 @@ namespace Smartstore.Polls.Controllers
 
             return Json(new
             {
+                // TODO: (mh) (core) A partial view should be invoked here.
                 html = await InvokeWidgetAsync(widget)
             });
         }
