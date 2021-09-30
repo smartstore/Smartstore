@@ -27,7 +27,6 @@ namespace Smartstore.Forums.Models.Public
 
         public int CumulativeHitCount { get; set; }
         public int TotalCount { get; set; }
-        public int PostsPageSize { get; set; }
         public string Error { get; set; }
 
         public override List<HitGroup> HitGroups { get; protected set; }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Forums.Domain;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Customers;
@@ -15,13 +14,14 @@ namespace Smartstore.Forums.Models.Public
         public bool Published { get; set; }
 
         public ForumTopicType ForumTopicType { get; set; }
-        public int NumPosts { get; set; }
         public int Views { get; set; }
+        public int NumPosts { get; set; }
         public int NumReplies { get; set; }
 
-        public int PostsPageSize { get; set; }
-        public int TotalPostPages 
-            => PostsPageSize != 0 ? (NumPosts / PostsPageSize) + 1 : 1;
+        /// <remarks>
+        /// Perf: no query, no data. Just paging information for a paging-like link list.
+        /// </remarks>
+        public IPageable PostsPages { get; set; }
 
         public int CustomerId { get; set; }
         public string CustomerName { get; set; }

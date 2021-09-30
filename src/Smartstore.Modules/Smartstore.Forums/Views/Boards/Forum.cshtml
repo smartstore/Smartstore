@@ -53,8 +53,7 @@
                 </form>
             </div>
         </div>
-        @* TODO: (mg) (core) Provide paged list of forum topics *@
-        @*<pagination sm-list-items="Model.ForumTopics" sm-query-param="page" sm-alignment="Right" />*@
+        <pagination sm-list-items="Model.ForumTopics" sm-alignment="Right" />
     </div>
     <div class="topics-group table-responsive">
         <table class="table">
@@ -107,17 +106,17 @@
                                     }
                                 </div>
                             </div>
-                            @if (topic.NumPosts > Model.PostsPageSize)
+                            @if (topic.PostsPages.TotalPages > 1)
                             {
-                                @* TODO: (mg) (core) Fix insufficient pager. *@
-                                @*<forumtopic-pagination sm-list-items="Model.TopicPosts"
-                                                  sm-query-param="page"
-                                                  class="topics-pager"
-                                                  sm-show-previous="false"
-                                                  sm-show-next="false"
-                                                  sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
-                                                  sm-alignment="Left"
-                                                  sm-size="Small" />*@
+                                <forumtopic-pagination class="topics-pager"
+                                    sm-list-items="topic.PostsPages"
+                                    sm-topic-id="topic.Id"
+                                    sm-topic-slug="@topic.Slug"
+                                    sm-show-previous="false"
+                                    sm-show-next="false"
+                                    sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
+                                    sm-alignment="Left"
+                                    sm-size="Small" />
                             }
                         </div>
                     </td>
@@ -134,7 +133,7 @@
             }
         </table>
     </div>
-    @* TODO: (mg) (core) add pager *@
+    <pagination sm-list-items="Model.ForumTopics" sm-alignment="Right" />
 </div>
 
 <script sm-target-zone="scripts" data-origin="forum">

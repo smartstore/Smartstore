@@ -26,11 +26,6 @@ namespace Smartstore.Forums.Models.Public
         public bool CanSubscribe { get; set; }
         public bool IsSubscribed { get; set; }
         public bool ForumFeedsEnabled { get; set; }
-        public int PostsPageSize { get; set; }
-
-        public int TopicPageSize { get; set; }
-        public int TopicTotalRecords { get; set; }
-        public int TopicPageIndex { get; set; }
 
         public IPagedList<PublicForumTopicModel> ForumTopics { get; set; }
     }

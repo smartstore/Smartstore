@@ -96,8 +96,8 @@ namespace Smartstore.Forums.Models.Mappers
             to.FirstPostId = firstPost?.Id ?? from.FirstPostId;
             to.HasCustomerProfile = _customerSettings.AllowViewingProfiles && !isGuest;
             to.CustomerName = from.Customer.FormatUserName(true);
-            to.PostsPageSize = _forumSettings.PostsPageSize;            
             to.Avatar = from.Customer.ToAvatarModel(to.CustomerName);
+            to.PostsPages = new Pageable<ForumPost>(0, _forumSettings.PostsPageSize, from.NumPosts);
 
             if (from.LastPostId != 0 && lastPosts.TryGetValue(from.LastPostId, out var lastPost) && lastPost != null)
             {

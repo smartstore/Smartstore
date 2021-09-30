@@ -62,7 +62,6 @@ namespace Smartstore.Forums.Components
             {
                 IsActiveDiscussionsPage = isActiveDiscussionsPage,
                 ActiveDiscussionsFeedEnabled = _forumSettings.ActiveDiscussionsFeedEnabled,
-                PostsPageSize = _forumSettings.PostsPageSize,
                 ForumTopics = await topics.MapAsync(_db)
             };
 

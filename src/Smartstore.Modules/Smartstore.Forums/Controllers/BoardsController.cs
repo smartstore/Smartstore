@@ -19,6 +19,7 @@ using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Hooks;
 using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models.Mappers;
 using Smartstore.Forums.Models.Public;
@@ -169,12 +170,8 @@ namespace Smartstore.Forums.Controllers
                 Name = forum.GetLocalized(x => x.Name),
                 Slug = await forum.GetActiveSlugAsync(),
                 Description = forum.GetLocalized(x => x.Description),
-                TopicPageSize = topics.PageSize,
-                TopicTotalRecords = topics.TotalCount,
-                TopicPageIndex = topics.PageIndex,
                 CanSubscribe = !currentCustomer.IsGuest(),
-                ForumFeedsEnabled = _forumSettings.ForumFeedsEnabled,
-                PostsPageSize = _forumSettings.PostsPageSize
+                ForumFeedsEnabled = _forumSettings.ForumFeedsEnabled
             };
 
             if (model.CanSubscribe)
@@ -190,7 +187,7 @@ namespace Smartstore.Forums.Controllers
             ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
 
             await CreateForumBreadcrumb(null, forum);
-            await SaveLastForumVisit(currentCustomer);
+            await SaveLastForumVisit(currentCustomer, null);
 
             return View(model);
         }
@@ -402,20 +399,6 @@ namespace Smartstore.Forums.Controllers
                 return RedirectToRoute("ForumTopicBySlug", new { id = topic.Id, slug = _forumService.BuildSlug(topic) });
             }
 
-            // Update view count.
-            try
-            {
-                if (!currentCustomer.Deleted && currentCustomer.Active && !currentCustomer.IsSystemAccount)
-                {
-                    topic.Views += 1;
-                    await _db.SaveChangesAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
-
             var model = new PublicForumTopicPageModel
             {
                 Id = topic.Id,
@@ -440,7 +423,7 @@ namespace Smartstore.Forums.Controllers
             model.ForumPosts = new PagedList<PublicForumPostModel>(postModels, posts.PageIndex, posts.PageSize, posts.TotalCount);
 
             await CreateForumBreadcrumb(topic: topic);
-            await SaveLastForumVisit(currentCustomer);
+            await SaveLastForumVisit(currentCustomer, topic, true);
 
             return View(model);
         }
@@ -1444,7 +1427,6 @@ namespace Smartstore.Forums.Controllers
             var language = Services.WorkContext.WorkingLanguage;
             var model = new ForumSearchResultModel(query)
             {
-                PostsPageSize = _forumSettings.PostsPageSize,
                 AllowSorting = _forumSettings.AllowSorting
             };
 
@@ -1558,7 +1540,6 @@ namespace Smartstore.Forums.Controllers
                 model.Error = ex.ToString();
             }
 
-            model.PostsPageSize = _forumSettings.PostsPageSize;
             model.Term = query.Term;
             model.TotalCount = model.SearchResult.TotalHitsCount;
 
@@ -1751,8 +1732,9 @@ namespace Smartstore.Forums.Controllers
             }
         }
 
-        private async Task SaveLastForumVisit(Customer customer)
+        private async Task<int> SaveLastForumVisit(Customer customer, ForumTopic topic, bool updateViewCount = false)
         {
+            var num = 0;
             try
             {
                 if (!customer.Deleted && customer.Active && !customer.IsSystemAccount)
@@ -1764,15 +1746,24 @@ namespace Smartstore.Forums.Controllers
                         entry.State = EntityState.Unchanged;
                     }
 
+                    using var scope = new Data.DbContextScope(_db, minHookImportance: HookImportance.Important);
+
                     customer.LastForumVisit = DateTime.UtcNow;
 
-                    await _db.SaveChangesAsync();                   
+                    if (updateViewCount && topic != null)
+                    {
+                        topic.Views += 1;
+                    }
+
+                    num = await _db.SaveChangesAsync();                   
                 }
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
             }
+
+            return num;
         }
 
         private async Task<PublicEditForumTopicModel> CreateEditForumTopicModel(Forum forum, ForumTopic topic = null)

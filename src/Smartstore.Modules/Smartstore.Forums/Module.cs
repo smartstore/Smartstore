@@ -11,6 +11,7 @@ namespace Smartstore.Forums
     internal class Module : ModuleBase, IConfigurable
     {
         public static string SystemName => "Smartstore.Forums";
+        public static string ForumPostCountKey => "ForumPostCount";
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

@@ -58,8 +58,7 @@
 		
 		@if (Model.TotalPages > 1)
 		{
-			@* TODO: (mg) (core) add pager *@
-			@*@Html.SmartStore().Pager(Model).Name("paginator").QueryParam("page")*@
+			<pagination sm-list-items="Model" />
 		}
                 
 		<div class="buttons">

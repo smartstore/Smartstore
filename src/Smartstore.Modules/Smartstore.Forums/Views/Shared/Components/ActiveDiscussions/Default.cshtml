@@ -69,15 +69,17 @@
 					                <span>@topic.CustomerName</span>
 				                }
                             </div>
-                            @if (topic.NumPosts > Model.PostsPageSize)
+                            @if (topic.PostsPages.TotalPages > 1)
                             {
-                                @*TODO: (mg) (core) go on with forumtopic-pagination... stub post list... Route("ForumTopicBySlug", new { id = topic.Id, slug = topic.Slug }) *@
                                 <forumtopic-pagination class="topics-pager"
+                                    sm-list-items="topic.PostsPages"
+                                    sm-topic-id="topic.Id"
+                                    sm-topic-slug="@topic.Slug"
                                     sm-show-previous="false"
                                     sm-show-next="false"
                                     sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
                                     sm-alignment="Left"
-                                    sm-size="Small" />
+                                    sm-size="Mini" />
                             }
                         </div>
                     </td>

@@ -82,6 +82,32 @@ namespace Smartstore.Forums
         }
 
         /// <summary>
+        /// Applies a filter for last posts of certain forum topics. Include <see cref="ForumPost.ForumTopic"/>.
+        /// </summary>
+        /// <param name="query">Forum post query.</param>
+        /// <param name="forumTopicIds">Forum topic identifier.</param>
+        /// <returns>Forum post query.</returns>
+        public static IQueryable<ForumPost> ApplyLastPostFilter(this IQueryable<ForumPost> query, int[] forumTopicIds)
+        {
+            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(forumTopicIds, nameof(forumTopicIds));
+
+            var db = query.GetDbContext<SmartDbContext>();
+
+            query = query
+                .Where(x => forumTopicIds.Contains(x.TopicId) && x.Published)
+                .Select(x => x.TopicId)
+                .Distinct()
+                .SelectMany(key => db.ForumPosts()
+                    .Include(x => x.ForumTopic)
+                    .Where(x => x.TopicId == key)
+                    .OrderByDescending(x => x.CreatedOnUtc)
+                    .Take(1));
+
+            return query;
+        }
+
+        /// <summary>
         /// Includes <see cref="ForumPost.Customer"/>, <see cref="Customer.CustomerRoleMappings"/> and 
         /// <see cref="CustomerRoleMapping.CustomerRole"/> for eager loading.
         /// </summary>
@@ -143,5 +169,24 @@ namespace Smartstore.Forums
             return 0;
         }
 
+        public static async Task<Dictionary<int, int>> GetForumPostsCountAsync(this DbSet<ForumPost> forumPosts, int[] customerIds)
+        {
+            if (customerIds?.Any() ?? false)
+            {
+                var numPostsQuery =
+                    from fp in forumPosts
+                    where customerIds.Contains(fp.CustomerId) && fp.Published && fp.ForumTopic.Published
+                    group fp by fp.CustomerId into grp
+                    select new
+                    {
+                        CustomerId = grp.Key,
+                        NumPosts = grp.Count()
+                    };
+
+                return await numPostsQuery.ToDictionaryAsync(x => x.CustomerId, x => x.NumPosts);
+            }
+
+            return new Dictionary<int, int>();
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering.Pager;
 using Smartstore.Web.TagHelpers.Shared;
@@ -9,10 +10,19 @@ namespace Smartstore.Forums.TagHelpers
     [HtmlTargetElement("forumtopic-pagination", TagStructure = TagStructure.WithoutEndTag)]
     public class ForumTopicPaginationTagHelper : PaginationTagHelper
     {
+        const string TopicIdAttributeName = "sm-topic-id";
+        const string TopicSlugAttributeName = "sm-topic-slug";
+
         public ForumTopicPaginationTagHelper() 
             : base()
         {
         }
+
+        [HtmlAttributeName(TopicIdAttributeName)]
+        public int TopicId { get; set; }
+
+        [HtmlAttributeName(TopicSlugAttributeName)]
+        public string TopicSlug { get; set; }
 
         protected override void AddPageItemsList(List<PagerItem> items)
         {
@@ -37,6 +47,11 @@ namespace Smartstore.Forums.TagHelpers
                 var item = new PagerItem(i.ToString(), GenerateUrl(i));
                 items.Add(item);
             }
+        }
+
+        protected override string GenerateUrl(int pageNumber)
+        {
+            return UrlHelper.RouteUrl("ForumTopicBySlugPaged", new { id = TopicId, slug = TopicSlug, page = pageNumber });
         }
     }
 }

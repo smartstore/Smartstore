@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core;
@@ -256,15 +257,6 @@ namespace Smartstore.Forums.Services
         //        : 0;
         //}
 
-        //public virtual async Task ApplyCustomerStatistics(Customer customer)
-        //{
-        //    if (customer != null)
-        //    {
-        //        var numPosts = await _db.ForumPosts().CountAsync(x => x.CustomerId == customer.Id && x.ForumTopic.Published && x.Published);
-
-        //        customer.GenericAttributes.Set("ForumPostCount", numPosts);
-        //    }
-        //}
 
         public XmlSitemapProvider PublishXmlSitemap(XmlSitemapBuildContext context)
         {
@@ -282,6 +274,7 @@ namespace Smartstore.Forums.Services
             private readonly SmartDbContext _db;
             private readonly IWorkContext _workContext;
             private readonly IForumService _forumService;
+            private readonly IUrlHelper _urlHelper;
 
             private List<ForumGroup> _groups;
             private List<Forum> _forums;
@@ -291,12 +284,14 @@ namespace Smartstore.Forums.Services
                 XmlSitemapBuildContext context,
                 SmartDbContext db,
                 IWorkContext workContext,
-                IForumService forumService)
+                IForumService forumService,
+                IUrlHelper urlHelper)
             {
                 _context = context;
                 _db = db;
                 _workContext = workContext;
                 _forumService = forumService;
+                _urlHelper = urlHelper;
 
                 _topicsQuery = _db.ForumTopics()
                     .AsNoTracking()
@@ -317,16 +312,18 @@ namespace Smartstore.Forums.Services
             {
                 string path = null;
 
-                // TODO: (mg) (core) add localized routes to ForumXmlSitemapResult.
                 switch (entity.EntityName)
                 {
                     case nameof(ForumGroup):
+                        path = _urlHelper.RouteUrl("ForumGroupBySlug", new { id = entity.Id, slug = slugs.GetSlug(language.Id, entity.Id, true) });
                         break;
 
                     case nameof(Forum):
+                        path = _urlHelper.RouteUrl("ForumBySlug", new { id = entity.Id, slug = slugs.GetSlug(language.Id, entity.Id, true) });
                         break;
 
                     case nameof(ForumTopic):
+                        path = _urlHelper.RouteUrl("ForumTopicBySlug", new { id = entity.Id, slug = entity.Slug });
                         break;
                 }
 
