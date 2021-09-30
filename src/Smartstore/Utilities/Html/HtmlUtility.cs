@@ -17,7 +17,7 @@ namespace Smartstore.Utilities.Html
     /// </summary>
     public static partial class HtmlUtility
     {
-        private readonly static char[] _textReplacableChars = new[] { '\r', '\n', '\t', ' ' };
+        private readonly static char[] _textReplacableChars = new[] { '\r', '\n', '\t' };
         private readonly static char[] _htmlReplacableChars = new[] { '<', '>', '&' };
 
         private readonly static Regex _rgAnchor = new(@"<a\b[^>]+>([^<]*(?:(?!</a)<[^<]*)*)</a>", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
@@ -193,21 +193,20 @@ namespace Smartstore.Utilities.Html
             if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
-            if (text.IndexOfAny(_textReplacableChars) == -1)
+            if (text.IndexOfAny(_textReplacableChars) == -1 && !text.Contains("  "))
             {
                 // Nothing to replace, return as is.
                 return text;
             }
 
-            var sb = new StringBuilder(text, text.Length * 2);
+            text = text
+                .Replace("\r\n", "<br />")
+                .Replace("\r", "<br />")
+                .Replace("\n", "<br />")
+                .Replace("\t", "&nbsp;&nbsp;")
+                .Replace("  ", "&nbsp;&nbsp;");
 
-            sb.Replace("\r\n", "<br />");
-            sb.Replace("\r", "<br />");
-            sb.Replace("\n", "<br />");
-            sb.Replace("\t", "&nbsp;&nbsp;");
-            sb.Replace("  ", "&nbsp;&nbsp;");
-
-            return sb.ToString();
+            return text;
         }
 
         /// <summary>
@@ -231,15 +230,12 @@ namespace Smartstore.Utilities.Html
                 return text;
             }
 
-            var sb = new StringBuilder(text);
-
-            sb.Replace("<br>", "\n");
-            sb.Replace("<br >", "\n");
-            sb.Replace("<br />", "\n");
-            sb.Replace("&nbsp;&nbsp;", "\t");
-            sb.Replace("&nbsp;&nbsp;", "  ");
-
-            text = sb.ToString();
+            text = text
+                .Replace("<br>", "\n")
+                .Replace("<br >", "\n")
+                .Replace("<br />", "\n")
+                .Replace("&nbsp;&nbsp;", "\t")
+                .Replace("&nbsp;&nbsp;", "  ");
 
             if (replaceAnchorTags && text.IndexOf('<') > -1)
             {
