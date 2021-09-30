@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
-using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
@@ -16,23 +15,18 @@ namespace Smartstore.Polls
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        // TODO: (mh) (core) Lead to polls configuration
         public RouteInfo GetConfigurationRoute()
-            => new("Settings", "News", new { area = "Admin" });
+            => new("List", "PollAdmin", new { area = "Admin" });
 
         public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
-        {
-            return new ComponentWidgetInvoker(typeof(HomepagePollsViewComponent), null);
-        }
+            => new ComponentWidgetInvoker(typeof(HomepagePollsViewComponent), null);
 
         public string[] GetWidgetZones()
-        {
-            return new string[] { "home_page_after_tags" };
-        }
+            => new string[] { "home_page_after_tags" };
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
-            await ImportLanguageResources();
+            await ImportLanguageResourcesAsync();
             await TrySeedData(context);
 
             await base.InstallAsync(context);
@@ -42,7 +36,7 @@ namespace Smartstore.Polls
         {
             try
             {
-                var seeder = new PollsInstallationDataSeeder(Services.Resolve<SmartDbContext>(), context, Services.Resolve<IWidgetService>());
+                var seeder = new PollsInstallationDataSeeder(context, Services.Resolve<IWidgetService>());
                 await seeder.SeedAsync(Services.DbContext);
             }
             catch (Exception ex)
@@ -53,7 +47,7 @@ namespace Smartstore.Polls
 
         public override async Task UninstallAsync()
         {
-            await DeleteLanguageResources();
+            await DeleteLanguageResourcesAsync();
 
             await base.UninstallAsync();
         }

@@ -3,9 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Caching;
-using Smartstore.Core;
-using Smartstore.Core.Data;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Polls.Extensions;
 using Smartstore.Polls.Hooks;
@@ -20,28 +17,14 @@ namespace Smartstore.Polls.Components
     /// </summary>
     public class HomepagePollsViewComponent : SmartViewComponent
     {
-        private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly ICacheFactory _cacheFactory;
-        
-        public HomepagePollsViewComponent(
-            SmartDbContext db,
-            ICommonServices services,
-            ICacheFactory cacheFactory)
-        {
-            _db = db;
-            _services = services;
-            _cacheFactory = cacheFactory;
-        }
-
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var storeId = _services.StoreContext.CurrentStore.Id;
-            var languageId = _services.WorkContext.WorkingLanguage.Id;
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var languageId = Services.WorkContext.WorkingLanguage.Id;
             var cacheKey = string.Format(ModelCacheInvalidator.HOMEPAGE_POLLS_MODEL_KEY, languageId, storeId);
-            var cachedModel = await _cacheFactory.GetMemoryCache().GetAsync(cacheKey, () =>
+            var cachedModel = await Services.Cache.GetAsync(cacheKey, () =>
             {
-                return _db.Polls()
+                return Services.DbContext.Polls()
                     .AsNoTracking()
                     .Include(x => x.PollAnswers)
                     .ApplyStandardFilter(storeId, languageId)
@@ -61,7 +44,7 @@ namespace Smartstore.Polls.Components
             foreach (var p in cachedModel)
             {
                 var pollModel = (PublicPollModel)p.Clone();
-                pollModel.AlreadyVoted = await _db.PollAnswers().GetAlreadyVoted(pollModel.Id, _services.WorkContext.CurrentCustomer.Id);
+                pollModel.AlreadyVoted = await Services.DbContext.PollAnswers().GetAlreadyVotedAsync(pollModel.Id, Services.WorkContext.CurrentCustomer.Id);
                 pollModel.SystemKeyword = "Homepage";
                 model.Add(pollModel);
             }

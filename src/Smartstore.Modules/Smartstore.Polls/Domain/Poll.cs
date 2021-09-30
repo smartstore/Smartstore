@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,9 @@ namespace Smartstore.Polls.Domain
     /// Represents a poll.
     /// </summary>
     [Table("Poll")] // Enables EF TPT inheritance
+    // TODO: (mh) (core) Indexes are missing (entity model does not match migration). Please check THOROUGHLY in Blog and News modules also!
+    [Index(nameof(Name), Name = "IX_Title")]
+    [Index(nameof(SystemKeyword), Name = "IX_SystemKeyword")]
     public partial class Poll : BaseEntity, IStoreRestricted
     {
         public Poll()
@@ -46,11 +50,14 @@ namespace Smartstore.Polls.Domain
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
+        // TODO: (mh) (core) Annotations are missing (entity model does not match migration). Please check THOROUGHLY in Blog and News modules also!
+        [StringLength(450), Required]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the system keyword.
         /// </summary>
+        [StringLength(200)]
         public string SystemKeyword { get; set; }
 
         /// <summary>
@@ -76,7 +83,7 @@ namespace Smartstore.Polls.Domain
         /// <summary>
         /// Gets or sets the poll start date and time.
         /// </summary>
-        public virtual DateTime? StartDateUtc { get; set; }
+        public DateTime? StartDateUtc { get; set; }
 
         /// <summary>
         /// Gets or sets the poll end date and time.
@@ -92,9 +99,9 @@ namespace Smartstore.Polls.Domain
         /// <summary>
         /// Gets or sets the poll answers.
         /// </summary>
-        public virtual ICollection<PollAnswer> PollAnswers
+        public ICollection<PollAnswer> PollAnswers
         {
-            get => _pollAnswers ?? (_pollAnswers = new HashSet<PollAnswer>());
+            get => LazyLoader?.Load(this, ref _pollAnswers) ?? (_pollAnswers ??= new HashSet<PollAnswer>());
             protected set => _pollAnswers = value;
         }
 
@@ -102,7 +109,6 @@ namespace Smartstore.Polls.Domain
         /// <summary>
         /// Gets or sets the language.
         /// </summary>
-        [NotMapped]
         public Language Language
         {
             get => _language ?? LazyLoader.Load(this, ref _language);

@@ -13,7 +13,7 @@ namespace Smartstore.Polls
                 .ResKey("Admin.ContentManagement.Polls")
                 .Icon("fa fa-tasks")
                 .PermissionNames(PollPermissions.Self)
-                .Action("List", "Poll", new { area = "Admin" })
+                .Action("List", "PollAdmin", new { area = "Admin" })
                 .AsItem();
 
             var pollNode = new TreeNode<MenuItem>(pollsMenuItem);

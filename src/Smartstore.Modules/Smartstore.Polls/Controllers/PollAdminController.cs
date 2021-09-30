@@ -93,7 +93,7 @@ namespace Smartstore.Polls.Controllers
                 .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
-                .LoadAsync();;
+                .LoadAsync();
 
             var pollModels = await polls
                 .SelectAsync(async x =>
@@ -363,7 +363,7 @@ namespace Smartstore.Polls.Controllers
             var votings = await _db.PollVotingRecords()
                 .AsNoTracking()
                 .Include(x => x.Customer)
-                .ApplyStandardFilter(pollId)
+                .ApplyPollFilter(pollId)
                 //.Where(x => x.PollAnswer.Poll.Id == pollId)           // TODO: (mh) (core) Test and maybe throw away filter.
                 .ToPagedList(command.Page - 1, command.PageSize)
                 .LoadAsync();

@@ -35,6 +35,7 @@ namespace Smartstore.Polls.Migrations
                     .WithColumn(nameof(Poll.EndDateUtc)).AsDateTime2().Nullable()
                     .WithColumn(nameof(Poll.LimitedToStores)).AsBoolean().NotNullable()
                     .WithColumn(nameof(Poll.LanguageId)).AsInt32().NotNullable()
+                        // TODO: (mh) (core) Indexes are missing (FluentMigrator does NOT auto-create indexes for FK fields like EF does). Please check THOROUGHLY in Blog and News modules also!
                         .Indexed("IX_LanguageId")
                         .ForeignKey(nameof(Language), id).OnDelete(Rule.None);
             }
@@ -47,6 +48,7 @@ namespace Smartstore.Polls.Migrations
                     .WithColumn(nameof(PollAnswer.NumberOfVotes)).AsInt32().NotNullable()
                     .WithColumn(nameof(PollAnswer.DisplayOrder)).AsInt32().NotNullable()
                     .WithColumn(nameof(PollAnswer.PollId)).AsInt32().NotNullable()
+                        .Indexed("IX_PollId")
                         .ForeignKey(poll, id).OnDelete(Rule.Cascade);
 
                 Create.ForeignKey()
@@ -59,6 +61,7 @@ namespace Smartstore.Polls.Migrations
                 Create.Table(pollVotingRecord)
                     .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
                     .WithColumn(nameof(PollVotingRecord.PollAnswerId)).AsInt32().NotNullable()
+                        .Indexed("IX_PollAnswerId")
                         .ForeignKey(pollAnswer, id).OnDelete(Rule.Cascade);
 
                 Create.ForeignKey()

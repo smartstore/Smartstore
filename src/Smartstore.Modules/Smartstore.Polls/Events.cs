@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Messaging.Events;
@@ -12,21 +11,13 @@ namespace Smartstore.Polls
 {
     public class Events : IConsumer
     {
-        private readonly SmartDbContext _db;
-
-        public Events(SmartDbContext db)
-        {
-            _db = db;
-        }
-
         public async Task HandleEventAsync(MessageModelPartMappingEvent message, 
-            IEventPublisher eventPublisher, 
             MessageModelHelper messageModelHelper)
         {
             if (message.Source is PollVotingRecord part)
             {
                 message.Result = CreateModelPart(part, message.MessageContext, messageModelHelper);
-                await eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<PollVotingRecord>(part, message.Result));
+                await messageModelHelper.PublishModelPartCreatedEventAsync(part, message.Result);
             }
         }
 

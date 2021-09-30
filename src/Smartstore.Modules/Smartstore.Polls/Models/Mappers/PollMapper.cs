@@ -48,7 +48,7 @@ namespace Smartstore.Polls.Models.Mappers
             var setAlreadyVotedProperty = parameters?.SetAlreadyVotedProperty == true;
 
             to.Id = from.Id;
-            to.AlreadyVoted = setAlreadyVotedProperty && (await _db.PollAnswers().GetAlreadyVoted(from.Id, _workContext.CurrentCustomer.Id));
+            to.AlreadyVoted = setAlreadyVotedProperty && (await _db.PollAnswers().GetAlreadyVotedAsync(from.Id, _workContext.CurrentCustomer.Id));
             to.Name = from.Name;
 
             var answers = from.PollAnswers.OrderBy(x => x.DisplayOrder);

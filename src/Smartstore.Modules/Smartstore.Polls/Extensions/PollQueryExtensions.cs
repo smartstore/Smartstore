@@ -53,7 +53,7 @@ namespace Smartstore.Polls.Extensions
         /// <param name="languageId">Language identifier to apply filter by <see cref="Language.Id"/>.</param>
         /// <param name="includeHidden">Applies filter by <see cref="Poll.Published"/>.</param>
         /// <returns>Poll query.</returns>
-        public static IQueryable<PollVotingRecord> ApplyStandardFilter(this IQueryable<PollVotingRecord> query, int pollId)
+        public static IQueryable<PollVotingRecord> ApplyPollFilter(this IQueryable<PollVotingRecord> query, int pollId)
         {
             Guard.NotNull(query, nameof(query));
             Guard.NotZero(pollId, nameof(pollId));
@@ -70,7 +70,10 @@ namespace Smartstore.Polls.Extensions
             return query;
         }
 
-        public static async Task<bool> GetAlreadyVoted(this DbSet<PollAnswer> pollAnswers, int pollId, int customerId)
+        /// <summary>
+        /// Gets a value indicating whether given <paramref name="customerId"/> has already voted for <paramref name="pollId"/>.
+        /// </summary>
+        public static async Task<bool> GetAlreadyVotedAsync(this DbSet<PollAnswer> pollAnswers, int pollId, int customerId)
         {
             Guard.NotZero(pollId, nameof(pollId));
             Guard.NotZero(customerId, nameof(customerId));

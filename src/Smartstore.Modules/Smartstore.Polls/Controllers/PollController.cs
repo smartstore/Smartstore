@@ -50,7 +50,7 @@ namespace Smartstore.Polls.Controllers
                 return Json(new { error = T("Polls.OnlyRegisteredUsersVote").Value });
             }
 
-            bool alreadyVoted = await _db.PollAnswers().GetAlreadyVoted(poll.Id, _workContext.CurrentCustomer.Id);
+            bool alreadyVoted = await _db.PollAnswers().GetAlreadyVotedAsync(poll.Id, _workContext.CurrentCustomer.Id);
             if (!alreadyVoted)
             {
                 pollAnswer.PollVotingRecords.Add(new PollVotingRecord
@@ -61,7 +61,7 @@ namespace Smartstore.Polls.Controllers
                     IsApproved = true
                 });
 
-                // Update totals.
+                // Update totals
                 pollAnswer.NumberOfVotes = pollAnswer.PollVotingRecords.Count;
                 await _db.SaveChangesAsync();
             }

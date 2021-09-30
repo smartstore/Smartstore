@@ -43,7 +43,6 @@ namespace Smartstore.Polls.Domain
         /// <summary>
         /// Gets or sets the poll answer.
         /// </summary>
-        [NotMapped]
         public PollAnswer PollAnswer
         {
             get => _pollAnswer ?? LazyLoader.Load(this, ref _pollAnswer);

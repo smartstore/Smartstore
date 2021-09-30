@@ -13,15 +13,13 @@ namespace Smartstore.Polls.Migrations
 {
     internal class PollsInstallationDataSeeder : DataSeeder<SmartDbContext>
     {
-        private readonly SmartDbContext _db;
         private readonly ModuleInstallationContext _installContext;
         private readonly IWidgetService _widgetService;
         private readonly bool _deSeedData;
 
-        public PollsInstallationDataSeeder(SmartDbContext db, ModuleInstallationContext installContext, IWidgetService widgetService)
+        public PollsInstallationDataSeeder(ModuleInstallationContext installContext, IWidgetService widgetService)
             : base(installContext.ApplicationContext, installContext.Logger)
         {
-            _db = db;
             _installContext = Guard.NotNull(installContext, nameof(installContext));
             _widgetService = Guard.NotNull(widgetService, nameof(widgetService));
             _deSeedData = _installContext.Culture?.StartsWith("de", StringComparison.OrdinalIgnoreCase) ?? false;
@@ -41,7 +39,7 @@ namespace Smartstore.Polls.Migrations
 
         private async Task TryActivateWidgetAsync()
         {
-            var hasActivePolls = await _db.Polls().Where(x => x.Published == true).CountAsync() > 0;
+            var hasActivePolls = await Context.Polls().Where(x => x.Published == true).AnyAsync();
             if (hasActivePolls)
             {
                 // Activate the news homepage widget
