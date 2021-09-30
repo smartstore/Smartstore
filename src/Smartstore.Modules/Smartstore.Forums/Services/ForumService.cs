@@ -265,6 +265,7 @@ namespace Smartstore.Forums.Services
                 return null;
             }
 
+            // TODO: (mg) (core) Shouldn't ForumXmlSitemapResult be returned here?
             return null;
         }
 
