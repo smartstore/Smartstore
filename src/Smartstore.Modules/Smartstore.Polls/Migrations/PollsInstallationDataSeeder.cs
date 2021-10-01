@@ -31,9 +31,9 @@ namespace Smartstore.Polls.Migrations
 
             if (_installContext.SeedSampleData == null || _installContext.SeedSampleData == true)
             {
-                var polls = PopulatePolls();
+                var polls = GetSamplePolls();
                 await PopulateAsync("PopulatePolls", polls);
-                await PopulateAsync("PopulatePollAnswers", PollAnswers(polls));
+                await PopulateAsync("PopulatePollAnswers", GetSamplePollAnswers(polls));
             }
         }
 
@@ -47,7 +47,7 @@ namespace Smartstore.Polls.Migrations
             }
         }
 
-        private List<Poll> PopulatePolls()
+        private List<Poll> GetSamplePolls()
         {
             return new List<Poll>
             {
@@ -70,7 +70,7 @@ namespace Smartstore.Polls.Migrations
             };
         }
 
-        private List<PollAnswer> PollAnswers(List<Poll> groups)
+        private List<PollAnswer> GetSamplePollAnswers(List<Poll> groups)
         {
             var firstPoll = groups.FirstOrDefault(c => c.DisplayOrder == 10);
             var secondPoll = groups.FirstOrDefault(c => c.DisplayOrder == 20);

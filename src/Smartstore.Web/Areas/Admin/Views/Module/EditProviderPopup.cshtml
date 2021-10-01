@@ -1,0 +1,78 @@
+﻿@using Smartstore.Admin.Models.Modularity
+
+@model ProviderModel
+
+@{
+    Layout = "_AdminPopupLayout";
+    ViewBag.Title = string.Concat(T("Common.Edit"), " - ", ((ViewBag.Title as string) ?? Model.SystemName).Truncate(30, "…"));
+}
+
+<form asp-antiforgery="true">
+    <div class="section-header">
+        <div class="title">
+            @if (Model.IconUrl.HasValue())
+            {
+                <img src="@Url.Content(Model.IconUrl)" class="img-responsive" alt="@Model.FriendlyName" />
+            }
+
+            @ViewBag.Title
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-save"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+        </div>
+    </div>
+
+    <input type="hidden" asp-for="SystemName" />
+
+    <div asp-validation-summary="All"></div>
+
+    @(Html.LocalizedEditor<ProviderModel, ProviderLocalizedModel>("provider-localized",
+        @<div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Locales[item].FriendlyName"></smart-label>
+                </div>
+                <div class="adminData">
+                    @* IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                    <input type="hidden" asp-for="Locales[item].LanguageId" />
+
+                    <editor asp-for="Locales[item].FriendlyName" />
+                    <span asp-validation-for="Locales[item].FriendlyName"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Locales[item].Description"></smart-label>
+                </div>
+                <div class="adminData">
+                    <textarea asp-for="Locales[item].Description" rows="3"></textarea>
+                    <span asp-validation-for="Locales[item].Description"></span>
+                </div>
+            </div>
+        </div>
+        ,
+        @<div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="FriendlyName"></smart-label>
+                </div>
+                <div class="adminData">
+                    <editor asp-for="FriendlyName" />
+                    <span asp-validation-for="FriendlyName"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Description"></smart-label>
+                </div>
+                <div class="adminData">
+                    <textarea asp-for="Description" rows="3"></textarea>
+                    <span asp-validation-for="Description"></span>
+                </div>
+            </div>
+        </div>
+    ))
+</form>

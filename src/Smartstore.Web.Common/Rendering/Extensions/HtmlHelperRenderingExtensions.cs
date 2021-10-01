@@ -409,16 +409,6 @@ namespace Smartstore.Web.Rendering
 
         #region LocalizedEditor
 
-        public static IHtmlContent TestEditor<TModel>(this IHtmlHelper<TModel> helper, Func<TModel, HelperResult> template)
-        {
-            return template(helper.ViewData.Model).ToHtmlString();
-        }
-
-        public static IHtmlContent TestEditor2<TModel>(this IHtmlHelper<TModel> helper, Func<TModel, HelperResult> template)
-        {
-            return template(helper.ViewData.Model);
-        }
-
         public static IHtmlContent LocalizedEditor<TModel, TLocalizedModelLocal>(this IHtmlHelper<TModel> helper,
             string name,
             Func<int, HelperResult> localizedTemplate,

@@ -1,0 +1,183 @@
+﻿@using Smartstore.Admin.Models.Modularity
+
+@model ProviderModelCollection
+
+@{
+    var clientRes = new Dictionary<string, string>
+    {
+        ["deactivate"] = T("Admin.Common.Deactivate"),
+        ["active"] = T("Common.Active"),
+        ["activate"] = T("Admin.Common.Activate"),
+        ["inactive"] = T("Common.Inactive"),
+    };
+}
+
+@{
+    Task ActiveLabel(ProviderModel item)
+    {
+        var activatable = item as IActivatable;
+        if (activatable == null)
+        {
+            return Task.CompletedTask;
+        }
+        if (activatable.IsActive)
+        {
+            <span class="badge badge-success">@T("Common.Active")</span>
+        }
+        else
+        {
+            <span class="badge badge-secondary">@T("Common.Inactive")</span>
+        }
+
+        return Task.CompletedTask;
+    }
+
+    bool IsActive(ProviderModel item)
+    {
+        var activatable = item as IActivatable;
+        if (activatable == null)
+        {
+            return true;
+        }
+
+        return activatable.IsActive;
+    }
+
+    string GetColClass()
+    {
+        return "col-" + (12 / (Model.ExtraColumns.Count + 1));
+    }
+
+    object RenderTemplate(object template)
+    {
+        var result = template as HelperResult;
+        if (result != null)
+        {
+            result.WriteTo(Html.ViewContext.Writer, HtmlEncoder.Default);
+        }
+        return null;
+    }
+}
+
+<div class="module-list" attr-class='(Model.Data.Any(x => x.IsEditable), "sortable-list")'>
+    @foreach (var item in Model.Data)
+    {
+        <div class="module-item sortable-item" attr-class='(!IsActive(item), "inactive")' data-system-name="@item.SystemName" data-friendly-name="@item.FriendlyName">
+            <div sm-if="item.IsEditable" class="sortable-grip"></div>
+            <div class="module-icon">
+                <img class="icon img-responsive" src="@Url.Content(item.IconUrl)" />
+            </div>
+            <div class="module-data row">
+                <!-- General -->
+                <div class="module-col @GetColClass()">
+                    <div class="module-heading">
+                        <div>
+                            <div class="module-title">
+                                <div class="module-name">@item.FriendlyName</div>
+                                <div class="module-badges">
+                                    @{ await ActiveLabel(item); }
+                                </div>
+                            </div>
+                            <div sm-if="item.Description.HasValue()" class="module-description">
+                                @item.Description
+                            </div>
+                            <div class="module-info">
+                                @{
+                                    string tip = item.ProvidingModuleFriendlyName.HasValue() ? T("Admin.Providers.ProvidingPlugin") + ": " + item.ProvidingModuleFriendlyName : string.Empty;
+                                }
+                                <span class="attr">
+                                    <span class="attr-name">@T("Common.SystemName"):</span>
+                                    <span class="attr-value" attr-title='(tip.HasValue(), tip)'>@item.SystemName</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div sm-if="item.IsEditable || item.IsConfigurable" class="module-actions dropdown">
+                            <button class="btn btn-outline-secondary btn-icon dropdown-toggle no-chevron" type="button" data-toggle="dropdown">
+                                <i class="fa fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                @if (item.IsEditable)
+                                {
+                                    if (item.IsPaymentMethod)
+                                    {
+                                        <a class="dropdown-item" href='@Url.Action("Edit", "Payment", new { systemName = item.SystemName })'>
+                                            <i class="far fa-fw fa-edit"></i>
+                                            <span>@T("Admin.Common.Edit")</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a class="dropdown-item module-edit" href='@Url.Action("EditProviderPopup", "Module", new { systemName = item.SystemName, btnId = "btnRefresh" })'>
+                                            <i class="far fa-fw fa-edit"></i>
+                                            <span>@T("Admin.Common.Edit")</span>
+                                        </a>
+                                    }
+                                }
+                                @if (item.IsConfigurable)
+                                {
+                                    <a class="dropdown-item module-configure" href="@Url.Action("ConfigureProvider", "Module", new { systemName = item.SystemName, listUrl = Request.RawUrl() })">
+                                        <i class="fa fa-fw fa-cog"></i>
+                                        <span>@T("Admin.Common.Configure")</span>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                @foreach (var col in Model.ExtraColumns)
+                {
+                    <div class="module-col @GetColClass()">
+                        @RenderTemplate(col(item))
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<button type="button" id="btnRefresh" class="d-none"></button>
+
+<script sm-target-zone="scripts" data-origin="_Providers">
+    window.Res.Provider = {
+	    @foreach (var res in clientRes) {<text>"@(Html.Raw(res.Key))": @Html.Raw(res.Value.EncodeJsString()),</text>}
+    };
+
+	$(function () {
+        window.providerListInit(".provider-list");
+
+		$('.module-list').on('click', '.module-edit', function (e) {
+			e.preventDefault();
+			openPopup($(this).attr("href"));
+			return false;
+		});
+
+		$('#btnRefresh').on('click', function () {
+			// reload page
+			setLocation(location.href);
+			return false;
+        });
+
+		$('.sortable-list').sortable({
+            handle: '.sortable-grip',
+			ghostClass: 'sortable-ghost',
+            animation: 150
+        }).on('sort', function (e, ui) {
+
+			var items = $(this).closest('.sortable-list').find('.module-item');
+			var newOrder = [];
+			$.each(items, function (i, val) {
+				newOrder.push($(val).data('system-name'));
+			});
+			$.ajax({
+				async: false,
+				cache: false,
+				type: 'POST',
+				//dataType: 'json',
+				url: '@Url.Action("SortProviders", "Module")',
+				data: { providers: newOrder.join(",") }
+			});
+		});
+	});
+</script>

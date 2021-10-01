@@ -1,0 +1,26 @@
+﻿@using Smartstore.Admin.Models.Modularity
+
+@model IEnumerable<WidgetModel>
+
+@{
+    ViewBag.Title = T("Admin.ContentManagement.Widgets").Value;
+}
+
+@Html.AntiForgeryToken()
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-plus-square"></i>
+        @T("Admin.ContentManagement.Widgets")
+    </div>
+</div>
+
+<div class="provider-list">
+    @(await Html.ProviderList(Model,
+        @<div>
+            <a class="activate-provider btn btn-@(item.IsActive ? "secondary btn-to-danger" : "success")" style="min-width: 150px"
+                data-href='@Url.Action("ActivateProvider")' href="javascript:;" data-systemname="@item.SystemName" data-activate="@(!item.IsActive ? "true" : "false")">
+                @T("Admin.Common.{0}".FormatInvariant(item.IsActive ? "Deactivate" : "Activate"))
+            </a>
+        </div>))
+</div>

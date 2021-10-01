@@ -8,9 +8,13 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Admin.Models.Modularity;
 using Smartstore.Admin.Models.Stores;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Licensing;
 using Smartstore.Utilities.Html;
@@ -210,65 +214,6 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
-        #endregion
-
-        #region Licensing
-
-        #endregion
-
-        #region Utilities
-
-        private bool IsLicensable(IModuleDescriptor moduleDescriptor)
-        {
-            try
-            {
-                return LicenseChecker.IsLicensableModule(moduleDescriptor);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
-
-            return false;
-        }
-
-        private async Task<LicensingData> PrepareLicenseLabelModelAsync(LicenseLabelModel model, IModuleDescriptor moduleDescriptor, string url = null)
-        {
-            if (!IsLicensable(moduleDescriptor))
-            {
-                return null;
-            }
-
-            // We always show license button to serve ability to delete a key.
-            model.IsLicensable = true;
-            model.LicenseUrl = Url.Action("LicenseModule", new { systemName = moduleDescriptor.SystemName });
-
-            var cachedLicense = await LicenseChecker.GetLicenseAsync(moduleDescriptor.SystemName, url);
-            if (cachedLicense == null)
-            {
-                // Licensed module has not been used yet -> Check state.
-                model.LicenseState = await LicenseChecker.CheckStateAsync(moduleDescriptor.SystemName, url);
-
-                // And try to get license data again.
-                cachedLicense = await LicenseChecker.GetLicenseAsync(moduleDescriptor.SystemName, url);
-            }
-
-            if (cachedLicense != null)
-            {
-                // Licensed module has been used.
-                model.LicenseState = cachedLicense.State;
-                model.TruncatedLicenseKey = cachedLicense.TruncatedLicenseKey;
-                model.RemainingDemoUsageDays = cachedLicense.RemainingDemoDays;
-            }
-            else
-            {
-                // It's confusing to display a license state when there is no license data yet.
-                model.HideLabel = true;
-            }
-
-            return cachedLicense;
-        }
-
         protected async Task<ModuleModel> PrepareModuleModelAsync(IModuleDescriptor descriptor, bool forList = true)
         {
             var model = await MapperFactory.MapAsync<IModuleDescriptor, ModuleModel>(descriptor, parameters: null);
@@ -284,7 +229,7 @@ namespace Smartstore.Admin.Controllers
                 model.FriendlyName = _moduleManager.GetLocalizedValue(descriptor, x => x.FriendlyName);
                 model.Description = _moduleManager.GetLocalizedValue(descriptor, x => x.Description);
             }
-            
+
             // Locales
             AddLocales(model.Locales, (locale, languageId) =>
             {
@@ -352,6 +297,173 @@ namespace Smartstore.Admin.Controllers
 
         #endregion
 
+        #region Providers
+
+        [Permission(Permissions.Configuration.Module.Read)]
+        public async Task<IActionResult> ConfigureProvider(string systemName, string listUrl)
+        {
+            var provider = _providerManager.GetProvider(systemName);
+            if (provider == null || !provider.Metadata.IsConfigurable)
+            {
+                return NotFound();
+            }
+
+            var infos = GetProviderInfos(provider);
+            if (infos.ReadPermission.HasValue() && !await Services.Permissions.AuthorizeAsync(infos.ReadPermission))
+            {
+                throw new AccessDeniedException();
+            }
+
+            var model = _moduleManager.ToProviderModel(provider);
+            var route = model.ConfigurationRoute;
+
+            if (route == null)
+            {
+                return NotFound();
+            }
+
+            //ViewBag.ListUrl = listUrl.NullEmpty() ?? infos.Url;
+
+            return RedirectToAction(route.Action, route.Controller, route.RouteValues);
+        }
+
+        public async Task<ActionResult> EditProviderPopup(string systemName)
+        {
+            var provider = _providerManager.GetProvider(systemName);
+            if (provider == null)
+            {
+                return NotFound();
+            }
+
+            var infos = GetProviderInfos(provider);
+
+            if (infos.ReadPermission.HasValue() && !await Services.Permissions.AuthorizeAsync(infos.ReadPermission))
+            {
+                throw new AccessDeniedException();
+            }
+
+            var model = _moduleManager.ToProviderModel(provider, true);
+            var pageTitle = model.FriendlyName;
+
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.FriendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata, languageId, false);
+                locale.Description = _moduleManager.GetLocalizedDescription(provider.Metadata, languageId, false);
+
+                if (pageTitle.IsEmpty() && languageId == Services.WorkContext.WorkingLanguage.Id)
+                {
+                    pageTitle = locale.FriendlyName;
+                }
+            });
+
+            ViewBag.Title = pageTitle;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProviderPopup(string btnId, ProviderModel model)
+        {
+            var provider = _providerManager.GetProvider(model.SystemName);
+            if (provider == null)
+            {
+                return NotFound();
+            }
+
+            var infos = GetProviderInfos(provider);
+
+            if (infos.UpdatePermission.HasValue() && !await Services.Permissions.AuthorizeAsync(infos.UpdatePermission))
+            {
+                throw new AccessDeniedException();
+            }
+            
+            await _moduleManager.ApplySettingAsync(provider.Metadata, nameof(model.FriendlyName), model.FriendlyName);
+            await _moduleManager.ApplySettingAsync(provider.Metadata, nameof(model.Description), model.Description);
+
+            foreach (var localized in model.Locales)
+            {
+                await _moduleManager.ApplyLocalizedValueAsync(provider.Metadata, localized.LanguageId, nameof(model.FriendlyName), localized.FriendlyName);
+                await _moduleManager.ApplyLocalizedValueAsync(provider.Metadata, localized.LanguageId, nameof(model.Description), localized.Description);
+            }
+
+            ViewBag.RefreshPage = true;
+            ViewBag.btnId = btnId;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SortProviders(string providers)
+        {
+            try
+            {
+                var arr = providers.Split(',');
+                var ordinal = 5;
+                foreach (var systemName in arr)
+                {
+                    var provider = _providerManager.GetProvider(systemName);
+                    if (provider != null)
+                    {
+                        await _moduleManager.SetUserDisplayOrderAsync(provider.Metadata, ordinal);
+                    }
+                    ordinal += 5;
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex.Message);
+                return StatusCode(501, ex.Message);
+            }
+
+            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
+            return StatusCode(200);
+        }
+
+        private (string ReadPermission, string UpdatePermission, string Url) GetProviderInfos(Provider<IProvider> provider)
+        {
+            string readPermission = null;
+            string updatePermission = null;
+            string url = null;
+
+            var metadata = provider.Metadata;
+
+            if (metadata.ProviderType == typeof(IPaymentMethod))
+            {
+                readPermission = Permissions.Configuration.PaymentMethod.Read;
+                updatePermission = Permissions.Configuration.PaymentMethod.Update;
+                url = Url.Action("Providers", "Payment");
+            }
+            else if (metadata.ProviderType == typeof(ITaxProvider))
+            {
+                readPermission = Permissions.Configuration.Tax.Read;
+                updatePermission = Permissions.Configuration.Tax.Update;
+                url = Url.Action("Providers", "Tax");
+            }
+            else if (metadata.ProviderType == typeof(IShippingRateComputationMethod))
+            {
+                readPermission = Permissions.Configuration.Shipping.Read;
+                updatePermission = Permissions.Configuration.Shipping.Update;
+                url = Url.Action("Providers", "Shipping");
+            }
+            else if (metadata.ProviderType == typeof(IWidget))
+            {
+                readPermission = Permissions.Cms.Widget.Read;
+                updatePermission = Permissions.Cms.Widget.Update;
+                url = Url.Action("Providers", "Widget");
+            }
+            // TODO: (mh) (core) Do we still need IExternalAuthenticationMethod provider?
+            //else if (metadata.ProviderType == typeof(IExternalAuthenticationMethod))
+            //{
+            //    readPermission = Permissions.Configuration.Authentication.Read;
+            //    updatePermission = Permissions.Configuration.Authentication.Update;
+            //    url = Url.Action("Providers", "ExternalAuthentication");
+            //}
+
+            return (readPermission, updatePermission, url);
+        }
+
+        #endregion
+
         #region Licensing
 
         [Permission(Permissions.Configuration.Module.License)]
@@ -368,7 +480,7 @@ namespace Smartstore.Admin.Controllers
             {
                 return Content(T("Admin.Common.ResourceNotFound"));
             }
-            
+
             var stores = Services.StoreContext.GetAllStores();
             var model = new LicenseModuleModel
             {
@@ -502,7 +614,7 @@ namespace Smartstore.Admin.Controllers
                     }
                 }
             }
-            
+
             // Notify about result.
             if (result.Success)
             {
@@ -521,7 +633,58 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            return PartialView("_LicenseLabel", model);
+            return PartialView("LicenseLabel", model);
+        }
+
+        private bool IsLicensable(IModuleDescriptor moduleDescriptor)
+        {
+            try
+            {
+                return LicenseChecker.IsLicensableModule(moduleDescriptor);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            return false;
+        }
+
+        private async Task<LicensingData> PrepareLicenseLabelModelAsync(LicenseLabelModel model, IModuleDescriptor moduleDescriptor, string url = null)
+        {
+            if (!IsLicensable(moduleDescriptor))
+            {
+                return null;
+            }
+
+            // We always show license button to serve ability to delete a key.
+            model.IsLicensable = true;
+            model.LicenseUrl = Url.Action("LicenseModule", new { systemName = moduleDescriptor.SystemName });
+
+            var cachedLicense = await LicenseChecker.GetLicenseAsync(moduleDescriptor.SystemName, url);
+            if (cachedLicense == null)
+            {
+                // Licensed module has not been used yet -> Check state.
+                model.LicenseState = await LicenseChecker.CheckStateAsync(moduleDescriptor.SystemName, url);
+
+                // And try to get license data again.
+                cachedLicense = await LicenseChecker.GetLicenseAsync(moduleDescriptor.SystemName, url);
+            }
+
+            if (cachedLicense != null)
+            {
+                // Licensed module has been used.
+                model.LicenseState = cachedLicense.State;
+                model.TruncatedLicenseKey = cachedLicense.TruncatedLicenseKey;
+                model.RemainingDemoUsageDays = cachedLicense.RemainingDemoDays;
+            }
+            else
+            {
+                // It's confusing to display a license state when there is no license data yet.
+                model.HideLabel = true;
+            }
+
+            return cachedLicense;
         }
 
         #endregion

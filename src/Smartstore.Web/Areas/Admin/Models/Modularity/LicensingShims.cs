@@ -28,25 +28,25 @@ namespace Smartstore.Licensing
         }
 
         public static Task<LicenseCheckerResult> CheckAsync(string systemName, string url = null)
-            => Task.FromResult(new LicenseCheckerResult { State = LicensingState.Licensed, Success = true });
+            => Task.FromResult(new LicenseCheckerResult { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" });
 
         public static Task<LicensingState> CheckStateAsync(string systemName, string url = null)
             => Task.FromResult(LicensingState.Licensed);
 
         public static Task<LicensingData> GetLicenseAsync(string systemName, string url = null)
-            => Task.FromResult(new LicensingData { State = LicensingState.Licensed });
+            => Task.FromResult(new LicensingData { State = LicensingState.Licensed, TruncatedLicenseKey = "SM-01234-56789" });
 
         public static bool IsLicensableModule(IModuleDescriptor descriptor)
-            => false;
+            => true;
 
         public static bool IsLicensableModule(IModuleDescriptor descriptor, out bool hasSingleLicenseForAllStores)
         {
             hasSingleLicenseForAllStores = false;
-            return false;
+            return true;
         }
 
         public static Task<LicenseCheckerResult> ResetStateAsync(string systemName, string url = null)
-            => Task.FromResult(new LicenseCheckerResult { State = LicensingState.Licensed, Success = true });
+            => Task.FromResult(new LicenseCheckerResult { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" });
     }
 
     public class LicenseCheckerResult
