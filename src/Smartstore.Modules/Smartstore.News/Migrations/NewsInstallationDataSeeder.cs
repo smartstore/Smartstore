@@ -46,6 +46,7 @@ namespace Smartstore.News.Migrations
             if (showOnHomepageSetting?.Value?.Convert<bool?>() == true)
             {
                 // Activate the news homepage widget
+                // INFO: (mh) (core) This doesn't work.
                 await _widgetService.ActivateWidgetAsync("Smartstore.News", true);
             }
         }
