@@ -9,8 +9,6 @@ namespace Smartstore.Core.Seo
 {
     public static partial class SeoExtensions
     {
-        // TODO: (core) Apply IDisplayedEntity to BlogPostTag
-
         public static string BuildSlug<T>(this T entity, int? languageId = null)
             where T : IDisplayedEntity
         {

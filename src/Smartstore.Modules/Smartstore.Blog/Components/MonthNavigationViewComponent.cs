@@ -18,38 +18,23 @@ namespace Smartstore.Blog.Components
     /// </summary>
     public class MonthNavigationViewComponent : SmartViewComponent
     {
-        private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly ICacheManager _cacheManager;
-        private readonly BlogSettings _blogSettings;
-
-        public MonthNavigationViewComponent(
-            SmartDbContext db,
-            ICommonServices services,
-            ICacheManager cacheManager,
-            BlogSettings blogSettings)
-        {
-            _db = db;
-            _services = services;
-            _cacheManager = cacheManager;
-            _blogSettings = blogSettings;
-        }
-
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            if (!_blogSettings.Enabled)
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var settings = Services.SettingFactory.LoadSettings<BlogSettings>(storeId);
+
+            if (!settings.Enabled)
             {
                 return Empty();
             }
 
-            var storeId = _services.StoreContext.CurrentStore.Id;
-            var languageId = _services.WorkContext.WorkingLanguage.Id;
+            var languageId = Services.WorkContext.WorkingLanguage.Id;
             var cacheKey = string.Format(ModelCacheInvalidator.BLOG_MONTHS_MODEL_KEY, languageId, storeId);
 
-            var cachedModel = await _cacheManager.GetAsync(cacheKey, async () =>
+            var cachedModel = await Services.Cache.GetAsync(cacheKey, async () =>
             {
                 var model = new List<BlogPostYearModel>();
-                var blogPosts = await _db.BlogPosts()
+                var blogPosts = await Services.DbContext.BlogPosts()
                     .AsNoTracking()
                     .ApplyStandardFilter(storeId, languageId)
                     .ToListAsync();

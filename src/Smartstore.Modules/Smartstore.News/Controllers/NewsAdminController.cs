@@ -331,7 +331,7 @@ namespace Smartstore.News.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, newsItem, form));
 
                 NotifySuccess(T("Admin.ContentManagement.News.NewsItems.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = newsItem.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = newsItem.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareNewsItemModelAsync(model, null);
@@ -399,7 +399,7 @@ namespace Smartstore.News.Controllers
 
                 NotifySuccess(T("Admin.ContentManagement.News.NewsItems.Updated"));
 
-                return continueEditing ? RedirectToAction("Edit", new { id = newsItem.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = newsItem.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareNewsItemModelAsync(model, newsItem);
@@ -421,7 +421,7 @@ namespace Smartstore.News.Controllers
             await _db.SaveChangesAsync();
 
             NotifySuccess(T("Admin.ContentManagement.News.NewsItems.Deleted"));
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]
@@ -444,6 +444,7 @@ namespace Smartstore.News.Controllers
 
             return Json(new { Success = success, Count = numDeleted });
         }
+
         #endregion
 
         #region Comments

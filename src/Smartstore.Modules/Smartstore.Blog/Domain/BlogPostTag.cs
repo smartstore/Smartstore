@@ -1,11 +1,12 @@
 ﻿using System;
+using Smartstore.Domain;
 
 namespace Smartstore.Blog.Domain
 {
     /// <summary>
     /// Represents a blog post tag.
     /// </summary>
-    public partial class BlogPostTag : IEquatable<BlogPostTag>
+    public partial class BlogPostTag : IDisplayedEntity, IEquatable<BlogPostTag>
     {
         /// <summary>
         /// Gets or sets the name.
@@ -28,5 +29,20 @@ namespace Smartstore.Blog.Domain
 
         public bool Equals(BlogPostTag other)
             => string.Equals(Name, other?.Name, StringComparison.OrdinalIgnoreCase);
+
+        public string GetDisplayNameMemberName()
+        {
+            return nameof(Name);
+        }
+
+        public string GetDisplayName()
+        {
+            return Name;
+        }
+
+        public string GetEntityName()
+        {
+            return nameof(BlogPostTag);
+        }
     }
 }

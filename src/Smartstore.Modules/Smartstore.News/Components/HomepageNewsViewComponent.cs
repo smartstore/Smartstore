@@ -1,10 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Caching;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
-using Smartstore.Core.Data;
 using Smartstore.News.Hooks;
 using Smartstore.News.Models.Mappers;
 using Smartstore.News.Models.Public;
@@ -17,41 +14,25 @@ namespace Smartstore.News.Components
     /// </summary>
     public class HomepageNewsViewComponent : SmartViewComponent
     {
-        private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly ICacheFactory _cacheFactory;
-        private readonly NewsSettings _newsSettings;
-
-        public HomepageNewsViewComponent(
-            SmartDbContext db,
-            ICommonServices services,
-            ICacheFactory cacheFactory,
-            NewsSettings newsSettings)
-        {
-            _db = db;
-            _services = services;
-            _cacheFactory = cacheFactory;
-            _newsSettings = newsSettings;
-        }
-
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            if (!_newsSettings.Enabled || !_newsSettings.ShowNewsOnMainPage)
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var settings = Services.SettingFactory.LoadSettings<NewsSettings>(storeId);
+
+            if (!settings.Enabled || !settings.ShowNewsOnMainPage)
             {
                 return Empty();
             }
 
-            var storeId = _services.StoreContext.CurrentStore.Id;
-            var languageId = _services.WorkContext.WorkingLanguage.Id;
-            var includeHidden = _services.WorkContext.CurrentCustomer.IsAdmin();
-            var cacheKey = string.Format(ModelCacheInvalidator.HOMEPAGE_NEWSMODEL_KEY, languageId, storeId, _newsSettings.MainPageNewsCount, includeHidden);
-
-            var cachedModel = await _cacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
+            var languageId = Services.WorkContext.WorkingLanguage.Id;
+            var includeHidden = Services.WorkContext.CurrentCustomer.IsAdmin();
+            var cacheKey = string.Format(ModelCacheInvalidator.HOMEPAGE_NEWSMODEL_KEY, languageId, storeId, settings.MainPageNewsCount, includeHidden);
+            var cachedModel = await Services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
-                var newsItems = await _db.NewsItems()
+                var newsItems = await Services.DbContext.NewsItems()
                     .AsNoTracking()
                     .ApplyStandardFilter(storeId, languageId)
-                    .ToPagedList(0, _newsSettings.MainPageNewsCount)
+                    .ToPagedList(0, settings.MainPageNewsCount)
                     .LoadAsync();
 
                 return new HomepageNewsItemsModel

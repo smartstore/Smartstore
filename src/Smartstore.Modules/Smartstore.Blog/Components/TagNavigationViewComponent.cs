@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Smartstore.Blog.Hooks;
 using Smartstore.Blog.Models.Public;
 using Smartstore.Blog.Services;
-using Smartstore.Caching;
-using Smartstore.Core;
 using Smartstore.Core.Seo;
 using Smartstore.Web.Components;
 
@@ -17,34 +15,26 @@ namespace Smartstore.Blog.Components
     public class TagNavigationViewComponent : SmartViewComponent
     {
         private readonly IBlogService _blogService;
-        private readonly ICommonServices _services;
-        private readonly ICacheManager _cacheManager;
-        private readonly BlogSettings _blogSettings;
-
-        public TagNavigationViewComponent(
-            IBlogService blogService,
-            ICommonServices services,
-            ICacheManager cacheManager,
-            BlogSettings blogSettings)
+        
+        public TagNavigationViewComponent(IBlogService blogService)
         {
             _blogService = blogService;
-            _services = services;
-            _cacheManager = cacheManager;
-            _blogSettings = blogSettings;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var _blogSettings = Services.SettingFactory.LoadSettings<BlogSettings>(storeId);
+
             if (!_blogSettings.Enabled)
             {
                 return Empty();
             }
 
-            var storeId = _services.StoreContext.CurrentStore.Id;
-            var languageId = _services.WorkContext.WorkingLanguage.Id;
+            var languageId = Services.WorkContext.WorkingLanguage.Id;
             var cacheKey = string.Format(ModelCacheInvalidator.BLOG_TAGS_MODEL_KEY, languageId, storeId);
 
-            var cachedModel = await _cacheManager.GetAsync(cacheKey, async () =>
+            var cachedModel = await Services.Cache.GetAsync(cacheKey, async () =>
             {
                 var model = new BlogPostTagListModel();
 
