@@ -38,17 +38,17 @@ namespace Smartstore.Forums
             if (forumIds.Any())
             {
                 var db = forums.GetDbContext<SmartDbContext>();
-                var postsSet = db.ForumPosts();
-                var topicsSet = db.ForumTopics();
+                var postSet = db.ForumPosts();
+                var topicSet = db.ForumTopics();
 
                 var lastPostsQuery = (
-                    from ft in topicsSet
-                    join fp in postsSet on ft.Id equals fp.TopicId
+                    from ft in topicSet
+                    join fp in postSet on ft.Id equals fp.TopicId
                     where forumIds.Contains(ft.ForumId) && ft.Published && fp.Published
                     orderby fp.CreatedOnUtc descending, ft.CreatedOnUtc descending
                     select ft.ForumId)
                     .Distinct()
-                    .SelectMany(key => postsSet
+                    .SelectMany(key => postSet
                         .Include(x => x.ForumTopic)
                         .ThenInclude(x => x.Forum)
                         .Where(x => x.ForumTopic.ForumId == key)
@@ -58,8 +58,8 @@ namespace Smartstore.Forums
                 var lastPosts = await lastPostsQuery.ToListAsync(cancelToken);
                 if (lastPosts.Any())
                 {
-                    var numTopicsByForum = await topicsSet.GetForumTopicCountsByForumIdsAsync(forumIds, cancelToken);
-                    var numPostsByForum = await postsSet.GetForumPostCountsByForumIdsAsync(forumIds, cancelToken);
+                    var numTopicsByForum = await topicSet.GetForumTopicCountsByForumIdsAsync(forumIds, cancelToken);
+                    var numPostsByForum = await postSet.GetForumPostCountsByForumIdsAsync(forumIds, cancelToken);
 
                     foreach (var lastPost in lastPosts)
                     {

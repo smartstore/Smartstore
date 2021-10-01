@@ -16,11 +16,14 @@
         </div>
     </div>
 
-    @await Component.InvokeAsync("TopicBlock", new { systemName = "ForumWelcomeMessage" }) 
-    
+    @await Component.InvokeAsync("TopicBlock", new { systemName = "ForumWelcomeMessage" })
+
     @foreach (var group in Model.ForumGroups)
     {
-        <partial name="_ForumGroup" model="group" />
+        if (group.Forums.Count > 0)
+        {
+            <partial name="_ForumGroup" model="group" />
+        }
     }
 
     @await Component.InvokeAsync("ActiveDiscussions")

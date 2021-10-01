@@ -13,6 +13,7 @@
         <h1 class="fs-h2">@Model.Subject</h1>
     </div>
     <div sm-if="Model.CanEditTopic || Model.CanDeleteTopic || Model.CanMoveTopic" class="manage btn-group my-3">
+        @* TODO: (mg) (core) .btn-group should only have .btn as direct child, otherwise styling is not applied. The group looks really ugly this way. *@
         @if (Model.CanEditTopic)
         {
             <a asp-action="TopicEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">

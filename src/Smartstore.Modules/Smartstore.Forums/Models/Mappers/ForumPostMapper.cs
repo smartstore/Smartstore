@@ -98,7 +98,8 @@ namespace Smartstore.Forums.Models.Mappers
                 ? createdOn.Humanize(false)
                 : createdOn.ToString("f");
 
-            to.Avatar = from.Customer.ToAvatarModel(to.CustomerName, true);
+            // TODO: (mg) (core) Parametrize avatar size somehow. We need it in different sizes.
+            to.Avatar = from.Customer.ToAvatarModel(to.CustomerName, false);
 
             if (_forumSettings.AllowCustomersToVoteOnPosts && from.CustomerId != currentCustomer.Id)
             {

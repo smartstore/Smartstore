@@ -4,32 +4,37 @@
 	var showTopic = (ViewData["ShowTopic"] as bool?) ?? false;
 }
 
-<div sm-if="Model?.Id > 0" class="last-post text-muted">
-    <div class="createdon">@Model.PostCreatedOnStr</div>
-    <div sm-if="showTopic">
-		<div class="d-inline-flex">
-			<span>@T("Forum.In"):&nbsp;</span>
-			<a asp-route="ForumTopicBySlug" asp-route-id="@Model.ForumTopicId" asp-route-slug="@Model.ForumTopicSlug" title="@Model.ForumTopicSubject" class="forum-table-link">
-				@Model.ForumTopicSubject.Truncate(24, "…")
-			</a>
-		</div>
+<div sm-if="Model?.Id > 0" class="last-post d-flex align-items-center">
+    <div class="mr-2">
+        <partial name="Customer.Avatar" model="Model.Avatar" />
     </div>
-	<div sm-if="Model.CustomerId > 0">
-		<div class="d-inline-flex">
-			<span class="pr-1">@T("Forum.By"):</span>
-			@if (Model.HasCustomerProfile)
-			{
-				<a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" class="forum-table-link">
-					@Model.CustomerName.NaIfEmpty()
-				</a>
-			}
-			else
-			{
-				<span>@Model.CustomerName</span>
-			}
-		</div>
-	</div>
+    <div class="text-truncate">
+        <div class="text-truncate" sm-if="Model.CustomerId > 0">
+            <div class="text-truncate small">
+                <span class="createdon text-muted">@Model.PostCreatedOnStr</span>
+                @if (Model.CustomerId > 0)
+                {
+                    <span>&nbsp;·&nbsp;</span>
+                    @if (Model.HasCustomerProfile)
+                    {
+                        <a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" class="text-truncate pretty-link">
+                            @Model.CustomerName.NaIfEmpty()
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="text-truncate">@Model.CustomerName</span>
+                    }
+                }
+            </div>
+            <div sm-if="showTopic" class="text-truncate">
+                <a asp-route="ForumTopicBySlug" asp-route-id="@Model.ForumTopicId" asp-route-slug="@Model.ForumTopicSlug" title="@Model.ForumTopicSubject" class="text-truncate">
+                    @Model.ForumTopicSubject
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
-<div sm-if="Model == null" class="nopost text-muted">
+<div sm-if="Model == null" class="nopost text-muted small">
     @T("Forum.NoPosts")
 </div>
