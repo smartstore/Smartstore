@@ -16,7 +16,7 @@ namespace Smartstore.Core.Security
 
         public string CreateSaltKey(int size)
         {
-            using var provider = new RNGCryptoServiceProvider();
+            using var provider = RandomNumberGenerator.Create();
             var buff = new byte[size];
             provider.GetBytes(buff);
 
@@ -45,11 +45,9 @@ namespace Smartstore.Core.Security
             if (string.IsNullOrEmpty(privateKey))
                 privateKey = _securitySettings.EncryptionKey;
 
-            using var provider = new TripleDESCryptoServiceProvider
-            {
-                Key = Encoding.ASCII.GetBytes(privateKey.Substring(0, 16)),
-                IV = Encoding.ASCII.GetBytes(privateKey.Substring(8, 8))
-            };
+            using var provider = TripleDES.Create();
+            provider.Key = Encoding.ASCII.GetBytes(privateKey.Substring(0, 16));
+            provider.IV = Encoding.ASCII.GetBytes(privateKey.Substring(8, 8));
 
             var encryptedBinary = EncryptTextToMemory(plainText, provider.Key, provider.IV);
             return Convert.ToBase64String(encryptedBinary);
@@ -63,11 +61,9 @@ namespace Smartstore.Core.Security
             if (string.IsNullOrEmpty(privateKey))
                 privateKey = _securitySettings.EncryptionKey;
 
-            using var provider = new TripleDESCryptoServiceProvider
-            {
-                Key = Encoding.ASCII.GetBytes(privateKey.Substring(0, 16)),
-                IV = Encoding.ASCII.GetBytes(privateKey.Substring(8, 8))
-            };
+            using var provider = TripleDES.Create();
+            provider.Key = Encoding.ASCII.GetBytes(privateKey.Substring(0, 16));
+            provider.IV = Encoding.ASCII.GetBytes(privateKey.Substring(8, 8));
 
             var buffer = Convert.FromBase64String(cipherText);
             return DecryptTextFromMemory(buffer, provider.Key, provider.IV);
@@ -78,7 +74,7 @@ namespace Smartstore.Core.Security
         private static byte[] EncryptTextToMemory(string data, byte[] key, byte[] iv)
         {
             using var ms = new MemoryStream();
-            using (var cs = new CryptoStream(ms, new TripleDESCryptoServiceProvider().CreateEncryptor(key, iv), CryptoStreamMode.Write))
+            using (var cs = new CryptoStream(ms, TripleDES.Create().CreateEncryptor(key, iv), CryptoStreamMode.Write))
             {
                 var toEncrypt = Encoding.Unicode.GetBytes(data);
                 cs.Write(toEncrypt, 0, toEncrypt.Length);
@@ -91,7 +87,7 @@ namespace Smartstore.Core.Security
         private static string DecryptTextFromMemory(byte[] data, byte[] key, byte[] iv)
         {
             using var ms = new MemoryStream(data);
-            using (var cs = new CryptoStream(ms, new TripleDESCryptoServiceProvider().CreateDecryptor(key, iv), CryptoStreamMode.Read))
+            using (var cs = new CryptoStream(ms, TripleDES.Create().CreateDecryptor(key, iv), CryptoStreamMode.Read))
             {
                 using var sr = new StreamReader(cs, Encoding.Unicode);
                 return sr.ReadLine();

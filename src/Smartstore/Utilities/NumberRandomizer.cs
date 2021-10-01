@@ -5,17 +5,17 @@ namespace Smartstore.Utilities
 {
     public sealed class NumberRandomizer : RandomNumberGenerator
     {
-        private readonly RNGCryptoServiceProvider _provider;
+        private readonly RandomNumberGenerator _impl;
 
         public NumberRandomizer()
         {
-            _provider = new RNGCryptoServiceProvider();
+            _impl = Create();
         }
 
         public int Next()
         {
             var data = new byte[sizeof(int)];
-            _provider.GetBytes(data);
+            _impl.GetBytes(data);
             return BitConverter.ToInt32(data, 0) & (int.MaxValue - 1);
         }
 
@@ -37,25 +37,25 @@ namespace Smartstore.Utilities
         public double NextDouble()
         {
             var data = new byte[sizeof(uint)];
-            _provider.GetBytes(data);
+            _impl.GetBytes(data);
             var randUint = BitConverter.ToUInt32(data, 0);
             return randUint / (uint.MaxValue + 1.0);
         }
 
         public override void GetBytes(byte[] data)
         {
-            _provider.GetBytes(data);
+            _impl.GetBytes(data);
         }
 
         public override void GetNonZeroBytes(byte[] data)
         {
-            _provider.GetNonZeroBytes(data);
+            _impl.GetNonZeroBytes(data);
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-                _provider.Dispose();
+                _impl.Dispose();
         }
     }
 }
