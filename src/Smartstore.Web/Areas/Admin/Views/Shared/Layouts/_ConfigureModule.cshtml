@@ -7,17 +7,25 @@
 @{
     Layout = "_AdminLayout";
 
-    var controllerType = (ViewContext.ActionDescriptor as ControllerActionDescriptor).ControllerTypeInfo;
-    var module = ModuleCatalog.GetModuleByAssembly(controllerType.Assembly);
+    var module = ViewBag.Module as IModuleDescriptor;
+
     if (module == null)
     {
-        throw new InvalidOperationException($"The controller '{controllerType.FullName}' does not belong to any module.");
+        var controllerType = (ViewContext.ActionDescriptor as ControllerActionDescriptor).ControllerTypeInfo;
+        module = ModuleCatalog.GetModuleByAssembly(controllerType.Assembly);
+        if (module == null)
+        {
+            var message = $"Failed to resolve the module descriptor. The '_ConfigureModule' layout requires an instance of '{nameof(IModuleDescriptor)}' which you can pass via 'ViewBag.Module'. ";
+            message += $"If you don't pass the descriptor, make sure the originating controller is part of a module assembly.";
+            throw new InvalidOperationException(message);
+        }
     }
 
-    // TODO: (core) Determine "BackToList" url by module type
+
     var systemName = module.SystemName;
     var friendlyName = ModuleManager.GetLocalizedFriendlyName(module);
     var iconUrl = Url.Content(ModuleManager.GetIconUrl(module));
+    var returnUrl = Context.GetRouteValueAs("returnUrl", Url.Action("List", "Module"));
 
     ViewBag.Title = T("Admin.Common.Configure").Value + " - " + friendlyName;
 }
@@ -26,7 +34,7 @@
     <div class="title" title="@ViewBag.Title (@systemName)">
         <img src="@iconUrl" alt="@friendlyName" />
         @ViewBag.Title
-        <a href='@Url.Action("List")'>(@T("Admin.Common.BackToList"))</a>
+        <a href='@returnUrl'>(@T("Admin.Common.BackToList"))</a>
     </div>
     <div class="options">
         <zone name="admin_button_toolbar_before" />

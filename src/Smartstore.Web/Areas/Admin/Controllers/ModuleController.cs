@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Smartstore.Admin.Models.Modularity;
 using Smartstore.Admin.Models.Stores;
@@ -126,7 +127,14 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            return RedirectToAction(route.Action, route.Controller, route.RouteValues);
+            var routeValues = route.RouteValues;
+            if (!routeValues.ContainsKey("returnUrl"))
+            {
+                routeValues = new RouteValueDictionary(routeValues);
+                routeValues.Merge("returnUrl", Url.Referrer().EmptyNull(), false);
+            }
+
+            return RedirectToAction(route.Action, route.Controller, routeValues);
         }
 
         [HttpPost]
@@ -300,7 +308,7 @@ namespace Smartstore.Admin.Controllers
         #region Providers
 
         [Permission(Permissions.Configuration.Module.Read)]
-        public async Task<IActionResult> ConfigureProvider(string systemName, string listUrl)
+        public async Task<IActionResult> ConfigureProvider(string systemName)
         {
             var provider = _providerManager.GetProvider(systemName);
             if (provider == null || !provider.Metadata.IsConfigurable)
@@ -322,9 +330,14 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            //ViewBag.ListUrl = listUrl.NullEmpty() ?? infos.Url;
+            var routeValues = route.RouteValues;
+            if (!routeValues.ContainsKey("returnUrl"))
+            {
+                routeValues = new RouteValueDictionary(routeValues);
+                routeValues.Merge("returnUrl", Url.Referrer().EmptyNull(), false);
+            }
 
-            return RedirectToAction(route.Action, route.Controller, route.RouteValues);
+            return RedirectToAction(route.Action, route.Controller, routeValues);
         }
 
         public async Task<ActionResult> EditProviderPopup(string systemName)
@@ -419,7 +432,7 @@ namespace Smartstore.Admin.Controllers
             return StatusCode(200);
         }
 
-        private (string ReadPermission, string UpdatePermission, string Url) GetProviderInfos(Provider<IProvider> provider)
+        private static (string ReadPermission, string UpdatePermission) GetProviderInfos(Provider<IProvider> provider)
         {
             string readPermission = null;
             string updatePermission = null;
@@ -431,25 +444,21 @@ namespace Smartstore.Admin.Controllers
             {
                 readPermission = Permissions.Configuration.PaymentMethod.Read;
                 updatePermission = Permissions.Configuration.PaymentMethod.Update;
-                url = Url.Action("Providers", "Payment");
             }
             else if (metadata.ProviderType == typeof(ITaxProvider))
             {
                 readPermission = Permissions.Configuration.Tax.Read;
                 updatePermission = Permissions.Configuration.Tax.Update;
-                url = Url.Action("Providers", "Tax");
             }
             else if (metadata.ProviderType == typeof(IShippingRateComputationMethod))
             {
                 readPermission = Permissions.Configuration.Shipping.Read;
                 updatePermission = Permissions.Configuration.Shipping.Update;
-                url = Url.Action("Providers", "Shipping");
             }
             else if (metadata.ProviderType == typeof(IWidget))
             {
                 readPermission = Permissions.Cms.Widget.Read;
                 updatePermission = Permissions.Cms.Widget.Update;
-                url = Url.Action("Providers", "Widget");
             }
             // TODO: (mh) (core) Do we still need IExternalAuthenticationMethod provider?
             //else if (metadata.ProviderType == typeof(IExternalAuthenticationMethod))
@@ -459,7 +468,7 @@ namespace Smartstore.Admin.Controllers
             //    url = Url.Action("Providers", "ExternalAuthentication");
             //}
 
-            return (readPermission, updatePermission, url);
+            return (readPermission, updatePermission);
         }
 
         #endregion

@@ -12,7 +12,8 @@ namespace Smartstore.Admin
 
         public static ProviderModel ToProviderModel(
             this ModuleManager manager,
-            Provider<IProvider> provider, bool forEdit = false, 
+            Provider<IProvider> provider, 
+            bool forEdit = false, 
             Action<Provider<IProvider>, ProviderModel> setup = null)
         {
             return ToProviderModel<IProvider, ProviderModel>(manager, provider, forEdit, setup);
@@ -29,22 +30,7 @@ namespace Smartstore.Admin
             Guard.NotNull(provider, nameof(provider));
 
             var metadata = provider.Metadata;
-            var model = new TModel
-            {
-                ProviderType = typeof(TProvider),
-                SystemName = metadata.SystemName,
-                FriendlyName = forEdit ? metadata.FriendlyName : manager.GetLocalizedFriendlyName(metadata),
-                Description = forEdit ? metadata.Description : manager.GetLocalizedDescription(metadata),
-                DisplayOrder = metadata.DisplayOrder,
-                IsEditable = metadata.IsEditable,
-                IconUrl = manager.GetIconUrl(metadata),
-                ModuleDescriptor = metadata.ModuleDescriptor
-            };
-
-            if (model.ModuleDescriptor != null)
-            {
-                model.ProvidingModuleFriendlyName = manager.GetLocalizedFriendlyName(model.ModuleDescriptor);
-            }
+            var model = ToProviderModel<TModel>(manager, metadata, forEdit);
 
             if (metadata.IsConfigurable)
             {
@@ -70,12 +56,38 @@ namespace Smartstore.Admin
                 }
             }
 
-            if (setup != null)
-            {
-                setup(provider, model);
-            }
+            setup?.Invoke(provider, model);
 
             model.IsConfigurable = metadata.IsConfigurable;
+
+            return model;
+        }
+
+        public static ProviderModel ToProviderModel(this ModuleManager manager, ProviderMetadata metadata, bool forEdit = false)
+            => ToProviderModel<ProviderModel>(manager, metadata, forEdit);
+
+        public static TModel ToProviderModel<TModel>(this ModuleManager manager, ProviderMetadata metadata, bool forEdit = false)
+            where TModel : ProviderModel, new()
+        {
+            Guard.NotNull(metadata, nameof(metadata));
+
+            var model = new TModel
+            {
+                ProviderType = metadata.ProviderType,
+                SystemName = metadata.SystemName,
+                FriendlyName = forEdit ? metadata.FriendlyName : manager.GetLocalizedFriendlyName(metadata),
+                Description = forEdit ? metadata.Description : manager.GetLocalizedDescription(metadata),
+                DisplayOrder = metadata.DisplayOrder,
+                IsEditable = metadata.IsEditable,
+                IconUrl = manager.GetIconUrl(metadata),
+                ModuleDescriptor = metadata.ModuleDescriptor,
+                IsConfigurable = metadata.IsConfigurable
+            };
+
+            if (model.ModuleDescriptor != null)
+            {
+                model.ProvidingModuleFriendlyName = manager.GetLocalizedFriendlyName(model.ModuleDescriptor);
+            }
 
             return model;
         }

@@ -214,30 +214,7 @@ namespace Smartstore.Web.Controllers
 
         protected virtual ActionResult RedirectToReferrer(string referrer, Func<ActionResult> fallbackResult)
         {
-            bool skipLocalCheck = false;
-            var requestReferrer = Services.WebHelper.GetUrlReferrer();
-
-            if (referrer.IsEmpty() && requestReferrer != null)
-            {
-                referrer = requestReferrer.OriginalString;
-                var domain1 = requestReferrer.GetLeftPart(UriPartial.Authority);
-                var domain2 = Request.Scheme + Uri.SchemeDelimiter + Request.Host;
-                if (domain1.EqualsNoCase(domain2))
-                {
-                    // Always allow fully qualified urls from local host
-                    skipLocalCheck = true;
-                }
-                else
-                {
-                    referrer = null;
-                }
-            }
-
-            // addressing "Open Redirection Vulnerability" (prevent cross-domain redirects / phishing)
-            if (referrer.HasValue() && !skipLocalCheck && !Url.IsLocalUrl(referrer))
-            {
-                referrer = null;
-            }
+            referrer ??= Url.Referrer();
 
             if (referrer.HasValue())
             {

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Modularity;
 
-namespace Smartstore.Admin.Extensions
+namespace Smartstore.Admin
 {
     public static class HtmlHelperExtensions
     {
