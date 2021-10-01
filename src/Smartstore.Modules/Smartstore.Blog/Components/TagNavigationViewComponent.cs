@@ -15,16 +15,18 @@ namespace Smartstore.Blog.Components
     public class TagNavigationViewComponent : SmartViewComponent
     {
         private readonly IBlogService _blogService;
-        
-        public TagNavigationViewComponent(IBlogService blogService)
+        private readonly BlogSettings _blogSettings;
+
+        public TagNavigationViewComponent(IBlogService blogService, BlogSettings blogSettings)
         {
             _blogService = blogService;
+            // INFO: (mh) (core) Why making things complicated and reinventing the wheel?! Also: if you don't have to, please don't resolve services from ICommonServices via .Resolve() or .SettingFactory.Load...
+            _blogSettings = blogSettings;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
-            var _blogSettings = Services.SettingFactory.LoadSettings<BlogSettings>(storeId);
 
             if (!_blogSettings.Enabled)
             {

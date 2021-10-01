@@ -17,6 +17,7 @@ namespace Smartstore.News.Components
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
+            // TODO: (mh) (core) Please read comment in TagNavigationViewComponent.
             var settings = Services.SettingFactory.LoadSettings<NewsSettings>(storeId);
 
             if (!settings.Enabled || !settings.ShowNewsOnMainPage)

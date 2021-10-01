@@ -30,19 +30,13 @@ namespace Smartstore.Blog.Domain
         public bool Equals(BlogPostTag other)
             => string.Equals(Name, other?.Name, StringComparison.OrdinalIgnoreCase);
 
-        public string GetDisplayNameMemberName()
-        {
-            return nameof(Name);
-        }
+        string IDisplayedEntity.GetDisplayNameMemberName()
+            => nameof(Name);
 
-        public string GetDisplayName()
-        {
-            return Name;
-        }
+        string IDisplayedEntity.GetDisplayName()
+            => Name;
 
-        public string GetEntityName()
-        {
-            return nameof(BlogPostTag);
-        }
+        string INamedEntity.GetEntityName()
+            => nameof(BlogPostTag);
     }
 }
