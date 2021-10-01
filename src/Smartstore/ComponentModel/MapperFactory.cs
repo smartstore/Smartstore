@@ -9,6 +9,17 @@ using Smartstore.Engine;
 
 namespace Smartstore.ComponentModel
 {
+    /// <summary>
+    /// A static factory that can create type mapper instances (<see cref="IMapper{TFrom, TTo}"/>).
+    /// To resolve a mapper instance, use <see cref="GetMapper{TFrom, TTo}"/>. To map object instances,
+    /// call one of the <c>Map*() methods</c> (the corresponding mapper is resolved internally in this case).
+    /// </summary>
+    /// <remarks>
+    /// <see cref="MapperFactory"/> automatically scans for all concrete <see cref="IMapper{TFrom, TTo}"/> classes 
+    /// in all loaded assemblies upon initialization. A mapper is DI-enabled and therefore can depend on any registered service.
+    /// If no mapper is found for a specific mapping operation, then a generic mapper is used
+    /// which internally delegates object mapping to <see cref="MiniMapper"/>.
+    /// </remarks>
     public static class MapperFactory
     {
         private static IDictionary<TypePair, Type> _mapperTypes = null;
@@ -59,6 +70,12 @@ namespace Smartstore.ComponentModel
             }
         }
 
+        /// <summary>
+        /// Maps instance of <typeparamref name="TFrom"/> to instance of <typeparamref name="TTo"/>.
+        /// </summary>
+        /// <param name="from">Source instance</param>
+        /// <param name="parameters">Custom parameters for the underlying mapper.</param>
+        /// <returns>The mapped target instance.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async static Task<TTo> MapAsync<TFrom, TTo>(TFrom from, dynamic parameters = null)
             where TFrom : class
@@ -71,6 +88,12 @@ namespace Smartstore.ComponentModel
             return to;
         }
 
+        /// <summary>
+        /// Maps instance of <typeparamref name="TFrom"/> to <typeparamref name="TTo"/>.
+        /// </summary>
+        /// <param name="from">Source instance</param>
+        /// <param name="to">Target instance</param>
+        /// <param name="parameters">Custom parameters for the underlying mapper.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task MapAsync<TFrom, TTo>(TFrom from, TTo to, dynamic parameters = null)
             where TFrom : class
@@ -99,6 +122,10 @@ namespace Smartstore.ComponentModel
             return IMapperExtensions.MapListAsync(GetMapper<TFrom, TTo>(), from, parameters);
         }
 
+        /// <summary>
+        /// Gets a mapper implementation for <typeparamref name="TFrom"/> as source and <typeparamref name="TTo"/> as target.
+        /// </summary>
+        /// <returns>The mapper implementation or a generic mapper if not found.</returns>
         public static IMapper<TFrom, TTo> GetMapper<TFrom, TTo>()
             where TFrom : class
             where TTo : class

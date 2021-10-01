@@ -8,7 +8,7 @@ namespace Smartstore.ComponentModel
 {
     /// <summary>
     /// A very simple object mapper utility which tries to map properties of the same name between two objects.
-    /// If matched properties has different types, the mapper tries to convert them.
+    /// If matched properties have different types, the mapper tries to convert them.
     /// If conversion fails, the property is skipped (no exception is thrown).
     /// MiniMapper cannot handle sequence and predefined types.
     /// </summary>
