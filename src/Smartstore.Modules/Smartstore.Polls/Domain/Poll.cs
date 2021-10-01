@@ -27,7 +27,6 @@ namespace Smartstore.Polls.Domain
     /// Represents a poll.
     /// </summary>
     [Table("Poll")] // Enables EF TPT inheritance
-    // TODO: (mh) (core) Indexes are missing (entity model does not match migration). Please check THOROUGHLY in Blog and News modules also!
     [Index(nameof(Name), Name = "IX_Title")]
     [Index(nameof(SystemKeyword), Name = "IX_SystemKeyword")]
     public partial class Poll : BaseEntity, IStoreRestricted
@@ -50,7 +49,6 @@ namespace Smartstore.Polls.Domain
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
-        // TODO: (mh) (core) Annotations are missing (entity model does not match migration). Please check THOROUGHLY in Blog and News modules also!
         [StringLength(450), Required]
         public string Name { get; set; }
 

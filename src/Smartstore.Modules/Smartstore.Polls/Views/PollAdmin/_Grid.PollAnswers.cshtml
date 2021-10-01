@@ -5,9 +5,9 @@
           allow-column-reordering="true"
           allow-row-selection="true"
           allow-edit="true">
-    <datasource read="@Url.Action("PollAnswerList", new { pollId = ViewData["PollId"] })" 
+    <datasource read="@Url.Action("PollAnswerList", "Poll", new { pollId = ViewData["PollId"] })" 
                 update="@Url.Action("PollAnswerUpdate")"
-                insert="@Url.Action("PollAnswerInsert", new { pollId = ViewData["PollId"] })"
+                insert="@Url.Action("PollAnswerInsert", "Poll", new { pollId = ViewData["PollId"] })"
                 delete="@Url.Action("PollAnswerDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">

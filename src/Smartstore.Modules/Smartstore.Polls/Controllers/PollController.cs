@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Web;
-using Smartstore.Core.Widgets;
 using Smartstore.Polls.Domain;
 using Smartstore.Polls.Extensions;
 using Smartstore.Polls.Models.Mappers;
@@ -67,12 +66,10 @@ namespace Smartstore.Polls.Controllers
             }
 
             var model = await poll.MapAsync(new { SetAlreadyVotedProperty = true });
-            var widget = new ComponentWidgetInvoker("Poll", new { model });
-
+            
             return Json(new
             {
-                // TODO: (mh) (core) A partial view should be invoked here.
-                html = await InvokeWidgetAsync(widget)
+                html = await InvokePartialViewAsync("Poll", model)
             });
         }
     }

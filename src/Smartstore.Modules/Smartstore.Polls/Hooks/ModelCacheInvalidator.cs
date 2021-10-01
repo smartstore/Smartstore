@@ -2,12 +2,13 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Caching;
+using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Polls.Domain;
 
 namespace Smartstore.Polls.Hooks
 {
-    internal partial class ModelCacheInvalidator : IDbSaveHook
+    internal partial class ModelCacheInvalidator : AsyncDbSaveHook<Poll>
     {
         /// <summary>
         /// Key for home page polls
@@ -21,11 +22,12 @@ namespace Smartstore.Polls.Hooks
         /// Key for polls by system name
         /// </summary>
         /// <remarks>
-        /// {0} : poll system name
-        /// {1} : language ID
-        /// {2} : current store ID
+        /// {0} : poll id
+        /// {1} : poll system name
+        /// {2} : language ID
+        /// {3} : current store ID
         /// </remarks>
-        public const string POLL_BY_SYSTEMNAME_MODEL_KEY = "pres:poll:systemname-{0}-{1}-{2}";
+        public const string POLL_BY_SYSTEMNAME_MODEL_KEY = "pres:poll:systemname-{0}-{1}-{2}-{3}";
         public const string POLLS_PATTERN_KEY = "pres:poll:*";
 
         private readonly ICacheManager _cache;
@@ -35,31 +37,12 @@ namespace Smartstore.Polls.Hooks
             _cache = cache;
         }
 
-        public Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Void);
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
 
-        public async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            var entity = entry.Entity;
-            var result = HookResult.Ok;
-
-            if (entity is Poll)
-            {
-                await _cache.RemoveByPatternAsync(POLLS_PATTERN_KEY);
-            }
-            else
-            {
-                // Register as void hook for all other entity type/state combis
-                result = HookResult.Void;
-            }
-
-            return result;
+            await _cache.RemoveByPatternAsync(POLLS_PATTERN_KEY);
         }
-
-        public Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-            => Task.CompletedTask;
-
-        public Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-            => Task.CompletedTask;
     }
 }

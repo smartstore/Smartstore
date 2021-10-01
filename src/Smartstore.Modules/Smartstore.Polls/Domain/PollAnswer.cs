@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,7 @@ namespace Smartstore.Polls.Domain
         /// <summary>
         /// Gets or sets the poll answer name.
         /// </summary>
+        [StringLength(450)]
         public string Name { get; set; }
 
         /// <summary>

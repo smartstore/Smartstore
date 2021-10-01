@@ -1,5 +1,3 @@
-﻿@using Smartstore.Polls.Models.Public;
+﻿@model PublicPollModel
 
-@model PublicPollModel
-
-@await Component.InvokeAsync("Poll", new { model = Model })
+<partial name="Poll" model="Model" />

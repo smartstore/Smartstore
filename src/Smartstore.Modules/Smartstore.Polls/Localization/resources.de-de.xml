@@ -2,4 +2,13 @@
   <LocaleResource Name="Plugins.FriendlyName.Smartstore.Polls" AppendRootKey="false">
     <Value>Umfragen</Value>
   </LocaleResource>
+  <LocaleResource Name="Systemname.MyAccountMenu">
+    <Value>Unter Kundenkonto-Navigation</Value>
+  </LocaleResource>
+  <LocaleResource Name="Systemname.Blog">
+    <Value>Unter Blog-Navigation</Value>
+  </LocaleResource>
+  <LocaleResource Name="NoDuplicatesAllowed">
+    <Value>Diese Antwort wurde der Umfrage bereits zugeordnet.</Value>
+  </LocaleResource>
 </Language>

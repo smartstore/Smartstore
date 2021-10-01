@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -66,6 +67,12 @@ namespace Smartstore.Polls.Controllers
             {
                 ViewBag.PollId = poll.Id;
             }
+
+            ViewBag.AvailableSystemKeywords = new List<SelectListItem>
+            {
+                new SelectListItem { Text = T("Plugins.CMS.Polls.Systemname.MyAccountMenu"), Value = "MyAccountMenu" },
+                new SelectListItem { Text = T("Plugins.CMS.Polls.Systemname.Blog"), Value = "Blog" }
+            };
         }
         
         #region Polls
@@ -251,8 +258,9 @@ namespace Smartstore.Polls.Controllers
         #region Poll answer
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]                        // INFO (mh) (core): Strange! This grid is selectable and worked until a fresh install.
         [Permission(PollPermissions.Read)]
-        public async Task<IActionResult> PollAnswerList(int pollId, GridCommand command)
+        public async Task<IActionResult> PollAnswerList(int? pollId, GridCommand command)
         {
             var answers = await _db.PollAnswers()
                 .AsNoTracking()
@@ -302,7 +310,6 @@ namespace Smartstore.Polls.Controllers
             }
             else
             {
-                // TODO: (mh) (core) Add resource
                 NotifyError(T("Admin.CMS.Polls.NoDuplicatesAllowed"));
             }
 
@@ -357,14 +364,16 @@ namespace Smartstore.Polls.Controllers
         #region Voting records
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]                        // INFO (mh) (core): Strange! This grid is selectable and worked until a fresh install.
         [Permission(PollPermissions.Read)]
         public async Task<IActionResult> PollVotesList(int pollId, GridCommand command)
         {
-            var votings = await _db.PollVotingRecords()
-                .AsNoTracking()
-                .Include(x => x.Customer)
+            var votings = await _db.CustomerContent
+                //.AsNoTracking()                       // INFO (mh) (core): Very weird problem. With AsNoTracking Customers won't be loaded :-/
+                .AsQueryable()
+                .OfType<PollVotingRecord>()
                 .ApplyPollFilter(pollId)
-                //.Where(x => x.PollAnswer.Poll.Id == pollId)           // TODO: (mh) (core) Test and maybe throw away filter.
+                .Include(x => x.Customer)
                 .ToPagedList(command.Page - 1, command.PageSize)
                 .LoadAsync();
 

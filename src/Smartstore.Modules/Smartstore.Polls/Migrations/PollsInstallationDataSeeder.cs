@@ -27,14 +27,14 @@ namespace Smartstore.Polls.Migrations
 
         protected override async Task SeedCoreAsync()
         {
-            await TryActivateWidgetAsync();
-
             if (_installContext.SeedSampleData == null || _installContext.SeedSampleData == true)
             {
                 var polls = GetSamplePolls();
                 await PopulateAsync("PopulatePolls", polls);
                 await PopulateAsync("PopulatePollAnswers", GetSamplePollAnswers(polls));
             }
+
+            await TryActivateWidgetAsync();
         }
 
         private async Task TryActivateWidgetAsync()
@@ -42,8 +42,8 @@ namespace Smartstore.Polls.Migrations
             var hasActivePolls = await Context.Polls().Where(x => x.Published == true).AnyAsync();
             if (hasActivePolls)
             {
-                // Activate the news homepage widget
-                await _widgetService.ActivateWidgetAsync("Smartstore.News", true);
+                // Activate the polls homepage widget.
+                await _widgetService.ActivateWidgetAsync("Smartstore.Polls", true);
             }
         }
 
@@ -57,14 +57,16 @@ namespace Smartstore.Polls.Migrations
                     Name = _deSeedData ? "Wie gefällt Ihnen der Shop?" : "How do you like the shop?",
                     SystemKeyword = "Blog",
                     Published = true,
+                    ShowOnHomePage = true,
                     DisplayOrder = 10
                 },
                 new Poll
                 {
                     LanguageId = 1,
                     Name = _deSeedData ? "Wie oft kaufen Sie Online ein?" : "Packaging & Shipping",
-                    SystemKeyword = "Blog",
+                    SystemKeyword = "MyAccountMenu",
                     Published = true,
+                    ShowOnHomePage = true,
                     DisplayOrder = 20
                 }
             };

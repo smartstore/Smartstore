@@ -29,7 +29,7 @@
                     <smart-label asp-for="SystemKeyword" />
                 </div>
                 <div class="adminData">
-                    <input asp-for="SystemKeyword" />
+                    <select asp-for="SystemKeyword" asp-items="ViewBag.AvailableSystemKeywords" asp-placeholder="@T("Common.Unspecified")"></select>
                     <span asp-validation-for="SystemKeyword"></span>
                 </div>
             </div>

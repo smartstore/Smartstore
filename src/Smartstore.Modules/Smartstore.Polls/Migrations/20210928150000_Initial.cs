@@ -35,7 +35,6 @@ namespace Smartstore.Polls.Migrations
                     .WithColumn(nameof(Poll.EndDateUtc)).AsDateTime2().Nullable()
                     .WithColumn(nameof(Poll.LimitedToStores)).AsBoolean().NotNullable()
                     .WithColumn(nameof(Poll.LanguageId)).AsInt32().NotNullable()
-                        // TODO: (mh) (core) Indexes are missing (FluentMigrator does NOT auto-create indexes for FK fields like EF does). Please check THOROUGHLY in Blog and News modules also!
                         .Indexed("IX_LanguageId")
                         .ForeignKey(nameof(Language), id).OnDelete(Rule.None);
             }
