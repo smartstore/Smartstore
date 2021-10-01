@@ -1,35 +1,31 @@
 ﻿@model PublicForumGroupModel
 
 @{ 
-    // TODO: (mg) (core) Haven't checked in classic yet, but the forum main page looks really ugly. Issues that MUST be fixed:
-    // - The forum table columns should have fixed widths across tables
-    // - Link colors for headers/titles etc. should not be the default link color, but $body-color.
-
     var lastPostViewData = new ViewDataDictionary(ViewData) { { "ShowTopic", true } };
 }
 
 <div class="forum-group table-responsive">
     <div class="group-title">
         <h1 class="fs-h3" sm-language-attributes-for="Model.Name">
-            <a asp-route="ForumGroupBySlug" asp-route-id="@Model.Id" asp-route-slug="@Model.Slug">
+            <a asp-route="ForumGroupBySlug" asp-route-id="@Model.Id" asp-route-slug="@Model.Slug" class="forum-table-link">
                 @Model.Name.Value
             </a>
         </h1>
     </div>
-    <table class="table">
+    <table sm-if="Model.Forums.Any()" class="table forum-table">
         <thead>
             <tr class="group-header">
                 <th></th>
                 <th class="forum-name">
                     @T("Forum.Forum")
                 </th>
-                <th class="topics d-none d-md-table-cell text-center">
+                <th class="topics">
                     @T("Forum.Topics")
                 </th>
-                <th class="posts d-none d-md-table-cell text-center">
+                <th class="posts">
                     @T("Forum.Posts")
                 </th>
-                <th class="last-post d-none d-md-table-cell">
+                <th class="last-post">
                     @T("Forum.LatestPost")
                 </th>
             </tr>
@@ -42,7 +38,7 @@
                 </td>
                 <td class="forum-name">
                     <div class="forum-title">
-                        <a asp-route="ForumBySlug" asp-route-id="@forum.Id" asp-route-slug="@forum.Slug">
+                        <a asp-route="ForumBySlug" asp-route-id="@forum.Id" asp-route-slug="@forum.Slug" class="forum-table-link">
                             @forum.Name
                         </a>
                     </div>
@@ -50,13 +46,13 @@
                         @forum.Description
                     </div>
                 </td>
-                <td class="topics d-none d-md-table-cell text-center">
+                <td class="topics">
                     @forum.NumTopics.ToString("N0")
                 </td>
-                <td class="posts d-none d-md-table-cell text-center">
+                <td class="posts">
                     @forum.NumPosts.ToString("N0")
                 </td>
-                <td class="last-post d-none d-md-table-cell">
+                <td class="last-post">
                     <partial name="_LastPost" model="forum.LastPost" view-data="lastPostViewData" />
                 </td>
             </tr>

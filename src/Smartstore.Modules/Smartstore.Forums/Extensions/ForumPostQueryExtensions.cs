@@ -215,6 +215,28 @@ namespace Smartstore.Forums
             return new Dictionary<int, int>();
         }
 
+        public static async Task<Dictionary<int, int>> GetForumPostCountsByForumIdsAsync(this DbSet<ForumPost> forumPosts,
+            int[] forumIds,
+            CancellationToken cancelToken = default)
+        {
+            if (forumIds?.Any() ?? false)
+            {
+                var numPostsQuery =
+                    from fp in forumPosts
+                    where forumIds.Contains(fp.ForumTopic.ForumId) && fp.Published && fp.ForumTopic.Published
+                    group fp by fp.ForumTopic.ForumId into grp
+                    select new
+                    {
+                        ForumId = grp.Key,
+                        NumPosts = grp.Count()
+                    };
+
+                return await numPostsQuery.ToDictionaryAsync(x => x.ForumId, x => x.NumPosts, cancelToken);
+            }
+
+            return new Dictionary<int, int>();
+        }
+
         public static async Task<int> ApplyStatisticsAsync(this DbSet<ForumPost> forumPosts, 
             int[] forumTopicIds,
             CancellationToken cancelToken = default)

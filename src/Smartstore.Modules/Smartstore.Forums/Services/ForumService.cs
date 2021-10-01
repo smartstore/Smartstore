@@ -11,7 +11,6 @@ using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -27,15 +26,18 @@ namespace Smartstore.Forums.Services
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
+        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly ForumSettings _forumSettings;
 
         public ForumService(
             SmartDbContext db,
             ICommonServices services,
+            Lazy<IUrlHelper> urlHelper,
             ForumSettings forumSettings)
         {
             _db = db;
             _services = services;
+            _urlHelper = urlHelper;
             _forumSettings = forumSettings;
         }
 
@@ -191,73 +193,6 @@ namespace Smartstore.Forums.Services
             return permits;
         }
 
-        // TODO: (mg) (core) Hook and hook and hook.
-        //public virtual async Task ApplyForumStatisticsAsync(Forum forum)
-        //{
-        //    if (forum == null)
-        //    {
-        //        return;
-        //    }
-
-        //    var query = 
-        //        from ft in _db.ForumTopics()
-        //        join fp in _db.ForumPosts() on ft.Id equals fp.TopicId
-        //        where ft.ForumId == forum.Id && ft.Published && fp.Published
-        //        orderby fp.CreatedOnUtc descending, ft.CreatedOnUtc descending
-        //        select new
-        //        {
-        //            LastTopicId = ft.Id,
-        //            LastPostId = fp.Id,
-        //            LastPostCustomerId = fp.CustomerId,
-        //            LastPostTime = fp.CreatedOnUtc
-        //        };
-
-        //    var lastValues = await query.FirstOrDefaultAsync();
-
-        //    forum.LastTopicId = lastValues?.LastTopicId ?? 0;
-        //    forum.LastPostId = lastValues?.LastPostId ?? 0;
-        //    forum.LastPostCustomerId = lastValues?.LastPostCustomerId ?? 0;
-        //    forum.LastPostTime = lastValues?.LastPostTime;
-
-        //    forum.NumTopics = await _db.ForumTopics().CountAsync(x => x.ForumId == forum.Id && x.Published);
-
-        //    var numPostsQuery =
-        //        from ft in _db.ForumTopics()
-        //        join fp in _db.ForumPosts() on ft.Id equals fp.TopicId
-        //        where ft.ForumId == forum.Id && ft.Published && fp.Published
-        //        select fp.Id;
-
-        //    forum.NumPosts = await numPostsQuery.CountAsync();
-        //}
-
-        //public virtual async Task ApplyTopicStatisticsAsync(ForumTopic topic)
-        //{
-        //    if (topic == null)
-        //    {
-        //        return;
-        //    }
-
-        //    var lastValues = await _db.ForumPosts()
-        //        .Where(x => x.TopicId == topic.Id && x.Published)
-        //        .OrderByDescending(x => x.CreatedOnUtc)
-        //        .Select(x => new
-        //        {
-        //            LastPostId = x.Id,
-        //            LastPostCustomerId = x.CustomerId,
-        //            LastPostTime = x.CreatedOnUtc
-        //        })
-        //        .FirstOrDefaultAsync();
-
-        //    topic.LastPostId = lastValues?.LastPostId ?? 0;
-        //    topic.LastPostCustomerId = lastValues?.LastPostCustomerId ?? 0;
-        //    topic.LastPostTime = lastValues?.LastPostTime;
-
-        //    topic.NumPosts = topic.Published
-        //        ? await _db.ForumPosts().CountAsync(x => x.TopicId == topic.Id && x.Published)
-        //        : 0;
-        //}
-
-
         public XmlSitemapProvider PublishXmlSitemap(XmlSitemapBuildContext context)
         {
             if (!context.LoadSettings<SeoSettings>().XmlSitemapIncludesForum || !context.LoadSettings<ForumSettings>().ForumsEnabled)
@@ -265,8 +200,7 @@ namespace Smartstore.Forums.Services
                 return null;
             }
 
-            // TODO: (mg) (core) Shouldn't ForumXmlSitemapResult be returned here?
-            return null;
+            return new ForumXmlSitemapResult(context, _db, _services.WorkContext, this, _urlHelper.Value);
         }
 
         class ForumXmlSitemapResult : XmlSitemapProvider

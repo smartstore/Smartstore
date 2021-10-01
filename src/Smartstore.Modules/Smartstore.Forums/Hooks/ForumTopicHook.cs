@@ -21,16 +21,14 @@ namespace Smartstore.Forums.Hooks
             _genericAttributeService = genericAttributeService;
         }
 
-        protected override Task<HookResult> OnUpdatedAsync(ForumTopic entity, IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Ok);
-
-        protected override Task<HookResult> OnDeletedAsync(ForumTopic entity, IHookedEntity entry, CancellationToken cancelToken)
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
             // Update "ForumPostCount" generic attribute.
             var customerIds = entries
+                .Where(x => x.InitialState == Data.EntityState.Modified || x.InitialState == Data.EntityState.Deleted)
                 .Select(x => x.Entity)
                 .OfType<ForumTopic>()
                 .Select(x => x.CustomerId)
@@ -56,7 +54,7 @@ namespace Smartstore.Forums.Hooks
             }
 
             // Update topic statistics.
-            var topicIds = entries
+            var modifiedTopicIds = entries
                 .Where(x => x.InitialState == Data.EntityState.Modified)
                 .Select(x => x.Entity)
                 .OfType<ForumTopic>()
@@ -64,7 +62,20 @@ namespace Smartstore.Forums.Hooks
                 .Distinct()
                 .ToArray();
 
-            if (await _db.ForumPosts().ApplyStatisticsAsync(topicIds, cancelToken) > 0)
+            if (await _db.ForumPosts().ApplyStatisticsAsync(modifiedTopicIds, cancelToken) > 0)
+            {
+                await _db.SaveChangesAsync(cancelToken);
+            }
+
+            // Update forum statistics.
+            var forumIds = entries
+                .Select(x => x.Entity)
+                .OfType<ForumTopic>()
+                .Select(x => x.ForumId)
+                .Distinct()
+                .ToArray();
+
+            if (await _db.Forums().ApplyStatisticsAsync(forumIds, cancelToken) > 0)
             {
                 await _db.SaveChangesAsync(cancelToken);
             }

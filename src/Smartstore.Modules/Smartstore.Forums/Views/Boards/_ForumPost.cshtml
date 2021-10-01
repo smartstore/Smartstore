@@ -14,7 +14,7 @@
         <div sm-if="Model.CustomerId > 0">
             @if (Model.HasCustomerProfile)
             {
-                <a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" class="username">
+                <a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" class="username forum-table-link">
                     @Model.CustomerName.NaIfEmpty()
                 </a>
             }
@@ -27,22 +27,22 @@
             @if (Model.CanEditPost)
             {
                 <i class="far fa-edit"></i>
-                <a asp-action="PostEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="edit-post-link-button">@T("Forum.EditPost")</a>
+                <a asp-action="PostEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="edit-post-link-button forum-table-link">@T("Forum.EditPost")</a>
             }
             @if (Model.CanDeletePost)
             {
                 <form method="post" asp-action="PostDelete" asp-controller="Boards">
                     <input type="hidden" asp-for="Id" />
                     <i class="fa fa-times"></i>
-                    <a href="#" class="delete-post-link-button">@T("Forum.DeletePost")</a>
+                    <a href="#" class="delete-post-link-button forum-table-link">@T("Forum.DeletePost")</a>
                 </form>
             }
-            <a href="@(Url.RouteUrl(postLinkRouteName, postLinkRouteValues))#@Model.Id" class="post-link" title="@T("Forum.PostLinkTitle")">#@Model.Id</a>
+            <a href="@(Url.RouteUrl(postLinkRouteName, postLinkRouteValues))#@Model.Id" class="post-link forum-table-link" title="@T("Forum.PostLinkTitle")">#@Model.Id</a>
         </div>
 	</div>
 
     <div class="block-body card-body row" attr-class='(!Model.Published, "disabled")'>
-        <div class="post-info col-2 d-none d-sm-block">
+        <div class="post-info col-2 d-sm-block">
             <div class="user-info mt-3 text-center">
                 <div class="avatar">
                     <partial name="Customer.Avatar" model="Model.Avatar" />
@@ -101,7 +101,7 @@
 
     <div class="text-right">
         <div class="functions">
-            <a href="#" class="btn btn-link btn-sm font-weight-600">
+            <a href="#" class="btn btn-link btn-sm font-weight-600 forum-table-link">
                 @T("Forum.Top")
             </a>
             <a asp-route="ForumPostCreate" asp-route-id="@Model.ForumTopicId" asp-route-quote="@Model.Id" class="btn btn-outline-info btn-flat btn-sm">

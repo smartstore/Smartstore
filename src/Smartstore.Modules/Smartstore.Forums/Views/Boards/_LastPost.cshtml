@@ -9,7 +9,7 @@
     <div sm-if="showTopic">
 		<div class="d-inline-flex">
 			<span>@T("Forum.In"):&nbsp;</span>
-			<a asp-route="ForumTopicBySlug" asp-route-id="@Model.ForumTopicId" asp-route-slug="@Model.ForumTopicSlug" title="@Model.ForumTopicSubject">
+			<a asp-route="ForumTopicBySlug" asp-route-id="@Model.ForumTopicId" asp-route-slug="@Model.ForumTopicSlug" title="@Model.ForumTopicSubject" class="forum-table-link">
 				@Model.ForumTopicSubject.Truncate(24, "…")
 			</a>
 		</div>
@@ -19,7 +19,7 @@
 			<span class="pr-1">@T("Forum.By"):</span>
 			@if (Model.HasCustomerProfile)
 			{
-				<a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId">
+				<a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" class="forum-table-link">
 					@Model.CustomerName.NaIfEmpty()
 				</a>
 			}

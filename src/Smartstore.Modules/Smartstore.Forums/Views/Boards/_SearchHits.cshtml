@@ -45,7 +45,7 @@
                             <span>
                                 @if (topic.HasCustomerProfile)
                                 {
-                                    <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId">@topic.CustomerName.NaIfEmpty()</a>
+                                    <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId" class="forum-table-link">@topic.CustomerName.NaIfEmpty()</a>
                                 }
                                 else
                                 {

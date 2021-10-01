@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -30,32 +31,59 @@ namespace Smartstore.Forums
         }
 
 
-        //public static async Task<int> ApplyStatisticsAsync(this DbSet<Forum> forums,
-        //    int[] forumTopicIds,
-        //    CancellationToken cancelToken = default)
-        //{
-        //    if (forumTopicIds.Any())
-        //    {
-        //        var db = forums.GetDbContext<SmartDbContext>();
+        public static async Task<int> ApplyStatisticsAsync(this DbSet<Forum> forums,
+            int[] forumIds,
+            CancellationToken cancelToken = default)
+        {
+            if (forumIds.Any())
+            {
+                var db = forums.GetDbContext<SmartDbContext>();
+                var postsSet = db.ForumPosts();
+                var topicsSet = db.ForumTopics();
 
-        //        var query = (
-        //            from ft in db.ForumTopics()
-        //            join fp in db.ForumPosts() on ft.Id equals fp.TopicId
-        //            where forumTopicIds.Contains(ft.Id) && ft.Published && fp.Published
-        //            orderby fp.CreatedOnUtc descending, ft.CreatedOnUtc descending
-        //            select ft.ForumId)
-        //            .Distinct()
-        //            .SelectMany(key => db.ForumPosts()
-        //                .Include(x => x.ForumTopic)
-        //                .ThenInclude(x => x.Forum)
-        //                .Where(x => x.ForumTopic.ForumId == key)
-        //                .OrderByDescending(x => x.CreatedOnUtc)
-        //                .Take(1));
+                var lastPostsQuery = (
+                    from ft in topicsSet
+                    join fp in postsSet on ft.Id equals fp.TopicId
+                    where forumIds.Contains(ft.ForumId) && ft.Published && fp.Published
+                    orderby fp.CreatedOnUtc descending, ft.CreatedOnUtc descending
+                    select ft.ForumId)
+                    .Distinct()
+                    .SelectMany(key => postsSet
+                        .Include(x => x.ForumTopic)
+                        .ThenInclude(x => x.Forum)
+                        .Where(x => x.ForumTopic.ForumId == key)
+                        .OrderByDescending(x => x.CreatedOnUtc)
+                        .Take(1));
 
+                var lastPosts = await lastPostsQuery.ToListAsync(cancelToken);
+                if (lastPosts.Any())
+                {
+                    var numTopicsByForum = await topicsSet.GetForumTopicCountsByForumIdsAsync(forumIds, cancelToken);
+                    var numPostsByForum = await postsSet.GetForumPostCountsByForumIdsAsync(forumIds, cancelToken);
 
-        //    }
+                    foreach (var lastPost in lastPosts)
+                    {
+                        var forum = lastPost.ForumTopic.Forum;
 
-        //    return 0;
-        //}
+                        forum.LastTopicId = lastPost.TopicId;
+                        forum.LastPostId = lastPost.Id;
+                        forum.LastPostCustomerId = lastPost.CustomerId;
+                        forum.LastPostTime = lastPost.CreatedOnUtc;
+
+                        forum.NumTopics = numTopicsByForum.TryGetValue(forum.Id, out var numTopics)
+                            ? numTopics
+                            : 0;
+
+                        forum.NumPosts = numPostsByForum.TryGetValue(forum.Id, out var numPosts)
+                            ? numPosts
+                            : 0;
+                    }
+
+                    return lastPosts.Count;
+                }
+            }
+
+            return 0;
+        }
     }
 }

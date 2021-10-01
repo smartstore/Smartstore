@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core;
@@ -99,6 +102,29 @@ namespace Smartstore.Forums
                 .Include(x => x.Customer)
                 .ThenInclude(x => x.CustomerRoleMappings)
                 .ThenInclude(x => x.CustomerRole);
+        }
+
+
+        public static async Task<Dictionary<int, int>> GetForumTopicCountsByForumIdsAsync(this DbSet<ForumTopic> forumTopics,
+            int[] forumIds,
+            CancellationToken cancelToken = default)
+        {
+            if (forumIds?.Any() ?? false)
+            {
+                var numTopicsQuery =
+                    from ft in forumTopics
+                    where forumIds.Contains(ft.ForumId) && ft.Published
+                    group ft by ft.ForumId into grp
+                    select new
+                    {
+                        ForumId = grp.Key,
+                        NumTopics = grp.Count()
+                    };
+
+                return await numTopicsQuery.ToDictionaryAsync(x => x.ForumId, x => x.NumTopics, cancelToken);
+            }
+
+            return new Dictionary<int, int>();
         }
     }
 }

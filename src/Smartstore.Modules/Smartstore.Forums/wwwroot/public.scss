@@ -1,87 +1,55 @@
 ﻿/// <reference path="../../../Smartstore.Web/Themes/Flex/wwwroot/theme.scss" />
 
-// Forum Styles
-// --------------------------------------------------
-
-$forum-unobstrusive-link-color: #646464;
-
-// Forum Inputs
-// -----------------------------------------
-
-.forum-post-text,
-.bb-editor-text {
-    height: 300px;
-}
-
 // Forum Main
 // -----------------------------------------
 
-.forum-group .forum .image,
-.active-discussionstopics .image,
-.topics-group .image {
-    vertical-align: top;
-    text-align: center;
+.forum-table {
+    th {
+        white-space: nowrap;
+    }
 
-    i {
+    .replies,
+    .views,
+    .topics,
+    .posts {
+        text-align: center;
+        width: 10%;
+    }
+
+    .image {
+        width: 5%;
+    }
+
+    .image i {
         font-size: 2rem;
     }
-}
 
-.active-discussionstopics .topic-starter,
-.topics-group .topic-starter {
-    font-size: $font-size-sm;
+    .forum-name,
+    .topic-name {
+        width: 50%;
+    }
 
-    a {
-        color: $forum-unobstrusive-link-color
+    .last-post,
+    .topic-starter {
+        font-size: $font-size-sm;
+    }
+
+    .forum-title,
+    .topic-title {
+        font-weight: $font-weight-bold;
+    }
+
+    .disabled {
+        opacity: .5;
     }
 }
 
-.forum-group .forum .topics,
-.forum-group .forum .posts,
-.active-discussionstopics .replies,
-.active-discussionstopics .views,
-.topics-group .replies,
-.topics-group .views {
-    text-align: center;
+.forum-table-link {
+    color: $body-color;
 }
-
-.active-discussionstopics .topic-name,
-.topics-group .topic-name {
-    width: 100%;
-}
-
-.forums-main .group-header .last-post,
-.active-discussions-header .last-post,
-.topics-group .last-post {
-    min-width: 200px;
-}
-
-.forum-group .last-post,
-.topics-group .last-post,
-.active-discussionstopics .last-post {
-    font-size: $font-size-sm;
-}
-
-.forum-group .forum-title a,
-.active-discussionstopics .topic-title,
-.topics-group .topic-title {
-    font-weight: $font-weight-bold;
-}
-
-.forums-main .group-header th,
-.active-discussions-header th,
-.topics-group th {
-    white-space: nowrap;
-}
-
-.topics-group .topic.disabled {
-    opacity: .5;
-}
-
 
 // Forum Topic
 // -----------------------------------------
-
 .forum-topic {
     .post-info {
         .user-info .button-pm {

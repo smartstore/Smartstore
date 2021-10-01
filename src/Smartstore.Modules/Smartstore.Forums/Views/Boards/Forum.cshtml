@@ -55,21 +55,21 @@
         </div>
         <pagination sm-list-items="Model.ForumTopics" sm-alignment="Right" />
     </div>
-    <div class="topics-group table-responsive">
-        <table class="table">
-            <thead sm-if="Model.ForumTopics.Any()">
+    <div sm-if="Model.ForumTopics.Any()" class="topics-group table-responsive">
+        <table class="table forum-table">
+            <thead>
                 <tr class="forum-header">
                     <th></th>
                     <th class="topic-name">
                         @T("Forum.TopicTitle")
                     </th>
-                    <th class="replies d-none d-md-table-cell">
+                    <th class="replies">
                         @T("Forum.Replies")
                     </th>
-                    <th class="views d-none d-md-table-cell">
+                    <th class="views">
                         @T("Forum.Views")
                     </th>
-                    <th class="last-post d-none d-md-table-cell">
+                    <th class="last-post">
                         @T("Forum.LatestPost")
                     </th>
                 </tr>
@@ -87,7 +87,7 @@
                         <span sm-if="topic.ForumTopicType == ForumTopicType.Announcement" class="topictype">
                             <label class="badge badge-info">@T("Forum.Announcement")</label>
                         </span>
-                        <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="topic-title">
+                        <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="topic-title forum-table-link">
                             @topic.Subject
                         </a>
                         <div>
@@ -96,7 +96,7 @@
                                     <span class="pr-1">@T("Forum.Author"):</span>
                                     @if (topic.HasCustomerProfile)
                                     {
-                                        <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId">
+                                        <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId" class="forum-table-link">
                                             @topic.CustomerName.NaIfEmpty()
                                         </a>
                                     }
@@ -120,13 +120,13 @@
                             }
                         </div>
                     </td>
-                    <td class="replies d-none d-md-table-cell">
+                    <td class="replies">
                         @topic.NumReplies.ToString("N0")
                     </td>
-                    <td class="views d-none d-md-table-cell">
+                    <td class="views">
                         @topic.Views.ToString("N0")
                     </td>
-                    <td class="last-post d-none d-md-table-cell">
+                    <td class="last-post">
                         <partial name="_LastPost" model="topic.LastPost" />
                     </td>
                 </tr>

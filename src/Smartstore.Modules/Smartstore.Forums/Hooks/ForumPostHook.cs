@@ -66,8 +66,20 @@ namespace Smartstore.Forums.Hooks
             }
 
             // Update forum statistics.
-            // Try without ForumId
-            //await _db.LoadCollectionAsync(posts, x => x, cancelToken: cancelToken);
+            foreach (var post in posts)
+            {
+                await _db.LoadReferenceAsync(post, x => x.ForumTopic, cancelToken: cancelToken);
+            }
+            
+            var forumIds = posts
+                .Select(x => x.ForumTopic.ForumId)
+                .Distinct()
+                .ToArray();
+
+            if (await _db.Forums().ApplyStatisticsAsync(forumIds, cancelToken) > 0)
+            {
+                await _db.SaveChangesAsync(cancelToken);
+            }
         }
     }
 }
