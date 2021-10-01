@@ -8,6 +8,7 @@ using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
+using Smartstore.Polls.Components;
 using Smartstore.Polls.Extensions;
 using Smartstore.Polls.Hooks;
 using Smartstore.Polls.Models.Mappers;
@@ -34,6 +35,7 @@ namespace Smartstore.Polls.Filters
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
             // TODO: (mh) (core) This won't work as MyAccount can also be boards. Can we determine some other way we are on pages of the MyAccount menu?
+            // RE: Just declare a specific widget zone in MyAccount. TBD with MC please.
 
             // Analyze route get outta here if it's not blog or myaccount.
             //string controllerName = (string)filterContext.RouteData.Values["Controller"];
@@ -74,7 +76,7 @@ namespace Smartstore.Polls.Filters
                     var model = (PublicPollModel)cachedModel.Clone();
                     model.AlreadyVoted = await _db.PollAnswers().GetAlreadyVotedAsync(model.Id, _services.WorkContext.CurrentCustomer.Id);
                     
-                    var widget = new ComponentWidgetInvoker("PollBlock", "Smartstore.Polls", model);
+                    var widget = new ComponentWidgetInvoker(typeof(PollBlockViewComponent), model);
                     if (poll.SystemKeyword == "Blog") 
                     {
                         _widgetProvider.Value.RegisterWidget(new[] { "blog_right_bottom" }, widget);
