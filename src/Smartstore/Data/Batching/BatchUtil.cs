@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Smartstore.Data.Providers;
+using Smartstore.Utilities;
 
 namespace Smartstore.Data.Batching
 {
@@ -87,13 +88,16 @@ namespace Smartstore.Data.Batching
             (string sql, string tableAlias, string tableAliasSufixAs, string topStatement, string leadingComments, IEnumerable<object> parameters)
                 = GetBatchSql(query, context, isUpdate: true);
 
-            var sqlColumns = new StringBuilder();
+            using var psb = StringBuilderPool.Instance.Get(out var sqlColumns);
             var sqlParameters = new List<object>(parameters);
             var columnNameValueDict = TableInfo.CreateInstance(query.GetDbContext(), type, new List<object>(), OperationType.Read, new BulkConfig()).PropertyColumnNamesDict;
 
-            CreateUpdateBody(columnNameValueDict, tableAlias, expression.Body, context.DataProvider, ref sqlColumns, ref sqlParameters);
+            CreateUpdateBody(columnNameValueDict, tableAlias, expression.Body, context.DataProvider, sqlColumns, sqlParameters);
 
-            sqlColumns = context.DataProvider.ProviderType == DbSystemType.Sqlite ? sqlColumns.Replace($"[{tableAlias}].", "") : sqlColumns;
+            if (context.DataProvider.ProviderType == DbSystemType.Sqlite)
+            {
+                sqlColumns.Replace($"[{tableAlias}].", "");
+            }
 
             var resultQuery = $"{leadingComments}UPDATE {topStatement}{tableAlias}{tableAliasSufixAs} SET {sqlColumns} {sql}";
             return (resultQuery, sqlParameters);
@@ -201,8 +205,8 @@ namespace Smartstore.Data.Batching
             string tableAlias,
             Expression expression,
             DataProvider dataProvider,
-            ref StringBuilder sqlColumns,
-            ref List<object> sqlParameters)
+            StringBuilder sqlColumns,
+            List<object> sqlParameters)
         {
             var dbType = dataProvider.ProviderType;
 
@@ -219,7 +223,7 @@ namespace Smartstore.Data.Batching
 
                         sqlColumns.Append(" =");
 
-                        CreateUpdateBody(columnNameValueDict, tableAlias, assignment.Expression, dataProvider, ref sqlColumns, ref sqlParameters);
+                        CreateUpdateBody(columnNameValueDict, tableAlias, assignment.Expression, dataProvider, sqlColumns, sqlParameters);
 
                         if (memberInitExpression.Bindings.IndexOf(item) < (memberInitExpression.Bindings.Count - 1))
                             sqlColumns.Append(" ,");
@@ -244,18 +248,18 @@ namespace Smartstore.Data.Batching
                 switch (unaryExpression.NodeType)
                 {
                     case ExpressionType.Convert:
-                        CreateUpdateBody(columnNameValueDict, tableAlias, unaryExpression.Operand, dataProvider, ref sqlColumns, ref sqlParameters);
+                        CreateUpdateBody(columnNameValueDict, tableAlias, unaryExpression.Operand, dataProvider, sqlColumns, sqlParameters);
                         break;
                     case ExpressionType.Not:
                         sqlColumns.Append(" ~");//this way only for SQL Server 
-                        CreateUpdateBody(columnNameValueDict, tableAlias, unaryExpression.Operand, dataProvider, ref sqlColumns, ref sqlParameters);
+                        CreateUpdateBody(columnNameValueDict, tableAlias, unaryExpression.Operand, dataProvider, sqlColumns, sqlParameters);
                         break;
                     default: break;
                 }
             }
             else if (expression is BinaryExpression binaryExpression)
             {
-                CreateUpdateBody(columnNameValueDict, tableAlias, binaryExpression.Left, dataProvider, ref sqlColumns, ref sqlParameters);
+                CreateUpdateBody(columnNameValueDict, tableAlias, binaryExpression.Left, dataProvider, sqlColumns, sqlParameters);
 
                 switch (binaryExpression.NodeType)
                 {
@@ -283,7 +287,7 @@ namespace Smartstore.Data.Batching
                     default: break;
                 }
 
-                CreateUpdateBody(columnNameValueDict, tableAlias, binaryExpression.Right, dataProvider, ref sqlColumns, ref sqlParameters);
+                CreateUpdateBody(columnNameValueDict, tableAlias, binaryExpression.Right, dataProvider, sqlColumns, sqlParameters);
             }
             else
             {
@@ -311,7 +315,7 @@ namespace Smartstore.Data.Batching
 
         public static (string, string) SplitLeadingCommentsAndMainSqlQuery(string sqlQuery)
         {
-            var leadingCommentsBuilder = new StringBuilder();
+            using var psb = StringBuilderPool.Instance.Get(out var leadingCommentsBuilder);
             var mainSqlQuery = sqlQuery;
             while (!string.IsNullOrWhiteSpace(mainSqlQuery)
                 && !mainSqlQuery.StartsWith("SELECT", StringComparison.OrdinalIgnoreCase))
