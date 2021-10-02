@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Bootstrapping;
@@ -21,10 +24,26 @@ namespace Smartstore.Core.Bootstrapping
             });
         }
 
+        //public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
+        //{
+        //    services.AddHttpClient(DefaultTaskScheduler.HttpClientName).AddHttpMessageHandler(x => 
+        //    {
+        //        return new TestHandler();
+        //    });
+        //}
+
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.AddTaskScheduler<DbTaskStore>(appContext);
             builder.RegisterType<TaskContextVirtualizer>().As<ITaskContextVirtualizer>().InstancePerLifetimeScope();
         }
     }
+
+    //internal class TestHandler : DelegatingHandler
+    //{
+    //    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    //    {
+    //        return base.SendAsync(request, cancellationToken);
+    //    }
+    //}
 }

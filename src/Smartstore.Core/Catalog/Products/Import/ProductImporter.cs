@@ -20,7 +20,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Net;
+using Smartstore.Net.Http;
 
 namespace Smartstore.Core.DataExchange.Import
 {

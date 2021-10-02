@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -14,17 +15,21 @@ namespace Smartstore.Scheduling
 {
     internal class DefaultTaskScheduler : Disposable, ITaskScheduler
     {
+        internal const string HttpClientName = "taskscheduler";
         internal const string RootPath = "taskscheduler";
         internal const string AuthTokenName = "X-SCHED-AUTH-TOKEN";
 
         private readonly ICacheManager _cache;
+        private readonly IHttpClientFactory _httpClientFactory;
+
         private Timer _timer;
         private bool _shuttingDown;
         private int _errCount;
 
-        public DefaultTaskScheduler(ICacheManager cache)
+        public DefaultTaskScheduler(ICacheManager cache, IHttpClientFactory httpClientFactory)
         {
             _cache = cache;
+            _httpClientFactory = httpClientFactory;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;

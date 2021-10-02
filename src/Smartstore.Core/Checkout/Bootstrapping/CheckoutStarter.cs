@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
@@ -14,11 +16,24 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Net.Http;
 
 namespace Smartstore.Core.Bootstrapping
 {
     internal sealed class CheckoutStarter : StarterBase
     {
+        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
+        {
+            services.AddHttpClient<PdfInvoiceHttpClient>()
+                .ConfigureHttpClient(client => 
+                {
+                    client.Timeout = TimeSpan.FromSeconds(5);
+                    client.DefaultRequestHeaders.Add("User-Agent", $"Smartstore {SmartstoreVersion.CurrentFullVersion}");
+                })
+                .SendAuthenticationCookie()
+                .SendVisitorCookie();
+        }
+
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<CheckoutAttributeMaterializer>().As<ICheckoutAttributeMaterializer>().InstancePerLifetimeScope();

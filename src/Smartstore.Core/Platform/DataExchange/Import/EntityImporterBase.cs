@@ -16,7 +16,7 @@ using Smartstore.Data;
 using Smartstore.Domain;
 using Smartstore.Http;
 using Smartstore.IO;
-using Smartstore.Net;
+using Smartstore.Net.Http;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Import
