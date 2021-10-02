@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -14,6 +14,13 @@ namespace Smartstore.Core.Common.Services
     [Order(0)]
     internal class EcbExchangeRateProvider : IExchangeRateProvider
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public EcbExchangeRateProvider(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
+
         /// <summary>
         /// Gets live currency exchange rates from ecb web service
         /// </summary>
@@ -28,13 +35,13 @@ namespace Smartstore.Core.Common.Services
             var targetCurrency = exchangeRateCurrencyCode.ToUpper();
             var updateDate = DateTime.UtcNow;
 
-            // old url still works too: http://www.ecb.int/stats/eurofxref/eurofxref-daily.xml
-            var request = WebRequest.Create("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml") as HttpWebRequest;
+            var client = _httpClientFactory.CreateClient();
 
-            using (var response = await request.GetResponseAsync())
+            // Old url still works too: http://www.ecb.int/stats/eurofxref/eurofxref-daily.xml
+            using (var stream = await client.GetStreamAsync("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"))
             {
                 var document = new XmlDocument();
-                document.Load(response.GetResponseStream());
+                document.Load(stream);
 
                 var nsmgr = new XmlNamespaceManager(document.NameTable);
                 nsmgr.AddNamespace("ns", "http://www.ecb.int/vocabulary/2002-08-01/eurofxref");
