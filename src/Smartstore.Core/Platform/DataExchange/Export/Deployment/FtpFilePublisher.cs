@@ -9,6 +9,7 @@ using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
 {
+    // TODO: (mg) (core) Replace obsolete FtpWebRequest with a 3rdparty FTP library (e.g. "FluentFtp")
     public class FtpFilePublisher : IFilePublisher
     {
         private ExportDeployment _deployment;

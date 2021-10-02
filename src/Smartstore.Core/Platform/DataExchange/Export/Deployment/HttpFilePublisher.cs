@@ -9,6 +9,13 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 {
     public class HttpFilePublisher : IFilePublisher
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public HttpFilePublisher(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = Guard.NotNull(httpClientFactory, nameof(httpClientFactory));
+        }
+
         public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken)
         {
             var succeededFiles = 0;
@@ -23,21 +30,22 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
             var uri = new Uri(url);
 
+            var credentials = deployment.Username.HasValue()
+                ? new NetworkCredential(deployment.Username, deployment.Password)
+                : null;
+
+            using var formData = new MultipartFormDataContent();
+            var client = credentials == null
+                ? _httpClientFactory.CreateClient()
+                : new HttpClient(new HttpClientHandler { Credentials = credentials }, true);
+
             if (deployment.HttpTransmissionType == ExportHttpTransmissionType.MultipartFormDataPost)
             {
                 var num = 0;
-                var credentials = deployment.Username.HasValue()
-                    ? new NetworkCredential(deployment.Username, deployment.Password)
-                    : null;
-
-                using var handler = new HttpClientHandler { Credentials = credentials };
-                using var client = new HttpClient(handler);
-                using var formData = new MultipartFormDataContent();
-
+                
                 foreach (var file in files)
                 {
-                    var bytes = await file.ReadAllBytesAsync();
-                    formData.Add(new ByteArrayContent(bytes), "file {0}".FormatInvariant(++num), file.Name);
+                    formData.Add(new StreamContent(file.OpenRead()), "file {0}".FormatInvariant(++num), file.Name);
                 }
 
                 var response = await client.PostAsync(uri, formData, cancelToken);
@@ -60,16 +68,10 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             }
             else
             {
-                using var webClient = new WebClient();
-
-                if (deployment.Username.HasValue())
-                {
-                    webClient.Credentials = new NetworkCredential(deployment.Username, deployment.Password);
-                }
-
                 foreach (var file in files)
                 {
-                    await webClient.UploadFileTaskAsync(uri, file.PhysicalPath);
+                    using var content = new StreamContent(file.OpenRead());
+                    await client.PostAsync(uri, content, cancelToken);
                     ++succeededFiles;
                 }
             }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -69,6 +70,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly ITaxCalculator _taxCalculator;
         private readonly IProviderManager _providerManager;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         private readonly CatalogSettings _catalogSettings;
         private readonly MediaSettings _mediaSettings;
@@ -96,6 +98,7 @@ namespace Smartstore.Core.DataExchange.Export
             ProductUrlHelper productUrlHelper,
             ITaxCalculator taxCalculator,
             IProviderManager providerManager,
+            IHttpClientFactory httpClientFactory,
             CatalogSettings catalogSettings,
             MediaSettings mediaSettings,
             SeoSettings seoSettings,
@@ -121,6 +124,7 @@ namespace Smartstore.Core.DataExchange.Export
             _productUrlHelper = productUrlHelper;
             _taxCalculator = taxCalculator;
             _providerManager = providerManager;
+            _httpClientFactory = httpClientFactory;
 
             _catalogSettings = catalogSettings;
             _mediaSettings = mediaSettings;
@@ -1394,7 +1398,7 @@ namespace Smartstore.Core.DataExchange.Export
                             publisher = new FtpFilePublisher();
                             break;
                         case ExportDeploymentType.Http:
-                            publisher = new HttpFilePublisher();
+                            publisher = new HttpFilePublisher(_httpClientFactory);
                             break;
                         case ExportDeploymentType.PublicFolder:
                             publisher = new PublicFolderPublisher(_services.ApplicationContext);
