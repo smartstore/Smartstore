@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -34,15 +34,18 @@ namespace Smartstore.Core.Security
 
         class ValidateCaptchaFilter : IAsyncActionFilter
         {
+            private readonly IHttpClientFactory _httpClientFactory;
             private readonly CaptchaSettings _captchaSettings;
             private readonly SmartConfiguration _appConfig;
 
             public ValidateCaptchaFilter(
+                IHttpClientFactory httpClientFactory,
                 CaptchaSettings captchaSettings, 
                 ILogger<ValidateCaptchaFilter> logger, 
                 Localizer localizer,
                 SmartConfiguration appConfig)
             {
+                _httpClientFactory = httpClientFactory;
                 _captchaSettings = captchaSettings;
                 _appConfig = appConfig;
                 Logger = logger;
@@ -60,6 +63,7 @@ namespace Smartstore.Core.Security
                 {
                     if (_captchaSettings.CanDisplayCaptcha && context.HttpContext.Request.HasFormContentType)
                     {
+                        var client = _httpClientFactory.CreateClient();
                         var verifyUrl = _appConfig.Google.RecaptchaVerifyUrl;
                         var recaptchaResponse = context.HttpContext.Request.Form["g-recaptcha-response"];
 
@@ -69,8 +73,7 @@ namespace Smartstore.Core.Security
                             recaptchaResponse.ToString().UrlEncode()
                         );
 
-                        using var webClient = new WebClient();
-                        var jsonResponse = await webClient.DownloadStringTaskAsync(url);
+                        var jsonResponse = await client.GetStringAsync(url);
                         var result = JsonConvert.DeserializeObject<GoogleRecaptchaApiResponse>(jsonResponse);
 
                         if (result == null)
