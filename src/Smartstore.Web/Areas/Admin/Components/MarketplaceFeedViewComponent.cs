@@ -5,7 +5,7 @@ using Smartstore.Web.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using System.Xml;
@@ -14,21 +14,29 @@ namespace Smartstore.Admin.Components
 {
     public class MarketplaceFeedViewComponent : SmartViewComponent
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public MarketplaceFeedViewComponent(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
+
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var result = await Services.Cache.GetAsync("admin:marketplacefeed", async () =>
             {
                 try
                 {
-                    string url = "http://community.smartstore.com/index.php?/rss/downloads/";
-                    var request = (HttpWebRequest)WebRequest.Create(url);
-                    request.Timeout = 3000;
-                    request.UserAgent = $"Smartstore {SmartstoreVersion.CurrentFullVersion}";
+                    var url = "http://community.smartstore.com/index.php?/rss/downloads/";
+                    var client = _httpClientFactory.CreateClient();
 
-                    using WebResponse response = await request.GetResponseAsync();
-                    using var reader = XmlReader.Create(response.GetResponseStream());
+                    client.Timeout = TimeSpan.FromSeconds(3);
+
+                    using var reader = XmlReader.Create(await client.GetStreamAsync(url));
+
                     var feed = SyndicationFeed.Load(reader);
                     var model = new List<FeedItemModel>();
+
                     foreach (var item in feed.Items)
                     {
                         if (!item.Id.EndsWith("error=1", StringComparison.OrdinalIgnoreCase))

@@ -35,7 +35,10 @@ namespace Smartstore.Web
             });
 
             // Add HTTP client feature
-            services.AddHttpClient();
+            services.AddHttpClient(string.Empty, client => 
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", $"Smartstore {SmartstoreVersion.CurrentFullVersion}");
+            });
 
             // Add session feature
             services.AddSession(o =>
