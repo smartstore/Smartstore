@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Smartstore.Engine;
 
 namespace Smartstore.Net.Mail
 {
@@ -81,7 +82,7 @@ namespace Smartstore.Net.Mail
                 .Select(x => new MailAddress(x));
         }
 
-        public async Task BodyFromFile(string filePathOrUrl)
+        public async Task BodyFromFileAsync(string filePathOrUrl)
         {
             Guard.NotEmpty(filePathOrUrl, nameof(filePathOrUrl));
 
@@ -89,8 +90,10 @@ namespace Smartstore.Net.Mail
 
             if (filePathOrUrl.ToLower().StartsWith("http"))
             {
-                var wc = new WebClient();
-                sr = new StreamReader(await wc.OpenReadTaskAsync(filePathOrUrl));
+                var httpClientFactory = EngineContext.Current.Scope.ResolveOptional<IHttpClientFactory>();
+                var client = httpClientFactory?.CreateClient() ?? new HttpClient();
+
+                sr = new StreamReader(await client.GetStreamAsync(filePathOrUrl));
             }
             else
             {
