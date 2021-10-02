@@ -4,69 +4,20 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.IO;
 
-namespace Smartstore.Net
+namespace Smartstore.Net.Http
 {
     public sealed class DownloadManager : Disposable
     {
-        private readonly TimeSpan _downloadTimeout;
-        private readonly TimeSpan _maxCachingAge;
-        private HttpClient _httpClient;
-
-        /// <summary>
-        /// DownloadManager ctor.
-        /// </summary>
-        /// <param name="downloadTimeout">
-        /// Specifies the timespan to wait before the download request times out.
-        /// The default value is 100 seconds (which has proven to be too short in some situations, e.g. during imports).
-        /// </param>
-        /// <param name="maxCachingAge">
-        /// Specifies the maximum age that the HTTP client is willing to accept a response.
-        /// By default the client accepts no cached response at all.
-        /// </param>
-        public DownloadManager(TimeSpan downloadTimeout = default, TimeSpan maxCachingAge = default)
+        public DownloadManager(HttpClient httpClient)
         {
-            _downloadTimeout = downloadTimeout;
-            _maxCachingAge = maxCachingAge;
+            HttpClient = Guard.NotNull(httpClient, nameof(httpClient));
         }
 
-        private HttpClient HttpClient
-        {
-            get
-            {
-                if (_httpClient == null)
-                {
-                    // See also "socket exhausting": https://www.aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/
-                    _httpClient = new HttpClient();
-
-                    if (_downloadTimeout != default && _downloadTimeout.TotalMilliseconds > 0)
-                    {
-                        _httpClient.Timeout = _downloadTimeout;
-                    }
-
-                    var cache = new CacheControlHeaderValue();
-
-                    if (_maxCachingAge != default)
-                    {
-                        cache.Public = true;
-                        cache.MaxAge = _maxCachingAge;
-                    }
-                    else
-                    {
-                        cache.NoCache = true;
-                    }
-
-                    _httpClient.DefaultRequestHeaders.CacheControl = cache;
-                    _httpClient.DefaultRequestHeaders.Add("Connection", "Keep-alive");
-                }
-
-                return _httpClient;
-            }
-        }
+        public HttpClient HttpClient { get; }
 
         /// <summary>
         /// Downloads a file asynchronously and saves it to disk.
@@ -157,8 +108,7 @@ namespace Smartstore.Net
         {
             if (disposing)
             {
-                _httpClient?.Dispose();
-                _httpClient = null;
+                // Don't dispose HttpClient, let HttpClientFactory do the heavy stuff.
             }
         }
     }

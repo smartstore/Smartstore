@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
-using Smartstore;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Smartstore.Templating;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Smartstore.Bootstrapping
 {
-    public static class TemplatingServiceCollectionExtensions
+    public static class TemplatingBootstrappingExtensions
     {
         /// <summary>
         /// Adds a singleton template manager and a void <see cref="ITemplateEngine"/>.

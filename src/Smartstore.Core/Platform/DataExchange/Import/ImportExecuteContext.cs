@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.IO;
-using Smartstore.Net;
+using Smartstore.Net.Http;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.DataExchange.Import

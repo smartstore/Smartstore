@@ -487,7 +487,7 @@ namespace Smartstore.Http
 
         private static async Task<bool> TestHostAsync(Uri originalUri, string host, int timeout)
         {
-            var url = String.Format("{0}://{1}/taskscheduler/noop",
+            var url = string.Format("{0}://{1}/taskscheduler/noop",
                 originalUri.Scheme,
                 originalUri.IsDefaultPort ? host : host + ":" + originalUri.Port);
             var uri = new Uri(url);
