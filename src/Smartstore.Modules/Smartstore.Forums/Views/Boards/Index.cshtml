@@ -20,7 +20,7 @@
 
     @foreach (var group in Model.ForumGroups)
     {
-        if (group.Forums.Count > 0)
+        if (group.Forums?.Any() ?? false)
         {
             <partial name="_ForumGroup" model="group" />
         }

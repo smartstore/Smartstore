@@ -9,8 +9,6 @@ namespace Smartstore.Forums.Search
     /// </summary>
     public partial interface IForumSearchService
     {
-        string Name { get; }
-
         /// <summary>
         /// Builds a forum post query using LINQ search.
         /// </summary>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Data;
+using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Data;
@@ -11,6 +12,7 @@ using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Forums.Filters;
 using Smartstore.Forums.Search;
+using Smartstore.Forums.Search.Facets;
 using Smartstore.Forums.Search.Modelling;
 using Smartstore.Forums.Services;
 using Smartstore.Web.Controllers;
@@ -30,9 +32,8 @@ namespace Smartstore.Forums
             services.AddScoped<IForumSearchQueryAliasMapper, ForumSearchQueryAliasMapper>();
             services.AddScoped<IForumSearchQueryFactory, ForumSearchQueryFactory>();
             services.AddScoped<IForumSearchService, ForumSearchService>();
-
-            // TODO: (mg) (core) register LinqForumSearchService. Was registered by name before.
-            //builder.RegisterType<LinqForumSearchService>().Named<IForumSearchService>("linq").InstancePerRequest();
+            services.AddScoped<LinqForumSearchService>();
+            services.AddScoped<IFacetUrlHelper, ForumFacetUrlHelper>();
 
             SlugRouteTransformer.RegisterRouter(new ForumSlugRouter());
 

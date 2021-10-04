@@ -33,6 +33,7 @@ namespace Smartstore.Core.Search.Facets
                 case FacetGroupKind.NewArrivals:
                 case FacetGroupKind.Forum:
                 case FacetGroupKind.Customer:
+                case FacetGroupKind.Date:
                     return group.IsMultiSelect ? "MultiSelect" : "SingleSelect";
                 case FacetGroupKind.Price:
                     return "Price";
@@ -41,7 +42,6 @@ namespace Smartstore.Core.Search.Facets
                 case FacetGroupKind.Unknown:
                 case FacetGroupKind.Attribute:
                 case FacetGroupKind.Variant:
-                case FacetGroupKind.Date:
                 default:
                     return null;
             }

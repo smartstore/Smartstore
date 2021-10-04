@@ -25,8 +25,8 @@ namespace Smartstore.Forums.Components
             var model = new SearchBoxModel
             {
                 Origin = "Boards/Search",
-                SearchUrl = Url.RouteUrl("BoardSearch"),
-                InstantSearchUrl = Url.Action("InstantSearch", "Boards"),
+                SearchUrl = Url.RouteUrl("ForumSearch"),
+                InstantSearchUrl = Url.RouteUrl("ForumInstantSearch"),
                 InputPlaceholder = T("Forum.SearchForumsTooltip"),
                 InstantSearchEnabled = _searchSettings.InstantSearchEnabled && await Services.Permissions.AuthorizeAsync(Permissions.System.AccessShop),
                 SearchTermMinimumLength = _searchSettings.InstantSearchTermMinLength,

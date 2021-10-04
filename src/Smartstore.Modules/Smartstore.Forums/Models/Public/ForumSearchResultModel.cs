@@ -29,7 +29,7 @@ namespace Smartstore.Forums.Models.Public
         public int TotalCount { get; set; }
         public string Error { get; set; }
 
-        public override List<HitGroup> HitGroups { get; protected set; }
+        public override List<HitGroup> HitGroups { get; protected set; } = new();
 
         public bool AllowFiltering => true;
         public bool AllowSorting { get; set; }

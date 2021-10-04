@@ -33,7 +33,7 @@
 
 <div class="page forum-search">
     <div class="page-title">
-        <h1 class="h3">@title</h1>
+        <h1 class="h3">@Html.Raw(title)</h1>
     </div>
     <div class="page-body">
         <div class="search-input mt-4">
@@ -44,7 +44,7 @@
                 @await Component.InvokeAsync("ForumSearchBox")
             </div>
 			<div sm-if="encodedAttemptedTerm.HasValue()" class="alert alert-warning">
-				@T("Search.TermCorrectedHint", "<strong>\"" + encodedTerm + "\"</strong>", "<strong>\"" + encodedAttemptedTerm + "\"</strong>")
+				@Html.Raw(T("Search.TermCorrectedHint", "<strong>\"" + encodedTerm + "\"</strong>", "<strong>\"" + encodedAttemptedTerm + "\"</strong>"))
 			</div>
 			<div sm-if="Model.Error.HasValue()" class="alert alert-danger">
 				@Model.Error
@@ -63,7 +63,7 @@
                 @{ await Html.RenderPartialAsync("Product.List.FilterSort", Model); }
             </div>
             <div id="SearchHitsCount" class="fsearch-actions--page ml-auto pt-3">
-                @T("Search.HitsFor", countHtml, $"<b class='font-weight-medium'>{Model.Term.NaIfEmpty().HtmlEncode()}</b>")
+                @Html.Raw(T("Search.HitsFor", countHtml, $"<b class='font-weight-medium'>{Model.Term.NaIfEmpty().HtmlEncode()}</b>"))
             </div>
         </div>
         <div class="search-results mt-3">

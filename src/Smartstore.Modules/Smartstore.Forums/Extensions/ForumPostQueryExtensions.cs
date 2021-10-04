@@ -122,6 +122,17 @@ namespace Smartstore.Forums
                 .ThenInclude(x => x.CustomerRole);
         }
 
+        public static IIncludableQueryable<ForumPost, CustomerRole> IncludeTopic(this IQueryable<ForumPost> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Include(x => x.ForumTopic)
+                .ThenInclude(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole);
+        }
+
 
         public static async Task<int> GetTopicPageIndexAsync(this DbSet<ForumPost> forumPosts,
             Customer customer,
