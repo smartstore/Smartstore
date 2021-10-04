@@ -14,26 +14,30 @@ namespace Smartstore.News.Components
     /// </summary>
     public class HomepageNewsViewComponent : SmartViewComponent
     {
+        private readonly NewsSettings _newsSettings;
+
+        public HomepageNewsViewComponent(NewsSettings newsSettings)
+        {
+            _newsSettings = newsSettings;
+        }
+
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
-            // TODO: (mh) (core) Please read comment in TagNavigationViewComponent.
-            var settings = Services.SettingFactory.LoadSettings<NewsSettings>(storeId);
-
-            if (!settings.Enabled || !settings.ShowNewsOnMainPage)
+            if (!_newsSettings.Enabled || !_newsSettings.ShowNewsOnMainPage)
             {
                 return Empty();
             }
 
             var languageId = Services.WorkContext.WorkingLanguage.Id;
             var includeHidden = Services.WorkContext.CurrentCustomer.IsAdmin();
-            var cacheKey = string.Format(ModelCacheInvalidator.HOMEPAGE_NEWSMODEL_KEY, languageId, storeId, settings.MainPageNewsCount, includeHidden);
+            var cacheKey = string.Format(ModelCacheInvalidator.HOMEPAGE_NEWSMODEL_KEY, languageId, storeId, _newsSettings.MainPageNewsCount, includeHidden);
             var cachedModel = await Services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
                 var newsItems = await Services.DbContext.NewsItems()
                     .AsNoTracking()
                     .ApplyStandardFilter(storeId, languageId)
-                    .ToPagedList(0, settings.MainPageNewsCount)
+                    .ToPagedList(0, _newsSettings.MainPageNewsCount)
                     .LoadAsync();
 
                 return new HomepageNewsItemsModel

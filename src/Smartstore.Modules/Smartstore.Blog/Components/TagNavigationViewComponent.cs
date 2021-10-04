@@ -20,7 +20,6 @@ namespace Smartstore.Blog.Components
         public TagNavigationViewComponent(IBlogService blogService, BlogSettings blogSettings)
         {
             _blogService = blogService;
-            // INFO: (mh) (core) Why making things complicated and reinventing the wheel?! Also: if you don't have to, please don't resolve services from ICommonServices via .Resolve() or .SettingFactory.Load...
             _blogSettings = blogSettings;
         }
 
