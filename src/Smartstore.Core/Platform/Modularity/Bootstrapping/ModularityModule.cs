@@ -87,10 +87,10 @@ namespace Smartstore.Core.Bootstrapping
                 };
             });
 
-            if (!_appContext.IsInstalled)
-            {
-                return;
-            }
+            //if (!_appContext.IsInstalled)
+            //{
+            //    return;
+            //}
 
             var providerTypes = _appContext.TypeScanner.FindTypes<IProvider>().ToList();
 
@@ -138,11 +138,11 @@ namespace Smartstore.Core.Bootstrapping
                 RegisterAsSpecificProvider<IExchangeRateProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IShippingRateComputationMethod>(type, systemName, registration);
                 RegisterAsSpecificProvider<IWidget>(type, systemName, registration);
-                //RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
                 RegisterAsSpecificProvider<IPaymentMethod>(type, systemName, registration);
                 RegisterAsSpecificProvider<IExportProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IOutputCacheProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IMediaStorageProvider>(type, systemName, registration);
+                //RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
             }
         }
 
