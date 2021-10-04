@@ -73,7 +73,7 @@ namespace Smartstore.Forums.Models.Mappers
             Guard.NotNull(from.ForumTopic, nameof(from.ForumTopic));
 
             var stripLongUserNames = (bool)parameters.StripLongUserNames;
-            var largeAvatar = (bool)parameters.LargeAvatar;
+            var largeAvatar = parameters.LargeAvatar == true;
             var page = (int)parameters.Page;
             var createdOn = _services.DateTimeHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc);
             var currentCustomer = _services.WorkContext.CurrentCustomer;
