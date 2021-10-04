@@ -12,8 +12,8 @@
     <div class="title">
         <h1 class="fs-h2">@Model.Subject</h1>
     </div>
+
     <div sm-if="Model.CanEditTopic || Model.CanDeleteTopic || Model.CanMoveTopic" class="manage btn-group my-3">
-        @* TODO: (mg) (core) .btn-group should only have .btn as direct child, otherwise styling is not applied. The group looks really ugly this way. *@
         @if (Model.CanEditTopic)
         {
             <a asp-action="TopicEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">
@@ -22,25 +22,19 @@
             </a>
         }
         @if (Model.CanDeleteTopic)
-		{
-            <form method="post" asp-action="TopicDelete" asp-controller="Boards">
-                <input type="hidden" asp-for="Id" />
-                <button type="submit" class="btn btn-secondary confirm">
-				    <i class="far fa-trash-alt"></i>
-				    <span>@T("Forum.DeleteTopic")</span>
-                </button>
-            </form>
-		}
+        {
+            <a asp-action="TopicDelete" asp-controller="Boards" asp-route-id="@Model.Id" id="delete-topic" class="btn btn-secondary" rel="nofollow">
+				<i class="far fa-trash-alt"></i>
+				<span>@T("Forum.DeleteTopic")</span>
+            </a>
+        }
         @if (Model.CanMoveTopic)
-		{
-            <form method="post" asp-action="TopicMove" asp-controller="Boards">
-                <input type="hidden" asp-for="Id" />
-                <button type="submit" class="btn btn-secondary confirm">
-				    <i class="fa fa-arrows-alt"></i>
-				    <span>@T("Forum.MoveTopic")</span>
-                </button>
-            </form>
-		}
+        {
+            <a asp-action="TopicMove" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">
+				<i class="fa fa-arrows-alt"></i>
+				<span>@T("Forum.MoveTopic")</span>
+            </a>
+        }
     </div>
 
     <partial name="_PostListToolbar" />
@@ -57,15 +51,17 @@
 
 <script sm-target-zone="scripts" data-origin="forum-topic">
     $(function () {
+        const token = $('input[name="__RequestVerificationToken"]').val();
+
 		// Post voting.
-		$('.post-vote-button').on('click', function () {
+		$('.post-vote').on('click', function () {
             var self = $(this);
             var post = self.closest('.forum-post');
 
             $.ajax({
                 type: 'POST',
                 url: '@Url.Action("PostVote", "Boards")',
-                data: { "id": post.data('id'), "vote": self.attr('value') },
+                data: { "id": post.data('id'), "vote": self.attr('value'), "__RequestVerificationToken": token },
                 cache: false,
                 success: function (resp) {
                     if (resp.success) {
@@ -86,19 +82,13 @@
             });
         });
 
-        // Delete post.
-        $('.delete-post-link-button').on('click', function (e) {
+        // Delete topic, delete post.
+        $('#delete-topic, .delete-post').on('click', function(e) {
             e.preventDefault();
-            var self = $(this);
 
-            confirm2({
-                message: @(T("Admin.Common.AskToProceed").JsValue),
-                icon: { type: 'question' },
-                callback: accepted => {
-                    if (accepted) {
-                        self.closest('form').submit();
-                    }
-                }
+            $(this).postData({
+                ask: @(T("Admin.Common.AskToProceed").JsValue),
+                data: { "__RequestVerificationToken": token }
             });
 
             return false;

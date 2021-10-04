@@ -67,19 +67,15 @@
             </div>
         </div>
         <div class="search-results mt-3">
-            <div class="topics-group table-responsive">
-                <table sm-if="Model.TotalCount > 0" id="ForumSearchResult" class="table forum-table">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th class="topic-name">@T("Forum.TopicTitle")</th>
-                            <th class="replies">@T("Forum.Replies")</th>
-                            <th class="views">@T("Forum.Views")</th>
-                            <th class="last-post">@T("Forum.LatestPost")</th>
-                        </tr>
-                    </thead>
-                    <partial name="_SearchHits" />
-                </table>
+            <div id="ForumSearchResult" class="topics-group card">
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush forum-list"
+                        data-page="@(hits.PageIndex + 1)"
+                        data-hasnextpage="@hits.HasNextPage.ToString().ToLower()"
+                        data-cumulativehits="@Model.CumulativeHitCount.ToString("N0")">
+                        <partial name="_SearchHits" />
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

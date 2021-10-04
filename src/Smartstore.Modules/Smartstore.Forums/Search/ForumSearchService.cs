@@ -29,6 +29,8 @@ namespace Smartstore.Forums.Search
 
         public static string Scope => "Forum";
 
+        public string Name => null;
+
         public IQueryable<ForumPost> PrepareQuery(ForumSearchQuery searchQuery, IQueryable<ForumPost> baseQuery = null)
         {
             var linqForumSearchService = _services.ResolveNamed<IForumSearchService>("linq");

@@ -10,11 +10,11 @@
 @Html.Raw($"<a name=\"{Model.Id}\"></a>")
 
 <div class="block block-bordered forum-post card" id="post@(Model.Id)" data-id="@Model.Id">
-	<div class="block-title card-header">
+	<div class="card-header">
         <div sm-if="Model.CustomerId > 0">
             @if (Model.HasCustomerProfile)
             {
-                <a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" class="username forum-table-link">
+                <a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" class="username forum-link">
                     @Model.CustomerName.NaIfEmpty()
                 </a>
             }
@@ -26,28 +26,25 @@
         <div class="d-flex align-items-center">
             @if (Model.CanEditPost)
             {
-                <i class="far fa-edit"></i>
-                <a asp-action="PostEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="edit-post-link-button forum-table-link">@T("Forum.EditPost")</a>
+                <i class="far fa-edit pr-1"></i>
+                <a asp-action="PostEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="edit-post forum-link pr-3">@T("Forum.EditPost")</a>
             }
             @if (Model.CanDeletePost)
             {
-                <form method="post" asp-action="PostDelete" asp-controller="Boards">
-                    <input type="hidden" asp-for="Id" />
-                    <i class="fa fa-times"></i>
-                    <a href="#" class="delete-post-link-button forum-table-link">@T("Forum.DeletePost")</a>
-                </form>
+                <i class="fa fa-times pr-1"></i>
+                <a asp-action="PostDelete" asp-controller="Boards" asp-route-id="@Model.Id" class="delete-post forum-link pr-3">@T("Forum.DeletePost")</a>
             }
-            <a href="@(Url.RouteUrl(postLinkRouteName, postLinkRouteValues))#@Model.Id" class="post-link forum-table-link" title="@T("Forum.PostLinkTitle")">#@Model.Id</a>
+            <a href="@(Url.RouteUrl(postLinkRouteName, postLinkRouteValues))#@Model.Id" class="post-link forum-link pr-3" title="@T("Forum.PostLinkTitle")">#@Model.Id</a>
         </div>
 	</div>
 
     <div class="block-body card-body row" attr-class='(!Model.Published, "disabled")'>
         <div class="post-info col-2 d-sm-block">
-            <div class="user-info mt-3 text-center">
+            <div class="user-info text-center">
                 <div class="avatar">
                     <partial name="Customer.Avatar" model="Model.Avatar" />
                 </div>
-                <div class="user-stats mt-2">
+                <div class="user-stats mt-2 small">
                     <div sm-if="Model.IsForumModerator" class="status">
                         <span class="pr-1">@T("Forum.Status"):</span>
                         <span class="stat-value">@T("Forum.Moderator")</span>
@@ -76,9 +73,9 @@
             </div>
         </div>
         <div class="post-content col col-sm-10">
-            <div class="post-stats text-muted mb-1">
+            <div class="post-stats text-muted small mb-1">
                 <span class="posttime">
-                    <span class="pr-1">@T("Forum.Posted"):</span>
+                    <span>@T("Forum.Posted"):</span>
                     <span class="stat-value">@Model.PostCreatedOnStr</span>
                 </span>
                 <span class="votes" attr-class='(Model.VoteCount == 0, "hide")' title="@T("Common.Liked")">
@@ -93,7 +90,7 @@
                 </div>
                 <input type="hidden" asp-for="Id" />
             </div>
-            <div sm-if="Model.SignaturesEnabled && Model.FormattedSignature.HasValue()" class="signature text-muted" dir="auto">
+            <div sm-if="Model.SignaturesEnabled && Model.FormattedSignature.HasValue()" class="signature text-muted text-center pt-6" dir="auto">
                 @Html.Raw(Model.FormattedSignature)
             </div>
         </div>
@@ -101,21 +98,24 @@
 
     <div class="text-right">
         <div class="functions">
-            <a href="#" class="btn btn-link btn-sm font-weight-600 forum-table-link">
+            <a href="#" class="btn btn-link btn-sm font-weight-600 forum-link">
                 @T("Forum.Top")
             </a>
             <a asp-route="ForumPostCreate" asp-route-id="@Model.ForumTopicId" asp-route-quote="@Model.Id" class="btn btn-outline-info btn-flat btn-sm">
                 <i class="fa fa-quote-left"></i>
                 <span>@T("Forum.QuotePost")</span>
             </a>
-            <button sm-if="Model.CanVote" type="button" class="btn btn-outline-success btn-flat btn-sm post-vote-button post-vote-up" attr-class='(Model.Vote, "hide")' value="true">
-                <i class="fa fa-thumbs-up"></i>
-                <span>@T("Common.LikeIt")</span>
-            </button>
-            <button sm-if="Model.CanVote" type="button" class="btn btn-outline-danger btn-flat btn-sm post-vote-button post-vote-down" attr-class='(!Model.Vote, "hide")' value="false">
-                <i class="fa fa-thumbs-down"></i>
-                <span>@T("Common.DoNotLikeIt")</span>
-            </button>
+            @if (Model.CanVote)
+            {
+                <button type="button" class="btn btn-outline-success btn-flat btn-sm post-vote post-vote-up" attr-class='(Model.Vote, "hide")' value="true">
+                    <i class="fa fa-thumbs-up"></i>
+                    <span>@T("Common.LikeIt")</span>
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-flat btn-sm post-vote post-vote-down" attr-class='(!Model.Vote, "hide")' value="false">
+                    <i class="fa fa-thumbs-down"></i>
+                    <span>@T("Common.DoNotLikeIt")</span>
+                </button>
+            }
         </div>
     </div>
 </div>

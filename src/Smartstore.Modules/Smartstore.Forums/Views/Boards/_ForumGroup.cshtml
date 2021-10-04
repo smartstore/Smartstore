@@ -4,37 +4,34 @@
     var lastPostViewData = new ViewDataDictionary(ViewData) { { "ShowTopic", true } };
 
     // TODO: (mg) (core): The redesign here is quick-and-dirty codewise. Things that need to be done:
-    // - Apply new styling to other "tables" like ActiveDiscussions, ForumTopics etc.
     // - Refactor CSS according to new styling by moving some of the inline styles and classes here to more specific forum classes.
     //   Also prevent such greedy selectors like ".something a".
-    // - Use large avatar only in post page (mapper needs a parameter)
-    // - Remove the hidden table below later
     // - For ActiveDiscussions, use a colored card header.
 }
 
 <div class="forum-group card mb-4 x-shadow-sm">
     <div class="card-header group-title">
         <h2 class="fs-h4 m-0" sm-language-attributes-for="Model.Name">
-            <a asp-route="ForumGroupBySlug" asp-route-id="@Model.Id" asp-route-slug="@Model.Slug" class="forum-table-link">
+            <a asp-route="ForumGroupBySlug" asp-route-id="@Model.Id" asp-route-slug="@Model.Slug" class="forum-link">
                 @Model.Name.Value
             </a>
         </h2>
     </div>
     <div class="card-body p-0">
-        <ul class="list-group list-group-flush">
+        <ul class="list-group list-group-flush forum-list">
             @foreach (var forum in Model.Forums)
             {
                 <li class="list-group-item">
                     <div class="row flex-nowrap align-items-center sm-gutters">
 
-                        <div class="col forum-info text-truncate" style="width: 54%; max-width: 54%">
+                        <div class="col forum-info text-truncate">
                             <div class="d-flex flex-nowrap align-items-center">
                                 <div class="forum-image mr-3">
                                     <i class="fa fa-fw fa-folder-open fa-2x text-success"></i>
                                 </div>
                                 <div class="forum-name">
                                     <div class="forum-title text-truncate">
-                                        <a asp-route="ForumBySlug" asp-route-id="@forum.Id" asp-route-slug="@forum.Slug" class="forum-table-link fwm fs-h6 text-truncate">
+                                        <a asp-route="ForumBySlug" asp-route-id="@forum.Id" asp-route-slug="@forum.Slug" class="forum-link fwm fs-h6 text-truncate">
                                             @forum.Name
                                         </a>
                                     </div>
@@ -45,61 +42,22 @@
                             </div>
                         </div>
 
-                        <div class="col forum-numtopics text-center text-truncate" style="width: 8%; max-width: 8%">
+                        <div class="col forum-numtopics text-center text-truncate">
                             <div class="text-muted small">@T("Forum.Topics")</div>
                             <div class="fs-h5 fwm">@forum.NumTopics.ToString("N0")</div>
                         </div>
 
-                        <div class="col forum-numposts text-center text-truncate" style="width: 8%; max-width: 8%">
+                        <div class="col forum-numposts text-center text-truncate">
                             <div class="text-muted small">@T("Forum.Posts")</div>
                             <div class="fs-h5 fwm">@forum.NumPosts.ToString("N0")</div>
                         </div>
 
-                        <div class="col forum-lastpost text-truncate" style="width: 30%; max-width: 30%">
+                        <div class="col forum-lastpost text-truncate">
                             <partial name="_LastPost" model="forum.LastPost" view-data="lastPostViewData" />
                         </div>
                     </div>
                 </li>
             }
         </ul>
-
-        <table class="table forum-table d-none">
-            <tbody>
-                @foreach (var forum in Model.Forums)
-                {
-                    <tr class="forum">
-                        <td class="image">
-                            <i class="fa fa-folder-open text-success"></i>
-                        </td>
-                        <td class="forum-name">
-                            <div class="forum-title">
-                                <a asp-route="ForumBySlug" asp-route-id="@forum.Id" asp-route-slug="@forum.Slug" class="forum-table-link pretty-link">
-                                    @forum.Name
-                                </a>
-                            </div>
-                            <div class="forum-description text-muted" sm-language-attributes-for="forum.Description">
-                                @forum.Description
-                            </div>
-                        </td>
-                        <td class="topics text-center">
-                            <div class="text-muted small">@T("Forum.Topics")</div>
-                            <div class="fs-h5 fwm">@forum.NumTopics.ToString("N0")</div>
-                        </td>
-                        <td class="posts">
-                            <div class="text-muted small">@T("Forum.Posts")</div>
-                           
-     * 
-     
-     
-     
-     <div class="fs-h5 fwm">@forum.NumPosts.ToString("N0")</div>
-                        </td>
-                        <td class="last-post">
-                            <partial name="_LastPost" model="forum.LastPost" view-data="lastPostViewData" />
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
     </div>
 </div>

@@ -1,42 +1,28 @@
 ﻿/// <reference path="../../../Smartstore.Web/Themes/Flex/wwwroot/theme.scss" />
 
-// Forum Main
-// -----------------------------------------
+.forum-link {
+    color: $body-color;
+}
 
-.forum-table {
-    th {
-        white-space: nowrap;
+.forum-list {
+    .forum-info,
+    .topic-info {
+        width: 54%;
+        max-width: 54%;
     }
 
-    .replies,
-    .views,
-    .topics,
-    .posts {
-        text-align: center;
-        width: 10%;
+    .forum-numtopics,
+    .forum-numposts,
+    .topic-replies,
+    .topic-views {
+        width: 8%;
+        max-width: 8%;
     }
 
-    .image {
-        width: 5%;
-    }
-
-    .image i {
-        font-size: 2rem;
-    }
-
-    .forum-name,
-    .topic-name {
-        width: 50%;
-    }
-
-    .last-post,
-    .topic-starter {
-        font-size: $font-size-sm;
-    }
-
-    .forum-title,
-    .topic-title {
-        font-weight: $font-weight-bold;
+    .forum-lastpost,
+    .topic-lastpost {
+        width: 30%;
+        max-width: 30%;
     }
 
     .disabled {
@@ -44,56 +30,14 @@
     }
 }
 
-.forum-table-link {
-    color: $body-color;
-}
-
-// Forum Topic
-// -----------------------------------------
-.forum-topic {
-    .post-info {
-        .user-info .button-pm {
-            min-width: 100px
-        }
-    }
-
-    .block .block-title {
-        font-size: $font-size-base;
-
-        a {
-            padding-right: 0.75rem;
-        }
-
-        i {
-            padding-right: 0.25rem;
-        }
-    }
-
-    .post-content {
-        .signature {
-            position: absolute;
-            bottom: 10px;
-            right: 0;
-            left: 0;
-            text-align: center;
-            margin-top: 20px;
-        }
-    }
-}
-
-.post-info .user-info .user-stats,
-.post-content .post-stats {
-    font-size: $font-size-xs;
-}
-
-.posttext .quotefrom {
+.forum-quote-from {
+    font-weight: bold;
     color: inherit;
     display: inline-block;
     margin-bottom: 5px;
-    font-weight: bold;
 }
 
-.posttext blockquote {
+.forum-quote {
     margin-bottom: 0;
 }
 
@@ -115,12 +59,10 @@
     }
 }
 
-.page.post-edit .form-group .col-sm-10 span {
-    vertical-align: -webkit-baseline-middle;
-}
 
 // RTL
 // -----------------------------------------
+// TODO: (mg) (core) test and fix RTL in forum.
 
 [dir=rtl] {
     .forum-topic {

@@ -1,104 +1,113 @@
-﻿@model ActiveDiscussionsModel
+﻿@using Smartstore.Web.TagHelpers.Shared;
 
-<div class="active-discussions mt-5">
-    <div class="row">
-        <div class="col">
-            <div class="heading mb-4">
-                <h1 class="heading-title @(Model.IsActiveDiscussionsPage ? "fs-h1" : "fs-h3")">
+@model ActiveDiscussionsModel
+
+<div sm-if="Model.IsActiveDiscussionsPage" class="row mt-5">
+    <div class="col">
+        <div class="heading mb-4">
+            <h1 class="heading-title fs-h2">@T("Forum.ActiveDiscussions")</h1>
+        </div>
+    </div>
+    <div sm-if="Model.ActiveDiscussionsFeedEnabled" class="col col-auto">
+        <a asp-action="ActiveDiscussionsRss" asp-controller="Boards" class="btn btn-warning" title="@T("Forum.ActiveDiscussionsRSSLinkTitle")">
+            <i class="fa fa-rss"></i>
+            <span>@T("Forum.RSS")</span>
+        </a>
+    </div>
+</div>
+
+<div class="active-discussions card" attr-class='(!Model.IsActiveDiscussionsPage, "mt-5")'>
+    <div sm-if="!Model.IsActiveDiscussionsPage" class="card-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="fs-h4 m-0">
                     @T("Forum.ActiveDiscussions")
-                </h1>
+                </h2>
+            </div>
+            <div class="col-md-4">
+                <div class="float-right">
+                    @if (Model.ActiveDiscussionsFeedEnabled)
+                    {
+                        <a asp-action="ActiveDiscussionsRss" asp-controller="Boards" class="btn btn-warning" title="@T("Forum.ActiveDiscussionsRSSLinkTitle")">
+                            <i class="fa fa-rss"></i>
+                            <span>@T("Forum.RSS")</span>
+                        </a>
+                    }
+                    <a asp-route="ForumActiveDiscussions" class="btn btn-outline-info btn-flat">
+                        <i class="fa fa-th-list"></i>
+                        <span>@T("Forum.ActiveDiscussions.ViewAll")</span>
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="col col-auto mb-3 mb-0-sm">
-            @if (Model.ActiveDiscussionsFeedEnabled)
-            {
-                <a asp-action="ActiveDiscussionsRss" asp-controller="Boards" class="btn btn-warning" title="@T("Forum.ActiveDiscussionsRSSLinkTitle")">
-                    <i class="fa fa-rss"></i>
-                    <span>@T("Forum.RSS")</span>
-                </a>
-            }
-            @if (!Model.IsActiveDiscussionsPage)
-            {
-                <a asp-route="ForumActiveDiscussions" class="btn btn-outline-info btn-flat">
-                    <i class="fa fa-th-list"></i>
-                    <span>@T("Forum.ActiveDiscussions.ViewAll")</span>
-                </a>
-            }
-        </div>
     </div>
-    <div class="active-discussionstopics table-responsive">
-        <table class="table forum-table">
-            <thead sm-if="Model.ForumTopics.Any()">
-                <tr class="active-discussions-header">
-                    <th></th>
-                    <th class="topic-name">
-                        @T("Forum.TopicTitle")
-                    </th>
-                    <th class="replies">
-                        @T("Forum.Replies")
-                    </th>
-                    <th class="views">
-                        @T("Forum.Views")
-                    </th>
-                    <th class="last-post">
-                        @T("Forum.LatestPost")
-                    </th>
-                </tr>
-            </thead>
+    <div class="card-body p-0">
+        <ul class="list-group list-group-flush forum-list">
             @foreach (var topic in Model.ForumTopics)
             {
-                <tr class="topic">
-                    <td class="image">
-                        <partial name="Customer.Avatar" model="topic.Avatar" />
-                    </td>
-                    <td class="topic-name">
-                        <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="topic-title forum-table-link">
-                            @topic.Subject
-                        </a>
-                        <div>
-                            <div sm-if="topic.CustomerId > 0" class="topic-starter text-muted d-inline-flex">
-                                <span class="pr-1">@T("Forum.Author"):</span>
-				                @if (topic.HasCustomerProfile)
-				                {
-					                <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId" class="forum-table-link">
-						                @topic.CustomerName.NaIfEmpty()
-					                </a>
-				                }
-				                else
-				                {
-					                <span>@topic.CustomerName</span>
-				                }
-                            </div>
-                            @if (topic.PostsPages.TotalPages > 1)
-                            {
-                                <forumtopic-pagination class="topics-pager"
-                                    sm-list-items="topic.PostsPages"
-                                    sm-topic-id="topic.Id"
-                                    sm-topic-slug="@topic.Slug"
-                                    sm-show-previous="false"
-                                    sm-show-next="false"
-                                    sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
-                                    sm-alignment="Left"
-                                    sm-size="Mini" />
-                            }
-                        </div>
-                    </td>
-                    <td class="replies">
-                        @topic.NumReplies.ToString("N0")
-                    </td>
-                    <td class="views">
-                        @topic.Views.ToString("N0")
-                    </td>
-                    <td class="last-post">
-                        <partial name="_LastPost" model="topic.LastPost" />
-                    </td>
-                </tr>
-            }
-        </table>
-    </div>
+                <li class="list-group-item">
+                    <div class="row flex-nowrap align-items-center sm-gutters" attr-class='(!topic.Published, "disabled")'>
 
-    @if (Model.IsActiveDiscussionsPage)
-    {
-        <pagination sm-list-items="Model.ForumTopics" />
-    }
+                        <div class="col topic-info text-truncate">
+                            <div class="d-flex flex-nowrap align-items-center">
+                                <div class="topic-avatar mr-3">
+                                    <partial name="Customer.Avatar" model="topic.Avatar" />
+                                </div>
+                                <div class="topic-name">
+                                    <div class="topic-subject text-truncate">
+                                        <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="forum-link fwm fs-h6 text-truncate">
+                                            @topic.Subject
+                                        </a>
+                                    </div>
+                                    <div sm-if="topic.CustomerId > 0" class="topic-author text-truncate text-muted">
+                                        <span>@T("Forum.Author"):</span>
+                                        @if (topic.HasCustomerProfile)
+                                        {
+                                            <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId" class="forum-link">
+                                                @topic.CustomerName.NaIfEmpty()
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span>@topic.CustomerName</span>
+                                        }
+                                    </div>
+                                    <div sm-if="topic.PostsPages.TotalPages > 1">
+                                        <forumtopic-pagination class="topics-pager"
+                                            sm-list-items="topic.PostsPages"
+                                            sm-topic-id="topic.Id"
+                                            sm-topic-slug="@topic.Slug"
+                                            sm-show-previous="false"
+                                            sm-show-next="false"
+                                            sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
+                                            sm-alignment="Left"
+                                            sm-size="@Model.IsActiveDiscussionsPage ? PagerSize.Small : PagerSize.Mini" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col topic-replies text-center text-truncate">
+                            <div class="text-muted small">@T("Forum.Replies")</div>
+                            <div class="fs-h5 fwm">@topic.NumReplies.ToString("N0")</div>
+                        </div>
+
+                        <div class="col topic-views text-center text-truncate">
+                            <div class="text-muted small">@T("Forum.Views")</div>
+                            <div class="fs-h5 fwm">@topic.Views.ToString("N0")</div>
+                        </div>
+
+                        <div class="col topic-lastpost text-truncate">
+                            <partial name="_LastPost" model="topic.LastPost" />
+                        </div>
+                    </div>
+
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+<div sm-if="Model.IsActiveDiscussionsPage" class="mt-3">
+    <pagination sm-list-items="Model.ForumTopics" />
 </div>

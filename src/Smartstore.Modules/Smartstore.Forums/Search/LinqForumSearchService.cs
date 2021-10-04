@@ -33,6 +33,8 @@ namespace Smartstore.Forums.Search
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        public string Name => "linq";
+
         public IQueryable<ForumPost> PrepareQuery(ForumSearchQuery searchQuery, IQueryable<ForumPost> baseQuery = null)
         {
             return GetPostQuery(searchQuery, baseQuery);

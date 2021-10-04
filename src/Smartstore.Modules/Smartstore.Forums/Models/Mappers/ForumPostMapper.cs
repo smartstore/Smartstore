@@ -19,10 +19,11 @@ namespace Smartstore.Forums.Models.Mappers
     {
         public static async Task<PublicForumPostModel> MapAsync(this ForumPost entity,
             bool stripLongUserNames = true,
+            bool largeAvatar = false,
             int page = 1)
         {
             var model = new PublicForumPostModel();
-            await entity.MapAsync(model, stripLongUserNames, page);
+            await entity.MapAsync(model, stripLongUserNames, largeAvatar, page);
 
             return model;
         }
@@ -30,10 +31,12 @@ namespace Smartstore.Forums.Models.Mappers
         public static async Task MapAsync(this ForumPost entity, 
             PublicForumPostModel model,
             bool stripLongUserNames = true,
+            bool largeAvatar = false,
             int page = 1)
         {
             dynamic parameters = new ExpandoObject();
             parameters.StripLongUserNames = stripLongUserNames;
+            parameters.LargeAvatar = largeAvatar;
             parameters.Page = page;
 
             await MapperFactory.MapAsync(entity, model, parameters);
@@ -70,6 +73,7 @@ namespace Smartstore.Forums.Models.Mappers
             Guard.NotNull(from.ForumTopic, nameof(from.ForumTopic));
 
             var stripLongUserNames = (bool)parameters.StripLongUserNames;
+            var largeAvatar = (bool)parameters.LargeAvatar;
             var page = (int)parameters.Page;
             var createdOn = _services.DateTimeHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc);
             var currentCustomer = _services.WorkContext.CurrentCustomer;
@@ -98,8 +102,7 @@ namespace Smartstore.Forums.Models.Mappers
                 ? createdOn.Humanize(false)
                 : createdOn.ToString("f");
 
-            // TODO: (mg) (core) Parametrize avatar size somehow. We need it in different sizes.
-            to.Avatar = from.Customer.ToAvatarModel(to.CustomerName, false);
+            to.Avatar = from.Customer.ToAvatarModel(to.CustomerName, largeAvatar);
 
             if (_forumSettings.AllowCustomersToVoteOnPosts && from.CustomerId != currentCustomer.Id)
             {

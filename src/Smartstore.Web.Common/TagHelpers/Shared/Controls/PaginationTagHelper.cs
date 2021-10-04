@@ -100,7 +100,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.Attributes.Add("aria-label", "Page navigation");
 
             var itemsUl = new TagBuilder("ul");
-            itemsUl.AppendCssClass("pagination");
+            itemsUl.AppendCssClass("pagination mb-0");
 
             // Size
             if (Size == PagerSize.Large)

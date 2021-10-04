@@ -34,106 +34,102 @@
 
     <p class="lead" sm-language-attributes-for="Model.Description">@Model.Description</p>
 
-    <div>
-        <div class="actions my-3 row sm-gutters">
-            <div class="col col-sm-auto mt-1 mt-sm-0">
-                <a asp-action="TopicCreate" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-primary newtopic btn-block" rel="nofollow">
-                    <i class="fa fa-plus"></i>
-                    <span>@T("Forum.NewTopic")</span>
-                </a>
-            </div>
-            <div sm-if="Model.CanSubscribe" class="col col-sm-auto mt-1 mt-sm-0">
-                <form id="watch-forum-form" sm-ajax="true" method="post" asp-action="ForumWatch" asp-controller="Boards" sm-oncomplete="onWatchForumCompleted">
-                    <input type="hidden" asp-for="Id" />
-
-                    <button type="submit" id="watch-forum" class="btn btn-outline-primary btn-block watch-forum">
-                        <i class="fa fa-bookmark"></i>
-                        <span class="watch-forum-text">@T(Model.IsSubscribed ? "Forum.UnwatchForum" : "Forum.WatchForum")</span>
-                    </button>
-                </form>
-            </div>
+    <div class="actions row sm-gutters mb-2">
+        <div class="col col-sm-auto">
+            <a asp-action="TopicCreate" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-primary newtopic btn-block" rel="nofollow">
+                <i class="fa fa-plus"></i>
+                <span>@T("Forum.NewTopic")</span>
+            </a>
         </div>
-        <pagination sm-list-items="Model.ForumTopics" sm-alignment="Right" />
+        <div sm-if="Model.CanSubscribe" class="col col-sm-auto">
+            <form id="watch-forum-form" sm-ajax="true" method="post" asp-action="ForumWatch" asp-controller="Boards" sm-oncomplete="onWatchForumCompleted">
+                <input type="hidden" asp-for="Id" />
+
+                <button type="submit" id="watch-forum" class="btn btn-outline-primary btn-block watch-forum">
+                    <i class="fa fa-bookmark"></i>
+                    <span class="watch-forum-text">@T(Model.IsSubscribed ? "Forum.UnwatchForum" : "Forum.WatchForum")</span>
+                </button>
+            </form>
+        </div>
+        <div class="col">
+            <pagination sm-list-items="Model.ForumTopics" sm-alignment="Right" />
+        </div>
     </div>
-    <div sm-if="Model.ForumTopics.Any()" class="topics-group table-responsive">
-        <table class="table forum-table">
-            <thead>
-                <tr class="forum-header">
-                    <th></th>
-                    <th class="topic-name">
-                        @T("Forum.TopicTitle")
-                    </th>
-                    <th class="replies">
-                        @T("Forum.Replies")
-                    </th>
-                    <th class="views">
-                        @T("Forum.Views")
-                    </th>
-                    <th class="last-post">
-                        @T("Forum.LatestPost")
-                    </th>
-                </tr>
-            </thead>
-            @foreach (var topic in Model.ForumTopics)
-            {
-                <tr class="topic" attr-class='(!topic.Published, "disabled")'>
-                    <td class="image">
-                        <partial name="Customer.Avatar" model="topic.Avatar" />
-                    </td>
-                    <td class="topic-name">
-                        <span sm-if="topic.ForumTopicType == ForumTopicType.Sticky" class="topictype">
-                            <label class="badge badge-success">@T("Forum.Sticky")</label>
-                        </span>
-                        <span sm-if="topic.ForumTopicType == ForumTopicType.Announcement" class="topictype">
-                            <label class="badge badge-info">@T("Forum.Announcement")</label>
-                        </span>
-                        <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="topic-title forum-table-link">
-                            @topic.Subject
-                        </a>
-                        <div>
-                            <div class="topic-starter text-muted d-inline-flex">
-                                <div sm-if="topic.CustomerId > 0">
-                                    <span class="pr-1">@T("Forum.Author"):</span>
-                                    @if (topic.HasCustomerProfile)
-                                    {
-                                        <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId" class="forum-table-link">
-                                            @topic.CustomerName.NaIfEmpty()
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <span>@topic.CustomerName</span>
-                                    }
+
+    <div class="topics-group card">
+        <div class="card-body p-0">
+            <ul class="list-group list-group-flush forum-list">
+                @foreach (var topic in Model.ForumTopics)
+                {
+                    <li class="list-group-item">
+                        <div class="row flex-nowrap align-items-center sm-gutters" attr-class='(!topic.Published, "disabled")'>
+
+                            <div class="col topic-info text-truncate">
+                                <div class="d-flex flex-nowrap align-items-center">
+                                    <div class="topic-avatar mr-3">
+                                        <partial name="Customer.Avatar" model="topic.Avatar" />
+                                    </div>
+                                    <div class="topic-name">
+                                        <div class="topic-subject text-truncate">
+                                            <span sm-if="topic.ForumTopicType == ForumTopicType.Sticky" class="topic-type">
+                                                <label class="badge badge-success">@T("Forum.Sticky")</label>
+                                            </span>
+                                            <span sm-if="topic.ForumTopicType == ForumTopicType.Announcement" class="topic-type">
+                                                <label class="badge badge-info">@T("Forum.Announcement")</label>
+                                            </span>
+                                            <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="forum-link fwm fs-h6 text-truncate">
+                                                @topic.Subject
+                                            </a>
+                                        </div>
+                                        <div sm-if="topic.CustomerId > 0" class="topic-author text-truncate text-muted">
+                                            <span>@T("Forum.Author"):</span>
+                                            @if (topic.HasCustomerProfile)
+                                            {
+                                                <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId" class="forum-link">
+                                                    @topic.CustomerName.NaIfEmpty()
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span>@topic.CustomerName</span>
+                                            }
+                                        </div>
+                                        <div sm-if="topic.PostsPages.TotalPages > 1">
+                                            <forumtopic-pagination class="topics-pager"
+                                                sm-list-items="topic.PostsPages"
+                                                sm-topic-id="topic.Id"
+                                                sm-topic-slug="@topic.Slug"
+                                                sm-show-previous="false"
+                                                sm-show-next="false"
+                                                sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
+                                                sm-alignment="Left"
+                                                sm-size="Small" />                                            
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            @if (topic.PostsPages.TotalPages > 1)
-                            {
-                                <forumtopic-pagination class="topics-pager"
-                                    sm-list-items="topic.PostsPages"
-                                    sm-topic-id="topic.Id"
-                                    sm-topic-slug="@topic.Slug"
-                                    sm-show-previous="false"
-                                    sm-show-next="false"
-                                    sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
-                                    sm-alignment="Left"
-                                    sm-size="Small" />
-                            }
+
+                            <div class="col topic-replies text-center text-truncate">
+                                <div class="text-muted small">@T("Forum.Replies")</div>
+                                <div class="fs-h5 fwm">@topic.NumReplies.ToString("N0")</div>
+                            </div>
+
+                            <div class="col topic-views text-center text-truncate">
+                                <div class="text-muted small">@T("Forum.Views")</div>
+                                <div class="fs-h5 fwm">@topic.Views.ToString("N0")</div>
+                            </div>
+
+                            <div class="col topic-lastpost text-truncate">
+                                <partial name="_LastPost" model="topic.LastPost" />
+                            </div>
+
                         </div>
-                    </td>
-                    <td class="replies">
-                        @topic.NumReplies.ToString("N0")
-                    </td>
-                    <td class="views">
-                        @topic.Views.ToString("N0")
-                    </td>
-                    <td class="last-post">
-                        <partial name="_LastPost" model="topic.LastPost" />
-                    </td>
-                </tr>
-            }
-        </table>
+                    </li>
+                }
+            </ul>
+        </div>
     </div>
-    <pagination sm-list-items="Model.ForumTopics" sm-alignment="Right" />
+    <pagination sm-list-items="Model.ForumTopics" sm-alignment="Right" class="mt-3" />
 </div>
 
 <script sm-target-zone="scripts" data-origin="forum">

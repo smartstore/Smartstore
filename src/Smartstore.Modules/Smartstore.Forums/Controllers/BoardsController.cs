@@ -417,7 +417,7 @@ namespace Smartstore.Forums.Controllers
             }
 
             var postModels = await posts
-                .SelectAsync(async x => await x.MapAsync(false, page))
+                .SelectAsync(async x => await x.MapAsync(false, true, page))
                 .AsyncToList();
 
             model.ForumPosts = new PagedList<PublicForumPostModel>(postModels, posts.PageIndex, posts.PageSize, posts.TotalCount);

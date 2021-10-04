@@ -76,19 +76,17 @@ namespace Smartstore.Forums.Services
                     {
                         var from = m.Groups[1].Value;
                         var quote = m.Groups[2].Value;
+                        var result = string.Empty;
 
-                        if (quote.IsEmpty())
+                        if (quote.HasValue())
                         {
-                            return string.Empty;
-                        }
+                            if (from.HasValue())
+                            {
+                                result += $"<span class='forum-quote-from'>{from[1..]}:</span>";
+                            }
 
-                        string result = string.Empty;
-                        if (from.HasValue())
-                        {
-                            result += "<span class='quotefrom'>{0}:</span>".FormatCurrent(from.Substring(1));
+                            result += $"<blockquote class='forum-quote muted'>{quote}</blockquote>";
                         }
-
-                        result += "<blockquote class='muted'>{0}</blockquote>".FormatCurrent(quote);
 
                         return result;
                     });

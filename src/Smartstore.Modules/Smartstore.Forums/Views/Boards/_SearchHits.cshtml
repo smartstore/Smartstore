@@ -5,93 +5,90 @@
     var textQueried = Model.SearchResult.Engine != null && Model.Query.Fields != null && Model.Query.Fields.Contains("text");
 }
 
-<tbody class="border-0"
-    data-page="@(hits.PageIndex + 1)"
-    data-hasnextpage="@hits.HasNextPage.ToString().ToLower()"
-    data-cumulativehits="@Model.CumulativeHitCount.ToString("N0")">
-    @foreach (PublicForumTopicModel topic in hits)
-    {
-        <tr data-id="@topic.Id" class="topic" attr-class='(!topic.Published, "disabled")'>
-            <td class="image">
-                <partial name="Customer.Avatar" model="topic.Avatar" />
-            </td>
-            <td class="topic-name">
-                <span sm-if="topic.ForumTopicType == ForumTopicType.Sticky" class="topictype">
-                    <label class="badge badge-success">@T("Forum.Sticky")</label>
-                </span>
-                <span sm-if="topic.ForumTopicType == ForumTopicType.Announcement" class="topictype">
-                    <label class="badge badge-info">@T("Forum.Announcement")</label>
-                </span>
-                <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="topic-title">
-                    @Html.Raw(Model.Highlight(topic.Subject, "subject", Model.Query, null, "<mark>", "</mark>"))
-                </a>
-                @if (topic.PostsPages.TotalPages > 1)
-                {
-                    <forumtopic-pagination class="topics-pager"
-                        sm-list-items="topic.PostsPages"
-                        sm-topic-id="topic.Id"
-                        sm-topic-slug="@topic.Slug"
-                        sm-show-previous="false"
-                        sm-show-next="false"
-                        sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
-                        sm-alignment="Left"
-                        sm-size="Mini" />
-                }
-                <div class="topic-starter">
-                    @if (topic.CustomerId > 0)
-                    {
-                        <div class="d-flex text-muted">
-                            <span class="pr-1">@T("Forum.Author"):</span>
-                            <span>
-                                @if (topic.HasCustomerProfile)
-                                {
-                                    <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId" class="forum-table-link">@topic.CustomerName.NaIfEmpty()</a>
-                                }
-                                else
-                                {
-                                    @topic.CustomerName
-                                }
+@foreach (PublicForumTopicModel topic in hits)
+{
+    <li class="list-group-item">
+        <div data-id="@topic.Id" class="row flex-nowrap align-items-center sm-gutters" attr-class='(!topic.Published, "disabled")'>
+
+            <div class="col topic-info text-truncate">
+                <div class="d-flex flex-nowrap align-items-center">
+                    <div class="topic-avatar mr-3">
+                        <partial name="Customer.Avatar" model="topic.Avatar" />
+                    </div>
+                    <div class="topic-name">
+                        <div class="topic-subject text-truncate">
+                            <span sm-if="topic.ForumTopicType == ForumTopicType.Sticky" class="topic-type">
+                                <label class="badge badge-success">@T("Forum.Sticky")</label>
                             </span>
+                            <span sm-if="topic.ForumTopicType == ForumTopicType.Announcement" class="topic-type">
+                                <label class="badge badge-info">@T("Forum.Announcement")</label>
+                            </span>
+                            <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="forum-link fwm fs-h6 text-truncate">
+                                @Html.Raw(Model.Highlight(topic.Subject, "subject", Model.Query, null, "<mark>", "</mark>"))
+                            </a>
                         </div>
-                        <div sm-if="topic.FirstPostId != 0 && textQueried" class="mt-2">
+                        <div sm-if="topic.CustomerId > 0" class="topic-author text-truncate text-muted">
+                            <span>@T("Forum.Author"):</span>
+                            @if (topic.HasCustomerProfile)
+                            {
+                                <a asp-route="CustomerProfile" asp-route-id="@topic.CustomerId" class="forum-link">
+                                    @topic.CustomerName.NaIfEmpty()
+                                </a>
+                            }
+                            else
+                            {
+                                <span>@topic.CustomerName</span>
+                            }
+                        </div>
+                        <div sm-if="topic.FirstPostId != 0 && textQueried" class="queried-text text-truncate">
                             @Html.Raw(Model.SearchResult.Engine.Highlight(topic.FirstPostId, "text", "<mark>", "</mark>", 3))
                         </div>
-                    }
+                        <div sm-if="topic.PostsPages.TotalPages > 1">
+                            <forumtopic-pagination class="topics-pager"
+                                sm-list-items="topic.PostsPages"
+                                sm-topic-id="topic.Id"
+                                sm-topic-slug="@topic.Slug"
+                                sm-show-previous="false"
+                                sm-show-next="false"
+                                sm-item-title-format-string="@T("Forum.Topics.GotoPostPager")"
+                                sm-alignment="Left"
+                                sm-size="Mini" />                                            
+                        </div>
+                    </div>
                 </div>
-            </td>
-            <td class="replies">
-                @topic.NumReplies.ToString("N0")
-            </td>
-            <td class="views">
-                @topic.Views.ToString("N0")
-            </td>
-            <td class="last-post">
+            </div>
+
+            <div class="col topic-replies text-center text-truncate">
+                <div class="text-muted small">@T("Forum.Replies")</div>
+                <div class="fs-h5 fwm">@topic.NumReplies.ToString("N0")</div>
+            </div>
+
+            <div class="col topic-views text-center text-truncate">
+                <div class="text-muted small">@T("Forum.Views")</div>
+                <div class="fs-h5 fwm">@topic.Views.ToString("N0")</div>
+            </div>
+
+            <div class="col topic-lastpost text-truncate">
                 <partial name="_LastPost" model="topic.LastPost" />
-            </td>
-        </tr>
-    }
-</tbody>
+            </div>
+
+        </div>
+    </li>
+}
+
 @if (Model.TotalCount == 0 || !hits.HasNextPage)
 {
-    <tfoot sm-if="hits.TotalPages > 1" class="border-0">
-        <tr>
-            <td colspan="5">
-                <span class="text-muted">@T("Search.NoMoreHitsFound")</span>
-            </td>
-        </tr>
-    </tfoot>
+    <li sm-if="hits.TotalPages > 1" class="text-muted">
+        @T("Search.NoMoreHitsFound")
+    </li>
 }
 else if (Model.Error.HasValue())
 {
-    <tfoot class="border-0">
-        <tr>
-            <td colspan="5">
-                <div class="alert alert-danger">@Model.Error</div>
-            </td>
-        </tr>
-    </tfoot>
+    <li>
+        <div class="alert alert-danger">@Model.Error</div>
+    </li>
 }
 else
 {
-    <tbody class="border-0 load-more" data-page="@(hits.PageIndex + 2)"></tbody>
+    <li class="load-more" data-page="@(hits.PageIndex + 2)"></li>
 }
