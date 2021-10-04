@@ -24,7 +24,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public async Task<QueuedEmailAttachment> GetPdfAttachmentAsync(int orderId, CancellationToken cancelToken = default)
+        public async Task<QueuedEmailAttachment> GetPdfInvoiceAsync(int orderId, CancellationToken cancelToken = default)
         {
             var request = _urlHelper.ActionContext.HttpContext.Request;
             var path = _urlHelper.Action("Print", "Order", new { id = orderId, pdf = true, area = string.Empty });

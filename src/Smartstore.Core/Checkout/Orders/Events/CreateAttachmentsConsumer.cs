@@ -42,7 +42,7 @@ namespace Smartstore.Core.Checkout.Orders.Events
                 {
                     try
                     {
-                        var qea = await _client.GetPdfAttachmentAsync(orderId);
+                        var qea = await _client.GetPdfInvoiceAsync(orderId);
                         qe.Attachments.Add(qea);
                     }
                     catch (Exception ex)
