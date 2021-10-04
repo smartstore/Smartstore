@@ -2,6 +2,9 @@
   <LocaleResource Name="Plugins.FriendlyName.Smartstore.Polls" AppendRootKey="false">
     <Value>Polls</Value>
   </LocaleResource>
+	<LocaleResource Name="Plugins.Description.Smartstore.Polls" AppendRootKey="false">
+		<Value>Enables the creation of customer polls.</Value>
+	</LocaleResource>
   <LocaleResource Name="Systemname.MyAccountMenu">
     <Value>Below MyAcount navigation</Value>
   </LocaleResource>

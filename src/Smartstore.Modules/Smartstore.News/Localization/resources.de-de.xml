@@ -2,6 +2,9 @@
   <LocaleResource Name="Plugins.FriendlyName.Smartstore.News" AppendRootKey="false">
     <Value>News</Value>
   </LocaleResource>
+	<LocaleResource Name="Plugins.Description.Smartstore.News" AppendRootKey="false">
+		<Value>Erweitert den Shop um eine News-Sektion.</Value>
+	</LocaleResource>
   <LocaleResource Name="Settings">
     <Value>News</Value>
   </LocaleResource>
