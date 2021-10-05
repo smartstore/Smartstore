@@ -5,6 +5,10 @@
     var textQueried = Model.SearchResult.Engine != null && Model.Query.Fields != null && Model.Query.Fields.Contains("text");
 }
 
+<li id="forum-page-@(hits.PageIndex + 1)" class="forum-search-stats d-none"
+    data-hasnextpage="@hits.HasNextPage.ToString().ToLower()"
+    data-cumulativehits="@Model.CumulativeHitCount.ToString("N0")"></li>
+
 @foreach (PublicForumTopicModel topic in hits)
 {
     <li class="list-group-item">
@@ -78,17 +82,17 @@
 
 @if (Model.TotalCount == 0 || !hits.HasNextPage)
 {
-    <p sm-if="hits.TotalPages > 1" class="text-muted">
+    <li sm-if="hits.TotalPages > 1" class="forum-search-status text-muted">
         @T("Search.NoMoreHitsFound")
-    </p>
+    </li>
 }
 else if (Model.Error.HasValue())
 {
-    <p>
+    <li class="forum-search-status">
         <div class="alert alert-danger">@Model.Error</div>
-    </p>
+    </li>
 }
 else
 {
-    <div class="load-more" data-page="@(hits.PageIndex + 2)"></div>
+    <li class="forum-search-status load-more" data-page="@(hits.PageIndex + 2)"></li>
 }

@@ -67,12 +67,9 @@
             </div>
         </div>
         <div sm-if="Model.TotalCount > 0" class="search-results mt-3">
-            <div id="ForumSearchResult" class="topics-group card">
-                <div class="card-body p-0 forum-list">
-                    <ul class="list-group"
-                        data-page="@(hits.PageIndex + 1)"
-                        data-hasnextpage="@hits.HasNextPage.ToString().ToLower()"
-                        data-cumulativehits="@Model.CumulativeHitCount.ToString("N0")">
+            <div id="ForumSearchResult" class="topics-group card border-0">
+                <div class="card-body p-0">
+                    <ul class="list-group forum-list">
                         <partial name="_SearchHits" />
                     </ul>
                 </div>
@@ -80,7 +77,7 @@
         </div>
     </div>
 </div>
-@* TODO: (mg) (core) Test AJAX paging of forum search results. *@
+
 <script sm-target-zone="scripts" data-origin="forum-search">
     $(function () {
         var result = $('#ForumSearchResult');
@@ -104,11 +101,11 @@
                 var html, processImmediately = false;
 
                 // IDs of already rendered topics, to avoid rendering them again when the list is extended.
-                var renderedTopicIds = result.find('topic').map(function() {
+                var renderedTopicIds = result.find('.topic').map(function() {
                     return $(this).data('id');
                 }).get();
 
-                console.log(newPage + '. ' + url + '. ' + renderedTopicIds.toString());
+                //console.log(newPage + '. ' + url + '. ' + renderedTopicIds.toString());
 
                 setTimeout(function () {
                     processImmediately = true;
@@ -151,14 +148,15 @@
 
         function processSearchResult(html, container, newPage) {
             if (html && html.length > 0) {
-                // Replace empty list at table end by page representing list.
+                // Replace empty list item at the end by page representing list.
                 container.replaceWith(html);
 
-                // Update cumulative hit counter.
+                // Stats: update cumulative hit counter.
                 var counter = $('#SearchHitsCount');
-                var pageBody = result.find('ul[data-page=' + newPage + ']');
+                var pageBody = $('#forum-page-' + newPage);
                 
                 counter.find('.cumulative-count').text(pageBody.data('cumulativehits'));
+
                 if (!pageBody.data('hasnextpage')) {
                     counter.find('.more-hits-sign').hide();
                 }
