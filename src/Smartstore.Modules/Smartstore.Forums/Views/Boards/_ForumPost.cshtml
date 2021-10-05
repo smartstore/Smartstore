@@ -47,7 +47,10 @@
 
                 @if (Model.CanCreatePrivateMessages)
                 {
-                    @*TODO: (mg) (core) verify private message frontend URL.*@
+                    @*TODO: (mg) (core) verify private message frontend URL. (empty area would be missing)*@
+                    //INFO: (mg) (core) The PrivateMessagesController wasn't implemented on purpose in the frontend.
+                    //The whole feature of PMs depend on ForumSettings.AllowPrivateMessages. So the controller must be implmented here in this module.
+                    //Sorry for the bad news :-/
                     <a asp-action="Send" asp-controller="PrivateMessages" asp-route-id="@Model.CustomerId" class="btn btn-outline-info btn-flat button-pm mt-2 btn-sm" rel="nofollow">
                         <i class="fa fa-user"></i>
                         <span>@T("Forum.PrivateMessages.PM")</span>
