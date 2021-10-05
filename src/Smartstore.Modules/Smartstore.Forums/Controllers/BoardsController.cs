@@ -956,6 +956,7 @@ namespace Smartstore.Forums.Controllers
 
         #region Forum post
 
+        [HttpGet]
         [GdprConsent]
         [Route("boards/postcreate/{id:int}/{quote?}", Name = "ForumPostCreate")]
         public async Task<IActionResult> PostCreate(int id, int? quote)
@@ -1014,6 +1015,7 @@ namespace Smartstore.Forums.Controllers
         [HttpPost]
         [ValidateCaptcha]
         [GdprConsent]
+        [Route("boards/postcreate/{id:int}/{quote?}", Name = "ForumPostCreate")]
         public async Task<IActionResult> PostCreate(PublicEditForumPostModel model, string captchaError)
         {
             if (!_forumSettings.ForumsEnabled)
