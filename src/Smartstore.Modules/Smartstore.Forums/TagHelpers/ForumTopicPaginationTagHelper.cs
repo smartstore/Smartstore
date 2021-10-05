@@ -13,11 +13,6 @@ namespace Smartstore.Forums.TagHelpers
         const string TopicIdAttributeName = "sm-topic-id";
         const string TopicSlugAttributeName = "sm-topic-slug";
 
-        public ForumTopicPaginationTagHelper() 
-            : base()
-        {
-        }
-
         [HtmlAttributeName(TopicIdAttributeName)]
         public int TopicId { get; set; }
 

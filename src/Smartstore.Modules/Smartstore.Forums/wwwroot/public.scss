@@ -28,6 +28,10 @@
     .disabled {
         opacity: .5;
     }
+
+    .topics-pager {
+        padding: 4px 0;
+    }
 }
 
 .forum-quote-from {
@@ -49,37 +53,4 @@
 .forum-search-status {
     list-style: none;
     padding: 12px 0;
-}
-
-// RTL
-// -----------------------------------------
-// TODO: (mg) (core) test and fix RTL in forum.
-[dir=rtl] {
-    .forum-topic {
-        .block .block-title {
-            a {
-                padding-left: 0.75rem;
-                padding-right: initial;
-            }
-
-            i {
-                padding-left: 0.25rem;
-                padding-right: initial;
-            }
-        }
-    }
-
-    .forum-search-box {
-        text-align: left;
-    }
-
-    .basic-search,
-    #advanced-search-block label {
-        padding-left: 10px;
-        padding-right: 0;
-
-        @include media-breakpoint-up(sm) {
-            text-align: left;
-        }
-    }
 }
