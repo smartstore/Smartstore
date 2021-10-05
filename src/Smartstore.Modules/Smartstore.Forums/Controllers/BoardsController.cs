@@ -1422,6 +1422,7 @@ namespace Smartstore.Forums.Controllers
             return PartialView(model);
         }
 
+        [HttpGet]
         [LocalizedRoute("boards/search", Name = "ForumSearch")]
         public async Task<IActionResult> Search(ForumSearchQuery query)
         {
@@ -1442,14 +1443,14 @@ namespace Smartstore.Forums.Controllers
             {
                 model.CurrentSortOrder = query?.CustomData.Get("CurrentSortOrder").Convert<int?>();
 
-                model.AvailableSortOptions = await Services.Cache.GetAsync($"pres:forumsortoptions-{language.Id}", async () =>
+                model.AvailableSortOptions = Services.Cache.Get($"pres:forumsortoptions-{language.Id}", () =>
                 {
                     var dict = new Dictionary<int, string>();
                     foreach (ForumTopicSorting val in Enum.GetValues(typeof(ForumTopicSorting)))
                     {
                         if (val != ForumTopicSorting.Initial)
                         {
-                            dict[(int)val] = await Services.Localization.GetLocalizedEnumAsync(val, language.Id);
+                            dict[(int)val] = Services.Localization.GetLocalizedEnum(val, language.Id);
                         }
                     }
 

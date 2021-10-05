@@ -329,7 +329,6 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets the reward points history.
         /// </summary>
-        [JsonIgnore]
         public ICollection<RewardPointsHistory> RewardPointsHistory
         {
             get => _rewardPointsHistory ?? LazyLoader.Load(this, ref _rewardPointsHistory) ?? (_rewardPointsHistory ??= new HashSet<RewardPointsHistory>());

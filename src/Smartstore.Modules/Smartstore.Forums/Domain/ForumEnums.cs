@@ -1,10 +1,12 @@
 ﻿using System;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Forums.Domain
 {
     /// <summary>
     /// Represents a forum topic type.
     /// </summary>
+    [EnumAliasName("Smartstore.Forums.Domain.ForumTopicType")]
     public enum ForumTopicType
     {
         /// <summary>
@@ -23,6 +25,7 @@ namespace Smartstore.Forums.Domain
         Announcement = 20,
     }
 
+    [EnumAliasName("Smartstore.Forums.Domain.ForumDateFilter")]
     public enum ForumDateFilter
     {
         LastVisit = 0,
@@ -38,6 +41,7 @@ namespace Smartstore.Forums.Domain
     /// <summary>
     /// Represents a forum editor type.
     /// </summary>
+    [EnumAliasName("Smartstore.Forums.Domain.EditorType")]
     public enum EditorType
     {
         /// <summary>
@@ -54,6 +58,7 @@ namespace Smartstore.Forums.Domain
     /// <summary>
     /// Represents the sorting of forum topics.
     /// </summary>
+    [EnumAliasName("Smartstore.Forums.Domain.ForumTopicSorting")]
     public enum ForumTopicSorting
     {
         /// <summary>

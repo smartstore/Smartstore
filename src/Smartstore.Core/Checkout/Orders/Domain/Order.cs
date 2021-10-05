@@ -532,7 +532,6 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the reward points history record.
         /// </summary>
-        [JsonIgnore]
         public RewardPointsHistory RedeemedRewardPointsEntry { get; set; }
 
         private ICollection<WalletHistory> _walletHistory;

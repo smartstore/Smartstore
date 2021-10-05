@@ -8,7 +8,7 @@
 @foreach (PublicForumTopicModel topic in hits)
 {
     <li class="list-group-item">
-        <div data-id="@topic.Id" class="row flex-nowrap align-items-center sm-gutters" attr-class='(!topic.Published, "disabled")'>
+        <div data-id="@topic.Id" class="topic row flex-nowrap align-items-center sm-gutters" attr-class='(!topic.Published, "disabled")'>
 
             <div class="col topic-info text-truncate">
                 <div class="d-flex flex-nowrap align-items-center">
@@ -78,17 +78,17 @@
 
 @if (Model.TotalCount == 0 || !hits.HasNextPage)
 {
-    <li sm-if="hits.TotalPages > 1" class="text-muted">
+    <p sm-if="hits.TotalPages > 1" class="text-muted">
         @T("Search.NoMoreHitsFound")
-    </li>
+    </p>
 }
 else if (Model.Error.HasValue())
 {
-    <li>
+    <p>
         <div class="alert alert-danger">@Model.Error</div>
-    </li>
+    </p>
 }
 else
 {
-    <li class="load-more" data-page="@(hits.PageIndex + 2)"></li>
+    <div class="load-more" data-page="@(hits.PageIndex + 2)"></div>
 }

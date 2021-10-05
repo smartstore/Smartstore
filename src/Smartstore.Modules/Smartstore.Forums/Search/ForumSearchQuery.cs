@@ -18,12 +18,16 @@ namespace Smartstore.Forums.Search
     {
         // TODO: (mg) (core) Perf: instant search do not need any Customer navigation properties.
         // But this is static, no way to tell what (not) to include!?
-        private readonly static Func<DbSet<ForumPost>, int[], Task<List<ForumPost>>> _defaultHitsFactory = (dbSet, ids)
-            => dbSet.AsNoTracking()
+        private readonly static Func<DbSet<ForumPost>, int[], Task<List<ForumPost>>> _defaultHitsFactory = async (dbSet, ids) =>
+        {
+            var items = await dbSet.AsNoTracking()
                 .IncludeTopic()
                 .IncludeCustomer()
                 .Where(x => ids.Contains(x.Id))
                 .ToListAsync();
+
+            return items.OrderBySequence(ids).ToList();
+        };
 
         private Func<DbSet<ForumPost>, int[], Task<List<ForumPost>>> _hitsFactory = _defaultHitsFactory;
 

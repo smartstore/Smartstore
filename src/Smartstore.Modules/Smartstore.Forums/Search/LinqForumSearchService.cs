@@ -78,7 +78,7 @@ namespace Smartstore.Forums.Search
             var result = new ForumSearchResult(
                 null,
                 searchQuery,
-                _services.DbContext.ForumPosts(),
+                _db.ForumPosts(),
                 totalHits,
                 hitsEntityIds,
                 null,

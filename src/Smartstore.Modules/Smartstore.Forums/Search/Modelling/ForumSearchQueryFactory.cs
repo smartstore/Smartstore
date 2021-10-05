@@ -258,7 +258,10 @@ namespace Smartstore.Forums.Search.Modelling
                         continue;
                     }
 
-                    dt = lastVisit.Value;
+                    // INFO: only clone what is part of the query string.
+                    // Otherwise the filter radiobox will not be selected and the user will not be able to remove the filter.
+                    var tmp = lastVisit.Value;
+                    dt = new DateTime(tmp.Year, tmp.Month, tmp.Day, tmp.Hour, tmp.Minute, tmp.Second);
                 }
 
                 var value = selectedTo.HasValue

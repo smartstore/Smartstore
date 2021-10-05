@@ -66,10 +66,10 @@
                 @Html.Raw(T("Search.HitsFor", countHtml, $"<b class='font-weight-medium'>{Model.Term.NaIfEmpty().HtmlEncode()}</b>"))
             </div>
         </div>
-        <div class="search-results mt-3">
+        <div sm-if="Model.TotalCount > 0" class="search-results mt-3">
             <div id="ForumSearchResult" class="topics-group card">
-                <div class="card-body p-0">
-                    <ul class="list-group list-group-flush forum-list"
+                <div class="card-body p-0 forum-list">
+                    <ul class="list-group"
                         data-page="@(hits.PageIndex + 1)"
                         data-hasnextpage="@hits.HasNextPage.ToString().ToLower()"
                         data-cumulativehits="@Model.CumulativeHitCount.ToString("N0")">
@@ -89,16 +89,13 @@
         // Sorting changed.
         $('.fsearch-actions').on('change', '.artlist-action-select', function (e) {
             var select = $(this);
-            var qname = select.data('qname');
-            var url = select.data('url');
-            var val = select.val();
+            var url = window.modifyUrl(select.data('url'), select.data('qname'), select.val());
 
-            url = window.modifyUrl(url, qname, val);
             window.setLocation(url);
         });
 
         // Auto load more search hits.
-        $(document).scroll( function() {           
+        $(document).scroll(function() {
             var container = result.find('.load-more:not(.loading)');
 
             if (container.visible(true, false, 'vertical') && !loading) {
@@ -107,11 +104,11 @@
                 var html, processImmediately = false;
 
                 // IDs of already rendered topics, to avoid rendering them again when the list is extended.
-                var renderedTopicIds = result.find('tr.topic').map(function() {
+                var renderedTopicIds = result.find('topic').map(function() {
                     return $(this).data('id');
                 }).get();
 
-                //console.log(page + '. ' + url + '. ' + renderedTopicIds.toString());
+                console.log(newPage + '. ' + url + '. ' + renderedTopicIds.toString());
 
                 setTimeout(function () {
                     processImmediately = true;
@@ -154,12 +151,12 @@
 
         function processSearchResult(html, container, newPage) {
             if (html && html.length > 0) {
-                // Replace empty tbody at table end by page representing tbody.
+                // Replace empty list at table end by page representing list.
                 container.replaceWith(html);
 
                 // Update cumulative hit counter.
                 var counter = $('#SearchHitsCount');
-                var pageBody = result.find('tbody[data-page=' + newPage + ']');
+                var pageBody = result.find('ul[data-page=' + newPage + ']');
                 
                 counter.find('.cumulative-count').text(pageBody.data('cumulativehits'));
                 if (!pageBody.data('hasnextpage')) {
@@ -167,5 +164,5 @@
                 }
             }
         }
-    }
+    });
 </script>
