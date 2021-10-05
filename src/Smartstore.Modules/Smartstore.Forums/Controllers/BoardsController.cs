@@ -75,7 +75,7 @@ namespace Smartstore.Forums.Controllers
             _searchSettings = searchSettings;
         }
 
-        [Route("boards", Name = "Boards")]
+        [LocalizedRoute("boards", Name = "Boards")]
         public async Task<IActionResult> Index()
         {
             if (!_forumSettings.ForumsEnabled)
