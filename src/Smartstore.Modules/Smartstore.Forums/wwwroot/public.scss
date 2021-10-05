@@ -40,10 +40,12 @@
 .forum-quote {
     margin-bottom: 0;
 }
+.forum-topic .username {
+    font-weight: bold;
+}
 
 // Forum Search
 // -----------------------------------------
-
 .forum-search-box {
     font-size: .9em;
     text-align: right;

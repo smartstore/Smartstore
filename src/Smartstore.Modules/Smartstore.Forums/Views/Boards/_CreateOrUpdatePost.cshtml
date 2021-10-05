@@ -19,57 +19,60 @@
         <div asp-validation-summary="ModelOnly"></div>
     </div>
     <div class="form-group row pt-3">
-        <label class="col-sm-3">@T("Forum.ForumName")</label>
-        <div class="col-sm-9" dir="auto">@Model.ForumName</div>
+        <label class="col-sm-3">@T("Forum.ForumName"):</label>
+        <div class="col-sm-9" dir="auto">
+            <a asp-route="ForumBySlug" asp-route-id="@Model.ForumId" asp-route-slug="@Model.ForumSlug" class="forum-link">
+                @Model.ForumName
+            </a>
+        </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-3">@T("Forum.TopicSubject")</label>
-        <div class="col-sm-9" dir="auto">@Model.ForumTopicSubject</div>
+        <label class="col-sm-3">@T("Forum.TopicSubject"):</label>
+        <div class="col-sm-9" dir="auto">
+            <a asp-route="ForumTopicBySlug" asp-route-id="@Model.ForumTopicId" asp-route-slug="@Model.ForumTopicSlug" class="forum-link">
+                @Model.ForumTopicSubject
+            </a>
+        </div>
     </div>
-    <div class="row justify-content-end">
-        <div class="col-sm-9 my-3" dir="auto">
+    <div class="form-group row">
+        <div class="col mt-3" dir="auto">
             @if (Model.ForumEditor == EditorType.BBCodeEditor)
             {
                 <script src="~/lib/editors/BBEditor/ed.js"></script>
                 <script>edToolbar('Text');</script>
             }
-            <textarea asp-for="Text" class="form-control forum-post-text" rows="6" textmode="MultiLine"></textarea>
+            <textarea asp-for="Text" class="form-control forum-post-text" rows="8" textmode="MultiLine"></textarea>
             <span asp-validation-for="Text"></span>
         </div>
     </div>
-    <div sm-if="Model.IsModerator && !Model.IsFirstPost" class="row justify-content-end">
-        <div class="col-sm-9">
-			<div class="form-check">
-                <input asp-for="Published" type="checkbox" class="form-check-input" />
-			    <label asp-for="Published" class="form-check-label">@T("Common.Published")</label>
-			</div>
+    <div sm-if="Model.IsModerator && !Model.IsFirstPost" class="row">
+        <div class="col">
+            <input asp-for="Published" type="checkbox" />
+			<label asp-for="Published" class="pl-1">@T("Common.Published")</label>
         </div>
     </div>
-    <div sm-if="Model.CanSubscribe" class="row justify-content-end">
-        <div class="col-sm-9">
-			<div class="form-check">
-                <input asp-for="IsSubscribed" type="checkbox" class="form-check-input" />
-				<label asp-for="IsSubscribed" class="form-check-label">@T("Forum.NotifyWhenSomeonePostsInThisTopic")</label>
-			</div>
+    <div sm-if="Model.CanSubscribe" class="row">
+        <div class="col">
+            <input asp-for="IsSubscribed" type="checkbox" />
+			<label asp-for="IsSubscribed" class="pl-1">@T("Forum.NotifyWhenSomeonePostsInThisTopic")</label>
         </div>
     </div>
 
-	<div class="row justify-content-end">
-		<div class="col-sm-9">
+	<div class="row">
+		<div class="col">
 			<zone name="gdpr_consent" />
 		</div>
 	</div>
 
     <captcha sm-enabled="Model.DisplayCaptcha" class="form-group row" />
 
-    <div class="row justify-content-end">
-        <div class="col-sm-9 mt-3">
-            <button type="submit" class="btn btn-primary">
+    <div class="row">
+        <div class="col my-3">
+            <button type="submit" class="btn btn-primary btn-lg">
                 <i class="fa fa-reply"></i>
                 <span>@T("Forum.Submit")</span>
             </button>
-            <a class="btn btn-secondary" href="@cancelUrl">
-                <i class="fa fa-times"></i>
+            <a href="@cancelUrl" class="btn btn-secondary btn-lg">
                 <span>@T("Forum.Cancel")</span>
             </a>
         </div>

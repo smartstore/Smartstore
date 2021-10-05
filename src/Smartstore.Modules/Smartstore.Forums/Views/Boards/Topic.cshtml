@@ -3,6 +3,8 @@
 @{
     Assets.AppendTitleParts(Model.Subject);
     Assets.AppendMetaDescriptionParts(Model.Subject);
+
+    var topicViewData = new ViewDataDictionary(ViewData) { { "IsTopNavigation", true } };
 }
 
 <div class="page forum-topic">
@@ -37,7 +39,7 @@
         }
     </div>
 
-    <partial name="_PostListToolbar" />
+    <partial name="_PostListToolbar" view-data="topicViewData" />
 
     <div class="posts">
         @foreach (var post in Model.ForumPosts)

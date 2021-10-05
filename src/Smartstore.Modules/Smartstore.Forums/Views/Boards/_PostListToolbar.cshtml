@@ -1,12 +1,16 @@
 ﻿@model PublicForumTopicPageModel
 
-<div class="topic-options row sm-gutters my-2">
-	<div class="col col-sm-auto">
-		<a asp-action="PostCreate" asp-route-id="@Model.Id" class="btn btn-primary">
-			<i class="fa fa-share"></i>
-			<span>@T("Forum.Reply")</span>
-		</a>
-	</div>
+@{
+    var isTopNavigation = (ViewData["IsTopNavigation"] as bool?) ?? false;
+}
+
+<div class="topic-options row sm-gutters my-2" attr-class='(isTopNavigation, "top")'>
+    <div class="col col-sm-auto">
+        <a asp-action="PostCreate" asp-route-id="@Model.Id" class="btn btn-primary">
+            <i class="fa fa-share"></i>
+            <span>@T("Forum.Reply")</span>
+        </a>
+    </div>
     <div sm-if="Model.CanSubscribe" class="col col-sm-auto">
         <form id="watch-topic-form" sm-ajax="true" method="post" asp-action="TopicWatch" asp-controller="Boards" sm-oncomplete="onWatchTopicCompleted">
             <input type="hidden" asp-for="Id" />

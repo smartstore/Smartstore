@@ -1072,6 +1072,7 @@ namespace Smartstore.Forums.Controllers
 
                     await ApplySubscription(topic.Id, model.IsSubscribed);
 
+                    // TODO: (mg) (core) Breaks with: InvalidOperationException: Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.
                     await _db.SaveChangesAsync();
 
                     Services.ActivityLogger.LogActivity(ForumActivityLogTypes.PublicStoreAddForumPost, T("ActivityLog.PublicStore.AddForumPost"), post.Text.Truncate(100, "…"));
@@ -1095,6 +1096,8 @@ namespace Smartstore.Forums.Controllers
             model.Id = 0;
             model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnForumPage;
             model.ForumName = topic.Forum.GetLocalized(x => x.Name);
+            model.ForumId = topic.Forum.Id;
+            model.ForumSlug = await topic.Forum.GetActiveSlugAsync();
             model.ForumTopicId = topic.Id;
             model.ForumTopicSubject = topic.Subject;
             model.ForumTopicSlug = _forumService.BuildSlug(topic);
@@ -1219,6 +1222,8 @@ namespace Smartstore.Forums.Controllers
             model.Published = post.Published;
             model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnForumPage;
             model.ForumName = post.ForumTopic.Forum.GetLocalized(x => x.Name);
+            model.ForumSlug = await post.ForumTopic.Forum.GetActiveSlugAsync();
+            model.ForumId = post.ForumTopic.Forum.Id;
             model.ForumTopicId = post.ForumTopic.Id;
             model.ForumTopicSubject = post.ForumTopic.Subject;
             model.ForumTopicSlug = _forumService.BuildSlug(post.ForumTopic);
@@ -1823,6 +1828,8 @@ namespace Smartstore.Forums.Controllers
                 DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnForumPage,
                 ForumEditor = _forumSettings.ForumEditor,
                 ForumName = topic.Forum.GetLocalized(x => x.Name),
+                ForumSlug = await topic.Forum.GetActiveSlugAsync(),
+                ForumId = topic.Forum.Id,
                 ForumTopicSubject = topic.Subject,
                 ForumTopicSlug = _forumService.BuildSlug(topic),
                 Text = post?.Text,

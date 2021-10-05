@@ -16,7 +16,7 @@
     </div>
 </div>
 
-<div class="active-discussions card" attr-class='(!Model.IsActiveDiscussionsPage, "mt-5")'>
+<div class="active-discussions card bg-info text-white" attr-class='(!Model.IsActiveDiscussionsPage, "mt-5")'>
     <div sm-if="!Model.IsActiveDiscussionsPage" class="card-header">
         <div class="row align-items-center">
             <div class="col-md-8">
@@ -28,12 +28,12 @@
                 <div class="float-right">
                     @if (Model.ActiveDiscussionsFeedEnabled)
                     {
-                        <a asp-action="ActiveDiscussionsRss" asp-controller="Boards" class="btn btn-warning" title="@T("Forum.ActiveDiscussionsRSSLinkTitle")">
+                        <a asp-action="ActiveDiscussionsRss" asp-controller="Boards" class="btn btn-warning btn-flat btn-flat-light btn-sm" title="@T("Forum.ActiveDiscussionsRSSLinkTitle")">
                             <i class="fa fa-rss"></i>
                             <span>@T("Forum.RSS")</span>
                         </a>
                     }
-                    <a asp-route="ForumActiveDiscussions" class="btn btn-outline-info btn-flat">
+                    <a asp-route="ForumActiveDiscussions" class="btn btn-primary btn-flat btn-flat-light btn-sm">
                         <i class="fa fa-th-list"></i>
                         <span>@T("Forum.ActiveDiscussions.ViewAll")</span>
                     </a>

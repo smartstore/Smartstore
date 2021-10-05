@@ -17,6 +17,8 @@ namespace Smartstore.Forums.Models.Public
         public EditorType ForumEditor { get; set; }
 
         public LocalizedValue<string> ForumName { get; set; }
+        public int ForumId { get; set; }
+        public string ForumSlug { get; set; }
         public string ForumTopicSubject { get; set; }
         public string ForumTopicSlug { get; set; }
 
