@@ -47,14 +47,16 @@
                         @T("Admin.Configuration.Themes.PreviewMode")
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="clear-cache" href="#" data-url="@Url.Action("ClearCache", "Common", new { area = "Admin" })">
-                        <i class="far fa-fw fa-trash-alt"></i>
-                        @T("Admin.Header.ClearCache")
-                    </a>
-                    <a class="dropdown-item" id="clear-database-cache" href="#" data-url="@Url.Action("ClearDatabaseCache", "Common", new { area = "Admin" })">
-                        <i class="fa fa-fw"></i>
-                        @T("Admin.Header.ClearDbCache")
-                    </a>
+                    <form class="ajax-form" method="post">
+                        <a class="dropdown-item" id="clear-cache" href="#" data-url="@Url.Action("ClearCache", "Common", new { area = "Admin" })">
+                            <i class="far fa-fw fa-trash-alt"></i>
+                            @T("Admin.Header.ClearCache")
+                        </a>
+                        <a class="dropdown-item" id="clear-database-cache" href="#" data-url="@Url.Action("ClearDatabaseCache", "Common", new { area = "Admin" })">
+                            <i class="fa fa-fw"></i>
+                            @T("Admin.Header.ClearDbCache")
+                        </a>
+                    </form>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" asp-action="RestartApplication" asp-controller="Common" asp-area="Admin">
                         <i class="fa fa-fw fa-power-off"></i>
@@ -125,7 +127,9 @@
 <script sm-target-zone="scripts" data-origin="admin-navbar">
     @* TODO: (mh) (core) Move this to a js file *@
     $(function () {
-        var token = $('input[name="__RequestVerificationToken"]').val();
+
+        // TODO: (mh) (core) Check every retrieval of token in ajax calls. Add form tag if missing.
+        var token = $('.ajax-form input[name="__RequestVerificationToken"]').val();
 
 		$("#clear-database-cache, #clear-cache").on('click', function (e) {
             e.preventDefault();
