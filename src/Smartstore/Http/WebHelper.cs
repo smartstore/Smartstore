@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
@@ -340,19 +340,24 @@ namespace Smartstore.Http
         {
             string result = string.Empty;
 
+            var client = EngineContext.Current.Application.Services.Resolve<IHttpClientFactory>().CreateClient();
+            client.DefaultRequestHeaders.Remove(HeaderNames.UserAgent);
+            client.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 6.0) (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727");
+
             try
             {
-                using var client = new WebClient();
-                client.Headers[HeaderNames.UserAgent] = "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 6.0) (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
                 try
                 {
-                    byte[] arr = await client.DownloadDataTaskAsync("http://checkip.amazonaws.com/");
-                    string response = Encoding.UTF8.GetString(arr);
+                    string response = await client.GetStringAsync("http://checkip.amazonaws.com/");
                     result = response.Trim();
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
-            catch { }
+            catch 
+            { 
+            }
 
             var checkers = new string[]
             {
@@ -365,18 +370,19 @@ namespace Smartstore.Http
 
             if (string.IsNullOrEmpty(result))
             {
-                using var client = new WebClient();
                 foreach (var checker in checkers)
                 {
                     try
                     {
-                        result = (await client.DownloadStringTaskAsync(checker)).Replace("\n", "");
+                        result = (await client.GetStringAsync(checker)).Replace("\n", "");
                         if (!string.IsNullOrEmpty(result))
                         {
                             break;
                         }
                     }
-                    catch { }
+                    catch 
+                    { 
+                    }
                 }
             }
 
@@ -385,21 +391,40 @@ namespace Smartstore.Http
                 try
                 {
                     var url = "http://checkip.dyndns.org";
-                    var req = WebRequest.Create(url);
-
-                    using var resp = await req.GetResponseAsync();
-                    using var sr = new StreamReader(resp.GetResponseStream());
+                    using var sr = new StreamReader(await client.GetStreamAsync(url));
 
                     var response = sr.ReadToEnd().Trim();
                     var a = response.Split(':');
-                    var a2 = a[1].Substring(1);
+                    var a2 = a[1][1..];
                     var a3 = a2.Split('<');
                     result = a3[0];
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
 
             return result;
+        }
+
+        public static async Task<Uri> CreateUriForSafeLocalCallAsync(Uri requestUri)
+        {
+            Guard.NotNull(requestUri, nameof(requestUri));
+
+            var safeHostName = await GetSafeLocalHostNameAsync(requestUri);
+
+            if (!requestUri.Host.Equals(safeHostName, StringComparison.OrdinalIgnoreCase))
+            {
+                var url = string.Format("{0}://{1}{2}",
+                    requestUri.Scheme,
+                    requestUri.IsDefaultPort ? safeHostName : safeHostName + ":" + requestUri.Port,
+                    requestUri.PathAndQuery);
+                return new Uri(url);
+            }
+            else
+            {
+                return requestUri;
+            }
         }
 
         public static async Task<HttpWebRequest> CreateHttpWebRequestForSafeLocalCallAsync(Uri requestUri)
@@ -450,13 +475,13 @@ namespace Smartstore.Http
 
             async Task<string> TestHostsAsync(int port)
             {
-                // first try original host
+                // First try original host
                 if (await TestHostAsync(requestUri, requestUri.Host, 5000))
                 {
                     return requestUri.Host;
                 }
 
-                // try loopback
+                // Try loopback
                 var hostName = Dns.GetHostName();
                 var hosts = new List<string> { "localhost", hostName, "127.0.0.1" };
                 foreach (var host in hosts)
@@ -467,7 +492,7 @@ namespace Smartstore.Http
                     }
                 }
 
-                // try local IP addresses
+                // Try local IP addresses
                 hosts.Clear();
                 var ipAddresses = Dns.GetHostAddresses(hostName).Where(x => x.AddressFamily == AddressFamily.InterNetwork).Select(x => x.ToString());
                 hosts.AddRange(ipAddresses);
@@ -492,30 +517,21 @@ namespace Smartstore.Http
                 originalUri.IsDefaultPort ? host : host + ":" + originalUri.Port);
             var uri = new Uri(url);
 
-            var request = WebRequest.CreateHttp(uri);
-            request.ServerCertificateValidationCallback += (sender, cert, chain, errors) => true;
-            request.ServicePoint.Expect100Continue = false;
-            request.UserAgent = "Smartstore";
-            request.Timeout = timeout;
-
-            HttpWebResponse response = null;
+            var client = EngineContext.Current.Application.Services.Resolve<IHttpClientFactory>()?.CreateClient("local");
+            client.Timeout = TimeSpan.FromMilliseconds(timeout);
+            client.DefaultRequestHeaders.ExpectContinue = false;
 
             try
             {
-                response = (HttpWebResponse)(await request.GetResponseAsync());
-                if (response.StatusCode == HttpStatusCode.OK)
+                using var response = await client.GetAsync(uri);
+                if (response.IsSuccessStatusCode)
                 {
                     return true;
                 }
             }
             catch
             {
-                // try the next host
-            }
-            finally
-            {
-                if (response != null)
-                    response.Dispose();
+                // Try the next host
             }
 
             return false;

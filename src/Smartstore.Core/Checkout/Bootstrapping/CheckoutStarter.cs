@@ -2,6 +2,7 @@
 using System.Linq;
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
@@ -28,7 +29,7 @@ namespace Smartstore.Core.Bootstrapping
                 .ConfigureHttpClient(client => 
                 {
                     client.Timeout = TimeSpan.FromSeconds(5);
-                    client.DefaultRequestHeaders.Add("User-Agent", $"Smartstore {SmartstoreVersion.CurrentFullVersion}");
+                    client.DefaultRequestHeaders.Add(HeaderNames.UserAgent, $"Smartstore {SmartstoreVersion.CurrentFullVersion}");
                 })
                 .SendAuthenticationCookie()
                 .SendVisitorCookie();

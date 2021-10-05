@@ -3,13 +3,18 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messaging;
 using Smartstore.Http;
 
 namespace Smartstore.Core.Checkout.Orders
 {
+    public class PdfInvoiceResult
+    {
+        public byte[] Buffer { get; init; }
+        public string MimeType { get; init; }
+        public string FileName { get; init; }
+    }
+    
     public class PdfInvoiceHttpClient
     {
         private readonly HttpClient _httpClient;
@@ -24,7 +29,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public async Task<QueuedEmailAttachment> GetPdfInvoiceAsync(int orderId, CancellationToken cancelToken = default)
+        public async Task<PdfInvoiceResult> GetPdfInvoiceAsync(int orderId, CancellationToken cancelToken = default)
         {
             var request = _urlHelper.ActionContext.HttpContext.Request;
             var path = _urlHelper.Action("Print", "Order", new { id = orderId, pdf = true, area = string.Empty });
@@ -33,43 +38,41 @@ namespace Smartstore.Core.Checkout.Orders
             using var response = await _httpClient.GetAsync(url, cancelToken);
             using var stream = await response.Content.ReadAsStreamAsync(cancelToken);
 
-            QueuedEmailAttachment attachment = null;
+            PdfInvoiceResult result = null;
 
             if (response.IsSuccessStatusCode)
             {
-                attachment = new QueuedEmailAttachment
-                {
-                    StorageLocation = EmailAttachmentStorageLocation.Blob,
-                    MimeType = response.Content.Headers.ContentType?.MediaType,
-                    MediaStorage = new MediaStorage
-                    {
-                        // INFO: stream.Length not supported here.
-                        Data = await stream.ToByteArrayAsync()
-                    }
-                };
-
+                string fileName = null;
+                
                 var contentDisposition = response.Content.Headers.ContentDisposition;
                 if (contentDisposition != null)
                 {
-                    attachment.Name = contentDisposition.FileName;
+                    fileName = contentDisposition.FileName;
                 }
 
-                if (attachment.Name.IsEmpty())
+                if (fileName.IsEmpty())
                 {
-                    attachment.Name = WebHelper.GetFileNameFromUrl(url);
+                    fileName = WebHelper.GetFileNameFromUrl(url);
                 }
+
+                result = new PdfInvoiceResult
+                {
+                    MimeType = response.Content.Headers.ContentType?.MediaType,
+                    Buffer = await stream.ToByteArrayAsync(),
+                    FileName = fileName
+                };
             }
 
-            if (attachment == null)
+            if (result == null)
             {
                 throw new InvalidOperationException(T("Admin.System.QueuedEmails.ErrorEmptyAttachmentResult", path));
             }
-            else if (!attachment.MimeType.EqualsNoCase("application/pdf"))
+            else if (!result.MimeType.EqualsNoCase("application/pdf"))
             {
                 throw new InvalidOperationException(T("Admin.System.QueuedEmails.ErrorNoPdfAttachment"));
             }
 
-            return attachment;
+            return result;
         }
     }
 }

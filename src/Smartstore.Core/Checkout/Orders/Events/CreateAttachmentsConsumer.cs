@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Events;
 
@@ -42,7 +45,14 @@ namespace Smartstore.Core.Checkout.Orders.Events
                 {
                     try
                     {
-                        var qea = await _client.GetPdfInvoiceAsync(orderId);
+                        var result = await _client.GetPdfInvoiceAsync(orderId);
+                        var qea = new QueuedEmailAttachment
+                        {
+                            StorageLocation = EmailAttachmentStorageLocation.Blob,
+                            MimeType = result.MimeType,
+                            Name = result.FileName,
+                            MediaStorage = new MediaStorage { Data = result.Buffer }
+                        };
                         qe.Attachments.Add(qea);
                     }
                     catch (Exception ex)

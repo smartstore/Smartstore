@@ -24,13 +24,10 @@ namespace Smartstore.Core.Bootstrapping
             });
         }
 
-        //public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
-        //{
-        //    services.AddHttpClient(DefaultTaskScheduler.HttpClientName).AddHttpMessageHandler(x => 
-        //    {
-        //        return new TestHandler();
-        //    });
-        //}
+        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
+        {
+            services.AddHttpClient(DefaultTaskScheduler.HttpClientName);
+        }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
@@ -38,12 +35,4 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<TaskContextVirtualizer>().As<ITaskContextVirtualizer>().InstancePerLifetimeScope();
         }
     }
-
-    //internal class TestHandler : DelegatingHandler
-    //{
-    //    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    //    {
-    //        return base.SendAsync(request, cancellationToken);
-    //    }
-    //}
 }

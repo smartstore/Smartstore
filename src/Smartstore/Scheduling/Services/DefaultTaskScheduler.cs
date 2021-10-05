@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Humanizer;
 using Smartstore.Caching;
 using Smartstore.Http;
 
@@ -149,19 +149,17 @@ namespace Smartstore.Scheduling
 
             // If passed uri is null, we always assume a poll action.
             uri ??= new Uri(BaseUrl + "poll");
+            uri = await WebHelper.CreateUriForSafeLocalCallAsync(uri);
 
-            var req = await WebHelper.CreateHttpWebRequestForSafeLocalCallAsync(uri);
-            req.Method = "POST";
-            req.ContentType = "text/plain";
-            req.ContentLength = 0;
-            //req.Timeout = 10000; // 10 sec.
-
+            var client = _httpClientFactory.CreateClient(HttpClientName);
             string authToken = await CreateAuthToken();
-            req.Headers.Add(AuthTokenName, authToken);
+            client.DefaultRequestHeaders.Add(AuthTokenName, authToken);
 
             try
             {
-                using var response = await req.GetResponseAsync();
+                using var response = await client.PostAsync(uri, null);
+                // Throw if not a success code.
+                response.EnsureSuccessStatusCode();    
                 Interlocked.Exchange(ref _errCount, 0);
             }
             catch (Exception ex)
@@ -184,30 +182,24 @@ namespace Smartstore.Scheduling
         private void HandleException(Exception exception, Uri uri, out bool isTimeout)
         {
             string msg = "Error while calling TaskScheduler endpoint '{0}'.".FormatInvariant(uri.OriginalString);
-            var wex = exception as WebException;
+            var requestException = exception as HttpRequestException;
 
-            isTimeout = wex?.Status == WebExceptionStatus.Timeout;
+            isTimeout = (exception is TaskCanceledException tce && tce.InnerException is TimeoutException)
+                || requestException?.StatusCode == HttpStatusCode.RequestTimeout
+                || requestException?.StatusCode == HttpStatusCode.GatewayTimeout;
 
-            if (wex == null)
+            if (requestException == null)
             {
                 Logger.Error(exception, msg);
             }
-            else if (wex.Response == null)
-            {
-                Logger.Error(wex, msg);
-            }
             else
             {
-                using var response = wex.Response as HttpWebResponse;
-                if (response != null)
+                var statusCode = (int)requestException.StatusCode;
+                if (statusCode < 500)
                 {
-                    var statusCode = (int)response.StatusCode;
-                    if (statusCode < 500)
-                    {
-                        // Any internal server error (>= 500) already handled by middleware
-                        msg += " HTTP {0}, {1}".FormatCurrent(statusCode, response.StatusDescription);
-                        Logger.Error(msg);
-                    }
+                    // Any internal server error (>= 500) already handled by middleware
+                    msg += " HTTP {0}, {1}".FormatCurrent(statusCode, requestException.StatusCode?.Humanize());
+                    Logger.Error(msg);
                 }
             }
         }

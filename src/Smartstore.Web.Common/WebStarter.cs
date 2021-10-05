@@ -1,4 +1,5 @@
-﻿using System.Text.Encodings.Web;
+﻿using System.Net.Http;
+using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
@@ -6,12 +7,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
+using Microsoft.Net.Http.Headers;
 using Smartstore.Core;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;
+using Smartstore.Net.Http;
 using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Razor;
 
@@ -34,11 +37,19 @@ namespace Smartstore.Web
                 o.HeaderName = "X-XSRF-Token";
             });
 
-            // Add HTTP client feature
+            // Add default HTTP client
             services.AddHttpClient(string.Empty, client => 
             {
-                client.DefaultRequestHeaders.Add("User-Agent", $"Smartstore {SmartstoreVersion.CurrentFullVersion}");
+                client.DefaultRequestHeaders.Add(HeaderNames.UserAgent, $"Smartstore {SmartstoreVersion.CurrentFullVersion}");
             });
+
+            // Add HTTP client for local calls
+            services.AddHttpClient("local")
+                .SkipCertificateValidation()
+                .ConfigureHttpClient(client =>
+                {
+                    client.DefaultRequestHeaders.Add(HeaderNames.UserAgent, $"Smartstore {SmartstoreVersion.CurrentFullVersion}");
+                });
 
             // Add session feature
             services.AddSession(o =>
