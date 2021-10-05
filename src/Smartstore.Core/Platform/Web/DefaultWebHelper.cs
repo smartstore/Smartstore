@@ -12,6 +12,8 @@ using Smartstore.Engine;
 using Smartstore.Utilities;
 using Smartstore.Core.Stores;
 using Smartstore.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Smartstore.Core.Web
 {
@@ -32,6 +34,7 @@ namespace Smartstore.Core.Web
         };
 
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly Work<IStoreContext> _storeContext;
 
@@ -39,13 +42,17 @@ namespace Smartstore.Core.Web
         private IPAddress _ipAddress;
         private bool _urlReferrerResolved;
         private Uri _urlReferrer;
+        private bool _publicIpAddressResolved;
+        private IPAddress _publicIpAddress;
 
         public DefaultWebHelper(
             IHttpContextAccessor httpContextaccessor,
+            IHttpClientFactory httpClientFactory,
             IHostApplicationLifetime hostApplicationLifetime,
             Work<IStoreContext> storeContext)
         {
             _httpContextAccessor = httpContextaccessor;
+            _httpClientFactory = httpClientFactory;
             _hostApplicationLifetime = hostApplicationLifetime;
             _storeContext = storeContext;
         }
@@ -89,24 +96,10 @@ namespace Smartstore.Core.Web
                         {
                             ipString = ipString[i].Trim();
 
-                            if (IPAddress.TryParse(ipString, out var address))
+                            if (TryParseIPAddress(ipString, out var address))
                             {
                                 result = address;
                                 break;
-                            }
-                            else
-                            {
-                                // "TryParse" doesn't support IPv4 with port number
-                                string str = ipString;
-                                if (str.HasValue())
-                                {
-                                    var firstPart = str.Tokenize(':').FirstOrDefault().ToString();
-                                    if (firstPart != str && IPAddress.TryParse(firstPart, out address))
-                                    {
-                                        result = address;
-                                        break;
-                                    }
-                                }
                             }
                         }
                     }
@@ -126,6 +119,111 @@ namespace Smartstore.Core.Web
             }
 
             return (_ipAddress = (result ?? IPAddress.None));
+        }
+
+        public async Task<IPAddress> GetPublicIPAddressAsync()
+        {
+            if (_publicIpAddressResolved)
+            {
+                return _publicIpAddress;
+            }
+
+            var ipString = string.Empty;
+
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Remove(HeaderNames.UserAgent);
+            client.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 6.0) (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727");
+
+            try
+            {
+                try
+                {
+                    string response = await client.GetStringAsync("http://checkip.amazonaws.com/");
+                    ipString = response.Trim();
+                }
+                catch
+                {
+                }
+            }
+            catch
+            {
+            }
+
+            var checkers = new string[]
+            {
+                "https://ipinfo.io/ip",
+                "https://api.ipify.org",
+                "https://icanhazip.com",
+                "https://wtfismyip.com/text",
+                "http://bot.whatismyipaddress.com/"
+            };
+
+            if (string.IsNullOrEmpty(ipString))
+            {
+                foreach (var checker in checkers)
+                {
+                    try
+                    {
+                        ipString = (await client.GetStringAsync(checker)).Replace("\n", "");
+                        if (!string.IsNullOrEmpty(ipString))
+                        {
+                            break;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(ipString))
+            {
+                try
+                {
+                    var url = "http://checkip.dyndns.org";
+                    using var sr = new StreamReader(await client.GetStreamAsync(url));
+
+                    var response = sr.ReadToEnd().Trim();
+                    var a = response.Split(':');
+                    var a2 = a[1][1..];
+                    var a3 = a2.Split('<');
+                    ipString = a3[0];
+                }
+                catch
+                {
+                }
+            }
+
+            if (TryParseIPAddress(ipString, out var address))
+            {
+                _publicIpAddress = address;
+            }
+
+            _publicIpAddressResolved = true;
+
+            return _publicIpAddress;
+        }
+
+        private static bool TryParseIPAddress(string ipString, out IPAddress address)
+        {
+            if (IPAddress.TryParse(ipString, out address))
+            {
+                return true;
+            }
+            else
+            {
+                // "TryParse" doesn't support IPv4 with port number
+                if (ipString.HasValue())
+                {
+                    var firstPart = ipString.Tokenize(':').FirstOrDefault().ToString();
+                    if (firstPart != ipString && IPAddress.TryParse(firstPart, out address))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public virtual Uri GetUrlReferrer()

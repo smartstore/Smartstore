@@ -13,7 +13,6 @@ using System.Web;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using Microsoft.Net.Http.Headers;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
@@ -334,77 +333,6 @@ namespace Smartstore.Http
             }
 
             return !string.IsNullOrEmpty(extensionName) && !string.IsNullOrEmpty(remainingPath);
-        }
-
-        public static async Task<string> GetPublicIPAddressAsync()
-        {
-            string result = string.Empty;
-
-            var client = EngineContext.Current.Application.Services.Resolve<IHttpClientFactory>().CreateClient();
-            client.DefaultRequestHeaders.Remove(HeaderNames.UserAgent);
-            client.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 6.0) (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727");
-
-            try
-            {
-                try
-                {
-                    string response = await client.GetStringAsync("http://checkip.amazonaws.com/");
-                    result = response.Trim();
-                }
-                catch 
-                { 
-                }
-            }
-            catch 
-            { 
-            }
-
-            var checkers = new string[]
-            {
-                "https://ipinfo.io/ip",
-                "https://api.ipify.org",
-                "https://icanhazip.com",
-                "https://wtfismyip.com/text",
-                "http://bot.whatismyipaddress.com/"
-            };
-
-            if (string.IsNullOrEmpty(result))
-            {
-                foreach (var checker in checkers)
-                {
-                    try
-                    {
-                        result = (await client.GetStringAsync(checker)).Replace("\n", "");
-                        if (!string.IsNullOrEmpty(result))
-                        {
-                            break;
-                        }
-                    }
-                    catch 
-                    { 
-                    }
-                }
-            }
-
-            if (string.IsNullOrEmpty(result))
-            {
-                try
-                {
-                    var url = "http://checkip.dyndns.org";
-                    using var sr = new StreamReader(await client.GetStreamAsync(url));
-
-                    var response = sr.ReadToEnd().Trim();
-                    var a = response.Split(':');
-                    var a2 = a[1][1..];
-                    var a3 = a2.Split('<');
-                    result = a3[0];
-                }
-                catch 
-                { 
-                }
-            }
-
-            return result;
         }
 
         public static async Task<Uri> CreateUriForSafeLocalCallAsync(Uri requestUri)

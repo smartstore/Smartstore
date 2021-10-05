@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
@@ -27,10 +28,14 @@ namespace Smartstore.Core.Web
         string GetClientIdent();
 
         /// <summary>
-        /// Gets client IP address
+        /// Gets client IP address.
         /// </summary>
-        /// <returns>Client IP address</returns>
         IPAddress GetClientIpAddress();
+
+        /// <summary>
+        /// Gets the public IP address of the machine that is hosting the application.
+        /// </summary>
+        Task<IPAddress> GetPublicIPAddressAsync();
 
         /// <summary>
         /// Gets the full URL of the current page (including scheme and host part)
