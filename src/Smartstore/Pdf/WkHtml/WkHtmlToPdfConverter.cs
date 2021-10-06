@@ -235,10 +235,6 @@ namespace Smartstore.Pdf.WkHtml
                 {
                     _process.PriorityClass = _options.ProcessPriority;
                 }  
-                if (_options.ProcessProcessorAffinity.HasValue)
-                {
-                    _process.ProcessorAffinity = _options.ProcessProcessorAffinity.Value;
-                }
 
                 _process.ErrorDataReceived += onDataReceived;
                 _process.BeginErrorReadLine();

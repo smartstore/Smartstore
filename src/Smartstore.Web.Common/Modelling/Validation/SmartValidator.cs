@@ -56,7 +56,7 @@ namespace Smartstore.Web.Modelling.Validation
             // Get all model properties
             var modelProps = FastProperty.GetProperties(typeof(TModel), PropertyCachingStrategy.EagerCached);
 
-            var entityType = db.Model.GetEntityTypes(typeof(TEntity)).FirstOrDefault();
+            var entityType = db.Model.FindEntityTypes(typeof(TEntity)).FirstOrDefault();
             if (entityType == null)
                 return;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Razor.Hosting;
 using Microsoft.Extensions.DependencyModel;
 
 namespace Smartstore.Engine.Modularity.ApplicationParts
@@ -11,7 +12,7 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
     /// A custom ApplicationPart implementation that will NOT raise an exception
     /// when resolving module main assembly path.
     /// </summary>
-    public class ModulePart : ApplicationPart, IApplicationPartTypeProvider, ICompilationReferencesProvider
+    public class ModulePart : ApplicationPart, IApplicationPartTypeProvider, ICompilationReferencesProvider, IRazorCompiledItemProvider
     {
         public ModulePart(IModuleDescriptor descriptor)
         {
@@ -27,6 +28,17 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
 
         public IEnumerable<TypeInfo> Types 
             => Descriptor.Module.Assembly.DefinedTypes;
+
+        IEnumerable<RazorCompiledItem> IRazorCompiledItemProvider.CompiledItems
+        {
+            get
+            {
+                // Smartstore.MyModule.Views --> Smartstore.MyModule
+                var moduleName = Name.Replace(".Views", string.Empty);
+                var loader = new ModuleRazorCompiledItemLoader(moduleName);
+                return loader.LoadItems(Descriptor.Module.Assembly);
+            }
+        }
 
         public IEnumerable<string> GetReferencePaths()
         {

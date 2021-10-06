@@ -16,7 +16,7 @@
     <PackageReference Include="DouglasCrockford.JsMin" Version="2.1.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
     <PackageReference Include="JavaScriptEngineSwitcher.V8" Version="3.12.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.0-rc.1.21452.15" />
     <PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.1.4" />
     <PackageReference Include="Microsoft.ClearScript.V8.Native.win-x86" Version="7.1.4" />
     <PackageReference Include="NUglify" Version="1.13.12" />

@@ -121,8 +121,12 @@ namespace Smartstore.Data.Caching
             private new CachingOptionsExtension Extension 
                 => (CachingOptionsExtension)base.Extension;
 
-
-            public override long GetServiceProviderHashCode()
+            // TODO: (core) (net6) What to do?
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+            {
+                return true;
+            }
+            public override int GetServiceProviderHashCode()
             {
                 if (_serviceProviderHash == null)
                 {
@@ -134,7 +138,7 @@ namespace Smartstore.Data.Caching
                     _serviceProviderHash = hashCode.ToHashCode();
                 }
 
-                return _serviceProviderHash.Value;
+                return _serviceProviderHash.Value.Convert<int>();
             }
 
             // TODO: (core) What to return as LogFragment?

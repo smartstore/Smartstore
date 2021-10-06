@@ -355,32 +355,6 @@ namespace Smartstore.Http
             }
         }
 
-        public static async Task<HttpWebRequest> CreateHttpWebRequestForSafeLocalCallAsync(Uri requestUri)
-        {
-            Guard.NotNull(requestUri, nameof(requestUri));
-
-            var safeHostName = await GetSafeLocalHostNameAsync(requestUri);
-
-            var uri = requestUri;
-
-            if (!requestUri.Host.Equals(safeHostName, StringComparison.OrdinalIgnoreCase))
-            {
-                var url = string.Format("{0}://{1}{2}",
-                    requestUri.Scheme,
-                    requestUri.IsDefaultPort ? safeHostName : safeHostName + ":" + requestUri.Port,
-                    requestUri.PathAndQuery);
-                uri = new Uri(url);
-            }
-
-            var request = WebRequest.CreateHttp(uri);
-            request.ServerCertificateValidationCallback += (sender, cert, chain, errors) => true;
-            request.ServicePoint.Expect100Continue = false;
-
-            request.UserAgent = "Smartstore";
-
-            return request;
-        }
-
         private static async Task<string> GetSafeLocalHostNameAsync(Uri requestUri)
         {
             if (_safeLocalHostNames.TryGetValue(requestUri.Port, out var host))

@@ -387,7 +387,7 @@ namespace Smartstore.Data.Batching
 
             if (relationalCommandCache != null)
             {
-                var command = relationalCommandCache.GetRelationalCommand(parameterValues);
+                var command = relationalCommandCache.GetRelationalCommandTemplate(parameterValues); // GetRelationalCommand(parameterValues);
                 var parameterNames = new HashSet<string>(command.Parameters.Select(p => p.InvariantName));
                 sql = command.CommandText;
                 parameters = parameterValues.Where(pv => parameterNames.Contains(pv.Key)).Select(pv => dataProvider.CreateParameter("@" + pv.Key, pv.Value)).ToList();

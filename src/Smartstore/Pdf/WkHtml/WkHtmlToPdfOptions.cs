@@ -16,11 +16,6 @@ namespace Smartstore.Pdf.WkHtml
         public ProcessPriorityClass ProcessPriority { get; set; } = ProcessPriorityClass.Normal;
 
         /// <summary>
-        /// Gets or sets wkhtmltopdf processor affinity (bitmask that represents the processors that may be used by the process threads).
-        /// </summary>
-        public IntPtr? ProcessProcessorAffinity { get; set; }
-
-        /// <summary>
         /// Get or set path where wkhtmltopdf tool is located 
         /// </summary>
         public string PdfToolPath { get; set; }

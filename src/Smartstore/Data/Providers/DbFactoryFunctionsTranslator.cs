@@ -117,7 +117,8 @@ namespace Smartstore.Data.Providers
         public DbFactoryFunctionsTranslator(IServiceProvider services)
         {
             _services = services;
-            _sqlExpressionFactory = services.GetRequiredService<ISqlExpressionFactory>();
+            //// TODO: (core) (net6) ISqlExpressionFactory not available anymore. What to do?
+            //_sqlExpressionFactory = services.GetService<ISqlExpressionFactory>();
         }
 
         public SqlExpression Translate(

@@ -315,10 +315,11 @@ namespace Smartstore.Data
             {
                 var serviceProperty = entityType.AddServiceProperty(lazyLoaderProperty);
 
-                serviceProperty.ParameterBinding = new DependencyInjectionParameterBinding(
-                    lazyLoaderProperty.PropertyType,
-                    lazyLoaderProperty.PropertyType,
-                    serviceProperty);
+                // TODO: (core) (net6) What to do?
+                //serviceProperty.ParameterBinding = new DependencyInjectionParameterBinding(
+                //    lazyLoaderProperty.PropertyType,
+                //    lazyLoaderProperty.PropertyType,
+                //    serviceProperty);
             }
             catch
             {

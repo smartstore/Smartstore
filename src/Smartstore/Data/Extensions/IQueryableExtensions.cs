@@ -18,7 +18,7 @@ namespace Smartstore
 
         private readonly static FieldInfo _queryCompilerField = typeof(EntityQueryProvider).GetField("_queryCompiler", BindingFlags.NonPublic | BindingFlags.Instance);
         private readonly static FieldInfo _queryContextFactoryField = typeof(QueryCompiler).GetField("_queryContextFactory", BindingFlags.NonPublic | BindingFlags.Instance);
-        private readonly static FieldInfo _dependenciesField = typeof(RelationalQueryContextFactory).GetField("_dependencies", BindingFlags.NonPublic | BindingFlags.Instance);
+        private readonly static PropertyInfo _dependenciesProperty = typeof(RelationalQueryContextFactory).GetProperty("Dependencies", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         private readonly static PropertyInfo _stateManagerProperty = typeof(QueryContextDependencies).GetProperty("StateManager", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
         #endregion
@@ -62,7 +62,7 @@ namespace Smartstore
 
             var queryCompiler = (QueryCompiler)_queryCompilerField.GetValue(query.Provider);
             var queryContextFactory = (RelationalQueryContextFactory)_queryContextFactoryField.GetValue(queryCompiler);
-            var dependencies = _dependenciesField.GetValue(queryContextFactory);
+            var dependencies = _dependenciesProperty.GetValue(queryContextFactory);
             var stateManagerObj = _stateManagerProperty.GetValue(dependencies);
 
             IStateManager stateManager = stateManagerObj as IStateManager ?? ((dynamic)stateManagerObj).Value;

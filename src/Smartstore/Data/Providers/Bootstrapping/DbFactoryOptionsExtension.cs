@@ -166,7 +166,12 @@ namespace Smartstore.Data.Providers
             private new DbFactoryOptionsExtension Extension
                 => (DbFactoryOptionsExtension)base.Extension;
 
-            public override long GetServiceProviderHashCode()
+            // TODO: (core) (net6) What to do?
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+            {
+                return true;
+            }
+            public override int GetServiceProviderHashCode()
             {
                 if (_serviceProviderHash == null)
                 {
@@ -176,7 +181,7 @@ namespace Smartstore.Data.Providers
                     hashCode.Add(Extension.MaxBatchSize);
                     hashCode.Add(Extension.UseRelationalNulls);
                     hashCode.Add(Extension.QuerySplittingBehavior);
-                    
+
                     if (Extension.ModelAssemblies != null)
                     {
                         Extension.ModelAssemblies.Each(x => hashCode.Add(x.GetHashCode()));
@@ -190,7 +195,7 @@ namespace Smartstore.Data.Providers
                     _serviceProviderHash = hashCode.ToHashCode();
                 }
 
-                return _serviceProviderHash.Value;
+                return _serviceProviderHash.Value.Convert<int>();
             }
 
             public override string LogFragment => $"Using '{nameof(DbFactoryOptionsExtension)}'";
