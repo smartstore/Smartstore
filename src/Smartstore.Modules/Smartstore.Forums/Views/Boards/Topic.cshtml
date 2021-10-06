@@ -3,8 +3,6 @@
 @{
     Assets.AppendTitleParts(Model.Subject);
     Assets.AppendMetaDescriptionParts(Model.Subject);
-
-    var topicViewData = new ViewDataDictionary(ViewData) { { "IsTopNavigation", true } };
 }
 
 <div class="page forum-topic">
@@ -12,34 +10,10 @@
         @await Component.InvokeAsync("ForumSearchBox")
     </div>
     <div class="title">
-        <h1 class="fs-h2">@Model.Subject</h1>
+        <h1 class="fs-h2 mb-3">@Model.Subject</h1>
     </div>
 
-    <div sm-if="Model.CanEditTopic || Model.CanDeleteTopic || Model.CanMoveTopic" class="manage btn-group my-3">
-        @if (Model.CanEditTopic)
-        {
-            <a asp-action="TopicEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">
-                <i class="far fa-edit"></i>
-                <span>@T("Forum.EditTopic")</span>            
-            </a>
-        }
-        @if (Model.CanDeleteTopic)
-        {
-            <a asp-action="TopicDelete" asp-controller="Boards" asp-route-id="@Model.Id" id="delete-topic" class="btn btn-secondary" rel="nofollow">
-				<i class="far fa-trash-alt"></i>
-				<span>@T("Forum.DeleteTopic")</span>
-            </a>
-        }
-        @if (Model.CanMoveTopic)
-        {
-            <a asp-action="TopicMove" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-secondary" rel="nofollow">
-				<i class="fa fa-arrows-alt"></i>
-				<span>@T("Forum.MoveTopic")</span>
-            </a>
-        }
-    </div>
-
-    <partial name="_PostListToolbar" view-data="topicViewData" />
+    <partial name="_PostListToolbar" model="Model" />
 
     <div class="posts">
         @foreach (var post in Model.ForumPosts)
@@ -48,7 +22,7 @@
         }
     </div>
 
-    <partial name="_PostListToolbar" />
+    <partial name="_PostListToolbar" model="Model" />
 </div>
 
 <script sm-target-zone="scripts" data-origin="forum-topic">

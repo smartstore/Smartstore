@@ -1,17 +1,13 @@
 ﻿@model PublicForumTopicPageModel
 
-@{
-    var isTopNavigation = (ViewData["IsTopNavigation"] as bool?) ?? false;
-}
-
-<div class="topic-options row sm-gutters my-2" attr-class='(isTopNavigation, "top")'>
-    <div class="col col-sm-auto">
-        <a asp-action="PostCreate" asp-route-id="@Model.Id" class="btn btn-primary">
+<div class="topic-options row sm-gutters my-2">
+    <div sm-if="Model.CanCreatePosts" class="col col-lg-auto mb-2 mb-lg-0">
+        <a asp-action="PostCreate" asp-route-id="@Model.Id" class="btn btn-primary btn-block">
             <i class="fa fa-share"></i>
             <span>@T("Forum.Reply")</span>
         </a>
     </div>
-    <div sm-if="Model.CanSubscribe" class="col col-sm-auto">
+    <div sm-if="Model.CanSubscribe" class="col col-lg-auto mb-2 mb-lg-0">
         <form id="watch-topic-form" sm-ajax="true" method="post" asp-action="TopicWatch" asp-controller="Boards" sm-oncomplete="onWatchTopicCompleted">
             <input type="hidden" asp-for="Id" />
 
@@ -22,6 +18,38 @@
         </form>
     </div>
     <div sm-if="Model.ForumPosts.TotalPages > 1" class="col">
-        <pagination sm-list-items="Model.ForumPosts" sm-alignment="Right" />
+        <div class="row no-gutters">
+            <div class="col pr-2">
+                <pagination sm-list-items="Model.ForumPosts" sm-alignment="Right" />
+            </div>
+            <div class="col col-sm-auto">
+                <div sm-if="Model.CanEditTopic || Model.CanDeleteTopic || Model.CanMoveTopic" class="manage dropdown">
+                    <button type="button" class="btn btn-primary btn-icon dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog"></i></button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        @if (Model.CanEditTopic)
+                        {
+                            <a asp-action="TopicEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="dropdown-item" rel="nofollow">
+                                <i class="far fa-edit"></i>
+                                <span>@T("Forum.EditTopic")</span>
+                            </a>
+                        }
+                        @if (Model.CanDeleteTopic)
+                        {
+                            <a asp-action="TopicDelete" asp-controller="Boards" asp-route-id="@Model.Id" id="delete-topic" class="dropdown-item" rel="nofollow">
+                                <i class="far fa-trash-alt"></i>
+                                <span>@T("Forum.DeleteTopic")</span>
+                            </a>
+                        }
+                        @if (Model.CanMoveTopic)
+                        {
+                            <a asp-action="TopicMove" asp-controller="Boards" asp-route-id="@Model.Id" class="dropdown-item" rel="nofollow">
+                                <i class="fa fa-arrows-alt"></i>
+                                <span>@T("Forum.MoveTopic")</span>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

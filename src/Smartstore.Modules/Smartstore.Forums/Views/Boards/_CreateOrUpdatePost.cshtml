@@ -75,6 +75,13 @@
             <a href="@cancelUrl" class="btn btn-secondary btn-lg">
                 <span>@T("Forum.Cancel")</span>
             </a>
+            @if (Model.CanDeletePost)
+            {
+                <button asp-action="PostDelete" asp-controller="Boards" asp-route-id="@Model.Id" id="post-delete" class="btn btn-secondary btn-to-danger btn-lg">
+                    <i class="fa fa-times"></i>
+                    <span>@T("Forum.DeletePost")</span>
+                </button>
+            }
         </div>
     </div>
 </div>

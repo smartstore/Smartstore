@@ -66,9 +66,6 @@
 
                             <div class="col topic-info text-truncate">
                                 <div class="d-flex flex-nowrap align-items-center">
-                                    <div class="topic-avatar mr-3">
-                                        <partial name="Customer.Avatar" model="topic.Avatar" />
-                                    </div>
                                     <div class="topic-name">
                                         <div class="topic-subject text-truncate">
                                             <span sm-if="topic.ForumTopicType == ForumTopicType.Sticky" class="topic-type">
@@ -95,7 +92,7 @@
                                             }
                                         </div>
                                         <div sm-if="topic.PostsPages.TotalPages > 1">
-                                            <forumtopic-pagination class="topics-pager"
+                                            <forumtopic-pagination class="topics-pager mt-1"
                                                 sm-list-items="topic.PostsPages"
                                                 sm-topic-id="topic.Id"
                                                 sm-topic-slug="@topic.Slug"

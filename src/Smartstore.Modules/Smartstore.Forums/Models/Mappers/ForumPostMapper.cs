@@ -104,7 +104,7 @@ namespace Smartstore.Forums.Models.Mappers
 
             to.Avatar = from.Customer.ToAvatarModel(to.CustomerName, largeAvatar);
 
-            if (_forumSettings.AllowCustomersToVoteOnPosts /*&& from.CustomerId != currentCustomer.Id*/)
+            if (_forumSettings.AllowCustomersToVoteOnPosts && from.CustomerId != currentCustomer.Id)
             {
                 if (!_forumSettings.AllowGuestsToVoteOnPosts && currentCustomer.IsGuest())
                 {
