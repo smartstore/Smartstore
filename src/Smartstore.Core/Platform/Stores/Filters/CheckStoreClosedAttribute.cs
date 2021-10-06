@@ -48,8 +48,6 @@ namespace Smartstore.Core.Stores
 
             public void OnAuthorization(AuthorizationFilterContext context)
             {
-                _storeInfoSettings.StoreClosed = true;
-
                 if (!_storeInfoSettings.StoreClosed)
                 {
                     return;

@@ -13,6 +13,11 @@
         var viewData = new ViewDataDictionary(ViewData);
         // Append facet prefix to get CustomProperties[ForumSearchSettings].<Forum|Customer|Date>Facet.<Property>
         viewData.TemplateInfo.HtmlFieldPrefix += "." + fieldPrefix;
+
+        // We cannot use current prefix for localized editor name because of special chars.
+        // The editor would not switch the editor body when clicking a language tab.
+        viewData["LocalizedEditorName"] = "ForumSearchSettings-" + fieldPrefix;
+
         return viewData;
     }
 }
@@ -135,7 +140,7 @@
 
 <script>
     $(function() {
-        $('#forum-search-settings').find('select').selectWrapper();
+        applyCommonPlugins($('#forum-search-settings'));
 
         // Toggle wildcard note.
         $('#@(Html.IdFor(x => x.SearchMode))').on('change', function () {
@@ -143,8 +148,5 @@
         }).trigger('change');
 
         $('#@(Html.IdFor(x => x.InstantSearchEnabled))').trigger('change');
-
-        // TODO: (mg) (core) AJAX loaded settings partial (ForumSearchSettings tab) broken and not reacting on JavaScript events like 'click'.
-        // -> tabstrip of localized editor do not switch language, numberinput-up|down not working, disabled controls are not disabled etc.
 	});
 </script>

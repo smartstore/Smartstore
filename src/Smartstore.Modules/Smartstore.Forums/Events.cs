@@ -39,6 +39,7 @@ namespace Smartstore.Forums
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         // Add menu item for ForumSettings to settings menu.
+        // Add MyAccount menu item.
         public async Task HandleEventAsync(MenuBuiltEvent message,
             ICommonServices services,
             IUrlHelper urlHelper,
@@ -203,7 +204,6 @@ namespace Smartstore.Forums
         // Add forum message model parts.
         public async Task HandleEventAsync(MessageModelPartMappingEvent message,
             SmartDbContext db,
-            IEventPublisher eventPublisher,
             IForumService forumService,
             IUrlHelper urlHelper,
             IDateTimeHelper dtHelper,

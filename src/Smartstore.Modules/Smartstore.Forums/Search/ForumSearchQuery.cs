@@ -16,8 +16,6 @@ namespace Smartstore.Forums.Search
     [ValidateNever]
     public partial class ForumSearchQuery : SearchQuery<ForumSearchQuery>, ICloneable<ForumSearchQuery>
     {
-        // TODO: (mg) (core) Perf: instant search do not need any Customer navigation properties.
-        // But this is static, no way to tell what (not) to include!?
         private readonly static Func<DbSet<ForumPost>, int[], Task<List<ForumPost>>> _defaultHitsFactory = async (dbSet, ids) =>
         {
             var items = await dbSet.AsNoTracking()
@@ -29,7 +27,15 @@ namespace Smartstore.Forums.Search
             return items.OrderBySequence(ids).ToList();
         };
 
-        private Func<DbSet<ForumPost>, int[], Task<List<ForumPost>>> _hitsFactory = _defaultHitsFactory;
+        private readonly static Func<DbSet<ForumPost>, int[], Task<List<ForumPost>>> _defaultInstantSearchHitsFactory = async (dbSet, ids) =>
+        {
+            var items = await dbSet.AsNoTracking()
+                .IncludeTopic()
+                .Where(x => ids.Contains(x.Id))
+                .ToListAsync();
+
+            return items.OrderBySequence(ids).ToList();
+        };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ForumSearchQuery"/> class without a search term being set.
@@ -58,7 +64,11 @@ namespace Smartstore.Forums.Search
         // Using Func<> properties in bindable models significantly reduces response time
         // due to a "bug" in the MVC model binding/validation system: https://github.com/dotnet/aspnetcore/issues/27709
         public Func<DbSet<ForumPost>, int[], Task<List<ForumPost>>> GetHitsFactory()
-            => _hitsFactory;
+        {
+            return Origin.EqualsNoCase("Boards/InstantSearch")
+                ? _defaultInstantSearchHitsFactory
+                : _defaultHitsFactory;
+        }
 
         #region Fluent builder
 

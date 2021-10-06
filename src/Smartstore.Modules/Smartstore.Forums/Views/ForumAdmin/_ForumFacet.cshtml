@@ -1,7 +1,7 @@
 ﻿@model ForumFacetSettingsModel
 
 @{
-    var fieldPrefix = ViewData.TemplateInfo.HtmlFieldPrefix;
+    var localizedEditorName = ViewData["LocalizedEditorName"] as string;
 }
 
 <div class="adminContent">
@@ -42,7 +42,7 @@
 }
 else
 {
-    @(Html.LocalizedEditor<ForumFacetSettingsModel, ForumFacetSettingsLocalizedModel>(fieldPrefix + "-localized",
+    @(Html.LocalizedEditor<ForumFacetSettingsModel, ForumFacetSettingsLocalizedModel>(localizedEditorName + "-localized",
 	@<div class="adminContent">
 		<div class="adminRow">
 			<div class="adminTitle">
