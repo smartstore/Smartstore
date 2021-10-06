@@ -203,7 +203,6 @@ namespace Smartstore.Forums
         // Add forum message model parts.
         public async Task HandleEventAsync(MessageModelPartMappingEvent message,
             SmartDbContext db,
-            IEventPublisher eventPublisher,
             IForumService forumService,
             IUrlHelper urlHelper,
             IDateTimeHelper dtHelper,

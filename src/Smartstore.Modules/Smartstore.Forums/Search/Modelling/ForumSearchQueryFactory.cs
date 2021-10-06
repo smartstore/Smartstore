@@ -135,14 +135,20 @@ namespace Smartstore.Forums.Search.Modelling
             switch (kind)
             {
                 case FacetGroupKind.Forum:
+                    if (_searchSettings.ForumDisabled)
+                        return;
                     fieldName = "forumid";
                     displayOrder = _searchSettings.ForumDisplayOrder;
                     break;
                 case FacetGroupKind.Customer:
+                    if (_searchSettings.CustomerDisabled)
+                        return;
                     fieldName = "customerid";
                     displayOrder = _searchSettings.CustomerDisplayOrder;
                     break;
                 case FacetGroupKind.Date:
+                    if (_searchSettings.DateDisabled)
+                        return;
                     fieldName = "createdon";
                     displayOrder = _searchSettings.DateDisplayOrder;
                     break;
