@@ -89,7 +89,7 @@
                             return;
                         }
 
-                        if (html.isEmpty()) {
+                        if (!html || html.length === 0) {
                             closeDrop();
                             dropBody.html('');
                         }
@@ -118,8 +118,8 @@
                     $('body').addClass('search-focused');
                     logo.css('margin-left', (logoWidth * -1) + 'px');
 
-                    if (dropBody.text().hasValue()) {
-                        logo.one(Prefixer.event.transitionEnd, function (e) {
+                    if (dropBody.text().length > 0) {
+                        logo.one(Prefixer.event.transitionEnd, function () {
                             openDrop();
                         });
                     }
