@@ -1651,7 +1651,7 @@ namespace Smartstore.Forums.Controllers
         public async Task<IActionResult> CustomerSubscriptions(IFormCollection form)
         {
             var currentCustomer = Services.WorkContext.CurrentCustomer;
-            var toDelete = new List<ForumSubscription>();
+            var toDeleteIds = new HashSet<int>();
 
             foreach (var key in form.Keys)
             {
@@ -1659,21 +1659,24 @@ namespace Smartstore.Forums.Controllers
 
                 if (value.EqualsNoCase("on") && key.StartsWith("fs", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (int.TryParse(key.Replace("fs", "").Trim(), out var subscriptionId))
+                    if (int.TryParse(key.Replace("fs", string.Empty).Trim(), out var subscriptionId))
                     {
-                        var subscription = await _db.ForumSubscriptions().FindByIdAsync(subscriptionId);
-                        if (subscription != null && subscription.CustomerId == currentCustomer.Id)
-                        {
-                            toDelete.Add(subscription);
-                        }
+                        toDeleteIds.Add(subscriptionId);
                     }
                 }
             }
 
-            if (toDelete.Any())
+            if (toDeleteIds.Any())
             {
-                _db.ForumSubscriptions().RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                var toDelete = await _db.ForumSubscriptions()
+                    .Where(x => toDeleteIds.Contains(x.Id) && x.CustomerId == currentCustomer.Id)
+                    .ToListAsync();
+
+                if (toDelete.Any())
+                {
+                    _db.ForumSubscriptions().RemoveRange(toDelete);
+                    await _db.SaveChangesAsync();
+                }
             }
 
             return RedirectToAction("CustomerSubscriptions");
