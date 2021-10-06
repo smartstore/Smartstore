@@ -114,6 +114,7 @@ namespace Smartstore.Web.Controllers
         private readonly PrivacySettings _privacySettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly CommonSettings _commonSettings;
+        private readonly StoreInformationSettings _storeInformationSettings;
 
         public HomeController(
             SmartDbContext db,
@@ -144,7 +145,8 @@ namespace Smartstore.Web.Controllers
             IMessageFactory messageFactory,
             PrivacySettings privacySettings,
             CaptchaSettings captchaSettings,
-            CommonSettings commonSettings)
+            CommonSettings commonSettings,
+            StoreInformationSettings storeInformationSettings)
         {
             _db = db;
             _eventPublisher = eventPublisher;
@@ -173,6 +175,7 @@ namespace Smartstore.Web.Controllers
             _privacySettings = privacySettings;
             _captchaSettings = captchaSettings;
             _commonSettings = commonSettings;
+            _storeInformationSettings = storeInformationSettings;
         }
 
         [LocalizedRoute("/", Name = "Homepage")]
@@ -191,6 +194,11 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/storeclosed", Name = "StoreClosed")]
         public IActionResult StoreClosed()
         {
+            if (!_storeInformationSettings.StoreClosed)
+            {
+                return RedirectToRoute("Homepage");
+            }
+
             return View();
         }
 
