@@ -48,9 +48,6 @@ namespace Smartstore.Core.Stores
 
             public void OnAuthorization(AuthorizationFilterContext context)
             {
-                // TODO: (core) this statement makes no sense. Test purpose or accident?
-                _storeInfoSettings.StoreClosed = true;
-
                 if (!_storeInfoSettings.StoreClosed)
                 {
                     return;

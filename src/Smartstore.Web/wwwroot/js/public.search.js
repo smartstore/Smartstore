@@ -89,6 +89,7 @@
                             return;
                         }
 
+                        // INFO: (mg) (core) You should not use StringProto.isEmpty() or StringProto.hasValue() without NULL check, e.g.: html?.isEmpty() is ok.
                         if (!html || html.length === 0) {
                             closeDrop();
                             dropBody.html('');
