@@ -526,8 +526,9 @@
                         displayNotification(xhr.responseText, "error");
                     }
                 }
-            }
-            );
+            }).ajaxSend(function () {
+
+            });
 
         // .mf-dropdown (mobile friendly dropdown)
         (function () {

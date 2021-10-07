@@ -558,12 +558,12 @@ namespace Smartstore.Web.Rendering
         }
 
         /// <summary>
-        /// Gets and renderes AntiforgeryToken. Usage is intended for ajax calls where you don't have a post form which renders the token automatically.
+        /// Gets the antiforgery token for the current request. Usage is intended for ajax calls where you don't have a post form which renders the token automatically.
         /// </summary>
         public static string GetAntiforgeryToken(this IHtmlHelper helper)
         {
             var httpContext = helper.ViewContext.HttpContext;
-            var antiforgery = (IAntiforgery)httpContext.RequestServices.GetService(typeof(IAntiforgery));
+            var antiforgery = httpContext.RequestServices.GetService<IAntiforgery>();
             var tokenSet = antiforgery.GetAndStoreTokens(httpContext);
             return tokenSet.RequestToken;
         }
