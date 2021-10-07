@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-  <PropertyGroup>
+	<PropertyGroup>
 		<Product>Smartstore Blog</Product>
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Blog</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
-  </PropertyGroup>
+	</PropertyGroup>
 	<ItemGroup>
 		<Content Include="App_Data\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
-  <!--<ItemGroup>
-    <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
-      <Private>false</Private>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-    </ProjectReference>
-  </ItemGroup>-->
+	<PropertyGroup>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
+		<RazorCompileOnBuild>true</RazorCompileOnBuild>
+		<RazorCompileOnPublish>true</RazorCompileOnPublish>
+	</PropertyGroup>
 </Project>

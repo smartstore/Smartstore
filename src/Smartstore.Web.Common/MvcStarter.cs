@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
@@ -34,6 +35,7 @@ using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Razor;
+using Smartstore.Web.Razor.RuntimeCompilation;
 
 namespace Smartstore.Web
 {
@@ -71,7 +73,7 @@ namespace Smartstore.Web
         {
             // Populate application parts with modules
             mvcBuilder.PartManager.PopulateModules(appContext);
-            
+
             var validatorLanguageManager = new ValidatorLanguageManager(appContext);
 
             mvcBuilder
@@ -125,9 +127,8 @@ namespace Smartstore.Web
                 })
                 .AddRazorRuntimeCompilation(o =>
                 {
-                    o.FileProviders.Clear();
-                    o.FileProviders.Add(new RazorRuntimeFileProvider(appContext, true));
-
+                    //o.FileProviders.Clear();
+                    //o.FileProviders.Add(new RazorRuntimeFileProvider(appContext, true));
                 })
                 .AddFluentValidation(c =>
                 {
@@ -205,6 +206,8 @@ namespace Smartstore.Web
             builder.RegisterType<DefaultViewDataAccessor>().As<IViewDataAccessor>().InstancePerLifetimeScope();
             builder.RegisterType<GridCommandStateStore>().As<IGridCommandStateStore>().InstancePerLifetimeScope();
             builder.RegisterType<StoreDependingSettingHelper>().AsSelf().InstancePerLifetimeScope();
+
+            builder.RegisterDecorator<RuntimeViewCompilerProvider, IViewCompilerProvider>();
 
             // Convenience: Register IUrlHelper as transient dependency.
             builder.Register<IUrlHelper>(c =>
