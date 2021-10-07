@@ -16,8 +16,8 @@
     </div>
 </div>
 
-<div class="active-discussions card bg-info" attr-class='(!Model.IsActiveDiscussionsPage, "mt-5")'>
-    <div sm-if="!Model.IsActiveDiscussionsPage" class="card-header">
+<div class="active-discussions card" attr-class='(!Model.IsActiveDiscussionsPage, "mt-5")'>
+    <div sm-if="!Model.IsActiveDiscussionsPage" class="card-header bg-info">
         <div class="row align-items-center">
             <div class="col-md-8">
                 <h2 class="fs-h4 m-0 text-white">
@@ -50,9 +50,6 @@
 
                         <div class="col topic-info text-truncate">
                             <div class="d-flex flex-nowrap align-items-center">
-                                <div class="topic-avatar mr-3">
-                                    <partial name="Customer.Avatar" model="topic.Avatar" />
-                                </div>
                                 <div class="topic-name">
                                     <div class="topic-subject text-truncate">
                                         <a asp-route="ForumTopicBySlug" asp-route-id="@topic.Id" asp-route-slug="@topic.Slug" class="forum-link fwm fs-h6 text-truncate">

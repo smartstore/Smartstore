@@ -12,6 +12,7 @@ namespace Smartstore.Forums
     {
         public static string SystemName => "Smartstore.Forums";
         public static string ForumPostCountKey => "ForumPostCount";
+        public static string NotifiedAboutNewPrivateMessagesKey => "NotifiedAboutNewPrivateMessages";
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

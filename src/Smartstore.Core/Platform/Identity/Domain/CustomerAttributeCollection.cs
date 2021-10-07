@@ -234,12 +234,6 @@ namespace Smartstore.Core.Identity
             set => Set(SystemCustomerAttributeNames.LastContinueShoppingPage, value, CurrentStoreId);
         }
 
-        public bool NotifiedAboutNewPrivateMessages
-        {
-            get => Get<bool>(SystemCustomerAttributeNames.NotifiedAboutNewPrivateMessages, CurrentStoreId);
-            set => Set(SystemCustomerAttributeNames.NotifiedAboutNewPrivateMessages, value, CurrentStoreId);
-        }
-
         public string WorkingThemeName
         {
             get => Get<string>(SystemCustomerAttributeNames.WorkingThemeName, CurrentStoreId);

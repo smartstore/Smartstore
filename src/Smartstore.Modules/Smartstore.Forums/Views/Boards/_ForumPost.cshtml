@@ -9,25 +9,9 @@
 
 @Html.Raw($"<a name='{Model.Id}'></a>")
 
-<div class="block block-bordered forum-post card" id="post@(Model.Id)" data-id="@Model.Id">
-	<div class="card-header">
-        <div class="d-flex align-items-center">
-            @if (Model.CanEditPost)
-            {
-                <i class="far fa-edit pr-1"></i>
-                <a asp-action="PostEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="edit-post forum-link pr-3">@T("Forum.EditPost")</a>
-            }
-            @if (Model.CanDeletePost)
-            {
-                <i class="fa fa-times pr-1"></i>
-                <a asp-action="PostDelete" asp-controller="Boards" asp-route-id="@Model.Id" class="delete-post forum-link pr-3">@T("Forum.DeletePost")</a>
-            }
-            <a href="@(Url.RouteUrl(postLinkRouteName, postLinkRouteValues))#@Model.Id" class="post-link forum-link ml-auto" title="@T("Forum.PostLinkTitle")">#@Model.Id</a>
-        </div>
-	</div>
-
-    <div class="block-body card-body row" attr-class='(!Model.Published, "disabled")'>
-        <div class="post-info col-2 d-sm-block">
+<div class="container forum-post card mb-4" id="post@(Model.Id)" data-id="@Model.Id">
+    <div class="row" attr-class='(!Model.Published, "disabled")'>
+        <div class="post-info col-12 col-md-3 col-lg-2 p-3">
             <div class="user-info text-center">
                 <div class="avatar">
                     <partial name="Customer.Avatar" model="Model.Avatar" />
@@ -47,10 +31,6 @@
 
                 @if (Model.CanCreatePrivateMessages)
                 {
-                    @*TODO: (mg) (core) verify private message frontend URL. (empty area would be missing)*@
-                    //INFO: (mg) (core) The PrivateMessagesController wasn't implemented on purpose in the frontend.
-                    //The whole feature of PMs depend on ForumSettings.AllowPrivateMessages. So the controller must be implmented here in this module.
-                    //Sorry for the bad news :-/
                     <a asp-action="Send" asp-controller="PrivateMessages" asp-route-id="@Model.CustomerId" class="btn btn-outline-info btn-flat button-pm mt-2 btn-sm" rel="nofollow">
                         <i class="fa fa-user"></i>
                         <span>@T("Forum.PrivateMessages.PM")</span>
@@ -77,50 +57,69 @@
                 </div>
             </div>
         </div>
-        <div class="post-content col col-sm-10">
-            <div class="post-stats text-muted small mb-1">
-                <span class="posttime">
-                    <span>@T("Forum.Posted"):</span>
-                    <span class="stat-value">@Model.PostCreatedOnStr</span>
-                </span>
-                <span class="votes" attr-class='(Model.VoteCount == 0, "hide")' title="@T("Common.Liked")">
-                    <span class="pl-1 pr-1">&middot;</span>
-                    <span><i class="fa fa-thumbs-up"></i></span>
-                    <span class="vote-count stat-value">@Model.VoteCount.ToString("N0")</span>
-                </span>
-            </div>
-            <div class="post-body">
-                <div class="posttext" dir="auto">
-                    @Html.Raw(HtmlUtility.SanitizeHtml(Model.FormattedText))
+        <div class="post-content col-12 col-md-9 col-lg-10 p-3">
+            <div class="d-flex flex-column h-100">
+                <div>
+                    <div class="row">
+                        <div class="post-stats text-muted small mb-3 col">
+                            <span class="posttime">
+                                <span>@T("Forum.Posted"):</span>
+                                <span class="stat-value">@Model.PostCreatedOnStr</span>
+                            </span>
+                            <span class="votes" attr-class='(Model.VoteCount == 0, "hide")' title="@T("Common.Liked")">
+                                <span class="pl-1 pr-1">&middot;</span>
+                                <span><i class="fa fa-thumbs-up"></i></span>
+                                <span class="vote-count stat-value">@Model.VoteCount.ToString("N0")</span>
+                            </span>
+                        </div>
+                        <div class="col col-sm-auto text-right">
+                            <a href="@(Url.RouteUrl(postLinkRouteName, postLinkRouteValues))#@Model.Id" class="post-link forum-link ml-auto" title="@T("Forum.PostLinkTitle")">#@Model.Id</a>
+                        </div>
+                    </div>
+                    <div class="post-body">
+                        <div class="posttext" dir="auto">
+                            @Html.Raw(HtmlUtility.SanitizeHtml(Model.FormattedText))
+                        </div>
+                        <input type="hidden" asp-for="Id" />
+                    </div>
+                    <div sm-if="Model.SignaturesEnabled && Model.FormattedSignature.HasValue()" class="signature text-muted text-center pt-6" dir="auto">
+                        @Html.Raw(Model.FormattedSignature)
+                    </div>
                 </div>
-                <input type="hidden" asp-for="Id" />
+                @if (Model.CanEditPost || Model.CanDeletePost || Model.CanCreatePosts || Model.CanVote)
+                {
+                    <div class="text-right mt-auto">
+                        <div class="functions">
+                            <hr />
+                            @if (Model.CanEditPost)
+                            {
+                                <a asp-action="PostEdit" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-secondary btn-flat btn-sm">
+                                    <i class="far fa-edit"></i>
+                                    <span>@T("Forum.EditPost")</span>
+                                </a>
+                            }
+                            @if (Model.CanCreatePosts)
+                            {
+                                <a asp-action="PostCreate" asp-route-id="@Model.ForumTopicId" asp-route-quote="@Model.Id" class="btn btn-secondary btn-flat btn-sm">
+                                    <i class="fa fa-quote-left"></i>
+                                    <span>@T("Forum.QuotePost")</span>
+                                </a>
+                            }
+                            @if (Model.CanVote)
+                            {
+                                <button type="button" class="btn btn-secondary btn-flat btn-sm post-vote post-vote-up" attr-class='(Model.Vote, "hide")' value="true">
+                                    <i class="fa fa-thumbs-up"></i>
+                                    <span>@T("Common.LikeIt")</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-flat btn-sm post-vote post-vote-down" attr-class='(!Model.Vote, "hide")' value="false">
+                                    <i class="fa fa-thumbs-down"></i>
+                                    <span>@T("Common.DoNotLikeIt")</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
-            <div sm-if="Model.SignaturesEnabled && Model.FormattedSignature.HasValue()" class="signature text-muted text-center pt-6" dir="auto">
-                @Html.Raw(Model.FormattedSignature)
-            </div>
-        </div>
-    </div>
-
-    <div class="text-right">
-        <div class="functions p-1">
-            <a href=".topic-options.top" class="scrollto btn btn-secondary btn-flat btn-sm">
-                @T("Forum.Top")
-            </a>
-            <a asp-action="PostCreate" asp-route-id="@Model.ForumTopicId" asp-route-quote="@Model.Id" class="btn btn-secondary btn-flat btn-sm">
-                <i class="fa fa-quote-left"></i>
-                <span>@T("Forum.QuotePost")</span>
-            </a>
-            @if (Model.CanVote)
-            {
-                <button type="button" class="btn btn-secondary btn-flat btn-sm post-vote post-vote-up" attr-class='(Model.Vote, "hide")' value="true">
-                    <i class="fa fa-thumbs-up"></i>
-                    <span>@T("Common.LikeIt")</span>
-                </button>
-                <button type="button" class="btn btn-secondary btn-flat btn-sm post-vote post-vote-down" attr-class='(!Model.Vote, "hide")' value="false">
-                    <i class="fa fa-thumbs-down"></i>
-                    <span>@T("Common.DoNotLikeIt")</span>
-                </button>
-            }
         </div>
     </div>
 </div>

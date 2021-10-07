@@ -99,9 +99,8 @@
         });
 
         $(document).on('click', '#btnCreateAllCombinations, #btnDeleteAllCombinations', function () {
-			var token = $('input[name="__RequestVerificationToken"]').val();
             $(this).ajax({
-                data: { "__RequestVerificationToken": token },
+                data: { "__RequestVerificationToken": "@Html.GetAntiforgeryToken()" },
                 success: function (resp) {
                     $('#btnRefreshCombinations').click();
                 }

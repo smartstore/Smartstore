@@ -9,12 +9,12 @@
         <partial name="Customer.Avatar" model="Model.Avatar" />
     </div>
     <div class="text-truncate">
-        <div class="text-truncate" sm-if="Model.CustomerId > 0">
+        <div class="post-summary text-truncate" sm-if="Model.CustomerId > 0" attr-class='(!showTopic, "no-topic")'>
             <div class="text-truncate small">
                 <span class="createdon text-muted">@Model.PostCreatedOnStr</span>
                 @if (Model.CustomerId > 0)
                 {
-                    <span>&nbsp;·&nbsp;</span>
+                    <span class="seperator">&nbsp;·&nbsp;</span>
                     @if (Model.HasCustomerProfile)
                     {
                         <a asp-route="CustomerProfile" asp-route-id="@Model.CustomerId" class="text-truncate pretty-link">

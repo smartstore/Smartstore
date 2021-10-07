@@ -72,7 +72,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets a value indicating whether customer is administrator.
+        /// Gets a value indicating whether customer is administrator (navigation properties CustomerRoleMappings then CustomerRole are required).
         /// </summary>
         /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -82,7 +82,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets a value indicating whether customer is super administrator.
+        /// Gets a value indicating whether customer is super administrator (navigation properties CustomerRoleMappings then CustomerRole are required).
         /// </summary>
         /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -92,7 +92,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets a value indicating whether customer is registered.
+        /// Gets a value indicating whether customer is registered (navigation properties CustomerRoleMappings then CustomerRole are required).
         /// </summary>
         /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -102,7 +102,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets a value indicating whether customer is guest.
+        /// Gets a value indicating whether customer is guest (navigation properties CustomerRoleMappings then CustomerRole are required).
         /// </summary>
         /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

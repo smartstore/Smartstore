@@ -544,5 +544,16 @@ namespace Smartstore.Forums.Controllers
         }
 
         #endregion
+
+        #region Customer
+
+        // TODO: (mg) (core) Implement admin SendPm from backend customer page.
+        [Permission(Permissions.Customer.SendPm)]
+        public IActionResult SendPm()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

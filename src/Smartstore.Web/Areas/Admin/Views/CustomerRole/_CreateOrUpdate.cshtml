@@ -176,7 +176,7 @@
         $('#reapply-rules').on('click', function () {
             $(this).postData({
                 ask: @(T("Admin.Common.AskToProceed").JsValue),
-                data: { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() }
+                data: { "__RequestVerificationToken": "@Html.GetAntiforgeryToken()" }
             });
         });
     });

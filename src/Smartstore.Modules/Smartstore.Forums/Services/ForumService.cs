@@ -146,6 +146,19 @@ namespace Smartstore.Forums.Services
             return text;
         }
 
+        public virtual string FormatPrivateMessage(PrivateMessage message)
+        {
+            var text = message?.Text;
+            if (text.IsEmpty())
+            {
+                return string.Empty;
+            }
+
+            text = HtmlUtility.ConvertPlainTextToHtml(text.HtmlEncode());
+
+            return BBCodeHelper.ToHtml(text);
+        }
+
         public virtual ForumModerationPermissionFlags GetModerationPermissions(ForumTopic topic = null, ForumPost post = null, Customer customer = null)
         {
             customer ??= _services.WorkContext.CurrentCustomer;

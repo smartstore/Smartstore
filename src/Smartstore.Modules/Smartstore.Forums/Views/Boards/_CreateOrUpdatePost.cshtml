@@ -19,23 +19,23 @@
         <div asp-validation-summary="ModelOnly"></div>
     </div>
     <div class="form-group row pt-3">
-        <label class="col-sm-3">@T("Forum.ForumName"):</label>
-        <div class="col-sm-9" dir="auto">
+        <div class="col" dir="auto">
+            <label class="pr-1">@T("Forum.ForumName"):</label>
             <a asp-route="ForumBySlug" asp-route-id="@Model.ForumId" asp-route-slug="@Model.ForumSlug" class="forum-link">
                 @Model.ForumName
             </a>
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-3">@T("Forum.TopicSubject"):</label>
-        <div class="col-sm-9" dir="auto">
+        <div class="col" dir="auto">
+            <label class="pr-1">@T("Forum.TopicSubject"):</label>
             <a asp-route="ForumTopicBySlug" asp-route-id="@Model.ForumTopicId" asp-route-slug="@Model.ForumTopicSlug" class="forum-link">
                 @Model.ForumTopicSubject
             </a>
         </div>
     </div>
     <div class="form-group row">
-        <div class="col mt-3" dir="auto">
+        <div class="col" dir="auto">
             @if (Model.ForumEditor == EditorType.BBCodeEditor)
             {
                 <script src="~/lib/editors/BBEditor/ed.js"></script>
@@ -45,24 +45,27 @@
             <span asp-validation-for="Text"></span>
         </div>
     </div>
-    <div sm-if="Model.IsModerator && !Model.IsFirstPost" class="row">
-        <div class="col">
+    <div sm-if="Model.IsModerator && !Model.IsFirstPost" class="row align-items-center no-gutters">
+        <div class="col col-auto pr-2">
             <input asp-for="Published" type="checkbox" />
-			<label asp-for="Published" class="pl-1">@T("Common.Published")</label>
         </div>
-    </div>
-    <div sm-if="Model.CanSubscribe" class="row">
         <div class="col">
-            <input asp-for="IsSubscribed" type="checkbox" />
-			<label asp-for="IsSubscribed" class="pl-1">@T("Forum.NotifyWhenSomeonePostsInThisTopic")</label>
+            <label asp-for="Published" class="mb-0">@T("Common.Published")</label>
         </div>
     </div>
-
-	<div class="row">
-		<div class="col">
-			<zone name="gdpr_consent" />
-		</div>
-	</div>
+    <div sm-if="Model.CanSubscribe" class="row align-items-center no-gutters">
+        <div class="col col-auto pr-2">
+            <input asp-for="IsSubscribed" type="checkbox" />
+        </div>
+        <div class="col">
+            <label asp-for="IsSubscribed" class="mb-0">@T("Forum.NotifyWhenSomeonePostsInThisTopic")</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <zone name="gdpr_consent" />
+        </div>
+    </div>
 
     <captcha sm-enabled="Model.DisplayCaptcha" class="form-group row" />
 
@@ -75,6 +78,32 @@
             <a href="@cancelUrl" class="btn btn-secondary btn-lg">
                 <span>@T("Forum.Cancel")</span>
             </a>
+            @if (Model.CanDeletePost && Model.Id > 0)
+            {
+                <button asp-action="PostDelete" asp-controller="Boards" asp-route-id="@Model.Id" id="post-delete" class="delete-post btn btn-secondary btn-to-danger btn-lg">
+                    <i class="fa fa-times"></i>
+                    <span>@T("Forum.DeletePost")</span>
+                </button>
+            }
         </div>
     </div>
 </div>
+
+@if (Model.Id > 0)
+{
+<script sm-target-zone="scripts" data-origin="forum-post-create-or-update">
+    $(function () {
+        $('.delete-post').on('click', function(e) {
+            e.preventDefault();
+
+            $(this).postData({
+                ask: @(T("Admin.Common.DeleteConfirmation").JsValue),
+                iconType: "delete",
+                data: { "__RequestVerificationToken": "@Html.GetAntiforgeryToken()" }
+            });
+
+            return false;
+        });
+    });
+</script>
+}

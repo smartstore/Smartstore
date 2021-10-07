@@ -90,7 +90,6 @@ namespace Smartstore.Forums
                             .CountAsync();
                     }
 
-                    // TODO: (mg) (core) verify private message route URL.
                     message.Root.Append(new MenuItem
                     {
                         Id = "privatemessages",
@@ -304,7 +303,6 @@ namespace Smartstore.Forums
                 await db.LoadReferenceAsync(pm, x => x.FromCustomer);
                 await db.LoadReferenceAsync(pm, x => x.ToCustomer);
 
-                // TODO: (mg) (core) verify private message frontend URL.
                 var url = urlHelper.Action("View", "PrivateMessages", new { id = pm.Id, area = string.Empty });
 
                 message.Result = new Dictionary<string, object>

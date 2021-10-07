@@ -34,14 +34,14 @@
 
     <p class="lead" sm-language-attributes-for="Model.Description">@Model.Description</p>
 
-    <div class="actions row sm-gutters mb-2">
-        <div class="col col-sm-auto">
+    <div class="forum-options row sm-gutters mb-2">
+        <div class="col col-lg-auto mb-2 mb-lg-0">
             <a asp-action="TopicCreate" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-primary newtopic btn-block" rel="nofollow">
                 <i class="fa fa-plus"></i>
                 <span>@T("Forum.NewTopic")</span>
             </a>
         </div>
-        <div sm-if="Model.CanSubscribe" class="col col-sm-auto">
+        <div sm-if="Model.CanSubscribe" class="col col-lg-auto mb-2 mb-lg-0">
             <form id="watch-forum-form" sm-ajax="true" method="post" asp-action="ForumWatch" asp-controller="Boards" sm-oncomplete="onWatchForumCompleted">
                 <input type="hidden" asp-for="Id" />
 
@@ -66,9 +66,6 @@
 
                             <div class="col topic-info text-truncate">
                                 <div class="d-flex flex-nowrap align-items-center">
-                                    <div class="topic-avatar mr-3">
-                                        <partial name="Customer.Avatar" model="topic.Avatar" />
-                                    </div>
                                     <div class="topic-name">
                                         <div class="topic-subject text-truncate">
                                             <span sm-if="topic.ForumTopicType == ForumTopicType.Sticky" class="topic-type">
@@ -95,7 +92,7 @@
                                             }
                                         </div>
                                         <div sm-if="topic.PostsPages.TotalPages > 1">
-                                            <forumtopic-pagination class="topics-pager"
+                                            <forumtopic-pagination class="topics-pager mt-1"
                                                 sm-list-items="topic.PostsPages"
                                                 sm-topic-id="topic.Id"
                                                 sm-topic-slug="@topic.Slug"
@@ -129,7 +126,7 @@
             </ul>
         </div>
     </div>
-    <pagination sm-list-items="Model.ForumTopics" sm-alignment="Right" class="mt-3" />
+    <pagination sm-list-items="Model.ForumTopics" sm-alignment="Right" class="mt-3 forum-options" />
 </div>
 
 <script sm-target-zone="scripts" data-origin="forum">

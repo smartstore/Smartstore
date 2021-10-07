@@ -1,26 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using FluentValidation;
 using Smartstore.Collections;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Forums.Models.Public
 {
-    public partial class PrivateMessageListModel : PagedListBase
+    public partial class PrivateMessageListModel : ModelBase
     {
-        public PrivateMessageListModel(IPageable pageable) 
-            : base(pageable)
-        {
-        }
+        public bool SentMessagesSelected { get; set; }
 
-        public List<PrivateMessageModel> Messages { get; set; }
+        public PagedList<PrivateMessageModel> InboxMessages { get; set; }
+        public PagedList<PrivateMessageModel> SentMessages { get; set; }
     }
 
     public partial class PrivateMessageModel : EntityModelBase
     {
         public int FromCustomerId { get; set; }
         public string CustomerFromName { get; set; }
-        public bool AllowViewingFromProfile { get; set; }
+        public bool HasCustomerProfile { get; set; }
 
         public int ToCustomerId { get; set; }
         public string CustomerToName { get; set; }

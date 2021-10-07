@@ -22,6 +22,11 @@ namespace Smartstore.Forums.Models.Public
         public CustomerAvatarModel Avatar { get; set; }
 
         public ForumModerationPermissionFlags ModerationPermissions { get; set; }
+
+        public bool CanCreatePosts
+        {
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanCreatePosts);
+        }
         public bool CanEditPost
         {
             get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanEditPost);

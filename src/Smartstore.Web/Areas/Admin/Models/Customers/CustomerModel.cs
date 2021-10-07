@@ -95,6 +95,7 @@ namespace Smartstore.Admin.Models.Customers
         [LocalizedDisplay("*Fax")]
         public string Fax { get; set; }
 
+        [UIHint("Textarea"), AdditionalMetadata("rows", 6)]
         [LocalizedDisplay("*AdminComment")]
         public string AdminComment { get; set; }
 
@@ -151,10 +152,9 @@ namespace Smartstore.Admin.Models.Customers
         public string AddRewardPointsMessage { get; set; }
 
         public SendEmailModel SendEmail { get; set; }
-        public SendPmModel SendPm { get; set; }
 
         [LocalizedDisplay("Admin.Customers.Customers.AssociatedExternalAuth")]
-        public IList<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; }
+        public List<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } = new();
 
         public bool Deleted { get; set; }
         public string EditUrl { get; set; }
@@ -202,20 +202,9 @@ namespace Smartstore.Admin.Models.Customers
             public string Subject { get; set; }
 
             [Required]
+            [UIHint("Textarea"), AdditionalMetadata("rows", 6)]
             [LocalizedDisplay("*Body")]
             public string Body { get; set; }
-        }
-
-        [LocalizedDisplay("Admin.Customers.Customers.SendPM.")]
-        public class SendPmModel : ModelBase
-        {
-            [Required]
-            [LocalizedDisplay("*Subject")]
-            public string Subject { get; set; }
-
-            [Required]
-            [LocalizedDisplay("*Message")]
-            public string Message { get; set; }
         }
 
         [LocalizedDisplay("Admin.Customers.Customers.Orders.")]

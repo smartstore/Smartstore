@@ -68,11 +68,7 @@
 <input type="submit" id="btnRefreshBundleItems" name="btnRefreshBundleItems" class="d-none" />
 
 <script>
-    var token = "";
-
     $(function () {
-        token = $('input[name="__RequestVerificationToken"]').val();
-
         // Call hidden entity picker.
         $(document).on("click", "#pick-bundle-item-products", function (e) {
             $(".bundle-item-product-picker").trigger("click");
@@ -108,7 +104,7 @@
             data: {
                 "productId": @parentModel.Id,
                 "selectedProductIds": ids,
-                "__RequestVerificationToken": token
+                "__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
             },
             success: function () {
                 window["bundleitems-grid"].$children[0].read();

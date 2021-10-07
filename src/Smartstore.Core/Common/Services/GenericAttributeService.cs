@@ -89,7 +89,7 @@ namespace Smartstore.Core.Common.Services
                 return;
             }
 
-            // Reduce entityIds by already loaded collections
+            // Reduce entityIds by already loaded collections.
             var ids = new List<int>(entityIds.Length);
             foreach (var id in entityIds.Distinct().OrderBy(x => x))
             {
@@ -101,10 +101,13 @@ namespace Smartstore.Core.Common.Services
 
             var storeId = _storeContext.CurrentStore.Id;
 
-            var groupedAttributes = await _db.GenericAttributes
+            var attributes = await _db.GenericAttributes
                 .Where(x => ids.Contains(x.EntityId) && x.KeyGroup == entityName)
-                .GroupBy(x => x.EntityId)
                 .ToListAsync();
+
+            var groupedAttributes = attributes
+                .GroupBy(x => x.EntityId)
+                .ToList();
 
             foreach (var group in groupedAttributes)
             {

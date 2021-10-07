@@ -45,8 +45,6 @@
 
 <script sm-target-zone="scripts" data-origin="ConfigureProvider">
     $(function () {
-        var token = $('input[name="__RequestVerificationToken"]').val();
-
         $('.section-header .options').on('click', '[type=submit]', function (e) {
             // On SubmitButtonClick, post the form programmatically, as the button is not a child of the form...
             var form = $('.plugin-config-container form').first();
@@ -67,7 +65,7 @@
                 type: 'POST',
                 url: $el.attr("href"),
                 data: {
-                    "__RequestVerificationToken": token,
+                    "__RequestVerificationToken": "@Html.GetAntiforgeryToken()",
                     "systemName": $el.attr("data-system-name")
                 },
                 success: function (data) {

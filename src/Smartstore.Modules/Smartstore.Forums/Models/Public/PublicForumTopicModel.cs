@@ -40,6 +40,10 @@ namespace Smartstore.Forums.Models.Public
         public string Slug { get; set; }
 
         public ForumModerationPermissionFlags ModerationPermissions { get; set; }
+        public bool CanCreatePosts
+        {
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanCreatePosts);
+        }
         public bool CanEditTopic
         {
             get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanEditTopic);

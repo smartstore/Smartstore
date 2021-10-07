@@ -55,7 +55,7 @@
             else {
                 confirm2({
                     message: opts.ask,
-                    icon: { type: 'question' },
+                    icon: { type: opts.iconType || 'question' },
                     callback: accepted => {
                         if (accepted) {
                             createAndSubmitForm(opts);
@@ -165,7 +165,7 @@
         else {
             confirm2({
                 message: opts.ask,
-                icon: { type: 'question' },
+                icon: { type: opts.iconType || 'question' },
                 callback: accepted => {
                     if (accepted) {
                         execute(opts);

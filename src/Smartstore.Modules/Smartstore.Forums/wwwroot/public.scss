@@ -44,8 +44,46 @@
 .forum-quote {
     margin-bottom: 0;
 }
-.forum-topic .username {
-    font-weight: bold;
+.post-vote-up:hover {
+    color: var(--green);
+}
+.post-vote-down:hover {
+    color: var(--red);
+}
+.post-info,
+.post-info .avatar-letter {
+    background: var(--gray-100) !important;
+}
+.page.forum,
+.page.forum-topic {
+    .username {
+        font-weight: 600;
+    }
+
+    .pagination:not(.pagination-sm) {
+        .page-link {
+            padding: 0.625rem 1rem;
+            font-size: 0.9375rem;
+            line-height: 1.5;
+        }
+    }
+}
+
+.last-post .post-summary.no-topic {
+    .createdon {
+        display: block;
+    }
+    .seperator {
+        display: none;
+    }
+}
+
+@include media-breakpoint-down(md) {
+    .topic-options, .forum-options {
+        .pagination {
+            justify-content: start !important;
+        }
+    }
 }
 
 // Forum Search

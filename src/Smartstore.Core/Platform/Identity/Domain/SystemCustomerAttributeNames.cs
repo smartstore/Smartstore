@@ -38,7 +38,6 @@
         public static string SelectedShippingOption => "SelectedShippingOption";
         public static string OfferedShippingOptions => "OfferedShippingOptions";
         public static string LastContinueShoppingPage => "LastContinueShoppingPage";
-        public static string NotifiedAboutNewPrivateMessages => "NotifiedAboutNewPrivateMessages";
         public static string WorkingThemeName => "WorkingThemeName";
         public static string UseRewardPointsDuringCheckout => "UseRewardPointsDuringCheckout";
         public static string UseCreditBalanceDuringCheckout => "UseCreditBalanceDuringCheckout";

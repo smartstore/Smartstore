@@ -189,7 +189,7 @@ namespace Smartstore.Web.Controllers
             if (workContext.CurrentImpersonator != null)
             {
                 // Logout impersonated customer.
-                workContext.CurrentCustomer.GenericAttributes.ImpersonatedCustomerId = null;
+                workContext.CurrentImpersonator.GenericAttributes.ImpersonatedCustomerId = null;
                 await db.SaveChangesAsync();
 
                 // Redirect back to customer details page (admin area).

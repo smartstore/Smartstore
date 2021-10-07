@@ -230,7 +230,7 @@
     $(function() {
         const maxMappingLableLength = 42;
         var askToProceed = @T("Admin.Common.AskToProceed").JsValue;
-        var token = $('input[name="__RequestVerificationToken"]').val();
+        var token = "@Html.GetAntiforgeryToken()";
         var mappings = $('#ImportColumnMappings');
 
 		// Delete import file.
@@ -267,7 +267,7 @@
 				        form += '<input type="hidden" name="__RequestVerificationToken" value="' + token + '">';
                         form += '</form>';
 				        $('body').append(form);
-				        $('#ResetColumnMappingsForm').submit();                        
+				        $('#ResetColumnMappingsForm').submit();
                     }
                 }
             });

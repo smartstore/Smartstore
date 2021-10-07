@@ -15,6 +15,7 @@ namespace Smartstore.Forums.Services
         string BuildSlug(ForumTopic topic);
         string StripSubject(ForumTopic topic);
         string FormatPostText(ForumPost post);
+        string FormatPrivateMessage(PrivateMessage message);
 
         ForumModerationPermissionFlags GetModerationPermissions(ForumTopic topic = null, ForumPost post = null, Customer customer = null);
     }

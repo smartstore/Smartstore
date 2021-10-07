@@ -577,10 +577,6 @@ namespace Smartstore.Forums.Controllers
             {
                 topic.ForumId = newForum.Id;
                 await _db.SaveChangesAsync();
-
-                // TODO: (mg) (core) hook
-                //await _forumService.ApplyForumStatisticsAsync(await _db.Forums().FindByIdAsync(oldForumId));
-                //await _forumService.ApplyForumStatisticsAsync(newForum);
             }
 
             return RedirectToRoute("ForumTopicBySlug", new { id = topic.Id, slug = _forumService.BuildSlug(topic) });
@@ -1072,7 +1068,6 @@ namespace Smartstore.Forums.Controllers
 
                     await ApplySubscription(topic.Id, model.IsSubscribed);
 
-                    // TODO: (mg) (core) Breaks with: InvalidOperationException: Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.
                     await _db.SaveChangesAsync();
 
                     Services.ActivityLogger.LogActivity(ForumActivityLogTypes.PublicStoreAddForumPost, T("ActivityLog.PublicStore.AddForumPost"), post.Text.Truncate(100, "…"));
@@ -1651,7 +1646,7 @@ namespace Smartstore.Forums.Controllers
         public async Task<IActionResult> CustomerSubscriptions(IFormCollection form)
         {
             var currentCustomer = Services.WorkContext.CurrentCustomer;
-            var toDelete = new List<ForumSubscription>();
+            var toDeleteIds = new HashSet<int>();
 
             foreach (var key in form.Keys)
             {
@@ -1659,21 +1654,24 @@ namespace Smartstore.Forums.Controllers
 
                 if (value.EqualsNoCase("on") && key.StartsWith("fs", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (int.TryParse(key.Replace("fs", "").Trim(), out var subscriptionId))
+                    if (int.TryParse(key.Replace("fs", string.Empty).Trim(), out var subscriptionId))
                     {
-                        var subscription = await _db.ForumSubscriptions().FindByIdAsync(subscriptionId);
-                        if (subscription != null && subscription.CustomerId == currentCustomer.Id)
-                        {
-                            toDelete.Add(subscription);
-                        }
+                        toDeleteIds.Add(subscriptionId);
                     }
                 }
             }
 
-            if (toDelete.Any())
+            if (toDeleteIds.Any())
             {
-                _db.ForumSubscriptions().RemoveRange(toDelete);
-                await _db.SaveChangesAsync();
+                var toDelete = await _db.ForumSubscriptions()
+                    .Where(x => toDeleteIds.Contains(x.Id) && x.CustomerId == currentCustomer.Id)
+                    .ToListAsync();
+
+                if (toDelete.Any())
+                {
+                    _db.ForumSubscriptions().RemoveRange(toDelete);
+                    await _db.SaveChangesAsync();
+                }
             }
 
             return RedirectToAction("CustomerSubscriptions");
