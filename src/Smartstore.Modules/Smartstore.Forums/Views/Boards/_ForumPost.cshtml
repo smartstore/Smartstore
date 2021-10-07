@@ -86,7 +86,7 @@
                         @Html.Raw(Model.FormattedSignature)
                     </div>
                 </div>
-                @if (Model.CanEditPost || Model.CanDeletePost || Model.CanCreatePost || Model.CanVote)
+                @if (Model.CanEditPost || Model.CanDeletePost || Model.CanCreatePosts || Model.CanVote)
                 {
                     <div class="text-right mt-auto">
                         <div class="functions">
@@ -98,7 +98,7 @@
                                     <span>@T("Forum.EditPost")</span>
                                 </a>
                             }
-                            @if (Model.CanCreatePost)
+                            @if (Model.CanCreatePosts)
                             {
                                 <a asp-action="PostCreate" asp-route-id="@Model.ForumTopicId" asp-route-quote="@Model.Id" class="btn btn-secondary btn-flat btn-sm">
                                     <i class="fa fa-quote-left"></i>

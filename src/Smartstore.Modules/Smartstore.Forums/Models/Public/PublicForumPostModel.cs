@@ -23,7 +23,7 @@ namespace Smartstore.Forums.Models.Public
 
         public ForumModerationPermissionFlags ModerationPermissions { get; set; }
 
-        public bool CanCreatePost
+        public bool CanCreatePosts
         {
             get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanCreatePosts);
         }
