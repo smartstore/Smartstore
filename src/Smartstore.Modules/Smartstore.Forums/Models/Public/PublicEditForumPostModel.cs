@@ -28,6 +28,7 @@ namespace Smartstore.Forums.Models.Public
         public bool IsSubscribed { get; set; }
 
         public ForumModerationPermissionFlags ModerationPermissions { get; set; }
+
         public bool CanCreatePosts
         {
             get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanCreatePosts);
@@ -35,6 +36,10 @@ namespace Smartstore.Forums.Models.Public
         public bool CanEditPost
         {
             get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanEditPost);
+        }
+        public bool CanDeletePost
+        {
+            get => ModerationPermissions.HasFlag(ForumModerationPermissionFlags.CanDeletePost);
         }
     }
 

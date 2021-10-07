@@ -577,10 +577,6 @@ namespace Smartstore.Forums.Controllers
             {
                 topic.ForumId = newForum.Id;
                 await _db.SaveChangesAsync();
-
-                // TODO: (mg) (core) hook
-                //await _forumService.ApplyForumStatisticsAsync(await _db.Forums().FindByIdAsync(oldForumId));
-                //await _forumService.ApplyForumStatisticsAsync(newForum);
             }
 
             return RedirectToRoute("ForumTopicBySlug", new { id = topic.Id, slug = _forumService.BuildSlug(topic) });
@@ -1072,7 +1068,6 @@ namespace Smartstore.Forums.Controllers
 
                     await ApplySubscription(topic.Id, model.IsSubscribed);
 
-                    // TODO: (mg) (core) Breaks with: InvalidOperationException: Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.
                     await _db.SaveChangesAsync();
 
                     Services.ActivityLogger.LogActivity(ForumActivityLogTypes.PublicStoreAddForumPost, T("ActivityLog.PublicStore.AddForumPost"), post.Text.Truncate(100, "…"));

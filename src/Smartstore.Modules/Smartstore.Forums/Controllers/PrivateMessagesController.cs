@@ -306,9 +306,6 @@ namespace Smartstore.Forums.Controllers
 
                     Services.ActivityLogger.LogActivity(ForumActivityLogTypes.PublicStoreSendPM, T("ActivityLog.PublicStore.SendPM"), toCustomer.Email);
 
-                    // TODO: (mg) (core) use hook to save generic attribute.
-                    //_genericAttributeService.SaveAttribute(customerTo, SystemCustomerAttributeNames.NotifiedAboutNewPrivateMessages, false, message.StoreId);
-
                     if (_forumSettings.NotifyAboutPrivateMessages)
                     {
                         await _messageFactory.SendPrivateMessageNotificationAsync(toCustomer, pm, Services.WorkContext.WorkingLanguage.Id);
