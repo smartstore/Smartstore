@@ -15,7 +15,8 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Forums.Controllers
 {
-    // TODO: (mg) (core) Check CustomerController.SendPm, AccountDropdownViewComponent
+    // TODO: (mg) (core) inject frontend menu link for PM inbox.
+    // TODO: (mg) (core) Check AccountDropdownViewComponent
     public class PrivateMessagesController : PublicController
     {
         private readonly SmartDbContext _db;
@@ -39,7 +40,7 @@ namespace Smartstore.Forums.Controllers
         }
 
         [Route("privatemessages/{tab?}", Name = "PrivateMessages")]
-        public async Task<IActionResult> Index(int? page, string tab)
+        public async Task<IActionResult> Index(int? page, string tab, int? inboxPage, int? sentPage)
         {
             if (!_forumSettings.AllowPrivateMessages)
             {
@@ -53,50 +54,34 @@ namespace Smartstore.Forums.Controllers
             }
 
             var store = Services.StoreContext.CurrentStore;
-            var inboxPage = 0;
-            var sentItemsPage = 0;
-            var sentItemsTabSelected = false;
-            int? fromCustomerId = null;
-            int? toCustomerId = null;
-            bool? isDeletedByAuthor = null;
-            bool? isDeletedByRecipient = null;
 
-            if (tab.EqualsNoCase("sent"))
-            {
-                sentItemsPage = page ?? 0;
-                sentItemsTabSelected = true;
-                fromCustomerId = currentCustomer.Id;
-                isDeletedByAuthor = false;
-            }
-            else
-            {
-                // Inbox.
-                inboxPage = page ?? 0;
-                toCustomerId = currentCustomer.Id;
-                isDeletedByRecipient = false;
-            }
-
-            var messages = await _db.PrivateMessages()
+            var query = _db.PrivateMessages()
                 .Include(x => x.FromCustomer)
                 .Include(x => x.ToCustomer)
-                .AsNoTracking()
-                .ApplyStandardFilter(fromCustomerId, toCustomerId, store.Id)
-                .ApplyStatusFilter(null, isDeletedByAuthor, isDeletedByRecipient)
-                .ToPagedList(page.HasValue ? page.Value - 1 : 0, _forumSettings.PrivateMessagesPageSize)
+                .AsNoTracking();
+
+            var inboxMessages = await query
+                .ApplyStandardFilter(toCustomerId: currentCustomer.Id, storeId: store.Id)
+                .ApplyStatusFilter(isDeletedByRecipient: false)
+                .ToPagedList(inboxPage.HasValue ? inboxPage.Value - 1 : 0, _forumSettings.PrivateMessagesPageSize)
                 .LoadAsync();
 
-            var messageModels = messages
-                .Select(x => CreatePrivateMessageModel(x))
-                .ToList();
+            var sentMessages = await query
+                .ApplyStandardFilter(fromCustomerId: currentCustomer.Id, storeId: store.Id)
+                .ApplyStatusFilter(isDeletedByAuthor: false)
+                .ToPagedList(sentPage.HasValue ? sentPage.Value - 1 : 0, _forumSettings.PrivateMessagesPageSize)
+                .LoadAsync();
 
-            var model = new PrivateMessageListModel(messages)
+            var model = new PrivateMessageListModel
             {
-                Messages = messageModels
+                SentMessagesSelected = tab.EqualsNoCase("sent"),
+                InboxMessages = inboxMessages
+                    .Select(x => CreatePrivateMessageModel(x))
+                    .ToPagedList(inboxMessages.PageIndex, inboxMessages.PageSize, inboxMessages.TotalCount),
+                SentMessages = sentMessages
+                    .Select(x => CreatePrivateMessageModel(x))
+                    .ToPagedList(sentMessages.PageIndex, sentMessages.PageSize, sentMessages.TotalCount),
             };
-
-            ViewBag.InboxPage = inboxPage;
-            ViewBag.SentItemsPage = sentItemsPage;
-            ViewBag.SentItemsTabSelected = sentItemsTabSelected;
 
             return View(model);
         }
@@ -212,7 +197,7 @@ namespace Smartstore.Forums.Controllers
             {
                 ToCustomerId = customerTo.Id,
                 CustomerToName = customerTo.FormatUserName(),
-                AllowViewingToProfile = _customerSettings.AllowViewingProfiles && !customerTo.IsGuest()
+                HasCustomerProfile = _customerSettings.AllowViewingProfiles && !customerTo.IsGuest()
             };
 
             if (replyToMessageId.HasValue)
@@ -276,7 +261,7 @@ namespace Smartstore.Forums.Controllers
 
             model.ToCustomerId = toCustomer.Id;
             model.CustomerToName = toCustomer.FormatUserName();
-            model.AllowViewingToProfile = _customerSettings.AllowViewingProfiles && !toCustomer.IsGuest();
+            model.HasCustomerProfile = _customerSettings.AllowViewingProfiles && !toCustomer.IsGuest();
 
             if (ModelState.IsValid)
             {
@@ -407,7 +392,7 @@ namespace Smartstore.Forums.Controllers
                 Id = pm.Id,
                 FromCustomerId = pm.FromCustomer.Id,
                 CustomerFromName = pm.FromCustomer.FormatUserName(),
-                AllowViewingFromProfile = _customerSettings.AllowViewingProfiles && pm.FromCustomer != null && !pm.FromCustomer.IsGuest(),
+                HasCustomerProfile = _customerSettings.AllowViewingProfiles && pm.FromCustomer != null && !pm.FromCustomer.IsGuest(),
                 ToCustomerId = pm.ToCustomer.Id,
                 CustomerToName = pm.ToCustomer.FormatUserName(),
                 AllowViewingToProfile = _customerSettings.AllowViewingProfiles && pm.ToCustomer != null && !pm.ToCustomer.IsGuest(),

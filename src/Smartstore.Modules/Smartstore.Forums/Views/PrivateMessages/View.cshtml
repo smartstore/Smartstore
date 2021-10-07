@@ -1,0 +1,54 @@
+﻿@model PrivateMessageModel
+
+@{
+	Layout = "_MyAccount";
+
+	Assets.AppendTitleParts(T("PageTitle.ViewPM"));
+}
+
+<div class="page private-message-view-page">
+    <div class="page-title">
+        <h2>@T("PrivateMessages.View.ViewMessage")</h2>
+    </div>
+
+    <div class="page-body">
+        <div class="row my-1">
+            <label class="col-sm-3">@T("PrivateMessages.View.From")</label>
+            <div class="col-sm-9">@Model.CustomerFromName</div>
+        </div>
+        <div class="row my-1">
+            <label class="col-sm-3">@T("PrivateMessages.View.To")</label>
+            <div class="col-sm-9">@Model.CustomerToName</div>
+        </div>
+        <div class="row my-1">
+            <label class="col-sm-3">@T("PrivateMessages.View.Subject")</label>
+            <div class="col-sm-9" dir="auto">@Model.Subject</div>
+        </div>
+        <div class="row mt-1 mb-3">
+            <label class="col-sm-3">@T("PrivateMessages.View.Message")</label>
+            <div class="col-sm-9">
+                <div class="card">
+                    <div class="card-body" dir="auto">
+                        @Html.Raw(HtmlUtility.SanitizeHtml(Model.Message, true))
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-end">
+            <div class="col-sm-9">
+                <a asp-route="PrivateMessages" asp-route-tab="inbox" rel="nofollow" class="btn btn-secondary">
+                    <i class="fa fa-angle-left"></i>
+                    <span>@T("PrivateMessages.View.BackButton")</span>
+                </a>
+                <a asp-action="Send" asp-controller="PrivateMessages" asp-route-id="@Model.FromCustomerId" asp-route-replyToMessageId="@Model.Id" rel="nofollow" class="btn btn-secondary">
+                    <span>@T("PrivateMessages.View.ReplyButton")</span>
+                    <i class="fa fa-share"></i>
+                </a>
+                <a asp-action="Delete" asp-controller="PrivateMessages" asp-route-id="@Model.Id" rel="nofollow" class="btn btn-secondary">
+                    <i class="far fa-trash-alt"></i>
+                    <span>@T("PrivateMessages.View.DeleteButton")</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

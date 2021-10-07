@@ -12,6 +12,8 @@
             <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
             <button type="submit" name="save" value="save" class="btn btn-warning">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.Save")</span>
@@ -27,6 +29,8 @@
                 </button>
                 <confirm button-id="customerrole-delete" />
             }
+
+            <zone name="admin_button_toolbar_after" />
         </div>
     </div>
 

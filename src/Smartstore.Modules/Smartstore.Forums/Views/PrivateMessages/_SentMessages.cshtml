@@ -1,0 +1,80 @@
+﻿@model PrivateMessageListModel
+
+<div class="table-responsive">
+	<table id="pm-sent-list" class="table" cellspacing="0" cellpadding="4">
+		<thead>
+			<tr class="pm-grid-header-style">
+				<th class="text-center" style="width: 5%;">
+					<input type="checkbox" id="select-all-sent" />
+				</th>
+				<th style="width: 20%;">
+					@T("PrivateMessages.Inbox.ToColumn")
+				</th>
+				<th style="width: 50%;">
+					@T("PrivateMessages.Inbox.SubjectColumn")
+				</th>
+				<th style="width: 25%;">
+					@T("Common.Date")
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var pm in Model.SentMessages)
+			{
+				<tr>
+					<td class="text-center">
+						<input type="checkbox" name="si@(pm.Id)" class="rowcheckbox" />
+					</td>
+					<td>
+						@if (pm.HasCustomerProfile)
+						{
+                            <a asp-route="CustomerProfile" asp-route-id="@pm.ToCustomerId">
+                                @pm.CustomerToName.NaIfEmpty()
+                            </a>
+						}
+						else
+						{
+							@pm.CustomerToName
+						}
+					</td>
+					<td dir="auto">
+                        <a asp-action="View" asp-controller="PrivateMessages" asp-route-id="@pm.Id" class="pm-read">
+                            @pm.Subject
+                        </a>
+					</td>
+					<td>
+						@pm.CreatedOn.ToNativeString()
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+
+@if (Model.SentMessages.TotalPages > 1)
+{
+	<pagination sm-list-items="Model.SentMessages" sm-query-param="sentPage" />
+}
+
+<div class="buttons row xs-gutters">
+    <div class="col col-lg-auto col-12 mt-2">
+        <button class="btn btn-danger btn-block" name="delete-sent" type="submit" value="delete-sent">
+            <i class="far fa-trash-alt"></i>
+            <span>@T("PrivateMessages.Inbox.DeleteSelected")</span>
+        </button>
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="pm-sent">
+	$(function () {
+        $('#select-all-sent').click(function () {
+            $('#pm-sent-list .rowcheckbox').attr('checked', $(this).is(':checked')).change();
+        });
+
+        $(document).on('change', '#pm-sent-list .rowcheckbox', function (e) {
+            var numChkBoxes = $('#pm-sent-list .rowcheckbox').length;
+            var numChkBoxesChecked = $('#pm-sent-list .rowcheckbox:checked').length;
+            $('#select-all-sent').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+        });
+    });
+</script>

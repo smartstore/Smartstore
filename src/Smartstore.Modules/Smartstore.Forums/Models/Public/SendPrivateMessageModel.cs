@@ -7,7 +7,7 @@ namespace Smartstore.Forums.Models.Public
     {
         public int ToCustomerId { get; set; }
         public string CustomerToName { get; set; }
-        public bool AllowViewingToProfile { get; set; }
+        public bool HasCustomerProfile { get; set; }
 
         public int ReplyToMessageId { get; set; }
         public string Subject { get; set; }
