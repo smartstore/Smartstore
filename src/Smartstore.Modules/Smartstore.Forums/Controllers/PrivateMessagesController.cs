@@ -16,8 +16,6 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Forums.Controllers
 {
-    // TODO: (mg) (core) inject frontend menu link for PM inbox.
-    // TODO: (mg) (core) Check AccountDropdownViewComponent
     public class PrivateMessagesController : PublicController
     {
         private readonly SmartDbContext _db;
@@ -41,7 +39,7 @@ namespace Smartstore.Forums.Controllers
         }
 
         [LocalizedRoute("privatemessages/{tab?}", Name = "PrivateMessages")]
-        public async Task<IActionResult> Index(int? page, string tab, int? inboxPage, int? sentPage)
+        public async Task<IActionResult> Index(string tab, int? inboxPage, int? sentPage)
         {
             if (!_forumSettings.AllowPrivateMessages)
             {

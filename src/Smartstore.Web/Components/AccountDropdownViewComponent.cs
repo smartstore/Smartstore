@@ -14,8 +14,6 @@ namespace Smartstore.Web.Components
         {
             var customer = Services.WorkContext.CurrentCustomer;
 
-            // TODO: (mg) (core) PMs must be prepared in Forum external module and links must be inserted into account_dropdown_after. 
-
             var model = new AccountDropdownModel
             {
                 IsAuthenticated = customer.IsRegistered(),
