@@ -21,8 +21,11 @@
             <partial name="_ForumPost" model="post" />
         }
     </div>
-
-    <partial name="_PostListToolbar" model="Model" />
+    @* Only display toolbar on bottom if there's some content to scroll  *@
+    @if (Model.ForumPosts.Count > 1)
+    {
+        <partial name="_PostListToolbar" model="Model" />
+    }
 </div>
 
 <script sm-target-zone="scripts" data-origin="forum-topic">
@@ -58,12 +61,13 @@
             });
         });
 
-        // Delete topic, delete post.
-        $('#delete-topic, .delete-post').on('click', function(e) {
+        // Delete topic
+        $('#delete-topic').on('click', function(e) {
             e.preventDefault();
 
             $(this).postData({
-                ask: @(T("Admin.Common.AskToProceed").JsValue),
+                ask: @(T("Admin.Common.DeleteConfirmation").JsValue),
+                iconType: "delete",
                 data: { "__RequestVerificationToken": token }
             });
 

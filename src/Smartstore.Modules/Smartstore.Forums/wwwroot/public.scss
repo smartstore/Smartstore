@@ -78,6 +78,14 @@
     }
 }
 
+@include media-breakpoint-down(md) {
+    .topic-options, .forum-options {
+        .pagination {
+            justify-content: start !important;
+        }
+    }
+}
+
 // Forum Search
 // -----------------------------------------
 .forum-search-status {

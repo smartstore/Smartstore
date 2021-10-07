@@ -17,12 +17,12 @@
             </button>
         </form>
     </div>
-    <div sm-if="Model.ForumPosts.TotalPages > 1" class="col">
-        <div class="row no-gutters">
-            <div class="col pr-2">
+    <div class="col">
+        <div class="row no-gutters justify-content-end">
+            <div sm-if="Model.ForumPosts.TotalPages > 1" class="col pr-2">
                 <pagination sm-list-items="Model.ForumPosts" sm-alignment="Right" />
             </div>
-            <div class="col col-sm-auto">
+            <div class="col col-auto">
                 <div sm-if="Model.CanEditTopic || Model.CanDeleteTopic || Model.CanMoveTopic" class="manage dropdown">
                     <button type="button" class="btn btn-primary btn-icon dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog"></i></button>
                     <div class="dropdown-menu dropdown-menu-right">
