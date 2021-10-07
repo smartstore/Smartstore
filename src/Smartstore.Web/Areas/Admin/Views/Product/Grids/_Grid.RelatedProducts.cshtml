@@ -69,11 +69,9 @@
                style="display:none" />
 
 <script>
-    var token = "";
+    var token = "@Html.GetAntiforgeryToken()";
 
     $(function () {
-        token = $('input[name="__RequestVerificationToken"]').val();
-
         // Call hidden entity picker.
         $(document).on("click", "#pick-related-products", function (e) {
             $(".related-product-picker").trigger("click");

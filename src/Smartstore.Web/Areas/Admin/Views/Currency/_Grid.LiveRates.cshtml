@@ -35,8 +35,7 @@
     $(function () {
         $(document).on('click', '.grid-apply-rate', function (e) {
             e.preventDefault();
-            var token = $('input[name="__RequestVerificationToken"]').val();
-
+            
             $.ajax({
 				cache: false,
 				type: 'POST',
@@ -44,7 +43,7 @@
 				data: {
                     "currencyCode": $(this).data("currency"),
                     "rate": $(this).data("rate"),
-					"__RequestVerificationToken": token
+					"__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
 				},
                 success: function (response) {
                     displayNotification(response.returnMessage, response.success ? "success" : "error");

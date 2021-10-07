@@ -253,7 +253,7 @@
 		// Delete deployment.
 		$('#export-deployment-list').find('.delete-deployment').on('click', function () {
             $(this).postData({
-                data: { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                data: { "__RequestVerificationToken": "@Html.GetAntiforgeryToken()" },
 				ask: @T("Admin.Common.AskToProceed").JsValue
 			});
 		});

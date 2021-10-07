@@ -70,15 +70,14 @@
 
         $(document).on('click', '.grid-set-default', function (e) {
             e.preventDefault();
-            var token = $('input[name="__RequestVerificationToken"]').val();
-
+            
             $.ajax({
 				cache: false,
 				type: 'POST',
 				url: '@(Url.Action("SetDefault", "QuantityUnit"))',
 				data: {
 					"id": $(this).data("key"),
-					"__RequestVerificationToken": token
+					"__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
 				},
                 success: function () {
                     window["quantity-unit-grid"].$children[0].read();

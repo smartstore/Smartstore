@@ -70,15 +70,14 @@
 
         $(document).on('click', '.grid-set-default', function (e) {
             e.preventDefault();
-            var token = $('input[name="__RequestVerificationToken"]').val();
-
+            
             $.ajax({
 				cache: false,
 				type: 'POST',
 				url: '@(Url.Action("SetDefaultWeight", "Measure"))',
 				data: {
 					"id": $(this).data("key"),
-					"__RequestVerificationToken": token
+					"__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
 				},
                 success: function () {
                     window["measure-weight-grid"].$children[0].read();

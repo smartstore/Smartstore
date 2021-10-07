@@ -254,7 +254,7 @@
 
         var dialog = $("#add-changelog-window");
         var form = dialog.find("form");
-        var token = $('input[name="__RequestVerificationToken"]').val();
+        var token = "@Html.GetAntiforgeryToken()";
 
         $(document).on("click", ".add-changelog-btn", function (e) {
             e.preventDefault();

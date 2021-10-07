@@ -94,7 +94,7 @@
 <script sm-target-zone="scripts" data-origin="ModuleList">
     $(function() {
 		var stores = @Html.Raw(availableStores);
-        var token = $('input[name="__RequestVerificationToken"]').val();
+        var token = "@Html.GetAntiforgeryToken()";
 
         // StoreSelector Popover
         // ------------------------------

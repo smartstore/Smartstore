@@ -82,8 +82,6 @@
 
 <script>
     $(function () {
-        var token = $('input[name="__RequestVerificationToken"]').val();
-
         $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeId)").on('change', function() {
             var selectedItem = $(this).val();
             var ddlSpecOptions = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeOptionId)")
@@ -123,7 +121,7 @@
                     "showOnProductPage": showOnProductPage,
                     "displayOrder": displayOrder,
                     "productId": @Model.Id,
-                    "__RequestVerificationToken": token
+                    "__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
                 },
                 success: function (data) {
                     $('#addProductSpec').attr('disabled', false);

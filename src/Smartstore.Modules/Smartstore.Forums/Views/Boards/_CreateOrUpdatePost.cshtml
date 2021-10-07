@@ -91,21 +91,19 @@
 
 @if (Model.Id > 0)
 {
-    <script sm-target-zone="scripts" data-origin="forum-post-create-or-update">
-        $(function () {
-            const token = $('input[name="__RequestVerificationToken"]').val();
+<script sm-target-zone="scripts" data-origin="forum-post-create-or-update">
+    $(function () {
+        $('.delete-post').on('click', function(e) {
+            e.preventDefault();
 
-            $('.delete-post').on('click', function(e) {
-                e.preventDefault();
-
-                $(this).postData({
-                    ask: @(T("Admin.Common.DeleteConfirmation").JsValue),
-                    iconType: "delete",
-                    data: { "__RequestVerificationToken": token }
-                });
-
-                return false;
+            $(this).postData({
+                ask: @(T("Admin.Common.DeleteConfirmation").JsValue),
+                iconType: "delete",
+                data: { "__RequestVerificationToken": "@Html.GetAntiforgeryToken()" }
             });
+
+            return false;
         });
-    </script>
+    });
+</script>
 }

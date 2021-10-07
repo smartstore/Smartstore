@@ -30,7 +30,7 @@
 
 <script sm-target-zone="scripts" data-origin="forum-topic">
     $(function () {
-        const token = $('input[name="__RequestVerificationToken"]').val();
+        const token = "@Html.GetAntiforgeryToken()";
 
 		// Post voting.
 		$('.post-vote').on('click', function () {
