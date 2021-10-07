@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Messaging;
 using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models.Public;
@@ -39,7 +40,7 @@ namespace Smartstore.Forums.Controllers
             _customerSettings = customerSettings;
         }
 
-        [Route("privatemessages/{tab?}", Name = "PrivateMessages")]
+        [LocalizedRoute("privatemessages/{tab?}", Name = "PrivateMessages")]
         public async Task<IActionResult> Index(int? page, string tab, int? inboxPage, int? sentPage)
         {
             if (!_forumSettings.AllowPrivateMessages)
