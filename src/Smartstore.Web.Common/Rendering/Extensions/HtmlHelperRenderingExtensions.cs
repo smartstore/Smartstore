@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Humanizer;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -556,6 +557,16 @@ namespace Smartstore.Web.Rendering
             return builder;
         }
 
+        /// <summary>
+        /// Gets and renderes AntiforgeryToken. Usage is intended for ajax calls where you don't have a post form which renders the token automatically.
+        /// </summary>
+        public static string GetAntiforgeryToken(this IHtmlHelper helper)
+        {
+            var httpContext = helper.ViewContext.HttpContext;
+            var antiforgery = (IAntiforgery)httpContext.RequestServices.GetService(typeof(IAntiforgery));
+            var tokenSet = antiforgery.GetAndStoreTokens(httpContext);
+            return tokenSet.RequestToken;
+        }
 
         #endregion
     }
