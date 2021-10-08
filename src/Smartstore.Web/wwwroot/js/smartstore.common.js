@@ -351,7 +351,7 @@
     };
 
     window.getAntiforgeryToken = function () {
-        return $('meta[name="antiforgerytoken"]').attr("name") || $('input[name="__RequestVerificationToken"]').val();
+        return $('meta[name="__rvt"]').attr("content") || $('input[name="__RequestVerificationToken"]').val();
     };
 
     // on document ready
@@ -531,9 +531,14 @@
                     }
                 }
             }).ajaxSend(function (e, xhr, opts) {
-                if (opts.type == 'POST') {
+                
+                if (opts?.type?.toLowerCase() == 'post') {
                     var token = getAntiforgeryToken();
-                    xhr.setRequestHeader("X-XSRF-Token", encodeURIComponent(token));
+                    if (token) {
+                        // TODO: (mh) (core) Why "X-XSRF-Token" and not "__RequestVerificationToken"?
+                        xhr.setRequestHeader("X-XSRF-Token", encodeURIComponent(token));
+                        //xhr.setRequestHeader("__RequestVerificationToken", encodeURIComponent(token));
+                    }  
                 }
             });
 

@@ -748,8 +748,7 @@ Vue.component("sm-datagrid", {
             const self = this;
             self.cancelEdit();
 
-            const input = document.querySelector('input[name=__RequestVerificationToken]');
-            const command = $.extend(true, { __RequestVerificationToken: input?.value }, this.command, {
+            const command = $.extend(true, { }, this.command, {
                 initialRequest: initial,
                 gridId: this.options.stateKey,
                 path: location.pathname + location.search
@@ -842,8 +841,7 @@ Vue.component("sm-datagrid", {
                     if (!accepted)
                         return;
 
-                    const input = document.querySelector('input[name=__RequestVerificationToken]');
-                    const selection = $.extend(true, { __RequestVerificationToken: input.value }, { selectedKeys: rowKeys });
+                    const selection = { selectedKeys: rowKeys };
 
                     self.$emit("deleting-rows", rowKeys);
 
@@ -1319,8 +1317,7 @@ Vue.component("sm-datagrid", {
 
             self.isBusy = true;
 
-            const input = document.querySelector('input[name=__RequestVerificationToken]');
-            const data = { __RequestVerificationToken: input.value, command: this.command, model: editing.row };
+            const data = { command: this.command, model: editing.row };
 
             self.$emit("saving-changes", editing.row);
 
