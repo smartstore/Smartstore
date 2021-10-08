@@ -38,8 +38,9 @@ namespace Smartstore.Forums
     {
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        // Add menu item for ForumSettings to settings menu.
-        // Add MyAccount menu item.
+        // Add menu items.
+        // Frontend: my-account forum subscriptions, my-account private messages.
+        // Backend: forum settings.
         public async Task HandleEventAsync(MenuBuiltEvent message,
             ICommonServices services,
             IUrlHelper urlHelper,

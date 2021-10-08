@@ -41,6 +41,9 @@ namespace Smartstore.Forums
             {
                 o.Filters.AddConditional<ForumMenuItemFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest(), 300);
+
+                o.Filters.AddConditional<PmAccountDropdownFilter>(
+                    context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
             });
         }
 
