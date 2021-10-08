@@ -4,6 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
+		<ChecksumAlgorithm>SHA1</ChecksumAlgorithm>
 	</PropertyGroup>
 
 	<PropertyGroup>

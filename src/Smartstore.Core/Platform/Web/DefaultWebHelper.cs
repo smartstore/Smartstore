@@ -14,6 +14,7 @@ using Smartstore.Core.Stores;
 using Smartstore.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Net.Http.Headers;
 
 namespace Smartstore.Core.Web
 {
@@ -131,8 +132,8 @@ namespace Smartstore.Core.Web
             var ipString = string.Empty;
 
             var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Remove(HeaderNames.UserAgent);
-            client.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 6.0) (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727");
+            client.DefaultRequestHeaders.UserAgent.Clear();
+            client.DefaultRequestHeaders.TryAddWithoutValidation(HeaderNames.UserAgent, "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 6.0) (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727");
 
             try
             {
@@ -149,17 +150,17 @@ namespace Smartstore.Core.Web
             {
             }
 
-            var checkers = new string[]
-            {
-                "https://ipinfo.io/ip",
-                "https://api.ipify.org",
-                "https://icanhazip.com",
-                "https://wtfismyip.com/text",
-                "http://bot.whatismyipaddress.com/"
-            };
-
             if (string.IsNullOrEmpty(ipString))
             {
+                var checkers = new string[]
+                {
+                    "https://ipinfo.io/ip",
+                    "https://api.ipify.org",
+                    "https://icanhazip.com",
+                    "https://wtfismyip.com/text",
+                    "http://bot.whatismyipaddress.com/"
+                };
+
                 foreach (var checker in checkers)
                 {
                     try
@@ -174,23 +175,23 @@ namespace Smartstore.Core.Web
                     {
                     }
                 }
-            }
 
-            if (string.IsNullOrEmpty(ipString))
-            {
-                try
+                if (string.IsNullOrEmpty(ipString))
                 {
-                    var url = "http://checkip.dyndns.org";
-                    using var sr = new StreamReader(await client.GetStreamAsync(url));
+                    try
+                    {
+                        var url = "http://checkip.dyndns.org";
+                        using var sr = new StreamReader(await client.GetStreamAsync(url));
 
-                    var response = sr.ReadToEnd().Trim();
-                    var a = response.Split(':');
-                    var a2 = a[1][1..];
-                    var a3 = a2.Split('<');
-                    ipString = a3[0];
-                }
-                catch
-                {
+                        var response = sr.ReadToEnd().Trim();
+                        var a = response.Split(':');
+                        var a2 = a[1][1..];
+                        var a3 = a2.Split('<');
+                        ipString = a3[0];
+                    }
+                    catch
+                    {
+                    }
                 }
             }
 

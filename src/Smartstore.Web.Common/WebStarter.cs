@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Autofac;
@@ -38,18 +39,14 @@ namespace Smartstore.Web
             });
 
             // Add default HTTP client
-            services.AddHttpClient(string.Empty, client => 
-            {
-                client.DefaultRequestHeaders.Add(HeaderNames.UserAgent, $"Smartstore {SmartstoreVersion.CurrentFullVersion}");
-            });
+            services.AddHttpClient(string.Empty)
+                .AddSmartstoreUserAgent();
 
             // Add HTTP client for local calls
             services.AddHttpClient("local")
+                .AddSmartstoreUserAgent()
                 .SkipCertificateValidation()
-                .ConfigureHttpClient(client =>
-                {
-                    client.DefaultRequestHeaders.Add(HeaderNames.UserAgent, $"Smartstore {SmartstoreVersion.CurrentFullVersion}");
-                });
+                .PropagateCookies();
 
             // Add session feature
             services.AddSession(o =>

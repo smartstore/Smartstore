@@ -1,76 +1,29 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using System.Text;
+using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Net.Http.Headers;
-using Smartstore.Engine;
 using Smartstore.Threading;
 
 namespace Smartstore.Net.Http
 {
-    //public static class HttpWebRequestExtensions
-    //{
-    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //    public static void SetAuthenticationCookie(this HttpWebRequest webRequest, HttpRequest httpRequest)
-    //    {
-    //        CopyCookie(webRequest, httpRequest, CookieNames.Identity);
-    //    }
-
-    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //    public static void SetVisitorCookie(this HttpWebRequest webRequest, HttpRequest httpRequest)
-    //    {
-    //        CopyCookie(webRequest, httpRequest, CookieNames.Visitor);
-    //    }
-
-    //    private static void CopyCookie(HttpWebRequest webRequest, HttpRequest sourceHttpRequest, string cookieName)
-    //    {
-    //        Guard.NotNull(webRequest, nameof(webRequest));
-    //        Guard.NotNull(sourceHttpRequest, nameof(sourceHttpRequest));
-    //        Guard.NotEmpty(cookieName, nameof(cookieName));
-
-    //        var sourceCookie = sourceHttpRequest.Cookies[cookieName];
-    //        if (sourceCookie == null)
-    //            return;
-
-    //        var sendCookie = new Cookie(
-    //            cookieName,
-    //            sourceCookie,
-    //            sourceHttpRequest.PathBase.Value.NullEmpty(),
-    //            sourceHttpRequest.Host.Host);
-
-    //        if (webRequest.CookieContainer == null)
-    //        {
-    //            webRequest.CookieContainer = new CookieContainer();
-    //        }
-
-    //        webRequest.CookieContainer.Add(sendCookie);
-    //    }
-    //}
-
     public static class HttpClientBuilderExtensions
     {
+        private readonly static ProductInfoHeaderValue _userAgentHeader = new("Smartstore", SmartstoreVersion.CurrentFullVersion.ToString());
         private static readonly AsyncLock _asyncLock = new();
         private static readonly ConcurrentDictionary<int, string> _safeLocalHostNames = new();
 
-        public static IHttpClientBuilder ForSafeLocalCall(this IHttpClientBuilder builder)
+        public static IHttpClientBuilder AddSmartstoreUserAgent(this IHttpClientBuilder builder)
         {
-            builder
-                .SkipCertificateValidation()
-                .ConfigureHttpClient(client => 
-                {
-                    //client.b
-                });
-
-
-            return builder;
+            return builder.ConfigureHttpClient(client =>
+            {
+                client.DefaultRequestHeaders.UserAgent.Add(_userAgentHeader);
+            });
         }
 
         public static IHttpClientBuilder SkipCertificateValidation(this IHttpClientBuilder builder)
@@ -81,14 +34,67 @@ namespace Smartstore.Net.Http
             });
         }
 
-        public static IHttpClientBuilder SendAuthenticationCookie(this IHttpClientBuilder builder)
+        /// <summary>
+        /// Adds a message handler for propagating cookies from current HTTP request to an outgoing request,
+        /// explicitly specifying which cookies to propagate.
+        /// </summary>
+        /// <param name="cookieNames">A list of specific cookie names to propagate. If null or empty all request cookies will be propagated.</param>
+        public static IHttpClientBuilder PropagateCookies(this IHttpClientBuilder builder, params string[] cookieNames)
         {
-            return builder;
+            return builder.AddHttpMessageHandler(services =>
+            {
+                return new CookiePropagationMessageHandler(services.GetRequiredService<IHttpContextAccessor>(), cookieNames ?? Array.Empty<string>());
+            });
         }
 
-        public static IHttpClientBuilder SendVisitorCookie(this IHttpClientBuilder builder)
+        class CookiePropagationMessageHandler : DelegatingHandler
         {
-            return builder;
+            private readonly IHttpContextAccessor _httpContextAccessor;
+            private readonly string[] _cookieNames;
+
+            public CookiePropagationMessageHandler(IHttpContextAccessor httpContextAccessor, params string[] cookieNames)
+            {
+                _httpContextAccessor = httpContextAccessor;
+                _cookieNames = cookieNames;
+            }
+
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                var httpContext = _httpContextAccessor.HttpContext;
+                if (httpContext != null)
+                {
+                    var httpRequest = httpContext.Request;
+
+                    if (_cookieNames.Length == 0)
+                    {
+                        request.Headers.TryAddWithoutValidation("Cookie", httpRequest.Headers.Cookie.ToString());
+                    }
+                    else
+                    {
+                        var cookieContainer = new CookieContainer(_cookieNames.Length);
+
+                        foreach (var cookieName in _cookieNames)
+                        {
+                            if (httpRequest.Cookies.TryGetValue(cookieName, out var cookieValue))
+                            {
+                                cookieContainer.Add(new Cookie(
+                                    cookieName, 
+                                    cookieValue, 
+                                    httpRequest.PathBase.Value.NullEmpty(), 
+                                    httpRequest.Host.Host));
+                            }
+                        }
+                        
+                        if (cookieContainer.Count > 0)
+                        {
+                            var cookieHeader = cookieContainer.GetCookieHeader(new Uri(httpRequest.GetDisplayUrl()));
+                            request.Headers.TryAddWithoutValidation("Cookie", cookieHeader);
+                        }
+                    }
+                }
+                
+                return base.SendAsync(request, cancellationToken);
+            }
         }
     }
 }
