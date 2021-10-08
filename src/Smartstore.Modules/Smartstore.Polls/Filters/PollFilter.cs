@@ -35,7 +35,7 @@ namespace Smartstore.Polls.Filters
         public async Task OnResultExecutionAsync(ResultExecutingContext filterContext, ResultExecutionDelegate next)
         {
             // TODO: (mh) (core) This won't work as MyAccount can also be boards. Can we determine some other way we are on pages of the MyAccount menu?
-            // RE: Just declare a specific widget zone in MyAccount. TBD with MC please.
+            // INFO: ViewBag ain't no option for early return either. I can't set a property in MyAccount-Layout before this filter runs.
 
             // Analyze route get outta here if it's not blog or myaccount.
             //string controllerName = (string)filterContext.RouteData.Values["Controller"];
