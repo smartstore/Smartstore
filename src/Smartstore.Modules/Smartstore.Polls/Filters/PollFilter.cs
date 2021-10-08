@@ -36,6 +36,10 @@ namespace Smartstore.Polls.Filters
         {
             // TODO: (mh) (core) This won't work as MyAccount can also be boards. Can we determine some other way we are on pages of the MyAccount menu?
             // INFO: ViewBag ain't no option for early return either. I can't set a property in MyAccount-Layout before this filter runs.
+            // RE: Then we need a simple generic purpose action attribute, something like "ActionMetadataAttribute(string name, string value)".
+            //     We could then annotate all MyAccount actions with e.g. [ActionMetadata("Layout", "MyAccount")]. 
+            //     Search for "ActionDescriptor.FilterDescriptors" or ".EndpointMetadata" to see how to query for such annotations.
+            //     OR: you could do the heavy work in a ViewComponent and we forget about all this shit here ;-) !!
 
             // Analyze route get outta here if it's not blog or myaccount.
             //string controllerName = (string)filterContext.RouteData.Values["Controller"];
