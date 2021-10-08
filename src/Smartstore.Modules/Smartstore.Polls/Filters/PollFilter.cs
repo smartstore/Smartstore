@@ -51,7 +51,8 @@ namespace Smartstore.Polls.Filters
 
             // Should only run on a full view rendering result or HTML ContentResult.
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
-            {
+            {// TODO: (mh) (core) Extremely bad API design!! (hitting db before cache delegate, widget zone nightmare). TBD with MC.
+                
                 var storeId = _services.StoreContext.CurrentStore.Id;
                 var languageId = _services.WorkContext.WorkingLanguage.Id;
                 var polls = await _db.Polls()
