@@ -64,8 +64,6 @@
                style="display:none" />
 
 <script>
-    var token = "@Html.GetAntiforgeryToken()";
-
     $(function () {
         // Call hidden entity picker.
         $(document).on("click", "#pick-crosssell-products", function (e) {
@@ -76,7 +74,6 @@
         // Mutually create related products.
         $(document).on("click", "#btnCreateMutuallyCrossSellProducts", function () {
             $(this).ajax({
-                data: { "__RequestVerificationToken": token },
                 success: function (resp) {
                     alert(resp.Message);
                 }
@@ -89,8 +86,7 @@
             url: '@Url.Action("CrossSellProductAdd")',
             data: {
                 "productId": @parentModel.Id,
-                "selectedProductIds": ids,
-                "__RequestVerificationToken": token
+                "selectedProductIds": ids
             },
             success: function () {
                 window["crosssellproducts-grid"].$children[0].read();

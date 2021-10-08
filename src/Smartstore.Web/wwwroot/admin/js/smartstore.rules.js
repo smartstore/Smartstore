@@ -11,8 +11,7 @@ Smartstore.Admin.Rules = (function () {
 (function ($, window, document, undefined) {
 
     var root = $('#ruleset-root');
-    var token = "";
-
+    
     function enableRuleValueControl(el) {
         var rule = el.closest('.rule');
         var ruleId = rule.data('rule-id');
@@ -102,10 +101,6 @@ Smartstore.Admin.Rules = (function () {
         }
     });
 
-    $(function () {
-        token = $('input[name="__RequestVerificationToken"]').val();
-    });
-
     // Save rule set.
     $(document).on('click', 'button[name="save"]', function (e) {
         var strData = root.data('dirty')
@@ -126,7 +121,7 @@ Smartstore.Admin.Rules = (function () {
         $.ajax({
             cache: false,
             url: root.data('url-addgroup'),
-            data: { ruleSetId: parentSetId, scope: scope, __RequestVerificationToken: token },
+            data: { ruleSetId: parentSetId, scope: scope },
             type: "POST",
             success: function (html) {
                 appendToRuleSetBody(parentSet, html);
@@ -145,7 +140,7 @@ Smartstore.Admin.Rules = (function () {
         $.ajax({
             cache: false,
             url: root.data('url-deletegroup'),
-            data: { refRuleId: refRuleId, __RequestVerificationToken: token },
+            data: { refRuleId: refRuleId },
             type: "POST",
             success: function (result) {
                 if (result.Success) {
@@ -171,7 +166,7 @@ Smartstore.Admin.Rules = (function () {
         $.ajax({
             cache: false,
             url: operator.data('url'),
-            data: { ruleSetId: parentSetId, op: op, __RequestVerificationToken: token },
+            data: { ruleSetId: parentSetId, op: op },
             type: 'POST',
             success: function (result) {
                 if (result.Success) {
@@ -210,10 +205,7 @@ Smartstore.Admin.Rules = (function () {
         $.ajax({
             cache: false,
             url: root.data('url-updaterules'),
-            data: {
-                __RequestVerificationToken: token,
-                ruleData: data
-            },
+            data: { ruleData: data },
             type: 'POST',
             success: function (result) {
                 if (result.Success) {
@@ -242,7 +234,7 @@ Smartstore.Admin.Rules = (function () {
         $.ajax({
             cache: false,
             url: root.data('url-addrule'),
-            data: { ruleSetId: parentSetId, scope: scope, ruleType: ruleType, __RequestVerificationToken: token },
+            data: { ruleSetId: parentSetId, scope: scope, ruleType: ruleType },
             type: "POST",
             success: function (html) {
                 appendToRuleSetBody(parentSet, html);
@@ -261,7 +253,7 @@ Smartstore.Admin.Rules = (function () {
         $.ajax({
             cache: false,
             url: root.data('url-deleterule'),
-            data: { ruleId: ruleId, __RequestVerificationToken: token },
+            data: { ruleId: ruleId },
             type: "POST",
             success: function (result) {
                 if (result.Success) {
@@ -282,7 +274,7 @@ Smartstore.Admin.Rules = (function () {
         $.ajax({
             cache: false,
             url: $(this).attr('href'),
-            data: { ruleSetId: ruleSetId, __RequestVerificationToken: token },
+            data: { ruleSetId: ruleSetId },
             type: "POST",
             success: function (result) {
                 $('#excute-result')

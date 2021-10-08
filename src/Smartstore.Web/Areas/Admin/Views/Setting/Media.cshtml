@@ -300,8 +300,7 @@
 
                 $(this).postData({
                     data: {
-                        targetProvider: $('#@Html.IdFor(model => model.StorageProvider)').val(),
-                        __RequestVerificationToken: "@Html.GetAntiforgeryToken()"
+                        targetProvider: $('#@Html.IdFor(model => model.StorageProvider)').val()
                     }
     			});
     		}

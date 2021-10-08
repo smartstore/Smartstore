@@ -41,7 +41,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
-        [HttpPost, IgnoreAntiforgeryToken]
+        [HttpPost]
         public IActionResult RestartApplication()
         {
             Services.WebHelper.RestartAppDomain();

@@ -76,8 +76,7 @@
 				type: 'POST',
 				url: '@(Url.Action("SetDefault", "QuantityUnit"))',
 				data: {
-					"id": $(this).data("key"),
-					"__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
+					"id": $(this).data("key")
 				},
                 success: function () {
                     window["quantity-unit-grid"].$children[0].read();

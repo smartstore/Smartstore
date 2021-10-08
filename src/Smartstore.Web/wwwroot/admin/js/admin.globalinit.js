@@ -71,11 +71,6 @@
     };
 
     window.providerListInit = function (context) {
-        // TODO: (mh) (core) What to do here and in other js files? 
-        // Pass the token from view call where possible (like here)? 
-        // Or adapt js code to retrieve tokens from explicit forms (from which the developer knows they exist in the current context)?
-        var token = $('input[name="__RequestVerificationToken"]').val();
-
         $(context || "body").on("click", ".activate-provider", function (e) {
             e.preventDefault();
 
@@ -86,7 +81,6 @@
             $({}).ajax({
                 url: $el.data('href'),
                 data: {
-                    "__RequestVerificationToken": token,
                     "systemName": $el.attr("data-systemname"),
                     "activate": activate
                 },

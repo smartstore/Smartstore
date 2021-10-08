@@ -23,7 +23,6 @@
     var assignableFiles = [];
     var assignableFileIds = "";
     var dialog = Smartstore.Admin ? Smartstore.Admin.Media.fileConflictResolutionDialog : null;
-    var token = $('input[name="__RequestVerificationToken"]').val();
 
     $.fn.dropzoneWrapper = function (options) {
         return this.each(function () {
@@ -179,9 +178,6 @@
                     formData.append("duplicateFileHandling", enumId);
                 }
 
-                if (token !== "" && !formData.get("__RequestVerificationToken"))
-                    formData.append("__RequestVerificationToken", token);
-
                 if (file.fullPath) {
                     var directory = file.fullPath.substring(0, file.fullPath.lastIndexOf('/'));
                     if (directory)
@@ -203,9 +199,6 @@
             });
 
             el.on("sendingmultiple", function (files, xhr, formData) {
-                if (token !== "" && !formData.get("__RequestVerificationToken"))
-                    formData.append("__RequestVerificationToken", token);
-                
                 logEvent("sendingmultiple", files, xhr, formData);
             });
 
@@ -474,8 +467,7 @@
                         url: $el.data('assignment-url'),
                         data: {
                             mediaFileIds: assignableFileIds,
-                            entityId: $el.data('entity-id'),
-                            __RequestVerificationToken: token 
+                            entityId: $el.data('entity-id')
                         },
                         success: function (response) {
                             $.each(response.response, function (i, value) {
@@ -543,8 +535,7 @@
                         url: $el.data('sort-url'),
                         data: {
                             pictures: newOrder.join(","),
-                            entityId: $el.data('entity-id'),
-                            __RequestVerificationToken: token 
+                            entityId: $el.data('entity-id')
                         },
                         success: function (response) {
                             // Set EntityMediaId & current DisplayOrder.
@@ -618,10 +609,7 @@
                         cache: false,
                         type: 'POST',
                         url: removeUrl,
-                        data: {
-                            id: entityMediaFileId,
-                            __RequestVerificationToken: token 
-                        },
+                        data: { id: entityMediaFileId },
                         success: function () {
                             previewThumb.remove();
 

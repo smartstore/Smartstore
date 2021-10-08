@@ -64,7 +64,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
         [Permission(Permissions.Configuration.Store.Read)]
         public async Task<IActionResult> StoreList(GridCommand command)
         {

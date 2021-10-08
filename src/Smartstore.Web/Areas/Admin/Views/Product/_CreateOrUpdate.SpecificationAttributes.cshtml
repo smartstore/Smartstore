@@ -120,8 +120,7 @@
                     "allowFiltering": allowFiltering,
                     "showOnProductPage": showOnProductPage,
                     "displayOrder": displayOrder,
-                    "productId": @Model.Id,
-                    "__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
+                    "productId": @Model.Id
                 },
                 success: function (data) {
                     $('#addProductSpec').attr('disabled', false);

@@ -30,8 +30,6 @@
 
 <script sm-target-zone="scripts" data-origin="forum-topic">
     $(function () {
-        const token = "@Html.GetAntiforgeryToken()";
-
 		// Post voting.
 		$('.post-vote').on('click', function () {
             var self = $(this);
@@ -40,7 +38,7 @@
             $.ajax({
                 type: 'POST',
                 url: '@Url.Action("PostVote", "Boards")',
-                data: { "id": post.data('id'), "vote": self.attr('value'), "__RequestVerificationToken": token },
+                data: { "id": post.data('id'), "vote": self.attr('value') },
                 cache: false,
                 success: function (resp) {
                     if (resp.success) {
@@ -67,8 +65,7 @@
 
             $(this).postData({
                 ask: @(T("Admin.Common.DeleteConfirmation").JsValue),
-                iconType: "delete",
-                data: { "__RequestVerificationToken": token }
+                iconType: "delete"
             });
 
             return false;

@@ -98,8 +98,7 @@
 
             $(this).postData({
                 ask: @(T("Admin.Common.DeleteConfirmation").JsValue),
-                iconType: "delete",
-                data: { "__RequestVerificationToken": "@Html.GetAntiforgeryToken()" }
+                iconType: "delete"
             });
 
             return false;

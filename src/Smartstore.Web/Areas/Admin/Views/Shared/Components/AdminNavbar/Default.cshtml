@@ -130,7 +130,6 @@
 
             $({}).ajax({
                 url: $(e.target).data("url"),
-                data: { "__RequestVerificationToken": "@Html.GetAntiforgeryToken()" },
                 success: function (data) {
 					displayNotification(data.Message, 'success');
 					$(e.target).closest(".dropdown").dropdown('toggle');

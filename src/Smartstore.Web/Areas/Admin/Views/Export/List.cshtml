@@ -189,8 +189,7 @@
 		$(document).on('click', '.btn-run-task', function (e) {
 			e.preventDefault();
             $(this).postData({
-                ask: @T("Admin.Common.AskToProceed").JsValue,
-				data: { "__RequestVerificationToken": "@Html.GetAntiforgeryToken()" }
+                ask: @T("Admin.Common.AskToProceed").JsValue
 			});
 			return false;
 		});

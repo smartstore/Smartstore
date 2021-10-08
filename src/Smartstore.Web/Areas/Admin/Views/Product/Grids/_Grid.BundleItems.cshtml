@@ -103,8 +103,7 @@
             url: '@Url.Action("BundleItemAdd")',
             data: {
                 "productId": @parentModel.Id,
-                "selectedProductIds": ids,
-                "__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
+                "selectedProductIds": ids
             },
             success: function () {
                 window["bundleitems-grid"].$children[0].read();

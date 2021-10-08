@@ -648,8 +648,7 @@
                 var data = {
                     id: d.sourceId || 0,
                     targetId: d.targetId || 0,
-                    position: d.position,
-                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    position: d.position
                 };
 
                 startDragging(false);

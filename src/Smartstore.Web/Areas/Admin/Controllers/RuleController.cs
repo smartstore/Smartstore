@@ -277,7 +277,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
         [Permission(Permissions.System.Rule.Execute)]
         public async Task<IActionResult> PreviewList(GridCommand command, int id)
         {

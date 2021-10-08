@@ -76,8 +76,7 @@
 			url: '@Url.Action("AssociatedProductAdd")',
             data: {
                 "productId": @parentModel.Id,
-                "selectedProductIds": ids,
-				"__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
+                "selectedProductIds": ids
             },
 			success: function () {
                 window["associatedproducts-grid"].$children[0].read();

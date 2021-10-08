@@ -199,7 +199,6 @@
         if ($el.length == 0)
             return;
 
-        var token = $('input[name="__RequestVerificationToken"]').val();
         // Create download for selected MediaFile.
         $.ajax({
             async: true,
@@ -209,8 +208,7 @@
             data: {
                 mediaFileId: file.id,
                 entityId: $el.data("entity-id"),
-                entityName: $el.data("entity-name"),
-                __RequestVerificationToken: token
+                entityName: $el.data("entity-name")
             },
             success: function (response) {
                 if (!response.success)

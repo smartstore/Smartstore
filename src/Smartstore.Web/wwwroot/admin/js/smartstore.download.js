@@ -15,9 +15,6 @@
         // 'this.options' ensures we can reference the merged instance options from outside
         var opts = this.options = $.extend({}, options);
 
-        // AntiForgeryToken
-        var token = $('input[name="__RequestVerificationToken"]').val();
-
         this.togglePanel = function (useUrl) {
             if (useUrl && el.hasClass("minimal"))
                 return;
@@ -76,7 +73,6 @@
                     cache: false,
                     type: 'POST',
                     url: el.data('delete-url'),
-                    data: { "__RequestVerificationToken": token },
                     dataType: 'json',
                     success: function (data) {
                         if (data.success) {
@@ -99,7 +95,7 @@
                     cache: false,
                     type: 'POST',
                     url: $(this).attr('href'),
-                    data: { "downloadUrl": url, "__RequestVerificationToken": token },
+                    data: { "downloadUrl": url },
                     dataType: 'json',
                     success: function (data) {
                         el.replaceWith($(data.html));

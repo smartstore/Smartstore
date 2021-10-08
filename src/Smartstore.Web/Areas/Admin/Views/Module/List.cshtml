@@ -94,7 +94,6 @@
 <script sm-target-zone="scripts" data-origin="ModuleList">
     $(function() {
 		var stores = @Html.Raw(availableStores);
-        var token = "@Html.GetAntiforgeryToken()";
 
         // StoreSelector Popover
         // ------------------------------
@@ -155,7 +154,7 @@
 			    $({}).ajax({
 				    type: 'POST',
 				    url: "@Url.Action("SetSelectedStores")",
-                    data: { "__RequestVerificationToken": token, systemName: systemName, storeIds: storeIds },
+                    data: { systemName: systemName, storeIds: storeIds },
                     success: function () {
                         let editable = $(".store-limiter[data-module='{0}']".format(systemName));
                         editable.data("value", storeIds);
@@ -366,7 +365,6 @@
 						            type: 'POST',
 						            url: el.attr("href"),
 						            data: {
-							            "__RequestVerificationToken": token,
                                         "systemName": el.data("module"),
 							            "returnUrl": '@Request.RawUrl()'
                                     },
@@ -407,7 +405,6 @@
     		$(this).ajax({
     			type: 'GET',
                 smallIcon: dialog.find('.modal-body'),
-				data: { __RequestVerificationToken: token },
     			success: function (resp) {
     				dialog = $('#module-licence-modal');
     				dialog.find('.modal-body').html(resp);
@@ -438,7 +435,6 @@
 			$({}).ajax({
 				type: 'POST',
                 url: licenseForm.attr('data-resetcheckurl'),
-                data: { __RequestVerificationToken: token },
 				success: function (resp) {
 					if (resp.length > 0) {
                         var systemName = licenseForm.attr('data-module');

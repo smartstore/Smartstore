@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Smartstore.Collections;
+using Smartstore.Core.Common;
 using Smartstore.Core.Security;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
@@ -159,7 +160,7 @@ namespace Smartstore.Admin.Models.Customers
         public bool Deleted { get; set; }
         public string EditUrl { get; set; }
 
-        public TreeNode<IPermissionNode> PermissionTree { get; set; }
+        public PermissionTree PermissionTree { get; set; }
         public List<AddressModel> Addresses { get; set; } = new();
 
 
@@ -223,7 +224,7 @@ namespace Smartstore.Admin.Models.Customers
             public string ShippingStatus { get; set; }
 
             [LocalizedDisplay("*OrderTotal")]
-            public string OrderTotal { get; set; }
+            public Money OrderTotal { get; set; }
 
             [LocalizedDisplay("*Store")]
             public string StoreName { get; set; }

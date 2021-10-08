@@ -100,7 +100,6 @@
 
         $(document).on('click', '#btnCreateAllCombinations, #btnDeleteAllCombinations', function () {
             $(this).ajax({
-                data: { "__RequestVerificationToken": "@Html.GetAntiforgeryToken()" },
                 success: function (resp) {
                     $('#btnRefreshCombinations').click();
                 }

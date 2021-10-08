@@ -69,8 +69,6 @@
                style="display:none" />
 
 <script>
-    var token = "@Html.GetAntiforgeryToken()";
-
     $(function () {
         // Call hidden entity picker.
         $(document).on("click", "#pick-related-products", function (e) {
@@ -81,7 +79,6 @@
         // Mutually create related products.
         $(document).on("click", "#btnCreateMutuallyRelatedProducts", function () {
             $(this).ajax({
-                data: { "__RequestVerificationToken": token },
                 success: function (resp) {
                     alert(resp.Message);
                 }
@@ -94,8 +91,7 @@
             url: '@Url.Action("RelatedProductAdd")',
             data: {
                 "productId": @parentModel.Id,
-                "selectedProductIds": ids,
-                "__RequestVerificationToken": token
+                "selectedProductIds": ids
             },
             success: function () {
                 window["relatedproducts-grid"].$children[0].read();

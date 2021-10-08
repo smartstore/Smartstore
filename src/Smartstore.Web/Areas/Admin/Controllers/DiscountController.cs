@@ -76,7 +76,6 @@ namespace Smartstore.Admin.Controllers
             return View(new DiscountListModel());
         }
 
-        [IgnoreAntiforgeryToken]
         [Permission(Permissions.Promotion.Discount.Read)]
         public async Task<IActionResult> DiscountList(GridCommand command, DiscountListModel model)
         {

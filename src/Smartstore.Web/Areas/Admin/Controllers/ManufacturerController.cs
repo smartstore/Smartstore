@@ -131,7 +131,6 @@ namespace Smartstore.Admin.Controllers
             return View();
         }
 
-        [IgnoreAntiforgeryToken]
         [Permission(Permissions.Catalog.Manufacturer.Read)]
         public async Task<IActionResult> ManufacturerList(GridCommand command, ManufacturerListModel model)
         {

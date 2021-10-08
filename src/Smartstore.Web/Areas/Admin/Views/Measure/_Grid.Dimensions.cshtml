@@ -76,8 +76,7 @@
 				type: 'POST',
 				url: '@(Url.Action("SetDefaultDimension", "Measure"))',
 				data: {
-					"id": $(this).data("key"),
-					"__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
+					"id": $(this).data("key")
 				},
                 success: function () {
                     window["measure-dimension-grid"].$children[0].read();

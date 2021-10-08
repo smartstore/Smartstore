@@ -254,7 +254,6 @@
 
         var dialog = $("#add-changelog-window");
         var form = dialog.find("form");
-        var token = "@Html.GetAntiforgeryToken()";
 
         $(document).on("click", ".add-changelog-btn", function (e) {
             e.preventDefault();
@@ -271,8 +270,7 @@
                 type: 'POST',
                 url: '@Url.Action("GetChangelogText", "Download")',
                 data: {
-                    downloadId: downloadId,
-                    __RequestVerificationToken: token
+                    downloadId: downloadId
                 },
                 dataType: 'json',
                 success: function (data) {
@@ -297,8 +295,7 @@
                 url: '@Url.Action("AddChangelog", "Download")',
                 data: {
                     downloadId: form.find("#@Html.IdFor(x => x.DownloadId)").val(),
-                    changelogText: form.find("#@Html.IdFor(x => x.AddChangelog)").val(),
-                    __RequestVerificationToken: token
+                    changelogText: form.find("#@Html.IdFor(x => x.AddChangelog)").val()
                 },
                 dataType: 'json',
                 error: function (xhr, ajaxOptions, thrownError) {
@@ -316,7 +313,6 @@
             var download = $(this).closest("tr");
 
             $(this).ajax({
-                data: { "__RequestVerificationToken": token },
 				ask: @T("Admin.Common.AskToProceed").JsValue,
                 success: function (data) {
                     if (data.success) {

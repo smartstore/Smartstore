@@ -230,15 +230,13 @@
     $(function() {
         const maxMappingLableLength = 42;
         var askToProceed = @T("Admin.Common.AskToProceed").JsValue;
-        var token = "@Html.GetAntiforgeryToken()";
         var mappings = $('#ImportColumnMappings');
 
 		// Delete import file.
 		$('#ImportFileList').on('click', '.import-file-delete', function (e) {
             e.preventDefault();
             $(this).postData({
-                ask: askToProceed,
-				data: { "__RequestVerificationToken": token }
+                ask: askToProceed
 			});
 			return false;
 		});
@@ -247,8 +245,7 @@
         $('#ProfileImportButton').on('click', function (e) {
 			e.preventDefault();
             $(this).postData({
-                ask: askToProceed,
-				data: { "__RequestVerificationToken": token }
+                ask: askToProceed
 			});
 			return false;
 		});
@@ -262,9 +259,9 @@
                 message: askToProceed,
                 icon: { type: 'warning' },
                 callback: accepted => {
-                    if (accepted) {
-                        var form = '<form id="ResetColumnMappingsForm" action="' + $(this).data('url') + '" method="post">';
-				        form += '<input type="hidden" name="__RequestVerificationToken" value="' + token + '">';
+					if (accepted) {
+						var form = '<form id="ResetColumnMappingsForm" action="' + $(this).data('url') + '" method="post">';
+						form += '<input type="hidden" name="__RequestVerificationToken" value="@Html.GetAntiforgeryToken()">';
                         form += '</form>';
 				        $('body').append(form);
 				        $('#ResetColumnMappingsForm').submit();

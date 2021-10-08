@@ -42,8 +42,7 @@
 				url: '@(Url.Action("ApplyRate", "Currency"))',
 				data: {
                     "currencyCode": $(this).data("currency"),
-                    "rate": $(this).data("rate"),
-					"__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
+                    "rate": $(this).data("rate")
 				},
                 success: function (response) {
                     displayNotification(response.returnMessage, response.success ? "success" : "error");

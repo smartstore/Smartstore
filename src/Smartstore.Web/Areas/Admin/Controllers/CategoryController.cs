@@ -171,7 +171,6 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        [IgnoreAntiforgeryToken]
         [Permission(Permissions.Catalog.Category.Read)]
         public async Task<IActionResult> CategoryList(GridCommand command, CategoryListModel model)
         {

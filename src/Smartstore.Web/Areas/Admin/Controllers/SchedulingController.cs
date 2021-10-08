@@ -52,7 +52,6 @@ namespace Smartstore.Admin.Controllers
             return View();
         }
 
-        [IgnoreAntiforgeryToken]
         [Permission(Permissions.System.ScheduleTask.Read)]
         public async Task<IActionResult> TaskList()
         {
@@ -92,7 +91,7 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
-        [HttpPost, IgnoreAntiforgeryToken]
+        [HttpPost]
         public async Task<IActionResult> GetRunningTasks()
         {
             // We better not check permission here.
@@ -119,7 +118,7 @@ namespace Smartstore.Admin.Controllers
             return Json(models);
         }
 
-        [HttpPost, IgnoreAntiforgeryToken]
+        [HttpPost]
         public async Task<IActionResult> GetTaskRunInfo(int id /* taskId */)
         {
             // We better not check permission here.
@@ -245,7 +244,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("List");
         }
 
-        [HttpPost, IgnoreAntiforgeryToken]
+        [HttpPost]
         [Permission(Permissions.System.ScheduleTask.Read)]
         public IActionResult FutureSchedules(string expression)
         {
@@ -297,7 +296,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true, Count = numDeleted });
         }
 
-        [HttpPost, IgnoreAntiforgeryToken]
+        [HttpPost]
         public async Task<IActionResult> MinimalTask(int taskId, string returnUrl /* mandatory on purpose */)
         {
             var lastExecutionInfo = await _taskStore.GetLastExecutionInfoByTaskIdAsync(taskId);

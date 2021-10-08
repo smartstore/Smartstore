@@ -65,7 +65,6 @@
                 type: 'POST',
                 url: $el.attr("href"),
                 data: {
-                    "__RequestVerificationToken": "@Html.GetAntiforgeryToken()",
                     "systemName": $el.attr("data-system-name")
                 },
                 success: function (data) {

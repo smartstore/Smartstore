@@ -83,8 +83,7 @@
 				type: 'POST',
 				url: '@(Url.Action("SetDefault", "DeliveryTime"))',
 				data: {
-					"id": $(this).data("key"),
-					"__RequestVerificationToken": "@Html.GetAntiforgeryToken()"
+					"id": $(this).data("key")
 				},
                 success: function () {
                     window["delivery-time-grid"].$children[0].read();
