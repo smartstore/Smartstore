@@ -258,7 +258,6 @@ namespace Smartstore.Polls.Controllers
         #region Poll answer
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]                        // INFO (mh) (core): Strange! This grid is selectable and worked until a fresh install.
         [Permission(PollPermissions.Read)]
         public async Task<IActionResult> PollAnswerList(int? pollId, GridCommand command)
         {
@@ -364,7 +363,6 @@ namespace Smartstore.Polls.Controllers
         #region Voting records
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]                        // INFO (mh) (core): Strange! This grid is selectable and worked until a fresh install.
         [Permission(PollPermissions.Read)]
         public async Task<IActionResult> PollVotesList(int pollId, GridCommand command)
         {
@@ -374,6 +372,7 @@ namespace Smartstore.Polls.Controllers
                 .OfType<PollVotingRecord>()
                 .ApplyPollFilter(pollId)
                 .Include(x => x.Customer)
+                .Include(x => x.PollAnswer)
                 .ToPagedList(command.Page - 1, command.PageSize)
                 .LoadAsync();
 
@@ -386,8 +385,10 @@ namespace Smartstore.Polls.Controllers
                     IsGuest = x.Customer.IsGuest(),
                     CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
                     AnswerName = x.PollAnswer.Name,
+                    Email = x.Customer.Email,
                     Username = x.Customer.Username,
-                    FullName = x.Customer.GetFullName()
+                    FullName = x.Customer.GetFullName(),
+                    CustomerEditUrl = Url.Action("Edit", "Customer", new { id = x.CustomerId })
                 };
             });
 

@@ -6,6 +6,7 @@ namespace Smartstore.Polls.Models
     [LocalizedDisplay("Admin.Customers.Customers.Fields.")]
     public class PollVotingRecordModel : EntityModelBase
     {
+        public string CustomerEditUrl { get; set; }
         public int CustomerId { get; set; }
         public bool IsGuest { get; set; }
 
