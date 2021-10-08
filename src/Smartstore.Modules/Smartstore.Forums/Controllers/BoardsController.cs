@@ -987,20 +987,22 @@ namespace Smartstore.Forums.Controllers
             if (quote.HasValue)
             {
                 var quotePost = await _db.ForumPosts()
-                    .Include(x => x.Customer)
+                    .IncludeCustomer()
                     .FindByIdAsync(quote.Value, false);
 
                 if (quotePost != null && quotePost.TopicId == topic.Id)
                 {
-                    var userName = quotePost.Customer.FormatUserName();
+                    var userName = quotePost.Customer.IsGuest()
+                        ? T("Customer.Guest").Value
+                        : quotePost.Customer.FormatUserName();
 
                     switch (_forumSettings.ForumEditor)
                     {
                         case EditorType.SimpleTextBox:
-                            model.Text = $"{userName}:\n{quotePost.Text}\n";
+                            model.Text = $"{userName.NaIfEmpty()}:\n{quotePost.Text}\n";
                             break;
                         case EditorType.BBCodeEditor:
-                            model.Text = $"[quote={userName}]{BBCodeHelper.RemoveQuotes(quotePost.Text)}[/quote]";
+                            model.Text = $"[quote={userName.NaIfEmpty()}]{BBCodeHelper.RemoveQuotes(quotePost.Text)}[/quote]";
                             break;
                     }
                 }
@@ -1824,7 +1826,7 @@ namespace Smartstore.Forums.Controllers
             var model = new PublicEditForumPostModel
             {
                 Id = post?.Id ?? 0,
-                Published = post?.Published ?? false,
+                Published = post?.Published ?? true,
                 ForumTopicId = topic.Id,
                 DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnForumPage,
                 ForumEditor = _forumSettings.ForumEditor,

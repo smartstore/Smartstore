@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Core.Data;
-using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 using Smartstore.Forums.Domain;
 using Smartstore.Forums.Services;
@@ -38,9 +37,7 @@ namespace Smartstore.Forums.Hooks
             {
                 await _forumService.DeleteSubscriptionsByForumIdsAsync(_deletedForumIds.ToArray(), cancelToken);
 
-                await _db.LocalizedProperties
-                    .Where(x => _deletedForumIds.Contains(x.EntityId) && x.LocaleKeyGroup == nameof(Forum))
-                    .BatchDeleteAsync(cancelToken);
+                // INFO: localized properties deleted by LocalizedEntityHook.
 
                 _deletedForumIds.Clear();
             }

@@ -56,7 +56,7 @@
         </div>
     </div>
 
-    <div class="topics-group card">
+    <div sm-if="Model.ForumTopics.Any()" class="topics-group card">
         <div class="card-body p-0">
             <ul class="list-group list-group-flush forum-list">
                 @foreach (var topic in Model.ForumTopics)
