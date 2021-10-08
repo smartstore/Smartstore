@@ -350,6 +350,10 @@
         });
     };
 
+    window.getAntiforgeryToken = function () {
+        return $('meta[name="antiforgerytoken"]').attr("name") || $('input[name="__RequestVerificationToken"]').val();
+    };
+
     // on document ready
     $(function () {
         var rtl = Smartstore.globalization !== undefined ? Smartstore.globalization.culture.isRTL : false,
@@ -526,8 +530,11 @@
                         displayNotification(xhr.responseText, "error");
                     }
                 }
-            }).ajaxSend(function () {
-
+            }).ajaxSend(function (e, xhr, opts) {
+                if (opts.type == 'POST') {
+                    var token = getAntiforgeryToken();
+                    xhr.setRequestHeader("X-XSRF-Token", encodeURIComponent(token));
+                }
             });
 
         // .mf-dropdown (mobile friendly dropdown)
