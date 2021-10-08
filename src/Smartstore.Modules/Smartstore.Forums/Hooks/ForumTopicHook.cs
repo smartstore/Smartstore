@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 using Smartstore.Forums.Domain;
 
@@ -26,6 +27,8 @@ namespace Smartstore.Forums.Hooks
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
+            await DeleteTopicSubscriptions(entries, cancelToken);
+
             // Update "ForumPostCount" generic attribute.
             var customerIds = entries
                 .Where(x => x.InitialState == Data.EntityState.Modified || x.InitialState == Data.EntityState.Deleted)
@@ -79,6 +82,26 @@ namespace Smartstore.Forums.Hooks
             {
                 await _db.SaveChangesAsync(cancelToken);
             }
+        }
+
+        private async Task<int> DeleteTopicSubscriptions(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            var deletedTopicIds = entries
+                .Where(x => x.InitialState == Data.EntityState.Deleted)
+                .Select(x => x.Entity)
+                .OfType<ForumTopic>()
+                .Select(x => x.Id)
+                .Distinct()
+                .ToArray();
+
+            if (deletedTopicIds.Any())
+            {
+                return await _db.ForumSubscriptions()
+                    .Where(x => deletedTopicIds.Contains(x.TopicId))
+                    .BatchDeleteAsync(cancelToken);
+            }
+
+            return 0;
         }
     }
 }

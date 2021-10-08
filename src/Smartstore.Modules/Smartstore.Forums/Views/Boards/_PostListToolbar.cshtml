@@ -33,18 +33,18 @@
                                 <span>@T("Forum.EditTopic")</span>
                             </a>
                         }
-                        @if (Model.CanDeleteTopic)
-                        {
-                            <a asp-action="TopicDelete" asp-controller="Boards" asp-route-id="@Model.Id" id="delete-topic" class="dropdown-item" rel="nofollow">
-                                <i class="far fa-trash-alt"></i>
-                                <span>@T("Forum.DeleteTopic")</span>
-                            </a>
-                        }
                         @if (Model.CanMoveTopic)
                         {
                             <a asp-action="TopicMove" asp-controller="Boards" asp-route-id="@Model.Id" class="dropdown-item" rel="nofollow">
                                 <i class="fa fa-arrows-alt"></i>
                                 <span>@T("Forum.MoveTopic")</span>
+                            </a>
+                        }
+                        @if (Model.CanDeleteTopic)
+                        {
+                            <a asp-action="TopicDelete" asp-controller="Boards" asp-route-id="@Model.Id" id="delete-topic" class="dropdown-item" rel="nofollow">
+                                <i class="far fa-trash-alt"></i>
+                                <span>@T("Forum.DeleteTopic")</span>
                             </a>
                         }
                     </div>

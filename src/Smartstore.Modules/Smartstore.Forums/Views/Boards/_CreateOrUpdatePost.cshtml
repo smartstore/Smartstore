@@ -80,10 +80,10 @@
             </a>
             @if (Model.CanDeletePost && Model.Id > 0)
             {
-                <button asp-action="PostDelete" asp-controller="Boards" asp-route-id="@Model.Id" id="post-delete" class="delete-post btn btn-secondary btn-to-danger btn-lg">
+                <a asp-action="PostDelete" asp-controller="Boards" asp-route-id="@Model.Id" id="delete-post" class="delete-post btn btn-secondary btn-to-danger btn-lg">
                     <i class="fa fa-times"></i>
                     <span>@T("Forum.DeletePost")</span>
-                </button>
+                </a>
             }
         </div>
     </div>
@@ -93,7 +93,7 @@
 {
 <script sm-target-zone="scripts" data-origin="forum-post-create-or-update">
     $(function () {
-        $('.delete-post').on('click', function(e) {
+        $('#delete-post').on('click', function(e) {
             e.preventDefault();
 
             $(this).postData({

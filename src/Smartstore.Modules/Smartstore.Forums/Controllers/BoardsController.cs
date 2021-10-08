@@ -782,6 +782,8 @@ namespace Smartstore.Forums.Controllers
 
             await CreateForumBreadcrumb(null, topic.Forum, topic);
 
+            ViewBag.ForumTopicTypes = CreateForumTopicTypes();
+
             return View(model);
         }
 
