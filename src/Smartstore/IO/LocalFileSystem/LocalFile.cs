@@ -5,7 +5,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Imaging;
-using Smartstore.IO.SymLinks;
 
 namespace Smartstore.IO
 {
@@ -132,8 +131,12 @@ namespace Smartstore.IO
             internal set => _size = value;
         }
 
-        public bool IsSymbolicLink(out string finalPhysicalPath)
-            => _fi.IsSymbolicLink(out finalPhysicalPath);
+        public bool IsSymbolicLink(out string finalTargetPath)
+        {
+            var linkTarget = _fi.ResolveLinkTarget(true);
+            finalTargetPath = linkTarget?.FullName;
+            return linkTarget != null;
+        }
 
         Stream IFileInfo.CreateReadStream()
             => OpenRead();

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.FileProviders;
-using Smartstore.IO.SymLinks;
 
 namespace Smartstore.IO
 {
@@ -79,8 +78,12 @@ namespace Smartstore.IO
             get => true;
         }
 
-        public bool IsSymbolicLink(out string finalPhysicalPath)
-            => _di.IsSymbolicLink(out finalPhysicalPath);
+        public bool IsSymbolicLink(out string finalTargetPath)
+        {
+            var linkTarget = _di.ResolveLinkTarget(true);
+            finalTargetPath = linkTarget?.FullName;
+            return linkTarget != null;
+        }
 
         public IDirectory Parent
         {

@@ -7,7 +7,6 @@ using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.IO;
-using Smartstore.IO.SymLinks;
 using Smartstore.Utilities;
 using IOPath = System.IO.Path;
 
@@ -75,9 +74,8 @@ namespace Smartstore.Engine.Modularity
                     var dir = new DirectoryInfo(IOPath.Combine(sourceRoot, name));
                     if (dir.Exists)
                     {
-                        descriptor.SourcePhysicalPath = dir.IsSymbolicLink(out var linkedPath)
-                            ? linkedPath
-                            : dir.FullName;
+                        var linkTarget = dir.ResolveLinkTarget(true);
+                        descriptor.SourcePhysicalPath = linkTarget?.FullName ?? dir.FullName;
 
                         break;
                     }
