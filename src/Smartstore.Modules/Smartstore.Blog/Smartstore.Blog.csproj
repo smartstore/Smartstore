@@ -9,10 +9,4 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
-	<PropertyGroup>
-		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
-		<RazorCompileOnBuild>true</RazorCompileOnBuild>
-		<RazorCompileOnPublish>true</RazorCompileOnPublish>
-	</PropertyGroup>
 </Project>
