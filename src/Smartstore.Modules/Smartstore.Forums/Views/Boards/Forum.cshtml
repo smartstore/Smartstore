@@ -34,9 +34,9 @@
 
     <p class="lead" sm-language-attributes-for="Model.Description">@Model.Description</p>
 
-    <div class="forum-options row sm-gutters mb-2">
+    <div class="forum-options row xs-gutters mb-2">
         <div class="col col-lg-auto mb-2 mb-lg-0">
-            <a asp-action="TopicCreate" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-primary newtopic btn-block" rel="nofollow">
+            <a asp-action="TopicCreate" asp-controller="Boards" asp-route-id="@Model.Id" class="btn btn-success newtopic btn-block" rel="nofollow">
                 <i class="fa fa-plus"></i>
                 <span>@T("Forum.NewTopic")</span>
             </a>
@@ -45,8 +45,8 @@
             <form id="watch-forum-form" sm-ajax="true" method="post" asp-action="ForumWatch" asp-controller="Boards" sm-oncomplete="onWatchForumCompleted">
                 <input type="hidden" asp-for="Id" />
 
-                <button type="submit" id="watch-forum" class="btn btn-outline-primary btn-block watch-forum">
-                    <i class="fa fa-bookmark"></i>
+                <button type="submit" id="watch-forum" class="btn btn-block watch-forum @(Model.IsSubscribed ? "btn-primary" : "btn-secondary")">
+                    <i class="fa-bell @(Model.IsSubscribed ? "fas" : "far")"></i>
                     <span class="watch-forum-text">@T(Model.IsSubscribed ? "Forum.UnwatchForum" : "Forum.WatchForum")</span>
                 </button>
             </form>
@@ -133,7 +133,12 @@
     function onWatchForumCompleted(data) {
         var response = data.responseJSON;
         var btn = $('#watch-forum');
-        btn.toggleClass('btn-outline-warning', !response.Subscribed);
+        btn
+            .toggleClass('btn-primary', response.Subscribed)
+            .toggleClass('btn-secondary', !response.Subscribed);
+        btn.find("> i")
+            .toggleClass('fas', response.Subscribed)
+            .toggleClass('far', !response.Subscribed);
         btn.find('.watch-forum-text').html(response.Text);
     }
 </script>

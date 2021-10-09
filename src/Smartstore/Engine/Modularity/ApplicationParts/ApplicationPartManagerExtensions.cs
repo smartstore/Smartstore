@@ -29,7 +29,7 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
             // First add module entry assembly
             partManager.ApplicationParts.Add(new ModulePart(descriptor));
 
-            // Resolve related assemblies and other parts (e.g. compiled views assembly).
+            // Resolve related assemblies and other parts
             var assemblies = GetModulePartAssemblies(descriptor);
 
             var seenAssemblies = new HashSet<Assembly>();

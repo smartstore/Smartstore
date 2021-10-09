@@ -75,7 +75,14 @@
     function onWatchTopicCompleted(data) {
         var response = data.responseJSON;
         var btn = $('#watch-topic');
-        btn.toggleClass('btn-outline-warning', !response.Subscribed);
+
+        btn
+            .toggleClass('btn-primary', response.Subscribed)
+            .toggleClass('btn-secondary', !response.Subscribed);
+        btn.find("> i")
+            .toggleClass('fas', response.Subscribed)
+            .toggleClass('far', !response.Subscribed);
+
         btn.find('.watch-topic-text').html(response.Text);
     }
 </script>

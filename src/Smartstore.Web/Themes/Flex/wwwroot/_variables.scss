@@ -71,9 +71,9 @@ $font-size-root-sm:             16px !default;
 // Material tabs
 // ==============================================================
 
-$mtab-text-transform:		none;
-$mtab-font-weight:			$font-weight-medium;
-$mtab-color:				inherit;
+$mtab-text-transform:		    none;
+$mtab-font-weight:			    $font-weight-medium;
+$mtab-color:				    inherit;
 
 //
 // Checkout Steps
@@ -219,23 +219,34 @@ $modal-content-box-shadow-sm-up:    $box-shadow-lg-var;
 
 // Popover
 
-$popover-box-shadow:			$dropdown-box-shadow;
-$popover-border-color:			$dropdown-border-color;
+$popover-box-shadow:			    $dropdown-box-shadow;
+$popover-border-color:			    $dropdown-border-color;
 
 
 // Pagination
 
+$pagination-padding-y:              $input-btn-padding-y;
+$pagination-padding-x:              $input-btn-padding-x;
+$pagination-padding-y-sm:           $input-btn-padding-y-sm;
+$pagination-padding-x-sm:           $input-btn-padding-x-sm;
+$pagination-padding-y-lg:           $input-btn-padding-y-lg;
+$pagination-padding-x-lg:           $input-btn-padding-x-lg;
+$pagination-line-height:            1.5;
+
+$pagination-focus-box-shadow:       none;
+$pagination-focus-outline:          0;
+
 $pagination-color:					$body-color;
 $pagination-bg:						#fff;
-$pagination-border-color:			$gray-300;
+$pagination-border-color:			$btn-secondary-border;
 
 $pagination-hover-color:			$pagination-color;
-$pagination-hover-bg:				$gray-200;
-$pagination-hover-border-color:		$gray-300;
+$pagination-hover-bg:				$gray-100;
+$pagination-hover-border-color:		$pagination-border-color;
 
-$pagination-active-color:			$pagination-color;
-$pagination-active-bg:				transparent;
-$pagination-active-border-color:	$pagination-border-color;
+$pagination-active-color:			#fff;
+$pagination-active-bg:				$primary;
+$pagination-active-border-color:	$pagination-active-bg;
 
 
 // List Group

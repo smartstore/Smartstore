@@ -156,7 +156,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             PagerItem item;
 
             // First link.
-            if (ShowFirst && pageNumber > 1)
+            if (ShowFirst /*&& pageNumber > 1*/)
             {
                 item = new PagerItem(T("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
                 {
@@ -166,7 +166,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             // Previous link.
-            if (ShowPrevious && pageNumber > 1)
+            if (ShowPrevious /*&& pageNumber > 1*/)
             {
                 item = new PagerItem(T("Pager.Previous"), GenerateUrl(pageNumber - 1), PagerItemType.PreviousPage)
                 {
@@ -183,7 +183,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             // Next link.
             var hasNext = false;
-            if (ShowNext && pageNumber < pageCount)
+            if (ShowNext /*&& pageNumber < pageCount*/)
             {
                 item = new PagerItem(T("Pager.Next"), GenerateUrl(pageNumber + 1), PagerItemType.NextPage)
                 {
@@ -194,7 +194,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             // Last link.
-            if (ShowLast && pageNumber < pageCount)
+            if (ShowLast /*&& pageNumber < pageCount*/)
             {
                 item = new PagerItem(T("Pager.Last"), GenerateUrl(pageCount), PagerItemType.LastPage)
                 {

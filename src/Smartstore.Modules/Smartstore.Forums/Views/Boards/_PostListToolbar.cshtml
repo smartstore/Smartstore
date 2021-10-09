@@ -1,8 +1,8 @@
 ﻿@model PublicForumTopicPageModel
 
-<div class="topic-options row sm-gutters my-2">
+<div class="topic-options row xs-gutters my-2">
     <div sm-if="Model.CanCreatePosts" class="col col-lg-auto mb-2 mb-lg-0">
-        <a asp-action="PostCreate" asp-route-id="@Model.Id" class="btn btn-primary btn-block">
+        <a asp-action="PostCreate" asp-route-id="@Model.Id" class="btn btn-success btn-block">
             <i class="fa fa-share"></i>
             <span>@T("Forum.Reply")</span>
         </a>
@@ -11,8 +11,8 @@
         <form id="watch-topic-form" sm-ajax="true" method="post" asp-action="TopicWatch" asp-controller="Boards" sm-oncomplete="onWatchTopicCompleted">
             <input type="hidden" asp-for="Id" />
 
-            <button type="submit" id="watch-topic" class="btn btn-outline-primary btn-block watch-topic-link-button">
-                <i class="fa fa-bookmark"></i>
+            <button type="submit" id="watch-topic" class="btn btn-block watch-topic-link-button @(Model.IsSubscribed ? "btn-primary" : "btn-secondary")">
+                <i class="fa-bell @(Model.IsSubscribed ? "fas" : "far")"></i>
                 <span class="watch-topic-text">@T(Model.IsSubscribed ? "Forum.UnwatchTopic" : "Forum.WatchTopic")</span>
             </button>
         </form>
