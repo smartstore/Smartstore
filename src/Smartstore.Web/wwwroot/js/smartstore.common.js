@@ -530,14 +530,6 @@
                         displayNotification(xhr.responseText, "error");
                     }
                 }
-            }).ajaxSend(function (e, xhr, opts) {
-                
-                if (opts?.type?.toLowerCase() == 'post') {
-                    var token = getAntiforgeryToken();
-                    if (token) {
-                        xhr.setRequestHeader("X-XSRF-Token", encodeURIComponent(token));
-                    }  
-                }
             });
 
         // .mf-dropdown (mobile friendly dropdown)

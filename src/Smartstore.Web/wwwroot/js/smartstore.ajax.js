@@ -10,6 +10,23 @@
         type: "POST"
     };
 
+    // Global XMLHttpRequest send interceptor
+    let open = XMLHttpRequest.prototype.open;
+
+    // Overwrite the native "open" method
+    XMLHttpRequest.prototype.open = function (method, url) {
+        // Call the stored reference to the native method
+        open.apply(this, arguments);
+
+        if (method?.toLowerCase() == 'post') {
+            var token = getAntiforgeryToken();
+            if (token) {
+                // INFO: must be called after .open()
+                this.setRequestHeader("X-XSRF-Token", encodeURIComponent(token));
+            }
+        }
+    };
+
     $.fn.ajax = function (options) {
         this.each(function () {
             let opts = createOptions(this, options);
