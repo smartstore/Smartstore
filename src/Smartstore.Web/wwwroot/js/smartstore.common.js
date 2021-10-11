@@ -535,10 +535,7 @@
                 if (opts?.type?.toLowerCase() == 'post') {
                     var token = getAntiforgeryToken();
                     if (token) {
-                        // TODO: (mh) (core) Why "X-XSRF-Token" and not "__RequestVerificationToken"?
-                        // RE: Because it's set up this way. See Smartstore.Web.Common > WebStarter.cs line 38
                         xhr.setRequestHeader("X-XSRF-Token", encodeURIComponent(token));
-                        //xhr.setRequestHeader("__RequestVerificationToken", encodeURIComponent(token));
                     }  
                 }
             });
