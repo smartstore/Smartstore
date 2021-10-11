@@ -527,9 +527,10 @@ namespace Smartstore.Core.Messaging
             Guard.NotNull(messageContext, nameof(messageContext));
             Guard.NotNull(part, nameof(part));
 
-            var mediaSettings = await _services.SettingFactory.LoadSettingsAsync<MediaSettings>((int)messageContext.StoreId);
-            var shoppingCartSettings = await _services.SettingFactory.LoadSettingsAsync<ShoppingCartSettings>((int)messageContext.StoreId);
-            var catalogSettings = await _services.SettingFactory.LoadSettingsAsync<CatalogSettings>((int)messageContext.StoreId);
+            var storeId = messageContext.StoreId ?? 0;
+            var mediaSettings = await _services.SettingFactory.LoadSettingsAsync<MediaSettings>(storeId);
+            var shoppingCartSettings = await _services.SettingFactory.LoadSettingsAsync<ShoppingCartSettings>(storeId);
+            var catalogSettings = await _services.SettingFactory.LoadSettingsAsync<CatalogSettings>(storeId);
 
             var currencyService = _services.Resolve<ICurrencyService>();
             var productUrlHelper = _services.Resolve<ProductUrlHelper>();

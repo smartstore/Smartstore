@@ -45,14 +45,14 @@
     margin-bottom: 0;
 }
 .post-vote-up:hover {
-    color: var(--green);
+    color: $green;
 }
 .post-vote-down:hover {
-    color: var(--red);
+    color: $red;
 }
 .post-info,
 .post-info .avatar-letter {
-    background: var(--gray-100) !important;
+    background: $gray-100 !important;
 }
 .page.forum,
 .page.forum-topic {
