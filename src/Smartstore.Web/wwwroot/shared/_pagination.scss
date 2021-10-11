@@ -2,4 +2,6 @@
 /// <reference path="_mixins.scss" />
 /// <reference path="../lib/bs4/scss/bootstrap.scss" />
 
-// TODO: (core) Make .pagination-xs
+.pagination-xs {
+    @include pagination-size($pagination-padding-y-xs, $pagination-padding-x-xs, $font-size-xs, $line-height-sm, $border-radius-sm);
+}
