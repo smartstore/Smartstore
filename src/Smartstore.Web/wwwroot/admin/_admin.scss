@@ -329,6 +329,12 @@ body {
     .cph {
         height: 100%;
     }
+
+    .spa-stretch {
+        overflow: hidden;
+        display: flex;
+        flex-flow: column;
+    }
 }
 
 //
