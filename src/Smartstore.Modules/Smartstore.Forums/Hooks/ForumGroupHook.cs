@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Forums.Domain;
@@ -13,7 +14,8 @@ namespace Smartstore.Forums.Hooks
     {
         private readonly SmartDbContext _db;
         private readonly IForumService _forumService;
-        private readonly HashSet<int> _deletedForumIds = new();
+        private readonly HashSet<int> _deletingForumIds = new();
+        private readonly HashSet<int> _postCountCustomerIds = new();
 
         public ForumGroupHook(SmartDbContext db, IForumService forumService)
         {
@@ -25,22 +27,35 @@ namespace Smartstore.Forums.Hooks
         {
             await _db.LoadCollectionAsync(entity, x => x.Forums, cancelToken: cancelToken);
 
-            _deletedForumIds.AddRange(entity.Forums.Select(x => x.Id));
+            _deletingForumIds.AddRange(entity.Forums.Select(x => x.Id));
 
             return HookResult.Ok;
         }
 
+        protected override Task<HookResult> OnDeletedAsync(ForumGroup entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
         public override async Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            // Delete stuff of forums that were deleted by referential integrity.
-            if (_deletedForumIds.Any())
+            if (_deletingForumIds.Any())
             {
-                await _forumService.DeleteSubscriptionsByForumIdsAsync(_deletedForumIds.ToArray(), cancelToken);
+                // Delete forum subscriptions.
+                await _forumService.DeleteForumSubscriptionsAsync(_deletingForumIds.ToArray(), cancelToken);
 
-                // INFO: localized properties deleted by LocalizedEntityHook.
-
-                _deletedForumIds.Clear();
+                // Keep related customerIDs (could be a lot of IDs loaded here).
+                _postCountCustomerIds.AddRange(await _db.ForumPosts()
+                    .Where(x => _deletingForumIds.Contains(x.ForumTopic.ForumId))
+                    .Select(x => x.CustomerId)
+                    .Distinct()
+                    .ToListAsync(cancelToken));
             }
+        }
+
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            // Update post counts of customers.
+            await _forumService.UpdateForumPostCountsAsync(_postCountCustomerIds.ToArray(), cancelToken);
+            _postCountCustomerIds.Clear();
         }
     }
 }

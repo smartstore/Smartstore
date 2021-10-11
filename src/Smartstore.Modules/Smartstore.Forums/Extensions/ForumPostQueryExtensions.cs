@@ -160,20 +160,20 @@ namespace Smartstore.Forums
             return 0;
         }
 
-        public static async Task<Dictionary<int, ForumPost>> GetForumPostsByIdsAsync(this DbSet<ForumPost> forumPosts, IEnumerable<int> forumPostIds)
+        public static async Task<Dictionary<int, ForumPost>> GetLastForumPostsAsync(this DbSet<ForumPost> forumPosts, IEnumerable<int> ids)
         {
-            var ids = forumPostIds
+            var distinctIds = ids
                 .Where(x => x != 0)
                 .Distinct()
                 .ToArray();
 
-            if (ids.Any())
+            if (distinctIds.Any())
             {
                 return await forumPosts
                     .Include(x => x.ForumTopic)
                     .IncludeCustomer()
                     .AsNoTracking()
-                    .Where(x => ids.Contains(x.Id))
+                    .Where(x => distinctIds.Contains(x.Id))
                     .ToDictionaryAsync(x => x.Id);
             }
             else
@@ -182,7 +182,7 @@ namespace Smartstore.Forums
             }
         }
 
-        public static async Task<Dictionary<int, int>> GetForumPostCountsByCustomerIdsAsync(this DbSet<ForumPost> forumPosts, 
+        public static async Task<Dictionary<int, int>> CountByCustomerIdsAsync(this DbSet<ForumPost> forumPosts, 
             int[] customerIds,
             CancellationToken cancelToken = default)
         {
@@ -204,7 +204,7 @@ namespace Smartstore.Forums
             return new Dictionary<int, int>();
         }
 
-        public static async Task<Dictionary<int, int>> GetForumPostCountsByTopicIdsAsync(this DbSet<ForumPost> forumPosts, 
+        public static async Task<Dictionary<int, int>> CountByForumTopicIdsAsync(this DbSet<ForumPost> forumPosts, 
             int[] forumTopicIds,
             CancellationToken cancelToken = default)
         {
@@ -226,7 +226,7 @@ namespace Smartstore.Forums
             return new Dictionary<int, int>();
         }
 
-        public static async Task<Dictionary<int, int>> GetForumPostCountsByForumIdsAsync(this DbSet<ForumPost> forumPosts,
+        public static async Task<Dictionary<int, int>> CountByForumIdsAsync(this DbSet<ForumPost> forumPosts,
             int[] forumIds,
             CancellationToken cancelToken = default)
         {
@@ -246,38 +246,6 @@ namespace Smartstore.Forums
             }
 
             return new Dictionary<int, int>();
-        }
-
-        public static async Task<int> ApplyStatisticsAsync(this DbSet<ForumPost> forumPosts, 
-            int[] forumTopicIds,
-            CancellationToken cancelToken = default)
-        {
-            if (forumTopicIds.Any())
-            {
-                var lastPosts = await forumPosts
-                    .ApplyLastPostFilter(forumTopicIds)
-                    .ToListAsync(cancelToken);
-
-                if (lastPosts.Any())
-                {
-                    var numPostsByTopic = await forumPosts.GetForumPostCountsByTopicIdsAsync(forumTopicIds, cancelToken);
-
-                    foreach (var lastPost in lastPosts)
-                    {
-                        lastPost.ForumTopic.LastPostId = lastPost.Id;
-                        lastPost.ForumTopic.LastPostCustomerId = lastPost.CustomerId;
-                        lastPost.ForumTopic.LastPostTime = lastPost.CreatedOnUtc;
-
-                        lastPost.ForumTopic.NumPosts = numPostsByTopic.TryGetValue(lastPost.TopicId, out var numPosts)
-                            ? numPosts
-                            : 0;
-                    }
-
-                    return lastPosts.Count;
-                }
-            }
-
-            return 0;
         }
     }
 }

@@ -85,7 +85,7 @@ namespace Smartstore.Forums.Controllers
             return View(model);
         }
 
-        [HttpPost, FormValueRequired("delete-inbox"), ActionName("InboxUpdate")]
+        [HttpPost, ActionName("InboxUpdate"), FormValueRequired("delete-inbox")]
         public async Task<IActionResult> DeleteInboxPM(IFormCollection form)
         {
             var currentCustomer = Services.WorkContext.CurrentCustomer;
@@ -119,9 +119,10 @@ namespace Smartstore.Forums.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost, FormValueRequired("mark-unread"), ActionName("InboxUpdate")]
-        public async Task<IActionResult> MarkUnread(IFormCollection form)
+        [HttpPost, ActionName("InboxUpdate"), FormValueRequired("mark-unread")]
+        public async Task<IActionResult> MarkUnread()
         {
+            var form = Request.Form;
             var currentCustomer = Services.WorkContext.CurrentCustomer;
             var ids = GetPrivateMessageIds(form);
 
@@ -139,7 +140,7 @@ namespace Smartstore.Forums.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost, FormValueRequired("delete-sent"), ActionName("SentUpdate")]
+        [HttpPost, ActionName("SentUpdate"), FormValueRequired("delete-sent")]
         public async Task<IActionResult> DeleteSentPM(IFormCollection form)
         {
             var currentCustomer = Services.WorkContext.CurrentCustomer;

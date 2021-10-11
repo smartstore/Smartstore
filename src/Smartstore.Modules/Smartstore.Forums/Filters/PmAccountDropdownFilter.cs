@@ -10,6 +10,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Core.Widgets;
 using Smartstore.Forums.Components;
 using Smartstore.Forums.Models.Public;
+using Smartstore.Forums.Services;
 
 namespace Smartstore.Forums.Filters
 {
@@ -52,11 +53,11 @@ namespace Smartstore.Forums.Filters
                     if (_forumSettings.ShowAlertForPM)
                     {
                         var ga = customer.GenericAttributes;
-                        if (!ga.Get<bool>(Module.NotifiedAboutNewPrivateMessagesKey, storeId))
+                        if (!ga.Get<bool>(ForumService.NotifiedAboutNewPrivateMessagesKey, storeId))
                         {
                             model.Alert = true;
 
-                            ga.Set(Module.NotifiedAboutNewPrivateMessagesKey, true, storeId);
+                            ga.Set(ForumService.NotifiedAboutNewPrivateMessagesKey, true, storeId);
                             await _db.SaveChangesAsync();
                         }
                     }

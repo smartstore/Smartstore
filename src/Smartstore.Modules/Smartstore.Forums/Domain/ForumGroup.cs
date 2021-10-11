@@ -15,6 +15,7 @@ namespace Smartstore.Forums.Domain
 {
     /// <summary>
     /// Represents a forum group.
+    /// ForumGroup -> Forum -> ForumTopic -> ForumPost.
     /// </summary>
     [Table("Forums_Group")]
     [Index(nameof(DisplayOrder), Name = "IX_DisplayOrder")]

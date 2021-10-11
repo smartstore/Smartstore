@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -26,65 +27,219 @@ namespace Smartstore.Forums.Services
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
+        private readonly IGenericAttributeService _genericAttributeService;
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly ForumSettings _forumSettings;
+        private readonly HashSet<int> _deletingForumIds = new();
+        private readonly HashSet<int> _postCountCustomerIds = new();
 
         public ForumService(
             SmartDbContext db,
             ICommonServices services,
+            IGenericAttributeService genericAttributeService,
             Lazy<IUrlHelper> urlHelper,
             ForumSettings forumSettings)
         {
             _db = db;
             _services = services;
+            _genericAttributeService = genericAttributeService;
             _urlHelper = urlHelper;
             _forumSettings = forumSettings;
         }
 
+        public static string ForumPostCountKey => "ForumPostCount";
+        public static string NotifiedAboutNewPrivateMessagesKey => "NotifiedAboutNewPrivateMessages";
+
+        #region Hook
+
         protected override Task<HookResult> OnDeletingAsync(Forum entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            _deletingForumIds.Add(entity.Id);
+
+            return Task.FromResult(HookResult.Ok);
+        }            
+
+        protected override Task<HookResult> OnDeletedAsync(Forum entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
         public override async Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            var deletingForumIds = entries
-                .Where(x => x.State == Data.EntityState.Deleted)
-                .Select(x => x.Entity)
-                .OfType<Forum>()
-                .Select(x => x.Id)
-                .ToArray();
+            if (_deletingForumIds.Any())
+            {
+                // Delete forum subscriptions.
+                await DeleteForumSubscriptionsAsync(_deletingForumIds.ToArray(), cancelToken);
 
-            await DeleteSubscriptionsByForumIdsAsync(deletingForumIds, cancelToken);
+                // Keep related customerIDs (could be a lot of IDs loaded here).
+                _postCountCustomerIds.AddRange(await _db.ForumPosts()
+                    .Where(x => _deletingForumIds.Contains(x.ForumTopic.ForumId))
+                    .Select(x => x.CustomerId)
+                    .Distinct()
+                    .ToListAsync(cancelToken));
+            }
         }
 
-        public virtual async Task<int> DeleteSubscriptionsByForumIdsAsync(int[] forumIds, CancellationToken cancelToken = default)
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            if (!forumIds.Any())
-            {
-                return 0;
-            }
+            // Update post counts of customers.
+            await UpdateForumPostCountsAsync(_postCountCustomerIds.ToArray(), cancelToken);
+            _postCountCustomerIds.Clear();
+        }
 
-            var numDeleted = 0;
-            var topicIds = await _db.ForumTopics()
-                .AsNoTracking()
-                .Where(x => forumIds.Contains(x.ForumId))
-                .Select(x => x.Id)
-                .ToListAsync(cancelToken);
+        #endregion
 
-            // Delete topic subscriptions.
-            if (topicIds.Any())
+        public virtual async Task<int> DeleteForumSubscriptionsAsync(int[] forumIds, CancellationToken cancelToken = default)
+        {
+            var num = 0;
+
+            if (forumIds?.Any() ?? false)
             {
-                numDeleted += await _db.ForumSubscriptions()
-                    .Where(x => topicIds.Contains(x.TopicId))
+                var topicIds = await _db.ForumTopics()
+                    .Where(x => forumIds.Contains(x.ForumId))
+                    .Select(x => x.Id)
+                    .ToArrayAsync(cancelToken);
+
+                // Delete topic subscriptions.
+                num += await DeleteForumTopicSubscriptionsAsync(topicIds, cancelToken);
+
+                // Delete forum subscriptions.
+                num += await _db.ForumSubscriptions()
+                    .Where(x => forumIds.Contains(x.ForumId))
                     .BatchDeleteAsync(cancelToken);
             }
 
-            // Delete forum subscriptions.
-            numDeleted += await _db.ForumSubscriptions()
-                .Where(x => forumIds.Contains(x.ForumId))
-                .BatchDeleteAsync(cancelToken);
-
-            return numDeleted;
+            return num;
         }
+
+        public virtual async Task<int> DeleteForumTopicSubscriptionsAsync(int[] forumTopicIds, CancellationToken cancelToken = default)
+        {
+            var num = 0;
+
+            if (forumTopicIds?.Any() ?? false)
+            {
+                num = await _db.ForumSubscriptions()
+                    .Where(x => forumTopicIds.Contains(x.TopicId))
+                    .BatchDeleteAsync(cancelToken);
+            }
+
+            return num;
+        }
+
+        public virtual async Task<int> UpdateForumPostCountsAsync(int[] customerIds, CancellationToken cancelToken = default)
+        {
+            var num = 0;
+
+            if (customerIds?.Any() ?? false)
+            {
+                var entityName = nameof(Customer);
+
+                foreach (var chunk in customerIds.Slice(500))
+                {
+                    var customerIdsChunk = chunk.ToArray();
+                    var numPostsByCustomer = await _db.ForumPosts().CountByCustomerIdsAsync(customerIdsChunk, cancelToken);
+
+                    if (numPostsByCustomer.Any())
+                    {
+                        await _genericAttributeService.PrefetchAttributesAsync(entityName, customerIdsChunk);
+
+                        foreach (var pair in numPostsByCustomer)
+                        {
+                            var attributes = _genericAttributeService.GetAttributesForEntity(entityName, pair.Key);
+
+                            // This should actually be stored per store and retrieved as well if the related forum group
+                            // is limited to a store. For the sake of simplicity, we'll leave it that way.
+                            attributes.Set(ForumPostCountKey, pair.Value);
+                        }
+
+                        num += await _db.SaveChangesAsync(cancelToken);
+                    }
+                }
+            }
+
+            return num;
+        }
+
+        public virtual async Task<int> UpdateForumStatisticsAsync(int[] forumIds, CancellationToken cancelToken = default)
+        {
+            var num = 0;
+
+            if (forumIds?.Any() ?? false)
+            {
+                var topicSet = _db.ForumTopics();
+                var postSet = _db.ForumPosts();
+                var forums = await _db.Forums().GetManyAsync(forumIds, true);
+                var numTopicsByForum = await topicSet.CountByForumIdsAsync(forumIds, cancelToken);
+                var numPostsByForum = await postSet.CountByForumIdsAsync(forumIds, cancelToken);
+
+                foreach (var forum in forums)
+                {
+                    var lastValuesQuery =
+                        from ft in topicSet
+                        join fp in postSet on ft.Id equals fp.TopicId
+                        where ft.ForumId == forum.Id && ft.Published && fp.Published
+                        orderby fp.CreatedOnUtc descending, ft.CreatedOnUtc descending
+                        select new
+                        {
+                            LastTopicId = ft.Id,
+                            LastPostId = fp.Id,
+                            LastPostCustomerId = fp.CustomerId,
+                            LastPostTime = fp.CreatedOnUtc
+                        };
+
+                    var lastValues = await lastValuesQuery.FirstOrDefaultAsync(cancelToken);
+
+                    forum.LastTopicId = lastValues?.LastTopicId ?? 0;
+                    forum.LastPostId = lastValues?.LastPostId ?? 0;
+                    forum.LastPostCustomerId = lastValues?.LastPostCustomerId ?? 0;
+                    forum.LastPostTime = lastValues?.LastPostTime;
+
+                    forum.NumTopics = numTopicsByForum.TryGetValue(forum.Id, out var numTopics)
+                        ? numTopics
+                        : 0;
+
+                    forum.NumPosts = numPostsByForum.TryGetValue(forum.Id, out var numPosts)
+                        ? numPosts
+                        : 0;
+                }
+
+                num = await _db.SaveChangesAsync(cancelToken);
+            }
+
+            return num;
+        }
+
+        public virtual async Task<int> UpdateForumTopicStatisticsAsync(int[] forumTopicIds, CancellationToken cancelToken = default)
+        {
+            var num = 0;
+
+            if (forumTopicIds?.Any() ?? false)
+            {
+                var postSet = _db.ForumPosts();
+                var lastPosts = await postSet
+                    .ApplyLastPostFilter(forumTopicIds)
+                    .ToListAsync(cancelToken);
+
+                if (lastPosts.Any())
+                {
+                    var numPostsByTopic = await postSet.CountByForumTopicIdsAsync(forumTopicIds, cancelToken);
+
+                    foreach (var lastPost in lastPosts)
+                    {
+                        lastPost.ForumTopic.LastPostId = lastPost.Id;
+                        lastPost.ForumTopic.LastPostCustomerId = lastPost.CustomerId;
+                        lastPost.ForumTopic.LastPostTime = lastPost.CreatedOnUtc;
+
+                        lastPost.ForumTopic.NumPosts = numPostsByTopic.TryGetValue(lastPost.TopicId, out var numPosts)
+                            ? numPosts
+                            : 0;
+                    }
+
+                    num = await _db.SaveChangesAsync(cancelToken);
+                }
+            }
+
+            return num;
+        }
+
 
         public virtual string BuildSlug(ForumTopic topic)
         {

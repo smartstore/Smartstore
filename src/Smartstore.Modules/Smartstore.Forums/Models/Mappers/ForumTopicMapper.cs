@@ -22,7 +22,7 @@ namespace Smartstore.Forums.Models.Mappers
 
             dynamic parameters = new ExpandoObject();
             parameters.FirstPost = null;
-            parameters.LastPosts = await db.ForumPosts().GetForumPostsByIdsAsync(entities.Select(x => x.LastPostId));
+            parameters.LastPosts = await db.ForumPosts().GetLastForumPostsAsync(entities.Select(x => x.LastPostId));
 
             var models = await entities
                 .SelectAsync(async x =>

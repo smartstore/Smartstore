@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
@@ -16,6 +17,8 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models;
+using Smartstore.Forums.Models.Public;
+using Smartstore.Forums.Services;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Settings;
@@ -35,6 +38,8 @@ namespace Smartstore.Forums.Controllers
         private readonly IStoreMappingService _storeMappingService;
         private readonly IAclService _aclService;
         private readonly IUrlService _urlService;
+        private readonly IMessageFactory _messageFactory;
+        private readonly ForumSettings _forumSettings;
 
         public ForumAdminController(
             SmartDbContext db,
@@ -43,7 +48,9 @@ namespace Smartstore.Forums.Controllers
             StoreDependingSettingHelper settingHelper,
             IStoreMappingService storeMappingService,
             IAclService aclService,
-            IUrlService urlService)
+            IUrlService urlService,
+            IMessageFactory messageFactory,
+            ForumSettings forumSettings)
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
@@ -52,6 +59,8 @@ namespace Smartstore.Forums.Controllers
             _storeMappingService = storeMappingService;
             _aclService = aclService;
             _urlService = urlService;
+            _messageFactory = messageFactory;
+            _forumSettings = forumSettings;
         }
 
         [Permission(ForumPermissions.Read)]
@@ -139,8 +148,8 @@ namespace Smartstore.Forums.Controllers
                 NotifySuccess(T("Admin.ContentManagement.Forums.ForumGroup.Added"));
 
                 return continueEditing
-                    ? RedirectToAction("ForumGroupUpdate", new { id = group.Id })
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(ForumGroupUpdate), new { id = group.Id })
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareForumGroupModel(model, null);
@@ -199,8 +208,8 @@ namespace Smartstore.Forums.Controllers
                 NotifySuccess(T("Admin.ContentManagement.Forums.ForumGroup.Updated"));
 
                 return continueEditing
-                    ? RedirectToAction("ForumGroupUpdate", new { id = group.Id })
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(ForumGroupUpdate), new { id = group.Id })
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareForumGroupModel(model, group);
@@ -223,7 +232,7 @@ namespace Smartstore.Forums.Controllers
 
             NotifySuccess(T("Admin.ContentManagement.Forums.ForumGroup.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         private async Task PrepareForumGroupModel(ForumGroupModel model, ForumGroup group)
@@ -316,8 +325,8 @@ namespace Smartstore.Forums.Controllers
                 NotifySuccess(T("Admin.ContentManagement.Forums.Forum.Added"));
 
                 return continueEditing
-                    ? RedirectToAction("ForumUpdate", new { id = forum.Id })
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(ForumUpdate), new { id = forum.Id })
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareForumModel(model);
@@ -374,8 +383,8 @@ namespace Smartstore.Forums.Controllers
                 NotifySuccess(T("Admin.ContentManagement.Forums.Forum.Updated"));
 
                 return continueEditing
-                    ? RedirectToAction("ForumUpdate", new { id = forum.Id })
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(ForumUpdate), new { id = forum.Id })
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareForumModel(model);
@@ -399,7 +408,7 @@ namespace Smartstore.Forums.Controllers
 
             NotifySuccess(T("Admin.ContentManagement.Forums.Forum.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         private async Task PrepareForumModel(ForumModel model)
@@ -465,7 +474,7 @@ namespace Smartstore.Forums.Controllers
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaKeywords, localized.MetaKeywords, localized.LanguageId, storeScope);
             }
 
-            return RedirectToAction("ForumSettings");
+            return RedirectToAction(nameof(ForumSettings));
         }
 
         [Permission(ForumPermissions.Read)]
@@ -547,11 +556,79 @@ namespace Smartstore.Forums.Controllers
 
         #region Customer
 
-        // TODO: (mg) (core) Implement admin SendPm from backend customer page.
-        [Permission(Permissions.Customer.SendPm)]
-        public IActionResult SendPm()
+        public async Task<IActionResult> SendPm(int id /* toCustomerId */)
         {
-            throw new NotImplementedException();
+            if (!_forumSettings.AllowPrivateMessages)
+            {
+                throw new SmartException(T("PrivateMessages.Disabled"));
+            }
+
+            var customerTo = await _db.Customers.FindByIdAsync(id, false);
+            if (customerTo == null)
+            {
+                return NotFound();
+            }
+
+            var model = new SendPrivateMessageModel
+            {
+                ToCustomerId = id,
+                CustomerToName = customerTo.FormatUserName()
+            };
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Customer.SendPm)]
+        [HttpPost]
+        public async Task<IActionResult> SendPm(SendPrivateMessageModel model)
+        {
+            if (!_forumSettings.AllowPrivateMessages)
+            {
+                throw new SmartException(T("PrivateMessages.Disabled"));
+            }
+
+            var toCustomer = await _db.Customers.FindByIdAsync(model.ToCustomerId, false);
+            if (toCustomer == null)
+            {
+                return NotFound();
+            }
+
+            if (toCustomer.IsGuest())
+            {
+                throw new SmartException(T("Common.MethodNotSupportedForGuests"));
+            }
+
+            if (ModelState.IsValid)
+            {
+                var pm = new PrivateMessage
+                {
+                    StoreId = Services.StoreContext.CurrentStore.Id,
+                    ToCustomerId = toCustomer.Id,
+                    FromCustomerId = Services.WorkContext.CurrentCustomer.Id,
+                    Subject = model.Subject,
+                    Text = model.Message,
+                    IsDeletedByAuthor = false,
+                    IsDeletedByRecipient = false,
+                    IsRead = false,
+                    CreatedOnUtc = DateTime.UtcNow
+                };
+
+                _db.PrivateMessages().Add(pm);
+                await _db.SaveChangesAsync();
+
+                Services.ActivityLogger.LogActivity(ForumActivityLogTypes.PublicStoreSendPM, T("ActivityLog.PublicStore.SendPM"), toCustomer.Email);
+
+                if (_forumSettings.NotifyAboutPrivateMessages)
+                {
+                    await _messageFactory.SendPrivateMessageNotificationAsync(toCustomer, pm, Services.WorkContext.WorkingLanguage.Id);
+                }
+
+                NotifySuccess(T("Admin.Customers.Customers.SendPM.Sent"));
+
+                return RedirectToAction("Edit", "Customer", new { id = toCustomer.Id, area = "Admin" });
+            }
+
+            return View(model);
         }
 
         #endregion

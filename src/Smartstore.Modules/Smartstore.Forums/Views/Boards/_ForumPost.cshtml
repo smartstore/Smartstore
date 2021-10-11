@@ -29,7 +29,7 @@
                     }
                 </div>
 
-                @if (Model.CanCreatePrivateMessages)
+                @if (Model.CanCreatePrivateMessages && !Model.IsGuest)
                 {
                     <a asp-action="Send" asp-controller="PrivateMessages" asp-route-id="@Model.CustomerId" class="btn btn-outline-info btn-flat button-pm mt-2 btn-sm" rel="nofollow">
                         <i class="fa fa-user"></i>

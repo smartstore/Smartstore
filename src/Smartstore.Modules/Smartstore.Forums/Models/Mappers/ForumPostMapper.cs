@@ -89,7 +89,7 @@ namespace Smartstore.Forums.Models.Mappers
             to.IsForumModerator = from.Customer.IsForumModerator();
             to.ModerationPermissions = _forumService.GetModerationPermissions(from.ForumTopic, from, currentCustomer);
             to.ShowCustomersPostCount = _forumSettings.ShowCustomersPostCount;
-            to.ForumPostCount = from.Customer.GenericAttributes.Get<int>(Module.ForumPostCountKey);
+            to.ForumPostCount = from.Customer.GenericAttributes.Get<int>(ForumService.ForumPostCountKey);
             to.ShowCustomersJoinDate = _customerSettings.ShowCustomersJoinDate;
             to.CustomerJoinDate = from.Customer.CreatedOnUtc;
             to.SignaturesEnabled = _forumSettings.SignaturesEnabled;

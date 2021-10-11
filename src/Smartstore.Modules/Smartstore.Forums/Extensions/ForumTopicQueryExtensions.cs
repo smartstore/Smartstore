@@ -105,7 +105,7 @@ namespace Smartstore.Forums
         }
 
 
-        public static async Task<Dictionary<int, int>> GetForumTopicCountsByForumIdsAsync(this DbSet<ForumTopic> forumTopics,
+        public static async Task<Dictionary<int, int>> CountByForumIdsAsync(this DbSet<ForumTopic> forumTopics,
             int[] forumIds,
             CancellationToken cancelToken = default)
         {

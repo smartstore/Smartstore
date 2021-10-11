@@ -571,11 +571,10 @@ namespace Smartstore.Forums.Controllers
 
             var oldForumId = topic.ForumId;
             var newForumId = model.SelectedForumId;
-            var newForum = await _db.Forums().FindByIdAsync(newForumId);
 
-            if (newForum != null && oldForumId != newForumId)
+            if (oldForumId != newForumId && await _db.Forums().AnyAsync(x => x.Id == newForumId))
             {
-                topic.ForumId = newForum.Id;
+                topic.ForumId = newForumId;
                 await _db.SaveChangesAsync();
             }
 
@@ -1560,7 +1559,7 @@ namespace Smartstore.Forums.Controllers
             // The search result may contain duplicate topics.
             // Make sure that no topic is rendered more than once.
             var hits = await model.SearchResult.GetHitsAsync();
-            var lastPosts = await _db.ForumPosts().GetForumPostsByIdsAsync(hits.Select(x => x.ForumTopic.LastPostId));
+            var lastPosts = await _db.ForumPosts().GetLastForumPostsAsync(hits.Select(x => x.ForumTopic.LastPostId));
             var renderedIds = new HashSet<int>(renderedTopicIds ?? Array.Empty<int>());
             var hitModels = new List<PublicForumTopicModel>();
 
@@ -1678,7 +1677,7 @@ namespace Smartstore.Forums.Controllers
                 }
             }
 
-            return RedirectToAction("CustomerSubscriptions");
+            return RedirectToAction(nameof(CustomerSubscriptions));
         }
 
         [HttpPost]
@@ -1693,7 +1692,7 @@ namespace Smartstore.Forums.Controllers
             _db.ForumSubscriptions().Remove(subscription);
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("CustomerSubscriptions");
+            return RedirectToAction(nameof(CustomerSubscriptions));
         }
 
         #endregion

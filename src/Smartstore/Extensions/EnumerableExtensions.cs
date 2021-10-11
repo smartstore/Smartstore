@@ -255,6 +255,20 @@ namespace Smartstore
             return dictionary;
         }
 
+        /// <summary>
+        /// Selects elements of an enumerable and converts them into an array of distinct elements.
+        /// </summary>
+        /// <param name="source">Source enumerable.</param>
+        /// <param name="elementSelector">Element selector.</param>
+        /// <returns>Array of distinct elements.</returns>
+        public static TKey[] ToDistinctArray<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> elementSelector)
+        {
+            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(elementSelector, nameof(elementSelector));
+
+            return source.Select(elementSelector).Distinct().ToArray();
+        }
+
         /// <summary>The distinct by.</summary>
         /// <param name="source">The source.</param>
         /// <param name="keySelector">The key selector.</param>
