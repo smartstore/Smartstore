@@ -107,7 +107,7 @@
                         dropBody.html('');
                     },
                     complete: function () {
-                        clearTimeout(spinnerTimeout);
+                        clearTimeout(spinnerTimeout); 
                         spinner.removeClass('active');
                     }
                 });

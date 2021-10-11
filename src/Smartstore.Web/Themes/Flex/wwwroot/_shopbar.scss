@@ -29,7 +29,11 @@
 
 .shop-logo {
     margin-left: 0;
-    transition: all 0.25s ease-out;
+    transform: translateX(0);
+    opacity: 1;
+    transition-property: opacity, transform, margin-left;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in-out;
 
     .search-focused & {
         opacity: 0;
