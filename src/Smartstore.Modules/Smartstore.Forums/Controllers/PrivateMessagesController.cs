@@ -38,7 +38,7 @@ namespace Smartstore.Forums.Controllers
             _customerSettings = customerSettings;
         }
 
-        [LocalizedRoute("privatemessages/{tab?}", Name = "PrivateMessages")]
+        [LocalizedRoute("privatemessages/{tab:regex(^inbox$|sent$)?}", Name = "PrivateMessages")]
         public async Task<IActionResult> Index(string tab, int? inboxPage, int? sentPage)
         {
             if (!_forumSettings.AllowPrivateMessages)
@@ -116,7 +116,7 @@ namespace Smartstore.Forums.Controllers
                 }
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost, FormValueRequired("mark-unread"), ActionName("InboxUpdate")]
@@ -136,7 +136,7 @@ namespace Smartstore.Forums.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost, FormValueRequired("delete-sent"), ActionName("SentUpdate")]
@@ -170,7 +170,7 @@ namespace Smartstore.Forums.Controllers
                 }
             }
 
-            return RedirectToAction("Index", new { tab = "sent" });
+            return RedirectToAction(nameof(Index), new { tab = "sent" });
         }
 
         public async Task<IActionResult> Send(int id /* toCustomerId */, int? replyToMessageId)
@@ -189,7 +189,7 @@ namespace Smartstore.Forums.Controllers
             var customerTo = await _db.Customers.FindByIdAsync(id, false);
             if (customerTo == null || customerTo.IsGuest())
             {
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
 
             var model = new SendPrivateMessageModel
@@ -204,7 +204,7 @@ namespace Smartstore.Forums.Controllers
                 var replyToPM = await _db.PrivateMessages().FindByIdAsync(replyToMessageId.Value, false);
                 if (replyToPM == null)
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction(nameof(Index));
                 }
 
                 if (replyToPM.ToCustomerId == currentCustomer.Id || replyToPM.FromCustomerId == currentCustomer.Id)
@@ -214,7 +214,7 @@ namespace Smartstore.Forums.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction(nameof(Index));
                 }
             }
 
@@ -245,7 +245,7 @@ namespace Smartstore.Forums.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction(nameof(Index));
                 }
             }
             else
@@ -255,7 +255,7 @@ namespace Smartstore.Forums.Controllers
 
             if (toCustomer == null || toCustomer.IsGuest())
             {
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
 
             model.ToCustomerId = toCustomer.Id;
@@ -295,7 +295,7 @@ namespace Smartstore.Forums.Controllers
                         await _messageFactory.SendPrivateMessageNotificationAsync(toCustomer, pm, Services.WorkContext.WorkingLanguage.Id);
                     }
 
-                    return RedirectToAction("Index", new { tab = "sent" });
+                    return RedirectToAction(nameof(Index), new { tab = "sent" });
                 }
                 catch (Exception ex)
                 {
@@ -324,7 +324,7 @@ namespace Smartstore.Forums.Controllers
             {
                 if (pm.ToCustomerId != currentCustomer.Id && pm.FromCustomerId != currentCustomer.Id)
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction(nameof(Index));
                 }
 
                 if (!pm.IsRead && pm.ToCustomerId ==  currentCustomer.Id)
@@ -335,7 +335,7 @@ namespace Smartstore.Forums.Controllers
             }
             else
             {
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
 
             var model = CreatePrivateMessageModel(pm, true);
@@ -381,7 +381,7 @@ namespace Smartstore.Forums.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         private PrivateMessageModel CreatePrivateMessageModel(PrivateMessage pm, bool forDetailView = false)
