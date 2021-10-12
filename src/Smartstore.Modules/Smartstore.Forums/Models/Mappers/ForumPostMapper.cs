@@ -93,7 +93,7 @@ namespace Smartstore.Forums.Models.Mappers
             to.ShowCustomersJoinDate = _customerSettings.ShowCustomersJoinDate;
             to.CustomerJoinDate = from.Customer.CreatedOnUtc;
             to.SignaturesEnabled = _forumSettings.SignaturesEnabled;
-            to.FormattedSignature = HtmlUtility.ConvertPlainTextToHtml(from.Customer.GenericAttributes.Signature.HtmlEncode());
+            to.FormattedSignature = HtmlUtility.ConvertPlainTextToHtml(from.Customer.GenericAttributes.Get<string>(ForumService.SignatureKey).HtmlEncode());
             to.HasCustomerProfile = _customerSettings.AllowViewingProfiles && !to.IsGuest;
             to.ShowCustomersLocation = _customerSettings.ShowCustomersLocation;
             to.CurrentTopicPage = page;

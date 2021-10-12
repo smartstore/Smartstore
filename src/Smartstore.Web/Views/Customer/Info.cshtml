@@ -251,19 +251,13 @@
         </div>
     </fieldset>
 
-    <fieldset sm-if="Model.AllowCustomersToSetTimeZone || Model.SignatureEnabled" class="content-group">
+    <fieldset sm-if="Model.AllowCustomersToSetTimeZone" class="content-group">
         <legend><span>@T("Account.Preferences")</span></legend>
-        <div sm-if="Model.AllowCustomersToSetTimeZone" class="form-group row">
+        <div class="form-group row">
             <label asp-for="TimeZoneId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
                 <select asp-for="TimeZoneId" asp-items="ViewBag.AvailableTimeZones"></select>
                 <span asp-validation-for="TimeZoneId"></span>
-            </div>
-        </div>
-        <div sm-if="Model.SignatureEnabled" class="form-group row">
-            <label asp-for="Signature" class="col-lg-3 col-form-label"></label>
-            <div class="col-lg-9">
-                <textarea asp-for="Signature" rows="3"></textarea>
             </div>
         </div>
     </fieldset>

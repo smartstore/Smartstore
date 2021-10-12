@@ -19,7 +19,6 @@
         public static string CheckoutAttributes => "CheckoutAttributes";
         public static string AvatarPictureId => "AvatarPictureId";
         public static string AvatarColor => "AvatarColor";
-        public static string Signature => "Signature";
         public static string PasswordRecoveryToken => "PasswordRecoveryToken";
         public static string AccountActivationToken => "AccountActivationToken";
         public static string LastVisitedPage => "LastVisitedPage";

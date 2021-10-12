@@ -134,12 +134,6 @@ namespace Smartstore.Core.Identity
             set => Set(SystemCustomerAttributeNames.AvatarColor, value);
         }
 
-        public string Signature
-        {
-            get => Get<string>(SystemCustomerAttributeNames.Signature);
-            set => Set(SystemCustomerAttributeNames.Signature, value);
-        }
-
         public string PasswordRecoveryToken
         {
             get => Get<string>(SystemCustomerAttributeNames.PasswordRecoveryToken);

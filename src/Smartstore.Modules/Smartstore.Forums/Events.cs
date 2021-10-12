@@ -128,7 +128,8 @@ namespace Smartstore.Forums
         public async Task HandleEventAsync(ModelBoundEvent message, 
             ICommonServices services,
             StoreDependingSettingHelper settingHelper,
-            Lazy<IForumSearchQueryAliasMapper> forumSearchQueryAliasMapper)
+            Lazy<IForumSearchQueryAliasMapper> forumSearchQueryAliasMapper,
+            ForumSettings forumSettings)
         {
             var cp = message.BoundModel.CustomProperties;
 
@@ -203,11 +204,12 @@ namespace Smartstore.Forums
             }
             else if (cp.ContainsKey("ForumCustomerInfo"))
             {
-                if (cp["ForumCustomerInfo"] is not ForumCustomerInfoModel model)
+                if (cp["ForumCustomerInfo"] is ForumCustomerInfoModel model && forumSettings.ForumsEnabled && forumSettings.SignaturesEnabled)
                 {
-                    return;
-                }
+                    services.WorkContext.CurrentCustomer.GenericAttributes.Set(ForumService.SignatureKey, model.Signature);
 
+                    await services.DbContext.SaveChangesAsync();
+                }
             }
         }
 

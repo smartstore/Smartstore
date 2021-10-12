@@ -275,19 +275,12 @@ namespace Smartstore.Web.Controllers
                     {
                         await _newsletterSubscriptionService.ApplySubscriptionAsync(model.Newsletter, customer.Email, Services.StoreContext.CurrentStore.Id);
                     }
-                    // TODO: (mg) (core) Forum module stuff.
-                    //if (_forumSettings.ForumsEnabled && _forumSettings.SignaturesEnabled)
-                    //{
-                    //    customer.GenericAttributes.Signature = model.Signature;
-                    //}
                     if (_dateTimeSettings.AllowCustomersToSetTimeZone)
                     {
                         customer.TimeZoneId = model.TimeZoneId;
                     }
 
-                    var num = await _db.SaveChangesAsync();
-                    // TODO: (mg) (core) Test relic?
-                    num.ToString().Dump();
+                    await _db.SaveChangesAsync();
 
                     await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, Request.Form));
 
@@ -995,7 +988,6 @@ namespace Smartstore.Web.Controllers
                 model.StateProvinceId = Convert.ToInt32(customer.GenericAttributes.StateProvinceId);
                 model.Phone = customer.GenericAttributes.Phone;
                 model.Fax = customer.GenericAttributes.Fax;
-                model.Signature = customer.GenericAttributes.Signature;
                 model.Newsletter = newsletterSubscription != null && newsletterSubscription.Active;
             }
             else
@@ -1087,8 +1079,6 @@ namespace Smartstore.Web.Controllers
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
             model.AllowUsersToChangeUsernames = _customerSettings.AllowUsersToChangeUsernames;
             model.CheckUsernameAvailabilityEnabled = _customerSettings.CheckUsernameAvailabilityEnabled;
-            // TODO: (mg) (core) This must be injected by Forum external module somehow.
-            //model.SignatureEnabled = _forumSettings.ForumsEnabled && _forumSettings.SignaturesEnabled;
             model.DisplayCustomerNumber = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled
                 && _customerSettings.CustomerNumberVisibility != CustomerNumberVisibility.None;
 

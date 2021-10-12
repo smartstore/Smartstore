@@ -98,11 +98,6 @@ namespace Smartstore.Web.Models.Customers
         [LocalizedDisplay("*Newsletter")]
         public bool Newsletter { get; set; }
 
-        public bool SignatureEnabled { get; set; }
-        [LocalizedDisplay("*Signature")]
-        [SanitizeHtml]
-        public string Signature { get; set; }
-
         [LocalizedDisplay("*TimeZone")]
         public string TimeZoneId { get; set; }
         public bool AllowCustomersToSetTimeZone { get; set; }
