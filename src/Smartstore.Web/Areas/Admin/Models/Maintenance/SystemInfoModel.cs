@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Admin.Models.Common
+namespace Smartstore.Admin.Models.Maintenance
 {
     [LocalizedDisplay("Admin.System.SystemInfo.")]
     public class SystemInfoModel : ModelBase

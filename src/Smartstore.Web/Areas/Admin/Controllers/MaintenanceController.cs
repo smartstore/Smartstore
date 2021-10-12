@@ -4,14 +4,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
-using Smartstore.Admin.Models.Common;
+using Smartstore.Admin.Models.Maintenance;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Data;
@@ -170,6 +168,44 @@ namespace Smartstore.Admin.Controllers
             //model.MemoryCacheStats = GetMemoryCacheStats();
 
             return View(model);
+        }
+
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> GarbageCollect()
+        {
+            try
+            {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                await Task.Delay(500);
+                NotifySuccess(T("Admin.System.SystemInfo.GarbageCollectSuccessful"));
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return RedirectToReferrer();
+        }
+
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> ShrinkDatabase()
+        {
+            try
+            {
+                if (_db.DataProvider.CanShrink)
+                {
+                    await _db.DataProvider.ShrinkDatabaseAsync();
+                    NotifySuccess(T("Common.ShrinkDatabaseSuccessful"));
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return RedirectToReferrer();
         }
 
         #region Utils
