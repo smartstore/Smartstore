@@ -68,6 +68,8 @@ namespace Smartstore
         /// <returns>Number of removed cache items</returns>
         public static int RemoveByPattern(this IMemoryCache cache, string pattern = "*")
         {
+            Guard.NotNull(cache, nameof(cache));
+            
             var keysToRemove = EnumerateKeys(cache, pattern).ToArray();
             int numRemoved = 0;
 

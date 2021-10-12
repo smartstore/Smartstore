@@ -1,7 +1,7 @@
 ﻿@if (ViewBag.AvailableLanguages.Count > 1)
 {
     <form id="form-languageselector" sm-ajax="true" class="hide"
-          asp-action="LanguageSelected" asp-controller="Common" 
+          asp-action="LanguageSelected" asp-controller="Language" 
           sm-oncomplete="onLanguageChangedRequestCompleted">
         <input type="hidden" name="customerlanguage" id="customerlanguage" value="@ViewBag.CurrentLanguage.Id" />
     </form>

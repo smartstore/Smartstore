@@ -7,19 +7,19 @@
 @{
     ViewBag.Title = T("Admin.System.SystemInfo").Value;
 
-    var cacheStats = Model.MemoryCacheStats;
-    var cacheSize = cacheStats.Values.Sum(x => x);
+    //var cacheStats = Model.MemoryCacheStats;
+    //var cacheSize = cacheStats.Values.Sum(x => x);
 
-    var cacheSummary = new Multimap<string, long>(StringComparer.OrdinalIgnoreCase);
-    foreach (var kvp in cacheStats)
-    {
-        var lidx = kvp.Key.LastIndexOf(':');
-        if (lidx > -1)
-        {
-            var subKey = kvp.Key.Substring(0, lidx);
-            cacheSummary.Add(subKey, kvp.Value);
-        }
-    }
+    //var cacheSummary = new Multimap<string, long>(StringComparer.OrdinalIgnoreCase);
+    //foreach (var kvp in cacheStats)
+    //{
+    //    var lidx = kvp.Key.LastIndexOf(':');
+    //    if (lidx > -1)
+    //    {
+    //        var subKey = kvp.Key.Substring(0, lidx);
+    //        cacheSummary.Add(subKey, kvp.Value);
+    //    }
+    //}
 }
 
 <style sm-target-zone="stylesheets" data-origin="SystemInfo">
@@ -137,16 +137,6 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="HttpHost" />
-        </div>
-        <div class="adminData">
-            <div class="form-control-plaintext">
-                @Model.HttpHost
-            </div>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
             <smart-label asp-for="DataProviderFriendlyName" />
         </div>
         <div class="adminData">
@@ -180,7 +170,7 @@
             </div>
         </div>
     </div>
-    <div sm-if="cacheStats != null" class="adminRow">
+    @*<div sm-if="cacheStats != null" class="adminRow">
         <div class="adminTitle">
             @Html.SmartLabel("", "Cache size")
         </div>
@@ -224,7 +214,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>*@
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="LoadedAssemblies" />

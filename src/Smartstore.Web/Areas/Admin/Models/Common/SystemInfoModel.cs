@@ -29,9 +29,6 @@ namespace Smartstore.Admin.Models.Common
         [LocalizedDisplay("*UTCTime")]
         public DateTime UtcTime { get; set; }
 
-        [LocalizedDisplay("*HTTPHOST")]
-        public string HttpHost { get; set; }
-
         [LocalizedDisplay("*LoadedAssemblies")]
         public List<LoadedAssembly> LoadedAssemblies { get; set; } = new();
 
@@ -48,9 +45,10 @@ namespace Smartstore.Admin.Models.Common
 
         public bool ShrinkDatabaseEnabled { get; set; }
 
-        public IDictionary<string, long> MemoryCacheStats { get; set; }
+        [Obsolete("Too fragile in .NET Core")]
+        public Dictionary<string, long> MemoryCacheStats { get; set; } = new Dictionary<string, long>();
 
-        public class LoadedAssembly : ModelBase
+        public class LoadedAssembly
         {
             public string FullName { get; set; }
             public string Location { get; set; }

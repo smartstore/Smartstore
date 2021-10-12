@@ -5,13 +5,15 @@ using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json;
 using Smartstore.ComponentModel;
+using Smartstore.Domain;
 using Smartstore.Engine;
 using Smartstore.IO;
 
@@ -19,6 +21,10 @@ namespace Smartstore.Utilities
 {
     public static partial class CommonHelper
     {
+        private static readonly int _pointerSize = Environment.Is64BitOperatingSystem
+            ? sizeof(long)
+            : sizeof(int);
+
         #region Deployment
 
         private static bool? _isDevEnvironment;
@@ -328,41 +334,81 @@ namespace Smartstore.Utilities
             return true;
         }
 
+        /// <summary>
+        /// Calculate the optimistic size af any managed object.
+        /// Get the minimal memory footprint of given <paramref name="obj" />.
+        /// Counted are all fields, including auto-generated, private and protected.
+        /// Not counted: any static fields, any properties, functions, member methods.
+        /// </summary>
         public static long GetObjectSizeInBytes(object obj, HashSet<object> instanceLookup = null)
         {
             if (obj == null)
-                return 0;
+            {
+                return sizeof(int);
+            }   
 
             var type = obj.GetType();
             long size = 0;
 
-            if (obj is string str)
+            if (type.IsPrimitive)
             {
-                size = Encoding.Default.GetByteCount(str);
+                switch (Type.GetTypeCode(type))
+                {
+                    case TypeCode.Boolean:
+                    case TypeCode.Byte:
+                    case TypeCode.SByte:
+                        return sizeof(byte);
+                    case TypeCode.Char:
+                        return sizeof(char);
+                    case TypeCode.Single:
+                        return sizeof(float);
+                    case TypeCode.Double:
+                        return sizeof(double);
+                    case TypeCode.Int16:
+                    case TypeCode.UInt16:
+                        return sizeof(short);
+                    case TypeCode.Int32:
+                    case TypeCode.UInt32:
+                        return sizeof(int);
+                    case TypeCode.Int64:
+                    case TypeCode.UInt64:
+                    default:
+                        return sizeof(long);
+                }
+            }
+            else if (obj is decimal)
+            {
+                return sizeof(decimal);
+            }
+            else if (obj is string str)
+            {
+                return sizeof(char) * (str.Length + 1);
             }
             else if (obj is StringBuilder sb)
             {
-                size = Encoding.Default.GetByteCount(sb.ToString());
+                return _pointerSize + (sizeof(char) * (sb.Length + 1));
             }
             else if (type.IsEnum)
             {
-                size = System.Runtime.InteropServices.Marshal.SizeOf(Enum.GetUnderlyingType(type));
-            }
-            else if (type.IsPredefinedSimpleType() || type.IsPredefinedGenericType())
-            {
-                //size = System.Runtime.InteropServices.Marshal.SizeOf(Nullable.GetUnderlyingType(type) ?? type); // crashes often
-                size = 8; // mean/average
+                return sizeof(int);
             }
             else if (obj is Stream stream)
             {
-                size = stream.Length;
+                return _pointerSize + stream.Length;
             }
             else if (obj is IDictionary dic)
             {
-                foreach (var item in dic.Values)
+                foreach (var key in dic.Keys)
                 {
-                    size += GetObjectSizeInBytes(item, instanceLookup);
+                    size += GetObjectSizeInBytes(key, instanceLookup);
                 }
+
+                foreach (var value in dic.Values)
+                {
+                    size += GetObjectSizeInBytes(value, instanceLookup);
+                }
+
+                return _pointerSize + size;
             }
             else if (obj is IEnumerable e)
             {
@@ -370,34 +416,84 @@ namespace Smartstore.Utilities
                 {
                     size += GetObjectSizeInBytes(item, instanceLookup);
                 }
+
+                return _pointerSize + size;
             }
-            else
+            else if (type.IsValueType)
+            {
+                if (obj is DateTime || obj is DateTimeOffset)
+                {
+                    return 8;
+                }
+                else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                {
+                    var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+                    foreach (var prop in properties)
+                    {
+                        size += GetObjectSizeInBytes(prop.GetValue(obj), instanceLookup);
+                    }
+
+                    return size;
+                }
+                else
+                {
+                    try
+                    {
+                        unsafe
+                        {
+                            return Marshal.SizeOf(obj);
+                        }
+                    }
+                    catch
+                    {
+                        return 0;
+                    }
+                }
+            }
+            else if (obj is Pointer)
+            {
+                return _pointerSize;
+            }
+            else if (type.IsClass)
+            {
+                if (ObjectAnalyzed(obj, type))
+                {
+                    return _pointerSize;
+                }
+                
+                if (typeof(BaseEntity).IsAssignableFrom(type) || type.IsNotPublic)
+                {
+                    return _pointerSize;
+                }
+
+                size += _pointerSize;
+                var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+                foreach (var field in fields)
+                {
+                    size += GetObjectSizeInBytes(field.GetValue(obj), instanceLookup);
+                }
+
+                return size;
+            }
+
+            return 0;
+
+            bool ObjectAnalyzed(object o, Type t)
             {
                 if (instanceLookup == null)
                 {
                     instanceLookup = new HashSet<object>(ReferenceEqualityComparer.Instance);
                 }
 
-                if (!type.IsValueType && instanceLookup.Contains(obj))
+                if (instanceLookup.Contains(o))
                 {
-                    return 0;
+                    return true;
                 }
 
-                instanceLookup.Add(obj);
-
-                // Serialization failed or is not supported: make JSON.
-                var json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings
-                {
-                    ContractResolver = SmartContractResolver.Instance,
-                    DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                    DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-                    MaxDepth = 10,
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
-                size = Encoding.Default.GetByteCount(json);
+                instanceLookup.Add(o);
+                return false;
             }
-
-            return size;
         }
 
         #endregion

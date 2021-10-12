@@ -126,7 +126,7 @@ namespace Smartstore.Caching
 
         public virtual async Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null)
         {
-            var result = await _cache.GetOrCreate(key, async (x) =>
+            var result = await _cache.GetOrCreateAsync(key, async (x) =>
             {
                 _keys.Add(key);
 

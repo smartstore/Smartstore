@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using Smartstore.Admin.Models.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
@@ -31,15 +32,10 @@ namespace Smartstore.Admin.Controllers
             _memCache = memCache;
         }
 
-        public async Task<IActionResult> LanguageSelected(int customerlanguage)
+        public IActionResult Index()
         {
-            var language = await _db.Languages.FindByIdAsync(customerlanguage, false);
-            if (language != null && language.Published)
-            {
-                Services.WorkContext.WorkingLanguage = language;
-            }
-
-            return Content(T("Admin.Common.DataEditSuccess"));
+            // TODO
+            return new EmptyResult();
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
@@ -101,14 +97,13 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> SystemInfo()
         {
             var runtimeInfo = Services.ApplicationContext.RuntimeInfo;
-            var dataProvider = Services.DbContext.DataProvider;
+            var dataProvider = _db.DataProvider;
 
             var model = new SystemInfoModel
             {
                 AppVersion = SmartstoreVersion.CurrentFullVersion,
                 ServerLocalTime = DateTime.Now,
                 UtcTime = DateTime.UtcNow,
-                HttpHost = Request.Host.ToString(),
                 ServerTimeZone = TimeZoneInfo.Local.StandardName,
                 AspNetInfo = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
                 OperatingSystem = $"{runtimeInfo.OSDescription} ({runtimeInfo.ProcessArchitecture.ToString().ToLower()})"
@@ -171,8 +166,8 @@ namespace Smartstore.Admin.Controllers
                 model.LoadedAssemblies.Add(loadedAssembly);
             }
 
-            // MemCache stats
-            model.MemoryCacheStats = GetMemoryCacheStats();
+            //// MemCache stats
+            //model.MemoryCacheStats = GetMemoryCacheStats();
 
             return View(model);
         }
@@ -184,9 +179,9 @@ namespace Smartstore.Admin.Controllers
         /// </summary>
         private IDictionary<string, long> GetMemoryCacheStats()
         {
+            var cache = Services.CacheFactory.GetMemoryCache();
             var stats = new Dictionary<string, long>();
-            return stats;
-            var instanceLookups = new HashSet<object>(ReferenceEqualityComparer.Instance);
+            var instanceLookups = new HashSet<object>(ReferenceEqualityComparer.Instance) { cache, _memCache };
 
             // IMemoryCache
             var memCacheKeys = _memCache.EnumerateKeys().ToArray();
@@ -197,7 +192,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (key is string str)
                 {
-                    stats.Add("MemoryCache:" + str.Replace(':', '_'), size + Encoding.Default.GetByteCount(str));
+                    stats.Add("MemoryCache:" + str.Replace(':', '_'), size + (sizeof(char) + (str.Length + 1)));
                 }
                 else
                 {
@@ -206,14 +201,13 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Smartstore CacheManager
-            var cache = Services.CacheFactory.GetMemoryCache();
             var cacheKeys = cache.Keys("*").ToArray();
             foreach (var key in cacheKeys)
             {
                 var value = cache.Get<object>(key);
                 var size = GetObjectSize(value);
 
-                stats.Add(key, size + Encoding.Default.GetByteCount(key));
+                stats.Add(key, size + (sizeof(char) + (key.Length + 1)));
             }
 
             return stats;
