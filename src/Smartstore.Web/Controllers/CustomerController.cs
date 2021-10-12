@@ -286,6 +286,7 @@ namespace Smartstore.Web.Controllers
                     }
 
                     var num = await _db.SaveChangesAsync();
+                    // TODO: (mg) (core) Test relic?
                     num.ToString().Dump();
 
                     await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, Request.Form));

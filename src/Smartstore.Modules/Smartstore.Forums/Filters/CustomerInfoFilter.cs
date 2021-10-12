@@ -29,6 +29,7 @@ namespace Smartstore.Forums.Filters
             // Forum signature.
             if (_forumSettings.ForumsEnabled && _forumSettings.SignaturesEnabled && filterContext.Result.IsHtmlViewResult())
             {
+                // TODO: (mg) (core) (perf) Let the view component do the model preparation.
                 var customer = _workContext.CurrentCustomer;
                 var model = new ForumCustomerInfoModel
                 {

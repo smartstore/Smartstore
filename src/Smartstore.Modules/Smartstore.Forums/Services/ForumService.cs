@@ -25,6 +25,10 @@ namespace Smartstore.Forums.Services
 {
     public partial class ForumService : AsyncDbSaveHook<Forum>, IForumService, IXmlSitemapPublisher
     {
+        public const string ForumPostCountKey = "ForumPostCount";
+        public const string NotifiedAboutNewPrivateMessagesKey = "NotifiedAboutNewPrivateMessages";
+        public const string SignatureKey = "Signature";
+
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly IGenericAttributeService _genericAttributeService;
@@ -46,10 +50,6 @@ namespace Smartstore.Forums.Services
             _urlHelper = urlHelper;
             _forumSettings = forumSettings;
         }
-
-        public static string ForumPostCountKey => "ForumPostCount";
-        public static string NotifiedAboutNewPrivateMessagesKey => "NotifiedAboutNewPrivateMessages";
-        public static string SignatureKey => "Signature";
 
         #region Hook
 

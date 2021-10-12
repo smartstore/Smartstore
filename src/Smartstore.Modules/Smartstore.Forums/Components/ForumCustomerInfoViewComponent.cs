@@ -9,7 +9,6 @@ namespace Smartstore.Forums.Components
         public IViewComponentResult Invoke(ForumCustomerInfoModel model)
         {
             ViewData.TemplateInfo.HtmlFieldPrefix = "CustomProperties[ForumCustomerInfo]";
-
             return View(model);
         }
     }
