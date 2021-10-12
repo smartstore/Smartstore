@@ -4,6 +4,13 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Polls.Models.Public
 {
+    public partial class PublicPollListModel : EntityModelBase
+    {
+        public List<PublicPollModel> Polls { get; set; } = new();
+
+        public List<PublicPollModel> ClonedPolls { get; set; } = new();
+    }
+
     public partial class PublicPollModel : EntityModelBase, ICloneable
     {
         public string Name { get; set; }

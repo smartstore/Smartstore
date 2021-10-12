@@ -22,12 +22,11 @@ namespace Smartstore.Polls.Hooks
         /// Key for polls by system name
         /// </summary>
         /// <remarks>
-        /// {0} : poll id
-        /// {1} : poll system name
-        /// {2} : language ID
-        /// {3} : current store ID
+        /// {0} : poll system name
+        /// {1} : language ID
+        /// {2} : current store ID
         /// </remarks>
-        public const string POLL_BY_SYSTEMNAME_MODEL_KEY = "pres:poll:systemname-{0}-{1}-{2}-{3}";
+        public const string POLL_BY_SYSTEMNAME_MODEL_KEY = "pres:poll:systemname-{0}-{1}-{2}";
         public const string POLLS_PATTERN_KEY = "pres:poll:*";
 
         private readonly ICacheManager _cache;
