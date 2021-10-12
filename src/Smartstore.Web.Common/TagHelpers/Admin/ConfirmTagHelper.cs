@@ -18,6 +18,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string ButtonIdAttributeName = "button-id";
         const string ActionAttributeName = "action";
+        const string FormPostUrlName = "form-post-url";
         const string ControllerAttributeName = "controller";
         const string ConfirmTypeAttributeName = "type";
         const string BackdropAttributeName = "backdrop";
@@ -48,16 +49,23 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string ButtonId { get; set; }
 
         /// <summary>
-        /// Specifies the action to execute after accepted confirmation.
+        /// Specifies the action to execute after accepted confirmation. Default = Delete.
         /// </summary>
         [HtmlAttributeName(ActionAttributeName)]
         public string Action { get; set; }
 
         /// <summary>
-        /// Specifies the controller to search for the action to execute after accepted confirmation.
+        /// Specifies the controller to search for the action to execute after accepted confirmation. Default = ViewContext.RouteData.Values.GetControllerName()
         /// </summary>
         [HtmlAttributeName(ControllerAttributeName)]
         public string Controller { get; set; }
+
+        /// <summary>
+        /// Specifies the form post url to execute after accepted confirmation. 
+        /// Use this method if you must transmit parameters to the action else use the action & controller attributes.
+        /// </summary>
+        [HtmlAttributeName(FormPostUrlName)]
+        public string FormPostUrl { get; set; }
 
         /// <summary>
         /// Specifies the <see cref="ConfirmActionType"/>. Default = Delete.
@@ -141,7 +149,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var model = new ConfirmModel
             {
                 ButtonId = ButtonId,
-                FormPostUrl = _urlHelper.Action(Action, Controller),
+                FormPostUrl = FormPostUrl ?? _urlHelper.Action(Action, Controller),
                 ConfirmType = ConfirmType,
 
                 // Labels
