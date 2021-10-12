@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Newtonsoft.Json;
 using Smartstore.Threading;
 
@@ -42,7 +43,8 @@ namespace Smartstore.Web.Modelling
         /// <summary>
         /// Use this property to store any custom value for your models. 
         /// </summary>
-		public CustomPropertiesDictionary CustomProperties { get; set; } = new();
+        [ValidateNever]
+        public CustomPropertiesDictionary CustomProperties { get; set; } = new();
 
         /// <summary>
         /// A data bag for custom model properties which only
