@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using Smartstore.Forums.Domain;
+﻿using Smartstore.Forums.Domain;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Forums.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Forums.")]
-    public class ForumSettingsModel : ModelBase, ISeoModel
+    public class ForumSettingsModel : ModelBase
     {
         [LocalizedDisplay("*ForumsEnabled")]
         public bool ForumsEnabled { get; set; }
@@ -76,16 +75,6 @@ namespace Smartstore.Forums.Models
         [LocalizedDisplay("*ForumFeedCount")]
         public int ForumFeedCount { get; set; }
 
-        /// <inheritdoc/>
-        public string MetaTitle { get; set; }
-
-        /// <inheritdoc/>
-        public string MetaDescription { get; set; }
-
-        /// <inheritdoc/>
-        public string MetaKeywords { get; set; }
-
-        /// <inheritdoc/>
-        public List<SeoModelLocal> Locales { get; set; } = new();
+        public SeoModel SeoModel { get; set; } = new();
     }
 }

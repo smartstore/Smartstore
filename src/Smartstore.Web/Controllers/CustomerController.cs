@@ -26,6 +26,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
 using Smartstore.Web.Infrastructure.Hooks;
+using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
 
@@ -284,8 +285,11 @@ namespace Smartstore.Web.Controllers
                         customer.TimeZoneId = model.TimeZoneId;
                     }
 
-                    await _db.SaveChangesAsync();
-                    
+                    var num = await _db.SaveChangesAsync();
+                    num.ToString().Dump();
+
+                    await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, Request.Form));
+
                     return RedirectToAction("Info");
                 }
             }
@@ -941,6 +945,7 @@ namespace Smartstore.Web.Controllers
             Guard.NotNull(model, nameof(model));
             Guard.NotNull(customer, nameof(customer));
 
+            model.Id = customer.Id;
             model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
 
             var availableTimeZones = new List<SelectListItem>();

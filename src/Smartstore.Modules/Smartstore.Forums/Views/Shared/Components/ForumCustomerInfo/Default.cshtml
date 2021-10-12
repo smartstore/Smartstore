@@ -1,0 +1,14 @@
+﻿@model ForumCustomerInfoModel
+
+@* VERY IMPORTANT for proper model binding *@
+<input type="hidden" name="CustomProperties[ForumCustomerInfo].__Type__" value="@Model.GetType().AssemblyQualifiedName" />
+
+<fieldset class="content-group">
+    <legend><span>@T("Forum.Forums")</span></legend>
+    <div class="form-group row">
+        <label asp-for="Signature" class="col-lg-3 col-form-label"></label>
+        <div class="col-lg-9">
+            <textarea asp-for="Signature" rows="3"></textarea>
+        </div>
+    </div>
+</fieldset>

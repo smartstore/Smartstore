@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Web.Modelling
+﻿using System.Collections.Generic;
+
+namespace Smartstore.Web.Modelling
 {
     public interface ISeoModel : ILocalizedModel<SeoModelLocal>
     {
@@ -10,6 +12,17 @@
 
         [LocalizedDisplay("Admin.Configuration.Seo.MetaKeywords")]
         string MetaKeywords { get; }
+    }
+
+    public class SeoModel : ISeoModel
+    {
+        public string MetaTitle { get; set; }
+
+        public string MetaDescription { get; set; }
+
+        public string MetaKeywords { get; set; }
+
+        public List<SeoModelLocal> Locales { get; set; } = new();
     }
 
     public class SeoModelLocal : ILocalizedLocaleModel

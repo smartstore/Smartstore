@@ -8,7 +8,7 @@ using Smartstore.Web.Modelling.Validation;
 namespace Smartstore.Web.Models.Customers
 {
     [LocalizedDisplay("Account.Fields.")]
-    public partial class CustomerInfoModel : ModelBase
+    public partial class CustomerInfoModel : TabbableModel
     {
         [LocalizedDisplay("*Email")]
         [DataType(DataType.EmailAddress)]

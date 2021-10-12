@@ -55,8 +55,7 @@ namespace Smartstore.Forums.Controllers
             var store = Services.StoreContext.CurrentStore;
 
             var query = _db.PrivateMessages()
-                .Include(x => x.FromCustomer)
-                .Include(x => x.ToCustomer)
+                .IncludeCustomers()
                 .AsNoTracking();
 
             var inboxMessages = await query
@@ -187,7 +186,7 @@ namespace Smartstore.Forums.Controllers
                 return Unauthorized();
             }
 
-            var customerTo = await _db.Customers.FindByIdAsync(id, false);
+            var customerTo = await _db.Customers.IncludeCustomerRoles().FindByIdAsync(id, false);
             if (customerTo == null || customerTo.IsGuest())
             {
                 return RedirectToAction(nameof(Index));
@@ -237,7 +236,10 @@ namespace Smartstore.Forums.Controllers
             }
 
             Customer toCustomer;
-            var replyToPM = await _db.PrivateMessages().FindByIdAsync(model.ReplyToMessageId, false);
+            var replyToPM = await _db.PrivateMessages()
+                .IncludeCustomers()
+                .FindByIdAsync(model.ReplyToMessageId, false);
+
             if (replyToPM != null)
             {
                 if (replyToPM.ToCustomerId == currentCustomer.Id || replyToPM.FromCustomerId == currentCustomer.Id)
@@ -251,7 +253,9 @@ namespace Smartstore.Forums.Controllers
             }
             else
             {
-                toCustomer = await _db.Customers.FindByIdAsync(model.ToCustomerId, false);
+                toCustomer = await _db.Customers
+                    .IncludeCustomerRoles()
+                    .FindByIdAsync(model.ToCustomerId, false);
             }
 
             if (toCustomer == null || toCustomer.IsGuest())
@@ -320,7 +324,10 @@ namespace Smartstore.Forums.Controllers
                 return Unauthorized();
             }
 
-            var pm = await _db.PrivateMessages().FindByIdAsync(id);
+            var pm = await _db.PrivateMessages()
+                .IncludeCustomers()
+                .FindByIdAsync(id);
+
             if (pm != null)
             {
                 if (pm.ToCustomerId != currentCustomer.Id && pm.FromCustomerId != currentCustomer.Id)
@@ -360,23 +367,19 @@ namespace Smartstore.Forums.Controllers
             var pm = await _db.PrivateMessages().FindByIdAsync(id);
             if (pm != null)
             {
-                if ((pm.FromCustomerId == currentCustomer.Id && pm.IsDeletedByRecipient) ||
-                    (pm.ToCustomerId == currentCustomer.Id && pm.IsDeletedByAuthor))
+                if (pm.FromCustomerId == currentCustomer.Id)
                 {
-                    // Marked as deleted by author and by recipient -> physically delete message.
-                    _db.PrivateMessages().Remove(pm);
+                    pm.IsDeletedByAuthor = true;
                 }
-                else
-                {
-                    if (pm.FromCustomerId == currentCustomer.Id)
-                    {
-                        pm.IsDeletedByAuthor = true;
-                    }
 
-                    if (pm.ToCustomerId == currentCustomer.Id)
-                    {
-                        pm.IsDeletedByRecipient = true;
-                    }
+                if (pm.ToCustomerId == currentCustomer.Id)
+                {
+                    pm.IsDeletedByRecipient = true;
+                }
+
+                if (pm.IsDeletedByAuthor && pm.IsDeletedByRecipient)
+                {
+                    _db.PrivateMessages().Remove(pm);
                 }
 
                 await _db.SaveChangesAsync();

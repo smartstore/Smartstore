@@ -49,6 +49,7 @@ namespace Smartstore.Forums.Services
 
         public static string ForumPostCountKey => "ForumPostCount";
         public static string NotifiedAboutNewPrivateMessagesKey => "NotifiedAboutNewPrivateMessages";
+        public static string SignatureKey => "Signature";
 
         #region Hook
 

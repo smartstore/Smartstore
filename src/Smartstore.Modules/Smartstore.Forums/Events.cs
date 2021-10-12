@@ -22,6 +22,7 @@ using Smartstore.Data.Batching;
 using Smartstore.Events;
 using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models;
+using Smartstore.Forums.Models.Public;
 using Smartstore.Forums.Search.Modelling;
 using Smartstore.Forums.Services;
 using Smartstore.Templating;
@@ -129,75 +130,84 @@ namespace Smartstore.Forums
             StoreDependingSettingHelper settingHelper,
             Lazy<IForumSearchQueryAliasMapper> forumSearchQueryAliasMapper)
         {
-            var model = message.BoundModel.CustomProperties.ContainsKey("ForumSearchSettings")
-                ? message.BoundModel.CustomProperties["ForumSearchSettings"] as ForumSearchSettingsModel
-                : null;
+            var cp = message.BoundModel.CustomProperties;
 
-            if (model == null || !await services.Permissions.AuthorizeAsync(ForumPermissions.Read))
+            if (cp.ContainsKey("ForumSearchSettings"))
             {
-                return;
-            }
-
-            var storeId = services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
-            var storeScope = services.StoreContext.GetStoreById(storeId)?.Id ?? 0;    
-            var settingsProperties = FastProperty.GetProperties(typeof(ForumSearchSettings)).Values;
-            var settings = await services.SettingFactory.LoadSettingsAsync<ForumSearchSettings>(storeScope);
-
-            MiniMapper.Map(model, settings);
-            settings.ForumDisabled = model.ForumFacet.Disabled;
-            settings.ForumDisplayOrder = model.ForumFacet.DisplayOrder;
-            settings.CustomerDisabled = model.CustomerFacet.Disabled;
-            settings.CustomerDisplayOrder = model.CustomerFacet.DisplayOrder;
-            settings.DateDisabled = model.DateFacet.Disabled;
-            settings.DateDisplayOrder = model.DateFacet.DisplayOrder;
-
-            foreach (var prop in settingsProperties)
-            {
-                await settingHelper.ApplySettingAsync(
-                    $"CustomProperties[ForumSearchSettings].{prop.Name}",
-                    prop.Name,
-                    settings,
-                    message.Form,
-                    storeScope);
-            }
-
-            // Poor validation because ModelBoundEvent comes too late for ModelState.
-            if (settings.InstantSearchEnabled)
-            {
-                if (settings.InstantSearchNumberOfHits < 1)
+                if (cp["ForumSearchSettings"] is not ForumSearchSettingsModel model || !await services.Permissions.AuthorizeAsync(ForumPermissions.Read))
                 {
-                    settings.InstantSearchNumberOfHits = 1;
+                    return;
                 }
-                else if (settings.InstantSearchNumberOfHits > 16)
+
+                var storeId = services.WorkContext.CurrentCustomer.GenericAttributes.AdminAreaStoreScopeConfiguration;
+                var storeScope = services.StoreContext.GetStoreById(storeId)?.Id ?? 0;
+                var settingsProperties = FastProperty.GetProperties(typeof(ForumSearchSettings)).Values;
+                var settings = await services.SettingFactory.LoadSettingsAsync<ForumSearchSettings>(storeScope);
+
+                MiniMapper.Map(model, settings);
+                settings.ForumDisabled = model.ForumFacet.Disabled;
+                settings.ForumDisplayOrder = model.ForumFacet.DisplayOrder;
+                settings.CustomerDisabled = model.CustomerFacet.Disabled;
+                settings.CustomerDisplayOrder = model.CustomerFacet.DisplayOrder;
+                settings.DateDisabled = model.DateFacet.Disabled;
+                settings.DateDisplayOrder = model.DateFacet.DisplayOrder;
+
+                foreach (var prop in settingsProperties)
                 {
-                    settings.InstantSearchNumberOfHits = 16;
+                    await settingHelper.ApplySettingAsync(
+                        $"CustomProperties[ForumSearchSettings].{prop.Name}",
+                        prop.Name,
+                        settings,
+                        message.Form,
+                        storeScope);
+                }
+
+                // Poor validation because ModelBoundEvent comes too late for ModelState.
+                if (settings.InstantSearchEnabled)
+                {
+                    if (settings.InstantSearchNumberOfHits < 1)
+                    {
+                        settings.InstantSearchNumberOfHits = 1;
+                    }
+                    else if (settings.InstantSearchNumberOfHits > 16)
+                    {
+                        settings.InstantSearchNumberOfHits = 16;
+                    }
+                }
+
+                // We need to save here for subsequent ApplySettingAsync to work correctly.
+                await services.DbContext.SaveChangesAsync();
+
+                await services.Settings.ApplySettingAsync(settings, x => x.SearchFields);
+
+                if (storeScope != 0)
+                {
+                    foreach (var prefix in new[] { "Forum", "Customer", "Date" })
+                    {
+                        await settingHelper.ApplySettingAsync($"CustomProperties[ForumSearchSettings].{prefix}Facet.Disabled", prefix + "Disabled", settings, message.Form, storeScope);
+                        await settingHelper.ApplySettingAsync($"CustomProperties[ForumSearchSettings].{prefix}Facet.DisplayOrder", prefix + "DisplayOrder", settings, message.Form, storeScope);
+                    }
+                }
+
+                var num = 0;
+                num += await ApplyLocalizedFacetSettings(model.ForumFacet, FacetGroupKind.Forum, storeScope, services);
+                num += await ApplyLocalizedFacetSettings(model.CustomerFacet, FacetGroupKind.Customer, storeScope, services);
+                num += await ApplyLocalizedFacetSettings(model.DateFacet, FacetGroupKind.Date, storeScope, services);
+
+                await services.DbContext.SaveChangesAsync();
+
+                if (num > 0)
+                {
+                    await forumSearchQueryAliasMapper.Value.ClearCommonFacetCacheAsync();
                 }
             }
-
-            // We need to save here for subsequent ApplySettingAsync to work correctly.
-            await services.DbContext.SaveChangesAsync();
-
-            await services.Settings.ApplySettingAsync(settings, x => x.SearchFields);
-
-            if (storeScope != 0)
+            else if (cp.ContainsKey("ForumCustomerInfo"))
             {
-                foreach (var prefix in new[] { "Forum", "Customer", "Date" })
+                if (cp["ForumCustomerInfo"] is not ForumCustomerInfoModel model)
                 {
-                    await settingHelper.ApplySettingAsync($"CustomProperties[ForumSearchSettings].{prefix}Facet.Disabled", prefix + "Disabled", settings, message.Form, storeScope);
-                    await settingHelper.ApplySettingAsync($"CustomProperties[ForumSearchSettings].{prefix}Facet.DisplayOrder", prefix + "DisplayOrder", settings, message.Form, storeScope);
+                    return;
                 }
-            }
 
-            var num = 0;
-            num += await ApplyLocalizedFacetSettings(model.ForumFacet, FacetGroupKind.Forum, storeScope, services);
-            num += await ApplyLocalizedFacetSettings(model.CustomerFacet, FacetGroupKind.Customer, storeScope, services);
-            num += await ApplyLocalizedFacetSettings(model.DateFacet, FacetGroupKind.Date, storeScope, services);
-
-            await services.DbContext.SaveChangesAsync();
-
-            if (num > 0)
-            {
-                await forumSearchQueryAliasMapper.Value.ClearCommonFacetCacheAsync();
             }
         }
 

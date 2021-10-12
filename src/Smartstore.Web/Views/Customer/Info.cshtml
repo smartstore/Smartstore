@@ -14,6 +14,8 @@
 
     <div asp-validation-summary="ModelOnly"></div>
 
+    <zone name="customer_info_top"></zone>
+
     <fieldset class="content-group">
         <legend><span>@T("Account.YourPersonalDetails")</span></legend>
 
@@ -48,7 +50,7 @@
         <div class="form-group row">
             <label asp-for="LastName" class="col-lg-3 col-form-label required"></label>
             <div class="col-lg-9">
-                <input asp-for="LastName" sm-required="true"/>
+                <input asp-for="LastName" sm-required="true" />
                 <span asp-validation-for="LastName"></span>
             </div>
         </div>
@@ -265,6 +267,8 @@
             </div>
         </div>
     </fieldset>
+
+    <zone name="customer_info_bottom"></zone>
 
     <div class="form-group row">
         <div class="col-12 text-muted">

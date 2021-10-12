@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Web.Modelling;
 
 namespace Smartstore.News.Models
 {
@@ -31,18 +30,5 @@ namespace Smartstore.News.Models
         public bool ShowHeaderRssUrl { get; set; }
 
         public SeoModel SeoModel { get; set; } = new();
-    }
-
-    // INFO: Had to do it this way to call <editor asp-for="SeoModel" asp-template="SeoModel" />
-    // TODO: (mh) (core) If this really is the way to do it better place this class once globally.
-    public class SeoModel : ISeoModel
-    {
-        public string MetaTitle { get; set; }
-
-        public string MetaDescription { get; set; }
-
-        public string MetaKeywords { get; set; }
-
-        public List<SeoModelLocal> Locales { get; set; } = new();
     }
 }

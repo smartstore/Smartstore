@@ -200,6 +200,7 @@ namespace Smartstore.Forums.Search
                     var take = maxChoices * 3;
 
                     var forumPostQuery = _db.ForumPosts()
+                        .IncludeCustomer()
                         .AsNoTracking()
                         .ApplyStoreFilter(storeId);
 

@@ -258,12 +258,7 @@
             </div>
         </tab>
         <tab sm-title="@T("Admin.Configuration.SeoTab.Title")">
-            <div class="adminContent">
-                <div>
-                    @*// TODO: (mg) (core) ISeoModel usage in forum.*@
-                    @*<editor asp-for="this" asp-template="SeoModel"></editor>*@
-                </div>
-            </div>
+            <editor asp-for="SeoModel" asp-template="SeoModel" />
         </tab>
     </tabstrip>
 </form>

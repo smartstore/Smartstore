@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
@@ -443,9 +444,15 @@ namespace Smartstore.Forums.Controllers
         [LoadSetting]
         public IActionResult ForumSettings(ForumSettings settings, int storeScope)
         {
+            // TODO: (mg) (core) multistore settings doesn't work anymore (no override checkbox checked).
+            // Maybe HtmlFieldPrefix needs to be set earlier so that StoreDependingSettingHelper can create override key names.
             var model = MiniMapper.Map<ForumSettings, ForumSettingsModel>(settings);
 
-            AddLocales(model.Locales, (locale, languageId) =>
+            model.SeoModel.MetaTitle = settings.MetaTitle;
+            model.SeoModel.MetaDescription = settings.MetaDescription;
+            model.SeoModel.MetaKeywords = settings.MetaKeywords;
+
+            AddLocales(model.SeoModel.Locales, (locale, languageId) =>
             {
                 locale.MetaTitle = settings.GetLocalizedSetting(x => x.MetaTitle, languageId, storeScope, false, false);
                 locale.MetaDescription = settings.GetLocalizedSetting(x => x.MetaDescription, languageId, storeScope, false, false);
@@ -467,7 +474,11 @@ namespace Smartstore.Forums.Controllers
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
-            foreach (var localized in model.Locales)
+            settings.MetaTitle = model.SeoModel.MetaTitle;
+            settings.MetaDescription = model.SeoModel.MetaDescription;
+            settings.MetaKeywords = model.SeoModel.MetaKeywords;
+
+            foreach (var localized in model.SeoModel.Locales)
             {
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId, storeScope);
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId, storeScope);
@@ -587,7 +598,10 @@ namespace Smartstore.Forums.Controllers
                 throw new SmartException(T("PrivateMessages.Disabled"));
             }
 
-            var toCustomer = await _db.Customers.FindByIdAsync(model.ToCustomerId, false);
+            var toCustomer = await _db.Customers
+                .IncludeCustomerRoles()
+                .FindByIdAsync(model.ToCustomerId, false);
+
             if (toCustomer == null)
             {
                 return NotFound();
