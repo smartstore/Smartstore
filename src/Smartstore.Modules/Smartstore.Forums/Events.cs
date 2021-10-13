@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
@@ -105,13 +106,37 @@ namespace Smartstore.Forums
             }
         }
 
-        // Add tab for ForumSearchSettings to search settings page.
+        // Add tabs.
+        // Frontend: latest forum posts to customer profile page.
+        // Backend: ForumSearchSettings to search settings page.
         public async Task HandleEventAsync(TabStripCreated message, 
-            IPermissionService permissions)
+            IPermissionService permissions,
+            IHttpContextAccessor httpContextAccessor,
+            ForumSettings forumSettings)
         {
-            // Render tab with forum search settings.
-            if (message.TabStripName.EqualsNoCase("searchsettings-edit"))
+            if (message.TabStripName.EqualsNoCase("profile-tabs"))
             {
+                // Render tab with latest forum posts of a customer.
+                if (forumSettings.ForumsEnabled && message.Model is EntityModelBase model)
+                {
+                    var page = 1;
+                    var query = httpContextAccessor.HttpContext?.Request?.Query;
+                    if (query?.ContainsKey("latestPostPage") ?? false)
+                    {
+                        page = query["latestPostPage"].FirstOrDefault()?.ToInt() ?? 1;
+                    }
+
+                    await message.TabFactory.AddAsync(builder => builder
+                        .Text(T("Profile.LatestPosts"))
+                        .Name("tab-latest-forum-posts")
+                        .LinkHtmlAttributes(new { data_tab_name = "LatestForumPosts" })
+                        .Action("LatestForumPosts", "Boards", new { id = model.Id, page })
+                        .Ajax());
+                }
+            }
+            else if (message.TabStripName.EqualsNoCase("searchsettings-edit"))
+            {
+                // Render tab with forum search settings.
                 if (await permissions.AuthorizeAsync(ForumPermissions.Read))
                 {
                     await message.TabFactory.AddAsync(builder => builder

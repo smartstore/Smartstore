@@ -16,6 +16,8 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Forums.Controllers
 {
+    // TODO: (mg) (core) review PM code (settings etc.). PMs should be able to be sent even when the forum is turned off.
+    // I am not sure if this was consistently implemented everywhere in Classic.
     public class PrivateMessagesController : PublicController
     {
         private readonly SmartDbContext _db;

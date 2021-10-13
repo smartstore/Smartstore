@@ -11,15 +11,6 @@
             <span class="profile-stat-value">@Model.Location</span>
         </div>
 
-        @*TODO: (mh) (core) Must be injected by forum module *@
-        @*@if (Model.PMEnabled)
-        {
-            <a asp-action="Send" asp-controller="PrivateMessages" asp-route-id="@Model.Id" class="btn btn btn-outline-info btn-flat button-pm mt-2" rel="nofollow">
-                <i class="fa fa-user"></i>
-                <span>@T("Forum.PrivateMessages.PM")</span>
-            </a>
-        }*@
-
         <zone name="profile_page_info_userdetails"></zone>
     </div>
 
@@ -27,15 +18,6 @@
         <div class="title h4">
             @T("Profile.Statistics")
         </div>
-
-        @*INFO: (mh) (core) New zone to inject forum stats*@
-        <zone name="profile_page_info_userstats_before"></zone>
-
-        @*TODO: (mh) (core) Must be injected by forum module *@
-        @*<div sm-if="Model.TotalPostsEnabled" class="profile-stat">
-            <span class="pr-1">@T("Profile.TotalPosts"):</span>
-            <span class="profile-stat-value">@Model.TotalPosts</span>
-        </div>*@
 
         <div sm-if="Model.JoinDateEnabled" class="profile-stat">
             <span class="pr-1">@T("Profile.JoinDate"):</span>

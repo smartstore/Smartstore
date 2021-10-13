@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
+using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -362,7 +363,7 @@ namespace Smartstore.Forums.Controllers
             return new RssActionResult(feed);
         }
 
-        #region Topic
+        #region Forum topic
 
         [LocalizedRoute("boards/topic/{id:int}/{slug?}", Name = "ForumTopicBySlug")]
         [LocalizedRoute("boards/topic/{id:int}/{slug?}/page/{page:int}", Name = "ForumTopicBySlugPaged")]
@@ -1583,7 +1584,7 @@ namespace Smartstore.Forums.Controllers
 
         #endregion
 
-        #region Subscriptions
+        #region Customer subscriptions
 
         public async Task<IActionResult> CustomerSubscriptions(int? page)
         {
@@ -1637,9 +1638,10 @@ namespace Smartstore.Forums.Controllers
             })
             .AsyncToList();
 
-            var model = new CustomerForumSubscriptionsModel(subscriptions)
+            var model = new CustomerForumSubscriptionsModel()
             {
                 ForumSubscriptions = subscriptionModels
+                    .ToPagedList(subscriptions.PageIndex, subscriptions.PageSize, subscriptions.TotalCount)
             };
 
             return View(model);
@@ -1693,6 +1695,67 @@ namespace Smartstore.Forums.Controllers
             await _db.SaveChangesAsync();
 
             return RedirectToAction(nameof(CustomerSubscriptions));
+        }
+
+        #endregion
+
+        #region Customer profile
+
+        public async Task<IActionResult> LatestForumPosts(int id /* customerId */, int? page)
+        {
+            if (!_forumSettings.ForumsEnabled)
+            {
+                return NotFound();
+            }
+
+            var customer = await _db.Customers
+                .IncludeCustomerRoles()
+                .FindByIdAsync(id, false);
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            var pageIndex = (page ?? 1) - 1;
+            var pageSize = _forumSettings.LatestCustomerPostsPageSize;
+
+            var latestPosts = await _db.ForumPosts()
+                .Include(x => x.ForumTopic)
+                .AsNoTracking()
+                .Where(x => x.CustomerId == customer.Id)
+                .ApplyStandardFilter(customer, null, false, true)
+                .ToPagedList(pageIndex, pageSize)
+                .LoadAsync();
+
+            var latestPostsModels = latestPosts
+                .Select(x =>
+                {
+                    var createdOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+
+                    var postModel = new CustomerProfilePostModel
+                    {
+                        Id = x.Id,
+                        ForumTopicId = x.TopicId,
+                        ForumTopicSubject = x.ForumTopic.Subject,
+                        ForumTopicSlug = _forumService.BuildSlug(x.ForumTopic),
+                        ForumPostText = _forumService.FormatPostText(x),
+                        PostCreatedOnStr = _forumSettings.RelativeDateTimeFormattingEnabled
+                            ? createdOn.Humanize(false)
+                            : createdOn.ToString("f")
+                    };
+
+                    return postModel;
+                })
+                .ToList();
+
+            var model = new CustomerProfilePostsModel
+            {
+                Id = id,
+                LatestPosts = latestPostsModels.ToPagedList(latestPosts.PageIndex, latestPosts.PageSize, latestPosts.TotalCount)
+            };
+
+            return PartialView(model);
         }
 
         #endregion

@@ -6,6 +6,9 @@ using Smartstore.Web.Components;
 
 namespace Smartstore.Forums.Components
 {
+    /// <summary>
+    /// Editable forum signature of a customer injected into the my-account info page.
+    /// </summary>
     public class ForumCustomerInfoViewComponent : SmartViewComponent
     {
         private readonly IWorkContext _workContext;

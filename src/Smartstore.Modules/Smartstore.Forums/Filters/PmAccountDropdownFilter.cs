@@ -6,6 +6,9 @@ using Smartstore.Forums.Components;
 
 namespace Smartstore.Forums.Filters
 {
+    /// <summary>
+    /// Frontend account menu item to get to the private message inbox page.
+    /// </summary>
     public class PmAccountDropdownFilter : IResultFilter
     {
         private readonly Lazy<IWidgetProvider> _widgetProvider;

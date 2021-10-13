@@ -7,6 +7,9 @@ using Smartstore.Core.Widgets;
 
 namespace Smartstore.Forums.Filters
 {
+    /// <summary>
+    /// Main frontend button to get to the forum.
+    /// </summary>
     public class ForumMenuItemFilter : IResultFilter
     {
         private const int MENU_ITEM_ORDER = 1001;

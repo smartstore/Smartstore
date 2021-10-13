@@ -47,6 +47,9 @@ namespace Smartstore.Forums
 
                 o.Filters.AddConditional<CustomerInfoFilter>(
                     context => context.RouteData?.Values?.IsSameRoute("Customer", "Info") ?? false);
+
+                o.Filters.AddConditional<CustomerProfileFilter>(
+                    context => context.RouteData?.Values?.IsSameRoute("Profile", "Index") ?? false);
             });
         }
 

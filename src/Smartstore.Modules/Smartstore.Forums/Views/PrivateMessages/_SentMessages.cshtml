@@ -67,8 +67,8 @@
 
 <script sm-target-zone="scripts" data-origin="pm-sent">
 	$(function () {
-        $('#select-all-sent').click(function () {
-            $('#pm-sent-list .rowcheckbox').attr('checked', $(this).is(':checked')).change();
+        $('#select-all-sent').on('click', function () {
+            $('#pm-sent-list .rowcheckbox').prop('checked', $(this).is(':checked')).trigger('change');
         });
 
         $(document).on('change', '#pm-sent-list .rowcheckbox', function () {
@@ -76,7 +76,7 @@
 			var numChkBoxesChecked = $('#pm-sent-list .rowcheckbox:checked').length;
             var buttons = $('#btn-sent-delete');
 
-			$('#select-all-sent').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+			$('#select-all-sent').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
 
             if (numChkBoxesChecked > 0) {
                 buttons.prop('disabled', false).removeClass('disabled');
