@@ -53,6 +53,11 @@ namespace Smartstore.Core.Data.Migrations
 
             // TODO: (core) Delete all Telerik language resources (???)
 
+            builder.Delete("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsMessage");
+            builder.Delete("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsValue");
+            builder.Delete("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsMessage.Hint");
+            builder.Delete("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsValue.Hint");
+
             builder.Delete("Admin.Configuration.Settings.NoneWithThatId");
             builder.Delete("Admin.Configuration.Settings.AllSettings.Description");
             

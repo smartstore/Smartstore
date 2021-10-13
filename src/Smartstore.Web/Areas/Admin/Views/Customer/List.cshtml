@@ -1,0 +1,28 @@
+﻿@model CustomerListModel
+
+@{
+    ViewBag.Title = T("Admin.Customers.Customers").Value;
+
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<form method="post" asp-action="List">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-user"></i>
+            @T("Admin.Customers.Customers")
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+</form>
+
+@{
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<partial name="Grids/_Grid.Customers" model="null" view-data="gridViewData" />

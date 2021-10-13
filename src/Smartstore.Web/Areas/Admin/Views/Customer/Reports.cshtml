@@ -1,0 +1,48 @@
+﻿@model TopCustomersReportModel
+
+@{
+    ViewBag.Title = T("Admin.Customers.Reports").Value;
+
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="far fa-chart-bar"></i>
+        @T("Admin.Customers.Reports")
+    </div>
+    <div class="options">
+    </div>
+</div>
+
+<tabstrip id="customer-reports" sm-nav-style="Material">
+    <tab sm-title="@T("Admin.Customers.Reports.BestCustomers")" sm-selected="true">
+        <partial name="Grids/_Grid.BestCustomers" model="null" view-data="gridViewData" />
+    </tab>
+    <tab sm-title="@T("Admin.Customers.Reports.RegisteredCustomers")">
+        <div class="card shadow-sm mb-4 w-50">
+            <div class="table-responsive">
+                <table class="table table-striped m-0">
+                    <thead>
+                        <tr>
+                            <th class="w-25">@T("Admin.Customers.Reports.RegisteredCustomers.Fields.Period")</th>
+                            <th class="text-center">@T("Admin.Customers.Reports.RegisteredCustomers.Fields.Customers")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.RegisteredCustomerReportLines as Dictionary<string, int>)
+                        {
+                            <tr>
+                                <td>@item.Key</td>
+                                <td class="text-center">@item.Value</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </tab>
+</tabstrip>

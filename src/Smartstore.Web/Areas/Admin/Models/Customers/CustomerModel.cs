@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Smartstore.Collections;
+using FluentValidation;
 using Smartstore.Core.Common;
 using Smartstore.Core.Security;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Admin.Models.Customers
@@ -117,9 +118,7 @@ namespace Smartstore.Admin.Models.Customers
 
         [LocalizedDisplay("*VatNumber")]
         public string VatNumber { get; set; }
-
         public string VatNumberStatusNote { get; set; }
-
         public bool DisplayVatNumber { get; set; }
 
         [LocalizedDisplay("Common.CreatedOn")]
@@ -141,28 +140,16 @@ namespace Smartstore.Admin.Models.Customers
         [AdditionalMetadata("multiple", true)]
         [LocalizedDisplay("Admin.Customers.CustomerRoles")]
         public int[] SelectedCustomerRoleIds { get; set; }
-
         public bool AllowManagingCustomerRoles { get; set; }
-
         public bool DisplayRewardPointsHistory { get; set; }
-
-        [LocalizedDisplay("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsValue")]
-        public int AddRewardPointsValue { get; set; }
-
-        [LocalizedDisplay("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsMessage")]
-        public string AddRewardPointsMessage { get; set; }
-
-        public SendEmailModel SendEmail { get; set; }
 
         [LocalizedDisplay("Admin.Customers.Customers.AssociatedExternalAuth")]
         public List<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } = new();
 
         public bool Deleted { get; set; }
         public string EditUrl { get; set; }
-
         public PermissionTree PermissionTree { get; set; }
         public List<AddressModel> Addresses { get; set; } = new();
-
 
         #region Nested classes
 
@@ -198,11 +185,11 @@ namespace Smartstore.Admin.Models.Customers
         [LocalizedDisplay("Admin.Customers.Customers.SendEmail.")]
         public class SendEmailModel : ModelBase
         {
-            [Required]
+            public int CustomerId { get; set; }
+
             [LocalizedDisplay("*Subject")]
             public string Subject { get; set; }
 
-            [Required]
             [UIHint("Textarea"), AdditionalMetadata("rows", 6)]
             [LocalizedDisplay("*Body")]
             public string Body { get; set; }
@@ -231,6 +218,7 @@ namespace Smartstore.Admin.Models.Customers
 
             [LocalizedDisplay("Common.CreatedOn")]
             public DateTime CreatedOn { get; set; }
+            public string EditUrl { get; set; }
         }
 
         [LocalizedDisplay("Admin.Customers.Customers.ActivityLog.")]
@@ -246,6 +234,14 @@ namespace Smartstore.Admin.Models.Customers
             public DateTime CreatedOn { get; set; }
         }
 
+        public class SendEmailValidator : SmartValidator<SendEmailModel>
+        {
+            public SendEmailValidator()
+            {
+                RuleFor(x => x.Subject).NotEmpty();
+                RuleFor(x => x.Body).NotEmpty();
+            }
+        }
         #endregion
     }
 }

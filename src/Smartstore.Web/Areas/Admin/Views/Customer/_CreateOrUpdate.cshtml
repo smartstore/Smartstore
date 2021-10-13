@@ -1,0 +1,185 @@
+﻿@using Smartstore.Collections
+@using Smartstore.Core.Security
+
+@model CustomerModel
+
+@{
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["CustomerId"] = Model.Id;
+}
+
+<div asp-validation-summary="All"></div>
+<input sm-if="Model.Id == 0" asp-for="Id" type="hidden" />
+
+<tabstrip id="customer-edit" sm-nav-style="Material">
+    <tab sm-title="@T("Admin.Customers.Customers.Info")" sm-selected="true">
+        <partial name="_CreateOrUpdate.Info" model="Model" />
+    </tab>
+    @if (Model.Id > 0)
+    {
+        <tab sm-title="@T("Admin.Configuration.ACL")">
+            @if (Model.PermissionTree?.Permissions?.HasChildren ?? false)
+            {
+                <div class="alert alert-info">
+                    @Html.Raw(T("Admin.Customers.PermissionViewNote", Url.Action("List", "CustomerRole")))
+                </div>
+                <p>
+                    <button id="ExpandCollapseAll" type="button" class="btn btn-sm btn-secondary">
+                        <span>@T("Common.ExpandCollapseAll")</span>
+                    </button>
+                </p>
+                <div id="permission-tree" class="tree">
+                    @{ await PermissionNode(Model.PermissionTree.Permissions); }
+                </div>
+
+                <script sm-target-zone="scripts" data-origin="customer-create-or-update-ACL">
+                    $(function () {
+                        // Init permission tree.
+                        $('#permission-tree').tree('init', {
+                            readOnly: true,
+                            stateType: 'on-off',
+                            showNumChildren: false,
+                            highlightNodes: false,
+                            leafClass: 'tree-leaf tree-leaf-left',
+                            stateTitles: [@T("Common.Allow").JsValue, @T("Common.Deny").JsValue, @T("Admin.Permissions.AllowInherited").JsValue, @T("Admin.Permissions.DenyInherited").JsValue]
+                        });
+
+                        // Expand\collapse all.
+                        $('#ExpandCollapseAll').on('click', function () {
+                            $('#permission-tree').tree('expandAll');
+                        });
+	                });
+                </script>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    @T("Admin.System.Warnings.NoPermissionsDefined")
+                </div>
+            }
+        </tab>
+        <tab sm-title="@T("Admin.Customers.Customers.Orders")">
+            <partial name="Grids/_Grid.Orders" model="null" view-data="gridViewData" />
+        </tab>
+
+        if (Model.DisplayRewardPointsHistory)
+        {
+            <tab sm-title="@T("Admin.Customers.Customers.RewardPoints")">
+                <partial name="Grids/_Grid.RewardPoints" model="null" view-data="gridViewData" />
+            </tab>
+        }
+
+        <tab sm-title="@T("Admin.Customers.Customers.Addresses")">
+            <div>
+                <a asp-action="AddressCreate" asp-route-customerId="@Model.Id" class="btn btn-primary mb-3">
+                    <i class="fa fa-plus"></i>
+                    <span>@T("Account.CustomerAddresses.AddNew")</span>
+                </a>
+            </div>
+            <div id="customer-addresses" class="row">
+                <div class="card-deck card-cols-sm-1 card-cols-lg-5 col-md-12">
+                    @foreach (var address in Model.Addresses)
+                    {
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    @Html.Raw(address.FormattedAddress)
+                                </div>
+                                <div class="email">
+                                    @T("Order.Email"): @address.Email
+                                </div>
+                                <div sm-if="address.PhoneNumber.HasValue()" class="phone">
+                                    @T("Order.Phone"): @address.PhoneNumber
+                                </div>
+                                <div sm-if="address.FaxNumber.HasValue()" class="fax">
+                                    @T("Order.Fax"): @address.FaxNumber
+                                </div>
+                            </div>
+                            <div class="d-flex pr-2 pl-2 pb-2">
+                                <a asp-action="AddressEdit" asp-controller="Customer" asp-route-customerId="@Model.Id" asp-route-addressId="@address.Id"
+                                   class="btn btn-sm btn-flat btn-icon btn-lg btn-secondary" title="@T("Common.Edit")">
+                                    <i class="far fa-edit"></i>
+                                </a>
+                                <button id="address-delete-@address.Id" type="button" class="btn btn-sm btn-flat btn-icon btn-lg btn-danger delete-address" title="@T("Common.Delete")"
+                                        data-url="@Url.Action("AddressDelete", "Customer", new { customerId = Model.Id, addressId = address.Id })">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <script sm-target-zone="scripts" data-origin="customer-create-or-update-Addresses">
+                $(function () {
+                    $('#customer-addresses').on('click', 'button.delete-address', function () {
+                        var card = $(this).closest('.card');
+                        $(this).ajax({
+                            type: 'POST',
+					        ask: @(T("Admin.Common.DeleteConfirmation").JsValue),
+                            iconType: "delete",
+                            success: function (success) {
+                                if (success) {
+                                    card.remove();
+                                }
+					        }
+				        });
+			        });
+		        });
+            </script>
+        </tab>
+        <tab sm-title="@T("Admin.Customers.Customers.CurrentCart")">
+            <h4 class="mt-3">@T("Admin.Customers.Customers.CurrentShoppingCart")</h4>
+            <div class="mt-3">
+                <partial name="Grids/_Grid.ShoppingCart" model="null" view-data="gridViewData"  />
+            </div>
+
+            <h4 class="mt-5">@T("Admin.Customers.Customers.CurrentWishlist")</h4>
+            <div class="mt-3">
+                <partial name="Grids/_Grid.Wishlist" model="null" view-data="gridViewData"  />
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Customers.Customers.Impersonate")">
+            <div class="alert alert-info alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <p>@T("Admin.Customers.Customers.Impersonate.Description1")</p>
+                <p>@T("Admin.Customers.Customers.Impersonate.Description2")</p>
+            </div>
+            <p>
+                <button type="submit" name="impersonate" value="impersonate" class="btn btn-secondary">
+                    <i class="far fa-play-circle"></i>
+                    <span>@T("Admin.Customers.Customers.Impersonate.Button")</span>
+                </button>
+            </p>
+        </tab>
+    }
+</tabstrip>
+
+@{
+    async Task PermissionNode(TreeNode<IPermissionNode> node)
+    {
+        <ul>
+            @foreach (var child in node.Children)
+            {
+                <li data-state-id="permission-@child.Value.PermissionRecordId"
+                    data-state-value="@(child.Value.Allow.HasValue ? (child.Value.Allow.Value ? 2 : 1) : 0)"
+                    data-name="@(Model.PermissionTree.GetDisplayName(child))"
+                    data-title="@child.Value.SystemName">
+                    @if (child.HasChildren)
+                    {
+                        await PermissionNode(child);
+                    }
+                </li>
+            }
+        </ul>
+    }
+}
+
+@*TODO: (mh) (core) IS this needed?*@
+<script sm-target-zone="scripts" data-origin="customer-create-or-update">
+    function customerEditTab_onAjaxSuccess(tab, pane) {
+        applyCommonPlugins(pane);
+    }
+</script>

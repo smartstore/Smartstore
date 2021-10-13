@@ -1,0 +1,18 @@
+﻿@using Smartstore.Admin.Models.ShoppingCart
+@using Smartstore.Core.Checkout.Cart
+
+@model ShoppingCartItemModel
+
+<datagrid id="currentwishlist-grid" allow-resize="true">
+    <datasource read="@Url.Action("GetCartList", new { customerId = ViewData["CustomerId"], cartTypeId = (int)ShoppingCartType.Wishlist })" />
+    <paging position="Bottom" />
+    <sorting enabled="true" />
+    <columns>
+        <column for="ProductName" hideable="false" />
+        <column for="Quantity" />
+        <column for="UnitPrice" />
+        <column for="Total" />
+        <column for="Store" />
+        <column for="UpdatedOn" />
+    </columns>
+</datagrid>

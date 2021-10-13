@@ -1,0 +1,28 @@
+﻿@model TopCustomersReportModel
+
+<div class="form-group">
+    <smart-label asp-for="StartDate" />
+    <editor asp-for="StartDate" class="sf" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="EndDate" />
+    <editor asp-for="EndDate" class="sf" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="OrderStatusId" />
+    <select asp-for="OrderStatusId" asp-items="ViewBag.AvailableOrderStatuses" class="sf">
+        <option selected>@T("Admin.Common.All")</option>
+    </select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="PaymentStatusId" />
+    <select asp-for="PaymentStatusId" asp-items="ViewBag.AvailablePaymentStatuses" class="sf">
+        <option selected>@T("Admin.Common.All")</option>
+    </select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="ShippingStatusId" />
+    <select asp-for="ShippingStatusId" asp-items="ViewBag.AvailableShippingStatuses" class="sf">
+        <option selected>@T("Admin.Common.All")</option>
+    </select>
+</div>

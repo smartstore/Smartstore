@@ -1,0 +1,31 @@
+﻿@model CustomerModel.RewardPointsHistoryModel
+
+<datagrid id="rewardpoints-grid" allow-resize="true" allow-edit="true">
+    <datasource read="@Url.Action("RewardPointsHistoryList", new { customerId = ViewData["CustomerId"] })"
+                insert="@Url.Action("RewardPointsInsert", new { customerId = ViewData["CustomerId"] })" /> 
+    <paging position="Bottom" />
+    <sorting enabled="true">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true"></sort>
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.InsertRow" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Customers.Customers.RewardPoints.AddButton")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Points" hideable="false" />
+        <column for="PointsBalance" readonly="true" />
+        <column for="Message" width="2fr" />
+        <column for="CreatedOn" readonly="true" />
+    </columns>
+</datagrid>

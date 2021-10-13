@@ -1,0 +1,66 @@
+﻿@model CustomerModel
+
+@{
+    var parentModel = ViewData["Parent"] as CustomerListModel;
+}
+
+<datagrid id="customers-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("CustomerList")" delete="@Url.Action("Delete")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting enabled="true" allow-unsort="true" allow-multisort="false">
+        <sort by="CreatedOn" descending="true" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="Grids/_Grid.Customers.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        @*TODO: (mh) (core) Reorder & realign *@
+        <column for="Id" />
+        <column for="Email" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        @if (parentModel.UsernamesEnabled)
+        {
+            <column for="Username" />
+        }
+
+        <column for="FullName" />
+        <column for="CustomerRoleNames" sortable="false" />
+
+        @if (parentModel.UsernamesEnabled)
+        {
+            <column for="Company" />
+        }
+        @if (parentModel.PhoneEnabled)
+        {
+            <column for="Phone" />
+        }
+        @if (parentModel.ZipPostalCodeEnabled)
+        {
+            <column for="ZipPostalCode" />
+        }
+        <column for="Active" halign="center" visible="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
+        <column for="LastActivityDate" visible="false" />
+    </columns>
+</datagrid>

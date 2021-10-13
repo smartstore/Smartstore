@@ -1,0 +1,56 @@
+﻿@model CustomerListModel
+
+<div class="form-group">
+    <smart-label asp-for="SearchEmail" />
+    <editor asp-for="SearchEmail" class="sf" />
+</div>
+<div sm-if="Model.UsernamesEnabled" class="form-group">
+    <smart-label asp-for="SearchUsername" />
+    <editor asp-for="SearchUsername" class="sf" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchTerm" />
+    <editor asp-for="SearchTerm" class="sf" placeholder="@T("Admin.Customers.Customers.List.SearchTerm.Hint")" />
+</div>
+@if (Model.DateOfBirthEnabled)
+{
+    var monthOfBirthValues = new List<SelectListItem>();
+    for (int i = 1; i <= 12; i++)
+    {
+        monthOfBirthValues.Add(new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) });
+    }
+
+    var dayOfBirthValues = new List<SelectListItem>();
+    for (int i = 1; i <= 31; i++)
+    {
+        dayOfBirthValues.Add(new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) });
+    }
+
+    <div class="form-group">
+        <smart-label asp-for="SearchMonthOfBirth" />
+        <div class="form-row">
+            <div class="col">
+                <select asp-for="SearchMonthOfBirth" asp-items="@monthOfBirthValues" asp-placeholder="@T("Admin.Customers.Customers.List.SearchDateOfBirth.Month")"></select>
+            </div>
+            <div class="col">
+                <select asp-for="SearchDayOfBirth" asp-items="@dayOfBirthValues" asp-placeholder="@T("Admin.Customers.Customers.List.SearchDateOfBirth.Day")"></select>
+            </div>
+        </div>
+    </div>
+}
+<div sm-if="Model.PhoneEnabled" class="form-group">
+    <smart-label asp-for="SearchPhone" />
+    <editor asp-for="SearchPhone" class="sf" />
+</div>
+<div sm-if="Model.ZipPostalCodeEnabled" class="form-group">
+    <smart-label asp-for="SearchZipPostalCode" />
+    <editor asp-for="SearchZipPostalCode" class="sf" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchCustomerRoleIds" />
+    <editor asp-for="SearchCustomerRoleIds" class="sf" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchActiveOnly" />
+    <editor asp-for="SearchActiveOnly" class="sf" />
+</div>

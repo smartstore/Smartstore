@@ -1,0 +1,28 @@
+﻿@model CustomerAddressModel
+
+@{
+    ViewBag.Title = T("Admin.Customers.Customers.Addresses.EditAddress").Value;
+}
+
+<div asp-validation-summary="All"></div>
+
+<form method="post" asp-action="AddressEdit">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Customers.Customers.Addresses.EditAddress") - @Model.Username
+            <a asp-action="Edit" asp-route-id="@Model.CustomerId">(@T("Admin.Customers.Customers.Addresses.BackToCustomer"))</a>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+        </div>
+    </div>
+
+    <input asp-for="CustomerId" type="hidden" />
+    <editor asp-for="Address" />
+</form>

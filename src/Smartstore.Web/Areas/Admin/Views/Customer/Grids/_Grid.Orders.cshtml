@@ -1,0 +1,25 @@
+﻿@model CustomerModel.OrderModel
+
+<datagrid id="order-grid" allow-resize="true">
+    <datasource read="@Url.Action("OrderList", new { customerId = ViewData["CustomerId"] })" />
+    <paging position="Both" />
+    <sorting enabled="true">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true"></sort>
+    </sorting>
+    <columns>
+        @*TODO: (mh) (core) Reorder & realign *@
+        <column for="Id" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="OrderStatus" />
+        <column for="PaymentStatus" />
+        <column for="ShippingStatus" />
+        <column for="StoreName" />
+        <column for="CreatedOn" />
+        <column for="OrderTotal" halign="right" />
+    </columns>
+</datagrid>

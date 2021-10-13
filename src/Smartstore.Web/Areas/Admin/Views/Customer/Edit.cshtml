@@ -1,0 +1,55 @@
+﻿@model CustomerModel
+
+@{
+    ViewBag.Title = T("Admin.Customers.Customers.EditCustomerDetails").Value;
+}
+
+<form method="post" asp-action="Edit">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Customers.Customers.EditCustomerDetails") - @Model.Username
+            <a asp-action="List">(@T("Admin.Customers.Customers.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-envelope"></i>
+                    <span>@T("Common.Send")</span>
+                </button>
+                <div class="dropdown-menu">
+                    @*TODO: (mh) (core) No Dropdown is needed if forum is not active *@
+                    <a href="#sendemail-window" data-toggle="modal" class="dropdown-item">@T("Admin.Customers.Customers.SendEmail")</a>
+                    <zone name="admin_button_toolbar_messaging_dropdown" />
+                    @*TODO: (mg) (core) Insert link from forum module *@
+                    @*<a href="#sendprivatemessage-window" data-toggle="modal" class="dropdown-item">@T("Admin.Customers.Customers.SendPM")</a>*@
+                </div>
+            </div>
+
+            <a asp-action="Export" asp-route-id="@Model.Id" class="btn btn-secondary">
+                <span>@T("Common.Export")</span>
+            </a>
+
+            <button sm-if="@Model.Deleted" type="submit" name="customer-delete" id="customer-delete" value="customer-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="customer-delete" />
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" model="Model" />
+</form>
+
+<partial name="_SendEmailWindow" model="new CustomerModel.SendEmailModel { CustomerId = Model.Id }" />

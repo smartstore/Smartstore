@@ -1,0 +1,358 @@
+﻿@model CustomerModel
+
+<div class="adminContent">
+    <div sm-if="Model.Id != 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Id" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Id" readonly />
+            <span asp-validation-for="Id"></span>
+        </div>
+    </div>
+    <div sm-if="Model.UsernamesEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Username" />
+        </div>
+        <div class="adminData">
+            @if (Model.Id == 0 || Model.AllowUsersToChangeUsernames)
+            {
+                <input asp-for="Username" />
+                <span asp-validation-for="Username"></span>
+            }
+            else
+            {
+                <span class="form-control-plaintext">
+                    @Model.Username
+                </span>
+                <input type="hidden" asp-for="Username" />
+            }
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Email" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Email" />
+            <span asp-validation-for="Email"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Password" />
+        </div>
+        <div class="adminData">
+            <div class="input-group">
+                <editor asp-for="Password" class="form-control" />
+                <span sm-if="Model.Id > 0" class="input-group-append">
+                    <button type="submit" name="changepassword" value="changepassword" class="btn btn-outline-secondary">
+                        <i class="fa fa-cog"></i>
+                        <span>@T("Account.ChangePassword")</span>
+                    </button>
+                </span>
+            </div>
+            <span asp-validation-for="Password"></span>
+        </div>
+    </div>
+
+    <div sm-if="Model.Id > 0 && Model.AssociatedExternalAuthRecords?.Count > 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AssociatedExternalAuthRecords" />
+        </div>
+        <div class="adminData wide">
+            <div class="table-responsive">
+                <table class="table table-hover border-top-0">
+                    <thead>
+                        <tr>
+                            <th class="border-top-0">
+                                @T("Account.AssociatedExternalAuth.AuthMethodName")
+                            </th>
+                            <th class="border-top-0">
+                                @T("Account.AssociatedExternalAuth.Email")
+                            </th>
+                            <th class="border-top-0">
+                                @T("Account.AssociatedExternalAuth.ExternalIdentifier")
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.AssociatedExternalAuthRecords)
+                        {
+                            <tr>
+                                <td>@item.AuthMethodName</td>
+                                <td>@item.Email</td>
+                                <td>@item.ExternalIdentifier</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div sm-if="Model.TitleEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Title" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Title" />
+            <span asp-validation-for="Title"></span>
+        </div>
+    </div>
+    <div sm-if="Model.GenderEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Gender" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext form-inline">
+                <div class="form-check form-check-inline">
+                    <input type="radio" for="Gender" class="form-check-input" id="gender-male" value="M" attr-checked='(Model.Gender == "M", "checked")' />
+                    <label class="form-check-label" for="gender-male">@T("Admin.Customers.Customers.Fields.Gender.Male")</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" for="Gender" class="form-check-input" id="gender-female" value="F" attr-checked='(Model.Gender == "F", "checked")' />
+                    <label class="form-check-label" for="gender-female">@T("Admin.Customers.Customers.Fields.Gender.Female")</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="FirstName" />
+        </div>
+        <div class="adminData">
+            <input asp-for="FirstName" />
+            <span asp-validation-for="FirstName"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="LastName" />
+        </div>
+        <div class="adminData">
+            <input asp-for="LastName" />
+            <span asp-validation-for="LastName"></span>
+        </div>
+    </div>
+    <div sm-if="Model.DateOfBirthEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DateOfBirth" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="DateOfBirth" />
+            <span asp-validation-for="DateOfBirth"></span>
+        </div>
+    </div>
+    <div sm-if="Model.CompanyEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Company" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Company" />
+            <span asp-validation-for="Company"></span>
+        </div>
+    </div>
+    <div sm-if="Model.CustomerNumberEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CustomerNumber" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CustomerNumber" />
+            <span asp-validation-for="CustomerNumber"></span>
+        </div>
+    </div>
+    <div sm-if="Model.StreetAddressEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="StreetAddress" />
+        </div>
+        <div class="adminData">
+            <input asp-for="StreetAddress" />
+            <span asp-validation-for="StreetAddress"></span>
+        </div>
+    </div>
+    <div sm-if="Model.StreetAddress2Enabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="StreetAddress2" />
+        </div>
+        <div class="adminData">
+            <input asp-for="StreetAddress2" />
+            <span asp-validation-for="StreetAddress2"></span>
+        </div>
+    </div>
+    <div sm-if="Model.ZipPostalCodeEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ZipPostalCode" />
+        </div>
+        <div class="adminData">
+            <input asp-for="ZipPostalCode" />
+            <span asp-validation-for="ZipPostalCode"></span>
+        </div>
+    </div>
+    <div sm-if="Model.CityEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="City" />
+        </div>
+        <div class="adminData">
+            <input asp-for="City" />
+            <span asp-validation-for="City"></span>
+        </div>
+    </div>
+    <div sm-if="Model.CountryEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CountryId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
+                    class="country-input country-selector"
+                    data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
+                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer", new { Area = string.Empty })"
+                    data-addEmptyStateIfRequired="true">
+            </select>
+            <span asp-validation-for="CountryId"></span>
+        </div>
+    </div>
+    <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="StateProvinceId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select>
+            <span asp-validation-for="StateProvinceId"></span>
+        </div>
+    </div>
+    <div sm-if="Model.PhoneEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Phone" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Phone" />
+            <span asp-validation-for="Phone"></span>
+        </div>
+    </div>
+    <div sm-if="Model.FaxEnabled" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Fax" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Fax" />
+            <span asp-validation-for="Fax"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AdminComment" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="AdminComment" />
+            <span asp-validation-for="AdminComment"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SelectedCustomerRoleIds" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="SelectedCustomerRoleIds" attr-disabled='(!Model.AllowManagingCustomerRoles, "disabled")' />
+            <span asp-validation-for="SelectedCustomerRoleIds"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IsTaxExempt" />
+        </div>
+        <div class="adminData">
+            <input asp-for="IsTaxExempt" />
+            <span asp-validation-for="IsTaxExempt"></span>
+        </div>
+    </div>
+    <div sm-if="Model.AllowCustomersToSetTimeZone" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="TimeZoneId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="TimeZoneId" asp-items="ViewBag.AvailableTimeZones"></select>
+            <span asp-validation-for="TimeZoneId"></span>
+        </div>
+    </div>
+    <div sm-if="Model.AffiliateId != 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AffiliateId" />
+        </div>
+        <div class="adminData form-control-plaintext">
+            <a asp-action="Edit" asp-controller="Affiliate" asp-route-id="@Model.AffiliateId">@Model.AffiliateFullName</a>
+        </div>
+    </div>
+    <div sm-if="Model.DisplayVatNumber" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="VatNumber" />
+        </div>
+        <div class="adminData">
+            <input asp-for="VatNumber" />
+            <div class="font-weight-bold py-3">
+                @T("Admin.Customers.Customers.Fields.VatNumberStatus", Model.VatNumberStatusNote)
+            </div>
+            <button type="submit" name="markVatNumberAsValid" value="markVatNumberAsValid" class="btn btn-secondary">
+                <span>@T("Admin.Customers.Customers.Fields.VatNumber.MarkAsValid")</span>
+            </button>
+            <button type="submit" name="markVatNumberAsInvalid" value="markVatNumberAsInvalid" class="btn btn-secondary">
+                <span>@T("Admin.Customers.Customers.Fields.VatNumber.MarkAsInvalid")</span>
+            </button>
+            <span asp-validation-for="VatNumber"></span>
+        </div>
+    </div>
+
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Active" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Active" />
+            <span asp-validation-for="Active"></span>
+        </div>
+    </div>
+    @if (Model.Id > 0)
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="LastIpAddress" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @Html.DisplayFor(model => model.LastIpAddress)
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CreatedOn" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @Html.DisplayFor(model => model.CreatedOn)
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="LastActivityDate" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @Html.DisplayFor(model => model.LastActivityDate)
+                </div>
+            </div>
+        </div>
+    }
+
+    <div sm-if="Model.Id > 0 && Model.LastVisitedPage.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="LastVisitedPage" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                <a href="@Model.LastVisitedPage">@Model.LastVisitedPage.Truncate(128, "...")</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -59,9 +59,6 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            model.Address.FirstNameEnabled = true;
-            model.Address.LastNameEnabled = true;
-            model.Address.EmailEnabled = true;
             model.Address.CompanyEnabled = true;
             model.Address.CountryEnabled = true;
             model.Address.StateProvinceEnabled = true;

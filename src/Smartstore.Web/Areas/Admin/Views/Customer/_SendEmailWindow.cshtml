@@ -1,0 +1,47 @@
+﻿@model CustomerModel.SendEmailModel
+
+<modal id="sendemail-window" sm-render-at-page-end="true" sm-size="Medium">
+    <modal-header sm-title="@T("Admin.Customers.Customers.SendEmail")"></modal-header>
+    <modal-body>
+        <form asp-action="SendEmail" asp-controller="Customer">
+            <input type="hidden" asp-for="CustomerId" />
+            <div class="adminContent p-0">
+                <div class="adminRow wide">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Subject" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Subject" name="" />
+                        <span asp-validation-for="Subject"></span>
+                    </div>
+                </div>
+                <div class="adminRow wide">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Body" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="Body" />
+                        <span asp-validation-for="Body"></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary btn-flat" data-dismiss="modal" aria-hidden="true">
+            <span>@T("Common.Close")</span>
+        </button>
+        <button id="sendemail" type="button" class="btn btn-primary">
+            <span>@T("Admin.Customers.Customers.SendEmail")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="scripts" data-origin="SendEmailWindow">
+    $(function () {
+        $("#sendemail").click(function (e) {
+            e.preventDefault();
+            $("#sendemail-window").find("form").submit();
+        });
+    });
+</script>

@@ -1,0 +1,43 @@
+﻿@model TopCustomerReportLineModel
+
+@{
+    var parentModel = ViewData["Parent"] as TopCustomersReportModel;
+}
+
+<datagrid id="best-customers-grid" allow-resize="true" allow-column-reordering="true">
+    <datasource read="@Url.Action("ReportTopCustomersList")" />
+    <paging position="Both" show-size-chooser="true" />
+    <sorting enabled="true" allow-unsort="true" allow-multisort="false">
+        <sort by="OrderTotal" descending="true" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="Grids/_Grid.BestCustomers.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        @*TODO: (mh) (core) Reevaluate *@
+        <column for="CustomerId" />
+        <column for="Email" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        @if (ViewBag.UsernamesEnabled)
+        {
+            <column for="Username" />
+        }
+        <column for="FullName" />
+        <column for="Active" halign="center" />
+        <column for="LastActivityDate" />
+        <column for="OrderCount" halign="center" />
+        <column for="OrderTotal" halign="right" />
+    </columns>
+</datagrid>
