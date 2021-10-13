@@ -49,6 +49,7 @@
 <div class="form-group">
     <smart-label asp-for="SearchCustomerRoleIds" />
     <editor asp-for="SearchCustomerRoleIds" class="sf" />
+    @*<select asp-for="SearchCustomerRoleIds" asp-items='new MultiSelectList(ViewBag.SearchCustomerRoles, "Value", "Text")' multiple="multiple"></select>*@
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchActiveOnly" />

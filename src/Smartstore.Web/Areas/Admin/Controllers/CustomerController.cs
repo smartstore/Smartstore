@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Smartstore.Admin.Models.Common;
 using Smartstore.Admin.Models.Customers;
 using Smartstore.Admin.Models.ShoppingCart;
 using Smartstore.ComponentModel;
@@ -17,7 +16,6 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
@@ -50,22 +48,15 @@ namespace Smartstore.Admin.Controllers
         private readonly SignInManager<Customer> _signInManager;
         private readonly RoleManager<CustomerRole> _roleManager;
         private readonly IMessageFactory _messageFactory;
-        private readonly INewsletterSubscriptionService _newsLetterSubscriptionService;
-        private readonly IGenericAttributeService _genericAttributeService;
         private readonly DateTimeSettings _dateTimeSettings;
         private readonly TaxSettings _taxSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
-        private readonly IAddressService _addressService;
         private readonly CustomerSettings _customerSettings;
         private readonly ITaxService _taxService;
-        private readonly IOrderService _orderService;
         private readonly IPriceCalculationService _priceCalculationService;
-        private readonly AdminAreaSettings _adminAreaSettings;
-        private readonly IEmailAccountService _emailAccountService;
-        private readonly AddressSettings _addressSettings;
+        private readonly Lazy<IEmailAccountService> _emailAccountService;
         private readonly Lazy<IGdprTool> _gdprTool;
         private readonly IShoppingCartService _shoppingCartService;
-        private readonly ICurrencyService _currencyService;
         private readonly IProductService _productService;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly CustomerHelper _customerHelper;
@@ -77,22 +68,15 @@ namespace Smartstore.Admin.Controllers
             SignInManager<Customer> signInManager,
             RoleManager<CustomerRole> roleManager,
             IMessageFactory messageFactory,
-            INewsletterSubscriptionService newsLetterSubscriptionService,
-            IGenericAttributeService genericAttributeService,
             DateTimeSettings dateTimeSettings,
             TaxSettings taxSettings,
             RewardPointsSettings rewardPointsSettings,
-            IAddressService addressService,
             CustomerSettings customerSettings,
             ITaxService taxService,
-            IOrderService orderService,
             IPriceCalculationService priceCalculationService,
-            AdminAreaSettings adminAreaSettings,
-            IEmailAccountService emailAccountService,
-            AddressSettings addressSettings,
+            Lazy<IEmailAccountService> emailAccountService,
             Lazy<IGdprTool> gdprTool,
             IShoppingCartService shoppingCartService,
-            ICurrencyService currencyService,
             IProductService productService,
             IDateTimeHelper dateTimeHelper,
             CustomerHelper customerHelper)
@@ -103,22 +87,15 @@ namespace Smartstore.Admin.Controllers
             _signInManager = signInManager;
             _roleManager = roleManager;
             _messageFactory = messageFactory;
-            _newsLetterSubscriptionService = newsLetterSubscriptionService;
-            _genericAttributeService = genericAttributeService;
             _dateTimeSettings = dateTimeSettings;
             _taxSettings = taxSettings;
             _rewardPointsSettings = rewardPointsSettings;
-            _addressService = addressService;
             _customerSettings = customerSettings;
             _taxService = taxService;
-            _orderService = orderService;
             _priceCalculationService = priceCalculationService;
-            _adminAreaSettings = adminAreaSettings;
             _emailAccountService = emailAccountService;
-            _addressSettings = addressSettings;
             _gdprTool = gdprTool;
             _shoppingCartService = shoppingCartService;
-            _currencyService = currencyService;
             _productService = productService;
             _dateTimeHelper = dateTimeHelper;
             _customerHelper = customerHelper;
@@ -135,8 +112,7 @@ namespace Smartstore.Admin.Controllers
                 sb.Append(customerRoles[i].Name);
                 if (i != customerRoles.Count - 1)
                 {
-                    sb.Append(separator);
-                    sb.Append(' ');
+                    sb.Append($"{separator} ");
                 }
             }
             return sb.ToString();
@@ -468,6 +444,12 @@ namespace Smartstore.Admin.Controllers
                 SearchCustomerRoleIds = new int[] { registeredRole.Id }
             };
 
+            // INFO: Solution approach for problem when using CustomerRoles editor template in search model. See Model comment for more info.
+            //var customerRolesList = new List<SelectListItem>();
+            // TODO: (mh) (core) We must call CustomerRoleController > AllCustomerRoles but without the AJAX result.
+            // maybe outsource the core of AllCustomerRoles to CustomerHelper so it can also be called here to get a list of all customer roles ???
+            //ViewBag.SearchCustomerRoles = customerRolesList;
+
             return View(listModel);
         }
 
@@ -654,7 +636,7 @@ namespace Smartstore.Admin.Controllers
                 VatNumber = customer.GenericAttributes.VatNumber,
                 AffiliateId = customer.AffiliateId
             };
-            var x = true;
+
             if (customer.AffiliateId != 0)
             {
                 var affiliate = await _db.Affiliates
@@ -982,7 +964,7 @@ namespace Smartstore.Admin.Controllers
                     throw new SmartException(T("Admin.Customers.Customers.SendEmail.EmailNotValid"));
                 }
                 
-                var emailAccount = _emailAccountService.GetDefaultEmailAccount();
+                var emailAccount = _emailAccountService.Value.GetDefaultEmailAccount();
                 if (emailAccount == null)
                 {
                     throw new SmartException(T("Common.Error.NoEmailAccount"));
@@ -1262,8 +1244,6 @@ namespace Smartstore.Admin.Controllers
 
         #region Reports
 
-        // TODO: (mh) (core)
-
         [Permission(Permissions.Customer.Read)]
         public async Task<IActionResult> Reports()
         {
@@ -1329,30 +1309,10 @@ namespace Smartstore.Admin.Controllers
             PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
             ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
 
-            // Sorting.
-            var sorting = ReportSorting.ByAmountDesc;
-
-            // TODO: (mh) (core) How to do that?
-            //if (command.Sorting?.Any() ?? false)
-            //{
-            //    var sort = command.SortDescriptors.First();
-            //    if (sort.Member == nameof(TopCustomerReportLineModel.OrderCount))
-            //    {
-            //        sorting = sort.SortDirection == ListSortDirection.Ascending
-            //            ? ReportSorting.ByQuantityAsc
-            //            : ReportSorting.ByQuantityDesc;
-            //    }
-            //    else if (sort.Member == nameof(TopCustomerReportLineModel.OrderTotal))
-            //    {
-            //        sorting = sort.SortDirection == ListSortDirection.Ascending
-            //            ? ReportSorting.ByAmountAsc
-            //            : ReportSorting.ByAmountDesc;
-            //    }
-            //}
-
             var items = await _db.Customers
                 .AsNoTracking()
-                .SelectAsTopCustomerReportLine(startDateValue, endDateValue, orderStatus, paymentStatus, shippingStatus, sorting)
+                .SelectAsTopCustomerReportLine(startDateValue, endDateValue, orderStatus, paymentStatus, shippingStatus)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
