@@ -69,7 +69,7 @@ namespace Smartstore.Scheduling
 
             var qs = QueryString.Create(taskParameters);
 
-            return CallEndpoint(new Uri("{0}run/{1}{2}".FormatInvariant(BaseUrl, taskId, qs.ToString())), false);
+            return CallEndpoint("run/{1}{2}".FormatInvariant(taskId, qs.ToString()), false);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -112,7 +112,7 @@ namespace Smartstore.Scheduling
             PollInterval = pollInterval;
 
             _timer?.Dispose();
-            _timer = new Timer(DoPoll, new Uri(BaseUrl + "poll"),
+            _timer = new Timer(DoPoll, "poll",
                 TimeSpan.FromSeconds(GetFixedInterval(pollInterval)), // Next poll (must be whole minute)
                 TimeSpan.FromMinutes(PollInterval)); // continous interval
 
@@ -122,6 +122,19 @@ namespace Smartstore.Scheduling
                 int seconds = (interval * 60) - DateTime.Now.Second;
                 return seconds;
             }
+        }
+
+        public async Task<HttpClient> CreateHttpClientAsync()
+        {
+            var baseUri = await WebHelper.CreateUriForSafeLocalCallAsync(new Uri(BaseUrl));
+
+            var client = _httpClientFactory.CreateClient(HttpClientName);
+            client.BaseAddress = baseUri;
+
+            var authToken = await CreateAuthToken();
+            client.DefaultRequestHeaders.Add(AuthTokenName, authToken);
+
+            return client;
         }
 
         private async Task<string> CreateAuthToken()
@@ -139,31 +152,28 @@ namespace Smartstore.Scheduling
 
         private void DoPoll(object state)
         {
-            _ = CallEndpoint((Uri)state, true);
+            _ = CallEndpoint((string)state, true);
         }
 
-        private async Task CallEndpoint(Uri uri, bool isPoll)
+        private async Task CallEndpoint(string action, bool isPoll)
         {
             if (_shuttingDown || _errCount >= 10)
                 return;
 
             // If passed uri is null, we always assume a poll action.
-            uri ??= new Uri(BaseUrl + "poll");
-            uri = await WebHelper.CreateUriForSafeLocalCallAsync(uri);
-
-            var client = _httpClientFactory.CreateClient(HttpClientName);
-            string authToken = await CreateAuthToken();
-            client.DefaultRequestHeaders.Add(AuthTokenName, authToken);
+            action ??= "poll";
+            var client = await CreateHttpClientAsync();
 
             try
             {
-                using var response = await client.PostAsync(uri, null);
+                using var response = await client.PostAsync(action, null);
                 // Throw if not a success code.
                 response.EnsureSuccessStatusCode();    
                 Interlocked.Exchange(ref _errCount, 0);
             }
             catch (Exception ex)
             {
+                var uri = new Uri(client.BaseAddress, action);
                 HandleException(ex, uri, out var isTimeout);
 
                 if (isPoll || !isTimeout)

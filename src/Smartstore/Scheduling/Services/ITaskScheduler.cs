@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -49,6 +50,11 @@ namespace Smartstore.Scheduling
         /// if the verification fails.
         /// </remarks>
         Task<bool> VerifyAuthTokenAsync(string authToken);
+
+        /// <summary>
+        /// Creates a new <see cref="HttpClient"/> instance configured for the task scheduler.
+        /// </summary>
+        Task<HttpClient> CreateHttpClientAsync();
 
         /// <summary>
         /// Executes a single task immediately (without waiting for next schedule).

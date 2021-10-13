@@ -1,0 +1,46 @@
+﻿@using Smartstore.Admin.Models.Maintenance
+
+@model IList<SystemWarningModel>
+
+@{
+    ViewBag.Title = T("Admin.System.Warnings").Value;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-exclamation-circle"></i>
+        @T("Admin.System.Warnings")
+    </div>
+</div>
+
+<div class="system-warnings fs-h6">
+    <ul class="fa-ul">
+        @foreach (var warning in Model)
+        {
+            <li class="pb-2">
+                @switch (warning.Level)
+                {
+                    case SystemWarningLevel.Pass:
+                        {
+                            <i class="fa-li fa fa-check text-success"></i>
+                            <span>@warning.Text</span>
+                        }
+                        break;
+                    case SystemWarningLevel.Warning:
+                        {
+                            <i class="fa-li fa fa-question-circle text-success"></i>
+                            <span class="fwm">@warning.Text</span>
+                        }
+                        break;
+                    case SystemWarningLevel.Fail:
+                        {
+                            <i class="fa-li fa fa-exclamation-triangle text-danger"></i>
+                            <span class="fwm text-danger">@warning.Text</span>
+                        }
+                        break;
+                }
+            </li>
+        }
+    </ul>
+</div>
+
