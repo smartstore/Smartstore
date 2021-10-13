@@ -15,9 +15,11 @@ namespace Smartstore.Forums.Models.Public
 
         public int ReplyToMessageId { get; set; }
 
+        [Required]
         [LocalizedDisplay("*Subject")]
         public string Subject { get; set; }
 
+        [Required]
         [SanitizeHtml]
         [LocalizedDisplay("*Message")]
         [UIHint("Textarea")]

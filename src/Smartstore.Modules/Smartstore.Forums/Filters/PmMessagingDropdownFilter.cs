@@ -8,9 +8,9 @@ using Smartstore.Core.Widgets;
 namespace Smartstore.Forums.Filters
 {
     /// <summary>
-    /// Main frontend button to get to the forum.
+    /// Backend link on customer edit page to send a PN.
     /// </summary>
-    public class ForumMenuItemFilter : IResultFilter
+    public class PmMessagingDropdownFilter : IResultFilter
     {
         private const int MENU_ITEM_ORDER = 1001;
 
@@ -19,7 +19,7 @@ namespace Smartstore.Forums.Filters
         private readonly Lazy<ILocalizationService> _localizationService;
         private readonly ForumSettings _forumSettings;
 
-        public ForumMenuItemFilter(
+        public PmMessagingDropdownFilter(
             Lazy<IWidgetProvider> widgetProvider,
             Lazy<IUrlHelper> urlHelper,
             Lazy<ILocalizationService> localizationService,
@@ -33,13 +33,19 @@ namespace Smartstore.Forums.Filters
 
         public void OnResultExecuting(ResultExecutingContext filterContext)
         {
-            if (_forumSettings.ForumsEnabled)
+            if (_forumSettings.AllowPrivateMessages && filterContext.Result.IsHtmlViewResult())
             {
-                if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
+                if (filterContext?.RouteData?.Values?.TryGetValue("id", out var customerIdObj) ?? false)
                 {
-					var html = $"<a class='menubar-link' href='{_urlHelper.Value.RouteUrl("Boards")}'>{_localizationService.Value.GetResource("Forum.Forums")}</a>";
+                    var customerId = customerIdObj.ToString().ToInt();
+                    if (customerId != 0)
+                    {
+                        var html = "<a class='dropdown-item send-pm-link' href='{0}'>{1}</a>".FormatInvariant(
+                            _urlHelper.Value.Action("SendPm", "Forum", new { id = customerId }),
+                            _localizationService.Value.GetResource("Admin.Customers.Customers.SendPM"));
 
-                    _widgetProvider.Value.RegisterHtml(new[] { "header_menu_special" }, new HtmlString(html), MENU_ITEM_ORDER);
+                        _widgetProvider.Value.RegisterHtml(new[] { "admin_button_toolbar_messaging_dropdown" }, new HtmlString(html), MENU_ITEM_ORDER);
+                    }
                 }
             }
         }

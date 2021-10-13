@@ -567,26 +567,42 @@ namespace Smartstore.Forums.Controllers
 
         #region Customer
 
-        public async Task<IActionResult> SendPm(int id /* toCustomerId */)
+        public async Task<IActionResult> SendPm(int id /* customerId */)
         {
-            if (!_forumSettings.AllowPrivateMessages)
+            if (_forumSettings.AllowPrivateMessages)
             {
-                throw new SmartException(T("PrivateMessages.Disabled"));
+                var customer = await _db.Customers
+                    .IncludeCustomerRoles()
+                    .FindByIdAsync(id, false);
+
+                if (customer != null)
+                {
+                    if (!customer.IsGuest())
+                    {
+                        var model = new SendPrivateMessageModel
+                        {
+                            ToCustomerId = id,
+                            CustomerToName = customer.FormatUserName()
+                        };
+
+                        return View(model);
+                    }
+                    else
+                    {
+                        NotifyError(T("Common.MethodNotSupportedForGuests"));
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            else
+            {
+                NotifyError(T("PrivateMessages.Disabled"));
             }
 
-            var customerTo = await _db.Customers.FindByIdAsync(id, false);
-            if (customerTo == null)
-            {
-                return NotFound();
-            }
-
-            var model = new SendPrivateMessageModel
-            {
-                ToCustomerId = id,
-                CustomerToName = customerTo.FormatUserName()
-            };
-
-            return View(model);
+            return RedirectToAction("Edit", "Customer", new { id, area = "Admin" });
         }
 
         [Permission(Permissions.Customer.SendPm)]
@@ -598,16 +614,16 @@ namespace Smartstore.Forums.Controllers
                 throw new SmartException(T("PrivateMessages.Disabled"));
             }
 
-            var toCustomer = await _db.Customers
+            var customer = await _db.Customers
                 .IncludeCustomerRoles()
                 .FindByIdAsync(model.ToCustomerId, false);
 
-            if (toCustomer == null)
+            if (customer == null)
             {
                 return NotFound();
             }
 
-            if (toCustomer.IsGuest())
+            if (customer.IsGuest())
             {
                 throw new SmartException(T("Common.MethodNotSupportedForGuests"));
             }
@@ -617,7 +633,7 @@ namespace Smartstore.Forums.Controllers
                 var pm = new PrivateMessage
                 {
                     StoreId = Services.StoreContext.CurrentStore.Id,
-                    ToCustomerId = toCustomer.Id,
+                    ToCustomerId = customer.Id,
                     FromCustomerId = Services.WorkContext.CurrentCustomer.Id,
                     Subject = model.Subject,
                     Text = model.Message,
@@ -630,16 +646,16 @@ namespace Smartstore.Forums.Controllers
                 _db.PrivateMessages().Add(pm);
                 await _db.SaveChangesAsync();
 
-                Services.ActivityLogger.LogActivity(ForumActivityLogTypes.PublicStoreSendPM, T("ActivityLog.PublicStore.SendPM"), toCustomer.Email);
+                Services.ActivityLogger.LogActivity(ForumActivityLogTypes.PublicStoreSendPM, T("ActivityLog.PublicStore.SendPM"), customer.Email);
 
                 if (_forumSettings.NotifyAboutPrivateMessages)
                 {
-                    await _messageFactory.SendPrivateMessageNotificationAsync(toCustomer, pm, Services.WorkContext.WorkingLanguage.Id);
+                    await _messageFactory.SendPrivateMessageNotificationAsync(customer, pm, Services.WorkContext.WorkingLanguage.Id);
                 }
 
                 NotifySuccess(T("Admin.Customers.Customers.SendPM.Sent"));
 
-                return RedirectToAction("Edit", "Customer", new { id = toCustomer.Id, area = "Admin" });
+                return RedirectToAction("Edit", "Customer", new { id = customer.Id, area = "Admin" });
             }
 
             return View(model);

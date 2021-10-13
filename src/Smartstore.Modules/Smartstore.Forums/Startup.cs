@@ -45,6 +45,9 @@ namespace Smartstore.Forums
                 o.Filters.AddConditional<PmAccountDropdownFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjaxRequest());
 
+                o.Filters.AddConditional<PmMessagingDropdownFilter>(
+                    context => context.RouteData?.Values?.IsSameRoute("Admin", "Customer", "Edit") ?? false);
+
                 o.Filters.AddConditional<CustomerInfoFilter>(
                     context => context.RouteData?.Values?.IsSameRoute("Customer", "Info") ?? false);
 

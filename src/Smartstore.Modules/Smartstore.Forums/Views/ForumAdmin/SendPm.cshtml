@@ -5,6 +5,8 @@
 }
 
 <form asp-action="SendPm">
+    <input type="hidden" asp-for="ToCustomerId" />
+
     <div class="section-header">
         <div class="title">
             <i class="fa fa-users"></i>
@@ -16,7 +18,7 @@
         <div class="options">
             <zone name="admin_button_toolbar_before" />
 
-            <button type="submit" name="save" value="save" class="btn btn-primary">
+            <button type="submit" name="save" value="save" class="btn btn-primary confirm">
                 <i class="fa fa-envelope"></i>
                 <span>@T("PrivateMessages.Send.SendButton")</span>
             </button>
@@ -29,15 +31,15 @@
 
     <div class="adminContent">
         <div class="adminRow">
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="CustomerToName" />
-                </div>
-                <div class="adminData">
-                    <input asp-for="CustomerToName" sm-plaintext="true" readonly />
-                    <span asp-validation-for="CustomerToName"></span>
-                </div>
+            <div class="adminTitle">
+                <smart-label asp-for="CustomerToName" />
             </div>
+            <div class="adminData">
+                <input asp-for="CustomerToName" sm-plaintext="true" readonly />
+                <span asp-validation-for="CustomerToName"></span>
+            </div>
+        </div>
+        <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="Subject" />
             </div>
