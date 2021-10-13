@@ -17,6 +17,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Data;
@@ -35,6 +36,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IMemoryCache _memCache;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly Lazy<IImageCache> _imageCache;
         private readonly Lazy<IFilePermissionChecker> _filePermissionChecker;
         private readonly Lazy<ICurrencyService> _currencyService;
         private readonly Lazy<IPaymentService> _paymentService;
@@ -47,6 +49,7 @@ namespace Smartstore.Admin.Controllers
             IMemoryCache memCache, 
             ITaskScheduler taskScheduler,
             IHttpClientFactory httpClientFactory,
+            Lazy<IImageCache> imageCache,
             Lazy<IFilePermissionChecker> filePermissionChecker,
             Lazy<ICurrencyService> currencyService,
             Lazy<IPaymentService> paymentService,
@@ -58,6 +61,7 @@ namespace Smartstore.Admin.Controllers
             _memCache = memCache;
             _taskScheduler = taskScheduler;
             _httpClientFactory = httpClientFactory;
+            _imageCache = imageCache;
             _filePermissionChecker = filePermissionChecker;
             _currencyService = currencyService;
             _paymentService = paymentService;
@@ -66,10 +70,19 @@ namespace Smartstore.Admin.Controllers
             _measureSettings = measureSettings;
         }
 
-        public IActionResult Index()
+        [Permission(Permissions.System.Maintenance.Read)]
+        public async Task<IActionResult> Index()
         {
-            // TODO
-            return new EmptyResult();
+            var model = new MaintenanceModel();
+            model.DeleteGuests.EndDate = DateTime.UtcNow.AddDays(-7);
+            model.DeleteGuests.OnlyWithoutShoppingCart = true;
+
+            // Image cache stats
+            var (fileCount, totalSize) = await _imageCache.Value.CacheStatisticsAsync();
+            model.DeleteImageCache.NumFiles = fileCount;
+            model.DeleteImageCache.TotalSize = Prettifier.HumanizeBytes(totalSize);
+
+            return View(model);
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
