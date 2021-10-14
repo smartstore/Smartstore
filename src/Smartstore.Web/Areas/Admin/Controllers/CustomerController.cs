@@ -805,8 +805,7 @@ namespace Smartstore.Admin.Controllers
                             }
                         }
 
-                        scope.Commit();
-                        await _db.SaveChangesAsync();
+                        await scope.CommitAsync();
                     }
 
                     await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, form));

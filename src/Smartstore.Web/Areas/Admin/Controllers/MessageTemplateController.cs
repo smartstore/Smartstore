@@ -421,7 +421,6 @@ namespace Smartstore.Admin.Controllers
                 var account = (await _db.EmailAccounts.FindByIdAsync(model.EmailAccountId, false)) ?? _emailAccountService.GetDefaultEmailAccount();
                 var msg = new MailMessage(to, model.Subject, model.Body, model.From);
 
-                // INFO: (core) NEVER forget to dispose IDisposable!
                 using var client = await _mailService.Value.ConnectAsync(account);
                 await client.SendAsync(msg);
 
