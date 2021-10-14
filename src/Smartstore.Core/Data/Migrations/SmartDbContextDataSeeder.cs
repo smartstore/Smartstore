@@ -186,6 +186,14 @@ namespace Smartstore.Core.Data.Migrations
                 "A list of manufacturers to which the discount is assigned. The assignment can be made on the manufacturer detail page.",
                 "Eine Liste von Herstellern, denen der Rabatt zugeordnet ist. Die Zuordnung kann auf der Hersteller-Detailseite vorgenommen werden.");
 
+            builder.AddOrUpdate("Admin.GiftCards.RecipientEmailInvalid",
+                "The recipient email is invalid.",
+                "Die E-Mail Adresse des Empfängers ist ungültig.");
+
+            builder.AddOrUpdate("Admin.GiftCards.SenderEmailInvalid",
+                "The sender email is invalid.",
+                "Die E-Mail Adresse des Absenders ist ungültig.");
+
             #endregion
 
             #region Packaging

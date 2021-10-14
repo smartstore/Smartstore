@@ -1,0 +1,23 @@
+﻿@model GiftCardListModel
+
+@{
+    ViewBag.Title = T("Admin.GiftCards").Value;
+
+	Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-gift"></i>
+        <span>@ViewBag.Title</span>
+    </div>
+    <div class="options">
+		<zone name="admin_button_toolbar_before" />
+		<zone name="admin_button_toolbar_after" />
+    </div>
+</div>
+
+<partial name="_Grid.GiftCards" model="null" view-data="gridViewData" />

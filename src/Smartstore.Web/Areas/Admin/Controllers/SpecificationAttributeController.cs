@@ -76,7 +76,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Catalog.Attribute.Read)]
-        public ActionResult List()
+        public IActionResult List()
         {
             return View(new SpecificationAttributeListModel());
         }

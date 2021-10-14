@@ -50,8 +50,8 @@ namespace Smartstore.Core.Checkout.GiftCards
         Money GetRemainingAmount(GiftCard giftCard);
 
         /// <summary>
-        /// Generates new gift card code async
+        /// Generates a new gift card code.
         /// </summary>
-        Task<string> GenerateGiftCardCodeAsync();
+        string GenerateGiftCardCode();
     }
 }

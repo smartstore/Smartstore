@@ -89,16 +89,17 @@ namespace Smartstore.Core.Checkout.GiftCards
             return new(Math.Max(GetRemainingAmountCore(giftCard), decimal.Zero), _primaryCurrency);
         }
 
-        public virtual Task<string> GenerateGiftCardCodeAsync()
+        public virtual string GenerateGiftCardCode()
         {
-            var length = 13;
+            const int length = 13;
             var result = Guid.NewGuid().ToString();
+
             if (result.Length > length)
             {
                 result = result.Substring(0, length);
             }
 
-            return Task.FromResult(result);
+            return result;
         }
 
         protected virtual decimal GetRemainingAmountCore(GiftCard giftCard)

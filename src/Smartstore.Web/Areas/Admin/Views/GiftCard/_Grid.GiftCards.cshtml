@@ -1,0 +1,47 @@
+﻿@model GiftCardModel
+
+@{
+    var parentModel = ViewData["Parent"] as GiftCardListModel;
+}
+
+<datagrid id="gift-cards-grid"
+          allow-resize="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("GiftCardList")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")</span>
+            </a>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_after"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.GiftCards.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" halign="center" visible="false" />
+        <column for="GiftCardCouponCode" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="AmountStr" entity-member="Amount" />
+        <column for="RemainingAmountStr" readonly="true" sortable="false" />
+        <column for="IsGiftCardActivated" halign="center" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+        <column for="SenderName" visible="false" />
+        <column for="SenderEmail" visible="false" />
+    </columns>
+</datagrid>
