@@ -47,16 +47,16 @@
                         @T("Admin.Configuration.Themes.PreviewMode")
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" id="clear-cache" href="#" data-url="@Url.Action("ClearCache", "Common", new { area = "Admin" })">
+                    <a class="dropdown-item" id="clear-cache" href="#" data-url="@Url.Action("ClearCache", "Maintenance", new { area = "Admin" })">
                         <i class="far fa-fw fa-trash-alt"></i>
                         @T("Admin.Header.ClearCache")
                     </a>
-                    <a class="dropdown-item" id="clear-database-cache" href="#" data-url="@Url.Action("ClearDatabaseCache", "Common", new { area = "Admin" })">
+                    <a class="dropdown-item" id="clear-database-cache" href="#" data-url="@Url.Action("ClearDatabaseCache", "Maintenance", new { area = "Admin" })">
                         <i class="fa fa-fw"></i>
                         @T("Admin.Header.ClearDbCache")
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" asp-action="RestartApplication" asp-controller="Common" asp-area="Admin">
+                    <a class="dropdown-item" asp-action="RestartApplication" asp-controller="Maintenance" asp-area="Admin">
                         <i class="fa fa-fw fa-power-off"></i>
                         @T("Admin.Header.RestartApplication")
                     </a>

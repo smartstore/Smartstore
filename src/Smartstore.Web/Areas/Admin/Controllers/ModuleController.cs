@@ -93,7 +93,7 @@ namespace Smartstore.Admin.Controllers
                 // Restart application.
                 if (numTasks > 0)
                 {
-                    return RedirectToAction("RestartApplication", "Common", new { returnUrl = Url.Action("List") });
+                    return RedirectToAction("RestartApplication", "Maintenance", new { returnUrl = Url.Action("List") });
                 }
             }
             catch (Exception ex)
@@ -107,7 +107,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Module.Read)]
         public IActionResult ReloadList()
         {
-            return RedirectToAction("RestartApplication", "Common", new { returnUrl = Url.Action("List") });
+            return RedirectToAction("RestartApplication", "Maintenance", new { returnUrl = Url.Action("List") });
         }
 
         [Permission(Permissions.Configuration.Module.Read)]
