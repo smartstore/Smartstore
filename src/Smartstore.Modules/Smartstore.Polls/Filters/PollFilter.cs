@@ -21,10 +21,14 @@ namespace Smartstore.Polls.Filters
             // Should only run on a full view rendering result or HTML ContentResult.
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
             {
-                var blogWidget = new ComponentWidgetInvoker(typeof(PollBlockViewComponent), "Blog");
-                var myAccountWidget = new ComponentWidgetInvoker(typeof(PollBlockViewComponent), "MyAccountMenu");
-                _widgetProvider.Value.RegisterWidget(new[] { "blog_right_bottom" }, blogWidget);
-                _widgetProvider.Value.RegisterWidget(new[] { "myaccount_menu_after" }, myAccountWidget);
+                _widgetProvider.Value.RegisterWidget(new[] { "myaccount_menu_after" },
+                    new ComponentWidgetInvoker(typeof(PollBlockViewComponent), new { systemKeyword = "MyAccountMenu" }));
+
+                if (filterContext.RouteData.Values.GetControllerName() == "Blog")
+                {
+                    _widgetProvider.Value.RegisterWidget(new[] { "blog_right_bottom" },
+                        new ComponentWidgetInvoker(typeof(PollBlockViewComponent), new { systemKeyword = "Blog" }));
+                }
             }
 
             await next();

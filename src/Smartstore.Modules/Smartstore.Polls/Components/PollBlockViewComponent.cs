@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -29,9 +30,8 @@ namespace Smartstore.Polls.Components
             var languageId = _services.WorkContext.WorkingLanguage.Id;
             
             var cacheKey = string.Format(ModelCacheInvalidator.POLL_BY_SYSTEMNAME_MODEL_KEY, systemKeyword, languageId, storeId);
-            var cachedModel = await _services.Cache.GetAsync(cacheKey, async () =>
+            var cachedPolls = await _services.Cache.GetAsync(cacheKey, async () =>
             {
-                var model = new PublicPollListModel();
                 var polls = await _db.Polls()
                     .AsNoTracking()
                     .ApplyStandardFilter(storeId, languageId)
@@ -39,29 +39,33 @@ namespace Smartstore.Polls.Components
                     .Include(x => x.PollAnswers)
                     .ToListAsync();
 
+                var list = new List<PublicPollModel>(polls.Count);
+
                 foreach (var poll in polls)
                 {
-                    model.Polls.Add(await poll.MapAsync(new { SetAlreadyVotedProperty = false }));
+                    list.Add(await poll.MapAsync(new { SetAlreadyVotedProperty = false }));
                 }
 
-                return model;
+                return list;
             });
 
-            if (cachedModel.Polls.Count == 0)
+            if (cachedPolls.Count == 0)
             {
                 return Empty();
             }
 
+            var model = new List<PublicPollModel>(cachedPolls.Count);
+
             // "AlreadyVoted" property of "PollModel" object depends on the current customer. Let's update it.
             // But first we need to clone the cached model (the updated one should not be cached).
-            foreach(var cachedPoll in cachedModel.Polls)
+            foreach (var cachedPoll in cachedPolls)
             {
                 var clonedPoll = (PublicPollModel)cachedPoll.Clone();
                 clonedPoll.AlreadyVoted = await _db.PollAnswers().GetAlreadyVotedAsync(cachedPoll.Id, _services.WorkContext.CurrentCustomer.Id);
-                cachedModel.ClonedPolls.Add(clonedPoll);
+                model.Add(clonedPoll);
             }
 
-            return View(cachedModel);
+            return View(cachedPolls);
         }
     }
 }

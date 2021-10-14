@@ -62,7 +62,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         /// <summary>
         /// Specifies the form post url to execute after accepted confirmation. 
-        /// Use this method if you must transmit parameters to the action else use the action & controller attributes.
+        /// Use this method if you must transmit parameters to the action, use <see cref="Action"/> and <see cref="Controller"/> attributes otherwise.
         /// </summary>
         [HtmlAttributeName(FormPostUrlName)]
         public string FormPostUrl { get; set; }

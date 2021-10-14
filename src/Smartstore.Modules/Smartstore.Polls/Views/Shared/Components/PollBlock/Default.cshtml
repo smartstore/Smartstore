@@ -1,6 +1,6 @@
-﻿@model PublicPollListModel
+﻿@model List<PublicPollModel>
 
-@foreach(var poll in Model.ClonedPolls)
+@foreach(var poll in Model)
 {
     <partial name="Poll" model="poll" />
 }
