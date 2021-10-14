@@ -37,7 +37,7 @@
                 <span>@T("Common.Export")</span>
             </a>
 
-            <button sm-if="@Model.Deleted" type="submit" name="customer-delete" id="customer-delete" value="customer-delete" class="btn btn-danger">
+            <button sm-if="!Model.Deleted" type="submit" name="customer-delete" id="customer-delete" value="customer-delete" class="btn btn-danger">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete")</span>
             </button>

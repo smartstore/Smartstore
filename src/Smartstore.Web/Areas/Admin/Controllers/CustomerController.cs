@@ -592,6 +592,7 @@ namespace Smartstore.Admin.Controllers
                         }
                     }
 
+                    // TODO: (mh) (core) Something is wrong here...
                     // Customer roles.
                     newCustomerRoles.Each(x => {
                         _db.CustomerRoleMappings.Add(new CustomerRoleMapping
@@ -619,7 +620,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var customer = await _db.Customers.FindByIdAsync(id, false);
+            var customer = await _db.Customers
+                .IncludeCustomerRoles()
+                .FindByIdAsync(id, false);
+
             if (customer == null)
             {
                 return NotFound();
@@ -802,6 +806,7 @@ namespace Smartstore.Admin.Controllers
                         }
 
                         scope.Commit();
+                        await _db.SaveChangesAsync();
                     }
 
                     await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, form));
@@ -918,6 +923,39 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(exception.Message);
                 return RedirectToAction(nameof(Edit), new { id = customer.Id });
             }
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Customer.Delete)]
+        public async Task<IActionResult> CustomerDelete(GridSelection selection)
+        {
+            var ids = selection.GetEntityIds();
+            var numDeleted = 0;
+
+            if (ids.Any())
+            {
+                var toDelete = await _db.Customers
+                    .AsQueryable()
+                    .Where(x => ids.Contains(x.Id))
+                    .ToListAsync();
+
+                foreach (var customer in toDelete)
+                {
+                    if (customer.Email.HasValue())
+                    {
+                        var subscriptions = await _db.NewsletterSubscriptions.Where(x => x.Email == customer.Email).ToListAsync();
+                        _db.NewsletterSubscriptions.RemoveRange(subscriptions);
+                        await _db.SaveChangesAsync();
+                    }
+                }
+
+                numDeleted = toDelete.Count;
+
+                _db.Customers.RemoveRange(toDelete);
+                await _db.SaveChangesAsync();
+            }
+
+            return Json(new { Success = true, Count = numDeleted });
         }
 
         [HttpPost]

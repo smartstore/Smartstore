@@ -9,7 +9,7 @@
           allow-row-selection="true"
           allow-column-reordering="true"
           onrowclass="customersGrid_onRowClass">
-    <datasource read="@Url.Action("CustomerList")" delete="@Url.Action("Delete")" />
+    <datasource read="@Url.Action("CustomerList")" delete="@Url.Action("CustomerDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
         <sort by="CreatedOn" descending="true" />
@@ -19,6 +19,12 @@
             <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
                 <i class="fa fa-fw fa-filter"></i>
             </button>
+        </toolbar-group>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat no-anims mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
         </toolbar-group>
         <toolbar-group class="omega">
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">

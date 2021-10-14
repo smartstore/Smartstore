@@ -32,7 +32,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IMessageTemplateService _messageTemplateService;
         private readonly IMessageFactory _messageFactory;
         private readonly IEmailAccountService _emailAccountService;
-        private readonly IMailService _mailService;
+        private readonly Lazy<IMailService> _mailService;
         private readonly ILanguageService _languageService;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly ILocalizationService _localizationService;
@@ -49,7 +49,7 @@ namespace Smartstore.Admin.Controllers
             IMessageTemplateService messageTemplateService,
             IMessageFactory messageFactory,
             IEmailAccountService emailAccountService,
-            IMailService mailService,
+            Lazy<IMailService> mailService,
             ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
             ILocalizationService localizationService,
@@ -422,7 +422,7 @@ namespace Smartstore.Admin.Controllers
                 var msg = new MailMessage(to, model.Subject, model.Body, model.From);
 
                 // INFO: (core) NEVER forget to dispose IDisposable!
-                using var client = await _mailService.ConnectAsync(account);
+                using var client = await _mailService.Value.ConnectAsync(account);
                 await client.SendAsync(msg);
 
                 return Json(new { success = true });

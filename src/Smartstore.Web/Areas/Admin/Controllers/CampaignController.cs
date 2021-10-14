@@ -189,7 +189,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("Edit", new { id = model.Id });
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [Permission(Permissions.Configuration.Currency.Delete)]
         public async Task<IActionResult> Delete(int id)
         {

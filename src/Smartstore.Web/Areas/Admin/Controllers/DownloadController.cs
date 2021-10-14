@@ -7,7 +7,6 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Admin.Controllers
 {
