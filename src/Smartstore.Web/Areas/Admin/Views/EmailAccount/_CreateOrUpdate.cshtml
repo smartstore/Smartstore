@@ -99,17 +99,16 @@
                 <smart-label asp-for="SendTestEmailTo" />
             </div>
             <div class="adminData">
-                <input asp-for="SendTestEmailTo" />
+                <div class="input-group">
+                    <input asp-for="SendTestEmailTo" type="email" />
+                    <div class="input-group-append">
+                        <button type="submit" name="sendtestemail" value="sendtestemail" class="btn btn-secondary">
+                            <i class="far fa-share"></i>
+                            <span>@T("Admin.Configuration.EmailAccounts.SendTestEmail.Button")</span>
+                        </button>
+                    </div>
+                </div>
                 <span asp-validation-for="SendTestEmailTo"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle"></div>
-            <div class="adminData">
-                <button type="submit" name="sendtestemail" value="sendtestemail" class="btn btn-secondary">
-                    <i class="fa fa-envelope"></i>
-                    <span>@T("Admin.Configuration.EmailAccounts.SendTestEmail.Button")</span>
-                </button>
             </div>
         </div>
     }
