@@ -35,10 +35,9 @@ namespace Smartstore.Admin.Models.Messages
         [LocalizedDisplay("*IsDefaultEmailAccount")]
         public bool IsDefaultEmailAccount { get; set; }
 
-
         [LocalizedDisplay("*SendTestEmailTo")]
         public string SendTestEmailTo { get; set; }
-
+        public string EditUrl { get; set; }
         public string TestEmailShortErrorMessage { get; set; }
         public string TestEmailFullErrorMessage { get; set; }
     }
@@ -49,6 +48,9 @@ namespace Smartstore.Admin.Models.Messages
         {
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.DisplayName).NotEmpty();
+            RuleFor(x => x.Host).NotEmpty();
+            RuleFor(x => x.Username).NotEmpty();
+            RuleFor(x => x.Password).NotEmpty();
         }
     }
 }

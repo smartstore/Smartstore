@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = T("Admin.Configuration.EmailAccounts").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-envelope"></i>
+        @T("Admin.Configuration.EmailAccounts")
+    </div>
+</div>
+
+<partial name="_Grid.EmailAccounts" model="null" />

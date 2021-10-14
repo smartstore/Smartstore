@@ -1,0 +1,68 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model EmailAccountModel
+
+<datagrid id="email-accounts-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("EmailAccountList", "EmailAccount")"
+                delete="@Url.Action("DeleteEmailAccounts", "EmailAccount")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat no-anims mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Email" width="1fr" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="DisplayName" width="1fr" />
+        <column for="Host" width="1fr" />
+        <column for="Port" />
+        <column for="EnableSsl" halign="center" />
+        <column for="IsDefaultEmailAccount" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsDefaultEmailAccount }">@T("Common.SetDefault")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="email-accounts-grid">
+    $(function () {
+        $(document).on('click', '.grid-set-default', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+				cache: false,
+				type: 'POST',
+				url: '@(Url.Action("SetDefaultEmailAccount", "EmailAccount"))',
+				data: {
+					"id": $(this).data("key")
+				},
+                success: function () {
+                    window["email-accounts-grid"].$children[0].read();
+                }
+            });
+
+            return false;
+        });
+    });
+</script>

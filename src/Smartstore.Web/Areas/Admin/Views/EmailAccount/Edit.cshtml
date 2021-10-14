@@ -1,0 +1,33 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model EmailAccountModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.EmailAccounts.EditEmailAccountDetails").Value;
+}
+
+<form asp-action="Edit" id="email-accounts-edit">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Configuration.EmailAccounts.EditEmailAccountDetails") - @Model.DisplayName
+            <a asp-action="List">(@T("Admin.Configuration.EmailAccounts.BackToList"))</a>
+        </div>
+        <div class="options">
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <span id="email-account-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </span>
+            <confirm button-id="email-account-delete" />
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" model="Model" />
+</form>
+

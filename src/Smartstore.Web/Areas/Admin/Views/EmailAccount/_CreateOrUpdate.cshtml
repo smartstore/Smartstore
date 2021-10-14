@@ -1,0 +1,121 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model EmailAccountModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Email" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Email" />
+            <span asp-validation-for="Email"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DisplayName" />
+        </div>
+        <div class="adminData">
+            <input asp-for="DisplayName" />
+            <span asp-validation-for="DisplayName"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Host" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Host" />
+            <span asp-validation-for="Host"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Port" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Port" />
+            <span asp-validation-for="Port"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Username" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Username" />
+            <span asp-validation-for="Username"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Password" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Password" attr-value='(Model.Password.HasValue(), Model.Password)' class="form-control" />
+            <span asp-validation-for="Password"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IsDefaultEmailAccount" />
+        </div>
+        <div class="adminData">
+            <input asp-for="IsDefaultEmailAccount" />
+            <span asp-validation-for="IsDefaultEmailAccount"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="EnableSsl" />
+        </div>
+        <div class="adminData">
+            <input asp-for="EnableSsl" />
+            <span asp-validation-for="EnableSsl"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="UseDefaultCredentials" />
+        </div>
+        <div class="adminData">
+            <input asp-for="UseDefaultCredentials" />
+            <span asp-validation-for="UseDefaultCredentials"></span>
+        </div>
+    </div>
+    @if (Model.Id > 0)
+    {
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Admin.Configuration.EmailAccounts.SendTestEmail")</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SendTestEmailTo" />
+            </div>
+            <div class="adminData">
+                <input asp-for="SendTestEmailTo" />
+                <span asp-validation-for="SendTestEmailTo"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle"></div>
+            <div class="adminData">
+                <button type="submit" name="sendtestemail" value="sendtestemail" class="btn btn-secondary">
+                    <i class="fa fa-envelope"></i>
+                    <span>@T("Admin.Configuration.EmailAccounts.SendTestEmail.Button")</span>
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+<p sm-if="Model.TestEmailShortErrorMessage.HasValue()">
+    <div class="alert alert-danger">@Model.TestEmailShortErrorMessage</div>
+    <pre>@Model.TestEmailFullErrorMessage</pre>
+</p>
