@@ -390,13 +390,6 @@ namespace Smartstore.Core.DataExchange.Import
                 if (_customerSettings.FaxEnabled)
                     SetGenericAttribute<string>(SystemCustomerAttributeNames.Fax, row);
 
-                // TODO: (mg) (core) CustomerImporter: do not import forum stuff anymore.
-                //if (_forumSettings.ForumsEnabled)
-                //    SetGenericAttribute<int>(SystemCustomerAttributeNames.ForumPostCount, row);
-
-                //if (_forumSettings.SignaturesEnabled)
-                //    SetGenericAttribute<string>(SystemCustomerAttributeNames.Signature, row);
-
                 var countryId = CountryCodeToId(row.GetDataValue<string>("CountryCode"), cargo);
                 var stateId = StateAbbreviationToId(countryId, row.GetDataValue<string>("StateAbbreviation"), cargo);
 

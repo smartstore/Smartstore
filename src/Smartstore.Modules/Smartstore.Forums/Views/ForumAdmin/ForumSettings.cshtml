@@ -185,40 +185,6 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="AllowPrivateMessages" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="AllowPrivateMessages" data-toggler-for="#pnlPrivateMessages"></setting-editor>
-                        <span asp-validation-for="AllowPrivateMessages"></span>
-                    </div>
-                </div>
-                <div id="pnlPrivateMessages">
-                    <div class="adminRow">
-                        <div class="adminTitle">
-                            <smart-label asp-for="ShowAlertForPM" />
-                        </div>
-                        <div class="adminData">
-                            <setting-editor asp-for="ShowAlertForPM"></setting-editor>
-                            <span asp-validation-for="ShowAlertForPM"></span>
-                        </div>
-                    </div>
-                    <div class="adminRow">
-                        <div class="adminTitle">
-                            <smart-label asp-for="NotifyAboutPrivateMessages" />
-                        </div>
-                        <div class="adminData">
-                            <setting-editor asp-for="NotifyAboutPrivateMessages"></setting-editor>
-                            <span asp-validation-for="NotifyAboutPrivateMessages"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminSeparator">
-                        <hr />
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
                         <smart-label asp-for="ForumFeedsEnabled" />
                     </div>
                     <div class="adminData">
@@ -256,6 +222,44 @@
                     </div>
                 </div>
             </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">@T("PrivateMessages.PrivateMessages")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AllowPrivateMessages" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AllowPrivateMessages" data-toggler-for="#pnlPrivateMessages"></setting-editor>
+                        <span asp-validation-for="AllowPrivateMessages"></span>
+                    </div>
+                </div>
+                <div id="pnlPrivateMessages">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ShowAlertForPM" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="ShowAlertForPM"></setting-editor>
+                            <span asp-validation-for="ShowAlertForPM"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="NotifyAboutPrivateMessages" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="NotifyAboutPrivateMessages"></setting-editor>
+                            <span asp-validation-for="NotifyAboutPrivateMessages"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </tab>
         <tab sm-title="@T("Admin.Configuration.SeoTab.Title")">
             <editor asp-for="SeoModel" asp-template="SeoModel" />

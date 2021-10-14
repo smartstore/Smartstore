@@ -2960,32 +2960,6 @@ namespace Smartstore.Core.Installation
             }
         }
 
-        // TODO: (mh) (core) Implement installation content for forum
-        //protected override void Alter(IList<ForumGroup> entities)
-        //{
-        //    base.Alter(entities);
-
-        //    entities.WithKey(x => x.Name)
-        //        .Alter("General", x => x.Name = "Allgemein");
-        //}
-
-        //protected override void Alter(IList<Forum> entities)
-        //{
-        //    base.Alter(entities);
-
-        //    entities.WithKey(x => x.Name)
-        //        .Alter("New Products", x =>
-        //        {
-        //            x.Name = "Neue Produkte";
-        //            x.Description = "Diskutieren Sie aktuelle oder neue Produkte";
-        //        })
-        //        .Alter("Packaging & Shipping", x =>
-        //        {
-        //            x.Name = "Verpackung & Versand";
-        //            x.Description = "Haben Sie Fragen oder Anregungen zu Verpackung & Versand?";
-        //        });
-        //}
-
         protected override void Alter(IList<Discount> entities)
         {
             base.Alter(entities);

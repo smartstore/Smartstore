@@ -230,8 +230,6 @@ namespace Smartstore.Web.Controllers
             return RedirectToReferrer(returnUrl);
         }
 
-        // TODO: (mh) (core) Implement GetUnreadPrivateMessages in forum module
-
         #region CookieManager
 
         [LocalizedRoute("/cookiemanager", Name = "CookieManager")]

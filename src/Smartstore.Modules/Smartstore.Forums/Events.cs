@@ -11,6 +11,7 @@ using Smartstore.Core;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using Smartstore.Core.DataExchange.Import.Events;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
@@ -592,6 +593,44 @@ namespace Smartstore.Forums
                     { "CreatedOn", dtHelper.ConvertToUserTime(x.CreatedOnUtc, TimeZoneInfo.Utc, timeZone) }
                 })
                 .ToList();
+            }
+        }
+
+        // Import forum generic attributes.
+        public async Task HandleEventAsync(ImportBatchExecutedEvent<Customer> message,
+            SmartDbContext db,
+            ForumSettings forumSettings)
+        {
+            if (forumSettings.ForumsEnabled && message.Batch.Any())
+            {
+                var importPostCount = message.Context.DataTable.HasColumn(ForumService.ForumPostCountKey);
+                var importSignature = forumSettings.SignaturesEnabled && message.Context.DataTable.HasColumn(ForumService.SignatureKey);
+
+                if (importPostCount || importSignature)
+                {
+                    foreach (var row in message.Batch)
+                    {
+                        if (!row.IsTransient)
+                        {
+                            if (importPostCount)
+                            {
+                                var postCount = row.GetDataValue<int>(ForumService.ForumPostCountKey);
+                                row.Entity.GenericAttributes.Set(ForumService.ForumPostCountKey, postCount);
+                            }
+
+                            if (importSignature)
+                            {
+                                var signature = row.GetDataValue<string>(ForumService.SignatureKey);
+                                if (row.IsNew || signature != null)
+                                {
+                                    row.Entity.GenericAttributes.Set(ForumService.SignatureKey, signature);
+                                }
+                            }
+                        }
+                    }
+
+                    await db.SaveChangesAsync();
+                }
             }
         }
 

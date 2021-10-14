@@ -20,7 +20,7 @@ namespace Smartstore.Forums
             Guard.NotNull(forumTopic, nameof(forumTopic));
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.NewForumTopic, languageId, customer: customer), 
+                MessageContext.Create("Forums.NewForumTopic", languageId, customer: customer), 
                 true, 
                 forumTopic, 
                 forumTopic.Forum);
@@ -46,7 +46,7 @@ namespace Smartstore.Forums
             };
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.NewForumPost, languageId, customer: customer), 
+                MessageContext.Create("Forums.NewForumPost", languageId, customer: customer), 
                 true, 
                 bag, 
                 forumPost, 
@@ -67,7 +67,7 @@ namespace Smartstore.Forums
             Guard.NotNull(privateMessage, nameof(privateMessage));
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.NewPrivateMessage, languageId, privateMessage.StoreId, customer),
+                MessageContext.Create("Customer.NewPM", languageId, privateMessage.StoreId, customer),
                 true,
                 privateMessage);
         }

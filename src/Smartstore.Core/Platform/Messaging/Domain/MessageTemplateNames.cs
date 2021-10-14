@@ -21,9 +21,6 @@
         public const string ProductQuestion = "Product.AskQuestion";
         public const string NewReturnRequestStoreOwner = "NewReturnRequest.StoreOwnerNotification";
         public const string ReturnRequestStatusChangedCustomer = "ReturnRequestStatusChanged.CustomerNotification";
-        public const string NewForumTopic = "Forums.NewForumTopic";
-        public const string NewForumPost = "Forums.NewForumPost";
-        public const string NewPrivateMessage = "Customer.NewPM";
         public const string GiftCardCustomer = "GiftCard.Notification";
         public const string ProductReviewStoreOwner = "Product.ProductReview";
         public const string QuantityBelowStoreOwner = "QuantityBelow.StoreOwnerNotification";

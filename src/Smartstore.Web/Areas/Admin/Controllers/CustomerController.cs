@@ -994,9 +994,6 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(Edit), new { id = customer.Id });
         }
 
-        // TODO (mg) (core): Must be implemented in forum
-        //public ActionResult SendPm(CustomerModel model)
-
         #endregion
 
         #region Reward points history

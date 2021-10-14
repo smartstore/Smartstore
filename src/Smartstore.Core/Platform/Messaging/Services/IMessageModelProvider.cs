@@ -29,8 +29,7 @@ namespace Smartstore.Core.Messaging
         /// <para>
         ///		Supported types are: <see cref="Order"/>, <see cref="Product"/>, <see cref="Address"/>, <see cref="Shipment"/>, <see cref="OrderNote"/>, 
         ///		<see cref="RecurringPayment"/>, <see cref="ReturnRequest"/>, <see cref="GiftCard"/>, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
-        ///		<see cref="ProductReview"/>, <see cref="BlogComment"/>, <see cref="NewsComment"/>, <see cref="ForumTopic"/>, <see cref="ForumPost"/>, 
-        ///		<see cref="Forum"/>, <see cref="PrivateMessage"/>
+        ///		<see cref="ProductReview"/>, <see cref="BlogComment"/>, <see cref="NewsComment"/>, ForumTopic, ForumPost, Forum, PrivateMessage.
         /// </para>
         /// <para>
         ///		Furthermore, any object implementing <see cref="IModelPart"/> or <see cref="INamedModelPart"/> can also be passed as model part.
@@ -55,8 +54,7 @@ namespace Smartstore.Core.Messaging
         /// <para>
         ///		Supported types are: <see cref="Order"/>, <see cref="Product"/>, <see cref="Address"/>, <see cref="Shipment"/>, <see cref="OrderNote"/>, 
         ///		<see cref="RecurringPayment"/>, <see cref="ReturnRequest"/>, <see cref="GiftCard"/>, <see cref="NewsletterSubscription"/>, <see cref="Campaign"/>, 
-        ///		<see cref="ProductReview"/>, <see cref="BlogComment"/>, <see cref="NewsComment"/>, <see cref="ForumTopic"/>, <see cref="ForumPost"/>, 
-        ///		<see cref="Forum"/>, <see cref="PrivateMessage"/>
+        ///		<see cref="ProductReview"/>, <see cref="BlogComment"/>, <see cref="NewsComment"/>, ForumTopic, ForumPost, Forum, PrivateMessage.
         /// </para>
         /// <para>
         ///		Furthermore, any object implementing <see cref="IModelPart"/> or <see cref="INamedModelPart"/> can also be passed as model part.

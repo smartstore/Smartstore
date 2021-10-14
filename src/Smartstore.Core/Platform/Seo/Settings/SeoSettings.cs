@@ -17,15 +17,6 @@ namespace Smartstore.Core.Seo
 
         public static ISet<string> DefaultRobotLocalizableDisallows { get; } = new HashSet<string>
         {
-                //"/Boards/ForumWatch", // TODO: (mg) (core) Add in module starter to this set
-                //"/Boards/PostEdit",
-                //"/Boards/PostDelete",
-                //"/Boards/PostCreate",
-                //"/Boards/TopicEdit",
-                //"/Boards/TopicDelete",
-                //"/Boards/TopicCreate",
-                //"/Boards/TopicMove",
-                //"/Boards/TopicWatch",
                 "/Cart$",
                 "/Checkout",
                 "/Product/ClearCompareList",
@@ -43,7 +34,6 @@ namespace Smartstore.Core.Seo
                 "/Customer/Orders",
                 "/Customer/ReturnRequests",
                 "/Customer/RewardPoints",
-                //"/PrivateMessages", // // TODO: (mg) (core) Add in module starter to this set
                 "/Newsletter/SubscriptionActivation",
                 "/Order$",
                 "/PasswordRecovery",
