@@ -52,9 +52,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.EmailAccount.Read)]
         public async Task<IActionResult> EmailAccountList(GridCommand command)
         {
-            // INFO: (mh) (core) Very wierd qaching issue. With AsNoTracking created or deleted entities won't be removed/added to db cache.
-            var emailAccounts = await _db.EmailAccounts
-                //.AsNoTracking()               
+            // INFO: (mh) (core) Very weird caching issue. With AsNoTracking created or deleted entities won't be removed/added to db cache.
+            // RE: In backend listings, it's better not to overstress db cache: cache key computation can be expensive because it varies by paging, sorting, conditions etc.
+            var emailAccounts = await _db.EmailAccounts              
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
