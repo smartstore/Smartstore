@@ -436,6 +436,8 @@ namespace Smartstore.Core.Data.Migrations
             //    "Enums.SmartStore.Core.Domain.Forums.ForumTopicSorting.SubjectDesc",
             //    "Enums.SmartStore.Core.Domain.Forums.ForumTopicSorting.UserNameAsc",
             //    "Enums.SmartStore.Core.Domain.Forums.ForumTopicSorting.UserNameDesc",
+            //    "Admin.GiftCards.Info",
+            //    "Admin.GiftCards.BackToList",
             //    );
 
 

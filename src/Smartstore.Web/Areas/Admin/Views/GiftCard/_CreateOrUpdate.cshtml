@@ -1,0 +1,180 @@
+﻿@model GiftCardModel
+
+@{
+    var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
+
+    var giftCardUsageHistoryViewData = new ViewDataDictionary(ViewData);
+    giftCardUsageHistoryViewData["Parent"] = Model;
+}
+
+<div asp-validation-summary="All"></div>
+<input type="hidden" asp-for="Id" />
+
+<tabstrip id="discount-edit" sm-nav-style="Material">
+    <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="GiftCardTypeId" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="GiftCardTypeId" asp-items="Html.GetLocalizedEnumSelectList(typeof(GiftCardType))"></select>
+                    <span asp-validation-for="GiftCardTypeId"></span>
+                </div>
+            </div>
+            <div sm-if="Model.PurchasedWithOrderId.HasValue" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="PurchasedWithOrderId" />
+                </div>
+                <div class="adminData">
+                    <div class="form-control-plaintext">
+                        <a asp-action="Edit" asp-controller="Order" asp-route-id="Model.PurchasedWithOrderId.Value">@Model.PurchasedWithOrderId.Value</a>
+                    </div>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Amount" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="Amount" sm-postfix="@primaryStoreCurrencyCode" />
+                    <span asp-validation-for="Amount"></span>
+                </div>
+            </div>
+            <div sm-if="Model.Id > 0" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RemainingAmountStr" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="RemainingAmountStr" sm-plaintext="true" readonly />
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IsGiftCardActivated" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="IsGiftCardActivated" />
+                    <span asp-validation-for="IsGiftCardActivated"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="GiftCardCouponCode" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="IsGiftCardActivated" />
+                    <span class="input-group-append">
+                        <button type="button" name="generateCouponCode" id="generateCouponCode" class="btn btn-outline-secondary">
+                            <i class="fa fa-cog"></i>
+                            <span>@T("Admin.GiftCards.Fields.GiftCardCouponCode.Generate")</span>
+                        </button>
+                    </span>
+                    <span asp-validation-for="GiftCardCouponCode"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RecipientName" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="RecipientName" />
+                    <span asp-validation-for="RecipientName"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="RecipientEmail" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="RecipientEmail" />
+                    <span asp-validation-for="RecipientEmail"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SenderName" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="SenderName" />
+                    <span asp-validation-for="SenderName"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SenderEmail" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="SenderEmail" />
+                    <span asp-validation-for="SenderEmail"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Message" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="Message" />
+                    <span asp-validation-for="Message"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IsRecipientNotified" />
+                </div>
+                <div class="adminData">
+                    <span class="pr-3">@T(Model.IsRecipientNotified ? "Admin.Common.Yes" : "Admin.Common.No")</span>
+
+                    <button type="submit" name="notifyRecipient" value="notifyRecipient" class="btn btn-secondary">
+                        <i class="fa fa-envelope"></i>
+                        <span>@T("Admin.GiftCards.Fields.IsRecipientNotified.Notify")</span>
+                    </button>
+                </div>
+            </div>
+            <div sm-if="Model.Id > 0" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="CreatedOn" />
+                </div>
+                <div class="adminData">
+                    <div class="form-control-plaintext">
+                        @Model.CreatedOn
+                    </div>
+                </div>
+            </div>
+        </div>
+    </tab>
+    <tab sm-title="@T("Admin.GiftCards.History")">
+        <partial name="_Grid.GiftCardUsageHistory" model="null" view-data="giftCardUsageHistoryViewData" />
+    </tab>
+</tabstrip>
+
+<script sm-target-zone="scripts" data-origin="giftcard-edit">
+    $(function () {
+		$("#@Html.IdFor(model => model.GiftCardTypeId)").on('change', function () {
+			if ($(this).val() == '@((int)GiftCardType.Virtual)') {
+				$('#pnlRecipientEmail').show();
+				$('#pnlSenderEmail').show();
+				$('#pnlNotifyRecipient').show();
+			}
+			else {
+				$('#pnlRecipientEmail').hide();
+				$('#pnlSenderEmail').hide();
+				$('#pnlNotifyRecipient').hide();
+			}
+		}).trigger('change');
+
+        $('#generateCouponCode').on('click', function () {
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@Url.Action("GenerateCouponCode", "GiftCard")",
+                success: function (data) {
+                    $('#@Html.IdFor(model => model.GiftCardCouponCode)').val(data.CouponCode);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    displayNotification('Failed to generate gift card coupon code.', 'error');
+                }
+            });
+        });
+    });
+</script>

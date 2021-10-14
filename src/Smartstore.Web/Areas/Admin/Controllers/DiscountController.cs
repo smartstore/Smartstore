@@ -270,16 +270,17 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = historyEntries.Select(x => new DiscountUsageHistoryModel
-            {
-                Id = x.Id,
-                DiscountId = x.DiscountId,
-                OrderId = x.OrderId,
-                CreatedOnUtc = x.CreatedOnUtc,
-                CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                OrderEditUrl = Url.Action("Edit", "Order", new { id = x.OrderId, area = "Admin" })
-            })
-            .ToList();
+            var rows = historyEntries
+                .Select(x => new DiscountUsageHistoryModel
+                {
+                    Id = x.Id,
+                    DiscountId = x.DiscountId,
+                    OrderId = x.OrderId,
+                    CreatedOnUtc = x.CreatedOnUtc,
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                    OrderEditUrl = Url.Action("Edit", "Order", new { id = x.OrderId, area = "Admin" })
+                })
+                .ToList();
 
             return Json(new GridModel<DiscountUsageHistoryModel>
             {

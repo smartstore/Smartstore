@@ -102,24 +102,22 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.GiftCard.Read)]
         public async Task<IActionResult> GiftCardUsageHistoryList(GridCommand command, int id /* giftCardId */)
         {
-            var giftCard = await _db.GiftCards
-                .Include(x => x.GiftCardUsageHistory)
-                .FindByIdAsync(id, false);
-
-            if (giftCard == null)
-            {
-                return NotFound();
-            }
-
-            var rows = giftCard.GiftCardUsageHistory
+            var historyEntries = await _db.GiftCardUsageHistory
+                .AsNoTracking()
+                .Where(x => x.GiftCardId == id)
                 .OrderByDescending(x => x.CreatedOnUtc)
+                .ApplyGridCommand(command, false)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var rows = historyEntries
                 .Select(x => new GiftCardUsageHistoryModel
                 {
                     Id = x.Id,
                     OrderId = x.UsedWithOrderId,
                     UsedValue = Services.CurrencyService.PrimaryCurrency.AsMoney(x.UsedValue).ToString(true),
                     CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                    EditUrl = Url.Action("Edit", "Order", new { id = x.UsedWithOrderId, area = "Admin" })
+                    OrderEditUrl = Url.Action("Edit", "Order", new { id = x.UsedWithOrderId, area = "Admin" })
                 })
                 .ToList();
 

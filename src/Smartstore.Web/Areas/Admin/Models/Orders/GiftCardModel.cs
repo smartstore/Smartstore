@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Orders
@@ -39,6 +40,7 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("*SenderEmail")]
         public string SenderEmail { get; set; }
 
+        [UIHint("Textarea"), AdditionalMetadata("rows", 6)]
         [LocalizedDisplay("*Message")]
         public string Message { get; set; }
 
@@ -63,6 +65,6 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
 
-        public string EditUrl { get; set; }
+        public string OrderEditUrl { get; set; }
     }
 }

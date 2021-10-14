@@ -1,0 +1,27 @@
+﻿@model GiftCardUsageHistoryModel
+
+@{
+    var parentModel = ViewData["Parent"] as GiftCardModel;
+}
+
+<datagrid id="gift-card-usage-history-grid"
+          key-member="Id"
+          allow-resize="true"
+          allow-column-reordering="false"
+          preserve-grid-state="true"
+          max-height="650px">
+    <datasource read="@Url.Action("GiftCardUsageHistoryList", new { id = parentModel.Id })" />
+    <paging position="Top" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="CreatedOn" descending="true" />
+    </sorting>
+    <columns>
+        <column for="UsedValue" entity-member="Amount" />
+        <column for="CreatedOn" width="auto" entity-member="CreatedOnUtc" />
+        <column for="OrderId" hideable="false" width="1fr" entity-member="OrderId">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">@T("Admin.Common.View") (#{{ item.value }})</a></div>
+            </display-template>
+        </column>
+    </columns>
+</datagrid>
