@@ -452,7 +452,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost, ActionName("PasswordRecoveryConfirm")]
         [FormValueRequired("set-password")]
-        public async Task<ActionResult> PasswordRecoveryConfirmPOST(PasswordRecoveryConfirmModel model)
+        public async Task<IActionResult> PasswordRecoveryConfirmPOST(PasswordRecoveryConfirmModel model)
         {
             var customer = await _userManager.FindByEmailAsync(model.Email);
 

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Smartstore.Web.Controllers;
 using Smartstore.Core.Data;
 
-namespace Smartstore.Web.Areas.Admin.Controllers
+namespace Smartstore.Admin.Controllers
 {
     public class LanguageController : AdminController
     {

@@ -21,7 +21,7 @@ using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 
-namespace Smartstore.Web.Areas.Admin.Controllers
+namespace Smartstore.Admin.Controllers
 {
     public class MessageTemplateController : AdminController
     {
@@ -408,7 +408,7 @@ namespace Smartstore.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.System.Message.Send)]
-        public async Task<ActionResult> SendTestMail(string token, string to)
+        public async Task<IActionResult> SendTestMail(string token, string to)
         {
             var model = GetPreviewMailModel(token);
             if (model == null)

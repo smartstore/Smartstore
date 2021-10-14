@@ -361,7 +361,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost, ActionName("Cart")]
         [FormValueRequired("continueshopping")]
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
-        public ActionResult ContinueShopping()
+        public IActionResult ContinueShopping()
         {
             var returnUrl = Services.WorkContext.CurrentCustomer.GenericAttributes.LastContinueShoppingPage;
             return RedirectToReferrer(returnUrl);

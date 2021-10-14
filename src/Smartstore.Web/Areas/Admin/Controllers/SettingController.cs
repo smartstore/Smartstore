@@ -1506,7 +1506,7 @@ namespace Smartstore.Admin.Controllers
             return num;
         }
 
-        private ActionResult NotifyAndRedirect(string actionMethod)
+        private IActionResult NotifyAndRedirect(string actionMethod)
         {
             NotifySuccess(T("Admin.Configuration.Updated"));
             return RedirectToAction(actionMethod);

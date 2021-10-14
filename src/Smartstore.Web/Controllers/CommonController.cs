@@ -297,7 +297,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult SetCookieManagerConsent(CookieManagerModel model)
+        public IActionResult SetCookieManagerConsent(CookieManagerModel model)
         {
             if (model.AcceptAll)
             {

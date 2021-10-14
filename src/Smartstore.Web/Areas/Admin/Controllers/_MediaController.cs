@@ -37,7 +37,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost]
         [Permission(Permissions.Media.Upload)]
         [MaxMediaFileSize]
-        public async Task<ActionResult> Upload(
+        public async Task<IActionResult> Upload(
             string path, 
             string[] typeFilter = null, 
             bool isTransient = false,
@@ -119,7 +119,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        public ActionResult FileConflictResolutionDialog()
+        public IActionResult FileConflictResolutionDialog()
         {
             if (!Services.Permissions.Authorize(Permissions.Media.Update))
             {

@@ -423,7 +423,7 @@ namespace Smartstore.Admin.Controllers
 
         #region Customers
 
-        public ActionResult Index()
+        public IActionResult Index()
         {
             return RedirectToAction(nameof(List));
         }

@@ -33,7 +33,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         // AJAX.
-        public ActionResult AllProductAttributes(string label, int selectedId)
+        public IActionResult AllProductAttributes(string label, int selectedId)
         {
             var query = _db.ProductAttributes
                 .AsNoTracking()

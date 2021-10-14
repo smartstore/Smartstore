@@ -53,7 +53,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Module.Read)]
-        public async Task<ActionResult> List()
+        public async Task<IActionResult> List()
         {
             var model = await PrepareLocalModulesModel();
             return View(model);
@@ -61,7 +61,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Module.Install)]
-        public async Task<ActionResult> ExecuteTasks(IEnumerable<string> modulesToInstall, IEnumerable<string> modulesToUninstall)
+        public async Task<IActionResult> ExecuteTasks(IEnumerable<string> modulesToInstall, IEnumerable<string> modulesToUninstall)
         {
             try
             {
@@ -340,7 +340,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(route.Action, route.Controller, routeValues);
         }
 
-        public async Task<ActionResult> EditProviderPopup(string systemName)
+        public async Task<IActionResult> EditProviderPopup(string systemName)
         {
             var provider = _providerManager.GetProvider(systemName);
             if (provider == null)

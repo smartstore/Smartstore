@@ -32,7 +32,7 @@ namespace Smartstore.Admin.Controllers
         #region Weights
 
         [Permission(Permissions.Configuration.Measure.Read)]
-        public ActionResult Weights()
+        public IActionResult Weights()
         {
             return View();
         }
@@ -266,7 +266,7 @@ namespace Smartstore.Admin.Controllers
 
 
         [Permission(Permissions.Configuration.Measure.Read)]
-        public ActionResult Dimensions()
+        public IActionResult Dimensions()
         {
             return View();
         }
