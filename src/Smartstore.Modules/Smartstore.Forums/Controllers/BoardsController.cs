@@ -1638,7 +1638,7 @@ namespace Smartstore.Forums.Controllers
             })
             .AsyncToList();
 
-            var model = new CustomerForumSubscriptionsModel()
+            var model = new CustomerForumSubscriptionsModel
             {
                 ForumSubscriptions = subscriptionModels
                     .ToPagedList(subscriptions.PageIndex, subscriptions.PageSize, subscriptions.TotalCount)

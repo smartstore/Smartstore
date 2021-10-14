@@ -23,6 +23,19 @@ namespace Smartstore.Forums
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
+            // Add robots.txt entries.
+            // INFO: (mg) (mh) (core) Too late in SmartDbContextConfigurer.
+            SeoSettings.DefaultRobotDisallows.Add("/Boards/ForumWatch");
+            SeoSettings.DefaultRobotDisallows.Add("/Boards/PostEdit");
+            SeoSettings.DefaultRobotDisallows.Add("/Boards/PostDelete");
+            SeoSettings.DefaultRobotDisallows.Add("/Boards/PostCreate");
+            SeoSettings.DefaultRobotDisallows.Add("/Boards/TopicEdit");
+            SeoSettings.DefaultRobotDisallows.Add("/Boards/TopicDelete");
+            SeoSettings.DefaultRobotDisallows.Add("/Boards/TopicCreate");
+            SeoSettings.DefaultRobotDisallows.Add("/Boards/TopicMove");
+            SeoSettings.DefaultRobotDisallows.Add("/Boards/TopicWatch");
+            SeoSettings.DefaultRobotDisallows.Add("/PrivateMessages");
+
             services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
 
             services.AddScoped<IForumService, ForumService>();
@@ -60,18 +73,6 @@ namespace Smartstore.Forums
         {
             public void Configure(IServiceProvider services, DbContextOptionsBuilder builder)
             {
-                // Add robots.txt entries.
-                SeoSettings.DefaultRobotDisallows.Add("/Boards/ForumWatch");
-                SeoSettings.DefaultRobotDisallows.Add("/Boards/PostEdit");
-                SeoSettings.DefaultRobotDisallows.Add("/Boards/PostDelete");
-                SeoSettings.DefaultRobotDisallows.Add("/Boards/PostCreate");
-                SeoSettings.DefaultRobotDisallows.Add("/Boards/TopicEdit");
-                SeoSettings.DefaultRobotDisallows.Add("/Boards/TopicDelete");
-                SeoSettings.DefaultRobotDisallows.Add("/Boards/TopicCreate");
-                SeoSettings.DefaultRobotDisallows.Add("/Boards/TopicMove");
-                SeoSettings.DefaultRobotDisallows.Add("/Boards/TopicWatch");
-                SeoSettings.DefaultRobotDisallows.Add("/PrivateMessages");
-
                 builder.UseDbFactory(b => 
                 {
                     b.AddModelAssembly(this.GetType().Assembly);

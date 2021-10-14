@@ -29,6 +29,7 @@ namespace Smartstore.Forums.Components
 
             var model = new ForumCustomerStatsModel
             {
+                // TODO: (mg) (core) (perf) Why loading Customer from DB? Just load ForumPostCount GenericAttribute.
                 TotalPosts = customer.GenericAttributes.Get<int>(ForumService.ForumPostCountKey)
             };
 

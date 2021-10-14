@@ -17,6 +17,9 @@ namespace Smartstore.Polls
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
+            // Add robots.txt entry.
+            SeoSettings.DefaultRobotDisallows.Add("/Poll/Vote");
+
             services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
 
             services.Configure<MvcOptions>(o =>
@@ -30,9 +33,6 @@ namespace Smartstore.Polls
         {
             public void Configure(IServiceProvider services, DbContextOptionsBuilder builder)
             {
-                // Add robots.txt entry.
-                SeoSettings.DefaultRobotDisallows.Add("/Poll/Vote");
-
                 builder.UseDbFactory(b => 
                 {
                     b.AddModelAssembly(this.GetType().Assembly);
