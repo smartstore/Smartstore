@@ -22,6 +22,7 @@ namespace Smartstore.Forums.Filters
 
         public void OnResultExecuting(ResultExecutingContext filterContext)
         {
+            // TODO: (mg) (core) PM menu item CANNOT be placed below Signout item!
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
             {
                 if (_forumSettings.AllowPrivateMessages)
