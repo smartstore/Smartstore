@@ -17,9 +17,10 @@ namespace Smartstore.Admin.Models.Customers
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly CustomerSettings _customerSettings;
-        private readonly IUrlHelper _urlHelper;
+        // INFO: (mh) (core) Controllers seem to be instanciated before the HttpContext scope is available. Therefore IUrlHelper resolution will fail when passed to a controller ctor.
+        private readonly Lazy<IUrlHelper> _urlHelper;
         
-        public CustomerHelper(SmartDbContext db, ICommonServices services, CustomerSettings customerSettings, IUrlHelper urlHelper)
+        public CustomerHelper(SmartDbContext db, ICommonServices services, CustomerSettings customerSettings, Lazy<IUrlHelper> urlHelper)
         {
             _db = db;
             _services = services;
@@ -55,9 +56,9 @@ namespace Smartstore.Admin.Models.Customers
                     Email = customer?.Email.NullEmpty() ?? (customer.IsGuest() ? guestStr : string.Empty.NaIfEmpty()),
                     Username = customer?.Username,
                     FullName = customer?.GetFullName(),
-                    Active = customer?.Active ?? false,
+                    Active = customer?.Active == true,
                     LastActivityDate = _services.DateTimeHelper.ConvertToUserTime(customer?.LastActivityDateUtc ?? DateTime.MinValue, DateTimeKind.Utc),
-                    EditUrl = _urlHelper.Action("Edit", "Customer", new { id = customer.Id })
+                    EditUrl = _urlHelper.Value.Action("Edit", "Customer", new { id = customer.Id })
                 };
 
                 return m;
