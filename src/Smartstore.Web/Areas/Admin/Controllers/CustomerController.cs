@@ -104,19 +104,8 @@ namespace Smartstore.Admin.Controllers
         #region Utilities
 
         [NonAction]
-        protected string GetCustomerRolesNames(IList<CustomerRole> customerRoles, string separator = ",")
-        {
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
-            for (int i = 0; i < customerRoles.Count; i++)
-            {
-                sb.Append(customerRoles[i].Name);
-                if (i != customerRoles.Count - 1)
-                {
-                    sb.Append($"{separator} ");
-                }
-            }
-            return sb.ToString();
-        }
+        protected string GetCustomerRoleNames(IList<CustomerRole> customerRoles, string separator = ", ")
+            => string.Join(separator, customerRoles.Select(x => x.Name));
 
         [NonAction]
         protected async Task<List<CustomerModel.AssociatedExternalAuthModel>> GetAssociatedExternalAuthRecordsAsync(Customer customer)
@@ -127,12 +116,12 @@ namespace Smartstore.Admin.Controllers
             var authProviders = await _signInManager.GetExternalAuthenticationSchemesAsync();
             foreach (var ear in customer.ExternalAuthenticationRecords)
             {
-                var provider = authProviders.Where(x => ear.ProviderSystemName.Contains(x.Name)).FirstOrDefault();
+                var provider = authProviders.Where(x => ear.ProviderSystemName.Contains(x.Name, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
                 if (provider == null)
                     continue;
 
-                result.Add(new CustomerModel.AssociatedExternalAuthModel()
+                result.Add(new CustomerModel.AssociatedExternalAuthModel
                 {
                     Id = ear.Id,
                     Email = ear.Email,
@@ -158,7 +147,7 @@ namespace Smartstore.Admin.Controllers
                 ZipPostalCode = customer.GenericAttributes.ZipPostalCode,
                 Active = customer.Active,
                 Phone = customer.GenericAttributes.Phone,
-                CustomerRoleNames = GetCustomerRolesNames(customer.CustomerRoleMappings.Select(x => x.CustomerRole).ToList()),
+                CustomerRoleNames = GetCustomerRoleNames(customer.CustomerRoleMappings.Select(x => x.CustomerRole).ToList()),
                 CreatedOn = Services.DateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc),
                 LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc),
                 EditUrl = Url.Action("Edit", "Customer", new { id = customer.Id })
@@ -197,6 +186,7 @@ namespace Smartstore.Admin.Controllers
         protected virtual async Task PrepareCountriesAndStatesAsync(CustomerModel model)
         {
             // TODO: (mh) (core) Create some generic solution for this always repeating code.
+            // RE: we made one already, didn't we?
             if (_customerSettings.CountryEnabled)
             {
                 var availableCountries = new List<SelectListItem>
@@ -296,7 +286,7 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        private async Task<Tuple<List<CustomerRole>, string>> ValidateCustomerRolesAsync(int[] selectedCustomerRoleIds, List<int> allCustomerRoleIds)
+        private async Task<(List<CustomerRole> NewCustomerRoles, string ErrMessage)> ValidateCustomerRolesAsync(int[] selectedCustomerRoleIds, List<int> allCustomerRoleIds)
         {
             Guard.NotNull(allCustomerRoleIds, nameof(allCustomerRoleIds));
 
@@ -316,8 +306,11 @@ namespace Smartstore.Admin.Controllers
 
             if (newCustomerRoleIds.Any())
             {
-                var customerRolesQuery = _roleManager.Roles.AsNoTracking(); 
-                newCustomerRoles = customerRolesQuery.Where(x => newCustomerRoleIds.Contains(x.Id)).ToList();
+                // TODO: (mh) (core) Consistency please. Decide whether to work with RoleManager.Roles or SmartDbContext.CustomerRoles.
+                newCustomerRoles = await _roleManager.Roles
+                    .AsNoTracking()
+                    .Where(x => newCustomerRoleIds.Contains(x.Id))
+                    .ToListAsync();
             }
 
             var isInGuestsRole = newCustomerRoles.FirstOrDefault(cr => cr.SystemName == SystemCustomerRoleNames.Guests) != null;
@@ -338,7 +331,7 @@ namespace Smartstore.Admin.Controllers
                 errMessage = T("Admin.Customers.MustBeCustomerOrGuest", guestRole.Name, registeredRole.Name);
             }
 
-            return new Tuple<List<CustomerRole>, string>(newCustomerRoles, errMessage);
+            return (newCustomerRoles, errMessage);
         }
 
         private void UpdateFormFields(Customer customer, CustomerModel model)
@@ -523,9 +516,7 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => x.Id)
                 .ToListAsync();
 
-            var tuple = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
-            var newCustomerRoles = tuple.Item1;
-            var customerRolesError = tuple.Item2;
+            var (newCustomerRoles, customerRolesError) = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
 
             if (customerRolesError.HasValue())
             {
@@ -547,7 +538,7 @@ namespace Smartstore.Admin.Controllers
                 if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.AutomaticallySet && model.CustomerNumber.IsEmpty())
                 {
                     customer.CustomerNumber = null;
-                    // Let any NumberFormatter plugin handle this
+                    // Let any NumberFormatter module handle this
                     await Services.EventPublisher.PublishAsync(new CustomerRegisteredEvent { Customer = customer });
                 }
                 else if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.Enabled && model.CustomerNumber.HasValue())
@@ -594,7 +585,8 @@ namespace Smartstore.Admin.Controllers
 
                     // TODO: (mh) (core) Something is wrong here...
                     // Customer roles.
-                    newCustomerRoles.Each(x => {
+                    newCustomerRoles.Each(x => 
+                    {
                         _db.CustomerRoleMappings.Add(new CustomerRoleMapping
                         {
                             CustomerId = customer.Id,
@@ -708,10 +700,9 @@ namespace Smartstore.Admin.Controllers
             if (allowManagingCustomerRoles)
             {
                 var tuple = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
-                var customerRolesError = tuple.Item2;
-                if (customerRolesError.HasValue())
+                if (tuple.ErrMessage.HasValue())
                 {
-                    ModelState.AddModelError(string.Empty, customerRolesError);
+                    ModelState.AddModelError(string.Empty, tuple.ErrMessage);
                 }
             }
 
@@ -963,8 +954,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Impersonate(int id)
         {
             var customer = await _db.Customers
-                .Include(x => x.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole)
+                .IncludeCustomerRoles()
                 .FindByIdAsync(id);
 
             if (customer == null)
@@ -983,7 +973,7 @@ namespace Smartstore.Admin.Controllers
             Services.WorkContext.CurrentCustomer.GenericAttributes.ImpersonatedCustomerId = customer.Id;
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Home", new { area = "" });
+            return RedirectToRoute("Homepage");
         }
 
         [Permission(Permissions.System.Message.Send)]
@@ -1002,23 +992,19 @@ namespace Smartstore.Admin.Controllers
                     throw new SmartException(T("Admin.Customers.Customers.SendEmail.EmailNotValid"));
                 }
                 
-                var emailAccount = _emailAccountService.Value.GetDefaultEmailAccount();
-                if (emailAccount == null)
-                {
-                    throw new SmartException(T("Common.Error.NoEmailAccount"));
-                }
-                
+                var emailAccount = _emailAccountService.Value.GetDefaultEmailAccount() ?? throw new SmartException(T("Common.Error.NoEmailAccount"));
                 var messageContext = MessageContext.Create("System.Generic", Convert.ToInt32(customer.GenericAttributes.LanguageId));
 
                 var customModel = new NamedModelPart("Generic")
                 {
-                    ["ReplyTo"] = new MailAddress(emailAccount.Email, emailAccount.DisplayName),
+                    ["ReplyTo"] = emailAccount.ToMailAddress(),
                     ["Email"] = customer.Email,
                     ["Subject"] = model.Subject,
                     ["Body"] = model.Body
                 };
 
                 // TODO: (mh) (core) Model building fails.
+                // RE: Why? Please don't move on before resolving such important issues.
                 await _messageFactory.CreateMessageAsync(messageContext, true, customer, Services.StoreContext.CurrentStore, customModel);
 
                 NotifySuccess(T("Admin.Customers.Customers.SendEmail.Queued"));
@@ -1041,6 +1027,7 @@ namespace Smartstore.Admin.Controllers
             var rphs = await _db.RewardPointsHistory
                 .AsNoTracking()
                 .Where(x => x.CustomerId == customerId)
+                // TODO: (mh) (core) Sorting is enabled on datagrid. Why fixed sorting here? Check all other grids please.
                 .OrderByDescending(rph => rph.CreatedOnUtc)
                 .ThenByDescending(rph => rph.Id)
                 .ApplyGridCommand(command)
@@ -1070,17 +1057,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Update)]
         public async Task<IActionResult> RewardPointsInsert(CustomerModel.RewardPointsHistoryModel model, int customerId)
         {
-            var success = false;
-            var customer = await _db.Customers.FindByIdAsync(customerId);
-
-            if (customer == null)
-            {
-                throw new ArgumentException("No customer found with the specified id");
-            }
+            var customer = await _db.Customers.FindByIdAsync(customerId) ?? throw new ArgumentException("No customer found with the specified id");
 
             customer.AddRewardPointsHistoryEntry(model.Points, model.Message);
             await _db.SaveChangesAsync();
-            success = true;
+            bool success = true;
 
             return Json(new { success });
         }
@@ -1231,6 +1212,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             //var address = await _db.Addresses.FindByIdAsync(model.Address.Id, true);
+            // TODO: (mh) (core) (perf) No good idea to load all addresses just to edit a specific one.
             var address = customer.Addresses.Where(x => x.Id == model.Address.Id).FirstOrDefault();
             if (address == null)
             {
@@ -1263,6 +1245,7 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.Addresses)
                 .FindByIdAsync(customerId);
 
+            // TODO: (mh) (core) (perf) No good idea to load all addresses just to delete a specific one. Also, there's no need to load the customer at all.
             var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
 
             if (address != null)

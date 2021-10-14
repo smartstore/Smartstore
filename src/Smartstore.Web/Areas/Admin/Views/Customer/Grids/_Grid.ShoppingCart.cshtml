@@ -3,6 +3,10 @@
    
 @model ShoppingCartItemModel
 
+@{ 
+    // TODO: (mh) (core) Nothing is sortable here.
+}
+
 <datagrid id="currentshoppingcart-grid" allow-resize="true" >
     <datasource read="@Url.Action("GetCartList", new { customerId = ViewData["CustomerId"], cartTypeId = (int)ShoppingCartType.ShoppingCart })"/>
     <paging position="Bottom" />

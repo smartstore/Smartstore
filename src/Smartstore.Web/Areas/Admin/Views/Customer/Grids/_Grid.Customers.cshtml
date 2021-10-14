@@ -2,6 +2,10 @@
 
 @{
     var parentModel = ViewData["Parent"] as CustomerListModel;
+    // TODO: (mh) (core) Find some more initially hidden columns for the datagrid.
+    // TODO: (mh) (core) Don't forget: "Export" button in grid toolbar needs special consideration.
+    // TODO: (mh) (core) Don't forget: Inline (non .spa-layout) grids need "max-height".
+    // TODO: (mh) (core) Concerning inline grids: always think thoroughly about whether it makes sense to make a grid sortable.
 }
 
 <datagrid id="customers-grid"
@@ -37,7 +41,7 @@
         <partial name="Grids/_Grid.Customers.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="Id" />
+        <column for="Id" visible="false" />
         <column for="Email" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">
