@@ -2,15 +2,15 @@
 
 <div class="form-group">
     <smart-label asp-for="SearchEmail" />
-    <editor asp-for="SearchEmail" class="sf" />
+    <editor asp-for="SearchEmail" />
 </div>
 <div sm-if="Model.UsernamesEnabled" class="form-group">
     <smart-label asp-for="SearchUsername" />
-    <editor asp-for="SearchUsername" class="sf" />
+    <editor asp-for="SearchUsername" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchTerm" />
-    <editor asp-for="SearchTerm" class="sf" placeholder="@T("Admin.Customers.Customers.List.SearchTerm.Hint")" />
+    <editor asp-for="SearchTerm" placeholder="@T("Admin.Customers.Customers.List.SearchTerm.Hint")" />
 </div>
 @if (Model.DateOfBirthEnabled)
 {
@@ -40,11 +40,11 @@
 }
 <div sm-if="Model.PhoneEnabled" class="form-group">
     <smart-label asp-for="SearchPhone" />
-    <editor asp-for="SearchPhone" class="sf" />
+    <editor asp-for="SearchPhone" />
 </div>
 <div sm-if="Model.ZipPostalCodeEnabled" class="form-group">
     <smart-label asp-for="SearchZipPostalCode" />
-    <editor asp-for="SearchZipPostalCode" class="sf" />
+    <editor asp-for="SearchZipPostalCode" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchCustomerRoleIds" />
@@ -53,5 +53,5 @@
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchActiveOnly" />
-    <editor asp-for="SearchActiveOnly" class="sf" />
+    <editor asp-for="SearchActiveOnly" />
 </div>

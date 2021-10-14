@@ -35,5 +35,7 @@ namespace Smartstore.Admin.Models.Customers
 
         [LocalizedDisplay("*LastActivityDate")]
         public DateTime LastActivityDate { get; set; }
+
+        public string EditUrl { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders.Reporting;
@@ -16,12 +17,14 @@ namespace Smartstore.Admin.Models.Customers
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly CustomerSettings _customerSettings;
-
-        public CustomerHelper(SmartDbContext db, ICommonServices services, CustomerSettings customerSettings)
+        private readonly IUrlHelper _urlHelper;
+        
+        public CustomerHelper(SmartDbContext db, ICommonServices services, CustomerSettings customerSettings, IUrlHelper urlHelper)
         {
             _db = db;
             _services = services;
             _customerSettings = customerSettings;
+            _urlHelper = urlHelper;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -53,7 +56,8 @@ namespace Smartstore.Admin.Models.Customers
                     Username = customer?.Username,
                     FullName = customer?.GetFullName(),
                     Active = customer?.Active ?? false,
-                    LastActivityDate = _services.DateTimeHelper.ConvertToUserTime(customer?.LastActivityDateUtc ?? DateTime.MinValue, DateTimeKind.Utc)
+                    LastActivityDate = _services.DateTimeHelper.ConvertToUserTime(customer?.LastActivityDateUtc ?? DateTime.MinValue, DateTimeKind.Utc),
+                    EditUrl = _urlHelper.Action("Edit", "Customer", new { id = customer.Id })
                 };
 
                 return m;

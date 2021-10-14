@@ -461,6 +461,7 @@ namespace Smartstore.Admin.Controllers
 
             var searchQuery = _db.Customers
                 .AsNoTracking()
+                .IncludeCustomerRoles()
                 .ApplyIdentFilter(model.SearchEmail, model.SearchUsername)                                                  // TODO: (mh) (core) Searchfor customernumber
                 .ApplyBirthDateFilter(null, model.SearchMonthOfBirth.ToInt(), model.SearchDayOfBirth.ToInt())               // TODO: (mh) (core) Searchfor add year
                 .ApplyGridCommand(command, false);              

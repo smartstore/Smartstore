@@ -7,7 +7,6 @@
         <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true"></sort>
     </sorting>
     <columns>
-        @*TODO: (mh) (core) Reorder & realign *@
         <column for="Id" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">
@@ -15,11 +14,11 @@
                 </a>
             </display-template>
         </column>
-        <column for="OrderStatus" />
-        <column for="PaymentStatus" />
-        <column for="ShippingStatus" />
-        <column for="StoreName" />
-        <column for="CreatedOn" />
-        <column for="OrderTotal" halign="right" />
+        <column for="OrderStatus" sortable="false" />
+        <column for="PaymentStatus" sortable="false" />
+        <column for="ShippingStatus" sortable="false" />
+        <column for="StoreName" sortable="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+        <column for="OrderTotal" halign="right" sortable="false" />
     </columns>
 </datagrid>

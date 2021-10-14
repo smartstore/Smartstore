@@ -7,7 +7,8 @@
 <datagrid id="customers-grid"
           allow-resize="true"
           allow-row-selection="true"
-          allow-column-reordering="true">
+          allow-column-reordering="true"
+          onrowclass="customersGrid_onRowClass">
     <datasource read="@Url.Action("CustomerList")" delete="@Url.Action("Delete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
@@ -30,7 +31,6 @@
         <partial name="Grids/_Grid.Customers.Search" model="parentModel" />
     </search-panel>
     <columns>
-        @*TODO: (mh) (core) Reorder & realign *@
         <column for="Id" />
         <column for="Email" hideable="false">
             <display-template>
@@ -59,8 +59,16 @@
         {
             <column for="ZipPostalCode" />
         }
-        <column for="Active" halign="center" visible="false" />
-        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
-        <column for="LastActivityDate" visible="false" />
+        <column for="Active" halign="center" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+        <column for="LastActivityDate" entity-member="LastActivityDateUtc" />
     </columns>
 </datagrid>
+
+<script sm-target-zone="scripts" data-origin="customers-grid">
+    function customersGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.Active
+        };
+    }
+</script>
