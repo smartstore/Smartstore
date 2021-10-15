@@ -11,6 +11,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Caching;
 using Smartstore.Net.Mail;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
@@ -54,7 +55,11 @@ namespace Smartstore.Admin.Controllers
         {
             // INFO: (mh) (core) Very weird caching issue. With AsNoTracking created or deleted entities won't be removed/added to db cache.
             // RE: In backend listings, it's better not to overstress db cache: cache key computation can be expensive because it varies by paging, sorting, conditions etc.
+            // RE: OK, but the code worked everywhere else for cachable entities. So this is clearly a reproduceable bug.
+            //     Should we apply the current code changes (.AsNoCaching()) to all other listings of cachable entities?
             var emailAccounts = await _db.EmailAccounts              
+                .AsNoTracking()
+                .AsNoCaching()
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
