@@ -41,7 +41,8 @@
         <partial name="Grids/_Grid.Customers.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="Id" visible="false" />
+        @* TODO: (mh) (core) Id column should not be rendered locale specific, e.g. 123.456, but invariant (123456). Please check and fix in other grids. *@
+        <column for="Id" visible="false" type="string" />
         <column for="Email" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">

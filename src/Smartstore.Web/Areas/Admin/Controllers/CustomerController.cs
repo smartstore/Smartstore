@@ -1371,6 +1371,7 @@ namespace Smartstore.Admin.Controllers
                 var batchContext = _productService.CreateProductBatchContext(allProducts, store, customer, false);
                 var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, null, batchContext);
                 var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(sci, calculationOptions);
+                // TODO: (mh) (mg) (core) Throws if cart contains bundle items where any Product is null.
                 var (unitPrice, itemSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 
                 var sciModel = new ShoppingCartItemModel

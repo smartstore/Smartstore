@@ -78,10 +78,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     .ToList();
             }
 
-            if (options.ChildProductsBatchContext == null && context.BundleItems.Any())
+            if (options.ChildProductsBatchContext == null && context.BundleItems.Any(x => x.Product != null))
             {
                 // Create a batch context with all bundle item products.
-                var bundleItemProducts = context.BundleItems.Select(x => x.Product);
+                var bundleItemProducts = context.BundleItems
+                    .Where(x => x.Product != null)
+                    .Select(x => x.Product);
 
                 options.ChildProductsBatchContext = _productService.CreateProductBatchContext(bundleItemProducts, options.Store, options.Customer, false);
             }
