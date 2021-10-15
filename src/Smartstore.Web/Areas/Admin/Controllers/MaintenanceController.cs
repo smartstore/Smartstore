@@ -35,7 +35,7 @@ namespace Smartstore.Admin.Controllers
 {
     public class MaintenanceController : AdminController
     {
-        private const string BACKUP_DIR = "Backups";
+        private const string BACKUP_DIR = "DbBackups";
 
         private readonly SmartDbContext _db;
         private readonly IMemoryCache _memCache;
@@ -552,6 +552,7 @@ namespace Smartstore.Admin.Controllers
                     var fileName = $"{dbName}-{SmartstoreVersion.CurrentFullVersion}";
                     var i = 1;
 
+                    // TODO: (mg) (core) Call fs.CheckUniqueFileName()
                     for (; i < 10000; i++)
                     {
                         if (!await fs.FileExistsAsync(fs.PathCombine(dir.SubPath, $"{fileName}-{i}{extension}")))
