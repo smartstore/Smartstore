@@ -7,7 +7,9 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,11 +29,14 @@ using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
     public class MaintenanceController : AdminController
     {
+        private const string BACKUP_DIR = "Backups";
+
         private readonly SmartDbContext _db;
         private readonly IMemoryCache _memCache;
         private readonly ITaskScheduler _taskScheduler;
@@ -45,8 +50,8 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<MeasureSettings> _measureSettings;
 
         public MaintenanceController(
-            SmartDbContext db, 
-            IMemoryCache memCache, 
+            SmartDbContext db,
+            IMemoryCache memCache,
             ITaskScheduler taskScheduler,
             IHttpClientFactory httpClientFactory,
             Lazy<IImageCache> imageCache,
@@ -129,7 +134,7 @@ namespace Smartstore.Admin.Controllers
             {
                 await dbCache.ClearAsync();
             }
-            
+
             return new JsonResult
             (
                 new
@@ -187,8 +192,8 @@ namespace Smartstore.Admin.Controllers
                 var fi = new FileInfo(assembly.Location);
                 model.AppDate = fi.LastWriteTime.ToLocalTime();
             }
-            catch 
-            { 
+            catch
+            {
             }
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -345,7 +350,7 @@ namespace Smartstore.Admin.Controllers
                         break;
                 }
 
-                    model.Add(warningModel);
+                model.Add(warningModel);
             }
             catch (Exception exception)
             {
@@ -427,8 +432,8 @@ namespace Smartstore.Admin.Controllers
                     .Where(x => x.Value.ShippingRateComputationMethodType == ShippingRateComputationMethodType.Offline)
                     .Count();
             }
-            catch 
-            { 
+            catch
+            {
             }
 
             if (numActiveShippingMethods > 1)
@@ -443,8 +448,8 @@ namespace Smartstore.Admin.Controllers
             {
                 numActivePaymentMethods = (await _paymentService.Value.LoadActivePaymentMethodsAsync()).Count();
             }
-            catch 
-            { 
+            catch
+            {
             }
 
             if (numActivePaymentMethods > 0)
@@ -502,6 +507,126 @@ namespace Smartstore.Admin.Controllers
                 model.Add(new SystemWarningModel { Level = level, Text = text });
             }
         }
+
+        #region Database backup
+
+        [Permission(Permissions.System.Maintenance.Read)]
+        public async Task<IActionResult> BackupList()
+        {
+            var backups = await Services.ApplicationContext.TenantRoot
+                .EnumerateFilesAsync(BACKUP_DIR)
+                .AsyncToList();
+
+            var rows = backups
+                .Select(x =>
+                {
+                    var model = new DbBackupModel(x)
+                    {
+                        UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.LastModified.UtcDateTime, DateTimeKind.Utc)
+                    };
+
+                    return model;
+                })
+                .ToList();
+
+            return Json(new GridModel<DbBackupModel>
+            {
+                Rows = rows.OrderByDescending(x => x.UpdatedOn).ToList(),
+                Total = rows.Count
+            });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> CreateBackup()
+        {
+            try
+            {
+                if (_db.DataProvider.CanBackup)
+                {
+                    const string extension = ".bak";
+                    var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
+                    var fs = dir.FileSystem;
+
+                    var dbName = _db.DataProvider.Database.GetDbConnection().Database.NaIfEmpty().ToValidFileName();
+                    var fileName = $"{dbName}-{SmartstoreVersion.CurrentFullVersion}";
+                    var i = 1;
+
+                    for (; i < 10000; i++)
+                    {
+                        if (!await fs.FileExistsAsync(fs.PathCombine(dir.SubPath, $"{fileName}-{i}{extension}")))
+                        {
+                            break;
+                        }
+                    }
+
+                    fileName = $"{fileName}-{i}{extension}";
+
+                    var fullPath = fs.MapPath(fs.PathCombine(dir.SubPath, fileName));
+
+                    await _db.DataProvider.BackupDatabaseAsync(fullPath);
+                    // TODO: (mg) (core) notify
+                }
+                else
+                {
+                    // TODO: (mg) (core) notify about backup error.
+                    NotifyError("");
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> DeleteBackup(GridSelection selection)
+        {
+            var numDeleted = 0;
+            var root = Services.ApplicationContext.TenantRoot;
+
+            foreach (var fileName in selection.SelectedKeys)
+            {
+                if (await root.TryDeleteFileAsync(BACKUP_DIR + "\\" + fileName))
+                {
+                    numDeleted++;
+                }
+            }
+
+            return Json(new { Success = true, Count = numDeleted });
+        }
+
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> DownloadBackup(string fileName)
+        {
+            if (PathUtility.HasInvalidFileNameChars(fileName))
+            {
+                throw new BadHttpRequestException("Invalid file name: " + fileName.NaIfEmpty());
+            }
+
+            var root = Services.ApplicationContext.TenantRoot;
+            var backup = await root.GetFileAsync(BACKUP_DIR + "\\" + fileName);
+            var contentType = MimeTypes.MapNameToMimeType(backup.PhysicalPath);
+
+            try
+            {
+                return new FileStreamResult(backup.OpenRead(), contentType)
+                {
+                    FileDownloadName = fileName
+                };
+            }
+            catch (IOException)
+            {
+                NotifyWarning(T("Admin.Common.FileInUse"));
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        #endregion
 
         #region Utils
 
