@@ -66,7 +66,7 @@ namespace Smartstore.Core.Localization
         /// Creates a directory hasher used to determine module localization changes across app startups.
         /// </summary>
         /// <param name="moduleDescriptor">Descriptor of the module</param>
-        /// <returns>The hasher impl</returns>
+        /// <returns>The hasher impl or <c>null</c> if the localization directory does not exist.</returns>
         DirectoryHasher CreateModuleResourcesHasher(IModuleDescriptor moduleDescriptor);
     }
 }

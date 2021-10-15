@@ -112,6 +112,12 @@ namespace Smartstore.Engine.Modularity
             foreach (var module in modules)
             {
                 var hasher = resourceManager.CreateModuleResourcesHasher(module);
+
+                if (hasher == null)
+                {
+                    continue;
+                }
+
                 if (hasher.HasChanged)
                 {
                     await resourceManager.ImportModuleResourcesFromXmlAsync(module, null, false);

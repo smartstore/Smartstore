@@ -219,7 +219,7 @@ namespace Smartstore.Core.Localization
             try
             {
                 var hasher = CreateModuleResourcesHasher(moduleDescriptor);
-                hasher.Persist();
+                hasher?.Persist();
             }
             catch 
             { 
@@ -228,7 +228,14 @@ namespace Smartstore.Core.Localization
 
         public virtual DirectoryHasher CreateModuleResourcesHasher(IModuleDescriptor moduleDescriptor)
         {
-            return moduleDescriptor.ContentRoot.GetDirectoryHasher("Localization", "resources.*.xml");
+            try
+            {
+                return moduleDescriptor.ContentRoot.GetDirectoryHasher("Localization", "resources.*.xml");
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public virtual XmlDocument FlattenResourceFile(XmlDocument source)

@@ -10,7 +10,7 @@ namespace Smartstore
     public static partial class IFileSystemExtensions
     {
         /// <summary>
-        /// Retrieves a directory or a file.
+        /// Retrieves a file system entry.
         /// </summary>
         /// <param name="subpath">The relative path to the file or directory within the storage.</param>
         /// <returns>
@@ -31,7 +31,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Retrieves a directory or a file.
+        /// Retrieves a file system entry.
         /// </summary>
         /// <param name="subpath">The relative path to the file or directory within the storage.</param>
         /// <returns>
