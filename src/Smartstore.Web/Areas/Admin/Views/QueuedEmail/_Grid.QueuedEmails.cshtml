@@ -29,7 +29,7 @@
         <partial name="_Grid.QueuedEmails.Search" model="new QueuedEmailListModel()" />
     </search-panel>
     <columns>
-        <column for="Id" visible="false" width="max-content" resizable="false" />
+        <column for="Id" visible="false" width="max-content" resizable="false" type="string" />
         <column for="Subject" hideable="false">
             <display-template>
                 <i v-if="item.row.SentOn" class="far fa-paper-plane mr-2"></i>

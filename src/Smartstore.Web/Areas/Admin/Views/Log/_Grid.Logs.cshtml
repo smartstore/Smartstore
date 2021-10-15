@@ -25,7 +25,7 @@
         <partial name="_Grid.Logs.Search" model="new LogListModel()" />
     </search-panel>
     <columns>
-        <column for="Id" visible="false" />
+        <column for="Id" visible="false" type="string" />
         <column for="Logger" width="250px">
             <display-template>
                 <span class="text-muted text-truncate" :title="item.value">{{ item.row.LoggerShort }}</span>
