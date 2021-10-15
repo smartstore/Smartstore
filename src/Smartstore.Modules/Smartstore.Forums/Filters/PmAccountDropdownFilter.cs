@@ -22,14 +22,13 @@ namespace Smartstore.Forums.Filters
 
         public void OnResultExecuting(ResultExecutingContext filterContext)
         {
-            // TODO: (mg) (core) PM menu item CANNOT be placed below Signout item!
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
             {
                 if (_forumSettings.AllowPrivateMessages)
                 {
                     var widget = new ComponentWidgetInvoker(typeof(PmAccountDropdownViewComponent), null);
 
-                    _widgetProvider.Value.RegisterWidget(new[] { "account_dropdown_after" }, widget);
+                    _widgetProvider.Value.RegisterWidget(new[] { "account_dropdown_before" }, widget);
                 }
             }
         }

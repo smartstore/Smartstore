@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
@@ -68,31 +69,37 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets or sets a gift card coupon code
         /// </summary>
+        [StringLength(4000)]
         public string GiftCardCouponCode { get; set; }
 
         /// <summary>
         /// Gets or sets a recipient name
         /// </summary>
+        [StringLength(4000)]
         public string RecipientName { get; set; }
 
         /// <summary>
         /// Gets or sets a recipient email
         /// </summary>
+        [StringLength(4000)]
         public string RecipientEmail { get; set; }
 
         /// <summary>
         /// Gets or sets a sender name
         /// </summary>
+        [StringLength(4000)]
         public string SenderName { get; set; }
 
         /// <summary>
         /// Gets or sets a sender email
         /// </summary>
+        [StringLength(4000)]
         public string SenderEmail { get; set; }
 
         /// <summary>
         /// Gets or sets a message
         /// </summary>
+        [StringLength(4000)]
         public string Message { get; set; }
 
         /// <summary>

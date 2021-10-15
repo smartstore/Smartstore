@@ -194,6 +194,8 @@ namespace Smartstore.Core.Data.Migrations
                 "The sender email is invalid.",
                 "Die E-Mail Adresse des Absenders ist ungültig.");
 
+            builder.AddOrUpdate("Admin.Common.ViewObject", "View (#{0})", "Ansicht (#{0})");
+
             #endregion
 
             #region Packaging

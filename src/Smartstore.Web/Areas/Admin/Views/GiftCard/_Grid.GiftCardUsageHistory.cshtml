@@ -16,11 +16,11 @@
         <sort by="CreatedOn" descending="true" />
     </sorting>
     <columns>
-        <column for="UsedValue" entity-member="Amount" />
-        <column for="CreatedOn" width="auto" entity-member="CreatedOnUtc" />
+        <column for="UsedValue" width="auto" entity-member="Amount" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
         <column for="OrderId" hideable="false" width="1fr" entity-member="OrderId">
             <display-template>
-                <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">@T("Admin.Common.View") (#{{ item.value }})</a></div>
+                <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.row.OrderEditLinkText }}</a></div>
             </display-template>
         </column>
     </columns>

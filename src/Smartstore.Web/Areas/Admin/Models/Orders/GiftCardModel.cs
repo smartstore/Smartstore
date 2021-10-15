@@ -66,5 +66,6 @@ namespace Smartstore.Admin.Models.Orders
         public DateTime CreatedOn { get; set; }
 
         public string OrderEditUrl { get; set; }
+        public string OrderEditLinkText { get; set; }
     }
 }

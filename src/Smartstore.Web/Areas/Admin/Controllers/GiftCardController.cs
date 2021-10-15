@@ -117,7 +117,8 @@ namespace Smartstore.Admin.Controllers
                     OrderId = x.UsedWithOrderId,
                     UsedValue = Services.CurrencyService.PrimaryCurrency.AsMoney(x.UsedValue).ToString(true),
                     CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                    OrderEditUrl = Url.Action("Edit", "Order", new { id = x.UsedWithOrderId, area = "Admin" })
+                    OrderEditUrl = Url.Action("Edit", "Order", new { id = x.UsedWithOrderId, area = "Admin" }),
+                    OrderEditLinkText = T("Admin.Common.ViewObject", x.UsedWithOrderId)
                 })
                 .ToList();
 
@@ -285,6 +286,8 @@ namespace Smartstore.Admin.Controllers
                             await _db.SaveChangesAsync();
 
                             NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+
+                            return RedirectToAction("Edit", giftCard.Id);
                         }
                     }
                     else

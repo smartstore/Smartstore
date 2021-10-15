@@ -278,7 +278,8 @@ namespace Smartstore.Admin.Controllers
                     OrderId = x.OrderId,
                     CreatedOnUtc = x.CreatedOnUtc,
                     CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                    OrderEditUrl = Url.Action("Edit", "Order", new { id = x.OrderId, area = "Admin" })
+                    OrderEditUrl = Url.Action("Edit", "Order", new { id = x.OrderId, area = "Admin" }),
+                    OrderEditLinkText = T("Admin.Common.ViewObject", x.OrderId)
                 })
                 .ToList();
 

@@ -18,8 +18,8 @@
 <input type="hidden" asp-for="Id" />
 
 <tabstrip id="discount-edit" sm-nav-style="Material">
-	<tab sm-title="@T("Admin.Common.General")" sm-selected="true">
-		<div class="adminContent">
+    <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+        <div class="adminContent">
             <div sm-if="Model.Id != 0" class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="Id" />
@@ -29,15 +29,15 @@
                     <span asp-validation-for="Id"></span>
                 </div>
             </div>
-		    <div class="adminRow">
-			    <div class="adminTitle">
-				    <smart-label asp-for="Name" />
-			    </div>
-			    <div class="adminData">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Name" />
+                </div>
+                <div class="adminData">
                     <input asp-for="Name" />
-				    <span asp-validation-for="Name"></span>
-			    </div>
-		    </div>
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
             <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="DiscountTypeId" />
@@ -165,10 +165,13 @@
                 </div>
             </div>
         </div>
-	</tab>
-	<tab sm-title="@T("Admin.Promotions.Discounts.History")">
-        <partial name="_Grid.DiscountUsageHistory" model="null" view-data="discountUsageHistoryViewData" />   
-	</tab>
+    </tab>
+    @if (Model.Id > 0)
+    {
+        <tab sm-title="@T("Admin.Promotions.Discounts.History")">
+            <partial name="_Grid.DiscountUsageHistory" model="null" view-data="discountUsageHistoryViewData" />
+        </tab>
+    }
 </tabstrip>
 
 <script sm-target-zone="scripts" data-origin="discount-edit">

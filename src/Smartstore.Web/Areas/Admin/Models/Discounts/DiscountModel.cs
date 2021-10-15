@@ -97,6 +97,7 @@ namespace Smartstore.Admin.Models.Discounts
     {
         public int DiscountId { get; set; }
         public string OrderEditUrl { get; set; }
+        public string OrderEditLinkText { get; set; }
 
         [LocalizedDisplay("Admin.Promotions.Discounts.History.Order")]
         public int OrderId { get; set; }

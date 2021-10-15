@@ -28,7 +28,9 @@
                 </div>
                 <div class="adminData">
                     <div class="form-control-plaintext">
-                        <a asp-action="Edit" asp-controller="Order" asp-route-id="Model.PurchasedWithOrderId.Value">@Model.PurchasedWithOrderId.Value</a>
+                        <a asp-action="Edit" asp-controller="Order" asp-route-id="@Model.PurchasedWithOrderId.Value">
+                            @T("Admin.Common.ViewObject", Model.PurchasedWithOrderId.Value)
+                        </a>
                     </div>
                 </div>
             </div>
@@ -63,13 +65,15 @@
                     <smart-label asp-for="GiftCardCouponCode" />
                 </div>
                 <div class="adminData">
-                    <editor asp-for="IsGiftCardActivated" />
-                    <span class="input-group-append">
-                        <button type="button" name="generateCouponCode" id="generateCouponCode" class="btn btn-outline-secondary">
-                            <i class="fa fa-cog"></i>
-                            <span>@T("Admin.GiftCards.Fields.GiftCardCouponCode.Generate")</span>
-                        </button>
-                    </span>
+                    <div class="input-group">
+                        <input asp-for="GiftCardCouponCode" />
+                        <span class="input-group-append">
+                            <button type="button" name="generateCouponCode" id="generateCouponCode" class="btn btn-outline-secondary">
+                                <i class="fa fa-cog"></i>
+                                <span>@T("Admin.GiftCards.Fields.GiftCardCouponCode.Generate")</span>
+                            </button>
+                        </span>
+                    </div>
                     <span asp-validation-for="GiftCardCouponCode"></span>
                 </div>
             </div>
@@ -118,14 +122,14 @@
                     <span asp-validation-for="Message"></span>
                 </div>
             </div>
-            <div class="adminRow">
+            <div sm-if="Model.Id > 0" class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="IsRecipientNotified" />
                 </div>
                 <div class="adminData">
                     <span class="pr-3">@T(Model.IsRecipientNotified ? "Admin.Common.Yes" : "Admin.Common.No")</span>
 
-                    <button type="submit" name="notifyRecipient" value="notifyRecipient" class="btn btn-secondary">
+                    <button type="submit" name="notifyRecipient" value="notifyRecipient" class="btn btn-secondary confirm">
                         <i class="fa fa-envelope"></i>
                         <span>@T("Admin.GiftCards.Fields.IsRecipientNotified.Notify")</span>
                     </button>
@@ -143,9 +147,12 @@
             </div>
         </div>
     </tab>
-    <tab sm-title="@T("Admin.GiftCards.History")">
-        <partial name="_Grid.GiftCardUsageHistory" model="null" view-data="giftCardUsageHistoryViewData" />
-    </tab>
+    @if (Model.Id > 0)
+    {
+        <tab sm-title="@T("Admin.GiftCards.History")">
+            <partial name="_Grid.GiftCardUsageHistory" model="null" view-data="giftCardUsageHistoryViewData" />
+        </tab>
+    }
 </tabstrip>
 
 <script sm-target-zone="scripts" data-origin="giftcard-edit">

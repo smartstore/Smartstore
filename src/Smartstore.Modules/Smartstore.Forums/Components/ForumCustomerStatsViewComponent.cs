@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Forums.Models.Public;
 using Smartstore.Forums.Services;
 using Smartstore.Web.Components;
@@ -21,16 +23,19 @@ namespace Smartstore.Forums.Components
 
         public async Task<IViewComponentResult> InvokeAsync(int customerId)
         {
-            var customer = await _db.Customers.FindByIdAsync(customerId, false);
-            if (customer == null)
+            var postCountAttribute = await _db.GenericAttributes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.EntityId == customerId && x.KeyGroup == nameof(Customer) && x.Key == ForumService.ForumPostCountKey);
+
+            var postCount = postCountAttribute?.Value?.ToInt() ?? 0;
+            if (postCount == 0)
             {
                 return Empty();
             }
 
             var model = new ForumCustomerStatsModel
             {
-                // TODO: (mg) (core) (perf) Why loading Customer from DB? Just load ForumPostCount GenericAttribute.
-                TotalPosts = customer.GenericAttributes.Get<int>(ForumService.ForumPostCountKey)
+                TotalPosts = postCount
             };
 
             return View(model);
