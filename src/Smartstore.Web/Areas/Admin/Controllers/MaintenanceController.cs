@@ -75,10 +75,16 @@ namespace Smartstore.Admin.Controllers
             _measureSettings = measureSettings;
         }
 
+        #region Maintenance
+
         [Permission(Permissions.System.Maintenance.Read)]
         public async Task<IActionResult> Index()
         {
-            var model = new MaintenanceModel();
+            var model = new MaintenanceModel 
+            {
+                CanExecuteSql = _db.DataProvider.CanExecuteSqlScript
+            };
+
             model.DeleteGuests.EndDate = DateTime.UtcNow.AddDays(-7);
             model.DeleteGuests.OnlyWithoutShoppingCart = true;
 
@@ -89,6 +95,49 @@ namespace Smartstore.Admin.Controllers
 
             return View(model);
         }
+
+        [HttpPost, ActionName("Index")]
+        [FormValueRequired("delete-image-cache")]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> DeleteImageCache()
+        {
+            await _imageCache.Value.ClearAsync();
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost, ActionName("Index")]
+        [FormValueRequired("delete-export-files")]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> DeleteExportFiles()
+        {
+            await Task.Delay(100);
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost, ActionName("Index")]
+        [FormValueRequired("execute-sql-query")]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> ExecuteSql(MaintenanceModel model)
+        {
+            if (_db.DataProvider.CanExecuteSqlScript && model.SqlQuery.HasValue())
+            {
+                try
+                {
+                    await _db.DataProvider.ExecuteSqlScriptAsync(model.SqlQuery);
+                    NotifySuccess(T("Admin.System.Maintenance.SqlQuery.Succeeded"));
+                }
+                catch (Exception exception)
+                {
+                    NotifyError(exception);
+                }
+            }
+
+            return View(model);
+        }
+
+        #endregion
+
+        #region Common
 
         [Permission(Permissions.System.Maintenance.Execute)]
         public IActionResult RestartApplication(string returnUrl = null)
@@ -144,6 +193,10 @@ namespace Smartstore.Admin.Controllers
                 }
             );
         }
+
+        #endregion
+
+        #region SystemInfo
 
         [Permission(Permissions.System.Maintenance.Read)]
         public async Task<IActionResult> SystemInfo()
@@ -261,6 +314,10 @@ namespace Smartstore.Admin.Controllers
 
             return RedirectToReferrer();
         }
+
+        #endregion
+
+        #region Warnings
 
         [Permission(Permissions.System.Maintenance.Read)]
         public async Task<IActionResult> Warnings()
@@ -507,6 +564,8 @@ namespace Smartstore.Admin.Controllers
                 model.Add(new SystemWarningModel { Level = level, Text = text });
             }
         }
+
+        #endregion
 
         #region Database backup
 

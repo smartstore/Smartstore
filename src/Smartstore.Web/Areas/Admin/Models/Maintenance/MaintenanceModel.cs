@@ -9,6 +9,8 @@ namespace Smartstore.Admin.Models.Maintenance
         public DeleteExportedFilesModel DeleteExportedFiles { get; set; } = new();
         public DeleteImageCacheModel DeleteImageCache { get; set; } = new();
 
+        public bool CanExecuteSql { get; set; }
+
         [LocalizedDisplay("Admin.System.Maintenance.SqlQuery")]
         public string SqlQuery { get; set; }
 

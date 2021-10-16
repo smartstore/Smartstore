@@ -146,7 +146,7 @@ namespace Smartstore.Core.Content.Media.Imaging
             long fileCount = 0;
             long totalSize = 0;
 
-            if (!await _fileSystem.FileExistsAsync(_thumbsRootDir))
+            if (!await _fileSystem.DirectoryExistsAsync(_thumbsRootDir))
             {
                 return (0, 0);
             }

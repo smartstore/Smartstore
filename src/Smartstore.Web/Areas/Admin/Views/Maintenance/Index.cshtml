@@ -1,0 +1,121 @@
+﻿@using Smartstore.Admin.Models.Maintenance;
+@using Smartstore.Utilities
+@using Smartstore.Collections
+
+@model MaintenanceModel
+
+@{
+    ViewBag.Title = T("Admin.System.Maintenance").Value;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-database"></i>
+        @T("Admin.System.Maintenance")
+    </div>
+</div>
+
+<form asp-antiforgery="true" method="post">
+
+    <div class="container">
+
+        @* ImageCache *@
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title">
+                        @T("Admin.System.Maintenance.DeleteImageCache")
+                    </h5>
+                    <button type="submit" name="delete-image-cache" value="delete-image-cache" class="btn btn-secondary btn-to-danger confirm" style="width: 200px">
+                        <i class="far fa-trash-alt"></i>
+                        <span>@T("Admin.Header.ClearCache")</span>
+                    </button>
+                </div>
+                <div class="row">
+                    <div class="col-auto">
+                        <div>@Html.DisplayNameFor(model => model.DeleteImageCache.NumFiles)</div>
+                        <div class="text-muted">@Model.DeleteImageCache.NumFiles</div>
+                    </div>
+                    <div class="col-auto">
+                        <div>@Html.DisplayNameFor(model => model.DeleteImageCache.TotalSize)</div>
+                        <div class="text-muted">@Model.DeleteImageCache.TotalSize</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        @* DeleteGuests *@
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title">
+                        @T("Admin.System.Maintenance.DeleteGuests")
+                    </h5>
+                    <button type="submit" name="delete-guests" value="delete-guests" class="btn btn-secondary btn-to-danger confirm" style="width: 200px">
+                        <i class="far fa-trash-alt"></i>
+                        <span>@T("Admin.Common.Delete")</span>
+                    </button>
+                </div>
+                <div class="row sm-gutters">
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <smart-label asp-for="DeleteGuests.StartDate" />
+                        <editor asp-for="DeleteGuests.StartDate" />
+                    </div>
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <smart-label asp-for="DeleteGuests.EndDate" />
+                        <editor asp-for="DeleteGuests.EndDate" />
+                    </div>
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <smart-label asp-for="DeleteGuests.OnlyWithoutShoppingCart" />
+                        <div>
+                            <editor asp-for="DeleteGuests.OnlyWithoutShoppingCart" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        @* DeleteExportedFiles *@
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title">
+                        @T("Admin.System.Maintenance.DeleteExportedFiles")
+                    </h5>
+                    <button type="submit" name="delete-export-files" value="delete-export-files" class="btn btn-secondary btn-to-danger confirm" data-confirm-message='@T("Admin.Common.AreYouSure")' style="width: 200px">
+                        <i class="far fa-trash-alt"></i>
+                        <span>@T("Admin.Common.Delete")</span>
+                    </button>
+                </div>
+                <div class="row sm-gutters">
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <smart-label asp-for="DeleteExportedFiles.StartDate" />
+                        <editor asp-for="DeleteExportedFiles.StartDate" />
+                    </div>
+                    <div class="col-12 col-md-4 mb-2 mb-md-0">
+                        <smart-label asp-for="DeleteExportedFiles.EndDate" />
+                        <editor asp-for="DeleteExportedFiles.EndDate" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* SqlQueryExecute *@
+        <div sm-if="Model.CanExecuteSql" class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title">
+                        @T("Admin.System.Maintenance.SqlQueryTitle")
+                    </h5>
+                    <button type="submit" name="execute-sql-query" value="execute-sql-query" class="btn btn-secondary btn-to-danger confirm" data-confirm-message='@T("Admin.Common.AreYouSure")' style="width: 200px">
+                        <i class="fa fa-bolt"></i>
+                        <span>@T("Admin.System.Maintenance.SqlQueryExecute")</span>
+                    </button>
+                </div>
+                <textarea asp-for="SqlQuery" rows="10" placeholder="@Html.DisplayNameFor(model => model.SqlQuery)"></textarea>
+            </div>
+        </div>
+    </div>
+</form>
