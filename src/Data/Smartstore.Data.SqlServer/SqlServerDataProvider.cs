@@ -78,6 +78,12 @@ namespace Smartstore.Data.SqlServer
             | DataProviderFeatures.Restore | DataProviderFeatures.AccessIncrement | DataProviderFeatures.Shrink | DataProviderFeatures.StreamBlob
             | DataProviderFeatures.StoredProcedures;
 
+        public override string EncloseIdentifier(string identifier)
+        {
+            Guard.NotEmpty(identifier, nameof(identifier));
+            return identifier.EnsureStartsWith('[').EnsureEndsWith(']');
+        }
+
         public override int ShrinkDatabase()
         {
             return Database.ExecuteSqlRaw("DBCC SHRINKDATABASE(0)");

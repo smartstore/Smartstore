@@ -395,6 +395,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Validation.MustBeANumber", "'{PropertyName}' muss be a number.", "'{PropertyName}' muss eine Zahl sein.");
             builder.AddOrUpdate("Validation.NonPropertyMustBeANumber", "The field muss be a number.", "Das Feld muss eine Zahl sein.");
 
+            builder.AddOrUpdate("Admin.System.Maintenance.SqlQuery.Succeeded",
+                "The SQL command was executed successfully. Rows affected: {0}.",
+                "Die SQL-Anweisung wurde erfolgreich ausgeführt. Betroffene Zeilen: {0}.");
+
             #endregion
 
             #region Obsolete

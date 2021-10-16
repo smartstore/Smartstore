@@ -39,6 +39,12 @@ namespace Smartstore.Data.MySql
             => DataProviderFeatures.AccessIncrement | DataProviderFeatures.ReIndex | DataProviderFeatures.Shrink | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.ExecuteSqlScript | DataProviderFeatures.StreamBlob | DataProviderFeatures.StoredProcedures;
 
+        public override string EncloseIdentifier(string identifier)
+        {
+            Guard.NotEmpty(identifier, nameof(identifier));
+            return identifier.EnsureStartsWith('`').EnsureEndsWith('`');
+        }
+
         protected override int? GetTableIncrementCore(string tableName)
         {
             return Database.ExecuteScalarInterpolated<decimal?>(

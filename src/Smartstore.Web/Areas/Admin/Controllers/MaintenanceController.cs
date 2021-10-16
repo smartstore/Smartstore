@@ -21,6 +21,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
@@ -41,6 +42,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IMemoryCache _memCache;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICustomerService _customerService;
         private readonly Lazy<IImageCache> _imageCache;
         private readonly Lazy<IFilePermissionChecker> _filePermissionChecker;
         private readonly Lazy<ICurrencyService> _currencyService;
@@ -54,6 +56,7 @@ namespace Smartstore.Admin.Controllers
             IMemoryCache memCache,
             ITaskScheduler taskScheduler,
             IHttpClientFactory httpClientFactory,
+            ICustomerService customerService,
             Lazy<IImageCache> imageCache,
             Lazy<IFilePermissionChecker> filePermissionChecker,
             Lazy<ICurrencyService> currencyService,
@@ -66,6 +69,7 @@ namespace Smartstore.Admin.Controllers
             _memCache = memCache;
             _taskScheduler = taskScheduler;
             _httpClientFactory = httpClientFactory;
+            _customerService = customerService;
             _imageCache = imageCache;
             _filePermissionChecker = filePermissionChecker;
             _currencyService = currencyService;
@@ -106,6 +110,31 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost, ActionName("Index")]
+        [FormValueRequired("delete-guests")]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> DeleteGuestAccounts(MaintenanceModel model)
+        {
+            var dtHelper = Services.DateTimeHelper;
+
+            DateTime? startDateValue = model.DeleteGuests.StartDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.DeleteGuests.StartDate.Value, dtHelper.CurrentTimeZone);
+
+            DateTime? endDateValue = model.DeleteGuests.EndDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.DeleteGuests.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+
+            var numDeletedCustomers = await _customerService.DeleteGuestCustomersAsync(
+                startDateValue, 
+                endDateValue, 
+                model.DeleteGuests.OnlyWithoutShoppingCart);
+
+            NotifyInfo(T("Admin.System.Maintenance.DeleteGuests.TotalDeleted", numDeletedCustomers));
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost, ActionName("Index")]
         [FormValueRequired("delete-export-files")]
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> DeleteExportFiles()
@@ -124,16 +153,17 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
-                    await _db.DataProvider.ExecuteSqlScriptAsync(model.SqlQuery);
-                    NotifySuccess(T("Admin.System.Maintenance.SqlQuery.Succeeded"));
+                    var rowsAffected = await _db.DataProvider.ExecuteSqlScriptAsync(model.SqlQuery);
+                    NotifySuccess(T("Admin.System.Maintenance.SqlQuery.Succeeded", rowsAffected));
                 }
                 catch (Exception exception)
                 {
                     NotifyError(exception);
+                    return View(model);
                 }
             }
 
-            return View(model);
+            return RedirectToAction("Index");
         }
 
         #endregion

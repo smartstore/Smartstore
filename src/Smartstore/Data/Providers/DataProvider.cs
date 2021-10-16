@@ -168,6 +168,13 @@ namespace Smartstore.Data.Providers
         #region Sql / Execution strategy
 
         /// <summary>
+        /// Encloses the given <paramref name="identifier"/> in provider specific quotes, e.g. [] for MSSQL, `` for MySql.
+        /// </summary>
+        /// <returns>The enclosed identifier, e.g. <c>MyColumn</c> --> <c>[MyColumn]</c>.</returns>
+        public virtual string EncloseIdentifier(string identifier)
+            => throw new NotSupportedException();
+
+        /// <summary>
         /// Executes the given INSERT INTO sql command and returns ident of the inserted row.
         /// </summary>
         /// <returns>The ident / primary key value of the newly inserted row.</returns>
@@ -290,16 +297,17 @@ namespace Smartstore.Data.Providers
         /// <summary>
         /// Executes a (multiline) sql script
         /// </summary>
-        public virtual async Task ExecuteSqlScriptAsync(string sqlScript, CancellationToken cancelToken = default)
+        public virtual async Task<int> ExecuteSqlScriptAsync(string sqlScript, CancellationToken cancelToken = default)
         {
             var sqlCommands = TokenizeSqlScript(sqlScript);
+            var rowsAffected = 0;
 
             using var tx = await Database.BeginTransactionAsync(cancelToken);
             try
             {
                 foreach (var command in sqlCommands)
                 {
-                    await Database.ExecuteSqlRawAsync(command, cancelToken);
+                    rowsAffected += await Database.ExecuteSqlRawAsync(command, cancelToken);
                 }
 
                 await tx.CommitAsync(cancelToken);
@@ -307,7 +315,10 @@ namespace Smartstore.Data.Providers
             catch
             {
                 await tx.RollbackAsync(cancelToken);
+                throw;
             }
+
+            return rowsAffected;
         }
 
         protected virtual IList<string> TokenizeSqlScript(string sqlScript)
