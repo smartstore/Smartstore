@@ -110,6 +110,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> DeleteExportFiles()
         {
+            // TODO: (mg) (core) Implement MaintenanceController.DeleteExportFiles(). But move the heavy stuff to IExportProfileService and just call it from here.
             await Task.Delay(100);
             return RedirectToAction("Index");
         }
