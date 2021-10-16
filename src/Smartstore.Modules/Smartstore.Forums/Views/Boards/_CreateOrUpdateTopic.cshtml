@@ -47,15 +47,15 @@
         </div>
     </div>
     <div sm-if="Model.IsModerator" class="row">
-        <div class="col">
+        <div class="col d-flex align-items-center">
             <input asp-for="Published" type="checkbox" />
-			<label asp-for="Published" class="pl-1">@T("Common.Published")</label>
+			<label asp-for="Published" class="pl-2 m-0">@T("Common.Published")</label>
         </div>
     </div>
     <div sm-if="Model.IsModerator" class="row">
-        <div class="col">
+        <div class="col d-flex align-items-center">
             <input asp-for="IsSubscribed" type="checkbox" />
-			<label asp-for="IsSubscribed" class="pl-1">@T("Forum.NotifyWhenSomeonePostsInThisTopic")</label>
+			<label asp-for="IsSubscribed" class="pl-2 m-0">@T("Forum.NotifyWhenSomeonePostsInThisTopic")</label>
         </div>
     </div>
 
