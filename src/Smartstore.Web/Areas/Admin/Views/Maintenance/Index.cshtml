@@ -103,6 +103,17 @@
             </div>
         </div>
 
+        @* DbBackups *@
+        @* TODO: (mg) (core) Missing "CanCreateBackup" *@
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3">
+                    @T("Admin.System.Maintenance.DbBackup")
+                </h5>
+                <partial name="_Grid.Backups" model="null" />
+            </div>
+        </div>
+
         @* SqlQueryExecute *@
         <div sm-if="Model.CanExecuteSql" class="card mb-4">
             <div class="card-body">
@@ -116,17 +127,6 @@
                     </button>
                 </div>
                 <textarea asp-for="SqlQuery" rows="10" placeholder="@Html.DisplayNameFor(model => model.SqlQuery)"></textarea>
-            </div>
-        </div>
-
-        @* DbBackups *@
-        @* TODO: (mg) (core) Missing "CanCreateBackup" *@
-        <div class="mb-4">
-            <div class="mb-3">
-                <h5>@T("Admin.System.Maintenance.DbBackup")</h5>
-            </div>
-            <div>
-                <partial name="_Grid.Backups" model="null" />
             </div>
         </div>
 

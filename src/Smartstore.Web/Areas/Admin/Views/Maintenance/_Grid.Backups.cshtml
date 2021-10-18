@@ -8,6 +8,7 @@
           allow-row-selection="true"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true"
+          max-height="600px"
           onrowclass="dbbackupsGrid_onRowClass">
     <datasource read="@Url.Action("BackupList")" delete="@Url.Action("DeleteBackup")" />
     <paging enabled="false" position="Bottom" show-size-chooser="true" />
