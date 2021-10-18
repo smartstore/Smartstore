@@ -404,19 +404,20 @@ namespace Smartstore.Core.DataExchange.Export
 
         public virtual async Task<(int DeletedFiles, int DeletedFolders)> DeleteExportFilesAsync(DateTime? startDate, DateTime? endDate)
         {
-            var numberOfFiles = 0;
-            var numberOfFolders = 0;
+            var numFiles = 0;
+            var numFolders = 0;
             var webRoot = _appContext.WebRoot;
             var tenantRoot = _appContext.TenantRoot;
 
             await DeleteContent(await webRoot.GetDirectoryAsync(webRoot.PathCombine(DataExporter.PublicDirectoryName)));
             await DeleteContent(await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(EXPORT_FILE_ROOT)));
 
-            return (numberOfFiles, numberOfFolders);
+            return (numFiles, numFolders);
 
             async Task DeleteContent(IDirectory dir)
             {
-                var files = await dir.EnumerateFilesAsync(deep: true).AsyncToList();
+                // INFO: (mg) (core) Don't overuse IFileSystem async pattern if you know for sure that storage is LOCAL. Because local fs does not support async read.
+                var files = dir.EnumerateFiles(deep: true);
 
                 foreach (var file in files)
                 {
@@ -424,13 +425,11 @@ namespace Smartstore.Core.DataExchange.Export
                     {
                         try
                         {
-                            var info = new FileInfo(file.PhysicalPath);
-
-                            if ((!startDate.HasValue || startDate.Value < info.CreationTimeUtc) &&
-                                (!endDate.HasValue || info.CreationTimeUtc < endDate.Value))
+                            if ((!startDate.HasValue || startDate.Value < file.CreatedOn) &&
+                                (!endDate.HasValue || file.CreatedOn < endDate.Value))
                             {
                                 await file.DeleteAsync();
-                                numberOfFiles++;
+                                numFiles++;
                             }
                         }
                         catch
@@ -440,13 +439,13 @@ namespace Smartstore.Core.DataExchange.Export
                     }
                 }
 
-                foreach (var dirInfo in new DirectoryInfo(dir.PhysicalPath).GetDirectories())
+                foreach (var subdir in dir.EnumerateDirectories())
                 {
-                    if ((!startDate.HasValue || startDate.Value < dirInfo.LastWriteTimeUtc) &&
-                        (!endDate.HasValue || dirInfo.LastWriteTimeUtc < endDate.Value))
+                    if ((!startDate.HasValue || startDate.Value < subdir.LastModified) &&
+                        (!endDate.HasValue || subdir.LastModified < endDate.Value))
                     {
-                        dirInfo.Delete(true);
-                        numberOfFolders++;
+                        subdir.Delete();
+                        numFolders++;
                     }
                 }
             }

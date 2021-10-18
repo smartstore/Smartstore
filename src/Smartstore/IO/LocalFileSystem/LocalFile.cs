@@ -65,6 +65,12 @@ namespace Smartstore.IO
         }
 
         /// <inheritdoc />
+        public DateTimeOffset CreatedOn
+        {
+            get => _fi.CreationTimeUtc;
+        }
+
+        /// <inheritdoc />
         public DateTimeOffset LastModified
         {
             get => _fi.LastWriteTimeUtc;

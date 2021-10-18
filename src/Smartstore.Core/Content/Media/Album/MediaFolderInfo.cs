@@ -19,6 +19,7 @@ namespace Smartstore.Core.Content.Media
         private readonly IMediaSearcher _mediaSearcher;
         private readonly IFolderService _folderService;
         private readonly MediaExceptionFactory _exceptionFactory;
+        private readonly DateTimeOffset _now;
 
         public MediaFolderInfo(
             TreeNode<MediaFolderNode> node,
@@ -32,6 +33,7 @@ namespace Smartstore.Core.Content.Media
             _mediaSearcher = mediaSearcher;
             _folderService = folderService;
             _exceptionFactory = exceptionFactory;
+            _now = DateTimeOffset.UtcNow;
         }
 
         [JsonIgnore]
@@ -63,7 +65,11 @@ namespace Smartstore.Core.Content.Media
 
         /// <inheritdoc/>
         [JsonIgnore]
-        DateTimeOffset IFileInfo.LastModified => DateTime.UtcNow;
+        DateTimeOffset IFileEntry.CreatedOn => _now;
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        DateTimeOffset IFileInfo.LastModified => _now;
 
         /// <inheritdoc/>
         [JsonIgnore]

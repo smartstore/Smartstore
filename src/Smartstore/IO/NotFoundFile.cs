@@ -18,6 +18,7 @@ namespace Smartstore.IO
         public IFileSystem FileSystem { get; }
         public bool Exists => false;
         public bool IsDirectory => false;
+        public DateTimeOffset CreatedOn => DateTimeOffset.MinValue;
         public DateTimeOffset LastModified => DateTimeOffset.MinValue;
         public long Length => -1;
         public Size Size => Size.Empty;

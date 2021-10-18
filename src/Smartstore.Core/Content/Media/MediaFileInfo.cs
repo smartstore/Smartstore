@@ -92,7 +92,7 @@ namespace Smartstore.Core.Content.Media
         public bool Hidden => File.Hidden;
 
         [JsonProperty("createdOn")]
-        public DateTime CreatedOn => File.CreatedOnUtc;
+        public DateTimeOffset CreatedOn => File.CreatedOnUtc;
 
         [JsonProperty("alt", NullValueHandling = NullValueHandling.Ignore)]
         public string Alt

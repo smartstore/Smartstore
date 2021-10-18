@@ -16,6 +16,7 @@ namespace Smartstore.IO
         public bool IsDirectory => true;
         public bool IsRoot => false;
         public IDirectory Parent => null;
+        public DateTimeOffset CreatedOn => DateTimeOffset.MinValue;
         public DateTimeOffset LastModified => DateTimeOffset.MinValue;
         public long Length => -1;
 

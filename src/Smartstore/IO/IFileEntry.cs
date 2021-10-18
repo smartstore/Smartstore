@@ -18,6 +18,11 @@ namespace Smartstore.IO
         string SubPath { get; }
 
         /// <summary>
+        /// When the entry was created (UTC)
+        /// </summary>
+        DateTimeOffset CreatedOn { get; }
+
+        /// <summary>
         /// Determines whether this file system entry is a symbolic link.
         /// </summary>
         /// <param name="finalTargetPath">The final target path if the entry is a symbolic link, <c>null</c> otherwise</param>
