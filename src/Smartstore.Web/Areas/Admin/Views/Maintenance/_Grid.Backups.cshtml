@@ -37,11 +37,13 @@
     <columns>
         <column for="Name" hideable="false" width="2fr">
             <display-template>
+                @* TODO: (mg) (core) Make row-command for download. Don't link here (potentially big file). *@
                 <div class="text-truncate"><a :href="item.row.DownloadUrl" class="text-truncate" title="@T("Admin.System.Maintenance.DbBackup.Download")">{{ item.value }}</a></div>
             </display-template>
         </column>
         <column for="IsCurrentVersion" halign="center" />
         <column for="Version" visible="false" />
+        @* TODO: (mg) (core) CreatedOn, not UpdatedOn. You cannot update a backup. *@
         <column for="UpdatedOn" />
         <column for="LengthString" halign="center" />
     </columns>

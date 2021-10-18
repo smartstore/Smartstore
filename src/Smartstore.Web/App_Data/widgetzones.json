@@ -112,6 +112,7 @@
 				"account_dropdown_before",
 				"account_dropdown_after",
 				"account_dropdown_logout_divider_before",
+				"account_dropdown_logout_divider_after",
 				"myaccount_menu_before",
 				"myaccount_menu_after"
 			]

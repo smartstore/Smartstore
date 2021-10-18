@@ -154,6 +154,8 @@ namespace Smartstore.Data.SqlServer
         {
             Guard.NotEmpty(fullPath, nameof(fullPath));
 
+            // TODO: (mg) (core) SqlServer Express does not support compressed backups (runtime error). Maybe we can check 
+            // for Express Edition somehow and append the COMPRESSED switch only if != Express (?)
             return Database.ExecuteSqlRaw(
                 "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT", fullPath);
         }
@@ -162,8 +164,10 @@ namespace Smartstore.Data.SqlServer
         {
             Guard.NotEmpty(fullPath, nameof(fullPath));
 
+            // TODO: (mg) (core) SqlServer Express does not support compressed backups (runtime error). Maybe we can check 
+            // for Express Edition somehow and append the COMPRESSED switch only if != Express (?)
             return Database.ExecuteSqlRawAsync(
-                "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT, COMPRESSION", new object[] { fullPath }, cancelToken);
+                "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT", new object[] { fullPath }, cancelToken);
         }
 
         public override int RestoreDatabase(string backupFullPath)
