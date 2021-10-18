@@ -229,6 +229,10 @@ namespace Smartstore.Core.Data.Migrations
                 "The backup was created with a different Smartstore version. Restoring it may cause unpredictable problems. Do you still want to proceed?",
                 "Das Backup wurde mit einer anderen Smartstore Version erstellt. Eine Wiederherstellung kann zu unvorhersehbaren Problemen führen. Möchten Sie trotzdem fortfahren?");
 
+            builder.AddOrUpdate("Admin.System.Maintenance.DeletedExportFilesAndFolders",
+                "{0} export files and {1} export folders have been deleted.",
+                "Es wurden {0} Exportdateien und {1} Exportordner gelöscht.");
+
             #endregion
 
             #region Packaging
@@ -477,6 +481,8 @@ namespace Smartstore.Core.Data.Migrations
             //    "Enums.SmartStore.Core.Domain.Forums.ForumTopicSorting.UserNameDesc",
             //    "Admin.GiftCards.Info",
             //    "Admin.GiftCards.BackToList",
+            //    "Admin.Common.FilesDeleted",
+            //    "Admin.Common.FoldersDeleted",
             //    );
 
 

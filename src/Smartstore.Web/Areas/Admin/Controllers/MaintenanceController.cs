@@ -22,6 +22,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Data;
+using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Data;
@@ -50,6 +51,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<ICurrencyService> _currencyService;
         private readonly Lazy<IPaymentService> _paymentService;
         private readonly Lazy<IShippingService> _shippingService;
+        private readonly Lazy<IExportProfileService> _exportProfileService;
         private readonly Lazy<CurrencySettings> _currencySettings;
         private readonly Lazy<MeasureSettings> _measureSettings;
 
@@ -64,6 +66,7 @@ namespace Smartstore.Admin.Controllers
             Lazy<ICurrencyService> currencyService,
             Lazy<IPaymentService> paymentService,
             Lazy<IShippingService> shippingService,
+            Lazy<IExportProfileService> exportProfileService,
             Lazy<CurrencySettings> currencySettings,
             Lazy<MeasureSettings> measureSettings)
         {
@@ -77,6 +80,7 @@ namespace Smartstore.Admin.Controllers
             _currencyService = currencyService;
             _paymentService = paymentService;
             _shippingService = shippingService;
+            _exportProfileService = exportProfileService;
             _currencySettings = currencySettings;
             _measureSettings = measureSettings;
         }
@@ -139,10 +143,25 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ActionName("Index")]
         [FormValueRequired("delete-export-files")]
         [Permission(Permissions.System.Maintenance.Execute)]
-        public async Task<IActionResult> DeleteExportFiles()
+        public async Task<IActionResult> DeleteExportFiles(MaintenanceModel model)
         {
-            // TODO: (mg) (core) Implement MaintenanceController.DeleteExportFiles(). But move the heavy stuff to IExportProfileService and just call it from here.
-            await Task.Delay(100);
+            var dtHelper = Services.DateTimeHelper;
+
+            DateTime? startDateUtc = model.DeleteExportedFiles.StartDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.DeleteExportedFiles.StartDate.Value, dtHelper.CurrentTimeZone);
+
+            DateTime? endDateUtc = model.DeleteExportedFiles.EndDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.DeleteExportedFiles.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+
+            var (numFiles, numFolders) = await _exportProfileService.Value.DeleteExportFilesAsync(startDateUtc, endDateUtc);
+
+            // Also delete unreferenced import profile folders.
+            // TODO: (mg) (core) delete unreferenced import profile folders in MaintenanceController.
+
+            NotifyInfo(T("Admin.System.Maintenance.DeletedExportFilesAndFolders", numFiles, numFolders));
+
             return RedirectToAction("Index");
         }
 

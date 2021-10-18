@@ -401,6 +401,56 @@ namespace Smartstore.Core.DataExchange.Export
 
             return allProviders;
         }
+
+        public virtual async Task<(int DeletedFiles, int DeletedFolders)> DeleteExportFilesAsync(DateTime? startDate, DateTime? endDate)
+        {
+            var numberOfFiles = 0;
+            var numberOfFolders = 0;
+            var webRoot = _appContext.WebRoot;
+            var tenantRoot = _appContext.TenantRoot;
+
+            await DeleteContent(await webRoot.GetDirectoryAsync(webRoot.PathCombine(DataExporter.PublicDirectoryName)));
+            await DeleteContent(await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(EXPORT_FILE_ROOT)));
+
+            return (numberOfFiles, numberOfFolders);
+
+            async Task DeleteContent(IDirectory dir)
+            {
+                var files = await dir.EnumerateFilesAsync(deep: true).AsyncToList();
+
+                foreach (var file in files)
+                {
+                    if (!file.Name.EqualsNoCase("index.htm") && !file.Name.EqualsNoCase("placeholder"))
+                    {
+                        try
+                        {
+                            var info = new FileInfo(file.PhysicalPath);
+
+                            if ((!startDate.HasValue || startDate.Value < info.CreationTimeUtc) &&
+                                (!endDate.HasValue || info.CreationTimeUtc < endDate.Value))
+                            {
+                                await file.DeleteAsync();
+                                numberOfFiles++;
+                            }
+                        }
+                        catch
+                        {
+                            // Do nothing. We are just cleaning up.
+                        }
+                    }
+                }
+
+                foreach (var dirInfo in new DirectoryInfo(dir.PhysicalPath).GetDirectories())
+                {
+                    if ((!startDate.HasValue || startDate.Value < dirInfo.LastWriteTimeUtc) &&
+                        (!endDate.HasValue || dirInfo.LastWriteTimeUtc < endDate.Value))
+                    {
+                        dirInfo.Delete(true);
+                        numberOfFolders++;
+                    }
+                }
+            }
+        }
     }
 
     // TODO: (mg) (core) remove test export providers later (required for porting backend's export section).

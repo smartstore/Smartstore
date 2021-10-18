@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
@@ -82,5 +83,13 @@ namespace Smartstore.Core.DataExchange.Export
         /// <param name="includeHidden">A value indicating whether to include hidden providers.</param>
         /// <returns>Export providers.</returns>
         IEnumerable<Provider<IExportProvider>> LoadAllExportProviders(int storeId = 0, bool includeHidden = true);
+
+        /// <summary>
+        /// Deletes the export files of all export profiles.
+        /// </summary>
+        /// <param name="startDate">Delete only files whose creation date is greater than the specified date.</param>
+        /// <param name="endDate">Delete only files whose creation date is less than the specified date</param>
+        /// <returns>Number of deleted files and folders.</returns>
+        Task<(int DeletedFiles, int DeletedFolders)> DeleteExportFilesAsync(DateTime? startDate, DateTime? endDate);
     }
 }
