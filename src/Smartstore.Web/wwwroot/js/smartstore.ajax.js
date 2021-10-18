@@ -45,8 +45,8 @@
 
     $.fn.postData = function (options) {
         function createAndSubmitForm(opts) {
-            var id = 'DynamicForm_' + Math.random().toString().substring(2),
-                form = '<form id="' + id + '" action="' + opts.url + '" method="' + opts.type + '">';
+            var id = 'DynamicForm_' + Math.random().toString().substring(2);
+            var form = '<form id="' + id + '" action="' + opts.url + '" method="' + opts.type + '">';
 
             if (!_.isUndefined(opts.data)) {
                 $.each(opts.data, function (key, val) {
@@ -54,6 +54,7 @@
                 });
             }
 
+            form += '<input type="hidden" name="__RequestVerificationToken" value="' + getAntiforgeryToken() + '" />';
             form += '</form>';
 
             $('body').append(form);

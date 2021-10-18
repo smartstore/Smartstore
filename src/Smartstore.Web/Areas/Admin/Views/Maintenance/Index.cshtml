@@ -118,5 +118,16 @@
                 <textarea asp-for="SqlQuery" rows="10" placeholder="@Html.DisplayNameFor(model => model.SqlQuery)"></textarea>
             </div>
         </div>
+
+        @* DbBackups *@
+        <div class="mb-4">
+            <div class="mb-3">
+                <h5>@T("Admin.System.Maintenance.DbBackup")</h5>
+            </div>
+            <div>
+                <partial name="_Grid.Backups" model="null" />
+            </div>
+        </div>
+
     </div>
 </form>

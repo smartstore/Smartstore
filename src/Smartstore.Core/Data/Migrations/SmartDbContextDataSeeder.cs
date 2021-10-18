@@ -195,6 +195,39 @@ namespace Smartstore.Core.Data.Migrations
                 "Die E-Mail Adresse des Absenders ist ungültig.");
 
             builder.AddOrUpdate("Admin.Common.ViewObject", "View (#{0})", "Ansicht (#{0})");
+            builder.AddOrUpdate("Admin.Common.FileName", "File name", "Dateiname");
+            builder.AddOrUpdate("Admin.Common.FileSize", "File size", "Dateigröße");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup", "Database backups", "Datenbank-Backups");
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Download", "Download the database backup.", "Das Datenbank-Backup herunterladen.");
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.IsCurrentVersion", "Current version", "Aktuelle Version");
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Create", "Create backup", "Backup erstellen");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupNotSupported",
+                "The database backup cannot be created because the data provider {0} does not support it.",
+                "Das Datenbank-Backup kann nicht erstellt werden, da der Daten-Provider {0} dies nicht unterstützt.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.RestoreNotSupported",
+                "The database cannot be restored because the data provider {0} does not support this.",
+                "Die Datenbank kann nicht wiederhergestellt werden, da der Daten-Provider {0} dies nicht unterstützt.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupCreated",
+                "The database backup was successfully created.",
+                "Das Datenbank-Backup wurde erfolgreich erstellt.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.DatabaseRestored",
+                "The database was successfully restored.",
+                "Die Datenbank wurde erfolgreich wiederhergestellt.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Restore",
+                "Restore",
+                "Wiederherstellen",
+                "Restore the database from this backup file.",
+                "Datenbank aus dieser Sicherungsdatei (Backup) wiederherstellen.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.RestoreVersionWarning",
+                "The backup was created with a different Smartstore version. Restoring it may cause unpredictable problems. Do you still want to proceed?",
+                "Das Backup wurde mit einer anderen Smartstore Version erstellt. Eine Wiederherstellung kann zu unvorhersehbaren Problemen führen. Möchten Sie trotzdem fortfahren?");
 
             #endregion
 

@@ -65,7 +65,7 @@ namespace Smartstore.Web.Components
                     .AsItem());
             }
 
-            model.MenuItems.Add(new MenuItem().ToBuilder().IsGroupHeader(true).AsItem());
+            model.MenuItems.Add(new MenuItem().ToBuilder().Id("logout-divider").IsGroupHeader(true).AsItem());
 
             model.MenuItems.Add(new MenuItem().ToBuilder()
                 .Route("Logout")

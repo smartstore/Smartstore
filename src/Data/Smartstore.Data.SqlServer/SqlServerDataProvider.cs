@@ -163,7 +163,7 @@ namespace Smartstore.Data.SqlServer
             Guard.NotEmpty(fullPath, nameof(fullPath));
 
             return Database.ExecuteSqlRawAsync(
-                "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT", new object[] { fullPath }, cancelToken);
+                "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT, COMPRESSION", new object[] { fullPath }, cancelToken);
         }
 
         public override int RestoreDatabase(string backupFullPath)

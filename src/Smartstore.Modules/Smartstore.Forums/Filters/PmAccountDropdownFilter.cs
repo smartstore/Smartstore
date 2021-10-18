@@ -27,10 +27,8 @@ namespace Smartstore.Forums.Filters
                 if (_forumSettings.AllowPrivateMessages)
                 {
                     var widget = new ComponentWidgetInvoker(typeof(PmAccountDropdownViewComponent), null);
-                    // TODO: (mg) (core) It also can't be placed topmost, please! Such things shouldn't even be in discussion.
-                    // Place it before the sparator (make a new widget zone for it). Actually we should have made a CMS menu
-                    // out of this dropdown, but we missed that.
-                    _widgetProvider.Value.RegisterWidget(new[] { "account_dropdown_before" }, widget);
+
+                    _widgetProvider.Value.RegisterWidget(new[] { "account_dropdown_logout_divider_before" }, widget);
                 }
             }
         }

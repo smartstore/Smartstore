@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -37,6 +38,7 @@ namespace Smartstore.Admin.Controllers
     public class MaintenanceController : AdminController
     {
         private const string BACKUP_DIR = "DbBackups";
+        private static readonly Regex DbVersion = new(@"(\d+\.)(\d+\.)(\d+\.)(\d)", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private readonly SmartDbContext _db;
         private readonly IMemoryCache _memCache;
@@ -603,16 +605,26 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Maintenance.Read)]
         public async Task<IActionResult> BackupList()
         {
-            var backups = await Services.ApplicationContext.TenantRoot
+            var currentVersion = SmartstoreVersion.CurrentFullVersion;
+            var root = Services.ApplicationContext.TenantRoot;
+            await root.TryCreateDirectoryAsync(BACKUP_DIR);
+
+            var backups = await root
                 .EnumerateFilesAsync(BACKUP_DIR)
                 .AsyncToList();
 
             var rows = backups
                 .Select(x =>
                 {
+                    // Get version as string from file name (any string):
+                    var version = DbVersion.Matches(x.Name)?.FirstOrDefault()?.Value;
+
                     var model = new DbBackupModel(x)
                     {
-                        UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.LastModified.UtcDateTime, DateTimeKind.Utc)
+                        Version = version,
+                        IsCurrentVersion = version.EqualsNoCase(currentVersion),
+                        UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.LastModified.UtcDateTime, DateTimeKind.Utc),
+                        DownloadUrl = Url.Action("DownloadBackup", new { name = x.Name })
                     };
 
                     return model;
@@ -626,7 +638,8 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
-        [HttpPost]
+        [HttpPost, ActionName("Index")]
+        [FormValueRequired("execute-create-backup")]
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> CreateBackup()
         {
@@ -634,34 +647,60 @@ namespace Smartstore.Admin.Controllers
             {
                 if (_db.DataProvider.CanBackup)
                 {
-                    const string extension = ".bak";
                     var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
                     var fs = dir.FileSystem;
 
                     var dbName = _db.DataProvider.Database.GetDbConnection().Database.NaIfEmpty().ToValidFileName();
-                    var fileName = $"{dbName}-{SmartstoreVersion.CurrentFullVersion}";
-                    var i = 1;
+                    var path = fs.PathCombine(dir.SubPath, $"{dbName}-{SmartstoreVersion.CurrentFullVersion}.bak");
 
-                    // TODO: (mg) (core) Call fs.CheckUniqueFileName()
-                    for (; i < 10000; i++)
-                    {
-                        if (!await fs.FileExistsAsync(fs.PathCombine(dir.SubPath, $"{fileName}-{i}{extension}")))
-                        {
-                            break;
-                        }
-                    }
-
-                    fileName = $"{fileName}-{i}{extension}";
-
-                    var fullPath = fs.MapPath(fs.PathCombine(dir.SubPath, fileName));
+                    var fullPath = fs.CheckUniqueFileName(path, out var newPath)
+                        ? fs.MapPath(newPath)
+                        : fs.MapPath(path);
 
                     await _db.DataProvider.BackupDatabaseAsync(fullPath);
-                    // TODO: (mg) (core) notify
+
+                    NotifyInfo(T("Admin.System.Maintenance.DbBackup.BackupCreated"));
                 }
                 else
                 {
-                    // TODO: (mg) (core) notify about backup error.
-                    NotifyError("");
+                    NotifyError(T("Admin.System.Maintenance.DbBackup.BackupNotSupported", _db.DataProvider.ProviderType.ToString().NaIfEmpty()));
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> RestoreBackup(string name)
+        {
+            if (PathUtility.HasInvalidFileNameChars(name))
+            {
+                throw new BadHttpRequestException("Invalid file name: " + name.NaIfEmpty());
+            }
+
+            try
+            {
+                if (_db.DataProvider.CanRestore)
+                {
+                    var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
+                    var fs = dir.FileSystem;
+                    var fullPath = fs.MapPath(fs.PathCombine(dir.SubPath, name));
+
+                    await _db.DataProvider.RestoreDatabaseAsync(fullPath);
+
+                    await ClearCache();
+                    await ClearDatabaseCache();
+
+                    NotifyInfo(T("Admin.System.Maintenance.DbBackup.DatabaseRestored"));
+                }
+                else
+                {
+                    NotifyError(T("Admin.System.Maintenance.DbBackup.RestoreNotSupported", _db.DataProvider.ProviderType.ToString().NaIfEmpty()));
                 }
             }
             catch (Exception ex)
@@ -691,22 +730,22 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
-        public async Task<IActionResult> DownloadBackup(string fileName)
+        public async Task<IActionResult> DownloadBackup(string name)
         {
-            if (PathUtility.HasInvalidFileNameChars(fileName))
+            if (PathUtility.HasInvalidFileNameChars(name))
             {
-                throw new BadHttpRequestException("Invalid file name: " + fileName.NaIfEmpty());
+                throw new BadHttpRequestException("Invalid file name: " + name.NaIfEmpty());
             }
 
             var root = Services.ApplicationContext.TenantRoot;
-            var backup = await root.GetFileAsync(BACKUP_DIR + "\\" + fileName);
+            var backup = await root.GetFileAsync(BACKUP_DIR + "\\" + name);
             var contentType = MimeTypes.MapNameToMimeType(backup.PhysicalPath);
 
             try
             {
                 return new FileStreamResult(backup.OpenRead(), contentType)
                 {
-                    FileDownloadName = fileName
+                    FileDownloadName = name
                 };
             }
             catch (IOException)
