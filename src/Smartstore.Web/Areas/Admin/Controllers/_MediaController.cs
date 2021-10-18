@@ -13,6 +13,7 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {
+    // TODO: (mh) (core) Should not inherit from AdminController, else Upload action cannot be used from Frontend.
     public class MediaController : AdminController
     {
         private readonly SmartDbContext _db;
