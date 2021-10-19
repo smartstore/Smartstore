@@ -9,6 +9,9 @@
     <datasource read="@Url.Action("EmailAccountList", "EmailAccount")"
                 delete="@Url.Action("DeleteEmailAccounts", "EmailAccount")" />
     <paging position="Bottom" show-size-chooser="true" />
+    <sorting enabled="false">
+        <sort by="Id" />
+    </sorting>
     <toolbar>
         <toolbar-group>
             <a asp-action="Create" class="btn btn-primary btn-flat no-anims mr-auto">

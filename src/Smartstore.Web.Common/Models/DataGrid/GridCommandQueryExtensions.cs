@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Smartstore.Collections;
+using Smartstore.Domain;
 
 namespace Smartstore.Web.Models.DataGrid
 {
@@ -30,9 +31,12 @@ namespace Smartstore.Web.Models.DataGrid
             Guard.NotNull(command, nameof(command));
 
             IOrderedQueryable<T> orderedQuery = null;
+            bool hasSorting = false;
 
             foreach (var sort in command.Sorting)
             {
+                hasSorting = true;
+
                 var expr = sort.Member;
                 if (sort.Descending) expr += " descending";
 
@@ -46,6 +50,13 @@ namespace Smartstore.Web.Models.DataGrid
                 }
 
                 query = orderedQuery;
+            }
+
+            applyPaging = applyPaging && command.PageSize < int.MaxValue;
+
+            if (applyPaging && !hasSorting && query is IQueryable<BaseEntity> entityQuery)
+            {
+                query = entityQuery.OrderBy(x => x.Id).Cast<T>();
             }
 
             if (applyPaging)
