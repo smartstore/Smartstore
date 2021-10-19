@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Reflection;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Smartstore.Bootstrapping;
-using Smartstore.Core.Data;
 using Smartstore.Engine;
 using MsLogger = Microsoft.Extensions.Logging.ILogger;
 
