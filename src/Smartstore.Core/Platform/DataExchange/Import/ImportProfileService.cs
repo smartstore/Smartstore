@@ -195,7 +195,7 @@ namespace Smartstore.Core.DataExchange.Import
             }
         }
 
-        public virtual async Task<int> DeleteUnusedImportFoldersAsync()
+        public virtual async Task<int> DeleteUnusedImportDirectoriesAsync()
         {
             var numFolders = 0;
             var tenantRoot = _appContext.TenantRoot;

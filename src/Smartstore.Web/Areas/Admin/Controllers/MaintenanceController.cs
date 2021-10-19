@@ -163,7 +163,7 @@ namespace Smartstore.Admin.Controllers
             var (numFiles, numFolders) = await _exportProfileService.Value.DeleteExportFilesAsync(startDateUtc, endDateUtc);
 
             // Also delete unused import profile folders.
-            numFolders += await _importProfileService.Value.DeleteUnusedImportFoldersAsync();
+            numFolders += await _importProfileService.Value.DeleteUnusedImportDirectoriesAsync();
 
             NotifyInfo(T("Admin.System.Maintenance.DeletedExportFilesAndFolders", numFiles, numFolders));
 
@@ -642,6 +642,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     // Get version as string from file name (any string):
                     var version = DbVersion.Matches(x.Name)?.FirstOrDefault()?.Value;
+                    // TODO: (mg) (core) Bad API design: please don't mix abstraction and underlying stuff (IFile --> FileInfo).
                     var fi = new FileInfo(x.PhysicalPath);
 
                     var model = new DbBackupModel(x)

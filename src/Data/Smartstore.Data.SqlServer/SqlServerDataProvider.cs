@@ -156,7 +156,6 @@ namespace Smartstore.Data.SqlServer
             Guard.NotEmpty(fullPath, nameof(fullPath));
 
             var editionId = Database.ExecuteQueryRaw<long>("Select SERVERPROPERTY('EditionID')").FirstOrDefault();
-
             return Database.ExecuteSqlRaw(CreateBackupSql(editionId), fullPath);
         }
 
@@ -164,8 +163,8 @@ namespace Smartstore.Data.SqlServer
         {
             Guard.NotEmpty(fullPath, nameof(fullPath));
 
+            // TODO: (mg) (core) Edition will never change. Fetch once and cache please. Also: make this call fault tolerant and provide a fallback (False).
             var editionId = await Database.ExecuteQueryRawAsync<long>("Select SERVERPROPERTY('EditionID')").FirstOrDefaultAsync(cancelToken);
-
             return await Database.ExecuteSqlRawAsync(CreateBackupSql(editionId), new object[] { fullPath }, cancelToken);
         }
 
