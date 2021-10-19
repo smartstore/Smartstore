@@ -41,9 +41,5 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("*GoDirectlyToNumber")]
         public string GoDirectlyToNumber { get; set; }
-
-        // ProductId is only filled in context of product details (orders).
-        // It is empty (null) in orders list.
-        public int? ProductId { get; set; }
     }
 }

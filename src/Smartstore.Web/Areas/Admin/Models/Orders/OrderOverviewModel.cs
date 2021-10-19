@@ -1,4 +1,7 @@
 ﻿using System;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Orders
@@ -27,6 +30,45 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("*CustomerEmail")]
         public string CustomerEmail { get; set; }
+
+        [LocalizedDisplay("*OrderTotal")]
+        public string OrderTotalString { get; set; }
+
+        [LocalizedDisplay("*OrderStatus")]
+        public OrderStatus OrderStatus { get; set; }
+        [LocalizedDisplay("*OrderStatus")]
+        public string OrderStatusString { get; set; }
+
+        [LocalizedDisplay("*PaymentStatus")]
+        public PaymentStatus PaymentStatus { get; set; }
+        [LocalizedDisplay("*PaymentStatus")]
+        public string PaymentStatusString { get; set; }
+
+        [LocalizedDisplay("*PaymentMethod")]
+        public string PaymentMethod { get; set; }
+        public string PaymentMethodSystemName { get; set; }
+        public string WithPaymentMethod { get; set; }
+
+        public bool HasPaymentMethod => PaymentMethod.HasValue();
+        public bool HasNewPaymentNotification { get; set; }
+
+        [LocalizedDisplay("*ShippingStatus")]
+        public ShippingStatus StatusShipping { get; set; }
+        [LocalizedDisplay("*ShippingStatus")]
+        public string ShippingStatusString { get; set; }
+        public bool IsShippable { get; set; }
+
+        [LocalizedDisplay("*ShippingMethod")]
+        public string ShippingMethod { get; set; }
+        public string ViaShippingMethod { get; set; }
+
+        public string ShippingAddressString { get; set; }
+
+        [LocalizedDisplay("Common.CreatedOn")]
+        public DateTime CreatedOn { get; set; }
+        [LocalizedDisplay("Common.CreatedOn")]
+        public string CreatedOnString { get; set; }
+
 
         //...
     }

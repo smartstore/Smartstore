@@ -2,17 +2,45 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 
 namespace Smartstore
 {
     public static class OrderQueryExtensions
     {
+        /// <summary>
+        /// Includes the the billing address graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, Country> IncludeBillingAddress(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Include(x => x.BillingAddress)
+                .ThenInclude(x => x.StateProvince)
+                .ThenInclude(x => x.Country);
+        }
+
+        /// <summary>
+        /// Includes the the shipping address graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, Country> IncludeShippingAddress(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Include(x => x.ShippingAddress)
+                .ThenInclude(x => x.StateProvince)
+                .ThenInclude(x => x.Country);
+        }
+
         /// <summary>
         /// Applies a standard filter and sorts by <see cref="Order.CreatedOnUtc"/> descending.
         /// </summary>
@@ -193,9 +221,9 @@ namespace Smartstore
                 .GroupBy(x => 1)
                 .Select(x => new OrderAverageReportLine
                 {
-                    CountOrders = x.Count(),
+                    OrderCount = x.Count(),
                     SumTax = x.Sum(x => x.OrderTax),
-                    SumOrders = x.Sum(x => x.OrderTotal)
+                    SumOrderTotal = x.Sum(x => x.OrderTotal)
                 });
         }
 
@@ -245,22 +273,6 @@ namespace Smartstore
             Guard.NotNull(query, nameof(query));
 
             return query.SumAsync(x => (decimal?)x.OrderTotal ?? decimal.Zero);
-        }
-
-        /// <summary>
-        /// Gets orders profit (sum - tax - product costs) async.
-        /// </summary>
-        /// <param name="query">Order query.</param>
-        /// <returns>Orders profit.</returns>
-        public static async Task<decimal> GetProfitAsync(this IQueryable<Order> query)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            var productCost = await GetOrdersProductCostsAsync(query);
-            var summary = await SelectAsOrderAverageReportLine(query).FirstOrDefaultAsync() ?? new OrderAverageReportLine();
-            var profit = summary.SumOrders - summary.SumTax - productCost;
-
-            return profit;
         }
     }
 }
