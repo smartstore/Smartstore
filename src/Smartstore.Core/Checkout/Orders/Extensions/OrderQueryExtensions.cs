@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -36,28 +35,6 @@ namespace Smartstore
             }
 
             return query.OrderByDescending(o => o.CreatedOnUtc);
-        }
-
-        /// <summary>
-        /// Applies a date time filter.
-        /// </summary>
-        /// <param name="fromUtc">Start date in UTC.</param>
-        /// <param name="toUtc">End date in UTC</param>
-        public static IQueryable<Order> ApplyDateFilter(this IQueryable<Order> query, DateTime? fromUtc = null, DateTime? toUtc = null)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            if (fromUtc.HasValue)
-            {
-                query = query.Where(x => fromUtc.Value <= x.CreatedOnUtc);
-            }
-
-            if (toUtc.HasValue)
-            {
-                query = query.Where(x => toUtc.Value >= x.CreatedOnUtc);
-            }
-
-            return query;
         }
 
         /// <summary>

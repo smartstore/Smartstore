@@ -31,7 +31,7 @@ namespace Smartstore.Admin.Components
             var startDate = (utcNow.Date - beginningOfYear).Days < 28 ? utcNow.AddDays(-27).Date : beginningOfYear;
             var orderDataPoints = await _db.Orders
                 .AsNoTracking()
-                .ApplyDateFilter(startDate, null)
+                .ApplyAuditDateFilter(startDate, null)
                 .Select(x => new OrderDataPoint
                 {
                     CreatedOn = x.CreatedOnUtc,
@@ -123,10 +123,10 @@ namespace Smartstore.Admin.Components
                 ).Sum(x => x.OrderTotal),
 
                 // Get orders count for month.
-                await _db.Orders.ApplyDateFilter(beginningOfYear.AddDays(-56), utcNow.Date.AddDays(-28)).GetOrdersTotalAsync(),
+                await _db.Orders.ApplyAuditDateFilter(beginningOfYear.AddDays(-56), utcNow.Date.AddDays(-28)).GetOrdersTotalAsync(),
 
                 // Get orders count for year.
-                await _db.Orders.ApplyDateFilter(beginningOfYear.AddYears(-1), utcNow.AddYears(-1)).GetOrdersTotalAsync()
+                await _db.Orders.ApplyAuditDateFilter(beginningOfYear.AddYears(-1), utcNow.AddYears(-1)).GetOrdersTotalAsync()
             };
 
             // Format percentage value

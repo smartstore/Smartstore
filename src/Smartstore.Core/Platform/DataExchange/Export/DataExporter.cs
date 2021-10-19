@@ -745,7 +745,7 @@ namespace Smartstore.Core.DataExchange.Export
                     query = query.Where(x => x.CustomerId == ctx.Projection.CustomerId.Value);
 
                 result = query
-                    .ApplyDateFilter(createdFrom, createdTo)
+                    .ApplyAuditDateFilter(createdFrom, createdTo)
                     .ApplyStatusFilter(f.OrderStatusIds, f.PaymentStatusIds, f.ShippingStatusIds);
             }
             else if (entityType == ExportEntityType.Manufacturer)

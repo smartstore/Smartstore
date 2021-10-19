@@ -3,7 +3,7 @@
 namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.GiftCards.List.")]
-    public class GiftCardListModel
+    public class GiftCardListModel : ModelBase
     {
         [LocalizedDisplay("*CouponCode")]
         public string CouponCode { get; set; }

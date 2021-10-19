@@ -52,7 +52,7 @@ namespace Smartstore.Admin.Components
             var startDate = (utcNow.Date - beginningOfYear).Days < 28 ? utcNow.AddDays(-28).Date : beginningOfYear;
             var dataPoints = await _db.Orders
                 .AsNoTracking()
-                .ApplyDateFilter(startDate, null)
+                .ApplyAuditDateFilter(startDate, null)
                 .ApplyIncompleteOrdersFilter()
                 .Select(x => new OrderDataPoint
                 {
