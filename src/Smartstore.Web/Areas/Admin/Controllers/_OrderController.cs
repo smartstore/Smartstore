@@ -138,6 +138,7 @@ namespace Smartstore.Admin.Controllers
                 if (model.OrderGuid.HasValue())
                 {
                     // TODO: (mg) (core) test this too. Is it supported by EF Core?
+                    // RE: I don't think so.
                     orderQuery = orderQuery.ApplySearchFilterFor(x => x.OrderGuid, model.OrderGuid);
                 }
                 if (model.OrderNumber.HasValue())
