@@ -69,31 +69,31 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets or sets a gift card coupon code
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(100)]
         public string GiftCardCouponCode { get; set; }
 
         /// <summary>
         /// Gets or sets a recipient name
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(450)]
         public string RecipientName { get; set; }
 
         /// <summary>
         /// Gets or sets a recipient email
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(255)]
         public string RecipientEmail { get; set; }
 
         /// <summary>
         /// Gets or sets a sender name
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(450)]
         public string SenderName { get; set; }
 
         /// <summary>
         /// Gets or sets a sender email
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(255)]
         public string SenderEmail { get; set; }
 
         /// <summary>

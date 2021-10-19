@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -39,31 +40,37 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the first name
         /// </summary>
+        [StringLength(50)]
         public string Salutation { get; set; }
 
         /// <summary>
         /// Gets or sets the first name
         /// </summary>
+        [StringLength(100)]
         public string Title { get; set; }
 
         /// <summary>
         /// Gets or sets the first name
         /// </summary>
+        [StringLength(225)]
         public string FirstName { get; set; }
 
         /// <summary>
         /// Gets or sets the last name
         /// </summary>
+        [StringLength(225)]
         public string LastName { get; set; }
 
         /// <summary>
         /// Gets or sets the email
         /// </summary>
+        [StringLength(255)]
         public string Email { get; set; }
 
         /// <summary>
         /// Gets or sets the company
         /// </summary>
+        [StringLength(255)]
         public string Company { get; set; }
 
         /// <summary>
@@ -79,31 +86,37 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the city
         /// </summary>
+        [StringLength(100)]
         public string City { get; set; }
 
         /// <summary>
         /// Gets or sets the address 1
         /// </summary>
+        [StringLength(500)]
         public string Address1 { get; set; }
 
         /// <summary>
         /// Gets or sets the address 2
         /// </summary>
+        [StringLength(500)]
         public string Address2 { get; set; }
 
         /// <summary>
         /// Gets or sets the zip/postal code
         /// </summary>
+        [StringLength(50)]
         public string ZipPostalCode { get; set; }
 
         /// <summary>
         /// Gets or sets the phone number
         /// </summary>
+        [StringLength(100)]
         public string PhoneNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the fax number
         /// </summary>
+        [StringLength(100)]
         public string FaxNumber { get; set; }
 
         /// <summary>
