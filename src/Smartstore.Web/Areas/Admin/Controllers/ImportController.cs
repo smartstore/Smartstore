@@ -60,10 +60,8 @@ namespace Smartstore.Admin.Controllers
                 .ToDictionarySafe(x => x.TaskDescriptorId);
 
             var profiles = await _db.ImportProfiles
-                .Include(x => x.Task)
                 .AsNoTracking()
-                .OrderBy(x => x.EntityTypeId)
-                .ThenBy(x => x.Name)
+                .ApplyStandardFilter()
                 .ToListAsync();
 
             foreach (var profile in profiles)

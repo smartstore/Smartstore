@@ -21,8 +21,8 @@ namespace Smartstore.Admin.Models.Maintenance
         [LocalizedDisplay("Admin.Common.FileName")]
         public string Name => Backup.Name;
 
-        [LocalizedDisplay("Common.UpdatedOn")]
-        public DateTime UpdatedOn { get; set; }
+        [LocalizedDisplay("Common.CreatedOn")]
+        public DateTime CreatedOn { get; set; }
 
         [LocalizedDisplay("Admin.Common.FileSize")]
         public string LengthString

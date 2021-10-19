@@ -416,7 +416,6 @@ namespace Smartstore.Core.DataExchange.Export
 
             async Task DeleteContent(IDirectory dir)
             {
-                // INFO: (mg) (core) Don't overuse IFileSystem async pattern if you know for sure that storage is LOCAL. Because local fs does not support async read.
                 var files = dir.EnumerateFiles(deep: true);
 
                 foreach (var file in files)
@@ -444,7 +443,7 @@ namespace Smartstore.Core.DataExchange.Export
                     if ((!startDate.HasValue || startDate.Value < subdir.LastModified) &&
                         (!endDate.HasValue || subdir.LastModified < endDate.Value))
                     {
-                        subdir.Delete();
+                        dir.FileSystem.ClearDirectory(subdir, true, TimeSpan.Zero);
                         numFolders++;
                     }
                 }

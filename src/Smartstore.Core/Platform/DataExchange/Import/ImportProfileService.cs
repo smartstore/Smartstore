@@ -68,7 +68,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (directory.Exists)
             {
-                var files = await directory.EnumerateFilesAsync().ToListAsync();
+                var files = directory.EnumerateFiles();
                 if (files.Any())
                 {
                     foreach (var file in files)
@@ -193,6 +193,31 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 directory.FileSystem.ClearDirectory(directory, true, TimeSpan.Zero);
             }
+        }
+
+        public virtual async Task<int> DeleteUnusedImportFoldersAsync()
+        {
+            var numFolders = 0;
+            var tenantRoot = _appContext.TenantRoot;
+
+            var importProfileFolders = await _db.ImportProfiles
+                .AsNoTracking()
+                .ApplyStandardFilter()
+                .Select(x => x.FolderName)
+                .ToListAsync();
+
+            var dir = await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(IMPORT_FILE_ROOT));
+
+            foreach (var subdir in dir.EnumerateDirectories())
+            {
+                if (!importProfileFolders.Contains(subdir.Name))
+                {
+                    dir.FileSystem.ClearDirectory(subdir, true, TimeSpan.Zero);
+                    numFolders++;
+                }
+            }
+
+            return numFolders;
         }
 
         #region Localized entity properties labels

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -154,20 +155,32 @@ namespace Smartstore.Data.SqlServer
         {
             Guard.NotEmpty(fullPath, nameof(fullPath));
 
-            // TODO: (mg) (core) SqlServer Express does not support compressed backups (runtime error). Maybe we can check 
-            // for Express Edition somehow and append the COMPRESSED switch only if != Express (?)
-            return Database.ExecuteSqlRaw(
-                "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT", fullPath);
+            var editionId = Database.ExecuteQueryRaw<long>("Select SERVERPROPERTY('EditionID')").FirstOrDefault();
+
+            return Database.ExecuteSqlRaw(CreateBackupSql(editionId), fullPath);
         }
 
-        public override Task<int> BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
+        public override async Task<int> BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
         {
             Guard.NotEmpty(fullPath, nameof(fullPath));
 
-            // TODO: (mg) (core) SqlServer Express does not support compressed backups (runtime error). Maybe we can check 
-            // for Express Edition somehow and append the COMPRESSED switch only if != Express (?)
-            return Database.ExecuteSqlRawAsync(
-                "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT", new object[] { fullPath }, cancelToken);
+            var editionId = await Database.ExecuteQueryRawAsync<long>("Select SERVERPROPERTY('EditionID')").FirstOrDefaultAsync(cancelToken);
+
+            return await Database.ExecuteSqlRawAsync(CreateBackupSql(editionId), new object[] { fullPath }, cancelToken);
+        }
+
+        private string CreateBackupSql(long editionId)
+        {
+            var sql = "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT";
+
+            // Backup compression is not supported by "Express" or "Express with Advanced Services" edition.
+            // https://expressdb.io/sql-server-express-feature-comparison.html
+            if (editionId != 0 && editionId != -1592396055L && editionId != -133711905L)
+            {
+                sql += ", COMPRESSION";
+            }
+
+            return sql;
         }
 
         public override int RestoreDatabase(string backupFullPath)

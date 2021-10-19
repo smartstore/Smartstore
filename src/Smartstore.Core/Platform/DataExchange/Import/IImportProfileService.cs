@@ -49,6 +49,12 @@ namespace Smartstore.Core.DataExchange.Import
         Task DeleteImportProfileAsync(ImportProfile profile);
 
         /// <summary>
+        /// Deletes import folders that are no longer used by any import profile.
+        /// </summary>
+        /// <returns>Number of deleted folders.</returns>
+        Task<int> DeleteUnusedImportFoldersAsync();
+
+        /// <summary>
         /// Gets the localized label of all entity properties.
         /// </summary>
         /// <param name="entityType">Import entity type.</param>

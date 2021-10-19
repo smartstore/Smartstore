@@ -104,8 +104,7 @@
         </div>
 
         @* DbBackups *@
-        @* TODO: (mg) (core) Missing "CanCreateBackup" *@
-        <div class="card mb-4">
+        <div sm-if="Model.CanCreateBackup" class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title mb-3">
                     @T("Admin.System.Maintenance.DbBackup")

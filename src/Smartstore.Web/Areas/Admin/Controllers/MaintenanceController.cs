@@ -23,6 +23,7 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange.Export;
+using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Data;
@@ -52,6 +53,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IPaymentService> _paymentService;
         private readonly Lazy<IShippingService> _shippingService;
         private readonly Lazy<IExportProfileService> _exportProfileService;
+        private readonly Lazy<IImportProfileService> _importProfileService;
         private readonly Lazy<CurrencySettings> _currencySettings;
         private readonly Lazy<MeasureSettings> _measureSettings;
 
@@ -67,6 +69,7 @@ namespace Smartstore.Admin.Controllers
             Lazy<IPaymentService> paymentService,
             Lazy<IShippingService> shippingService,
             Lazy<IExportProfileService> exportProfileService,
+            Lazy<IImportProfileService> importProfileService,
             Lazy<CurrencySettings> currencySettings,
             Lazy<MeasureSettings> measureSettings)
         {
@@ -81,6 +84,7 @@ namespace Smartstore.Admin.Controllers
             _paymentService = paymentService;
             _shippingService = shippingService;
             _exportProfileService = exportProfileService;
+            _importProfileService = importProfileService;
             _currencySettings = currencySettings;
             _measureSettings = measureSettings;
         }
@@ -92,7 +96,8 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new MaintenanceModel 
             {
-                CanExecuteSql = _db.DataProvider.CanExecuteSqlScript
+                CanExecuteSql = _db.DataProvider.CanExecuteSqlScript,
+                CanCreateBackup = _db.DataProvider.CanBackup
             };
 
             model.DeleteGuests.EndDate = DateTime.UtcNow.AddDays(-7);
@@ -157,8 +162,8 @@ namespace Smartstore.Admin.Controllers
 
             var (numFiles, numFolders) = await _exportProfileService.Value.DeleteExportFilesAsync(startDateUtc, endDateUtc);
 
-            // Also delete unreferenced import profile folders.
-            // TODO: (mg) (core) delete unreferenced import profile folders in MaintenanceController.
+            // Also delete unused import profile folders.
+            numFolders += await _importProfileService.Value.DeleteUnusedImportFoldersAsync();
 
             NotifyInfo(T("Admin.System.Maintenance.DeletedExportFilesAndFolders", numFiles, numFolders));
 
@@ -637,12 +642,13 @@ namespace Smartstore.Admin.Controllers
                 {
                     // Get version as string from file name (any string):
                     var version = DbVersion.Matches(x.Name)?.FirstOrDefault()?.Value;
+                    var fi = new FileInfo(x.PhysicalPath);
 
                     var model = new DbBackupModel(x)
                     {
                         Version = version,
                         IsCurrentVersion = version.EqualsNoCase(currentVersion),
-                        UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.LastModified.UtcDateTime, DateTimeKind.Utc),
+                        CreatedOn = fi.CreationTime,
                         DownloadUrl = Url.Action("DownloadBackup", new { name = x.Name })
                     };
 
@@ -652,7 +658,7 @@ namespace Smartstore.Admin.Controllers
 
             return Json(new GridModel<DbBackupModel>
             {
-                Rows = rows.OrderByDescending(x => x.UpdatedOn).ToList(),
+                Rows = rows.OrderByDescending(x => x.CreatedOn).ToList(),
                 Total = rows.Count
             });
         }

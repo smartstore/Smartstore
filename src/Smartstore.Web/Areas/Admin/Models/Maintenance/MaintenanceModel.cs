@@ -10,6 +10,7 @@ namespace Smartstore.Admin.Models.Maintenance
         public DeleteImageCacheModel DeleteImageCache { get; set; } = new();
 
         public bool CanExecuteSql { get; set; }
+        public bool CanCreateBackup { get; set; }
 
         [LocalizedDisplay("Admin.System.Maintenance.SqlQuery")]
         public string SqlQuery { get; set; }
