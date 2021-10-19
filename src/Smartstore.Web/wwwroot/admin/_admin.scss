@@ -213,7 +213,7 @@ body {
         padding-left: 0;
         padding-right: 5px;
         color: $text-muted;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         // mimic .col
         flex-basis: 0;
@@ -239,6 +239,7 @@ body {
             font-family: $font-family-sans-serif;
             font-size: 12px;
             font-weight: normal;
+            padding-left: 5px;
         }
     }
     // .title
