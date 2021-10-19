@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using Microsoft.AspNetCore.Http;
@@ -134,41 +133,21 @@ namespace Smartstore.Core.Stores
             return _cacheFactory.GetMemoryCache().Get(CacheKey, (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromDays(1));
-                
-                var entry = new StoreEntityCache();
 
-                using (GetOrCreateDbContext(out var db))
-                {
-                    db.ChangeTracker.LazyLoadingEnabled = false;
+                using var _ = GetOrCreateDbContext(out var db);
 
-                    var allStores = db.Stores
-                        .AsNoTracking()
-                        .AsNoCaching()
-                        .Include(x => x.PrimaryStoreCurrency)
-                        .Include(x => x.PrimaryExchangeRateCurrency)
-                        .OrderBy(x => x.DisplayOrder)
-                        .ThenBy(x => x.Name)
-                        .ToList();
+                db.ChangeTracker.LazyLoadingEnabled = false;
 
-                    entry.Stores = allStores.ToDictionary(x => x.Id);
-                    entry.HostMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                var allStores = db.Stores
+                    .AsNoTracking()
+                    .AsNoCaching()
+                    .Include(x => x.PrimaryStoreCurrency)
+                    .Include(x => x.PrimaryExchangeRateCurrency)
+                    .OrderBy(x => x.DisplayOrder)
+                    .ThenBy(x => x.Name)
+                    .ToList();
 
-                    foreach (var store in allStores)
-                    {
-                        var hostValues = store.ParseHostValues();
-                        foreach (var host in hostValues)
-                        {
-                            entry.HostMap[host] = store.Id;
-                        }
-                    }
-
-                    if (allStores.Count > 0)
-                    {
-                        entry.PrimaryStoreId = allStores.FirstOrDefault().Id;
-                    }
-                }
-
-                return entry;
+                return new StoreEntityCache(allStores);
             }, allowRecursion: true);
         }
 

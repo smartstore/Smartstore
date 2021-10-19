@@ -114,10 +114,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key)
         {
-            if (instance == null)
-                throw new ArgumentNullException(nameof(instance));
-
-            instance.TryGetValue(key, out var val);
+            Guard.NotNull(instance, nameof(instance)).TryGetValue(key, out var val);
             return val;
         }
 

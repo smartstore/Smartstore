@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -11,6 +12,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Collections;
+using Smartstore.Data;
+using Smartstore.Domain;
 using Smartstore.Events;
 using Smartstore.Threading;
 using Smartstore.Utilities;
@@ -162,6 +165,8 @@ namespace Smartstore.Caching
         {
             _keys.Add((string)entry.Key);
 
+            TryDropLazyLoader(item.Value);
+
             entry.SetValue(item);
             entry.SetPriority((CacheItemPriority)item.Priority);
 
@@ -217,6 +222,21 @@ namespace Smartstore.Caching
             });
 
             entry.Dispose();
+        }
+
+        internal static void TryDropLazyLoader(object value)
+        {
+            if (value is BaseEntity entity)
+            {
+                entity.LazyLoader = NullLazyLoader.Instance;
+            }
+            else if (value is IEnumerable e)
+            {
+                foreach (var item in e.OfType<BaseEntity>())
+                {
+                    item.LazyLoader = NullLazyLoader.Instance;
+                }
+            }
         }
 
         public virtual void Remove(string key)
