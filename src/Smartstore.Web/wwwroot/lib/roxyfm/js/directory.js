@@ -228,7 +228,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 			url: dirListURL,
 			type: 'POST',
 			dataType: 'json',
-			async: false,
+			//async: false,
 			cache: false,
 			success: function (dirs) {
 				$('#pnlDirList').children('li').remove();
@@ -279,7 +279,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				n: newName
 			},
 			dataType: 'json',
-			async: false,
+			//async: false,
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
@@ -310,7 +310,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				d: this.fullPath
 			},
 			dataType: 'json',
-			async: false,
+			//async: false,
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
@@ -349,7 +349,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				n: newName
 			},
 			dataType: 'json',
-			async: false,
+			//async: false,
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
@@ -384,7 +384,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				n: newPath
 			},
 			dataType: 'json',
-			async: false,
+			//async: false,
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
@@ -422,7 +422,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				n: newPath
 			},
 			dataType: 'json',
-			async: false,
+			//async: false,
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {

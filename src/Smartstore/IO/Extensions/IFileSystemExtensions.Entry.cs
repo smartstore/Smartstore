@@ -57,7 +57,7 @@ namespace Smartstore
         /// <param name="subpath">The relative path to the file or the directory to be renamed/moved.</param>
         /// <param name="newPath">The new path after entry was moved/renamed.</param>
         /// <exception cref="FileSystemException">Thrown if source does not exist or if <paramref name="newPath"/> already exists.</exception>
-        public static void MoveEntry(this IFileSystem fs, string subpath, string newPath, bool overwrite = false)
+        public static void MoveEntry(this IFileSystem fs, string subpath, string newPath)
         {
             Guard.NotNull(newPath, nameof(newPath));
             fs.GetEntry(subpath).MoveTo(newPath);

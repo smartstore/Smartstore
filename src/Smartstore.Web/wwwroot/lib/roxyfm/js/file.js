@@ -130,7 +130,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 				f: this.fullPath
 			},
 			dataType: 'json',
-			async: false,
+			//async: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
 					$('li[data-path="' + item.fullPath + '"]').remove();
@@ -168,7 +168,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 				n: newName
 			},
 			dataType: 'json',
-			async: false,
+			//async: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
 					var newPath = RoxyUtils.MakePath(this.path, newName);
@@ -208,7 +208,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 				n: newPath
 			},
 			dataType: 'json',
-			async: false,
+			//async: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
 					var d = Directory.Parse(newPath);
@@ -249,7 +249,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 				n: newFullPath
 			},
 			dataType: 'json',
-			async: false,
+			//async: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
 					$('li[data-path="' + item.fullPath + '"]').remove();

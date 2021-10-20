@@ -157,7 +157,8 @@ namespace Smartstore.Web.Infrastructure
             /* Roxy File Manager--> /bundle/js/filemanager.js
 			------------------------------------------------------*/
             var roxy = "/lib/roxyfm/js/";
-            bundles.Add(new StyleBundle("/bundle/js/roxyfm.js").Include(
+            // Script
+            bundles.Add(new ScriptBundle("/bundle/js/roxyfm.js").Include(
                 roxy + "jquery-2.1.1.min.js",
                 roxy + "jquery-ui-1.10.4.custom.min.js",
                 roxy + "filetypes.js",
@@ -167,6 +168,8 @@ namespace Smartstore.Web.Infrastructure
                 roxy + "file.js",
                 roxy + "directory.js",
                 roxy + "jquery-dateFormat.min.js"));
+            // CSS
+            bundles.Add(new StyleBundle("/bundle/css/roxyfm.css").Include("/lib/roxyfm/css/main.scss"));
         }
     }
 }

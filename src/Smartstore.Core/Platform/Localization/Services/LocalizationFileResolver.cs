@@ -121,7 +121,7 @@ namespace Smartstore.Core.Localization
             {
                 result.Success = true;
                 result.Culture = resolvedCulture;
-                result.VirtualPath = WebHelper.ToAbsolutePath(dirPath + pattern.Replace(LangToken, resolvedCulture));
+                result.VirtualPath = dirPath + pattern.Replace(LangToken, resolvedCulture);
 
                 return result;
             }

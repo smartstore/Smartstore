@@ -153,6 +153,15 @@ namespace Smartstore
         }
 
         /// <summary>
+        /// Epoch time. Number of seconds since midnight (UTC) on 1st January 1970.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long ToUnixTime(this DateTimeOffset value)
+        {
+            return Convert.ToInt64((value.ToUniversalTime() - BeginOfEpoch).TotalSeconds);
+        }
+
+        /// <summary>
         /// UTC date based on number of seconds since midnight (UTC) on 1st January 1970.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
