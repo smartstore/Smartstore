@@ -415,13 +415,13 @@ RoxyUtils.SelectText = function (field_id, start, end) {
 };
 
 RoxyFilemanConf = {};
-RoxyUtils.LoadConfig = function () {
+RoxyUtils.LoadConfig = function (fn) {
 	$.ajax({
 		url: RoxyUtils.GetAssetPath('conf.json'),
 		dataType: 'json',
-		async: false,
 		success: function (data) {
 			RoxyFilemanConf = data;
+			fn();
 		},
 		error: function (data) {
 			alert(t('E_LoadingConf'));

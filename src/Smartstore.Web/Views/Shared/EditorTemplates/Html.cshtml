@@ -10,6 +10,7 @@
     string culture = WorkContext.WorkingLanguage.LanguageCulture;
 
     //Html.AddBodyAttribute("data-file-manager-url", base.FileManagerUrl);
+    Assets.BodyAttributes["data-file-manager-url"] = "/admin/roxyfilemanager/";
 
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }

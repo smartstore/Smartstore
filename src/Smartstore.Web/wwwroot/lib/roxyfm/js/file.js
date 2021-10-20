@@ -84,7 +84,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 	this.ext = RoxyUtils.GetFileExt(filePath);
 	this.path = RoxyUtils.GetPath(filePath);
 	this.image = filePath;
-	this.size = fileSize || RoxyUtils.GetFileSize(filePath);
+	this.size = fileSize || 0;
 	this.time = modTime;
 	this.width = w || 0;
 	this.height = h || 0;

@@ -163,8 +163,8 @@ namespace Smartstore.Web.Infrastructure
                 roxy + "jquery-ui-1.10.4.custom.min.js",
                 roxy + "filetypes.js",
                 roxy + "custom.js",
-                roxy + "main.js",
                 roxy + "utils.js",
+                roxy + "main.js",
                 roxy + "file.js",
                 roxy + "directory.js",
                 roxy + "jquery-dateFormat.min.js"));
