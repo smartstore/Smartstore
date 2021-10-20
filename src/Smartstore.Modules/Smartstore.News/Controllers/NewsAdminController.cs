@@ -58,7 +58,7 @@ namespace Smartstore.News.Controllers
 
         #region Configure settings
 
-        [AuthorizeAdmin, Permission(NewsPermissions.Read)]
+        [Permission(NewsPermissions.Read)]
         [LoadSetting]
         public IActionResult Settings(NewsSettings settings, int storeId)
         {
@@ -79,7 +79,7 @@ namespace Smartstore.News.Controllers
             return View(model);
         }
 
-        [AuthorizeAdmin, Permission(NewsPermissions.Update)]
+        [Permission(NewsPermissions.Update)]
         [HttpPost, SaveSetting]
         public async Task<IActionResult> Settings(NewsSettingsModel model, NewsSettings settings, int storeId)
         {
@@ -102,7 +102,7 @@ namespace Smartstore.News.Controllers
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaKeywords, localized.MetaKeywords, localized.LanguageId, storeId);
             }
 
-            return RedirectToAction("Settings");
+            return RedirectToAction(nameof(Settings));
         }
 
         #endregion

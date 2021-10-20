@@ -465,7 +465,7 @@ namespace Smartstore.Admin.Controllers
                     await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Configuration.Currencies.Deleted"));
-                    return RedirectToAction("List");
+                    return RedirectToAction(nameof(List));
                 }
                 else
                 {
@@ -477,7 +477,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id = currency.Id });
+            return RedirectToAction(nameof(Edit), new { id = currency.Id });
         }
 
         [HttpPost]
