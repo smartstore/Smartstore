@@ -233,6 +233,10 @@ namespace Smartstore.Core.Data.Migrations
                 "{0} export files and {1} export folders have been deleted.",
                 "Es wurden {0} Exportdateien und {1} Exportordner gelöscht.");
 
+            builder.AddOrUpdate("Admin.OrderNotice.RefundAmountError",
+                "The amount to be refunded must be greater than 0.",
+                "Der zu erstattende Betrag muss größer 0 sein.");
+
             #endregion
 
             #region Packaging

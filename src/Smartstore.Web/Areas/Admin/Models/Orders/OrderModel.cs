@@ -59,12 +59,13 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("*OrderTotalRounding")]
         public string OrderTotalRounding { get; set; }
 
-        [LocalizedDisplay("*OrderTotal")]
-        public string OrderTotal { get; set; }
-
         [LocalizedDisplay("*RefundedAmount")]
         public string RefundedAmount { get; set; }
 
+        [LocalizedDisplay("*PartialRefund.AmountToRefund")]
+        public decimal AmountToRefund { get; set; }
+        public decimal MaxAmountToRefund { get; set; }
+        public string MaxAmountToRefundFormatted { get; set; }
 
 
         //...
