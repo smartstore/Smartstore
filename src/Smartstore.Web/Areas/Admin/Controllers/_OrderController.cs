@@ -1,30 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.ComponentModel;
-using Smartstore.Core.Data;
-using Smartstore.Core.Localization;
-using Smartstore.Core.Logging;
-using Smartstore.Core.Security;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
-using Smartstore.Web.Models;
-using Smartstore.Admin.Models.Orders;
-using Smartstore.Core.Stores;
-using Smartstore.Web.Rendering;
-using Smartstore.Core.Checkout.Payment;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Engine.Modularity;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Collections;
-using Smartstore.Core.Rules.Filters;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Orders.Reporting;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Data;
+using Smartstore.Core.Rules;
+using Smartstore.Core.Rules.Filters;
+using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
+using Smartstore.Web.Controllers;
+using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -100,9 +96,6 @@ namespace Smartstore.Admin.Controllers
             var viaShippingMethodString = T("Admin.Order.ViaShippingMethod").Value;
             var withPaymentMethodString = T("Admin.Order.WithPaymentMethod").Value;
             var fromStoreString = T("Admin.Order.FromStore").Value;
-            var orderStatusIds = model.OrderStatusIds.ToIntArray();
-            var paymentStatusIds = model.PaymentStatusIds.ToIntArray();
-            var shippingStatusIds = model.ShippingStatusIds.ToIntArray();
             var paymentMethodSystemnames = model.PaymentMethods.SplitSafe(',').ToArray();
 
             DateTime? startDateUtc = model.StartDate == null
@@ -120,25 +113,27 @@ namespace Smartstore.Admin.Controllers
                 .IncludeShippingAddress()
                 .AsNoTracking()
                 .ApplyAuditDateFilter(startDateUtc, endDateUtc)
-                .ApplyStatusFilter(orderStatusIds, paymentStatusIds, shippingStatusIds)
+                .ApplyStatusFilter(model.OrderStatusIds, model.PaymentStatusIds, model.ShippingStatusIds)
                 .ApplyPaymentFilter(paymentMethodSystemnames);
 
             if (model.CustomerEmail.HasValue())
             {
-                // TODO: (mg) (core) test this. Do ApplySearchFilterFor work if the navigation property cannot be resolved (null check missing)?
                 orderQuery = orderQuery.ApplySearchFilterFor(x => x.BillingAddress.Email, model.CustomerEmail);
             }
             if (model.CustomerName.HasValue())
             {
-                // TODO: (mg) (core) test this too.
-                orderQuery = orderQuery.ApplySearchFilterFor(x => x.BillingAddress.LastName, model.CustomerName);
-                orderQuery = orderQuery.ApplySearchFilterFor(x => x.BillingAddress.FirstName, model.CustomerName);
+                // InvalidOperationException: The binary operator OrElse is not defined for...
+                //orderQuery = orderQuery.ApplySearchFilter(
+                //    model.CustomerName,
+                //    LogicalRuleOperator.Or, 
+                //    x => x.BillingAddress.FirstName, 
+                //    x => x.BillingAddress.LastName);
+
+                orderQuery = orderQuery.Where(x => x.BillingAddress.LastName.Contains(model.CustomerName) || x.BillingAddress.FirstName.Contains(model.CustomerName));
             }
             if (model.OrderGuid.HasValue())
             {
-                // TODO: (mg) (core) test this too. Is it supported by EF Core?
-                // RE: I don't think so.
-                orderQuery = orderQuery.ApplySearchFilterFor(x => x.OrderGuid, model.OrderGuid);
+                orderQuery = orderQuery.Where(x => x.OrderGuid.ToString().Contains(model.OrderGuid));
             }
             if (model.OrderNumber.HasValue())
             {
@@ -162,7 +157,11 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => x.PaymentMethodSystemName)
                 .Distinct()
                 .SelectAsync(async x => await _paymentService.LoadPaymentMethodBySystemNameAsync(x))
-                .AsyncToDictionary(
+                .AsyncToList();
+
+            var paymentMethodsDic = paymentMethods
+                .Where(x => x != null)
+                .ToDictionarySafe(
                     x => x.Metadata.SystemName,
                     x => _moduleManager.GetLocalizedFriendlyName(x.Metadata), 
                     StringComparer.OrdinalIgnoreCase);
@@ -170,19 +169,24 @@ namespace Smartstore.Admin.Controllers
             var rows = await orders.SelectAsync(async x =>
             {
                 stores.TryGetValue(x.StoreId, out var store);
-                paymentMethods.TryGetValue(x.PaymentMethodSystemName, out var paymentMethod);
+                paymentMethodsDic.TryGetValue(x.PaymentMethodSystemName, out var paymentMethod);
 
                 var shipTo = x.ShippingAddress;
                 var createdOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                var updatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc);
+                var orderTotal = primaryCurrency.AsMoney(x.OrderTotal);
 
                 var m = new OrderOverviewModel
                 {
                     Id = x.Id,
                     OrderNumber = x.GetOrderNumber(),
+                    OrderGuid = x.OrderGuid,
                     StoreName = store?.Name?.NaIfEmpty(),
                     CustomerName = x.BillingAddress.GetFullName(),
                     CustomerEmail = x.BillingAddress.Email,
-                    OrderTotalString = primaryCurrency.AsMoney(x.OrderTotal).ToString(true),
+                    VatNumber = x.VatNumber,
+                    OrderTotal = orderTotal,
+                    OrderTotalString = orderTotal.ToString(true),
                     OrderStatus = x.OrderStatus,
                     OrderStatusString = await Services.Localization.GetLocalizedEnumAsync(x.OrderStatus),
                     PaymentStatus = x.PaymentStatus,
@@ -190,12 +194,15 @@ namespace Smartstore.Admin.Controllers
                     PaymentMethod = paymentMethod.NullEmpty() ?? x.PaymentMethodSystemName,
                     PaymentMethodSystemName = x.PaymentMethodSystemName,
                     HasNewPaymentNotification = x.HasNewPaymentNotification,
-                    StatusShipping = x.ShippingStatus,
+                    ShippingStatus = x.ShippingStatus,
                     ShippingStatusString = await Services.Localization.GetLocalizedEnumAsync(x.ShippingStatus),
                     IsShippable = x.ShippingStatus != ShippingStatus.ShippingNotRequired,
                     ShippingMethod = x.ShippingMethod.NaIfEmpty(),
                     CreatedOn = createdOn,
-                    CreatedOnString = createdOn.ToString("g")
+                    CreatedOnString = createdOn.ToString("g"),
+                    UpdatedOn = updatedOn,
+                    UpdatedOnString = updatedOn.ToString("g"),
+                    EditUrl = Url.Action("Edit", "Order", new { id = x.Id })
                 };
 
                 m.ViaShippingMethod = viaShippingMethodString.FormatInvariant(m.ShippingMethod);

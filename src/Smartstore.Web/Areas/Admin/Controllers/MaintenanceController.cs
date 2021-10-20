@@ -642,14 +642,12 @@ namespace Smartstore.Admin.Controllers
                 {
                     // Get version as string from file name (any string):
                     var version = DbVersion.Matches(x.Name)?.FirstOrDefault()?.Value;
-                    // TODO: (mg) (core) Bad API design: please don't mix abstraction and underlying stuff (IFile --> FileInfo).
-                    var fi = new FileInfo(x.PhysicalPath);
 
                     var model = new DbBackupModel(x)
                     {
                         Version = version,
                         IsCurrentVersion = version.EqualsNoCase(currentVersion),
-                        CreatedOn = fi.CreationTime,
+                        CreatedOn = x.CreatedOn.LocalDateTime,
                         DownloadUrl = Url.Action("DownloadBackup", new { name = x.Name })
                     };
 

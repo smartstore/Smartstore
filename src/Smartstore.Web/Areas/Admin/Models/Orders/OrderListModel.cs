@@ -19,13 +19,13 @@ namespace Smartstore.Admin.Models.Orders
         public string CustomerName { get; set; }
 
         [LocalizedDisplay("*OrderStatus")]
-        public string OrderStatusIds { get; set; }
+        public int[] OrderStatusIds { get; set; }
 
         [LocalizedDisplay("*PaymentStatus")]
-        public string PaymentStatusIds { get; set; }
+        public int[] PaymentStatusIds { get; set; }
 
         [LocalizedDisplay("*ShippingStatus")]
-        public string ShippingStatusIds { get; set; }
+        public int[] ShippingStatusIds { get; set; }
 
         [LocalizedDisplay("Admin.Common.Store.SearchFor")]
         public int StoreId { get; set; }

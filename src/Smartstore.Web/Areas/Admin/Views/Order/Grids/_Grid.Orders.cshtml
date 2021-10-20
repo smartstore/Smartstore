@@ -1,0 +1,83 @@
+﻿@model OrderOverviewModel
+
+@{
+    var parentModel = ViewData["Parent"] as OrderListModel;
+}
+
+<datagrid id="orders-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("OrderList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_after"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="Grids/_Grid.Orders.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" halign="center" visible="false" type="string" />
+        <column for="OrderNumber" hideable="false" width="auto" title="@T("Admin.Order")">
+            <display-template>
+                @Html.LabeledOrderNumber()
+            </display-template>
+        </column>
+        <column for="OrderGuid" visible="false" />
+        <column for="CustomerName" sortable="false" title="@T("Admin.Orders.Fields.Customer")">
+            <display-template>
+                <div class="dg-cell-value">
+                    <div class="text-truncate">{{ item.row.CustomerName }}</div>
+                    <div class="text-truncate">{{ item.row.CustomerEmail }}</div>
+                </div>
+            </display-template>
+        </column>
+        <column for="VatNumber" visible="false" />
+        <column for="ShippingStatus" entity-member="ShippingStatusId" title="@T("Admin.Orders.Shipment")">
+            <display-template>
+                <div class="dg-cell-value">
+                    <i :class="item.row.ShippingStatusLabelClass" :title="item.row.ShippingStatusString"></i>
+                    <span v-if="item.row.IsShippable" class="text-truncate">{{ item.row.ShippingAddressString }}</span>
+                    <div v-if="item.row.IsShippable" class="text-muted text-truncate">{{ item.row.ViaShippingMethod }}</div>
+                    <span v-if="!item.row.IsShippable" class="text-muted text-truncate">{{ item.row.ShippingStatus }}</span>
+                </div>
+            </display-template>
+        </column>
+        <column for="CreatedOn" entity-member="CreatedOnUtc" title="@T("Order.OrderDate")">
+            <display-template>
+                <div class="dg-cell-value">
+                    <div class="text-truncate">{{ item.row.CreatedOnString }}</div>
+                    <div class="text-muted text-truncate">{{ item.row.FromStore }}</div>
+                </div>
+            </display-template>
+        </column>
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
+        <column for="OrderStatus" entity-member="OrderStatusId" title="@T("Admin.Orders.Fields.OrderStatus")">
+            <display-template>
+                <span :class="item.row.OrderStatusLabelClass">{{ item.row.OrderStatusString }}</span>
+            </display-template>
+        </column>
+        <column for="OrderTotal" halign="flex-end">
+            <display-template>
+                <div class="dg-cell-value text-right">
+                    <div class="pr-2 text-truncate">
+                        <big style="font-weight:600">{{ item.row.OrderTotalString }}</big>
+                        <i :class="item.row.PaymentStatusLabelClass" :title="item.row.PaymentStatusString"></i>
+                    </div>
+                    <div v-if="item.row.HasPaymentMethod" class="pr-2 text-muted text-truncate">{{ item.row.WithPaymentMethod }}</div>
+                </div>
+            </display-template>
+        </column>
+    </columns>
+</datagrid>
+
+@* TODO: (mg) (core) render profit summary somewhere. Requires refresh when grid updates. *@

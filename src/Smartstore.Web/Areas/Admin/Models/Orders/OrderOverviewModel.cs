@@ -2,6 +2,7 @@
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Common;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Orders
@@ -31,6 +32,11 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("*CustomerEmail")]
         public string CustomerEmail { get; set; }
 
+        [LocalizedDisplay("*VatNumber")]
+        public string VatNumber { get; set; }
+
+        [LocalizedDisplay("*OrderTotal")]
+        public Money OrderTotal { get; set; }
         [LocalizedDisplay("*OrderTotal")]
         public string OrderTotalString { get; set; }
 
@@ -39,10 +45,42 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("*OrderStatus")]
         public string OrderStatusString { get; set; }
 
+        public string OrderStatusLabelClass
+        {
+            get
+            {
+                return OrderStatus switch
+                {
+                    OrderStatus.Pending => "fw-600",
+                    OrderStatus.Processing => "",
+                    OrderStatus.Complete => "text-success",
+                    OrderStatus.Cancelled => "muted",
+                    _ => string.Empty,
+                };
+            }
+        }
+
         [LocalizedDisplay("*PaymentStatus")]
         public PaymentStatus PaymentStatus { get; set; }
         [LocalizedDisplay("*PaymentStatus")]
         public string PaymentStatusString { get; set; }
+
+        public string PaymentStatusLabelClass
+        {
+            get
+            {
+                return PaymentStatus switch
+                {
+                    PaymentStatus.Pending => "fa fa-fw fa-circle text-danger",
+                    PaymentStatus.Authorized => "fa fa-fw fa-circle text-warning",
+                    PaymentStatus.Paid => "fa fa-fw fa-check text-success",
+                    PaymentStatus.PartiallyRefunded => "fa fa-fw fa-exchange-alt text-warning",
+                    PaymentStatus.Refunded => "fa fa-fw fa-exchange-alt text-success",
+                    PaymentStatus.Voided => "fa fa-fw fa-ban muted",
+                    _ => string.Empty,
+                };
+            }
+        }
 
         [LocalizedDisplay("*PaymentMethod")]
         public string PaymentMethod { get; set; }
@@ -53,23 +91,42 @@ namespace Smartstore.Admin.Models.Orders
         public bool HasNewPaymentNotification { get; set; }
 
         [LocalizedDisplay("*ShippingStatus")]
-        public ShippingStatus StatusShipping { get; set; }
+        public ShippingStatus ShippingStatus { get; set; }
         [LocalizedDisplay("*ShippingStatus")]
         public string ShippingStatusString { get; set; }
+        public string ShippingAddressString { get; set; }
         public bool IsShippable { get; set; }
+
+        public string ShippingStatusLabelClass
+        {
+            get
+            {
+                return ShippingStatus switch
+                {
+                    ShippingStatus.ShippingNotRequired => "fa fa-fw fa-download muted",
+                    ShippingStatus.NotYetShipped => "fa fa-fw fa-circle text-danger",
+                    ShippingStatus.PartiallyShipped => "fa fa-fw fa-truck fa-flip-horizontal text-warning",
+                    ShippingStatus.Shipped => "fa fa-fw fa-truck fa-flip-horizontal text-success",
+                    ShippingStatus.Delivered => "fa fa-fw fa-check text-success",
+                    _ => String.Empty,
+                };
+            }
+        }
 
         [LocalizedDisplay("*ShippingMethod")]
         public string ShippingMethod { get; set; }
         public string ViaShippingMethod { get; set; }
-
-        public string ShippingAddressString { get; set; }
 
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
         [LocalizedDisplay("Common.CreatedOn")]
         public string CreatedOnString { get; set; }
 
+        [LocalizedDisplay("Common.UpdatedOn")]
+        public DateTime UpdatedOn { get; set; }
+        [LocalizedDisplay("Common.UpdatedOn")]
+        public string UpdatedOnString { get; set; }
 
-        //...
+        public string EditUrl { get; set; }
     }
 }
