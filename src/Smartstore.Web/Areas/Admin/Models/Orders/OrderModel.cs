@@ -20,6 +20,7 @@ namespace Smartstore.Admin.Models.Orders
         public int AffiliateId { get; set; }
         public string AffiliateFullName { get; set; }
 
+        // TODO: (mg) (core) Why separate raw and display amount if we have Money struct for this? Did you encounter any problems?
         [LocalizedDisplay("*OrderSubtotalInclTax")]
         public decimal OrderSubtotalInclTax { get; set; }
         public string OrderSubtotalInclTaxString { get; set; }
