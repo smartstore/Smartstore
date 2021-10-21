@@ -289,6 +289,12 @@ namespace Smartstore.Admin.Models.Orders
             public decimal UnitPriceExclTax { get; set; }
             public string UnitPriceExclTaxString { get; set; }
 
+            public decimal PriceInclTax { get; set; }
+            public string PriceInclTaxString { get; set; }
+
+            public decimal PriceExclTax { get; set; }
+            public string PriceExclTaxString { get; set; }
+
             public decimal TaxRate { get; set; }
             public int Quantity { get; set; }
 
@@ -298,15 +304,8 @@ namespace Smartstore.Admin.Models.Orders
             public decimal DiscountExclTax { get; set; }
             public string DiscountExclTaxString { get; set; }
 
-            public decimal SubTotalInclTax { get; set; }
-            public string SubTotalInclTaxString { get; set; }
-
-            public decimal SubTotalExclTax { get; set; }
-            public string SubTotalExclTaxString { get; set; }
-
-            public string AttributeInfo { get; set; }
+            public string AttributeDescription { get; set; }
             public string RecurringInfo { get; set; }
-            public List<int> PurchasedGiftCardIds { get; set; }
 
             public bool IsDownload { get; set; }
             public int DownloadCount { get; set; }
@@ -317,8 +316,9 @@ namespace Smartstore.Admin.Models.Orders
             public bool BundlePerItemPricing { get; set; }
             public bool BundlePerItemShoppingCart { get; set; }
 
-            public List<BundleItemModel> BundleItems { get; set; }
-            public List<ReturnRequestModel> ReturnRequests { get; set; }
+            public List<BundleItemModel> BundleItems { get; set; } = new();
+            public List<ReturnRequestModel> ReturnRequests { get; set; } = new();
+            public List<int> PurchasedGiftCardIds { get; set; } = new();
 
             public bool IsReturnRequestPossible
                 => !(ReturnRequests?.Any() ?? false) || ReturnRequests.Sum(x => x.Quantity) < Quantity;

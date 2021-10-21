@@ -27,6 +27,7 @@
         public const string DeleteSetting = "DeleteSetting";
         public const string DeleteSpecAttribute = "DeleteSpecAttribute";
         public const string DeleteWidget = "DeleteWidget";
+        public const string DeleteOrder = "DeleteOrder";
         public const string EditCategory = "EditCategory";
         public const string EditCheckoutAttribute = "EditCheckoutAttribute";
         public const string EditCustomer = "EditCustomer";
@@ -42,6 +43,7 @@
         public const string EditSpecAttribute = "EditSpecAttribute";
         public const string EditWidget = "EditWidget";
         public const string EditThemeVars = "EditThemeVars";
+        public const string EditOrder = "EditOrder";
         public const string ResetThemeVars = "ResetThemeVars";
         public const string ImportThemeVars = "ImportThemeVars";
         public const string ExportThemeVars = "ExportThemeVars";
@@ -58,6 +60,5 @@
         public const string PublicStoreAddProductReview = "PublicStore.AddProductReview";
         public const string PublicStoreAddNewsComment = "PublicStore.AddNewsComment";
         public const string PublicStoreAddBlogComment = "PublicStore.AddBlogComment";
-        public const string EditOrder = "EditOrder";
     }
 }

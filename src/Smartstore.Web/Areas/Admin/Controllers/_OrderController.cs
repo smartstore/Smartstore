@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Admin.Models.Orders;
+using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -775,6 +776,25 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [Permission(Permissions.Order.Delete)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var order = await _db.Orders.FindByIdAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var msg = T("ActivityLog.DeleteOrder", order.GetOrderNumber());
+
+            await _orderProcessingService.DeleteOrderAsync(order);
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteOrder, msg);
+            NotifySuccess(msg);
+
+            return RedirectToAction("List");
+        }
 
         #endregion
 
@@ -845,13 +865,13 @@ namespace Smartstore.Admin.Controllers
                 model.OrderSubTotalDiscountExclTaxString = Format(order.OrderSubTotalDiscountExclTax, false);
             }
 
-            model.OrderShippingInclTaxString = Format(order.OrderShippingInclTax, true, PricingTarget.ShippingCharge);
-            model.OrderShippingExclTaxString = Format(order.OrderShippingExclTax, false, PricingTarget.ShippingCharge);
+            model.OrderShippingInclTaxString = Format(order.OrderShippingInclTax, true, null, PricingTarget.ShippingCharge);
+            model.OrderShippingExclTaxString = Format(order.OrderShippingExclTax, false, null, PricingTarget.ShippingCharge);
 
             if (order.PaymentMethodAdditionalFeeInclTax != decimal.Zero)
             {
-                model.PaymentMethodAdditionalFeeInclTaxString = Format(order.PaymentMethodAdditionalFeeInclTax, true, PricingTarget.PaymentFee);
-                model.PaymentMethodAdditionalFeeExclTaxString = Format(order.PaymentMethodAdditionalFeeExclTax, false, PricingTarget.PaymentFee);
+                model.PaymentMethodAdditionalFeeInclTaxString = Format(order.PaymentMethodAdditionalFeeInclTax, true, null, PricingTarget.PaymentFee);
+                model.PaymentMethodAdditionalFeeExclTaxString = Format(order.PaymentMethodAdditionalFeeExclTax, false, null, PricingTarget.PaymentFee);
             }
 
             model.DisplayTaxRates = _taxSettings.DisplayTaxRates && taxRates.Any();
@@ -951,10 +971,6 @@ namespace Smartstore.Admin.Controllers
                 model.PaymentMethod = order.PaymentMethodSystemName;
             }
 
-            // Purchase order number (we have to find a better to inject this information because it's related to a certain plugin).
-            // TODO: (mg) (core) verify plugin systemname Smartstore.PurchaseOrderNumber.
-            model.DisplayPurchaseOrderNumber = order.PaymentMethodSystemName.EqualsNoCase("Smartstore.PurchaseOrderNumber");
-
             model.CanCancelOrder = order.CanCancelOrder();
             model.CanCompleteOrder = order.CanCompleteOrder();
             model.CanCapture = await _orderProcessingService.CanCaptureAsync(order);
@@ -986,49 +1002,116 @@ namespace Smartstore.Admin.Controllers
                 PrepareSettings(model.ShippingAddress);
 
                 model.CanAddNewShipments = order.CanAddItemsToShipment();
-                
+
                 model.ShippingAddressGoogleMapsUrl = Services.ApplicationContext.AppConfiguration.Google.MapsUrl.FormatInvariant(
                     language.UniqueSeoCode.EmptyNull().ToLower(),
                     googleAddressQuery.UrlEncode());
             }
-
-            model.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(order.CheckoutAttributeDescription));
-
-            foreach (var orderItem in order.OrderItems)
+            else
             {
-                var product = orderItem.Product;
+                model.ShippingAddress = new();
+            }
 
-                if (product.IsDownload)
+            // Purchase order number (we have to find a better to inject this information because it's related to a certain plugin).
+            // TODO: (mg) (core) verify plugin systemname Smartstore.PurchaseOrderNumber.
+            model.DisplayPurchaseOrderNumber = order.PaymentMethodSystemName.EqualsNoCase("Smartstore.PurchaseOrderNumber");
+            model.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(order.CheckoutAttributeDescription));
+            model.HasDownloadableProducts = order.OrderItems.Any(x => x.Product.IsDownload);
+            model.AutoUpdateOrderItemInfo = TempData[AutoUpdateOrderItemContext.InfoKey] as string;
+
+            model.AutoUpdateOrderItem = new AutoUpdateOrderItemModel
+            {
+                Caption = T("Admin.Orders.EditOrderDetails"),
+                ShowUpdateTotals = (order.OrderStatusId <= (int)OrderStatus.Pending),
+                // UpdateRewardPoints only visible for unpending orders (see RewardPointsSettingsValidator).
+                ShowUpdateRewardPoints = order.OrderStatusId > (int)OrderStatus.Pending && order.RewardPointsWereAdded,
+                UpdateTotals = model.AutoUpdateOrderItem.ShowUpdateTotals,
+                UpdateRewardPoints = order.RewardPointsWereAdded
+            };
+
+            model.Items = await CreateOrderItemsModels(order);
+        }
+
+        private async Task<List<OrderModel.OrderItemModel>> CreateOrderItemsModels(Order order)
+        {
+            var result = new List<OrderModel.OrderItemModel>();
+            var returnRequestsMap = new Multimap<int, ReturnRequest>();
+            var giftCardIdsMap = new Multimap<int, int>();
+            var orderItemIds = order.OrderItems.Select(x => x.Id).ToArray();
+
+            if (orderItemIds.Any())
+            {
+                var returnRequests = await _db.ReturnRequests
+                    .AsNoTracking()
+                    .ApplyStandardFilter(orderItemIds)
+                    .ToListAsync();
+
+                var giftCards = await _db.GiftCards
+                    .AsNoTracking()
+                    .Where(x => x.PurchasedWithOrderItemId != null && orderItemIds.Contains(x.PurchasedWithOrderItemId.Value))
+                    .OrderBy(x => x.Id)
+                    .Select(x => new
+                    {
+                        x.Id,
+                        OrderItemId = x.PurchasedWithOrderItemId.Value
+                    })
+                    .ToListAsync();
+
+                returnRequestsMap = returnRequests.ToMultimap(x => x.OrderItemId, x => x);
+                giftCardIdsMap = giftCards.ToMultimap(x => x.OrderItemId, x => x.Id);
+            }
+
+            foreach (var item in order.OrderItems)
+            {
+                var product = item.Product;
+                await _productAttributeMaterializer.MergeWithCombinationAsync(product, item.AttributeSelection);
+
+                var model = MiniMapper.Map<OrderItem, OrderModel.OrderItemModel>(item);
+                model.ProductName = product.GetLocalized(x => x.Name);
+                model.Sku = product.Sku;
+                model.ProductType = product.ProductType;
+                model.ProductTypeName = product.GetProductTypeLabel(Services.Localization);
+                model.ProductTypeLabelHint = product.ProductTypeLabelHint;
+                model.IsDownload = product.IsDownload;
+                model.DownloadActivationType = product.DownloadActivationType;
+                model.UnitPriceInclTaxString = Format(item.UnitPriceInclTax, true, true);
+                model.UnitPriceExclTaxString = Format(item.UnitPriceExclTax, false, true);
+                model.PriceInclTaxString = Format(item.PriceInclTax, true, true);
+                model.PriceExclTaxString = Format(item.PriceExclTax, false, true);
+                model.DiscountInclTaxString = Format(item.DiscountAmountInclTax, true, true);
+                model.DiscountExclTaxString = Format(item.DiscountAmountExclTax, false, true);
+
+                if (product.IsRecurring)
                 {
-                    model.HasDownloadableProducts = true;
+                    var period = await Services.Localization.GetLocalizedEnumAsync(product.RecurringCyclePeriod);
+                    model.RecurringInfo = T("Admin.Orders.Products.RecurringPeriod", product.RecurringCycleLength, period);
                 }
 
-                await _productAttributeMaterializer.MergeWithCombinationAsync(product, orderItem.AttributeSelection);
-
-                var orderItemModel = new OrderModel.OrderItemModel
+                if (returnRequestsMap.ContainsKey(item.Id))
                 {
-                    Id = orderItem.Id,
-                    ProductId = orderItem.ProductId,
-                    ProductName = product.GetLocalized(x => x.Name),
-                    Sku = product.Sku,
-                    ProductType = product.ProductType,
-                    ProductTypeName = product.GetProductTypeLabel(Services.Localization),
-                    ProductTypeLabelHint = product.ProductTypeLabelHint,
-                    Quantity = orderItem.Quantity,
-                    IsDownload = product.IsDownload,
-                    DownloadCount = orderItem.DownloadCount,
-                    DownloadActivationType = product.DownloadActivationType,
-                    IsDownloadActivated = orderItem.IsDownloadActivated,
-                    LicenseDownloadId = orderItem.LicenseDownloadId
-                };
+                    model.ReturnRequests = await returnRequestsMap[item.Id]
+                        .SelectAsync(async x => new OrderModel.ReturnRequestModel
+                        {
+                            Id = x.Id,
+                            Quantity = x.Quantity,
+                            Status = x.ReturnRequestStatus,
+                            StatusString = await Services.Localization.GetLocalizedEnumAsync(x.ReturnRequestStatus)
+                        })
+                        .AsyncToList();
+                }
 
-                if (product.ProductType == ProductType.BundledProduct && orderItem.BundleData.HasValue())
+                if (giftCardIdsMap.ContainsKey(item.Id))
                 {
-                    var bundleData = orderItem.GetBundleData();
+                    model.PurchasedGiftCardIds = giftCardIdsMap[item.Id].ToList();
+                }
 
-                    orderItemModel.BundlePerItemPricing = product.BundlePerItemPricing;
-                    orderItemModel.BundlePerItemShoppingCart = bundleData.Any(x => x.PerItemShoppingCart);
-                    orderItemModel.BundleItems = bundleData
+                if (product.ProductType == ProductType.BundledProduct && item.BundleData.HasValue())
+                {
+                    var bundleData = item.GetBundleData();
+
+                    model.BundlePerItemPricing = product.BundlePerItemPricing;
+                    model.BundlePerItemShoppingCart = bundleData.Any(x => x.PerItemShoppingCart);
+                    model.BundleItems = bundleData
                         .Select(x => new OrderModel.BundleItemModel
                         {
                             ProductId = x.ProductId,
@@ -1039,23 +1122,17 @@ namespace Smartstore.Admin.Controllers
                             Quantity = x.Quantity,
                             DisplayOrder = x.DisplayOrder,
                             AttributeInfo = x.AttributesInfo,
-                            PriceWithDiscount = orderItemModel.BundlePerItemShoppingCart
+                            PriceWithDiscount = model.BundlePerItemShoppingCart
                                 ? Format(x.PriceWithDiscount)
                                 : null
                         })
                         .ToList();
                 }
-                else
-                {
-                    orderItemModel.BundleItems = new();
-                }
 
-                //...
+                result.Add(model);
             }
 
-
-
-            //...
+            return result;
         }
 
         private void PrepareSettings(AddressModel model)
@@ -1079,9 +1156,9 @@ namespace Smartstore.Admin.Controllers
             model.FaxRequired = _addressSettings.FaxRequired;
         }
 
-        private string Format(decimal value, bool priceIncludesTax, PricingTarget target = PricingTarget.Product)
+        private string Format(decimal value, bool priceIncludesTax, bool? displayTaxSuffix = null, PricingTarget target = PricingTarget.Product)
         {
-            var format = _currencyService.GetTaxFormat(null, priceIncludesTax, target, Services.WorkContext.WorkingLanguage);
+            var format = _currencyService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, target, Services.WorkContext.WorkingLanguage);
 
             return new Money(value, _primaryCurrency, false, format).ToString(true);
         }

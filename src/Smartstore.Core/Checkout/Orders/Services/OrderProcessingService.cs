@@ -208,9 +208,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            _db.Orders.Remove(order);
-
-            //order.AddOrderNote(T("Admin.OrderNotice.OrderDeleted"));
+            order.Deleted = true;
 
             await _db.SaveChangesAsync();
         }
