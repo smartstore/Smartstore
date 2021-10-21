@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Checkout.Payment;
@@ -16,7 +17,7 @@ namespace Smartstore
     public static class OrderQueryExtensions
     {
         /// <summary>
-        /// Includes the the billing address graph for eager loading.
+        /// Includes the billing address graph for eager loading.
         /// </summary>
         public static IIncludableQueryable<Order, Country> IncludeBillingAddress(this IQueryable<Order> query)
         {
@@ -29,7 +30,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Includes the the shipping address graph for eager loading.
+        /// Includes the shipping address graph for eager loading.
         /// </summary>
         public static IIncludableQueryable<Order, Country> IncludeShippingAddress(this IQueryable<Order> query)
         {
@@ -39,6 +40,30 @@ namespace Smartstore
                 .Include(x => x.ShippingAddress)
                 .ThenInclude(x => x.StateProvince)
                 .ThenInclude(x => x.Country);
+        }
+
+        /// <summary>
+        /// Includes the gift card history graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, GiftCard> IncludeGiftCardHistory(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Include(x => x.GiftCardUsageHistory)
+                .ThenInclude(x => x.GiftCard);
+        }
+
+        /// <summary>
+        /// Includes the order item graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, Product> IncludeOrderItems(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Include(x => x.OrderItems)
+                .ThenInclude(x => x.Product);
         }
 
         /// <summary>

@@ -7,8 +7,8 @@ namespace Smartstore
     public static partial class StringExtensions
     {
         private const string DumpStr = "------------------------------------------------";
-        private const string NaStr = "n/a";
 
+        public const string NotAvailable = "n/a";
         public const string CarriageReturnLineFeed = "\r\n";
         public const string Empty = "";
         public const char CarriageReturn = '\r';
@@ -64,7 +64,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string NaIfEmpty(this string value)
         {
-            return (string.IsNullOrWhiteSpace(value) ? NaStr : value);
+            return string.IsNullOrWhiteSpace(value) ? NotAvailable : value;
         }
     }
 }

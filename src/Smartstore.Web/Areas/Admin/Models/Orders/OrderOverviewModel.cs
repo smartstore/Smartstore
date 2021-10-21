@@ -36,13 +36,11 @@ namespace Smartstore.Admin.Models.Orders
         public string VatNumber { get; set; }
 
         [LocalizedDisplay("*OrderTotal")]
-        public Money OrderTotal { get; set; }
-        [LocalizedDisplay("*OrderTotal")]
+        public decimal OrderTotal { get; set; }
         public string OrderTotalString { get; set; }
 
         [LocalizedDisplay("*OrderStatus")]
         public OrderStatus OrderStatus { get; set; }
-        [LocalizedDisplay("*OrderStatus")]
         public string OrderStatusString { get; set; }
 
         public string OrderStatusLabelClass
@@ -62,7 +60,6 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("*PaymentStatus")]
         public PaymentStatus PaymentStatus { get; set; }
-        [LocalizedDisplay("*PaymentStatus")]
         public string PaymentStatusString { get; set; }
 
         public string PaymentStatusLabelClass
@@ -87,15 +84,17 @@ namespace Smartstore.Admin.Models.Orders
         public string PaymentMethodSystemName { get; set; }
         public string WithPaymentMethod { get; set; }
 
-        public bool HasPaymentMethod => PaymentMethod.HasValue();
+        public bool HasPaymentMethod 
+            => PaymentMethod.HasValue();
         public bool HasNewPaymentNotification { get; set; }
 
         [LocalizedDisplay("*ShippingStatus")]
         public ShippingStatus ShippingStatus { get; set; }
-        [LocalizedDisplay("*ShippingStatus")]
         public string ShippingStatusString { get; set; }
         public string ShippingAddressString { get; set; }
-        public bool IsShippable { get; set; }
+
+        public bool IsShippable 
+            => ShippingStatus != ShippingStatus.ShippingNotRequired;
 
         public string ShippingStatusLabelClass
         {
@@ -119,13 +118,13 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
-        [LocalizedDisplay("Common.CreatedOn")]
-        public string CreatedOnString { get; set; }
+        public string CreatedOnString
+            => CreatedOn.ToString("g");
 
         [LocalizedDisplay("Common.UpdatedOn")]
         public DateTime UpdatedOn { get; set; }
-        [LocalizedDisplay("Common.UpdatedOn")]
-        public string UpdatedOnString { get; set; }
+        public string UpdatedOnString
+            => UpdatedOn.ToString("g");
 
         public string EditUrl { get; set; }
     }
