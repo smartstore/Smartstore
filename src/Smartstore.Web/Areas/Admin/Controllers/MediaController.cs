@@ -8,13 +8,16 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {
-    // TODO: (mh) (core) Should not inherit from AdminController, else Upload action cannot be used from Frontend.
-    public class MediaController : AdminController
+    [Area("Admin")]
+    [TrackActivity(Order = 100)]
+    [RequireSsl]
+    public class MediaController : SmartController
     {
         private readonly SmartDbContext _db;
         private readonly IMediaService _mediaService;
@@ -37,6 +40,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Media.Upload)]
+        [ValidateAntiForgeryToken]
         [MaxMediaFileSize]
         public async Task<IActionResult> Upload(
             string path, 
@@ -120,20 +124,13 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [AuthorizeAdmin]
+        [Permission(Permissions.Media.Upload)]
+        [ValidateAntiForgeryToken]
         public IActionResult FileConflictResolutionDialog()
         {
-            if (!Services.Permissions.Authorize(Permissions.Media.Update))
-            {
-                throw new AccessDeniedException();
-            }
-
+            // AJAX call
             return PartialView();
         }
-
-        //public ActionResult MoveFsMedia()
-        //{
-        //    var count = DataMigrator.MoveFsMedia(Services.DbContext);
-        //    return Content("Moved and reorganized {0} media files.".FormatInvariant(count));
-        //}
     }
 }
