@@ -308,13 +308,11 @@ namespace Smartstore.Admin.Controllers
                 .DistinctBy(x => x.Name)
                 .ToList();
             
-            // Create zip file
-            var zipFile = _appContext.GetTenantTempDirectory().GetFile(dir.Name + "-media.zip");
+            // Create temp zip file
+            var tempZipFile = _appContext.GetTenantTempDirectory().GetFile(Path.GetRandomFileName() + "-media.zip");
+            var tempZipFilePath = Path.Combine(_appContext.GetTenantTempDirectory().PhysicalPath, Path.GetRandomFileName() + "-media.zip");
 
-            // Delete any orphaned archive
-            zipFile.FileSystem.TryDeleteFile(zipFile);
-
-            using (var zipArchive = ZipFile.Open(zipFile.PhysicalPath, ZipArchiveMode.Create))
+            using (var zipArchive = ZipFile.Open(tempZipFilePath, ZipArchiveMode.Create))
             {
                 foreach (var file in files)
                 {
@@ -333,10 +331,11 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            var zipFilePath = zipFile.PhysicalPath;
-            var zipStream = new FileStream(zipFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.DeleteOnClose);
+            // INFO: DeleteOnClose flag deletes file on stream close.
+            var zipStream = new FileStream(tempZipFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.DeleteOnClose);
+            var fileDownloadName = dir.Name + "-media.zip";
 
-            return File(zipStream, "application/zip", zipFile.Name);
+            return File(zipStream, "application/zip", fileDownloadName);
         }
 
         private async Task<JsonResult> RenameDirAsync(string path, string name)
