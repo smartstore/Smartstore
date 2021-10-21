@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -31,6 +32,7 @@ namespace Smartstore.Admin.Controllers
         private Dictionary<string, string> _lang = null;
         private Dictionary<string, string> _roxySettings = null;
 
+        private readonly IApplicationContext _appContext;
         private readonly IFileSystem _webRoot;
         private readonly IMediaUrlGenerator _mediaUrlGenerator;
         private readonly IMediaTypeResolver _mediaTypeResolver;
@@ -53,6 +55,7 @@ namespace Smartstore.Admin.Controllers
             MediaExceptionFactory exceptionFactory,
             ILocalizationFileResolver locFileResolver)
         {
+            _appContext = appContext;
             _mediaUrlGenerator = mediaUrlGenerator;
             _mediaTypeResolver = mediaTypeResolver;
             _mediaHelper = mediaHelper;
@@ -75,7 +78,7 @@ namespace Smartstore.Admin.Controllers
             return View();
         }
 
-        [HttpPost, IgnoreAntiforgeryToken]
+        [IgnoreAntiforgeryToken]
         [Permission(Permissions.Media.Upload)]
         public async Task<IActionResult> ProcessRequest(
             string a = null /* action */,
@@ -100,14 +103,12 @@ namespace Smartstore.Admin.Controllers
                     "DELETEDIR" => await DeleteDirAsync(d),
                     "DELETEFILE" => await DeleteFileAsync(f),
                     "DOWNLOAD" => await DownloadFileAsync(f),
-                    //case "DOWNLOADDIR":
-                    //    return await DownloadDirAsync(d);
+                    "DOWNLOADDIR" => await DownloadDirAsync(d),
                     "MOVEDIR" => await MoveDirAsync(d, n),
                     "MOVEFILE" => await MoveFileAsync(f, n),
                     "RENAMEDIR" => await RenameDirAsync(d, n),
                     "RENAMEFILE" => await RenameFileAsync(f, n),
-                    //case "UPLOAD":
-                    //    return await UploadAsync(d, ext.ToBool());
+                    "UPLOAD" => await UploadAsync(d, method, ext.ToBool()),
                     _ => Json(GetResultMessage("This action is not implemented.", "error")),
                 };
             }
@@ -292,7 +293,51 @@ namespace Smartstore.Admin.Controllers
             return File(await file.OpenReadAsync(), GetMimeType(file), file.Name);
         }
 
-        // TODO: DownloadDir
+        private async Task<FileStreamResult> DownloadDirAsync(string path)
+        {
+            path = GetRelativePath(path);
+
+            var dir = await _fileSystem.GetDirectoryAsync(path);
+            if (!dir.Exists)
+            {
+                throw new DirectoryNotFoundException($"Directory '{path}' does not exist.");
+            }
+
+
+            var files = (await GetFilesAsync(path, null).ToListAsync())
+                .DistinctBy(x => x.Name)
+                .ToList();
+            
+            // Create zip file
+            var zipFile = _appContext.GetTenantTempDirectory().GetFile(dir.Name + "-media.zip");
+
+            // Delete any orphaned archive
+            zipFile.FileSystem.TryDeleteFile(zipFile);
+
+            using (var zipArchive = ZipFile.Open(zipFile.PhysicalPath, ZipArchiveMode.Create))
+            {
+                foreach (var file in files)
+                {
+                    using var fileStream = await file.OpenReadAsync();
+                    var entry = zipArchive.CreateEntry(file.Name, CompressionLevel.Fastest);
+
+                    var lastWriteTime = file.LastModified;
+                    if ((lastWriteTime.Year < 1980) || (lastWriteTime.Year > 2107))
+                    {
+                        lastWriteTime = new DateTime(1980, 1, 1, 0, 0, 0);
+                    }
+                    entry.LastWriteTime = lastWriteTime;
+
+                    using var entryStream = entry.Open();
+                    await fileStream.CopyToAsync(entryStream);
+                }
+            }
+
+            var zipFilePath = zipFile.PhysicalPath;
+            var zipStream = new FileStream(zipFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.DeleteOnClose);
+
+            return File(zipStream, "application/zip", zipFile.Name);
+        }
 
         private async Task<JsonResult> RenameDirAsync(string path, string name)
         {
@@ -408,7 +453,63 @@ namespace Smartstore.Admin.Controllers
             return Json(GetResultMessage());
         }
 
-        // TODO: UploadAsync
+        private async Task<IActionResult> UploadAsync(string destinationPath, string method, bool external = false)
+        {
+            destinationPath = GetRelativePath(destinationPath);
+
+            string message = null;
+            var hasError = false;
+
+            try
+            {
+                // Copy uploaded files to file storage
+                var uploadedFiles = Request.Form.Files;
+                foreach (var uploadedFile in uploadedFiles)
+                {
+                    var extension = Path.GetExtension(uploadedFile.FileName);
+
+                    if (IsAllowedFileType(extension))
+                    {
+                        var path = PathUtility.Combine(destinationPath, uploadedFile.FileName);
+                        if ((await _fileSystem.CheckUniqueFileNameAsync(path)).Out(out var uniquePath))
+                        {
+                            path = uniquePath;
+                        }
+
+                        await _fileSystem.SaveStreamAsync(path, uploadedFile.OpenReadStream(), false);
+                    }
+                    else
+                    {
+                        message = LangRes("E_UploadNotAll");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                hasError = true;
+                message = ex.Message;
+            }
+
+            if (IsAjaxUpload(method))
+            {
+                if (external)
+                {
+                    return Json(new { Success = !hasError, Message = message });
+                }
+                else
+                {
+                    return Json(GetResultMessage(message, hasError ? "error" : "ok"));
+                }
+            }
+            else
+            {
+                var content = "<script>";
+                content += "parent.fileUploaded(" + GetResultString(message, hasError ? "error" : "ok") + "); ";
+                content += "</script>";
+
+                return Content(content);
+            }
+        }
 
         #endregion
 
