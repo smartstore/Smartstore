@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Autofac;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,32 +17,20 @@ namespace Smartstore.Facebook.Auth
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
-            services.TryAddEnumerable(new[]
-            {
-                ServiceDescriptor.Transient<IConfigureOptions<AuthenticationOptions>, FacebookOptionsConfigurer>(),
-                ServiceDescriptor.Transient<IConfigureOptions<FacebookOptions>, FacebookOptionsConfigurer>(),
-                ServiceDescriptor.Transient<IConfigureNamedOptions<FacebookOptions>, FacebookOptionsConfigurer>(),
-                ServiceDescriptor.Transient<IPostConfigureOptions<FacebookOptions>, OAuthPostConfigureOptions<FacebookOptions,FacebookHandler>>()
-            });
-
             services.Configure<MvcOptions>(o =>
             {
                 o.Filters.AddConditional<LoginButtonFilter>(
-                    context => IsConfigured(context.HttpContext.Request));
+                    context => context.RouteData.Values.IsSameRoute("Identity", "Login"));
             });
         }
 
-        internal static bool IsConfigured(HttpRequest request)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
-            var services = request.HttpContext.RequestServices;
-            var settings = services.GetRequiredService<FacebookExternalAuthSettings>();
-
-            if (settings.ClientKeyIdentifier.HasValue() && settings.ClientSecret.HasValue())
-            {
-                return true;
-            }
-
-            return false;
+            builder.RegisterType<FacebookOptionsConfigurer>()
+                .As<IConfigureOptions<AuthenticationOptions>>()
+                .As<IConfigureOptions<FacebookOptions>>()
+                .As<IConfigureNamedOptions<FacebookOptions>>()
+                .SingleInstance();
         }
     }
 }

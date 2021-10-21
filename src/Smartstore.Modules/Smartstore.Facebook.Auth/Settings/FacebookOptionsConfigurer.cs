@@ -23,15 +23,12 @@ namespace Smartstore.Facebook.Bootstrapping
         {
             var settings = _appContext.Services.Resolve<FacebookExternalAuthSettings>();
 
-            if (settings.ClientKeyIdentifier.HasValue() && settings.ClientSecret.HasValue())
+            // Register the OpenID Connect client handler in the authentication handlers collection.
+            options.AddScheme(FacebookDefaults.AuthenticationScheme, builder =>
             {
-                // Register the OpenID Connect client handler in the authentication handlers collection.
-                options.AddScheme(FacebookDefaults.AuthenticationScheme, builder =>
-                {
-                    builder.DisplayName = "Facebook";
-                    builder.HandlerType = typeof(FacebookHandler);
-                });   
-            }
+                builder.DisplayName = "Facebook";
+                builder.HandlerType = typeof(FacebookHandler);
+            });   
         }
 
         public void Configure(string name, FacebookOptions options)
@@ -47,16 +44,16 @@ namespace Smartstore.Facebook.Bootstrapping
             {
                 options.AppId = settings.ClientKeyIdentifier;
                 options.AppSecret = settings.ClientSecret;
+                // TODO: (mh) (core) What about CallbackPath?
             }
 
             options.Events = new OAuthEvents
             {
                 OnRemoteFailure = context =>
                 {
-                    var errorUrl = context.Request.PathBase.Value + $"/identity/externalerrorcallback?provider=facebook&errorMessage={context.Failure.Message}";
+                    var errorUrl = $"/identity/externalerrorcallback?provider=facebook&errorMessage={context.Failure.Message}";
                     context.Response.Redirect(errorUrl);
                     context.HandleResponse();
-
                     return Task.CompletedTask;
                 }
             };
@@ -64,6 +61,7 @@ namespace Smartstore.Facebook.Bootstrapping
             // TODO: (mh) (core) This must also be called when setting is changing via all settings grid.
         }
 
-        public void Configure(FacebookOptions options) => Debug.Fail("This infrastructure method shouldn't be called.");
+        public void Configure(FacebookOptions options) 
+            => Debug.Fail("This infrastructure method shouldn't be called.");
     }
 }

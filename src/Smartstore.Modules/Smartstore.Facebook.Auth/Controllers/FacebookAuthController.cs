@@ -12,7 +12,7 @@ using Smartstore.Web.Modelling.Settings;
 namespace Smartstore.Facebook.Auth.Controllers
 {
     [Area("Admin")]
-    [Route("[area]/facebookauth/[action]/{id?}")]
+    [Route("[area]/facebook/auth/[action]/{id?}")]
     public class FacebookAuthController : AdminController
     {
         private readonly Lazy<IConfigureNamedOptions<FacebookOptions>> _facebookOptionsConfigurer;
@@ -38,7 +38,7 @@ namespace Smartstore.Facebook.Auth.Controllers
 
         [HttpPost, SaveSetting]
         [Permission(Permissions.Configuration.Authentication.Update)]
-        public async Task<IActionResult> ConfigureAsync(ConfigurationModel model, FacebookExternalAuthSettings settings, int storeScope)
+        public async Task<IActionResult> Configure(ConfigurationModel model, FacebookExternalAuthSettings settings, int storeScope)
         {
             if (!ModelState.IsValid)
             {
@@ -47,11 +47,11 @@ namespace Smartstore.Facebook.Auth.Controllers
 
             ModelState.Clear();
 
-            var updateIdentity = ShouldUpdateFacebookOptions(model, settings);
+            var updateOptions = ShouldUpdateFacebookOptions(model, settings);
             
             MiniMapper.Map(model, settings);
 
-            if (updateIdentity)
+            if (updateOptions)
             {
                 // Save settings now so new values can be applied in FacebookOptionsConfigurer.
                 await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
@@ -61,14 +61,9 @@ namespace Smartstore.Facebook.Auth.Controllers
             return RedirectToAction(nameof(Configure));
         }
 
-        private bool ShouldUpdateFacebookOptions(ConfigurationModel model, FacebookExternalAuthSettings settings)
+        private static bool ShouldUpdateFacebookOptions(ConfigurationModel model, FacebookExternalAuthSettings settings)
         {
-            if (model.ClientKeyIdentifier != settings.ClientKeyIdentifier || model.ClientSecret != settings.ClientSecret)
-            {
-                return true;
-            }
-
-            return false;
+            return model.ClientKeyIdentifier != settings.ClientKeyIdentifier || model.ClientSecret != settings.ClientSecret;
         }
     }
 }
