@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Dynamic;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
+using Smartstore.Events;
 using Smartstore.Web.Theming;
 
 namespace Smartstore

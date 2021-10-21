@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Events;
 
@@ -13,9 +12,9 @@ namespace Smartstore
 
     public static class MediaDisplayHelperExtensions
     {
-        public static async Task<string> GetFileManagerUrlAsync(this IDisplayHelper displayHelper)
+        public static string GetFileManagerUrl(this IDisplayHelper displayHelper)
         {
-            return await displayHelper.HttpContext.GetItemAsync("FileManagerUrl", async () =>
+            return displayHelper.HttpContext.GetItem("FileManagerUrl", () =>
             {
                 var urlHelper = displayHelper.Resolve<IUrlHelper>();
                 var defaultUrl = urlHelper.Action("Index", "RoxyFileManager", new { area = "Admin" });
@@ -25,7 +24,7 @@ namespace Smartstore
                     Url = defaultUrl
                 };
 
-                await displayHelper.Resolve<IEventPublisher>().PublishAsync(message);
+                displayHelper.Resolve<IEventPublisher>().Publish(message);
 
                 return message.Url ?? defaultUrl;
             });
