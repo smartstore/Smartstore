@@ -290,7 +290,12 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (isStacked)
             {
-                classList.Add("flex-row",  "flex-lg-column");
+                classList.Add("nav-stacked", "flex-row",  "flex-lg-column");
+            }
+
+            if (Position != TabsPosition.Top)
+            {
+                classList.Add("nav-{0}".FormatInvariant(Position.ToString().ToLower()));
             }
 
             classList.Dispose();

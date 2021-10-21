@@ -9,8 +9,8 @@
     var htmlIsEmpty = !html.HasValue() || html == "<p></p>" || html == "<p>&nbsp;</p>" || html == "<p><br></p>";
     string culture = WorkContext.WorkingLanguage.LanguageCulture;
 
-    //Html.AddBodyAttribute("data-file-manager-url", base.FileManagerUrl);
-    Assets.BodyAttributes["data-file-manager-url"] = "/admin/roxyfilemanager/";
+
+    Assets.BodyAttributes["data-file-manager-url"] = Display.GetFileManagerUrl();
 
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
