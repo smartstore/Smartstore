@@ -31,6 +31,8 @@ namespace Smartstore.Web.Models.Identity
         public bool RememberMe { get; set; }
 
         public bool DisplayCaptcha { get; set; }
+
+        public bool DisplayExtAuth { get; set; }
     }
 
     public class LoginValidator : SmartValidator<LoginModel>

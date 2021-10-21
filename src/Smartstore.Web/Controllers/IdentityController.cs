@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
@@ -94,7 +96,7 @@ namespace Smartstore.Web.Controllers
         [HttpGet]
         [RequireSsl, AllowAnonymous, NeverAuthorize, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
-        public IActionResult Login(bool? checkoutAsGuest, string returnUrl = null)
+        public async Task<IActionResult> Login(bool? checkoutAsGuest, string returnUrl = null)
         {
             ViewBag.ReturnUrl = returnUrl ?? Url.Content("~/");
 
@@ -102,7 +104,8 @@ namespace Smartstore.Web.Controllers
             {
                 CustomerLoginType = _customerSettings.CustomerLoginType,
                 CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault(),
-                DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage
+                DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage,
+                DisplayExtAuth = (await _signInManager.GetExternalAuthenticationSchemesAsync()).Any()
             };
 
             return View(model);
@@ -175,6 +178,7 @@ namespace Smartstore.Web.Controllers
             // If we got this far something failed. Redisplay form!
             model.CustomerLoginType = _customerSettings.CustomerLoginType;
             model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage;
+            model.DisplayExtAuth = (await _signInManager.GetExternalAuthenticationSchemesAsync()).Any();
 
             return View(model);
         }
@@ -484,13 +488,15 @@ namespace Smartstore.Web.Controllers
 
         #region External login
 
+        [HttpGet]
         [AllowAnonymous]
         public IActionResult ExternalLogin(string provider, string returnUrl = null)
         {
-            // Request a redirect to the external login provider.
-            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Identity", new { ReturnUrl = returnUrl });
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Identity");
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-            properties.IsPersistent = false;
+            properties.AllowRefresh = true;
+            properties.IsPersistent = true;
+
             return Challenge(properties, provider);
         }
 
@@ -500,8 +506,8 @@ namespace Smartstore.Web.Controllers
         {
             if (remoteError != null)
             {
-                ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
-                return View(nameof(Login));
+                NotifyError(remoteError);
+                return RedirectToAction(nameof(Login));
             }
             
             var info = await _signInManager.GetExternalLoginInfoAsync();
@@ -515,12 +521,11 @@ namespace Smartstore.Web.Controllers
             if (result.Succeeded)
             {
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.LoginExternal"), info.LoginProvider);
-                return RedirectToLocal(returnUrl);
+                return RedirectToRoute("Homepage");
             }
             else
             {
                 // User doesn't have an account yet.
-                // INFO: This was adapted from classic ExternalAuthorizer.Authorize()
                 if (_customerSettings.UserRegistrationType != UserRegistrationType.Disabled)
                 {
                     var customer = new Customer
@@ -565,6 +570,19 @@ namespace Smartstore.Web.Controllers
 
                 return RedirectToLocal(returnUrl);
             }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ExternalErrorCallback(string provider, string errorMessage)
+        {
+            if (provider.HasValue() || errorMessage.HasValue())
+            {
+                Logger.Error($"Error from external provider {provider}: { errorMessage }");
+            }
+
+            NotifyError(T("ExternalAuthentication.ConfigError"));
+            return RedirectToAction(nameof(Login));
         }
 
         #endregion

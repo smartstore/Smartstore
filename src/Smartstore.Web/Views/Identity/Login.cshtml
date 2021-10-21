@@ -108,10 +108,16 @@
                         </button>
                     </div>
 
-                    @*TODO: (mh) (core) Remove component once auth modules are available, which can render directly into the zone via PublicInfo methods or something similiar*@
-                    @await Component.InvokeAsync("ExternalAuthentication")
+                    <div sm-if="Model.DisplayExtAuth" class="form-group external-auth-buttons">
+                        <div class="text-center text-uppercase mb-3">
+                            - @T("Common.Or") -
+                        </div>
+                        <div class="row flex-wrap justify-content-center xs-gutters">
+                            <zone name="external_auth_buttons" />
+                        </div>
+                    </div>
 
-                    <zone name="after_login_button" />
+                    <zone name="after_login_buttons" />
                 </form>
 			</div>
 		</div>

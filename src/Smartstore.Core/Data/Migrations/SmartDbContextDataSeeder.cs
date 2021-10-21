@@ -53,6 +53,10 @@ namespace Smartstore.Core.Data.Migrations
 
             // TODO: (core) Delete all Telerik language resources (???)
 
+            builder.AddOrUpdate("ExternalAuthentication.ConfigError", 
+                "There is a problem with the selected login method. Please choose another one or notify the store owner.", 
+                "Es liegt ein Problem mit der gewählten Login-Methode vor. Bitte wählen Sie eine andere oder benachrichtigen Sie den Shop-Betreiber.");
+
             builder.Delete("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsMessage");
             builder.Delete("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsValue");
             builder.Delete("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsMessage.Hint");
@@ -60,7 +64,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.Delete("Admin.Configuration.Settings.NoneWithThatId");
             builder.Delete("Admin.Configuration.Settings.AllSettings.Description");
-            
+
             builder.AddOrUpdate("Common.SetDefault", "Set as default", "Als Standard festlegen");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.ApplyRate.Error", "An error occurred when applying the rate.", "Bei der Aktualisierung der Rate ist ein Fehler aufgetreten.");
