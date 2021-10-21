@@ -105,7 +105,7 @@ namespace Smartstore.Web.Controllers
                 CustomerLoginType = _customerSettings.CustomerLoginType,
                 CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault(),
                 DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage,
-                DisplayExtAuth = (await _signInManager.GetExternalAuthenticationSchemesAsync()).Any()
+                DisplayExternalAuth = (await _signInManager.GetExternalAuthenticationSchemesAsync()).Any()
             };
 
             return View(model);
@@ -178,7 +178,7 @@ namespace Smartstore.Web.Controllers
             // If we got this far something failed. Redisplay form!
             model.CustomerLoginType = _customerSettings.CustomerLoginType;
             model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage;
-            model.DisplayExtAuth = (await _signInManager.GetExternalAuthenticationSchemesAsync()).Any();
+            model.DisplayExternalAuth = (await _signInManager.GetExternalAuthenticationSchemesAsync()).Any();
 
             return View(model);
         }

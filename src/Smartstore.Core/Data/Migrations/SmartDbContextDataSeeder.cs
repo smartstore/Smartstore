@@ -55,7 +55,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("ExternalAuthentication.ConfigError", 
                 "There is a problem with the selected login method. Please choose another one or notify the store owner.", 
-                "Es liegt ein Problem mit der gewählten Login-Methode vor. Bitte wählen Sie eine andere oder benachrichtigen Sie den Shop-Betreiber.");
+                "Es liegt ein Problem mit der gewählten Login-Methode vor. Bitte wählen Sie eine andere Methode oder benachrichtigen Sie den Shop-Betreiber.");
 
             builder.Delete("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsMessage");
             builder.Delete("Admin.Customers.Customers.RewardPoints.Fields.AddRewardPointsValue");

@@ -32,7 +32,7 @@ namespace Smartstore.Web.Models.Identity
 
         public bool DisplayCaptcha { get; set; }
 
-        public bool DisplayExtAuth { get; set; }
+        public bool DisplayExternalAuth { get; set; }
     }
 
     public class LoginValidator : SmartValidator<LoginModel>
