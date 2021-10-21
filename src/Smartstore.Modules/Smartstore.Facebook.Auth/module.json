@@ -1,0 +1,14 @@
+{
+  "Group": "Security",
+  "SystemName": "Smartstore.Facebook.Auth",
+  "FriendlyName": "Smartstore.Facebook.Auth",
+  "Description": "",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Order": 1,
+  "AssemblyName": "Smartstore.Facebook.Auth.dll",
+  "ResourceRootKey": "Plugins.ExternalAuth.Facebook",
+  "PrivateReferences": [
+    "Microsoft.AspNetCore.Authentication.Facebook"
+  ]
+}

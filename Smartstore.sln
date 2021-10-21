@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30406.217
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31717.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Web", "src\Smartstore.Web\Smartstore.Web.csproj", "{25E0AA77-1B48-4F6E-B42F-9F428ED968D1}"
 EndProject
@@ -52,6 +52,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.News", "src\Smartstore.Modules\Smartstore.News\Smartstore.News.csproj", "{EC56AF56-625F-4E37-AE5D-30CD544C8DBF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Polls", "src\Smartstore.Modules\Smartstore.Polls\Smartstore.Polls.csproj", "{16F94B03-09A7-47E9-B80A-AAFEC335ED5C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Facebook.Auth", "src\Smartstore.Modules\Smartstore.Facebook.Auth\Smartstore.Facebook.Auth.csproj", "{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -123,6 +125,10 @@ Global
 		{16F94B03-09A7-47E9-B80A-AAFEC335ED5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16F94B03-09A7-47E9-B80A-AAFEC335ED5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16F94B03-09A7-47E9-B80A-AAFEC335ED5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -141,6 +147,7 @@ Global
 		{944E4667-6CA2-4AD6-B9B0-F8E8C7903473} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{EC56AF56-625F-4E37-AE5D-30CD544C8DBF} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{16F94B03-09A7-47E9-B80A-AAFEC335ED5C} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}

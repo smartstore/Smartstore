@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+		<Product>Smartstore Facebook Authentication</Product>
+		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Facebook.Auth</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+	<ItemGroup>
+		<Content Include="App_Data\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.11" />
+	</ItemGroup>
+</Project>
