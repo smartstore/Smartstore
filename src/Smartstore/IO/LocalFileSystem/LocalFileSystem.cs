@@ -120,8 +120,7 @@ namespace Smartstore.IO
             _provider.Dispose();
         }
 
-        #endregion
-        
+        #endregion      
 
         #region Utils
 

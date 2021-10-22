@@ -37,13 +37,19 @@ namespace Smartstore.IO
         /// Creates a stream for reading from the file.
         /// </summary>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exist.</exception>
-        Task<Stream> OpenReadAsync() => throw new NotSupportedException();
+        Task<Stream> OpenReadAsync() => Task.FromResult(OpenRead());
 
         /// <summary>
         /// Creates a stream for writing to the file. If the directory does not exist, it will be created.
         /// </summary>
         /// <exception cref="FileSystemException">Thrown if the file does not exist and the directory could not be created.</exception>
         Stream OpenWrite() => throw new NotSupportedException();
+
+        /// <summary>
+        /// Creates a stream for writing to the file. If the directory does not exist, it will be created.
+        /// </summary>
+        /// <exception cref="FileSystemException">Thrown if the file does not exist and the directory could not be created.</exception>
+        Task<Stream> OpenWriteAsync() => Task.FromResult(OpenWrite());
 
         /// <summary>
         /// Copies an existing file to a new file.

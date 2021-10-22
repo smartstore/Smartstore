@@ -18,7 +18,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Engine;
 using Smartstore.IO;
-using Smartstore.Utilities;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
@@ -34,7 +33,7 @@ namespace Smartstore.Admin.Controllers
 
         private readonly IApplicationContext _appContext;
         private readonly IFileSystem _webRoot;
-        private readonly IMediaUrlGenerator _mediaUrlGenerator;
+        private readonly IMediaService _mediaService;
         private readonly IMediaTypeResolver _mediaTypeResolver;
         private readonly MediaHelper _mediaHelper;
         private readonly MediaServiceFileSystemAdapter _fileSystem;
@@ -45,7 +44,6 @@ namespace Smartstore.Admin.Controllers
         public RoxyFileManagerController(
             IApplicationContext appContext,
             IMediaService mediaService,
-            IMediaUrlGenerator mediaUrlGenerator,
             IMediaSearcher mediaSearcher,
             IFolderService folderService,
             IAlbumRegistry albumRegistry,
@@ -56,7 +54,7 @@ namespace Smartstore.Admin.Controllers
             ILocalizationFileResolver locFileResolver)
         {
             _appContext = appContext;
-            _mediaUrlGenerator = mediaUrlGenerator;
+            _mediaService = mediaService;
             _mediaTypeResolver = mediaTypeResolver;
             _mediaHelper = mediaHelper;
             _locFileResolver = locFileResolver;
@@ -269,7 +267,7 @@ namespace Smartstore.Admin.Controllers
 
             var result = await files.Select(file => new
             {
-                p = _mediaUrlGenerator.GenerateUrl(file as MediaFileInfo, null, string.Empty),
+                p = _mediaService.GetUrl(file as MediaFileInfo, null, string.Empty),
                 t = file.LastModified.ToUnixTime().ToString(),
                 m = GetMimeType(file),
                 s = file.Length.ToString(),
@@ -475,7 +473,7 @@ namespace Smartstore.Admin.Controllers
                             path = uniquePath;
                         }
 
-                        await _fileSystem.SaveStreamAsync(path, uploadedFile.OpenReadStream(), false);
+                        await _mediaService.SaveFileAsync(path, uploadedFile.OpenReadStream(), false, DuplicateFileHandling.Overwrite);
                     }
                     else
                     {

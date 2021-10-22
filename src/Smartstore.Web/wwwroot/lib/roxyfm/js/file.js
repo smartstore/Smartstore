@@ -116,7 +116,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 	this.IsImage = function () {
 		return this.type === 'image';
 	};
-	this.Delete = function () {
+	this.Delete = function (fn) {
 		if (!RoxyFilemanConf.DELETEFILE) {
 			alert(t('E_ActionDisabled'));
 			return;
@@ -140,6 +140,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 						d.Update();
 						d.SetStatusBar();
 					}
+					fn?.apply(this);
 				} else {
 					alert(data.msg);
 				}
@@ -149,7 +150,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 			}
 		});
 	};
-	this.Rename = function (newName) {
+	this.Rename = function (newName, fn) {
 		if (!RoxyFilemanConf.RENAMEFILE) {
 			alert(t('E_ActionDisabled'));
 			return false;
@@ -168,7 +169,6 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 				n: newName
 			},
 			dataType: 'json',
-			//async: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
 					var newPath = RoxyUtils.MakePath(this.path, newName);
@@ -181,6 +181,8 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 					$('.name', li).text(newName);
 					$('li[data-path="' + newPath + '"]').attr('data-path', newPath);
 					ret = true;
+
+					fn();
 				}
 				if (data.msg)
 					alert(data.msg);
@@ -191,7 +193,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 		});
 		return ret;
 	};
-	this.Copy = function (newPath) {
+	this.Copy = function (newPath, fn) {
 		if (!RoxyFilemanConf.COPYFILE) {
 			alert(t('E_ActionDisabled'));
 			return;
@@ -208,7 +210,6 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 				n: newPath
 			},
 			dataType: 'json',
-			//async: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
 					var d = Directory.Parse(newPath);
@@ -220,6 +221,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 							d.ListFiles(true);
 						}
 					}
+					fn?.apply(this);
 					ret = true;
 				}
 				if (data.msg)
@@ -231,7 +233,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 		});
 		return ret;
 	};
-	this.Move = function (newPath) {
+	this.Move = function (newPath, fn) {
 		if (!RoxyFilemanConf.MOVEFILE) {
 			alert(t('E_ActionDisabled'));
 			return;
@@ -249,7 +251,6 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 				n: newFullPath
 			},
 			dataType: 'json',
-			//async: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
 					$('li[data-path="' + item.fullPath + '"]').remove();
@@ -262,6 +263,7 @@ function File(filePath, fileSize, modTime, w, h, mime) {
 						d.files++;
 						d.Update();
 					}
+					fn?.apply(this);
 					ret = true;
 				}
 				if (data.msg)

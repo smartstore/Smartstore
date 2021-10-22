@@ -79,7 +79,7 @@ namespace Smartstore.Core.Content.Media.Storage
         }
 
         public virtual Task<Stream> OpenReadAsync(MediaFile mediaFile)
-            => Task.FromResult<Stream>(OpenRead(mediaFile));
+            => Task.FromResult(OpenRead(mediaFile));
 
         public virtual async Task<byte[]> LoadAsync(MediaFile mediaFile)
         {

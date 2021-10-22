@@ -213,28 +213,24 @@ namespace Smartstore.Core.Content.Media
         /// <inheritdoc/>
         public Stream OpenRead()
         {
-            if (!Exists)
+            if (Exists)
             {
-                throw new FileNotFoundException(Path);
+                return _storageProvider.OpenRead(File);
             }
 
-            return _storageProvider.OpenRead(File);
+            throw new FileNotFoundException(Path);
         }
 
         /// <inheritdoc/>
         public Task<Stream> OpenReadAsync()
         {
-            if (!Exists)
+            if (Exists)
             {
-                throw new FileNotFoundException(Path);
+                return _storageProvider.OpenReadAsync(File);
             }
 
-            return _storageProvider.OpenReadAsync(File);
+            throw new FileNotFoundException(Path);
         }
-
-        /// <inheritdoc/>
-        public Stream OpenWrite()
-            => throw new NotSupportedException();
 
         /// <inheritdoc/>
         void IFileEntry.Delete()

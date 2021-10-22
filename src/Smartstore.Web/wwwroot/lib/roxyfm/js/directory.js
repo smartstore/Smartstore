@@ -125,15 +125,15 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		var currentSelected = getSelectedDir();
 
 		if (indeterm && currentSelected) {
-			if (currentSelected.fullPath !== li.data('path')) {
+			if (currentSelected.fullPath !== li.attr('data-path')) {
 				$('#pnlDirList').data('indeterm', dir);
 				$('#pnlDirList .indeterm').removeClass('indeterm');
 				dir.addClass('indeterm');
 			}
 		}
 		else {
+			$('#pnlDirList li > .dir-item').removeClass('selected');
 			dir.addClass('selected');
-			$('#pnlDirList li[data-path!="' + this.fullPath + '"] > .dir-item').removeClass('selected');
 			this.SetStatusBar();
 
 			var p = this.GetParent();
@@ -143,7 +143,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 			}
 			this.ListFiles(true, selectedFile);
 			setLastDir(this.fullPath);
-		}		
+		}
 	};
 	this.GetElement = function () {
 		return $('li[data-path="' + this.fullPath + '"]');
@@ -166,7 +166,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		if (!el)
 			el = $('#pnlDirList');
 		el.children('li').each(function () {
-			var path = $(this).data('path');
+			var path = $(this).attr('data-path');
 			var d = new Directory(path);
 			if (d) {
 				if (d.IsExpanded() && path)
@@ -206,9 +206,11 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				this.name = 'My files';
 			this.path = RoxyUtils.GetPath(newPath);
 		}
-		el.data('path', this.fullPath);
-		el.data('dirs', this.dirs);
-		el.data('files', this.files);
+
+		el.attr('data-path', this.fullPath);
+		el.attr('data-name', this.name);
+		el.attr('data-dirs', this.dirs);
+		el.attr('data-files', this.files);
 		el.children('div').children('.name').html(this.name + ' (' + this.files + ')');
 		this.SetOpened();
 	};
@@ -260,7 +262,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 
 		this.SetOpened();
 	};
-	this.Create = function (newName) {
+	this.Create = function (newName, fn) {
 		if (!newName)
 			return false;
 		else if (!RoxyFilemanConf.CREATEDIR) {
@@ -279,11 +281,11 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				n: newName
 			},
 			dataType: 'json',
-			//async: false,
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
 					item.LoadAll(RoxyUtils.MakePath(item.fullPath, newName));
+					fn?.apply(this);
 					ret = true;
 				} else {
 					alert(data.msg);
@@ -295,7 +297,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		});
 		return ret;
 	};
-	this.Delete = function () {
+	this.Delete = function (fn) {
 		if (!RoxyFilemanConf.DELETEDIR) {
 			alert(t('E_ActionDisabled'));
 			return;
@@ -310,7 +312,6 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				d: this.fullPath
 			},
 			dataType: 'json',
-			//async: false,
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
@@ -319,6 +320,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 					parent.Update();
 					parent.Select();
 					item.GetElement().remove();
+					fn?.apply(this);
 					ret = true;
 				}
 				if (data.msg)
@@ -330,7 +332,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		});
 		return ret;
 	};
-	this.Rename = function (newName) {
+	this.Rename = function (newName, fn) {
 		if (!newName)
 			return false;
 		else if (!RoxyFilemanConf.RENAMEDIR) {
@@ -349,7 +351,6 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				n: newName
 			},
 			dataType: 'json',
-			//async: false,
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
@@ -357,6 +358,8 @@ function Directory(fullPath, numDirs, numFiles, name) {
 					item.Update(newPath);
 					item.Select();
 					ret = true;
+
+					fn();
 				}
 				if (data.msg)
 					alert(data.msg);
@@ -367,7 +370,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		});
 		return ret;
 	};
-	this.Copy = function (newPath) {
+	this.Copy = function (newPath, fn) {
 		if (!RoxyFilemanConf.COPYDIR) {
 			alert(t('E_ActionDisabled'));
 			return;
@@ -384,7 +387,6 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				n: newPath
 			},
 			dataType: 'json',
-			//async: false,
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
@@ -392,6 +394,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 					if (d) {
 						d.LoadAll(d.fullPath);
 					}
+					fn?.apply(this);
 					ret = true;
 				}
 				if (data.msg)
@@ -403,7 +406,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		});
 		return ret;
 	};
-	this.Move = function (newPath) {
+	this.Move = function (newPath, fn) {
 		if (!newPath)
 			return false;
 		else if (!RoxyFilemanConf.MOVEDIR) {
@@ -422,11 +425,11 @@ function Directory(fullPath, numDirs, numFiles, name) {
 				n: newPath
 			},
 			dataType: 'json',
-			//async: false,
 			cache: false,
 			success: function (data) {
 				if (data.res.toLowerCase() === 'ok') {
 					item.LoadAll(RoxyUtils.MakePath(newPath, item.name));
+					fn?.apply(this);
 					ret = true;
 				}
 				if (data.msg)
@@ -517,7 +520,7 @@ function Directory(fullPath, numDirs, numFiles, name) {
 		} else {
 			$('#pnlFileList li').each(function () {
 				var li = $(this);
-				ret.push(new File(li.data('path'), li.data('size'), li.data('time'), li.data('w'), li.data('h')));
+				ret.push(new File(li.attr('data-path'), li.data('size'), li.data('time'), li.data('w'), li.data('h')));
 			});
 			item.FilesLoaded(ret, selectedFile);
 		}
@@ -602,7 +605,7 @@ Directory.Parse = function (path) {
 	var ret = false;
 	var li = $('#pnlDirList').find('li[data-path="' + path + '"]');
 	if (li.length > 0)
-		ret = new Directory(li.data('path'), li.data('dirs'), li.data('files'), li.data('name'));
+		ret = new Directory(li.attr('data-path'), li.attr('data-dirs'), li.attr('data-files'), li.attr('data-name'));
 
 	return ret;
 };

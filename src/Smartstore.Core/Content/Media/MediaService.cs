@@ -729,6 +729,8 @@ namespace Smartstore.Core.Content.Media
                 _db.MediaFiles.Add(copy);
             }
 
+            await _db.SaveChangesAsync();
+
             // Copy data: blob, alt, title etc.
             if (copyData)
             {

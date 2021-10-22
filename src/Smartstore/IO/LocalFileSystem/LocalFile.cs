@@ -148,10 +148,6 @@ namespace Smartstore.IO
             => OpenRead();
 
         /// <inheritdoc/>
-        public Task<Stream> OpenReadAsync()
-            => Task.FromResult(OpenRead());
-
-        /// <inheritdoc/>
         public Stream OpenRead()
         {
             if (!Exists)
