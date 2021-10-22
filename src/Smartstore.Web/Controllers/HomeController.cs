@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Numerics;
 using System.Text;
 using System.Threading;
@@ -23,7 +22,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
-using Smartstore.Collections;
 using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
@@ -65,7 +63,6 @@ using Smartstore.Utilities.Html;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.Common;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
 {
@@ -201,6 +198,17 @@ namespace Smartstore.Web.Controllers
             }
 
             return View();
+        }
+
+        class MyTarget
+        {
+            public string Amount { get; set; }
+            public decimal AmountRaw { get; set; }
+        }
+
+        class MyTarget2
+        {
+            public Money Amount { get; set; }
         }
 
         [GdprConsent]

@@ -69,7 +69,7 @@ namespace Smartstore.ComponentModel
 
         private static void MapComplex(object from, object to, Type fromType, CultureInfo culture)
         {
-            if (object.ReferenceEquals(from, to))
+            if (ReferenceEquals(from, to))
             {
                 // Cannot map same instance or null source
                 return;

@@ -21,10 +21,8 @@ namespace Smartstore.Admin.Models.Orders
         public string AffiliateFullName { get; set; }
 
         // TODO: (mg) (core) Why separate raw and display amount if we have Money struct for this? Did you encounter any problems?
-        // RE: yes, editing, MiniMapper, formatting. decimal is required for editing and validation.
-        // Money.ToString() would not work as expected here because formatting depends on different, additional things
-        // like decimal greater\unequal 0, any setting true\false, any other property null\not null, formatting with different sign etc.
-        // For MiniMapper usage, a Money property must have a different name than the entity property otherwise you get a cast exception.
+        // RE: Understood. But "For MiniMapper usage, a Money property must have a different name than the entity property otherwise you get a cast exception.".
+        //     This is not true. Tested it, works like a charm.
         [LocalizedDisplay("*Edit.OrderSubtotal")]
         public decimal OrderSubtotalInclTax { get; set; }
         [LocalizedDisplay("*OrderSubtotalInclTax")]

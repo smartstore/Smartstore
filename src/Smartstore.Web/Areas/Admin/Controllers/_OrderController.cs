@@ -984,7 +984,6 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost, ActionName("Edit")]
         [FormValueRequired(FormValueRequirementOperator.StartsWith, "btnAddReturnRequest")]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Order.ReturnRequest.Create)]
         public async Task<IActionResult> AddReturnRequest(int id, IFormCollection form)
         {
@@ -1057,7 +1056,6 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost, ActionName("Edit")]
         [FormValueRequired(FormValueRequirementOperator.StartsWith, "btnPvActivateDownload")]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> ActivateDownloadOrderItem(int id, IFormCollection form)
         {
