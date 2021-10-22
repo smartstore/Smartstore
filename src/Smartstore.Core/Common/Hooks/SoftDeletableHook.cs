@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using Smartstore.Engine.Modularity;
@@ -22,10 +20,9 @@ namespace Smartstore.Core.Common.Hooks
         {
             // Suppress physical deletion of a soft deletable entity. Set "Deleted" property to True instead.
 
-            if (entity is MediaFile || 
-                (entity is Customer customer && customer.Email == null && customer.Username == null && !customer.IsSystemAccount))
+            if (entity.ForceDeletion)
             {
-                // But it's a media file or an ordinary guest customer account entity that we don't want to soft delete.
+                // ...but not if "ForceDeletion" is true.
                 return Task.FromResult(HookResult.Ok);
             }
 

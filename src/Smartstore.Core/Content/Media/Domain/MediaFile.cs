@@ -182,6 +182,12 @@ namespace Smartstore.Core.Content.Media
         [JsonIgnore]
         public bool Deleted { get; set; }
 
+        bool ISoftDeletable.ForceDeletion
+        {
+            // User decides whether media file should be deleted permanently/physically.
+            get => true;
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether the file is hidden.
         /// </summary>

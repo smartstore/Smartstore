@@ -156,6 +156,12 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public bool Deleted { get; set; }
 
+        bool ISoftDeletable.ForceDeletion
+        {
+            // We don't want to soft-delete ordinary guest customer accounts.
+            get => !IsSystemAccount && Email == null && Username == null;
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether the customer account is system
         /// </summary>
