@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,6 +41,28 @@ namespace Smartstore.Web.Components
         protected virtual bool PublishEvents { get; } = true;
 
         #region Results
+
+        /// <summary>
+        /// Returns a result which will render raw (unencoded) HTML content.
+        /// </summary>
+        /// <param name="content">The HTML content.</param>
+        /// <returns>A <see cref="HtmlContentViewComponentResult"/>.</returns>
+        public HtmlContentViewComponentResult HtmlContent(string content)
+        {
+            Guard.NotNull(content, nameof(content));
+            return new HtmlContentViewComponentResult(new HtmlString(content));
+        }
+
+        /// <summary>
+        /// Returns a result which will render raw (unencoded) HTML content.
+        /// </summary>
+        /// <param name="content">The HTML content.</param>
+        /// <returns>A <see cref="HtmlContentViewComponentResult"/>.</returns>
+        public HtmlContentViewComponentResult HtmlContent(IHtmlContent content)
+        {
+            Guard.NotNull(content, nameof(content));
+            return new HtmlContentViewComponentResult(content);
+        }
 
         /// <summary>
         /// Returns a result which will render the partial view with name <c>&quot;Default&quot;</c>.

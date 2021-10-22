@@ -1,17 +1,25 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
+using Smartstore.Facebook.Auth.Components;
 using Smartstore.Http;
 
 namespace Smartstore.Facebook.Auth
 {
-    internal class Module : ModuleBase, IConfigurable
+    internal class Module : ModuleBase, IConfigurable, IWidget
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "FacebookAuth", new { area = "Admin" });
+
+        public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
+            => new ComponentWidgetInvoker(typeof(FacebookAuthViewComponent), null);
+
+        public string[] GetWidgetZones()
+            => new string[] { "external_auth_buttons" };
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
