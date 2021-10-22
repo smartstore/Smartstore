@@ -17,11 +17,16 @@ namespace Smartstore.Facebook.Auth.Controllers
     {
         private readonly Lazy<IConfigureNamedOptions<FacebookOptions>> _facebookOptionsConfigurer;
         private readonly IOptions<FacebookOptions> _facebookOptions;
+        private readonly IOptionsMonitorCache<FacebookOptions> _optionsCache;
 
-        public FacebookAuthController(Lazy<IConfigureNamedOptions<FacebookOptions>> facebookOptionsConfigurer, IOptions<FacebookOptions> facebookOptions)
+        public FacebookAuthController(
+            Lazy<IConfigureNamedOptions<FacebookOptions>> facebookOptionsConfigurer, 
+            IOptions<FacebookOptions> facebookOptions, 
+            IOptionsMonitorCache<FacebookOptions> optionsCache)
         {
             _facebookOptionsConfigurer = facebookOptionsConfigurer;
             _facebookOptions = facebookOptions;
+            _optionsCache = optionsCache;
         }
 
         [HttpGet, LoadSetting]
@@ -55,7 +60,11 @@ namespace Smartstore.Facebook.Auth.Controllers
             {
                 // Save settings now so new values can be applied in FacebookOptionsConfigurer.
                 await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
-                _facebookOptionsConfigurer.Value.Configure(FacebookDefaults.AuthenticationScheme, _facebookOptions.Value); 
+                _facebookOptionsConfigurer.Value.Configure(FacebookDefaults.AuthenticationScheme, _facebookOptions.Value);
+
+                // Clear options cache and add current options again.
+                _optionsCache.TryRemove(FacebookDefaults.AuthenticationScheme);
+                _optionsCache.TryAdd(FacebookDefaults.AuthenticationScheme, _facebookOptions.Value);
             }
 
             return RedirectToAction(nameof(Configure));

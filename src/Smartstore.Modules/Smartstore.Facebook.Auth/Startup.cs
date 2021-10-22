@@ -17,20 +17,19 @@ namespace Smartstore.Facebook.Auth
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
+            services.TryAddEnumerable(new[]
+            {
+                ServiceDescriptor.Transient<IConfigureOptions<AuthenticationOptions>, FacebookOptionsConfigurer>(),
+                ServiceDescriptor.Transient<IConfigureOptions<FacebookOptions>, FacebookOptionsConfigurer>(),
+                ServiceDescriptor.Transient<IConfigureNamedOptions<FacebookOptions>, FacebookOptionsConfigurer>(),
+                ServiceDescriptor.Transient<IPostConfigureOptions<FacebookOptions>, OAuthPostConfigureOptions<FacebookOptions,FacebookHandler>>()
+            });
+
             services.Configure<MvcOptions>(o =>
             {
                 o.Filters.AddConditional<LoginButtonFilter>(
                     context => context.RouteData.Values.IsSameRoute("Identity", "Login"));
             });
-        }
-
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
-        {
-            builder.RegisterType<FacebookOptionsConfigurer>()
-                .As<IConfigureOptions<AuthenticationOptions>>()
-                .As<IConfigureOptions<FacebookOptions>>()
-                .As<IConfigureNamedOptions<FacebookOptions>>()
-                .SingleInstance();
         }
     }
 }

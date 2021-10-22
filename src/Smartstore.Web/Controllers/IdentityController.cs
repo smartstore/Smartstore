@@ -260,7 +260,7 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                customer.Username = model.UserName.Trim();
+                customer.Username = model.UserName != null ? model.UserName.Trim() : model.Email.Trim();
                 customer.Email = model.Email.Trim();
                 customer.PasswordFormat = _customerSettings.DefaultPasswordFormat;
                 customer.Active = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;

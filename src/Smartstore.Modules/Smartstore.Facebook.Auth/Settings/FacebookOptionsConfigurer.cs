@@ -13,7 +13,7 @@ namespace Smartstore.Facebook.Bootstrapping
     internal sealed class FacebookOptionsConfigurer : IConfigureOptions<AuthenticationOptions>, IConfigureNamedOptions<FacebookOptions>
     {
         private readonly IApplicationContext _appContext;
-
+        
         public FacebookOptionsConfigurer(IApplicationContext appContext)
         {
             _appContext = appContext;
@@ -28,13 +28,13 @@ namespace Smartstore.Facebook.Bootstrapping
             {
                 builder.DisplayName = "Facebook";
                 builder.HandlerType = typeof(FacebookHandler);
-            });   
+            });
         }
 
         public void Configure(string name, FacebookOptions options)
         {
-            // Ignore OpenID Connect client handler instances that don't correspond to the instance managed by the OpenID module.
-            if (!string.Equals(name, FacebookDefaults.AuthenticationScheme))
+            //Ignore OpenID Connect client handler instances that don't correspond to the instance managed by the OpenID module.
+            if (name.HasValue() && !string.Equals(name, FacebookDefaults.AuthenticationScheme))
             {
                 return;
             }
@@ -45,13 +45,14 @@ namespace Smartstore.Facebook.Bootstrapping
                 options.AppId = settings.ClientKeyIdentifier;
                 options.AppSecret = settings.ClientSecret;
                 // TODO: (mh) (core) What about CallbackPath?
+                // RE: CallbackPath is /signin-facebook > no need to overwrite that as it will be used by middleware only, we don't interact with it. 
             }
 
             options.Events = new OAuthEvents
             {
                 OnRemoteFailure = context =>
                 {
-                    var errorUrl = $"/identity/externalerrorcallback?provider=facebook&errorMessage={context.Failure.Message}";
+                    var errorUrl = $"/identity/externalerrorcallback?provider=facebook&errorMessage={context.Failure.Message.UrlEncode()}";
                     context.Response.Redirect(errorUrl);
                     context.HandleResponse();
                     return Task.CompletedTask;
