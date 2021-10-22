@@ -126,7 +126,7 @@ var RoxyIconHints = {
 
 function RoxyUtils() { }
 RoxyUtils.GetRootPath = function (path) {
-	return roxy_root + path;
+	return roxy_root + (path || "");
 };
 
 RoxyUtils.GetAssetPath = function (path) {
