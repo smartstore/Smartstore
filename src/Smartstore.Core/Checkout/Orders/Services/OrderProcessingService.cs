@@ -494,7 +494,12 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task AutoUpdateOrderDetailsAsync(AutoUpdateOrderItemContext context)
         {
+            Guard.NotNull(context.OrderItem, nameof(context.OrderItem));
+
             var oi = context.OrderItem;
+
+            await _db.LoadReferenceAsync(oi, x => x.Order);
+            await _db.LoadReferenceAsync(oi.Order, x => x.Customer);
 
             context.RewardPointsOld = context.RewardPointsNew = oi.Order.Customer.GetRewardPointsBalance();
 

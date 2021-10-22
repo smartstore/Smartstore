@@ -2,7 +2,6 @@
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Common;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Orders
@@ -36,7 +35,6 @@ namespace Smartstore.Admin.Models.Orders
         public string VatNumber { get; set; }
 
         [LocalizedDisplay("*OrderTotal")]
-        public decimal OrderTotal { get; set; }
         public string OrderTotalString { get; set; }
 
         [LocalizedDisplay("*OrderStatus")]

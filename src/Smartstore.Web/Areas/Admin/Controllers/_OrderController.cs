@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -684,7 +685,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> PartiallyRefundOrderPopup(int id, bool online)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await GetOrderWithIncludes(id, false);
             if (order == null)
             {
                 return NotFound();
@@ -701,7 +702,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> PartiallyRefundOrderPopup(string btnId, string formId, int id, bool online, OrderModel model)
         {
-            var order = await GetOrderWithIncludes(id, true);
+            var order = await GetOrderWithIncludes(id);
             if (order == null)
             {
                 return NotFound();
@@ -764,7 +765,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await GetOrderWithIncludes(id, false);
             if (order == null)
             {
                 return NotFound();
@@ -796,11 +797,560 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("List");
         }
 
+        [Permission(Permissions.Order.Read)]
+        public IActionResult Print(int orderId, bool pdf = false)
+        {
+            return RedirectToAction("Print", "Order", new { id = orderId, pdf, area = string.Empty });
+        }
+
+        [HttpPost, ActionName("Edit")]
+        [FormValueRequired("btnSaveCC")]
+        [Permission(Permissions.Order.Update)]
+        public async Task<IActionResult> EditCreditCardInfo(int id, OrderModel model)
+        {
+            var order = await GetOrderWithIncludes(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            if (order.AllowStoringCreditCardNumber)
+            {
+                order.CardType = _encryptor.EncryptText(model.CardType);
+                order.CardName = _encryptor.EncryptText(model.CardName);
+                order.CardNumber = _encryptor.EncryptText(model.CardNumber);
+                order.MaskedCreditCardNumber = _encryptor.EncryptText(_paymentService.GetMaskedCreditCardNumber(model.CardNumber));
+                order.CardCvv2 = _encryptor.EncryptText(model.CardCvv2);
+                order.CardExpirationMonth = _encryptor.EncryptText(model.CardExpirationMonth);
+                order.CardExpirationYear = _encryptor.EncryptText(model.CardExpirationYear);
+
+                await _db.SaveChangesAsync();
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+            }
+
+            await PrepareOrderModel(model, order);
+
+            return View(model);
+        }
+
+        [HttpPost, ActionName("Edit")]
+        [FormValueRequired("btnSaveDD")]
+        [Permission(Permissions.Order.Update)]
+        public async Task<IActionResult> EditDirectDebitInfo(int id, OrderModel model)
+        {
+            var order = await GetOrderWithIncludes(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            if (order.AllowStoringDirectDebit)
+            {
+                order.DirectDebitAccountHolder = _encryptor.EncryptText(model.DirectDebitAccountHolder);
+                order.DirectDebitAccountNumber = _encryptor.EncryptText(model.DirectDebitAccountNumber);
+                order.DirectDebitBankCode = _encryptor.EncryptText(model.DirectDebitBankCode);
+                order.DirectDebitBankName = _encryptor.EncryptText(model.DirectDebitBankName);
+                order.DirectDebitBIC = _encryptor.EncryptText(model.DirectDebitBIC);
+                order.DirectDebitCountry = _encryptor.EncryptText(model.DirectDebitCountry);
+                order.DirectDebitIban = _encryptor.EncryptText(model.DirectDebitIban);
+
+                await _db.SaveChangesAsync();
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+            }
+
+            await PrepareOrderModel(model, order);
+
+            return View(model);
+        }
+
+        [HttpPost, ActionName("Edit")]
+        [FormValueRequired("btnSaveOrderTotals")]
+        [Permission(Permissions.Order.Update)]
+        public async Task<IActionResult> EditOrderTotals(int id, OrderModel model)
+        {
+            var order = await GetOrderWithIncludes(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            order.OrderSubtotalInclTax = model.OrderSubtotalInclTax;
+            order.OrderSubtotalExclTax = model.OrderSubtotalExclTax;
+            order.OrderSubTotalDiscountInclTax = model.OrderSubTotalDiscountInclTax;
+            order.OrderSubTotalDiscountExclTax = model.OrderSubTotalDiscountExclTax;
+            order.OrderShippingInclTax = model.OrderShippingInclTax;
+            order.OrderShippingExclTax = model.OrderShippingExclTax;
+            order.PaymentMethodAdditionalFeeInclTax = model.PaymentMethodAdditionalFeeInclTax;
+            order.PaymentMethodAdditionalFeeExclTax = model.PaymentMethodAdditionalFeeExclTax;
+            order.TaxRates = model.TaxRates;
+            order.OrderTax = model.OrderTax;
+            order.OrderDiscount = model.OrderDiscount;
+            order.CreditBalance = model.CreditBalance;
+            order.OrderTotalRounding = model.OrderTotalRounding;
+            order.OrderTotal = model.OrderTotal;
+
+            await _db.SaveChangesAsync();
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+
+            await PrepareOrderModel(model, order);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Order.EditItem)]
+        public async Task<IActionResult> EditOrderItem(AutoUpdateOrderItemModel model)
+        {
+            var oi = await _db.OrderItems
+                .Include(x => x.Order)
+                .ThenInclude(x => x.Customer)
+                .FindByIdAsync(model.Id);
+            if (oi == null)
+            {
+                return NotFound();
+            }
+
+            var orderId = oi.OrderId;
+
+            if (model.NewQuantity.HasValue)
+            {
+                var context = new AutoUpdateOrderItemContext
+                {
+                    OrderItem = oi,
+                    QuantityOld = oi.Quantity,
+                    QuantityNew = model.NewQuantity.Value,
+                    PriceInclTaxOld = new(oi.PriceInclTax, _primaryCurrency),
+                    PriceExclTaxOld = new(oi.PriceExclTax, _primaryCurrency),
+                    AdjustInventory = model.AdjustInventory,
+                    UpdateRewardPoints = model.UpdateRewardPoints,
+                    UpdateTotals = model.UpdateTotals
+                };
+
+                oi.Quantity = model.NewQuantity.Value;
+                oi.UnitPriceInclTax = model.NewUnitPriceInclTax ?? oi.UnitPriceInclTax;
+                oi.UnitPriceExclTax = model.NewUnitPriceExclTax ?? oi.UnitPriceExclTax;
+                oi.TaxRate = model.NewTaxRate ?? oi.TaxRate;
+                oi.DiscountAmountInclTax = model.NewDiscountInclTax ?? oi.DiscountAmountInclTax;
+                oi.DiscountAmountExclTax = model.NewDiscountExclTax ?? oi.DiscountAmountExclTax;
+                oi.PriceInclTax = model.NewPriceInclTax ?? oi.PriceInclTax;
+                oi.PriceExclTax = model.NewPriceExclTax ?? oi.PriceExclTax;
+
+                // INFO: AutoUpdateOrderDetailsAsync performs commit.
+                await _orderProcessingService.AutoUpdateOrderDetailsAsync(context);
+
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), oi.Order.GetOrderNumber());
+                TempData[AutoUpdateOrderItemContext.InfoKey] = context.ToString(Services.Localization);
+            }
+
+            return RedirectToAction("Edit", new { id = orderId });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Order.EditItem)]
+        public async Task<IActionResult> DeleteOrderItem(AutoUpdateOrderItemModel model)
+        {
+            var oi = await _db.OrderItems
+                .Include(x => x.Order)
+                .ThenInclude(x => x.Customer)
+                .FindByIdAsync(model.Id);
+            if (oi == null)
+            {
+                return NotFound();
+            }
+
+            var orderId = oi.OrderId;
+            var orderNumber = oi.Order.GetOrderNumber();
+
+            var context = new AutoUpdateOrderItemContext
+            {
+                OrderItem = oi,
+                QuantityOld = oi.Quantity,
+                QuantityNew = 0,
+                AdjustInventory = model.AdjustInventory,
+                UpdateRewardPoints = model.UpdateRewardPoints,
+                UpdateTotals = model.UpdateTotals
+            };
+
+            await _orderProcessingService.AutoUpdateOrderDetailsAsync(context);
+
+            _db.OrderItems.Remove(oi);
+            await _db.SaveChangesAsync();
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderNumber);
+            TempData[AutoUpdateOrderItemContext.InfoKey] = context.ToString(Services.Localization);
+
+            return RedirectToAction("Edit", new { id = orderId });
+        }
+
+        [HttpPost, ActionName("Edit")]
+        [FormValueRequired(FormValueRequirementOperator.StartsWith, "btnAddReturnRequest")]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.Order.ReturnRequest.Create)]
+        public async Task<IActionResult> AddReturnRequest(int id, IFormCollection form)
+        {
+            var order = await _db.Orders
+                .Include(x => x.OrderItems)
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.ReturnRequests)
+                .FindByIdAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var orderItem = GetOrderItemByFormValue(order, "btnAddReturnRequest", form);
+            if (orderItem == null)
+            {
+                return NotFound();
+            }
+
+            if (orderItem.Quantity > 0)
+            {
+                var returnRequest = new ReturnRequest
+                {
+                    StoreId = order.StoreId,
+                    OrderItemId = orderItem.Id,
+                    Quantity = orderItem.Quantity,
+                    CustomerId = order.CustomerId,
+                    ReasonForReturn = string.Empty,
+                    RequestedAction = string.Empty,
+                    StaffNotes = string.Empty,
+                    ReturnRequestStatus = ReturnRequestStatus.Pending
+                };
+
+                order.Customer.ReturnRequests.Add(returnRequest);
+                await _db.SaveChangesAsync();
+
+                return RedirectToAction("Edit", "ReturnRequest", new { id = returnRequest.Id });
+            }
+
+            return RedirectToAction("Edit", new { id = order.Id });
+        }
+
+        [HttpPost, ActionName("Edit")]
+        [FormValueRequired(FormValueRequirementOperator.StartsWith, "btnResetDownloadCount")]
+        [Permission(Permissions.Order.Update)]
+        public async Task<IActionResult> ResetDownloadCount(int id, IFormCollection form)
+        {
+            var order = await GetOrderWithIncludes(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var orderItem = GetOrderItemByFormValue(order, "btnResetDownloadCount", form);
+            if (orderItem == null)
+            {
+                return NotFound();
+            }
+
+            orderItem.DownloadCount = 0;
+            await _db.SaveChangesAsync();
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+
+            var model = new OrderModel();
+            await PrepareOrderModel(model, order);
+
+            return View(model);
+        }
+
+        [HttpPost, ActionName("Edit")]
+        [FormValueRequired(FormValueRequirementOperator.StartsWith, "btnPvActivateDownload")]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.Order.Update)]
+        public async Task<IActionResult> ActivateDownloadOrderItem(int id, IFormCollection form)
+        {
+            var order = await GetOrderWithIncludes(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var orderItem = GetOrderItemByFormValue(order, "btnPvActivateDownload", form);
+            if (orderItem == null)
+            {
+                return NotFound();
+            }
+
+            orderItem.IsDownloadActivated = !orderItem.IsDownloadActivated;
+            await _db.SaveChangesAsync();
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+
+            var model = new OrderModel();
+            await PrepareOrderModel(model, order);
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Order.Read)]
+        public async Task<IActionResult> UploadLicenseFilePopup(int id, int orderItemId)
+        {
+            var order = await _db.Orders
+                .IncludeOrderItems()
+                .FindByIdAsync(id, false);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
+            if (orderItem == null)
+            {
+                return NotFound();
+            }
+
+            if (!orderItem.Product.IsDownload)
+            {
+                throw new ArgumentException(T("Admin.Orders.Products.NotDownloadable"));
+            }
+
+            var model = new OrderModel.UploadLicenseModel
+            {
+                LicenseDownloadId = orderItem.LicenseDownloadId ?? 0,
+                OldLicenseDownloadId = orderItem.LicenseDownloadId ?? 0,
+                OrderId = order.Id,
+                OrderItemId = orderItem.Id
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [FormValueRequired("uploadlicense")]
+        [Permission(Permissions.Order.Update)]
+        public async Task<IActionResult> UploadLicenseFilePopup(string btnId, string formId, OrderModel.UploadLicenseModel model)
+        {
+            var order = await _db.Orders
+                .IncludeOrderItems()
+                .FindByIdAsync(model.OrderId);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId);
+            if (orderItem == null)
+            {
+                return NotFound();
+            }
+
+            var isUrlDownload = Request.Form["is-url-download-" + model.LicenseDownloadId] == "true";
+            var setOldFileToTransient = false;
+
+            if (model.LicenseDownloadId != model.OldLicenseDownloadId && model.LicenseDownloadId != 0 && !isUrlDownload)
+            {
+                // Insert download if a new file was uploaded.
+                var mediaFileInfo = await Services.MediaService.GetFileByIdAsync(model.LicenseDownloadId);
+
+                var download = new Download
+                {
+                    MediaFile = mediaFileInfo.File,
+                    EntityId = model.OrderId,
+                    EntityName = "LicenseDownloadId",
+                    DownloadGuid = Guid.NewGuid(),
+                    UseDownloadUrl = false,
+                    DownloadUrl = string.Empty,
+                    UpdatedOnUtc = DateTime.UtcNow,
+                    IsTransient = false
+                };
+
+                _db.Downloads.Add(download);
+                await _db.SaveChangesAsync();
+
+                orderItem.LicenseDownloadId = download.Id;
+
+                setOldFileToTransient = true;
+            }
+            else if (isUrlDownload)
+            {
+                var download = await _db.Downloads.FindByIdAsync(model.LicenseDownloadId);
+
+                download.IsTransient = false;
+                download.UpdatedOnUtc = DateTime.UtcNow;
+                orderItem.LicenseDownloadId = model.LicenseDownloadId;
+
+                setOldFileToTransient = true;
+            }
+
+            if (setOldFileToTransient && model.OldLicenseDownloadId > 0)
+            {
+                // Set old download to transient if LicenseDownloadId is 0.
+                var oldDownload = await _db.Downloads.FindByIdAsync(model.OldLicenseDownloadId);
+                oldDownload.IsTransient = true;
+                oldDownload.UpdatedOnUtc = DateTime.UtcNow;
+            }
+
+            await _db.SaveChangesAsync();
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+
+            ViewBag.RefreshPage = true;
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
+
+            return View(model);
+        }
+
+        [HttpPost, ActionName("UploadLicenseFilePopup")]
+        [FormValueRequired("deletelicense")]
+        [Permission(Permissions.Order.Update)]
+        public async Task<IActionResult> DeleteLicenseFilePopup(string btnId, string formId, OrderModel.UploadLicenseModel model)
+        {
+            var order = await _db.Orders
+                .IncludeOrderItems()
+                .FindByIdAsync(model.OrderId);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId);
+            if (orderItem == null)
+            {
+                return NotFound();
+            }
+
+            // Set deleted file to transient.
+            var download = await _db.Downloads.FindByIdAsync(model.OldLicenseDownloadId);
+            download.IsTransient = true;
+
+            // Detach license.
+            orderItem.LicenseDownloadId = null;
+
+            await _db.SaveChangesAsync();
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+
+            ViewBag.RefreshPage = true;
+            ViewBag.btnId = btnId;
+            ViewBag.formId = formId;
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Order.Read)]
+        public async Task<IActionResult> AddressEdit(int addressId, int orderId)
+        {
+            if (!await _db.Orders.AnyAsync(x => x.Id == orderId))
+            {
+                return NotFound();
+            }
+
+            var address = await _db.Addresses.FindByIdAsync(addressId);
+            if (address == null)
+            {
+                return NotFound();
+            }
+
+            var model = new OrderAddressModel(orderId);
+            await PrepareOrderAddressModel(model, address);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Order.Update)]
+        public async Task<IActionResult> AddressEdit(OrderAddressModel model)
+        {
+            var order = await _db.Orders.FindByIdAsync(model.OrderId);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var address = await _db.Addresses.FindByIdAsync(model.Address.Id);
+            if (address == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                MiniMapper.Map(model.Address, address);
+                await _db.SaveChangesAsync();
+
+                await Services.EventPublisher.PublishOrderUpdatedAsync(order);
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+                NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
+
+                return RedirectToAction("AddressEdit", new { addressId = model.Address.Id, orderId = model.OrderId });
+            }
+
+            await PrepareOrderAddressModel(model, address);
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Order.Read)]
+        public IActionResult Shipments()
+        {
+            var model = new ShipmentListModel
+            {
+                DisplayPdfPackagingSlip = _pdfSettings.Enabled
+            };
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Order.Read)]
+        public async Task<IActionResult> ShipmentList(GridCommand command, ShipmentListModel model)
+        {
+            var dtHelper = Services.DateTimeHelper;
+
+            DateTime? startDate = model.StartDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
+
+            DateTime? endDate = model.EndDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+
+            var shipmentQuery = _db.Shipments.AsNoTracking();
+
+            if (model.TrackingNumber.HasValue())
+            {
+                shipmentQuery = shipmentQuery.ApplySearchFilterFor(x => x.TrackingNumber, model.TrackingNumber);
+            }
+
+            var shipments = await shipmentQuery
+                .ApplyTimeFilter(startDate, endDate)
+                .ApplyGridCommand(command, false)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var rows = await shipments.SelectAsync(async x =>
+            {
+                var m = new ShipmentModel();
+                await PrepareShipmentModel(m, x, true);
+                return m;
+            })
+            .AsyncToList();
+
+            return Json(new GridModel<ShipmentModel>
+            {
+                Rows = rows,
+                Total = shipments.TotalCount
+            });
+        }
+
+        #endregion
+
+        // TODO: (mg) (core) really port old way to add product to order (tons of code, did not support product bundles)?. Or do similar to customer impersonate approach?
+        #region Add product to order
+
+        [Permission(Permissions.Order.EditItem)]
+        public ActionResult AddProductToOrder(int orderId)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region Utilities
 
-        private async Task<Order> GetOrderWithIncludes(int id, bool tracked = false)
+        private async Task<Order> GetOrderWithIncludes(int id, bool tracked = true)
         {
             var order = await _db.Orders
                 .Include(x => x.RedeemedRewardPointsEntry)
@@ -876,9 +1426,9 @@ namespace Smartstore.Admin.Controllers
 
             model.DisplayTaxRates = _taxSettings.DisplayTaxRates && taxRates.Any();
             model.DisplayTax = !model.DisplayTaxRates;
-            model.TaxString = Format(order.OrderTax);
+            model.OrderTaxString = Format(order.OrderTax);
 
-            model.TaxRates = taxRates
+            model.TaxRatesList = taxRates
                 .Select(x => new OrderModel.TaxRate
                 {
                     Rate = _taxService.FormatTaxRate(x.Key),
@@ -1135,6 +1685,46 @@ namespace Smartstore.Admin.Controllers
             return result;
         }
 
+        private async Task PrepareOrderAddressModel(OrderAddressModel model, Address address)
+        {
+            model.Address = MiniMapper.Map<Address, AddressModel>(address);
+            PrepareSettings(model.Address);
+
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter(true)
+                .ToListAsync();
+
+            model.Address.AvailableCountries = countries
+                .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString(), Selected = x.Id == address.CountryId })
+                .ToList();
+
+            if (address.CountryId.HasValue)
+            {
+                var stateProvinces = await _db.StateProvinces
+                    .AsNoTracking()
+                    .ApplyCountryFilter(address.CountryId.Value)
+                    .ToListAsync();
+
+                model.Address.AvailableStates = stateProvinces
+                    .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString(), Selected = x.Id == address.StateProvinceId })
+                    .ToList();
+            }
+            else
+            {
+                model.Address.AvailableStates = new List<SelectListItem>
+                {
+                    new SelectListItem { Text = T("Admin.Address.OtherNonUS"), Value = "0" }
+                };
+            }
+        }
+
+        private async Task PrepareShipmentModel(ShipmentModel model, Shipment shipment, bool forList)
+        {
+            await Task.Delay(10);
+            //...
+        }
+
         private void PrepareSettings(AddressModel model)
         {
             model.ValidateEmailAddress = _addressSettings.ValidateEmailAddress;
@@ -1154,6 +1744,23 @@ namespace Smartstore.Admin.Controllers
             model.PhoneRequired = _addressSettings.PhoneRequired;
             model.FaxEnabled = _addressSettings.FaxEnabled;
             model.FaxRequired = _addressSettings.FaxRequired;
+        }
+
+        private OrderItem GetOrderItemByFormValue(Order order, string prefix, IFormCollection form)
+        {
+            var prefixLength = prefix.Length;
+
+            foreach (var value in form.Keys)
+            {
+                if (value.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var orderItemId = value[prefixLength..].ToInt();
+                    
+                    return order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
+                }
+            }
+
+            return null;
         }
 
         private string Format(decimal value, bool priceIncludesTax, bool? displayTaxSuffix = null, PricingTarget target = PricingTarget.Product)

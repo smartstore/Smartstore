@@ -241,6 +241,10 @@ namespace Smartstore.Core.Data.Migrations
                 "The amount to be refunded must be greater than 0.",
                 "Der zu erstattende Betrag muss größer 0 sein.");
 
+            builder.AddOrUpdate("Admin.Orders.Products.NotDownloadable",
+                "The product is not downloadable.",
+                "Das Produkt kann nicht heruntergeladen werden.");
+
             #endregion
 
             #region Packaging

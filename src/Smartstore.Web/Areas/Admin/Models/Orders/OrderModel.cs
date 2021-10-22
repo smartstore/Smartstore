@@ -21,51 +21,67 @@ namespace Smartstore.Admin.Models.Orders
         public string AffiliateFullName { get; set; }
 
         // TODO: (mg) (core) Why separate raw and display amount if we have Money struct for this? Did you encounter any problems?
-        [LocalizedDisplay("*OrderSubtotalInclTax")]
+        // RE: yes, editing, MiniMapper, formatting. decimal is required for editing and validation.
+        // Money.ToString() would not work as expected here because formatting depends on different, additional things
+        // like decimal greater\unequal 0, any setting true\false, any other property null\not null, formatting with different sign etc.
+        // For MiniMapper usage, a Money property must have a different name than the entity property otherwise you get a cast exception.
+        [LocalizedDisplay("*Edit.OrderSubtotal")]
         public decimal OrderSubtotalInclTax { get; set; }
+        [LocalizedDisplay("*OrderSubtotalInclTax")]
         public string OrderSubtotalInclTaxString { get; set; }
 
-        [LocalizedDisplay("*OrderSubtotalExclTax")]
+        [LocalizedDisplay("*Edit.OrderSubtotal")]
         public decimal OrderSubtotalExclTax { get; set; }
+        [LocalizedDisplay("*OrderSubtotalExclTax")]
         public string OrderSubtotalExclTaxString { get; set; }
 
-        [LocalizedDisplay("*OrderSubTotalDiscountInclTax")]
+        [LocalizedDisplay("*Edit.OrderSubTotalDiscount")]
         public decimal OrderSubTotalDiscountInclTax { get; set; }
+        [LocalizedDisplay("*OrderSubTotalDiscountInclTax")]
         public string OrderSubTotalDiscountInclTaxString { get; set; }
 
-        [LocalizedDisplay("*OrderSubTotalDiscountExclTax")]
+        [LocalizedDisplay("*Edit.OrderSubTotalDiscount")]
         public decimal OrderSubTotalDiscountExclTax { get; set; }
+        [LocalizedDisplay("*OrderSubTotalDiscountExclTax")]
         public string OrderSubTotalDiscountExclTaxString { get; set; }
 
-        [LocalizedDisplay("*OrderShippingInclTax")]
+        [LocalizedDisplay("*Edit.OrderShipping")]
         public decimal OrderShippingInclTax { get; set; }
+        [LocalizedDisplay("*OrderShippingInclTax")]
         public string OrderShippingInclTaxString { get; set; }
 
-        [LocalizedDisplay("*OrderShippingExclTax")]
+        [LocalizedDisplay("*Edit.OrderShipping")]
         public decimal OrderShippingExclTax { get; set; }
+        [LocalizedDisplay("*OrderShippingExclTax")]
         public string OrderShippingExclTaxString { get; set; }
 
-        [LocalizedDisplay("*PaymentMethodAdditionalFeeInclTax")]
+        [LocalizedDisplay("*Edit.PaymentMethodAdditionalFee")]
         public decimal PaymentMethodAdditionalFeeInclTax { get; set; }
+        [LocalizedDisplay("*PaymentMethodAdditionalFeeInclTax")]
         public string PaymentMethodAdditionalFeeInclTaxString { get; set; }
 
-        [LocalizedDisplay("*PaymentMethodAdditionalFeeExclTax")]
+        [LocalizedDisplay("*Edit.PaymentMethodAdditionalFee")]
         public decimal PaymentMethodAdditionalFeeExclTax { get; set; }
+        [LocalizedDisplay("*PaymentMethodAdditionalFeeExclTax")]
         public string PaymentMethodAdditionalFeeExclTaxString { get; set; }
 
+        [LocalizedDisplay("*Edit.Tax")]
+        public decimal OrderTax { get; set; }
         [LocalizedDisplay("*Tax")]
-        public decimal Tax { get; set; }
-        public string TaxString { get; set; }
+        public string OrderTaxString { get; set; }
 
-        public List<TaxRate> TaxRates { get; set; }
+        [LocalizedDisplay("*Edit.TaxRates")]
+        public string TaxRates { get; set; }
+        public List<TaxRate> TaxRatesList { get; set; }
+
         public bool DisplayTax { get; set; }
         public bool DisplayTaxRates { get; set; }
-
         public TaxDisplayType TaxDisplayType { get; set; }
         public bool AllowCustomersToSelectTaxDisplayType { get; set; }
 
-        [LocalizedDisplay("*OrderTotalDiscount")]
+        [LocalizedDisplay("*Edit.OrderTotalDiscount")]
         public decimal OrderDiscount { get; set; }
+        [LocalizedDisplay("*OrderTotalDiscount")]
         public string OrderDiscountString { get; set; }
 
         [LocalizedDisplay("*RedeemedRewardPoints")]
@@ -81,6 +97,9 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("*OrderTotalRounding")]
         public decimal OrderTotalRounding { get; set; }
         public string OrderTotalRoundingString { get; set; }
+
+        [LocalizedDisplay("*Edit.OrderTotal")]
+        public decimal OrderTotal { get; set; }
 
         [LocalizedDisplay("*RefundedAmount")]
         public string RefundedAmountString { get; set; }
