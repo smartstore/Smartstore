@@ -108,7 +108,7 @@ Vue.component("sm-datagrid", {
                         <tbody ref="tableBody" class="dg-tbody">
                             <tr v-if="ready && rows.length === 0" class="dg-tr dg-no-data">
                                 <td class="dg-td text-muted">
-                                    <div class="dg-cell">Keine Daten</div>
+                                    <div class="dg-cell">{{ T.noData }}</div>
                                 </td>
                             </tr>                            
                             
@@ -166,10 +166,10 @@ Vue.component("sm-datagrid", {
                                             </div>
 
                                             <div v-show="editing.active && row == editing.row" class="dg-row-edit-commands btn-group-vertical">
-                                                <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-sm btn-flat rounded-0" title="Änderungen speichern">
+                                                <a href="#" @click.prevent.stop="saveChanges()" class="btn btn-primary btn-sm btn-flat rounded-0" :title="T.saveChanges">
                                                     <i class="fa fa-check"></i>
                                                 </a>
-                                                <a href="#" @click.prevent.stop="cancelEdit()" class="btn btn-secondary btn-sm btn-flat rounded-0" title="Abbrechen">
+                                                <a href="#" @click.prevent.stop="cancelEdit()" class="btn btn-secondary btn-sm btn-flat rounded-0" :title="T.cancel">
                                                     <i class="fa fa-times"></i>
                                                 </a>
                                             </div>
@@ -338,6 +338,9 @@ Vue.component("sm-datagrid", {
 
     created() {
         const self = this;
+
+        // Localization
+        this.T = window.Res.DataGrid;
 
         // Load user prefs
         this.originalState = this.getGridState();
@@ -831,8 +834,8 @@ Vue.component("sm-datagrid", {
 
             const self = this;
             const message = numRows === 1
-                ? "Soll der Datensatz wirklich unwiderruflich gelöscht werden?"
-                : "Sollen die gewählten {0} Datensätze wirklich unwiderruflich gelöscht werden?".format(numRows);
+                ? this.T.confirmDelete
+                : this.T.confirmDeleteMany.format(numRows);
 
             confirm2({
                 message: message,
@@ -855,7 +858,7 @@ Vue.component("sm-datagrid", {
                         success(result) {
                             if (result.Success || result.success) {
                                 self.selectedRows = {};
-                                displayNotification("{0} Datensätze erfolgreich gelöscht.".format(result.Count || numRows), "success");
+                                displayNotification(self.T.deleteSuccess.format(result.Count || numRows), "success");
                                 self.$emit("deleted-rows", rowKeys);
                                 self.read();
                             }

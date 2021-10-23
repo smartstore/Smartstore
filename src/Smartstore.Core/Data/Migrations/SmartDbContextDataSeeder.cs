@@ -427,6 +427,27 @@ namespace Smartstore.Core.Data.Migrations
 
             #endregion
 
+            #region DataGrid
+
+            builder.AddOrUpdate("Admin.DataGrid.ResetState", "Reset", "Zurücksetzen");
+            builder.AddOrUpdate("Admin.DataGrid.NoData", "No data", "Keine Daten");
+            builder.AddOrUpdate("Admin.DataGrid.VBorders", "Row lines", "Zeilen liniert");
+            builder.AddOrUpdate("Admin.DataGrid.HBorders", "Column lines", "Spalten liniert");
+            builder.AddOrUpdate("Admin.DataGrid.Striped", "Striped", "Gestreift");
+            builder.AddOrUpdate("Admin.DataGrid.Hover", "Hover", "Hover");
+            builder.AddOrUpdate("Admin.DataGrid.PagerPos", "Pager", "Pager");
+            builder.AddOrUpdate("Admin.DataGrid.PagerTop", "Top", "Oben");
+            builder.AddOrUpdate("Admin.DataGrid.PagerBottom", "Bottom", "Unten");
+            builder.AddOrUpdate("Admin.DataGrid.PagerBoth", "Top & bottom", "Oben & unten");
+            builder.AddOrUpdate("Admin.DataGrid.XPerPage", "<span class='fwm'>{0}</span> per page", "<span class='fwm'>{0}</span> pro Seite");
+            builder.AddOrUpdate("Admin.DataGrid.DisplayingItems", "Displaying items {0}-{1} of {2}", "Zeige Datensätze {0}-{1} von {2}");
+            builder.AddOrUpdate("Admin.DataGrid.DisplayingItemsShort", "{0}-{1} of {2}", "{0}-{1} von {2}");
+            builder.AddOrUpdate("Admin.DataGrid.ConfirmDelete", "Do you really want to delete the item permanently?", "Soll der Datensatz wirklich unwiderruflich gelöscht werden?");
+            builder.AddOrUpdate("Admin.DataGrid.ConfirmDeleteMany", "Do you really want to delete the selected {0} items permanently?", "Sollen die gewählten {0} Datensätze wirklich unwiderruflich gelöscht werden?");
+            builder.AddOrUpdate("Admin.DataGrid.DeleteSuccess", "{0} items successfully deleted.", "{0} Datensätze erfolgreich gelöscht.");
+
+            #endregion
+
             #region Fixes
 
             builder.AddOrUpdate("ActivityLog.ImportThemeVars", "Imported {0} variables for theme '{1}'.", "{0} Variablen für Theme '{1}' importiert.");

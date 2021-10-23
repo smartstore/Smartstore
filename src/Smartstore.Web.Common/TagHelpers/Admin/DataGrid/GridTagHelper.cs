@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
+using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
@@ -290,7 +291,41 @@ namespace Smartstore.Web.TagHelpers.Admin
 
             GridCommand preservedCommandState = PreserveCommandState ? await _gridCommandStateStore.LoadStateAsync(Id) : null;
 
-            output.PostElement.AppendHtmlLine(@$"<script>$(function() {{ window['{Id}'] = new Vue({GenerateVueJson(preservedCommandState)}); }})</script>");
+            output.PostElement.AppendHtmlLine(@$"
+<script>
+    $(function() {{ 
+        window.Res.DataGrid = {GenerateClientRes()};
+        window['{Id}'] = new Vue({GenerateVueJson(preservedCommandState)}); 
+    }})
+</script>");
+        }
+
+        private string GenerateClientRes()
+        {
+            var resRoot = "Admin.DataGrid.";
+            var clientRes = new Dictionary<string, string>
+            {
+                ["saveChanges"] = T("Admin.Common.SaveChanges"),
+                ["cancel"] = T("Common.Cancel"),
+                ["resetState"] = T(resRoot + "ResetState"),
+                ["noData"] = T(resRoot + "NoData"),
+                ["vborders"] = T(resRoot + "VBorders"),
+                ["hborders"] = T(resRoot + "HBorders"),
+                ["striped"] = T(resRoot + "Striped"),
+                ["hover"] = T(resRoot + "Hover"),
+                ["pagerPos"] = T(resRoot + "PagerPos"),
+                ["pagerTop"] = T(resRoot + "PagerTop"),
+                ["pagerBottom"] = T(resRoot + "PagerBottom"),
+                ["pagerBoth"] = T(resRoot + "PagerBoth"),
+                ["xPerPage"] = T(resRoot + "XPerPage"),
+                ["displayingItems"] = T(resRoot + "DisplayingItems"),
+                ["displayingItemsShort"] = T(resRoot + "DisplayingItemsShort"),
+                ["confirmDelete"] = T(resRoot + "ConfirmDelete"),
+                ["confirmDeleteMany"] = T(resRoot + "ConfirmDeleteMany"),
+                ["deleteSuccess"] = T(resRoot + "DeleteSuccess"),
+            };
+
+            return SerializeObject(clientRes);
         }
 
         private string GenerateVueJson(GridCommand command)
@@ -360,14 +395,19 @@ namespace Smartstore.Web.TagHelpers.Admin
 
             dict["data"] = data;
 
-            var json = JsonConvert.SerializeObject(dict, new JsonSerializerSettings
+            var json = SerializeObject(dict);
+
+            return json;
+        }
+
+        private static string SerializeObject(object obj)
+        {
+            return JsonConvert.SerializeObject(obj, new JsonSerializerSettings
             {
                 ContractResolver = SmartContractResolver.Instance,
                 NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.None
+                Formatting = CommonHelper.IsDevEnvironment ? Formatting.Indented : Formatting.None
             });
-
-            return json;
         }
     }
 }
