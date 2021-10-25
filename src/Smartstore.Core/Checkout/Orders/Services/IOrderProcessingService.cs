@@ -41,16 +41,18 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Marks a shipment as shipped.
         /// </summary>
-        /// <param name="shipment">Shipment.</param>
+        /// <param name="shipmentId">Shipment identifier.</param>
         /// <param name="notifyCustomer"><c>true</c> to notify customer.</param>
-        Task ShipAsync(Shipment shipment, bool notifyCustomer);
+        /// <returns>Shipment.</returns>
+        Task<Shipment> ShipAsync(int shipmentId, bool notifyCustomer);
 
         /// <summary>
         /// Marks a shipment as delivered.
         /// </summary>
-        /// <param name="shipment">Shipment.</param>
+        /// <param name="shipmentId">Shipment identifier.</param>
         /// <param name="notifyCustomer"><c>true</c> to notify customer.</param>
-        Task DeliverAsync(Shipment shipment, bool notifyCustomer);
+        /// <returns>Shipment.</returns>
+        Task<Shipment> DeliverAsync(int shipmentId, bool notifyCustomer);
 
         /// <summary>
         /// Check whether a return request is allowed.

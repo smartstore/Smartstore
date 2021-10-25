@@ -855,24 +855,38 @@ namespace Smartstore.Web.Controllers
             var schs = Services.Resolve<IShippingService>();
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
 
-            var orderQuery = _db.Orders
-                .ApplyTracking(false)
-                .IncludeCustomer()
-                .IncludeOrderItems()
-                .IncludeShipments();
-
-            var shipmentQuery =
-                from s in _db.Shipments.ApplyTracking(false)
-                join o in orderQuery on s.OrderId equals o.Id
-                select s;
-
-            // Does not work. All includes missing\lost.
             var shipmentId = 22054;
+            var shipmentQuery = _db.Shipments
+                .Include(x => x.Order)
+                .ThenInclude(x => x.ShippingAddress)
+                .Include(x => x.Order)
+                .ThenInclude(x => x.Customer)
+                .ThenInclude(x => x.RewardPointsHistory)
+                .Include(x => x.Order)
+                .ThenInclude(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole)
+                .Include(x => x.Order)
+                .ThenInclude(x => x.Shipments)
+                .ThenInclude(x => x.ShipmentItems)
+                .Include(x => x.Order)
+                .ThenInclude(x => x.OrderItems)
+                .ThenInclude(x => x.Product);
+
             var shipment = await shipmentQuery.FirstOrDefaultAsync(x => x.Id == shipmentId);
             content.AppendLine($"order {shipment.Order.Id}");
             content.AppendLine($"customer {shipment.Order.Customer.Email}");
             content.AppendLine($"order items {shipment.Order.OrderItems.Count}");
             content.AppendLine($"shipments {shipment.Order.Shipments.Count}");
+            content.AppendLine($"shipment items {shipment.Order.Shipments?.FirstOrDefault()?.ShipmentItems?.Count ?? 0}");
+
+            var orderItem = shipment.Order.OrderItems.First();
+            // This works! Even if there is no include for it!
+            var deepShippmentCount = orderItem.Order.Shipments?.Count ?? 0;
+            var deepShippmentItemCount = orderItem.Order.Shipments.FirstOrDefault()?.ShipmentItems?.Count ?? 0;
+
+            content.AppendLine($"deep shipments {deepShippmentCount}");
+            content.AppendLine($"deep shipment items {deepShippmentItemCount}");
 
 
             //_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools"));

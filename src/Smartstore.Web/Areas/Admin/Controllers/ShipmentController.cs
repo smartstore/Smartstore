@@ -298,43 +298,35 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.EditShipment)]
         public async Task<IActionResult> SetAsShipped(int id)
         {
-            var shipment = await _db.Shipments
-                .Include(x => x.Order)
-                .FindByIdAsync(id);
-            if (shipment == null)
-            {
-                return NotFound();
-            }
-
             try
             {
-                await _orderProcessingService.ShipAsync(shipment, true);
+                var shipment = await _orderProcessingService.ShipAsync(id, true);
+                if (shipment == null)
+                {
+                    return NotFound();
+                }
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), shipment.Order.GetOrderNumber());
             }
             catch (Exception ex)
             {
-                NotifyError(ex, true);
+                NotifyError(ex);
             }
 
-            return RedirectToAction(nameof(Edit), new { id = shipment.Id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost]
         [Permission(Permissions.Order.EditShipment)]
         public async Task<IActionResult> SetAsDelivered(int id)
         {
-            var shipment = await _db.Shipments
-                .Include(x => x.Order)
-                .FindByIdAsync(id);
-            if (shipment == null)
-            {
-                return NotFound();
-            }
-
             try
             {
-                await _orderProcessingService.DeliverAsync(shipment, true);
+                var shipment = await _orderProcessingService.DeliverAsync(id, true);
+                if (shipment == null)
+                {
+                    return NotFound();
+                }
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), shipment.Order.GetOrderNumber());
             }
@@ -343,7 +335,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex, true);
             }
 
-            return RedirectToAction(nameof(Edit), new { id = shipment.Id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [Permission(Permissions.Order.Read)]

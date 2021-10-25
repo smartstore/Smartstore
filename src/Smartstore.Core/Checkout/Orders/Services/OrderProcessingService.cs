@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Catalog;
@@ -288,26 +289,19 @@ namespace Smartstore.Core.Checkout.Orders
             }
         }
 
-        public virtual async Task ShipAsync(Shipment shipment, bool notifyCustomer)
+        public virtual async Task<Shipment> ShipAsync(int shipmentId, bool notifyCustomer)
         {
-            Guard.NotNull(shipment, nameof(shipment));
+            if (shipmentId == 0)
+            {
+                return null;
+            }
+
+            var shipment = await GetShipmentQuery().FindByIdAsync(shipmentId);
+            var order = shipment.Order;
 
             if (shipment.ShippedDateUtc.HasValue)
             {
                 throw new SmartException(T("Shipment.AlreadyShipped"));
-            }
-
-            // INFO: we do not use shipment.Order because it is almost impossible for the caller
-            // to have all required navigation properties included here.
-            var order = await _db.Orders
-                .IncludeCustomer()
-                .IncludeOrderItems()
-                .IncludeShipments()
-                .FindByIdAsync(shipment.OrderId);
-
-            if (order == null)
-            {
-                throw new SmartException(T("Order.NotFound", shipment.OrderId));
             }
 
             shipment.ShippedDateUtc = DateTime.UtcNow;
@@ -330,29 +324,19 @@ namespace Smartstore.Core.Checkout.Orders
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
+
+            return shipment;
         }
 
-        public virtual async Task DeliverAsync(Shipment shipment, bool notifyCustomer)
+        public virtual async Task<Shipment> DeliverAsync(int shipmentId, bool notifyCustomer)
         {
-            Guard.NotNull(shipment, nameof(shipment));
-
-            if (shipment.DeliveryDateUtc.HasValue)
+            if (shipmentId == 0)
             {
-                throw new SmartException(T("Shipment.AlreadyDelivered"));
+                return null;
             }
 
-            // INFO: we do not use shipment.Order because it is almost impossible for the caller
-            // to have all required navigation properties included here.
-            var order = await _db.Orders
-                .IncludeCustomer()
-                .IncludeOrderItems()
-                .IncludeShipments()
-                .FindByIdAsync(shipment.OrderId);
-
-            if (order == null)
-            {
-                throw new SmartException(T("Order.NotFound", shipment.OrderId));
-            }
+            var shipment = await GetShipmentQuery().FindByIdAsync(shipmentId);
+            var order = shipment.Order;
 
             shipment.DeliveryDateUtc = DateTime.UtcNow;
 
@@ -374,6 +358,8 @@ namespace Smartstore.Core.Checkout.Orders
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
+
+            return shipment;
         }
 
         public virtual bool IsReturnRequestAllowed(Order order)
@@ -844,6 +830,29 @@ namespace Smartstore.Core.Checkout.Orders
 
                 return q;
             });
+        }
+
+        private IIncludableQueryable<Shipment, Product> GetShipmentQuery()
+        {
+            // INFO: also expands Shipment.Order.OrderItems.Order.Shipments.ShipmentItems
+            var query = _db.Shipments
+                .Include(x => x.Order)
+                .ThenInclude(x => x.ShippingAddress)
+                .Include(x => x.Order)
+                .ThenInclude(x => x.Customer)
+                .ThenInclude(x => x.RewardPointsHistory)
+                .Include(x => x.Order)
+                .ThenInclude(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole)
+                .Include(x => x.Order)
+                .ThenInclude(x => x.Shipments)
+                .ThenInclude(x => x.ShipmentItems)
+                .Include(x => x.Order)
+                .ThenInclude(x => x.OrderItems)
+                .ThenInclude(x => x.Product);
+
+            return query;
         }
 
         #endregion
