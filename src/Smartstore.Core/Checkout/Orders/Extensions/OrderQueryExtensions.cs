@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 
 namespace Smartstore
 {
@@ -55,6 +57,22 @@ namespace Smartstore
         }
 
         /// <summary>
+        /// Includes the customer graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, CustomerRole> IncludeCustomer(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Include(x => x.RedeemedRewardPointsEntry)
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.RewardPointsHistory)
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole);
+        }
+
+        /// <summary>
         /// Includes the order item graph for eager loading.
         /// </summary>
         public static IIncludableQueryable<Order, Product> IncludeOrderItems(this IQueryable<Order> query)
@@ -65,6 +83,20 @@ namespace Smartstore
                 .Include(x => x.OrderItems)
                 .ThenInclude(x => x.Product);
         }
+
+        /// <summary>
+        /// Includes the shipments graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, ICollection<ShipmentItem>> IncludeShipments(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Include(x => x.ShippingAddress)
+                .Include(x => x.Shipments)
+                .ThenInclude(x => x.ShipmentItems);
+        }
+
 
         /// <summary>
         /// Applies a standard filter and sorts by <see cref="Order.CreatedOnUtc"/> descending.

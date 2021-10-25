@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -20,7 +21,6 @@ using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.Pdf;
 using Smartstore.Web.Models.Orders;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
 {
@@ -34,7 +34,6 @@ namespace Smartstore.Web.Controllers
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly IProviderManager _providerManager;
-        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly IPdfConverter _pdfConverter;
         private readonly PdfSettings _pdfSettings;
         
@@ -47,7 +46,6 @@ namespace Smartstore.Web.Controllers
             IDateTimeHelper dateTimeHelper, 
             IProviderManager providerManager,
             ProductUrlHelper productUrlHelper,
-            Lazy<IUrlHelper> urlHelper,
             IPdfConverter pdfConverter,
             PdfSettings pdfSettings)
         {
@@ -59,7 +57,6 @@ namespace Smartstore.Web.Controllers
             _dateTimeHelper = dateTimeHelper;
             _providerManager = providerManager;
             _productUrlHelper = productUrlHelper;
-            _urlHelper = urlHelper;
             _pdfConverter = pdfConverter;
             _pdfSettings = pdfSettings;
         }
@@ -179,13 +176,13 @@ namespace Smartstore.Web.Controllers
                 {
                     Size = pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
                     Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
-                    Header = _pdfConverter.CreateFileInput(_urlHelper.Value.Action("ReceiptHeader", "Pdf", routeValues)),
-                    Footer = _pdfConverter.CreateFileInput(_urlHelper.Value.Action("ReceiptFooter", "Pdf", routeValues)),
+                    Header = _pdfConverter.CreateFileInput(Url.Action("ReceiptHeader", "Pdf", routeValues)),
+                    Footer = _pdfConverter.CreateFileInput(Url.Action("ReceiptFooter", "Pdf", routeValues)),
                     Page = _pdfConverter.CreateHtmlInput(await InvokeViewAsync(viewName, model))
                 };
 
                 var output = await _pdfConverter.GeneratePdfAsync(conversionSettings);
-                return File(output, "application/pdf", pdfFileName);
+                return File(output, MediaTypeNames.Application.Pdf, pdfFileName);
             }
 
             return View(viewName, model);

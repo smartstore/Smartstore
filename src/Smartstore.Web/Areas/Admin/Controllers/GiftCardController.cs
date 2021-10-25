@@ -44,7 +44,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Order.GiftCard.Read)]
@@ -154,8 +154,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.GiftCards.Added"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", new { id = giftCard.Id }) 
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), new { id = giftCard.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
@@ -210,8 +210,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.GiftCards.Updated"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", giftCard.Id) 
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), giftCard.Id) 
+                    : RedirectToAction(nameof(List));
             }
 
             PrepareGiftCardModel(model, giftCard);
@@ -244,7 +244,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteGiftCard, T("ActivityLog.DeleteGiftCard"), giftCard.GiftCardCouponCode);
             NotifySuccess(T("Admin.GiftCards.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost, ActionName("Edit")]
@@ -287,7 +287,7 @@ namespace Smartstore.Admin.Controllers
 
                             NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
 
-                            return RedirectToAction("Edit", giftCard.Id);
+                            return RedirectToAction(nameof(Edit), giftCard.Id);
                         }
                     }
                     else

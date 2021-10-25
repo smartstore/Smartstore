@@ -23,6 +23,9 @@ namespace Smartstore.Admin.Models.Orders
         // TODO: (mg) (core) Why separate raw and display amount if we have Money struct for this? Did you encounter any problems?
         // RE: Understood. But "For MiniMapper usage, a Money property must have a different name than the entity property otherwise you get a cast exception.".
         //     This is not true. Tested it, works like a charm.
+        // RE: maybe misunderstanding? My test case: mapping from Order.OrderTotal (decimal) to OrderOverviewModel.OrderTotal (Money)
+        // produces System.InvalidCastException and OrderOverviewModel.OrderTotal gets 0.00 (no type conversion?). However, Money usage does not really fit well here anyway.
+
         [LocalizedDisplay("*Edit.OrderSubtotal")]
         public decimal OrderSubtotalInclTax { get; set; }
         [LocalizedDisplay("*OrderSubtotalInclTax")]

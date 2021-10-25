@@ -15,6 +15,7 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("*TrackingNumber")]
         public string TrackingNumber { get; set; }
 
+        public int? OrderId { get; set; }
         public bool DisplayPdfPackagingSlip { get; set; }
     }
 }

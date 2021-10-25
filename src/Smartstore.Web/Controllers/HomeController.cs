@@ -855,8 +855,28 @@ namespace Smartstore.Web.Controllers
             var schs = Services.Resolve<IShippingService>();
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
 
+            var orderQuery = _db.Orders
+                .ApplyTracking(false)
+                .IncludeCustomer()
+                .IncludeOrderItems()
+                .IncludeShipments();
+
+            var shipmentQuery =
+                from s in _db.Shipments.ApplyTracking(false)
+                join o in orderQuery on s.OrderId equals o.Id
+                select s;
+
+            // Does not work. All includes missing\lost.
+            var shipmentId = 22054;
+            var shipment = await shipmentQuery.FirstOrDefaultAsync(x => x.Id == shipmentId);
+            content.AppendLine($"order {shipment.Order.Id}");
+            content.AppendLine($"customer {shipment.Order.Customer.Email}");
+            content.AppendLine($"order items {shipment.Order.OrderItems.Count}");
+            content.AppendLine($"shipments {shipment.Order.Shipments.Count}");
+
+
             //_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools"));
-            var migrator2 = Services.Container.Resolve(typeof(Core.Data.Migrations.DbMigrator<>).MakeGenericType(typeof(SmartDbContext))) as Core.Data.Migrations.DbMigrator;
+            //var migrator2 = Services.Container.Resolve(typeof(Core.Data.Migrations.DbMigrator<>).MakeGenericType(typeof(SmartDbContext))) as Core.Data.Migrations.DbMigrator;
             //await migrator2.RunPendingMigrationsAsync();
             //await migrator2.SeedPendingLocaleResourcesAsync(null);
             //await migrator2.SeedPendingLocaleResourcesAsync("UpdateTestEntityMigration");

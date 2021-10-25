@@ -30,6 +30,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -43,6 +44,7 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
+    // TODO: (mg) (core) mixture of eager and lazy loading of navigation properties when IOrderProcessingService is called.
     public class OrderController : AdminController
     {
         private readonly SmartDbContext _db;
@@ -54,6 +56,7 @@ namespace Smartstore.Admin.Controllers
         private readonly ITaxService _taxService;
         private readonly IEncryptor _encryptor;
         private readonly ModuleManager _moduleManager;
+        private readonly IMessageFactory _messageFactory;
         private readonly CatalogSettings _catalogSettings;
         private readonly TaxSettings _taxSettings;
         private readonly MeasureSettings _measureSettings;
@@ -74,6 +77,7 @@ namespace Smartstore.Admin.Controllers
             ITaxService taxService,
             IEncryptor encryptor,
             ModuleManager moduleManager,
+            IMessageFactory messageFactory,
             CatalogSettings catalogSettings,
             TaxSettings taxSettings,
             MeasureSettings measureSettings,
@@ -92,6 +96,7 @@ namespace Smartstore.Admin.Controllers
             _taxService = taxService;
             _encryptor = encryptor;
             _moduleManager = moduleManager;
+            _messageFactory = messageFactory;
             _catalogSettings = catalogSettings;
             _taxSettings = taxSettings;
             _measureSettings = measureSettings;
@@ -106,7 +111,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Order.Read)]
@@ -256,6 +261,7 @@ namespace Smartstore.Admin.Controllers
             var summary = await orderQuery.SelectAsOrderAverageReportLine().FirstOrDefaultAsync() ?? new OrderAverageReportLine();
             var profit = summary.SumOrderTotal - summary.SumTax - productCost;
 
+            // TODO: (mg) (core) render profit summary somewhere. Requires refresh when grid updates.
             ViewBag.SumOrderTax = _primaryCurrency.AsMoney(summary.SumTax).ToString(true);
             ViewBag.SumOrderTotal = _primaryCurrency.AsMoney(summary.SumOrderTotal).ToString(true);
             ViewBag.SumProfit = _primaryCurrency.AsMoney(profit).ToString(true);
@@ -292,32 +298,34 @@ namespace Smartstore.Admin.Controllers
 
             if (orderId != 0)
             {
-                return RedirectToAction("Edit", new { id = orderId });
+                return RedirectToAction(nameof(Edit), new { id = orderId });
             }
 
             NotifyWarning(T("Admin.Order.NotFound"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]
         [Permission(Permissions.Order.Read)]
-        public IActionResult ExportPdf(string selectedIds)
+        public IActionResult ExportPdf(GridSelection selection)
         {
-            return RedirectToAction("PrintMany", "Order", new { ids = selectedIds, pdf = true, area = string.Empty });
+            var ids = string.Join(",", selection.SelectedKeys);
+
+            return RedirectToAction("PrintMany", "Order", new { ids, pdf = true, area = string.Empty });
         }
 
         #region Payment
 
         [HttpPost]
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> ProcessOrder(string operation, string selectedIds)
+        public async Task<IActionResult> ProcessOrder(GridSelection selection, string operation)
         {
-            var ids = selectedIds.ToIntArray();
+            var ids = selection.GetEntityIds().ToArray();
             var orders = await _db.Orders.GetManyAsync(ids, true);
             if (!orders.Any() || operation.IsEmpty())
             {
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             const int maxErrors = 3;
@@ -458,7 +466,7 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), string.Join(", ", succeededOrderNumbers.OrderBy(x => x)));
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost, ActionName("Edit")]
@@ -483,7 +491,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -508,7 +516,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -540,7 +548,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -565,7 +573,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -597,7 +605,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -622,7 +630,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -654,7 +662,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -679,7 +687,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [Permission(Permissions.Order.Update)]
@@ -794,7 +802,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteOrder, msg);
             NotifySuccess(msg);
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Order.Read)]
@@ -942,7 +950,7 @@ namespace Smartstore.Admin.Controllers
                 TempData[AutoUpdateOrderItemContext.InfoKey] = context.ToString(Services.Localization);
             }
 
-            return RedirectToAction("Edit", new { id = orderId });
+            return RedirectToAction(nameof(Edit), new { id = orderId });
         }
 
         [HttpPost]
@@ -979,7 +987,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderNumber);
             TempData[AutoUpdateOrderItemContext.InfoKey] = context.ToString(Services.Localization);
 
-            return RedirectToAction("Edit", new { id = orderId });
+            return RedirectToAction(nameof(Edit), new { id = orderId });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -1023,7 +1031,7 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction("Edit", "ReturnRequest", new { id = returnRequest.Id });
             }
 
-            return RedirectToAction("Edit", new { id = order.Id });
+            return RedirectToAction(nameof(Edit), new { id = order.Id });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -1273,7 +1281,7 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
-                return RedirectToAction("AddressEdit", new { addressId = model.Address.Id, orderId = model.OrderId });
+                return RedirectToAction(nameof(AddressEdit), new { addressId = model.Address.Id, orderId = model.OrderId });
             }
 
             await PrepareOrderAddressModel(model, address);
@@ -1281,57 +1289,106 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        // INFO: shipment action methods moved to new ShipmentController and were renamed in some cases.
+
+        #region Order notes
+
+        [HttpPost]
         [Permission(Permissions.Order.Read)]
-        public IActionResult Shipments()
+        public async Task<IActionResult> OrderNoteList(GridCommand command, int orderId)
         {
-            var model = new ShipmentListModel
+            var order = await _db.Orders
+                .Include(x => x.OrderNotes)
+                .FindByIdAsync(orderId);
+
+            if (order != null)
             {
-                DisplayPdfPackagingSlip = _pdfSettings.Enabled
-            };
-
-            return View(model);
-        }
-
-        [Permission(Permissions.Order.Read)]
-        public async Task<IActionResult> ShipmentList(GridCommand command, ShipmentListModel model)
-        {
-            var dtHelper = Services.DateTimeHelper;
-
-            DateTime? startDate = model.StartDate == null
-                ? null
-                : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
-
-            DateTime? endDate = model.EndDate == null
-                ? null
-                : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
-
-            var shipmentQuery = _db.Shipments.AsNoTracking();
-
-            if (model.TrackingNumber.HasValue())
-            {
-                shipmentQuery = shipmentQuery.ApplySearchFilterFor(x => x.TrackingNumber, model.TrackingNumber);
+                return NotFound();
             }
 
-            var shipments = await shipmentQuery
-                .ApplyTimeFilter(startDate, endDate)
-                .ApplyGridCommand(command, false)
-                .ToPagedList(command)
-                .LoadAsync();
+            var rows = order.OrderNotes
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .Select(x => new OrderModel.OrderNote
+                {
+                    Id = x.Id,
+                    OrderId = x.OrderId,
+                    DisplayToCustomer = x.DisplayToCustomer,
+                    Note = x.FormatOrderNoteText(),
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
+                })
+                .ToList();
 
-            var rows = await shipments.SelectAsync(async x =>
+            if (order.HasNewPaymentNotification)
             {
-                var m = new ShipmentModel();
-                await PrepareShipmentModel(m, x, true);
-                return m;
-            })
-            .AsyncToList();
+                order.HasNewPaymentNotification = false;
+                await _db.SaveChangesAsync();
+            }
 
-            return Json(new GridModel<ShipmentModel>
+            return Json(new GridModel<OrderModel.OrderNote>
             {
                 Rows = rows,
-                Total = shipments.TotalCount
+                Total = order.OrderNotes.Count
             });
         }
+
+        [Permission(Permissions.Order.Update)]
+        public async Task<IActionResult> OrderNoteInsert(int orderId, bool displayToCustomer, string message)
+        {
+            var order = await _db.Orders.FindByIdAsync(orderId);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var orderNote = new OrderNote
+            {
+                DisplayToCustomer = displayToCustomer,
+                Note = message,
+                CreatedOnUtc = DateTime.UtcNow,
+            };
+
+            order.OrderNotes.Add(orderNote);
+            await _db.SaveChangesAsync();
+
+            if (displayToCustomer)
+            {
+                await _messageFactory.SendNewOrderNoteAddedCustomerNotificationAsync(orderNote, Services.WorkContext.WorkingLanguage.Id);
+            }
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+
+            return Json(new { Result = true });
+        }
+
+        [Permission(Permissions.Order.Update)]
+        public async Task<IActionResult> OrderNoteDelete(GridSelection selection, int orderId)
+        {
+            var success = false;
+            var order = await _db.Orders
+                .Include(x => x.OrderNotes)
+                .FindByIdAsync(orderId);
+
+            if (order != null)
+            {
+                var ids = selection.GetEntityIds().ToArray();
+                var orderNotes = order.OrderNotes.Where(x => ids.Contains(x.Id));
+
+                if (orderNotes.Any())
+                {
+                    _db.OrderNotes.RemoveRange(orderNotes);
+                    await _db.SaveChangesAsync();
+
+                    await Services.EventPublisher.PublishOrderUpdatedAsync(order);
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+
+                    success = true;
+                }
+            }
+
+            return Json(new { Success = success });
+        }
+
+        #endregion
 
         #endregion
 
@@ -1351,11 +1408,11 @@ namespace Smartstore.Admin.Controllers
         private async Task<Order> GetOrderWithIncludes(int id, bool tracked = true)
         {
             var order = await _db.Orders
-                .Include(x => x.RedeemedRewardPointsEntry)
+                .IncludeCustomer()
                 .IncludeOrderItems()
+                .IncludeShipments()
                 .IncludeGiftCardHistory()
                 .IncludeBillingAddress()
-                .IncludeShippingAddress()
                 .FindByIdAsync(id, tracked);
 
             return order;
@@ -1715,12 +1772,6 @@ namespace Smartstore.Admin.Controllers
                     new SelectListItem { Text = T("Admin.Address.OtherNonUS"), Value = "0" }
                 };
             }
-        }
-
-        private async Task PrepareShipmentModel(ShipmentModel model, Shipment shipment, bool forList)
-        {
-            await Task.Delay(10);
-            //...
         }
 
         private void PrepareSettings(AddressModel model)

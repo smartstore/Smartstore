@@ -6,6 +6,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Admin.Models.Orders
 {
@@ -15,7 +16,7 @@ namespace Smartstore.Admin.Models.Orders
         public int StoreId { get; set; }
         public int LanguageId { get; set; }
 
-        public Address ShippingAddress { get; set; }
+        public AddressModel ShippingAddress { get; set; }
         public string FormattedShippingAddress { get; set; }
         public string ShippingMethod { get; set; }
 
@@ -29,7 +30,9 @@ namespace Smartstore.Admin.Models.Orders
         public int OrderId { get; set; }
 
         [LocalizedDisplay("*TotalWeight")]
-        public string TotalWeight { get; set; }
+        public decimal? TotalWeight { get; set; }
+        [LocalizedDisplay("*TotalWeight")]
+        public string TotalWeightString { get; set; }
 
         [LocalizedDisplay("*TrackingNumber")]
         public string TrackingNumber { get; set; }

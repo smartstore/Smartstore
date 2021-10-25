@@ -134,6 +134,8 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(order, nameof(order));
 
+            await LoadNavigationProperties(order);
+
             if (!order.CanCancelOrder())
             {
                 throw new SmartException(T("Order.CannotCancel"));
@@ -164,6 +166,8 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task CompleteOrderAsync(Order order)
         {
+            await LoadNavigationProperties(order);
+
             if (!order.CanCompleteOrder())
             {
                 throw new SmartException(T("Order.CannotMarkCompleted"));
@@ -189,6 +193,8 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (order.OrderStatus != OrderStatus.Cancelled)
             {
+                await LoadNavigationProperties(order);
+
                 ApplyRewardPoints(order, true);
 
                 // Cancel recurring payments.
@@ -216,6 +222,8 @@ namespace Smartstore.Core.Checkout.Orders
         public virtual async Task ReOrderAsync(Order order)
         {
             Guard.NotNull(order, nameof(order));
+
+            await LoadNavigationProperties(order);
 
             foreach (var orderItem in order.OrderItems)
             {
@@ -284,12 +292,23 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(shipment, nameof(shipment));
 
-            var order = shipment.Order;
-            if (order == null)
-                throw new SmartException(T("Order.NotFound", shipment.OrderId));
-
             if (shipment.ShippedDateUtc.HasValue)
+            {
                 throw new SmartException(T("Shipment.AlreadyShipped"));
+            }
+
+            // INFO: we do not use shipment.Order because it is almost impossible for the caller
+            // to have all required navigation properties included here.
+            var order = await _db.Orders
+                .IncludeCustomer()
+                .IncludeOrderItems()
+                .IncludeShipments()
+                .FindByIdAsync(shipment.OrderId);
+
+            if (order == null)
+            {
+                throw new SmartException(T("Order.NotFound", shipment.OrderId));
+            }
 
             shipment.ShippedDateUtc = DateTime.UtcNow;
 
@@ -317,12 +336,23 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(shipment, nameof(shipment));
 
-            var order = shipment.Order;
-            if (order == null)
-                throw new SmartException(T("Order.NotFound", shipment.OrderId));
-
             if (shipment.DeliveryDateUtc.HasValue)
+            {
                 throw new SmartException(T("Shipment.AlreadyDelivered"));
+            }
+
+            // INFO: we do not use shipment.Order because it is almost impossible for the caller
+            // to have all required navigation properties included here.
+            var order = await _db.Orders
+                .IncludeCustomer()
+                .IncludeOrderItems()
+                .IncludeShipments()
+                .FindByIdAsync(shipment.OrderId);
+
+            if (order == null)
+            {
+                throw new SmartException(T("Order.NotFound", shipment.OrderId));
+            }
 
             shipment.DeliveryDateUtc = DateTime.UtcNow;
 
@@ -417,6 +447,8 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(order, nameof(order));
 
+            await LoadNavigationProperties(order, true);
+
             Shipment shipment = null;
             decimal? totalWeight = null;
 
@@ -498,8 +530,8 @@ namespace Smartstore.Core.Checkout.Orders
 
             var oi = context.OrderItem;
 
-            await _db.LoadReferenceAsync(oi, x => x.Order);
-            await _db.LoadReferenceAsync(oi.Order, x => x.Customer);
+            await _db.LoadReferenceAsync(oi, x => x.Product);
+            await LoadNavigationProperties(oi.Order);
 
             context.RewardPointsOld = context.RewardPointsNew = oi.Order.Customer.GetRewardPointsBalance();
 
@@ -790,6 +822,28 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             await scope.CommitAsync();
+        }
+
+        private async Task LoadNavigationProperties(Order order, bool includeShipments = false)
+        {
+            await _db.LoadReferenceAsync(order, x => x.Customer, false, q => q
+                .Include(x => x.RewardPointsHistory)
+                .Include(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole));
+
+            await _db.LoadCollectionAsync(order, x => x.OrderItems, false, q =>
+            {
+                q = q.Include(x => x.Product);
+
+                if (includeShipments)
+                {
+                    q = q.Include(x => x.Order)
+                        .ThenInclude(x => x.Shipments)
+                        .ThenInclude(x => x.ShipmentItems);
+                }
+
+                return q;
+            });
         }
 
         #endregion

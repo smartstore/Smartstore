@@ -14,6 +14,7 @@ namespace Smartstore.Core.Data
     {
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<OrderNote> OrderNotes { get; set; }
         public DbSet<TaxCategory> TaxCategories { get; set; }
         public DbSet<GiftCard> GiftCards { get; set; }
         public DbSet<GiftCardUsageHistory> GiftCardUsageHistory { get; set; }
