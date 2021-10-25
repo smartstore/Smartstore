@@ -34,9 +34,9 @@
 		<Value>Geben Sie hier Ihren Benutzer-Sicherheitsschlüssel (App Secret) an.</Value>
 	</LocaleResource>
 	<LocaleResource Name="RedirectUri">
-		<Value>Weiterleitungs URL (OAuth Redirect URI)</Value>
+		<Value>Weiterleitungs-URL (OAuth Redirect URI)</Value>
 	</LocaleResource>
 	<LocaleResource Name="RedirectUri.Hint">
-		<Value>Die bei Facebook einzutragende Weiterleitungs URL (OAuth Redirect URI).</Value>
+		<Value>Die bei Facebook einzutragende Weiterleitungs-URL (OAuth Redirect URI).</Value>
 	</LocaleResource>
 </Language>

@@ -28,7 +28,7 @@ namespace Smartstore.Facebook.Auth.Components
             if (!_facebookOptions.AppId.HasValue() && !_facebookOptions.AppSecret.HasValue())
             {
                 return Empty();
-            }      
+            }
 
             var returnUrl = HttpContext.Request.Query["returnUrl"].ToString();
             var href = _urlHelper.Action("ExternalLogin", "Identity", new { provider = "Facebook", returnUrl });
