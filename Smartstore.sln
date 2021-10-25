@@ -55,6 +55,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Polls", "src\Sma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Facebook.Auth", "src\Smartstore.Modules\Smartstore.Facebook.Auth\Smartstore.Facebook.Auth.csproj", "{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Twitter.Auth", "src\Smartstore.Modules\Smartstore.Twitter.Auth\Smartstore.Twitter.Auth.csproj", "{AC586A7E-00A2-4163-923F-B23BB6DD5B16}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -129,6 +131,10 @@ Global
 		{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC586A7E-00A2-4163-923F-B23BB6DD5B16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC586A7E-00A2-4163-923F-B23BB6DD5B16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC586A7E-00A2-4163-923F-B23BB6DD5B16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC586A7E-00A2-4163-923F-B23BB6DD5B16}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -148,6 +154,7 @@ Global
 		{EC56AF56-625F-4E37-AE5D-30CD544C8DBF} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{16F94B03-09A7-47E9-B80A-AAFEC335ED5C} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{AC586A7E-00A2-4163-923F-B23BB6DD5B16} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}

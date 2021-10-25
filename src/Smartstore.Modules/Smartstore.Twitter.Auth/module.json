@@ -1,0 +1,14 @@
+{
+  "Group": "Security",
+  "SystemName": "Smartstore.Twitter.Auth",
+  "FriendlyName": "Smartstore.Twitter.Auth",
+  "Description": "",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Order": 1,
+  "AssemblyName": "Smartstore.Twitter.Auth.dll",
+  "ResourceRootKey": "Plugins.Smartstore.Twitter.Auth",
+  "PrivateReferences": [
+    "Microsoft.AspNetCore.Authentication.Twitter"
+  ]
+}

@@ -1,0 +1,36 @@
+﻿using Microsoft.AspNetCore.Authentication.Twitter;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Smartstore.Web.Components;
+
+namespace Smartstore.Twitter.Auth.Components
+{
+    public class TwitterAuthViewComponent : SmartViewComponent
+    {
+        private readonly TwitterOptions _twitterOptions;
+        private readonly IUrlHelper _urlHelper;
+
+        public TwitterAuthViewComponent(IOptionsSnapshot<TwitterOptions> twitterOptions, IUrlHelper urlHelper)
+        {
+            _twitterOptions = twitterOptions.Value;
+            _urlHelper = urlHelper;
+        }
+
+        public IViewComponentResult Invoke()
+        {
+            // TODO: (mh) (core) _twitterOptions are null in this request. Uncomment when clarified how to implement this.
+            //if (!_twitterOptions.ConsumerKey.HasValue() && !_twitterOptions.ConsumerSecret.HasValue())
+            //{
+            //    return Empty();
+            //}      
+
+            var returnUrl = HttpContext.Request.Query["returnUrl"].ToString();
+            var href = _urlHelper.Action("ExternalLogin", "Identity", new { provider = "Twitter", returnUrl });
+            var title = T("Plugins.Smartstore.Twitter.Auth.Login").Value;
+            var html = $"<a class='btn btn-primary btn-block btn-lg btn-extauth btn-brand-twitter' href='{href}'>" +
+                       $"<i class='fab fa-fw fa-lg fa-twitter'></i><span>{title}</span></a>";
+
+            return HtmlContent(html);
+        }
+    }
+}

@@ -1,0 +1,42 @@
+﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
+  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Twitter.Auth" AppendRootKey="false">
+    <Value>Twitter Login</Value>
+  </LocaleResource>
+	<LocaleResource Name="Plugins.Description.Smartstore.Twitter.Auth" AppendRootKey="false">
+		<Value>Adds Twitter authentication to the store.</Value>
+	</LocaleResource>
+	<LocaleResource Name="AdminInstruction">
+		<Value>
+			<![CDATA[
+			<p>How to set up Twitter authentication: </p>
+			<ul>
+				<li>Create a new app on Twitter of type <a href="https://developer.twitter.com/en/apps">Twitter</a>.</li>
+				<li>Enter their access data in the form below.</li>
+				<li>Enter the URL listed below under <b>Apps &gt; App details &gt; Callback URLs</b>.</li>
+				<li>Activate automatic registration in the shop's customer settings if you want to register externally authorized visitors automatically.</li>
+			</ul>
+			]]>
+		</Value>
+	</LocaleResource>
+	<LocaleResource Name="Login">
+		<Value>Sign in with Twitter</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientKeyIdentifier">
+		<Value>Client key identifier (App ID)</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientKeyIdentifier.Hint">
+		<Value>Enter your client key identifier (App ID) here.</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientSecret">
+		<Value>Client secret (App Secret)</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientSecret.Hint">
+		<Value>Enter your client secret (App Secret) here.</Value>
+	</LocaleResource>
+	<LocaleResource Name="RedirectUri">
+		<Value>OAuth Redirect URI</Value>
+	</LocaleResource>
+	<LocaleResource Name="RedirectUri.Hint">
+		<Value>The OAuth Redirect URI to be entered on Twitter.</Value>
+	</LocaleResource>
+</Language>
