@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
 using Smartstore.Facebook.Auth.Models;
@@ -12,6 +11,8 @@ namespace Smartstore.Facebook.Auth.Controllers
     [Route("[area]/facebook/auth/[action]/{id?}")]
     public class FacebookAuthController : AdminController
     {
+        // TODO: (mh) (core) Restore code for clearing options from cache after discused & tested with MC.
+
         [HttpGet, LoadSetting]
         [Permission(Permissions.Configuration.Authentication.Read)]
         public IActionResult Configure(FacebookExternalAuthSettings settings)

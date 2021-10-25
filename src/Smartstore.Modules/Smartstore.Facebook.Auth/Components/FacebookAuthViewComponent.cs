@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Authentication.Facebook;
+﻿using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Smartstore.Web.Components;
@@ -15,6 +14,9 @@ namespace Smartstore.Facebook.Auth.Components
         {
             // INFO: (mh) (core) IOptionsSnapshot<T> ensures that an options instance is created once every request.
             // This way, the configurer is called on every request automatically (only once, the result is cached for the request duration).
+            // RE: Nup! This doesn't work. Maybe we should code this together, so we can test the result...
+            // The options object isn't the problem. We can get current values in here and everywhere else,
+            // but the used options will be the ones with which it was configured until you clear them from optionsCache
 
             _facebookOptions = facebookOptions.Value;
             _urlHelper = urlHelper;
