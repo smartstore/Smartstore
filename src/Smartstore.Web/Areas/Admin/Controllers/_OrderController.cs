@@ -44,7 +44,6 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
-    // TODO: (mg) (core) mixture of eager and lazy loading of navigation properties when IOrderProcessingService is called.
     public class OrderController : AdminController
     {
         private readonly SmartDbContext _db;
@@ -1276,6 +1275,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         // INFO: shipment action methods moved to new ShipmentController and were renamed in some cases.
+        #endregion
 
         #region Order notes
 
@@ -1376,15 +1376,94 @@ namespace Smartstore.Admin.Controllers
 
         #endregion
 
-        #endregion
-
         // TODO: (mg) (core) really port old way to add product to order (tons of code, did not support product bundles)?. Or do similar to customer impersonate approach?
         #region Add product to order
 
         [Permission(Permissions.Order.EditItem)]
-        public ActionResult AddProductToOrder(int orderId)
+        public IActionResult AddProductToOrder(int orderId)
         {
             throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Reports
+
+        [Permission(Permissions.Order.Read)]
+        public async Task<IActionResult> BestsellersReport()
+        {
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .Where(x => x.AllowsBilling)
+                .ToListAsync();
+
+            var countryItems = countries
+                .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
+                .ToList();
+            countryItems.Insert(0, new SelectListItem { Text = T("Admin.Address.SelectCountry"), Value = "0" });
+
+            ViewBag.Countries = countryItems;
+
+            return View(new BestsellersReportModel());
+        }
+
+        [Permission(Permissions.Order.Read)]
+        public async Task<IActionResult> BestsellersReportList(GridCommand command, BestsellersReportModel model)
+        {
+            var dtHelper = Services.DateTimeHelper;
+            var sorting = ReportSorting.ByAmountDesc;
+
+            DateTime? startDate = model.StartDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
+
+            DateTime? endDate = model.EndDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+
+            if (command.Sorting?.Any() ?? false)
+            {
+                var sort = command.Sorting.First();
+                if (sort.Member == nameof(BestsellersReportLineModel.TotalQuantity))
+                {
+                    sorting = sort.Descending
+                        ? ReportSorting.ByQuantityDesc
+                        : ReportSorting.ByQuantityAsc;
+                }
+                else if (sort.Member == nameof(BestsellersReportLineModel.TotalAmount))
+                {
+                    sorting = sort.Descending
+                        ? ReportSorting.ByAmountDesc
+                        : ReportSorting.ByAmountAsc;
+                }
+            }
+
+            var orderItemQuery =
+                from oi in _db.OrderItems.AsNoTracking()
+                join o in _db.Orders.AsNoTracking() on oi.OrderId equals o.Id
+                join p in _db.Products.AsNoTracking() on oi.ProductId equals p.Id
+                where
+                    (!startDate.HasValue || startDate.Value <= o.CreatedOnUtc) &&
+                    (!endDate.HasValue || endDate.Value >= o.CreatedOnUtc) &&
+                    (model.OrderStatusId == 0 || model.OrderStatusId == o.OrderStatusId) &&
+                    (model.PaymentStatusId == 0 || model.PaymentStatusId == o.PaymentStatusId) &&
+                    (model.ShippingStatusId == 0 || model.ShippingStatusId == o.ShippingStatusId) &&
+                    (model.BillingCountryId == 0 || model.BillingCountryId == o.BillingAddress.CountryId) &&
+                    !p.IsSystemProduct
+                select oi;
+
+            var reportLines = await orderItemQuery
+                .SelectAsBestsellersReportLine(sorting)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var rows = await reportLines.MapAsync(_db, true);
+
+            return Json(new GridModel<BestsellersReportLineModel>
+            {
+                Rows = rows,
+                Total = reportLines.TotalCount
+            });
         }
 
         #endregion
