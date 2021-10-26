@@ -28,9 +28,22 @@ namespace Smartstore.Core.Seo
         public static IOrderedQueryable<UrlRecord> ApplyEntityFilter(this IQueryable<UrlRecord> query, string entityName, int entityId, int languageId, bool? active = null)
         {
             Guard.NotNull(query, nameof(query));
-            Guard.NotEmpty(entityName, nameof(entityName));
+            //Guard.NotEmpty(entityName, nameof(entityName));
 
-            query = query.Where(x => x.EntityId == entityId && x.EntityName == entityName && x.LanguageId == languageId);
+            if (entityId > 0)
+            {
+                query = query.Where(x => x.EntityId == entityId);
+            }
+
+            if (entityName.HasValue())
+            {
+                query = query.Where(x => x.EntityName == entityName);
+            }
+
+            if (languageId > 0)
+            {
+                query = query.Where(x => x.LanguageId == languageId);
+            }
 
             if (active.HasValue)
             {

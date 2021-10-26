@@ -1,0 +1,62 @@
+﻿@using Smartstore.Admin.Models.UrlRecord
+
+@model UrlRecordModel
+
+<div asp-validation-summary="All"></div>
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Id" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Id" readonly />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IsActive" />
+        </div>
+        <div class="adminData">
+            <input asp-for="IsActive" />
+            <span asp-validation-for="IsActive"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Slug" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Slug" />
+            <span asp-validation-for="Slug"></span>
+            @await Component.InvokeAsync("NamesPerEntity", new { entityName = Model.EntityName, entityId = Model.EntityId })
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="EntityName" />
+        </div>
+        <div class="adminData">
+            <input asp-for="EntityName" />
+            <span asp-validation-for="EntityName"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="EntityId" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="EntityId" />
+            <span asp-validation-for="EntityId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="LanguageId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="LanguageId" asp-items="ViewBag.AvailableLanguages"></select>
+            <span asp-validation-for="LanguageId"></span>
+        </div>
+    </div>
+</div>

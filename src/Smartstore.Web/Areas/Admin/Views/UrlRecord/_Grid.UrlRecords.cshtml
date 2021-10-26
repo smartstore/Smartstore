@@ -1,0 +1,60 @@
+﻿@using Smartstore.Admin.Models.UrlRecord
+
+@model UrlRecordModel
+
+@{
+    var parentModel = ViewData["Parent"] as UrlRecordListModel;
+}
+
+<datagrid id="urlrecord-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("UrlRecordList", "UrlRecord")"
+                delete="@Url.Action("UrlRecordDelete", "UrlRecord")" />
+    <sorting enabled="true">
+        <sort by="Slug" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.UrlRecords.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" visible="false" type="string" />
+        <column for="Slug" width="2fr" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="SlugsPerEntity" halign="center">
+            <display-template>
+                <a :href="item.row.FilterUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="EntityName" />
+        <column for="EntityId" halign="center" />
+        <column for="IsActive" halign="center" />
+        <column for="Language" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
