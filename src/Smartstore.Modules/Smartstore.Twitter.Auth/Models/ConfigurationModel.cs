@@ -11,7 +11,6 @@ namespace Smartstore.Twitter.Auth.Models
         [LocalizedDisplay("*ConsumerSecret")]
         public string ConsumerSecret { get; set; }
 
-        // TODO: (mh) (core) Change resource
         [LocalizedDisplay("*RedirectUrl")]
         public string RedirectUrl { get; set; }
     }

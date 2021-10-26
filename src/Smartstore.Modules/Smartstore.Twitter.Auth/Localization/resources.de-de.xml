@@ -12,7 +12,8 @@
 				<ul>
 					<li>Erstellen Sie bei <a href="https://developer.twitter.com/en/apps">Twitter</a> eine neue App.</li>
 					<li>Tragen Sie die Zugangsdaten unten in das Formular ein.</li>
-					<li>Unter <b>Apps &gt; App details &gt; Callback URLs</b> wird die unten aufgeführte URL eingetragen.</li>
+					<li>Unter <b>Apps &gt; App settings &gt; Authentication settings &gt; Callback URLs</b> wird die unten aufgeführte URL eingetragen.</li>
+					<li>Aktivieren Sie die Option <b>Request email address from users</b></li>
 					<li>Aktivieren Sie in den Kundeneinstellungen des Shops die automatische Registrierung, falls extern autorisierte Besucher automatisch registriert werden sollen.</li>
 				</ul>
 			]]>
@@ -22,16 +23,16 @@
 		<Value>Mit Twitter anmelden</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientKeyIdentifier">
-		<Value>Benutzer-Schlüssel-Identifikator (App ID)</Value>
+		<Value>API Key</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientKeyIdentifier.Hint">
-		<Value>Geben Sie hier Ihren Benutzer-Schlüssel-Identifikator (App ID) an.</Value>
+		<Value>Geben Sie hier Ihren API Key an.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientSecret">
-		<Value>Benutzer-Sicherheitsschlüssel (App Secret)</Value>
+		<Value>Sicherheitsschlüssel (Consumer Secret)</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientSecret.Hint">
-		<Value>Geben Sie hier Ihren Benutzer-Sicherheitsschlüssel (App Secret) an.</Value>
+		<Value>Geben Sie hier Ihren Sicherheitsschlüssel (Consumer Secret) an.</Value>
 	</LocaleResource>
 	<LocaleResource Name="RedirectUri">
 		<Value>Weiterleitungs URL (OAuth Redirect URI)</Value>

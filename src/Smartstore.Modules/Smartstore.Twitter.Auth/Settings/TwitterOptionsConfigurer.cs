@@ -24,15 +24,12 @@ namespace Smartstore.Twitter.Bootstrapping
         {
             var settings = _appContext.Services.Resolve<TwitterExternalAuthSettings>();
 
-            if (settings.ConsumerKey.HasValue() && settings.ConsumerSecret.HasValue())
+            // Register the OpenID Connect client handler in the authentication handlers collection.
+            options.AddScheme(TwitterDefaults.AuthenticationScheme, builder =>
             {
-                // Register the OpenID Connect client handler in the authentication handlers collection.
-                options.AddScheme(TwitterDefaults.AuthenticationScheme, builder =>
-                {
-                    builder.DisplayName = "Twitter";
-                    builder.HandlerType = typeof(TwitterHandler);
-                });
-            }
+                builder.DisplayName = "Twitter";
+                builder.HandlerType = typeof(TwitterHandler);
+            });
         }
 
         public void Configure(string name, TwitterOptions options)
@@ -44,13 +41,10 @@ namespace Smartstore.Twitter.Bootstrapping
             }
 
             var settings = _appContext.Services.Resolve<TwitterExternalAuthSettings>();
-            if (settings.ConsumerKey.HasValue() && settings.ConsumerSecret.HasValue())
-            {
-                options.ConsumerKey = settings.ConsumerKey;
-                options.ConsumerSecret = settings.ConsumerSecret;
-                options.RetrieveUserDetails = true;                 // Important setting to retrieve email in response.
-            }
-
+            options.ConsumerKey = settings.ConsumerKey;
+            options.ConsumerSecret = settings.ConsumerSecret;
+            options.RetrieveUserDetails = true;                 // Important setting to retrieve email in response.
+        
             options.Events = new TwitterEvents
             {
                 OnRemoteFailure = context =>

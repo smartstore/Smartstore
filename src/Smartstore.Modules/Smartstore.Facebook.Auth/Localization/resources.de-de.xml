@@ -13,6 +13,7 @@
 					<li>Erstellen Sie bei <a href="https://developers.facebook.com/apps/create/">Facebook</a> eine neue App vom Typ <b>Konsument</b>.</li>
 					<li>Tragen Sie die Zugangsdaten unten in das Formular ein.</li>
 					<li>Unter <b>Meine App &gt; Facebook Login &gt; Einstellungen &gt; Gültige OAuth Redirect URIs</b> wird die unten aufgeführte URL eingetragen.</li>
+					<li>Tragen Sie Ihre Domain in den erweiterten Einstellungen der erstellten APP in den Domainmanager ein.</li>
 					<li>Aktivieren Sie in den Kundeneinstellungen des Shops die automatische Registrierung, falls extern autorisierte Besucher automatisch registriert werden sollen.</li>
 				</ul>
 			]]>
@@ -22,16 +23,16 @@
 		<Value>Mit Facebook anmelden</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientKeyIdentifier">
-		<Value>Benutzer-Schlüssel-Identifikator (App ID)</Value>
+		<Value>App-ID</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientKeyIdentifier.Hint">
-		<Value>Geben Sie hier Ihren Benutzer-Schlüssel-Identifikator (App ID) an.</Value>
+		<Value>Geben Sie hier Ihren App-ID an.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientSecret">
-		<Value>Benutzer-Sicherheitsschlüssel (App Secret)</Value>
+		<Value>App-Geheimcode (App Secret)</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientSecret.Hint">
-		<Value>Geben Sie hier Ihren Benutzer-Sicherheitsschlüssel (App Secret) an.</Value>
+		<Value>Geben Sie hier Ihren App-Geheimcode (App Secret) an.</Value>
 	</LocaleResource>
 	<LocaleResource Name="RedirectUri">
 		<Value>Weiterleitungs-URL (OAuth Redirect URI)</Value>

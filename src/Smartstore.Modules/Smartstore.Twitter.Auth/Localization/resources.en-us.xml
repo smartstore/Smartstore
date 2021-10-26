@@ -11,8 +11,9 @@
 			<p>How to set up Twitter authentication: </p>
 			<ul>
 				<li>Create a new app on Twitter of type <a href="https://developer.twitter.com/en/apps">Twitter</a>.</li>
-				<li>Enter their access data in the form below.</li>
-				<li>Enter the URL listed below under <b>Apps &gt; App details &gt; Callback URLs</b>.</li>
+				<li>Enter the access data (App-ID &amp; App-Secret) in the form below.</li>
+				<li>Enter the URL listed below in <b>Apps &gt; App settings &gt; Authentication settings &gt; Callback URLs</b>.</li>
+				<li>Activate the option <b>Request email address from users</b></li>
 				<li>Activate automatic registration in the shop's customer settings if you want to register externally authorized visitors automatically.</li>
 			</ul>
 			]]>
@@ -22,16 +23,16 @@
 		<Value>Sign in with Twitter</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientKeyIdentifier">
-		<Value>Client key identifier (App ID)</Value>
+		<Value>API Key</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientKeyIdentifier.Hint">
-		<Value>Enter your client key identifier (App ID) here.</Value>
+		<Value>Enter your API Key here.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientSecret">
-		<Value>Client secret (App Secret)</Value>
+		<Value>Secret</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientSecret.Hint">
-		<Value>Enter your client secret (App Secret) here.</Value>
+		<Value>Enter your consumer secret here.</Value>
 	</LocaleResource>
 	<LocaleResource Name="RedirectUri">
 		<Value>OAuth Redirect URI</Value>
