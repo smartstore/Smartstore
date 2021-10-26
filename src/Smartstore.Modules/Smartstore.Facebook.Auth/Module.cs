@@ -5,10 +5,11 @@ using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Facebook.Auth.Components;
 using Smartstore.Http;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Facebook.Auth
 {
-    internal class Module : ModuleBase, IConfigurable, IWidget
+    internal class Module : ModuleBase, IConfigurable, IWidget, IExternalAuthenticationMethod
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

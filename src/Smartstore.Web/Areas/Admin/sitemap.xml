@@ -23,7 +23,6 @@
             <siteMapNode id="checkout-attributes" iconClass="fa fa-list" title="Checkout attributes" resKey="Admin.Catalog.Attributes.CheckoutAttributes" permissionNames="cart.checkoutattribute" controller="CheckoutAttribute" action="List" area="Admin" />
         </siteMapNode>
 
-
         <siteMapNode id="sales" title="Sales" resKey="Admin.Sales" permissionNames="order" iconClass="icm icm-chart-growth">
             <siteMapNode id="orders" iconClass="far fa-chart-bar" title="Orders" resKey="Admin.Orders" permissionNames="order" controller="Order" action="List" area="Admin" />
             <siteMapNode id="shipments" iconClass="fa fa-truck-moving fa-flip-horizontal" title="Shipments" resKey="Admin.Orders.Shipments.List" permissionNames="order" controller="Order" action="ShipmentList" area="Admin" />
@@ -37,7 +36,6 @@
             <siteMapNode id="bestsellers" iconClass="far fa-thumbs-up" title="Bestsellers" resKey="Admin.SalesReport.Bestsellers" permissionNames="order" controller="Order" action="BestsellersReport" area="Admin" />
             <siteMapNode id="flopsellers" iconClass="far fa-thumbs-down" title="Products never purchased" resKey="Admin.SalesReport.NeverSold" permissionNames="order" controller="Order" action="NeverSoldReport" area="Admin" />
         </siteMapNode>
-
 
         <siteMapNode id="users" title="Customers" resKey="Admin.Customers" permissionNames="customer, configuration.authentication, configuration.activitylog" iconClass="icm icm-users2">
             <siteMapNode id="customers" iconClass="fa fa-user-alt" title="Customers" resKey="Admin.Customers.Customers" permissionNames="customer" controller="Customer" action="List" area="Admin" />

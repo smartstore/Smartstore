@@ -11,6 +11,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
@@ -142,7 +143,7 @@ namespace Smartstore.Core.Bootstrapping
                 RegisterAsSpecificProvider<IExportProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IOutputCacheProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IMediaStorageProvider>(type, systemName, registration);
-                //RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
+                RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
             }
         }
 

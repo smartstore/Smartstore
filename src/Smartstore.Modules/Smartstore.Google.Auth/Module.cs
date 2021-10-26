@@ -5,10 +5,11 @@ using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.Google.Auth.Components;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Google.Auth
 {
-    internal class Module : ModuleBase, IConfigurable, IWidget
+    internal class Module : ModuleBase, IConfigurable, IWidget, IExternalAuthenticationMethod
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

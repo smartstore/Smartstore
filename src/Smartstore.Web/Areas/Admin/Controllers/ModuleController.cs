@@ -12,6 +12,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -436,8 +437,7 @@ namespace Smartstore.Admin.Controllers
         {
             string readPermission = null;
             string updatePermission = null;
-            string url = null;
-
+            
             var metadata = provider.Metadata;
 
             if (metadata.ProviderType == typeof(IPaymentMethod))
@@ -460,13 +460,11 @@ namespace Smartstore.Admin.Controllers
                 readPermission = Permissions.Cms.Widget.Read;
                 updatePermission = Permissions.Cms.Widget.Update;
             }
-            // TODO: (mh) (core) Do we still need IExternalAuthenticationMethod provider?
-            //else if (metadata.ProviderType == typeof(IExternalAuthenticationMethod))
-            //{
-            //    readPermission = Permissions.Configuration.Authentication.Read;
-            //    updatePermission = Permissions.Configuration.Authentication.Update;
-            //    url = Url.Action("Providers", "ExternalAuthentication");
-            //}
+            else if (metadata.ProviderType == typeof(IExternalAuthenticationMethod))
+            {
+                readPermission = Permissions.Configuration.Authentication.Read;
+                updatePermission = Permissions.Configuration.Authentication.Update;
+            }
 
             return (readPermission, updatePermission);
         }

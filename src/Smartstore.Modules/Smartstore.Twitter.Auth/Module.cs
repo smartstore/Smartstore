@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
@@ -8,7 +9,7 @@ using Smartstore.Twitter.Auth.Components;
 
 namespace Smartstore.Twitter.Auth
 {
-    internal class Module : ModuleBase, IConfigurable, IWidget
+    internal class Module : ModuleBase, IConfigurable, IWidget, IExternalAuthenticationMethod
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

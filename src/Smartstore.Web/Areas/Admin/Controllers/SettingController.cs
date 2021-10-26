@@ -1013,7 +1013,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             ModelState.Clear();
-            settings = await MapperFactory.MapAsync<MediaSettingsModel, MediaSettings>(model);
+            await MapperFactory.MapAsync<MediaSettingsModel, MediaSettings>(model);
 
             return NotifyAndRedirect("Media");
         }
