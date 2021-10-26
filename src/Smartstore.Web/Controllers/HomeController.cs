@@ -856,21 +856,32 @@ namespace Smartstore.Web.Controllers
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
 
             var shipmentId = 22054;
+            //var shipmentQuery = _db.Shipments
+            //    .Include(x => x.Order)
+            //    .ThenInclude(x => x.ShippingAddress)
+            //    .Include(x => x.Order)
+            //    .ThenInclude(x => x.Customer)
+            //    .ThenInclude(x => x.RewardPointsHistory)
+            //    .Include(x => x.Order)
+            //    .ThenInclude(x => x.Customer)
+            //    .ThenInclude(x => x.CustomerRoleMappings)
+            //    .ThenInclude(x => x.CustomerRole)
+            //    .Include(x => x.Order)
+            //    .ThenInclude(x => x.Shipments)
+            //    .ThenInclude(x => x.ShipmentItems)
+            //    .Include(x => x.Order)
+            //    .ThenInclude(x => x.OrderItems)
+            //    .ThenInclude(x => x.Product);
+
             var shipmentQuery = _db.Shipments
-                .Include(x => x.Order)
-                .ThenInclude(x => x.ShippingAddress)
-                .Include(x => x.Order)
-                .ThenInclude(x => x.Customer)
+                .Include(x => x.Order.ShippingAddress)
+                .Include(x => x.Order.Customer)
                 .ThenInclude(x => x.RewardPointsHistory)
-                .Include(x => x.Order)
-                .ThenInclude(x => x.Customer)
-                .ThenInclude(x => x.CustomerRoleMappings)
+                .Include(x => x.Order.Customer.CustomerRoleMappings)
                 .ThenInclude(x => x.CustomerRole)
-                .Include(x => x.Order)
-                .ThenInclude(x => x.Shipments)
+                .Include(x => x.Order.Shipments)
                 .ThenInclude(x => x.ShipmentItems)
-                .Include(x => x.Order)
-                .ThenInclude(x => x.OrderItems)
+                .Include(x => x.Order.OrderItems)
                 .ThenInclude(x => x.Product);
 
             var shipment = await shipmentQuery.FirstOrDefaultAsync(x => x.Id == shipmentId);

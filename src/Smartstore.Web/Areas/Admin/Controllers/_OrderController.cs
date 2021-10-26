@@ -322,7 +322,15 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ProcessOrder(GridSelection selection, string operation)
         {
             var ids = selection.GetEntityIds().ToArray();
-            var orders = await _db.Orders.GetManyAsync(ids, true);
+            var orders = await _db.Orders
+                .IncludeCustomer()
+                .IncludeOrderItems()
+                .IncludeShipments()
+                .IncludeGiftCardHistory()
+                .IncludeBillingAddress()
+                .Where(x => ids.Contains(x.Id))
+                .ToListAsync();
+
             if (!orders.Any() || operation.IsEmpty())
             {
                 return RedirectToAction(nameof(List));
@@ -474,7 +482,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> CancelOrder(int id)
         {
-            var order = await _db.Orders.FindByIdAsync(id);
+            var order = await GetOrderWithIncludes(id);
             if (order == null)
             {
                 return NotFound();
@@ -499,7 +507,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> CompleteOrder(int id)
         {
-            var order = await _db.Orders.FindByIdAsync(id);
+            var order = await GetOrderWithIncludes(id);
             if (order == null)
             {
                 return NotFound();
@@ -524,7 +532,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> CaptureOrder(int id)
         {
-            var order = await _db.Orders.FindByIdAsync(id);
+            var order = await GetOrderWithIncludes(id);
             if (order == null)
             {
                 return NotFound();
@@ -556,7 +564,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> MarkOrderAsPaid(int id)
         {
-            var order = await _db.Orders.FindByIdAsync(id);
+            var order = await GetOrderWithIncludes(id);
             if (order == null)
             {
                 return NotFound();
@@ -581,7 +589,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> RefundOrder(int id)
         {
-            var order = await _db.Orders.FindByIdAsync(id);
+            var order = await GetOrderWithIncludes(id);
             if (order == null)
             {
                 return NotFound();
@@ -613,7 +621,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> RefundOrderOffline(int id)
         {
-            var order = await _db.Orders.FindByIdAsync(id);
+            var order = await GetOrderWithIncludes(id);
             if (order == null)
             {
                 return NotFound();
@@ -638,7 +646,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> VoidOrder(int id)
         {
-            var order = await _db.Orders.FindByIdAsync(id);
+            var order = await GetOrderWithIncludes(id);
             if (order == null)
             {
                 return NotFound();
@@ -670,7 +678,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> VoidOrderOffline(int id)
         {
-            var order = await _db.Orders.FindByIdAsync(id);
+            var order = await GetOrderWithIncludes(id);
             if (order == null)
             {
                 return NotFound();
@@ -789,7 +797,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
-            var order = await _db.Orders.FindByIdAsync(id);
+            var order = await GetOrderWithIncludes(id);
             if (order == null)
             {
                 return NotFound();
@@ -909,83 +917,61 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.EditItem)]
         public async Task<IActionResult> EditOrderItem(AutoUpdateOrderItemModel model)
         {
-            var oi = await _db.OrderItems
-                .Include(x => x.Order)
-                .ThenInclude(x => x.Customer)
-                .FindByIdAsync(model.Id);
-            if (oi == null)
+            var context = new UpdateOrderDetailsContext
+            {
+                UpdateOrderItem = true,
+                AdjustInventory = model.AdjustInventory,
+                UpdateRewardPoints = model.UpdateRewardPoints,
+                UpdateTotals = model.UpdateTotals,
+                NewQuantity = model.NewQuantity ?? 0,
+                NewUnitPriceInclTax = model.NewUnitPriceInclTax,
+                NewUnitPriceExclTax = model.NewUnitPriceExclTax,
+                NewTaxRate = model.NewTaxRate,
+                NewDiscountInclTax = model.NewDiscountInclTax,
+                NewDiscountExclTax = model.NewDiscountExclTax,
+                NewPriceInclTax = model.NewPriceInclTax,
+                NewPriceExclTax = model.NewPriceExclTax
+            };
+
+            // INFO: UpdateOrderDetailsAsync performs commit.
+            var orderItem = await _orderProcessingService.UpdateOrderDetailsAsync(model.Id, context);
+            if (orderItem != null)
             {
                 return NotFound();
             }
 
-            var orderId = oi.OrderId;
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderItem.Order.GetOrderNumber());
+            TempData[UpdateOrderDetailsContext.InfoKey] = context.ToString(Services.Localization);
 
-            if (model.NewQuantity.HasValue)
-            {
-                var context = new AutoUpdateOrderItemContext
-                {
-                    OrderItem = oi,
-                    QuantityOld = oi.Quantity,
-                    QuantityNew = model.NewQuantity.Value,
-                    PriceInclTaxOld = new(oi.PriceInclTax, _primaryCurrency),
-                    PriceExclTaxOld = new(oi.PriceExclTax, _primaryCurrency),
-                    AdjustInventory = model.AdjustInventory,
-                    UpdateRewardPoints = model.UpdateRewardPoints,
-                    UpdateTotals = model.UpdateTotals
-                };
-
-                oi.Quantity = model.NewQuantity.Value;
-                oi.UnitPriceInclTax = model.NewUnitPriceInclTax ?? oi.UnitPriceInclTax;
-                oi.UnitPriceExclTax = model.NewUnitPriceExclTax ?? oi.UnitPriceExclTax;
-                oi.TaxRate = model.NewTaxRate ?? oi.TaxRate;
-                oi.DiscountAmountInclTax = model.NewDiscountInclTax ?? oi.DiscountAmountInclTax;
-                oi.DiscountAmountExclTax = model.NewDiscountExclTax ?? oi.DiscountAmountExclTax;
-                oi.PriceInclTax = model.NewPriceInclTax ?? oi.PriceInclTax;
-                oi.PriceExclTax = model.NewPriceExclTax ?? oi.PriceExclTax;
-
-                // INFO: AutoUpdateOrderDetailsAsync performs commit.
-                await _orderProcessingService.AutoUpdateOrderDetailsAsync(context);
-
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), oi.Order.GetOrderNumber());
-                TempData[AutoUpdateOrderItemContext.InfoKey] = context.ToString(Services.Localization);
-            }
-
-            return RedirectToAction(nameof(Edit), new { id = orderId });
+            return RedirectToAction(nameof(Edit), new { id = orderItem.OrderId });
         }
 
         [HttpPost]
         [Permission(Permissions.Order.EditItem)]
         public async Task<IActionResult> DeleteOrderItem(AutoUpdateOrderItemModel model)
         {
-            var oi = await _db.OrderItems
-                .Include(x => x.Order)
-                .ThenInclude(x => x.Customer)
-                .FindByIdAsync(model.Id);
-            if (oi == null)
+            var context = new UpdateOrderDetailsContext
             {
-                return NotFound();
-            }
-
-            var orderId = oi.OrderId;
-            var orderNumber = oi.Order.GetOrderNumber();
-
-            var context = new AutoUpdateOrderItemContext
-            {
-                OrderItem = oi,
-                QuantityOld = oi.Quantity,
-                QuantityNew = 0,
+                NewQuantity = 0,
                 AdjustInventory = model.AdjustInventory,
                 UpdateRewardPoints = model.UpdateRewardPoints,
                 UpdateTotals = model.UpdateTotals
             };
 
-            await _orderProcessingService.AutoUpdateOrderDetailsAsync(context);
+            var orderItem = await _orderProcessingService.UpdateOrderDetailsAsync(model.Id, context);
+            if (orderItem == null)
+            {
+                return NotFound();
+            }
 
-            _db.OrderItems.Remove(oi);
+            var orderId = orderItem.OrderId;
+            var orderNumber = orderItem.Order.GetOrderNumber();
+
+            _db.OrderItems.Remove(orderItem);
             await _db.SaveChangesAsync();
 
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderNumber);
-            TempData[AutoUpdateOrderItemContext.InfoKey] = context.ToString(Services.Localization);
+            TempData[UpdateOrderDetailsContext.InfoKey] = context.ToString(Services.Localization);
 
             return RedirectToAction(nameof(Edit), new { id = orderId });
         }
@@ -1622,7 +1608,7 @@ namespace Smartstore.Admin.Controllers
             model.DisplayPurchaseOrderNumber = order.PaymentMethodSystemName.EqualsNoCase("Smartstore.PurchaseOrderNumber");
             model.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(order.CheckoutAttributeDescription));
             model.HasDownloadableProducts = order.OrderItems.Any(x => x.Product.IsDownload);
-            model.AutoUpdateOrderItemInfo = TempData[AutoUpdateOrderItemContext.InfoKey] as string;
+            model.AutoUpdateOrderItemInfo = TempData[UpdateOrderDetailsContext.InfoKey] as string;
 
             model.AutoUpdateOrderItem = new AutoUpdateOrderItemModel
             {

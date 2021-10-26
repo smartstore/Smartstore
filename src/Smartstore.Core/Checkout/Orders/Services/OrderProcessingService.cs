@@ -148,6 +148,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             // Cancel recurring payments.
             var recurringPayments = await _db.RecurringPayments
+                .Include(x => x.InitialOrder)
                 .ApplyStandardFilter(order.Id)
                 .ToListAsync();
 
@@ -200,6 +201,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                 // Cancel recurring payments.
                 var recurringPayments = await _db.RecurringPayments
+                    .Include(x => x.InitialOrder)
                     .ApplyStandardFilter(order.Id)
                     .ToListAsync();
 
@@ -291,11 +293,6 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task<Shipment> ShipAsync(int shipmentId, bool notifyCustomer)
         {
-            if (shipmentId == 0)
-            {
-                return null;
-            }
-
             var shipment = await GetShipmentQuery().FindByIdAsync(shipmentId);
             var order = shipment.Order;
 
@@ -330,12 +327,12 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task<Shipment> DeliverAsync(int shipmentId, bool notifyCustomer)
         {
-            if (shipmentId == 0)
+            var shipment = await GetShipmentQuery().FindByIdAsync(shipmentId);
+            if (shipment == null)
             {
                 return null;
             }
 
-            var shipment = await GetShipmentQuery().FindByIdAsync(shipmentId);
             var order = shipment.Order;
 
             shipment.DeliveryDateUtc = DateTime.UtcNow;
@@ -510,44 +507,73 @@ namespace Smartstore.Core.Checkout.Orders
             return null;
         }
 
-        public virtual async Task AutoUpdateOrderDetailsAsync(AutoUpdateOrderItemContext context)
+        public virtual async Task<OrderItem> UpdateOrderDetailsAsync(int orderItemId, UpdateOrderDetailsContext context)
         {
-            Guard.NotNull(context.OrderItem, nameof(context.OrderItem));
+            var oi = await GetOrderItemQuery().FindByIdAsync(orderItemId);
+            if (oi == null)
+            {
+                return null;
+            }
 
-            var oi = context.OrderItem;
+            var oldQuantity = context.OldQuantity ?? oi.Quantity;
+            var newQuantity = context.NewQuantity ?? oi.Quantity;
+            var oldPriceInclTax = context.OldPriceInclTax ?? oi.PriceInclTax;
+            var oldPriceExclTax = context.OldPriceExclTax ?? oi.PriceExclTax;
 
-            await _db.LoadReferenceAsync(oi, x => x.Product);
-            await LoadNavigationProperties(oi.Order);
+            if (context.ReduceQuantity > 0)
+            {
+                var reduceQuantity = context.ReduceQuantity > oi.Quantity ? oi.Quantity : context.ReduceQuantity;
+                newQuantity = Math.Max(oi.Quantity - reduceQuantity, 0);
+            }
 
-            context.RewardPointsOld = context.RewardPointsNew = oi.Order.Customer.GetRewardPointsBalance();
+            if (context.UpdateOrderItem)
+            {
+                if (newQuantity == 0)
+                {
+                    return oi;
+                }
+
+                oi.Quantity = newQuantity;
+                oi.UnitPriceInclTax = context.NewUnitPriceInclTax ?? oi.UnitPriceInclTax;
+                oi.UnitPriceExclTax = context.NewUnitPriceExclTax ?? oi.UnitPriceExclTax;
+                oi.TaxRate = context.NewTaxRate ?? oi.TaxRate;
+                oi.DiscountAmountInclTax = context.NewDiscountInclTax ?? oi.DiscountAmountInclTax;
+                oi.DiscountAmountExclTax = context.NewDiscountExclTax ?? oi.DiscountAmountExclTax;
+                oi.PriceInclTax = context.NewPriceInclTax ?? oi.PriceInclTax;
+                oi.PriceExclTax = context.NewPriceExclTax ?? oi.PriceExclTax;
+            }
+
+            context.OldRewardPoints = context.NewRewardPoints = oi.Order.Customer.GetRewardPointsBalance();
 
             if (context.UpdateTotals && oi.Order.OrderStatusId <= (int)OrderStatus.Pending)
             {
-                var currency = await _db.Currencies.AsNoTracking().FirstOrDefaultAsync(x => x.CurrencyCode == oi.Order.CustomerCurrencyCode);
+                var currency = await _db.Currencies
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.CurrencyCode == oi.Order.CustomerCurrencyCode) ?? _primaryCurrency;
 
-                decimal priceInclTax = currency.RoundIfEnabledFor(context.QuantityNew * oi.UnitPriceInclTax);
-                decimal priceExclTax = currency.RoundIfEnabledFor(context.QuantityNew * oi.UnitPriceExclTax);
+                decimal priceInclTax = currency.RoundIfEnabledFor(newQuantity * oi.UnitPriceInclTax);
+                decimal priceExclTax = currency.RoundIfEnabledFor(newQuantity * oi.UnitPriceExclTax);
 
-                decimal deltaPriceInclTax = context.IsNewOrderItem
-                    ? priceInclTax
-                    : priceInclTax - (context.PriceInclTaxOld?.Amount ?? oi.PriceInclTax);
+                // TODO: (mg) (core) set AutoUpdateOrderItemContext.OldPriceInclTax to zero when adding product to an order.
+                decimal priceInclTaxDiff = priceInclTax - oldPriceInclTax;
 
-                decimal deltaPriceExclTax = context.IsNewOrderItem
-                    ? priceExclTax
-                    : priceExclTax - (context.PriceExclTaxOld?.Amount ?? oi.PriceExclTax);
+                // TODO: (mg) (core) set AutoUpdateOrderItemContext.OldPriceExclTax zero when adding product to an order.
+                decimal priceExclTaxDiff = priceInclTax - oldPriceExclTax;
 
-                oi.Quantity = context.QuantityNew;
+                oi.Quantity = newQuantity;
                 oi.PriceInclTax = currency.RoundIfEnabledFor(priceInclTax);
                 oi.PriceExclTax = currency.RoundIfEnabledFor(priceExclTax);
 
-                decimal subtotalInclTax = oi.Order.OrderSubtotalInclTax + deltaPriceInclTax;
-                decimal subtotalExclTax = oi.Order.OrderSubtotalExclTax + deltaPriceExclTax;
+                decimal subtotalInclTax = oi.Order.OrderSubtotalInclTax + priceInclTaxDiff;
+                decimal subtotalExclTax = oi.Order.OrderSubtotalExclTax + priceExclTaxDiff;
 
                 oi.Order.OrderSubtotalInclTax = currency.RoundIfEnabledFor(subtotalInclTax);
                 oi.Order.OrderSubtotalExclTax = currency.RoundIfEnabledFor(subtotalExclTax);
 
-                decimal discountInclTax = oi.DiscountAmountInclTax * context.QuantityChangeFactor;
-                decimal discountExclTax = oi.DiscountAmountExclTax * context.QuantityChangeFactor;
+                decimal quantityChangeFactor = oldQuantity != 0 ? newQuantity / oldQuantity : 1.0M;
+
+                decimal discountInclTax = oi.DiscountAmountInclTax * quantityChangeFactor;
+                decimal discountExclTax = oi.DiscountAmountExclTax * quantityChangeFactor;
 
                 //decimal deltaDiscountInclTax = discountInclTax - oi.DiscountAmountInclTax;
                 //decimal deltaDiscountExclTax = discountExclTax - oi.DiscountAmountExclTax;
@@ -555,14 +581,14 @@ namespace Smartstore.Core.Checkout.Orders
                 oi.DiscountAmountInclTax = currency.RoundIfEnabledFor(discountInclTax);
                 oi.DiscountAmountExclTax = currency.RoundIfEnabledFor(discountExclTax);
 
-                decimal total = Math.Max(oi.Order.OrderTotal + deltaPriceInclTax, 0);
-                decimal tax = Math.Max(oi.Order.OrderTax + (deltaPriceInclTax - deltaPriceExclTax), 0);
+                decimal total = Math.Max(oi.Order.OrderTotal + priceInclTaxDiff, 0);
+                decimal tax = Math.Max(oi.Order.OrderTax + (priceInclTaxDiff - priceExclTaxDiff), 0);
 
                 oi.Order.OrderTotal = currency.RoundIfEnabledFor(total);
                 oi.Order.OrderTax = currency.RoundIfEnabledFor(tax);
 
                 // Update tax rate value.
-                var deltaTax = deltaPriceInclTax - deltaPriceExclTax;
+                var deltaTax = priceInclTaxDiff - priceExclTaxDiff;
                 if (deltaTax != decimal.Zero)
                 {
                     var taxRates = oi.Order.TaxRatesDictionary;
@@ -577,23 +603,27 @@ namespace Smartstore.Core.Checkout.Orders
                 await _db.SaveChangesAsync();
             }
 
-            if (context.AdjustInventory && context.QuantityDelta != 0)
+            var quantityDiff = newQuantity - oldQuantity;
+
+            if (context.AdjustInventory && quantityDiff != 0)
             {
-                context.Inventory = await _productService.AdjustInventoryAsync(oi, context.QuantityDelta > 0, Math.Abs(context.QuantityDelta));
+                context.Inventory = await _productService.AdjustInventoryAsync(oi, quantityDiff > 0, Math.Abs(quantityDiff));
             }
 
-            if (context.UpdateRewardPoints && context.QuantityDelta < 0)
+            if (context.UpdateRewardPoints && quantityDiff < 0)
             {
                 // We reduce but we do not award points subsequently. They can be awarded once per order anyway (see Order.RewardPointsWereAdded).
                 // UpdateRewardPoints only visible for unpending orders (see RewardPointsSettingsValidator).
                 // Note: reducing can of course only work if oi.UnitPriceExclTax has not been changed!
-                decimal reduceAmount = Math.Abs(context.QuantityDelta) * oi.UnitPriceInclTax;
+                decimal reduceAmount = Math.Abs(quantityDiff) * oi.UnitPriceInclTax;
                 ApplyRewardPoints(oi.Order, true, reduceAmount);
 
-                context.RewardPointsNew = oi.Order.Customer.GetRewardPointsBalance();
+                context.NewRewardPoints = oi.Order.Customer.GetRewardPointsBalance();
             }
 
             await _db.SaveChangesAsync();
+
+            return oi;
         }
 
         #region Utilities
@@ -683,6 +713,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             var giftCards = await _db.GiftCards
                 .Include(x => x.PurchasedWithOrderItem)
+                .ThenInclude(x => x.Order)
                 .ApplyOrderFilter(new[] { order.Id })
                 .ToListAsync();
 
@@ -812,6 +843,8 @@ namespace Smartstore.Core.Checkout.Orders
 
         private async Task LoadNavigationProperties(Order order, bool includeShipments = false)
         {
+            await _db.LoadReferenceAsync(order, x => x.RedeemedRewardPointsEntry);
+
             await _db.LoadReferenceAsync(order, x => x.Customer, false, q => q
                 .Include(x => x.RewardPointsHistory)
                 .Include(x => x.CustomerRoleMappings)
@@ -823,8 +856,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                 if (includeShipments)
                 {
-                    q = q.Include(x => x.Order)
-                        .ThenInclude(x => x.Shipments)
+                    q = q.Include(x => x.Order.Shipments)
                         .ThenInclude(x => x.ShipmentItems);
                 }
 
@@ -832,24 +864,37 @@ namespace Smartstore.Core.Checkout.Orders
             });
         }
 
+        private IIncludableQueryable<OrderItem, Product> GetOrderItemQuery()
+        {
+            // INFO: also expands Shipment.Order.OrderItems.Order.Shipments.ShipmentItems
+            var query = _db.OrderItems
+                .Include(x => x.Order.ShippingAddress)
+                .Include(x => x.Order.RedeemedRewardPointsEntry)
+                .Include(x => x.Order.Customer)
+                .ThenInclude(x => x.RewardPointsHistory)
+                .Include(x => x.Order.Customer.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole)
+                .Include(x => x.Order.Shipments)
+                .ThenInclude(x => x.ShipmentItems)
+                .Include(x => x.Order.OrderItems)
+                .ThenInclude(x => x.Product);
+
+            return query;
+        }
+
         private IIncludableQueryable<Shipment, Product> GetShipmentQuery()
         {
             // INFO: also expands Shipment.Order.OrderItems.Order.Shipments.ShipmentItems
             var query = _db.Shipments
-                .Include(x => x.Order)
-                .ThenInclude(x => x.ShippingAddress)
-                .Include(x => x.Order)
-                .ThenInclude(x => x.Customer)
+                .Include(x => x.Order.ShippingAddress)
+                .Include(x => x.Order.RedeemedRewardPointsEntry)
+                .Include(x => x.Order.Customer)
                 .ThenInclude(x => x.RewardPointsHistory)
-                .Include(x => x.Order)
-                .ThenInclude(x => x.Customer)
-                .ThenInclude(x => x.CustomerRoleMappings)
+                .Include(x => x.Order.Customer.CustomerRoleMappings)
                 .ThenInclude(x => x.CustomerRole)
-                .Include(x => x.Order)
-                .ThenInclude(x => x.Shipments)
+                .Include(x => x.Order.Shipments)
                 .ThenInclude(x => x.ShipmentItems)
-                .Include(x => x.Order)
-                .ThenInclude(x => x.OrderItems)
+                .Include(x => x.Order.OrderItems)
                 .ThenInclude(x => x.Product);
 
             return query;

@@ -82,10 +82,13 @@ namespace Smartstore.Core.Checkout.Orders
         Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, int> quantities);
 
         /// <summary>
-        /// Auto update order details, e.g. when the user has manually edited order items.
+        /// Update order details like order item quantity, stock quantity or order total 
+        /// when the merchant has manually edited an order item.
         /// </summary>
-        /// <param name="context">Auto update context.</param>
-        Task AutoUpdateOrderDetailsAsync(AutoUpdateOrderItemContext context);
+        /// <param name="orderItemId">Order item identifier.</param>
+        /// <param name="context">Update order details context.</param>
+        /// <returns>Updated order item.</returns>
+        Task<OrderItem> UpdateOrderDetailsAsync(int orderItemId, UpdateOrderDetailsContext context);
 
         #region Place order
 

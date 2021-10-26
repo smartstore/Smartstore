@@ -379,6 +379,8 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(recurringPayment, nameof(recurringPayment));
 
+            await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder);
+
             var initialOrder = recurringPayment.InitialOrder;
             if (initialOrder == null)
             {
