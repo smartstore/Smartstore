@@ -5,7 +5,7 @@
 	<span>@T("PrivateMessages.Inbox")</span>
 	<span sm-if="Model.UnreadMessagesCount > 0" class="badge badge-success">@Model.UnreadMessagesCount</span>
 </a>
-@if (Model.Alert)
+@if (Model.Alert && Model.UnreadMessagesCount > 0)
 {
 	<script sm-target-zone="scripts" data-origin="pm-account-dropdown">
 		$(function () {
