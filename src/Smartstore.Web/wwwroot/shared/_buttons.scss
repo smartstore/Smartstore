@@ -142,9 +142,8 @@ $btn-size-sm: $input-height-sm;
         @include button-variant($clr-brand-pinterest, $clr-brand-pinterest);
     }
 
-    .btn-brand-google-plus,
-    .btn-brand-google-plus-g {
-        @include button-variant($clr-brand-googleplus, $clr-brand-googleplus);
+    .btn-brand-google {
+        @include button-variant($clr-brand-google2, $clr-brand-google2);
     }
 
     .btn-brand-instagram {

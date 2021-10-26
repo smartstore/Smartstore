@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+		<Product>Smartstore Google Authentication</Product>
+		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Google.Auth</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+	<ItemGroup>
+		<Content Include="App_Data\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.11" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="wwwroot\" />
+	</ItemGroup>
+</Project>
