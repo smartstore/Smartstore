@@ -43,7 +43,7 @@
         <partial name="_Grid.BlogPosts.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="Id" halign="center" visible="false" type="string" />
+        <column for="Id" halign="center" visible="false" type="string" readonly="true" />
         <column for="Title" hideable="false" width="2fr">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>

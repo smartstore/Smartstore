@@ -9,7 +9,8 @@
           allow-row-selection="true"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("SpecificationAttributeOptionList", new { specificationAttributeId = parentModel.Id })" delete="@Url.Action("SpecificationAttributeOptionDelete")" />
+    <datasource read="@Url.Action("SpecificationAttributeOptionList", new { specificationAttributeId = parentModel.Id })" 
+                delete="@Url.Action("SpecificationAttributeOptionDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="DisplayOrder" />
