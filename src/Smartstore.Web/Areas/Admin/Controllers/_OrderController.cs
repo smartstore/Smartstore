@@ -1805,7 +1805,8 @@ namespace Smartstore.Admin.Controllers
                 ShowUpdateTotals = (order.OrderStatusId <= (int)OrderStatus.Pending),
                 // UpdateRewardPoints only visible for unpending orders (see RewardPointsSettingsValidator).
                 ShowUpdateRewardPoints = order.OrderStatusId > (int)OrderStatus.Pending && order.RewardPointsWereAdded,
-                UpdateTotals = model.AutoUpdateOrderItem.ShowUpdateTotals,
+                // TODO: (mg) (core) Throws ('cause AutoUpdateOrderItem is null here)
+                //UpdateTotals = model.AutoUpdateOrderItem.ShowUpdateTotals,
                 UpdateRewardPoints = order.RewardPointsWereAdded
             };
 

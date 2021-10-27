@@ -11,47 +11,47 @@
     <div class="form-row">
         <div class="col">
             <smart-label asp-for="StartDate" />
-            <editor asp-for="StartDate" />
+            <editor asp-for="StartDate" class="form-control-sm" />
         </div>
         <div class="col">
             <smart-label asp-for="EndDate" />
-            <editor asp-for="EndDate" />
+            <editor asp-for="EndDate" class="form-control-sm" />
         </div>
     </div>
 </div>
 <div class="form-group">
     <smart-label asp-for="CustomerName" />
-    <input asp-for="CustomerName" />
+    <input asp-for="CustomerName" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="CustomerEmail" />
-    <input asp-for="CustomerEmail" />
+    <input asp-for="CustomerEmail" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="OrderGuid" />
-    <input asp-for="OrderGuid" />
+    <input asp-for="OrderGuid" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="OrderNumber" />
-    <input asp-for="OrderNumber" />
+    <input asp-for="OrderNumber" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="PaymentMethods" />
-    <select asp-for="PaymentMethods" asp-items="ViewBag.PaymentMethods" multiple="multiple"></select>
+    <select asp-for="PaymentMethods" asp-items="ViewBag.PaymentMethods" class="form-control-sm" multiple="multiple"></select>
 </div>
 <div sm-if="stores.Count > 1" class="form-group">
     <smart-label asp-for="StoreId" />
-    <select asp-for="StoreId" asp-items="stores" asp-placeholder="@T("Admin.Common.All")"></select>
+    <select asp-for="StoreId" asp-items="stores" class="form-control-sm" asp-placeholder="@T("Admin.Common.All")"></select>
 </div>
 <div class="form-group">
     <smart-label asp-for="OrderStatusIds" />
-    <select asp-for="OrderStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" multiple="multiple"></select>
+    <select asp-for="OrderStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" class="form-control-sm" multiple="multiple"></select>
 </div>
 <div class="form-group">
     <smart-label asp-for="PaymentStatusIds" />
-    <select asp-for="PaymentStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(PaymentStatus))" multiple="multiple"></select>
+    <select asp-for="PaymentStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(PaymentStatus))" class="form-control-sm" multiple="multiple"></select>
 </div>
 <div class="form-group">
     <smart-label asp-for="ShippingStatusIds" />
-    <select asp-for="ShippingStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(ShippingStatus))" multiple="multiple"></select>
+    <select asp-for="ShippingStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(ShippingStatus))" class="form-control-sm" multiple="multiple"></select>
 </div>

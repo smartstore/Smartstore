@@ -19,6 +19,7 @@
             <zone name="admin_button_toolbar_before" />
 
             <div class="input-group d-inline-flex mr-3" style="width: 400px">
+                @* TODO: (mg) (core) Don't attempt to search if textbox is empty' *@
                 <input asp-for="GoDirectlyToNumber" class="form-control" placeholder="@T("Admin.Orders.List.GoDirectlyToNumber")" />
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-secondary" id="go-to-order-by-number" name="go-to-order-by-number" value="go-to-order-by-number"
@@ -28,6 +29,7 @@
                 </div>
             </div>
 
+            @* TODO: (mg) (core) This dropdown belongs to the datagrid toolbar *@
             <div class="dropdown dropdown-menu-right mx-1">
                 <a class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" href="#">
                     @T("Admin.Common.Export.PDF")
@@ -46,6 +48,7 @@
 
             <zone name="admin_button_toolbar_after" />
 
+            @* TODO: (mg) (core) This dropdown belongs to the datagrid toolbar (it is valid only with selection). Also put this stuff to "row-actions" dropdown. I made it for exactly these use cases. *@
             <div class="dropdown dropdown-menu-right">
                 <button class="btn btn-secondary dropdown-toggle no-chevron" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-fw fa-ellipsis-h"></i>
@@ -54,11 +57,11 @@
                     <div class="dropdown-header h6 text-uppercase">
                         @T("Admin.Orders.Fields.OrderStatus")
                     </div>
-                    <a href="javascript:void(0)" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "complete" })">
+                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "complete" })">
                         <i class="fa fa-fw fa-check"></i>
                         <span class="order-process-title">@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Complete")</span>
                     </a>
-                    <a href="javascript:void(0)" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "cancel" })">
+                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "cancel" })">
                         <i class="fa fa-fw fa-times"></i>
                         <span class="order-process-title">@T("Admin.Orders.Fields.OrderStatus.Cancel")</span>
                     </a>
@@ -66,32 +69,32 @@
                     <div class="dropdown-header h6 text-uppercase">
                         @T("Admin.Orders.Fields.PaymentStatus")
                     </div>
-                    <a href="javascript:void(0)" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "markpaid" })" 
+                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "markpaid" })"
                        title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")">
                         <i class="fa fa-fw"></i>
                         <span class="order-process-title">@T("Admin.Orders.Fields.MarkAsPaid")</span>
                     </a>
-                    <a href="javascript:void(0)" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "capture" })" 
+                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "capture" })"
                        title="@T("Admin.Orders.Fields.Capture.Hint")">
                         <i class="fas fa-fw fa-euro-sign"></i>
                         <span class="order-process-title">@T("Admin.Orders.Fields.Capture")</span>
                     </a>
-                    <a href="javascript:void(0)" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "refundoffline" })" 
+                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "refundoffline" })"
                        title="@T("Admin.Orders.Fields.RefundOffline.Hint")">
                         <i class="fa fa-fw"></i>
                         <span class="order-process-title">@T("Admin.Orders.Fields.RefundOffline")</span>
                     </a>
-                    <a href="javascript:void(0)" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "refund" })" 
+                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "refund" })"
                        title="@T("Admin.Orders.Fields.Refund.Hint")">
                         <i class="fas fa-fw fa-undo-alt"></i>
                         <span class="order-process-title">@T("Admin.Orders.Fields.Refund")</span>
                     </a>
-                    <a href="javascript:void(0)" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "voidoffline" })" 
+                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "voidoffline" })"
                        title="@T("Admin.Orders.Fields.VoidOffline.Hint")">
                         <i class="fa fa-fw"></i>
                         <span class="order-process-title">@T("Admin.Orders.Fields.VoidOffline")</span>
                     </a>
-                    <a href="javascript:void(0)" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "void" })" 
+                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "void" })"
                        title="@T("Admin.Orders.Fields.Void.Hint")">
                         <i class="fa fa-fw fa-times"></i>
                         <span class="order-process-title">@T("Admin.Orders.Fields.Void")</span>

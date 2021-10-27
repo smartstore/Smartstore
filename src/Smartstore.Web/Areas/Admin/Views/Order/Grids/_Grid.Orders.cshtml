@@ -4,9 +4,10 @@
     var parentModel = ViewData["Parent"] as OrderListModel;
 }
 
-<datagrid id="orders-grid"
+<datagrid id="orders-grid" version="2"
           allow-resize="true"
           allow-row-selection="true"
+          border-style="HorizontalBorders"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("OrderList")" />
@@ -26,6 +27,7 @@
         <partial name="Grids/_Grid.Orders.Search" model="parentModel" />
     </search-panel>
     <columns>
+        @* TODO: (core) Localization issue: "Auftragsnummer" very misleading, especially if it's equal to "OrderNumber" most of the time. *@
         <column for="Id" halign="center" visible="false" type="string" />
         <column for="OrderNumber" hideable="false" width="auto" title="@T("Admin.Order")">
             <display-template>
@@ -36,6 +38,7 @@
         <column for="CustomerName" sortable="false" title="@T("Admin.Orders.Fields.Customer")">
             <display-template>
                 <div class="dg-cell-value">
+                    @* TODO: (mg) (core) Customer should be linked if possible *@
                     <div class="text-truncate">{{ item.row.CustomerName }}</div>
                     <div class="text-truncate">{{ item.row.CustomerEmail }}</div>
                 </div>
@@ -63,7 +66,7 @@
         <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
         <column for="OrderStatus" entity-member="OrderStatusId" title="@T("Admin.Orders.Fields.OrderStatus")">
             <display-template>
-                <span :class="item.row.OrderStatusLabelClass">{{ item.row.OrderStatusString }}</span>
+                <span v-bind:class="item.row.OrderStatusLabelClass" class="text-truncate">{{ item.row.OrderStatusString }}</span>
             </display-template>
         </column>
         <column for="OrderTotalString" entity-member="OrderTotal" halign="flex-end">
@@ -81,3 +84,4 @@
 </datagrid>
 
 @* TODO: (mg) (core) render profit summary somewhere. Requires refresh when grid updates. *@
+@* RE: Grid "Aggregates" is still an open issue, but will be implemented soon. *@
