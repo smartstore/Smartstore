@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MessageTemplate>
-	<To>{{ NewsLetterSubscription.Email }}</To>
+	<To>{{ NewsletterSubscription.Email }}</To>
 	<Subject>{{ Store.Name }}. Newsletter subscription</Subject>
-	<ModelTypes>NewsLetterSubscription</ModelTypes>
+	<ModelTypes>NewsletterSubscription</ModelTypes>
 	<Body><![CDATA[{% extends 'master' %}
 
 {% block 'body' %}
@@ -15,7 +15,7 @@
 </p>
 
 <p class="text-center mt-4 mb-4">
-  <a class="btn btn-success" href="{{ NewsLetterSubscription.ActivationUrl }}">Confirm subscription</a>
+  <a class="btn btn-success" href="{{ NewsletterSubscription.ActivationUrl }}">Confirm subscription</a>
 </p>
 
 <p>
@@ -23,7 +23,7 @@
 </p>
 
 <p>
-	<a href="{{ NewsLetterSubscription.ActivationUrl }}">{{ NewsLetterSubscription.ActivationUrl }}</a> 
+	<a href="{{ NewsletterSubscription.ActivationUrl }}">{{ NewsletterSubscription.ActivationUrl }}</a> 
 </p>
 
 <p>

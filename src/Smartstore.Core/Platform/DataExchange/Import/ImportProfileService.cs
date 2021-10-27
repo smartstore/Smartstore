@@ -342,7 +342,7 @@ namespace Smartstore.Core.DataExchange.Import
                         : "Admin.Customers.Customers.Fields." + property;
                     break;
                 case ImportEntityType.NewsletterSubscription:
-                    key = "Admin.Promotions.NewsLetterSubscriptions.Fields." + property;
+                    key = "Admin.Promotions.NewsletterSubscriptions.Fields." + property;
                     break;
             }
 

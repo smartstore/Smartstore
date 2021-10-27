@@ -636,7 +636,7 @@ namespace Smartstore.Web.Controllers
                 var placeOrderExtraData = new Dictionary<string, string>
                 {
                     ["CustomerComment"] = HttpContext.Request.Form["customercommenthidden"].ToString(),
-                    ["SubscribeToNewsLetter"] = HttpContext.Request.Form["SubscribeToNewsLetter"].ToString(),
+                    ["SubscribeToNewsletter"] = HttpContext.Request.Form["SubscribeToNewsletter"].ToString(),
                     ["AcceptThirdPartyEmailHandOver"] = HttpContext.Request.Form["AcceptThirdPartyEmailHandOver"].ToString()
                 };
 

@@ -83,8 +83,8 @@ namespace Smartstore.Admin.Models
         public bool ShowEsdRevocationWaiverBox { get; set; }
 
         [LocalizedDisplay("*NewsletterSubscription")]
-        public CheckoutNewsletterSubscription NewsLetterSubscription { get; set; }
-        public SelectList AvailableNewsLetterSubscriptions { get; set; }
+        public CheckoutNewsletterSubscription NewsletterSubscription { get; set; }
+        public SelectList AvailableNewsletterSubscriptions { get; set; }
 
         [LocalizedDisplay("*ThirdPartyEmailHandOver")]
         public CheckoutThirdPartyEmailHandOver ThirdPartyEmailHandOver { get; set; }

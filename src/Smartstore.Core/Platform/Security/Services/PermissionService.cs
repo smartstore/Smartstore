@@ -49,7 +49,7 @@ namespace Smartstore.Core.Security
             { "affiliate", "Admin.Affiliates" },
             { "campaign", "Admin.Promotions.Campaigns" },
             { "discount", "Admin.Promotions.Discounts" },
-            { "newsletter", "Admin.Promotions.NewsLetterSubscriptions" },
+            { "newsletter", "Admin.Promotions.NewsletterSubscriptions" },
             { "cms", "Admin.ContentManagement" },
             { "poll", "Admin.ContentManagement.Polls" },
             { "news", "Admin.ContentManagement.News" },

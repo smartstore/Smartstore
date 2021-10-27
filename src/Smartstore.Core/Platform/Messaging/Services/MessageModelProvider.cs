@@ -312,7 +312,6 @@ namespace Smartstore.Core.Messaging
                     if (name == nameof(NewsletterSubscription))
                     {
                         // Info: Legacy code to support old message template tokens. 
-                        // TODO: (mh) (core) Write migration to translate this token in the database. Then change it in all email templates.
                         model["NewsLetterSubscription"] = modelPart;
                     }
                 }

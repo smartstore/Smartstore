@@ -665,7 +665,7 @@ namespace Smartstore.Core.Messaging
 
                 if (entity is NewsletterSubscription subscription)
                 {
-                    // Campaign preview requires NewsLetterSubscription entity.
+                    // Campaign preview requires NewsletterSubscription entity.
                     subscription.NewsletterSubscriptionGuid = Guid.NewGuid();
                     subscription.Email = "john@doe.com";
                     subscription.Active = true;

@@ -51,7 +51,7 @@
         <siteMapNode id="promotions" title="Promotions" resKey="Admin.Promotions" permissionNames="promotion" iconClass="icm icm-bullhorn">
             <siteMapNode id="discounts" iconClass="fa fa-signal fa-flip-horizontal" title="Discounts" resKey="Admin.Promotions.Discounts" permissionNames="promotion.discount" controller="Discount" action="List" area="Admin" />
             <siteMapNode id="affiliates" iconClass="fa fa-user-friends" title="Affiliates" resKey="Admin.Affiliates" permissionNames="promotion.affiliate" controller="Affiliate" action="List" area="Admin" />
-            <siteMapNode id="newsletter-subscribers" iconClass="fa fa-envelope" title="Newsletter subscriptions" resKey="Admin.Promotions.NewsletterSubscriptions" permissionNames="promotion.newsletter" controller="NewsLetterSubscription" action="List" area="Admin" />
+            <siteMapNode id="newsletter-subscribers" iconClass="fa fa-envelope" title="Newsletter subscriptions" resKey="Admin.Promotions.NewsletterSubscriptions" permissionNames="promotion.newsletter" controller="NewsletterSubscription" action="List" area="Admin" />
             <siteMapNode id="campaigns" iconClass="fa fa-bullhorn" title="Campaigns" resKey="Admin.Promotions.Campaigns" permissionNames="promotion.campaign" controller="Campaign" action="List" area="Admin" />
         </siteMapNode>
 
