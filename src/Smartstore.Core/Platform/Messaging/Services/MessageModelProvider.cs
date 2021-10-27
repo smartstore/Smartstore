@@ -593,10 +593,9 @@ namespace Smartstore.Core.Messaging
             var accountActivationToken = part.GenericAttributes.AccountActivationToken;
             var customerVatStatus = (VatNumberStatus)part.VatNumberStatusId;
 
-            // TODO: (mh) (core) > Uncomment when available
-            //int rewardPointsBalance = part.GetRewardPointsBalance();
-            //decimal rewardPointsAmountBase = _services.Resolve<IOrderTotalCalculationService>().ConvertRewardPointsToAmount(rewardPointsBalance);
-            //decimal rewardPointsAmount = _services.Resolve<ICurrencyService>().ConvertFromPrimaryStoreCurrency(rewardPointsAmountBase, _services.WorkContext.WorkingCurrency);
+            int rewardPointsBalance = part.GetRewardPointsBalance();
+            var rewardPointsAmountBase = _services.Resolve<IOrderCalculationService>().ConvertRewardPointsToAmount(rewardPointsBalance);
+            var rewardPointsAmount = _services.Resolve<ICurrencyService>().ConvertFromPrimaryCurrency(rewardPointsAmountBase.Amount, _services.WorkContext.WorkingCurrency);
 
             var m = new Dictionary<string, object>
             {
@@ -629,11 +628,10 @@ namespace Smartstore.Core.Messaging
                 ["BillingAddress"] = await CreateModelPartAsync(part.BillingAddress ?? new Address(), messageContext),
                 ["ShippingAddress"] = part.ShippingAddress == null ? null : await CreateModelPartAsync(part.ShippingAddress, messageContext),
 
-                // TODO: (mh) (core) > Uncomment when available
                 // Reward Points
-                //["RewardPointsAmount"] = rewardPointsAmount,
-                //["RewardPointsBalance"] = FormatPrice(rewardPointsAmount, messageContext),
-                //["RewardPointsHistory"] = part.RewardPointsHistory.Count == 0 ? null : part.RewardPointsHistory.Select(x => CreateModelPart(x, messageContext)).ToList(),
+                ["RewardPointsAmount"] = rewardPointsAmount.Amount,
+                ["RewardPointsBalance"] = _helper.FormatPrice(rewardPointsAmount.Amount, messageContext),
+                ["RewardPointsHistory"] = part.RewardPointsHistory.Count == 0 ? null : part.RewardPointsHistory.Select(async x => await CreateModelPartAsync(x, messageContext)).ToList(),
             };
 
             await _helper.PublishModelPartCreatedEventAsync(part, m);

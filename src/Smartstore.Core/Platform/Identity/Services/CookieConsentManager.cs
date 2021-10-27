@@ -100,14 +100,13 @@ namespace Smartstore.Core.Identity
             if (context != null)
             {
                 var cookieName = CookieNames.GdprConsent;
-                string value = null;
 
                 if (context.Items.TryGetValue(cookieName, out var obj))
                 {
                     return obj as ConsentCookie;
                 }
 
-                if (context.Request?.Cookies?.TryGetValue(cookieName, out value) ?? false)
+                if (context.Request?.Cookies?.TryGetValue(cookieName, out string value) ?? false)
                 {
                     try
                     {

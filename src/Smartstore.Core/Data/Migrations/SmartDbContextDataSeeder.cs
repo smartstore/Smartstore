@@ -53,6 +53,10 @@ namespace Smartstore.Core.Data.Migrations
 
             // TODO: (core) Delete all Telerik language resources (???)
 
+            builder.AddOrUpdate("Admin.Configuration.EmailAccounts.CantDeleteDefault",
+                "The default email account cannot be deleted.",
+                "Das Standard-Email-Konto kann nicht gelöscht werden.");
+
             builder.AddOrUpdate("ExternalAuthentication.ConfigError", 
                 "There is a problem with the selected login method. Please choose another one or notify the store owner.", 
                 "Es liegt ein Problem mit der gewählten Login-Methode vor. Bitte wählen Sie eine andere Methode oder benachrichtigen Sie den Shop-Betreiber.");

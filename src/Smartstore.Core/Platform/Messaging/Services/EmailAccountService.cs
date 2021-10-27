@@ -31,7 +31,6 @@ namespace Smartstore.Core.Messaging
 
         #endregion
 
-        // TODO: (mh) (core) Don't forget model validation on insert
         public virtual EmailAccount GetDefaultEmailAccount()
         {
             var defaultEmailAccount = _db.EmailAccounts

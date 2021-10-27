@@ -79,7 +79,6 @@ namespace Smartstore.News
             }
         }
 
-        // TODO: (mh) (core) I would like to throw this method away and handle everything where it is called (in HandleEventAsync).
         private static object CreateModelPart(NewsComment part, MessageContext messageContext, MessageModelHelper helper, string url, string title)
         {
             Guard.NotNull(messageContext, nameof(messageContext));

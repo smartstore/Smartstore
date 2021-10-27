@@ -37,7 +37,7 @@ namespace Smartstore.Core.Identity
             Guard.NotNull(providedPassword, nameof(providedPassword));
 
             // TODO: (core) Remove after testing
-            return PasswordVerificationResult.Success;
+            //return PasswordVerificationResult.Success;
 
             string pwd = providedPassword;
             switch (user.PasswordFormat)

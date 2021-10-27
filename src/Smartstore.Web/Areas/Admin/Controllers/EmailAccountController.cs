@@ -206,7 +206,6 @@ namespace Smartstore.Admin.Controllers
                     if (emailAccount.Id == _emailAccountSettings.DefaultEmailAccountId)
                     {
                         triedToDeleteDefault = true;
-                        // TODO: (mh) (core) Add resource
                         NotifyError(T("Admin.Configuration.EmailAccounts.CantDeleteDefault"));
                     }
                     else

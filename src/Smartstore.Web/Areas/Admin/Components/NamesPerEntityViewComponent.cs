@@ -30,8 +30,6 @@ namespace Smartstore.Admin.Components
                 .CountAsync();
             
             ViewBag.CountSlugsPerEntity = numRecords;
-
-            // TODO: (mh) (core) Implement action UrlRecord > List.
             ViewBag.UrlRecordListUrl = Url.Action("List", "UrlRecord", new { entityName, entityId, area = "Admin" });
 
             return View();

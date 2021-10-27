@@ -106,8 +106,6 @@ namespace Smartstore.Admin.Components
             }
 
             // Get registrations for corresponding period to calculate change in percentage; TODO: only apply to similar time of day?
-
-            // TODO: (mh) (core) I don't get it. Codecomment says [...count for month before] but code says something else (something wierd...). 
             var registeredCountMonthBefore = await _db.Customers
                 .ApplyRegistrationFilter(beginningOfYear.AddDays(-56), utcNow.Date.AddDays(-28))
                 .ApplyRolesFilter(new[] { registeredRole.Id })
