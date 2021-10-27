@@ -1031,7 +1031,6 @@ namespace Smartstore.Admin.Controllers
             var rphs = await _db.RewardPointsHistory
                 .AsNoTracking()
                 .Where(x => x.CustomerId == customerId)
-                // TODO: (mh) (core) Sorting is enabled on datagrid. Why fixed sorting here? Check all other grids please.
                 .OrderByDescending(rph => rph.CreatedOnUtc)
                 .ThenByDescending(rph => rph.Id)
                 .ApplyGridCommand(command)

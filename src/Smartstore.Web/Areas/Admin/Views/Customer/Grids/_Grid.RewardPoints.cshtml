@@ -4,9 +4,6 @@
     <datasource read="@Url.Action("RewardPointsHistoryList", new { customerId = ViewData["CustomerId"] })"
                 insert="@Url.Action("RewardPointsInsert", new { customerId = ViewData["CustomerId"] })" /> 
     <paging position="Bottom" />
-    <sorting enabled="true">
-        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true"></sort>
-    </sorting>
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.InsertRow" class="btn btn-primary btn-flat">
