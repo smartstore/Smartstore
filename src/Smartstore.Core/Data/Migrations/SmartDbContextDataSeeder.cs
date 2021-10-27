@@ -541,6 +541,7 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.GiftCards.BackToList",
             //    "Admin.Common.FilesDeleted",
             //    "Admin.Common.FoldersDeleted",
+            //    "Admin.SalesReport.NeverSold.Fields.Name",
             //    );
 
 

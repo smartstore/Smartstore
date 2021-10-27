@@ -23,13 +23,21 @@ namespace Smartstore.Admin.Components
         {
             const int pageSize = 7;
 
-            var reportByQuantity = await _db.OrderItems
+            // INFO: join tables to ignore soft-deleted products and orders.
+            var orderItemQuery =
+                from oi in _db.OrderItems.AsNoTracking()
+                join o in _db.Orders.AsNoTracking() on oi.OrderId equals o.Id
+                join p in _db.Products.AsNoTracking() on oi.ProductId equals p.Id
+                where !p.IsSystemProduct
+                select oi;
+
+            var reportByQuantity = await orderItemQuery
                 .AsNoTracking()
                 .SelectAsBestsellersReportLine(ReportSorting.ByQuantityDesc)
                 .Take(pageSize)
                 .ToListAsync();
 
-            var reportByAmount = await _db.OrderItems
+            var reportByAmount = await orderItemQuery
                 .AsNoTracking()
                 .SelectAsBestsellersReportLine(ReportSorting.ByAmountDesc)
                 .Take(pageSize)
@@ -37,8 +45,8 @@ namespace Smartstore.Admin.Components
 
             var model = new DashboardBestsellersModel
             {
-                BestsellersByQuantity = await reportByQuantity.MapAsync(_db),
-                BestsellersByAmount = await reportByAmount.MapAsync(_db)
+                BestsellersByQuantity = await reportByQuantity.MapAsync(Services),
+                BestsellersByAmount = await reportByAmount.MapAsync(Services)
             };
 
             return View(model);

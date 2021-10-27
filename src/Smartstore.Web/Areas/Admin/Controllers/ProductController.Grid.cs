@@ -23,8 +23,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductList(GridCommand command, ProductListModel model)
         {
-            var gridModel = new GridModel<ProductOverviewModel>();
-
             var fields = new List<string> { "name" };
             if (_searchSettings.SearchFields.Contains("sku"))
             {
@@ -114,54 +112,13 @@ namespace Smartstore.Admin.Controllers
                 products = await query.ToPagedList(command).LoadAsync();
             }
 
-            var fileIds = products.AsEnumerable()
-                .Select(x => x.MainPictureId ?? 0)
-                .Where(x => x != 0)
-                .Distinct()
-                .ToArray();
+            var rows = await products.MapAsync(Services.MediaService);
 
-            var files = (await _mediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
-
-            gridModel.Rows = products.AsEnumerable().Select(x =>
+            return Json(new GridModel<ProductOverviewModel>
             {
-                var productModel = new ProductOverviewModel
-                {
-                    Sku = x.Sku,
-                    Published = x.Published,
-                    ProductTypeLabelHint = x.ProductTypeLabelHint,
-                    Name = x.Name,
-                    Id = x.Id,
-                    StockQuantity = x.StockQuantity,
-                    Price = x.Price,
-                    LimitedToStores = x.LimitedToStores,
-                    EditUrl = Url.Action("Edit", "Product", new { id = x.Id }),
-                    ManufacturerPartNumber = x.ManufacturerPartNumber,
-                    Gtin = x.Gtin,
-                    MinStockQuantity = x.MinStockQuantity,
-                    OldPrice = x.OldPrice,
-                    AvailableStartDateTimeUtc = x.AvailableStartDateTimeUtc,
-                    AvailableEndDateTimeUtc = x.AvailableEndDateTimeUtc
-                };
-
-                //MiniMapper.Map(x, productModel);
-
-                files.TryGetValue(x.MainPictureId ?? 0, out var file);
-
-                // TODO: (core) Use IImageModel
-                productModel.PictureThumbnailUrl = _mediaService.GetUrl(file, _mediaSettings.CartThumbPictureSize);
-                productModel.NoThumb = file == null;
-
-                productModel.ProductTypeName = x.GetProductTypeLabel(Services.Localization);
-                productModel.UpdatedOn = _dateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc);
-                productModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                productModel.CopyProductModel.Name = T("Admin.Common.CopyOf", x.Name);
-
-                return productModel;
+                Rows = rows,
+                Total = products.TotalCount
             });
-
-            gridModel.Total = products.TotalCount;
-
-            return Json(gridModel);
         }
 
         [HttpPost]

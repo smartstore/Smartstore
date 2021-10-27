@@ -309,8 +309,7 @@ namespace Smartstore.Admin.Controllers
                             FullName = x.GetFullName(),
                             CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
                             LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
-                            // TODO: (mg) (core) verify action URL (Customer.Edit).
-                            EditUrl = Url.Action("Edit, Customer", new { id = x.Id, area = "Admin" })
+                            EditUrl = Url.Action("Edit", "Customer", new { id = x.Id, area = "Admin" })
                         };
 
                         return customerModel;
@@ -326,47 +325,13 @@ namespace Smartstore.Admin.Controllers
                 var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as SearchFilterExpression;
                 var searchResult = await provider.SearchAsync(new[] { expression }, command.Page - 1, command.PageSize);
                 var hits = await searchResult.GetHitsAsync();
+                var rows = await hits.MapAsync(Services.MediaService);
 
-                var fileIds = hits
-                    .AsQueryable()
-                    .Select(x => x.MainPictureId ?? 0)
-                    .Where(x => x != 0)
-                    .Distinct()
-                    .ToArray();
-                var files = (await Services.MediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
-
-                var model = new GridModel<ProductOverviewModel>
+                return new JsonResult(new GridModel<ProductOverviewModel>
                 {
                     Total = searchResult.TotalHitsCount,
-                    Rows = hits.Select(x =>
-                    {
-                        var productModel = new ProductOverviewModel
-                        {
-                            Id = x.Id,
-                            Sku = x.Sku,
-                            Published = x.Published,
-                            ProductTypeLabelHint = x.ProductTypeLabelHint,
-                            ProductTypeName = x.GetProductTypeLabel(Services.Localization),
-                            Name = x.Name,
-                            StockQuantity = x.StockQuantity,
-                            Price = x.Price,
-                            LimitedToStores = x.LimitedToStores,
-                            UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc),
-                            CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                            EditUrl = Url.Action("Edit", "Product", new { id = x.Id, area = "Admin" })
-                        };
-
-                        files.TryGetValue(x.MainPictureId ?? 0, out var file);
-
-                        productModel.PictureThumbnailUrl = Services.MediaService.GetUrl(file, _mediaSettings.CartThumbPictureSize, null, true);
-                        productModel.NoThumb = file == null;
-
-                        return productModel;
-                    })
-                    .ToList()
-                };
-
-                return new JsonResult(model);
+                    Rows = rows
+                });
             }
 
             return new JsonResult(null);

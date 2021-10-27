@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Smartstore.Admin.Models.Catalog;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -64,6 +66,7 @@ namespace Smartstore.Admin.Controllers
         private readonly SearchSettings _searchSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly MediaSettings _mediaSettings;
+        private readonly AdminAreaSettings _adminAreaSettings;
         private readonly Currency _primaryCurrency;
 
         public OrderController(
@@ -84,7 +87,8 @@ namespace Smartstore.Admin.Controllers
             AddressSettings addressSettings,
             SearchSettings searchSettings,
             ShoppingCartSettings shoppingCartSettings,
-            MediaSettings mediaSettings)
+            MediaSettings mediaSettings,
+            AdminAreaSettings adminAreaSettings)
         {
             _db = db;
             _orderService = orderService;
@@ -103,7 +107,8 @@ namespace Smartstore.Admin.Controllers
             _addressSettings = addressSettings;
             _searchSettings = searchSettings;
             _shoppingCartSettings = shoppingCartSettings;
-            _mediaSettings = mediaSettings;                
+            _mediaSettings = mediaSettings;
+            _adminAreaSettings = adminAreaSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
         }
@@ -209,7 +214,7 @@ namespace Smartstore.Admin.Controllers
 
             orderQuery = orderQuery
                 .OrderByDescending(x => x.CreatedOnUtc)
-                .ApplyGridCommand(command, false);
+                .ApplyGridCommand(command);
 
             var orders = await orderQuery
                 .ToPagedList(command)
@@ -1403,6 +1408,7 @@ namespace Smartstore.Admin.Controllers
             countryItems.Insert(0, new SelectListItem { Text = T("Admin.Address.SelectCountry"), Value = "0" });
 
             ViewBag.Countries = countryItems;
+            ViewBag.DisplayProductPictures = _adminAreaSettings.DisplayProductPictures;
 
             return View(new BestsellersReportModel());
         }
@@ -1439,9 +1445,9 @@ namespace Smartstore.Admin.Controllers
             }
 
             var orderItemQuery =
-                from oi in _db.OrderItems.AsNoTracking()
-                join o in _db.Orders.AsNoTracking() on oi.OrderId equals o.Id
-                join p in _db.Products.AsNoTracking() on oi.ProductId equals p.Id
+                from oi in _db.OrderItems
+                join o in _db.Orders on oi.OrderId equals o.Id
+                join p in _db.Products on oi.ProductId equals p.Id
                 where
                     (!startDate.HasValue || startDate.Value <= o.CreatedOnUtc) &&
                     (!endDate.HasValue || endDate.Value >= o.CreatedOnUtc) &&
@@ -1452,17 +1458,121 @@ namespace Smartstore.Admin.Controllers
                     !p.IsSystemProduct
                 select oi;
 
-            var reportLines = await orderItemQuery
+            var reportLineQuery = orderItemQuery
                 .SelectAsBestsellersReportLine(sorting)
-                .ToPagedList(command)
+                .ToPagedList(command);
+
+            //reportLineQuery.SourceQuery.ToQueryString().Dump();
+            var watch = Stopwatch.StartNew();
+
+            var reportLines = await reportLineQuery
                 .LoadAsync();
 
-            var rows = await reportLines.MapAsync(_db, true);
+            watch.Stop();
+            $"1. bestsellers {watch.ElapsedMilliseconds}ms, {reportLines.TotalCount} products. {reportLines[0].ProductId}, {reportLines[0].TotalAmount}, {reportLines[0].TotalQuantity}".Dump();
+
+            #region Test perf
+
+            var orderQuery =
+                from o in _db.Orders
+                where
+                    (!startDate.HasValue || startDate.Value <= o.CreatedOnUtc) &&
+                    (!endDate.HasValue || endDate.Value >= o.CreatedOnUtc) &&
+                    (model.OrderStatusId == 0 || model.OrderStatusId == o.OrderStatusId) &&
+                    (model.PaymentStatusId == 0 || model.PaymentStatusId == o.PaymentStatusId) &&
+                    (model.ShippingStatusId == 0 || model.ShippingStatusId == o.ShippingStatusId) &&
+                    (model.BillingCountryId == 0 || model.BillingCountryId == o.BillingAddress.CountryId)
+                select o;                
+
+            var query =
+                from p in _db.Products
+                where !p.IsSystemProduct
+                select new
+                {
+                    ProductId = p.Id,
+                    TotalAmount =
+                        (from oi in _db.OrderItems
+                        join o in orderQuery on oi.OrderId equals o.Id
+                        where oi.ProductId == p.Id
+                        select oi.PriceExclTax)
+                        .Sum(x => x),
+                    TotalQuantity =
+                        (from oi in _db.OrderItems
+                         join o in orderQuery on oi.OrderId equals o.Id
+                         where oi.ProductId == p.Id
+                         select oi.Quantity)
+                        .Sum(x => x),
+                };
+                
+            query.OrderByDescending(x => x.TotalAmount).ToQueryString().Dump();
+
+            var pagedQuery = query
+                .OrderByDescending(x => x.TotalAmount)
+                .ToPagedList(command);
+            watch.Restart();
+            var testLines = await pagedQuery.LoadAsync();
+            watch.Stop();
+            $"2. bestsellers {watch.ElapsedMilliseconds}ms, {testLines.TotalCount} products. {testLines[0].ProductId}, {testLines[0].TotalAmount}, {testLines[0].TotalQuantity}".Dump();
+
+            
+
+            #endregion
+
+
+            var rows = await reportLines.MapAsync(Services, true);
 
             return Json(new GridModel<BestsellersReportLineModel>
             {
                 Rows = rows,
                 Total = reportLines.TotalCount
+            });
+        }
+
+        [Permission(Permissions.Order.Read)]
+        public IActionResult NeverSoldReport()
+        {
+            return View(new NeverSoldReportModel());
+        }
+
+        [Permission(Permissions.Order.Read)]
+        public async Task<IActionResult> NeverSoldReportList(GridCommand command, NeverSoldReportModel model)
+        {
+            var dtHelper = Services.DateTimeHelper;
+            var groupedProductId = (int)ProductType.GroupedProduct;
+
+            DateTime? startDate = model.StartDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
+
+            DateTime? endDate = model.EndDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+
+            var subQuery =
+                from oi in _db.OrderItems.AsNoTracking()
+                join o in _db.Orders.AsNoTracking() on oi.OrderId equals o.Id
+                where
+                    (!startDate.HasValue || startDate.Value <= o.CreatedOnUtc) &&
+                    (!endDate.HasValue || endDate.Value >= o.CreatedOnUtc)
+                select oi.ProductId;
+
+            var productQuery = 
+                from p in _db.Products.AsNoTracking()
+                where !subQuery.Distinct().Contains(p.Id) && p.ProductTypeId != groupedProductId
+                orderby p.Name
+                select p;
+
+            var products = await productQuery
+                .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var rows = await products.MapAsync(Services.MediaService);
+
+            return Json(new GridModel<ProductOverviewModel>
+            {
+                Rows = rows,
+                Total = products.TotalCount
             });
         }
 

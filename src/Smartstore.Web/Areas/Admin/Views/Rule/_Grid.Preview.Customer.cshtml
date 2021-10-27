@@ -12,11 +12,12 @@
 		allow-column-reordering="true" 
 		allow-row-selection="false" 
 		preserve-grid-state="true"
+		max-height="800px"
 		onrowclass="customerPreviewGrid_onRowClass">
 	<datasource read="@Url.Action("PreviewList", new { id = parentModel.Id })" />
 	<paging position="Bottom" show-size-chooser="true" />
 	<columns>
-		<column for="Id" halign="center" type="string" />
+		<column for="Id" halign="center" width="auto" type="string" />
 		<column for="Email" hideable="false">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate" target="_blank">{{ item.value }}</a></div>

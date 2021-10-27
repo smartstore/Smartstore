@@ -12,10 +12,11 @@
 		allow-resize="true" 
 		allow-column-reordering="true" 
 		allow-row-selection="false" 
-		preserve-grid-state="true">
+		preserve-grid-state="true"
+		max-height="800px">
 	<datasource read="@Url.Action("PreviewList", new { id = parentModel.Id })" />
 	<paging position="Bottom" show-size-chooser="true" />
-	<columns>
+    <columns>
         @if (displayProductPictures)
         {
             <column for="PictureThumbnailUrl"
@@ -33,20 +34,21 @@
                 </display-template>
             </column>
         }
-		<column for="Name" width="3fr" hideable="false">
+        <column for="Id" halign="center" type="string" visible="false" />
+        <column for="Name" width="3fr" hideable="false">
             <display-template>
                 @Html.LabeledProductName(linkTarget: "_blank")
             </display-template>
-		</column>
-		<column for="Sku" />
-		<column for="Price" halign="flex-end" />
-		<column for="StockQuantity" halign="center" />
-		@if (!isSingleStoreMode)
-		{
-			<column for="LimitedToStores" halign="center" />
-		}
-		<column for="CreatedOn" />
-		<column for="UpdatedOn" />
-		<column for="Published" halign="center" />
-	</columns>
+        </column>
+        <column for="Sku" />
+        <column for="Price" halign="flex-end" />
+        <column for="StockQuantity" halign="center" />
+        @if (!isSingleStoreMode)
+        {
+            <column for="LimitedToStores" halign="center" />
+        }
+        <column for="CreatedOn" />
+        <column for="UpdatedOn" />
+        <column for="Published" halign="center" />
+    </columns>
 </datagrid>
