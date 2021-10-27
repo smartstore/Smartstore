@@ -38,7 +38,6 @@ namespace Smartstore.Core.Installation
                TypeHelper.NameOf<CatalogSettings>(x => x.RecentlyViewedProductsEnabled, true),
                TypeHelper.NameOf<CatalogSettings>(x => x.CompareProductsEnabled, true),
                TypeHelper.NameOf<CustomerSettings>(x => x.UserRegistrationType, true)
-                //"BlogSettings.Enabled",
             };
 
             Dictionary<string, string> resources = null;
@@ -160,16 +159,6 @@ namespace Smartstore.Core.Installation
                 Title = GetResource("ContactUs"),
                 DisplayOrder = ++order
             });
-            // TODO: (mh) (core) Seed Blog menu items by external module
-            //menuItemSet.Add(new MenuItemEntity
-            //{
-            //    MenuId = footerService.Id,
-            //    ProviderName = routeProvider,
-            //    Model = routeTemplate.FormatInvariant("Blog"),
-            //    Title = GetResource("Blog"),
-            //    DisplayOrder = ++order,
-            //    Published = GetSetting("BlogSettings.Enabled", true)
-            //});
             footerServiceMenu.Items.Add(new MenuItemEntity
             {
                 ProviderName = entityProvider,
