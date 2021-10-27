@@ -16,6 +16,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -36,14 +37,32 @@ namespace Smartstore.Core.Data.Migrations
         {
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
             await MigrateEnumResources(context, cancelToken);
-            //await MigrateSettingsAsync(context, cancelToken);
+            await MigrateSettingsAsync(context, cancelToken);
         }
 
-        //public Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
-        //{
-        //    // Nothing in here yet
-        //    return Task.CompletedTask;
-        //}
+        public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
+        {
+            // Remark: In classic code, we always made the mistake to query for FirstOrDefault and thus ignoring multistore settings.
+            var settings = context.Set<Setting>();
+
+            var minDigitsInPasswordSettings = await settings.Where(x => x.Name == "CustomerSettings.MinDigitsInPassword").ToListAsync(cancellationToken: cancelToken);
+            if (minDigitsInPasswordSettings.Any())
+            {
+                settings.RemoveRange(minDigitsInPasswordSettings);
+            }
+
+            var minSpecialCharsInPassword = await settings.Where(x => x.Name == "CustomerSettings.MinSpecialCharsInPassword").ToListAsync(cancellationToken: cancelToken);
+            if (minSpecialCharsInPassword.Any())
+            {
+                settings.RemoveRange(minSpecialCharsInPassword);
+            }
+
+            var minUppercaseCharsInPassword = await settings.Where(x => x.Name == "CustomerSettings.MinUppercaseCharsInPassword").ToListAsync(cancellationToken: cancelToken);
+            if (minUppercaseCharsInPassword.Any())
+            {
+                settings.RemoveRange(minUppercaseCharsInPassword);
+            }
+        }
 
         public static void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {

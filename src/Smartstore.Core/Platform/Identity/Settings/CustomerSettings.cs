@@ -69,22 +69,6 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public bool PasswordRequireNonAlphanumeric { get; set; } = true;
 
-        // TODO: (mh) (core) Remove these settings from database in the first migration after shop update.
-        ///// <summary>
-        ///// Specifies the minimum number of digits for a password.
-        ///// </summary>
-        //public int MinDigitsInPassword { get; set; }
-
-        ///// <summary>
-        ///// Specifies the minimum number of special characters for a password (not numeric and not alphabetic).
-        ///// </summary>
-        //public int MinSpecialCharsInPassword { get; set; }
-
-        ///// <summary>
-        ///// Specifies the minimum number of uppercase characters for a password.
-        ///// </summary>
-        //public int MinUppercaseCharsInPassword { get; set; }
-
         /// <summary>
         /// User registration type
         /// </summary>

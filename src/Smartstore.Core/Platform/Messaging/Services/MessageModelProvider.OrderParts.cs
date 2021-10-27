@@ -112,7 +112,7 @@ namespace Smartstore.Core.Messaging
             var language = messageContext.Language;
             var currencyService = _services.Resolve<ICurrencyService>();
             var giftCardService = _services.Resolve<IGiftCardService>();
-            //var paymentService = _services.Resolve<IPaymentService>();
+            var orderService = _services.Resolve<IOrderService>();
             var taxService = _services.Resolve<ITaxService>();
             var taxSettings = await _services.SettingFactory.LoadSettingsAsync<TaxSettings>(messageContext.Store.Id);
 
@@ -177,31 +177,28 @@ namespace Smartstore.Core.Messaging
                 dislayDiscount = true;
             }
 
-            // TODO: (mh) (core) Uncomment when available.
             // Total
-            //var roundingAmount = decimal.Zero;
-            //var orderTotal = order.GetOrderTotalInCustomerCurrency(currencyService, paymentService, out roundingAmount);
-            //cusTotal = FormatPrice(orderTotal, customerCurrency, messageContext);
+            (var orderTotal, var roundingAmount) = await orderService.GetOrderTotalInCustomerCurrencyAsync(order, customerCurrency);
+            cusTotal = _helper.FormatPrice(orderTotal.Amount, customerCurrency, messageContext);
 
             //// Rounding
-            //if (roundingAmount != decimal.Zero)
-            //{
-            //    cusRounding = FormatPrice(roundingAmount, customerCurrency, messageContext);
-            //}
+            if (roundingAmount != decimal.Zero)
+            {
+                cusRounding = _helper.FormatPrice(roundingAmount.Amount, customerCurrency, messageContext);
+            }
 
             //// Model
             dynamic m = new ExpandoObject();
 
-            // TODO: (mh) (core) Uncomment when available.
-            //m.SubTotal = subTotals.SubTotal;
-            //m.SubTotalDiscount = subTotals.DisplaySubTotalDiscount ? subTotals.SubTotalDiscount : null;
-            //m.Shipping = dislayShipping ? subTotals.ShippingTotal : null;
-            //m.Payment = displayPaymentMethodFee ? subTotals.PaymentFee : null;
-            //m.Tax = displayTax ? cusTaxTotal : null;
-            //m.Discount = dislayDiscount ? cusDiscount : null;
-            //m.RoundingDiff = cusRounding;
-            //m.Total = cusTotal;
-            //m.IsGross = order.CustomerTaxDisplayType == TaxDisplayType.IncludingTax;
+            m.SubTotal = subTotals.SubTotal;
+            m.SubTotalDiscount = subTotals.DisplaySubTotalDiscount ? (decimal?)subTotals.SubTotalDiscount.Amount : null;
+            m.Shipping = dislayShipping ? (decimal?)subTotals.ShippingTotal.Amount : null;
+            m.Payment = displayPaymentMethodFee ? (decimal?)subTotals.PaymentFee.Amount : null;
+            m.Tax = displayTax ? (decimal?)cusTaxTotal.Amount : null;
+            m.Discount = dislayDiscount ? (decimal?)cusDiscount.Amount : null;
+            m.RoundingDiff = cusRounding;
+            m.Total = cusTotal;
+            m.IsGross = order.CustomerTaxDisplayType == TaxDisplayType.IncludingTax;
 
             // TaxRates
             m.TaxRates = !displayTaxRates ? null : taxRates.Select(x =>
@@ -212,7 +209,6 @@ namespace Smartstore.Core.Messaging
                     Value = _helper.FormatPrice(x.Value, order, messageContext)
                 };
             }).ToArray();
-
 
             // Gift Cards
             m.GiftCardUsage = order.GiftCardUsageHistory.Count == 0 ? null : order.GiftCardUsageHistory.Select(x =>

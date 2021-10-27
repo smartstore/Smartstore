@@ -244,13 +244,13 @@ namespace Smartstore
                         result = firstName;
                         if (lastName.HasValue())
                         {
-                            result = "{0} {1}.".FormatInvariant(result, lastName.First());
+                            result = $"{ result } { lastName.First() }";
                         }
 
                         if (city.HasValue())
                         {
                             var from = T("Common.ComingFrom");
-                            result = "{0} {1} {2}".FormatInvariant(result, from, city);
+                            result = $"{ result } { from } { city }";
                         }
                     }
                     break;
@@ -339,7 +339,5 @@ namespace Smartstore
                 ga.Set(SystemCustomerAttributeNames.SelectedPaymentMethod, (string)null, storeId);
             }
         }
-
-        // TODO: (mh) (core) > Evaluate & implement other relevant extension methods.
     }
 }

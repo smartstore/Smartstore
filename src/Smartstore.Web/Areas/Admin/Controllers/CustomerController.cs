@@ -617,6 +617,7 @@ namespace Smartstore.Admin.Controllers
         {
             var customer = await _db.Customers
                 .IncludeCustomerRoles()
+                .Include(x => x.ExternalAuthenticationRecords)
                 .FindByIdAsync(id, false);
 
             if (customer == null)
