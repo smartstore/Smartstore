@@ -567,44 +567,6 @@ namespace Smartstore.Forums.Controllers
 
         #region Customer
 
-        public async Task<IActionResult> SendPm(int id /* customerId */)
-        {
-            if (_forumSettings.AllowPrivateMessages)
-            {
-                var customer = await _db.Customers
-                    .IncludeCustomerRoles()
-                    .FindByIdAsync(id, false);
-
-                if (customer != null)
-                {
-                    if (!customer.IsGuest())
-                    {
-                        var model = new SendPrivateMessageModel
-                        {
-                            ToCustomerId = id,
-                            CustomerToName = customer.FormatUserName()
-                        };
-
-                        return View(model);
-                    }
-                    else
-                    {
-                        NotifyError(T("Common.MethodNotSupportedForGuests"));
-                    }
-                }
-                else
-                {
-                    return NotFound();
-                }
-            }
-            else
-            {
-                NotifyError(T("PrivateMessages.Disabled"));
-            }
-
-            return RedirectToAction("Edit", "Customer", new { id, area = "Admin" });
-        }
-
         [Permission(Permissions.Customer.SendPm)]
         [HttpPost]
         public async Task<IActionResult> SendPm(SendPrivateMessageModel model)
@@ -655,7 +617,7 @@ namespace Smartstore.Forums.Controllers
 
                 NotifySuccess(T("Admin.Customers.Customers.SendPM.Sent"));
 
-                return RedirectToAction("Edit", "Customer", new { id = customer.Id, area = "Admin" });
+                return RedirectToAction("Edit", "Customer", new { id = customer.Id });
             }
 
             return View(model);
