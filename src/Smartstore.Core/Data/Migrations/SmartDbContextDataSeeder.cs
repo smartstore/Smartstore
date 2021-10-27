@@ -72,6 +72,8 @@ namespace Smartstore.Core.Data.Migrations
 
             // TODO: (core) Delete all Telerik language resources (???)
 
+            builder.AddOrUpdate("Admin.Customers.Customers.List.SearchCustomerNumber", "Customer number", "Kundennummer");
+
             builder.AddOrUpdate("Admin.Configuration.EmailAccounts.CantDeleteDefault",
                 "The default email account cannot be deleted.",
                 "Das Standard-Email-Konto kann nicht gelöscht werden.");

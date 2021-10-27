@@ -3,14 +3,9 @@
    
 @model ShoppingCartItemModel
 
-@{ 
-    // TODO: (mh) (core) Nothing is sortable here.
-}
-
-<datagrid id="currentshoppingcart-grid" allow-resize="true" >
+<datagrid id="currentshoppingcart-grid" allow-resize="true" max-height="600px">
     <datasource read="@Url.Action("GetCartList", new { customerId = ViewData["CustomerId"], cartTypeId = (int)ShoppingCartType.ShoppingCart })"/>
     <paging position="Bottom" />
-    <sorting enabled="true" />
     <columns>
         <column for="ProductName" hideable="false" />
         <column for="Quantity" />

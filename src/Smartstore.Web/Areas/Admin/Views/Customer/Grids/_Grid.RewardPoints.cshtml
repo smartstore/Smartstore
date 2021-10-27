@@ -1,6 +1,6 @@
 ﻿@model CustomerModel.RewardPointsHistoryModel
 
-<datagrid id="rewardpoints-grid" allow-resize="true" allow-edit="true">
+<datagrid id="rewardpoints-grid" allow-resize="true" allow-edit="true"  max-height="800px">
     <datasource read="@Url.Action("RewardPointsHistoryList", new { customerId = ViewData["CustomerId"] })"
                 insert="@Url.Action("RewardPointsInsert", new { customerId = ViewData["CustomerId"] })" /> 
     <paging position="Bottom" />

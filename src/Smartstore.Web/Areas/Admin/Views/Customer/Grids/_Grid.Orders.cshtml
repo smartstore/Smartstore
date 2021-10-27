@@ -1,6 +1,6 @@
 ﻿@model CustomerModel.OrderModel
 
-<datagrid id="order-grid" allow-resize="true">
+<datagrid id="order-grid" allow-resize="true" max-height="800px">
     <datasource read="@Url.Action("OrderList", new { customerId = ViewData["CustomerId"] })" />
     <paging position="Both" />
     <sorting enabled="true">

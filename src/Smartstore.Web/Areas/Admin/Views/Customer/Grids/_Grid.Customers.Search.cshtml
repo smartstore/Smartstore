@@ -12,6 +12,10 @@
     <smart-label asp-for="SearchTerm" />
     <editor asp-for="SearchTerm" placeholder="@T("Admin.Customers.Customers.List.SearchTerm.Hint")" />
 </div>
+<div class="form-group">
+    <smart-label asp-for="SearchCustomerNumber" />
+    <editor asp-for="SearchCustomerNumber" />
+</div>
 @if (Model.DateOfBirthEnabled)
 {
     var monthOfBirthValues = new List<SelectListItem>();
@@ -26,9 +30,19 @@
         dayOfBirthValues.Add(new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) });
     }
 
+    var yearOfBirthValues = new List<SelectListItem>();
+    // Info: We asume customers must be at least 14 years old & are not older then 70.
+    for (int i = 1950; i <= DateTime.UtcNow.Year - 14; i++)
+    {
+        yearOfBirthValues.Add(new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) });
+    }
+
     <div class="form-group">
         <smart-label asp-for="SearchMonthOfBirth" />
         <div class="form-row">
+            <div class="col">
+                <select asp-for="SearchYearOfBirth" asp-items="@yearOfBirthValues" asp-placeholder="@T("Common.Year")"></select>
+            </div>
             <div class="col">
                 <select asp-for="SearchMonthOfBirth" asp-items="@monthOfBirthValues" asp-placeholder="@T("Admin.Customers.Customers.List.SearchDateOfBirth.Month")"></select>
             </div>

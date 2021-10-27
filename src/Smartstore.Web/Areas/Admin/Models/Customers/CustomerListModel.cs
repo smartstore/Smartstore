@@ -24,11 +24,15 @@ namespace Smartstore.Admin.Models.Customers
         [LocalizedDisplay("*SearchTerm")]
         public string SearchTerm { get; set; }
 
+        [LocalizedDisplay("*SearchCustomerNumber")]
+        public string SearchCustomerNumber { get; set; }
 
         [LocalizedDisplay("*SearchDateOfBirth")]
         public string SearchDayOfBirth { get; set; }
         [LocalizedDisplay("*SearchDateOfBirth")]
         public string SearchMonthOfBirth { get; set; }
+        [LocalizedDisplay("*SearchDateOfBirth")]
+        public string SearchYearOfBirth { get; set; }
         public bool DateOfBirthEnabled { get; set; }
 
         public bool CompanyEnabled { get; set; }

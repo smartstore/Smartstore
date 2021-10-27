@@ -2,10 +2,6 @@
 
 @{
     var parentModel = ViewData["Parent"] as CustomerListModel;
-    // TODO: (mh) (core) Find some more initially hidden columns for the datagrid.
-    // TODO: (mh) (core) Don't forget: "Export" button in grid toolbar needs special consideration.
-    // TODO: (mh) (core) Don't forget: Inline (non .spa-layout) grids need "max-height".
-    // TODO: (mh) (core) Concerning inline grids: always think thoroughly about whether it makes sense to make a grid sortable.
 }
 
 <datagrid id="customers-grid"
@@ -36,6 +32,8 @@
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>
+        @* TODO: (mg) (core) Inject export dropdowns from modules *@
+        <zone name="datagrid_toolbar_after"></zone>
     </toolbar>
     <search-panel>
         <partial name="Grids/_Grid.Customers.Search" model="parentModel" />
@@ -57,7 +55,7 @@
         <column for="FullName" />
         <column for="CustomerRoleNames" sortable="false" />
 
-        @if (parentModel.UsernamesEnabled)
+        @if (parentModel.CompanyEnabled)
         {
             <column for="Company" />
         }
@@ -72,6 +70,14 @@
         <column for="Active" halign="center" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
         <column for="LastActivityDate" entity-member="LastActivityDateUtc" />
+
+        <!-- Initially hidden columns -->
+        <column for="IsTaxExempt" halign="center" visible="false" />
+        <column for="LastIpAddress" visible="false" />
+        <column for="CustomerNumber" visible="false" />
+        <column for="DateOfBirth" visible="false" />
+        <column for="Gender" visible="false" />
+        <column for="VatNumber" visible="false" />
     </columns>
 </datagrid>
 

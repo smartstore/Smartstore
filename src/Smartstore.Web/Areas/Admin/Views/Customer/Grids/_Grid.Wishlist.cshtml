@@ -3,10 +3,9 @@
 
 @model ShoppingCartItemModel
 
-<datagrid id="currentwishlist-grid" allow-resize="true">
+<datagrid id="currentwishlist-grid" allow-resize="true" max-height="600px">
     <datasource read="@Url.Action("GetCartList", new { customerId = ViewData["CustomerId"], cartTypeId = (int)ShoppingCartType.Wishlist })" />
     <paging position="Bottom" />
-    <sorting enabled="true" />
     <columns>
         <column for="ProductName" hideable="false" />
         <column for="Quantity" />
