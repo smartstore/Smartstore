@@ -29,6 +29,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Widgets;
 using Smartstore.Data;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities;
@@ -46,7 +47,6 @@ namespace Smartstore.Admin.Controllers
         private readonly ICustomerService _customerService;
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
-        private readonly RoleManager<CustomerRole> _roleManager;
         private readonly IMessageFactory _messageFactory;
         private readonly DateTimeSettings _dateTimeSettings;
         private readonly TaxSettings _taxSettings;
@@ -54,6 +54,7 @@ namespace Smartstore.Admin.Controllers
         private readonly CustomerSettings _customerSettings;
         private readonly ITaxService _taxService;
         private readonly IPriceCalculationService _priceCalculationService;
+        private readonly Lazy<IWidgetProvider> _widgetProvider;
         private readonly Lazy<IEmailAccountService> _emailAccountService;
         private readonly Lazy<IGdprTool> _gdprTool;
         private readonly IShoppingCartService _shoppingCartService;
@@ -66,7 +67,6 @@ namespace Smartstore.Admin.Controllers
             ICustomerService customerService,
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
-            RoleManager<CustomerRole> roleManager,
             IMessageFactory messageFactory,
             DateTimeSettings dateTimeSettings,
             TaxSettings taxSettings,
@@ -74,6 +74,7 @@ namespace Smartstore.Admin.Controllers
             CustomerSettings customerSettings,
             ITaxService taxService,
             IPriceCalculationService priceCalculationService,
+            Lazy<IWidgetProvider> widgetProvider,
             Lazy<IEmailAccountService> emailAccountService,
             Lazy<IGdprTool> gdprTool,
             IShoppingCartService shoppingCartService,
@@ -85,7 +86,6 @@ namespace Smartstore.Admin.Controllers
             _customerService = customerService;
             _userManager = userManager;
             _signInManager = signInManager;
-            _roleManager = roleManager;
             _messageFactory = messageFactory;
             _dateTimeSettings = dateTimeSettings;
             _taxSettings = taxSettings;
@@ -93,6 +93,7 @@ namespace Smartstore.Admin.Controllers
             _customerSettings = customerSettings;
             _taxService = taxService;
             _priceCalculationService = priceCalculationService;
+            _widgetProvider = widgetProvider;
             _emailAccountService = emailAccountService;
             _gdprTool = gdprTool;
             _shoppingCartService = shoppingCartService;
@@ -284,6 +285,9 @@ namespace Smartstore.Admin.Controllers
                 await address.MapAsync(addressModel, countries: countries);
                 model.Addresses.Add(addressModel);
             }
+
+            // Is there any content for the messaging dropdown.
+            model.DisplayMessagingDropdown = _widgetProvider.Value.HasContent("admin_button_toolbar_messaging_dropdown");
         }
 
         private async Task<(List<CustomerRole> NewCustomerRoles, string ErrMessage)> ValidateCustomerRolesAsync(int[] selectedCustomerRoleIds, List<int> allCustomerRoleIds)
@@ -306,8 +310,7 @@ namespace Smartstore.Admin.Controllers
 
             if (newCustomerRoleIds.Any())
             {
-                // TODO: (mh) (core) Consistency please. Decide whether to work with RoleManager.Roles or SmartDbContext.CustomerRoles.
-                newCustomerRoles = await _roleManager.Roles
+                newCustomerRoles = await _db.CustomerRoles
                     .AsNoTracking()
                     .Where(x => newCustomerRoleIds.Contains(x.Id))
                     .ToListAsync();

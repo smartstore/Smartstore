@@ -22,17 +22,26 @@
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
 
-            <div class="btn-group">
-                <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-envelope"></i>
-                    <span>@T("Common.Send")</span>
-                </button>
-                <div class="dropdown-menu">
-                    @*TODO: (mh) (core) No Dropdown is needed if forum is not active *@
-                    <a href="#sendemail-window" data-toggle="modal" class="dropdown-item">@T("Admin.Customers.Customers.SendEmail")</a>
-                    <zone name="admin_button_toolbar_messaging_dropdown" />
+            @if (Model.DisplayMessagingDropdown)
+            {
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-envelope"></i>
+                        <span>@T("Common.Send")</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="#sendemail-window" data-toggle="modal" class="dropdown-item">@T("Admin.Customers.Customers.SendEmail")</a>
+                        <zone name="admin_button_toolbar_messaging_dropdown" />
+                    </div>
                 </div>
-            </div>
+            }
+            else
+            {
+                <a href="#sendemail-window" data-toggle="modal" class="btn btn-secondary">
+                    <i class="fa fa-envelope"></i>
+                    <span>@T("Admin.Customers.Customers.SendEmail")</span>
+                </a>
+            }
 
             <a asp-action="Export" asp-route-id="@Model.Id" class="btn btn-secondary">
                 <span>@T("Common.Export")</span>

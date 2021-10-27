@@ -8,7 +8,7 @@ namespace Smartstore.Forums.Filters
     /// <summary>
     /// Backend link on customer edit page to send a PN.
     /// </summary>
-    public class PmMessagingDropdownFilter : IResultFilter
+    public class PmMessagingDropdownFilter : IActionFilter
     {
         private readonly Lazy<IWidgetProvider> _widgetProvider;
         private readonly ForumSettings _forumSettings;
@@ -19,9 +19,9 @@ namespace Smartstore.Forums.Filters
             _forumSettings = forumSettings;
         }
 
-        public void OnResultExecuting(ResultExecutingContext filterContext)
+        public void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            if (_forumSettings.AllowPrivateMessages && filterContext.Result.IsHtmlViewResult())
+            if (_forumSettings.AllowPrivateMessages)
             {
                 if (filterContext?.RouteData?.Values?.TryGetValue("id", out var customerIdObj) ?? false)
                 {
@@ -35,7 +35,7 @@ namespace Smartstore.Forums.Filters
             }
         }
 
-        public void OnResultExecuted(ResultExecutedContext filterContext)
+        public void OnActionExecuted(ActionExecutedContext context)
         {
         }
     }
