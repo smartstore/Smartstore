@@ -57,6 +57,7 @@ namespace Smartstore.Admin.Controllers
                 model.LanguageId = urlRecord.LanguageId;
 
                 // TODO: (mh) (core) What to do here???
+                // RE: Must obviously be outsourced to ILinkProvider. TBD with MC.
                 if (urlRecord.EntityName.EqualsNoCase("BlogPost"))
                 {
                     model.EntityUrl = Url.Action("Edit", "Blog", new { id = urlRecord.EntityId });
@@ -104,10 +105,7 @@ namespace Smartstore.Admin.Controllers
             var urlRecords = await _db.UrlRecords
                 .AsNoTracking()
                 .ApplySlugFilter(model.SeName, false)
-                .ApplyEntityFilter(model.EntityName,
-                                   Convert.ToInt32(model.EntityId),
-                                   Convert.ToInt32(model.LanguageId),
-                                   model.IsActive)
+                .ApplyEntityFilter(model.EntityName, model.EntityId ?? 0, model.LanguageId ?? 0, model.IsActive)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -176,7 +174,7 @@ namespace Smartstore.Admin.Controllers
 
             if (!urlRecord.IsActive && model.IsActive)
             {
-                var urlRecords = (await _urlService.GetUrlRecordCollectionAsync(model.EntityName, new int[] { model.LanguageId },new int[] { model.EntityId }))
+                var urlRecords = (await _urlService.GetUrlRecordCollectionAsync(model.EntityName, new[] { model.LanguageId }, new[] { model.EntityId }))
                     .Where(x => x.IsActive == true)
                     .ToList();
 
@@ -242,7 +240,6 @@ namespace Smartstore.Admin.Controllers
             if (ids.Any())
             {
                 var toDelete = await _db.UrlRecords
-                    .AsQueryable()
                     .Where(x => ids.Contains(x.Id))
                     .ToListAsync();
 

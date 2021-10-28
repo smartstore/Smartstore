@@ -57,7 +57,8 @@ namespace Smartstore.Admin.Controllers
             await _widgetService.ActivateWidgetAsync(systemName, activate);
 
             var method = _providerManager.GetProvider<IExternalAuthenticationMethod>(systemName);
-            bool dirty = method.IsMethodActive(_externalAuthenticationSettings) != activate;
+            var dirty = method.IsMethodActive(_externalAuthenticationSettings) != activate;
+
             if (dirty)
             {
                 if (!activate)
