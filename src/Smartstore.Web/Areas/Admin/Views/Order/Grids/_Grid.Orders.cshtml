@@ -21,6 +21,78 @@
                 <i class="fa fa-fw fa-filter"></i>
             </button>
         </toolbar-group>
+        <toolbar-group class="omega border-right-0">
+            <div class="dropdown">
+                <button type="button" class="btn btn-light btn-flat dropdown-toggle" data-toggle="dropdown" data-boundary="window">
+                    @T("Admin.Common.Export.PDF")
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }" data-url="@Url.Action("ExportPdf")">
+                        <i class="far fa-fw fa-file-pdf"></i>
+                        <span class="order-process-title">@T("Admin.Common.ExportToPdf.Selected")</span>
+                    </a>
+                    <a href="javascript:;" class="dropdown-item process-orders all-allowed" data-url="@Url.Action("ExportPdf")" data-msg="@T("Admin.Common.AskToProceed")">
+                        <i class="far fa-fw fa-file-pdf"></i>
+                        <span class="order-process-title">@T("Admin.Common.ExportToPdf.All")</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="dropdown ml-2">
+                <button class="btn btn-light btn-flat dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
+                    <i class="fa fa-fw fa-ellipsis-h"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <div class="dropdown-header h6 text-uppercase">
+                        @T("Admin.Orders.Fields.OrderStatus")
+                    </div>
+                    <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }"
+                       data-url="@Url.Action("ProcessOrder", new { operation = "complete" })">
+                        <i class="fa fa-fw fa-check"></i>
+                        <span class="order-process-title">@T("Enums.OrderStatus.Complete")</span>
+                    </a>
+                    <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }"
+                       data-url="@Url.Action("ProcessOrder", new { operation = "cancel" })">
+                        <i class="fa fa-fw fa-times"></i>
+                        <span class="order-process-title">@T("Admin.Orders.Fields.OrderStatus.Cancel")</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-header h6 text-uppercase">
+                        @T("Admin.Orders.Fields.PaymentStatus")
+                    </div>
+                    <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }"
+                       data-url="@Url.Action("ProcessOrder", new { operation = "markpaid" })" title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")">
+                        <i class="fa fa-fw"></i>
+                        <span class="order-process-title">@T("Admin.Orders.Fields.MarkAsPaid")</span>
+                    </a>
+                    <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }"
+                       data-url="@Url.Action("ProcessOrder", new { operation = "capture" })" title="@T("Admin.Orders.Fields.Capture.Hint")">
+                        <i class="fas fa-fw fa-euro-sign"></i>
+                        <span class="order-process-title">@T("Admin.Orders.Fields.Capture")</span>
+                    </a>
+                    <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }"
+                       data-url="@Url.Action("ProcessOrder", new { operation = "refundoffline" })" title="@T("Admin.Orders.Fields.RefundOffline.Hint")">
+                        <i class="fa fa-fw"></i>
+                        <span class="order-process-title">@T("Admin.Orders.Fields.RefundOffline")</span>
+                    </a>
+                    <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }"
+                       data-url="@Url.Action("ProcessOrder", new { operation = "refund" })" title="@T("Admin.Orders.Fields.Refund.Hint")">
+                        <i class="fas fa-fw fa-undo-alt"></i>
+                        <span class="order-process-title">@T("Admin.Orders.Fields.Refund")</span>
+                    </a>
+                    <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }"
+                       data-url="@Url.Action("ProcessOrder", new { operation = "voidoffline" })" title="@T("Admin.Orders.Fields.VoidOffline.Hint")">
+                        <i class="fa fa-fw"></i>
+                        <span class="order-process-title">@T("Admin.Orders.Fields.VoidOffline")</span>
+                    </a>
+                    <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }"
+                       data-url="@Url.Action("ProcessOrder", new { operation = "void" })" title="@T("Admin.Orders.Fields.Void.Hint")">
+                        <i class="fa fa-fw fa-times"></i>
+                        <span class="order-process-title">@T("Admin.Orders.Fields.Void")</span>
+                    </a>
+                </div>
+            </div>
+        </toolbar-group>
         <zone name="datagrid_toolbar_after"></zone>
     </toolbar>
     <search-panel>
@@ -38,8 +110,7 @@
         <column for="CustomerName" sortable="false" title="@T("Admin.Orders.Fields.Customer")">
             <display-template>
                 <div class="dg-cell-value">
-                    @* TODO: (mg) (core) Customer should be linked if possible *@
-                    <div class="text-truncate">{{ item.row.CustomerName }}</div>
+                    <a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerName }}</a>
                     <div class="text-truncate">{{ item.row.CustomerEmail }}</div>
                 </div>
             </display-template>
@@ -81,7 +152,122 @@
             </display-template>
         </column>
     </columns>
+    <row-commands>
+        <div class="dropdown-header h6 text-uppercase">
+            @T("Admin.Orders.Fields.OrderStatus")
+        </div>
+        <a datarow-action="DataRowAction.Custom" class="process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "complete" })">
+            <i class="fa fa-fw fa-check"></i>
+            <span class="order-process-title">@T("Enums.OrderStatus.Complete")</span>
+        </a>
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "cancel" })">
+            <i class="fa fa-fw fa-times"></i>
+            <span class="order-process-title">@T("Admin.Orders.Fields.OrderStatus.Cancel")</span>
+        </a>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-header h6 text-uppercase">
+            @T("Admin.Orders.Fields.PaymentStatus")
+        </div>
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "markpaid" })"
+           title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")">
+            <i class="fa fa-fw"></i>
+            <span class="order-process-title">@T("Admin.Orders.Fields.MarkAsPaid")</span>
+        </a>
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "capture" })"
+           title="@T("Admin.Orders.Fields.Capture.Hint")">
+            <i class="fas fa-fw fa-euro-sign"></i>
+            <span class="order-process-title">@T("Admin.Orders.Fields.Capture")</span>
+        </a>
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "refundoffline" })"
+           title="@T("Admin.Orders.Fields.RefundOffline.Hint")">
+            <i class="fa fa-fw"></i>
+            <span class="order-process-title">@T("Admin.Orders.Fields.RefundOffline")</span>
+        </a>
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "refund" })"
+           title="@T("Admin.Orders.Fields.Refund.Hint")">
+            <i class="fas fa-fw fa-undo-alt"></i>
+            <span class="order-process-title">@T("Admin.Orders.Fields.Refund")</span>
+        </a>
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "voidoffline" })"
+           title="@T("Admin.Orders.Fields.VoidOffline.Hint")">
+            <i class="fa fa-fw"></i>
+            <span class="order-process-title">@T("Admin.Orders.Fields.VoidOffline")</span>
+        </a>
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "void" })"
+           title="@T("Admin.Orders.Fields.Void.Hint")">
+            <i class="fa fa-fw fa-times"></i>
+            <span class="order-process-title">@T("Admin.Orders.Fields.Void")</span>
+        </a>
+    </row-commands>
 </datagrid>
 
 @* TODO: (mg) (core) render profit summary somewhere. Requires refresh when grid updates. *@
 @* RE: Grid "Aggregates" is still an open issue, but will be implemented soon. *@
+
+<script sm-target-zone="scripts" data-origin="orders-grid">
+    $(function () {
+
+        // Order processing commands (order and payment status, PDF export...).
+        $(document).on('click', '.process-orders', function (e) {
+            e.preventDefault();
+
+            var link = $(this);
+            if (link.hasClass('disabled')) {
+                return;
+            }
+
+            const grid = $('#orders-grid').parent().data('datagrid');
+            var selectedIds = grid.selectedRowKeys;
+            var allAllowed = link.hasClass('all-allowed');
+            var orderId = link.data('key');
+            var processWithOrderMsg = @T("Admin.Orders.ProcessWithOrder").JsValue;
+			var processSelectedMsg = @T("Admin.Orders.ProcessSelectedOrders").JsValue;
+            var processAllMsg = @T("Admin.Common.AskToProceed").JsValue;
+            var msg = link.data('msg');
+
+            if (orderId) {
+                selectedIds = [orderId];
+            }
+
+			if (!allAllowed && selectedIds.length === 0) {
+				alert2({
+					message: @T("Admin.Orders.NoOrdersSelected").JsValue,
+					icon: { type: 'warning' }
+				});
+				return;
+            }
+
+            if (!msg) {
+                if (selectedIds.length === 0) {
+                    msg = processAllMsg;
+                }
+                else if (selectedIds.length === 1) {
+                    msg = processWithOrderMsg.replace('{0}', selectedIds[0]);
+                }
+                else {
+                    msg = processSelectedMsg.replace('{0}', selectedIds.length);
+                }
+            }
+
+            confirm2({
+                title: link.find('.order-process-title').text(),
+                message: msg,
+                icon: { type: 'question' },
+                callback: function (accepted) {
+                    if (!accepted)
+                        return;
+
+                    var form = '<form class="order-processing-form" action="' + link.data('url') + '" method="post">';
+                    form += '<input type="hidden" name="SelectedKeys" value="' + selectedIds.join(',') + '" />';
+                    form += '<input type="hidden" name="__RequestVerificationToken" value="' + getAntiforgeryToken() + '" />';
+                    form += '</form>';
+
+                    $('body').append(form);
+                    $('form.order-processing-form').last().submit();
+                }
+            });
+
+            return false;
+        });
+    });
+</script>

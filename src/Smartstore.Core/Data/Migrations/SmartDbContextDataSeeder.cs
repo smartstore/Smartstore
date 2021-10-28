@@ -270,6 +270,8 @@ namespace Smartstore.Core.Data.Migrations
                 "The product is not downloadable.",
                 "Das Produkt kann nicht heruntergeladen werden.");
 
+            builder.AddOrUpdate("Admin.Orders.ProcessWithOrder", "Continue with order {0}?", "Mit Auftrag {0} fortfahren?");
+
             #endregion
 
             #region Packaging

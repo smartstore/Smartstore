@@ -133,7 +133,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Create(int orderId)
         {
             var order = await _db.Orders
-                .IncludeCustomer()
+                .IncludeCustomer(true)
                 .IncludeOrderItems()
                 .IncludeShipments()
                 .FindByIdAsync(orderId, false);
@@ -178,7 +178,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Create(ShipmentModel model, IFormCollection form, bool continueEditing)
         {
             var order = await _db.Orders
-                .IncludeCustomer()
+                .IncludeCustomer(true)
                 .IncludeOrderItems()
                 .IncludeShipments()
                 .FindByIdAsync(model.OrderId);
@@ -347,33 +347,31 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToReferrer();
             }
 
-            IList<Shipment> shipments;
+            var query = ShipmentQueryForEdit.AsNoTracking();
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, forceNoTracking: true))
+            var expectedShipments = all
+                ? await query.CountAsync()
+                : selection.SelectedKeys.Length;
+
+            if (expectedShipments > 500)
             {
-                IQueryable<Shipment> query = ShipmentQueryForEdit;
-
-                if (!all)
-                {
-                    var ids = selection.GetEntityIds().ToArray();
-
-                    query = query.Where(x => ids.Contains(x.Id));
-                }
-
-                shipments = await query
-                    .OrderByDescending(x => x.CreatedOnUtc)
-                    .ToListAsync();
+                NotifyWarning(T("Admin.Common.ExportToPdf.TooManyItems"));
+                return RedirectToReferrer();
             }
+
+            if (!all)
+            {
+                var ids = selection.GetEntityIds();
+                query = query.Where(x => ids.Contains(x.Id));
+            }
+
+            var shipments = await query
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .ToListAsync();
 
             if (shipments.Count == 0)
             {
                 NotifyInfo(T("Admin.Common.ExportNoData"));
-                return RedirectToReferrer();
-            }
-
-            if (shipments.Count > 500)
-            {
-                NotifyWarning(T("Admin.Common.ExportToPdf.TooManyItems"));
                 return RedirectToReferrer();
             }
 

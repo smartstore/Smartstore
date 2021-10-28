@@ -327,7 +327,7 @@ namespace Smartstore.Admin.Controllers
         {
             var ids = selection.GetEntityIds().ToArray();
             var orders = await _db.Orders
-                .IncludeCustomer()
+                .IncludeCustomer(true)
                 .IncludeOrderItems()
                 .IncludeShipments()
                 .IncludeGiftCardHistory()
@@ -1458,65 +1458,52 @@ namespace Smartstore.Admin.Controllers
                     !p.IsSystemProduct
                 select oi;
 
-            var reportLineQuery = orderItemQuery
+            //var watch = Stopwatch.StartNew();
+
+            // TODO: (mg) (core) bestsellers list is slow due to GroupBy.
+            // The linq query has not changed but is translated by Core into completely different SQL.
+            // It's a bit tricky. Re-working the query can lead to other performance issues but there should be a solution for that.
+            var reportLines = await orderItemQuery
                 .SelectAsBestsellersReportLine(sorting)
-                .ToPagedList(command);
-
-            //reportLineQuery.SourceQuery.ToQueryString().Dump();
-            var watch = Stopwatch.StartNew();
-
-            var reportLines = await reportLineQuery
+                .ToPagedList(command)
                 .LoadAsync();
 
-            watch.Stop();
-            $"1. bestsellers {watch.ElapsedMilliseconds}ms, {reportLines.TotalCount} products. {reportLines[0].ProductId}, {reportLines[0].TotalAmount}, {reportLines[0].TotalQuantity}".Dump();
+            //watch.Stop();
+            //$"Bestsellers list {watch.ElapsedMilliseconds}ms, {reportLines.TotalCount} products.".Dump();
 
-            #region Test perf
+            //var orderQuery =
+            //    from o in _db.Orders
+            //    where
+            //        (!startDate.HasValue || startDate.Value <= o.CreatedOnUtc) &&
+            //        (!endDate.HasValue || endDate.Value >= o.CreatedOnUtc) &&
+            //        (model.OrderStatusId == 0 || model.OrderStatusId == o.OrderStatusId) &&
+            //        (model.PaymentStatusId == 0 || model.PaymentStatusId == o.PaymentStatusId) &&
+            //        (model.ShippingStatusId == 0 || model.ShippingStatusId == o.ShippingStatusId) &&
+            //        (model.BillingCountryId == 0 || model.BillingCountryId == o.BillingAddress.CountryId)
+            //    select o;                
 
-            var orderQuery =
-                from o in _db.Orders
-                where
-                    (!startDate.HasValue || startDate.Value <= o.CreatedOnUtc) &&
-                    (!endDate.HasValue || endDate.Value >= o.CreatedOnUtc) &&
-                    (model.OrderStatusId == 0 || model.OrderStatusId == o.OrderStatusId) &&
-                    (model.PaymentStatusId == 0 || model.PaymentStatusId == o.PaymentStatusId) &&
-                    (model.ShippingStatusId == 0 || model.ShippingStatusId == o.ShippingStatusId) &&
-                    (model.BillingCountryId == 0 || model.BillingCountryId == o.BillingAddress.CountryId)
-                select o;                
+            //var query =
+            //    from p in _db.Products
+            //    where !p.IsSystemProduct
+            //    select new
+            //    {
+            //        ProductId = p.Id,
+            //        TotalAmount =
+            //            (from oi in _db.OrderItems
+            //            join o in orderQuery on oi.OrderId equals o.Id
+            //            where oi.ProductId == p.Id
+            //            select oi.PriceExclTax).Sum(),
+            //        TotalQuantity =
+            //            (from oi in _db.OrderItems
+            //             join o in orderQuery on oi.OrderId equals o.Id
+            //             where oi.ProductId == p.Id
+            //             select oi.Quantity).Sum()
+            //    };
 
-            var query =
-                from p in _db.Products
-                where !p.IsSystemProduct
-                select new
-                {
-                    ProductId = p.Id,
-                    TotalAmount =
-                        (from oi in _db.OrderItems
-                        join o in orderQuery on oi.OrderId equals o.Id
-                        where oi.ProductId == p.Id
-                        select oi.PriceExclTax)
-                        .Sum(x => x),
-                    TotalQuantity =
-                        (from oi in _db.OrderItems
-                         join o in orderQuery on oi.OrderId equals o.Id
-                         where oi.ProductId == p.Id
-                         select oi.Quantity)
-                        .Sum(x => x),
-                };
-                
-            query.OrderByDescending(x => x.TotalAmount).ToQueryString().Dump();
-
-            var pagedQuery = query
-                .OrderByDescending(x => x.TotalAmount)
-                .ToPagedList(command);
-            watch.Restart();
-            var testLines = await pagedQuery.LoadAsync();
-            watch.Stop();
-            $"2. bestsellers {watch.ElapsedMilliseconds}ms, {testLines.TotalCount} products. {testLines[0].ProductId}, {testLines[0].TotalAmount}, {testLines[0].TotalQuantity}".Dump();
-
-            
-
-            #endregion
+            //var reportLines = await query
+            //    .OrderByDescending(x => x.TotalAmount)
+            //    .ToPagedList(command)
+            //    .LoadAsync();
 
 
             var rows = await reportLines.MapAsync(Services, true);
@@ -1583,7 +1570,7 @@ namespace Smartstore.Admin.Controllers
         private async Task<Order> GetOrderWithIncludes(int id, bool tracked = true)
         {
             var order = await _db.Orders
-                .IncludeCustomer()
+                .IncludeCustomer(true)
                 .IncludeOrderItems()
                 .IncludeShipments()
                 .IncludeGiftCardHistory()
@@ -1599,8 +1586,8 @@ namespace Smartstore.Admin.Controllers
 
             model.OrderNumber = order.GetOrderNumber();
             model.StoreName = Services.StoreContext.GetStoreById(order.StoreId)?.Name ?? StringExtensions.NotAvailable;
-            model.CustomerName = order.BillingAddress.GetFullName();
-            model.CustomerEmail = order.BillingAddress.Email;
+            model.CustomerName = order.BillingAddress.GetFullName().NaIfEmpty();
+            model.CustomerEmail = order.BillingAddress?.Email;
             model.OrderTotalString = Format(order.OrderTotal);
             model.OrderStatusString = await Services.Localization.GetLocalizedEnumAsync(order.OrderStatus);
             model.PaymentStatusString = await Services.Localization.GetLocalizedEnumAsync(order.PaymentStatus);
@@ -1609,6 +1596,7 @@ namespace Smartstore.Admin.Controllers
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
             model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(order.UpdatedOnUtc, DateTimeKind.Utc);
             model.EditUrl = Url.Action("Edit", "Order", new { id = order.Id });
+            model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = order.CustomerId });
         }
 
         private async Task PrepareOrderModel(OrderModel model, Order order)
@@ -1802,11 +1790,10 @@ namespace Smartstore.Admin.Controllers
             model.AutoUpdateOrderItem = new AutoUpdateOrderItemModel
             {
                 Caption = T("Admin.Orders.EditOrderDetails"),
-                ShowUpdateTotals = (order.OrderStatusId <= (int)OrderStatus.Pending),
+                ShowUpdateTotals = order.OrderStatusId <= (int)OrderStatus.Pending,
+                UpdateTotals = order.OrderStatusId <= (int)OrderStatus.Pending,
                 // UpdateRewardPoints only visible for unpending orders (see RewardPointsSettingsValidator).
                 ShowUpdateRewardPoints = order.OrderStatusId > (int)OrderStatus.Pending && order.RewardPointsWereAdded,
-                // TODO: (mg) (core) Throws ('cause AutoUpdateOrderItem is null here)
-                //UpdateTotals = model.AutoUpdateOrderItem.ShowUpdateTotals,
                 UpdateRewardPoints = order.RewardPointsWereAdded
             };
 

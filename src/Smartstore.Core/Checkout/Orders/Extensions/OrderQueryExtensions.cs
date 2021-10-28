@@ -59,14 +59,19 @@ namespace Smartstore
         /// <summary>
         /// Includes the customer graph for eager loading.
         /// </summary>
-        public static IIncludableQueryable<Order, CustomerRole> IncludeCustomer(this IQueryable<Order> query)
+        public static IIncludableQueryable<Order, CustomerRole> IncludeCustomer(this IQueryable<Order> query,
+            bool includeRewardPoints = false)
         {
             Guard.NotNull(query, nameof(query));
 
+            if (includeRewardPoints)
+            {
+                query = query
+                    .Include(x => x.RedeemedRewardPointsEntry)
+                    .Include(x => x.Customer.RewardPointsHistory);
+            }
+
             return query
-                .Include(x => x.RedeemedRewardPointsEntry)
-                .Include(x => x.Customer)
-                .ThenInclude(x => x.RewardPointsHistory)
                 .Include(x => x.Customer)
                 .ThenInclude(x => x.CustomerRoleMappings)
                 .ThenInclude(x => x.CustomerRole);

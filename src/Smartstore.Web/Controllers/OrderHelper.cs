@@ -312,6 +312,8 @@ namespace Smartstore.Web.Controllers
                 model.ShippingMethod = order.ShippingMethod;
 
                 // Shipments (only already shipped).
+                await _db.LoadCollectionAsync(order, x => x.Shipments);
+
                 var shipments = order.Shipments.Where(x => x.ShippedDateUtc.HasValue).OrderBy(x => x.CreatedOnUtc).ToList();
                 foreach (var shipment in shipments)
                 {
@@ -476,6 +478,8 @@ namespace Smartstore.Web.Controllers
             }
 
             // Gift cards.
+            await _db.LoadCollectionAsync(order, x => x.GiftCardUsageHistory, false, q => q.Include(x => x.GiftCard));
+
             foreach (var gcuh in order.GiftCardUsageHistory)
             {
                 var remainingAmountBase = _giftCardService.GetRemainingAmount(gcuh.GiftCard);
@@ -492,7 +496,9 @@ namespace Smartstore.Web.Controllers
                 model.GiftCards.Add(gcModel);
             }
 
-            // Reward points         .  
+            // Reward points.
+            await _db.LoadReferenceAsync(order, x => x.RedeemedRewardPointsEntry);
+
             if (order.RedeemedRewardPointsEntry != null)
             {
                 var usedAmount = _currencyService.ConvertToExchangeRate(order.RedeemedRewardPointsEntry.UsedAmount, order.CurrencyRate, customerCurrency);

@@ -18,89 +18,21 @@
         <div class="options d-flex">
             <zone name="admin_button_toolbar_before" />
 
-            <div class="input-group d-inline-flex mr-3" style="width: 400px">
-                @* TODO: (mg) (core) Don't attempt to search if textbox is empty' *@
+            <div class="input-group d-inline-flex" style="width: 400px">
                 <input asp-for="GoDirectlyToNumber" class="form-control" placeholder="@T("Admin.Orders.List.GoDirectlyToNumber")" />
                 <div class="input-group-append">
-                    <button type="submit" class="btn btn-secondary" id="go-to-order-by-number" name="go-to-order-by-number" value="go-to-order-by-number"
+                    <button type="submit" class="btn btn-secondary" 
+                            id="go-to-order-by-number" 
+                            name="go-to-order-by-number" 
+                            value="go-to-order-by-number"
+                            disabled="disabled"
                             title="@T("Admin.Orders.List.GoDirectlyToNumber.Hint")">
                         <i class="fa fa-search"></i>
                     </button>
                 </div>
             </div>
 
-            @* TODO: (mg) (core) This dropdown belongs to the datagrid toolbar *@
-            <div class="dropdown dropdown-menu-right mx-1">
-                <a class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" href="#">
-                    @T("Admin.Common.Export.PDF")
-                </a>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <a href="javascript:void(0)" class="dropdown-item process-orders" data-url="@Url.Action("ExportPdf")">
-                        <i class="far fa-fw fa-file-pdf"></i>
-                        <span class="order-process-title">@T("Admin.Common.ExportToPdf.Selected")</span>
-                    </a>
-                    <a href="javascript:void(0)" class="dropdown-item process-orders all-allowed" data-url="@Url.Action("ExportPdf")" data-msg="@T("Admin.Common.AskToProceed")">
-                        <i class="far fa-fw fa-file-pdf"></i>
-                        <span class="order-process-title">@T("Admin.Common.ExportToPdf.All")</span>
-                    </a>
-                </div>
-            </div>
-
             <zone name="admin_button_toolbar_after" />
-
-            @* TODO: (mg) (core) This dropdown belongs to the datagrid toolbar (it is valid only with selection). Also put this stuff to "row-actions" dropdown. I made it for exactly these use cases. *@
-            <div class="dropdown dropdown-menu-right">
-                <button class="btn btn-secondary dropdown-toggle no-chevron" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-fw fa-ellipsis-h"></i>
-                </button>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <div class="dropdown-header h6 text-uppercase">
-                        @T("Admin.Orders.Fields.OrderStatus")
-                    </div>
-                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "complete" })">
-                        <i class="fa fa-fw fa-check"></i>
-                        <span class="order-process-title">@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Complete")</span>
-                    </a>
-                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "cancel" })">
-                        <i class="fa fa-fw fa-times"></i>
-                        <span class="order-process-title">@T("Admin.Orders.Fields.OrderStatus.Cancel")</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <div class="dropdown-header h6 text-uppercase">
-                        @T("Admin.Orders.Fields.PaymentStatus")
-                    </div>
-                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "markpaid" })"
-                       title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")">
-                        <i class="fa fa-fw"></i>
-                        <span class="order-process-title">@T("Admin.Orders.Fields.MarkAsPaid")</span>
-                    </a>
-                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "capture" })"
-                       title="@T("Admin.Orders.Fields.Capture.Hint")">
-                        <i class="fas fa-fw fa-euro-sign"></i>
-                        <span class="order-process-title">@T("Admin.Orders.Fields.Capture")</span>
-                    </a>
-                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "refundoffline" })"
-                       title="@T("Admin.Orders.Fields.RefundOffline.Hint")">
-                        <i class="fa fa-fw"></i>
-                        <span class="order-process-title">@T("Admin.Orders.Fields.RefundOffline")</span>
-                    </a>
-                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "refund" })"
-                       title="@T("Admin.Orders.Fields.Refund.Hint")">
-                        <i class="fas fa-fw fa-undo-alt"></i>
-                        <span class="order-process-title">@T("Admin.Orders.Fields.Refund")</span>
-                    </a>
-                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "voidoffline" })"
-                       title="@T("Admin.Orders.Fields.VoidOffline.Hint")">
-                        <i class="fa fa-fw"></i>
-                        <span class="order-process-title">@T("Admin.Orders.Fields.VoidOffline")</span>
-                    </a>
-                    <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "void" })"
-                       title="@T("Admin.Orders.Fields.Void.Hint")">
-                        <i class="fa fa-fw fa-times"></i>
-                        <span class="order-process-title">@T("Admin.Orders.Fields.Void")</span>
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 </form>
@@ -108,47 +40,10 @@
 <partial name="Grids/_Grid.Orders" model="null" view-data="gridViewData" />
 
 <script sm-target-zone="scripts" data-origin="orders-list">
-	$(function () {
-        // Order processing commands (order and payment status, PDF export...).
-        $('.process-orders').on('click', function (e) {
-            e.preventDefault();
-
-            const grid = $('#orders-grid').parent().data('datagrid');
-            var selectedIds = grid.selectedRowKeys;
-            var link = $(this);
-			var allAllowed = link.hasClass('all-allowed');
-			var processSelectedMsg = @T("Admin.Orders.ProcessSelectedOrders").JsValue;
-            var processAllMsg = @T("Admin.Common.AskToProceed").JsValue;
-
-			if (!allAllowed && selectedIds.length === 0) {
-				alert2({
-					message: @T("Admin.Orders.NoOrdersSelected").JsValue,
-					icon: { type: 'warning' }
-				});
-				return;
-			}
-
-            var msg = link.data('msg') || (selectedIds.length === 0 ? processAllMsg : processSelectedMsg.replace('{0}', selectedIds.length));
-
-            confirm2({
-                title: link.find('.order-process-title').text(),
-                message: msg,
-                icon: { type: 'question' },
-                callback: function (accepted) {
-                    if (!accepted)
-                        return;
-
-                    var form = '<form class="order-processing-form" action="' + link.data('url') + '" method="post">';
-                    form += '<input type="hidden" name="selectedIds" value="' + selectedIds.join(',') + '" />';
-                    form += '<input type="hidden" name="__RequestVerificationToken" value="' + getAntiforgeryToken() + '" />';
-                    form += '</form>';
-
-                    $('body').append(form);
-                    $('form.order-processing-form').last().submit();
-                }
-            });
-
-            return false;
+    $(function () {
+        $('#@Html.IdFor(x => x.GoDirectlyToNumber)').on('input change', function () {
+            console.log($(this).length > 0);
+            $('#go-to-order-by-number').prop('disabled', !$(this).val().length);
         });
     });
 </script>

@@ -109,28 +109,29 @@ namespace Smartstore.Web.Controllers
             IList<Order> orders = null;
             var totalCount = 0;
 
+            var orderQuery = _db.Orders
+                .IncludeBillingAddress()
+                .IncludeShippingAddress()
+                .AsNoTracking();
+
             if (ids != null)
             {
-                orders = await _db.Orders
-                    .AsNoTracking()
+                orders = await orderQuery
                     .Where(x => ids.ToIntArray().Contains(x.Id))
                     .ToListAsync();
 
                 totalCount = orders.Count;
             }
             else
-            {
-                var pagedOrders = _db.Orders
-                    .AsNoTracking()
+            {                   
+                totalCount = await orderQuery
                     .ApplyStandardFilter()
-                    .ToPagedList(0, 1);
-                    
-                totalCount = await pagedOrders.GetTotalCountAsync();
+                    .ToPagedList(0, 1)
+                    .GetTotalCountAsync();
 
                 if (totalCount > 0 && totalCount <= maxOrders)
                 {
-                    orders = await _db.Orders
-                        .AsNoTracking()
+                    orders = await orderQuery
                         .ApplyStandardFilter()
                         .ToPagedList(0, int.MaxValue)
                         .LoadAsync();
