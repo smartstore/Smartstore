@@ -154,7 +154,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Cms.MessageTemplate.Read)]
@@ -259,7 +259,7 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, messageTemplate, form));
 
                 NotifySuccess(T("Admin.ContentManagement.MessageTemplates.Updated"));
-                return continueEditing ? RedirectToAction("Edit", messageTemplate.Id) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), messageTemplate.Id) : RedirectToAction(nameof(List));
             }
 
             await PrepareMessageTemplateModelAsync(messageTemplate);
@@ -283,7 +283,7 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
             
             NotifySuccess(_localizationService.GetResource("Admin.ContentManagement.MessageTemplates.Deleted"));
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]
@@ -457,7 +457,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", template.Id);
+            return RedirectToAction(nameof(Edit), template.Id);
         }
 
         [HttpPost, ActionName("Edit")]
@@ -475,12 +475,12 @@ namespace Smartstore.Admin.Controllers
             {
                 var newTemplate = await _messageTemplateService.CopyTemplateAsync(template);
                 NotifySuccess(T("Admin.ContentManagement.MessageTemplates.SuccessfullyCopied"));
-                return RedirectToAction("Edit", new { id = newTemplate.Id });
+                return RedirectToAction(nameof(Edit), new { id = newTemplate.Id });
             }
             catch (Exception exc)
             {
                 NotifyError(exc.Message);
-                return RedirectToAction("Edit", new { id = model.Id });
+                return RedirectToAction(nameof(Edit), new { id = model.Id });
             }
         }
 
@@ -492,7 +492,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess("All file based message templates imported successfully.");
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         #endregion

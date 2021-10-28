@@ -92,7 +92,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Country.Read)]
@@ -153,7 +153,7 @@ namespace Smartstore.Admin.Controllers
             var country = await _db.Countries.FindByIdAsync(id);
             if (country == null)
             {
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             // Don't delete associated countries.
@@ -239,7 +239,7 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, country, form));
 
                 NotifySuccess(T("Admin.Configuration.Countries.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = country.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = country.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareCountryModelAsync(model, null);
@@ -294,7 +294,7 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, country, form));
 
                 NotifySuccess(T("Admin.Configuration.Countries.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = country.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = country.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareCountryModelAsync(model, country);

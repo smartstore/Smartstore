@@ -82,7 +82,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Catalog.Variant.Read)]
@@ -194,8 +194,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Attributes.ProductAttributes.Added"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", new { id = attribute.Id })
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), new { id = attribute.Id })
+                    : RedirectToAction(nameof(List));
             }
 
             return View(model);
@@ -246,8 +246,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Attributes.ProductAttributes.Updated"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", attribute.Id)
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), attribute.Id)
+                    : RedirectToAction(nameof(List));
             }
 
             return View(model);
@@ -269,7 +269,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteProductAttribute, T("ActivityLog.DeleteProductAttribute"), attribute.Name);
             NotifySuccess(T("Admin.Catalog.Attributes.ProductAttributes.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         #region Product attribute options sets

@@ -107,7 +107,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Customer.Role.Read)]
@@ -166,8 +166,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Customers.CustomerRoles.Added"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", new { id = role.Id }) 
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), new { id = role.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareRoleModel(model, null);
@@ -254,8 +254,8 @@ namespace Smartstore.Admin.Controllers
                     NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
 
                     return continueEditing
-                        ? RedirectToAction("Edit", new { id = role.Id })
-                        : RedirectToAction("List");
+                        ? RedirectToAction(nameof(Edit), new { id = role.Id })
+                        : RedirectToAction(nameof(List));
                 }
                 catch (Exception ex)
                 {
@@ -285,12 +285,12 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), role.Name);
                 NotifySuccess(T("Admin.Customers.CustomerRoles.Deleted"));
 
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
             catch (Exception ex)
             {
                 NotifyError(ex.Message);
-                return RedirectToAction("Edit", new { id = role.Id });
+                return RedirectToAction(nameof(Edit), new { id = role.Id });
             }
         }
 
@@ -365,7 +365,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(T("Admin.System.ScheduleTasks.TaskNotFound", nameof(TargetGroupEvaluatorTask)));
             }
 
-            return RedirectToAction("Edit", new { id = role.Id });
+            return RedirectToAction(nameof(Edit), new { id = role.Id });
         }
 
         private async Task PrepareRoleModel(CustomerRoleModel model, CustomerRole role)

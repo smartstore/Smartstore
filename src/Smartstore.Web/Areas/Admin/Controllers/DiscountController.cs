@@ -67,7 +67,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Promotion.Discount.Read)]
@@ -169,7 +169,7 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Promotions.Discounts.Added"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", new { id = discount.Id })
+                    ? RedirectToAction(nameof(Edit), new { id = discount.Id })
                     : RedirectToAction("Index");
             }
 
@@ -230,7 +230,7 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Promotions.Discounts.Updated"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", new { id = discount.Id })
+                    ? RedirectToAction(nameof(Edit), new { id = discount.Id })
                     : RedirectToAction("Index");
             }
 
@@ -254,7 +254,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteDiscount, T("ActivityLog.DeleteDiscount"), discount.Name);
             NotifySuccess(T("Admin.Promotions.Discounts.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         #region Discount usage history

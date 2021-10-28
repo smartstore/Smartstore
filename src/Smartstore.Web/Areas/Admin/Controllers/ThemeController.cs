@@ -51,7 +51,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Theme.Read)]
@@ -148,7 +148,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Configuration.Updated"));
 
-            return RedirectToAction("List", new { storeId = model.StoreId });
+            return RedirectToAction(nameof(List), new { storeId = model.StoreId });
         }
 
         [Permission(Permissions.Configuration.Theme.Read)]
@@ -156,7 +156,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!_themeRegistry.ContainsTheme(theme))
             {
-                return RedirectToAction("List", new { storeId });
+                return RedirectToAction(nameof(List), new { storeId });
             }
 
             var model = new ConfigureThemeModel
@@ -176,7 +176,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!_themeRegistry.ContainsTheme(theme))
             {
-                return RedirectToAction("List", new { storeId });
+                return RedirectToAction(nameof(List), new { storeId });
             }
 
             try
@@ -193,7 +193,7 @@ namespace Smartstore.Admin.Controllers
 
                 return continueEditing
                     ? RedirectToAction("Configure", new { theme, storeId })
-                    : RedirectToAction("List", new { storeId });
+                    : RedirectToAction(nameof(List), new { storeId });
             }
             catch (ThemeValidationException ex)
             {
@@ -239,7 +239,7 @@ namespace Smartstore.Admin.Controllers
         public IActionResult ReloadThemes(int? storeId)
         {
             _themeRegistry.ReloadThemes();
-            return RedirectToAction("List", new { storeId });
+            return RedirectToAction(nameof(List), new { storeId });
         }
 
         [HttpPost, FormValueRequired("reset-vars"), ActionName("Configure")]
@@ -248,7 +248,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!_themeRegistry.ContainsTheme(theme))
             {
-                return RedirectToAction("List", new { storeId });
+                return RedirectToAction(nameof(List), new { storeId });
             }
 
             await _themeVarService.DeleteThemeVariablesAsync(theme, storeId);
@@ -265,7 +265,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!_themeRegistry.ContainsTheme(theme))
             {
-                return RedirectToAction("List", new { storeId });
+                return RedirectToAction(nameof(List), new { storeId });
             }
 
             try
@@ -299,7 +299,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!_themeRegistry.ContainsTheme(theme))
             {
-                return RedirectToAction("List", new { storeId });
+                return RedirectToAction(nameof(List), new { storeId });
             }
 
             try

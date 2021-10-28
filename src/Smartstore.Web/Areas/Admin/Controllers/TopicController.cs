@@ -59,7 +59,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Cms.Topic.Read)]
@@ -177,7 +177,7 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
 
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = topic.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = topic.Id }) : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -190,7 +190,7 @@ namespace Smartstore.Admin.Controllers
             var topic = await _db.Topics.FindByIdAsync(id, false);
             if (topic == null)
             {
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             var model = await MapperFactory.MapAsync<Topic, TopicModel>(topic);
@@ -254,7 +254,7 @@ namespace Smartstore.Admin.Controllers
             var topic = await _db.Topics.FindByIdAsync(model.Id);
             if (topic == null)
             {
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             if (!model.IsPasswordProtected)
@@ -287,7 +287,7 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
 
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = topic.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = topic.Id }) : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.

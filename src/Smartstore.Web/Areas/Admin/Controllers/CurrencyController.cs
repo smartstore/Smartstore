@@ -160,7 +160,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Currency.Read)]
@@ -198,7 +198,7 @@ namespace Smartstore.Admin.Controllers
             await _services.Settings.ApplySettingAsync(_currencySettings, x => x.AutoUpdateEnabled);
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("List", "Currency");
+            return RedirectToAction(nameof(List), "Currency");
         }
 
         [HttpPost]
@@ -368,7 +368,7 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Configuration.Currencies.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = currency.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = currency.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareCurrencyModelAsync(model, null, true);
@@ -436,7 +436,7 @@ namespace Smartstore.Admin.Controllers
                     await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Configuration.Currencies.Updated"));
-                    return continueEditing ? RedirectToAction("Edit", new { id = currency.Id }) : RedirectToAction("List");
+                    return continueEditing ? RedirectToAction(nameof(Edit), new { id = currency.Id }) : RedirectToAction(nameof(List));
                 }
             }
 

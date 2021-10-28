@@ -45,7 +45,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Import.Read)]
@@ -115,7 +115,7 @@ namespace Smartstore.Admin.Controllers
                             await root.CopyFileAsync(importFile.SubPath, root.PathCombine(dir.SubPath, importFile.Name), true);
                             await root.TryDeleteFileAsync(importFile.SubPath);
 
-                            return RedirectToAction("Edit", new { id = profile.Id });
+                            return RedirectToAction(nameof(Edit), new { id = profile.Id });
                         }
                     }
                     else
@@ -133,7 +133,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Import.Read)]
@@ -284,8 +284,8 @@ namespace Smartstore.Admin.Controllers
             }
 
             return continueEditing
-                ? RedirectToAction("Edit", new { id = profile.Id })
-                : RedirectToAction("List");
+                ? RedirectToAction(nameof(Edit), new { id = profile.Id })
+                : RedirectToAction(nameof(List));
         }
 
         [HttpPost]
@@ -303,7 +303,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
 
-            return RedirectToAction("Edit", new { id = profile.Id });
+            return RedirectToAction(nameof(Edit), new { id = profile.Id });
         }
 
         [HttpPost]
@@ -322,14 +322,14 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
 
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
             catch (Exception ex)
             {
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id = profile.Id });
+            return RedirectToAction(nameof(Edit), new { id = profile.Id });
         }
 
         [HttpPost]
@@ -347,7 +347,7 @@ namespace Smartstore.Admin.Controllers
             
             await dir.FileSystem.TryDeleteFileAsync(subpath);
 
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [Permission(Permissions.Configuration.Import.Read)]
@@ -374,7 +374,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpGet]
@@ -553,7 +553,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress.DataImportTask"));
 
-            return RedirectToReferrer(null, () => RedirectToAction("List"));
+            return RedirectToReferrer(null, () => RedirectToAction(nameof(List)));
         }
 
         #region Utilities

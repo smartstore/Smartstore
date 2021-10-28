@@ -51,7 +51,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Promotion.Campaign.Read)]
@@ -114,7 +114,7 @@ namespace Smartstore.Admin.Controllers
                 await SaveStoreMappingsAsync(campaign, model.SelectedStoreIds);
 
                 NotifySuccess(T("Admin.Promotions.Campaigns.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = campaign.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = campaign.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareCampaignModelAsync(model, null);
@@ -157,7 +157,7 @@ namespace Smartstore.Admin.Controllers
                 await SaveStoreMappingsAsync(campaign, model.SelectedStoreIds);
 
                 NotifySuccess(T("Admin.Promotions.Campaigns.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = campaign.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = campaign.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareCampaignModelAsync(model, campaign);
@@ -186,7 +186,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex, false);
             }
 
-            return RedirectToAction("Edit", new { id = model.Id });
+            return RedirectToAction(nameof(Edit), new { id = model.Id });
         }
 
         [HttpPost]
@@ -203,7 +203,7 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             NotifySuccess(T("Admin.Promotions.Campaigns.Deleted"));
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]

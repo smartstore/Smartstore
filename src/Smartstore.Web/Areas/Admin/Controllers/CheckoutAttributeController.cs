@@ -116,7 +116,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Cart.CheckoutAttribute.Read)]
@@ -205,7 +205,7 @@ namespace Smartstore.Admin.Controllers
                 _activityLogger.LogActivity(KnownActivityLogTypes.AddNewCheckoutAttribute, T("ActivityLog.AddNewCheckoutAttribute"), checkoutAttribute.Name);
 
                 NotifySuccess(T("Admin.Catalog.Attributes.CheckoutAttributes.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = checkoutAttribute.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = checkoutAttribute.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareCheckoutAttributeModelAsync(model, null, true);
@@ -255,7 +255,7 @@ namespace Smartstore.Admin.Controllers
                 _activityLogger.LogActivity(KnownActivityLogTypes.EditCheckoutAttribute, T("ActivityLog.EditCheckoutAttribute"), checkoutAttribute.Name);
 
                 NotifySuccess(T("Admin.Catalog.Attributes.CheckoutAttributes.Updated"));
-                return continueEditing ? RedirectToAction("Edit", checkoutAttribute.Id) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), checkoutAttribute.Id) : RedirectToAction(nameof(List));
             }
 
             await PrepareCheckoutAttributeModelAsync(model, checkoutAttribute, true);
@@ -279,7 +279,7 @@ namespace Smartstore.Admin.Controllers
             _activityLogger.LogActivity(KnownActivityLogTypes.DeleteCheckoutAttribute, T("ActivityLog.DeleteCheckoutAttribute"), checkoutAttribute.Name);
 
             NotifySuccess(T("Admin.Catalog.Attributes.CheckoutAttributes.Deleted"));
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]

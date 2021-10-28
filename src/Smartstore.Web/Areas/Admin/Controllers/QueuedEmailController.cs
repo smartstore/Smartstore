@@ -142,7 +142,7 @@ namespace Smartstore.Admin.Controllers
         {
             var count = await _queuedEmailService.DeleteAllQueuedMailsAsync();
             NotifySuccess(T("Admin.Common.RecordsDeleted", count));
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.System.Message.Read)]

@@ -87,7 +87,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Export.Read)]
@@ -196,13 +196,13 @@ namespace Smartstore.Admin.Controllers
                 {
                     var profile = await _exportProfileService.InsertExportProfileAsync(provider, false, null, model.CloneProfileId ?? 0);
 
-                    return RedirectToAction("Edit", new { id = profile.Id });
+                    return RedirectToAction(nameof(Edit), new { id = profile.Id });
                 }
             }
 
             NotifyError(T("Admin.Common.ProviderNotLoaded", model.ProviderSystemName.NaIfEmpty()));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Export.Read)]
@@ -296,8 +296,8 @@ namespace Smartstore.Admin.Controllers
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
             return continueEditing 
-                ? RedirectToAction("Edit", new { id = profile.Id }) 
-                : RedirectToAction("List");
+                ? RedirectToAction(nameof(Edit), new { id = profile.Id }) 
+                : RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Export.Read)]
@@ -330,14 +330,14 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
 
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
             catch (Exception ex)
             {
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id = profile.Id });
+            return RedirectToAction(nameof(Edit), new { id = profile.Id });
         }
 
         [HttpPost]
@@ -366,7 +366,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress.DataExportTask"));
 
-            return RedirectToReferrer(null, () => RedirectToAction("List"));
+            return RedirectToReferrer(null, () => RedirectToAction(nameof(List)));
         }
 
         [Permission(Permissions.Configuration.Export.Read)]
@@ -393,7 +393,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpGet]
@@ -475,7 +475,7 @@ namespace Smartstore.Admin.Controllers
             {
                 NotifyInfo(T("Admin.DataExchange.Export.EnableProfileForPreview"));
 
-                return RedirectToAction("Edit", new { id = profile.Id });
+                return RedirectToAction(nameof(Edit), new { id = profile.Id });
             }
 
             var dir = await _exportProfileService.GetExportDirectoryAsync(profile);
@@ -721,7 +721,7 @@ namespace Smartstore.Admin.Controllers
 
                 return continueEditing ?
                     RedirectToAction("EditDeployment", new { id = deployment.Id }) :
-                    RedirectToAction("Edit", new { id = profile.Id });
+                    RedirectToAction(nameof(Edit), new { id = profile.Id });
             }
 
             return await CreateDeployment(profile.Id);
@@ -775,7 +775,7 @@ namespace Smartstore.Admin.Controllers
 
                 return continueEditing ?
                     RedirectToAction("EditDeployment", new { id = deployment.Id }) :
-                    RedirectToAction("Edit", new { id = profile.Id });
+                    RedirectToAction(nameof(Edit), new { id = profile.Id });
             }
 
             model = await CreateDeploymentModel(profile, deployment, provider, true);
@@ -804,7 +804,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
 
-            return RedirectToAction("Edit", new { id = profile.Id });
+            return RedirectToAction(nameof(Edit), new { id = profile.Id });
         }
 
         #endregion

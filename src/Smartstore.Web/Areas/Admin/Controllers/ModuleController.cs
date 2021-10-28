@@ -50,7 +50,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Module.Read)]
@@ -102,7 +102,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Module.Read)]
@@ -580,12 +580,12 @@ namespace Smartstore.Admin.Controllers
                             NotifyError(result.ToString());
                         }
 
-                        return RedirectToAction("List");
+                        return RedirectToAction(nameof(List));
                     }
                 }
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]

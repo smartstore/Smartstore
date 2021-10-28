@@ -194,7 +194,7 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Affiliates.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = affiliate.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = affiliate.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareAffiliateModelAsync(model, null, true);
@@ -237,7 +237,7 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Affiliates.Updated"));
-                return continueEditing ? RedirectToAction("Edit", affiliate.Id) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), affiliate.Id) : RedirectToAction(nameof(List));
             }
 
             await PrepareAffiliateModelAsync(model, affiliate, true);
@@ -258,7 +258,7 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             NotifySuccess(T("Admin.Affiliates.Deleted"));
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]

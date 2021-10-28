@@ -142,7 +142,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Catalog.Product.Read)]
@@ -177,7 +177,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteProduct, T("ActivityLog.DeleteProduct"), product.Name);
 
             NotifySuccess(T("Admin.Catalog.Products.Deleted"));
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Catalog.Product.Create)]
@@ -210,7 +210,7 @@ namespace Smartstore.Admin.Controllers
             {
                 var product = new Product();
 
-                _ = await MapModelToProductAsync(model, product, form);
+                await MapModelToProductAsync(model, product, form);
 
                 product.StockQuantity = 10000;
                 product.OrderMinimumQuantity = 1;
@@ -229,7 +229,7 @@ namespace Smartstore.Admin.Controllers
                 _db.Products.Add(product);
                 await _db.SaveChangesAsync();
 
-                await UpdateDataOfExistingProductAsync(product, model, false, false);
+                await UpdateDataOfExistingProductAsync(product, model, false);
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewProduct, T("ActivityLog.AddNewProduct"), product.Name);
 
@@ -244,7 +244,7 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 NotifySuccess(T("Admin.Catalog.Products.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = product.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = product.Id }) : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -264,13 +264,13 @@ namespace Smartstore.Admin.Controllers
             if (product == null)
             {
                 NotifyWarning(T("Products.NotFound", id));
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             if (product.Deleted)
             {
                 NotifyWarning(T("Products.Deleted", id));
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             var model = await MapperFactory.MapAsync<Product, ProductModel>(product);
@@ -303,26 +303,26 @@ namespace Smartstore.Admin.Controllers
             if (product == null)
             {
                 NotifyWarning(T("Products.NotFound", model.Id));
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             if (product.Deleted)
             {
                 NotifyWarning(T("Products.Deleted", model.Id));
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             await UpdateDataOfProductDownloadsAsync(model);
 
             if (ModelState.IsValid)
             {
-                var nameChanged = await MapModelToProductAsync(model, product, form);
-                await UpdateDataOfExistingProductAsync(product, model, true, nameChanged);
+                await MapModelToProductAsync(model, product, form);
+                await UpdateDataOfExistingProductAsync(product, model, true);
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditProduct, T("ActivityLog.EditProduct"), product.Name);
 
                 NotifySuccess(T("Admin.Catalog.Products.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = product.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = product.Id }) : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -469,7 +469,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (product != null)
                 {
-                    return RedirectToAction("Edit", "Product", new { id = product.Id });
+                    return RedirectToAction(nameof(Edit), new { id = product.Id });
                 }
 
                 var combination = await _db.ProductVariantAttributeCombinations
@@ -480,12 +480,12 @@ namespace Smartstore.Admin.Controllers
 
                 if (combination != null)
                 {
-                    return RedirectToAction("Edit", "Product", new { id = combination.ProductId });
+                    return RedirectToAction(nameof(Edit), new { id = combination.ProductId });
                 }
             }
 
             // Not found.
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]
@@ -515,7 +515,7 @@ namespace Smartstore.Admin.Controllers
                 if (newProduct != null)
                 {
                     NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
-                    return RedirectToAction("Edit", new { id = newProduct.Id });
+                    return RedirectToAction(nameof(Edit), new { id = newProduct.Id });
                 }
             }
             catch (Exception ex)
@@ -524,7 +524,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex.ToAllMessages());
             }
 
-            return RedirectToAction("Edit", new { id = copyModel.Id });
+            return RedirectToAction(nameof(Edit), new { id = copyModel.Id });
         }
 
         #endregion
@@ -1878,22 +1878,19 @@ namespace Smartstore.Admin.Controllers
 
         #region Update[...]
 
-        protected async Task<bool> MapModelToProductAsync(ProductModel model, Product product, IFormCollection form)
+        protected async Task MapModelToProductAsync(ProductModel model, Product product, IFormCollection form)
         {
             if (model.LoadedTabs == null || model.LoadedTabs.Length == 0)
             {
                 model.LoadedTabs = new string[] { "Info" };
             }
 
-            // TODO: (mh) (core) API-Design: please describe the purpose of the return value.
-            var nameChanged = false;
-
             foreach (var tab in model.LoadedTabs)
             {
                 switch (tab.ToLowerInvariant())
                 {
                     case "info":
-                        UpdateProductGeneralInfo(product, model, out nameChanged);
+                        UpdateProductGeneralInfo(product, model);
                         break;
                     case "inventory":
                         await UpdateProductInventoryAsync(product, model);
@@ -1920,11 +1917,9 @@ namespace Smartstore.Admin.Controllers
             }
 
             await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, product, form));
-
-            return nameChanged;
         }
 
-        protected void UpdateProductGeneralInfo(Product product, ProductModel model, out bool nameChanged)
+        protected void UpdateProductGeneralInfo(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -1933,9 +1928,6 @@ namespace Smartstore.Admin.Controllers
             p.Visibility = m.Visibility;
             p.Condition = m.Condition;
             p.ProductTemplateId = m.ProductTemplateId;
-
-            nameChanged = !string.Equals(p.Name, m.Name, StringComparison.CurrentCultureIgnoreCase);
-
             p.Name = m.Name;
             p.ShortDescription = m.ShortDescription;
             p.FullDescription = m.FullDescription;
@@ -2138,7 +2130,7 @@ namespace Smartstore.Admin.Controllers
             product.HasPreviewPicture = model.HasPreviewPicture;
         }
 
-        private async Task UpdateDataOfExistingProductAsync(Product product, ProductModel model, bool editMode, bool nameChanged)
+        private async Task UpdateDataOfExistingProductAsync(Product product, ProductModel model, bool editMode)
         {
             var p = product;
             var m = model;

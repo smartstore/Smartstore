@@ -43,7 +43,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.System.ScheduleTask.Read)]
@@ -168,7 +168,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            return RedirectToReferrer(returnUrl, () => RedirectToAction("List"));
+            return RedirectToReferrer(returnUrl, () => RedirectToAction(nameof(List)));
         }
 
         [Permission(Permissions.System.ScheduleTask.Execute)]
@@ -234,14 +234,14 @@ namespace Smartstore.Admin.Controllers
 
             if (continueEditing)
             {
-                return RedirectToAction("Edit", new { id = model.Id, returnUrl });
+                return RedirectToAction(nameof(Edit), new { id = model.Id, returnUrl });
             }
             else if (returnUrl.HasValue())
             {
-                return RedirectToReferrer(returnUrl, () => RedirectToAction("List"));
+                return RedirectToReferrer(returnUrl, () => RedirectToAction(nameof(List)));
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]

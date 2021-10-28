@@ -187,7 +187,7 @@ namespace Smartstore.Admin.Controllers
                     if (x.ShouldHaveValues())
                     {
                         pvaModel.ValueCount = x.ProductVariantAttributeValues != null ? x.ProductVariantAttributeValues.Count : 0;
-                        pvaModel.EditUrl = Url.Action("EditAttributeValues", "Product", new { productVariantAttributeId = x.Id });
+                        pvaModel.EditUrl = Url.Action(nameof(EditAttributeValues), new { productVariantAttributeId = x.Id });
                         pvaModel.EditText = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink", pvaModel.ValueCount);
 
                         if (x.ProductAttribute.ProductAttributeOptionsSets.Any())
@@ -359,7 +359,7 @@ namespace Smartstore.Admin.Controllers
                     model.LinkedProductName = linkedProduct.GetLocalized(p => p.Name);
                     model.LinkedProductTypeName = linkedProduct.GetProductTypeLabel(Services.Localization);
                     model.LinkedProductTypeLabelHint = linkedProduct.ProductTypeLabelHint;
-                    model.LinkedProductEditUrl = Url.Action("Edit", "Product", new { id = linkedProduct.Id });
+                    model.LinkedProductEditUrl = Url.Action(nameof(Edit), new { id = linkedProduct.Id });
 
                     if (model.Quantity > 1)
                     {
@@ -431,7 +431,7 @@ namespace Smartstore.Admin.Controllers
             var pva = await _db.ProductVariantAttributes.FindByIdAsync(model.ProductVariantAttributeId);
             if (pva == null)
             {
-                return RedirectToAction("List", "Product");
+                return RedirectToAction(nameof(List));
             }
 
             if (model.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage && await IsBundleItemAsync(pva.ProductId))
@@ -485,7 +485,7 @@ namespace Smartstore.Admin.Controllers
 
             if (pvav == null)
             {
-                return RedirectToAction("List", "Product");
+                return RedirectToAction(nameof(List));
             }
 
             var linkedProduct = await _db.Products.FindByIdAsync(pvav.LinkedProductId, false);
@@ -515,7 +515,7 @@ namespace Smartstore.Admin.Controllers
                 model.LinkedProductName = linkedProduct.GetLocalized(p => p.Name);
                 model.LinkedProductTypeName = linkedProduct.GetProductTypeLabel(Services.Localization);
                 model.LinkedProductTypeLabelHint = linkedProduct.ProductTypeLabelHint;
-                model.LinkedProductEditUrl = Url.Action("Edit", "Product", new { id = linkedProduct.Id });
+                model.LinkedProductEditUrl = Url.Action(nameof(Edit), new { id = linkedProduct.Id });
 
                 if (model.Quantity > 1)
                 {
@@ -545,7 +545,7 @@ namespace Smartstore.Admin.Controllers
 
             if (pvav == null)
             {
-                return RedirectToAction("List", "Product");
+                return RedirectToAction(nameof(List));
             }
 
             if (model.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage && await IsBundleItemAsync(pvav.ProductVariantAttribute.ProductId))
@@ -793,7 +793,7 @@ namespace Smartstore.Admin.Controllers
 
             if (product == null)
             {
-                return RedirectToAction("List", "Product");
+                return RedirectToAction(nameof(List));
             }
 
             var model = new ProductVariantAttributeCombinationModel();
@@ -866,13 +866,13 @@ namespace Smartstore.Admin.Controllers
             var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(id, false);
             if (combination == null)
             {
-                return RedirectToAction("List", "Product");
+                return RedirectToAction(nameof(List));
             }
 
             var product = await _db.Products.FindByIdAsync(combination.ProductId, false);
             if (product == null)
             {
-                return RedirectToAction("List", "Product");
+                return RedirectToAction(nameof(List));
             }
 
             var model = await MapperFactory.MapAsync<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>(combination);
@@ -894,7 +894,7 @@ namespace Smartstore.Admin.Controllers
                 var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(model.Id);
                 if (combination == null)
                 {
-                    return RedirectToAction("List", "Product");
+                    return RedirectToAction(nameof(List));
                 }
 
                 var attributeXml = combination.RawAttributes;

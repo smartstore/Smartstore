@@ -54,7 +54,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Store.Read)]
@@ -119,7 +119,7 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Configuration.Stores.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = store.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = store.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareStoreModelAsync(model, null);
@@ -132,7 +132,7 @@ namespace Smartstore.Admin.Controllers
             var store = Services.StoreContext.GetStoreById(id);
             if (store == null)
             {
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             var model = await MapperFactory.MapAsync<Store, StoreModel>(store);
@@ -149,7 +149,7 @@ namespace Smartstore.Admin.Controllers
             var store = await _db.Stores.FindByIdAsync(model.Id);
             if (store == null)
             {
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             if (ModelState.IsValid)
@@ -161,7 +161,7 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
                 
                 NotifySuccess(T("Admin.Configuration.Stores.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = store.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = store.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareStoreModelAsync(model, store);
@@ -175,7 +175,7 @@ namespace Smartstore.Admin.Controllers
             var store = await _db.Stores.FindByIdAsync(id);
             if (store == null)
             {
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             try
@@ -194,14 +194,14 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 NotifySuccess(T("Admin.Configuration.Stores.Deleted"));
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
             catch (Exception ex)
             {
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id = store.Id });
+            return RedirectToAction(nameof(Edit), new { id = store.Id });
         }
 
         /// <summary>

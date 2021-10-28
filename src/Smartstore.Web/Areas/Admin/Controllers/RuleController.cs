@@ -110,7 +110,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.System.Rule.Read)]
@@ -176,8 +176,8 @@ namespace Smartstore.Admin.Controllers
             NotifySuccess(T("Admin.Rules.RuleSet.Added"));
 
             return continueEditing
-                ? RedirectToAction("Edit", new { id = ruleSet.Id })
-                : RedirectToAction("List");
+                ? RedirectToAction(nameof(Edit), new { id = ruleSet.Id })
+                : RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.System.Rule.Read)]
@@ -234,8 +234,8 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             return continueEditing
-                ? RedirectToAction("Edit", new { id = ruleSet.Id })
-                : RedirectToAction("List");
+                ? RedirectToAction(nameof(Edit), new { id = ruleSet.Id })
+                : RedirectToAction(nameof(List));
         }
 
         [HttpPost]
@@ -253,7 +253,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Rules.RuleSet.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.System.Rule.Execute)]

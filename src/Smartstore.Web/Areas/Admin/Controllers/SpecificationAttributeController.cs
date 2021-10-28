@@ -72,7 +72,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Catalog.Attribute.Read)]
@@ -186,8 +186,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Attributes.SpecificationAttributes.Added"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", new { id = attribute.Id })
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), new { id = attribute.Id })
+                    : RedirectToAction(nameof(List));
             }
 
             return View(model);
@@ -237,8 +237,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Attributes.SpecificationAttributes.Updated"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", attribute.Id)
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), attribute.Id)
+                    : RedirectToAction(nameof(List));
             }
 
             return View(model);
@@ -260,7 +260,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteSpecAttribute, T("ActivityLog.DeleteSpecAttribute"), attribute.Name);
             NotifySuccess(T("Admin.Catalog.Attributes.SpecificationAttributes.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         #region Specification attribute options

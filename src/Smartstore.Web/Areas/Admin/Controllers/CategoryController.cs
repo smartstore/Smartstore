@@ -143,7 +143,7 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction("Tree");
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Catalog.Category.Read)]
@@ -375,7 +375,7 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Categories.Added"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", new { id = category.Id }) 
+                    ? RedirectToAction(nameof(Edit), new { id = category.Id }) 
                     : RedirectToAction("Index");
             }
 
@@ -455,7 +455,7 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Categories.Updated"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", category.Id)
+                    ? RedirectToAction(nameof(Edit), category.Id)
                     : RedirectToAction("Index");
             }
 
@@ -489,7 +489,7 @@ namespace Smartstore.Admin.Controllers
         {
             await _categoryService.InheritAclIntoChildrenAsync(model.Id, false, true, false);
 
-            return RedirectToAction("Edit", "Category", new { id = model.Id });
+            return RedirectToAction(nameof(Edit), new { id = model.Id });
         }
 
         [HttpPost]
@@ -499,7 +499,7 @@ namespace Smartstore.Admin.Controllers
         {
             await _categoryService.InheritStoresIntoChildrenAsync(model.Id, false, true, false);
 
-            return RedirectToAction("Edit", "Category", new { id = model.Id });
+            return RedirectToAction(nameof(Edit), new { id = model.Id });
         }
 
         #region Product categories
@@ -638,7 +638,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(T("Admin.System.ScheduleTasks.TaskNotFound", nameof(ProductRuleEvaluatorTask)));
             }
 
-            return RedirectToAction("Edit", new { id = category.Id });
+            return RedirectToAction(nameof(Edit), new { id = category.Id });
         }
 
         #endregion

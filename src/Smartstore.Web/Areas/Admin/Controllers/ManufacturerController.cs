@@ -120,7 +120,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Catalog.Manufacturer.Read)]
@@ -211,8 +211,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Manufacturers.Added"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", new { id = manufacturer.Id }) 
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), new { id = manufacturer.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareManufacturerModel(model, null);
@@ -286,8 +286,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Manufacturers.Updated"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", manufacturer.Id) 
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), manufacturer.Id) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareManufacturerModel(model, manufacturer);
@@ -311,7 +311,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteManufacturer, T("ActivityLog.DeleteManufacturer"), manufacturer.Name);
             NotifySuccess(T("Admin.Catalog.Manufacturers.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         #region Product manufacturers
