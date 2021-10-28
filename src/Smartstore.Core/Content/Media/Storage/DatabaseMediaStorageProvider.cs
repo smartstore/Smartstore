@@ -120,30 +120,28 @@ namespace Smartstore.Core.Content.Media.Storage
             if (item == null)
             {
                 media.ApplyBlob(null);
-                if (save)
-                {
-                    await _db.SaveChangesAsync();
-                }
-                return;
             }
-
-            using (item)
+            else
             {
-                if (_db.DataProvider.CanStreamBlob)
+                using (item)
                 {
-                    await SaveFast(media, item);
-                }
-                else
-                {
-                    // BLOB stream unsupported
-                    var buffer = await item.SourceStream.ToByteArrayAsync();
-                    media.ApplyBlob(buffer);
-                    media.Size = buffer.Length;
-                    if (save)
+                    if (_db.DataProvider.CanStreamBlob)
                     {
-                        await _db.SaveChangesAsync();
+                        await SaveFast(media, item);
+                    }
+                    else
+                    {
+                        // BLOB stream unsupported
+                        var buffer = await item.SourceStream.ToByteArrayAsync();
+                        media.ApplyBlob(buffer);
+                        media.Size = buffer.Length;
                     }
                 }
+            }
+
+            if (save)
+            {
+                await _db.SaveChangesAsync();
             }
         }
 

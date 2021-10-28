@@ -89,8 +89,7 @@ namespace Smartstore.Admin.Controllers
                         }
                     }
 
-                    using var stream = uploadedFile.OpenReadStream();
-                    var mediaFile = await _mediaService.SaveFileAsync(filePath, stream, isTransient, duplicateFileHandling);
+                    var mediaFile = await _mediaService.SaveFileAsync(filePath, uploadedFile.OpenReadStream(), isTransient, duplicateFileHandling);
 
                     dynamic o = JObject.FromObject(mediaFile);
                     o.success = true;
