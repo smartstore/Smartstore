@@ -22,7 +22,7 @@
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
 
-            @if (Model.DisplayMessagingDropdown)
+            @if (Display.ZoneHasContent("admin_button_toolbar_messaging_dropdown"))
             {
                 <div class="btn-group">
                     <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">

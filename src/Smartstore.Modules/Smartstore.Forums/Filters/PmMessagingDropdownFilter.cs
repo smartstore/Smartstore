@@ -6,9 +6,9 @@ using Smartstore.Forums.Components;
 namespace Smartstore.Forums.Filters
 {
     /// <summary>
-    /// Backend link on customer edit page to send a PN.
+    /// Backend link on customer edit page to send a PM.
     /// </summary>
-    public class PmMessagingDropdownFilter : IActionFilter
+    public class PmMessagingDropdownFilter : IResultFilter
     {
         private readonly Lazy<IWidgetProvider> _widgetProvider;
         private readonly ForumSettings _forumSettings;
@@ -19,9 +19,9 @@ namespace Smartstore.Forums.Filters
             _forumSettings = forumSettings;
         }
 
-        public void OnActionExecuting(ActionExecutingContext filterContext)
+        public void OnResultExecuting(ResultExecutingContext filterContext)
         {
-            if (_forumSettings.AllowPrivateMessages)
+            if (_forumSettings.AllowPrivateMessages && filterContext.Result.IsHtmlViewResult())
             {
                 if (filterContext?.RouteData?.Values?.TryGetValue("id", out var customerIdObj) ?? false)
                 {
@@ -35,7 +35,7 @@ namespace Smartstore.Forums.Filters
             }
         }
 
-        public void OnActionExecuted(ActionExecutedContext context)
+        public void OnResultExecuted(ResultExecutedContext filterContext)
         {
         }
     }

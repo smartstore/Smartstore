@@ -54,7 +54,6 @@ namespace Smartstore.Admin.Controllers
         private readonly CustomerSettings _customerSettings;
         private readonly ITaxService _taxService;
         private readonly IPriceCalculationService _priceCalculationService;
-        private readonly Lazy<IWidgetProvider> _widgetProvider;
         private readonly Lazy<IEmailAccountService> _emailAccountService;
         private readonly Lazy<IGdprTool> _gdprTool;
         private readonly IShoppingCartService _shoppingCartService;
@@ -74,7 +73,6 @@ namespace Smartstore.Admin.Controllers
             CustomerSettings customerSettings,
             ITaxService taxService,
             IPriceCalculationService priceCalculationService,
-            Lazy<IWidgetProvider> widgetProvider,
             Lazy<IEmailAccountService> emailAccountService,
             Lazy<IGdprTool> gdprTool,
             IShoppingCartService shoppingCartService,
@@ -93,7 +91,6 @@ namespace Smartstore.Admin.Controllers
             _customerSettings = customerSettings;
             _taxService = taxService;
             _priceCalculationService = priceCalculationService;
-            _widgetProvider = widgetProvider;
             _emailAccountService = emailAccountService;
             _gdprTool = gdprTool;
             _shoppingCartService = shoppingCartService;
@@ -285,9 +282,6 @@ namespace Smartstore.Admin.Controllers
                 await address.MapAsync(addressModel, countries: countries);
                 model.Addresses.Add(addressModel);
             }
-
-            // Is there any content for the messaging dropdown.
-            model.DisplayMessagingDropdown = _widgetProvider.Value.HasContent("admin_button_toolbar_messaging_dropdown");
         }
 
         private async Task<(List<CustomerRole> NewCustomerRoles, string ErrMessage)> ValidateCustomerRolesAsync(int[] selectedCustomerRoleIds, List<int> allCustomerRoleIds)

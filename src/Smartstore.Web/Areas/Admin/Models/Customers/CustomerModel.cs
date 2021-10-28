@@ -14,7 +14,6 @@ namespace Smartstore.Admin.Models.Customers
     [LocalizedDisplay("Admin.Customers.Customers.Fields.")]
     public class CustomerModel : TabbableModel
     {
-        public bool DisplayMessagingDropdown { get; set; }
         public bool AllowUsersToChangeUsernames { get; set; }
         public bool UsernamesEnabled { get; set; }
 
