@@ -885,6 +885,7 @@ namespace Smartstore.Core.Checkout.Orders
         private IIncludableQueryable<Shipment, Product> GetShipmentQuery()
         {
             // INFO: also expands Shipment.Order.OrderItems.Order.Shipments.ShipmentItems
+            // TODO: (mg) (core) Monster include!!! Perf? Hmmm?? I don't like this. Sometimes it is more advisable to fetch aggregate data by hitting the database again.
             var query = _db.Shipments
                 .Include(x => x.Order.ShippingAddress)
                 .Include(x => x.Order.RedeemedRewardPointsEntry)
