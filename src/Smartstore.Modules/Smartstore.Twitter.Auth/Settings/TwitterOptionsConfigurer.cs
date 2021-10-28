@@ -1,16 +1,14 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using Autofac;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Twitter;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Twitter.Auth;
-using System.Threading.Tasks;
 
 namespace Smartstore.Twitter.Bootstrapping
 {
-    // TODO: (mh) (core) Adapt from final implementation of Facebook plugin.
     internal sealed class TwitterOptionsConfigurer : IConfigureOptions<AuthenticationOptions>, IConfigureNamedOptions<TwitterOptions>
     {
         private readonly IApplicationContext _appContext;
@@ -44,11 +42,12 @@ namespace Smartstore.Twitter.Bootstrapping
             options.ConsumerKey = settings.ConsumerKey;
             options.ConsumerSecret = settings.ConsumerSecret;
             options.RetrieveUserDetails = true;                 // Important setting to retrieve email in response.
-        
+
             options.Events = new TwitterEvents
             {
                 OnRemoteFailure = context =>
                 {
+                    // INFO: Unlike with the other providers. Wrong client id results in a direct response (401 (Unauthorized)) which won't be handled by this,
                     var errorUrl = context.Request.PathBase.Value + $"/identity/externalerrorcallback?provider=twitter&errorMessage={context.Failure.Message}";
                     context.Response.Redirect(errorUrl);
                     context.HandleResponse();
@@ -60,6 +59,7 @@ namespace Smartstore.Twitter.Bootstrapping
             // TODO: (mh) (core) This must also be called when setting is changing via all settings grid.
         }
 
-        public void Configure(TwitterOptions options) => Debug.Fail("This infrastructure method shouldn't be called.");
+        public void Configure(TwitterOptions options) 
+            => Debug.Fail("This infrastructure method shouldn't be called.");
     }
 }

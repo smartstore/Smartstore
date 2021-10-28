@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.Twitter;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
 using Smartstore.Twitter.Auth.Models;
@@ -11,6 +13,13 @@ namespace Smartstore.Twitter.Auth.Controllers
     [Route("[area]/twitterauth/[action]/{id?}")]
     public class TwitterAuthController : AdminController
     {
+        private readonly IOptionsMonitorCache<TwitterOptions> _optionsCache;
+
+        public TwitterAuthController(IOptionsMonitorCache<TwitterOptions> optionsCache)
+        {
+            _optionsCache = optionsCache;
+        }
+
         [HttpGet, LoadSetting]
         [Permission(Permissions.Configuration.Authentication.Read)]
         public IActionResult Configure(TwitterExternalAuthSettings settings)
@@ -32,6 +41,8 @@ namespace Smartstore.Twitter.Auth.Controllers
             }
 
             MiniMapper.Map(model, settings);
+            // TODO: (mh) (core) This must also be called when settings change via all settings grid.
+            _optionsCache.TryRemove(TwitterDefaults.AuthenticationScheme);
 
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
