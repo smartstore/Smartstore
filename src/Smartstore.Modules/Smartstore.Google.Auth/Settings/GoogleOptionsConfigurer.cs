@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Google.Bootstrapping
 {
-    // TODO: (mh) (core) Adapt from final implementation of Facebook plugin.
     internal sealed class GoogleOptionsConfigurer : IConfigureOptions<AuthenticationOptions>, IConfigureNamedOptions<GoogleOptions>
     {
         private readonly IApplicationContext _appContext;
@@ -22,8 +21,6 @@ namespace Smartstore.Google.Bootstrapping
 
         public void Configure(AuthenticationOptions options)
         {
-            var settings = _appContext.Services.Resolve<GoogleExternalAuthSettings>();
-
             // Register the OpenID Connect client handler in the authentication handlers collection.
             options.AddScheme(GoogleDefaults.AuthenticationScheme, builder =>
             {
@@ -51,14 +48,12 @@ namespace Smartstore.Google.Bootstrapping
                     var errorUrl = context.Request.PathBase.Value + $"/identity/externalerrorcallback?provider=google&errorMessage={context.Failure.Message}";
                     context.Response.Redirect(errorUrl);
                     context.HandleResponse();
-
                     return Task.CompletedTask;
                 }
             };
-
-            // TODO: (mh) (core) This must also be called when setting is changing via all settings grid.
         }
 
-        public void Configure(GoogleOptions options) => Debug.Fail("This infrastructure method shouldn't be called.");
+        public void Configure(GoogleOptions options) 
+            => Debug.Fail("This infrastructure method shouldn't be called.");
     }
 }
