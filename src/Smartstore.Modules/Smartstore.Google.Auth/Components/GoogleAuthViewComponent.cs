@@ -10,9 +10,9 @@ namespace Smartstore.Google.Auth.Components
         private readonly GoogleOptions _googleOptions;
         private readonly IUrlHelper _urlHelper;
 
-        public GoogleAuthViewComponent(IOptionsSnapshot<GoogleOptions> googleOptions, IUrlHelper urlHelper)
+        public GoogleAuthViewComponent(IOptionsMonitor<GoogleOptions> googleOptions, IUrlHelper urlHelper)
         {
-            _googleOptions = googleOptions.Value;
+            _googleOptions = googleOptions.CurrentValue;
             _urlHelper = urlHelper;
         }
 

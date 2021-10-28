@@ -10,19 +10,18 @@ namespace Smartstore.Twitter.Auth.Components
         private readonly TwitterOptions _twitterOptions;
         private readonly IUrlHelper _urlHelper;
 
-        public TwitterAuthViewComponent(IOptionsSnapshot<TwitterOptions> twitterOptions, IUrlHelper urlHelper)
+        public TwitterAuthViewComponent(IOptionsMonitor<TwitterOptions> twitterOptions, IUrlHelper urlHelper)
         {
-            _twitterOptions = twitterOptions.Value;
+            _twitterOptions = twitterOptions.CurrentValue;
             _urlHelper = urlHelper;
         }
 
         public IViewComponentResult Invoke()
         {
-            // TODO: (mh) (core) _twitterOptions are null in this request. Uncomment when clarified how to implement this.
-            //if (!_twitterOptions.ConsumerKey.HasValue() && !_twitterOptions.ConsumerSecret.HasValue())
-            //{
-            //    return Empty();
-            //}      
+            if (!_twitterOptions.ConsumerKey.HasValue() && !_twitterOptions.ConsumerSecret.HasValue())
+            {
+                return Empty();
+            }
 
             var returnUrl = HttpContext.Request.Query["returnUrl"].ToString();
             var href = _urlHelper.Action("ExternalLogin", "Identity", new { provider = "Twitter", returnUrl });
