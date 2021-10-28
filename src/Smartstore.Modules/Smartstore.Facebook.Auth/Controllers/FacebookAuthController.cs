@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
 using Smartstore.Facebook.Auth.Models;
@@ -11,7 +13,12 @@ namespace Smartstore.Facebook.Auth.Controllers
     [Route("[area]/facebook/auth/[action]/{id?}")]
     public class FacebookAuthController : AdminController
     {
-        // TODO: (mh) (core) Restore code for clearing options from cache after discused & tested with MC.
+        private readonly IOptionsMonitorCache<FacebookOptions> _optionsCache;
+
+        public FacebookAuthController(IOptionsMonitorCache<FacebookOptions> optionsCache)
+        {
+            _optionsCache = optionsCache;
+        }
 
         [HttpGet, LoadSetting]
         [Permission(Permissions.Configuration.Authentication.Read)]
@@ -36,6 +43,11 @@ namespace Smartstore.Facebook.Auth.Controllers
 
             ModelState.Clear();
             MiniMapper.Map(model, settings);
+
+            // TODO: (mh) (core) This must also be called when settings change via all settings grid.
+            _optionsCache.TryRemove(FacebookDefaults.AuthenticationScheme);
+
+            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
             return RedirectToAction(nameof(Configure));
         }

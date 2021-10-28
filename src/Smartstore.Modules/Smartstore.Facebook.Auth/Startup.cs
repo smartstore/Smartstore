@@ -16,7 +16,6 @@ namespace Smartstore.Facebook.Auth
             builder.RegisterType<FacebookOptionsConfigurer>()
                 .As<IConfigureOptions<AuthenticationOptions>>()
                 .As<IConfigureOptions<FacebookOptions>>()
-                .As<IConfigureNamedOptions<FacebookOptions>>()
                 .InstancePerDependency();
 
             builder.RegisterType<OAuthPostConfigureOptions<FacebookOptions, FacebookHandler>>()

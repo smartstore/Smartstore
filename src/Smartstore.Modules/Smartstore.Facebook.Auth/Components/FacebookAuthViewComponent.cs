@@ -10,15 +10,9 @@ namespace Smartstore.Facebook.Auth.Components
         private readonly FacebookOptions _facebookOptions;
         private readonly IUrlHelper _urlHelper;
 
-        public FacebookAuthViewComponent(IOptionsSnapshot<FacebookOptions> facebookOptions, IUrlHelper urlHelper)
+        public FacebookAuthViewComponent(IOptionsMonitor<FacebookOptions> facebookOptions, IUrlHelper urlHelper)
         {
-            // INFO: (mh) (core) IOptionsSnapshot<T> ensures that an options instance is created once every request.
-            // This way, the configurer is called on every request automatically (only once, the result is cached for the request duration).
-            // RE: Nup! This doesn't work. Maybe we should code this together, so we can test the result...
-            // The options object isn't the problem. We can get current values in here and everywhere else,
-            // but the used options will be the ones with which it was configured until you clear them from optionsCache
-
-            _facebookOptions = facebookOptions.Value;
+            _facebookOptions = facebookOptions.CurrentValue;
             _urlHelper = urlHelper;
         }
 
