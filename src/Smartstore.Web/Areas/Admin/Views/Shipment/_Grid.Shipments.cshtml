@@ -1,0 +1,57 @@
+﻿@model ShipmentModel
+
+@{
+    var parentModel = ViewData["Parent"] as ShipmentListModel;
+    var displayPdfPackagingSlip = (bool)ViewBag.DisplayPdfPackagingSlip;
+}
+
+<datagrid id="shipments-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("ShipmentList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        @if (displayPdfPackagingSlip)
+        {
+            <toolbar-group class="omega border-right-0">
+                <button id="packaging-slip-all" type="button" class="btn btn-flat btn-primary pr-2">
+                    <i class="fa fa-print"></i>
+                    <span>@T("Admin.Orders.Shipments.PrintPackagingSlip.All")</span>
+                </button>
+                <button id="packaging-slip-selected" type="button" class="btn btn-flat btn-primary" v-bind:class="{ disabled: !grid.hasSelection }">
+                    <i class="fa fa-print"></i>
+                    <span>@T("Admin.Orders.Shipments.PrintPackagingSlip.Selected")</span>
+                </button>
+            </toolbar-group>
+        }
+        <zone name="datagrid_toolbar_after"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.Shipments.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" halign="center" visible="false" type="string" />
+        <column for="OrderId" width="2fr" hideable="false">
+            <display-template>
+                <a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.value }}</a>
+            </display-template>
+        </column>
+        <column for="TrackingNumber" />
+        <column for="TrackingUrl" visible="false" />
+        <column for="TotalWeightString" entity-member="TotalWeight" />
+        <column for="ShippedDate" entity-member="ShippedDateUtc" />
+        <column for="DeliveryDate" entity-member="DeliveryDateUtc" />
+        <column for="ShippingMethod" visible="false" sortable="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+    </columns>
+</datagrid>

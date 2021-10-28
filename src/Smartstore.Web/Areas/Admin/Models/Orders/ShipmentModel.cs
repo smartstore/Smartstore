@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using FluentValidation;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
@@ -48,9 +47,13 @@ namespace Smartstore.Admin.Models.Orders
         public DateTime? DeliveryDate { get; set; }
         public bool CanDeliver { get; set; }
 
+        [LocalizedDisplay("Common.CreatedOn")]
+        public DateTime? CreatedOn { get; set; }
+
         public List<ShipmentItemModel> Items { get; set; } = new();
-        public bool DisplayPdfPackagingSlip { get; set; }
-        public bool ShowSku { get; set; }
+        
+        public string EditUrl { get; set; }
+        public string OrderEditUrl { get; set; }
 
         #region Nested classes
 

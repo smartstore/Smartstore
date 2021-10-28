@@ -1,0 +1,23 @@
+﻿@model NeverSoldReportModel
+
+@{
+    ViewBag.Title = T("Admin.SalesReport.NeverSold").Value;
+
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-thumbs-down"></i>
+        <span>@ViewBag.Title</span>
+    </div>
+    <div class="options">
+        <zone name="admin_button_toolbar_before" />
+        <zone name="admin_button_toolbar_after" />
+    </div>
+</div>
+
+<partial name="Grids/_Grid.NeverSold" model="null" view-data="gridViewData" />

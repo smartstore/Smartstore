@@ -74,12 +74,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Read)]
         public IActionResult List()
         {
-            var model = new ShipmentListModel
-            {
-                DisplayPdfPackagingSlip = _pdfSettings.Enabled
-            };
+            ViewBag.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
 
-            return View(model);
+            return View(new ShipmentListModel());
         }
 
         [Permission(Permissions.Order.Read)]
@@ -109,6 +106,7 @@ namespace Smartstore.Admin.Controllers
 
             var shipments = await query
                 .Include(x => x.Order)
+                .Where(x => x.Order != null)
                 .ApplyTimeFilter(startDate, endDate)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
@@ -168,6 +166,8 @@ namespace Smartstore.Admin.Controllers
                     model.Items.Add(itemModel);
                 }
             }
+
+            ViewBag.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
 
             return View(model);
         }
@@ -237,6 +237,8 @@ namespace Smartstore.Admin.Controllers
             var model = new ShipmentModel();
             await PrepareShipmentModel(model, shipment, true);
 
+            ViewBag.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
+
             return View(model);
         }
 
@@ -265,6 +267,8 @@ namespace Smartstore.Admin.Controllers
             }
 
             await PrepareShipmentModel(model, shipment, true);
+
+            ViewBag.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
 
             return View(model);
         }
@@ -439,8 +443,7 @@ namespace Smartstore.Admin.Controllers
             model.TotalWeightString = shipment.TotalWeight.HasValue 
                 ? "{0:F2} [{1}]".FormatInvariant(shipment.TotalWeight, baseWeight?.GetLocalized(x => x.Name) ?? string.Empty) 
                 : string.Empty;
-            model.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
-            model.ShowSku = _catalogSettings.ShowProductSku;
+            model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(shipment.CreatedOnUtc, DateTimeKind.Utc);
 
             model.CanShip = !shipment.ShippedDateUtc.HasValue;
             model.CanDeliver = shipment.ShippedDateUtc.HasValue && !shipment.DeliveryDateUtc.HasValue;
@@ -450,6 +453,9 @@ namespace Smartstore.Admin.Controllers
             model.DeliveryDate = shipment.DeliveryDateUtc.HasValue 
                 ? Services.DateTimeHelper.ConvertToUserTime(shipment.DeliveryDateUtc.Value, DateTimeKind.Utc) 
                 : null;
+
+            model.EditUrl = Url.Action("Edit", "Shipment", new { id = shipment.Id, area = "Admin" });
+            model.OrderEditUrl = Url.Action("Edit", "Order", new { id = shipment.OrderId, area = "Admin" });
 
             if (forEdit)
             {

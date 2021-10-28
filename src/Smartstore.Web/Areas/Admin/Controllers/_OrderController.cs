@@ -1518,6 +1518,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Read)]
         public IActionResult NeverSoldReport()
         {
+            ViewBag.DisplayProductPictures = _adminAreaSettings.DisplayProductPictures;
+
             return View(new NeverSoldReportModel());
         }
 
@@ -1536,8 +1538,8 @@ namespace Smartstore.Admin.Controllers
                 : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
             var subQuery =
-                from oi in _db.OrderItems.AsNoTracking()
-                join o in _db.Orders.AsNoTracking() on oi.OrderId equals o.Id
+                from oi in _db.OrderItems
+                join o in _db.Orders on oi.OrderId equals o.Id
                 where
                     (!startDate.HasValue || startDate.Value <= o.CreatedOnUtc) &&
                     (!endDate.HasValue || endDate.Value >= o.CreatedOnUtc)
@@ -1545,7 +1547,7 @@ namespace Smartstore.Admin.Controllers
 
             var productQuery = 
                 from p in _db.Products.AsNoTracking()
-                where !subQuery.Distinct().Contains(p.Id) && p.ProductTypeId != groupedProductId
+                where !subQuery.Distinct().Contains(p.Id) && p.ProductTypeId != groupedProductId && !p.IsSystemProduct
                 orderby p.Name
                 select p;
 

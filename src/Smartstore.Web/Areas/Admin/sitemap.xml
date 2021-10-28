@@ -25,7 +25,7 @@
 
         <siteMapNode id="sales" title="Sales" resKey="Admin.Sales" permissionNames="order" iconClass="icm icm-chart-growth">
             <siteMapNode id="orders" iconClass="far fa-chart-bar" title="Orders" resKey="Admin.Orders" permissionNames="order" controller="Order" action="List" area="Admin" />
-            <siteMapNode id="shipments" iconClass="fa fa-truck-moving fa-flip-horizontal" title="Shipments" resKey="Admin.Orders.Shipments.List" permissionNames="order" controller="Order" action="ShipmentList" area="Admin" />
+            <siteMapNode id="shipments" iconClass="fa fa-truck-moving fa-flip-horizontal" title="Shipments" resKey="Admin.Orders.Shipments.List" permissionNames="order" controller="Shipment" action="List" area="Admin" />
             <siteMapNode id="recurring-payments" iconClass="fa fa-redo" title="Recurring payments" resKey="Admin.RecurringPayments" permissionNames="order" controller="RecurringPayment" action="List" area="Admin" />
             <siteMapNode id="return-requests" iconClass="fa fa-truck-moving" title="Return requests" resKey="Admin.ReturnRequests" permissionNames="order.returnrequest" controller="ReturnRequest" action="List" area="Admin" />
             <siteMapNode id="gift-cards" iconClass="fa fa-gifts" title="Gift cards" resKey="Admin.GiftCards" permissionNames="order.giftcard" controller="GiftCard" action="List" area="Admin" />
