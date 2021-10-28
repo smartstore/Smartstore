@@ -52,10 +52,8 @@
     }
 
     <tab sm-title="@T("Admin.Catalog.Products.Pictures")"
-         sm-icon="far fa-image fa-lg fa-fw"
-         sm-ajax="true"
-         href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Pictures" })"
-         sm-name="Pictures">
+         sm-icon="far fa-image fa-lg fa-fw">
+        <partial name="_CreateOrUpdate.Pictures" model="Model" />
     </tab>
     <tab sm-title="@T("Admin.Catalog.Products.Categories")"
          sm-icon="fa fa-sitemap fa-lg fa-fw"
