@@ -4,7 +4,6 @@
 
 @{
     var parentModel = ViewData["Parent"] as SettingListModel;
-    // TODO: (mh) (core) Add more hidden fields to grid (like To, ReplyTo etc.)
 }
 
 <datagrid id="templates-grid"
@@ -43,6 +42,10 @@
         <column for="IsActive" halign="center" />
         <column for="SendManually" halign="center" />
         <column for="LimitedToStores" halign="center" />
+
+        <column for="To" halign="center" visible="false" />
+        <column for="ReplyTo" halign="center" visible="false" />
+        <column for="BccEmailAddresses" halign="center" visible="false" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>

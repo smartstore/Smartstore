@@ -119,7 +119,6 @@ namespace Smartstore.Admin.Controllers
             await MapperFactory.MapAsync(topic, model);
             await PrepareTopicModelAsync(topic, model);
 
-            // TODO: (mh) (core) Maybe we need a DisplayTemplate for this.
             model.WidgetZoneValue = topic.WidgetZone;
             model.CookieType = (int?)topic.CookieType;
             model.Body = string.Empty;                          // Otherwise maxJsonLength could be exceeded.

@@ -41,6 +41,7 @@ using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
 using Smartstore.Web.Rendering;
 using Smartstore.Web.TagHelpers.Shared;
+using Smartstore.Core.Catalog.Products.Utilities;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -946,6 +947,12 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> TierPriceList(GridCommand command, int productId)
         {
             var model = new GridModel<ProductModel.TierPriceModel>();
+            var tierPrices = await _db.TierPrices
+                .Where(x => x.ProductId == productId)
+                .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
+
             var product = await _db.Products
                 .Include(x => x.TierPrices)
                 .ThenInclude(x => x.CustomerRole)
@@ -977,13 +984,7 @@ namespace Smartstore.Admin.Controllers
                 stores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
             }
 
-            // TODO: (mh) (core) You can't "Include" anything in plain LINQ, only in EF-Linq.
-            // TODO: (mh) (core) You shouldn't apply GridCommands to resultsets.
-            // INFO: (mh) (core) You MUST learn to distinct between queries and lists. They are totally different things.
-            var tierPricesModel = product.TierPrices
-                .AsQueryable()
-                .ApplyGridCommand(command)
-                .ToList()
+            var tierPricesModel = tierPrices
                 .Select(x =>
                 {
                     var tierPriceModel = new ProductModel.TierPriceModel
@@ -1030,10 +1031,11 @@ namespace Smartstore.Admin.Controllers
                 .ToList();
 
             model.Rows = tierPricesModel;
-            model.Total = tierPricesModel.Count;
+            model.Total = tierPrices.TotalCount;
 
             return Json(model);
         }
+
 
         [HttpPost]
         [Permission(Permissions.Catalog.Product.EditTierPrice)]
@@ -1422,14 +1424,13 @@ namespace Smartstore.Admin.Controllers
 
         #region Hidden normalizers
 
-        // TODO: (mh) (core) Implement FixProductMainPictureIds
-        //[Permission(Permissions.Catalog.Product.Update)]
-        //public ActionResult FixProductMainPictureIds(DateTime? ifModifiedSinceUtc = null)
-        //{
-        //    var count = DataMigrator.FixProductMainPictureIds(_dbContext, ifModifiedSinceUtc);
+        [Permission(Permissions.Catalog.Product.Update)]
+        public async Task<IActionResult> FixProductMainPictureIds(DateTime? ifModifiedSinceUtc = null)
+        {
+            var count = await ProductPictureHelper.FixProductMainPictureIds(_db, ifModifiedSinceUtc);
 
-        //    return Content("Fixed {0} ids.".FormatInvariant(count));
-        //}
+            return Content("Fixed {0} ids.".FormatInvariant(count));
+        }
 
         #endregion
 
