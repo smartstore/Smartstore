@@ -273,7 +273,13 @@ namespace Smartstore.Admin.Controllers
             return Json(new GridModel<OrderOverviewModel>
             {
                 Rows = rows,
-                Total = orders.TotalCount
+                Total = orders.TotalCount,
+                Aggregates = new
+                {
+                    profit = _primaryCurrency.AsMoney(profit).ToString(true),
+                    tax = _primaryCurrency.AsMoney(summary.SumTax).ToString(true),
+                    total = _primaryCurrency.AsMoney(summary.SumOrderTotal).ToString(true)
+                }
             });
         }
 

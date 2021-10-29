@@ -136,12 +136,29 @@
             <display-template>
                 <div class="dg-cell-value text-right">
                     <div class="pr-2 text-truncate">
-                        <big style="font-weight:600">{{ item.row.OrderTotalString }}</big>
+                        <big class="fwm">{{ item.row.OrderTotalString }}</big>
                         <i :class="item.row.PaymentStatusLabelClass" :title="item.row.PaymentStatusString"></i>
                     </div>
                     <div v-if="item.row.HasPaymentMethod" class="pr-2 text-muted text-truncate">{{ item.row.WithPaymentMethod }}</div>
                 </div>
             </display-template>
+            <footer-template>
+                <div class="pr-2 text-truncate d-flex flex-column">
+                    <div class="fwm mb-2 text-truncate">@T("Admin.Orders.Report.Summary"):</div>
+                    <div class="text-truncate d-inline-flex justify-content-between">
+                        <span class="pr-3 text-truncate">@T("Admin.Orders.Report.Profit"):</span>
+                        <span class=" text-truncate">{{ item.aggregates.profit }}</span>
+                    </div>
+                    <div class="text-truncate d-inline-flex justify-content-between">
+                        <span class="pr-3 text-truncate">@T("Admin.Orders.Report.Tax"):</span>
+                        <span class=" text-truncate">{{ item.aggregates.tax }}</span>
+                    </div>
+                    <div class="text-truncate d-inline-flex justify-content-between">
+                        <span class="pr-3 text-truncate">@T("Admin.Orders.Report.Total"):</span>
+                        <span class=" text-truncate">{{ item.aggregates.total }}</span>
+                    </div>
+                </div>
+            </footer-template>
         </column>
     </columns>
     <row-commands>

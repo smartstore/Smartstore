@@ -287,6 +287,14 @@ namespace Smartstore.Web.TagHelpers.Admin
                     
                     output.Content.AppendHtml(editorSlot);
                 }
+
+                if (column.FooterTemplate != null && !column.FooterTemplate.IsEmptyOrWhiteSpace)
+                {
+                    var footerSlot = new TagBuilder("template");
+                    footerSlot.Attributes["v-slot:colfooter-" + column.NormalizedMemberName] = "item";
+                    footerSlot.InnerHtml.AppendHtml(column.FooterTemplate);
+                    output.Content.AppendHtml(footerSlot);
+                }
             }
 
             GridCommand preservedCommandState = PreserveCommandState ? await _gridCommandStateStore.LoadStateAsync(Id) : null;

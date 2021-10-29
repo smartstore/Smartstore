@@ -61,6 +61,7 @@ Vue.component("sm-datagrid", {
                     <table ref="table"
                         :class="getTableClass()"
                         :style="getTableStyles()">
+
                         <thead v-show="!options.hideHeader" class="dg-thead" ref="tableHeader">
                             <tr ref="tableHeaderRow" class="dg-tr">
                                 <th v-if="allowRowSelection || hasDetailView" class="dg-th dg-col-selector dg-col-pinned alpha">
@@ -105,6 +106,7 @@ Vue.component("sm-datagrid", {
                                 <th v-if="canEditRow || hasRowCommands" class="dg-th dg-col-pinned omega">&nbsp;</th> 
                             </tr>
                         </thead>
+
                         <tbody ref="tableBody" class="dg-tbody">
                             <tr v-if="ready && rows.length === 0" class="dg-tr dg-no-data">
                                 <td class="dg-td text-muted">
@@ -187,6 +189,30 @@ Vue.component("sm-datagrid", {
                                 </tr>
                             </template>
                         </tbody>
+
+                        <tfoot v-if="hasFooterTemplate" class="dg-tfoot" ref="tableFooter">
+                            <tr ref="tableFooterRow" class="dg-tr dg-tr-foot">
+                                <td v-if="allowRowSelection || hasDetailView" class="dg-td dg-col-pinned alpha">
+                                    &nbsp;
+                                </td>
+
+                                <td v-for="(column, columnIndex) in columns"
+                                    class="dg-td dg-td-column"
+                                    v-show="column.visible"
+                                    :data-member="column.member"
+                                    :data-index="columnIndex">
+                                    <div class="dg-cell dg-cell-footer" :style="getCellStyles(null, column, false)">
+                                        <slot :name="'colfooter-' + column.member.toLowerCase()" v-bind="{ column, columnIndex, aggregates }">
+                                        </slot>
+                                    </div>
+                                </td>
+                                <td class="dg-td dg-hborder-0">
+                                    <div class="dg-cell dg-cell-footer dg-cell-spacer">&nbsp;</div>
+                                </td>
+                                <td v-if="canEditRow || hasRowCommands" class="dg-td dg-col-pinned omega">&nbsp;</td>
+                            </tr>
+                        </tfoot>
+
                     </table>
                 </component>
                 <div v-if="paging.position === 'bottom' || paging.position === 'both'" class="dg-pager-wrapper border-top">
@@ -238,7 +264,7 @@ Vue.component("sm-datagrid", {
         return {
             rows: [],
             total: 0,
-            aggregates: [],
+            aggregates: {},
             selectedRows: {},
             detailRows: {},
             originalState: {},
@@ -249,6 +275,7 @@ Vue.component("sm-datagrid", {
             hasEditableVisibleColumn: false,
             hasRowCommands: false,
             hasDetailView: false,
+            hasFooterTemplate: false,
             dragging: {
                 active: false,
                 targetRect: null,
@@ -414,6 +441,7 @@ Vue.component("sm-datagrid", {
         });
 
         this.hasEditableVisibleColumn = this.columns.some(this.isEditableVisibleColumn);
+        this.hasFooterTemplate = this.columns.some(c => this.$scopedSlots["colfooter-" + c.member.toLowerCase()]);
         this.hasRowCommands = !!(this.$scopedSlots.rowcommands);
         this.hasDetailView = !!(this.$scopedSlots.detailview);
 
@@ -789,7 +817,7 @@ Vue.component("sm-datagrid", {
                         self.paging.pageIndex = self.totalPages;
                     }
                     else {
-                        self.aggregates = result.aggregates !== undefined ? result.aggregates : [];
+                        self.aggregates = result.aggregates !== undefined ? result.aggregates : {};
                         self.$emit("data-bound", command, self.rows);
                         self.ready = true;
                         self.isBusy = false;

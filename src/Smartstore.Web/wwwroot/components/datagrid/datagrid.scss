@@ -27,6 +27,7 @@ input.form-control-plaintext {
 .datagrid-root {
     --dg-border-color: #{$dg-border};
     --dg-header-bg: #{$light};
+    --dg-footer-bg: #{$white};
     --dg-pager-bg: #{$light};
     --dg-toolbar-bg: #{$light};
     --dg-row-bg: #fff;
@@ -100,6 +101,7 @@ input.form-control-plaintext {
 
     .dg-thead,
     .dg-tbody,
+    .dg-tfoot,
     .dg-tr {
         display: contents;
     }
@@ -136,6 +138,19 @@ input.form-control-plaintext {
 
     &.dg-resizing {
         cursor: col-resize;
+    }
+
+    .dg-tr-foot > td {
+        background-color: var(--dg-footer-bg);
+        background-color: darken($light, 1%);
+        z-index: 6;
+        overflow-x: hidden;
+    }
+
+    .dg-tr-foot.sticky > td {
+        position: sticky !important;
+        bottom: 0;
+        border-top: 1px solid var(--dg-border-color);
     }
 }
 
@@ -194,7 +209,8 @@ input.form-control-plaintext {
 
 .dg-hborders {
     > thead > tr > .dg-th,
-    > tbody > tr > .dg-td {
+    > tbody > tr > .dg-td,
+    > tfoot > tr > .dg-td {
         border-right: 1px solid var(--dg-border-color);
 
         &:last-child {

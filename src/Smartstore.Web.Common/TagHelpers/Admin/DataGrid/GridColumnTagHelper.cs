@@ -12,7 +12,7 @@ using Smartstore.Web.Rendering;
 namespace Smartstore.Web.TagHelpers.Admin
 {
     [HtmlTargetElement("column", Attributes = ForAttributeName, ParentTag = "columns")]
-    [RestrictChildren("display-template", "edit-template")]
+    [RestrictChildren("display-template", "edit-template", "footer-template")]
     public class GridColumnTagHelper : TagHelper
     {
         const string ForAttributeName = "for";
@@ -201,6 +201,9 @@ namespace Smartstore.Web.TagHelpers.Admin
         public TagHelperContent EditTemplate { get; set; }
 
         [HtmlAttributeNotBound]
+        public TagHelperContent FooterTemplate { get; set; }
+
+        [HtmlAttributeNotBound]
         public string MemberName 
         {
             get => For.Name;
@@ -324,6 +327,31 @@ namespace Smartstore.Web.TagHelpers.Admin
             {
                 column.EditTemplate = new DefaultTagHelperContent();
                 (await output.GetChildContentAsync()).CopyTo(column.EditTemplate);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Custom footer template for column as Vue slot template. Use this to render aggregate values
+    /// passed to <see cref="Smartstore.Web.Models.DataGrid.IGridModel.Aggregates"/>.
+    /// Passed object provides following members:
+    /// <code>
+    /// {
+    ///     column,
+    ///     columnIndex,
+    ///     aggregates
+    /// }
+    /// </code>
+    /// </summary>
+    [HtmlTargetElement("footer-template", ParentTag = "column")]
+    public class FooterTemplateTagHelper : TagHelper
+    {
+        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+        {
+            if (context.Items.TryGetValue(nameof(GridColumnTagHelper), out var obj) && obj is GridColumnTagHelper column)
+            {
+                column.FooterTemplate = new DefaultTagHelperContent();
+                (await output.GetChildContentAsync()).CopyTo(column.FooterTemplate);
             }
         }
     }
