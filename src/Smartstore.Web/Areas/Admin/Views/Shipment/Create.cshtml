@@ -81,15 +81,15 @@
                         <td>
                             @item.Sku
                         </td>
-						<td class="text-center">
-							@item.QuantityOrdered
-						</td>
-						<td class="text-center">
-							@item.QuantityInAllShipments
-						</td>
-						<td>
-                            @Html.Editor(fieldId, "Int32", fieldId, new { size = "sm", htmlAttributes = new { value = item.QuantityToAdd } })
-						</td>
+                        <td class="text-center">
+                            @item.QuantityOrdered
+                        </td>
+                        <td class="text-center">
+                            @item.QuantityInAllShipments
+                        </td>
+                        <td>
+                            @Html.Editor(fieldId, "Int32", fieldId, new { htmlAttributes = new { value = item.QuantityToAdd, @class = "form-control-sm" } })
+                        </td>
                     </tr>
                 }
             </tbody>

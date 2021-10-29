@@ -410,7 +410,7 @@ namespace Smartstore.Admin.Controllers
             {
                 Size = pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
                 Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
-                Page = _pdfConverter.CreateHtmlInput(await InvokeViewAsync("~/Admin/Views/Shipment/PdfPackagingSlips.Print.cshtml", models)),
+                Page = _pdfConverter.CreateHtmlInput(await InvokeViewAsync("PdfPackagingSlips.Print", models)),
                 Header = _pdfConverter.CreateFileInput(Url.Action("ReceiptHeader", "Pdf", routeValues)),
                 Footer = _pdfConverter.CreateFileInput(Url.Action("ReceiptFooter", "Pdf", routeValues))
             };

@@ -23,15 +23,19 @@
         </toolbar-group>
         @if (displayPdfPackagingSlip)
         {
-            <toolbar-group class="omega border-right-0">
-                <button id="packaging-slip-all" type="button" class="btn btn-flat btn-primary pr-2">
+            <toolbar-group class="dropdown">
+                <button type="button" class="btn btn-flat btn-light dropdown-toggle" data-toggle="dropdown">
                     <i class="fa fa-print"></i>
-                    <span>@T("Admin.Orders.Shipments.PrintPackagingSlip.All")</span>
+                    <span>Drucken</span>
                 </button>
-                <button id="packaging-slip-selected" datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-flat btn-primary">
-                    <i class="fa fa-print"></i>
-                    <span>@T("Admin.Orders.Shipments.PrintPackagingSlip.Selected")</span>
-                </button>
+                <div class="dropdown-menu">
+                    <a id="packaging-slip-all" class="dropdown-item" href="javascript:;">
+                        @T("Admin.Orders.Shipments.PrintPackagingSlip.All")
+                    </a>
+                    <a id="packaging-slip-selected" class="dropdown-item" href="javascript:;" v-bind:class="{ 'disabled': !grid.hasSelection }">
+                        @T("Admin.Orders.Shipments.PrintPackagingSlip.Selected")
+                    </a>
+                </div>
             </toolbar-group>
         }
         <zone name="datagrid_toolbar_after"></zone>
