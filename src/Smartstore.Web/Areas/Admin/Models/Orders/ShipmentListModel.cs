@@ -15,6 +15,9 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("*TrackingNumber")]
         public string TrackingNumber { get; set; }
 
+        [LocalizedDisplay("Admin.Orders.Fields.ShippingMethod")]
+        public string ShippingMethod { get; set; }
+
         public int? OrderId { get; set; }
     }
 }

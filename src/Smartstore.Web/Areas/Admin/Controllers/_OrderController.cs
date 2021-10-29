@@ -265,11 +265,6 @@ namespace Smartstore.Admin.Controllers
             var summary = await orderQuery.SelectAsOrderAverageReportLine().FirstOrDefaultAsync() ?? new OrderAverageReportLine();
             var profit = summary.SumOrderTotal - summary.SumTax - productCost;
 
-            // TODO: (mg) (core) render profit summary somewhere. Requires refresh when grid updates.
-            ViewBag.SumOrderTax = _primaryCurrency.AsMoney(summary.SumTax).ToString(true);
-            ViewBag.SumOrderTotal = _primaryCurrency.AsMoney(summary.SumOrderTotal).ToString(true);
-            ViewBag.SumProfit = _primaryCurrency.AsMoney(profit).ToString(true);
-
             return Json(new GridModel<OrderOverviewModel>
             {
                 Rows = rows,
@@ -286,7 +281,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ActionName("List")]
         [FormValueRequired("go-to-order-by-number")]
         [Permission(Permissions.Order.Read)]
-        public async Task<IActionResult> GoToOrderId(OrderListModel model)
+        public async Task<IActionResult> GoToOrder(OrderListModel model)
         {
             var orderId = 0;
 
@@ -329,9 +324,9 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> ProcessOrder(GridSelection selection, string operation)
+        public async Task<IActionResult> ProcessOrder(string selectedIds, string operation)
         {
-            var ids = selection.GetEntityIds().ToArray();
+            var ids = selectedIds.ToIntArray();
             var orders = await _db.Orders
                 .IncludeCustomer(true)
                 .IncludeOrderItems()

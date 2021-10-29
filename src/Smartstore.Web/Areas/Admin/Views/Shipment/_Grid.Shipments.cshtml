@@ -28,7 +28,7 @@
                     <i class="fa fa-print"></i>
                     <span>@T("Admin.Orders.Shipments.PrintPackagingSlip.All")</span>
                 </button>
-                <button id="packaging-slip-selected" type="button" class="btn btn-flat btn-primary" v-bind:class="{ disabled: !grid.hasSelection }">
+                <button id="packaging-slip-selected" datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-flat btn-primary">
                     <i class="fa fa-print"></i>
                     <span>@T("Admin.Orders.Shipments.PrintPackagingSlip.Selected")</span>
                 </button>
@@ -41,7 +41,7 @@
     </search-panel>
     <columns>
         <column for="Id" halign="center" visible="false" type="string" />
-        <column for="OrderId" width="2fr" hideable="false">
+        <column for="OrderId" hideable="false">
             <display-template>
                 <a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.value }}</a>
             </display-template>
@@ -51,7 +51,32 @@
         <column for="TotalWeightString" entity-member="TotalWeight" />
         <column for="ShippedDate" entity-member="ShippedDateUtc" />
         <column for="DeliveryDate" entity-member="DeliveryDateUtc" />
-        <column for="ShippingMethod" visible="false" sortable="false" />
+        <column for="ShippingMethod" visible="false" entity-member="Order.ShippingMethod" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
     </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+    </row-commands>
 </datagrid>
+
+<script sm-target-zone="scripts" data-origin="shipments-grid">
+    $(function () {
+        // Print packaging slip.
+        $('#packaging-slip-all, #packaging-slip-selected').on('click', function () {
+            var btn = $(this);
+
+            const grid = $('#shipments-grid').parent().data('datagrid');
+            var selectedIds = grid.selectedRowKeys;
+            var url = '@Url.Action("PdfPackagingSlips", "Shipment", new { area = "Admin" })';
+
+            if (btn.attr('id') === 'packaging-slip-all') {
+                url += '?all=true';
+            }
+
+            $({}).postData({
+                url: url,
+                data: { selectedIds }
+    		});
+        });
+    });
+</script>

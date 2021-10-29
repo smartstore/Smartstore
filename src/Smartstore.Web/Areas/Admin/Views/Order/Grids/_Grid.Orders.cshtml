@@ -210,9 +210,6 @@
     </row-commands>
 </datagrid>
 
-@* TODO: (mg) (core) render profit summary somewhere. Requires refresh when grid updates. *@
-@* RE: Grid "Aggregates" is still an open issue, but will be implemented soon. *@
-
 <script sm-target-zone="scripts" data-origin="orders-grid">
     $(function () {
 
@@ -238,7 +235,7 @@
                 selectedIds = [orderId];
             }
 
-			if (!allAllowed && selectedIds.length === 0) {
+            if (!allAllowed && selectedIds.length === 0) {
 				alert2({
 					message: @T("Admin.Orders.NoOrdersSelected").JsValue,
 					icon: { type: 'warning' }
@@ -258,22 +255,10 @@
                 }
             }
 
-            confirm2({
-                title: link.find('.order-process-title').text(),
-                message: msg,
-                icon: { type: 'question' },
-                callback: function (accepted) {
-                    if (!accepted)
-                        return;
-
-                    var form = '<form class="order-processing-form" action="' + link.data('url') + '" method="post">';
-                    form += '<input type="hidden" name="SelectedKeys" value="' + selectedIds.join(',') + '" />';
-                    form += '<input type="hidden" name="__RequestVerificationToken" value="' + getAntiforgeryToken() + '" />';
-                    form += '</form>';
-
-                    $('body').append(form);
-                    $('form.order-processing-form').last().submit();
-                }
+            $({}).postData({
+                url: link.data('url'),
+                ask: msg,
+                data: { selectedIds }
             });
 
             return false;

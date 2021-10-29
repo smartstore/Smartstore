@@ -1,0 +1,38 @@
+﻿@model OrderModel
+
+@{
+    ViewBag.Title = T("Admin.Orders.EditOrderDetails") + " - " + Model.OrderNumber;
+
+    //var displayPdfInvoice = (bool)ViewBag.DisplayPdfInvoice;
+}
+
+<form id="order-form" asp-action="Edit" method="post">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-truck"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <a asp-action="Print" asp-route-orderId="@Model.Id" asp-route-pdf="false" target="print" class="btn btn-secondary print-order-button">
+                <i class="fa fa-print"></i>
+                <span>@T("Order.Print")</span>
+            </a>
+
+            @*TODO: (mg) (core) PDF invoice*@
+
+            <button type="submit" id="order-delete" name="order-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="order-delete" />
+
+            <input type="submit" id="btnRefreshPage" name="btnRefreshPage" class="d-none" />
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+</form>

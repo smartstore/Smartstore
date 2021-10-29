@@ -1,0 +1,98 @@
+﻿@model ShipmentModel
+
+@{
+    ViewBag.Title = T("Admin.Orders.Shipments.AddNew.Title", Model.OrderId);
+}
+
+<form asp-action="Create" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="OrderId" />
+
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-truck"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="Edit" asp-controller="Order" asp-route-id="@Model.OrderId">(@T("Admin.Orders.Shipments.BackToOrder"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent mb-5">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TrackingNumber" />
+            </div>
+            <div class="adminData">
+                <input asp-for="TrackingNumber" />
+                <span asp-validation-for="TrackingNumber"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TrackingUrl" />
+            </div>
+            <div class="adminData">
+                <input asp-for="TrackingUrl" />
+                <span asp-validation-for="TrackingUrl"></span>
+            </div>
+        </div>
+    </div>
+
+    <h5>@T("Admin.Orders.Shipments.Products")</h5>
+
+    <div class="table-responsive">
+        <table class="table admin-table">
+            <thead>
+                <tr>
+                    <th class="w-50">@T("Admin.Orders.Shipments.Products.ProductName")</th>
+                    <th>@T("Admin.Orders.Shipments.Products.SKU")</th>
+                    <th class="text-center">@T("Admin.Orders.Shipments.Products.QtyOrdered")</th>
+                    <th class="text-center">@T("Admin.Orders.Shipments.Products.QtyShipped")</th>
+                    <th style="width: 180px;">@T("Admin.Orders.Shipments.Products.QtyToShip")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    var fieldId = $"qtyToAdd{item.OrderItemId}";
+                    <tr>
+                        <td>
+                            <div>
+                                @Html.BadgedProductName(item.ProductId, item.ProductName, item.ProductTypeName, item.ProductTypeLabelHint)
+                            </div>
+                            <div sm-if="item.AttributeInfo.HasValue()">
+                                @Html.Raw(item.AttributeInfo)
+                            </div>
+                        </td>
+                        <td>
+                            @item.Sku
+                        </td>
+						<td class="text-center">
+							@item.QuantityOrdered
+						</td>
+						<td class="text-center">
+							@item.QuantityInAllShipments
+						</td>
+						<td>
+                            @Html.Editor(fieldId, "Int32", fieldId, new { size = "sm", htmlAttributes = new { value = item.QuantityToAdd } })
+						</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>

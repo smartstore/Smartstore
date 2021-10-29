@@ -26,7 +26,6 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Data;
 using Smartstore.Pdf;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
@@ -74,7 +73,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Read)]
         public IActionResult List()
         {
-            ViewBag.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
+            PrepareViewBag();
 
             return View(new ShipmentListModel());
         }
@@ -97,6 +96,11 @@ namespace Smartstore.Admin.Controllers
             if (model.TrackingNumber.HasValue())
             {
                 query = query.ApplySearchFilterFor(x => x.TrackingNumber, model.TrackingNumber);
+            }
+
+            if (model.ShippingMethod.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Order.ShippingMethod, model.ShippingMethod);
             }
 
             if (model.OrderId.HasValue)
@@ -167,7 +171,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            ViewBag.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
+            PrepareViewBag();
 
             return View(model);
         }
@@ -236,8 +240,7 @@ namespace Smartstore.Admin.Controllers
 
             var model = new ShipmentModel();
             await PrepareShipmentModel(model, shipment, true);
-
-            ViewBag.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
+            PrepareViewBag();
 
             return View(model);
         }
@@ -267,8 +270,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             await PrepareShipmentModel(model, shipment, true);
-
-            ViewBag.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
+            PrepareViewBag();
 
             return View(model);
         }
@@ -343,19 +345,20 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Order.Read)]
-        public async Task<IActionResult> PdfPackagingSlips(GridSelection selection, bool all)
+        public async Task<IActionResult> PdfPackagingSlips(string selectedIds, bool all)
         {
-            if (!all && !selection.SelectedKeys.Any())
+            var ids = selectedIds.ToIntArray();
+            var query = ShipmentQueryForEdit.AsNoTracking();
+
+            if (!all && !ids.Any())
             {
                 NotifyInfo(T("Admin.Common.ExportNoData"));
                 return RedirectToReferrer();
             }
 
-            var query = ShipmentQueryForEdit.AsNoTracking();
-
             var expectedShipments = all
                 ? await query.CountAsync()
-                : selection.SelectedKeys.Length;
+                : ids.Length;
 
             if (expectedShipments > 500)
             {
@@ -365,7 +368,6 @@ namespace Smartstore.Admin.Controllers
 
             if (!all)
             {
-                var ids = selection.GetEntityIds();
                 query = query.Where(x => ids.Contains(x.Id));
             }
 
@@ -402,11 +404,13 @@ namespace Smartstore.Admin.Controllers
                 area = string.Empty 
             });
 
+            PrepareViewBag();
+
             var conversionSettings = new PdfConversionSettings
             {
                 Size = pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
                 Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
-                Page = _pdfConverter.CreateHtmlInput(await InvokeViewAsync("~/Admin/Views/Order/ShipmentDetails.Print.cshtml", models)),
+                Page = _pdfConverter.CreateHtmlInput(await InvokeViewAsync("~/Admin/Views/Shipment/PdfPackagingSlips.Print.cshtml", models)),
                 Header = _pdfConverter.CreateFileInput(Url.Action("ReceiptHeader", "Pdf", routeValues)),
                 Footer = _pdfConverter.CreateFileInput(Url.Action("ReceiptFooter", "Pdf", routeValues))
             };
@@ -468,8 +472,6 @@ namespace Smartstore.Admin.Controllers
                 model.FormattedShippingAddress = order.ShippingAddress != null
                     ? await _addressService.FormatAddressAsync(order.ShippingAddress, true)
                     : string.Empty;
-
-                // TODO: Tracking URL.
 
                 // Shipment items.
                 var orderItemIds = shipment.ShipmentItems.ToDistinctArray(x => x.OrderItemId);
@@ -547,6 +549,12 @@ namespace Smartstore.Admin.Controllers
             }
 
             return model;
+        }
+
+        private void PrepareViewBag()
+        {
+            ViewBag.DisplayPdfPackagingSlip = _pdfSettings.Enabled;
+            ViewBag.ShowSku = _catalogSettings.ShowProductSku;
         }
 
         #endregion

@@ -17,6 +17,8 @@ namespace Smartstore.Admin.Models.Orders
 
         public AddressModel ShippingAddress { get; set; }
         public string FormattedShippingAddress { get; set; }
+
+        [LocalizedDisplay("Admin.Orders.Fields.ShippingMethod")]
         public string ShippingMethod { get; set; }
 
         public CompanyInformationSettings MerchantCompanyInfo { get; set; } = new();
