@@ -25,6 +25,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Packaging;
 using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
@@ -54,6 +55,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IShippingService> _shippingService;
         private readonly Lazy<IExportProfileService> _exportProfileService;
         private readonly Lazy<IImportProfileService> _importProfileService;
+        private readonly Lazy<UpdateChecker> _updateChecker;
         private readonly Lazy<CurrencySettings> _currencySettings;
         private readonly Lazy<MeasureSettings> _measureSettings;
 
@@ -70,6 +72,7 @@ namespace Smartstore.Admin.Controllers
             Lazy<IShippingService> shippingService,
             Lazy<IExportProfileService> exportProfileService,
             Lazy<IImportProfileService> importProfileService,
+            Lazy<UpdateChecker> updateChecker,
             Lazy<CurrencySettings> currencySettings,
             Lazy<MeasureSettings> measureSettings)
         {
@@ -85,6 +88,7 @@ namespace Smartstore.Admin.Controllers
             _shippingService = shippingService;
             _exportProfileService = exportProfileService;
             _importProfileService = importProfileService;
+            _updateChecker = updateChecker;
             _currencySettings = currencySettings;
             _measureSettings = measureSettings;
         }
@@ -191,6 +195,27 @@ namespace Smartstore.Admin.Controllers
 
             return RedirectToAction("Index");
         }
+
+        #endregion
+
+        #region Update
+
+        [Permission(Permissions.System.Maintenance.Read)]
+        public async Task<IActionResult> CheckUpdate(bool enforce = false)
+        {
+            var model = await _updateChecker.Value.CheckUpdateAsync(enforce);
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> CheckUpdateSuppress(string myVersion, string newVersion)
+        {
+            await _updateChecker.Value.SuppressMessageAsync(myVersion, newVersion);
+            return Json(new { Success = true });
+        }
+
+        // TODO: (core) Think about whether "InstallUpdate" does still makes sense?
 
         #endregion
 

@@ -23,8 +23,10 @@ namespace Smartstore.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var result = await Services.Cache.GetAsync("admin:marketplacefeed", async () =>
+            var result = await Services.Cache.GetAsync("admin:marketplacefeed", async ctx =>
             {
+                ctx.ExpiresIn(TimeSpan.FromHours(4));
+                
                 try
                 {
                     var url = "http://community.smartstore.com/index.php?/rss/downloads/";

@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.Hosting;
 
 namespace Smartstore.Engine
 {
     public class RuntimeInfo
     {
-        public RuntimeInfo()
+        public RuntimeInfo(IHostEnvironment host)
         {
             // Use the current host and the process id as two servers could run on the same machine
             EnvironmentIdentifier = Environment.MachineName + '-' + Environment.ProcessId;
+
+            // Use ContentRootPath as AppIdent
+            ApplicationIdentifier = host.ContentRootPath;
 
             var processArchitecture = RuntimeInformation.ProcessArchitecture.ToString().ToLower();
 
@@ -28,7 +32,12 @@ namespace Smartstore.Engine
         public string MachineName { get; } = Environment.MachineName;
 
         /// <summary>
-        /// Gets a unique environment identifier.
+        /// Gets an application identifier which is unique across instances.
+        /// </summary>
+        public string ApplicationIdentifier { get; }
+
+        /// <summary>
+        /// Gets a unique environment (runtime instance) identifier.
         /// </summary>
         public string EnvironmentIdentifier { get; }
 

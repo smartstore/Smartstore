@@ -10,6 +10,7 @@ namespace Smartstore.Core.Bootstrapping
         {
             builder.RegisterType<PackageBuilder>().As<IPackageBuilder>().InstancePerLifetimeScope();
             builder.RegisterType<PackageInstaller>().As<IPackageInstaller>().InstancePerLifetimeScope();
+            builder.RegisterType<UpdateChecker>().AsSelf().InstancePerLifetimeScope();
         }
     }
 }

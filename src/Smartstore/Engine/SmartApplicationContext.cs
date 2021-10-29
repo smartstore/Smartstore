@@ -36,6 +36,7 @@ namespace Smartstore.Engine
             HostEnvironment = hostEnvironment;
             Configuration = configuration;
             Logger = logger;
+            RuntimeInfo = new RuntimeInfo(hostEnvironment);
 
             ConfigureFileSystem(hostEnvironment);
             DataSettings.SetApplicationContext(this, OnDataSettingsLoaded);
@@ -127,7 +128,7 @@ namespace Smartstore.Engine
             get => DataSettings.DatabaseIsInstalled();
         }
 
-        public RuntimeInfo RuntimeInfo { get; } = new();
+        public RuntimeInfo RuntimeInfo { get; }
         public IOSIdentity OSIdentity { get; } = new GenericOSIdentity();
         public IFileSystem ContentRoot => (IFileSystem)HostEnvironment.ContentRootFileProvider;
         public IFileSystem WebRoot { get; private set; }

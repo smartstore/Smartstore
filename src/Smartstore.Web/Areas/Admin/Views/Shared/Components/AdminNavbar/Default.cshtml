@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Core.Stores;
+@using Smartstore.Core.Packaging;
 
 @{
     var currentCustomer = this.WorkContext.CurrentCustomer;
@@ -10,8 +11,7 @@
         "http://community.smartstore.com" :
         "http://community.smartstore.com/index.php?/&k=880ea6a14ea49e853634fbdc5015a024&setlanguage=1&cal_id=&langid=1");
     string docsUrl = Display.GenerateHelpUrl("");
-    //var checkUpdateResult = ViewBag.CheckUpdateResult as CheckUpdateResult;
-    // TODO: (mh) (core) Implement CheckUpdate in Backend.
+    var checkUpdateResult = ViewBag.CheckUpdateResult as CheckUpdateResult;
 }
 
 <link sm-target-zone="head_links" as="image" rel="preload" href="~/images/smartstore.svg" />
@@ -68,20 +68,20 @@
             <li id="navtool-help" class="nav-item dropdown d-none d-md-block">
                 <a class="nav-link dropdown-toggle navbar-tool" href="javascript:void(0)" title='@T("Admin.Help")' data-toggle="dropdown">
                     <i class="icm icm-bubble-question navbar-icon"></i>
-                    @*@if (checkUpdateResult != null && checkUpdateResult.UpdateAvailable)
-                {
-                    <span class="reddot" style="top: 25px; right: 7px"></span>
-                }*@
+                    @if (checkUpdateResult != null && checkUpdateResult.UpdateAvailable)
+                    {
+                        <span class="reddot" style="top: 25px; right: 7px"></span>
+                    }
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
-                    @*@if (checkUpdateResult != null && checkUpdateResult.UpdateAvailable)
-                {
-                    <a class="dropdown-item" href='@Url.Action("CheckUpdate", new { area = "Admin" })'>
-                        <i class="fa fa-fw fa-level-up-alt"></i>
-                        <strong>@T("Admin.CheckUpdate.UpdateAvailable")</strong>
-                        <span class="reddot" style="margin-left: 6px"></span>
-                    </a>
-                }*@
+                    @if (checkUpdateResult != null && checkUpdateResult.UpdateAvailable)
+                    {
+                        <a class="dropdown-item" asp-controller="Maintenance" asp-action="CheckUpdate">
+                            <i class="fa fa-fw fa-level-up-alt"></i>
+                            <strong>@T("Admin.CheckUpdate.UpdateAvailable")</strong>
+                            <span class="reddot" style="margin-left: 6px"></span>
+                        </a>
+                    }
                     <a class="dropdown-item" href="@docsUrl" data-lang="@currentLanguageCode" target="help">
                         <i class="fa fa-fw fa-book"></i>
                         @T("Admin.Help.Documentation")
@@ -101,9 +101,9 @@
             <li sm-if="currentCustomer != null && currentCustomer.IsRegistered()" class="nav-item dropdown ml-md-3">
                 <a id="current-user" class="nav-link dropdown-toggle navbar-tool" data-toggle="dropdown" title="@userName" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
                     @*<em class="fa-stack fa-lg">
-                    <i class="fa fa-circle fa-stack-2x"></i>
-                    <i class="icm icm-user navbar-icon" style="color: #3b50ce"></i>
-                </em>*@
+                            <i class="fa fa-circle fa-stack-2x"></i>
+                            <i class="icm icm-user navbar-icon" style="color: #3b50ce"></i>
+                        </em>*@
                     <i class="icm icm-user navbar-icon"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
