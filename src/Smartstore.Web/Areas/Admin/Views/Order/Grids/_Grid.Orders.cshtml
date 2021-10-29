@@ -8,6 +8,7 @@
           allow-resize="true"
           allow-row-selection="true"
           border-style="HorizontalBorders"
+          sticky-footer="false"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("OrderList")" />
@@ -145,10 +146,13 @@
             <footer-template>
                 <div class="pr-2 text-truncate d-flex flex-column">
                     <div class="fwm mb-2 text-truncate">@T("Admin.Orders.Report.Summary"):</div>
-                    <div class="text-truncate d-inline-flex justify-content-between">
-                        <span class="pr-3 text-truncate">@T("Admin.Orders.Report.Profit"):</span>
-                        <span class=" text-truncate">{{ item.aggregates.profit }}</span>
-                    </div>
+                    @if (!(ViewBag.HideProfitReport == true))
+                    {
+                        <div class="text-truncate d-inline-flex justify-content-between">
+                            <span class="pr-3 text-truncate">@T("Admin.Orders.Report.Profit"):</span>
+                            <span class=" text-truncate">{{ item.aggregates.profit }}</span>
+                        </div>
+                    }
                     <div class="text-truncate d-inline-flex justify-content-between">
                         <span class="pr-3 text-truncate">@T("Admin.Orders.Report.Tax"):</span>
                         <span class=" text-truncate">{{ item.aggregates.tax }}</span>

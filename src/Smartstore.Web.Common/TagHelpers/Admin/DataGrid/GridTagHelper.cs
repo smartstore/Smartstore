@@ -40,6 +40,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string AllowColumnReorderingAttributeName = "allow-column-reordering";
         const string AllowEditAttributeName = "allow-edit";
         const string HideHeaderAttributeName = "hide-header";
+        const string StickyFooterAttributeName = "sticky-footer";
         const string KeyMemberAttributeName = "key-member";
         const string MaxHeightAttributeName = "max-height";
         const string PreserveCommandStateAttributeName = "preserve-command-state";
@@ -122,6 +123,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(HideHeaderAttributeName)]
         public bool HideHeader { get; set; }
+
+        /// <summary>
+        /// Whether to fix grid footer position while scrolling. Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(StickyFooterAttributeName)]
+        public bool StickyFooter { get; set; } = true;
 
         /// <summary>
         /// Key member expression. If <c>null</c>, any property named <c>Id</c> will be key member.
@@ -375,6 +382,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     allowColumnReordering = AllowColumnReordering,
                     allowEdit = AllowEdit,
                     hideHeader = HideHeader,
+                    stickyFooter = StickyFooter,
                     maxHeight = MaxHeight,
                     showSearch = false,
                     searchPanelWidth = SearchPanel?.Width,

@@ -191,7 +191,7 @@ Vue.component("sm-datagrid", {
                         </tbody>
 
                         <tfoot v-if="hasFooterTemplate" class="dg-tfoot" ref="tableFooter">
-                            <tr ref="tableFooterRow" class="dg-tr dg-tr-foot">
+                            <tr ref="tableFooterRow" class="dg-tr dg-tr-foot" :class="{ sticky: options.stickyFooter }">
                                 <td v-if="allowRowSelection || hasDetailView" class="dg-td dg-col-pinned alpha">
                                     &nbsp;
                                 </td>
