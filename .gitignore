@@ -309,6 +309,7 @@ Kopie von*
 /src/Smartstore.Web/App_Data/EfCache/
 /src/Smartstore.Web/App_Data/Settings.txt
 /src/Smartstore.Web/App_Data/InstalledPlugins.txt
+/src/Smartstore.Web/App_Data/InstalledModules.txt
 /src/Smartstore.Web/App_Data/Licenses.lic
 /src/Smartstore.Web/Media
 /src/**/App_Data/Tenants/
