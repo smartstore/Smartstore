@@ -18,16 +18,22 @@ namespace Smartstore.Web.Models.Common
     public static class AddressMappingExtensions
     {
         /// <summary>
-        /// Extension method to map an <see cref="Address"/> entity to the corresponding <see cref="AddressModel"/>.
+        /// Extension method to map an <see cref="Address"/> entity to <see cref="AddressModel"/>.
         /// </summary>
-        /// <param name="entity">The <see cref="Address"/> entity that should be mapped.</param>
-        /// <param name="model">The <see cref="AddressModel"/> to which the entity should be mapped to.</param>
-        /// <param name="excludeProperties">Specifies whether to exclude entity properties from being mapped to the model.</param>
-        /// <param name="countries">List of countries which should be included in the model.</param>
-        public static async Task MapAsync(this Address entity, AddressModel model, bool excludeProperties = false, List<Country> countries = null)
+        /// <param name="entity">Source <see cref="Address"/> to be mapped.</param>
+        /// <param name="model">Target <see cref="AddressModel"/> to which <paramref name="entity"/> is to be mapped.</param>
+        /// <param name="addCountries">
+        /// A value indicating whether to add countries and state provinces to the model.
+        /// If <c>null</c>, it will be obtained from <see cref="AddressSettings.CountryEnabled"/> and <see cref="AddressSettings.StateProvinceEnabled"/>.
+        /// </param>
+        /// <param name="countries">Countries to be added to the model.</param>
+        public static async Task MapAsync(this Address entity,
+            AddressModel model,
+            bool? addCountries = null,
+            IEnumerable<Country> countries = null)
         {
             dynamic parameters = new ExpandoObject();
-            parameters.ExcludeProperties = excludeProperties;
+            parameters.AddCountries = addCountries;
             parameters.Countries = countries;
 
             await MapperFactory.MapAsync(entity, model, parameters);
@@ -42,8 +48,8 @@ namespace Smartstore.Web.Models.Common
         private readonly AddressSettings _addressSettings;
 
         public AddressMapper(
-            SmartDbContext db, 
-            ICommonServices services, 
+            SmartDbContext db,
+            ICommonServices services,
             IAddressService addressService, 
             AddressSettings addressSettings)
         {
@@ -56,83 +62,96 @@ namespace Smartstore.Web.Models.Common
         protected override void Map(Address from, AddressModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        /// <summary>
-        /// Maps an address entity to an address model.
-        /// </summary>
-        /// <param name="from"><see cref="Address"/></param>
-        /// <param name="to"><see cref="AddressModel"/></param>
-        /// <param name="parameters">Expects excludeProperties of type <see cref="bool"/> and countries of type <see cref="List<Country>"/>. Both properties can also be ommited.</param>
         public override async Task MapAsync(Address from, AddressModel to, dynamic parameters = null)
         {
-            var excludeProperties = parameters?.ExcludeProperties == true;
-            var countries = parameters?.Countries as IEnumerable<Country>;
-            
-            // Form fields
+            Guard.NotNull(to, nameof(to));
+
+            var addCountries = parameters?.AddCountries as bool?;
+            var addCountriesExplicitly = addCountries.GetValueOrDefault();
+
             MiniMapper.Map(_addressSettings, to);
 
-            if (!excludeProperties && from != null)
+            // INFO: transient entity is not mapped to re-display entered model values when model validation failed.
+            if (from != null && !from.IsTransientRecord())
             {
                 MiniMapper.Map(from, to);
 
                 to.EmailMatch = from.Email;
                 to.CountryName = from.Country?.GetLocalized(x => x.Name);
-                if (from.StateProvinceId.HasValue && from.StateProvince != null)
-                {
-                    to.StateProvinceName = from.StateProvince.GetLocalized(x => x.Name);
-                }
-                
+                to.StateProvinceName = from.StateProvince?.GetLocalized(x => x.Name);
                 to.FormattedAddress = await _addressService.FormatAddressAsync(from, true);
             }
 
-            // Countries and states
-            if (_addressSettings.CountryEnabled && countries != null && countries.Any())
+            // Countries and states.
+            if (addCountries ?? _addressSettings.CountryEnabled)
             {
-                to.AvailableCountries.Add(new SelectListItem { Text = _services.Localization.GetResource("Address.SelectCountry"), Value = "0" });
-                foreach (var c in countries)
+                var countries = parameters?.Countries as IEnumerable<Country>;
+                if (countries == null)
                 {
-                    to.AvailableCountries.Add(new SelectListItem
-                    {
-                        Text = c.GetLocalized(x => x.Name),
-                        Value = c.Id.ToString(),
-                        Selected = c.Id == to.CountryId
-                    });
+                    countries = await _db.Countries
+                        .AsNoTracking()
+                        .ApplyStandardFilter(addCountriesExplicitly, addCountriesExplicitly ? 0 : _services.StoreContext.CurrentStore.Id)
+                        .ToListAsync();
                 }
 
-                if (_addressSettings.StateProvinceEnabled)
+                if (countries?.Any() ?? false)
                 {
-                    var states = await _db.StateProvinces
-                        .AsNoTracking()
-                        .Where(x => x.CountryId == (to.CountryId ?? 0))
-                        .ToListAsync();
-
-                    if (states.Any())
+                    if (!addCountriesExplicitly)
                     {
-                        foreach (var s in states)
-                        {
-                            to.AvailableStates.Add(new SelectListItem
-                            {
-                                Text = s.GetLocalized(x => x.Name),
-                                Value = s.Id.ToString(),
-                                Selected = (s.Id == to.StateProvinceId)
-                            });
-                        }
-                    }
-                    else
-                    {
-                        to.AvailableStates.Add(new SelectListItem
-                        {
-                            Text = _services.Localization.GetResource("Address.OtherNonUS"),
+                        to.AvailableCountries.Add(new SelectListItem 
+                        { 
+                            Text = _services.Localization.GetResource("Address.SelectCountry"), 
                             Value = "0"
                         });
+                    }
+
+                    foreach (var country in countries)
+                    {
+                        to.AvailableCountries.Add(new SelectListItem
+                        {
+                            Text = country.GetLocalized(x => x.Name),
+                            Value = country.Id.ToString(),
+                            Selected = country.Id == to.CountryId
+                        });
+                    }
+
+                    if (addCountries ?? _addressSettings.StateProvinceEnabled)
+                    {
+                        if (to.CountryId.HasValue)
+                        {
+                            var states = await _db.StateProvinces
+                                .AsNoTracking()
+                                .ApplyCountryFilter(to.CountryId.Value)
+                                .ToListAsync();
+
+                            foreach (var state in states)
+                            {
+                                to.AvailableStates.Add(new SelectListItem
+                                {
+                                    Text = state.GetLocalized(x => x.Name),
+                                    Value = state.Id.ToString(),
+                                    Selected = state.Id == to.StateProvinceId
+                                });
+                            }
+                        }
+                        else
+                        {
+                            to.AvailableStates.Add(new SelectListItem 
+                            {
+                                Text = _services.Localization.GetResource("Address.OtherNonUS"), 
+                                Value = "0"
+                            });
+                        }
                     }
                 }
             }
 
             string salutations = _addressSettings.GetLocalizedSetting(x => x.Salutations);
-            foreach (var sal in salutations.SplitSafe(','))
+
+            foreach (var salutation in salutations.SplitSafe(','))
             {
-                to.AvailableSalutations.Add(new SelectListItem { Value = sal, Text = sal });
-            }            
-        }   
+                to.AvailableSalutations.Add(new SelectListItem { Text = salutation, Value = salutation });
+            }
+        }
     }
 }

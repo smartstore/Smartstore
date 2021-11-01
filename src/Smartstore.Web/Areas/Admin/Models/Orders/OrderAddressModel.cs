@@ -14,6 +14,6 @@ namespace Smartstore.Admin.Models.Orders
 
         public int OrderId { get; }
 
-        public AddressModel Address { get; set; }
+        public AddressModel Address { get; set; } = new();
     }
 }

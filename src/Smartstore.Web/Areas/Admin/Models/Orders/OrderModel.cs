@@ -182,13 +182,6 @@ namespace Smartstore.Admin.Models.Orders
         public bool HasDownloadableProducts { get; set; }
         public string CustomerOrderComment { get; set; }
         public string CheckoutAttributeInfo { get; set; }
-        public bool DisplayPdfInvoice { get; set; }
-
-        [LocalizedDisplay("Admin.Orders.OrderNotes.Fields.AddOrderNoteDisplayToCustomer")]
-        public bool AddOrderNoteDisplayToCustomer { get; set; }
-        
-        [LocalizedDisplay("Admin.Orders.OrderNotes.Fields.AddOrderNoteMessage")]
-        public string AddOrderNoteMessage { get; set; }
 
         [LocalizedDisplay("*RecurringPayment")]
         public int RecurringPaymentId { get; set; }
@@ -205,16 +198,16 @@ namespace Smartstore.Admin.Models.Orders
         public bool CanVoidOffline { get; set; }
 
         [LocalizedDisplay("*BillingAddress")]
-        public AddressModel BillingAddress { get; set; }
+        public AddressModel BillingAddress { get; set; } = new();
 
         [LocalizedDisplay("*ShippingAddress")]
-        public AddressModel ShippingAddress { get; set; }
+        public AddressModel ShippingAddress { get; set; } = new();
 
         public List<GiftCard> GiftCards { get; set; }
         public List<OrderItemModel> Items { get; set; }
 
-        public string AutoUpdateOrderItemInfo { get; set; }
-        public AutoUpdateOrderItemModel AutoUpdateOrderItem { get; set; }
+        public string UpdateOrderItemInfo { get; set; }
+        public UpdateOrderItemModel UpdateOrderItem { get; set; }
 
         #region Nested classes
 
@@ -278,6 +271,7 @@ namespace Smartstore.Admin.Models.Orders
             [LocalizedDisplay("*DisplayToCustomer")]
             public bool DisplayToCustomer { get; set; }
 
+            [UIHint("Textarea"), AdditionalMetadata("rows", 4)]
             [LocalizedDisplay("*Note")]
             public string Note { get; set; }
 

@@ -345,12 +345,15 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new List<AddressModel>();
-            var countries = await GetAllCountriesAsync();
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
+                .ToListAsync();
 
             foreach (var address in customer.Addresses)
             {
                 var addressModel = new AddressModel();
-                await address.MapAsync(addressModel, countries: countries);
+                await address.MapAsync(addressModel, null, countries);
                 model.Add(addressModel);
             }
 
@@ -392,7 +395,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new AddressModel();
-            await new Address().MapAsync(model, countries: await GetAllCountriesAsync());
+            await new Address().MapAsync(model);
             model.Email = customer?.Email;
 
             return View(model);
@@ -419,7 +422,8 @@ namespace Smartstore.Web.Controllers
             }
 
             // If we got this far something failed. Redisplay form.
-            await new Address().MapAsync(model, countries: await GetAllCountriesAsync());
+            await new Address().MapAsync(model);
+
             return View(model);
         }
 
@@ -445,7 +449,7 @@ namespace Smartstore.Web.Controllers
             }
             
             var model = new AddressModel();
-            await address.MapAsync(model, countries: await GetAllCountriesAsync());
+            await address.MapAsync(model);
 
             return View(model);
         }
@@ -476,7 +480,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // If we got this far something failed. Redisplay form.
-            await new Address().MapAsync(model, countries: await GetAllCountriesAsync());
+            await new Address().MapAsync(model);
 
             return View(model);
         }
@@ -1187,14 +1191,6 @@ namespace Smartstore.Web.Controllers
             model.RecurringPayments = rpModels.ToPagedList(recurringPayments.PageIndex, recurringPayments.PageSize, recurringPayments.TotalCount);
 
             return model;
-        }
-
-        protected async Task<List<Country>> GetAllCountriesAsync()
-        {
-            return await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id)
-                .ToListAsync();
         }
 
         #endregion

@@ -496,6 +496,18 @@ namespace Smartstore.Core.Data.Migrations
                 "The SQL command was executed successfully. Rows affected: {0}.",
                 "Die SQL-Anweisung wurde erfolgreich ausgeführt. Betroffene Zeilen: {0}.");
 
+            builder.AddOrUpdate("Admin.Orders.OrderNotes.Fields.Note",
+                "Note",
+                "Notiz",
+                "The message or note to this order.",
+                "Die Nachricht oder Notiz zu diesem Auftrag.");
+
+            builder.AddOrUpdate("Admin.Orders.OrderNotes.Fields.DisplayToCustomer",
+                "Display to customer",
+                "Für den Benutzer sichtbar",
+                "A value indicating whether to display this order note to a customer.",
+                "Legt fest, ob die Notiz für den Benutzer sichtbar ist.");
+
             #endregion
 
             #region Obsolete
@@ -544,6 +556,9 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Common.FilesDeleted",
             //    "Admin.Common.FoldersDeleted",
             //    "Admin.SalesReport.NeverSold.Fields.Name",
+            //    "Admin.Orders.Info",
+            //    "Admin.Orders.OrderNotes.Fields.AddOrderNoteDisplayToCustomer",
+            //    "Admin.Orders.OrderNotes.Fields.AddOrderNoteMessage",
             //    );
 
 

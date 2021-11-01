@@ -1,0 +1,66 @@
+﻿@model OrderModel
+
+<div sm-if="Model.UpdateOrderItemInfo.HasValue()" class="alert alert-info alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    @Html.Raw(Model.UpdateOrderItemInfo)
+</div>
+
+TODO: (mg) (core) add orderitem to order edit. Continue as table or rework to grid?
+
+<script sm-target-zone="scripts" data-origin="order-edit-products">
+    $(function () {
+		@foreach (var item in Model.Items)
+		{
+			<text>toggleOrderItemEdit(</text>@(item.Id)<text>, false);</text>
+		}
+
+        // Edit\delete order item.
+        $('#orderitem-table').on('click', '.btn-delete-orderitem, .btn-save-orderitem', function () {
+            var btn = $(this);
+            var form = $('#update-orderitem-form');
+            var table = $('#orderitem-table');
+            var orderItemId = btn.attr('data-id');
+
+            form.find('input[name=Id]').val(orderItemId);
+            form.prop('action', btn.attr('data-url'));
+
+            if (btn.hasClass('btn-save-order-item')) {
+                form.find('input[name=NewQuantity]').val(table.find('input[name=pvQuantity' + orderItemId + ']').val());
+                form.find('input[name=NewUnitPriceInclTax]').val(table.find('input[name=pvUnitPriceInclTax' + orderItemId + ']').val());
+                form.find('input[name=NewUnitPriceExclTax]').val(table.find('input[name=pvUnitPriceExclTax' + orderItemId + ']').val());
+                form.find('input[name=NewTaxRate]').val(table.find('input[name=pvTaxRate' + orderItemId + ']').val());
+                form.find('input[name=NewDiscountInclTax]').val(table.find('input[name=pvDiscountInclTax' + orderItemId + ']').val());
+                form.find('input[name=NewDiscountExclTax]').val(table.find('input[name=pvDiscountExclTax' + orderItemId + ']').val());
+                form.find('input[name=NewPriceInclTax]').val(table.find('input[name=pvPriceInclTax' + orderItemId + ']').val());
+                form.find('input[name=NewPriceExclTax]').val(table.find('input[name=pvPriceExclTax' + orderItemId + ']').val());
+            }
+
+            $('#update-orderitem-dialog').modal();
+        });
+
+        function toggleOrderItemEdit(itemId, editMode) {
+            if (editMode) {
+                $('#pnlEditUnitPrice' + itemId).show();
+                $('#pnlEditQuantity' + itemId).show();
+                $('#pnlEditDiscount' + itemId).show();
+                $('#pnlEditPrice' + itemId).show();
+                $('#btnEditOrderItem' + itemId).hide();
+                $('#btnDeleteOrderItem' + itemId).hide();
+                $('#btnAddReturnRequest' + itemId).hide();
+                $('#btnSaveOrderItem' + itemId).removeClass("d-none");
+                $('#btnCancelOrderItem' + itemId).removeClass("d-none");
+            }
+            else {
+                $('#pnlEditUnitPrice' + itemId).hide();
+                $('#pnlEditQuantity' + itemId).hide();
+                $('#pnlEditDiscount' + itemId).hide();
+                $('#pnlEditPrice' + itemId).hide();
+                $('#btnEditOrderItem' + itemId).show();
+                $('#btnDeleteOrderItem' + itemId).show();
+                $('#btnAddReturnRequest' + itemId).show();
+                $('#btnSaveOrderItem' + itemId).addClass("d-none");
+                $('#btnCancelOrderItem' + itemId).addClass("d-none");
+            }
+        }
+    });
+</script>

@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
@@ -232,7 +231,12 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var shipment = await ShipmentQueryForEdit.FindByIdAsync(id, false);
+            var shipment = await _db.Shipments
+                .Include(x => x.ShipmentItems)
+                .Include(x => x.Order.ShippingAddress.Country)
+                .Include(x => x.Order.ShippingAddress.StateProvince)
+                .FindByIdAsync(id, false);
+
             if (shipment == null)
             {
                 return NotFound();
@@ -249,7 +253,12 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.EditShipment)]
         public async Task<IActionResult> Edit(ShipmentModel model, bool continueEditing)
         {
-            var shipment = await ShipmentQueryForEdit.FindByIdAsync(model.Id);
+            var shipment = await _db.Shipments
+                .Include(x => x.ShipmentItems)
+                .Include(x => x.Order.ShippingAddress.Country)
+                .Include(x => x.Order.ShippingAddress.StateProvince)
+                .FindByIdAsync(model.Id);
+
             if (shipment == null)
             {
                 return NotFound();
@@ -348,7 +357,11 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> PdfPackagingSlips(string selectedIds, bool all)
         {
             var ids = selectedIds.ToIntArray();
-            var query = ShipmentQueryForEdit.AsNoTracking();
+            var query = _db.Shipments
+                .Include(x => x.ShipmentItems)
+                .Include(x => x.Order.ShippingAddress.Country)
+                .Include(x => x.Order.ShippingAddress.StateProvince)
+                .AsNoTracking();
 
             if (!all && !ids.Any())
             {
@@ -422,14 +435,6 @@ namespace Smartstore.Admin.Controllers
 
         #region Utilities
 
-        private IIncludableQueryable<Shipment, Address> ShipmentQueryForEdit
-        {
-            get => _db.Shipments
-                .Include(x => x.ShipmentItems)
-                .Include(x => x.Order)
-                .ThenInclude(x => x.ShippingAddress);
-        }
-
         private async Task PrepareShipmentModel(ShipmentModel model, Shipment shipment, bool forEdit)
         {
             // Requires: Shipment.Order
@@ -468,10 +473,10 @@ namespace Smartstore.Admin.Controllers
                 model.MerchantCompanyInfo = await Services.SettingFactory.LoadSettingsAsync<CompanyInformationSettings>(store.Id);
                 model.FormattedMerchantAddress = await _addressService.FormatAddressAsync(model.MerchantCompanyInfo, true);
 
-                model.ShippingAddress = MiniMapper.Map<Address, AddressModel>(order.ShippingAddress);
-                model.FormattedShippingAddress = order.ShippingAddress != null
-                    ? await _addressService.FormatAddressAsync(order.ShippingAddress, true)
-                    : string.Empty;
+                if (order.ShippingAddressId.HasValue)
+                {
+                    await order.ShippingAddress.MapAsync(model.ShippingAddress, false);
+                }
 
                 // Shipment items.
                 var orderItemIds = shipment.ShipmentItems.ToDistinctArray(x => x.OrderItemId);

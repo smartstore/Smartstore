@@ -1,0 +1,45 @@
+﻿@model ShipmentModel
+
+@{
+    var parentModel = ViewData["Parent"] as OrderModel;
+}
+
+<datagrid id="shipments-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("ShipmentList", "Shipment", new { orderId = parentModel.Id })" />
+    <sorting enabled="false"></sorting>
+    <paging position="Bottom" show-size-chooser="false" enabled="false" />
+    <toolbar>
+        <toolbar-group>
+            <a datagrid-action="DataGridToolAction.InsertRow" asp-action="Create" asp-controller="Shipment" asp-route-orderId="@parentModel.Id" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Orders.Shipments.AddNew")</span>
+            </a>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_after"></zone>
+    </toolbar>
+    <columns>
+        <column for="Id" width="2fr" hideable="false" halign="center" type="string">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="TrackingNumber" />
+        <column for="TrackingUrl">
+            <display-template>
+                <div class="text-truncate">
+                    <a :href="item.row.TrackingUrl" class="text-truncate" target="_blank" v-bind:class="{ hide: item.row.TrackingUrl.length > 0 }">
+                        {{ item.value }}
+                    </a>
+                </div>
+            </display-template>
+        </column>
+        <column for="TotalWeight" />
+        <column for="ShippedDate" entity-member="ShippedDateUtc" />
+        <column for="DeliveryDate" entity-member="DeliveryDateUtc" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
+    </columns>
+</datagrid>

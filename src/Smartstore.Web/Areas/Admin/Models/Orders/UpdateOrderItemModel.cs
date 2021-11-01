@@ -3,7 +3,7 @@
 namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.Orders.OrderItem.AutoUpdate.")]
-    public class AutoUpdateOrderItemModel : EntityModelBase
+    public class UpdateOrderItemModel : EntityModelBase
     {
         public string Caption { get; set; }
         public string PostUrl { get; set; }

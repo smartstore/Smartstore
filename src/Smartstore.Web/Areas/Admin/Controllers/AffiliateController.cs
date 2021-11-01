@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Affiliates;
 using Smartstore.ComponentModel;
@@ -13,13 +11,12 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Web;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models.Common;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -52,10 +49,11 @@ namespace Smartstore.Admin.Controllers
             {
                 model.Id = affiliate.Id;
                 model.Url = _webHelper.ModifyQueryString(_webHelper.GetStoreLocation(false), "affiliateid=" + affiliate.Id, null);
+
                 if (!excludeProperties)
                 {
                     model.Active = affiliate.Active;
-                    await affiliate.Address.MapAsync(model.Address);
+                    await affiliate.Address.MapAsync(model.Address, true);
                 }
             }
 
@@ -74,53 +72,10 @@ namespace Smartstore.Admin.Controllers
             model.Address.FaxEnabled = true;
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
 
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .Include(x => x.StateProvinces.OrderBy(x => x.DisplayOrder))
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
-            foreach (var c in countries)
+            if (!model.Address.AvailableCountries.Any())
             {
-                model.Address.AvailableCountries.Add(new SelectListItem
-                { 
-                    Text = c.Name, 
-                    Value = c.Id.ToString(), 
-                    Selected = affiliate != null && c.Id == affiliate.Address.CountryId 
-                });
+                await new Address().MapAsync(model.Address, true);
             }
-
-            var availableStates = new List<SelectListItem>();
-            if (model.Address.CountryId != null)
-            {
-                var states = await _db.StateProvinces
-                    .AsNoTracking()
-                    .ApplyCountryFilter(model.Address.CountryId.Value)
-                    .ToListAsync();
-
-                if (states.Any())
-                {
-                    foreach (var s in states)
-                    {
-                        availableStates.Add(new SelectListItem
-                        {
-                            Text = s.GetLocalized(x => x.Name),
-                            Value = s.Id.ToString(),
-                            Selected = s.Id == affiliate.Address.StateProvinceId
-                        });
-                    }
-                }
-                else
-                {
-                    availableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
-                }
-            }
-            else
-            {
-                availableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
-            }
-
-            model.Address.AvailableStates = availableStates;
         }
 
         public IActionResult Index()

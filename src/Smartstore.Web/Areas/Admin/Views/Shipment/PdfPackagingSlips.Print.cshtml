@@ -30,7 +30,6 @@
     @foreach (var shipment in Model)
     {
         var company = shipment.MerchantCompanyInfo;
-        var address = shipment.ShippingAddress;
         var showGtin = shipment.Items.Any(x => x.Gtin.HasValue());
         var colWidths = new[] { 50, 20, 10 };
 
@@ -52,7 +51,7 @@
                         </span>
                     </div>
                     <div class="mt-2">
-                        @Html.Raw(shipment.FormattedShippingAddress)
+                        @Html.Raw(shipment.ShippingAddress.FormattedAddress)
                     </div>
                 </div>
 

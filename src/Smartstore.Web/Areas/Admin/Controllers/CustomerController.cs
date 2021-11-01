@@ -29,10 +29,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Core.Widgets;
 using Smartstore.Data;
-using Smartstore.Net.Mail;
-using Smartstore.Utilities;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
@@ -270,7 +267,11 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Addresses.
-            var countries = await GetAllCountriesAsync();
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
+                .ToListAsync();
+
             var addresses = customer.Addresses
                 .OrderByDescending(a => a.CreatedOnUtc)
                 .ThenByDescending(a => a.Id)
@@ -279,7 +280,7 @@ namespace Smartstore.Admin.Controllers
             foreach (var address in addresses)
             {
                 var addressModel = new AddressModel();
-                await address.MapAsync(addressModel, countries: countries);
+                await address.MapAsync(addressModel, null, countries);
                 model.Addresses.Add(addressModel);
             }
         }
@@ -393,20 +394,12 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        private async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
+        private static async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
         {
             model.CustomerId = customer.Id;
             model.Username = customer.Username;
 
-            await address.MapAsync(model.Address, countries: await GetAllCountriesAsync());
-        }
-
-        protected async Task<List<Country>> GetAllCountriesAsync()
-        {
-            return await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id)
-                .ToListAsync();
+            await address.MapAsync(model.Address);
         }
 
         #endregion

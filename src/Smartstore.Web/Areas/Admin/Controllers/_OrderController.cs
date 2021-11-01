@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -62,7 +61,6 @@ namespace Smartstore.Admin.Controllers
         private readonly TaxSettings _taxSettings;
         private readonly MeasureSettings _measureSettings;
         private readonly PdfSettings _pdfSettings;
-        private readonly AddressSettings _addressSettings;
         private readonly SearchSettings _searchSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly MediaSettings _mediaSettings;
@@ -84,7 +82,6 @@ namespace Smartstore.Admin.Controllers
             TaxSettings taxSettings,
             MeasureSettings measureSettings,
             PdfSettings pdfSettings,
-            AddressSettings addressSettings,
             SearchSettings searchSettings,
             ShoppingCartSettings shoppingCartSettings,
             MediaSettings mediaSettings,
@@ -104,7 +101,6 @@ namespace Smartstore.Admin.Controllers
             _taxSettings = taxSettings;
             _measureSettings = measureSettings;
             _pdfSettings = pdfSettings;
-            _addressSettings = addressSettings;
             _searchSettings = searchSettings;
             _shoppingCartSettings = shoppingCartSettings;
             _mediaSettings = mediaSettings;
@@ -920,7 +916,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Order.EditItem)]
-        public async Task<IActionResult> EditOrderItem(AutoUpdateOrderItemModel model)
+        public async Task<IActionResult> EditOrderItem(UpdateOrderItemModel model)
         {
             var context = new UpdateOrderDetailsContext
             {
@@ -953,7 +949,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Order.EditItem)]
-        public async Task<IActionResult> DeleteOrderItem(AutoUpdateOrderItemModel model)
+        public async Task<IActionResult> DeleteOrderItem(UpdateOrderItemModel model)
         {
             var context = new UpdateOrderDetailsContext
             {
@@ -1242,7 +1238,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var model = new OrderAddressModel(orderId);
-            await PrepareOrderAddressModel(model, address);
+            await address.MapAsync(model.Address, true);
 
             return View(model);
         }
@@ -1275,7 +1271,7 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction(nameof(AddressEdit), new { addressId = model.Address.Id, orderId = model.OrderId });
             }
 
-            await PrepareOrderAddressModel(model, address);
+            await address.MapAsync(model.Address, true);
 
             return View(model);
         }
@@ -1285,15 +1281,14 @@ namespace Smartstore.Admin.Controllers
 
         #region Order notes
 
-        [HttpPost]
         [Permission(Permissions.Order.Read)]
-        public async Task<IActionResult> OrderNoteList(GridCommand command, int orderId)
+        public async Task<IActionResult> OrderNoteList(int orderId)
         {
             var order = await _db.Orders
                 .Include(x => x.OrderNotes)
                 .FindByIdAsync(orderId);
 
-            if (order != null)
+            if (order == null)
             {
                 return NotFound();
             }
@@ -1323,6 +1318,7 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
+        [HttpPost]
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> OrderNoteInsert(int orderId, bool displayToCustomer, string message)
         {
@@ -1352,6 +1348,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Result = true });
         }
 
+        [HttpPost]
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> OrderNoteDelete(GridSelection selection, int orderId)
         {
@@ -1611,6 +1608,11 @@ namespace Smartstore.Admin.Controllers
             var store = Services.StoreContext.GetStoreById(order.StoreId);
             var taxRates = order.TaxRatesDictionary;
 
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter(true)
+                .ToListAsync();
+
             MiniMapper.Map(order, model);
             await PrepareOrderOverviewModel(model, order);
 
@@ -1623,7 +1625,6 @@ namespace Smartstore.Admin.Controllers
                 model.AffiliateFullName = affiliate?.Address?.GetFullName() ?? StringExtensions.NotAvailable;
             }
 
-            model.DisplayPdfInvoice = _pdfSettings.Enabled;
             model.OrderSubtotalInclTaxString = Format(order.OrderSubtotalInclTax, true);
             model.OrderSubtotalExclTaxString = Format(order.OrderSubtotalExclTax, false);
 
@@ -1761,26 +1762,19 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => x.Id)
                 .FirstOrDefaultAsync();
 
-            model.BillingAddress = MiniMapper.Map<Address, AddressModel>(order.BillingAddress);
-            PrepareSettings(model.BillingAddress);
+            await order.BillingAddress.MapAsync(model.BillingAddress, true, countries);
 
             if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
             {
                 var shipTo = order.ShippingAddress;
                 var googleAddressQuery = $"{shipTo.Address1} {shipTo.ZipPostalCode} {shipTo.City} {shipTo.Country?.Name ?? string.Empty}";
 
-                model.ShippingAddress = MiniMapper.Map<Address, AddressModel>(shipTo);
-                PrepareSettings(model.ShippingAddress);
+                await shipTo.MapAsync(model.ShippingAddress, true, countries);
 
                 model.CanAddNewShipments = order.CanAddItemsToShipment();
-
                 model.ShippingAddressGoogleMapsUrl = Services.ApplicationContext.AppConfiguration.Google.MapsUrl.FormatInvariant(
                     language.UniqueSeoCode.EmptyNull().ToLower(),
                     googleAddressQuery.UrlEncode());
-            }
-            else
-            {
-                model.ShippingAddress = new();
             }
 
             // Purchase order number (we have to find a better to inject this information because it's related to a certain plugin).
@@ -1788,9 +1782,9 @@ namespace Smartstore.Admin.Controllers
             model.DisplayPurchaseOrderNumber = order.PaymentMethodSystemName.EqualsNoCase("Smartstore.PurchaseOrderNumber");
             model.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(order.CheckoutAttributeDescription));
             model.HasDownloadableProducts = order.OrderItems.Any(x => x.Product.IsDownload);
-            model.AutoUpdateOrderItemInfo = TempData[UpdateOrderDetailsContext.InfoKey] as string;
+            model.UpdateOrderItemInfo = TempData[UpdateOrderDetailsContext.InfoKey] as string;
 
-            model.AutoUpdateOrderItem = new AutoUpdateOrderItemModel
+            model.UpdateOrderItem = new UpdateOrderItemModel
             {
                 Caption = T("Admin.Orders.EditOrderDetails"),
                 ShowUpdateTotals = order.OrderStatusId <= (int)OrderStatus.Pending,
@@ -1801,6 +1795,8 @@ namespace Smartstore.Admin.Controllers
             };
 
             model.Items = await CreateOrderItemsModels(order);
+
+            ViewBag.DisplayPdfInvoice = _pdfSettings.Enabled;
         }
 
         private async Task<List<OrderModel.OrderItemModel>> CreateOrderItemsModels(Order order)
@@ -1904,61 +1900,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             return result;
-        }
-
-        private async Task PrepareOrderAddressModel(OrderAddressModel model, Address address)
-        {
-            model.Address = MiniMapper.Map<Address, AddressModel>(address);
-            PrepareSettings(model.Address);
-
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
-            model.Address.AvailableCountries = countries
-                .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString(), Selected = x.Id == address.CountryId })
-                .ToList();
-
-            if (address.CountryId.HasValue)
-            {
-                var stateProvinces = await _db.StateProvinces
-                    .AsNoTracking()
-                    .ApplyCountryFilter(address.CountryId.Value)
-                    .ToListAsync();
-
-                model.Address.AvailableStates = stateProvinces
-                    .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString(), Selected = x.Id == address.StateProvinceId })
-                    .ToList();
-            }
-            else
-            {
-                model.Address.AvailableStates = new List<SelectListItem>
-                {
-                    new SelectListItem { Text = T("Admin.Address.OtherNonUS"), Value = "0" }
-                };
-            }
-        }
-
-        private void PrepareSettings(AddressModel model)
-        {
-            model.ValidateEmailAddress = _addressSettings.ValidateEmailAddress;
-            model.CompanyEnabled = _addressSettings.CompanyEnabled;
-            model.CompanyRequired = _addressSettings.CompanyRequired;
-            model.CountryEnabled = _addressSettings.CountryEnabled;
-            model.StateProvinceEnabled = _addressSettings.StateProvinceEnabled;
-            model.CityEnabled = _addressSettings.CityEnabled;
-            model.CityRequired = _addressSettings.CityRequired;
-            model.StreetAddressEnabled = _addressSettings.StreetAddressEnabled;
-            model.StreetAddressRequired = _addressSettings.StreetAddressRequired;
-            model.StreetAddress2Enabled = _addressSettings.StreetAddress2Enabled;
-            model.StreetAddress2Required = _addressSettings.StreetAddress2Required;
-            model.ZipPostalCodeEnabled = _addressSettings.ZipPostalCodeEnabled;
-            model.ZipPostalCodeRequired = _addressSettings.ZipPostalCodeRequired;
-            model.PhoneEnabled = _addressSettings.PhoneEnabled;
-            model.PhoneRequired = _addressSettings.PhoneRequired;
-            model.FaxEnabled = _addressSettings.FaxEnabled;
-            model.FaxRequired = _addressSettings.FaxRequired;
         }
 
         private OrderItem GetOrderItemByFormValue(Order order, string prefix, IFormCollection form)

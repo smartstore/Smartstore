@@ -1,15 +1,20 @@
-﻿@model OrderModel
+﻿@using Smartstore.Admin.Models.Common
+
+@model OrderModel
 
 @{
     ViewBag.Title = T("Admin.Orders.EditOrderDetails") + " - " + Model.OrderNumber;
 
-    //var displayPdfInvoice = (bool)ViewBag.DisplayPdfInvoice;
+    var displayPdfInvoice = (bool)ViewBag.DisplayPdfInvoice;
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
 }
 
 <form id="order-form" asp-action="Edit" method="post">
     <div class="section-header">
         <div class="title">
-            <i class="fa fa-truck"></i>
+            <i class="far fa-chart-bar"></i>
             <span>@ViewBag.Title</span>
             <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>
@@ -20,8 +25,13 @@
                 <i class="fa fa-print"></i>
                 <span>@T("Order.Print")</span>
             </a>
-
-            @*TODO: (mg) (core) PDF invoice*@
+            @if (displayPdfInvoice)
+            {
+                <a asp-action="Print" asp-route-orderId="@Model.Id" asp-route-pdf="true" class="btn btn-secondary">
+                    <i class="far fa-file-pdf"></i>
+                    <span>@T("Admin.Orders.PdfInvoice")</span>
+                </a>
+            }
 
             <button type="submit" id="order-delete" name="order-delete" class="btn btn-danger">
                 <i class="far fa-trash-alt"></i>
@@ -35,4 +45,24 @@
         </div>
     </div>
 
+    <div asp-validation-summary="All"></div>
+
+    <tabstrip id="order-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+        </tab>
+        <tab sm-title="@T("Admin.Orders.BillingAndShipment")">
+            <partial name="_Edit.BillingAndShipment" />
+        </tab>
+        <tab sm-title="@T("Admin.Orders.Products")">
+            <partial name="_Edit.Products" />
+        </tab>
+        <tab sm-title="@T("Admin.Orders.OrderNotes")">
+            <partial name="Grids/_Grid.OrderNotes" model="null" view-data="gridViewData" />
+        </tab>
+        <tab sm-title="@T("Admin.Common.GenericAttributes")">
+            <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel {  EntityName = "Order", AttributeEntityId = Model.Id }' />
+        </tab>
+    </tabstrip>
 </form>
+
+<partial name="_UpdateOrderItemDialog" model="Model.UpdateOrderItem" />

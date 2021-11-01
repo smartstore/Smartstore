@@ -1,15 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Web.Models.Checkout;
 using Smartstore.Web.Models.Common;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Smartstore.Web.Models.Checkout
 {
@@ -57,26 +57,25 @@ namespace Smartstore.Web.Models.Checkout
             foreach (var address in from)
             {
                 var addressModel = new AddressModel();
-                await address.MapAsync(addressModel);
+                await address.MapAsync(addressModel, false);
+
                 to.ExistingAddresses.Add(addressModel);
             }
 
             // New address.
+            var countriesQuery = _db.Countries.AsNoTracking();
+
+            countriesQuery = shipping
+                ? countriesQuery.Where(x => x.AllowsShipping)
+                : countriesQuery.Where(x => x.AllowsBilling);
+
+            var countries = await countriesQuery
+                .ApplyStandardFilter(false, _services.StoreContext.CurrentStore.Id)
+                .ToListAsync();
+
+            await new Address().MapAsync(to.NewAddress, null, countries);
+
             to.NewAddress.CountryId = selectedCountryId;
-
-            var query = _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(false, _services.StoreContext.CurrentStore.Id)                
-                .AsQueryable();
-
-            query = shipping
-                ? query.Where(x => x.AllowsShipping)
-                : query.Where(x => x.AllowsBilling);
-
-            var countries = await query.ToListAsync();
-
-            await new Address().MapAsync(to.NewAddress, true, countries);
-
             to.NewAddress.Email = _services.WorkContext.CurrentCustomer.Email;
         }
     }
