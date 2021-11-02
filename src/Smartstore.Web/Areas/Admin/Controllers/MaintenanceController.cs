@@ -887,6 +887,7 @@ namespace Smartstore.Admin.Controllers
         #region UI Helpers
 
         // TODO: (mh) (core) MaintanceController doesn't seem to be the right place anymore. Maybe shift to MenuController?
+        // RE: Move this to ThemeController (there's no better place right now).
         [HttpPost]
         public JsonResult SearchIcons(string term, string selected = null, int page = 1)
         {
