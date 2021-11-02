@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Title = T("Admin.ContentManagement.Menus").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="far fa-stream"></i>
+        @T("Admin.ContentManagement.Menus")
+    </div>
+    <div class="options">
+        <zone name="admin_button_toolbar_before"></zone>
+        <zone name="admin_button_toolbar_after"></zone>
+    </div>
+</div>
+
+<partial name="_Grid.Menus" model="null" view-data="gridViewData" />

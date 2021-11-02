@@ -1,0 +1,16 @@
+﻿@using Smartstore.Admin.Models.Menus
+
+@model MenuEntityListModel
+
+@{
+    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+}
+
+<div sm-if="!isSingleStoreMode" class="form-group">
+    <smart-label asp-for="StoreId" />
+    <editor asp-for="StoreId" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SystemName" />
+    <input asp-for="SystemName" />
+</div>
