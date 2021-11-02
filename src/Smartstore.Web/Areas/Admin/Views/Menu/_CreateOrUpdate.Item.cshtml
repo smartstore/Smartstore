@@ -6,8 +6,7 @@
     var brandColors = Display.GetThemeVariable<string>("brand-colors");
     var iconColors = brandColors
         .Trim()
-        .SplitSafe(",")
-        .Select(x => x.TrimSafe())
+        .SplitSafe(',')
         .Select(x => new SelectListItem { Text = x, Value = x })
         .ToList();
     iconColors.Add(new SelectListItem { Text = T("Common.White"), Value = "white" });

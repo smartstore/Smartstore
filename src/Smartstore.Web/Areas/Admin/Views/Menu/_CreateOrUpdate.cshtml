@@ -119,7 +119,8 @@
         ))
         @if (Model.Id > 0)
         {
-            //TODO: (mh) (core) Use new grid 
+            // TODO: (mh) (core) Use new grid 
+            // RE: No! Just use regular Bootstrap .table and mimic the classic look & feel.
             <h4 class="h4 mt-5 mb-4">@T("Admin.ContentManagement.MenuLinks")</h4>
 
             <div id="menu-items-container" class="t-widget t-grid" style="overflow: visible !important">
@@ -150,16 +151,17 @@
 <script sm-target-zone="scripts" data-origin="menu-create-or-update">
     $(function () {
         // Process item command.
+        // TODO: (mh) (core) Please don't commit broken stuff!!! YOu have to check each line after COPY&PASTE!
         $('#menu-items-container').on('click', '.menu-item-command:not(.disabled)', function (e) {
             e.preventDefault();
             var el = $(this);
 
             switch (el.data('action')) {
                 case 'delete-item':
-					el.doAjax({
+					el.ajax({
 						type: 'POST',
                         ask: @T("Admin.Common.AskToProceed").JsValue,
-                        callbackSuccess: function (response) {
+                        success: function (response) {
                             if (!_.isEmpty(response)) {
                                 $('#menu-items').html(response);
                             }
@@ -168,9 +170,9 @@
                     break;
                 case 'move-item-up':
                 case 'move-item-down':
-                    el.doAjax({
+                    el.ajax({
                         type: 'POST',
-                        callbackSuccess: function (response) {
+                        success: function (response) {
                             if (!_.isEmpty(response)) {
                                 $('#menu-items').html(response);
                             }

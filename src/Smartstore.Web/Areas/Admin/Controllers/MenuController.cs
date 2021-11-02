@@ -13,7 +13,6 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Data;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
@@ -21,6 +20,7 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
+    // TODO: (mh) (core) Saving does not work. Nothing is saved and system menu becomes non-system.
     [Area("Admin")]
     public class MenuController : AdminController
     {
@@ -30,7 +30,8 @@ namespace Smartstore.Admin.Controllers
         private readonly IAclService _aclService;
         private readonly IDictionary<string, Lazy<IMenuItemProvider, MenuItemProviderMetadata>> _menuItemProviders;
 
-        public MenuController(SmartDbContext db,
+        public MenuController(
+            SmartDbContext db,
             IStoreMappingService storeMappingService,
             ILocalizedEntityService localizedEntityService,
             IAclService aclService,
@@ -70,7 +71,12 @@ namespace Smartstore.Admin.Controllers
                 })
                 .ToList();
 
-            var entities = await _db.MenuItems.Where(x => x.MenuId == model.Id).ToListAsync();
+            var entities = await _db.MenuItems
+                .AsNoTracking()
+                .Include(x => x.Menu)
+                .Where(x => x.MenuId == model.Id)
+                .ToListAsync();
+
             model.ItemTree = await entities.GetTreeAsync("EditMenu", _menuItemProviders);
         }
 
@@ -79,8 +85,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IMenuItemProvider, MenuItemProviderMetadata> provider = null;
             var entities = await _db.MenuItems
                 .AsNoTracking()
-                .Where(x => x.MenuId == model.MenuId)
                 .Include(x => x.Menu)
+                .Where(x => x.MenuId == model.MenuId)
                 .ToDictionaryAsync(x => x.Id, x => x);
 
             model.Locales = new List<MenuItemLocalizedModel>();
@@ -138,25 +144,25 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
-        private void UpdateLocales(MenuEntity entity, MenuEntityModel model)
+        private async Task UpdateLocalesAsync(MenuEntity entity, MenuEntityModel model)
         {
             if (model.Locales != null)
             {
                 foreach (var localized in model.Locales)
                 {
-                    _localizedEntityService.ApplyLocalizedValueAsync(entity, x => x.Title, localized.Title, localized.LanguageId);
+                    await _localizedEntityService.ApplyLocalizedValueAsync(entity, x => x.Title, localized.Title, localized.LanguageId);
                 }
             }
         }
 
-        private void UpdateLocales(MenuItemEntity entity, MenuItemModel model)
+        private async Task UpdateLocalesAsync(MenuItemEntity entity, MenuItemModel model)
         {
             if (model.Locales != null)
             {
                 foreach (var localized in model.Locales)
                 {
-                    _localizedEntityService.ApplyLocalizedValueAsync(entity, x => x.Title, localized.Title, localized.LanguageId);
-                    _localizedEntityService.ApplyLocalizedValueAsync(entity, x => x.ShortDescription, localized.ShortDescription, localized.LanguageId);
+                    await _localizedEntityService.ApplyLocalizedValueAsync(entity, x => x.Title, localized.Title, localized.LanguageId);
+                    await _localizedEntityService.ApplyLocalizedValueAsync(entity, x => x.ShortDescription, localized.ShortDescription, localized.LanguageId);
                 }
             }
         }
@@ -174,6 +180,7 @@ namespace Smartstore.Admin.Controllers
         public IActionResult List()
         {
             // TODO: (mh) (core) Is this needed
+            // RE: No!
             var model = new MenuEntityListModel();
 
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems();
@@ -234,17 +241,19 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var menu = MiniMapper.Map<MenuEntityModel, MenuEntity>(model);
-                menu.WidgetZone = string.Join(",", model.WidgetZone ?? new string[0]).NullEmpty();
+                menu.WidgetZone = string.Join(',', model.WidgetZone ?? Array.Empty<string>()).NullEmpty();
 
+                // TODO: (mh) (core) handled by a hook now (?). Please analyze. 
                 menu.SystemName = menu.SystemName.ToValidPath();
                 _db.Menus.Add(menu);
                 await _db.SaveChangesAsync();
 
                 // TODO: (mh) (core) Call GetMenuSystemNamesAsync???? It was called in classic by InsertMenu method.
+                // RE: No! handled by a Hook now.
 
                 await SaveStoreMappingsAsync(menu, model.SelectedStoreIds);
                 await SaveAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
-                UpdateLocales(menu, model);
+                await UpdateLocalesAsync(menu, model);
                 await _db.SaveChangesAsync();
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
 
@@ -267,7 +276,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var model = MiniMapper.Map<MenuEntity, MenuEntityModel>(menu);
-            model.WidgetZone = menu.WidgetZone.SplitSafe(",").ToArray();
+            model.WidgetZone = menu.WidgetZone.SplitSafe(',').ToArray();
 
             await PrepareModelAsync(model, menu);
             AddLocales(model.Locales, (locale, languageId) =>
@@ -291,13 +300,11 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 MiniMapper.Map(model, menu);
-                menu.WidgetZone = string.Join(",", model.WidgetZone ?? new string[0]).NullEmpty();
-
-                // TODO: (mh) (core) Call GetMenuSystemNamesAsync???? It was called in classic by UpdateMenu method.
+                menu.WidgetZone = string.Join(',', model.WidgetZone ?? Array.Empty<string>()).NullEmpty();
 
                 await SaveStoreMappingsAsync(menu, model.SelectedStoreIds);
                 await SaveAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
-                UpdateLocales(menu, model);
+                await UpdateLocalesAsync(menu, model);
                 await _db.SaveChangesAsync();
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
 
@@ -414,14 +421,14 @@ namespace Smartstore.Admin.Controllers
             {
                 itemModel.ParentItemId ??= 0;
                 var item = MiniMapper.Map<MenuItemModel, MenuItemEntity>(itemModel);
-                item.PermissionNames = string.Join(",", itemModel.PermissionNames ?? new string[0]).NullEmpty();
+                item.PermissionNames = string.Join(',', itemModel.PermissionNames ?? Array.Empty<string>()).NullEmpty();
 
                 _db.MenuItems.Add(item);
                 await _db.SaveChangesAsync();
 
                 await SaveStoreMappingsAsync(item, itemModel.SelectedStoreIds);
                 await SaveAclMappingsAsync(item, itemModel.SelectedCustomerRoleIds);
-                UpdateLocales(item, itemModel);
+                await UpdateLocalesAsync(item, itemModel);
 
                 await _db.SaveChangesAsync();
 
@@ -452,7 +459,7 @@ namespace Smartstore.Admin.Controllers
 
             var model = MiniMapper.Map<MenuItemEntity, MenuItemModel>(item);
             model.ParentItemId = item.ParentItemId == 0 ? null : item.ParentItemId;
-            model.PermissionNames = item.PermissionNames.SplitSafe(",").ToArray();
+            model.PermissionNames = item.PermissionNames.SplitSafe(',').ToArray();
 
             await PrepareModelAsync(model, item);
             AddLocales(model.Locales, (locale, languageId) =>
@@ -479,11 +486,11 @@ namespace Smartstore.Admin.Controllers
             {
                 itemModel.ParentItemId ??= 0;
                 MiniMapper.Map(itemModel, item);
-                item.PermissionNames = string.Join(",", itemModel.PermissionNames ?? new string[0]).NullEmpty();
+                item.PermissionNames = string.Join(',', itemModel.PermissionNames ?? Array.Empty<string>()).NullEmpty();
 
                 await SaveStoreMappingsAsync(item, itemModel.SelectedStoreIds);
                 await SaveAclMappingsAsync(item, itemModel.SelectedCustomerRoleIds);
-                UpdateLocales(item, itemModel);
+                await UpdateLocalesAsync(item, itemModel);
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(itemModel, item, form));
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
@@ -511,32 +518,32 @@ namespace Smartstore.Admin.Controllers
                 return new EmptyResult();
             }
 
-            using (var scope = new DbContextScope(ctx: Services.DbContext))
+            var allItems = await _db.MenuItems
+                .Where(x => x.MenuId == menuId)
+                .ToDictionaryAsync(x => x.Id, x => x);
+
+            var sourceItem = allItems[sourceId];
+
+            var siblings = allItems.Select(x => x.Value)
+                .Where(x => x.ParentItemId == sourceItem.ParentItemId)
+                .OrderBy(x => x.DisplayOrder)
+                .ToList();
+
+            var index = siblings.IndexOf(sourceItem) + (direction == "up" ? -1 : 1);
+            if (index >= 0 && index < siblings.Count)
             {
-                var allItems = await _db.MenuItems.Where(x => x.MenuId == menuId).ToDictionaryAsync(x => x.Id, x => x);
-                var sourceItem = allItems[sourceId];
+                var targetItem = siblings[index];
 
-                var siblings = allItems.Select(x => x.Value)
-                    .Where(x => x.ParentItemId == sourceItem.ParentItemId)
-                    .OrderBy(x => x.DisplayOrder)
-                    .ToList();
+                // Ensure unique display order starting from 1.
+                var count = 0;
+                siblings.Each(x => x.DisplayOrder = ++count);
 
-                var index = siblings.IndexOf(sourceItem) + (direction == "up" ? -1 : 1);
-                if (index >= 0 && index < siblings.Count)
-                {
-                    var targetItem = siblings[index];
+                // Swap display order of source and target item.
+                var tmp = sourceItem.DisplayOrder;
+                sourceItem.DisplayOrder = targetItem.DisplayOrder;
+                targetItem.DisplayOrder = tmp;
 
-                    // Ensure unique display order starting from 1.
-                    var count = 0;
-                    siblings.Each(x => x.DisplayOrder = ++count);
-
-                    // Swap display order of source and target item.
-                    var tmp = sourceItem.DisplayOrder;
-                    sourceItem.DisplayOrder = targetItem.DisplayOrder;
-                    targetItem.DisplayOrder = tmp;
-
-                    scope.Commit();
-                }
+                await _db.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(ItemList), new { id = menuId });
