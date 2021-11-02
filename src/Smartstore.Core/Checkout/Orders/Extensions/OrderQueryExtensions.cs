@@ -26,9 +26,8 @@ namespace Smartstore
             Guard.NotNull(query, nameof(query));
 
             return query
-                .Include(x => x.BillingAddress)
-                .ThenInclude(x => x.StateProvince)
-                .ThenInclude(x => x.Country);
+                .Include(x => x.BillingAddress.StateProvince)
+                .Include(x => x.BillingAddress.Country);
         }
 
         /// <summary>
@@ -39,9 +38,8 @@ namespace Smartstore
             Guard.NotNull(query, nameof(query));
 
             return query
-                .Include(x => x.ShippingAddress)
-                .ThenInclude(x => x.StateProvince)
-                .ThenInclude(x => x.Country);
+                .Include(x => x.ShippingAddress.StateProvince)
+                .Include(x => x.ShippingAddress.Country);
         }
 
         /// <summary>

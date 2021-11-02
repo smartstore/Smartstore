@@ -67,13 +67,16 @@ namespace Smartstore.Web.Models.Common
             Guard.NotNull(to, nameof(to));
 
             var addCountries = parameters?.AddCountries as bool?;
-            var addCountriesExplicitly = addCountries.GetValueOrDefault();
+            var explicitAddCountries = addCountries.GetValueOrDefault();
 
             MiniMapper.Map(_addressSettings, to);
 
             // INFO: transient entity is not mapped to re-display entered model values when model validation failed.
             if (from != null && !from.IsTransientRecord())
             {
+                await _db.LoadReferenceAsync(from, x => x.Country);
+                await _db.LoadReferenceAsync(from, x => x.StateProvince);
+
                 MiniMapper.Map(from, to);
 
                 to.EmailMatch = from.Email;
@@ -90,13 +93,13 @@ namespace Smartstore.Web.Models.Common
                 {
                     countries = await _db.Countries
                         .AsNoTracking()
-                        .ApplyStandardFilter(addCountriesExplicitly, addCountriesExplicitly ? 0 : _services.StoreContext.CurrentStore.Id)
+                        .ApplyStandardFilter(explicitAddCountries, explicitAddCountries ? 0 : _services.StoreContext.CurrentStore.Id)
                         .ToListAsync();
                 }
 
                 if (countries?.Any() ?? false)
                 {
-                    if (!addCountriesExplicitly)
+                    if (!explicitAddCountries)
                     {
                         to.AvailableCountries.Add(new SelectListItem 
                         { 
