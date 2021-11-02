@@ -348,7 +348,37 @@
                 @Model.PaymentStatusString
             </span>
 
-            @*TODO: (mg) (core) add payment processing buttons.*@
+            <input sm-if="Model.CanMarkOrderAsPaid" type="submit" id="markorderaspaid" name="markorderaspaid" class="btn btn-secondary ask-to-proceed"
+                   value="@T("Admin.Orders.Fields.MarkAsPaid")"
+                   title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")" />
+
+            <input sm-if="Model.CanCapture" type="submit" id="captureorder" name="captureorder" class="btn btn-primary ask-to-proceed"
+                   value="@T("Admin.Orders.Fields.Capture")"
+                   title="@T("Admin.Orders.Fields.Capture.Hint")" />
+
+            <input sm-if="Model.CanRefund" type="submit" id="refundorder" name="refundorder" class="btn btn-primary ask-to-proceed"
+                   value="@T("Admin.Orders.Fields.Refund")"
+                   title="@T("Admin.Orders.Fields.Refund.Hint")" />
+
+            <input sm-if="Model.CanRefundOffline" type="submit" id="refundorderoffline" name="refundorderoffline" class="btn btn-secondary ask-to-proceed"
+                   value="@T("Admin.Orders.Fields.RefundOffline")"
+                   title="@T("Admin.Orders.Fields.RefundOffline.Hint")" />
+
+            <input sm-if="Model.CanPartiallyRefund" type="submit" id="partiallyrefundorder" name="partiallyrefundorder" class="btn btn-primary"
+                   value="@T("Admin.Orders.Fields.PartialRefund")"
+                   title="@T("Admin.Orders.Fields.PartialRefund.Hint")" />
+
+            <input sm-if="Model.CanPartiallyRefundOffline" type="submit" id="partiallyrefundorderoffline" name="partiallyrefundorderoffline" class="btn btn-secondary"
+                   value="@T("Admin.Orders.Fields.PartialRefundOffline")"
+                   title="@T("Admin.Orders.Fields.PartialRefundOffline.Hint")" />
+
+            <input sm-if="Model.CanVoid" type="submit" id="voidorder" name="voidorder" class="btn btn-primary ask-to-proceed"
+                   value="@T("Admin.Orders.Fields.Void")"
+                   title="@T("Admin.Orders.Fields.Void.Hint")" />
+
+            <input sm-if="Model.CanVoidOffline" type="submit" id="voidorderoffline" name="voidorderoffline" class="btn btn-secondary ask-to-proceed" 
+                   value="@T("Admin.Orders.Fields.VoidOffline")"
+                   title="@T("Admin.Orders.Fields.VoidOffline.Hint")" />
 
             <zone name="admin_order_edit_payment_buttons_after" />
         </div>
@@ -395,5 +425,11 @@
 <script sm-target-zone="scripts" data-origin="order-edit-info">
     $(function () {
 
+        // Refund dialog.
+        $('#partiallyrefundorder, #partiallyrefundorderoffline').on('click', function (e) {
+            e.preventDefault();
+            openPopup('@(Url.Action("PartiallyRefundOrderPopup", "Order", new { id = Model.Id, btnId = "btnRefreshPage", formId = "order-form" }))');
+            return false;
+        });
     });
 </script>

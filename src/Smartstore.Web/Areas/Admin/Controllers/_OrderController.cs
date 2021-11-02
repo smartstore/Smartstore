@@ -700,7 +700,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> PartiallyRefundOrderPopup(int id, bool online)
+        public async Task<IActionResult> PartiallyRefundOrderPopup(int id)
         {
             var order = await GetOrderWithIncludes(id, false);
             if (order == null)
@@ -1806,6 +1806,7 @@ namespace Smartstore.Admin.Controllers
             ViewBag.TaxDisplayType = _taxSettings.TaxDisplayType;
             ViewBag.DisplayTaxRates = _taxSettings.DisplayTaxRates;
             ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
+            ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
         }
 
         private async Task<List<OrderModel.OrderItemModel>> CreateOrderItemsModels(Order order)
