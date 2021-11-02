@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
-using Smartstore.Core.Identity;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Core.Widgets // TODO: (mh) (core) Why this namespace?
+namespace Smartstore.Core.Identity
 {
     public static class ExternalAuthenticationExtensions
     {

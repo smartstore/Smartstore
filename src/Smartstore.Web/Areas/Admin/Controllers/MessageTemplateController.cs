@@ -282,7 +282,7 @@ namespace Smartstore.Admin.Controllers
 
             await _db.SaveChangesAsync();
             
-            NotifySuccess(_localizationService.GetResource("Admin.ContentManagement.MessageTemplates.Deleted"));
+            NotifySuccess(T("Admin.ContentManagement.MessageTemplates.Deleted"));
             return RedirectToAction(nameof(List));
         }
 
