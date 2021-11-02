@@ -27,8 +27,7 @@
             ctx.find(".adminData > input[type=checkbox], .multi-store-setting-control > input[type=checkbox], .switcher > input[type=checkbox]").each(function (i, el) {
                 $(el)
                     .wrap('<label class="switch"></label>')
-                    .after('<span class="switch-toggle" data-on="' + window.Res['Common.On'] + '" data-off="' + window.Res['Common.Off'] + '"></span>')
-                    .parent().on('click', function (e) { if ($(el).is('[readonly]')) { e.preventDefault(); } });
+                    .after('<span class="switch-toggle" data-on="' + window.Res['Common.On'] + '" data-off="' + window.Res['Common.Off'] + '"></span>');
             });
         },
         // btn-trigger

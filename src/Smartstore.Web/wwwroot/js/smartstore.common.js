@@ -447,6 +447,13 @@
             return confirm(msg);
         });
 
+        // Switch toggle
+        $(document).on('click', 'label.switch', function (e) {
+            if ($(this).children('input[type="checkbox"]').is('[readonly]')) {
+                e.preventDefault();
+            }
+        });
+
         // tab strip smart auto selection
         $('.tabs-autoselect ul.nav a[data-toggle=tab]').on('shown.bs.tab', function (e) {
             var tab = $(e.target),
