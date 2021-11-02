@@ -49,6 +49,7 @@
 
     <tabstrip id="order-edit" sm-nav-style="Material">
         <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+            <partial name="_Edit.Info" />
         </tab>
         <tab sm-title="@T("Admin.Orders.BillingAndShipment")">
             <partial name="_Edit.BillingAndShipment" />
@@ -60,7 +61,7 @@
             <partial name="Grids/_Grid.OrderNotes" model="null" view-data="gridViewData" />
         </tab>
         <tab sm-title="@T("Admin.Common.GenericAttributes")">
-            <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel {  EntityName = "Order", AttributeEntityId = Model.Id }' />
+            <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel { EntityName = "Order", AttributeEntityId = Model.Id }' />
         </tab>
     </tabstrip>
 </form>

@@ -1231,7 +1231,11 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var address = await _db.Addresses.FindByIdAsync(addressId);
+            var address = await _db.Addresses
+                .Include(x => x.Country)
+                .Include(x => x.StateProvince)
+                .FindByIdAsync(addressId);
+
             if (address == null)
             {
                 return NotFound();
@@ -1268,7 +1272,7 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
-                return RedirectToAction(nameof(AddressEdit), new { addressId = model.Address.Id, orderId = model.OrderId });
+                return RedirectToAction(nameof(AddressEdit), new { addressId = address.Id, orderId = model.OrderId });
             }
 
             await address.MapAsync(model.Address, true);
@@ -1583,10 +1587,10 @@ namespace Smartstore.Admin.Controllers
         private async Task PrepareOrderOverviewModel(OrderOverviewModel model, Order order)
         {
             MiniMapper.Map(order, model);
-
+            
             model.OrderNumber = order.GetOrderNumber();
             model.StoreName = Services.StoreContext.GetStoreById(order.StoreId)?.Name ?? StringExtensions.NotAvailable;
-            model.CustomerName = order.BillingAddress.GetFullName().NaIfEmpty();
+            model.CustomerName = order.Customer.GetFullName().NullEmpty() ?? order.BillingAddress.GetFullName().NaIfEmpty();
             model.CustomerEmail = order.BillingAddress?.Email;
             model.OrderTotalString = Format(order.OrderTotal);
             model.OrderStatusString = await Services.Localization.GetLocalizedEnumAsync(order.OrderStatus);
@@ -1646,10 +1650,7 @@ namespace Smartstore.Admin.Controllers
                 model.PaymentMethodAdditionalFeeExclTaxString = Format(order.PaymentMethodAdditionalFeeExclTax, false, null, PricingTarget.PaymentFee);
             }
 
-            model.DisplayTaxRates = _taxSettings.DisplayTaxRates && taxRates.Any();
-            model.DisplayTax = !model.DisplayTaxRates;
             model.OrderTaxString = Format(order.OrderTax);
-
             model.TaxRatesList = taxRates
                 .Select(x => new OrderModel.TaxRate
                 {
@@ -1767,14 +1768,18 @@ namespace Smartstore.Admin.Controllers
             if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
             {
                 var shipTo = order.ShippingAddress;
-                var googleAddressQuery = $"{shipTo.Address1} {shipTo.ZipPostalCode} {shipTo.City} {shipTo.Country?.Name ?? string.Empty}";
+                if (shipTo != null)
+                {
+                    await shipTo.MapAsync(model.ShippingAddress, true, countries);
 
-                await shipTo.MapAsync(model.ShippingAddress, true, countries);
+                    var googleAddressQuery = $"{shipTo.Address1} {shipTo.ZipPostalCode} {shipTo.City} {shipTo.Country?.Name ?? string.Empty}";
+
+                    model.ShippingAddressGoogleMapsUrl = Services.ApplicationContext.AppConfiguration.Google.MapsUrl.FormatInvariant(
+                        language.UniqueSeoCode.EmptyNull().ToLower(),
+                        googleAddressQuery.UrlEncode());
+                }
 
                 model.CanAddNewShipments = order.CanAddItemsToShipment();
-                model.ShippingAddressGoogleMapsUrl = Services.ApplicationContext.AppConfiguration.Google.MapsUrl.FormatInvariant(
-                    language.UniqueSeoCode.EmptyNull().ToLower(),
-                    googleAddressQuery.UrlEncode());
             }
 
             // Purchase order number (we have to find a better to inject this information because it's related to a certain plugin).
@@ -1797,6 +1802,10 @@ namespace Smartstore.Admin.Controllers
             model.Items = await CreateOrderItemsModels(order);
 
             ViewBag.DisplayPdfInvoice = _pdfSettings.Enabled;
+            ViewBag.AllowCustomersToSelectTaxDisplayType = _taxSettings.AllowCustomersToSelectTaxDisplayType;
+            ViewBag.TaxDisplayType = _taxSettings.TaxDisplayType;
+            ViewBag.DisplayTaxRates = _taxSettings.DisplayTaxRates;
+            ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
         }
 
         private async Task<List<OrderModel.OrderItemModel>> CreateOrderItemsModels(Order order)

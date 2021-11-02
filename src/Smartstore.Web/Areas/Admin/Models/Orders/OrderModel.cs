@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Tax;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 
@@ -74,11 +73,6 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("*Edit.TaxRates")]
         public string TaxRates { get; set; }
         public List<TaxRate> TaxRatesList { get; set; }
-
-        public bool DisplayTax { get; set; }
-        public bool DisplayTaxRates { get; set; }
-        public TaxDisplayType TaxDisplayType { get; set; }
-        public bool AllowCustomersToSelectTaxDisplayType { get; set; }
 
         [LocalizedDisplay("*Edit.OrderTotalDiscount")]
         public decimal OrderDiscount { get; set; }

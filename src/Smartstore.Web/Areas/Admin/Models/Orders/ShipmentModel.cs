@@ -23,6 +23,7 @@ namespace Smartstore.Admin.Models.Orders
         public CompanyInformationSettings MerchantCompanyInfo { get; set; } = new();
         public string FormattedMerchantAddress { get; set; }
 
+        [LocalizedDisplay("Admin.Orders.Fields.OrderNumber")]
         public string OrderNumber { get; set; }
         public string PurchaseOrderNumber { get; set; }
 

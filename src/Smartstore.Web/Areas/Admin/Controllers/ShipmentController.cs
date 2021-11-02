@@ -102,7 +102,7 @@ namespace Smartstore.Admin.Controllers
                 query = query.ApplySearchFilterFor(x => x.Order.ShippingMethod, model.ShippingMethod);
             }
 
-            if (model.OrderId.HasValue)
+            if (model.OrderId.GetValueOrDefault() > 0)
             {
                 query = query.Where(x => x.OrderId == model.OrderId.Value);
             }
