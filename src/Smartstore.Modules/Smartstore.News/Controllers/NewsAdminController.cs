@@ -148,7 +148,7 @@ namespace Smartstore.News.Controllers
         #region News items
 
         // AJAX.
-        public async Task<IActionResult> AllNewsAsync(string selectedIds)
+        public async Task<IActionResult> AllNews(string selectedIds)
         {
             var query = _db.NewsItems().AsNoTracking();
             var pager = new FastPager<NewsItem>(query, 500);
@@ -185,7 +185,7 @@ namespace Smartstore.News.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(NewsPermissions.Read)]
