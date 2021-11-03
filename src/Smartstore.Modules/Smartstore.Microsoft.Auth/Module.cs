@@ -11,8 +11,6 @@ namespace Smartstore.Microsoft.Auth
 {
     internal class Module : ModuleBase, IConfigurable, IExternalAuthenticationMethod
     {
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "MicrosoftAuth", new { area = "Admin" });
 

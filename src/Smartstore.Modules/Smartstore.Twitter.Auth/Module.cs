@@ -11,8 +11,6 @@ namespace Smartstore.Twitter.Auth
 {
     internal class Module : ModuleBase, IConfigurable, IExternalAuthenticationMethod
     {
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "TwitterAuth", new { area = "Admin" });
 

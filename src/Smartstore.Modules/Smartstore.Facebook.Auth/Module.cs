@@ -11,8 +11,6 @@ namespace Smartstore.Facebook.Auth
 {
     internal class Module : ModuleBase, IConfigurable, IExternalAuthenticationMethod
     {
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "FacebookAuth", new { area = "Admin" });
 

@@ -9,6 +9,7 @@ using Smartstore.Google.Bootstrapping;
 
 namespace Smartstore.Google.Auth
 {
+    // TODO: (mh) (core) Google auth icon should NOT be chrome icon!
     internal class Startup : StarterBase
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
