@@ -1513,22 +1513,6 @@ a.editable {
     .menu-item {
         position: relative;
         overflow: visible;
-        padding-left: 0px;
-
-        .item-commands {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-
-            > .btn {
-                position: relative;
-            }
-        }
-
-        &:hover .item-commands {
-            opacity: 1;
-        }
     }
 }
 

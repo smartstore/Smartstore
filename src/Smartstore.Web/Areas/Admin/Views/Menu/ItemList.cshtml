@@ -9,12 +9,12 @@
     {
         var item = node.Value;
         var parentId = node.Parent != null ? node.Parent.Value.EntityId : 0;
-        var indentStyle = $" style='padding-left: { padding }px;'";
+        var indentStyle = $" style='padding-left: {padding}px;'";
         var rtl = WorkContext.WorkingLanguage.Rtl;
 
-        <div class="list-group-item menu-item d-flex align-items-center py-2" attr-class='(level == 0, "sub-item")' data-id="@item.EntityId" data-parentid="@parentId">
-            <div class="item-commands btn-group">
-                <button type="button" class="btn btn-light btn-flat btn-no-border rounded-0 btn-item-menu dropdown-toggle no-chevron" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <div class="list-group-item menu-item d-flex align-items-center p-1@(level > 0 ? " bg-light" : "")" attr-class='(level == 0, "sub-item")' data-id="@item.EntityId" data-parentid="@parentId">
+            <div class="item-commands dropdown">
+                <button type="button" class="btn btn-secondary btn-flat btn-item-menu dropdown-toggle no-chevron" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu @(rtl ? "dropdown-menu-right" : "dropdown-menu-left")">
@@ -29,10 +29,6 @@
                         </a>
                     }
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" asp-action="EditItem" asp-route-id="@item.EntityId">
-                        <i class="far fa-fw fa-edit"></i>
-                        <span>@T("Common.Edit")</span>
-                    </a>
                     <a class="menu-item-command dropdown-item@(node.Previous == null ? " disabled" : "")" href="#" data-action="move-item-up" data-url="@Url.Action("MoveItem", new { menuId = Model.Id, sourceId = item.EntityId, direction = "up" })">
                         <i class="fa fa-fw fa-angle-up"></i>
                         <span>@T("Common.MoveUp")</span>
@@ -40,6 +36,10 @@
                     <a class="menu-item-command dropdown-item@(node.Next == null ? " disabled" : "")" href="#" data-action="move-item-down" data-url="@Url.Action("MoveItem", new { menuId = Model.Id, sourceId = item.EntityId, direction = "down" })">
                         <i class="fa fa-fw fa-angle-down"></i>
                         <span>@T("Common.MoveDown")</span>
+                    </a>
+                    <a class="dropdown-item" asp-action="EditItem" asp-route-id="@item.EntityId">
+                        <i class="far fa-fw fa-edit"></i>
+                        <span>@T("Common.Edit")</span>
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="menu-item-command dropdown-item" href="#" data-action="delete-item" data-url="@Url.Action("DeleteItem", new { id = item.EntityId })">
@@ -51,7 +51,7 @@
             <div class="item-text" @Html.Raw(indentStyle)>
                 @if (item.Icon.HasValue())
                 {
-                    <i class="mr-1 fa-fw @item.Icon" title="@item.Summary"></i>
+                    <i class="mr-1 fa-fw fs-h6 @item.Icon" title="@item.Summary"></i>
                 }
                 <a attr-class='(!item.Visible, "muted")' asp-action="EditItem" asp-route-id="@item.EntityId">
                     @if (item.Text.HasValue())
@@ -65,12 +65,13 @@
                 </a>
             </div>
         </div>
+
         if (node.HasChildren)
         {
             <div class="list-group">
                 @foreach (var child in node.Children)
                 {
-                    await ItemGroup(child, level + 1, padding + 40);
+                    await ItemGroup(child, level + 1, padding + 24);
                 }
             </div>
         }
@@ -82,13 +83,13 @@
     <div class="list-group list-group-flush">
         @foreach (var item in Model.ItemTree.Children)
         {
-            await ItemGroup(item, 0, 42);
+            await ItemGroup(item, 0, 8);
         }
     </div>
 }
 else
 {
-    <div class="text-muted px-3 py-3">
+    <div class="text-muted p-3">
         @T("Admin.ContentManagement.Menus.NoMenuItemsAvailable")
     </div>
 }

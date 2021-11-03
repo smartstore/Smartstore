@@ -121,20 +121,22 @@
         {
             <h4 class="h4 mt-5 mb-4">@T("Admin.ContentManagement.MenuLinks")</h4>
 
-            <div id="menu-items-container" class="datagrid-root" style="overflow: visible !important">
-                <div class="dg-toolbar">
-                    <button type="button" class="btn btn-flat btn-no-border btn-to-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-plus"></i>
-                        <span>@T("Admin.ContentManagement.AddMenuItem")</span>
-                    </button>
-                    <div class="dropdown-menu @(WorkContext.WorkingLanguage.Rtl ? "dropdown-menu-right" : "dropdown-menu-left")">
-                        @foreach (var provider in Model.AllProviders)
-                        {
-                            <a class="dropdown-item" asp-action="CreateItem" asp-route-providerName="@provider.Value" asp-route-menuId="@Model.Id" asp-route-parentItemId="0">
-                                <i class="fa fa-plus"></i>
-                                <span>@provider.Text</span>
-                            </a>
-                        }
+            <div id="menu-items-container" class="card mb-5">
+                <div class="card-header p-1">
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-light btn-flat dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-plus"></i>
+                            <span>@T("Admin.ContentManagement.AddMenuItem")</span>
+                        </button>
+                        <div class="dropdown-menu @(WorkContext.WorkingLanguage.Rtl ? "dropdown-menu-right" : "dropdown-menu-left")">
+                            @foreach (var provider in Model.AllProviders)
+                            {
+                                <a class="dropdown-item" asp-action="CreateItem" asp-route-providerName="@provider.Value" asp-route-menuId="@Model.Id" asp-route-parentItemId="0">
+                                    <i class="fa fa-plus"></i>
+                                    <span>@provider.Text</span>
+                                </a>
+                            }
+                        </div>
                     </div>
                 </div>
 
