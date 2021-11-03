@@ -113,6 +113,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
+        [TypeFilter(typeof(ExternalAuthFilter))]
         [AllowAnonymous, NeverAuthorize]
         [ValidateAntiForgeryToken, ValidateCaptcha, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
