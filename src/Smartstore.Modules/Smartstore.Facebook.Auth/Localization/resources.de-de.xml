@@ -26,7 +26,7 @@
 		<Value>App-ID</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientKeyIdentifier.Hint">
-		<Value>Geben Sie hier Ihren App-ID an.</Value>
+		<Value>Geben Sie hier Ihre App-ID an.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientSecret">
 		<Value>App-Geheimcode (App Secret)</Value>

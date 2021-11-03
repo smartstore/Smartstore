@@ -17,7 +17,6 @@ namespace Smartstore.Core.Widgets
 
         private readonly WidgetSettings _widgetSettings;
         private readonly IProviderManager _providerManager;
-        private readonly ICacheManager _cache;
         private readonly ICacheFactory _cacheFactory;
         private readonly ISettingFactory _settingFactory;
         private readonly IRequestCache _requestCache;
@@ -25,14 +24,12 @@ namespace Smartstore.Core.Widgets
         public WidgetService(
             WidgetSettings widgetSettings, 
             IProviderManager providerManager,
-            ICacheManager cache,
             ICacheFactory cacheFactory,
             ISettingFactory settingFactory,
             IRequestCache requestCache)
         {
             _widgetSettings = widgetSettings;
             _providerManager = providerManager;
-            _cache = cache;
             _cacheFactory = cacheFactory;
             _settingFactory = settingFactory;
             _requestCache = requestCache;

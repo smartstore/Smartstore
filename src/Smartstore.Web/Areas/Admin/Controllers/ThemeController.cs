@@ -19,7 +19,6 @@ using Smartstore.Web.Bundling;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Admin.Controllers
 {

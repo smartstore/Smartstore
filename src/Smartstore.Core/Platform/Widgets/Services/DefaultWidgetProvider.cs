@@ -8,24 +8,21 @@ using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using Smartstore.Collections;
 using Smartstore.Engine;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Widgets
 {
     public class DefaultWidgetProvider : IWidgetProvider
     {
         private readonly IHttpContextAccessor _accessor;
-        private readonly ICommonServices _services;
         private readonly IApplicationContext _appContext;
         private readonly IMemoryCache _memoryCache;
         
         private Multimap<string, WidgetInvoker> _zoneWidgetsMap;
         private Multimap<Regex, WidgetInvoker> _zoneExpressionWidgetsMap;
 
-        public DefaultWidgetProvider(IHttpContextAccessor accessor, ICommonServices services, IApplicationContext appContext, IMemoryCache memoryCache)
+        public DefaultWidgetProvider(IHttpContextAccessor accessor, IApplicationContext appContext, IMemoryCache memoryCache)
         {
             _accessor = accessor;
-            _services = services;
             _appContext = appContext;
             _memoryCache = memoryCache;
         }
