@@ -120,7 +120,7 @@ namespace Smartstore.Engine.Modularity
 
             if (descriptor.WebRoot.GetFileInfo("icon.png").Exists)
             {
-                return "~{0}/{1}".FormatInvariant(descriptor.Path, "icon.png");
+                return "~{0}{1}".FormatInvariant(descriptor.Path.EnsureEndsWith('/'), "icon.png");
             }
             else
             {

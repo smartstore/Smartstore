@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
+using Smartstore.Utilities;
 
 namespace Smartstore.ComponentModel
 {
@@ -126,9 +127,13 @@ namespace Smartstore.ComponentModel
                 value = value.Unzip();
             }
 
-            using var stream = new MemoryStream(value);
-            using var reader = new BsonDataReader(stream);
+            //using var stream = new MemoryStream(value);
+            //using var reader = new BsonDataReader(stream);
 
+            //return _jsonSerializer.Deserialize(reader, objectType);
+
+            var json = Encoding.UTF8.GetString(value);
+            using var reader = new StringReader(json);
             return _jsonSerializer.Deserialize(reader, objectType);
         }
 
@@ -139,11 +144,25 @@ namespace Smartstore.ComponentModel
                 return NullResult;
             }
 
-            using var stream = new MemoryStream();
-            using var writer = new BsonDataWriter(stream);
+            //using var stream = new MemoryStream();
+            //using var writer = new BsonDataWriter(stream);
 
+            //_jsonSerializer.Serialize(writer, item);
+            //var buffer = stream.ToArray();
+
+            //if (compress)
+            //{
+            //    return buffer.Zip();
+            //}
+
+            //return buffer;
+
+            //using var stream = new MemoryStream();
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            using var writer = new StringWriter(sb);
+            
             _jsonSerializer.Serialize(writer, item);
-            var buffer = stream.ToArray();
+            var buffer = Encoding.UTF8.GetBytes(sb.ToString());
 
             if (compress)
             {

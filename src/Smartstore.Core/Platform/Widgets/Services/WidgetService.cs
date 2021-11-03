@@ -18,6 +18,7 @@ namespace Smartstore.Core.Widgets
         private readonly WidgetSettings _widgetSettings;
         private readonly IProviderManager _providerManager;
         private readonly ICacheManager _cache;
+        private readonly ICacheFactory _cacheFactory;
         private readonly ISettingFactory _settingFactory;
         private readonly IRequestCache _requestCache;
 
@@ -25,12 +26,14 @@ namespace Smartstore.Core.Widgets
             WidgetSettings widgetSettings, 
             IProviderManager providerManager,
             ICacheManager cache,
+            ICacheFactory cacheFactory,
             ISettingFactory settingFactory,
             IRequestCache requestCache)
         {
             _widgetSettings = widgetSettings;
             _providerManager = providerManager;
             _cache = cache;
+            _cacheFactory = cacheFactory;
             _settingFactory = settingFactory;
             _requestCache = requestCache;
         }
@@ -92,7 +95,7 @@ namespace Smartstore.Core.Widgets
 
         protected virtual Multimap<string, ProviderMetadata> GetWidgetMetadataMap()
         {
-            return _cache.Get(WIDGETS_ALLMETADATA_KEY, () =>
+            return _cacheFactory.GetMemoryCache().Get(WIDGETS_ALLMETADATA_KEY, () =>
             {
                 var widgets = _providerManager.GetAllProviders<IWidget>(0);
                 var map = new Multimap<string, ProviderMetadata>();

@@ -17,27 +17,17 @@
 
   <ItemGroup>
     <Compile Remove="Authentication\**" />
-    <Compile Remove="Caching\Redis\Common\**" />
     <Compile Remove="Mocks\**" />
     <Compile Remove="Utilities\ObjectPools\**" />
     <Compile Remove="Web\**" />
     <EmbeddedResource Remove="Authentication\**" />
-    <EmbeddedResource Remove="Caching\Redis\Common\**" />
     <EmbeddedResource Remove="Mocks\**" />
     <EmbeddedResource Remove="Utilities\ObjectPools\**" />
     <EmbeddedResource Remove="Web\**" />
     <None Remove="Authentication\**" />
-    <None Remove="Caching\Redis\Common\**" />
     <None Remove="Mocks\**" />
     <None Remove="Utilities\ObjectPools\**" />
     <None Remove="Web\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Caching\Redis\Common\IRedisConnectionFactory.cs" />
-    <Compile Include="Caching\Redis\Common\RedisConnectionFactory.cs" />
-    <Compile Include="Caching\Redis\Common\RedisLock.cs" />
-    <Compile Include="Caching\Redis\Common\RedisUtility.cs" />
   </ItemGroup>
   
   <ItemGroup>
@@ -63,7 +53,6 @@
     <PackageReference Include="ncrontab" Version="3.3.1" />
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
-    <PackageReference Include="StackExchange.Redis" Version="2.2.50" />
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.12" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />

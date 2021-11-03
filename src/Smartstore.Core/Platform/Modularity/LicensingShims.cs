@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Engine.Modularity;
 
@@ -67,5 +65,15 @@ namespace Smartstore.Licensing
         public LicensingState State { get; set; }
         public string TruncatedLicenseKey { get; set; }
         public int RemainingDemoDays { get; set; }
+    }
+
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class LicensableModuleAttribute : Attribute
+    {
+        public LicensableModuleAttribute()
+        {
+        }
+
+        public bool HasSingleLicenseForAllStores { get; set; }
     }
 }
