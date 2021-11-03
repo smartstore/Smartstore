@@ -79,7 +79,7 @@ $(function () {
 
             if (icon.isCustom) {
                 // Has been set in "createTag" function or server-side (if IsPro == true)
-                html.push('<i class="fas fa-question text-warning fa-fw mr-2 fs-h6" />');
+                html.push('<i class="fas fa-question text-warning fa-fw mr-2 fs-h6"></i>');
             }
             else {
                 if (icon.isBrandIcon) {
@@ -97,7 +97,7 @@ $(function () {
 
                 for (i = 0; i < len; i++) {
                     iconClass = (i < variants.length ? variants[i] + " " : "far ") + "fa-fw mr-2 fs-h6";
-                    html.push('<i class="' + iconClass + '" />');
+                    html.push('<i class="' + iconClass + '"></i>');
                 }
             }
 
