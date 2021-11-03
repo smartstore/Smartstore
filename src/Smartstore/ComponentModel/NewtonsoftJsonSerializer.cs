@@ -68,13 +68,13 @@ namespace Smartstore.ComponentModel
                 result = Serialize(value, compress);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
                 if (value != null)
                 {
                     var t = GetInnerType(value);
                     _unSerializableTypes.Add(t);
-                    Logger.Debug("Type '{0}' cannot be serialized", t);
+                    Logger.Debug(ex, "Type '{0}' cannot be serialized", t);
                 }
 
                 return false;
@@ -97,12 +97,12 @@ namespace Smartstore.ComponentModel
                 result = Deserialize(objectType, value, uncompress);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
                 if (!(typeof(IObjectContainer).IsAssignableFrom(objectType) || objectType == typeof(object) || objectType.IsPredefinedType()))
                 {
                     _unDeserializableTypes.Add(objectType);
-                    Logger.Debug("Type '{0}' cannot be DEserialized", objectType);
+                    Logger.Debug(ex, "Type '{0}' cannot be DEserialized", objectType);
                 }
 
                 return false;

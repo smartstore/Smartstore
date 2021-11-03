@@ -236,7 +236,7 @@ namespace Smartstore.Core.Security
                 }
 
                 return false;
-            });
+            }, independent: true, allowRecursion: true);
 
             return authorized;
         }

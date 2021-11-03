@@ -4,18 +4,15 @@ using Newtonsoft.Json.Linq;
 
 namespace Smartstore.ComponentModel.JsonConverters
 {
-    public class ObjectContainerJsonConverter : JsonConverter
+    public class ObjectContainerJsonConverter : JsonConverter<IObjectContainer>
     {
-        public override bool CanConvert(Type objectType)
-            => typeof(IObjectContainer).IsAssignableFrom(objectType);
-
         public override bool CanRead
             => true;
 
         public override bool CanWrite
             => false;
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override IObjectContainer ReadJson(JsonReader reader, Type objectType, IObjectContainer existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var result = (IObjectContainer)(existingValue ?? Activator.CreateInstance(objectType));
 
@@ -64,7 +61,7 @@ namespace Smartstore.ComponentModel.JsonConverters
             return result;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, IObjectContainer value, JsonSerializer serializer)
             => throw new NotImplementedException();
     }
 }

@@ -529,24 +529,21 @@ namespace Smartstore
         }
     }
 
-    internal sealed class SemanticVersionJsonConverter : JsonConverter
+    internal sealed class SemanticVersionJsonConverter : JsonConverter<SemanticVersion>
     {
-        public override bool CanConvert(Type objectType)
-            => typeof(SemanticVersion).IsAssignableFrom(objectType);
-
         public override bool CanRead
             => true;
 
         public override bool CanWrite
             => true;
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override SemanticVersion ReadJson(JsonReader reader, Type objectType, SemanticVersion existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             reader.Read();
-            return (SemanticVersion)reader.ReadAsString();
+            return reader.ReadAsString();
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, SemanticVersion value, JsonSerializer serializer)
         {
             serializer.Serialize(writer, value.ToString());
         }

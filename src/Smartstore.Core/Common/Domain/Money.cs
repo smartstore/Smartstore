@@ -593,21 +593,18 @@ namespace Smartstore.Core.Common
         #endregion
     }
 
-    internal sealed class MoneyJsonConverter : JsonConverter
+    internal sealed class MoneyJsonConverter : JsonConverter<Money>
     {
-        public override bool CanConvert(Type objectType)
-            => typeof(Money).IsAssignableFrom(objectType);
-
         public override bool CanRead
             => false;
 
         public override bool CanWrite
             => true;
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override Money ReadJson(JsonReader reader, Type objectType, Money existingValue, bool hasExistingValue, JsonSerializer serializer)
             => throw new NotSupportedException();
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, Money value, JsonSerializer serializer)
         {
             serializer.Serialize(writer, value.ToString());
         }
