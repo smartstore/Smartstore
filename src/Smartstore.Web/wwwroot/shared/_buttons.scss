@@ -157,6 +157,10 @@ $btn-size-sm: $input-height-sm;
     .btn-brand-xing {
         @include button-variant($clr-brand-xing, $clr-brand-xing);
     }
+
+    .btn-brand-microsoft {
+        @include button-variant($clr-brand-microsoft, $clr-brand-microsoft);
+    }
 }
 
 

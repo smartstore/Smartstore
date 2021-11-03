@@ -59,6 +59,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Twitter.Auth", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Google.Auth", "src\Smartstore.Modules\Smartstore.Google.Auth\Smartstore.Google.Auth.csproj", "{3084396C-7945-4DDB-9B54-ED68A69C4892}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Microsoft.Auth", "src\Smartstore.Modules\Smartstore.Microsoft.Auth\Smartstore.Microsoft.Auth.csproj", "{4BE8C64B-5301-486C-AB35-F89BA829EB00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +143,10 @@ Global
 		{3084396C-7945-4DDB-9B54-ED68A69C4892}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3084396C-7945-4DDB-9B54-ED68A69C4892}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3084396C-7945-4DDB-9B54-ED68A69C4892}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BE8C64B-5301-486C-AB35-F89BA829EB00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BE8C64B-5301-486C-AB35-F89BA829EB00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BE8C64B-5301-486C-AB35-F89BA829EB00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BE8C64B-5301-486C-AB35-F89BA829EB00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -162,6 +168,7 @@ Global
 		{7584AF3C-BABB-4710-B3BF-1C0C3ABD3970} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{AC586A7E-00A2-4163-923F-B23BB6DD5B16} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{3084396C-7945-4DDB-9B54-ED68A69C4892} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{4BE8C64B-5301-486C-AB35-F89BA829EB00} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}
