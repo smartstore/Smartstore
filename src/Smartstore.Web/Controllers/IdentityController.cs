@@ -25,6 +25,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
+using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Identity;
 
 namespace Smartstore.Web.Controllers
@@ -93,6 +94,7 @@ namespace Smartstore.Web.Controllers
         #region Login / Logout / Register
 
         [HttpGet]
+        [TypeFilter(typeof(ExternalAuthFilter))]
         [RequireSsl, AllowAnonymous, NeverAuthorize, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
         public async Task<IActionResult> Login(bool? checkoutAsGuest, string returnUrl = null)

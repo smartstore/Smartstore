@@ -9,18 +9,15 @@ using Smartstore.Core.Identity;
 
 namespace Smartstore.Google.Auth
 {
-    internal class Module : ModuleBase, IConfigurable, IWidget, IExternalAuthenticationMethod
+    internal class Module : ModuleBase, IConfigurable, IExternalAuthenticationMethod
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "GoogleAuth", new { area = "Admin" });
 
-        public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
+        public WidgetInvoker GetDisplayWidget(int storeId)
             => new ComponentWidgetInvoker(typeof(GoogleAuthViewComponent), null);
-
-        public string[] GetWidgetZones()
-            => new string[] { "external_auth_buttons" };
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
