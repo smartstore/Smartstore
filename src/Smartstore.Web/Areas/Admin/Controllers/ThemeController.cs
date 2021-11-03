@@ -451,18 +451,19 @@ namespace Smartstore.Admin.Controllers
         {
             const int pageSize = 250;
 
-            var icons = _iconExplorer.Value.All.AsEnumerable();
+            var iconExplorer = _iconExplorer.Value;
+            var icons = iconExplorer.All.AsEnumerable();
 
             if (term.HasValue())
             {
-                icons = _iconExplorer.Value.FindIcons(term, true);
+                icons = iconExplorer.FindIcons(term, true);
             }
 
             var result = new PagedList<IconDescription>(icons, page - 1, pageSize);
 
             if (selected.HasValue() && term.IsEmpty())
             {
-                var selIcon = _iconExplorer.Value.GetIconByName(selected);
+                var selIcon = iconExplorer.GetIconByName(selected);
                 if (!selIcon.IsPro && !result.Contains(selIcon))
                 {
                     result.Insert(0, selIcon);

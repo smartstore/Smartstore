@@ -56,10 +56,8 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IExportProfileService> _exportProfileService;
         private readonly Lazy<IImportProfileService> _importProfileService;
         private readonly Lazy<UpdateChecker> _updateChecker;
-
-        // TODO: (mc) (core) Why lazy settings? I thought they must never be lazy...
-        private readonly Lazy<CurrencySettings> _currencySettings;
-        private readonly Lazy<MeasureSettings> _measureSettings;
+        private readonly CurrencySettings _currencySettings;
+        private readonly MeasureSettings _measureSettings;
 
         public MaintenanceController(
             SmartDbContext db,
@@ -75,8 +73,8 @@ namespace Smartstore.Admin.Controllers
             Lazy<IExportProfileService> exportProfileService,
             Lazy<IImportProfileService> importProfileService,
             Lazy<UpdateChecker> updateChecker,
-            Lazy<CurrencySettings> currencySettings,
-            Lazy<MeasureSettings> measureSettings)
+            CurrencySettings currencySettings,
+            MeasureSettings measureSettings)
         {
             _db = db;
             _memCache = memCache;
@@ -531,7 +529,7 @@ namespace Smartstore.Admin.Controllers
 
             // Base measure weight
             // ====================================
-            var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.Value.BaseWeightId, false);
+            var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
             if (baseWeight != null)
             {
                 AddEntry(SystemWarningLevel.Pass, T("Admin.System.Warnings.DefaultWeight.Set"));
@@ -549,7 +547,7 @@ namespace Smartstore.Admin.Controllers
 
             // Base dimension weight
             // ====================================
-            var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.Value.BaseDimensionId, false);
+            var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
             if (baseDimension != null)
             {
                 AddEntry(SystemWarningLevel.Pass, T("Admin.System.Warnings.DefaultDimension.Set"));
