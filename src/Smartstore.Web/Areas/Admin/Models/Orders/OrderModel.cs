@@ -257,7 +257,7 @@ namespace Smartstore.Admin.Models.Orders
             public int Quantity { get; set; }
             public int DisplayOrder { get; set; }
             public string PriceWithDiscount { get; set; }
-            public string AttributeInfo { get; set; }
+            public string AttributesInfo { get; set; }
         }
 
         [LocalizedDisplay("Admin.Orders.OrderNotes.Fields.")]

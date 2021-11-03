@@ -1891,7 +1891,7 @@ namespace Smartstore.Admin.Controllers
                             VisibleIndividually = x.VisibleIndividually,
                             Quantity = x.Quantity,
                             DisplayOrder = x.DisplayOrder,
-                            AttributeInfo = x.AttributesInfo,
+                            AttributesInfo = x.AttributesInfo,
                             PriceWithDiscount = model.BundlePerItemShoppingCart
                                 ? Format(x.PriceWithDiscount)
                                 : null
