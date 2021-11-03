@@ -1,0 +1,27 @@
+﻿@model OrderAddressModel
+
+@{
+    ViewBag.Title = T("Admin.Orders.Address.EditAddress");
+}
+
+<form asp-action="AddressEdit" method="post">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-chart-bar"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="Edit" asp-controller="Order" asp-route-id="@Model.OrderId">(@T("Admin.Orders.Address.BackToOrder"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+    <editor asp-for="Address" />
+</form>

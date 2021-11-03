@@ -21,11 +21,11 @@
         <div class="adminData">
             <input asp-for="OrderStatusString" sm-plaintext="true" readonly />
             <div>
-                <button sm-if="Model.CanCancelOrder" type="submit" name="cancelorder" id="cancelorder" class="btn btn-sm btn-danger ask-to-proceed"
+                <button sm-if="Model.CanCancelOrder" type="submit" name="cancelorder" id="cancelorder" class="btn btn-sm btn-danger confirm"
                         value="@T("Admin.Orders.Fields.OrderStatus.Cancel")">
                     <span>@T("Admin.Orders.Fields.OrderStatus.Cancel")</span>
                 </button>
-                <button sm-if="Model.CanCompleteOrder" type="submit" name="completeorder" id="completeorder" class="btn btn-sm btn-warning ask-to-proceed"
+                <button sm-if="Model.CanCompleteOrder" type="submit" name="completeorder" id="completeorder" class="btn btn-sm btn-warning confirm"
                         value="@T("Enums.OrderStatus.Complete")">
                     <i class="fa fa-check"></i>
                     <span>@T("Enums.OrderStatus.Complete")</span>
@@ -246,7 +246,7 @@
             <smart-label asp-for="OrderTotalString" />
         </div>
         <div class="adminData">
-            <big><input asp-for="OrderTotalString" sm-plaintext="true" readonly class="fwm" /></big>
+            <input asp-for="OrderTotalString" class="fwm" sm-plaintext="true" readonly />
         </div>
     </div>
     <div sm-if="Model.RefundedAmountString.HasValue()" class="adminRow">
@@ -254,25 +254,18 @@
             <smart-label asp-for="RefundedAmountString" />
         </div>
         <div class="adminData">
-            <big><input asp-for="RefundedAmountString" sm-plaintext="true" readonly class="fwm" /></big>
-            <div>
-                @*TODO: (mg) (core) use a modal dialog for order total editing.*@
-                <button type="button" name="edit-order-total" id="edit-order-total" class="btn btn-sm btn-secondary">
-                    <i class="far fa-edit"></i>
-                    <span>@T("Admin.Orders.Fields.EditOrderTotals")</span>
-                </button>
-            </div>
-
-            <zone name="admin_order_total_edit_buttons_after" />
+            <input asp-for="RefundedAmountString" sm-plaintext="true" readonly />
         </div>
     </div>
+</div>
 
-    <div class="adminRow">
-        <div class="adminSeparator"><hr /></div>
-    </div>
+@*Edit subtotals, fees, tax etc.*@
+<partial name="_Edit.OrderTotals" />
 
-    @*TODO: (mg) (core) display credit card and direct debit. Editing should be in done a modal dialog too.*@
+@*Edit credit card and direct debit data.*@
+<partial name="_Edit.Payment" />
 
+<div class="adminContent">
     <div sm-if="Model.DisplayCompletePaymentNote" class="adminRow">
         <div class="alert alert-warning">
             @Html.Raw(T("Order.CompletePayment.AdminNote", Url.Action("Details", "Order", new { id = Model.Id, area = "" })))
@@ -344,23 +337,23 @@
             <smart-label asp-for="PaymentStatus" />
         </div>
         <div class="adminData wide">
-            <span class="pr-1 w-auto fwm form-control-plaintext d-inline-block">
+            <span class="pr-2 w-auto fwm form-control-plaintext d-inline-block">
                 @Model.PaymentStatusString
             </span>
 
-            <input sm-if="Model.CanMarkOrderAsPaid" type="submit" id="markorderaspaid" name="markorderaspaid" class="btn btn-secondary ask-to-proceed"
+            <input sm-if="Model.CanMarkOrderAsPaid" type="submit" id="markorderaspaid" name="markorderaspaid" class="btn btn-secondary confirm"
                    value="@T("Admin.Orders.Fields.MarkAsPaid")"
                    title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")" />
 
-            <input sm-if="Model.CanCapture" type="submit" id="captureorder" name="captureorder" class="btn btn-primary ask-to-proceed"
+            <input sm-if="Model.CanCapture" type="submit" id="captureorder" name="captureorder" class="btn btn-primary confirm"
                    value="@T("Admin.Orders.Fields.Capture")"
                    title="@T("Admin.Orders.Fields.Capture.Hint")" />
 
-            <input sm-if="Model.CanRefund" type="submit" id="refundorder" name="refundorder" class="btn btn-primary ask-to-proceed"
+            <input sm-if="Model.CanRefund" type="submit" id="refundorder" name="refundorder" class="btn btn-primary confirm"
                    value="@T("Admin.Orders.Fields.Refund")"
                    title="@T("Admin.Orders.Fields.Refund.Hint")" />
 
-            <input sm-if="Model.CanRefundOffline" type="submit" id="refundorderoffline" name="refundorderoffline" class="btn btn-secondary ask-to-proceed"
+            <input sm-if="Model.CanRefundOffline" type="submit" id="refundorderoffline" name="refundorderoffline" class="btn btn-secondary confirm"
                    value="@T("Admin.Orders.Fields.RefundOffline")"
                    title="@T("Admin.Orders.Fields.RefundOffline.Hint")" />
 
@@ -372,11 +365,11 @@
                    value="@T("Admin.Orders.Fields.PartialRefundOffline")"
                    title="@T("Admin.Orders.Fields.PartialRefundOffline.Hint")" />
 
-            <input sm-if="Model.CanVoid" type="submit" id="voidorder" name="voidorder" class="btn btn-primary ask-to-proceed"
+            <input sm-if="Model.CanVoid" type="submit" id="voidorder" name="voidorder" class="btn btn-primary confirm"
                    value="@T("Admin.Orders.Fields.Void")"
                    title="@T("Admin.Orders.Fields.Void.Hint")" />
 
-            <input sm-if="Model.CanVoidOffline" type="submit" id="voidorderoffline" name="voidorderoffline" class="btn btn-secondary ask-to-proceed" 
+            <input sm-if="Model.CanVoidOffline" type="submit" id="voidorderoffline" name="voidorderoffline" class="btn btn-secondary confirm"
                    value="@T("Admin.Orders.Fields.VoidOffline")"
                    title="@T("Admin.Orders.Fields.VoidOffline.Hint")" />
 
@@ -424,6 +417,10 @@
 
 <script sm-target-zone="scripts" data-origin="order-edit-info">
     $(function () {
+
+        $('#btnRefreshPage').on('click', function () {
+            location.reload();
+        });
 
         // Refund dialog.
         $('#partiallyrefundorder, #partiallyrefundorderoffline').on('click', function (e) {

@@ -1,0 +1,171 @@
+﻿@model OrderModel
+
+@{
+    string inclTax = T("Admin.Orders.Fields.Edit.InclTax");
+    string exclTax = T("Admin.Orders.Fields.Edit.ExclTax");
+
+    var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
+}
+
+<div id="order-total-controls" class="card">
+    <div class="adminContent card-body">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="OrderSubtotalInclTax" />
+            </div>
+            <div class="adminData">
+                <div class="form-row flex-nowrap">
+                    <div class="col">
+                        <editor asp-for="OrderSubtotalInclTax" sm-postfix="@inclTax" />
+                    </div>
+                    <div class="col">
+                        <editor asp-for="OrderSubtotalExclTax" sm-postfix="@exclTax" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="OrderSubTotalDiscountInclTax" />
+            </div>
+            <div class="adminData">
+                <div class="form-row flex-nowrap">
+                    <div class="col">
+                        <editor asp-for="OrderSubTotalDiscountInclTax" sm-postfix="@inclTax" />
+                    </div>
+                    <div class="col">
+                        <editor asp-for="OrderSubTotalDiscountExclTax" sm-postfix="@exclTax" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="OrderShippingInclTax" />
+            </div>
+            <div class="adminData">
+                <div class="form-row flex-nowrap">
+                    <div class="col">
+                        <editor asp-for="OrderShippingInclTax" sm-postfix="@inclTax" />
+                    </div>
+                    <div class="col">
+                        <editor asp-for="OrderShippingExclTax" sm-postfix="@exclTax" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PaymentMethodAdditionalFeeInclTax" />
+            </div>
+            <div class="adminData">
+                <div class="form-row flex-nowrap">
+                    <div class="col">
+                        <editor asp-for="PaymentMethodAdditionalFeeInclTax" sm-postfix="@inclTax" />
+                    </div>
+                    <div class="col">
+                        <editor asp-for="PaymentMethodAdditionalFeeExclTax" sm-postfix="@exclTax" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TaxRates" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="TaxRates" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="OrderTax" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="OrderTax" sm-postfix="@primaryStoreCurrencyCode" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="OrderDiscount" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="OrderDiscount" sm-postfix="@primaryStoreCurrencyCode" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CreditBalance" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="CreditBalance" sm-postfix="@primaryStoreCurrencyCode" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="OrderTotalRounding" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="OrderTotalRounding" sm-postfix="@primaryStoreCurrencyCode" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="OrderTotal" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="OrderTotal" sm-postfix="@primaryStoreCurrencyCode" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="w-auto">
+            <button type="submit" id="btnEditOrderTotals" name="btnEditOrderTotals" class="btn btn-secondary">
+                <i class="far fa-edit"></i>
+                <span>@T("Admin.Orders.Fields.EditOrderTotals")</span>
+            </button>
+            <button type="submit" id="btnSaveOrderTotals" name="btnSaveOrderTotals" value="@T(" Admin.Orders.Fields.SaveOrderTotals")" class="btn btn-warning confirm">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Orders.Fields.SaveOrderTotals")</span>
+            </button>
+            <button type="submit" id="btnCancelOrderTotals" name="btnCancelOrderTotals" class="btn btn-secondary">
+                <span>@T("Admin.Common.Cancel")</span>
+            </button>
+
+            <zone name="admin_order_total_edit_buttons_after" />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminSeparator"><hr /></div>
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="order-edit-totals">
+    $(function () {
+        toggleOrderTotals(false);
+
+        $('#btnEditOrderTotals, #btnCancelOrderTotals').on('click', function (e) {
+            e.preventDefault();
+            toggleOrderTotals($(this).attr('id') === 'btnEditOrderTotals');
+            return false;
+        });
+
+        function toggleOrderTotals(editmode) {
+            if (editmode) {
+                $('#order-total-controls').show();
+                $('#btnEditOrderTotals').hide();
+                $('#btnSaveOrderTotals').show();
+                $('#btnCancelOrderTotals').show();
+            }
+            else {
+                $('#order-total-controls').hide();
+                $('#btnEditOrderTotals').show();
+                $('#btnSaveOrderTotals').hide();
+                $('#btnCancelOrderTotals').hide();
+            }
+        }
+    });
+</script>

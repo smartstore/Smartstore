@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Web.Modelling;
@@ -192,10 +193,12 @@ namespace Smartstore.Admin.Models.Orders
         public bool CanVoidOffline { get; set; }
 
         [LocalizedDisplay("*BillingAddress")]
+        [ValidateNever]
         public AddressModel BillingAddress { get; set; } = new();
 
         [LocalizedDisplay("*ShippingAddress")]
-        public AddressModel ShippingAddress { get; set; } = new();
+        [ValidateNever]
+        public AddressModel ShippingAddress { get; set; }
 
         public List<GiftCard> GiftCards { get; set; }
         public List<OrderItemModel> Items { get; set; }

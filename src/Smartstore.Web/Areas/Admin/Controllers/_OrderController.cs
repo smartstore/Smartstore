@@ -845,9 +845,7 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
             }
 
-            await PrepareOrderModel(model, order);
-
-            return View(model);
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -875,9 +873,7 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
             }
 
-            await PrepareOrderModel(model, order);
-
-            return View(model);
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -909,9 +905,7 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
 
-            await PrepareOrderModel(model, order);
-
-            return View(model);
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [HttpPost]
@@ -1695,7 +1689,6 @@ namespace Smartstore.Admin.Controllers
 
             if (order.AllowStoringCreditCardNumber)
             {
-                model.AllowStoringCreditCardNumber = true;
                 model.CardType = _encryptor.DecryptText(order.CardType);
                 model.CardName = _encryptor.DecryptText(order.CardName);
                 model.CardNumber = _encryptor.DecryptText(order.CardNumber);
@@ -1723,7 +1716,6 @@ namespace Smartstore.Admin.Controllers
 
             if (order.AllowStoringDirectDebit)
             {
-                model.AllowStoringDirectDebit = true;
                 model.DirectDebitAccountHolder = _encryptor.DecryptText(order.DirectDebitAccountHolder);
                 model.DirectDebitAccountNumber = _encryptor.DecryptText(order.DirectDebitAccountNumber);
                 model.DirectDebitBankCode = _encryptor.DecryptText(order.DirectDebitBankCode);
@@ -1770,6 +1762,7 @@ namespace Smartstore.Admin.Controllers
                 var shipTo = order.ShippingAddress;
                 if (shipTo != null)
                 {
+                    model.ShippingAddress = new();
                     await shipTo.MapAsync(model.ShippingAddress, true, countries);
 
                     var googleAddressQuery = $"{shipTo.Address1} {shipTo.ZipPostalCode} {shipTo.City} {shipTo.Country?.Name ?? string.Empty}";

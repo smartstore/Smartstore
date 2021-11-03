@@ -854,50 +854,61 @@ namespace Smartstore.Web.Controllers
             var scs = Services.Resolve<IShoppingCartService>();
             var schs = Services.Resolve<IShippingService>();
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
+            var crypt = Services.Resolve<IEncryptor>();
 
-            var shipmentId = 22054;
+            var orderId = 32123;
+            var order = await _db.Orders.FindByIdAsync(orderId);
+
+            //order.AllowStoringCreditCardNumber = true;
+            //order.CardType = crypt.EncryptText("Visa Debit");
+            //order.CardName = crypt.EncryptText("Max Mustermann");
+            //order.CardNumber = crypt.EncryptText("987654321");
+            //order.MaskedCreditCardNumber = crypt.EncryptText("98******21");
+            //order.CardCvv2 = crypt.EncryptText("123");
+            //order.CardExpirationMonth = crypt.EncryptText("10");
+            //order.CardExpirationYear = crypt.EncryptText("2024");
+            //order.AllowStoringDirectDebit = true;
+            //order.DirectDebitAccountHolder = crypt.EncryptText("Erika Musterfrau");
+            //order.DirectDebitAccountNumber = crypt.EncryptText("6663333999");
+            //order.DirectDebitBankCode = crypt.EncryptText("884455");
+            //order.DirectDebitBankName = crypt.EncryptText("JP Morgan & Co.");
+            //order.DirectDebitBIC = crypt.EncryptText("JP555658");
+            //order.DirectDebitCountry = crypt.EncryptText("United States of America");
+            //order.DirectDebitIban = crypt.EncryptText("US559986587744");
+
+            order.AllowStoringCreditCardNumber = order.AllowStoringDirectDebit = false;
+            order.CardType = order.CardName = order.CardNumber = order.MaskedCreditCardNumber = order.CardCvv2 = order.CardExpirationMonth = order.CardExpirationYear = null;
+            order.DirectDebitAccountHolder = order.DirectDebitAccountNumber = order.DirectDebitBankCode = order.DirectDebitBankName = order.DirectDebitBIC = order.DirectDebitCountry = order.DirectDebitIban = null;
+
+            await _db.SaveChangesAsync();
+
+
+            //var shipmentId = 22054;
             //var shipmentQuery = _db.Shipments
-            //    .Include(x => x.Order)
-            //    .ThenInclude(x => x.ShippingAddress)
-            //    .Include(x => x.Order)
-            //    .ThenInclude(x => x.Customer)
+            //    .Include(x => x.Order.ShippingAddress)
+            //    .Include(x => x.Order.Customer)
             //    .ThenInclude(x => x.RewardPointsHistory)
-            //    .Include(x => x.Order)
-            //    .ThenInclude(x => x.Customer)
-            //    .ThenInclude(x => x.CustomerRoleMappings)
+            //    .Include(x => x.Order.Customer.CustomerRoleMappings)
             //    .ThenInclude(x => x.CustomerRole)
-            //    .Include(x => x.Order)
-            //    .ThenInclude(x => x.Shipments)
+            //    .Include(x => x.Order.Shipments)
             //    .ThenInclude(x => x.ShipmentItems)
-            //    .Include(x => x.Order)
-            //    .ThenInclude(x => x.OrderItems)
+            //    .Include(x => x.Order.OrderItems)
             //    .ThenInclude(x => x.Product);
 
-            var shipmentQuery = _db.Shipments
-                .Include(x => x.Order.ShippingAddress)
-                .Include(x => x.Order.Customer)
-                .ThenInclude(x => x.RewardPointsHistory)
-                .Include(x => x.Order.Customer.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole)
-                .Include(x => x.Order.Shipments)
-                .ThenInclude(x => x.ShipmentItems)
-                .Include(x => x.Order.OrderItems)
-                .ThenInclude(x => x.Product);
+            //var shipment = await shipmentQuery.FirstOrDefaultAsync(x => x.Id == shipmentId);
+            //content.AppendLine($"order {shipment.Order.Id}");
+            //content.AppendLine($"customer {shipment.Order.Customer.Email}");
+            //content.AppendLine($"order items {shipment.Order.OrderItems.Count}");
+            //content.AppendLine($"shipments {shipment.Order.Shipments.Count}");
+            //content.AppendLine($"shipment items {shipment.Order.Shipments?.FirstOrDefault()?.ShipmentItems?.Count ?? 0}");
 
-            var shipment = await shipmentQuery.FirstOrDefaultAsync(x => x.Id == shipmentId);
-            content.AppendLine($"order {shipment.Order.Id}");
-            content.AppendLine($"customer {shipment.Order.Customer.Email}");
-            content.AppendLine($"order items {shipment.Order.OrderItems.Count}");
-            content.AppendLine($"shipments {shipment.Order.Shipments.Count}");
-            content.AppendLine($"shipment items {shipment.Order.Shipments?.FirstOrDefault()?.ShipmentItems?.Count ?? 0}");
+            //var orderItem = shipment.Order.OrderItems.First();
+            //// This works! Even if there is no include for it!
+            //var deepShippmentCount = orderItem.Order.Shipments?.Count ?? 0;
+            //var deepShippmentItemCount = orderItem.Order.Shipments.FirstOrDefault()?.ShipmentItems?.Count ?? 0;
 
-            var orderItem = shipment.Order.OrderItems.First();
-            // This works! Even if there is no include for it!
-            var deepShippmentCount = orderItem.Order.Shipments?.Count ?? 0;
-            var deepShippmentItemCount = orderItem.Order.Shipments.FirstOrDefault()?.ShipmentItems?.Count ?? 0;
-
-            content.AppendLine($"deep shipments {deepShippmentCount}");
-            content.AppendLine($"deep shipment items {deepShippmentItemCount}");
+            //content.AppendLine($"deep shipments {deepShippmentCount}");
+            //content.AppendLine($"deep shipment items {deepShippmentItemCount}");
 
 
             //_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools"));
@@ -917,63 +928,6 @@ namespace Smartstore.Web.Controllers
             //var num = await _db.Database.ExecuteSqlRawAsync(sql, parameter);
             //content.AppendLine($"num {num}");
 
-
-            //var cartWeight = await schs.GetCartTotalWeightAsync(cart);
-            //content.AppendLine("Cart weight: " + cartWeight.ToString());
-
-            //var allSelections = new List<ProductVariantAttributeSelection>();
-            //foreach (var item in cart.Items)
-            //{
-            //    allSelections.Add(item.Item.AttributeSelection);
-            //    foreach (var child in item.ChildItems)
-            //    {
-            //        allSelections.Add(child.Item.AttributeSelection);
-            //    }
-            //}
-
-            //var num = await pam.PrefetchProductVariantAttributesAsync(allSelections);
-            //content.AppendLine($"{num} of {allSelections.Count} cached.");
-
-
-            //foreach (var item in cart.Items)
-            //{
-            //    var attributeValues = await pam.MaterializeProductVariantAttributeValuesAsync(item.Item.AttributeSelection);
-            //    var attributesInfo = string.Join(", ", attributeValues.Select(x => x.ProductVariantAttribute.ProductAttribute.Name + ":" + x.Name));
-
-            //    foreach (var kvp in item.Item.AttributeSelection.AttributesMap)
-            //    {
-            //        content.AppendLine($"{kvp.Key}: " + string.Join(",", kvp.Value.Select(x => x.ToString())));
-            //    }
-
-            //    foreach (var child in item.ChildItems)
-            //    {
-            //        var childAttributeValues = await pam.MaterializeProductVariantAttributeValuesAsync(child.Item.AttributeSelection);
-            //        var childAttributesInfo = string.Join(", ", childAttributeValues.Select(x => x.ProductVariantAttribute.ProductAttribute.Name + ":" + x.Name));
-
-            //        content.AppendLine(child.Item.Product.Name.PadRight(50) + ": " + childAttributesInfo);
-            //    }
-            //}
-
-            ////var numDeleted = await scs.DeleteCartAsync(cart, true, true);
-            ////content.AppendLine("Deleted cart items: " + numDeleted);
-
-            //var selection = new ProductVariantAttributeSelection(string.Empty);
-            //foreach (var item in cart.Items)
-            //{
-            //    foreach (var attribute in item.Item.AttributeSelection.AttributesMap)
-            //    {
-            //        if (!attribute.Value.IsNullOrEmpty())
-            //        {
-            //            selection.AddAttribute(attribute.Key, attribute.Value);
-            //        }
-            //    }
-            //}
-
-            //content.AppendLine("-----------------------");
-            //foreach (var kvp in selection.AttributesMap)
-            //{
-            //    content.AppendLine($"{kvp.Key}: " + string.Join(",", kvp.Value.Select(x => x.ToString())));
-            //}
 
             return Content(content.ToString());
             //return View();
