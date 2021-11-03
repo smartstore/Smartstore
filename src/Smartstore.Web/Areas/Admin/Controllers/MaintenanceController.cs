@@ -16,12 +16,10 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Smartstore.Admin.Models.Maintenance;
-using Smartstore.Collections;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange.Export;
@@ -58,7 +56,8 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IExportProfileService> _exportProfileService;
         private readonly Lazy<IImportProfileService> _importProfileService;
         private readonly Lazy<UpdateChecker> _updateChecker;
-        private readonly Lazy<IIconExplorer> _iconExplorer;
+
+        // TODO: (mc) (core) Why lazy settings? I thought they must never be lazy...
         private readonly Lazy<CurrencySettings> _currencySettings;
         private readonly Lazy<MeasureSettings> _measureSettings;
 
@@ -76,7 +75,6 @@ namespace Smartstore.Admin.Controllers
             Lazy<IExportProfileService> exportProfileService,
             Lazy<IImportProfileService> importProfileService,
             Lazy<UpdateChecker> updateChecker,
-            Lazy<IIconExplorer> iconExplorer,
             Lazy<CurrencySettings> currencySettings,
             Lazy<MeasureSettings> measureSettings)
         {
@@ -93,7 +91,6 @@ namespace Smartstore.Admin.Controllers
             _exportProfileService = exportProfileService;
             _importProfileService = importProfileService;
             _updateChecker = updateChecker;
-            _iconExplorer = iconExplorer;
             _currencySettings = currencySettings;
             _measureSettings = measureSettings;
         }
@@ -880,51 +877,6 @@ namespace Smartstore.Admin.Controllers
             process.Refresh();
 
             return process.PrivateMemorySize64;
-        }
-
-        #endregion
-
-        #region UI Helpers
-
-        // TODO: (mh) (core) MaintanceController doesn't seem to be the right place anymore. Maybe shift to MenuController?
-        // RE: Move this to ThemeController (there's no better place right now).
-        [HttpPost]
-        public JsonResult SearchIcons(string term, string selected = null, int page = 1)
-        {
-            const int pageSize = 250;
-
-            var icons = _iconExplorer.Value.All.AsEnumerable();
-
-            if (term.HasValue())
-            {
-                icons = _iconExplorer.Value.FindIcons(term, true);
-            }
-
-            var result = new PagedList<IconDescription>(icons, page - 1, pageSize);
-
-            if (selected.HasValue() && term.IsEmpty())
-            {
-                var selIcon = _iconExplorer.Value.GetIconByName(selected);
-                if (!selIcon.IsPro && !result.Contains(selIcon))
-                {
-                    result.Insert(0, selIcon);
-                }
-            }
-
-            return Json(new
-            {
-                results = result.Select(x => new
-                {
-                    id = x.Name,
-                    text = x.Name,
-                    hasRegularStyle = x.HasRegularStyle,
-                    isBrandIcon = x.IsBrandIcon,
-                    isPro = x.IsPro,
-                    label = x.Label,
-                    styles = x.Styles
-                }),
-                pagination = new { more = result.HasNextPage }
-            });
         }
 
         #endregion

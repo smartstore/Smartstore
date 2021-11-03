@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Smartstore.Admin.Models.Themes;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Data;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
@@ -29,6 +30,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IThemeVariableService _themeVarService;
         private readonly IThemeContext _themeContext;
         private readonly IBundleCache _bundleCache;
+        private readonly Lazy<IIconExplorer> _iconExplorer;
         private readonly IOptionsMonitorCache<BundlingOptions> _bundlingOptionsCache;
 
         public ThemeController(
@@ -37,6 +39,7 @@ namespace Smartstore.Admin.Controllers
             IThemeVariableService themeVarService,
             IThemeContext themeContext,
             IBundleCache bundleCache,
+            Lazy<IIconExplorer> iconExplorer,
             IOptionsMonitorCache<BundlingOptions> bundlingOptionsCache)
         {
             _db = db;
@@ -45,6 +48,7 @@ namespace Smartstore.Admin.Controllers
             _themeContext = themeContext;
             _bundleCache = bundleCache;
             _bundlingOptionsCache = bundlingOptionsCache;
+            _iconExplorer = iconExplorer;
         }
 
         #region Themes
@@ -437,6 +441,49 @@ namespace Smartstore.Admin.Controllers
             NotifySuccess(T("Admin.Configuration.Updated"));
 
             return ExitPreview();
+        }
+
+        #endregion
+
+        #region UI Helpers
+
+        [HttpPost]
+        public JsonResult SearchIcons(string term, string selected = null, int page = 1)
+        {
+            const int pageSize = 250;
+
+            var icons = _iconExplorer.Value.All.AsEnumerable();
+
+            if (term.HasValue())
+            {
+                icons = _iconExplorer.Value.FindIcons(term, true);
+            }
+
+            var result = new PagedList<IconDescription>(icons, page - 1, pageSize);
+
+            if (selected.HasValue() && term.IsEmpty())
+            {
+                var selIcon = _iconExplorer.Value.GetIconByName(selected);
+                if (!selIcon.IsPro && !result.Contains(selIcon))
+                {
+                    result.Insert(0, selIcon);
+                }
+            }
+
+            return Json(new
+            {
+                results = result.Select(x => new
+                {
+                    id = x.Name,
+                    text = x.Name,
+                    hasRegularStyle = x.HasRegularStyle,
+                    isBrandIcon = x.IsBrandIcon,
+                    isPro = x.IsPro,
+                    label = x.Label,
+                    styles = x.Styles
+                }),
+                pagination = new { more = result.HasNextPage }
+            });
         }
 
         #endregion
