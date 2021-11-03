@@ -6,7 +6,7 @@
     ViewBag.Title = T("Admin.ContentManagement.AddMenuItem").Value;
 }
 
-<form method="post" asp-action="Create">
+<form method="post" asp-action="CreateItem">
     <div class="section-header">
         <div class="title">
             @T("Admin.ContentManagement.AddMenuItem") <a asp-action="Edit" asp-route-id="@Model.MenuId">(@T("Common.Back"))</a>

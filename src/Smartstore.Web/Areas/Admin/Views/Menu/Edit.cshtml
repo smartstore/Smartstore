@@ -20,7 +20,7 @@
             <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
-            <button type="submit" name="menu-delete" id="menu-delete" value="menu-delete" class="btn btn-danger">
+            <button type="submit" name="menu-delete" id="menu-delete" value="menu-delete" class="btn btn-danger" attr-disabled='(Model.IsSystemMenu, "disabled")'>
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete")</span>
             </button>

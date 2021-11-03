@@ -8,7 +8,7 @@
 
 <datagrid id="menus-grid"
           allow-resize="true"
-          allow-row-selection="true"
+          allow-row-selection="false"
           allow-column-reordering="true">
     <datasource read="@Url.Action("List", "Menu")" delete="@Url.Action("Delete", "Menu")" />
     <sorting enabled="true">
@@ -27,13 +27,6 @@
                 <span>@T("Admin.Common.AddNew")...</span>
             </a>
         </toolbar-group>
-        <toolbar-group class="omega">
-            @* TODO: (mh) (core) Too dangerous. Remove this. Deletion should only occur in edit page. Plus: disable the delete button when system menu. *@
-            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
-                <i class="far fa-trash-alt"></i>
-                <span>@T("Admin.Common.Delete.Selected")</span>
-            </button>
-        </toolbar-group>
     </toolbar>
     <search-panel>
         <partial name="_Grid.Menus.Search" model="parentModel" />
@@ -51,6 +44,5 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
-        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>

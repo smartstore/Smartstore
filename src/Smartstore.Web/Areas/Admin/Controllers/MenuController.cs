@@ -20,7 +20,6 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
-    // TODO: (mh) (core) Saving does not work. Nothing is saved and system menu becomes non-system.
     [Area("Admin")]
     public class MenuController : AdminController
     {
@@ -179,14 +178,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Cms.Menu.Read)]
         public IActionResult List()
         {
-            // TODO: (mh) (core) Is this needed
-            // RE: No!
-            var model = new MenuEntityListModel();
-
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems();
             ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
 
-            return View(model);
+            return View();
         }
 
         [HttpPost]
@@ -242,15 +237,8 @@ namespace Smartstore.Admin.Controllers
             {
                 var menu = MiniMapper.Map<MenuEntityModel, MenuEntity>(model);
                 menu.WidgetZone = string.Join(',', model.WidgetZone ?? Array.Empty<string>()).NullEmpty();
-
-                // TODO: (mh) (core) handled by a hook now (?). Please analyze. 
-                menu.SystemName = menu.SystemName.ToValidPath();
                 _db.Menus.Add(menu);
                 await _db.SaveChangesAsync();
-
-                // TODO: (mh) (core) Call GetMenuSystemNamesAsync???? It was called in classic by InsertMenu method.
-                // RE: No! handled by a Hook now.
-
                 await SaveStoreMappingsAsync(menu, model.SelectedStoreIds);
                 await SaveAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(menu, model);

@@ -119,12 +119,10 @@
         ))
         @if (Model.Id > 0)
         {
-            // TODO: (mh) (core) Use new grid 
-            // RE: No! Just use regular Bootstrap .table and mimic the classic look & feel.
             <h4 class="h4 mt-5 mb-4">@T("Admin.ContentManagement.MenuLinks")</h4>
 
-            <div id="menu-items-container" class="t-widget t-grid" style="overflow: visible !important">
-                <div class="t-toolbar t-grid-toolbar">
+            <div id="menu-items-container" class="datagrid-root" style="overflow: visible !important">
+                <div class="dg-toolbar">
                     <button type="button" class="btn btn-flat btn-no-border btn-to-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-plus"></i>
                         <span>@T("Admin.ContentManagement.AddMenuItem")</span>
@@ -151,7 +149,6 @@
 <script sm-target-zone="scripts" data-origin="menu-create-or-update">
     $(function () {
         // Process item command.
-        // TODO: (mh) (core) Please don't commit broken stuff!!! YOu have to check each line after COPY&PASTE!
         $('#menu-items-container').on('click', '.menu-item-command:not(.disabled)', function (e) {
             e.preventDefault();
             var el = $(this);
