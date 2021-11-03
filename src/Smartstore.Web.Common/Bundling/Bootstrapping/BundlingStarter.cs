@@ -29,7 +29,7 @@ namespace Smartstore.Web.Bootstrapping
 
         private static IFileProvider ResolveModuleFileProvider(string moduleName, IApplicationContext appContext)
         {
-            return appContext.ModuleCatalog.GetModuleByName(moduleName, true)?.WebRoot;
+            return appContext.ModuleCatalog.GetModuleByName(moduleName, false)?.WebRoot;
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
