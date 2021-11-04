@@ -27,7 +27,7 @@
     <div class="table-responsive">
         <table id="orderitem-table" class="table admin-table">
             <caption class="table-toolbar">
-                <a asp-action="AddProductToOrder" asp-controller="Order" asp-route-orderId="@Model.Id" class="btn btn-flat btn-primary">
+                <a id="btn-add-product-to-order" asp-action="AddProductToOrder" asp-controller="Order" asp-route-orderId="@Model.Id" class="btn btn-flat btn-primary">
                     <i class="fa fa-plus"></i>
                     <span>@T("Admin.Orders.Products.AddNew")</span>
                 </a>
@@ -314,7 +314,21 @@
     @Html.Raw(Model.CheckoutAttributeInfo)
 </div>
 
+<entity-picker icon-css-class="fa fa-plus"
+               caption='@T("Admin.Common.Search")'
+               dialog-title='@T("Admin.Orders.Products.AddNew")'
+               max-items="1"
+               onselectioncompleted="AddProductToOrder_Completed"
+               class="add-product-to-order-picker"
+               style="display:none" />
+
 <script sm-target-zone="scripts" data-origin="order-edit-products">
+    function AddProductToOrder_Completed(ids) {
+        var url = $('#btn-add-product-to-order').attr('href') + '&productId=' + ids;
+        setLocation(url);
+        return true;
+    };
+
     $(function () {
 		@foreach (var item in Model.Items)
 		{
@@ -362,6 +376,13 @@
             }
 
             $('#update-orderitem-dialog').modal();
+        });
+
+        // Open entity picker to add product to order.
+        $(document).on('click', '#btn-add-product-to-order', function (e) {
+            e.preventDefault();
+            $('.add-product-to-order-picker').trigger('click');
+            return false;
         });
 
         function toggleOrderItemEdit(itemId, editMode) {

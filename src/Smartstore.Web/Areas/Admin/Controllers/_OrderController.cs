@@ -1385,13 +1385,20 @@ namespace Smartstore.Admin.Controllers
 
         #endregion
 
-        // TODO: (mg) (core) really port old way to add product to order (tons of code, did not support product bundles)?. Or do similar to customer impersonate approach?
         #region Add product to order
 
         [Permission(Permissions.Order.EditItem)]
-        public IActionResult AddProductToOrder(int orderId)
+        public async Task<IActionResult> AddProductToOrder(int orderId, int productId)
         {
-            throw new NotImplementedException();
+            var model = new AddOrderProductModel
+            {
+                Id = productId,
+                OrderId = orderId
+            };
+
+            await PrepareAddOrderProductModel(model);
+
+            return View(model);
         }
 
         #endregion
@@ -1808,6 +1815,25 @@ namespace Smartstore.Admin.Controllers
             ViewBag.DisplayTaxRates = _taxSettings.DisplayTaxRates;
             ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
             ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
+        }
+
+        private async Task PrepareAddOrderProductModel(AddOrderProductModel model)
+        {
+            var product = await _db.Products.FindByIdAsync(model.Id);
+            if (product == null)
+            {
+                throw new ArgumentException(T("Products.NotFound", model.Id));
+            }
+
+            var customer = Services.WorkContext.CurrentCustomer;
+            var order = await _db.Orders.FindByIdAsync(model.OrderId);
+
+            var currency = await _db.Currencies
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.CurrencyCode == order.CustomerCurrencyCode) ?? _primaryCurrency;
+
+            //...
+
         }
 
         private async Task<List<OrderModel.OrderItemModel>> CreateOrderItemsModels(Order order)

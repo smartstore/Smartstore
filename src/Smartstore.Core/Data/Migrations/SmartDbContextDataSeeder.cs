@@ -565,6 +565,10 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Orders.Info",
             //    "Admin.Orders.OrderNotes.Fields.AddOrderNoteDisplayToCustomer",
             //    "Admin.Orders.OrderNotes.Fields.AddOrderNoteMessage",
+            //    "Admin.Catalog.Products.List.SearchProductName",
+            //    "Admin.Catalog.Products.List.SearchCategory",
+            //    "Admin.Catalog.Products.List.SearchManufacturer",
+            //    "Admin.Catalog.Products.List.SearchProductType",
             //    );
 
 
