@@ -1,8 +1,8 @@
 {
   "Group": "Security",
   "SystemName": "Smartstore.Google.Auth",
-  "FriendlyName": "Smartstore.Google.Auth",
-  "Description": "",
+  "FriendlyName": "Google Authentication",
+  "Description": "Enables login with Google.",
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Order": 1,

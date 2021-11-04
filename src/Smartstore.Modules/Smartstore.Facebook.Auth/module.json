@@ -1,8 +1,8 @@
 {
   "Group": "Security",
   "SystemName": "Smartstore.Facebook.Auth",
-  "FriendlyName": "Smartstore.Facebook.Auth",
-  "Description": "",
+  "FriendlyName": "Facebook Authentication",
+  "Description": "Enables login with Facebook.",
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Order": 1,

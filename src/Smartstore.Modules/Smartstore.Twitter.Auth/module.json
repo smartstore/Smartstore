@@ -1,8 +1,8 @@
 {
   "Group": "Security",
   "SystemName": "Smartstore.Twitter.Auth",
-  "FriendlyName": "Smartstore.Twitter.Auth",
-  "Description": "",
+  "FriendlyName": "Twitter Authentication",
+  "Description": "Enables login with Twitter.",
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Order": 1,

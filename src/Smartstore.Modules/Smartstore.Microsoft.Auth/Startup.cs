@@ -9,7 +9,6 @@ using Smartstore.Microsoft.Bootstrapping;
 
 namespace Smartstore.Microsoft.Auth
 {
-    // TODO: (mh) (core) Please define decent (unlocalized) friendly names and descriptions for all auth modules (module.json).
     internal class Startup : StarterBase
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)

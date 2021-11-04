@@ -1,8 +1,8 @@
 {
   "Group": "Security",
   "SystemName": "Smartstore.Microsoft.Auth",
-  "FriendlyName": "Smartstore.Microsoft.Auth",
-  "Description": "",
+  "FriendlyName": "Microsoft Authentication",
+  "Description": "Enables login with Microsoft.",
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Order": 1,
