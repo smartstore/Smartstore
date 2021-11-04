@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using Smartstore.Blog.Domain;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 
@@ -7,12 +8,23 @@ namespace Smartstore.Blog.Services
 {
     public class BlogSlugRouter : SlugRouter
     {
-        const string EntityName = "blogpost";
+        const string EntityName = nameof(BlogPost);
 
-        public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values)
+        public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values, bool returnAdminEditRoute = false)
         {
-            if (urlRecord.EntityName.ToLowerInvariant() == EntityName)
+            if (urlRecord.EntityName.EqualsNoCase(EntityName))
             {
+                if (returnAdminEditRoute)
+                {
+                    return new RouteValueDictionary
+                    {
+                        { "area", "Admin" },
+                        { "controller", "Blog" },
+                        { "action", "Edit" },
+                        { "id", urlRecord.EntityId }
+                    };
+                }
+
                 return new RouteValueDictionary
                 {
                     { "area", string.Empty },
@@ -28,7 +40,7 @@ namespace Smartstore.Blog.Services
 
         public override void MapRoutes(IEndpointRouteBuilder routes)
         {
-            routes.MapLocalizedControllerRoute("BlogPost", UrlPatternFor("BlogPost"), new { controller = "Blog", action = "BlogPost" });
+            routes.MapLocalizedControllerRoute("BlogPost", UrlPatternFor(EntityName), new { controller = "Blog", action = "BlogPost" });
         }
     }
 }

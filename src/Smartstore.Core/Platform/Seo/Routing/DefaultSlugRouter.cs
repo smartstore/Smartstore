@@ -6,8 +6,13 @@ namespace Smartstore.Core.Seo.Routing
 {
     public class DefaultSlugRouter : SlugRouter
     {
-        public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values)
+        public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values, bool returnAdminEditRoute = false)
         {
+            if (returnAdminEditRoute)
+            {
+                return null;
+            }
+
             switch (urlRecord.EntityName.ToLowerInvariant())
             {
                 case "product":

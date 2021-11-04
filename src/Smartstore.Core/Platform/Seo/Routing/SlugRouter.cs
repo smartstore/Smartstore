@@ -13,7 +13,7 @@ namespace Smartstore.Core.Seo.Routing
         /// <param name="entity">The matched entity for current slug in request url.</param>
         /// <param name="values">The route values associated with the current match. Implementations should not modify values.</param>
         /// <returns>An instance of <see cref="RouteValueDictionary"/> or <c>null</c> if no route matches.</returns>
-        public abstract RouteValueDictionary GetRouteValues(UrlRecord entity, RouteValueDictionary values);
+        public abstract RouteValueDictionary GetRouteValues(UrlRecord entity, RouteValueDictionary values, bool returnAdminEditRoute = false);
 
         /// <summary>
         /// Maps routes solely needed for URL creation, NOT for route matching.

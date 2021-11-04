@@ -9,6 +9,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
@@ -56,23 +57,10 @@ namespace Smartstore.Admin.Controllers
                 model.IsActive = urlRecord.IsActive;
                 model.LanguageId = urlRecord.LanguageId;
 
-                // TODO: (mh) (core) What to do here???
-                // RE: Must obviously be outsourced to ILinkProvider. TBD with MC.
-                if (urlRecord.EntityName.EqualsNoCase("BlogPost"))
+                var routeValues = SlugRouteTransformer.Routers.Select(x => x.GetRouteValues(urlRecord, null, true)).Where(x => x != null).FirstOrDefault();
+                if (routeValues != null)
                 {
-                    model.EntityUrl = Url.Action("Edit", "Blog", new { id = urlRecord.EntityId });
-                }
-                else if (urlRecord.EntityName.EqualsNoCase("Forum"))
-                {
-                    model.EntityUrl = Url.Action("EditForum", "Forum", new { id = urlRecord.EntityId });
-                }
-                else if (urlRecord.EntityName.EqualsNoCase("ForumGroup"))
-                {
-                    model.EntityUrl = Url.Action("EditForumGroup", "Forum", new { id = urlRecord.EntityId });
-                }
-                else if (urlRecord.EntityName.EqualsNoCase("NewsItem"))
-                {
-                    model.EntityUrl = Url.Action("Edit", "News", new { id = urlRecord.EntityId });
+                    model.EntityUrl = Url.RouteUrl(routeValues);
                 }
                 else
                 {
