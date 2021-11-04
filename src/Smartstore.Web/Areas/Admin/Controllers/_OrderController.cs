@@ -39,6 +39,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
@@ -698,7 +699,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> PartiallyRefundOrderPopup(int id)
+        public async Task<IActionResult> PartiallyRefundOrderPopup(string btnId, string formId, int id)
         {
             var order = await GetOrderWithIncludes(id, false);
             if (order == null)
@@ -708,6 +709,9 @@ namespace Smartstore.Admin.Controllers
 
             var model = new OrderModel();
             await PrepareOrderModel(model, order);
+
+            ViewBag.BtnId = btnId;
+            ViewBag.FormId = formId;
 
             return View(model);
         }
@@ -759,8 +763,8 @@ namespace Smartstore.Admin.Controllers
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
 
                     ViewBag.RefreshPage = true;
-                    ViewBag.btnId = btnId;
-                    ViewBag.formId = formId;
+                    ViewBag.BtnId = btnId;
+                    ViewBag.FormId = formId;
                 }
             }
             catch (Exception ex)
@@ -1070,7 +1074,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Order.Read)]
-        public async Task<IActionResult> UploadLicenseFilePopup(int id, int orderItemId)
+        public async Task<IActionResult> UploadLicenseFilePopup(string btnId, string formId, int id, int orderItemId)
         {
             var order = await _db.Orders
                 .IncludeOrderItems()
@@ -1172,8 +1176,8 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
 
             ViewBag.RefreshPage = true;
-            ViewBag.btnId = btnId;
-            ViewBag.formId = formId;
+            ViewBag.BtnId = btnId;
+            ViewBag.FormId = formId;
 
             return View(model);
         }
@@ -1209,8 +1213,8 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
 
             ViewBag.RefreshPage = true;
-            ViewBag.btnId = btnId;
-            ViewBag.formId = formId;
+            ViewBag.BtnId = btnId;
+            ViewBag.FormId = formId;
 
             return View(model);
         }
@@ -1233,15 +1237,19 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var model = new OrderAddressModel(orderId);
+            var model = new OrderAddressModel
+            {
+                OrderId = orderId
+            };
+
             await address.MapAsync(model.Address, true);
 
             return View(model);
         }
 
-        [HttpPost]
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> AddressEdit(OrderAddressModel model)
+        public async Task<IActionResult> AddressEdit(OrderAddressModel model, bool continueEditing)
         {
             var order = await _db.Orders.FindByIdAsync(model.OrderId);
             if (order == null)
@@ -1264,7 +1272,9 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
-                return RedirectToAction(nameof(AddressEdit), new { addressId = address.Id, orderId = model.OrderId });
+                return continueEditing
+                    ? RedirectToAction(nameof(AddressEdit), new { addressId = address.Id, orderId = order.Id })
+                    : RedirectToAction(nameof(Edit), new { id = order.Id });
             }
 
             await address.MapAsync(model.Address, true);

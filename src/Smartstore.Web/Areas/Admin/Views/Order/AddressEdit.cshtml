@@ -5,6 +5,7 @@
 }
 
 <form asp-action="AddressEdit" method="post">
+    <input type="hidden" asp-for="OrderId" />
     <div class="section-header">
         <div class="title">
             <i class="far fa-chart-bar"></i>
@@ -17,6 +18,9 @@
             <button type="submit" name="save" value="save" class="btn btn-warning">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
             </button>
 
             <zone name="admin_button_toolbar_after" />

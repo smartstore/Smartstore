@@ -5,7 +5,7 @@
     ViewBag.Title = T("Admin.Orders.Products.License.UploadFile").Value;
 }
 
-<form asp-action="UploadLicenseFilePopup">
+<form asp-action="UploadLicenseFilePopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
     <input type="hidden" asp-for="OrderId" />
     <input type="hidden" asp-for="OrderItemId" />
     <input type="hidden" asp-for="OldLicenseDownloadId" />

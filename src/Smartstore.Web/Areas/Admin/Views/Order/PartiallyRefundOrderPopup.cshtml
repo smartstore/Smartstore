@@ -7,7 +7,7 @@
     var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
 }
 
-<form asp-action="PartiallyRefundOrderPopup">
+<form asp-action="PartiallyRefundOrderPopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
     <div class="section-header">
         <div class="title">
             @T("Admin.Orders.Fields.PartialRefund.OrderInfo", Model.Id)

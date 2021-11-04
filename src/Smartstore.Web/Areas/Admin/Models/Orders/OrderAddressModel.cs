@@ -6,14 +6,7 @@ namespace Smartstore.Admin.Models.Orders
 {
     public class OrderAddressModel : ModelBase
     {
-        public OrderAddressModel(int orderId)
-        {
-            Guard.NotZero(orderId, nameof(orderId));
-
-            OrderId = orderId;
-        }
-
-        public int OrderId { get; }
+        public int OrderId { get; set; }
 
         [UIHint("Address")]
         public AddressModel Address { get; set; } = new();
