@@ -6,6 +6,8 @@ using Autofac;
 using FluentMigrator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Smartstore.Bootstrapping;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
@@ -31,7 +33,24 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
+            // Type converters
             RegisterTypeConverters();
+
+            // Default Json serializer settings
+            JsonConvert.DefaultSettings = () =>  
+            {
+                var settings = new JsonSerializerSettings
+                {
+                    ContractResolver = SmartContractResolver.Instance,
+                    TypeNameHandling = TypeNameHandling.Objects,
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                    ObjectCreationHandling = ObjectCreationHandling.Auto,
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MaxDepth = 32
+                };
+
+                return settings;
+            };
 
             // CodePages dependency required by ExcelDataReader to avoid NotSupportedException "No data is available for encoding 1252."
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

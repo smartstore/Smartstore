@@ -7,14 +7,13 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
 using Smartstore.Utilities;
 
 namespace Smartstore.ComponentModel
 {
     public class NewtonsoftJsonSerializer : IJsonSerializer
     {
-        private readonly JsonSerializer _jsonSerializer = JsonSerializer.Create(CreateSerializerSettings());
+        private readonly JsonSerializer _jsonSerializer = JsonSerializer.CreateDefault();
 
         private static readonly byte[] NullResult = Encoding.UTF8.GetBytes("null");
 
@@ -22,20 +21,20 @@ namespace Smartstore.ComponentModel
         private readonly HashSet<Type> _unSerializableTypes = new() { typeof(Task), typeof(Task<>) };
         private readonly HashSet<Type> _unDeserializableTypes = new() { typeof(Task), typeof(Task<>) };
 
-        private static JsonSerializerSettings CreateSerializerSettings()
-        {
-            var settings = new JsonSerializerSettings
-            {
-                ContractResolver = SmartContractResolver.Instance,
-                TypeNameHandling = TypeNameHandling.Objects,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                ObjectCreationHandling = ObjectCreationHandling.Auto,
-                NullValueHandling = NullValueHandling.Ignore,
-                MaxDepth = 32
-            };
+        //private static JsonSerializerSettings CreateSerializerSettings()
+        //{
+        //    var settings = new JsonSerializerSettings
+        //    {
+        //        ContractResolver = SmartContractResolver.Instance,
+        //        TypeNameHandling = TypeNameHandling.Objects,
+        //        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        //        ObjectCreationHandling = ObjectCreationHandling.Auto,
+        //        NullValueHandling = NullValueHandling.Ignore,
+        //        MaxDepth = 32
+        //    };
 
-            return settings;
-        }
+        //    return settings;
+        //}
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
@@ -68,13 +67,13 @@ namespace Smartstore.ComponentModel
                 result = Serialize(value, compress);
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
                 if (value != null)
                 {
                     var t = GetInnerType(value);
                     _unSerializableTypes.Add(t);
-                    Logger.Debug(ex, "Type '{0}' cannot be serialized", t);
+                    Logger.Debug("Type '{0}' cannot be serialized", t);
                 }
 
                 return false;
@@ -97,12 +96,12 @@ namespace Smartstore.ComponentModel
                 result = Deserialize(objectType, value, uncompress);
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
                 if (!(typeof(IObjectContainer).IsAssignableFrom(objectType) || objectType == typeof(object) || objectType.IsPredefinedType()))
                 {
                     _unDeserializableTypes.Add(objectType);
-                    Logger.Debug(ex, "Type '{0}' cannot be DEserialized", objectType);
+                    Logger.Debug("Type '{0}' cannot be DEserialized", objectType);
                 }
 
                 return false;
@@ -127,11 +126,6 @@ namespace Smartstore.ComponentModel
                 value = value.Unzip();
             }
 
-            //using var stream = new MemoryStream(value);
-            //using var reader = new BsonDataReader(stream);
-
-            //return _jsonSerializer.Deserialize(reader, objectType);
-
             var json = Encoding.UTF8.GetString(value);
             using var reader = new StringReader(json);
             return _jsonSerializer.Deserialize(reader, objectType);
@@ -143,19 +137,6 @@ namespace Smartstore.ComponentModel
             {
                 return NullResult;
             }
-
-            //using var stream = new MemoryStream();
-            //using var writer = new BsonDataWriter(stream);
-
-            //_jsonSerializer.Serialize(writer, item);
-            //var buffer = stream.ToArray();
-
-            //if (compress)
-            //{
-            //    return buffer.Zip();
-            //}
-
-            //return buffer;
 
             //using var stream = new MemoryStream();
             using var psb = StringBuilderPool.Instance.Get(out var sb);

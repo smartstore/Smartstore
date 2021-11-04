@@ -1,11 +1,17 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Smartstore.Utilities;
 
 namespace Smartstore.ComponentModel.JsonConverters
 {
     public class ObjectContainerJsonConverter : JsonConverter<IObjectContainer>
     {
+        public ObjectContainerJsonConverter()
+        {
+            var yo = true;
+        }
+
         public override bool CanRead
             => true;
 
@@ -37,6 +43,11 @@ namespace Smartstore.ComponentModel.JsonConverters
 
             if (result.Value is not JToken valueToken)
             {
+                if (result.Value != null && result.Value.GetType() != result.ValueType && CommonHelper.TryConvert(result.Value, result.ValueType, out var converted))
+                {
+                    result.Value = converted;
+                }
+                
                 return result;
             }
 

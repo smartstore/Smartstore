@@ -152,8 +152,8 @@ namespace Smartstore.Core.Localization
 
             var json = JsonConvert.SerializeObject(dict, new JsonSerializerSettings
             {
-                ContractResolver = SmartContractResolver.Instance,
-                Formatting = Formatting.None
+                Formatting = Formatting.None,
+                TypeNameHandling = TypeNameHandling.None
             });
 
             return json;

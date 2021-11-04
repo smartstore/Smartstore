@@ -112,8 +112,8 @@ namespace Smartstore.Core.Content.Media.Icons
                 // minified file did not exist: save it.
                 var settings = new JsonSerializerSettings
                 {
-                    ContractResolver = SmartContractResolver.Instance,
                     DefaultValueHandling = DefaultValueHandling.Ignore,
+                    TypeNameHandling = TypeNameHandling.None,
                     Formatting = Formatting.None
                 };
 

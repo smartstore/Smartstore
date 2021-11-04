@@ -57,7 +57,7 @@ namespace Smartstore.Core.Packaging
             var json = JsonConvert.SerializeObject(manifest, new JsonSerializerSettings 
             {
                 Formatting = Formatting.Indented,
-                NullValueHandling = NullValueHandling.Ignore
+                TypeNameHandling = TypeNameHandling.None
             });
 
             var memStream = new MemoryStream();

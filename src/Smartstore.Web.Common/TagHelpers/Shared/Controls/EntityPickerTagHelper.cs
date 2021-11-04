@@ -184,9 +184,8 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             var json = JsonConvert.SerializeObject(options, new JsonSerializerSettings
             {
-                ContractResolver = SmartContractResolver.Instance,
                 Formatting = Formatting.None,
-                NullValueHandling = NullValueHandling.Ignore
+                TypeNameHandling = TypeNameHandling.None,
             });
 
             output.PreElement.AppendHtmlLine(@$"<script data-origin='EntityPicker'>$(function() {{ $('#{buttonId}').entityPicker({json}); }})</script>");

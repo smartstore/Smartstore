@@ -178,7 +178,7 @@ namespace Smartstore.Core.Security
 
             customer ??= _workContext.CurrentCustomer;
 
-            var cacheKey = $"permission.{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
+            var cacheKey = $"permission:{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
 
             var authorized = _cache.Get(cacheKey, o =>
             {
@@ -214,7 +214,7 @@ namespace Smartstore.Core.Security
 
             customer ??= _workContext.CurrentCustomer;
 
-            var cacheKey = $"permission.{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
+            var cacheKey = $"permission:{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
 
             var authorized = await _cache.GetAsync(cacheKey, async o =>
             {

@@ -420,8 +420,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             return JsonConvert.SerializeObject(obj, new JsonSerializerSettings
             {
-                ContractResolver = SmartContractResolver.Instance,
-                NullValueHandling = NullValueHandling.Ignore,
+                TypeNameHandling = TypeNameHandling.None,
                 Formatting = CommonHelper.IsDevEnvironment ? Formatting.Indented : Formatting.None
             });
         }

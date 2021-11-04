@@ -524,7 +524,10 @@ namespace Smartstore.Admin.Controllers
 
         private static string GetResultString(string message = null, string type = "ok")
         {
-            return JsonConvert.SerializeObject(GetResultMessage(message, type), new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
+            return JsonConvert.SerializeObject(GetResultMessage(message, type), new JsonSerializerSettings 
+            { 
+                TypeNameHandling = TypeNameHandling.None 
+            });
         }
 
         private static object GetResultMessage(string message = null, string type = "ok")

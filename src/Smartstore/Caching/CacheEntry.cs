@@ -56,7 +56,7 @@ namespace Smartstore.Caching
         /// Gets or sets the last accessed date of the cache entry.
         /// </summary>
         /// <remarks>For future use.</remarks>
-        public DateTimeOffset LastAccessedOn { get; set; }
+        public DateTimeOffset? LastAccessedOn { get; set; }
 
         /// <summary>
         /// Gets or sets the entries expiration timeout.

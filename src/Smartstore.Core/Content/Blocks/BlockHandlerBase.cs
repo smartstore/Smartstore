@@ -75,11 +75,7 @@ namespace Smartstore.Core.Content.Blocks
 
 			var settings = new JsonSerializerSettings
 			{
-				ContractResolver = SmartContractResolver.Instance,
-				TypeNameHandling = TypeNameHandling.Objects,
-				ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-				ObjectCreationHandling = ObjectCreationHandling.Replace,
-				NullValueHandling = NullValueHandling.Ignore
+				ObjectCreationHandling = ObjectCreationHandling.Replace
 			};
 
 			entity.Model = JsonConvert.SerializeObject(block, Formatting.None, settings);
