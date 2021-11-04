@@ -1,0 +1,18 @@
+﻿@{
+    ViewBag.Title = T("Admin.Promotions.NewsletterSubscriptions").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="far fa-envelope"></i>
+        @T("Admin.Promotions.NewsletterSubscriptions")
+    </div>
+    <div class="options">
+        <zone name="admin_button_toolbar_before" />
+
+        <zone name="admin_button_toolbar_after" />
+    </div>
+</div>
+
+<partial name="_Grid.NewsletterSubscription" model="null" />
