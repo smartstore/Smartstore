@@ -47,6 +47,7 @@ namespace Smartstore.Admin.Controllers
         {
             var newsletterSubscriptions = await _db.NewsletterSubscriptions
                 .AsNoTracking()
+                // TODO: (mh) (core) Not sure whether this will work! TEST!! The extension method returns another type (wrapper).
                 .ApplyStandardFilter(model.SearchEmail, false, new[] { model.SearchStoreId }, model.SearchCustomerRoleIds)
                 .Select(x => x.Subscription)
                 .ApplyGridCommand(command)
