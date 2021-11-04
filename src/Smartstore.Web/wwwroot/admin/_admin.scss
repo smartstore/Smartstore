@@ -812,6 +812,14 @@ legend {
     $tbcolor: darken($table-border-color, 5%);
     border: 1px solid $tbcolor;
 
+    .table-toolbar {
+        caption-side: top;
+        padding: 0.375rem;
+        background-color: $table-head-bg;
+        border: 1px solid $tbcolor;
+        border-bottom: 0;
+    }
+
     thead {
         background-color: $table-head-bg;
     }

@@ -276,29 +276,8 @@ namespace Smartstore.Core.Messaging
             var isNet = order.CustomerTaxDisplayType == TaxDisplayType.ExcludingTax;
             var product = part.Product;
             var attributeCombination = await productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, part.AttributeSelection);
+
             product.MergeWithCombination(attributeCombination);
-
-            // Bundle items.
-            object bundleItems = null;
-            if (product.ProductType == ProductType.BundledProduct && part.BundleData.HasValue())
-            {
-                var bundleData = part.GetBundleData();
-                if (bundleData.Any())
-                {
-                    var productIds = bundleData.Select(x => x.ProductId).ToArray();
-                    var products = await _db.Products.GetManyAsync(productIds);
-                    var productsDic = products.ToDictionarySafe(x => x.Id, x => x);
-
-                    bundleItems = bundleData
-                        .OrderBy(x => x.DisplayOrder)
-                        .Select(async x =>
-                        {
-                            productsDic.TryGetValue(x.ProductId, out Product bundleItemProduct);
-                            return await CreateModelPartAsync(x, part, bundleItemProduct, messageContext);
-                        })
-                        .ToList();
-                }
-            }
             
             var m = new Dictionary<string, object>
             {
@@ -310,11 +289,31 @@ namespace Smartstore.Core.Messaging
                 { "UnitPrice", _helper.FormatPrice(isNet ? part.UnitPriceExclTax : part.UnitPriceInclTax, part.Order, messageContext) },
                 { "LineTotal", _helper.FormatPrice(isNet ? part.PriceExclTax : part.PriceInclTax, part.Order, messageContext) },
                 { "Product", await CreateModelPartAsync(product, messageContext, part.AttributeSelection) },
-                { "BundleItems", bundleItems },
                 { "IsGross", !isNet },
                 { "DisplayDeliveryTime", part.DisplayDeliveryTime },
             };
 
+            // Bundle items.
+            List<object> bundleItems = null;
+            if (product.ProductType == ProductType.BundledProduct && part.BundleData.HasValue())
+            {
+                var bundleData = part.GetBundleData();
+                if (bundleData.Any())
+                {
+                    var productIds = bundleData.Select(x => x.ProductId).ToArray();
+                    var products = await _db.Products.GetManyAsync(productIds);
+                    var productsDic = products.ToDictionarySafe(x => x.Id, x => x);
+
+                    bundleItems = await bundleData
+                        .OrderBy(x => x.DisplayOrder)
+                        .SelectAsync(async x => await CreateModelPartAsync(x, part, productsDic.Get(x.ProductId), messageContext))
+                        .AsyncToList();
+                }
+            }
+
+            m["BundleItems"] = bundleItems;
+
+            // Delivery time.
             if (part.DeliveryTimeId.HasValue)
             {
                 var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(part.DeliveryTimeId ?? 0, false);

@@ -309,11 +309,9 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Order.Read)]
-        public IActionResult ExportPdf(GridSelection selection)
+        public IActionResult ExportPdf(string selectedIds)
         {
-            var ids = string.Join(",", selection.SelectedKeys);
-
-            return RedirectToAction("PrintMany", "Order", new { ids, pdf = true, area = string.Empty });
+            return RedirectToAction("PrintMany", "Order", new { ids = selectedIds, pdf = true, area = string.Empty });
         }
 
         #region Payment
@@ -1893,7 +1891,7 @@ namespace Smartstore.Admin.Controllers
                             DisplayOrder = x.DisplayOrder,
                             AttributesInfo = x.AttributesInfo,
                             PriceWithDiscount = model.BundlePerItemShoppingCart
-                                ? Format(x.PriceWithDiscount)
+                                ? Format(x.PriceWithDiscount, false, true)
                                 : null
                         })
                         .ToList();

@@ -508,6 +508,12 @@ namespace Smartstore.Core.Data.Migrations
                 "A value indicating whether to display this order note to a customer.",
                 "Legt fest, ob die Notiz für den Benutzer sichtbar ist.");
 
+            builder.AddOrUpdate("Admin.Orders.List.OrderGuid",
+                "Order reference number",
+                "Bestellreferenznummer",
+                "Search by order reference number or part of it. Leave empty to load all orders.",
+                "Suche über die Bestellreferenznummer oder Teile der Bestellreferenznummer. Freilassen, um alle Aufträge zu laden.");
+
             #endregion
 
             #region Obsolete
