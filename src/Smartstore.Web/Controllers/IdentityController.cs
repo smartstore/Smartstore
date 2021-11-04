@@ -94,7 +94,7 @@ namespace Smartstore.Web.Controllers
         #region Login / Logout / Register
 
         [HttpGet]
-        [TypeFilter(typeof(ExternalAuthFilter))]
+        [TypeFilter(typeof(DisplayExternalAuthWidgets))]
         [RequireSsl, AllowAnonymous, NeverAuthorize, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
         public async Task<IActionResult> Login(bool? checkoutAsGuest, string returnUrl = null)
@@ -113,7 +113,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
-        [TypeFilter(typeof(ExternalAuthFilter))]
+        [TypeFilter(typeof(DisplayExternalAuthWidgets))]
         [AllowAnonymous, NeverAuthorize]
         [ValidateAntiForgeryToken, ValidateCaptcha, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]

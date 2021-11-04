@@ -1,19 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Core;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Web.Filters
+namespace Smartstore.Core.Identity
 {
-    public class ExternalAuthFilter : IActionFilter
+    public class DisplayExternalAuthWidgets : IActionFilter
     {
         private readonly ICommonServices _services;
         private readonly IWidgetProvider _widgetProvider;
         private readonly IProviderManager _providerManager;
         private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
 
-        public ExternalAuthFilter(
+        public DisplayExternalAuthWidgets(
             ICommonServices services, 
             IWidgetProvider widgetProvider, 
             IProviderManager providerManager,
