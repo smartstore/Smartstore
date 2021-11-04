@@ -10,29 +10,31 @@ namespace Smartstore.Blog.Services
     {
         const string EntityName = nameof(BlogPost);
 
-        public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values, bool returnAdminEditRoute = false)
+        public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values, RouteTarget routeTarget = RouteTarget.PublicView)
         {
             if (urlRecord.EntityName.EqualsNoCase(EntityName))
             {
-                if (returnAdminEditRoute)
+                if (routeTarget == RouteTarget.Edit)
                 {
                     return new RouteValueDictionary
                     {
                         { "area", "Admin" },
-                        { "controller", "Blog" },
+                        { "controller", "BlogAdmin" },
                         { "action", "Edit" },
                         { "id", urlRecord.EntityId }
                     };
                 }
-
-                return new RouteValueDictionary
+                else
                 {
-                    { "area", string.Empty },
-                    { "controller", "Blog" },
-                    { "action", "BlogPost" },
-                    { "blogPostId", urlRecord.EntityId },
-                    { "entity", urlRecord }
-                };
+                    return new RouteValueDictionary
+                    {
+                        { "area", string.Empty },
+                        { "controller", "Blog" },
+                        { "action", "BlogPost" },
+                        { "blogPostId", urlRecord.EntityId },
+                        { "entity", urlRecord }
+                    };
+                }
             }
 
             return null;

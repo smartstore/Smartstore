@@ -10,19 +10,19 @@ namespace Smartstore.Forums.Services
     {
         private static readonly string[] _entitiesWithSlugs = new[] { nameof(ForumGroup), nameof(ForumTopic), nameof(Forum) };
 
-        public override RouteValueDictionary GetRouteValues(UrlRecord entity, RouteValueDictionary values, bool returnAdminEditRoute = false)
+        public override RouteValueDictionary GetRouteValues(UrlRecord entity, RouteValueDictionary values, RouteTarget routeTarget = RouteTarget.PublicView)
         {
             var entityName = entity.EntityName.EmptyNull();
 
-            if (returnAdminEditRoute && (entityName == nameof(ForumGroup) || entityName == nameof(Forum)))
+            if (routeTarget == RouteTarget.Edit && (entityName == nameof(ForumGroup) || entityName == nameof(Forum)))
             {
                 return new RouteValueDictionary
-                    {
-                        { "area", "Admin" },
-                        { "controller", "Forum" },
-                        { "action", $"{entityName}Update" },
-                        { "id", entity.EntityId }
-                    };
+                {
+                    { "area", "Admin" },
+                    { "controller", "ForumAdmin" },
+                    { "action", $"{entityName}Update" },
+                    { "id", entity.EntityId }
+                };
             }
 
             return entityName.ToLower() switch

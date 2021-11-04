@@ -6,9 +6,9 @@ namespace Smartstore.Core.Seo.Routing
 {
     public class DefaultSlugRouter : SlugRouter
     {
-        public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values, bool returnAdminEditRoute = false)
+        public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values, RouteTarget routeTarget = RouteTarget.PublicView)
         {
-            if (returnAdminEditRoute)
+            if (routeTarget == RouteTarget.Edit)
             {
                 return null;
             }
