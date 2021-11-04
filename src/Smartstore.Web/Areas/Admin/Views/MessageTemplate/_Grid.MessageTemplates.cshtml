@@ -2,10 +2,6 @@
 
 @model MessageTemplateModel
 
-@{
-    var parentModel = ViewData["Parent"] as SettingListModel;
-}
-
 <datagrid id="templates-grid"
           allow-resize="true"
           allow-row-selection="true"
@@ -30,7 +26,7 @@
         </toolbar-group>
     </toolbar>
     <search-panel>
-        <partial name="_Grid.MessageTemplates.Search" model="parentModel" />
+        <partial name="_Grid.MessageTemplates.Search" />
     </search-panel>
     <columns>
         <column for="Name" width="350px" hideable="false">

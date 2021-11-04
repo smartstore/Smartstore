@@ -160,11 +160,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Cms.MessageTemplate.Read)]
         public IActionResult List()
         {
-            var model = new MessageTemplateListModel();
-
             ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
-
-            return View(model);
+            return View();
         }
 
         [HttpPost]
