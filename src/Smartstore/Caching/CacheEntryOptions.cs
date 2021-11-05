@@ -6,18 +6,26 @@ namespace Smartstore.Caching
 {
     public sealed class CacheEntryOptions
     {
-        private TimeSpan? _duration;
+        private TimeSpan? _absoluteExpiration;
+        private TimeSpan? _slidingExpiration;
         private HashSet<string> _dependencies;
 
         public CacheEntryOptions ExpiresIn(TimeSpan duration)
         {
-            _duration = duration;
+            _absoluteExpiration = duration;
+            return this;
+        }
+
+        public CacheEntryOptions SetSlidingExpiration(TimeSpan duration)
+        {
+            _slidingExpiration = duration;
             return this;
         }
 
         public CacheEntryOptions NoExpiration()
         {
-            _duration = null;
+            _absoluteExpiration = null;
+            _slidingExpiration = null;
             return this;
         }
 
@@ -45,7 +53,8 @@ namespace Smartstore.Caching
                 Key = key,
                 Value = value,
                 ValueType = value?.GetType(),
-                Duration = _duration
+                AbsoluteExpiration = _absoluteExpiration,
+                SlidingExpiration = _slidingExpiration
             };
 
             if (_dependencies != null)

@@ -111,7 +111,7 @@ namespace Smartstore.Threading
                 Value = state,
                 ValueType = state?.GetType(),
                 Priority = CacheEntryPriority.NeverRemove,
-                Duration = neverExpires ? null : TimeSpan.FromMinutes(15),
+                SlidingExpiration = neverExpires ? null : TimeSpan.FromMinutes(15),
                 CancelTokenSourceOnRemove = false
             };
 

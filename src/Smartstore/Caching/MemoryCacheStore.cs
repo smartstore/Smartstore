@@ -100,7 +100,13 @@ namespace Smartstore.Caching
 
         public virtual CacheEntry Get(string key)
         {
-            return _cache.Get<CacheEntry>(key);
+            var entry = _cache.Get<CacheEntry>(key);
+            if (entry != null)
+            {
+                entry.LastAccessedOn = DateTimeOffset.UtcNow;
+            }
+
+            return entry;
         }
 
         public virtual Task<CacheEntry> GetAsync(string key)
@@ -170,9 +176,14 @@ namespace Smartstore.Caching
             entry.SetValue(item);
             entry.SetPriority((CacheItemPriority)item.Priority);
 
-            if (item.Duration != null)
+            if (item.AbsoluteExpiration != null)
             {
-                entry.SetAbsoluteExpiration(item.Duration.Value);
+                entry.SetAbsoluteExpiration(item.AbsoluteExpiration.Value);
+            }
+
+            if (item.SlidingExpiration != null)
+            {
+                entry.SetSlidingExpiration(item.SlidingExpiration.Value);
             }
 
             // Ensure that cancelling the token removes this item from the cache
@@ -329,7 +340,7 @@ namespace Smartstore.Caching
             if (entry != null && entry.TimeToLive != duration)
             {
                 var clone = entry.Clone();
-                clone.Duration = duration;
+                clone.AbsoluteExpiration = duration;
                 clone.CancellationTokenSource = entry.CancellationTokenSource;
 
                 Put(key, clone);

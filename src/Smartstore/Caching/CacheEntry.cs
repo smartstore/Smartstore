@@ -48,20 +48,27 @@ namespace Smartstore.Caching
         public object Value { get; set; }
 
         /// <summary>
-        /// Gets or sets the creation date of the cache entry.
+        /// Gets or sets the creation UTC date of the cache entry.
         /// </summary>
         public DateTimeOffset CachedOn { get; set; } = DateTimeOffset.UtcNow;
 
         /// <summary>
-        /// Gets or sets the last accessed date of the cache entry.
+        /// Gets or sets the last accessed UTC date of the cache entry.
         /// </summary>
         /// <remarks>For future use.</remarks>
         public DateTimeOffset? LastAccessedOn { get; set; }
 
         /// <summary>
-        /// Gets or sets the entries expiration timeout.
+        /// Gets or sets the entries absolute expiration relative to now.
         /// </summary>
-        public TimeSpan? Duration { get; set; }
+        public TimeSpan? AbsoluteExpiration { get; set; }
+
+        /// <summary>
+        /// Gets or sets how long a cache entry can be inactive (e.g. not accessed) before
+        //  it will be removed. This will not extend the entry lifetime beyond the absolute
+        //  expiration (if set).
+        /// </summary>
+        public TimeSpan? SlidingExpiration { get; set; }
 
         /// <summary>
         /// Gets or sets the priority for keeping the cache entry in the cache during a
@@ -90,15 +97,7 @@ namespace Smartstore.Caching
         [JsonIgnore]
         public bool HasExpired
         {
-            get
-            {
-                if (Duration == null)
-                {
-                    return false;
-                }
-
-                return CachedOn.Add(Duration.Value) < DateTimeOffset.UtcNow;
-            }
+            get => TimeToLive <= TimeSpan.Zero;
         }
 
         /// <summary>
@@ -110,7 +109,32 @@ namespace Smartstore.Caching
         [JsonIgnore]
         public TimeSpan? TimeToLive
         {
-            get => Duration.HasValue ? CachedOn.Add(Duration.Value) - DateTimeOffset.UtcNow : null;
+            get
+            {
+                if (SlidingExpiration.HasValue)
+                {
+                    var now = DateTimeOffset.UtcNow;
+                    var lastAccess = LastAccessedOn ?? CachedOn;
+                    var slidingTime = lastAccess.Add(SlidingExpiration.Value) - now;
+
+                    if (AbsoluteExpiration.HasValue)
+                    {
+                        var absTime = CachedOn.Add(AbsoluteExpiration.Value) - now;
+                        return slidingTime < absTime ? slidingTime : absTime;
+                    }
+                    else
+                    {
+                        return slidingTime;
+                    }
+                }
+
+                if (AbsoluteExpiration.HasValue)
+                {
+                    return CachedOn.Add(AbsoluteExpiration.Value) - DateTimeOffset.UtcNow;
+                }
+
+                return null;
+            }
         }
 
         object ICloneable.Clone() => Clone();
@@ -125,7 +149,8 @@ namespace Smartstore.Caching
                 Dependencies = this.Dependencies,
                 LastAccessedOn = this.LastAccessedOn,
                 CachedOn = DateTime.UtcNow,
-                Duration = this.TimeToLive,
+                AbsoluteExpiration = this.TimeToLive,
+                SlidingExpiration = this.SlidingExpiration,
                 CancelTokenSourceOnRemove = this.CancelTokenSourceOnRemove
             };
         }

@@ -427,9 +427,6 @@ namespace Smartstore.Caching
                         i--;
                     }
 
-                    // INFO: has no effect for distributed caches.
-                    entry.LastAccessedOn = DateTimeOffset.UtcNow;
-
                     return (entry, store, index);
                 }
 
@@ -461,9 +458,6 @@ namespace Smartstore.Caching
                         await _stores[i].PutAsync(key, entry.Clone());
                         i--;
                     }
-
-                    // INFO: has no effect for distributed caches.
-                    entry.LastAccessedOn = DateTimeOffset.UtcNow;
 
                     return (entry, store, index);
                 }

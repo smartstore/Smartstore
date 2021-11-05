@@ -168,8 +168,7 @@ namespace Smartstore.ComponentModel
 
             if (objectType.IsGenericType)
             {
-                var gtDefinition = objectType.GetGenericTypeDefinition();
-                if (set.Contains(gtDefinition))
+                if (set.Contains(objectType.GetGenericTypeDefinition()))
                 {
                     return false;
                 }
