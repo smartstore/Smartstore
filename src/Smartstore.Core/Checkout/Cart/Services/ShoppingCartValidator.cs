@@ -195,7 +195,9 @@ namespace Smartstore.Core.Checkout.Cart
 
             await ValidateProductAsync(cartItem, warnings, ctx.StoreId);
             await this.ValidateProductAttributesAsync(cartItem, cartItems, warnings);
-            ValidateGiftCardInfo(cartItem, warnings);
+
+            ValidateGiftCardInfo(cartItem.Product, cartItem.AttributeSelection, warnings);
+
             await ValidateRequiredProductsAsync(ctx.Product, cartItems, warnings);
 
             // Bundle and bundle items (child items) warnings
@@ -232,16 +234,19 @@ namespace Smartstore.Core.Checkout.Cart
             return isValid;
         }
 
-        public virtual bool ValidateGiftCardInfo(ShoppingCartItem cartItem, IList<string> warnings)
+        public virtual bool ValidateGiftCardInfo(Product product, ProductVariantAttributeSelection selection, IList<string> warnings)
         {
-            Guard.NotNull(cartItem, nameof(cartItem));
+            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(selection, nameof(selection));
             Guard.NotNull(warnings, nameof(warnings));
 
-            if (!cartItem.Product.IsGiftCard)
+            if (!product.IsGiftCard)
+            {
                 return true;
+            }
 
             var currentWarnings = new List<string>();
-            var giftCardInfo = cartItem.AttributeSelection.GetGiftCardInfo();
+            var giftCardInfo = selection.GetGiftCardInfo();
             var recipientName = giftCardInfo?.RecipientName;
             var recipientEmail = giftCardInfo?.RecipientEmail;
             var senderName = giftCardInfo?.SenderName;
@@ -257,7 +262,7 @@ namespace Smartstore.Core.Checkout.Cart
                 currentWarnings.Add(T("ShoppingCart.SenderNameError"));
             }
 
-            if (cartItem.Product.GiftCardType == GiftCardType.Virtual)
+            if (product.GiftCardType == GiftCardType.Virtual)
             {
                 if (!recipientEmail.IsEmail())
                 {
@@ -271,6 +276,7 @@ namespace Smartstore.Core.Checkout.Cart
             }
 
             warnings.AddRange(currentWarnings);
+
             return !currentWarnings.Any();
         }
 

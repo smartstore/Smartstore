@@ -104,7 +104,8 @@ namespace Smartstore.Core.Checkout.Cart
                     ctx.VariantQuery,
                     ctx.Product.ProductVariantAttributes,
                     ctx.Product.Id,
-                    ctx.BundleItemId);
+                    ctx.BundleItemId,
+                    false);
 
                 if (ctx.Product.IsGiftCard)
                 {

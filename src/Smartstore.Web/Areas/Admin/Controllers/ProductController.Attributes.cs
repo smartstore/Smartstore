@@ -184,7 +184,7 @@ namespace Smartstore.Admin.Controllers
                         DisplayOrder1 = x.DisplayOrder
                     };
 
-                    if (x.ShouldHaveValues())
+                    if (x.IsListTypeAttribute())
                     {
                         pvaModel.ValueCount = x.ProductVariantAttributeValues != null ? x.ProductVariantAttributeValues.Count : 0;
                         pvaModel.EditUrl = Url.Action(nameof(EditAttributeValues), new { productVariantAttributeId = x.Id });
@@ -683,7 +683,7 @@ namespace Smartstore.Admin.Controllers
                     AttributeControlType = attribute.AttributeControlType
                 };
 
-                if (attribute.ShouldHaveValues())
+                if (attribute.IsListTypeAttribute())
                 {
                     // TODO: (mh) (core) I think you can eager-load this list in main query above (?)
                     var pvaValues = await _db.ProductVariantAttributeValues
@@ -693,7 +693,7 @@ namespace Smartstore.Admin.Controllers
 
                     foreach (var pvaValue in pvaValues)
                     {
-                        var pvaValueModel = new ProductVariantAttributeCombinationModel.ProductVariantAttributeValueModel()
+                        var pvaValueModel = new ProductVariantAttributeCombinationModel.ProductVariantAttributeValueModel
                         {
                             Id = pvaValue.Id,
                             Name = pvaValue.Name,

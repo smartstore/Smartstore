@@ -569,6 +569,11 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Catalog.Products.List.SearchCategory",
             //    "Admin.Catalog.Products.List.SearchManufacturer",
             //    "Admin.Catalog.Products.List.SearchProductType",
+            //    "Admin.Orders.Products.AddNew.Name",
+            //    "Admin.Orders.Products.AddNew.SKU",
+            //    "Admin.Orders.Products.AddNew.Title1",
+            //    "Admin.Orders.Products.AddNew.Note1",
+            //    "Admin.Orders.Products.AddNew.BackToList",
             //    );
 
 

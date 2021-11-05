@@ -34,6 +34,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
@@ -51,6 +52,10 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IOrderService _orderService;
         private readonly IOrderProcessingService _orderProcessingService;
+        private readonly Lazy<IPriceCalculationService> _priceCalculationService;
+        private readonly Lazy<IProductService> _productService;
+        private readonly Lazy<IShoppingCartValidator> _shoppingCartValidator;
+        private readonly Lazy<IProductAttributeFormatter> _productAttributeFormatter;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IPaymentService _paymentService;
         private readonly ICurrencyService _currencyService;
@@ -72,6 +77,10 @@ namespace Smartstore.Admin.Controllers
             SmartDbContext db,
             IOrderService orderService,
             IOrderProcessingService orderProcessingService,
+            Lazy<IPriceCalculationService> priceCalculationService,
+            Lazy<IProductService> productService,
+            Lazy<IShoppingCartValidator> shoppingCartValidator,
+            Lazy<IProductAttributeFormatter> productAttributeFormatter,
             IProductAttributeMaterializer productAttributeMaterializer,
             IPaymentService paymentService,
             ICurrencyService currencyService,
@@ -91,6 +100,10 @@ namespace Smartstore.Admin.Controllers
             _db = db;
             _orderService = orderService;
             _orderProcessingService = orderProcessingService;
+            _priceCalculationService = priceCalculationService;
+            _productService = productService;
+            _shoppingCartValidator = shoppingCartValidator;
+            _productAttributeFormatter = productAttributeFormatter;
             _productAttributeMaterializer = productAttributeMaterializer;
             _paymentService = paymentService;
             _currencyService = currencyService;
@@ -1390,15 +1403,134 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.EditItem)]
         public async Task<IActionResult> AddProductToOrder(int orderId, int productId)
         {
-            var model = new AddOrderProductModel
-            {
-                Id = productId,
-                OrderId = orderId
-            };
+            var order = await _db.Orders
+                .Include(x => x.Customer)
+                .FindByIdAsync(orderId);
 
-            await PrepareAddOrderProductModel(model);
+            var product = await _db.Products
+                .Include(x => x.ProductVariantAttributes)
+                .ThenInclude(x => x.ProductAttribute)
+                .FindByIdAsync(productId);
+
+            var model = new AddOrderProductModel();
+
+            await PrepareAddOrderProductModel(model, product, order);
 
             return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Order.EditItem)]
+        public async Task<IActionResult> AddProductToOrder(AddOrderProductModel model, ProductVariantQuery query)
+        {
+            var order = await _db.Orders
+                .Include(x => x.Customer)
+                .FindByIdAsync(model.OrderId);
+
+            var product = await _db.Products
+                .Include(x => x.ProductVariantAttributes)
+                .ThenInclude(x => x.ProductAttribute)
+                .FindByIdAsync(model.Id);
+
+            if (order == null || product == null)
+            {
+                return NotFound();
+            }
+
+            ProductVariantAttributeSelection attributeSelection = null;
+            var warnings = new List<string>();
+
+            if (product.ProductType != ProductType.BundledProduct)
+            {
+                var attributes = product.ProductVariantAttributes
+                    .OrderBy(x => x.DisplayOrder)
+                    .ToList();
+
+                var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, 0);
+                attributeSelection = selection;
+            }
+
+            if (product.IsGiftCard)
+            {
+                var giftCardInfo = query.GetGiftCardInfo(product.Id, 0);
+                attributeSelection.AddGiftCardInfo(giftCardInfo);
+            }
+
+            await _shoppingCartValidator.Value.ValidateProductAttributesAsync(
+                product,
+                attributeSelection,
+                order.StoreId,
+                warnings,
+                model.Quantity,
+                order.Customer);
+
+            _shoppingCartValidator.Value.ValidateGiftCardInfo(product, attributeSelection, warnings);
+
+            if (warnings.Any())
+            {
+                await PrepareAddOrderProductModel(model, product, order);
+
+                ViewBag.Warnings = warnings;
+
+                return View(model);
+            }
+
+            var attributeDescription = await _productAttributeFormatter.Value.FormatAttributesAsync(attributeSelection, product, order.Customer);
+            var productCost = await _priceCalculationService.Value.CalculateProductCostAsync(product, attributeSelection);
+
+            var displayDeliveryTime =
+                _shoppingCartSettings.DeliveryTimesInShoppingCart != DeliveryTimesPresentation.None &&
+                product.DeliveryTimeId.HasValue &&
+                product.IsShippingEnabled &&
+                product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
+
+            var orderItem = new OrderItem
+            {
+                OrderItemGuid = Guid.NewGuid(),
+                Order = order,
+                ProductId = product.Id,
+                UnitPriceInclTax = model.UnitPriceInclTax,
+                UnitPriceExclTax = model.UnitPriceExclTax,
+                PriceInclTax = model.PriceInclTax,
+                PriceExclTax = model.PriceExclTax,
+                TaxRate = model.TaxRate,
+                AttributeDescription = attributeDescription,
+                RawAttributes = attributeSelection.AsJson(),
+                Quantity = model.Quantity,
+                DiscountAmountInclTax = decimal.Zero,
+                DiscountAmountExclTax = decimal.Zero,
+                DownloadCount = 0,
+                IsDownloadActivated = false,
+                LicenseDownloadId = 0,
+                ProductCost = productCost.Amount,
+                DeliveryTimeId = product.GetDeliveryTimeIdAccordingToStock(_catalogSettings),
+                DisplayDeliveryTime = displayDeliveryTime
+            };
+
+            if (product.ProductType == ProductType.BundledProduct)
+            {
+                var listBundleData = new List<ProductBundleItemOrderData>();
+
+                var bundleItems = await _db.ProductBundleItem
+                    .Include(x => x.Product)
+                    .Include(x => x.BundleProduct)
+                    .Include(x => x.AttributeFilters)
+                    .ApplyBundledProductsFilter(new[] { product.Id }, false)
+                    .ToListAsync();
+
+                foreach (var bundleItem in bundleItems)
+                {
+                    //...
+                }
+
+                orderItem.SetBundleData(listBundleData);
+            }
+
+
+
+            //...
+
+            return RedirectToAction(nameof(Edit), new { id = order.Id });
         }
 
         #endregion
@@ -1817,23 +1949,105 @@ namespace Smartstore.Admin.Controllers
             ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
         }
 
-        private async Task PrepareAddOrderProductModel(AddOrderProductModel model)
+        private async Task PrepareAddOrderProductModel(AddOrderProductModel model, Product product, Order order)
         {
-            var product = await _db.Products.FindByIdAsync(model.Id);
             if (product == null)
             {
                 throw new ArgumentException(T("Products.NotFound", model.Id));
             }
 
-            var customer = Services.WorkContext.CurrentCustomer;
-            var order = await _db.Orders.FindByIdAsync(model.OrderId);
-
             var currency = await _db.Currencies
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.CurrencyCode == order.CustomerCurrencyCode) ?? _primaryCurrency;
 
-            //...
+            var calculationOptions = _priceCalculationService.Value.CreateDefaultOptions(true);
+            calculationOptions.IgnoreDiscounts = true;
 
+            var calculationContext = new PriceCalculationContext(product, calculationOptions);
+            var unitPrice = await _priceCalculationService.Value.CalculatePriceAsync(calculationContext);
+            var priceTax = unitPrice.Tax.Value;
+
+            model.Id = product.Id;
+            model.OrderId = order.Id;
+            model.Name = product.GetLocalized(x => x.Name);
+            model.ProductType = product.ProductType;
+            model.UnitPriceInclTax = priceTax.PriceGross;
+            model.UnitPriceExclTax = priceTax.PriceNet;
+            model.PriceInclTax = priceTax.PriceGross;
+            model.PriceExclTax = priceTax.PriceNet;
+            model.TaxRate = priceTax.Rate.Rate;
+            model.ShowUpdateTotals = order.OrderStatusId <= (int)OrderStatus.Pending;
+            model.GiftCard.IsGiftCard = product.IsGiftCard;
+            model.GiftCard.GiftCardType = product.GiftCardType;
+
+            var attributes = product.ProductVariantAttributes
+                .OrderBy(x => x.DisplayOrder)
+                .ToList();
+
+            var linkedProducts = new Dictionary<int, Product>();
+            var linkedProductIds = attributes
+                .SelectMany(x => x.ProductVariantAttributeValues)
+                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
+                .ToDistinctArray(x => x.LinkedProductId);
+
+            if (linkedProductIds.Any())
+            {
+                linkedProducts = await _db.Products
+                    .AsNoTracking()
+                    .Where(x => linkedProductIds.Contains(x.Id) && x.Visibility != ProductVisibility.Hidden)
+                    .ToDictionaryAsync(x => x.Id);
+            }
+
+            foreach (var attribute in attributes)
+            {
+                var attributeValues = attribute.IsListTypeAttribute()
+                    ? attribute.ProductVariantAttributeValues.OrderBy(x => x.DisplayOrder).ToList()
+                    : new List<ProductVariantAttributeValue>();
+
+                var attributeModel = new AddOrderProductModel.ProductVariantAttributeModel
+                {
+                    Id = attribute.Id,
+                    ProductId = attribute.ProductId,
+                    BundleItemId = 0,
+                    ProductAttributeId = attribute.ProductAttributeId,
+                    Alias = attribute.ProductAttribute.Alias,
+                    Name = attribute.ProductAttribute.GetLocalized(x => x.Name),
+                    Description = attribute.ProductAttribute.GetLocalized(x => x.Description),
+                    TextPrompt = attribute.TextPrompt,
+                    CustomData = attribute.CustomData,
+                    IsRequired = attribute.IsRequired,
+                    AttributeControlType = attribute.AttributeControlType,
+                    AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions
+                };
+
+                if (attribute.IsListTypeAttribute())
+                {
+                    foreach (var value in attributeValues)
+                    {
+                        var valueModel = new AddOrderProductModel.ProductVariantAttributeValueModel
+                        {
+                            Id = value.Id,
+                            PriceAdjustment = string.Empty,
+                            Name = value.GetLocalized(x => x.Name),
+                            Alias = value.Alias,
+                            Color = value.Color,
+                            IsPreSelected = value.IsPreSelected
+                        };
+
+                        if (value.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
+                            linkedProducts.TryGetValue(value.LinkedProductId, out var linkedProduct))
+                        {
+                            valueModel.SeName = await linkedProduct.GetActiveSlugAsync();
+                        }
+
+                        attributeModel.Values.Add(valueModel);
+                    }
+                }
+
+                model.ProductVariantAttributes.Add(attributeModel);
+            }
+
+            ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
         }
 
         private async Task<List<OrderModel.OrderItemModel>> CreateOrderItemsModels(Order order)

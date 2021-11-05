@@ -1183,7 +1183,7 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId, false);
+                var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId);
                 modelContext.SelectedAttributes = selection;
             }
 
