@@ -71,6 +71,13 @@ namespace Smartstore.Caching
         public TimeSpan? SlidingExpiration { get; set; }
 
         /// <summary>
+        /// Whether time expiration policy should be applied to the entry
+        /// in the underlying cache store. Defaults to <c>true</c>.
+        /// </summary>
+        [JsonIgnore]
+        public bool ApplyTimeExpirationPolicy { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the priority for keeping the cache entry in the cache during a
         /// memory pressure triggered cleanup. Only applies to memory cache.
         /// The default is <see cref="CacheItemPriority.Normal"/>.
@@ -97,44 +104,40 @@ namespace Smartstore.Caching
         [JsonIgnore]
         public bool HasExpired
         {
-            get => TimeToLive <= TimeSpan.Zero;
+            get => GetTimeToLive() <= TimeSpan.Zero;
         }
 
         /// <summary>
-        ///  Returns the remaining time to live of an entry that has a timeout.
+        /// Returns the remaining time to live of an entry that has a timeout.
         /// </summary>
         /// <remarks>
         /// TTL, or <c>null</c> when entry does not have a timeout.
         /// </remarks>
-        [JsonIgnore]
-        public TimeSpan? TimeToLive
+        public TimeSpan? GetTimeToLive(DateTimeOffset? utcNow = null)
         {
-            get
-            {
-                if (SlidingExpiration.HasValue)
-                {
-                    var now = DateTimeOffset.UtcNow;
-                    var lastAccess = LastAccessedOn ?? CachedOn;
-                    var slidingTime = lastAccess.Add(SlidingExpiration.Value) - now;
+            utcNow ??= DateTimeOffset.UtcNow;
 
-                    if (AbsoluteExpiration.HasValue)
-                    {
-                        var absTime = CachedOn.Add(AbsoluteExpiration.Value) - now;
-                        return slidingTime < absTime ? slidingTime : absTime;
-                    }
-                    else
-                    {
-                        return slidingTime;
-                    }
-                }
+            if (SlidingExpiration.HasValue)
+            {
+                var slidingTime = ((LastAccessedOn ?? CachedOn) + SlidingExpiration) - utcNow;
 
                 if (AbsoluteExpiration.HasValue)
                 {
-                    return CachedOn.Add(AbsoluteExpiration.Value) - DateTimeOffset.UtcNow;
+                    var absTime = (CachedOn + AbsoluteExpiration) - utcNow;
+                    // Don't go beyond absolute expiration.
+                    return slidingTime < absTime ? slidingTime : absTime;
                 }
-
-                return null;
+                else
+                {
+                    return slidingTime;
+                }
             }
+            else if (AbsoluteExpiration.HasValue)
+            {
+                return (CachedOn + AbsoluteExpiration) - utcNow;
+            }
+
+            return null;
         }
 
         object ICloneable.Clone() => Clone();
@@ -149,8 +152,9 @@ namespace Smartstore.Caching
                 Dependencies = this.Dependencies,
                 LastAccessedOn = this.LastAccessedOn,
                 CachedOn = DateTime.UtcNow,
-                AbsoluteExpiration = this.TimeToLive,
+                AbsoluteExpiration = this.AbsoluteExpiration,
                 SlidingExpiration = this.SlidingExpiration,
+                ApplyTimeExpirationPolicy = this.ApplyTimeExpirationPolicy,
                 CancelTokenSourceOnRemove = this.CancelTokenSourceOnRemove
             };
         }

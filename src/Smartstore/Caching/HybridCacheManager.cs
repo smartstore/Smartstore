@@ -16,10 +16,14 @@ namespace Smartstore.Caching
 
         private readonly ICacheStore[] _stores;
         private readonly Work<ICacheScopeAccessor> _scopeAccessor;
+        private readonly bool _isMultiLevel;
+        private readonly bool _isDistributed;
+        private readonly int _lastIndex;
 
         public HybridCacheManager(IEnumerable<ICacheStore> stores, Work<ICacheScopeAccessor> scopeAccessor)
         {
             // Distributed cache store must come last
+            // Performance Info: Iterating over an array with "for" instead of "foreach" has provenly no perf benefit (in contrary to list iteration).
             _stores = stores.Distinct().OrderBy(x => x.IsDistributed).ToArray();
 
             if (_stores.LastOrDefault() is IDistributedCacheStore distributedStore)
@@ -27,6 +31,7 @@ namespace Smartstore.Caching
                 // Listen to auto expirations/evictions in distributed store
                 // so that we can remove the key from the local memory caches after expiration.
                 distributedStore.Expired += OnDistributedCacheEntryExpired;
+                _isDistributed = true;
             }
             else if (_stores.FirstOrDefault() is IMemoryCacheStore memoryStore)
             {
@@ -35,6 +40,8 @@ namespace Smartstore.Caching
             }
 
             _scopeAccessor = scopeAccessor;
+            _isMultiLevel = _stores.Length > 1;
+            _lastIndex = _stores.Length - 1;
         }
 
         #region Events
@@ -47,7 +54,13 @@ namespace Smartstore.Caching
             {
                 // When a cache entry expires in a distributed store,
                 // remove the key from all memory stores.
-                _stores.OfType<IMemoryCacheStore>().Each(x => x.Remove(e.Key));
+                foreach (var store in _stores)
+                {
+                    if (store is IMemoryCacheStore)
+                    {
+                        store.Remove(e.Key);
+                    }
+                }
 
                 // Raise expired event
                 Expired?.Invoke(sender, e);
@@ -68,7 +81,15 @@ namespace Smartstore.Caching
 
         public bool Contains(string key)
         {
-            return _stores.Any(x => x.Contains(key));
+            foreach (var store in _stores)
+            {
+                if (store.Contains(key))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public async Task<bool> ContainsAsync(string key)
@@ -86,22 +107,22 @@ namespace Smartstore.Caching
 
         public IEnumerable<string> Keys(string pattern = "*")
         {
-            // INFO: Reverse order
-            return _stores.Reverse().Select(x => x.Keys(pattern)).FirstOrDefault();
+            // Get only from LAST store
+            return _stores[_lastIndex].Keys(pattern);
         }
 
         public IAsyncEnumerable<string> KeysAsync(string pattern = "*")
         {
-            // INFO: Reverse order
-            return _stores.Reverse().Select(x => x.KeysAsync(pattern)).FirstOrDefault();
+            // Get only from LAST store
+            return _stores[_lastIndex].KeysAsync(pattern);
         }
 
         public ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null)
         {
             Guard.NotEmpty(key, nameof(key));
 
-            // INFO: Get only from LAST store
-            return _stores.Last().GetHashSet(key, acquirer);
+            // Get only from LAST store
+            return _stores[_lastIndex].GetHashSet(key, acquirer);
         }
 
         public Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null)
@@ -109,7 +130,7 @@ namespace Smartstore.Caching
             Guard.NotEmpty(key, nameof(key));
 
             // INFO: Get only from LAST store
-            return _stores.Last().GetHashSetAsync(key, acquirer);
+            return _stores[_lastIndex].GetHashSetAsync(key, acquirer);
         }
 
         public T Get<T>(string key, bool independent = false)
@@ -281,32 +302,32 @@ namespace Smartstore.Caching
         {
             Guard.NotEmpty(key, nameof(key));
 
-            // INFO: Get from last store.
-            return _stores.Last().GetTimeToLive(key);
+            // Get from last store.
+            return _stores[_lastIndex].GetTimeToLive(key);
         }
 
         public virtual Task<TimeSpan?> GetTimeToLiveAsync(string key)
         {
             Guard.NotEmpty(key, nameof(key));
 
-            // INFO: Get from last store.
-            return _stores.Last().GetTimeToLiveAsync(key);
+            // Get from last store.
+            return _stores[_lastIndex].GetTimeToLiveAsync(key);
         }
 
         public virtual void SetTimeToLive(string key, TimeSpan? duration)
         {
             Guard.NotEmpty(key, nameof(key));
 
-            // INFO: Update in all stores in reverse order.
-            _stores.Reverse().Each(x => x.SetTimeToLive(key, duration));
+            // Update in last store only and rely on message bus to propagate expiration.
+            _stores[_lastIndex].SetTimeToLive(key, duration);
         }
 
         public virtual Task SetTimeToLiveAsync(string key, TimeSpan? duration)
         {
             Guard.NotEmpty(key, nameof(key));
 
-            // INFO: Update in all stores in reverse order.
-            return _stores.Reverse().EachAsync(x => x.SetTimeToLiveAsync(key, duration));
+            // Update in last store only and rely on message bus to propagate expiration.
+            return _stores[_lastIndex].SetTimeToLiveAsync(key, duration);
         }
 
         #endregion
@@ -317,75 +338,116 @@ namespace Smartstore.Caching
         {
             Guard.NotEmpty(key, nameof(key));
 
-            var entry = CreateCacheEntry(key, value, options);
+            // Reverse order
+            for (int i = _lastIndex; i >= 0; i--)
+            {
+                var entry = CreateCacheEntry(key, value, options);
 
-            _stores.Each(x => x.Put(key, entry));
+                if (_isDistributed && i < _lastIndex)
+                {
+                    // Rely on message bus from distributed store to propagate expiration event to this downstream store.
+                    entry.ApplyTimeExpirationPolicy = false;
+                }
+                
+                _stores[i].Put(key, entry);
+            }
         }
 
-        public Task PutAsync(string key, object value, CacheEntryOptions options = null)
+        public async Task PutAsync(string key, object value, CacheEntryOptions options = null)
         {
             Guard.NotEmpty(key, nameof(key));
 
-            var entry = CreateCacheEntry(key, value, options);
+            // Reverse order
+            for (int i = _lastIndex; i >= 0; i--)
+            {
+                var entry = CreateCacheEntry(key, value, options);
 
-            return _stores.EachAsync(x => x.PutAsync(key, entry));
+                if (_isDistributed && i < _lastIndex)
+                {
+                    // Rely on message bus from distributed store to propagate expiration event to this downstream store.
+                    entry.ApplyTimeExpirationPolicy = false;
+                }
+
+                await _stores[i].PutAsync(key, entry);
+            }
         }
 
         public void Remove(string key)
         {
             Guard.NotEmpty(key, nameof(key));
 
-            // INFO: Reverse order
-            _stores.Reverse().Each(x => x.Remove(key));
+            // Reverse order
+            for (int i = _lastIndex; i >= 0; i--)
+            {
+                _stores[i].Remove(key);
+            }
         }
 
-        public Task RemoveAsync(string key)
+        public async Task RemoveAsync(string key)
         {
             Guard.NotEmpty(key, nameof(key));
 
-            // INFO: Reverse order
-            return _stores.Reverse().EachAsync(x => x.RemoveAsync(key));
+            // Reverse order
+            for (int i = _lastIndex; i >= 0; i--)
+            {
+                await _stores[i].RemoveAsync(key);
+            }
         }
 
         public long RemoveByPattern(string pattern)
         {
             Guard.NotEmpty(pattern, nameof(pattern));
 
-            // INFO: Reverse order
-            return _stores.Reverse().Max(x => x.RemoveByPattern(pattern));
+            var counts = new long[_stores.Length];
+
+            // Reverse order
+            for (int i = _lastIndex; i >= 0; i--)
+            {
+                counts[i] = _stores[i].RemoveByPattern(pattern);
+            }
+
+            return counts.Max();
         }
 
         public async Task<long> RemoveByPatternAsync(string pattern)
         {
             Guard.NotEmpty(pattern, nameof(pattern));
 
-            // INFO: Reverse order
-            var counts = await _stores
-                .Reverse()
-                .SelectAsync(x => x.RemoveByPatternAsync(pattern))
-                .ToListAsync();
+            var counts = new long[_stores.Length];
+
+            // Reverse order
+            for (int i = _lastIndex; i >= 0; i--)
+            {
+                counts[i] = await _stores[i].RemoveByPatternAsync(pattern);
+            }
 
             return counts.Max();
         }
 
         public IDisposable AcquireKeyLock(string key)
         {
-            return _stores.Last().AcquireKeyLock(key);
+            return _stores[_lastIndex].AcquireKeyLock(key);
         }
 
         public Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
         {
-            return _stores.Last().AcquireAsyncKeyLock(key, cancelToken);
+            return _stores[_lastIndex].AcquireAsyncKeyLock(key, cancelToken);
         }
 
         public void Clear()
         {
-            _stores.Each(x => x.Clear());
+            foreach (var store in _stores)
+            {
+                store.Clear();
+            }
         }
 
-        public Task ClearAsync()
+        public async Task ClearAsync()
         {
-            return _stores.EachAsync(x => x.ClearAsync());
+            foreach (var store in _stores)
+            {
+                await store.ClearAsync();
+            }
         }
 
         #endregion
@@ -419,12 +481,23 @@ namespace Smartstore.Caching
                         _scopeAccessor.Value.PropagateKey(key);
                     }
 
-                    // Entry found. Put found entry to PREVIOUS cache stores.
+                    // Put found entry to PREVIOUS cache stores.
                     int i = index - 1;
                     while (i >= 0)
                     {
-                        _stores[i].Put(key, entry.Clone());
+                        var entryClone = entry.Clone();
+                        // Rely on message bus from distributed store to propagate expiration event to this downstream store.
+                        entryClone.ApplyTimeExpirationPolicy = false;
+                        _stores[i].Put(key, entryClone);
                         i--;
+                    }
+
+                    if (index < _lastIndex 
+                        && entry.SlidingExpiration.HasValue 
+                        && _stores[_lastIndex] is IDistributedCacheStore distributedStore)
+                    {
+                        // Refresh last access time and TTL in upstream distributed store (but only when entry has sliding expiration)
+                        distributedStore.Refresh(entry);
                     }
 
                     return (entry, store, index);
@@ -451,12 +524,24 @@ namespace Smartstore.Caching
                         _scopeAccessor.Value.PropagateKey(key);
                     }
 
-                    // Entry found. Put found entry to PREVIOUS cache stores.
+                    // Put found entry to PREVIOUS cache stores.
                     int i = index - 1;
                     while (i >= 0)
                     {
-                        await _stores[i].PutAsync(key, entry.Clone());
+                        var entryClone = entry.Clone();
+                        // Rely on message bus from distributed store to propagate expiration event to this downstream store.
+                        entryClone.ApplyTimeExpirationPolicy = false;
+                        await _stores[i].PutAsync(key, entryClone);
                         i--;
+                    }
+
+                    if (index < _lastIndex
+                        && entry.SlidingExpiration.HasValue
+                        && _stores[_lastIndex] is IDistributedCacheStore distributedStore)
+                    {
+                        // Refresh last access time and TTL in upstream distributed store (but only when entry has sliding expiration)
+                        // Fire & forget
+                        _ = distributedStore.RefreshAsync(entry);
                     }
 
                     return (entry, store, index);

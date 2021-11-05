@@ -60,6 +60,32 @@ namespace Smartstore.Caching
     public interface IDistributedCacheStore : ICacheStore
     {
         event EventHandler<CacheEntryExpiredEventArgs> Expired;
+
+        /// <summary>
+        /// Refreshes a value in the cache based on its key, resetting its sliding expiration timeout (if any).
+        /// </summary>
+        /// <param name="key">key.</param>
+        void Refresh(string key);
+
+        /// <summary>
+        /// Refreshes a value in the cache based on its key, resetting its sliding expiration timeout (if any).
+        /// </summary>
+        /// <param name="key">key.</param>
+        Task RefreshAsync(string key);
+
+        /// <summary>
+        /// Refreshes an entry, resetting its sliding expiration timeout (if any).
+        /// </summary>
+        /// <param name="key">key.</param>
+        /// <remarks>Used by hybrid cache to propagate access to a memory cache entry.</remarks>
+        void Refresh(CacheEntry entry);
+
+        /// <summary>
+        /// Refreshes an entry, resetting its sliding expiration timeout (if any).
+        /// </summary>
+        /// <param name="key">key.</param>
+        /// <remarks>Used by hybrid cache to propagate access to a memory cache entry.</remarks>
+        Task RefreshAsync(CacheEntry entry);
     }
 
     /// <summary>

@@ -12,12 +12,22 @@ namespace Smartstore.Caching
 
         public CacheEntryOptions ExpiresIn(TimeSpan duration)
         {
+            if (duration <= TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(duration), duration, "The expiration value must be positive.");
+            }
+            
             _absoluteExpiration = duration;
             return this;
         }
 
         public CacheEntryOptions SetSlidingExpiration(TimeSpan duration)
         {
+            if (duration <= TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(duration), duration, "The expiration value must be positive.");
+            }
+
             _slidingExpiration = duration;
             return this;
         }
