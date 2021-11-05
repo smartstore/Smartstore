@@ -1,0 +1,51 @@
+﻿@using Smartstore.Core.Checkout.GiftCards
+
+@model AddOrderProductModel.GiftCardModel
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="RecipientName" />
+        </div>
+        <div class="adminData">
+            <input asp-for="RecipientName" />
+            <span asp-validation-for="RecipientName"></span>
+        </div>
+    </div>
+    <div sm-if="Model.GiftCardType == GiftCardType.Virtual" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="RecipientEmail" />
+        </div>
+        <div class="adminData">
+            <input asp-for="RecipientEmail" />
+            <span asp-validation-for="RecipientEmail"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SenderName" />
+        </div>
+        <div class="adminData">
+            <input asp-for="SenderName" />
+            <span asp-validation-for="SenderName"></span>
+        </div>
+    </div>
+    <div sm-if="Model.GiftCardType == GiftCardType.Virtual" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SenderEmail" />
+        </div>
+        <div class="adminData">
+            <input asp-for="SenderEmail" />
+            <span asp-validation-for="SenderEmail"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Message" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Message" />
+            <span asp-validation-for="Message"></span>
+        </div>
+    </div>
+</div>

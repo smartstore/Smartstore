@@ -554,10 +554,7 @@ namespace Smartstore.Core.Checkout.Orders
                 decimal priceInclTax = currency.RoundIfEnabledFor(newQuantity * oi.UnitPriceInclTax);
                 decimal priceExclTax = currency.RoundIfEnabledFor(newQuantity * oi.UnitPriceExclTax);
 
-                // TODO: (mg) (core) set AutoUpdateOrderItemContext.OldPriceInclTax to zero when adding product to an order.
                 decimal priceInclTaxDiff = priceInclTax - oldPriceInclTax;
-
-                // TODO: (mg) (core) set AutoUpdateOrderItemContext.OldPriceExclTax zero when adding product to an order.
                 decimal priceExclTaxDiff = priceInclTax - oldPriceExclTax;
 
                 oi.Quantity = newQuantity;

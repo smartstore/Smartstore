@@ -1,0 +1,144 @@
+﻿@using Smartstore.Core.Catalog.Products
+
+@model AddOrderProductModel
+
+@{
+    ViewBag.Title = T("Admin.Orders.Products.AddNew.Title2", Model.Name, Model.OrderId);
+
+    var warnings = ViewBag.Warnings as List<string>;
+    var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
+}
+
+@*We add enctype = "multipart/form-data" because "File upload" attribute control type requries it.*@
+<form asp-action="AddProductToOrder" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="OrderId" />
+
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-chart-bar"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="Edit" asp-route-id="@Model.OrderId">(@T("Admin.Orders.Products.AddNew.BackToOrder"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+
+    <div sm-if="warnings?.Any() ?? false">
+        <div class="alert alert-danger">
+            @foreach (var warning in warnings)
+            {
+                <div>@warning</div>
+            }
+        </div>
+    </div>
+
+    <div sm-if="Model.ProductType == ProductType.GroupedProduct" class="alert alert-warning">
+        A group product cannot be added to an existing order.
+    </div>
+    <div sm-if="Model.ProductType == ProductType.BundledProduct" class="alert alert-warning">
+        Adding a product bundle to an existing order is not supported.
+    </div>
+
+    <div sm-if="Model.ProductType == ProductType.SimpleProduct" class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UnitPriceInclTax" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="UnitPriceInclTax" sm-postfix="@primaryStoreCurrencyCode" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UnitPriceExclTax" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="UnitPriceExclTax" sm-postfix="@primaryStoreCurrencyCode" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TaxRate" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="TaxRate" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Quantity" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Quantity" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PriceInclTax" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="PriceInclTax" sm-postfix="@primaryStoreCurrencyCode" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PriceExclTax" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="PriceExclTax" sm-postfix="@primaryStoreCurrencyCode" />
+            </div>
+        </div>
+    </div>
+
+    <div id="AddProductAttributeContainer">
+        @*...*@
+    </div>
+
+    @if (Model.GiftCard.IsGiftCard)
+    {
+        var giftCardViewData = new ViewDataDictionary(ViewData);
+        giftCardViewData.TemplateInfo.HtmlFieldPrefix = Model.GiftCardFieldPrefix;
+
+        <partial name="_AddProductGiftCardInfo" model="Model.GiftCard" view-data="giftCardViewData" />
+    }
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdjustInventory" />
+            </div>
+            <div class="adminData">
+                <input asp-for="AdjustInventory" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UpdateTotals" />
+            </div>
+            <div class="adminData">
+                <input asp-for="UpdateTotals" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+            </div>
+            <div class="adminData">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-plus"></i>
+                    <span>@T("Admin.Orders.Products.AddNew")</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script sm-target-zone="scripts" data-origin="add-product-to-order">
+    $(function () {
+        $('#AddProductAttributeContainer').find('select').selectWrapper();
+    });
+</script>
