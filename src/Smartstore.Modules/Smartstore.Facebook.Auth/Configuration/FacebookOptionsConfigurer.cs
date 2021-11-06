@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Facebook.Auth;
 
-namespace Smartstore.Facebook.Bootstrapping
+namespace Smartstore.Facebook
 {
     internal sealed class FacebookOptionsConfigurer : IConfigureOptions<AuthenticationOptions>, IConfigureNamedOptions<FacebookOptions>
     {

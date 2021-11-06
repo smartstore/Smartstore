@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Microsoft.Auth;
 
-namespace Smartstore.Microsoft.Bootstrapping
+namespace Smartstore.Microsoft
 {
     internal sealed class MicrosoftAccountOptionsConfigurer : IConfigureOptions<AuthenticationOptions>, IConfigureNamedOptions<MicrosoftAccountOptions>
     {

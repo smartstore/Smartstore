@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Facebook.Bootstrapping;
 
 namespace Smartstore.Facebook.Auth
 {

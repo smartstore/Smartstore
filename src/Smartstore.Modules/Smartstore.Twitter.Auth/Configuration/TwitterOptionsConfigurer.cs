@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Twitter.Auth;
 
-namespace Smartstore.Twitter.Bootstrapping
+namespace Smartstore.Twitter
 {
     internal sealed class TwitterOptionsConfigurer : IConfigureOptions<AuthenticationOptions>, IConfigureNamedOptions<TwitterOptions>
     {

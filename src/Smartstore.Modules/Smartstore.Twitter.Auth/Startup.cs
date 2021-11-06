@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Twitter.Bootstrapping;
 
 namespace Smartstore.Twitter.Auth
 {

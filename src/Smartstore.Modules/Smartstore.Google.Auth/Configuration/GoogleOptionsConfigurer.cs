@@ -8,7 +8,7 @@ using Smartstore.Engine;
 using Smartstore.Google.Auth;
 using System.Threading.Tasks;
 
-namespace Smartstore.Google.Bootstrapping
+namespace Smartstore.Google
 {
     internal sealed class GoogleOptionsConfigurer : IConfigureOptions<AuthenticationOptions>, IConfigureNamedOptions<GoogleOptions>
     {

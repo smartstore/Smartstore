@@ -307,7 +307,6 @@ namespace Smartstore.Admin.Controllers
                 .ToList();
             
             // Create temp zip file
-            var tempZipFile = _appContext.GetTenantTempDirectory().GetFile(Path.GetRandomFileName() + "-media.zip");
             var tempZipFilePath = Path.Combine(_appContext.GetTenantTempDirectory().PhysicalPath, Path.GetRandomFileName() + "-media.zip");
 
             using (var zipArchive = ZipFile.Open(tempZipFilePath, ZipArchiveMode.Create))

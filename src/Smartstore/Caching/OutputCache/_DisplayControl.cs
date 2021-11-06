@@ -3,11 +3,10 @@
 //using System.Collections.Generic;
 //using System.Linq;
 //using Autofac;
-//using Smartstore.Core.Catalog.Products;
 //using Smartstore.Domain;
 //using Smartstore.Utilities;
 
-//namespace Smartstore.OutputCache
+//namespace Smartstore.Caching.OutputCache
 //{
 //    public delegate IEnumerable<string> DisplayControlHandler(BaseEntity entity, IComponentContext ctx);
 
@@ -35,7 +34,7 @@
 //            //[typeof(MediaFile)] = (x, c) => new[] { "mf" + x.Id },
 //            //[typeof(SpecificationAttributeOption)] = (x, c) => ((SpecificationAttributeOption)x).ProductSpecificationAttributes.Select(y => "p" + y.ProductId),
 //            //[typeof(ProductTag)] = (x, c) => ((ProductTag)x).Products.Select(y => "p" + y.Id),
-//            [typeof(Product)] = HandleProduct,
+//            //[typeof(Product)] = HandleProduct,
 //            //[typeof(SpecificationAttribute)] = HandleSpecificationAttribute,
 //            //[typeof(ProductVariantAttributeValue)] = HandleProductVariantAttributeValue,
 //            //[typeof(Discount)] = HandleDiscount,

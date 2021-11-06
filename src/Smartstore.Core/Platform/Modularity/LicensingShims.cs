@@ -25,11 +25,20 @@ namespace Smartstore.Licensing
             });
         }
 
+        public static LicenseCheckerResult Check(string systemName, string url = null)
+            => new LicenseCheckerResult { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" };
+
         public static Task<LicenseCheckerResult> CheckAsync(string systemName, string url = null)
             => Task.FromResult(new LicenseCheckerResult { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" });
 
+        public static LicensingState CheckState(string systemName, string url = null)
+            => LicensingState.Licensed;
+
         public static Task<LicensingState> CheckStateAsync(string systemName, string url = null)
             => Task.FromResult(LicensingState.Licensed);
+
+        public static LicensingData GetLicense(string systemName, string url = null)
+            => new LicensingData { State = LicensingState.Licensed, TruncatedLicenseKey = "SM-01234-56789" };
 
         public static Task<LicensingData> GetLicenseAsync(string systemName, string url = null)
             => Task.FromResult(new LicensingData { State = LicensingState.Licensed, TruncatedLicenseKey = "SM-01234-56789" });
@@ -42,6 +51,9 @@ namespace Smartstore.Licensing
             hasSingleLicenseForAllStores = false;
             return true;
         }
+
+        public static LicenseCheckerResult ResetState(string systemName, string url = null)
+            => new LicenseCheckerResult { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" };
 
         public static Task<LicenseCheckerResult> ResetStateAsync(string systemName, string url = null)
             => Task.FromResult(new LicenseCheckerResult { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" });

@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Microsoft.Bootstrapping;
 
 namespace Smartstore.Microsoft.Auth
 {
