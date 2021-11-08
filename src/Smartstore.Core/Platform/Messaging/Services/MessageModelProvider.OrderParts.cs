@@ -211,7 +211,7 @@ namespace Smartstore.Core.Messaging
             }).ToArray();
 
             // Gift Cards
-            m.GiftCardUsage = order.GiftCardUsageHistory.Count == 0 ? null : order.GiftCardUsageHistory.SelectAsync(async x =>
+            m.GiftCardUsage = order.GiftCardUsageHistory.Count == 0 ? null : await order.GiftCardUsageHistory.SelectAsync(async x =>
             {
                 var remainingAmount = await giftCardService.GetRemainingAmountAsync(x.GiftCard);
 
