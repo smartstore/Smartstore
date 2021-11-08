@@ -18,7 +18,7 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
                 PopulateModuleParts(partManager, descriptor);
             }
 
-            if (appContext.IsInstalled)
+            if (appContext.IsInstalled && ModularState.Instance.HasChanged)
             {
                 ModularState.Instance.SaveStateHash();
             }
