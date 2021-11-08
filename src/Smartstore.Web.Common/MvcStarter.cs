@@ -19,8 +19,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Bootstrapping;
+using Smartstore.Core.Common.JsonConverters;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Web;
@@ -168,8 +170,9 @@ namespace Smartstore.Web
                     settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     settings.ObjectCreationHandling = ObjectCreationHandling.Replace;
                     settings.NullValueHandling = NullValueHandling.Ignore;
+                    settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
                     settings.MaxDepth = 32;
-                    //settings.DateFormatHandling = DateFormatHandling.MicrosoftDateFormat;
+                    settings.Converters.Add(new UTCDateTimeConverter(new IsoDateTimeConverter()));
                 })
                 .AddControllersAsServices()
                 .AddAppLocalization()
