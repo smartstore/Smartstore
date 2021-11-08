@@ -47,6 +47,14 @@
     <div asp-validation-summary="All"></div>
 
     <div class="adminContent mb-5">
+        <div sm-if="Model.Id != 0" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Id" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Id" sm-plaintext="true" readonly />
+            </div>
+        </div>
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="TrackingNumber" />
@@ -77,7 +85,7 @@
                 <smart-label asp-for="TotalWeight" />
             </div>
             <div class="adminData">
-                <input asp-for="TotalWeight" sm-plaintext="true" readonly />
+                <input asp-for="TotalWeightString" sm-plaintext="true" readonly />
             </div>
         </div>
         <div class="adminRow">
@@ -171,13 +179,13 @@
         // Toggle tracking URL open button.
         $('#@Html.IdFor(model => model.TrackingUrl)').on('change', function () {
             var url = $(this).val() || '';
-            $('#btn-tracking-url').attr('href', url).toggleClass('disabled', _.isEmpty(url));
+            $('#btn-tracking-url').attr('href', url).toggleClass('disabled', url.isEmpty());
         }).trigger('change');
 
         // Set as shipped or delivered.
         $('#btn-setasshipped, #btn-setasdelivered').on('click', function (e) {
             e.preventDefault();
-            $(this).doPostData({ });
+            $(this).postData({ });
             return false;
         });
     });

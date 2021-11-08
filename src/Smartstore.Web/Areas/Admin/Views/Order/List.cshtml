@@ -42,8 +42,7 @@
 <script sm-target-zone="scripts" data-origin="orders-list">
     $(function () {
         $('#@Html.IdFor(x => x.GoDirectlyToNumber)').on('input change', function () {
-            console.log($(this).length > 0);
-            $('#go-to-order-by-number').prop('disabled', !$(this).val().length);
+            $('#go-to-order-by-number').prop('disabled', $(this).val().isEmpty());
         });
     });
 </script>

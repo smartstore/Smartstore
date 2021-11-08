@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
@@ -15,6 +16,7 @@ namespace Smartstore.Admin.Models.Orders
         public int StoreId { get; set; }
         public int LanguageId { get; set; }
 
+        [ValidateNever]
         public AddressModel ShippingAddress { get; set; } = new();
 
         [LocalizedDisplay("Admin.Orders.Fields.ShippingMethod")]

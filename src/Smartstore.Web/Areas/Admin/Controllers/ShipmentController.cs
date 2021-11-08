@@ -500,6 +500,7 @@ namespace Smartstore.Admin.Controllers
                         .Include(x => x.Order)
                         .ThenInclude(x => x.Shipments)
                         .ThenInclude(x => x.ShipmentItems)
+                        .Where(x => orderItemIds.Contains(x.Id))
                         .ToDictionaryAsync(x => x.Id);
 
                     model.Items = await shipment.ShipmentItems
