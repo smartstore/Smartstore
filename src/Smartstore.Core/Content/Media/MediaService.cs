@@ -90,8 +90,6 @@ namespace Smartstore.Core.Content.Media
             // TODO: (core) Throws
             Guard.NotNull(filter, nameof(filter));
 
-            return new FileCountResult { Filter = filter, Folders = new Dictionary<int, int>() };
-
             // Base db query
             var q = _searcher.ApplyFilterQuery(filter);
 
@@ -110,7 +108,7 @@ namespace Smartstore.Core.Content.Media
                                     Trash = g.Count(x => x.Deleted),
                                     Unassigned = g.Count(x => !x.Deleted && x.FolderId == null),
                                     Transient = g.Count(x => !x.Deleted && x.IsTransient == true),
-                                    Orphan = g.Count(x => !x.Deleted && x.FolderId > 0 && !untrackableFolderIds.Contains(x.FolderId.Value) && !x.Tracks.Any())
+                                    //Orphan = g.Count(x => !x.Deleted && x.FolderId > 0 && !untrackableFolderIds.Contains(x.FolderId.Value) && !x.Tracks.Any())
                                 }).FirstOrDefaultAsync() ?? new FileCountResult();
 
             if (result.Total == 0)
@@ -119,16 +117,22 @@ namespace Smartstore.Core.Content.Media
                 return result;
             }
 
+            // Cannot be executed on the server by the above query.
+            result.Orphan = await q
+                .Where(x => !x.Deleted && x.FolderId > 0 && !untrackableFolderIds.Contains(x.FolderId.Value) && !x.Tracks.Any())
+                .CountAsync();
+
             // Determine file count for each folder
-            var byFolders = from f in q
+            var byFoldersQuery = from f in q
                             where f.FolderId > 0 && !f.Deleted
                             group f by f.FolderId.Value into grp
-                            select grp;
+                            select new
+                            {
+                                FolderId = grp.Key,
+                                Count = grp.Count()
+                            };
 
-            result.Folders = await byFolders
-                .Select(grp => new { FolderId = grp.Key, Count = grp.Count() })
-                .ToDictionaryAsync(k => k.FolderId, v => v.Count);
-
+            result.Folders = await byFoldersQuery.ToDictionaryAsync(k => k.FolderId, v => v.Count);
             result.Filter = filter;
 
             return result;
