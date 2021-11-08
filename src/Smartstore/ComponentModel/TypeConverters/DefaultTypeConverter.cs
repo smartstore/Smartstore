@@ -79,7 +79,7 @@ namespace Smartstore.ComponentModel.TypeConverters
             }
 
             // Use Enum.ToObject if type is Enum and value is numeric 
-            if (_typeIsEnum && value is IConvertible)
+            if (_typeIsEnum && value != null && value.GetType().IsPrimitive)
             {
                 return Enum.ToObject(_type, value);
             }
