@@ -181,13 +181,13 @@ namespace Smartstore.Core.Messaging
             (var orderTotal, var roundingAmount) = await orderService.GetOrderTotalInCustomerCurrencyAsync(order, customerCurrency);
             cusTotal = _helper.FormatPrice(orderTotal.Amount, customerCurrency, messageContext);
 
-            //// Rounding
+            // Rounding
             if (roundingAmount != decimal.Zero)
             {
                 cusRounding = _helper.FormatPrice(roundingAmount.Amount, customerCurrency, messageContext);
             }
 
-            //// Model
+            // Model
             dynamic m = new ExpandoObject();
 
             m.SubTotal = subTotals.SubTotal;
@@ -211,9 +211,9 @@ namespace Smartstore.Core.Messaging
             }).ToArray();
 
             // Gift Cards
-            m.GiftCardUsage = order.GiftCardUsageHistory.Count == 0 ? null : order.GiftCardUsageHistory.Select(x =>
+            m.GiftCardUsage = order.GiftCardUsageHistory.Count == 0 ? null : order.GiftCardUsageHistory.SelectAsync(async x =>
             {
-                var remainingAmount = giftCardService.GetRemainingAmount(x.GiftCard);
+                var remainingAmount = await giftCardService.GetRemainingAmountAsync(x.GiftCard);
 
                 return new
                 {
@@ -221,7 +221,7 @@ namespace Smartstore.Core.Messaging
                     UsedAmount = _helper.FormatPrice(-x.UsedValue, order, messageContext),
                     RemainingAmount = _helper.FormatPrice(remainingAmount.Amount, order, messageContext)
                 };
-            }).ToArray();
+            }).AsyncToArray();
 
             // Reward Points
             m.RedeemedRewardPoints = order.RedeemedRewardPointsEntry == null ? null : new

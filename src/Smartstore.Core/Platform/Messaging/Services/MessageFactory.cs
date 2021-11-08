@@ -378,8 +378,8 @@ namespace Smartstore.Core.Messaging
                     throw new ArgumentException("'MessageTemplateName' must not be empty if 'MessageTemplate' is null.", nameof(ctx));
                 }
 
+                // INFO: tracked because entity is updated in CreateMessageAsync.
                 ctx.MessageTemplate = _db.MessageTemplates
-                    .AsNoTracking()
                     .Where(x => x.Name == ctx.MessageTemplateName)
                     .ApplyStoreFilter(ctx.Store.Id)
                     .FirstOrDefault();

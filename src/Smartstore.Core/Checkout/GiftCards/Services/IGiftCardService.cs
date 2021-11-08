@@ -33,9 +33,9 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// Calls <see cref="GetRemainingAmount(GiftCard)"/>
         /// </remarks>
         /// <returns>
-        /// <c>True</c> if gift card is valid; Otherwise <c>false</c>
+        /// <c>True</c> if gift card is valid, otherwise <c>false</c>
         /// </returns>
-        bool ValidateGiftCard(GiftCard giftCard, int storeId = 0);
+        Task<bool> ValidateGiftCardAsync(GiftCard giftCard, int storeId = 0);
 
         /// <summary>
         /// Gets the gift cards remaining amount in primary currency.
@@ -47,7 +47,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <returns>
         /// Remaining usable gift card amount, including the current store's primary currency.
         /// </returns>
-        Money GetRemainingAmount(GiftCard giftCard);
+        Task<Money> GetRemainingAmountAsync(GiftCard giftCard);
 
         /// <summary>
         /// Generates a new gift card code.

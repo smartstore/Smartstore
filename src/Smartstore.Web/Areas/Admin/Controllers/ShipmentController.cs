@@ -137,7 +137,7 @@ namespace Smartstore.Admin.Controllers
                 .IncludeCustomer(true)
                 .IncludeOrderItems()
                 .IncludeShipments()
-                .FindByIdAsync(orderId, false);
+                .FindByIdAsync(orderId);
 
             if (order == null)
             {
@@ -162,7 +162,7 @@ namespace Smartstore.Admin.Controllers
                         continue;
 
                     // Ensure that this product can be added to a shipment.
-                    if (orderItem.GetShippableItemsCount() <= 0)
+                    if (await _orderProcessingService.GetShippableItemsCountAsync(orderItem) <= 0)
                         continue;
 
                     var itemModel = await CreateShipmentItemModel(null, orderItem, baseDimension, baseWeight);
@@ -235,7 +235,7 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.ShipmentItems)
                 .Include(x => x.Order.ShippingAddress.Country)
                 .Include(x => x.Order.ShippingAddress.StateProvince)
-                .FindByIdAsync(id, false);
+                .FindByIdAsync(id);
 
             if (shipment == null)
             {
@@ -313,13 +313,18 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.EditShipment)]
         public async Task<IActionResult> SetAsShipped(int id)
         {
+            var shipment = await _db.Shipments
+                .Include(x => x.Order)
+                .FindByIdAsync(id);
+
+            if (shipment == null)
+            {
+                return NotFound();
+            }
+
             try
             {
-                var shipment = await _orderProcessingService.ShipAsync(id, true);
-                if (shipment == null)
-                {
-                    return NotFound();
-                }
+                await _orderProcessingService.ShipAsync(shipment, true);
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), shipment.Order.GetOrderNumber());
             }
@@ -335,13 +340,18 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.EditShipment)]
         public async Task<IActionResult> SetAsDelivered(int id)
         {
+            var shipment = await _db.Shipments
+                .Include(x => x.Order)
+                .FindByIdAsync(id);
+
+            if (shipment == null)
+            {
+                return NotFound();
+            }
+
             try
             {
-                var shipment = await _orderProcessingService.DeliverAsync(id, true);
-                if (shipment == null)
-                {
-                    return NotFound();
-                }
+                await _orderProcessingService.DeliverAsync(shipment, true);
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), shipment.Order.GetOrderNumber());
             }
@@ -357,17 +367,17 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> PdfPackagingSlips(string selectedIds, bool all)
         {
             var ids = selectedIds.ToIntArray();
-            var query = _db.Shipments
-                .Include(x => x.ShipmentItems)
-                .Include(x => x.Order.ShippingAddress.Country)
-                .Include(x => x.Order.ShippingAddress.StateProvince)
-                .AsNoTracking();
-
             if (!all && !ids.Any())
             {
                 NotifyInfo(T("Admin.Common.ExportNoData"));
                 return RedirectToReferrer();
             }
+
+            var query = _db.Shipments
+                .Include(x => x.ShipmentItems)
+                .Include(x => x.Order.ShippingAddress.Country)
+                .Include(x => x.Order.ShippingAddress.StateProvince)
+                .AsQueryable();
 
             var expectedShipments = all
                 ? await query.CountAsync()
@@ -528,8 +538,8 @@ namespace Smartstore.Admin.Controllers
                     product.Length, product.Width, product.Height, baseDimension?.GetLocalized(x => x.Name) ?? string.Empty),
                 QuantityOrdered = orderItem.Quantity,
                 QuantityInThisShipment = shipmentItem?.Quantity ?? 0,
-                QuantityInAllShipments = orderItem.GetShipmentItemsCount(),
-                QuantityToAdd = orderItem.GetShippableItemsCount()
+                QuantityInAllShipments = await _orderProcessingService.GetShipmentItemsCountAsync(orderItem),
+                QuantityToAdd = await _orderProcessingService.GetShippableItemsCountAsync(orderItem)
             };
 
             if (product.ProductType == ProductType.BundledProduct && orderItem.BundleData.HasValue())

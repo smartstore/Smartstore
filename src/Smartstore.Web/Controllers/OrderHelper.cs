@@ -482,7 +482,7 @@ namespace Smartstore.Web.Controllers
 
             foreach (var gcuh in order.GiftCardUsageHistory)
             {
-                var remainingAmountBase = _giftCardService.GetRemainingAmount(gcuh.GiftCard);
+                var remainingAmountBase = await _giftCardService.GetRemainingAmountAsync(gcuh.GiftCard);
                 var remainingAmount = _currencyService.ConvertToExchangeRate(remainingAmountBase.Amount, order.CurrencyRate, customerCurrency);
                 var usedAmount = _currencyService.ConvertToExchangeRate(gcuh.UsedValue, order.CurrencyRate, customerCurrency);
 

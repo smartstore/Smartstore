@@ -61,7 +61,7 @@ namespace Smartstore.Core.Checkout.GiftCards
             .ToList();
         }
 
-        public virtual bool ValidateGiftCard(GiftCard giftCard, int storeId = 0)
+        public virtual async Task<bool> ValidateGiftCardAsync(GiftCard giftCard, int storeId = 0)
         {
             Guard.NotNull(giftCard, nameof(giftCard));
 
@@ -78,15 +78,19 @@ namespace Smartstore.Core.Checkout.GiftCards
                 return false;
             }
 
-            return GetRemainingAmountCore(giftCard) > decimal.Zero;
+            return await GetRemainingAmountCoreAsync(giftCard) > decimal.Zero;
 
             //var orderStoreId = giftCard.PurchasedWithOrderItem?.Order?.StoreId ?? null;
             //return (storeId == 0 || orderStoreId is null || orderStoreId == storeId) && GetRemainingAmount(giftCard) > decimal.Zero;
         }
 
-        public virtual Money GetRemainingAmount(GiftCard giftCard)
+        public virtual async Task<Money> GetRemainingAmountAsync(GiftCard giftCard)
         {
-            return new(Math.Max(GetRemainingAmountCore(giftCard), decimal.Zero), _primaryCurrency);
+            Guard.NotNull(giftCard, nameof(giftCard));
+
+            var amount = await GetRemainingAmountCoreAsync(giftCard);
+
+            return new(Math.Max(amount, decimal.Zero), _primaryCurrency);
         }
 
         public virtual string GenerateGiftCardCode()
@@ -102,11 +106,11 @@ namespace Smartstore.Core.Checkout.GiftCards
             return result;
         }
 
-        protected virtual decimal GetRemainingAmountCore(GiftCard giftCard)
+        protected virtual async Task<decimal> GetRemainingAmountCoreAsync(GiftCard giftCard)
         {
-            Guard.NotNull(giftCard, nameof(giftCard));
+            await _db.LoadCollectionAsync(giftCard, x => x.GiftCardUsageHistory);
 
-            var usedValue = giftCard.GiftCardUsageHistory?.Sum(x => x.UsedValue) ?? decimal.Zero;
+            var usedValue = giftCard.GiftCardUsageHistory.Sum(x => x.UsedValue);
 
             return giftCard.Amount - usedValue;
         }

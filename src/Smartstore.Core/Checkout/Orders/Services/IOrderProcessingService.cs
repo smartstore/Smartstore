@@ -14,6 +14,57 @@ namespace Smartstore.Core.Checkout.Orders
     public partial interface IOrderProcessingService
     {
         /// <summary>
+        /// Gets the total number of dispatched or not dispatched items.
+        /// </summary>
+        /// <param name="orderItem">Order item.</param>
+        /// <param name="dispatched"><c>true</c> count dispatched items, <c>false</c> count not dispatched items.</param>
+        /// <returns>Total number of dispatched items.</returns>
+        Task<int> GetDispatchedItemsCountAsync(OrderItem orderItem, bool dispatched);
+
+        /// <summary>
+        /// Gets a value indicating whether an order has items to dispatch.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order has items to dispatch.</returns>
+        Task<bool> HasItemsToDispatchAsync(Order order);
+
+        /// <summary>
+        /// Gets the total number of delivered or not delivered shipment items.
+        /// </summary>
+        /// <param name="orderItem">Order item.</param>
+        /// <param name="delivered"><c>true</c> count delivered items, <c>false</c> count not delivered items.</param>
+        /// <returns>Total number of already delivered items.</returns>
+        Task<int> GetDeliveredItemsCountAsync(OrderItem orderItem, bool delivered);
+
+        /// <summary>
+        /// Gets a value indicating whether an order has items to deliver.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order has items to deliver.</returns>
+        Task<bool> HasItemsToDeliverAsync(Order order);
+
+        /// <summary>
+        /// Gets the total number of items which can be added to new shipments.
+        /// </summary>
+        /// <param name="orderItem">Order item.</param>
+        /// <returns>Total number of items which can be added to new shipments.</returns>
+        Task<int> GetShippableItemsCountAsync(OrderItem orderItem);
+
+        /// <summary>
+        /// Gets the total number of items in all shipments.
+        /// </summary>
+        /// <param name="orderItem">Order item.</param>
+        /// <returns>Total number of items in all shipments.</returns>
+        Task<int> GetShipmentItemsCountAsync(OrderItem orderItem);
+
+        /// <summary>
+        /// Gets a value indicating whether an order has items to be added to a shipment.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order has items to be added to a shipment.</returns>
+        Task<bool> CanAddItemsToShipmentAsync(Order order);
+
+        /// <summary>
         /// Cancels an order.
         /// </summary>
         /// <param name="order">Order.</param>
@@ -41,18 +92,16 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Marks a shipment as shipped.
         /// </summary>
-        /// <param name="shipmentId">Shipment identifier.</param>
+        /// <param name="shipment">Shipment.</param>
         /// <param name="notifyCustomer"><c>true</c> to notify customer.</param>
-        /// <returns>Shipment.</returns>
-        Task<Shipment> ShipAsync(int shipmentId, bool notifyCustomer);
+        Task ShipAsync(Shipment shipment, bool notifyCustomer);
 
         /// <summary>
         /// Marks a shipment as delivered.
         /// </summary>
-        /// <param name="shipmentId">Shipment identifier.</param>
+        /// <param name="shipment">Shipment.</param>
         /// <param name="notifyCustomer"><c>true</c> to notify customer.</param>
-        /// <returns>Shipment.</returns>
-        Task<Shipment> DeliverAsync(int shipmentId, bool notifyCustomer);
+        Task DeliverAsync(Shipment shipment, bool notifyCustomer);
 
         /// <summary>
         /// Check whether a return request is allowed.
@@ -85,10 +134,9 @@ namespace Smartstore.Core.Checkout.Orders
         /// Update order details like order item quantity, stock quantity or order total 
         /// when the merchant has manually edited an order item.
         /// </summary>
-        /// <param name="orderItemId">Order item identifier.</param>
+        /// <param name="orderItem">Order item.</param>
         /// <param name="context">Update order details context.</param>
-        /// <returns>Updated order item.</returns>
-        Task<OrderItem> UpdateOrderDetailsAsync(int orderItemId, UpdateOrderDetailsContext context);
+        Task UpdateOrderDetailsAsync(OrderItem orderItem, UpdateOrderDetailsContext context);
 
         #region Place order
 

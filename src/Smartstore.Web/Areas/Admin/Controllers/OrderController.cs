@@ -342,9 +342,6 @@ namespace Smartstore.Admin.Controllers
             var orders = await _db.Orders
                 .IncludeCustomer(true)
                 .IncludeOrderItems()
-                .IncludeShipments()
-                .IncludeGiftCardHistory()
-                .IncludeBillingAddress()
                 .Where(x => ids.Contains(x.Id))
                 .ToListAsync();
 
@@ -499,7 +496,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> CancelOrder(int id)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -524,7 +521,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> CompleteOrder(int id)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -549,7 +546,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> CaptureOrder(int id)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -581,7 +578,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> MarkOrderAsPaid(int id)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -606,7 +603,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> RefundOrder(int id)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -638,7 +635,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> RefundOrderOffline(int id)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -663,7 +660,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> VoidOrder(int id)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -695,7 +692,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> VoidOrderOffline(int id)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -718,14 +715,20 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> PartiallyRefundOrderPopup(string btnId, string formId, int id)
         {
-            var order = await GetOrderWithIncludes(id, false);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
             }
 
-            var model = new OrderModel();
-            await PrepareOrderModel(model, order);
+            var maxAmountToRefund = order.OrderTotal - order.RefundedAmount;
+
+            var model = new OrderModel.RefundModel
+            {
+                Id = id,
+                MaxAmountToRefund = maxAmountToRefund,
+                MaxAmountToRefundString = Format(maxAmountToRefund)
+            };
 
             ViewBag.BtnId = btnId;
             ViewBag.FormId = formId;
@@ -736,9 +739,9 @@ namespace Smartstore.Admin.Controllers
         [HttpPost]
         [FormValueRequired("partialrefundorder")]
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> PartiallyRefundOrderPopup(string btnId, string formId, int id, bool online, OrderModel model)
+        public async Task<IActionResult> PartiallyRefundOrderPopup(string btnId, string formId, bool online, OrderModel.RefundModel model)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(model.Id);
             if (order == null)
             {
                 return NotFound();
@@ -789,7 +792,8 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex, false);
             }
 
-            await PrepareOrderModel(model, order);
+            model.MaxAmountToRefund = order.OrderTotal - order.RefundedAmount;
+            model.MaxAmountToRefundString = Format(model.MaxAmountToRefund);
 
             return View(model);
         }
@@ -801,7 +805,14 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var order = await GetOrderWithIncludes(id, false);
+            var order = await _db.Orders
+                .IncludeCustomer(true)
+                .IncludeOrderItems()
+                .IncludeShipments()
+                .IncludeGiftCardHistory()
+                .IncludeBillingAddress()
+                .FindByIdAsync(id);
+
             if (order == null)
             {
                 return NotFound();
@@ -817,7 +828,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -844,7 +855,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> EditCreditCardInfo(int id, OrderModel model)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -872,7 +883,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> EditDirectDebitInfo(int id, OrderModel model)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -900,7 +911,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> EditOrderTotals(int id, OrderModel model)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -931,6 +942,16 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.EditItem)]
         public async Task<IActionResult> EditOrderItem(UpdateOrderItemModel model)
         {
+            // INFO: UpdateOrderDetailsAsync performs commit.
+            var orderItem = await _db.OrderItems
+                .Include(x => x.Order)
+                .FindByIdAsync(model.Id);
+
+            if (orderItem != null)
+            {
+                return NotFound();
+            }
+
             var context = new UpdateOrderDetailsContext
             {
                 UpdateOrderItem = true,
@@ -947,12 +968,7 @@ namespace Smartstore.Admin.Controllers
                 NewPriceExclTax = model.NewPriceExclTax
             };
 
-            // INFO: UpdateOrderDetailsAsync performs commit.
-            var orderItem = await _orderProcessingService.UpdateOrderDetailsAsync(model.Id, context);
-            if (orderItem != null)
-            {
-                return NotFound();
-            }
+            await _orderProcessingService.UpdateOrderDetailsAsync(orderItem, context);
 
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderItem.Order.GetOrderNumber());
             TempData[UpdateOrderDetailsContext.InfoKey] = context.ToString(Services.Localization);
@@ -964,6 +980,15 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.EditItem)]
         public async Task<IActionResult> DeleteOrderItem(UpdateOrderItemModel model)
         {
+            var orderItem = await _db.OrderItems
+                .Include(x => x.Order)
+                .FindByIdAsync(model.Id);
+
+            if (orderItem == null)
+            {
+                return NotFound();
+            }
+
             var context = new UpdateOrderDetailsContext
             {
                 NewQuantity = 0,
@@ -972,11 +997,7 @@ namespace Smartstore.Admin.Controllers
                 UpdateTotals = model.UpdateTotals
             };
 
-            var orderItem = await _orderProcessingService.UpdateOrderDetailsAsync(model.Id, context);
-            if (orderItem == null)
-            {
-                return NotFound();
-            }
+            await _orderProcessingService.UpdateOrderDetailsAsync(orderItem, context);
 
             var orderId = orderItem.OrderId;
             var orderNumber = orderItem.Order.GetOrderNumber();
@@ -1039,7 +1060,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> ResetDownloadCount(int id, IFormCollection form)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders
+                .Include(x => x.OrderItems)
+                .FindByIdAsync(id);
+
             if (order == null)
             {
                 return NotFound();
@@ -1056,10 +1080,7 @@ namespace Smartstore.Admin.Controllers
 
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
 
-            var model = new OrderModel();
-            await PrepareOrderModel(model, order);
-
-            return View(model);
+            return RedirectToAction(nameof(Edit), new { id = order.Id });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -1067,7 +1088,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Update)]
         public async Task<IActionResult> ActivateDownloadOrderItem(int id, IFormCollection form)
         {
-            var order = await GetOrderWithIncludes(id);
+            var order = await _db.Orders
+                .Include(x => x.OrderItems)
+                .FindByIdAsync(id);
+
             if (order == null)
             {
                 return NotFound();
@@ -1084,10 +1108,7 @@ namespace Smartstore.Admin.Controllers
 
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
 
-            var model = new OrderModel();
-            await PrepareOrderModel(model, order);
-
-            return View(model);
+            return RedirectToAction(nameof(Edit), new { id = order.Id });
         }
 
         [Permission(Permissions.Order.Read)]
@@ -1549,7 +1570,7 @@ namespace Smartstore.Admin.Controllers
                     UpdateTotals = model.UpdateTotals
                 };
 
-                await _orderProcessingService.UpdateOrderDetailsAsync(orderItem.Id, context);
+                await _orderProcessingService.UpdateOrderDetailsAsync(orderItem, context);
 
                 TempData[UpdateOrderDetailsContext.InfoKey] = context.ToString(Services.Localization);
             }
@@ -1738,19 +1759,6 @@ namespace Smartstore.Admin.Controllers
 
         #region Utilities
 
-        private async Task<Order> GetOrderWithIncludes(int id, bool tracked = true)
-        {
-            var order = await _db.Orders
-                .IncludeCustomer(true)
-                .IncludeOrderItems()
-                .IncludeShipments()
-                .IncludeGiftCardHistory()
-                .IncludeBillingAddress()
-                .FindByIdAsync(id, tracked);
-
-            return order;
-        }
-
         private async Task PrepareOrderOverviewModel(OrderOverviewModel model, Order order)
         {
             MiniMapper.Map(order, model);
@@ -1920,8 +1928,8 @@ namespace Smartstore.Admin.Controllers
             model.CanVoid = await _orderProcessingService.CanVoidAsync(order);
             model.CanVoidOffline = order.CanVoidOffline();
 
-            model.MaxAmountToRefund = order.OrderTotal - order.RefundedAmount;
-            model.MaxAmountToRefundString = Format(model.MaxAmountToRefund);
+            //model.MaxAmountToRefund = order.OrderTotal - order.RefundedAmount;
+            //model.MaxAmountToRefundString = Format(model.MaxAmountToRefund);
 
             model.RecurringPaymentId = await _db.RecurringPayments
                 .ApplyStandardFilter(order.Id, null, null, true)
@@ -1945,7 +1953,7 @@ namespace Smartstore.Admin.Controllers
                         googleAddressQuery.UrlEncode());
                 }
 
-                model.CanAddNewShipments = order.CanAddItemsToShipment();
+                model.CanAddNewShipments = await _orderProcessingService.CanAddItemsToShipmentAsync(order);
             }
 
             // Purchase order number (we have to find a better to inject this information because it's related to a certain plugin).
@@ -1987,7 +1995,7 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.CurrencyCode == order.CustomerCurrencyCode) ?? _primaryCurrency;
 
-            var calculationOptions = _priceCalculationService.Value.CreateDefaultOptions(true, customer, currency);
+            var calculationOptions = _priceCalculationService.Value.CreateDefaultOptions(false, customer, currency);
             calculationOptions.IgnoreDiscounts = true;
 
             var calculationContext = new PriceCalculationContext(product, calculationOptions);
@@ -2006,6 +2014,8 @@ namespace Smartstore.Admin.Controllers
             model.ShowUpdateTotals = order.OrderStatusId <= (int)OrderStatus.Pending;
             model.GiftCard.IsGiftCard = product.IsGiftCard;
             model.GiftCard.GiftCardType = product.GiftCardType;
+
+            model.UpdateTotals = model.ShowUpdateTotals;
 
             var attributes = product.ProductVariantAttributes
                 .OrderBy(x => x.DisplayOrder)

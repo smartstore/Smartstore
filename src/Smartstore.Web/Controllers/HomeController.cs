@@ -856,8 +856,8 @@ namespace Smartstore.Web.Controllers
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
             var crypt = Services.Resolve<IEncryptor>();
 
-            var orderId = 32123;
-            var order = await _db.Orders.FindByIdAsync(orderId);
+            //var orderId = 32123;
+            //var order = await _db.Orders.FindByIdAsync(orderId);
 
             //order.AllowStoringCreditCardNumber = true;
             //order.CardType = crypt.EncryptText("Visa Debit");
@@ -876,14 +876,35 @@ namespace Smartstore.Web.Controllers
             //order.DirectDebitCountry = crypt.EncryptText("United States of America");
             //order.DirectDebitIban = crypt.EncryptText("US559986587744");
 
-            order.AllowStoringCreditCardNumber = order.AllowStoringDirectDebit = false;
-            order.CardType = order.CardName = order.CardNumber = order.MaskedCreditCardNumber = order.CardCvv2 = order.CardExpirationMonth = order.CardExpirationYear = null;
-            order.DirectDebitAccountHolder = order.DirectDebitAccountNumber = order.DirectDebitBankCode = order.DirectDebitBankName = order.DirectDebitBIC = order.DirectDebitCountry = order.DirectDebitIban = null;
+            //order.AllowStoringCreditCardNumber = order.AllowStoringDirectDebit = false;
+            //order.CardType = order.CardName = order.CardNumber = order.MaskedCreditCardNumber = order.CardCvv2 = order.CardExpirationMonth = order.CardExpirationYear = null;
+            //order.DirectDebitAccountHolder = order.DirectDebitAccountNumber = order.DirectDebitBankCode = order.DirectDebitBankName = order.DirectDebitBIC = order.DirectDebitCountry = order.DirectDebitIban = null;
 
-            await _db.SaveChangesAsync();
+            //await _db.SaveChangesAsync();
 
 
-            //var shipmentId = 22054;
+            var shipmentId = 22054;
+            var shipment = await _db.Shipments
+                .Include(x => x.Order)
+                .FindByIdAsync(shipmentId);
+
+            await _db.LoadReferenceAsync(shipment.Order, x => x.RedeemedRewardPointsEntry);
+
+            await _db.LoadReferenceAsync(shipment.Order, x => x.Customer, false, q => q
+                .Include(x => x.RewardPointsHistory)
+                .Include(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole));
+
+            await _db.LoadCollectionAsync(shipment.Order, x => x.OrderItems, false, q =>
+            {
+                q = q.Include(x => x.Product);
+
+                q = q.Include(x => x.Order.Shipments)
+                    .ThenInclude(x => x.ShipmentItems);
+
+                return q;
+            });
+
             //var shipmentQuery = _db.Shipments
             //    .Include(x => x.Order.ShippingAddress)
             //    .Include(x => x.Order.Customer)
@@ -894,21 +915,21 @@ namespace Smartstore.Web.Controllers
             //    .ThenInclude(x => x.ShipmentItems)
             //    .Include(x => x.Order.OrderItems)
             //    .ThenInclude(x => x.Product);
-
             //var shipment = await shipmentQuery.FirstOrDefaultAsync(x => x.Id == shipmentId);
-            //content.AppendLine($"order {shipment.Order.Id}");
-            //content.AppendLine($"customer {shipment.Order.Customer.Email}");
-            //content.AppendLine($"order items {shipment.Order.OrderItems.Count}");
-            //content.AppendLine($"shipments {shipment.Order.Shipments.Count}");
-            //content.AppendLine($"shipment items {shipment.Order.Shipments?.FirstOrDefault()?.ShipmentItems?.Count ?? 0}");
 
-            //var orderItem = shipment.Order.OrderItems.First();
-            //// This works! Even if there is no include for it!
-            //var deepShippmentCount = orderItem.Order.Shipments?.Count ?? 0;
-            //var deepShippmentItemCount = orderItem.Order.Shipments.FirstOrDefault()?.ShipmentItems?.Count ?? 0;
+            content.AppendLine($"order {shipment.Order.Id}");
+            content.AppendLine($"customer {shipment.Order.Customer.Email}");
+            content.AppendLine($"order items {shipment.Order.OrderItems.Count}");
+            content.AppendLine($"shipments {shipment.Order.Shipments.Count}");
+            content.AppendLine($"shipment items {shipment.Order.Shipments?.FirstOrDefault()?.ShipmentItems?.Count ?? 0}");
 
-            //content.AppendLine($"deep shipments {deepShippmentCount}");
-            //content.AppendLine($"deep shipment items {deepShippmentItemCount}");
+            var orderItem = shipment.Order.OrderItems.First();
+            // This works! Even if there is no include for it!
+            var deepShippmentCount = orderItem.Order.Shipments?.Count ?? 0;
+            var deepShippmentItemCount = orderItem.Order.Shipments.FirstOrDefault()?.ShipmentItems?.Count ?? 0;
+
+            content.AppendLine($"deep shipments {deepShippmentCount}");
+            content.AppendLine($"deep shipment items {deepShippmentItemCount}");
 
 
             //_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools"));

@@ -237,7 +237,7 @@ namespace Smartstore.Web.Components
                     var amountCanBeUsed = _currencyService.ConvertFromPrimaryCurrency(appliedGiftCard.UsableAmount.Amount, currency);
                     gcModel.Amount = amountCanBeUsed * -1;
 
-                    var remainingAmountBase = _giftCardService.GetRemainingAmount(appliedGiftCard.GiftCard) - appliedGiftCard.UsableAmount;
+                    var remainingAmountBase = await _giftCardService.GetRemainingAmountAsync(appliedGiftCard.GiftCard) - appliedGiftCard.UsableAmount;
                     var remainingAmount = _currencyService.ConvertFromPrimaryCurrency(remainingAmountBase.Amount, currency);
                     gcModel.Remaining = remainingAmount;
 

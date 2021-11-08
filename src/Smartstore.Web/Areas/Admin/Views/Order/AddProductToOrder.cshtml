@@ -28,6 +28,17 @@
 
     <div asp-validation-summary="All"></div>
 
+    @if (Model.ProductType == ProductType.GroupedProduct)
+    {
+        <div class="alert alert-warning">A group product cannot be added to an order. Please select a product associated to the grouped product.</div>
+        return;
+    }
+    else if (Model.ProductType == ProductType.BundledProduct)
+    {
+        <div class="alert alert-warning">Adding a product bundle to an existing order is currently not supported.</div>
+        return;
+    }
+
     <div sm-if="warnings?.Any() ?? false">
         <div class="alert alert-danger">
             @foreach (var warning in warnings)
@@ -37,14 +48,7 @@
         </div>
     </div>
 
-    <div sm-if="Model.ProductType == ProductType.GroupedProduct" class="alert alert-warning">
-        A group product cannot be added to an existing order.
-    </div>
-    <div sm-if="Model.ProductType == ProductType.BundledProduct" class="alert alert-warning">
-        Adding a product bundle to an existing order is not supported.
-    </div>
-
-    <div sm-if="Model.ProductType == ProductType.SimpleProduct" class="adminContent">
+    <div class="adminContent">
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="UnitPriceInclTax" />
@@ -74,7 +78,7 @@
                 <smart-label asp-for="Quantity" />
             </div>
             <div class="adminData">
-                <input asp-for="Quantity" />
+                <editor asp-for="Quantity" />
             </div>
         </div>
         <div class="adminRow">
@@ -95,9 +99,10 @@
         </div>
     </div>
 
-    <div id="AddProductAttributeContainer">
-        @*...*@
-    </div>
+    @if (Model.ProductVariantAttributes.Any())
+    {
+        <partial name="_AddProductAttributes" />
+    }
 
     @if (Model.GiftCard.IsGiftCard)
     {
@@ -116,7 +121,7 @@
                 <input asp-for="AdjustInventory" />
             </div>
         </div>
-        <div class="adminRow">
+        <div sm-if="Model.ShowUpdateTotals" class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="UpdateTotals" />
             </div>
@@ -139,6 +144,6 @@
 
 <script sm-target-zone="scripts" data-origin="add-product-to-order">
     $(function () {
-        $('#AddProductAttributeContainer').find('select').selectWrapper();
+        applyCommonPlugins($('#AddProductAttributeContainer'));
     });
 </script>

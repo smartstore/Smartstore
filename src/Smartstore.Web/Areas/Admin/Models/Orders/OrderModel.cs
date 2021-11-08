@@ -20,12 +20,6 @@ namespace Smartstore.Admin.Models.Orders
         public int AffiliateId { get; set; }
         public string AffiliateFullName { get; set; }
 
-        // TODO: (mg) (core) Why separate raw and display amount if we have Money struct for this? Did you encounter any problems?
-        // RE: Understood. But "For MiniMapper usage, a Money property must have a different name than the entity property otherwise you get a cast exception.".
-        //     This is not true. Tested it, works like a charm.
-        // RE: maybe misunderstanding? My test case: mapping from Order.OrderTotal (decimal) to OrderOverviewModel.OrderTotal (Money)
-        // produces System.InvalidCastException and OrderOverviewModel.OrderTotal gets 0.00 (no type conversion?). However, Money usage does not really fit well here anyway.
-
         [LocalizedDisplay("*Edit.OrderSubtotal")]
         public decimal OrderSubtotalInclTax { get; set; }
         [LocalizedDisplay("*OrderSubtotalInclTax")]
@@ -99,11 +93,6 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("*RefundedAmount")]
         public string RefundedAmountString { get; set; }
-
-        [LocalizedDisplay("*PartialRefund.AmountToRefund")]
-        public decimal AmountToRefund { get; set; }
-        public decimal MaxAmountToRefund { get; set; }
-        public string MaxAmountToRefundString { get; set; }
 
         public bool AllowStoringCreditCardNumber { get; set; }
         public bool AllowStoringDirectDebit { get; set; }
@@ -245,6 +234,14 @@ namespace Smartstore.Admin.Models.Orders
                     return "light";
                 }
             }
+        }
+
+        public class RefundModel : EntityModelBase
+        {
+            [LocalizedDisplay("Admin.Orders.Fields.PartialRefund.AmountToRefund")]
+            public decimal AmountToRefund { get; set; }
+            public decimal MaxAmountToRefund { get; set; }
+            public string MaxAmountToRefundString { get; set; }
         }
 
         public class BundleItemModel : ModelBase

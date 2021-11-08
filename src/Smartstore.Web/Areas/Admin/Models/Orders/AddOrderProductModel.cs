@@ -34,7 +34,7 @@ namespace Smartstore.Admin.Models.Orders
         public bool AdjustInventory { get; set; } = true;
 
         [LocalizedDisplay("Admin.Orders.OrderItem.AutoUpdate.UpdateTotals")]
-        public bool UpdateTotals { get; set; } = true;
+        public bool UpdateTotals { get; set; }
         public bool ShowUpdateTotals { get; set; }
 
         public string GiftCardFieldPrefix 

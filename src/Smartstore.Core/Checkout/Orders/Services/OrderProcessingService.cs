@@ -131,11 +131,112 @@ namespace Smartstore.Core.Checkout.Orders
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
+        public virtual Task<int> GetDispatchedItemsCountAsync(OrderItem orderItem, bool dispatched)
+        {
+            Guard.NotNull(orderItem, nameof(orderItem));
+
+            if (dispatched)
+            {
+                return SumUpQuantity(orderItem, x => x.ShippedDateUtc.HasValue, true);
+            }
+            else
+            {
+                return SumUpQuantity(orderItem, x => !x.ShippedDateUtc.HasValue, true);
+            }
+        }
+
+        public virtual async Task<bool> HasItemsToDispatchAsync(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            await LoadNavigationProperties(order, false, true);
+
+            foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
+            {
+                var notDispatchedItems = await GetDispatchedItemsCountAsync(orderItem, false);
+                if (notDispatchedItems <= 0)
+                    continue;
+
+                // Yes, we have at least one item to ship.
+                return true;
+            }
+
+            return false;
+        }
+
+        public virtual Task<int> GetDeliveredItemsCountAsync(OrderItem orderItem, bool delivered)
+        {
+            Guard.NotNull(orderItem, nameof(orderItem));
+
+            if (delivered)
+            {
+                return SumUpQuantity(orderItem, x => x.DeliveryDateUtc.HasValue, true);
+            }
+            else
+            {
+                return SumUpQuantity(orderItem, x => !x.DeliveryDateUtc.HasValue, true);
+            }
+        }
+
+        public virtual async Task<bool> HasItemsToDeliverAsync(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            await LoadNavigationProperties(order, false, true);
+
+            foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
+            {
+                var dispatchedItems = await GetDispatchedItemsCountAsync(orderItem, true);
+                var deliveredItems = await GetDeliveredItemsCountAsync(orderItem, true);
+
+                if (dispatchedItems <= deliveredItems)
+                    continue;
+
+                // Yes, we have at least one item to deliver.
+                return true;
+            }
+
+            return false;
+        }
+
+        public virtual async Task<int> GetShippableItemsCountAsync(OrderItem orderItem)
+        {
+            var itemsCount = await GetShipmentItemsCountAsync(orderItem);
+
+            return Math.Max(orderItem.Quantity - itemsCount, 0);
+        }
+
+        public virtual Task<int> GetShipmentItemsCountAsync(OrderItem orderItem)
+        {
+            Guard.NotNull(orderItem, nameof(orderItem));
+
+            return SumUpQuantity(orderItem, null, true);
+        }
+
+        public virtual async Task<bool> CanAddItemsToShipmentAsync(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            await LoadNavigationProperties(order, false, true);
+
+            foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
+            {
+                var canBeAddedToShipment = await GetShippableItemsCountAsync(orderItem);
+                if (canBeAddedToShipment <= 0)
+                    continue;
+
+                // Yes, we have at least one item to create a new shipment.
+                return true;
+            }
+
+            return false;
+        }
+
         public virtual async Task CancelOrderAsync(Order order, bool notifyCustomer)
         {
             Guard.NotNull(order, nameof(order));
 
-            await LoadNavigationProperties(order);
+            await LoadNavigationProperties(order, true);
 
             if (!order.CanCancelOrder())
             {
@@ -168,7 +269,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task CompleteOrderAsync(Order order)
         {
-            await LoadNavigationProperties(order);
+            await LoadNavigationProperties(order, true);
 
             if (!order.CanCompleteOrder())
             {
@@ -195,7 +296,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (order.OrderStatus != OrderStatus.Cancelled)
             {
-                await LoadNavigationProperties(order);
+                await LoadNavigationProperties(order, true);
 
                 ApplyRewardPoints(order, true);
 
@@ -226,7 +327,7 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(order, nameof(order));
 
-            await LoadNavigationProperties(order);
+            await LoadNavigationProperties(order, true);
 
             foreach (var orderItem in order.OrderItems)
             {
@@ -291,9 +392,11 @@ namespace Smartstore.Core.Checkout.Orders
             }
         }
 
-        public virtual async Task<Shipment> ShipAsync(int shipmentId, bool notifyCustomer)
+        public virtual async Task ShipAsync(Shipment shipment, bool notifyCustomer)
         {
-            var shipment = await GetShipmentQuery().FindByIdAsync(shipmentId);
+            Guard.NotNull(shipment, nameof(shipment));
+            Guard.NotNull(shipment.Order, nameof(shipment.Order));
+
             var order = shipment.Order;
 
             if (shipment.ShippedDateUtc.HasValue)
@@ -304,7 +407,7 @@ namespace Smartstore.Core.Checkout.Orders
             shipment.ShippedDateUtc = DateTime.UtcNow;
 
             // Check whether we have more items to ship.
-            order.ShippingStatusId = order.CanAddItemsToShipment() || order.HasItemsToDispatch()
+            order.ShippingStatusId = await CanAddItemsToShipmentAsync(order) || await HasItemsToDispatchAsync(order)
                 ? (int)ShippingStatus.PartiallyShipped
                 : (int)ShippingStatus.Shipped;
 
@@ -321,23 +424,20 @@ namespace Smartstore.Core.Checkout.Orders
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
-
-            return shipment;
         }
 
-        public virtual async Task<Shipment> DeliverAsync(int shipmentId, bool notifyCustomer)
+        public virtual async Task DeliverAsync(Shipment shipment, bool notifyCustomer)
         {
-            var shipment = await GetShipmentQuery().FindByIdAsync(shipmentId);
-            if (shipment == null)
-            {
-                return null;
-            }
+            Guard.NotNull(shipment, nameof(shipment));
+            Guard.NotNull(shipment.Order, nameof(shipment.Order));
 
             var order = shipment.Order;
 
             shipment.DeliveryDateUtc = DateTime.UtcNow;
 
-            if (!order.CanAddItemsToShipment() && !order.HasItemsToDispatch() && !order.HasItemsToDeliver())
+            if (!await CanAddItemsToShipmentAsync(order) && 
+                !await HasItemsToDispatchAsync(order) &&
+                !await HasItemsToDeliverAsync(order))
             {
                 order.ShippingStatusId = (int)ShippingStatus.Delivered;
             }
@@ -355,8 +455,6 @@ namespace Smartstore.Core.Checkout.Orders
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
-
-            return shipment;
         }
 
         public virtual bool IsReturnRequestAllowed(Order order)
@@ -430,7 +528,7 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(order, nameof(order));
 
-            await LoadNavigationProperties(order, true);
+            await LoadNavigationProperties(order, true, true);
 
             Shipment shipment = null;
             decimal? totalWeight = null;
@@ -441,7 +539,7 @@ namespace Smartstore.Core.Checkout.Orders
                     continue;
 
                 // Ensure that this product can be shipped (have at least one item to ship).
-                var maxQtyToAdd = orderItem.GetShippableItemsCount();
+                var maxQtyToAdd = await GetShippableItemsCountAsync(orderItem);
                 if (maxQtyToAdd <= 0)
                     continue;
 
@@ -507,14 +605,14 @@ namespace Smartstore.Core.Checkout.Orders
             return null;
         }
 
-        public virtual async Task<OrderItem> UpdateOrderDetailsAsync(int orderItemId, UpdateOrderDetailsContext context)
+        public virtual async Task UpdateOrderDetailsAsync(OrderItem orderItem, UpdateOrderDetailsContext context)
         {
-            var oi = await GetOrderItemQuery().FindByIdAsync(orderItemId);
-            if (oi == null)
-            {
-                return null;
-            }
+            Guard.NotNull(orderItem, nameof(orderItem));
+            Guard.NotNull(orderItem.Order, nameof(orderItem.Order));
 
+            await LoadNavigationProperties(orderItem.Order, true, true);
+
+            var oi = orderItem;
             var oldQuantity = context.OldQuantity ?? oi.Quantity;
             var newQuantity = context.NewQuantity ?? oi.Quantity;
             var oldPriceInclTax = context.OldPriceInclTax ?? oi.PriceInclTax;
@@ -530,7 +628,7 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 if (newQuantity == 0)
                 {
-                    return oi;
+                    return;
                 }
 
                 oi.Quantity = newQuantity;
@@ -619,8 +717,6 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             await _db.SaveChangesAsync();
-
-            return oi;
         }
 
         #region Utilities
@@ -788,13 +884,14 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Reward points.
-            if (_rewardPointsSettings.PointsForPurchases_Awarded == order.OrderStatus)
+            var rewardPointsAwarded = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Awarded;
+            var rewardPointsCanceled = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Canceled;
+            
+            if (rewardPointsAwarded || rewardPointsCanceled)
             {
-                ApplyRewardPoints(order, false);
-            }
-            if (_rewardPointsSettings.PointsForPurchases_Canceled == order.OrderStatus)
-            {
-                ApplyRewardPoints(order, true);
+                await LoadNavigationProperties(order, true, false);
+
+                ApplyRewardPoints(order, rewardPointsCanceled);
             }
 
             // Gift cards activation.
@@ -838,15 +935,46 @@ namespace Smartstore.Core.Checkout.Orders
             await scope.CommitAsync();
         }
 
-        private async Task LoadNavigationProperties(Order order, bool includeShipments = false)
+        private async Task<int> SumUpQuantity(OrderItem orderItem, Func<Shipment, bool> predicate, bool load = false)
         {
-            await _db.LoadReferenceAsync(order, x => x.RedeemedRewardPointsEntry);
+            if (load)
+            {
+                await _db.LoadReferenceAsync(orderItem, x => x.Order, false, q => q
+                    .Include(x => x.Shipments)
+                    .ThenInclude(x => x.ShipmentItems));
+            }
 
-            await _db.LoadReferenceAsync(order, x => x.Customer, false, q => q
-                .Include(x => x.RewardPointsHistory)
-                .Include(x => x.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole));
+            var result = 0;
+            var shipments = predicate != null
+                ? orderItem.Order.Shipments.Where(predicate)
+                : orderItem.Order.Shipments;
 
+            foreach (var shipment in shipments)
+            {
+                var item = shipment.ShipmentItems.FirstOrDefault(x => x.OrderItemId == orderItem.Id);
+                if (item != null)
+                {
+                    result += item.Quantity;
+                }
+            }
+
+            return result;
+        }
+
+        private async Task LoadNavigationProperties(Order order, bool includeCustomer = false, bool includeShipments = false)
+        {
+            // Resolve customer related navigation properties.
+            if (includeCustomer)
+            {
+                await _db.LoadReferenceAsync(order, x => x.RedeemedRewardPointsEntry);
+
+                await _db.LoadReferenceAsync(order, x => x.Customer, false, q => q
+                    .Include(x => x.RewardPointsHistory)
+                    .Include(x => x.CustomerRoleMappings)
+                    .ThenInclude(x => x.CustomerRole));
+            }
+
+            // Lazy load all order items in one go. Optionally also resolve more required navigation properties.
             await _db.LoadCollectionAsync(order, x => x.OrderItems, false, q =>
             {
                 q = q.Include(x => x.Product);
@@ -859,43 +987,6 @@ namespace Smartstore.Core.Checkout.Orders
 
                 return q;
             });
-        }
-
-        private IIncludableQueryable<OrderItem, Product> GetOrderItemQuery()
-        {
-            // INFO: also expands Shipment.Order.OrderItems.Order.Shipments.ShipmentItems
-            var query = _db.OrderItems
-                .Include(x => x.Order.ShippingAddress)
-                .Include(x => x.Order.RedeemedRewardPointsEntry)
-                .Include(x => x.Order.Customer)
-                .ThenInclude(x => x.RewardPointsHistory)
-                .Include(x => x.Order.Customer.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole)
-                .Include(x => x.Order.Shipments)
-                .ThenInclude(x => x.ShipmentItems)
-                .Include(x => x.Order.OrderItems)
-                .ThenInclude(x => x.Product);
-
-            return query;
-        }
-
-        private IIncludableQueryable<Shipment, Product> GetShipmentQuery()
-        {
-            // INFO: also expands Shipment.Order.OrderItems.Order.Shipments.ShipmentItems
-            // TODO: (mg) (core) Monster include!!! Perf? Hmmm?? I don't like this. Sometimes it is more advisable to fetch aggregate data by hitting the database again.
-            var query = _db.Shipments
-                .Include(x => x.Order.ShippingAddress)
-                .Include(x => x.Order.RedeemedRewardPointsEntry)
-                .Include(x => x.Order.Customer)
-                .ThenInclude(x => x.RewardPointsHistory)
-                .Include(x => x.Order.Customer.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole)
-                .Include(x => x.Order.Shipments)
-                .ThenInclude(x => x.ShipmentItems)
-                .Include(x => x.Order.OrderItems)
-                .ThenInclude(x => x.Product);
-
-            return query;
         }
 
         #endregion

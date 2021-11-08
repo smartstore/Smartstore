@@ -105,9 +105,7 @@ namespace Smartstore.Admin.Models.Catalog
             to.NoThumb = file == null;
 
             // TODO: (core) Use IImageModel
-            to.PictureThumbnailUrl = file != null
-                ? _services.MediaService.GetUrl(file, _mediaSettings.CartThumbPictureSize)
-                : null;
+            to.PictureThumbnailUrl = _services.MediaService.GetUrl(file, _mediaSettings.CartThumbPictureSize);
 
             return Task.CompletedTask;
         }

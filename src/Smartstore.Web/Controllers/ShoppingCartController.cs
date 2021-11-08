@@ -1338,7 +1338,7 @@ namespace Smartstore.Web.Controllers
                         .ApplyCouponFilter(new[] { giftCardCouponCode })
                         .FirstOrDefaultAsync();
 
-                    var isGiftCardValid = giftCard != null && _giftCardService.ValidateGiftCard(giftCard, storeId);
+                    var isGiftCardValid = giftCard != null && await _giftCardService.ValidateGiftCardAsync(giftCard, storeId);
                     if (isGiftCardValid)
                     {
                         var couponCodes = new List<GiftCardCouponCode>(customer.GenericAttributes.GiftCardCouponCodes);
