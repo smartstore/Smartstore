@@ -88,7 +88,7 @@
                             @item.QuantityInAllShipments
                         </td>
                         <td>
-                            @*TODO: (mg) (core) rendered attribute "value" is always empty here. "output.Attributes" in NumberInputTagHelper contains two value attributes: first is empty, second is the correct value.*@
+                            @*TODO: (core) rendered attribute "value" is always empty here. "output.Attributes" in NumberInputTagHelper contains two value attributes: first is empty, second is the correct value.*@
                             @Html.Editor(fieldId, "Int32", fieldId, new { htmlAttributes = new { value = item.QuantityToAdd, @class = "form-control-sm" } })
                         </td>
                     </tr>
