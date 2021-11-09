@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using Smartstore.Engine;
 using Smartstore.Threading;
 using Smartstore.Utilities;
 
@@ -32,18 +32,21 @@ namespace Smartstore.Pdf.WkHtml
 
         private Process _process;
 
+        private readonly IApplicationContext _appContext;
         private readonly IWkHtmlCommandBuilder _commandBuilder;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly WkHtmlToPdfOptions _options;
         private readonly AsyncRunner _asyncRunner;
 
         public WkHtmlToPdfConverter(
+            IApplicationContext appContext,
             IWkHtmlCommandBuilder commandBuilder, 
             IHttpContextAccessor httpContextAccessor,
             IOptions<WkHtmlToPdfOptions> options,
             AsyncRunner asyncRunner,
             ILogger<WkHtmlToPdfConverter> logger)
         {
+            _appContext = appContext;
             _commandBuilder = commandBuilder;
             _httpContextAccessor = httpContextAccessor;
             _options = options.Value;
@@ -159,42 +162,16 @@ namespace Smartstore.Pdf.WkHtml
             return _tempPath;
         }
 
-        private static string GetToolExePath(WkHtmlToPdfOptions options)
+        private string GetToolExePath(WkHtmlToPdfOptions options)
         {
             LazyInitializer.EnsureInitialized(ref _toolExePath, () =>
             {
-                if (options.PdfToolPath.IsEmpty())
-                {
-                    throw new ArgumentException($"{nameof(options.PdfToolPath)} property is not initialized with path to wkhtmltopdf binaries.");
-                }
-
                 if (options.PdfToolName.IsEmpty())
                 {
                     throw new ArgumentException($"{nameof(options.PdfToolName)} property is not initialized with name to wkhtmltopdf binary.");
                 }
 
-                var path = Path.Combine(options.PdfToolPath, options.PdfToolName);
-
-                if (!File.Exists(path))
-                {
-                    var gzPath = path + ".gz";
-                    if (File.Exists(gzPath))
-                    {
-                        // Archive exists, but was not uncompressed yet.
-                        using (var archive = File.OpenRead(gzPath))
-                        using (var input = new GZipStream(archive, CompressionMode.Decompress, false))
-                        using (var output = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
-                        {
-                            input.CopyTo(output);
-                        }
-                    }
-                }
-
-                if (!File.Exists(path))
-                {
-                    throw new FileNotFoundException("wkhtmltopdf executable does not exist. Attempted path: " + path);
-                }
-
+                var path = _appContext.RuntimeInfo.GetNativeLibraryPath(options.PdfToolName);
                 return path;
             });
 
@@ -220,7 +197,7 @@ namespace Smartstore.Pdf.WkHtml
                 _process = Process.Start(new ProcessStartInfo
                 {
                     FileName = GetToolExePath(_options),
-                    WorkingDirectory = _options.PdfToolPath,
+                    WorkingDirectory = _appContext.RuntimeInfo.NativeLibraryDirectory,
                     Arguments = arguments,
                     WindowStyle = ProcessWindowStyle.Hidden,
                     CreateNoWindow = true,
