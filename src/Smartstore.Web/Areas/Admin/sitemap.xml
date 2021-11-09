@@ -40,7 +40,7 @@
         <siteMapNode id="users" title="Customers" resKey="Admin.Customers" permissionNames="customer, configuration.authentication, configuration.activitylog" iconClass="icm icm-users2">
             <siteMapNode id="customers" iconClass="fa fa-user-alt" title="Customers" resKey="Admin.Customers.Customers" permissionNames="customer" controller="Customer" action="List" area="Admin" />
             <siteMapNode id="customer-roles" iconClass="fa fa-users" title="Customer roles" resKey="Admin.Customers.CustomerRoles" permissionNames="customer.role" controller="CustomerRole" action="List" area="Admin" />
-            <siteMapNode id="online-customers" iconClass="fa fa-sign-in-alt" title="Online customers" resKey="Admin.Customers.OnlineCustomers" permissionNames="customer" controller="OnlineCustomer" action="List" area="Admin" />
+            <siteMapNode id="online-customers" iconClass="fa fa-sign-in-alt" title="Online customers" resKey="Admin.Customers.OnlineCustomers" permissionNames="customer" controller="Customer" action="OnlineCustomers" area="Admin" />
             <siteMapNode id="customer-reports" iconClass="far fa-chart-bar" title="Customer reports" resKey="Admin.Customers.Reports" permissionNames="customer" controller="Customer" action="Reports" area="Admin" />
             <siteMapNode id="external-auth" iconClass="fab fa-facebook-square" title="External authentication methods" resKey="Admin.Configuration.ExternalAuthenticationMethods" permissionNames="configuration.authentication" controller="ExternalAuthentication" action="Providers" area="Admin"/>
 

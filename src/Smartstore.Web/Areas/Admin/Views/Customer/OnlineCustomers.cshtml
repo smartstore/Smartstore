@@ -1,0 +1,18 @@
+﻿@model CustomerListModel
+
+@{
+    ViewBag.Title = T("Admin.Customers.OnlineCustomers").Value;
+
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-sign-in-alt"></i>
+        @T("Admin.Customers.OnlineCustomers")
+    </div>
+    <div class="options">
+    </div>
+</div>
+
+<partial name="Grids/_Grid.OnlineCustomers" model="null"/>

@@ -1,0 +1,20 @@
+﻿@model OnlineCustomerModel
+
+<datagrid id="online-customers-grid" allow-resize="true" allow-column-reordering="true">
+    <datasource read="@Url.Action("OnlineCustomersList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <columns>
+        <column for="Id" />
+        <column for="CustomerInfo" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="LastIpAddress" />
+        <column for="Location" />
+        <column for="LastActivityDate" />
+        <column for="LastVisitedPage" />
+    </columns>
+</datagrid>

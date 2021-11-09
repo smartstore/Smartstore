@@ -53,6 +53,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly Lazy<IEmailAccountService> _emailAccountService;
         private readonly Lazy<IGdprTool> _gdprTool;
+        private readonly Lazy<IGeoCountryLookup> _geoCountryLookup;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IProductService _productService;
         private readonly IDateTimeHelper _dateTimeHelper;
@@ -72,6 +73,7 @@ namespace Smartstore.Admin.Controllers
             IPriceCalculationService priceCalculationService,
             Lazy<IEmailAccountService> emailAccountService,
             Lazy<IGdprTool> gdprTool,
+            Lazy<IGeoCountryLookup> geoCountryLookup,
             IShoppingCartService shoppingCartService,
             IProductService productService,
             IDateTimeHelper dateTimeHelper,
@@ -90,6 +92,7 @@ namespace Smartstore.Admin.Controllers
             _priceCalculationService = priceCalculationService;
             _emailAccountService = emailAccountService;
             _gdprTool = gdprTool;
+            _geoCountryLookup = geoCountryLookup;
             _shoppingCartService = shoppingCartService;
             _productService = productService;
             _dateTimeHelper = dateTimeHelper;
@@ -1006,6 +1009,52 @@ namespace Smartstore.Admin.Controllers
             }
 
             return RedirectToAction(nameof(Edit), new { id = customer.Id });
+        }
+
+        #endregion
+
+        #region OnlineCustomers
+
+        public IActionResult OnlineCustomers()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Customer.Read)]
+        public async Task<IActionResult> OnlineCustomersList(GridCommand command)
+        {
+            var customers = await _db.Customers
+                .AsNoTracking()
+                .ApplyOnlineCustomersFilter(_customerSettings.OnlineCustomerMinutes)
+                .IncludeCustomerRoles()
+                .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
+
+            var customerModels = customers
+                .Select(x =>
+                {
+                    return new OnlineCustomerModel
+                    {
+                        Id = x.Id,
+                        CustomerInfo = x.IsRegistered() ? x.Email : T("Admin.Customers.Guest").Value,
+                        LastIpAddress = x.LastIpAddress,
+                        Location = _geoCountryLookup.Value.LookupCountry(x.LastIpAddress)?.Name.EmptyNull(),
+                        LastActivityDate = _dateTimeHelper.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
+                        LastVisitedPage = x.GenericAttributes.LastVisitedPage,
+                        EditUrl = Url.Action("Edit", "Customer", new { id = x.Id })
+                    };
+                })
+                .ToList();
+
+            var gridModel = new GridModel<OnlineCustomerModel>
+            {
+                Rows = customerModels,
+                Total = await customers.GetTotalCountAsync()
+            };
+
+            return Json(gridModel);
         }
 
         #endregion
