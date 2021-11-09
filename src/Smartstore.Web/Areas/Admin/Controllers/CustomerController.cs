@@ -430,12 +430,6 @@ namespace Smartstore.Admin.Controllers
                 SearchCustomerRoleIds = new int[] { registeredRole.Id }
             };
 
-            // INFO: Solution approach for problem when using CustomerRoles editor template in search model. See Model comment for more info.
-            //var customerRolesList = new List<SelectListItem>();
-            // TODO: (mh) (core) We must call CustomerRoleController > AllCustomerRoles but without the AJAX result.
-            // maybe outsource the core of AllCustomerRoles to CustomerHelper so it can also be called here to get a list of all customer roles ???
-            //ViewBag.SearchCustomerRoles = customerRolesList;
-
             return View(listModel);
         }
 

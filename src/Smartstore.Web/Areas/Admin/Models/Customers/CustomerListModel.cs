@@ -6,9 +6,6 @@ namespace Smartstore.Admin.Models.Customers
     [LocalizedDisplay("Admin.Customers.Customers.List.")]
     public class CustomerListModel : ModelBase
     {
-        // TODO: (mh) (core) This aint save!!! Editor template values are retrieved via AJAX. No telling which call will be executed first.
-        // This ain't a problem when no value is preselected. But here the registered role is preselected.
-        // Sometimes it'll work sometimes not, depending on which AJAX call succeeds first.
         [UIHint("CustomerRoles")]
         [AdditionalMetadata("multiple", true)]
         [LocalizedDisplay("*CustomerRoles")]
