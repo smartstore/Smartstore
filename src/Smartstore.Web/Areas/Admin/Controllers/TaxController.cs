@@ -84,6 +84,8 @@ namespace Smartstore.Admin.Controllers
 
         #region Tax categories
 
+        // TODO: (mh) (core) Convention please! TaxCategory(List | Insert | Update...)
+
         [Permission(Permissions.Configuration.Tax.Read)]
         public IActionResult Categories()
         {
@@ -96,16 +98,14 @@ namespace Smartstore.Admin.Controllers
         {
             var categories = await _db.TaxCategories
                 .AsNoTracking()
-                .OrderBy(x => x.Id)                     // Info: We use OrderBy to circumvent EF caching issue.
+                // Info: We use OrderBy to circumvent EF caching issue.
+                .OrderBy(x => x.Id)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
             var categoriesModels = await categories
-                .SelectAsync(async x =>
-                {
-                    return await MapperFactory.MapAsync<TaxCategory, TaxCategoryModel>(x);
-                })
+                .SelectAsync(x => MapperFactory.MapAsync<TaxCategory, TaxCategoryModel>(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<TaxCategoryModel>
