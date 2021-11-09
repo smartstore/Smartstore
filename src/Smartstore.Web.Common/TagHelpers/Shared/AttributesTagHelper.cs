@@ -51,7 +51,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     }
                     else
                     {
-                        output.MergeAttribute(attr.Key, attr.Value, false);
+                        output.MergeAttribute(attr.Key, attr.Value, attr.Key == "value");
                     }
                 }
             }
@@ -68,7 +68,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                         }
                         else
                         {
-                            output.MergeAttribute(kvp.Key, kvp.Value.Value, false);
+                            output.MergeAttribute(kvp.Key, kvp.Value.Value, kvp.Key == "value");
                         }
                     }
                 }
