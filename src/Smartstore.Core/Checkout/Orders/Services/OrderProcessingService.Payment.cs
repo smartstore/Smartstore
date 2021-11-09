@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
@@ -431,6 +432,8 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 if (!recurringPayment.IsActive)
                     throw new SmartException(T("Payment.RecurringPaymentNotActive"));
+
+                await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
 
                 var initialOrder = recurringPayment.InitialOrder;
                 if (initialOrder == null)

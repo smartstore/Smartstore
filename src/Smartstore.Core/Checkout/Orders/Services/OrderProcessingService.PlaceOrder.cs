@@ -38,7 +38,10 @@ namespace Smartstore.Core.Checkout.Orders
                 }
 
                 var initialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId);
-                var customer = await _db.Customers.FindByIdAsync(paymentRequest.CustomerId);
+
+                var customer = await _db.Customers
+                    .IncludeCustomerRoles()
+                    .FindByIdAsync(paymentRequest.CustomerId);
 
                 var (warnings, cart) = await ValidateOrderPlacementAsync(paymentRequest, initialOrder, customer);
                 if (warnings.Any())
@@ -304,7 +307,7 @@ namespace Smartstore.Core.Checkout.Orders
             if (!warnings.Any() && !skipPaymentWorkflow)
             {
                 // TODO: (mh) (core) Wait for implementation of any payment method.
-                //var isPaymentMethodActive = await _paymentService.IsPaymentMethodActiveAsync(paymentMethodSystemName, customer, cart, paymentRequest.StoreId);
+                //var isPaymentMethodActive = await _paymentService.IsPaymentMethodActiveAsync(paymentMethodSystemName, cart, paymentRequest.StoreId);
                 //if (!isPaymentMethodActive)
                 //{
                 //    warnings.Add(T("Payment.MethodNotAvailable"));
