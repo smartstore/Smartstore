@@ -1,0 +1,19 @@
+﻿@using Smartstore.Tax.Models
+
+@model FixedTaxRateModel
+
+<datagrid id="fixed-rate-grid"
+          allow-resize="true"
+          allow-column-reordering="true"
+          allow-edit="true">
+    <datasource read="@Url.Action("List", "TaxFixedRate")"
+                update="@Url.Action("Update", "TaxFixedRate")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <columns>
+        <column for="TaxCategoryName" width="2fr" hideable="false" readonly />
+        <column for="Rate" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+    </row-commands>
+</datagrid>

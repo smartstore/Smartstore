@@ -1,15 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Configuration;
 using Smartstore.Engine.Modularity;
+using Smartstore.Http;
 
-namespace Smartstore.Core.Checkout.Tax
+namespace Smartstore.Tax
 {
-    // TODO: (mg) (core) move FixedRateTaxProvider to tax module and complete it when IConfigurable is available.
     [SystemName("Tax.FixedRate")]
     [FriendlyName("Fixed tax rate provider")]
-    [Display(Order = 5)]
-    internal class FixedRateTaxProvider : ITaxProvider/*, IConfigurable*/
+    [Order(5)]
+    internal class FixedRateTaxProvider : ITaxProvider, IConfigurable
     {
         private readonly ISettingService _settingService;
 
@@ -17,6 +18,9 @@ namespace Smartstore.Core.Checkout.Tax
         {
             _settingService = settingService;
         }
+
+        public RouteInfo GetConfigurationRoute()
+            => new("Configure", "TaxFixedRate", new { area = "Admin" });
 
         public Task<TaxRate> GetTaxRateAsync(TaxRateRequest request)
         {
