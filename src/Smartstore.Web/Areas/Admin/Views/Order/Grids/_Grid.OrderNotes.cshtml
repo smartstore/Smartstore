@@ -11,7 +11,9 @@
           allow-column-reordering="true">
     <datasource read="@Url.Action("OrderNoteList", new { orderId = parentModel.Id })" 
                 delete="@Url.Action("OrderNoteDelete", new { orderId = parentModel.Id })" />
-    <sorting enabled="false"></sorting>
+    <sorting enabled="false">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
     <paging position="Bottom" show-size-chooser="false" enabled="false" />
     <toolbar>
         <toolbar-group>

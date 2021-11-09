@@ -2,11 +2,13 @@
 
 @{
     var orderId = 0;
+    var canAddNewShipments = false;
     var parentModel = ViewData["Parent"] as ShipmentListModel;
 
     if (parentModel == null && ViewData["Parent"] is OrderModel orderModel)
     {
         orderId = orderModel.Id;
+        canAddNewShipments = orderModel.CanAddNewShipments;
     }
 
     var isOrderEditPage = orderId > 0;
@@ -30,12 +32,15 @@
     <toolbar>
         @if (isOrderEditPage)
         {
-            <toolbar-group>
-                <a asp-action="Create" asp-controller="Shipment" asp-route-orderId="@orderId" class="btn btn-primary btn-flat">
-                    <i class="fa fa-plus"></i>
-                    <span>@T("Admin.Orders.Shipments.AddNew")</span>
-                </a>
-            </toolbar-group>
+            if (canAddNewShipments)
+            {
+                <toolbar-group>
+                    <a asp-action="Create" asp-controller="Shipment" asp-route-orderId="@orderId" class="btn btn-primary btn-flat">
+                        <i class="fa fa-plus"></i>
+                        <span>@T("Admin.Orders.Shipments.AddNew")</span>
+                    </a>
+                </toolbar-group>
+            }
         }
         else
         {

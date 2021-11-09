@@ -10,7 +10,9 @@
                 delete="@Url.Action("GenericAttributeDelete", "GenericAttribute", new { entityName = Model.EntityName })"
                 update="@Url.Action("GenericAttributeUpdate", "GenericAttribute")"
                 insert="@Url.Action("GenericAttributeInsert", "GenericAttribute", new { entityName = Model.EntityName, entityId = Model.AttributeEntityId })" />
-    <sorting allow-unsort="true" allow-multisort="false"></sorting>
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="Key" />
+    </sorting>
     <paging enabled="true" />
     <toolbar>
         <toolbar-group>

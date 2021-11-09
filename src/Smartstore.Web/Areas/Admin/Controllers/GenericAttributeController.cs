@@ -35,21 +35,25 @@ namespace Smartstore.Admin.Controllers
             var storeId = Services.StoreContext.CurrentStore.Id;
             ViewBag.StoreId = storeId;
 
+            var totalCount = 0;
             var attributesItems = new List<GenericAttributeModel>();
 
             if (entityName.HasValue() && entityId > 0)
             {
-                var infos = GetGenericAttributesInfos(entityName);
-                if (infos.ReadPermission.IsEmpty() || Services.Permissions.Authorize(infos.ReadPermission))
+                var (readPermission, _) = GetGenericAttributesInfos(entityName);
+
+                if (readPermission.IsEmpty() || Services.Permissions.Authorize(readPermission))
                 {
-                    var attributes = _genericAttributeService
-                        .GetAttributesForEntity(entityName, entityId).UnderlyingEntities
+                    var allAttributes = _genericAttributeService.GetAttributesForEntity(entityName, entityId).UnderlyingEntities;
+
+                    var attributes = allAttributes
                         .AsQueryable()
                         .ApplyGridCommand(command, true);
 
+                    totalCount = allAttributes.Count();
+
                     attributesItems = attributes
                         .Where(x => x.StoreId == storeId || x.StoreId == 0)
-                        .OrderBy(x => x.Key)
                         .Select(x => new GenericAttributeModel
                         {
                             Id = x.Id,
@@ -65,7 +69,7 @@ namespace Smartstore.Admin.Controllers
             var gridModel = new GridModel<GenericAttributeModel>
             {
                 Rows = attributesItems,
-                Total = attributesItems.Count
+                Total = totalCount
             };
 
             return Json(gridModel);
