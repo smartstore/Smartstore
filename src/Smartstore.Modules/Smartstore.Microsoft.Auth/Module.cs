@@ -1,11 +1,9 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
-using Smartstore.Microsoft.Auth.Components;
 using Smartstore.Http;
-using Smartstore.Core.Identity;
+using Smartstore.Microsoft.Auth.Components;
 
 namespace Smartstore.Microsoft.Auth
 {

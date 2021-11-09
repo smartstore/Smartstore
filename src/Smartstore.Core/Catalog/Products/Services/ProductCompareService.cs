@@ -117,8 +117,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 Expires = DateTime.Now.AddDays(10.0),
                 HttpOnly = true,
-                IsEssential = true,
-                Secure = true           //TODO: (mh) (core) Check if this can be set without further implications & if it must be set every time a cookie shall be deleted.
+                IsEssential = true
             };
 
             cookies.Delete(cookieName, options);

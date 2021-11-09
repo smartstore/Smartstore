@@ -1,11 +1,9 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Facebook.Auth.Components;
 using Smartstore.Http;
-using Smartstore.Core.Identity;
 
 namespace Smartstore.Facebook.Auth
 {

@@ -31,7 +31,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("Providers");
+            return RedirectToAction(nameof(Providers));
         }
 
         [Permission(Permissions.Configuration.Authentication.Read)]

@@ -20,7 +20,6 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
-    [Area("Admin")]
     public class MenuController : AdminController
     {
         private readonly SmartDbContext _db;
