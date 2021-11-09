@@ -79,11 +79,12 @@ namespace Smartstore.Web.Razor
             Guard.NotEmpty(componentName, nameof(componentName));
 
             var actionContext = GetActionContext(module);
+            viewData ??= ViewData;
             var result = new ViewComponentResult
             {
                 ViewComponentName = componentName,
-                Arguments = arguments,
-                ViewData = viewData ?? ViewData,
+                Arguments = arguments ?? viewData.Model,
+                ViewData = viewData,
                 TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
             };
 
@@ -95,11 +96,12 @@ namespace Smartstore.Web.Razor
             Guard.NotNull(componentType, nameof(componentType));
 
             var actionContext = GetActionContext(ResolveModule(componentType));
+            viewData ??= ViewData;
             var result = new ViewComponentResult
             {
                 ViewComponentType = componentType,
-                Arguments = arguments,
-                ViewData = viewData ?? ViewData,
+                Arguments = arguments ?? viewData.Model,
+                ViewData = viewData,
                 TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
             };
 

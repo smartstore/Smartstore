@@ -27,11 +27,14 @@ namespace Smartstore.Core.Widgets
             _arguments = arguments;
         }
 
+        public ComponentWidgetInvoker(Type componentType)
+            : this(componentType, null)
+        {
+        }
+
         public ComponentWidgetInvoker(Type componentType, object arguments)
         {
-            Guard.NotNull(componentType, nameof(componentType));
-
-            _componentType = componentType;
+            _componentType = Guard.NotNull(componentType, nameof(componentType));
             _arguments = arguments;
         }
 

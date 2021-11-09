@@ -50,7 +50,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
 			var isHtmlTag = output.TagName != "zone";
 
-			var widgets = await _widgetSelector.GetWidgetsAsync(ZoneName, ViewContext.ViewData.Model);
+			var widgets = await _widgetSelector.GetWidgetsAsync(ZoneName, Model ?? ViewContext.ViewData.Model);
 
 			if (!isHtmlTag)
 			{
@@ -69,6 +69,11 @@ namespace Smartstore.Web.TagHelpers.Shared
 				{
 					var target = widget.Prepend ? output.PreContent : output.PostContent;
 					var viewContext = Model == null ? ViewContext : ViewContext.Clone(Model);
+
+					if (ZoneName == "file_uploader")
+                    {
+						var yo = true;
+                    }
 
 					target.AppendHtml(await widget.InvokeAsync(viewContext));
 				}
