@@ -97,6 +97,7 @@ namespace Smartstore.Tax.Controllers
                     Percentage = x.Percentage
                 };
 
+                // TODO: (mh) (core) You don't need following stuff with navigation properties which you include in your query.
                 taxCategories.TryGetValue(x.TaxCategoryId, out TaxCategory tc);
                 m.TaxCategoryName = tc?.Name.EmptyNull();
 
@@ -136,10 +137,7 @@ namespace Smartstore.Tax.Controllers
         {
             var taxRates = await _db.TaxRates()
                 .AsNoTracking()
-                .OrderBy(x => x.CountryId)
-                .ThenBy(x => x.StateProvinceId)
-                .ThenBy(x => x.Zip)
-                .ThenBy(x => x.TaxCategoryId)
+                .ApplyStandardFilter(null, null, null, null) // INFO: (mh) (core) Don't violate DRY principle
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();

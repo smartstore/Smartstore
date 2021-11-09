@@ -21,7 +21,7 @@ namespace Smartstore.Tax.Migrations
                     .WithColumn(nameof(TaxRateEntity.CountryId)).AsInt32().NotNullable()
                     .WithColumn(nameof(TaxRateEntity.StateProvinceId)).AsInt32().NotNullable()
                     .WithColumn(nameof(TaxRateEntity.Zip)).AsString(10).NotNullable()
-                    .WithColumn(nameof(TaxRateEntity.Percentage)).AsDecimal().NotNullable();
+                    .WithColumn(nameof(TaxRateEntity.Percentage)).AsDecimal(4, 18).NotNullable();
             }
         }
 

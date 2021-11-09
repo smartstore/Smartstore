@@ -7,7 +7,6 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
-using Smartstore.Tax.Extensions;
 
 namespace Smartstore.Tax
 {
@@ -56,8 +55,8 @@ namespace Smartstore.Tax
                 .AsNoTracking()
                 .ApplyStandardFilter(
                     request.TaxCategoryId,
-                    request.Address.Country?.Id ?? 0,
-                    request.Address.StateProvince?.Id ?? 0,
+                    request.Address.Country?.Id,
+                    request.Address.StateProvince?.Id,
                     request.Address.ZipPostalCode
                 ).ToListAsync();
 

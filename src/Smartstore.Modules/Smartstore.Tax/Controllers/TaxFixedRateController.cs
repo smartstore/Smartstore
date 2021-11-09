@@ -10,7 +10,7 @@ using Smartstore.Web.Models.DataGrid;
 namespace Smartstore.Polls.Controllers
 {
     [Area("Admin")]
-    [Route("[area]/taxfixedrate/[action]/{id?}")]
+    [Route("[area]/taxfixedrate/{action=index}/{id?}")]
     public class TaxFixedRateController : AdminController
     {
         private readonly SmartDbContext _db;

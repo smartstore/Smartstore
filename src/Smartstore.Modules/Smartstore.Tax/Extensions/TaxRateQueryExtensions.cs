@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Smartstore.Tax.Domain;
 
-namespace Smartstore.Tax.Extensions
+namespace Smartstore.Tax
 {
     public static class TaxRateQueryExtensions
     {
@@ -13,12 +13,17 @@ namespace Smartstore.Tax.Extensions
         /// <param name="taxCategoryId">Tax category identifier.</param>
         /// <param name="countryId">Country identifier.</param>
         /// <param name="stateProvinceId">State province identifier.</param>
-        /// <param name="zip">Zip code to filter for.</param>
+        /// <param name="zip">Zip code to filter by.</param>
         /// <returns>Forum query.</returns>
         public static IQueryable<TaxRateEntity> ApplyStandardFilter(this IQueryable<TaxRateEntity> query, 
-            int taxCategoryId, int countryId, int stateProvinceId, string zip)
+            int? taxCategoryId, 
+            int? countryId, 
+            int? stateProvinceId, 
+            string zip)
         {
             Guard.NotNull(query, nameof(query));
+
+            // TODO: (mh) (core) Please don't overuse "ApplyStandardFilter" method for every shit. This is NOT a standard filter, it is very specific!
 
             if (zip == null)
             {

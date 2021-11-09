@@ -5,7 +5,7 @@
   "Description": "Contains default tax providers like FixedRate & ByRegion",
   "Version": "5.0",
   "MinAppVersion": "5.0",
-  "Order": 1,
+  "Order": 0,
   "AssemblyName": "Smartstore.Tax.dll",
-  "ResourceRootKey": "Plugins.Tax"
+  "ResourceRootKey": "Plugins.SmartStore.Tax"
 }

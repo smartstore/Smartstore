@@ -9,6 +9,7 @@ using Smartstore.Engine.Builders;
 
 namespace Smartstore.Tax
 {
+    // TODO: (mh) (core) Please don't change ResourceRootKey in modules!
     internal class Startup : StarterBase
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)

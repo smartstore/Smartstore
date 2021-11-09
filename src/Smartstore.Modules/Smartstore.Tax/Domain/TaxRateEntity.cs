@@ -4,6 +4,10 @@ using Smartstore.Domain;
 
 namespace Smartstore.Tax.Domain
 {
+    // TODO: (mh) (core) We can define cross-project navigation properties in Core (was impossible in Classic).
+    // Please define props: TaxCategory, Country, StateProvince along with proper mapping information and migration.
+    // Refactor calling code where applicable.
+    
     /// <summary>
     /// Represents a tax rate.
     /// </summary>
