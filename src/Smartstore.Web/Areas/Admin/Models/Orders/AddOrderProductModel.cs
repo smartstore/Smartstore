@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
@@ -8,9 +9,11 @@ using Smartstore.Web.Rendering.Choices;
 namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.Orders.Products.AddNew.")]
-    public partial class AddOrderProductModel : EntityModelBase
+    public partial class AddOrderProductModel : ModelBase
     {
         public int OrderId { get; set; }
+
+        public int ProductId { get; set; }
         public ProductType ProductType { get; set; }
         public string Name { get; set; }
 
@@ -38,7 +41,7 @@ namespace Smartstore.Admin.Models.Orders
         public bool ShowUpdateTotals { get; set; }
 
         public string GiftCardFieldPrefix 
-            => GiftCardQueryItem.CreateKey(Id, 0, null);
+            => GiftCardQueryItem.CreateKey(ProductId, 0, null);
 
         public GiftCardModel GiftCard { get; set; } = new();
 
@@ -91,7 +94,8 @@ namespace Smartstore.Admin.Models.Orders
             
             [LocalizedDisplay("*SenderEmail")]
             public string SenderEmail { get; set; }
-            
+
+            [UIHint("Textarea"), AdditionalMetadata("rows", 4)]
             [LocalizedDisplay("*Message")]
             public string Message { get; set; }
         }

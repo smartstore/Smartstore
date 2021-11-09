@@ -34,32 +34,33 @@
             </caption>
             <thead>
                 <tr>
-                    <th>
+                    <th style="width: 25%;">
                         @T("Admin.Orders.Products.ProductName")
                     </th>
-                    <th sm-if="Model.HasDownloadableProducts">
+                    <th sm-if="Model.HasDownloadableProducts" style="width: 10%;">
                         @T("Admin.Orders.Products.Download")
                     </th>
-                    <th class="text-center">
+                    <th class="text-center" style="width: 18%;">
                         @T("Admin.Orders.Products.Price")
                     </th>
-                    <th class="text-center">
+                    <th class="text-center" style="width: 8%;">
                         @T("Admin.Orders.Products.Quantity")
                     </th>
-                    <th class="text-center">
+                    <th class="text-center" style="width: 18%;">
                         @T("Admin.Orders.Products.Discount")
                     </th>
-                    <th class="text-center">
+                    <th class="text-center" style="width: 18%;">
                         @T("Admin.Orders.Products.Total")
                     </th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.Items)
+                @for (var i = 0; i < Model.Items.Count; i++)
                 {
+                    var item = Model.Items[i];
                     <tr>
-                        <td class="w-25 align-top">
+                        <td class="align-top">
                             <div>
                                 <div class="mb-2">
                                     @Html.BadgedProductName(item.ProductId, item.ProductName, item.ProductTypeName, item.ProductTypeLabelHint)
@@ -108,16 +109,16 @@
                                 <div sm-if="item.PurchasedGiftCardIds.Any()">
                                     <hr />
                                     @(T("Admin.Orders.Products.GiftCards")):
-                                    @for (var i = 0; i < item.PurchasedGiftCardIds.Count; i++)
+                                    @for (var j = 0; j < item.PurchasedGiftCardIds.Count; j++)
                                     {
-                                        <a asp-action="Edit" asp-controller="GiftCard" asp-route-id="@item.PurchasedGiftCardIds[i]">@item.PurchasedGiftCardIds[i]</a>
-                                        if (i != item.PurchasedGiftCardIds.Count - 1)
+                                        <a asp-action="Edit" asp-controller="GiftCard" asp-route-id="@item.PurchasedGiftCardIds[j]">@item.PurchasedGiftCardIds[j]</a>
+                                        if (j != item.PurchasedGiftCardIds.Count - 1)
                                         { <text>,</text>}
                                 }
                                 </div>
                             </div>
                         </td>
-                        <td sm-if="Model.HasDownloadableProducts" style="width: 10%;" class="align-top text-center">
+                        <td sm-if="Model.HasDownloadableProducts" class="align-top text-center">
                             <div sm-if="item.IsDownload">
                                 <div>
                                     @T("Admin.Orders.Products.Download.DownloadCount", item.DownloadCount)
@@ -146,7 +147,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td style="width: 15%;" class="align-top">
+                        <td class="align-top">
                             <div class="text-center">
                                 @if (taxTypeSelectable)
                                 {
@@ -161,84 +162,80 @@
                             <div id="pnlEditUnitPrice@(item.Id)" class="order-edit-cnt mt-3">
                                 <div class="container mb-1">
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-5">
                                             <span class="edit-label">@T("Admin.Orders.Products.Edit.InclTax")</span>
                                         </div>
-                                        <div class="col-6">
-                                            <input type="text" id="pvUnitPriceInclTax@(item.Id)" name="pvUnitPriceInclTax@(item.Id)"
-                                                   value="@item.UnitPriceInclTax" class="form-control form-control-sm edit-value" />
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].UnitPriceInclTax" class="form-control-sm edit-value" data-id="oi-unit-price-incl-tax-@item.Id" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="container mb-1">
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-5">
                                             <span class="edit-label">@T("Admin.Orders.Products.Edit.ExclTax")</span>
                                         </div>
-                                        <div class="col-6">
-                                            <input type="text" id="pvUnitPriceExclTax@(item.Id)" name="pvUnitPriceExclTax@(item.Id)"
-                                                   value="@item.UnitPriceExclTax" class="form-control form-control-sm edit-value" />
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].UnitPriceExclTax" class="form-control-sm edit-value" data-id="oi-unit-price-excl-tax-@item.Id" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="container mb-1">
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-5">
                                             <span class="edit-label">@T("Admin.Orders.Products.AddNew.TaxRate")</span>
                                         </div>
-                                        <div class="col-6">
-                                            <input type="text" id="pvTaxRate@(item.Id)" name="pvTaxRate@(item.Id)" value="@item.TaxRate" class="form-control form-control-sm edit-value" />
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].TaxRate" class="form-control-sm edit-value" data-id="oi-tax-rate-@item.Id" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </td>
-                        <td style="width: 5%" class="text-center align-top">
+                        <td class="text-center align-top">
                             <div>@item.Quantity</div>
                             <div id="pnlEditQuantity@(item.Id)" class="order-edit-cnt mt-3">
                                 <div class="mb-1">
-                                    <input type="text" id="pvQuantity@(item.Id)" name="pvQuantity@(item.Id)" value="@item.Quantity" class="form-control form-control-sm edit-value" />
+                                    <editor asp-for="Items[i].Quantity" class="form-control-sm edit-value" data-id="oi-quantity-@item.Id" />
                                 </div>
                             </div>
                         </td>
-                        <td style="width: 14%;" class="text-center align-top">
+                        <td class="text-center align-top">
                             <div>
                                 @if (taxTypeSelectable)
                                 {
-                                    <div>@item.DiscountInclTaxString</div>
-                                    <div>@item.DiscountExclTaxString</div>
+                                    <div>@item.DiscountAmountInclTaxString</div>
+                                    <div>@item.DiscountAmountExclTaxString</div>
                                 }
                                 else
                                 {
-                                    @(taxType == TaxDisplayType.ExcludingTax ? item.DiscountExclTaxString : item.DiscountInclTaxString)
+                                    @(taxType == TaxDisplayType.ExcludingTax ? item.DiscountAmountExclTaxString : item.DiscountAmountInclTaxString)
                                 }
                             </div>
                             <div id="pnlEditDiscount@(item.Id)" class="order-edit-cnt mt-3">
                                 <div class="container mb-1">
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-5">
                                             <span class="edit-label">@T("Admin.Orders.Products.Edit.InclTax")</span>
                                         </div>
-                                        <div class="col-6">
-                                            <input type="text" id="pvDiscountInclTax@(item.Id)" name="pvDiscountInclTax@(item.Id)"
-                                                   value="@item.DiscountInclTax" class="form-control form-control-sm edit-value" />
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].DiscountAmountInclTax" class="form-control-sm edit-value" data-id="oi-discount-incl-tax-@item.Id" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="container mb-1">
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-5">
                                             <span class="edit-label">@T("Admin.Orders.Products.Edit.ExclTax")</span>
                                         </div>
-                                        <div class="col-6">
-                                            <input type="text" id="pvDiscountExclTax@(item.Id)" name="pvDiscountExclTax@(item.Id)"
-                                                   value="@item.DiscountExclTax" class="form-control form-control-sm edit-value" />
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].DiscountAmountExclTax" class="form-control-sm edit-value" data-id="oi-discount-excl-tax-@item.Id" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </td>
-                        <td style="width: 14%" class="text-center align-top">
+                        <td class="text-center align-top">
                             <div>
                                 @if (taxTypeSelectable)
                                 {
@@ -253,30 +250,28 @@
                             <div id="pnlEditPrice@(item.Id)" class="order-edit-cnt mt-3">
                                 <div class="container mb-1">
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-5">
                                             <span class="edit-label">@T("Admin.Orders.Products.Edit.InclTax")</span>
                                         </div>
-                                        <div class="col-6">
-                                            <input type="text" id="pvPriceInclTax@(item.Id)" name="pvPriceInclTax@(item.Id)"
-                                                   value="@item.PriceInclTax" class="form-control form-control-sm edit-value" />
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].PriceInclTax" class="form-control-sm edit-value" data-id="oi-price-incl-tax-@item.Id" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="container mb-1">
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-5">
                                             <span class="edit-label">@T("Admin.Orders.Products.Edit.ExclTax")</span>
                                         </div>
-                                        <div class="col-6">
-                                            <input type="text" id="pvPriceExclTax@(item.Id)" name="pvPriceExclTax@(item.Id)"
-                                                   value="@item.PriceExclTax" class="form-control form-control-sm edit-value" />
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].PriceExclTax" class="form-control-sm edit-value" data-id="oi-price-excl-tax-@item.Id" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </td>
-                        <td class="omega text-truncate align-top" style="width: 27%;">
+                        <td class="omega text-truncate align-top">
                             <input sm-if="item.IsReturnRequestPossible" type="submit" id="btnAddReturnRequest@(item.Id)" name="btnAddReturnRequest@(item.Id)"
                                    value="@T("Admin.Orders.Products.ReturnRequest.Create")"
                                    class="btn btn-sm btn-secondary confirm" />
@@ -366,14 +361,14 @@
             form.prop('action', btn.data('url'));
 
             if (btn.hasClass('btn-save-orderitem')) {
-                form.find('input[name=NewQuantity]').val(orderItemTable.find('input[name=pvQuantity' + orderItemId + ']').val());
-                form.find('input[name=NewUnitPriceInclTax]').val(orderItemTable.find('input[name=pvUnitPriceInclTax' + orderItemId + ']').val());
-                form.find('input[name=NewUnitPriceExclTax]').val(orderItemTable.find('input[name=pvUnitPriceExclTax' + orderItemId + ']').val());
-                form.find('input[name=NewTaxRate]').val(orderItemTable.find('input[name=pvTaxRate' + orderItemId + ']').val());
-                form.find('input[name=NewDiscountInclTax]').val(orderItemTable.find('input[name=pvDiscountInclTax' + orderItemId + ']').val());
-                form.find('input[name=NewDiscountExclTax]').val(orderItemTable.find('input[name=pvDiscountExclTax' + orderItemId + ']').val());
-                form.find('input[name=NewPriceInclTax]').val(orderItemTable.find('input[name=pvPriceInclTax' + orderItemId + ']').val());
-                form.find('input[name=NewPriceExclTax]').val(orderItemTable.find('input[name=pvPriceExclTax' + orderItemId + ']').val());
+                form.find('input[name=NewUnitPriceInclTax]').val(orderItemTable.find('[data-id=oi-unit-price-incl-tax-' + orderItemId + ']').val());
+                form.find('input[name=NewUnitPriceExclTax]').val(orderItemTable.find('[data-id=oi-unit-price-excl-tax-' + orderItemId + ']').val());
+                form.find('input[name=NewTaxRate]').val(orderItemTable.find('[data-id=oi-tax-rate-' + orderItemId + ']').val());
+                form.find('input[name=NewQuantity]').val(orderItemTable.find('[data-id=oi-quantity-' + orderItemId + ']').val());
+                form.find('input[name=NewDiscountInclTax]').val(orderItemTable.find('[data-id=oi-discount-incl-tax-' + orderItemId + ']').val());
+                form.find('input[name=NewDiscountExclTax]').val(orderItemTable.find('[data-id=oi-discount-excl-tax-' + orderItemId + ']').val());
+                form.find('input[name=NewPriceInclTax]').val(orderItemTable.find('[data-id=oi-price-incl-tax-' + orderItemId + ']').val());
+                form.find('input[name=NewPriceExclTax]').val(orderItemTable.find('[data-id=oi-price-excl-tax-' + orderItemId + ']').val());
             }
 
             $('#update-orderitem-dialog').modal();

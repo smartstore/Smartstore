@@ -215,7 +215,7 @@ namespace Smartstore.Admin.Controllers
 
                     return continueEditing
                        ? RedirectToAction(nameof(Edit), new { id = shipment.Id })
-                       : RedirectToReferrer();
+                       : RedirectToAction(nameof(OrderController.Edit), "Order", new { id = order.Id });
                 }
                 else
                 {
@@ -275,7 +275,7 @@ namespace Smartstore.Admin.Controllers
 
                 return continueEditing
                     ? RedirectToAction(nameof(Edit), new { id = shipment.Id })
-                    : RedirectToReferrer();
+                    : RedirectToAction(nameof(OrderController.Edit), "Order", new { id = shipment.OrderId });
             }
 
             await PrepareShipmentModel(model, shipment, true);
@@ -306,7 +306,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderNumber);
             NotifySuccess(T("Admin.Orders.Shipments.Deleted"));
 
-            return RedirectToAction(nameof(Edit), new { id = orderId });
+            return RedirectToAction(nameof(OrderController.Edit), "Order", new { id = orderId });
         }
 
         [HttpPost]
@@ -473,8 +473,8 @@ namespace Smartstore.Admin.Controllers
                 ? Services.DateTimeHelper.ConvertToUserTime(shipment.DeliveryDateUtc.Value, DateTimeKind.Utc) 
                 : null;
 
-            model.EditUrl = Url.Action("Edit", "Shipment", new { id = shipment.Id, area = "Admin" });
-            model.OrderEditUrl = Url.Action("Edit", "Order", new { id = shipment.OrderId, area = "Admin" });
+            model.EditUrl = Url.Action(nameof(Edit), "Shipment", new { id = shipment.Id, area = "Admin" });
+            model.OrderEditUrl = Url.Action(nameof(OrderController.Edit), "Order", new { id = shipment.OrderId, area = "Admin" });
 
             if (forEdit)
             {

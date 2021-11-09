@@ -307,11 +307,11 @@ namespace Smartstore.Admin.Models.Orders
             public decimal TaxRate { get; set; }
             public int Quantity { get; set; }
 
-            public decimal DiscountInclTax { get; set; }
-            public string DiscountInclTaxString { get; set; }
+            public decimal DiscountAmountInclTax { get; set; }
+            public string DiscountAmountInclTaxString { get; set; }
 
-            public decimal DiscountExclTax { get; set; }
-            public string DiscountExclTaxString { get; set; }
+            public decimal DiscountAmountExclTax { get; set; }
+            public string DiscountAmountExclTaxString { get; set; }
 
             public string AttributeDescription { get; set; }
             public string RecurringInfo { get; set; }

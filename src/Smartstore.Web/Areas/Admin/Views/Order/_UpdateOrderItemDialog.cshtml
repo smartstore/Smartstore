@@ -3,7 +3,7 @@
 <modal id="update-orderitem-dialog" sm-render-at-page-end="true">
     <modal-header sm-title="@Model.Caption"></modal-header>
     <modal-body>
-        <form id="update-orderitem-form" method="post" action="@(Model.PostUrl ?? "#")">
+        <form id="update-orderitem-form" asp-antiforgery="true" method="post" action="@(Model.PostUrl ?? "#")">
             <input type="hidden" name="Id" value="@Model.Id" />
             <input type="hidden" name="NewQuantity" />
             <input type="hidden" name="NewUnitPriceInclTax" />

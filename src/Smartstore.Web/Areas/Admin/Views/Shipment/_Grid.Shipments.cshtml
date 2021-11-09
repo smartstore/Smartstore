@@ -10,6 +10,7 @@
     }
 
     var isOrderEditPage = orderId > 0;
+    var sortDesc = !isOrderEditPage;
 
     var displayPdfPackagingSlip = ViewBag.DisplayPdfPackagingSlip != null
         ? (bool)ViewBag.DisplayPdfPackagingSlip
@@ -24,7 +25,7 @@
     <datasource read="@Url.Action("ShipmentList", "Shipment", new { orderId })" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false" enabled="!isOrderEditPage">
-        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="@sortDesc" />
     </sorting>
     <toolbar>
         @if (isOrderEditPage)
@@ -46,14 +47,14 @@
             <toolbar-group class="dropdown">
                 <button type="button" class="btn btn-flat btn-light dropdown-toggle" data-toggle="dropdown">
                     <i class="fa fa-print"></i>
-                    <span>Drucken</span>
+                    <span>@T("Admin.Common.Print")</span>
                 </button>
                 <div class="dropdown-menu">
-                    <a id="packaging-slip-all" class="dropdown-item" href="javascript:;">
-                        @T("Admin.Orders.Shipments.PrintPackagingSlip.All")
-                    </a>
                     <a id="packaging-slip-selected" class="dropdown-item" href="javascript:;" v-bind:class="{ 'disabled': !grid.hasSelection }">
                         @T("Admin.Orders.Shipments.PrintPackagingSlip.Selected")
+                    </a>
+                    <a id="packaging-slip-all" class="dropdown-item" href="javascript:;">
+                        @T("Admin.Orders.Shipments.PrintPackagingSlip.All")
                     </a>
                 </div>
             </toolbar-group>

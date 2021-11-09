@@ -230,6 +230,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Common.ViewObject", "View (#{0})", "Ansicht (#{0})");
             builder.AddOrUpdate("Admin.Common.FileName", "File name", "Dateiname");
             builder.AddOrUpdate("Admin.Common.FileSize", "File size", "Dateigröße");
+            builder.AddOrUpdate("Admin.Common.Print", "Print", "Drucken");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup", "Database backups", "Datenbanksicherungen");
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Download", "Download database backup", "Datenbanksicherung herunterladen");
@@ -275,6 +276,11 @@ namespace Smartstore.Core.Data.Migrations
                 "Das Produkt kann nicht heruntergeladen werden.");
 
             builder.AddOrUpdate("Admin.Orders.ProcessWithOrder", "Continue with order {0}?", "Mit Auftrag {0} fortfahren?");
+
+            builder.AddOrUpdate(
+                "Admin.Orders.OrderItem.CannotDeleteAssociatedGiftCards",
+                "The order item cannot be deleted because gift cards are assigned to it. Please delete the gift cards first.",
+                "Die Auftragsposition kann nicht gelöscht werden, weil ihr Geschenkgutscheine zugeordnet sind. Bitte löschen Sie zunächst die Geschenkgutscheine.");
 
             #endregion
 

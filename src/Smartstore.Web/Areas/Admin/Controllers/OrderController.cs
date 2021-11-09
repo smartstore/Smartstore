@@ -940,14 +940,13 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Order.EditItem)]
-        public async Task<IActionResult> EditOrderItem(UpdateOrderItemModel model)
+        public async Task<IActionResult> EditOrderItem(UpdateOrderItemModel model, IFormCollection form)
         {
-            // INFO: UpdateOrderDetailsAsync performs commit.
             var orderItem = await _db.OrderItems
                 .Include(x => x.Order)
                 .FindByIdAsync(model.Id);
 
-            if (orderItem != null)
+            if (orderItem == null)
             {
                 return NotFound();
             }
@@ -968,6 +967,7 @@ namespace Smartstore.Admin.Controllers
                 NewPriceExclTax = model.NewPriceExclTax
             };
 
+            // INFO: UpdateOrderDetailsAsync performs commit.
             await _orderProcessingService.UpdateOrderDetailsAsync(orderItem, context);
 
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderItem.Order.GetOrderNumber());
@@ -982,11 +982,20 @@ namespace Smartstore.Admin.Controllers
         {
             var orderItem = await _db.OrderItems
                 .Include(x => x.Order)
+                .Include(x => x.Product)
                 .FindByIdAsync(model.Id);
 
             if (orderItem == null)
             {
                 return NotFound();
+            }
+
+            if (orderItem.Product.IsGiftCard &&
+                await _db.GiftCards.AnyAsync(x => x.PurchasedWithOrderItemId == orderItem.Id))
+            {
+                NotifyError(T("Admin.Orders.OrderItem.CannotDeleteAssociatedGiftCards"));
+
+                return RedirectToAction(nameof(Edit), new { id = orderItem.OrderId });
             }
 
             var context = new UpdateOrderDetailsContext
@@ -1456,7 +1465,7 @@ namespace Smartstore.Admin.Controllers
             var product = await _db.Products
                 .Include(x => x.ProductVariantAttributes)
                 .ThenInclude(x => x.ProductAttribute)
-                .FindByIdAsync(model.Id);
+                .FindByIdAsync(model.ProductId);
 
             if (order == null || product == null)
             {
@@ -1987,7 +1996,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (product == null)
             {
-                throw new ArgumentException(T("Products.NotFound", model.Id));
+                throw new ArgumentException(T("Products.NotFound", model.ProductId));
             }
 
             var customer = Services.WorkContext.CurrentCustomer;
@@ -2002,8 +2011,8 @@ namespace Smartstore.Admin.Controllers
             var unitPrice = await _priceCalculationService.Value.CalculatePriceAsync(calculationContext);
             var priceTax = unitPrice.Tax.Value;
 
-            model.Id = product.Id;
             model.OrderId = order.Id;
+            model.ProductId = product.Id;
             model.Name = product.GetLocalized(x => x.Name);
             model.ProductType = product.ProductType;
             model.UnitPriceInclTax = priceTax.PriceGross;
@@ -2133,8 +2142,8 @@ namespace Smartstore.Admin.Controllers
                 model.UnitPriceExclTaxString = Format(item.UnitPriceExclTax, false, true);
                 model.PriceInclTaxString = Format(item.PriceInclTax, true, true);
                 model.PriceExclTaxString = Format(item.PriceExclTax, false, true);
-                model.DiscountInclTaxString = Format(item.DiscountAmountInclTax, true, true);
-                model.DiscountExclTaxString = Format(item.DiscountAmountExclTax, false, true);
+                model.DiscountAmountInclTaxString = Format(item.DiscountAmountInclTax, true, true);
+                model.DiscountAmountExclTaxString = Format(item.DiscountAmountExclTax, false, true);
 
                 if (product.IsRecurring)
                 {

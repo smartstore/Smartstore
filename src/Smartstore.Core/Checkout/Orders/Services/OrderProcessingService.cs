@@ -653,7 +653,7 @@ namespace Smartstore.Core.Checkout.Orders
                 decimal priceExclTax = currency.RoundIfEnabledFor(newQuantity * oi.UnitPriceExclTax);
 
                 decimal priceInclTaxDiff = priceInclTax - oldPriceInclTax;
-                decimal priceExclTaxDiff = priceInclTax - oldPriceExclTax;
+                decimal priceExclTaxDiff = priceExclTax - oldPriceExclTax;
 
                 oi.Quantity = newQuantity;
                 oi.PriceInclTax = currency.RoundIfEnabledFor(priceInclTax);
