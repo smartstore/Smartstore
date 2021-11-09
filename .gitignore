@@ -281,7 +281,7 @@ logs/
 *-sym.*
 *-symdir/
 [Ee]xternal[Ff]iles/
-/src/Modules/*-sym
+/src/Smartstore.Modules/*-sym
 /src/Tests/*-sym
 /src/Smartstore.Web/Themes/*-sym
 /src/Smartstore.Web/Themes/HP
