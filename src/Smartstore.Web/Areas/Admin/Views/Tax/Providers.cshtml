@@ -1,0 +1,31 @@
+﻿@using Smartstore.Admin.Models.Tax
+
+@model IEnumerable<TaxProviderModel>
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Tax.Providers").Value;
+}
+
+<div class="section-header">
+    <div class="title">
+        @ViewBag.Title
+    </div>
+</div>
+
+<div>
+    @(await Html.ProviderList(Model,
+        @<a style="min-width: 250px" href="@Url.Action("ActivateProvider", new { systemName = item.SystemName })"
+			data-systemname="@item.SystemName" data-activate="@(!item.IsPrimaryTaxProvider ? "true" : "false")"
+			class="activate-provider btn @(item.IsPrimaryTaxProvider ? "btn-success" : "btn-secondary btn-to-danger")">
+			@if (item.IsPrimaryTaxProvider)
+			{
+				<i class="fa fa-check"></i>
+				<span>@T("Admin.Configuration.Tax.Providers.Fields.IsPrimaryTaxProvider")</span>
+			}
+			else
+			{
+				<span>@T("Admin.Configuration.Tax.Providers.Fields.MarkAsPrimaryProvider")</span>
+			}
+		</a>)
+	)
+</div>

@@ -1,0 +1,11 @@
+﻿@{
+    ViewBag.Title = T("Admin.Configuration.Tax.Categories").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+<div class="section-header">
+    <div class="title">
+        @T("Admin.Configuration.Tax.Categories")
+    </div>
+</div>
+
+<partial name="_Grid.Categories" model="null" />

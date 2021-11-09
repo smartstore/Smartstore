@@ -71,6 +71,10 @@ namespace Smartstore.Core.Data.Migrations
             #region General
 
             // TODO: (core) Delete all Telerik language resources (???)
+            
+            builder.AddOrUpdate("Admin.Tax.Categories.NoDuplicatesAllowed",
+                "A tax category with this name already exists. Please choose another name.",
+                "Eine Steuerklasse mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen.");
 
             builder.AddOrUpdate("Admin.Customers.Customers.List.SearchCustomerNumber", "Customer number", "Kundennummer");
 
