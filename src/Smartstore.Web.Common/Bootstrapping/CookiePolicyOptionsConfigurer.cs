@@ -38,9 +38,7 @@ namespace Smartstore.Web.Bootstrapping
 
             // Whether to allow the use of cookies from SSL protected page on the other store pages which are not protected
             options.Secure = _storeContext.CurrentStore.SslEnabled ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.None;
-            //options.Secure = CookieSecurePolicy.None;
 
-            // TODO: (core) Won't be called for guest cookie (.Smart.Visitor)
             options.OnAppendCookie = (e) =>
             {
                 var webHelper = e.Context.RequestServices.GetRequiredService<IWebHelper>();

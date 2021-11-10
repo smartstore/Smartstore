@@ -27,6 +27,7 @@ namespace Smartstore.Web
         private readonly ICustomerService _customerService;
         private readonly Lazy<ITaxService> _taxService;
         private readonly Lazy<ICurrencyService> _currencyService;
+        private readonly PrivacySettings _privacySettings;
         private readonly TaxSettings _taxSettings;
         private readonly ICacheManager _cache;
         private readonly IUserAgent _userAgent;
@@ -50,6 +51,7 @@ namespace Smartstore.Web
             ICustomerService customerService,
             Lazy<ITaxService> taxService,
             Lazy<ICurrencyService> currencyService,
+            PrivacySettings privacySettings,
             TaxSettings taxSettings,
             ICacheManager cache,
             IUserAgent userAgent,
@@ -61,6 +63,7 @@ namespace Smartstore.Web
             _languageResolver = languageResolver;
             _storeContext = storeContext;
             _customerService = customerService;
+            _privacySettings = privacySettings;
             _taxSettings = taxSettings;
             _taxService = taxService;
             _currencyService = currencyService;
@@ -194,8 +197,21 @@ namespace Smartstore.Web
                 {
                     Expires = cookieExpiry,
                     HttpOnly = true,
-                    IsEssential = true
+                    IsEssential = true,
+                    Secure = _webHelper.IsCurrentConnectionSecured(),
+                    SameSite = SameSiteMode.Lax
                 };
+
+                // INFO: Global OnAppendCookie does not always run for visitor cookie.
+                if (cookieOptions.Secure)
+                {
+                    cookieOptions.SameSite = _privacySettings.SameSiteMode;
+                }
+
+                if (context.Request.PathBase.HasValue)
+                {
+                    cookieOptions.Path = context.Request.PathBase;
+                }
 
                 var cookies = context.Response.Cookies;
                 try
