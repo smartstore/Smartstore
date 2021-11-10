@@ -57,11 +57,7 @@ namespace Smartstore.Admin.Controllers
                 model.IsActive = urlRecord.IsActive;
                 model.LanguageId = urlRecord.LanguageId;
 
-                var routeValues = SlugRouteTransformer.Routers
-                    .Select(x => x.GetRouteValues(urlRecord, null, RouteTarget.Edit))
-                    .Where(x => x != null)
-                    .FirstOrDefault();
-
+                var routeValues = SlugRouteTransformer.GetRouteValuesFor(urlRecord, RouteTarget.Edit);
                 if (routeValues != null)
                 {
                     model.EntityUrl = Url.RouteUrl(routeValues);
