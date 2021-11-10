@@ -6,7 +6,7 @@ namespace Smartstore.Tax
     public static class TaxRateQueryExtensions
     {
         /// <summary>
-        /// Applies a standard filter and sorts by <see cref="TaxRateEntity.CountryId"/>, then by <see cref="TaxRateEntity.StateProvinceId"/>, 
+        /// Applies a region filter and sorts by <see cref="TaxRateEntity.CountryId"/>, then by <see cref="TaxRateEntity.StateProvinceId"/>, 
         /// then by <see cref="TaxRateEntity.Zip"/>, then by <see cref="TaxRateEntity.TaxCategoryId"/>.
         /// </summary>
         /// <param name="query">TaxRateEntity query.</param>
@@ -15,15 +15,13 @@ namespace Smartstore.Tax
         /// <param name="stateProvinceId">State province identifier.</param>
         /// <param name="zip">Zip code to filter by.</param>
         /// <returns>Forum query.</returns>
-        public static IQueryable<TaxRateEntity> ApplyStandardFilter(this IQueryable<TaxRateEntity> query, 
+        public static IQueryable<TaxRateEntity> ApplyRegionFilter(this IQueryable<TaxRateEntity> query, 
             int? taxCategoryId, 
             int? countryId, 
             int? stateProvinceId, 
             string zip)
         {
             Guard.NotNull(query, nameof(query));
-
-            // TODO: (mh) (core) Please don't overuse "ApplyStandardFilter" method for every shit. This is NOT a standard filter, it is very specific!
 
             if (zip == null)
             {

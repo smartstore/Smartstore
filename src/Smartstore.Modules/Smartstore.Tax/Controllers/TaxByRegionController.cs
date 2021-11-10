@@ -1,19 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Tax.Domain;
 using Smartstore.Tax.Models;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Smartstore.Tax.Controllers
 {
@@ -72,52 +69,6 @@ namespace Smartstore.Tax.Controllers
             ViewBag.Provider = _taxService.LoadTaxProviderBySystemName("Tax.CountryStateZip").Metadata;
         }
 
-        private async Task<List<ByRegionTaxRateModel>> PrepareModelAsync(IPagedList<TaxRateEntity> taxRates)
-        {
-            var taxCategories = await _db.TaxCategories
-                .AsNoTracking()
-                .ToDictionaryAsync(x => x.Id);
-
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToDictionaryAsync(x => x.Id);
-
-            var stateProvinces = await _db.StateProvinces
-                .AsNoTracking()
-                .ToDictionaryAsync(x => x.Id);
-
-            var unavailable = T("Common.Unavailable").Value;
-
-            var taxRateModels = taxRates.Select(x =>
-            {
-                var m = new ByRegionTaxRateModel
-                {
-                    Id = x.Id,
-                    TaxCategoryId = x.TaxCategoryId,
-                    CountryId = x.CountryId,
-                    StateProvinceId = x.StateProvinceId,
-                    Zip = x.Zip.HasValue() ? x.Zip : "*",
-                    Percentage = x.Percentage
-                };
-
-                // TODO: (mh) (core) You don't need following stuff with navigation properties which you include in your query.
-                taxCategories.TryGetValue(x.TaxCategoryId, out TaxCategory tc);
-                m.TaxCategoryName = tc?.Name.EmptyNull();
-
-                countries.TryGetValue(x.CountryId, out Country c);
-                m.CountryName = c?.Name ?? unavailable;
-
-                stateProvinces.TryGetValue(x.StateProvinceId, out StateProvince s);
-                m.StateProvinceName = s?.Name ?? "*";
-
-                return m;
-            })
-            .ToList();
-
-            return taxRateModels;
-        }
-
         public IActionResult Index()
         {
             return RedirectToAction(nameof(Configure));
@@ -139,14 +90,33 @@ namespace Smartstore.Tax.Controllers
         [Permission(Permissions.Configuration.Tax.Read)]
         public async Task<IActionResult> List(GridCommand command)
         {
+            // INFO: We load untracked because we need all the navigation properties.
             var taxRates = await _db.TaxRates()
-                .AsNoTracking()
-                .ApplyStandardFilter(null, null, null, null) // INFO: (mh) (core) Don't violate DRY principle
+                .ApplyRegionFilter(null, null, null, null)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var taxRateModels = await PrepareModelAsync(taxRates);
+            var unavailable = T("Common.Unavailable").Value;
+
+            var taxRateModels = taxRates.Select(x =>
+            {
+                var m = new ByRegionTaxRateModel
+                {
+                    Id = x.Id,
+                    TaxCategoryId = x.TaxCategoryId,
+                    CountryId = x.CountryId,
+                    StateProvinceId = x.StateProvinceId,
+                    Zip = x.Zip.HasValue() ? x.Zip : "*",
+                    Percentage = x.Percentage,
+                    TaxCategoryName = x.TaxCategory?.Name.EmptyNull(),
+                    CountryName = x.Country?.Name ?? unavailable,
+                    StateProvinceName = x.StateProvince?.Name ?? "*"
+                };
+
+                return m;
+            })
+            .ToList();
 
             var gridModel = new GridModel<ByRegionTaxRateModel>
             {

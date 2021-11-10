@@ -1,12 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Smartstore.Tax
 {
@@ -53,7 +52,7 @@ namespace Smartstore.Tax
 
             var taxRates = await _db.TaxRates()
                 .AsNoTracking()
-                .ApplyStandardFilter(
+                .ApplyRegionFilter(
                     request.TaxCategoryId,
                     request.Address.Country?.Id,
                     request.Address.StateProvince?.Id,
