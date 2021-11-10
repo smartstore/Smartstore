@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
+using Org.BouncyCastle.Crypto.Signers;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
@@ -201,25 +202,45 @@ namespace Smartstore
 
         #region Remove
 
-        // TODO: (core) this way deleting via stub produces a DbUpdateConcurrencyException ("The database operation was expected to affect 1 row(s), but actually affected 0 row(s)...")
-        // if there is no entity with this ID.
-
         public static void Remove<TEntity>(this DbSet<TEntity> dbSet, int id) where TEntity : BaseEntity, new()
         {
             Guard.NotZero(id, nameof(id));
 
-            dbSet.Remove(new TEntity { Id = id });
+            var entity = dbSet.GetDbContext().FindTracked<TEntity>(id);
+            if (entity == null && dbSet.Any(x => x.Id == id))
+            {
+                entity = new TEntity { Id = id };
+            }
+
+            if (entity != null)
+            {
+                dbSet.Remove(entity);
+            }
         }
 
         public static void RemoveRange<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids) where TEntity : BaseEntity, new()
         {
             Guard.NotNull(ids, nameof(ids));
 
-            var entities = ids
-                .Where(id => id > 0)
-                .Select(id => new TEntity { Id = id });
+            var distinctIds = ids.Where(id => id > 0).Distinct();
+            if (!distinctIds.Any())
+            {
+                return;
+            }
 
-            dbSet.RemoveRange(entities);
+            var context = dbSet.GetDbContext();
+
+            var localEntities = distinctIds
+                .Select(id => context.FindTracked<TEntity>(id))
+                .ToList();
+
+            var untrackedIds = distinctIds.Except(localEntities.Select(x => x.Id)).ToArray();
+            var dbEntities = dbSet
+                .Where(x => untrackedIds.Contains(x.Id))
+                .Select(x => new TEntity { Id = x.Id })
+                .ToList();
+
+            dbSet.RemoveRange(localEntities.Concat(dbEntities));
         }
 
         /// <summary>
