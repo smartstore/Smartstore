@@ -15,6 +15,15 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("Admin.Common.Store.SearchFor")]
         public int SearchStoreId { get; set; }
 
+        [LocalizedDisplay("Admin.Orders.List.CustomerEmail")]
+        public string CustomerEmail { get; set; }
+
+        [LocalizedDisplay("Admin.Orders.List.CustomerName")]
+        public string CustomerName { get; set; }
+
+        [LocalizedDisplay("Admin.Orders.List.OrderNumber")]
+        public string OrderNumber { get; set; }
+
         public ReturnRequestStatus? SearchReturnRequestStatus
             => SearchReturnRequestStatusId.HasValue ? (ReturnRequestStatus)SearchReturnRequestStatusId.Value : null;
     }

@@ -14,10 +14,12 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
@@ -70,6 +72,31 @@ namespace Smartstore.Admin.Controllers
                 query = query.Where(x => x.ReturnRequestStatusId == model.SearchReturnRequestStatusId.Value);
             }
 
+            if (model.CustomerEmail.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Customer.BillingAddress.Email, model.CustomerEmail);
+            }
+
+            if (model.CustomerName.HasValue())
+            {
+                query = query.Where(x => 
+                    x.Customer.BillingAddress.LastName.Contains(model.CustomerName) || 
+                    x.Customer.BillingAddress.FirstName.Contains(model.CustomerName));
+            }
+
+            if (model.OrderNumber.HasValue())
+            {
+                var orderQuery = int.TryParse(model.OrderNumber, out var orderId) && orderId != 0
+                    ? _db.Orders.Where(x => x.OrderNumber.Contains(model.OrderNumber) || x.Id == orderId)
+                    : _db.Orders.Where(x => x.OrderNumber.Contains(model.OrderNumber));
+
+                query =
+                    from o in orderQuery
+                    join oi in _db.OrderItems on o.Id equals oi.OrderId
+                    join rr in query on oi.Id equals rr.OrderItemId
+                    select rr;
+            }
+
             var returnRequests = await query
                 .ApplyStandardFilter(null, null, model.SearchStoreId)
                 .ApplyGridCommand(command)
@@ -80,6 +107,7 @@ namespace Smartstore.Admin.Controllers
             var orderItems = await _db.OrderItems
                 .Include(x => x.Product)
                 .Include(x => x.Order)
+                .AsNoTracking()
                 .Where(x => orderItemIds.Contains(x.Id))
                 .ToDictionaryAsync(x => x.Id, x => x);
 
@@ -98,6 +126,90 @@ namespace Smartstore.Admin.Controllers
                 Rows = rows,
                 Total = returnRequests.TotalCount
             });
+        }
+
+        [Permission(Permissions.Order.ReturnRequest.Read)]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var returnRequest = await _db.ReturnRequests
+                .Include(x => x.Customer.BillingAddress)
+                .Include(x => x.Customer.ShippingAddress)
+                .FindByIdAsync(id);
+                
+            if (returnRequest == null)
+            {
+                return NotFound();
+            }
+
+            var model = new ReturnRequestModel();
+            await PrepareReturnRequestModel(model, returnRequest);
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [FormValueRequired("save", "save-continue")]
+        [Permission(Permissions.Order.ReturnRequest.Update)]
+        public async Task<IActionResult> Edit(ReturnRequestModel model, bool continueEditing)
+        {
+            var returnRequest = await _db.ReturnRequests
+                .Include(x => x.Customer.BillingAddress)
+                .Include(x => x.Customer.ShippingAddress)
+                .FindByIdAsync(model.Id);
+
+            if (returnRequest == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                var utcNow = DateTime.UtcNow;
+
+                if (returnRequest.RequestedAction != model.RequestedAction)
+                {
+                    returnRequest.RequestedActionUpdatedOnUtc = utcNow;
+                }
+
+                returnRequest.Quantity = model.Quantity;
+                returnRequest.ReasonForReturn = model.ReasonForReturn.EmptyNull();
+                returnRequest.RequestedAction = model.RequestedAction.EmptyNull();
+                returnRequest.CustomerComments = model.CustomerComments;
+                returnRequest.StaffNotes = model.StaffNotes;
+                returnRequest.AdminComment = model.AdminComment;
+                returnRequest.ReturnRequestStatusId = model.ReturnRequestStatusId;
+                returnRequest.UpdatedOnUtc = utcNow;
+
+                await _db.SaveChangesAsync();
+
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditReturnRequest, T("ActivityLog.EditReturnRequest"), returnRequest.Id);
+                NotifySuccess(T("Admin.ReturnRequests.Updated"));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), returnRequest.Id) 
+                    : RedirectToAction(nameof(List));
+            }
+
+            await PrepareReturnRequestModel(model, returnRequest, true);
+
+            return View(model);
+        }
+
+
+        private async Task<ReturnRequestModel> PrepareReturnRequestModel(
+            ReturnRequestModel model, 
+            ReturnRequest returnRequest,
+            bool excludeProperties = false)
+        {
+            var allStores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
+            var orderItem = await _db.OrderItems
+                .Include(x => x.Product)
+                .Include(x => x.Order)
+                .FindByIdAsync(returnRequest.OrderItemId);
+
+            await PrepareReturnRequestModel(model, returnRequest, orderItem, allStores, excludeProperties);
+
+            return model;
         }
 
         private async Task PrepareReturnRequestModel(
@@ -129,7 +241,7 @@ namespace Smartstore.Admin.Controllers
             model.ReturnRequestStatusString = await Services.Localization.GetLocalizedEnumAsync(returnRequest.ReturnRequestStatus);
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(returnRequest.CreatedOnUtc, DateTimeKind.Utc);
             model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(returnRequest.UpdatedOnUtc, DateTimeKind.Utc);
-            model.EditUrl = Url.Action("Edit", "ReturnRequest", new { id = returnRequest.Id });
+            model.EditUrl = Url.Action(nameof(Edit), "ReturnRequest", new { id = returnRequest.Id });
             model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = returnRequest.CustomerId });
 
             if (orderItem != null)
@@ -178,14 +290,17 @@ namespace Smartstore.Admin.Controllers
                 ViewBag.ReasonForReturn = reasonForReturn;
                 ViewBag.ActionsForReturn = actionsForReturn;
 
-                model.UpdateOrderItem.Id = returnRequest.Id;
-                model.UpdateOrderItem.Caption = T("Admin.ReturnRequests.Accept.Caption");
-                model.UpdateOrderItem.PostUrl = Url.Action("Accept", "ReturnRequest");
-                model.UpdateOrderItem.UpdateTotals = model.UpdateOrderItem.ShowUpdateTotals;
+                model.UpdateOrderItem = new UpdateOrderItemModel
+                {
+                    Id = returnRequest.Id,
+                    Caption = T("Admin.ReturnRequests.Accept.Caption"),
+                    PostUrl = Url.Action("Accept", "ReturnRequest"),
+                };
 
                 if (order != null)
                 {
                     model.UpdateOrderItem.UpdateRewardPoints = order.RewardPointsWereAdded;
+                    model.UpdateOrderItem.UpdateTotals = order.OrderStatusId <= (int)OrderStatus.Pending;
                     model.UpdateOrderItem.ShowUpdateTotals = order.OrderStatusId <= (int)OrderStatus.Pending;
                     model.UpdateOrderItem.ShowUpdateRewardPoints = order.OrderStatusId > (int)OrderStatus.Pending && order.RewardPointsWereAdded;
                 }
