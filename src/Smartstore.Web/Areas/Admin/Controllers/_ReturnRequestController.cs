@@ -56,8 +56,8 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ReturnRequestList(GridCommand command, ReturnRequestListModel model)
         {
             var query = _db.ReturnRequests
-                .Include(x => x.Customer.BillingAddress)
-                .Include(x => x.Customer.ShippingAddress)
+                .Include(x => x.Customer).ThenInclude(x => x.BillingAddress)
+                .Include(x => x.Customer).ThenInclude(x => x.ShippingAddress)
                 .AsNoTracking();
 
             if (model.SearchId.HasValue)

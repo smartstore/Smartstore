@@ -25,12 +25,13 @@ namespace Smartstore
                 query = query.Where(x => orderItemIds.Contains(x.OrderItemId));
             }
 
-            if (customerId.GetValueOrDefault() > 0)
+            // INFO: (mg) (core) A nullable comparer is smart enough, GetValueOrDefault() can be omitted.
+            if (customerId > 0)
             {
                 query = query.Where(x => x.CustomerId == customerId.Value);
             }
 
-            if (storeId.GetValueOrDefault() > 0)
+            if (storeId > 0)
             {
                 query = query.Where(x => x.StoreId == storeId.Value);
             }

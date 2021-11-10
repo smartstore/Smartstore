@@ -54,8 +54,9 @@
         {
             <column for="StoreName" sortable="false" />
         }
-        <column for="StaffNotes" visible="false" />
-        <column for="AdminComment" visible="false" />
-        <column for="CustomerComments" visible="false" />
+        @* INFO: (mg) (core) These columns contain multiline text, wrapping should be allowed. *@
+        <column for="StaffNotes" visible="false" wrap="true" />
+        <column for="AdminComment" visible="false" wrap="true" />
+        <column for="CustomerComments" visible="false" wrap="true" />
     </columns>
 </datagrid>
