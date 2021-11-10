@@ -90,8 +90,10 @@ namespace Smartstore.Tax.Controllers
         [Permission(Permissions.Configuration.Tax.Read)]
         public async Task<IActionResult> List(GridCommand command)
         {
-            // INFO: We load untracked because we need all the navigation properties.
             var taxRates = await _db.TaxRates()
+                .Include(x => x.TaxCategory)
+                .Include(x => x.Country)
+                .Include(x => x.StateProvince)
                 .ApplyRegionFilter(null, null, null, null)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
