@@ -72,7 +72,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     // Check if media type or file extension is allowed.
                     var extension = Path.GetExtension(fileName).TrimStart('.').ToLower();
-                    if (typeFilter != null || typeFilter.Length == 0)
+                    if (typeFilter != null & typeFilter.Length > 0)
                     {
                         var mediaTypeExtensions = _mediaTypeResolver.ParseTypeFilter(typeFilter);
                         if (!mediaTypeExtensions.Contains(extension))

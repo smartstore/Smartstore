@@ -15,15 +15,13 @@ namespace Smartstore.Core.Content.Media
         {
         }
 
-        class MaxMediaFileSizeFilter : /*IActionFilter,*/ IAuthorizationFilter, IRequestFormLimitsPolicy
+        class MaxMediaFileSizeFilter : IAuthorizationFilter, IRequestFormLimitsPolicy
         {
             private readonly MediaSettings _mediaSettings;
-            private readonly MediaExceptionFactory _exceptionFactory;
 
-            public MaxMediaFileSizeFilter(MediaSettings mediaSettings, MediaExceptionFactory exceptionFactory)
+            public MaxMediaFileSizeFilter(MediaSettings mediaSettings)
             {
                 _mediaSettings = mediaSettings;
-                _exceptionFactory = exceptionFactory;
             }
 
             public void OnAuthorization(AuthorizationFilterContext context)
