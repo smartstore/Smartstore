@@ -72,7 +72,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     // Check if media type or file extension is allowed.
                     var extension = Path.GetExtension(fileName).TrimStart('.').ToLower();
-                    if (typeFilter != null)
+                    if (typeFilter != null || typeFilter.Length == 0)
                     {
                         var mediaTypeExtensions = _mediaTypeResolver.ParseTypeFilter(typeFilter);
                         if (!mediaTypeExtensions.Contains(extension))
@@ -112,6 +112,10 @@ namespace Smartstore.Admin.Controllers
                     o.lastUpdated = dupe.LastModified.ToString();
 
                     result.Add(o);
+                }
+                catch (DeniedMediaTypeException ex)
+                {
+                    NotifyError(ex.Message);
                 }
                 catch (Exception)
                 {
