@@ -84,17 +84,15 @@ namespace Smartstore.Admin.Controllers
 
         #region Tax categories
 
-        // TODO: (mh) (core) Convention please! TaxCategory(List | Insert | Update...)
-
         [Permission(Permissions.Configuration.Tax.Read)]
-        public IActionResult Categories()
+        public IActionResult List()
         {
             return View();
         }
 
         [HttpPost]
         [Permission(Permissions.Configuration.Tax.Read)]
-        public async Task<IActionResult> List(GridCommand command)
+        public async Task<IActionResult> TaxCategoryList(GridCommand command)
         {
             var categories = await _db.TaxCategories
                 .AsNoTracking()

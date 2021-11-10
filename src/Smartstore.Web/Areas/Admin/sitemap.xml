@@ -96,7 +96,7 @@
                 <siteMapNode id="shipping-providers" title="Shipping providers" resKey="Admin.Configuration.Shipping.Providers" permissionNames="configuration.shipping" controller="Shipping" action="Providers" area="Admin" />
                 <siteMapNode id="tax-header" isGroupHeader="true" title="Tax" resKey="Admin.Configuration.Tax" permissionNames="configuration.tax" />
                 <siteMapNode id="tax-providers" title="Tax providers" resKey="Admin.Configuration.Tax.Providers" permissionNames="configuration.tax" controller="Tax" action="Providers" area="Admin" />
-                <siteMapNode id="tax-categories" title="Tax categories" resKey="Admin.Configuration.Tax.Categories" permissionNames="configuration.tax" controller="Tax" action="Categories" area="Admin" />
+                <siteMapNode id="tax-categories" title="Tax categories" resKey="Admin.Configuration.Tax.Categories" permissionNames="configuration.tax" controller="Tax" action="List" area="Admin" />
             </siteMapNode>
 
             <siteMapNode id="payment-methods" iconClass="far fa-credit-card" title="Payment methods" resKey="Admin.Configuration.Payment.Methods" permissionNames="configuration.paymentmethod" controller="Payment" action="Providers" area="Admin" />
