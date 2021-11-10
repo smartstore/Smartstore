@@ -25,12 +25,12 @@ namespace Smartstore
                 query = query.Where(x => orderItemIds.Contains(x.OrderItemId));
             }
 
-            if (customerId.HasValue)
+            if (customerId.GetValueOrDefault() > 0)
             {
                 query = query.Where(x => x.CustomerId == customerId.Value);
             }
 
-            if (storeId.HasValue)
+            if (storeId.GetValueOrDefault() > 0)
             {
                 query = query.Where(x => x.StoreId == storeId.Value);
             }
