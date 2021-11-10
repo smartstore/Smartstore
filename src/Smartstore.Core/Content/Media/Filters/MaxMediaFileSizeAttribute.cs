@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -14,7 +15,7 @@ namespace Smartstore.Core.Content.Media
         {
         }
 
-        class MaxMediaFileSizeFilter : IActionFilter
+        class MaxMediaFileSizeFilter : /*IActionFilter,*/ IAuthorizationFilter, IRequestFormLimitsPolicy
         {
             private readonly MediaSettings _mediaSettings;
             private readonly MediaExceptionFactory _exceptionFactory;
@@ -25,34 +26,69 @@ namespace Smartstore.Core.Content.Media
                 _exceptionFactory = exceptionFactory;
             }
 
-            public void OnActionExecuting(ActionExecutingContext context)
+            public void OnAuthorization(AuthorizationFilterContext context)
             {
-                var request = context.HttpContext.Request;
+                var maxFileSize = 1024 * _mediaSettings.MaxUploadFileSize;
 
-                if (!request.HasFormContentType)
+                var effectiveFormPolicy = context.FindEffectivePolicy<IRequestFormLimitsPolicy>();
+                if (effectiveFormPolicy == null || effectiveFormPolicy == this)
                 {
-                    return;
-                }
+                    var features = context.HttpContext.Features;
+                    var formFeature = features.Get<IFormFeature>();
 
-                var numFiles = request.Form.Files.Count;
-                if (numFiles <= 0)
-                {
-                    return;
-                }
-
-                long maxBytes = 1024 * _mediaSettings.MaxUploadFileSize;
-                foreach (var file in request.Form.Files)
-                {
-                    if (file.Length > maxBytes)
+                    if (formFeature == null || formFeature.Form == null)
                     {
-                        throw _exceptionFactory.MaxFileSizeExceeded(file.FileName, file.Length, maxBytes);
+                        // Request form has not been read yet, so set the limits
+                        var formOptions = new FormOptions
+                        {
+                            MultipartBodyLengthLimit = maxFileSize
+                        };
+
+                        features.Set<IFormFeature>(new FormFeature(context.HttpContext.Request, formOptions));
+                    }
+                }
+
+                var effectiveRequestSizePolicy = context.FindEffectivePolicy<IRequestSizePolicy>();
+                if (effectiveRequestSizePolicy == null || effectiveRequestSizePolicy == this)
+                {
+                    //  Will only be available when running OutOfProcess with Kestrel
+                    var maxRequestBodySizeFeature = context.HttpContext.Features.Get<IHttpMaxRequestBodySizeFeature>();
+
+                    if (maxRequestBodySizeFeature != null && !maxRequestBodySizeFeature.IsReadOnly)
+                    {
+                        maxRequestBodySizeFeature.MaxRequestBodySize = maxFileSize;
                     }
                 }
             }
 
-            public void OnActionExecuted(ActionExecutedContext context)
-            {
-            }
+            //public void OnActionExecuting(ActionExecutingContext context)
+            //{
+            //    var request = context.HttpContext.Request;
+
+            //    if (!request.HasFormContentType)
+            //    {
+            //        return;
+            //    }
+
+            //    var numFiles = request.Form.Files.Count;
+            //    if (numFiles <= 0)
+            //    {
+            //        return;
+            //    }
+
+            //    long maxBytes = 1024 * _mediaSettings.MaxUploadFileSize;
+            //    foreach (var file in request.Form.Files)
+            //    {
+            //        if (file.Length > maxBytes)
+            //        {
+            //            throw _exceptionFactory.MaxFileSizeExceeded(file.FileName, file.Length, maxBytes);
+            //        }
+            //    }
+            //}
+
+            //public void OnActionExecuted(ActionExecutedContext context)
+            //{
+            //}
         }
     }
 }
