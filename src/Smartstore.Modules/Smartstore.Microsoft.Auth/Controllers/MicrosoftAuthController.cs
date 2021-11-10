@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
+using Smartstore.Engine.Modularity;
 using Smartstore.Microsoft.Auth.Models;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
@@ -14,10 +15,12 @@ namespace Smartstore.Microsoft.Auth.Controllers
     public class MicrosoftAuthController : AdminController
     {
         private readonly IOptionsMonitorCache<MicrosoftAccountOptions> _optionsCache;
+        private readonly IProviderManager _providerManager;
 
-        public MicrosoftAuthController(IOptionsMonitorCache<MicrosoftAccountOptions> optionsCache)
+        public MicrosoftAuthController(IOptionsMonitorCache<MicrosoftAccountOptions> optionsCache, IProviderManager providerManager)
         {
             _optionsCache = optionsCache;
+            _providerManager = providerManager;
         }
 
         [HttpGet, LoadSetting]
@@ -25,9 +28,10 @@ namespace Smartstore.Microsoft.Auth.Controllers
         public IActionResult Configure(MicrosoftExternalAuthSettings settings)
         {
             var model = MiniMapper.Map<MicrosoftExternalAuthSettings, ConfigurationModel>(settings);
-
             var host = Services.StoreContext.CurrentStore.GetHost(true).EnsureEndsWith("/");
             model.RedirectUrl = $"{host}signin-microsoft";
+
+            ViewBag.Provider = _providerManager.GetProvider("Smartstore.Microsoft.Auth").Metadata;
 
             return View(model);
         }

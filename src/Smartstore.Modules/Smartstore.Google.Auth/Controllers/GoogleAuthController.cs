@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
+using Smartstore.Engine.Modularity;
 using Smartstore.Google.Auth.Models;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
@@ -14,10 +15,12 @@ namespace Smartstore.Google.Auth.Controllers
     public class GoogleAuthController : AdminController
     {
         private readonly IOptionsMonitorCache<GoogleOptions> _optionsCache;
+        private readonly IProviderManager _providerManager;
 
-        public GoogleAuthController(IOptionsMonitorCache<GoogleOptions> optionsCache)
+        public GoogleAuthController(IOptionsMonitorCache<GoogleOptions> optionsCache, IProviderManager providerManager)
         {
             _optionsCache = optionsCache;
+            _providerManager = providerManager;
         }
 
         [HttpGet, LoadSetting]
@@ -27,6 +30,8 @@ namespace Smartstore.Google.Auth.Controllers
             var model = MiniMapper.Map<GoogleExternalAuthSettings, ConfigurationModel>(settings);
             var host = Services.StoreContext.CurrentStore.GetHost(true).EnsureEndsWith("/");
             model.RedirectUrl = $"{host}signin-google";
+
+            ViewBag.Provider = _providerManager.GetProvider("Smartstore.Google.Auth").Metadata;
 
             return View(model);
         }

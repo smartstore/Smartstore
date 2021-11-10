@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
+using Smartstore.Engine.Modularity;
 using Smartstore.Facebook.Auth.Models;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
@@ -14,10 +15,12 @@ namespace Smartstore.Facebook.Auth.Controllers
     public class FacebookAuthController : AdminController
     {
         private readonly IOptionsMonitorCache<FacebookOptions> _optionsCache;
+        private readonly IProviderManager _providerManager;
 
-        public FacebookAuthController(IOptionsMonitorCache<FacebookOptions> optionsCache)
+        public FacebookAuthController(IOptionsMonitorCache<FacebookOptions> optionsCache, IProviderManager providerManager)
         {
             _optionsCache = optionsCache;
+            _providerManager = providerManager;
         }
 
         [HttpGet, LoadSetting]
@@ -28,6 +31,8 @@ namespace Smartstore.Facebook.Auth.Controllers
 
             var host = Services.StoreContext.CurrentStore.GetHost(true).EnsureEndsWith("/");
             model.RedirectUrl = $"{host}signin-facebook";
+
+            ViewBag.Provider = _providerManager.GetProvider("Smartstore.Facebook.Auth").Metadata;
 
             return View(model);
         }

@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 
@@ -29,6 +29,10 @@ namespace Smartstore.Admin
             else if (metadata.ProviderType == typeof(IWidget))
             {
                 return url.Action("Providers", "Widget");
+            }
+            else if (metadata.ProviderType == typeof(IExternalAuthenticationMethod))
+            {
+                return url.Action("Providers", "ExternalAuthentication");
             }
 
             return null;

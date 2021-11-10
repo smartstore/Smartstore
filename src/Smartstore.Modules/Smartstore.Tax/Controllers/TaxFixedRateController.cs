@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Tax.Models;
@@ -14,10 +15,12 @@ namespace Smartstore.Polls.Controllers
     public class TaxFixedRateController : AdminController
     {
         private readonly SmartDbContext _db;
+        private readonly ITaxService _taxService;
 
-        public TaxFixedRateController(SmartDbContext db)
+        public TaxFixedRateController(SmartDbContext db, ITaxService taxService)
         {
             _db = db;
+            _taxService = taxService;
         }
 
         public IActionResult Index()
@@ -31,6 +34,8 @@ namespace Smartstore.Polls.Controllers
             {
                 NotifyWarning(T("Plugins.Tax.CountryStateZip.NoTaxCategoriesFound"));
             }
+
+            ViewBag.Provider = _taxService.LoadTaxProviderBySystemName("Tax.FixedRate").Metadata;
 
             return View();
         }

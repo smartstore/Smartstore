@@ -23,10 +23,8 @@
 
 
     var systemName = module.SystemName;
-    // TODO: (core) This aint sufficient. I many cases we want to configure a Provider hosted in the module.
     var friendlyName = ModuleManager.GetLocalizedFriendlyName(module);
     var iconUrl = Url.Content(ModuleManager.GetIconUrl(module));
-    // TODO: (core) This may not be sufficient. As a user I'd expect to go back to where I came from e.g. Provider List of ext auth, payment, shipping or tax.
     var returnUrl = Context.GetRouteValueAs("returnUrl", Url.Action("List", "Module"));
 
     ViewBag.Title = T("Admin.Common.Configure").Value + " - " + friendlyName;

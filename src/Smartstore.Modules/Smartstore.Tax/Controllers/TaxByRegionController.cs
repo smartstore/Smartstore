@@ -22,10 +22,12 @@ namespace Smartstore.Tax.Controllers
     public class TaxByRegionController : AdminController
     {
         private readonly SmartDbContext _db;
-        
-        public TaxByRegionController(SmartDbContext db)
+        private readonly ITaxService _taxService;
+
+        public TaxByRegionController(SmartDbContext db, ITaxService taxService)
         {
             _db = db;
+            _taxService = taxService;
         }
 
         private async Task PrepareViewBagAsync()
@@ -66,6 +68,8 @@ namespace Smartstore.Tax.Controllers
             })
             .ToList();
             ViewBag.AvailableStates.Insert(0, new SelectListItem { Text = "*", Value = "0" });
+
+            ViewBag.Provider = _taxService.LoadTaxProviderBySystemName("Tax.CountryStateZip").Metadata;
         }
 
         private async Task<List<ByRegionTaxRateModel>> PrepareModelAsync(IPagedList<TaxRateEntity> taxRates)
