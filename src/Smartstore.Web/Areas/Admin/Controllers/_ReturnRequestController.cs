@@ -88,7 +88,7 @@ namespace Smartstore.Admin.Controllers
             {
                 var orderQuery = int.TryParse(model.OrderNumber, out var orderId) && orderId != 0
                     ? _db.Orders.Where(x => x.OrderNumber.Contains(model.OrderNumber) || x.Id == orderId)
-                    : _db.Orders.Where(x => x.OrderNumber.Contains(model.OrderNumber));
+                    : _db.Orders.ApplySearchFilterFor(x => x.OrderNumber, model.OrderNumber);
 
                 query =
                     from o in orderQuery
