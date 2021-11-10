@@ -30,9 +30,14 @@ namespace Smartstore.IO
                 }
             }
 
+            if (length <= 0 || start + length > source.Length)
+            {
+                length = source.Length - start;
+            }
+
             _source = Guard.NotNull(source, nameof(source));
             _start = start;
-            _length = Math.Min(source.Length - start, start + length);
+            _length = length;
             _leaveOpen = leaveOpen;
         }
 
@@ -67,6 +72,34 @@ namespace Smartstore.IO
         public override void Flush() => _source.Flush();
 
         /// <inheritdoc/>
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            switch (origin)
+            {
+                case SeekOrigin.Begin:
+                    _position = offset;
+                    break;
+                case SeekOrigin.Current:
+                    _position += offset;
+                    break;
+                case SeekOrigin.End:
+                    _position = _length - offset;
+                    break;
+            }
+
+            _position = Math.Max(0, _position);
+            _position = Math.Min(_position, _length);
+
+            return _position;
+        }
+
+        /// <inheritdoc/>
+        public override void SetLength(long value)
+        {
+            throw new NotSupportedException("Resizing partial streams is not supported");
+        }
+
+        /// <inheritdoc/>
         public override int Read(byte[] buffer, int offset, int count)
         {
             long remaining = _length - _position;
@@ -81,24 +114,6 @@ namespace Smartstore.IO
             _position += bytesRead;
 
             return bytesRead;
-        }
-
-        /// <inheritdoc/>
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            return origin switch
-            {
-                SeekOrigin.Begin => Position = offset,
-                SeekOrigin.Current => Position += offset,
-                SeekOrigin.End => Position = (Length + offset),
-                _ => throw new ArgumentException("Invalid seek origin", nameof(origin)),
-            };
-        }
-
-        /// <inheritdoc/>
-        public override void SetLength(long value)
-        {
-            throw new NotSupportedException("Resizing partial streams is not supported");
         }
 
         /// <inheritdoc/>
