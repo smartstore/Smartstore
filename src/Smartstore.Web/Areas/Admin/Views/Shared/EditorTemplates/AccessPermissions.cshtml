@@ -4,39 +4,39 @@
 
 @functions
 {
-    private string Value
+    private int[] Value
     {
         get
         {
-            if (ViewData.Model != null)
+            if (ViewData.Model is int[] intArray)
             {
-                // Be careful with the conversion here because it's very vulnerable to errors.
-                if (ViewData.Model is int[])
-                {
-                    return string.Join(",", ViewData.Model);
-                }
-
-                if (CommonHelper.TryConvert(ViewData.Model, typeof(string), CultureInfo.InvariantCulture, out object obj) && obj != null)
-                {
-                    return obj.ToString();
-                }
+                return intArray;
+            }
+            else if (ViewData.Model is int intValue)
+            {
+                return new[] { intValue };
             }
 
-            return null;
+            return Array.Empty<int>();
         }
     }
 }
 
 @{
-    var strValue = Value;
+    var strValue = string.Join(',', Value);
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     attributes["data-select-url"] = Url.Action("AllAccessPermissions", "Security", new { selected = strValue, area = "Admin" });
-    attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
+    attributes["data-select-init-load"] = (Value.Length > 0).ToString().ToLower();
 
     if (!attributes.ContainsKey("data-placeholder"))
     {
         attributes["data-placeholder"] = T("Common.Unspecified").Value;
     }
 }
-<select asp-for="@Model" class="form-control edit-control" attrs="attributes" data-editor="select"></select>
+<select asp-for="@Model" class="form-control edit-control" attrs="attributes" data-editor="select">
+    @foreach (var val in Value)
+    {
+        <option selected value="@val">@val</option>
+    }
+</select>
