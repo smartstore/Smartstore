@@ -1139,6 +1139,9 @@ namespace Smartstore.Admin.Controllers
                 model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem { Text = T("Admin.Address.OtherNonUS"), Value = "0" });
             }
 
+            model.DefaultTaxAddress.FirstNameEnabled = false;
+            model.DefaultTaxAddress.LastNameEnabled = false;
+            model.DefaultTaxAddress.EmailEnabled = false;
             model.DefaultTaxAddress.CountryEnabled = true;
             model.DefaultTaxAddress.StateProvinceEnabled = true;
             model.DefaultTaxAddress.ZipPostalCodeEnabled = true;
@@ -1330,6 +1333,9 @@ namespace Smartstore.Admin.Controllers
                 model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem { Text = T("Admin.Address.OtherNonUS"), Value = "0" });
             }
 
+            model.ShippingOriginAddress.FirstNameEnabled = false;
+            model.ShippingOriginAddress.LastNameEnabled = false;
+            model.ShippingOriginAddress.EmailEnabled = false;
             model.ShippingOriginAddress.CountryEnabled = true;
             model.ShippingOriginAddress.StateProvinceEnabled = true;
             model.ShippingOriginAddress.ZipPostalCodeEnabled = true;
