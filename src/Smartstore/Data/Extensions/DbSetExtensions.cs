@@ -201,6 +201,9 @@ namespace Smartstore
 
         #region Remove
 
+        // TODO: (core) this way deleting via stub produces a DbUpdateConcurrencyException ("The database operation was expected to affect 1 row(s), but actually affected 0 row(s)...")
+        // if there is no entity with this ID.
+
         public static void Remove<TEntity>(this DbSet<TEntity> dbSet, int id) where TEntity : BaseEntity, new()
         {
             Guard.NotZero(id, nameof(id));

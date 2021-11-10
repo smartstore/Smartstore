@@ -911,6 +911,8 @@ namespace Smartstore.Core.Checkout.Orders
             }
             else
             {
+                await _db.LoadReferenceAsync(cart.Customer, x => x.ShippingAddress);
+
                 // Use fixed rate (if possible).
                 var shippingAddress = cart.Customer?.ShippingAddress ?? null;
                 var shippingRateComputationMethods = _shippingService.LoadActiveShippingRateComputationMethods(cart.StoreId);

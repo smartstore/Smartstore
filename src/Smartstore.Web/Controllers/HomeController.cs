@@ -856,6 +856,10 @@ namespace Smartstore.Web.Controllers
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
             var crypt = Services.Resolve<IEncryptor>();
 
+            _db.Logs.Remove(999999);
+            var num = await _db.SaveChangesAsync();
+            content.AppendLine($"removed num {num}");
+
             //var orderId = 32123;
             //var order = await _db.Orders.FindByIdAsync(orderId);
 
