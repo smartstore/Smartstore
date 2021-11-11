@@ -33,15 +33,11 @@ namespace Smartstore.Core.Checkout.Payment.Hooks
                 .OfType<RecurringPayment>()
                 .ToList();
 
-            var orderIds = recurringPayments
-                .Select(x => x.InitialOrderId)
-                .Distinct()
-                .ToArray();
+            var orderIds = recurringPayments.ToDistinctArray(x => x.InitialOrderId);
 
             if (orderIds.Any())
             {
                 var orders = await _db.Orders
-                    .AsNoTracking()
                     .Where(x => orderIds.Contains(x.Id))
                     .ToListAsync(cancelToken);
 

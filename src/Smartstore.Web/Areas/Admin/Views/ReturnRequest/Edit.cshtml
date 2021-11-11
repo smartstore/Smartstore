@@ -75,21 +75,21 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="CustomerId" />
-            </div>
-            <div class="adminData">
-                <div class="form-control-plaintext">
-                    <a href="@Model.CustomerEditUrl">@Model.CustomerFullName</a> (@Model.CustomerId)
-                </div>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
                 <smart-label asp-for="OrderId" />
             </div>
             <div class="adminData">
                 <div class="form-control-plaintext">
                     <a href="@Model.OrderEditUrl">@Model.OrderNumber</a>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CustomerId" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    <a href="@Model.CustomerEditUrl">@Model.CustomerFullName</a> (@Model.CustomerId)
                 </div>
             </div>
         </div>
@@ -127,6 +127,7 @@
             </div>
             <div class="adminData">
                 <editor asp-for="Quantity" />
+                <span asp-validation-for="Quantity"></span>
             </div>
         </div>
         <div class="adminRow">
@@ -170,6 +171,7 @@
             </div>
             <div class="adminData">
                 <editor asp-for="CustomerComments" />
+                <span asp-validation-for="CustomerComments"></span>
             </div>
         </div>
         <div class="adminRow">
@@ -178,6 +180,7 @@
             </div>
             <div class="adminData">
                 <editor asp-for="StaffNotes" />
+                <span asp-validation-for="StaffNotes"></span>
             </div>
         </div>
         <div class="adminRow">
@@ -186,6 +189,7 @@
             </div>
             <div class="adminData">
                 <editor asp-for="AdminComment" />
+                <span asp-validation-for="AdminComment"></span>
             </div>
         </div>
         <div class="adminRow">

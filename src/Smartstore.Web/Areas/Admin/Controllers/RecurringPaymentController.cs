@@ -15,6 +15,7 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
@@ -98,12 +99,161 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Order.Read)]
-        public Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            Task.Delay(10);
-            throw new NotImplementedException();
+            var recurringPayment = await _db.RecurringPayments
+                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.BillingAddress)
+                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.ShippingAddress)
+                .Include(x => x.RecurringPaymentHistory)
+                .FindByIdAsync(id);
+
+            if (recurringPayment == null)
+            {
+                return NotFound();
+            }
+
+            var model = new RecurringPaymentModel();
+            await PrepareRecurringPaymentModel(model, recurringPayment, false);
+
+            return View(model);
         }
 
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [FormValueRequired("save", "save-continue")]
+        [Permission(Permissions.Order.EditRecurringPayment)]
+        public async Task<IActionResult> Edit(RecurringPaymentModel model, bool continueEditing)
+        {
+            var recurringPayment = await _db.RecurringPayments.FindByIdAsync(model.Id);
+            if (recurringPayment == null || recurringPayment.Deleted)
+            {
+                return NotFound();
+            }
+
+            recurringPayment.CycleLength = model.CycleLength;
+            recurringPayment.CyclePeriodId = model.CyclePeriodId;
+            recurringPayment.TotalCycles = model.TotalCycles;
+            recurringPayment.IsActive = model.IsActive;
+
+            await _db.SaveChangesAsync();
+
+            NotifySuccess(T("Admin.RecurringPayments.Updated"));
+
+            return continueEditing 
+                ? RedirectToAction(nameof(Edit), recurringPayment.Id) 
+                : RedirectToAction(nameof(List));
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Order.EditRecurringPayment)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var recurringPayment = await _db.RecurringPayments.FindByIdAsync(id);
+            if (recurringPayment == null)
+            {
+                return NotFound();
+            }
+
+            recurringPayment.Deleted = true;
+            await _db.SaveChangesAsync();
+
+            NotifySuccess(T("Admin.RecurringPayments.Deleted"));
+
+            return RedirectToAction(nameof(List));
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Order.Read)]
+        public async Task<IActionResult> RecurringPaymentHistoryList(int recurringPaymentId)
+        {
+            var history = await _db.RecurringPaymentHistory
+                .AsNoTracking()
+                .Where(x => x.RecurringPaymentId == recurringPaymentId)
+                .OrderBy(x => x.CreatedOnUtc)
+                .ToListAsync();
+
+            var orderIds = history.ToDistinctArray(x => x.OrderId);
+            var orders = await _db.Orders
+                .AsNoTracking()
+                .Where(x => orderIds.Contains(x.Id))
+                .ToDictionaryAsync(x => x.Id, x => x);
+
+            var rows = await history.SelectAsync(async x =>
+            {
+                var m = new RecurringPaymentModel.RecurringPaymentHistoryModel();
+                await PrepareRecurringPaymentHistoryModel(m, x, orders.Get(x.OrderId));
+                return m;
+            })
+            .AsyncToList();
+
+            return Json(new GridModel<RecurringPaymentModel.RecurringPaymentHistoryModel>
+            {
+                Rows = rows,
+                Total = history.Count
+            });
+        }
+
+        [HttpPost, ActionName("Edit")]
+        [FormValueRequired("processnextpayment")]
+        [Permission(Permissions.Order.EditRecurringPayment)]
+        public async Task<IActionResult> ProcessNextPayment(int id)
+        {
+            var recurringPayment = await _db.RecurringPayments
+                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer)
+                .FindByIdAsync(id);
+
+            if (recurringPayment == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                await _orderProcessingService.ProcessNextRecurringPaymentAsync(recurringPayment);
+
+                NotifySuccess(T("Admin.RecurringPayments.NextPaymentProcessed"));
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return RedirectToAction(nameof(Edit), recurringPayment.Id);
+        }
+
+        [HttpPost, ActionName("Edit")]
+        [FormValueRequired("cancelpayment")]
+        [Permission(Permissions.Order.EditRecurringPayment)]
+        public async Task<IActionResult> CancelRecurringPayment(int id)
+        {
+            var recurringPayment = await _db.RecurringPayments
+                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer)
+                .FindByIdAsync(id);
+
+            if (recurringPayment == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                var errors = await _orderProcessingService.CancelRecurringPaymentAsync(recurringPayment);
+
+                if (errors.Any())
+                {
+                    NotifyError(string.Join(Environment.NewLine, errors));
+                }
+                else
+                {
+                    NotifySuccess(T("Admin.RecurringPayments.Cancelled"));
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return RedirectToAction(nameof(Edit), recurringPayment.Id);
+        }
 
         private async Task PrepareRecurringPaymentModel(RecurringPaymentModel model, RecurringPayment recurringPayment, bool forList)
         {

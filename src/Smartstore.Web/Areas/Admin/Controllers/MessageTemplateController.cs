@@ -472,11 +472,13 @@ namespace Smartstore.Admin.Controllers
             {
                 var newTemplate = await _messageTemplateService.CopyTemplateAsync(template);
                 NotifySuccess(T("Admin.ContentManagement.MessageTemplates.SuccessfullyCopied"));
+
                 return RedirectToAction(nameof(Edit), new { id = newTemplate.Id });
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                NotifyError(exc.Message);
+                NotifyError(ex.Message);
+
                 return RedirectToAction(nameof(Edit), new { id = model.Id });
             }
         }
