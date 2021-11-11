@@ -1,0 +1,212 @@
+﻿@using Smartstore.Core.Common
+
+@model ReturnRequestModel
+
+@{
+    ViewBag.Title = T("Admin.ReturnRequests.EditReturnRequestDetails");
+}
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-truck-moving"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <button sm-if="Model.CanAccept" type="button" name="accept" class="btn btn-secondary btn-to-danger accept-return-request-button"
+                    data-toggle="modal"
+                    data-target="#update-orderitem-dialog">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.ReturnRequests.Accept")</span>
+            </button>
+
+            <button sm-if="Model.CanSendEmailToCustomer" type="submit" name="notify-customer" value="notify-customer" class="btn btn-secondary btn-to-danger confirm">
+                <i class="fa fa-envelope"></i>
+                <span>@T("Admin.ReturnRequests.NotifyCustomer")</span>
+            </button>
+
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <button type="submit" id="returnrequest-delete" name="returnrequest-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="returnrequest-delete" />
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+
+    <div sm-if="Model.ReturnRequestInfo.HasValue()" class="alert alert-info alert-dismissible">
+        @Html.Raw(Model.ReturnRequestInfo)
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+
+    <zone name="returnrequest_top" />
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Id" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Id" sm-plaintext="true" readonly />
+            </div>
+        </div>
+        <div sm-if="Model.StoreName.HasValue()" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="StoreName" />
+            </div>
+            <div class="adminData">
+                <input asp-for="StoreName" sm-plaintext="true" readonly />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CustomerId" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    <a href="@Model.CustomerEditUrl">@Model.CustomerFullName</a> (@Model.CustomerId)
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="OrderId" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    <a href="@Model.OrderEditUrl">@Model.OrderNumber</a>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ProductName" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    <div class="mb-1">
+                        <a href="@Model.ProductEditUrl">@Model.ProductName</a>
+                    </div>
+                    <div sm-if="Model.AttributeInfo.HasValue()">
+                        @Html.Raw(Model.AttributeInfo)
+                    </div>
+                    <div sm-if="Model.ProductSku.HasValue()" class="mt-1">
+                        <span class="fwm">@T("Admin.Orders.Products.SKU")</span>: @Model.ProductSku
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div sm-if="Model.MaxRefundAmount != Money.Zero" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MaxRefundAmount" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @Html.Raw(Model.MaxRefundAmount.ToString())
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Quantity" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Quantity" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ReturnRequestStatusId" />
+            </div>
+            <div class="adminData">
+                <select asp-for="ReturnRequestStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ReturnRequestStatus))"></select>
+                <span asp-validation-for="ReturnRequestStatusId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ReasonForReturn" />
+            </div>
+            <div class="adminData">
+                <select asp-for="ReasonForReturn" asp-items="ViewBag.ReasonForReturn"></select>
+                <span asp-validation-for="ReasonForReturn"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="RequestedAction" />
+            </div>
+            <div class="adminData">
+                <select asp-for="RequestedAction" asp-items="ViewBag.ActionsForReturn"></select>
+                <span asp-validation-for="RequestedAction"></span>
+            </div>
+        </div>
+        <div sm-if="Model.RequestedActionUpdated.HasValue" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="RequestedActionUpdated" />
+            </div>
+            <div class="adminData">
+                <input asp-for="RequestedActionUpdated" sm-plaintext="true" readonly />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CustomerComments" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="CustomerComments" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="StaffNotes" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="StaffNotes" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdminComment" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="AdminComment" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CreatedOn" />
+            </div>
+            <div class="adminData">
+                <input asp-for="CreatedOn" sm-plaintext="true" readonly />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UpdatedOn" />
+            </div>
+            <div class="adminData">
+                <input asp-for="UpdatedOn" sm-plaintext="true" readonly />
+            </div>
+        </div>
+    </div>
+
+    <zone name="returnrequest_bottom" />
+</form>
+
+<partial name="~/Areas/Admin/Views/Order/_UpdateOrderItemDialog.cshtml" model="Model.UpdateOrderItem" />

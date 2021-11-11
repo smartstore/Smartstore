@@ -30,14 +30,12 @@ namespace Smartstore.Core.Checkout.Orders
                 .OfType<ReturnRequest>()
                 .ToList();
 
-            var orderItemIds = returnRequests
-                .Select(x => x.OrderItemId)
-                .Distinct()
-                .ToArray();
+            var orderItemIds = returnRequests.ToDistinctArray(x => x.OrderItemId);
 
             if (orderItemIds.Any())
             {
                 var orders = await _db.OrderItems
+                    .Include(x => x.Order)
                     .Where(x => orderItemIds.Contains(x.Id))
                     .Select(x => x.Order)
                     .ToListAsync(cancelToken);

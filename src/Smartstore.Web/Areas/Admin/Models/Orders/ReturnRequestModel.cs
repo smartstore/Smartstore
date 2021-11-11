@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Web.Modelling;
@@ -33,7 +34,7 @@ namespace Smartstore.Admin.Models.Orders
         public string ProductTypeLabelHint { get; set; }
 
         [LocalizedDisplay("Admin.ReturnRequests.MaxRefundAmount")]
-        public Money MaxRefundAmount { get; set; }
+        public Money MaxRefundAmount { get; set; } = Money.Zero;
 
         [LocalizedDisplay("*Quantity")]
         public int Quantity { get; set; }
@@ -48,12 +49,15 @@ namespace Smartstore.Admin.Models.Orders
         public DateTime? RequestedActionUpdated { get; set; }
 
         [LocalizedDisplay("*CustomerComments")]
+        [UIHint("Textarea"), AdditionalMetadata("rows", 4)]
         public string CustomerComments { get; set; }
 
         [LocalizedDisplay("*StaffNotes")]
+        [UIHint("Textarea"), AdditionalMetadata("rows", 4)]
         public string StaffNotes { get; set; }
 
         [LocalizedDisplay("Admin.Common.AdminComment")]
+        [UIHint("Textarea"), AdditionalMetadata("rows", 4)]
         public string AdminComment { get; set; }
 
         [LocalizedDisplay("*Status")]

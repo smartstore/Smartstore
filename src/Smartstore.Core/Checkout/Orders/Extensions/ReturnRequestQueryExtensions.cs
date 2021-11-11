@@ -1,10 +1,34 @@
 ﻿using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Identity;
 
 namespace Smartstore
 {
     public static partial class ReturnRequestQueryExtensions
     {
+        /// <summary>
+        /// Includes the the customer graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<ReturnRequest, CustomerRole> IncludeCustomer(this IQueryable<ReturnRequest> query,
+            bool includeAddresses = true)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            if (includeAddresses)
+            {
+                query = query
+                    .Include(x => x.Customer).ThenInclude(x => x.BillingAddress)
+                    .Include(x => x.Customer).ThenInclude(x => x.ShippingAddress);
+            }
+
+            return query
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole);
+        }
+
         /// <summary>
         /// Applies a standard filter and sorts by <see cref="ReturnRequest.CreatedOnUtc"/> descending, then by <see cref="ReturnRequest.Id"/> descending.
         /// </summary>
@@ -25,7 +49,6 @@ namespace Smartstore
                 query = query.Where(x => orderItemIds.Contains(x.OrderItemId));
             }
 
-            // INFO: (mg) (core) A nullable comparer is smart enough, GetValueOrDefault() can be omitted.
             if (customerId > 0)
             {
                 query = query.Where(x => x.CustomerId == customerId.Value);

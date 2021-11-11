@@ -584,6 +584,7 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Orders.Products.AddNew.Title1",
             //    "Admin.Orders.Products.AddNew.Note1",
             //    "Admin.Orders.Products.AddNew.BackToList",
+            //    "Admin.ReturnRequests.BackToList",
             //    );
 
 

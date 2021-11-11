@@ -54,9 +54,11 @@
         {
             <column for="StoreName" sortable="false" />
         }
-        @* INFO: (mg) (core) These columns contain multiline text, wrapping should be allowed. *@
         <column for="StaffNotes" visible="false" wrap="true" />
         <column for="AdminComment" visible="false" wrap="true" />
         <column for="CustomerComments" visible="false" wrap="true" />
     </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+    </row-commands>
 </datagrid>

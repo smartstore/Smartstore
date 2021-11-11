@@ -15,6 +15,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -29,15 +30,21 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICurrencyService _currencyService;
+        private readonly IOrderProcessingService _orderProcessingService;
+        private readonly IMessageFactory _messageFactory;
         private readonly OrderSettings _orderSettings;
 
         public ReturnRequestController(
             SmartDbContext db,
             ICurrencyService currencyService,
+            IOrderProcessingService orderProcessingService,
+            IMessageFactory messageFactory,
             OrderSettings orderSettings)
         {
             _db = db;
             _currencyService = currencyService;
+            _orderProcessingService = orderProcessingService;
+            _messageFactory = messageFactory;
             _orderSettings = orderSettings;
         }
 
@@ -132,8 +139,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var returnRequest = await _db.ReturnRequests
-                .Include(x => x.Customer.BillingAddress)
-                .Include(x => x.Customer.ShippingAddress)
+                .IncludeCustomer()
                 .FindByIdAsync(id);
                 
             if (returnRequest == null)
@@ -153,8 +159,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(ReturnRequestModel model, bool continueEditing)
         {
             var returnRequest = await _db.ReturnRequests
-                .Include(x => x.Customer.BillingAddress)
-                .Include(x => x.Customer.ShippingAddress)
+                .IncludeCustomer()
                 .FindByIdAsync(model.Id);
 
             if (returnRequest == null)
@@ -195,6 +200,91 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        [HttpPost, ActionName("Edit")]
+        [FormValueRequired("notify-customer")]
+        [Permission(Permissions.Order.ReturnRequest.Update)]
+        public async Task<IActionResult> NotifyCustomer(ReturnRequestModel model)
+        {
+            var returnRequest = await _db.ReturnRequests
+                .IncludeCustomer()
+                .FindByIdAsync(model.Id);
+            
+            var orderItem = await _db.OrderItems
+                .Include(x => x.Product)
+                .Include(x => x.Order)
+                .FindByIdAsync(returnRequest?.OrderItemId ?? 0);
+
+            if (returnRequest == null || orderItem == null)
+            {
+                return NotFound();
+            }
+
+            var msg = await _messageFactory.SendReturnRequestStatusChangedCustomerNotificationAsync(returnRequest, orderItem, Services.WorkContext.WorkingLanguage.Id);
+            if (msg?.Email?.Id != null)
+            {
+                NotifySuccess(T("Admin.ReturnRequests.Notified"));
+            }
+
+            return RedirectToAction(nameof(Edit), returnRequest.Id);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Order.ReturnRequest.Accept)]
+        public async Task<IActionResult> Accept(UpdateOrderItemModel model)
+        {
+            var returnRequest = await _db.ReturnRequests
+                .IncludeCustomer()
+                .FindByIdAsync(model.Id);
+
+            var orderItem = await _db.OrderItems
+                .Include(x => x.Order)
+                .FindByIdAsync(returnRequest?.OrderItemId ?? 0);
+
+            if (returnRequest == null || orderItem == null)
+            {
+                return NotFound();
+            }
+
+            var cancelQuantity = returnRequest.Quantity > orderItem.Quantity ? orderItem.Quantity : returnRequest.Quantity;
+
+            var context = new UpdateOrderDetailsContext
+            {
+                OldQuantity = orderItem.Quantity,
+                NewQuantity = Math.Max(orderItem.Quantity - cancelQuantity, 0),
+                AdjustInventory = model.AdjustInventory,
+                UpdateRewardPoints = model.UpdateRewardPoints,
+                UpdateTotals = model.UpdateTotals
+            };
+
+            returnRequest.ReturnRequestStatus = ReturnRequestStatus.ReturnAuthorized;
+
+            // INFO: UpdateOrderDetailsAsync performs commit.
+            await _orderProcessingService.UpdateOrderDetailsAsync(orderItem, context);
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), orderItem.Order.GetOrderNumber());
+            TempData[UpdateOrderDetailsContext.InfoKey] = context.ToString(Services.Localization);
+
+            return RedirectToAction(nameof(Edit), new { id = returnRequest.Id });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Order.ReturnRequest.Delete)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var returnRequest = await _db.ReturnRequests.FindByIdAsync(id);
+            if (returnRequest == null)
+            {
+                return NotFound();
+            }
+
+            _db.ReturnRequests.Remove(returnRequest);
+            await _db.SaveChangesAsync();
+
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteReturnRequest, T("ActivityLog.DeleteReturnRequest"), id);
+            NotifySuccess(T("Admin.ReturnRequests.Deleted"));
+
+            return RedirectToAction(nameof(List));
+        }
 
         private async Task<ReturnRequestModel> PrepareReturnRequestModel(
             ReturnRequestModel model, 
