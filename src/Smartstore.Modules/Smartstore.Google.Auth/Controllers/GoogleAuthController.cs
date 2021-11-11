@@ -11,7 +11,7 @@ using Smartstore.Web.Modelling.Settings;
 namespace Smartstore.Google.Auth.Controllers
 {
     [Area("Admin")]
-    [Route("[area]/googleauth/[action]/{id?}")]
+    [Route("[area]/google/auth/{action=index}/{id?}")]
     public class GoogleAuthController : AdminController
     {
         private readonly IOptionsMonitorCache<GoogleOptions> _optionsCache;

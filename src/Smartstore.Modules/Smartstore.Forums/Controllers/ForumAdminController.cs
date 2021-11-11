@@ -29,7 +29,7 @@ using Smartstore.Web.Rendering;
 namespace Smartstore.Forums.Controllers
 {
     [Area("Admin")]
-    [Route("[area]/forum/[action]/{id?}")]
+    [Route("[area]/forum/{action=index}/{id?}")]
     public class ForumAdminController : AdminController
     {
         private readonly SmartDbContext _db;

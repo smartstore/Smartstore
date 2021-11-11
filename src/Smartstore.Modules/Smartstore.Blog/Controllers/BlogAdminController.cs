@@ -28,7 +28,7 @@ using Smartstore.Web.Models.DataGrid;
 namespace Smartstore.Blog.Controllers
 {
     [Area("Admin")]
-    [Route("[area]/blog/[action]/{id?}")]
+    [Route("[area]/blog/{action=index}/{id?}")]
     public class BlogAdminController : AdminController
     {
         private readonly SmartDbContext _db;

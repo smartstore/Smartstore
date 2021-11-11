@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace Smartstore.Tax.Controllers
 {
     [Area("Admin")]
-    [Route("[area]/taxbyregion/[action]/{id?}")]
+    [Route("[area]/taxbyregion/{action=index}/{id?}")]
     public class TaxByRegionController : AdminController
     {
         private readonly SmartDbContext _db;

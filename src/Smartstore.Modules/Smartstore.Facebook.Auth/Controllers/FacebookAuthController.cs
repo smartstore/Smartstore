@@ -11,7 +11,7 @@ using Smartstore.Web.Modelling.Settings;
 namespace Smartstore.Facebook.Auth.Controllers
 {
     [Area("Admin")]
-    [Route("[area]/facebook/auth/[action]/{id?}")]
+    [Route("[area]/facebook/auth/{action=index}/{id?}")]
     public class FacebookAuthController : AdminController
     {
         private readonly IOptionsMonitorCache<FacebookOptions> _optionsCache;
