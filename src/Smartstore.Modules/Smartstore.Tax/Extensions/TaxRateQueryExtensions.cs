@@ -14,7 +14,7 @@ namespace Smartstore.Tax
         /// <param name="countryId">Country identifier.</param>
         /// <param name="stateProvinceId">State province identifier.</param>
         /// <param name="zip">Zip code to filter by.</param>
-        /// <returns>Forum query.</returns>
+        /// <returns>TaxRateEntity query.</returns>
         public static IQueryable<TaxRateEntity> ApplyRegionFilter(this IQueryable<TaxRateEntity> query, 
             int? taxCategoryId, 
             int? countryId, 

@@ -1381,7 +1381,7 @@ namespace Smartstore.Admin.Controllers
         #region Current shopping cart/ wishlist
 
         [Permission(Permissions.Cart.Read)]
-        public async Task<IActionResult> GetCartList(int customerId, int cartTypeId, GridCommand command)
+        public async Task<IActionResult> GetCartList(int customerId, int cartTypeId)
         {
             var customer = await _db.Customers
                 .IncludeShoppingCart()

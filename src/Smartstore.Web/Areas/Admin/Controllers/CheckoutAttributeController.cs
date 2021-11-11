@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
@@ -23,7 +22,6 @@ namespace Smartstore.Admin.Controllers
     public class CheckoutAttributeController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
         private readonly IActivityLogger _activityLogger;
         private readonly ILanguageService _languageService;
         private readonly ILocalizedEntityService _localizedEntityService;
@@ -33,7 +31,6 @@ namespace Smartstore.Admin.Controllers
 
         public CheckoutAttributeController(
             SmartDbContext db,
-            ICommonServices services,
             IActivityLogger activityLogger,
             ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
@@ -42,7 +39,6 @@ namespace Smartstore.Admin.Controllers
             AdminAreaSettings adminAreaSettings)
         {
             _db = db;
-            _services = services;
             _activityLogger = activityLogger;
             _languageService = languageService;
             _localizedEntityService = localizedEntityService;
@@ -106,7 +102,7 @@ namespace Smartstore.Admin.Controllers
 
             model.CheckoutAttributeId = attribute?.Id ?? 0;
             model.IsListTypeAttribute = attribute?.IsListTypeAttribute ?? false;
-            model.PrimaryStoreCurrencyCode = _services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
             model.BaseWeightIn = baseWeight != null ? baseWeight.GetLocalized(x => x.Name) : string.Empty;
         }
 
@@ -144,7 +140,7 @@ namespace Smartstore.Admin.Controllers
                 .SelectAsync(async x =>
                 {
                     var model = await MapperFactory.MapAsync<CheckoutAttribute, CheckoutAttributeModel>(x);
-                    model.AttributeControlTypeName = x.AttributeControlType.GetLocalizedEnum(_services.WorkContext.WorkingLanguage.Id);
+                    model.AttributeControlTypeName = x.AttributeControlType.GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id);
                     model.EditUrl = Url.Action(nameof(Edit), "CheckoutAttribute", new { id = x.Id });
                     return model;
                 })

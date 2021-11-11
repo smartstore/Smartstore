@@ -93,7 +93,7 @@ namespace Smartstore.Tax.Domain
         }
 
         /// <summary>
-        /// Gets or sets the zip core.
+        /// Gets or sets the zip code.
         /// </summary>
         [StringLength(10)]
         public string Zip { get; set; }
