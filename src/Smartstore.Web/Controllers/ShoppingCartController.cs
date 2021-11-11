@@ -1059,7 +1059,7 @@ namespace Smartstore.Web.Controllers
                     ZipPostalCode = shippingModel.ZipPostalCode,
                 };
 
-                var getShippingOptionResponse = _shippingService.GetShippingOptions(cart, address, storeId: storeId);
+                var getShippingOptionResponse = await _shippingService.GetShippingOptionsAsync(cart, address, storeId: storeId);
                 if (!getShippingOptionResponse.Success)
                 {
                     model.EstimateShipping.Warnings.AddRange(getShippingOptionResponse.Errors);

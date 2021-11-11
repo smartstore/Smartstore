@@ -153,7 +153,7 @@ namespace Smartstore.Core.Checkout.Shipping
             };
         }
 
-        public virtual ShippingOptionResponse GetShippingOptions(ShippingOptionRequest request, string allowedShippingRateComputationMethodSystemName = null)
+        public virtual async Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request, string allowedShippingRateComputationMethodSystemName = null)
         {
             Guard.NotNull(request, nameof(request));
 
@@ -173,7 +173,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
             foreach (var method in computationMethods)
             {
-                var response = method.Value.GetShippingOptions(request);
+                var response = await method.Value.GetShippingOptionsAsync(request);
                 foreach (var option in response.ShippingOptions)
                 {
                     option.ShippingRateComputationMethodSystemName = method.Metadata.SystemName;

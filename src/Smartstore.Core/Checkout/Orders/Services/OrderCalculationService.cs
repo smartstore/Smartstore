@@ -926,7 +926,7 @@ namespace Smartstore.Core.Checkout.Orders
                 {
                     var shippingRateComputationMethod = shippingRateComputationMethods.First();
                     var getShippingOptionRequest = _shippingService.CreateShippingOptionRequest(cart, shippingAddress, cart.StoreId);
-                    var fixedRate = shippingRateComputationMethod.Value.GetFixedRate(getShippingOptionRequest);
+                    var fixedRate = await shippingRateComputationMethod.Value.GetFixedRateAsync(getShippingOptionRequest);
 
                     if (fixedRate.HasValue)
                     {

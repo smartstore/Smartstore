@@ -72,6 +72,6 @@ namespace Smartstore.Core.Checkout.Shipping
         /// Always returns <see cref="ShippingOption"/> if there are any, even when there are warnings.
         /// </remarks>
         /// <returns>Get shipping option resopnse</returns>
-        ShippingOptionResponse GetShippingOptions(ShippingOptionRequest request, string allowedShippingRateComputationMethodSystemName = null);
+        Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request, string allowedShippingRateComputationMethodSystemName = null);
     }
 }
