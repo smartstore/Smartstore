@@ -541,7 +541,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction("Orders");
             }
 
-            if (recurringPayment.IsCancelable(customer))
+            if (await _orderProcessingService.CanCancelRecurringPaymentAsync(recurringPayment, customer))
             {
                 var errors = await _orderProcessingService.CancelRecurringPaymentAsync(recurringPayment);
                 var model = await PrepareCustomerOrderListModelAsync(customer, 0, 0);
@@ -1183,7 +1183,7 @@ namespace Smartstore.Web.Controllers
                         TotalCycles = x.TotalCycles,
                         CyclesRemaining = x.CyclesRemaining,
                         InitialOrderId = x.InitialOrder.Id,
-                        CanCancel = x.IsCancelable(customer)
+                        CanCancel = await _orderProcessingService.CanCancelRecurringPaymentAsync(x, customer)
                     };
                 })
                 .AsyncToList();

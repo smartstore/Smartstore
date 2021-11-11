@@ -282,6 +282,24 @@ namespace Smartstore.Core.Data.Migrations
                 "The order item cannot be deleted because gift cards are assigned to it. Please delete the gift cards first.",
                 "Die Auftragsposition kann nicht gelöscht werden, weil ihr Geschenkgutscheine zugeordnet sind. Bitte löschen Sie zunächst die Geschenkgutscheine.");
 
+            builder.AddOrUpdate("Admin.RecurringPayments.List.CustomerEmail",
+                "Customer email address",
+                "Kunden-E-Mail",
+                "Filter list by customer email.",
+                "Liste nach der Kunden-E-Mail filtern.");
+
+            builder.AddOrUpdate("Admin.RecurringPayments.List.CustomerName",
+                "Customer name",
+                "Kundenname",
+                "Filter list by customer name.",
+                "Liste nach dem Kundennamen filtern.");
+
+            builder.AddOrUpdate("Admin.RecurringPayments.List.InitialOrderNumber",
+                "Number of the initial order",
+                "Nummer des ursprünglichen Auftrages",
+                "Filter the list by the number of the initial order.",
+                "Liste nach der Nummer des ursprünglichen Auftrages filtern.");
+
             #endregion
 
             #region Packaging

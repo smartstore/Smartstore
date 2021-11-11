@@ -314,6 +314,7 @@ namespace Smartstore.Admin.Controllers
 
             var store = allStores.Get(returnRequest.StoreId);
             var order = orderItem?.Order;
+            var customer = returnRequest.Customer;
 
             model.Id = returnRequest.Id;
             model.ProductId = orderItem?.ProductId ?? 0;
@@ -325,8 +326,8 @@ namespace Smartstore.Admin.Controllers
             model.OrderId = orderItem?.OrderId ?? 0;
             model.OrderNumber = order?.GetOrderNumber();
             model.CustomerId = returnRequest.CustomerId;
-            model.CustomerFullName = returnRequest.Customer.GetFullName().NaIfEmpty();
-            model.CanSendEmailToCustomer = returnRequest.Customer.FindEmail().HasValue();
+            model.CustomerFullName = customer.GetFullName().NullEmpty() ?? customer.FindEmail().NaIfEmpty();
+            model.CanSendEmailToCustomer = customer.FindEmail().HasValue();
             model.Quantity = returnRequest.Quantity;
             model.ReturnRequestStatusString = await Services.Localization.GetLocalizedEnumAsync(returnRequest.ReturnRequestStatus);
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(returnRequest.CreatedOnUtc, DateTimeKind.Utc);

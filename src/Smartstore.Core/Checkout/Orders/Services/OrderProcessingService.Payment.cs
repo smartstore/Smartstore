@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -374,6 +375,32 @@ namespace Smartstore.Core.Checkout.Orders
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
+        }
+
+        public virtual async Task<bool> CanCancelRecurringPaymentAsync(RecurringPayment recurringPayment, Customer customerToValidate)
+        {
+            Guard.NotNull(recurringPayment, nameof(recurringPayment));
+            Guard.NotNull(customerToValidate, nameof(customerToValidate));
+
+            await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
+            await _db.LoadCollectionAsync(customerToValidate, x => x.CustomerRoleMappings, false, q => q.Include(x => x.CustomerRole));
+
+            var initialOrder = recurringPayment.InitialOrder;
+            var customer = initialOrder?.Customer;
+
+            if (initialOrder == null || customer == null)
+            {
+                return false;
+            }
+
+            if (initialOrder.OrderStatus == OrderStatus.Cancelled ||
+                (!customerToValidate.IsAdmin() && customer.Id != customerToValidate.Id) ||
+                !recurringPayment.NextPaymentDate.HasValue)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public virtual async Task<IList<string>> CancelRecurringPaymentAsync(RecurringPayment recurringPayment)

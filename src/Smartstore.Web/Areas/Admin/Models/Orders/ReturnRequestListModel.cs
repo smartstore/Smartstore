@@ -1,5 +1,4 @@
-﻿using Smartstore.Core.Checkout.Orders;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Orders
 {
@@ -23,8 +22,5 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("Admin.Orders.List.OrderNumber")]
         public string OrderNumber { get; set; }
-
-        public ReturnRequestStatus? SearchReturnRequestStatus
-            => SearchReturnRequestStatusId.HasValue ? (ReturnRequestStatus)SearchReturnRequestStatusId.Value : null;
     }
 }

@@ -27,17 +27,17 @@ namespace Smartstore.Core.Checkout.Payment
 
             query = query.Include(x => x.InitialOrder);
 
-            if (initialOrderId.HasValue)
+            if (initialOrderId > 0)
             {
                 query = query.Where(x => x.InitialOrderId == initialOrderId.Value);
             }
 
-            if (customerId.HasValue)
+            if (customerId > 0)
             {
                 query = query.Where(x => x.InitialOrder.CustomerId == customerId.Value);
             }
 
-            if (storeId.HasValue)
+            if (storeId > 0)
             {
                 query = query.Where(x => x.InitialOrder.StoreId == storeId.Value);
             }
