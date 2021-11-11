@@ -89,7 +89,7 @@ namespace Smartstore.ModuleBuilder
 
                             if (!targetFile.Exists || sourceFile.Length != targetFile.Length || sourceFile.LastWriteTimeUtc != targetFile.LastWriteTimeUtc)
                             {
-                                File.Copy(sourceFile.FullName, targetFile.FullName);
+                                File.Copy(sourceFile.FullName, targetFile.FullName, true);
                                 Console.WriteLine($"---- Copied private reference {privateLib} to {targetFile.FullName}");
                             }
                         }
