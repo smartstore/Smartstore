@@ -40,7 +40,7 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group mb-0">
-                        <smart-label asp-for="StoreLicenses[i].LicenseKey"></smart-label>
+                        <smart-label asp-for="StoreLicenses[i].LicenseKey"/>
                         <input asp-for="StoreLicenses[i].LicenseKey" attrs="keyAttributes" />
                         <small sm-if="storeLicense.StoreUrl.HasValue()" class="form-text text-muted mt-2">
                             <span class="fwm">@T("Common.For", "")</span>

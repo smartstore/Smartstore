@@ -11,7 +11,7 @@
         <div class="adminContent mb-3">
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="SystemName"></smart-label>
+                    <smart-label asp-for="SystemName"/>
                 </div>
                 <div class="adminData">
                     <input asp-for="SystemName" attr-readonly='(Model.IsSystemMenu, "readonly")' />
@@ -20,7 +20,7 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="Published"></smart-label>
+                    <smart-label asp-for="Published"/>
                 </div>
                 <div class="adminData">
                     <input asp-for="Published" attr-readonly='(Model.IsSystemMenu, "readonly")' />
@@ -29,7 +29,7 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="Template"></smart-label>
+                    <smart-label asp-for="Template"/>
                 </div>
                 <div class="adminData">
                     @if (!Model.IsSystemMenu)
@@ -54,7 +54,7 @@
             </div>
             <div class="adminRow" attr-class='(Model.IsSystemMenu, "d-none")'>
                 <div class="adminTitle">
-                    <smart-label asp-for="WidgetZone"></smart-label>
+                    <smart-label asp-for="WidgetZone"/>
                 </div>
                 <div class="adminData">
                     <editor asp-for="WidgetZone" />
@@ -63,7 +63,7 @@
             </div>
             <div class="adminRow" attr-class='(Model.IsSystemMenu, "d-none")'>
                 <div class="adminTitle">
-                    <smart-label asp-for="DisplayOrder"></smart-label>
+                    <smart-label asp-for="DisplayOrder"/>
                 </div>
                 <div class="adminData">
                     <editor asp-for="DisplayOrder" />
@@ -72,7 +72,7 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="SelectedStoreIds"></smart-label>
+                    <smart-label asp-for="SelectedStoreIds"/>
                 </div>
                 <div class="adminData">
                     <editor asp-for="SelectedStoreIds" />
@@ -81,7 +81,7 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="SelectedCustomerRoleIds"></smart-label>
+                    <smart-label asp-for="SelectedCustomerRoleIds"/>
                 </div>
                 <div class="adminData">
                     <editor asp-for="SelectedCustomerRoleIds" />
@@ -94,7 +94,7 @@
             @<div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Locales[item].Title"></smart-label>
+                        <smart-label asp-for="Locales[item].Title"/>
                     </div>
                     <div class="adminData">
                         @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
@@ -108,7 +108,7 @@
             @<div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Title"></smart-label>
+                        <smart-label asp-for="Title"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="Title" />

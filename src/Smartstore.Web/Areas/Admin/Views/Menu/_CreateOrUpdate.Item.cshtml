@@ -32,7 +32,7 @@
             <div class="adminContent mb-3">
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="ProviderName"></smart-label>
+                        <smart-label asp-for="ProviderName"/>
                     </div>
                     <div class="adminData">
                         @Html.Editor("Model", "MenuItem." + Model.ProviderName, "Model")
@@ -41,7 +41,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="ParentItemId"></smart-label>
+                        <smart-label asp-for="ParentItemId"/>
                     </div>
                     <div class="adminData">
                         <select asp-for="ParentItemId" asp-items="Model.AllItems">
@@ -52,7 +52,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Published"></smart-label>
+                        <smart-label asp-for="Published"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="Published" />
@@ -65,7 +65,7 @@
                 @<div class="adminContent">
                     <div class="adminRow">
                         <div class="adminTitle">
-                            <smart-label asp-for="Locales[item].Title"></smart-label>
+                            <smart-label asp-for="Locales[item].Title"/>
                         </div>
                         <div class="adminData">
                             @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
@@ -76,7 +76,7 @@
                     </div>
                     <div class="adminRow">
                         <div class="adminTitle">
-                            <smart-label asp-for="Locales[item].ShortDescription"></smart-label>
+                            <smart-label asp-for="Locales[item].ShortDescription"/>
                         </div>
 				        <div class="adminData wide">
                             <editor asp-for="Locales[item].ShortDescription" />
@@ -88,7 +88,7 @@
                 @<div class="adminContent">
                     <div class="adminRow">
                         <div class="adminTitle">
-                            <smart-label asp-for="Title"></smart-label>
+                            <smart-label asp-for="Title"/>
                         </div>
                         <div class="adminData">
                             <input asp-for="Title" placeholder="@Model.TitlePlaceholder" />
@@ -97,7 +97,7 @@
                     </div>
                     <div class="adminRow">
                         <div class="adminTitle">
-                            <smart-label asp-for="ShortDescription"></smart-label>
+                            <smart-label asp-for="ShortDescription"/>
                         </div>
                         <div class="adminData wide">
                             <editor asp-for="ShortDescription" />
@@ -111,7 +111,7 @@
             <div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="PermissionNames"></smart-label>
+                        <smart-label asp-for="PermissionNames"/>
                     </div>
                     <div class="adminData wide">
                         <editor asp-for="PermissionNames" />
@@ -120,7 +120,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="DisplayOrder"></smart-label>
+                        <smart-label asp-for="DisplayOrder"/>
                     </div>
                     <div class="adminData">
                         <editor asp-for="DisplayOrder" />
@@ -129,7 +129,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="SelectedStoreIds"></smart-label>
+                        <smart-label asp-for="SelectedStoreIds"/>
                     </div>
                     <div class="adminData">
                         <editor asp-for="SelectedStoreIds" />
@@ -138,7 +138,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="SelectedCustomerRoleIds"></smart-label>
+                        <smart-label asp-for="SelectedCustomerRoleIds"/>
                     </div>
                     <div class="adminData">
                         <editor asp-for="SelectedCustomerRoleIds" />
@@ -147,7 +147,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="BeginGroup"></smart-label>
+                        <smart-label asp-for="BeginGroup"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="BeginGroup" />
@@ -156,7 +156,7 @@
                 </div>
                 <div class="adminRow" attr-class='(Model.ProviderAppendsMultipleItems, "d-none")'>
                     <div class="adminTitle">
-                        <smart-label asp-for="Icon"></smart-label>
+                        <smart-label asp-for="Icon"/>
                     </div>
                     <div class="adminData">
                         <partial name="FontAwesomeIcon" model="Model" />
@@ -165,7 +165,7 @@
                 </div>
                 <div class="adminRow" attr-class='(Model.ProviderAppendsMultipleItems, "d-none")'>
                     <div class="adminTitle">
-                        <smart-label asp-for="IconColor"></smart-label>
+                        <smart-label asp-for="IconColor"/>
                     </div>
                     <div class="adminData">
                         <select asp-for="IconColor" asp-items="@iconColors" class="icon-color-chooser">
@@ -177,7 +177,7 @@
                 @*For later use.
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="ShowExpanded"></smart-label>
+                        <smart-label asp-for="ShowExpanded"/>
                     </div>
                     <div class="adminData">
                         @Html.EditorFor(model => model.ShowExpanded)
@@ -186,7 +186,7 @@
                 </div>*@
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="NoFollow"></smart-label>
+                        <smart-label asp-for="NoFollow"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="NoFollow" />
@@ -195,7 +195,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="NewWindow"></smart-label>
+                        <smart-label asp-for="NewWindow"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="NewWindow" />
@@ -204,7 +204,7 @@
                 </div>
                 <div class="adminRow" attr-class='(Model.ProviderAppendsMultipleItems, "d-none")'>
                     <div class="adminTitle">
-                        <smart-label asp-for="HtmlId"></smart-label>
+                        <smart-label asp-for="HtmlId"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="HtmlId" />
@@ -213,7 +213,7 @@
                 </div>
                 <div class="adminRow" attr-class='(Model.ProviderAppendsMultipleItems, "d-none")'>
                     <div class="adminTitle">
-                        <smart-label asp-for="CssClass"></smart-label>
+                        <smart-label asp-for="CssClass"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="CssClass" />

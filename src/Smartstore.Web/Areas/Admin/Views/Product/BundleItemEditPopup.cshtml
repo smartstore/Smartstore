@@ -199,7 +199,7 @@
                     {
                         <div class="adminRow">
                             <div class="adminTitle">
-                                <smart-label asp-for="@attr.AttributeControlId" sm-text="@attr.Name"></smart-label>
+                                <smart-label asp-for="@attr.AttributeControlId" sm-text="@attr.Name"/>
                             </div>
                             <div class="adminData">
                                 @Html.DropDownList(attr.AttributeControlId, attr.Values, null, new { multiple = "multiple", @class = "form-control" })

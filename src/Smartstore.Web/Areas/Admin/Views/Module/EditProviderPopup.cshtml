@@ -33,7 +33,7 @@
         @<div class="adminContent">
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="Locales[item].FriendlyName"></smart-label>
+                    <smart-label asp-for="Locales[item].FriendlyName"/>
                 </div>
                 <div class="adminData">
                     @* IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
@@ -45,7 +45,7 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="Locales[item].Description"></smart-label>
+                    <smart-label asp-for="Locales[item].Description"/>
                 </div>
                 <div class="adminData">
                     <textarea asp-for="Locales[item].Description" rows="3"></textarea>
@@ -57,7 +57,7 @@
         @<div class="adminContent">
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="FriendlyName"></smart-label>
+                    <smart-label asp-for="FriendlyName"/>
                 </div>
                 <div class="adminData">
                     <editor asp-for="FriendlyName" />
@@ -66,7 +66,7 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="Description"></smart-label>
+                    <smart-label asp-for="Description"/>
                 </div>
                 <div class="adminData">
                     <textarea asp-for="Description" rows="3"></textarea>
