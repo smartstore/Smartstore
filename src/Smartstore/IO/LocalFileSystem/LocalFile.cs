@@ -198,7 +198,7 @@ namespace Smartstore.IO
 
         public void Delete()
         {
-            WaitForUnlockAndExecute(_fi, x => x.Delete());
+            _fi.WaitForUnlockAndExecute(x => x.Delete());
         }
 
         public IFile CopyTo(string newPath, bool overwrite)
@@ -223,7 +223,7 @@ namespace Smartstore.IO
             }
 
             FileInfo copy = null;
-            WaitForUnlockAndExecute(_fi, x => 
+            _fi.WaitForUnlockAndExecute(x => 
             { 
                 copy = x.CopyTo(fullDstPath, overwrite); 
             });
@@ -241,7 +241,7 @@ namespace Smartstore.IO
             }
 
             var fullDstPath = _fs.MapPathInternal(ref newPath, true);
-            WaitForUnlockAndExecute(_fi, x => _fi.MoveTo(fullDstPath, false));
+            _fi.WaitForUnlockAndExecute(x => _fi.MoveTo(fullDstPath, false));
 
             SubPath = newPath;
         }
@@ -261,23 +261,6 @@ namespace Smartstore.IO
             if (inStream != null)
             {
                 await inStream.CopyToAsync(outputStream);
-            }
-        }
-
-        private static void WaitForUnlockAndExecute(FileInfo fi, Action<FileInfo> action)
-        {
-            try
-            {
-                action(fi);
-            }
-            catch (IOException)
-            {
-                if (!fi.WaitForUnlock(250))
-                {
-                    throw;
-                }
-
-                action(fi);
             }
         }
     }
