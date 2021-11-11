@@ -117,7 +117,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Tax.Create)]
-        public async Task<IActionResult> Insert(TaxCategoryModel model)
+        public async Task<IActionResult> TaxCategoryInsert(TaxCategoryModel model)
         {
             var success = false;
 
@@ -142,7 +142,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Tax.Update)]
-        public async Task<IActionResult> Update(TaxCategoryModel model)
+        public async Task<IActionResult> TaxCategoryUpdate(TaxCategoryModel model)
         {
             var success = false;
             var taxCategory = await _db.TaxCategories.FindByIdAsync(model.Id, true);
@@ -159,7 +159,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Tax.Delete)]
-        public async Task<IActionResult> Delete(GridSelection selection)
+        public async Task<IActionResult> TaxCategoryDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;

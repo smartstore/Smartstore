@@ -8,9 +8,9 @@
           allow-column-reordering="true"
           allow-edit="true">
     <datasource read="@Url.Action("TaxCategoryList", "Tax")"
-                insert="@Url.Action("Insert", "Tax")"
-                update="@Url.Action("Update", "Tax")"
-                delete="@Url.Action("Delete", "Tax")" />
+                insert="@Url.Action("TaxCategoryInsert", "Tax")"
+                update="@Url.Action("TaxCategoryUpdate", "Tax")"
+                delete="@Url.Action("TaxCategoryDelete", "Tax")" />
     <toolbar>
         <toolbar-group>
             <button datagrid-action="DataGridToolAction.InsertRow" class="btn btn-primary btn-flat">
