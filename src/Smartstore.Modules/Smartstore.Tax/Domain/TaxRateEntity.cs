@@ -17,17 +17,17 @@ namespace Smartstore.Tax.Domain
             builder.HasOne(c => c.TaxCategory)
                 .WithMany()
                 .HasForeignKey(c => c.TaxCategoryId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(c => c.Country)
                 .WithMany()
                 .HasForeignKey(c => c.CountryId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(c => c.StateProvince)
                 .WithMany()
                 .HasForeignKey(c => c.StateProvinceId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
