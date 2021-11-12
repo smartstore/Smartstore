@@ -89,44 +89,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         public DateTime CreatedOnUtc { get; set; }
 
-        /// <summary>
-        /// Gets the next payment date.
-        /// </summary>
-        [NotMapped]
-        public DateTime? NextPaymentDate
-        {
-            get
-            {
-                if (!IsActive || RecurringPaymentHistory.Count >= TotalCycles)
-                    return null;
-
-                DateTime? result = null;
-                if (RecurringPaymentHistory.Count > 0)
-                {
-                    result = CyclePeriod switch
-                    {
-                        RecurringProductCyclePeriod.Days => StartDateUtc.AddDays((double)CycleLength * RecurringPaymentHistory.Count),
-                        RecurringProductCyclePeriod.Weeks => StartDateUtc.AddDays((double)(7 * CycleLength) * RecurringPaymentHistory.Count),
-                        RecurringProductCyclePeriod.Months => StartDateUtc.AddMonths(CycleLength * RecurringPaymentHistory.Count),
-                        RecurringProductCyclePeriod.Years => StartDateUtc.AddYears(CycleLength * RecurringPaymentHistory.Count),
-                        _ => throw new SmartException("Not supported cycle period"),
-                    };
-                }
-                else if (TotalCycles > 0)
-                {
-                    result = StartDateUtc;
-                }
-
-                return result;
-            }
-        }
-
-        /// <summary>
-        /// Gets the cycles remaining.
-        /// </summary>
-        [NotMapped]
-        public int CyclesRemaining => Math.Clamp(TotalCycles - RecurringPaymentHistory.Count, 0, int.MaxValue);
-
         private ICollection<RecurringPaymentHistory> _recurringPaymentHistory;
         /// <summary>
         /// Gets or sets the recurring payment history.

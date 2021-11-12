@@ -41,6 +41,7 @@ namespace Smartstore.Web.Controllers
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IOrderService _orderService;
+        private readonly IPaymentService _paymentService;
         private readonly IMediaService _mediaService;
         private readonly IDownloadService _downloadService;
         private readonly ICurrencyService _currencyService;
@@ -67,6 +68,7 @@ namespace Smartstore.Web.Controllers
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
             IOrderService orderService,
+            IPaymentService paymentService,
             IMediaService mediaService,
             IDownloadService downloadService,
             ICurrencyService currencyService,
@@ -92,6 +94,7 @@ namespace Smartstore.Web.Controllers
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
             _orderService = orderService;
+            _paymentService = paymentService;
             _mediaService = mediaService;
             _downloadService = downloadService;
             _currencyService = currencyService;
@@ -1174,14 +1177,16 @@ namespace Smartstore.Web.Controllers
             var rpModels = await recurringPayments
                 .SelectAsync(async x =>
                 {
+                    var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(x);
+
                     return new CustomerOrderListModel.RecurringPaymentModel
                     {
                         Id = x.Id,
                         StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc, DateTimeKind.Utc).ToString(),
                         CycleInfo = $"{x.CycleLength} {await _localizationService.GetLocalizedEnumAsync(x.CyclePeriod)}",
-                        NextPayment = x.NextPaymentDate.HasValue ? _dateTimeHelper.ConvertToUserTime(x.NextPaymentDate.Value, DateTimeKind.Utc).ToString() : string.Empty,
+                        NextPayment = nextPaymentDate.HasValue ? _dateTimeHelper.ConvertToUserTime(nextPaymentDate.Value, DateTimeKind.Utc).ToString() : string.Empty,
                         TotalCycles = x.TotalCycles,
-                        CyclesRemaining = x.CyclesRemaining,
+                        CyclesRemaining = await _paymentService.GetRecurringPaymentRemainingCyclesAsync(x),
                         InitialOrderId = x.InitialOrder.Id,
                         CanCancel = await _orderProcessingService.CanCancelRecurringPaymentAsync(x, customer)
                     };

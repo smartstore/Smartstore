@@ -394,8 +394,13 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             if (initialOrder.OrderStatus == OrderStatus.Cancelled ||
-                (!customerToValidate.IsAdmin() && customer.Id != customerToValidate.Id) ||
-                !recurringPayment.NextPaymentDate.HasValue)
+                (!customerToValidate.IsAdmin() && customer.Id != customerToValidate.Id))
+            {
+                return false;
+            }
+
+            var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
+            if (!nextPaymentDate.HasValue)
             {
                 return false;
             }
@@ -470,7 +475,7 @@ namespace Smartstore.Core.Checkout.Orders
                 if (customer == null)
                     throw new SmartException(T("Customer.DoesNotExist"));
 
-                var nextPaymentDate = recurringPayment.NextPaymentDate;
+                var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
                 if (!nextPaymentDate.HasValue)
                     throw new SmartException(T("Payment.CannotCalculateNextPaymentDate"));
 

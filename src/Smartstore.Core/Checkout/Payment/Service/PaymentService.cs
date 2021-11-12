@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Rules;
@@ -389,6 +390,75 @@ namespace Smartstore.Core.Checkout.Payment
             }
         }
 
+        public virtual string GetMaskedCreditCardNumber(string creditCardNumber)
+        {
+            if (creditCardNumber.IsEmpty())
+                return string.Empty;
+
+            if (creditCardNumber.Length <= 4)
+                return creditCardNumber;
+
+            var last4 = creditCardNumber.Substring(creditCardNumber.Length - 4, 4);
+            var maskedChars = string.Empty;
+            for (var i = 0; i < creditCardNumber.Length - 4; i++)
+            {
+                maskedChars += "*";
+            }
+            return maskedChars + last4;
+        }
+
+        #region Recurring payment
+
+        public virtual async Task<DateTime?> GetNextRecurringPaymentDateAsync(RecurringPayment recurringPayment)
+        {
+            Guard.NotNull(recurringPayment, nameof(recurringPayment));
+
+            if (!recurringPayment.IsActive)
+            {
+                return null;
+            }
+
+            await _db.LoadCollectionAsync(recurringPayment, x => x.RecurringPaymentHistory);
+
+            var historyCount = recurringPayment.RecurringPaymentHistory.Count;
+
+            if (historyCount >= recurringPayment.TotalCycles)
+            {
+                return null;
+            }
+
+            DateTime? result = null;
+            var cycleLength = recurringPayment.CycleLength;
+            var startDate = recurringPayment.StartDateUtc;
+
+            if (historyCount > 0)
+            {
+                result = recurringPayment.CyclePeriod switch
+                {
+                    RecurringProductCyclePeriod.Days => startDate.AddDays((double)cycleLength * historyCount),
+                    RecurringProductCyclePeriod.Weeks => startDate.AddDays((double)(7 * cycleLength) * historyCount),
+                    RecurringProductCyclePeriod.Months => startDate.AddMonths(cycleLength * historyCount),
+                    RecurringProductCyclePeriod.Years => startDate.AddYears(cycleLength * historyCount),
+                    _ => throw new SmartException("Not supported cycle period"),
+                };
+            }
+            else if (recurringPayment.TotalCycles > 0)
+            {
+                result = recurringPayment.StartDateUtc;
+            }
+
+            return result;
+        }
+
+        public virtual async Task<int> GetRecurringPaymentRemainingCyclesAsync(RecurringPayment recurringPayment)
+        {
+            Guard.NotNull(recurringPayment, nameof(recurringPayment));
+
+            await _db.LoadCollectionAsync(recurringPayment, x => x.RecurringPaymentHistory);
+
+            return Math.Clamp(recurringPayment.TotalCycles - recurringPayment.RecurringPaymentHistory.Count, 0, int.MaxValue);
+        }
+
         public virtual async Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
         {
             if (cancelPaymentRequest.Order.OrderTotal == decimal.Zero)
@@ -414,22 +484,7 @@ namespace Smartstore.Core.Checkout.Payment
             }
         }
 
-        public virtual string GetMaskedCreditCardNumber(string creditCardNumber)
-        {
-            if (creditCardNumber.IsEmpty())
-                return string.Empty;
-
-            if (creditCardNumber.Length <= 4)
-                return creditCardNumber;
-
-            var last4 = creditCardNumber.Substring(creditCardNumber.Length - 4, 4);
-            var maskedChars = string.Empty;
-            for (var i = 0; i < creditCardNumber.Length - 4; i++)
-            {
-                maskedChars += "*";
-            }
-            return maskedChars + last4;
-        }
+        #endregion
 
         protected virtual IList<IPaymentMethodFilter> GetAllPaymentMethodFilters()
         {

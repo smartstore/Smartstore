@@ -123,6 +123,10 @@
             </div>
         </tab>
         <tab sm-title="@T("Admin.RecurringPayments.History")">
+            <div sm-if="Model.NextPaymentDate.HasValue" class="alert alert-info">
+                @T("Admin.RecurringPayments.History.NextPaymentDate"): <strong>@Model.NextPaymentDate</strong>
+            </div>
+
             @*TODO: (mg) (core) add history grid*@
         </tab>
     </tabstrip>

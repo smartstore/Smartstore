@@ -56,6 +56,7 @@ namespace Smartstore.Admin.Controllers
             var query = _db.RecurringPayments
                 .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.BillingAddress)
                 .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.ShippingAddress)
+                .Include(x => x.RecurringPaymentHistory)
                 .AsQueryable();
 
             if (model.CustomerEmail.HasValue())
@@ -165,19 +166,23 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.Read)]
         public async Task<IActionResult> RecurringPaymentHistoryList(int recurringPaymentId)
         {
-            var history = await _db.RecurringPaymentHistory
-                .AsNoTracking()
-                .Where(x => x.RecurringPaymentId == recurringPaymentId)
-                .OrderBy(x => x.CreatedOnUtc)
-                .ToListAsync();
+            var recurringPayment = await _db.RecurringPayments
+                .Include(x => x.RecurringPaymentHistory)
+                .FindByIdAsync(recurringPaymentId);
 
-            var orderIds = history.ToDistinctArray(x => x.OrderId);
+            if (recurringPayment == null)
+            {
+                return NotFound();
+            }
+
+            var orderIds = recurringPayment.RecurringPaymentHistory.ToDistinctArray(x => x.OrderId);
+
             var orders = await _db.Orders
                 .AsNoTracking()
                 .Where(x => orderIds.Contains(x.Id))
                 .ToDictionaryAsync(x => x.Id, x => x);
 
-            var rows = await history.SelectAsync(async x =>
+            var rows = await recurringPayment.RecurringPaymentHistory.SelectAsync(async x =>
             {
                 var m = new RecurringPaymentModel.RecurringPaymentHistoryModel();
                 await PrepareRecurringPaymentHistoryModel(m, x, orders.Get(x.OrderId));
@@ -188,7 +193,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new GridModel<RecurringPaymentModel.RecurringPaymentHistoryModel>
             {
                 Rows = rows,
-                Total = history.Count
+                Total = recurringPayment.RecurringPaymentHistory.Count
             });
         }
 
@@ -262,6 +267,7 @@ namespace Smartstore.Admin.Controllers
 
             var initialOrder = recurringPayment.InitialOrder;
             var customer = initialOrder?.Customer;
+            var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
 
             model.Id = recurringPayment.Id;
             model.CycleLength = recurringPayment.CycleLength;
@@ -270,12 +276,15 @@ namespace Smartstore.Admin.Controllers
             model.TotalCycles = recurringPayment.TotalCycles;
             model.StartDate = Services.DateTimeHelper.ConvertToUserTime(recurringPayment.StartDateUtc, DateTimeKind.Utc);
             model.IsActive = recurringPayment.IsActive;
-            model.NextPaymentDate = Services.DateTimeHelper.ConvertToUserTime(recurringPayment.NextPaymentDate.Value, DateTimeKind.Utc);
-            model.CyclesRemaining = recurringPayment.CyclesRemaining;
+            model.CyclesRemaining = await _paymentService.GetRecurringPaymentRemainingCyclesAsync(recurringPayment);
             model.InitialOrderId = recurringPayment.InitialOrderId;
             model.InitialOrderNumber = initialOrder?.GetOrderNumber();
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(recurringPayment.CreatedOnUtc, DateTimeKind.Utc);
             model.EditUrl = Url.Action(nameof(Edit), "ReturnRequest", new { id = recurringPayment.Id });
+
+            model.NextPaymentDate = nextPaymentDate.HasValue
+                ? Services.DateTimeHelper.ConvertToUserTime(nextPaymentDate.Value, DateTimeKind.Utc)
+                : null;
 
             if (initialOrder != null)
             {

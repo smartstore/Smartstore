@@ -458,15 +458,19 @@ namespace Smartstore.Core.Messaging
             Guard.NotNull(messageContext, nameof(messageContext));
             Guard.NotNull(part, nameof(part));
 
+            var paymentService = _services.Resolve<IPaymentService>();
+            var nextPaymentDate = await paymentService.GetNextRecurringPaymentDateAsync(part);
+            var remaingCycles = await paymentService.GetRecurringPaymentRemainingCyclesAsync(part);
+
             var m = new Dictionary<string, object>
             {
                 { "Id", part.Id },
                 { "CreatedOn", _helper.ToUserDate(part.CreatedOnUtc, messageContext) },
                 { "StartedOn", _helper.ToUserDate(part.StartDateUtc, messageContext) },
-                { "NextOn", _helper.ToUserDate(part.NextPaymentDate, messageContext) },
+                { "NextOn", _helper.ToUserDate(nextPaymentDate, messageContext) },
                 { "CycleLength", part.CycleLength },
                 { "CyclePeriod", part.CyclePeriod.GetLocalizedEnum(messageContext.Language.Id) },
-                { "CyclesRemaining", part.CyclesRemaining },
+                { "CyclesRemaining", remaingCycles },
                 { "TotalCycles", part.TotalCycles },
                 { "Url", _helper.BuildActionUrl("Edit", "RecurringPayment", new { id = part.Id, area = "Admin" }, messageContext) }
             };
