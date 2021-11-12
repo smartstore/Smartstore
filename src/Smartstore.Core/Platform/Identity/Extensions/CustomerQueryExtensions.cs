@@ -257,9 +257,11 @@ namespace Smartstore.Core.Identity
         /// Selects only customers with shopping carts and sorts by <see cref="Customer.CreatedOnUtc"/> descending.
         /// </summary>
         /// <param name="cartType">Type of cart to match. <c>null</c> to match any type.</param>
-        public static IQueryable<Customer> ApplyHasCartFilter(this IQueryable<Customer> query, ShoppingCartType? cartType = null)
+        public static IQueryable<Customer> ApplyShoppingCartFilter(this IQueryable<Customer> query, ShoppingCartType? cartType = null)
         {
             Guard.NotNull(query, nameof(query));
+
+            // TODO: (mg) (core) throws System.InvalidOperationException: The LINQ expression... could not be translated.
 
             var cartItemQuery = query
                 .GetDbContext<SmartDbContext>()
@@ -289,6 +291,39 @@ namespace Smartstore.Core.Identity
             query = groupQuery
                 .OrderByDescending(x => x.CreatedOnUtc)
                 .Select(x => x.Customer);
+
+            return query;
+        }
+
+        public static IQueryable<Customer> ApplyShoppingCartFilter2(this IQueryable<Customer> query, ShoppingCartType? cartType = null)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            var db = query.GetDbContext<SmartDbContext>();
+
+            var itemQuery = db.ShoppingCartItems.AsNoTracking();
+
+            if (cartType.HasValue)
+            {
+                itemQuery = itemQuery.Where(x => x.ShoppingCartTypeId == (int)cartType.Value);
+            }
+
+            //itemQuery = itemQuery.OrderByDescending(x => x.CreatedOnUtc);
+
+            //var subQuery = 
+            //    from item in itemQuery
+            //    group item by item.CustomerId into grp
+            //    select grp.Key;
+
+            //query = query.Where(x => subQuery.Contains(x.Id));
+
+            // missing distict....
+
+            query =
+                from c in query
+                join item in itemQuery on c.Id equals item.CustomerId
+                orderby item.CreatedOnUtc descending
+                select c;
 
             return query;
         }

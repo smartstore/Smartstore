@@ -1,0 +1,40 @@
+﻿@model RecurringPaymentModel.RecurringPaymentHistoryModel
+
+@{
+    var parentModel = ViewData["Parent"] as RecurringPaymentModel;
+}
+
+<datagrid id="recurring-payment-history-grid"
+          key-member="Id"
+          allow-resize="true"
+          allow-column-reordering="false"
+          preserve-grid-state="true"
+          max-height="650px">
+    <datasource read="@Url.Action("RecurringPaymentHistoryList", new { recurringPaymentId = parentModel.Id })" />
+    <paging position="Bottom" show-size-chooser="true" enabled="false" />
+    <sorting enabled="false"></sorting>
+    @if (parentModel.NextPaymentDate.HasValue || parentModel.CanCancel)
+    {
+        <toolbar>
+            <toolbar-group>
+                <button sm-if="parentModel.NextPaymentDate.HasValue" type="submit" name="processnextpayment" value="processnextpayment" class="btn btn-primary btn-flat no-anims mr-1 confirm">
+                    <span>@T("Admin.RecurringPayments.History.ProcessNextPayment")</span>
+                </button>
+                <button sm-if="parentModel.CanCancel" type="submit" name="cancelpayment" value="cancelpayment" class="btn btn-light no-anims confirm">
+                    <span>@T("Admin.RecurringPayments.History.CancelPayment")</span>
+                </button>
+            </toolbar-group>
+        </toolbar>
+    }
+    <columns>
+        <column for="OrderId" hideable="false" width="1fr">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.row.OrderNumber }}</a></div>
+            </display-template>
+        </column>
+        <column for="OrderStatus" />
+        <column for="PaymentStatus" />
+        <column for="ShippingStatus" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+    </columns>
+</datagrid>

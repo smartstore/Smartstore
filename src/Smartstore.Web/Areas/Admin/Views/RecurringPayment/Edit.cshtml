@@ -4,6 +4,9 @@
 
 @{
     ViewBag.Title = T("Admin.RecurringPayments.EditPaymentDetails");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
 }
 
 <form asp-action="Edit" method="post">
@@ -127,7 +130,7 @@
                 @T("Admin.RecurringPayments.History.NextPaymentDate"): <strong>@Model.NextPaymentDate</strong>
             </div>
 
-            @*TODO: (mg) (core) add history grid*@
+            <partial name="_Grid.RecurringPaymentHistory" model="null" view-data="gridViewData" />
         </tab>
     </tabstrip>
 </form>

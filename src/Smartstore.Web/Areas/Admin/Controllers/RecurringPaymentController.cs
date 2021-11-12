@@ -280,7 +280,7 @@ namespace Smartstore.Admin.Controllers
             model.InitialOrderId = recurringPayment.InitialOrderId;
             model.InitialOrderNumber = initialOrder?.GetOrderNumber();
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(recurringPayment.CreatedOnUtc, DateTimeKind.Utc);
-            model.EditUrl = Url.Action(nameof(Edit), "ReturnRequest", new { id = recurringPayment.Id });
+            model.EditUrl = Url.Action(nameof(Edit), "RecurringPayment", new { id = recurringPayment.Id });
 
             model.NextPaymentDate = nextPaymentDate.HasValue
                 ? Services.DateTimeHelper.ConvertToUserTime(nextPaymentDate.Value, DateTimeKind.Utc)
@@ -346,6 +346,8 @@ namespace Smartstore.Admin.Controllers
                 model.OrderStatus = await Services.Localization.GetLocalizedEnumAsync(order.OrderStatus);
                 model.PaymentStatus = await Services.Localization.GetLocalizedEnumAsync(order.PaymentStatus);
                 model.ShippingStatus = await Services.Localization.GetLocalizedEnumAsync(order.ShippingStatus);
+                model.OrderNumber = order.GetOrderNumber();
+                model.OrderEditUrl = Url.Action("Edit", "Order", new { id = order.Id });
             }
         }
     }

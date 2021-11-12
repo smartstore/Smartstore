@@ -56,10 +56,12 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("Admin.RecurringPayments.History.")]
         public class RecurringPaymentHistoryModel : EntityModelBase
         {
+            public int RecurringPaymentId { get; set; }
+
             [LocalizedDisplay("*Order")]
             public int OrderId { get; set; }
-
-            public int RecurringPaymentId { get; set; }
+            public string OrderNumber { get; set; }
+            public string OrderEditUrl { get; set; }
 
             [LocalizedDisplay("*OrderStatus")]
             public string OrderStatus { get; set; }

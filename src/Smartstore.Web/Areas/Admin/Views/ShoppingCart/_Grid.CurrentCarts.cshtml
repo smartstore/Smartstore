@@ -1,0 +1,25 @@
+﻿@model CurrentCartModel
+
+@{
+    var parentModel = ViewData["Parent"] as CurrentCartListModel;
+}
+
+<datagrid id="current-carts-grid"
+          allow-resize="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("CurrentCartsList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting enabled="false"></sorting>
+    @*<search-panel>
+            <partial name="_Grid.CurrentCarts.Search" model="parentModel" />
+    </search-panel>*@
+    <columns>
+        <column for="CustomerId" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerEmail }}</a></div>
+            </display-template>
+        </column>
+        <column for="TotalItems" halign="center" />
+    </columns>
+</datagrid>
