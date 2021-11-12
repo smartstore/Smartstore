@@ -23,10 +23,12 @@ namespace Smartstore.Admin.Controllers
     public class ShoppingCartController : AdminController
     {
         private readonly SmartDbContext _db;
+        private readonly ICustomerService _customerService;
 
-        public ShoppingCartController(SmartDbContext db)
+        public ShoppingCartController(SmartDbContext db, ICustomerService customerService)
         {
             _db = db;
+            _customerService = customerService;
         }
 
         public IActionResult Index()
@@ -48,41 +50,52 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Cart.Read)]
         public async Task<IActionResult> CurrentCartsList(GridCommand command, CurrentCartListModel model)
         {
-            var query = _db.Customers
-                .AsNoTracking()
-                .Include(x => x.ShoppingCartItems)
-                .IncludeCustomerRoles()
-                .ApplyShoppingCartFilter2(ShoppingCartType.ShoppingCart);
+            var cartTypeId = (int)ShoppingCartType.ShoppingCart;
+            var guestStr = T("Admin.Customers.Guest").Value;
+            var guestRole = await _customerService.GetRoleBySystemNameAsync(SystemCustomerRoleNames.Guests, false);
+            var guestRoleId = guestRole?.Id ?? 0;
 
-            // TODO: (mg) (core) add filters for grid.
+            // INFO: the first where-clause is important for performance (avoid aggregating across all customers).
+            var query =
+                from c in _db.Customers
+                let cartItems = c.ShoppingCartItems.Where(x => x.ShoppingCartTypeId == cartTypeId && x.ParentItemId == null)
+                where cartItems.Any()
+                select new CurrentCartModel
+                {
+                    CustomerId = c.Id,
+                    CustomerEmail = c.Email,
+                    IsGuest = c.CustomerRoleMappings.Any(x => x.CustomerRoleId == guestRoleId),
+                    TotalItems = cartItems.Sum(x => x.Quantity),
+                    LatestCartItemDate = cartItems
+                        .Select(x => (DateTime?)x.CreatedOnUtc)
+                        .OrderByDescending(x => x)
+                        .FirstOrDefault()
+                };
 
-            var customers = await query
+            var rows = await query
+                .OrderByDescending(x => x.LatestCartItemDate)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var guestStr = T("Admin.Customers.Guest").Value;
-
-            var rows = customers.Select(x =>
+            foreach (var row in rows)
             {
-                $"{x.Id}: {x.ShoppingCartItems.Count}".Dump();
-                var m = new CurrentCartModel
+                if (row.CustomerEmail.IsEmpty())
                 {
-                    CustomerId = x.Id,
-                    CustomerEmail = x.IsGuest() ? guestStr : x.Email,
-                    CustomerEditUrl = Url.Action("Edit", "Customer", new { id = x.Id }),
-                    TotalItems = x.ShoppingCartItems
-                        .Where(x => x.ParentItemId == null && x.ShoppingCartType == ShoppingCartType.ShoppingCart)
-                        .Sum(x => x.Quantity)
-                };
+                    row.CustomerEmail = row.IsGuest ? guestStr : StringExtensions.NotAvailable;
+                }
 
-                return m;
-            })
-            .ToList();
+                if (row.LatestCartItemDate.HasValue)
+                {
+                    row.LatestCartItemDate = Services.DateTimeHelper.ConvertToUserTime(row.LatestCartItemDate.Value, DateTimeKind.Utc);
+                }
+
+                row.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = row.CustomerId });
+            }
 
             return Json(new GridModel<CurrentCartModel>
             {
                 Rows = rows,
-                Total = customers.TotalCount
+                Total = rows.TotalCount
             });
         }
 

@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Cart;
+﻿using System;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.ShoppingCart
@@ -20,6 +21,10 @@ namespace Smartstore.Admin.Models.ShoppingCart
         [LocalizedDisplay("*TotalItems")]
         public int TotalItems { get; set; }
 
+        [LocalizedDisplay("Common.Date")]
+        public DateTime? LatestCartItemDate { get; set; }
+
+        public bool IsGuest { get; set; }
         public string CustomerEditUrl { get; set; }
     }
 }

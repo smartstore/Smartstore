@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Identity
@@ -249,81 +246,6 @@ namespace Smartstore.Core.Identity
                     z.Attribute.Key == SystemCustomerAttributeNames.ZipPostalCode &&
                     z.Attribute.Value.Contains(zip))
                 .Select(z => z.Customer);
-
-            return query;
-        }
-
-        /// <summary>
-        /// Selects only customers with shopping carts and sorts by <see cref="Customer.CreatedOnUtc"/> descending.
-        /// </summary>
-        /// <param name="cartType">Type of cart to match. <c>null</c> to match any type.</param>
-        public static IQueryable<Customer> ApplyShoppingCartFilter(this IQueryable<Customer> query, ShoppingCartType? cartType = null)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            // TODO: (mg) (core) throws System.InvalidOperationException: The LINQ expression... could not be translated.
-
-            var cartItemQuery = query
-                .GetDbContext<SmartDbContext>()
-                .ShoppingCartItems
-                .AsNoTracking()
-                .Include(x => x.Customer)
-                .AsQueryable();
-
-            if (cartType.HasValue)
-            {
-                cartItemQuery = cartItemQuery.Where(x => x.ShoppingCartTypeId == (int)cartType.Value);
-            }
-
-            var groupQuery =
-                from sci in cartItemQuery
-                group sci by sci.CustomerId into grp
-                select grp
-                    .OrderByDescending(x => x.CreatedOnUtc)
-                    .Select(x => new
-                    {
-                        x.Customer,
-                        x.CreatedOnUtc
-                    })
-                    .FirstOrDefault();
-
-            // We have to sort again because of paging.
-            query = groupQuery
-                .OrderByDescending(x => x.CreatedOnUtc)
-                .Select(x => x.Customer);
-
-            return query;
-        }
-
-        public static IQueryable<Customer> ApplyShoppingCartFilter2(this IQueryable<Customer> query, ShoppingCartType? cartType = null)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            var db = query.GetDbContext<SmartDbContext>();
-
-            var itemQuery = db.ShoppingCartItems.AsNoTracking();
-
-            if (cartType.HasValue)
-            {
-                itemQuery = itemQuery.Where(x => x.ShoppingCartTypeId == (int)cartType.Value);
-            }
-
-            //itemQuery = itemQuery.OrderByDescending(x => x.CreatedOnUtc);
-
-            //var subQuery = 
-            //    from item in itemQuery
-            //    group item by item.CustomerId into grp
-            //    select grp.Key;
-
-            //query = query.Where(x => subQuery.Contains(x.Id));
-
-            // missing distict....
-
-            query =
-                from c in query
-                join item in itemQuery on c.Id equals item.CustomerId
-                orderby item.CreatedOnUtc descending
-                select c;
 
             return query;
         }

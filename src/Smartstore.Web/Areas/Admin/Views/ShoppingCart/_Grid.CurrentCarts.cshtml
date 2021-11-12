@@ -15,11 +15,12 @@
             <partial name="_Grid.CurrentCarts.Search" model="parentModel" />
     </search-panel>*@
     <columns>
-        <column for="CustomerId" hideable="false">
+        <column for="CustomerEmail" hideable="false" width="auto">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerEmail }}</a></div>
             </display-template>
         </column>
         <column for="TotalItems" halign="center" />
+        <column for="LatestCartItemDate" />
     </columns>
 </datagrid>
