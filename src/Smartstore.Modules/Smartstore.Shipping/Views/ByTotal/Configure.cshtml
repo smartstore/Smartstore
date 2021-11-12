@@ -1,0 +1,66 @@
+﻿@using Smartstore.Shipping.Models
+
+@model ByTotalListModel
+
+@{
+    Layout = "_ConfigureProvider";
+
+    // TODO: (mh) (core) Setting spa-stretch on tabstrip or tab doesn't work here.
+    //Assets.BodyAttributes.AppendCssClass("spa-layout");
+    ViewBag.IsGrid = true;
+}
+
+<widget target-zone="admin_button_toolbar_before">
+    <button data-target="by-total-settings" id="SaveConfigButton" type="submit" name="save" value="save" class="btn btn-warning">
+        <i class="fa fa-check"></i>
+        <span>@T("Admin.Common.Save")</span>
+    </button>
+</widget>
+
+<tabstrip id="shipping-method-edit" sm-nav-style="Material" sm-nav-position="Top">
+    <tab sm-title="@T("Plugins.Shipping.ByTotal.TabTitleGrid")" sm-selected="true">
+        <partial name="_Grid.ShippingRates" model="null" />
+    </tab>
+    <tab sm-title="@T("Plugins.Shipping.ByTotal.TabTitleSettings")">
+        <form asp-action="Configure" id="by-total-settings">
+            <div class="adminContent mb-5">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SmallQuantityThreshold" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="SmallQuantityThreshold" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                        <span asp-validation-for="SmallQuantityThreshold"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SmallQuantitySurcharge" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="SmallQuantitySurcharge" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                        <span asp-validation-for="SmallQuantitySurcharge"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CalculateTotalIncludingTax" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="CalculateTotalIncludingTax" />
+                        <span asp-validation-for="CalculateTotalIncludingTax"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LimitMethodsToCreated" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="LimitMethodsToCreated" />
+                        <span asp-validation-for="LimitMethodsToCreated"></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </tab>
+</tabstrip>

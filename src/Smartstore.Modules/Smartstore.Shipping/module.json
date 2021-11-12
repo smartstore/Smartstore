@@ -1,0 +1,11 @@
+{
+  "Group": "Shipping",
+  "SystemName": "Smartstore.Shipping",
+  "FriendlyName": "Default Shipping Providers",
+  "Description": "Provides shipping methods for fixed rate shipping and computation based on weight.",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Order": 0,
+  "AssemblyName": "Smartstore.Shipping.dll",
+  "ResourceRootKey": "Plugins.SmartStore.Shipping"
+}
