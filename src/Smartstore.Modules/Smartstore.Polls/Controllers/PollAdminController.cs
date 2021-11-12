@@ -21,7 +21,6 @@ using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Polls.Controllers
 {
-    [Area("Admin")]
     [Route("[area]/poll/{action=index}/{id?}")]
     public class PollAdminController : AdminController
     {

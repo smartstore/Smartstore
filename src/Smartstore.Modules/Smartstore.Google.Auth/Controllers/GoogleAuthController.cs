@@ -10,7 +10,6 @@ using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.Google.Auth.Controllers
 {
-    [Area("Admin")]
     [Route("[area]/google/auth/{action=index}/{id?}")]
     public class GoogleAuthController : AdminController
     {

@@ -10,7 +10,6 @@ using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.Twitter.Auth.Controllers
 {
-    [Area("Admin")]
     [Route("[area]/twitterauth/{action=index}/{id?}")]
     public class TwitterAuthController : AdminController
     {

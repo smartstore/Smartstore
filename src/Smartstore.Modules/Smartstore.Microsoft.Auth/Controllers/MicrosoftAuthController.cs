@@ -10,7 +10,6 @@ using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.Microsoft.Auth.Controllers
 {
-    [Area("Admin")]
     [Route("[area]/microsoft/auth/{action=index}/{id?}")]
     public class MicrosoftAuthController : AdminController
     {
