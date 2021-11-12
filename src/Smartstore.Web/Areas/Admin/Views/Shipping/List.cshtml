@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = T("Admin.Configuration.Shipping.Methods").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-truck"></i>
+        @T("Admin.Configuration.Shipping.Methods")
+    </div>
+</div>
+
+<partial name="_Grid.ShippingMethods" model="null" />
