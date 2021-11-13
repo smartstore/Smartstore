@@ -4,22 +4,24 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using Smartstore.Core;
 using Smartstore.Engine;
+using Smartstore.Engine.Runtimes;
 using Smartstore.Threading;
 using Smartstore.Utilities;
 
 namespace Smartstore.Pdf.WkHtml
 {
-    // TODO: (core) Deploy native libs for Linux and MacOS
     // TODO: (core) Implement BatchMode
     public class WkHtmlToPdfConverter : IPdfConverter
     {
         private static string _tempPath;
-        private static string _toolExePath;
+        private static AsyncLazy<string> _toolExePath = new(GetToolExePathAsync);
         private readonly static string[] _ignoreErrLines = new string[] 
         { 
             "Exit with code 1 due to network error: ContentNotFoundError", 
@@ -56,6 +58,24 @@ namespace Smartstore.Pdf.WkHtml
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
+
+        private static async Task<string> GetToolExePathAsync()
+        {
+            var libraryManager = EngineContext.Current.Application.Services.Resolve<INativeLibraryManager>();
+
+            var fi = libraryManager.GetNativeExecutable("wkhtmltopdf");
+            if (!fi.Exists)
+            {
+                fi = await libraryManager.InstallFromPackageAsync(new InstallNativePackageRequest("wkhtmltopdf", true, "Smartstore.wkhtmltopdf.Native"));
+            }
+
+            if (!fi.Exists)
+            {
+                throw new InvalidOperationException($"Unable to install PDF processor tool 'wkhtmltopdf'.");
+            }
+
+            return fi.FullName;
+        }
 
         /// <summary>
         /// Occurs when log line is received from WkHtmlToPdf process
@@ -162,22 +182,6 @@ namespace Smartstore.Pdf.WkHtml
             return _tempPath;
         }
 
-        private string GetToolExePath(WkHtmlToPdfOptions options)
-        {
-            LazyInitializer.EnsureInitialized(ref _toolExePath, () =>
-            {
-                if (options.PdfToolName.IsEmpty())
-                {
-                    throw new ArgumentException($"{nameof(options.PdfToolName)} property is not initialized with name to wkhtmltopdf binary.");
-                }
-
-                var path = _appContext.RuntimeInfo.GetNativeLibraryPath(options.PdfToolName);
-                return path;
-            });
-
-            return _toolExePath;
-        }
-
         private async Task RunProcessAsync(string arguments, IPdfInput input, CancellationToken cancelToken)
         {
             var lastErrorLine = string.Empty;
@@ -196,7 +200,7 @@ namespace Smartstore.Pdf.WkHtml
             {
                 _process = Process.Start(new ProcessStartInfo
                 {
-                    FileName = GetToolExePath(_options),
+                    FileName = await _toolExePath,
                     WorkingDirectory = _appContext.RuntimeInfo.NativeLibraryDirectory,
                     Arguments = arguments,
                     WindowStyle = ProcessWindowStyle.Hidden,
@@ -254,23 +258,8 @@ namespace Smartstore.Pdf.WkHtml
         {
             if (_process != null)
             {
-                if (!_process.HasExited)
-                {
-                    try
-                    {
-                        _process.Kill();
-                        _process.Close();
-                        _process = null;
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-                else
-                {
-                    _process.Close();
-                    _process = null;
-                }
+                _process.EnsureStopped();
+                _process = null;
             }
         }
 

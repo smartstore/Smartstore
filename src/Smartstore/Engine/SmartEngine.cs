@@ -20,6 +20,7 @@ using Smartstore.Diagnostics;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Initialization;
 using Smartstore.Engine.Modularity;
+using Smartstore.Engine.Runtimes;
 using Smartstore.IO;
 using Smartstore.Pdf;
 
@@ -27,7 +28,7 @@ namespace Smartstore.Engine
 {
     public class SmartEngine : IEngine
     {
-        const string SmartstoreNamespace = "Smartstore.";
+        const string SmartstoreNamespace = "Smartstore";
 
         private ModuleReferenceResolver _moduleReferenceResolver;
         private readonly static ConcurrentDictionary<Assembly, IModuleDescriptor> _assemblyModuleMap = new();
@@ -128,15 +129,16 @@ namespace Smartstore.Engine
             private IEnumerable<Assembly> ResolveCoreAssemblies()
             {
                 var assemblies = new HashSet<Assembly>();
+                var nsPrefix = SmartstoreNamespace + '.';
 
                 var libs = DependencyContext.Default.CompileLibraries
-                    .Where(x => x.Name.StartsWith(SmartstoreNamespace))
+                    .Where(x => x.Name == SmartstoreNamespace || x.Name.StartsWith(nsPrefix))
                     .Select(x => new CoreAssembly
                     {
                         Name = x.Name,
                         DependsOn = x.Dependencies
-                            .Where(y => y.Name.StartsWith(SmartstoreNamespace))
-                            .Where(y => !y.Name.StartsWith(SmartstoreNamespace + ".Data.")) // Exclude data provider projects
+                            .Where(y => y.Name.StartsWith(nsPrefix))
+                            .Where(y => !y.Name.StartsWith(nsPrefix + "Data.")) // Exclude data provider projects
                             .Select(y => y.Name)
                             .ToArray()
                     })
@@ -206,6 +208,7 @@ namespace Smartstore.Engine
                 services.AddAsyncRunner();
                 services.AddLockFileManager();
 
+                services.AddSingleton<INativeLibraryManager, NativeLibraryManager>();
                 services.AddSingleton(x => NullChronometer.Instance);
                 services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
                 services.AddSingleton<IFilePermissionChecker, FilePermissionChecker>();

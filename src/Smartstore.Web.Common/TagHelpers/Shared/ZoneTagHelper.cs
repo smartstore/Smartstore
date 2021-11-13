@@ -70,11 +70,6 @@ namespace Smartstore.Web.TagHelpers.Shared
 					var target = widget.Prepend ? output.PreContent : output.PostContent;
 					var viewContext = Model == null ? ViewContext : ViewContext.Clone(Model);
 
-					if (ZoneName == "file_uploader")
-                    {
-						var yo = true;
-                    }
-
 					target.AppendHtml(await widget.InvokeAsync(viewContext));
 				}
 			}

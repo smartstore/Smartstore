@@ -16,11 +16,6 @@ namespace Smartstore.Pdf.WkHtml
         public ProcessPriorityClass ProcessPriority { get; set; } = ProcessPriorityClass.Normal;
 
         /// <summary>
-        /// Get or set wkhtmltopdf tool executable file name (e.g. 'wkhtmltopdf.exe' for Windows) 
-        /// </summary>
-        public string PdfToolName { get; set; }
-
-        /// <summary>
         /// Get or set location for temp files (if not specified the current tenant temp directory is used for temp files) 
         /// </summary>
         /// <remarks>

@@ -49,7 +49,6 @@ namespace Smartstore.Bootstrapping
             {
                 Guard.NotNull(options, nameof(options));
 
-                options.PdfToolName = "wkhtmltopdf";
                 options.TempFilesPath = _appContext.GetTenantTempDirectory("PdfGen").PhysicalPath.EnsureEndsWith(Path.DirectorySeparatorChar);
 
                 var baseUrl = _appContext.AppConfiguration.PdfEngineBaseUrl.TrimSafe().NullEmpty();

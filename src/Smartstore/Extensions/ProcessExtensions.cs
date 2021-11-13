@@ -13,5 +13,26 @@ namespace Smartstore.Core
             process.Start();
             await process.WaitForExitAsync(cancelToken);
         }
+
+        public static void EnsureStopped(this Process process)
+        {
+            Guard.NotNull(process, nameof(process));
+
+            if (!process.HasExited)
+            {
+                try
+                {
+                    process.Kill();
+                    process.Close();
+                }
+                catch
+                {
+                }
+            }
+            else
+            {
+                process.Close();
+            }
+        }
     }
 }

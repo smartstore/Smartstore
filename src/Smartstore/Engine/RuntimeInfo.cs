@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.IO.Compression;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Hosting;
 
@@ -69,46 +67,5 @@ namespace Smartstore.Engine
         /// Gets the version agnostic runtime identifier (RID), e.g. win-x64, linux-x64, osx-x64 etc.
         /// </summary>
         public string RID { get; }
-
-        /// <summary>
-        /// Gets the full path to a native library executable.
-        /// </summary>
-        /// <param name="libraryName">File name without extension.</param>
-        /// <param name="extract">Whether to extract the corresponding .gz file (if any).</param>
-        /// <returns>Full executable path.</returns>
-        /// <exception cref="FileNotFoundException">Raised when file noes not exist.</exception>
-        public string GetNativeLibraryPath(string libraryName, bool extract = true)
-        {
-            Guard.NotEmpty(libraryName, nameof(libraryName));
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                libraryName = libraryName.EnsureEndsWith(".exe");
-            }
-
-            var path = Path.Combine(NativeLibraryDirectory, libraryName);
-
-            if (!File.Exists(path) && extract)
-            {
-                var gzPath = path + ".gz";
-                if (File.Exists(gzPath))
-                {
-                    // Archive exists, but was not uncompressed yet.
-                    using (var archive = File.OpenRead(gzPath))
-                    using (var input = new GZipStream(archive, CompressionMode.Decompress, false))
-                    using (var output = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
-                    {
-                        input.CopyTo(output);
-                    }
-                }
-            }
-
-            if (!File.Exists(path))
-            {
-                throw new FileNotFoundException($"{libraryName} executable does not exist. Attempted path: {path}.");
-            }
-
-            return path;
-        }
     }
 }
