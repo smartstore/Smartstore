@@ -4,31 +4,32 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.ShoppingCart;
+using Smartstore.Admin.Models.Cart;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
-    // TODO: (mg) (core) remove ShoppingCartItemQueryExtensions.CountCartItemsAsync when ready (not required, looks weird anyway).
     public class ShoppingCartController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly ICustomerService _customerService;
+        private readonly IShoppingCartService _shoppingCartService;
 
-        public ShoppingCartController(SmartDbContext db, ICustomerService customerService)
+        public ShoppingCartController(
+            SmartDbContext db, 
+            ICustomerService customerService,
+            IShoppingCartService shoppingCartService)
         {
             _db = db;
             _customerService = customerService;
+            _shoppingCartService = shoppingCartService;
         }
 
         public IActionResult Index()
@@ -44,21 +45,49 @@ namespace Smartstore.Admin.Controllers
                 CartType = ShoppingCartType.ShoppingCart
             };
 
+            ViewBag.Stores = Services.StoreContext.GetAllStores().ToSelectListItems();
+
             return View(model);
         }
 
         [Permission(Permissions.Cart.Read)]
-        public async Task<IActionResult> CurrentCartsList(GridCommand command, CurrentCartListModel model)
+        public IActionResult CurrentWishlists()
         {
-            var cartTypeId = (int)ShoppingCartType.ShoppingCart;
+            var model = new CurrentCartListModel
+            {
+                CartType = ShoppingCartType.Wishlist
+            };
+
+            ViewBag.Stores = Services.StoreContext.GetAllStores().ToSelectListItems();
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Cart.Read)]
+        public async Task<IActionResult> CurrentCartList(GridCommand command, CurrentCartListModel model)
+        {
+            var dtHelper = Services.DateTimeHelper;
+            var cartTypeId = (int)model.CartType;
             var guestStr = T("Admin.Customers.Guest").Value;
             var guestRole = await _customerService.GetRoleBySystemNameAsync(SystemCustomerRoleNames.Guests, false);
             var guestRoleId = guestRole?.Id ?? 0;
 
+            DateTime? startDateUtc = model.StartDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
+
+            DateTime? endDateUtc = model.EndDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+
             // INFO: the first where-clause is important for performance (avoid aggregating across all customers).
             var query =
                 from c in _db.Customers
-                let cartItems = c.ShoppingCartItems.Where(x => x.ShoppingCartTypeId == cartTypeId && x.ParentItemId == null)
+                let cartItems = c.ShoppingCartItems.Where(x => 
+                    x.ShoppingCartTypeId == cartTypeId && x.ParentItemId == null
+                    && (startDateUtc == null || startDateUtc.Value <= x.CreatedOnUtc)
+                    && (endDateUtc == null || endDateUtc.Value >= x.CreatedOnUtc)
+                    && (model.StoreId == 0 || x.StoreId == model.StoreId))
                 where cartItems.Any()
                 select new CurrentCartModel
                 {
@@ -99,6 +128,26 @@ namespace Smartstore.Admin.Controllers
             });
         }
 
+        [Permission(Permissions.Cart.Read)]
+        public async Task<IActionResult> CurrentCartDetailsList(int customerId, ShoppingCartType cartType)
+        {
+            var customer = await _db.Customers
+                .IncludeShoppingCart()
+                .FindByIdAsync(customerId);
 
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            var cart = await _shoppingCartService.GetCartAsync(customer, cartType);
+            var rows = await cart.MapAsync();
+
+            return Json(new GridModel<ShoppingCartItemModel>
+            {
+                Rows = rows,
+                Total = rows.Count
+            });
+        }
     }
 }

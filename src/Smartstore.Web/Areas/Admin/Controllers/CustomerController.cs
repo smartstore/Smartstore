@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Smartstore.Admin.Models.Customers;
-using Smartstore.Admin.Models.ShoppingCart;
+using Smartstore.Admin.Models.Cart;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -1385,7 +1385,7 @@ namespace Smartstore.Admin.Controllers
         {
             var customer = await _db.Customers
                 .IncludeShoppingCart()
-                .FindByIdAsync(customerId, false);
+                .FindByIdAsync(customerId);
 
             if (customer == null)
             {
@@ -1393,35 +1393,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var cart = await _shoppingCartService.GetCartAsync(customer, (ShoppingCartType)cartTypeId);
-            var allProducts = cart.Items
-                .Select(x => x.Item.Product)
-                .Union(cart.Items.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
-                .ToArray();
-
-            var models = await cart.Items.SelectAsync(async sci =>
-            {
-                var store = Services.StoreContext.GetStoreById(sci.Item.StoreId);
-                var batchContext = _productService.CreateProductBatchContext(allProducts, store, customer, false);
-                var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, null, batchContext);
-                var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(sci, calculationOptions);
-                // TODO: (mh) (core) || TODO: (mg) (core) Throws if cart contains bundle items where any Product is null.
-                var (unitPrice, itemSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
-
-                var sciModel = new ShoppingCartItemModel
-                {
-                    Id = sci.Item.Id,
-                    Store = store != null ? store.Name : string.Empty.NaIfEmpty(),
-                    ProductId = sci.Item.ProductId,
-                    Quantity = sci.Item.Quantity,
-                    ProductName = sci.Item.Product.Name,
-                    ProductTypeName = sci.Item.Product.GetProductTypeLabel(Services.Localization),
-                    ProductTypeLabelHint = sci.Item.Product.ProductTypeLabelHint,
-                    UnitPrice = unitPrice.FinalPrice,
-                    Total = itemSubtotal.FinalPrice,
-                    UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(sci.Item.UpdatedOnUtc, DateTimeKind.Utc)
-                };
-                return sciModel;
-            }).AsyncToList();
+            var models = await cart.MapAsync();
 
             var gridModel = new GridModel<ShoppingCartItemModel>
             {

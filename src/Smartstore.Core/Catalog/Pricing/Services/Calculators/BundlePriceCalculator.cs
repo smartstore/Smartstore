@@ -88,7 +88,10 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 options.ChildProductsBatchContext = _productService.CreateProductBatchContext(bundleItemProducts, options.Store, options.Customer, false);
             }
 
-            options.BatchContext = options.ChildProductsBatchContext;
+            if (options.ChildProductsBatchContext != null)
+            {
+                options.BatchContext = options.ChildProductsBatchContext;
+            }
         }
     }
 }

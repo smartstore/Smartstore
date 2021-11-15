@@ -2,11 +2,20 @@
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Admin.Models.ShoppingCart
+namespace Smartstore.Admin.Models.Cart
 {
     public class CurrentCartListModel : ModelBase
     {
         public ShoppingCartType CartType { get; set; }
+
+        [LocalizedDisplay("Admin.Common.Search.StartDate")]
+        public DateTime? StartDate { get; set; }
+
+        [LocalizedDisplay("Admin.Common.Search.EndDate")]
+        public DateTime? EndDate { get; set; }
+
+        [LocalizedDisplay("Admin.Common.Store.SearchFor")]
+        public int StoreId { get; set; }
     }
 
     [LocalizedDisplay("Admin.CurrentCarts.")]

@@ -300,6 +300,18 @@ namespace Smartstore.Core.Data.Migrations
                 "Filter the list by the number of the initial order.",
                 "Liste nach der Nummer des ursprünglichen Auftrages filtern.");
 
+            builder.AddOrUpdate("Admin.Common.Search.StartDate",
+                "Start date",
+                "Anfangsdatum",
+                "Sets the start date of the search.",
+                "Legt das Anfangsdatum der Suche fest.");
+
+            builder.AddOrUpdate("Admin.Common.Search.EndDate",
+                "End date",
+                "Enddatum",
+                "Sets the end date of the search.",
+                "Legt das Enddatum der Suche fest.");
+
             #endregion
 
             #region Packaging
