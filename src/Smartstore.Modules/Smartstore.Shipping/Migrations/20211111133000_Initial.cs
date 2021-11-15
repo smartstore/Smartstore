@@ -17,6 +17,9 @@ namespace Smartstore.Shipping.Migrations
             const string ShippingByTotal = "ShippingByTotal";
             const string id = nameof(BaseEntity.Id);
 
+            // TODO: (mh) (core) In update scenarios (4.x to 5) we have to add the new foreign keys to the database.
+            // Please alter the schema here and in Tax module.
+            
             if (!Schema.Table(ShippingByTotal).Exists())
             {
                 Create.Table(ShippingByTotal)
@@ -37,7 +40,7 @@ namespace Smartstore.Shipping.Migrations
                         .Indexed("IX_StateProvinceId")
                         .ForeignKey(nameof(StateProvince), id)
                         .OnDelete(Rule.Cascade)
-                    .WithColumn(nameof(ShippingRateByTotal.Zip)).AsString(10).NotNullable()
+                    .WithColumn(nameof(ShippingRateByTotal.Zip)).AsString(100).NotNullable()
                     .WithColumn(nameof(ShippingRateByTotal.From)).AsDecimal().NotNullable()
                     .WithColumn(nameof(ShippingRateByTotal.To)).AsDecimal().Nullable()
                     .WithColumn(nameof(ShippingRateByTotal.UsePercentage)).AsBoolean()

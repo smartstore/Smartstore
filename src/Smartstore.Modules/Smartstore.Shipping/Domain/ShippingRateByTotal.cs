@@ -100,7 +100,7 @@ namespace Smartstore.Shipping.Domain
         /// <summary>
         /// Gets or sets the zip code.
         /// </summary>
-        [StringLength(10)]
+        [StringLength(100)]
         public string Zip { get; set; }
 
         /// <summary>

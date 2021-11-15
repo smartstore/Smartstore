@@ -41,6 +41,7 @@ namespace Smartstore.Shipping
 
             if (zip.HasValue())
             {
+                // TODO: (mh) (core) Will throw: EF LINQ cannot translate this predicate.
                 query = query.Where(x => (zip.IsEmpty() && x.Zip.IsEmpty()) || ZipMatches(zip, x.Zip));
             }
 

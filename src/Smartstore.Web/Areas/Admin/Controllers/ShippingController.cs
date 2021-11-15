@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel.Security;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -104,9 +105,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Shipping.Activate)]
         public async Task<IActionResult> ActivateProvider(string systemName, bool activate)
         {
-            var srcm = _shippingService.LoadActiveShippingRateComputationMethods(0, systemName).FirstOrDefault();
+            var srcm = _providerManager.GetProvider<IShippingRateComputationMethod>(systemName);
+            var isActive = srcm.Value.IsActive;
 
-            if (activate && !srcm.Value.IsActive)
+            if (!isActive && activate)
             {
                 NotifyWarning(T("Admin.Configuration.Payment.CannotActivateShippingRateComputationMethod"));
             }
@@ -252,14 +254,14 @@ namespace Smartstore.Admin.Controllers
         {
             var shippingMethods = await _db.ShippingMethods
                 .AsNoTracking()
-                // Info: We use OrderBy to circumvent EF caching issue.
-                .OrderBy(x => x.Id)
+                .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
             var shippingMethodModels = await shippingMethods
-                .SelectAsync(async x => {
+                .SelectAsync(async x => 
+                {
                     var model = await MapperFactory.MapAsync<ShippingMethod, ShippingMethodModel>(x);
                     model.NumberOfRules = x.RuleSets.Count;
                     model.EditUrl = Url.Action("Edit", new { id = model.Id });

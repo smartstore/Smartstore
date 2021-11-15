@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Engine.Modularity;
@@ -28,29 +27,26 @@ namespace Smartstore.Shipping
 
         public Localizer T { get; set; }
 
-        private Money GetRate(int shippingMethodId)
+        private decimal GetRate(int shippingMethodId)
         {
-            string key = $"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}";
-
-            // TODO: (mh) (core) Which currency should be passed here?
-            Money rate = new(_settingService.GetSettingByKey<decimal>(key), null);
+            var key = $"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}";
+            var rate = _settingService.GetSettingByKey<decimal>(key);
             return rate;
         }
 
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "FixedRate", new { area = "Admin" });
 
-        public async Task<Money?> GetFixedRateAsync(ShippingOptionRequest request)
+        public async Task<decimal?> GetFixedRateAsync(ShippingOptionRequest request)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            Guard.NotNull(request, nameof(request));
 
             var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId);
 
-            var rates = new List<Money>();
+            var rates = new List<decimal>();
             foreach (var shippingMethod in shippingMethods)
             {
-                Money rate = GetRate(shippingMethod.Id);
+                var rate = GetRate(shippingMethod.Id);
                 if (!rates.Contains(rate))
                 {
                     rates.Add(rate);
@@ -68,8 +64,7 @@ namespace Smartstore.Shipping
 
         public async Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            Guard.NotNull(request, nameof(request));
 
             var response = new ShippingOptionResponse();
 
@@ -98,13 +93,14 @@ namespace Smartstore.Shipping
         /// <summary>
         /// Gets a shipping rate computation method type
         /// </summary>
-        public ShippingRateComputationMethodType ShippingRateComputationMethodType => ShippingRateComputationMethodType.Offline;
+        public ShippingRateComputationMethodType ShippingRateComputationMethodType 
+            => ShippingRateComputationMethodType.Offline;
 
         /// <summary>
         /// Gets a shipment tracker
         /// </summary>
         public IShipmentTracker ShipmentTracker =>
-                //uncomment a line below to return a general shipment tracker (finds an appropriate tracker by tracking number)
+                //uncomment the line below to return a general shipment tracker (finds an appropriate tracker by tracking number)
                 //return new GeneralShipmentTracker(EngineContext.Current.Resolve<ITypeFinder>());
                 null;
 

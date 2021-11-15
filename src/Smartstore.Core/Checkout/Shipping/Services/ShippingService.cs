@@ -177,7 +177,7 @@ namespace Smartstore.Core.Checkout.Shipping
                 foreach (var option in response.ShippingOptions)
                 {
                     option.ShippingRateComputationMethodSystemName = method.Metadata.SystemName;
-                    option.Rate = new(workingCurrency.RoundIfEnabledFor(option.Rate.Amount), primaryCurrency);
+                    option.Rate = workingCurrency.RoundIfEnabledFor(option.Rate);
 
                     result.ShippingOptions.Add(option);
                 }

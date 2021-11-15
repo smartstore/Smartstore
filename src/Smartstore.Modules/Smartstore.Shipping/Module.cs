@@ -1,26 +1,22 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
+using Smartstore.Shipping.Settings;
 
 namespace Smartstore.Shipping
 {
-    internal class Module : ModuleBase, IConfigurable
+    internal class Module : ModuleBase
     {
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-
-        public RouteInfo GetConfigurationRoute()
-            => new("Providers", "Shipping", new { area = "Admin" });
-
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
+            await SaveSettingsAsync<ShippingByTotalSettings>();
             await ImportLanguageResourcesAsync();
             await base.InstallAsync(context);
         }
 
         public override async Task UninstallAsync()
         {
+            await DeleteSettingsAsync<ShippingByTotalSettings>();
             await DeleteLanguageResourcesAsync();
             await base.UninstallAsync();
         }

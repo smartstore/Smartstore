@@ -4,9 +4,4 @@
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Shipping</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
-	<ItemGroup>
-		<Content Include="App_Data\**">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
 </Project>

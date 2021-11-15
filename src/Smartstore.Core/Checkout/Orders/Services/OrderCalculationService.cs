@@ -907,7 +907,7 @@ namespace Smartstore.Core.Checkout.Orders
                 // Use last shipping option (get from cache).
                 var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(cart.StoreId);
 
-                return await AdjustShippingRateAsync(cart, shippingOption.Rate.Amount, shippingOption, shippingMethods);
+                return await AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
             }
             else
             {
@@ -931,7 +931,7 @@ namespace Smartstore.Core.Checkout.Orders
                     if (fixedRate.HasValue)
                     {
                         // Ignore returned currency. The caller specifies it to avoid mixed currencies during calculation.
-                        return await AdjustShippingRateAsync(cart, fixedRate.Value.Amount, null, null);
+                        return await AdjustShippingRateAsync(cart, fixedRate.Value, null, null);
                     }
                 }
             }

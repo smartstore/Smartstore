@@ -27,7 +27,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets or sets a shipping rate (without discounts, additional shipping charges, etc)
         /// </summary>
-        public Money Rate { get; set; }
+        public decimal Rate { get; set; }
 
         /// <summary>
         /// Gets or sets a shipping option name

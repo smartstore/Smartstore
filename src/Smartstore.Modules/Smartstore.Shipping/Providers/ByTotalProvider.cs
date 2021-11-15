@@ -56,6 +56,7 @@ namespace Smartstore.Shipping
         {
             decimal? shippingTotal = null;
 
+            // TODO: (mh) (core) Does not do what Classic did. Where's "subtotal"?
             var shippingByTotalRecord = await _db.ShippingRatesByTotal()
                 .Where(x => x.StoreId == storeId && x.ShippingMethodId == shippingMethodId)
                 .ApplyRegionFilter(countryId, stateProvinceId, zip)
@@ -105,12 +106,12 @@ namespace Smartstore.Shipping
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "ByTotal", new { area = "Admin" });
 
-        public Task<Money?> GetFixedRateAsync(ShippingOptionRequest request) => Task.FromResult<Money?>(null);
+        public Task<decimal?> GetFixedRateAsync(ShippingOptionRequest request) 
+            => Task.FromResult<decimal?>(null);
 
         public async Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            Guard.NotNull(request, nameof(request));
 
             var response = new ShippingOptionResponse();
 
@@ -176,9 +177,9 @@ namespace Smartstore.Shipping
                         ShippingMethodId = shippingMethod.Id,
                         Name = shippingMethod.GetLocalized(x => x.Name),
                         Description = shippingMethod.GetLocalized(x => x.Description),
-                        // TODO: (mh) (core) Which currency should be used here?
-                        Rate = new Money(Convert.ToDecimal(rate), null)
+                        Rate = rate.Value
                     };
+
                     response.ShippingOptions.Add(shippingOption);
                 }
             }
@@ -195,7 +196,7 @@ namespace Smartstore.Shipping
         /// Gets a shipment tracker
         /// </summary>
         public IShipmentTracker ShipmentTracker =>
-                //uncomment a line below to return a general shipment tracker (finds an appropriate tracker by tracking number)
+                //uncomment the line below to return a general shipment tracker (finds an appropriate tracker by tracking number)
                 //return new GeneralShipmentTracker(EngineContext.Current.Resolve<ITypeFinder>());
                 null;
 

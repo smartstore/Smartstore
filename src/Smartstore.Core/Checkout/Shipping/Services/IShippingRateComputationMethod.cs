@@ -27,7 +27,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <param name="request">Get shipping options request.</param>
         /// <remarks>The returned currency is ignored.</remarks>
         /// <returns>Fixed shipping rate. Or <c>null</c> if there is no fixed shipping rate.</returns>
-        Task<Money?> GetFixedRateAsync(ShippingOptionRequest request);
+        Task<decimal?> GetFixedRateAsync(ShippingOptionRequest request);
 
         /// <summary>
         /// Gets a shipment tracker
