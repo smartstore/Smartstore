@@ -198,6 +198,7 @@ namespace Smartstore.Shipping.Controllers
         [Permission(Permissions.Configuration.Shipping.Delete)]
         public async Task<IActionResult> ByTotalDelete(GridSelection selection)
         {
+            // TODO: (mh) (core) We still need the Delete button in edit template.
             var success = false;
             var numDeleted = 0;
             var ids = selection.GetEntityIds();
@@ -219,21 +220,9 @@ namespace Smartstore.Shipping.Controllers
         [Permission(Permissions.Configuration.Shipping.Create)]
         public async Task<IActionResult> AddShippingRateByTotal(ByTotalModel model)
         {
-            var rate = new ShippingRateByTotal
-            {
-                StoreId = model.StoreId,
-                ShippingMethodId = model.ShippingMethodId,
-                CountryId = Convert.ToInt32(model.CountryId),
-                StateProvinceId = Convert.ToInt32(model.StateProvinceId),
-                Zip = model.Zip,
-                From = model.From,
-                To = model.To,
-                UsePercentage = model.UsePercentage,
-                ShippingChargePercentage = model.UsePercentage ? model.ShippingChargePercentage : 0,
-                ShippingChargeAmount = model.UsePercentage ? 0 : model.ShippingChargeAmount,
-                BaseCharge = model.BaseCharge,
-                MaxCharge = model.MaxCharge
-            };
+            var rate = MiniMapper.Map<ByTotalModel, ShippingRateByTotal>(model);
+            rate.ShippingChargePercentage = model.UsePercentage ? model.ShippingChargePercentage : 0;
+            rate.ShippingChargeAmount = model.UsePercentage ? 0 : model.ShippingChargeAmount;
 
             _db.ShippingRatesByTotal().Add(rate);
 
