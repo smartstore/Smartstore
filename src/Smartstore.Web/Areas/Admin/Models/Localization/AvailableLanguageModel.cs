@@ -1,6 +1,6 @@
-﻿using Smartstore.Web.Modelling;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Localization
 {
@@ -9,7 +9,7 @@ namespace Smartstore.Admin.Models.Localization
         public string Version { get; set; }
         public int ResourceCount { get; set; }
 
-        public List<AvailableLanguageModel> Languages { get; set; }
+        public List<AvailableLanguageModel> Languages { get; set; } = new();
     }
 
     public class AvailableLanguageModel : LanguageModel

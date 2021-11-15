@@ -1,11 +1,10 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using FluentValidation;
+using Smartstore.Core.Localization;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Localization
 {
@@ -17,16 +16,13 @@ namespace Smartstore.Admin.Models.Localization
 
         [LocalizedDisplay("*LanguageCulture")]
         public string LanguageCulture { get; set; }
-        //public List<SelectListItem> AvailableCultures { get; set; }
 
         [LocalizedDisplay("*UniqueSeoCode")]
         public string UniqueSeoCode { get; set; }
-        //public List<SelectListItem> AvailableTwoLetterLanguageCodes { get; set; }
 
         [LocalizedDisplay("*FlagImageFileName")]
         public string FlagImageFileName { get; set; }
         public List<string> FlagFileNames { get; set; } = new();
-        //public List<SelectListItem> AvailableFlags { get; set; }
 
         [LocalizedDisplay("*Rtl")]
         public bool Rtl { get; set; }
@@ -48,7 +44,6 @@ namespace Smartstore.Admin.Models.Localization
 
         [LocalizedDisplay("*AvailableLanguageSetId")]
         public int AvailableLanguageSetId { get; set; }
-        //public List<AvailableLanguageModel> AvailableDownloadLanguages { get; set; }
 
         [LocalizedDisplay("*LastResourcesImportOn")]
         public DateTime? LastResourcesImportOn { get; set; }
