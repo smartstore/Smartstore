@@ -58,7 +58,7 @@ namespace Smartstore.Admin.Models
         public bool DisplayOrdersOfAllStores { get; set; }
 
         [LocalizedDisplay("*OrderListPageSize")]
-        public int OrderListPageSize { get; set; }
+        public int OrderListPageSize { get; set; } = 10;
 
         public List<OrderSettingsLocalizedModel> Locales { get; set; } = new();
     }

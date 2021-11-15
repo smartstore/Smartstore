@@ -36,25 +36,22 @@ namespace Smartstore.Web.Modelling.Settings
         {
             await OnActionExecutingAsync(context);
 
-            if (!context.ModelState.IsValid)
+            if (context.ModelState.IsValid)
             {
-                await next();
-                return;
+                // Find the required FormCollection parameter in ActionDescriptor.GetParameters()
+                var formParam = FindActionParameters<IFormCollection>(context.ActionDescriptor, requireDefaultConstructor: false, throwIfNotFound: false).FirstOrDefault();
+                _form = formParam != null
+                    ? (IFormCollection)context.ActionArguments[formParam.Name]
+                    : await context.HttpContext.Request.ReadFormAsync();
             }
-
-            // Find the required FormCollection parameter in ActionDescriptor.GetParameters()
-            var formParam = FindActionParameters<IFormCollection>(context.ActionDescriptor, requireDefaultConstructor: false, throwIfNotFound: false).FirstOrDefault();
-            _form = formParam != null
-                ? (IFormCollection)context.ActionArguments[formParam.Name]
-                : await context.HttpContext.Request.ReadFormAsync();
 
             var executedContext = await next();
 
             if (executedContext.ModelState.IsValid)
             {
                 var updateSettings = true;
-                var redirectResult = context.Result as RedirectToRouteResult;
-                if (redirectResult != null)
+
+                if (context.Result is RedirectToRouteResult redirectResult)
                 {
                     var controllerName = redirectResult.RouteValues.GetControllerName();
                     var areaName = redirectResult.RouteValues.GetAreaName();

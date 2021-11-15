@@ -422,7 +422,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await Catalog(catalogSettings);
             }
 
             ModelState.Clear();
@@ -479,7 +479,7 @@ namespace Smartstore.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await CustomerUser(storeScope, customerSettings, addressSettings, privacySettings);
             }
 
             ModelState.Clear();
@@ -507,7 +507,7 @@ namespace Smartstore.Admin.Controllers
             return NotifyAndRedirect("CustomerUser");
         }
 
-        private bool ShouldUpdateIdentityOptions(CustomerUserSettingsModel.CustomerSettingsModel model, CustomerSettings settings) 
+        private static bool ShouldUpdateIdentityOptions(CustomerUserSettingsModel.CustomerSettingsModel model, CustomerSettings settings) 
         { 
             if (model.PasswordMinLength != settings.PasswordMinLength 
                 || model.PasswordRequireDigit != settings.PasswordRequireDigit
@@ -965,7 +965,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
-        [ValidateAntiForgeryToken]
         [HttpPost, SaveSetting]
         public IActionResult DataExchange(DataExchangeSettings settings, DataExchangeSettingsModel model)
         {
@@ -1009,7 +1008,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await Media(settings);
             }
 
             ModelState.Clear();
@@ -1054,7 +1053,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return Payment(settings);
             }
 
             ModelState.Clear();
@@ -1212,11 +1211,11 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting]
-        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings, RewardPointsSettingsModel model)
+        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings, RewardPointsSettingsModel model, int storeScope)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await RewardPoints(settings, storeScope);
             }
 
             ModelState.Clear();
@@ -1242,11 +1241,11 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting]
-        public async Task<IActionResult> ShoppingCart(int storeScope, ShoppingCartSettings settings, ShoppingCartSettingsModel model)
+        public async Task<IActionResult> ShoppingCart(ShoppingCartSettings settings, ShoppingCartSettingsModel model, int storeScope)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await ShoppingCart(storeScope, settings);
             }
 
             ModelState.Clear();
@@ -1416,11 +1415,11 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting]
-        public async Task<IActionResult> Order(int storeScope, OrderSettings settings, OrderSettingsModel model)
+        public async Task<IActionResult> Order(OrderSettings settings, OrderSettingsModel model, int storeScope)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await Order(storeScope, settings);
             }
 
             ModelState.Clear();

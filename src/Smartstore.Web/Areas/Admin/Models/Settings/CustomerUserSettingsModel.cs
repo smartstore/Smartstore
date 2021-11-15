@@ -1,9 +1,9 @@
-﻿using FluentValidation;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Identity;
 using Smartstore.Web.Modelling;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models
 {
@@ -150,7 +150,7 @@ namespace Smartstore.Admin.Models
             public PasswordFormat DefaultPasswordFormat { get; set; }
 
             [LocalizedDisplay("*PasswordMinLength")]
-            public int PasswordMinLength { get; set; }
+            public int PasswordMinLength { get; set; } = 6;
 
             [LocalizedDisplay("*PasswordRequireDigit")]
             public bool PasswordRequireDigit { get; set; }
@@ -322,7 +322,6 @@ namespace Smartstore.Admin.Models
     {
         public CustomerUserSettingsValidator()
         {
-            // TODO: (mh) (core) Validation fails if store scope was selected.
             RuleFor(x => x.CustomerSettings.PasswordMinLength).GreaterThanOrEqualTo(4);
         }
     }

@@ -1,12 +1,9 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using FluentValidation;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
 using Smartstore.Web.Modelling;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 
 namespace Smartstore.Admin.Models
 {
@@ -20,7 +17,7 @@ namespace Smartstore.Admin.Models
         public int MaximumImageSize { get; set; }
 
         [LocalizedDisplay("*MaxUploadFileSize")]
-        public long MaxUploadFileSize { get; set; }
+        public long MaxUploadFileSize { get; set; } = 102400;
 
         [LocalizedDisplay("*MakeFilesTransientWhenOrphaned")]
         public bool MakeFilesTransientWhenOrphaned { get; set; }
@@ -112,6 +109,9 @@ namespace Smartstore.Admin.Models
     {
         public MediaSettingsValidator()
         {
+            // INFO: Such a rule for a settings model requires that the model property has a valid default value.
+            // Typically, this is the same as in the settings class.
+            // Otherwise you will run into a validation error if you deactivate the multistore checkbox.
             RuleFor(x => x.MaxUploadFileSize).GreaterThan(0);
         }
     }
