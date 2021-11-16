@@ -136,7 +136,7 @@ namespace Smartstore.Core.Catalog.Discounts
         {
             var allIds = ids.ToArray();
 
-            foreach (var idsChunk in allIds.Slice(100))
+            foreach (var idsChunk in allIds.Chunk(100))
             {
                 var entities = await dbSet
                     .Include(x => x.AppliedDiscounts)

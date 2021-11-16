@@ -240,7 +240,7 @@ namespace Smartstore.Core.Content.Media
             var tuples = new List<(MediaFile, MediaFile)>(500);
 
             // Copy files batched
-            foreach (var batch in files.Slice(500))
+            foreach (var batch in files.Chunk(500))
             {
                 if (cancelToken.IsCancellationRequested)
                     break;
@@ -385,7 +385,7 @@ namespace Smartstore.Core.Content.Media
                     ? _folderService.FindAlbum(folder.Id).Value.Id
                     : (int?)null;
 
-                foreach (var batch in files.Slice(500))
+                foreach (var batch in files.Chunk(500))
                 {
                     if (cancelToken.IsCancellationRequested)
                         break;

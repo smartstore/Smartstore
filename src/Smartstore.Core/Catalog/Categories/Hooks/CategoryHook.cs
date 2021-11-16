@@ -36,7 +36,7 @@ namespace Smartstore.Core.Catalog.Categories
                 .OfType<Category>()
                 .ToList();
 
-            foreach (var categoriesChunk in categories.Slice(100))
+            foreach (var categoriesChunk in categories.Chunk(100))
             {
                 var categoryIdsChunk = categoriesChunk
                     .Select(x => x.Id)

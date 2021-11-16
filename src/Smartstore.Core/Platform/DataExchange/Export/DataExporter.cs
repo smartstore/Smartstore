@@ -1533,7 +1533,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (newOrderStatusId.HasValue)
             {
-                foreach (var chunk in ctx.EntityIdsLoaded.Slice(200))
+                foreach (var chunk in ctx.EntityIdsLoaded.Chunk(200))
                 {
                     num += await _db.Orders
                         .Where(x => chunk.Contains(x.Id))

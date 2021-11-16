@@ -105,7 +105,7 @@ namespace Smartstore.Core.Catalog.Products.Utilities
             }
 
             // 2nd pass.
-            foreach (var chunk in toUpdate.Slice(1000))
+            foreach (var chunk in toUpdate.Chunk(1000))
             {
                 using var transaction = await db.Database.BeginTransactionAsync();
 

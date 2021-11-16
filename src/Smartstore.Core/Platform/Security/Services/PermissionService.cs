@@ -481,7 +481,7 @@ namespace Smartstore.Core.Security
                         {
                             clearCache = true;
 
-                            foreach (var chunk in toDelete.Slice(500))
+                            foreach (var chunk in toDelete.Chunk(500))
                             {
                                 await _db.PermissionRecords
                                     .AsQueryable()

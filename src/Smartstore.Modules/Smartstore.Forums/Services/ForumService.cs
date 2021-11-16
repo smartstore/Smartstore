@@ -133,14 +133,13 @@ namespace Smartstore.Forums.Services
             {
                 var entityName = nameof(Customer);
 
-                foreach (var chunk in customerIds.Slice(500))
+                foreach (var chunk in customerIds.Chunk(500))
                 {
-                    var customerIdsChunk = chunk.ToArray();
-                    var numPostsByCustomer = await _db.ForumPosts().CountByCustomerIdsAsync(customerIdsChunk, cancelToken);
+                    var numPostsByCustomer = await _db.ForumPosts().CountByCustomerIdsAsync(chunk, cancelToken);
 
                     if (numPostsByCustomer.Any())
                     {
-                        await _genericAttributeService.PrefetchAttributesAsync(entityName, customerIdsChunk);
+                        await _genericAttributeService.PrefetchAttributesAsync(entityName, chunk);
 
                         foreach (var pair in numPostsByCustomer)
                         {

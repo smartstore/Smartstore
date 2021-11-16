@@ -477,7 +477,7 @@ namespace Smartstore.Scheduling
             {
                 using (var scope = new DbContextScope(_db, retainConnection: true))
                 {
-                    foreach (var batch in idsToDelete.Slice(128))
+                    foreach (var batch in idsToDelete.Chunk(128))
                     {
                         if (!cancelToken.IsCancellationRequested)
                         {

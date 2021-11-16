@@ -395,7 +395,7 @@ namespace Smartstore.Core.DataExchange.Import
             parentCategoryIds.Clear();
             var childIds = newIds.Keys.ToArray();
 
-            foreach (var childIdsChunk in childIds.Slice(100))
+            foreach (var childIdsChunk in childIds.Chunk(100))
             {
                 var childCategories = await _db.Categories
                     .AsQueryable()

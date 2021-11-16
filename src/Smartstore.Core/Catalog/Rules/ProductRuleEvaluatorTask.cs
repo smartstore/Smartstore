@@ -109,7 +109,7 @@ namespace Smartstore.Core.Catalog.Rules
                     // Add mappings.
                     if (ruleSetProductIds.Any())
                     {
-                        foreach (var chunk in ruleSetProductIds.Slice(500))
+                        foreach (var chunk in ruleSetProductIds.Chunk(500))
                         {
                             if (cancelToken.IsCancellationRequested)
                                 return;
@@ -133,7 +133,9 @@ namespace Smartstore.Core.Catalog.Rules
                         {
                             scope.DbContext.DetachEntities<ProductCategory>();
                         }
-                        catch { }
+                        catch 
+                        { 
+                        }
                     }
                 }
             }

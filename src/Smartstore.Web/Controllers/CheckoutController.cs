@@ -359,23 +359,10 @@ namespace Smartstore.Web.Controllers
             var shippingOptions = customer.GenericAttributes.OfferedShippingOptions;
             if (shippingOptions == null || !shippingOptions.Any())
             {
-                // TODO: (mh) (core) Remove dummy shipping option if at least one shipping option has been implemented.
                 // Shipping option was not found in customer attributes. Load via shipping service.
-                //shippingOptions = _shippingService
-                //    .GetShippingOptions(cart, customer.ShippingAddress, shippingRateComputationMethodSystemName, storeId)
-                //    .ShippingOptions
-                //    .ToList();
-                shippingOptions = new List<ShippingOption>
-                {
-                    new ShippingOption()
-                    {
-                        Name = "Test",
-                        Description = "This is dummy shipping option since no other shipping options are implemented yet",
-                        Rate = new(5m, Services.WorkContext.WorkingCurrency),
-                        ShippingMethodId = -100,
-                        ShippingRateComputationMethodSystemName = "Dummy"
-                    }
-                };
+                shippingOptions = (await _shippingService
+                    .GetShippingOptionsAsync(cart, customer.ShippingAddress, shippingRateComputationMethodSystemName, storeId))
+                    .ShippingOptions;
             }
             else
             {

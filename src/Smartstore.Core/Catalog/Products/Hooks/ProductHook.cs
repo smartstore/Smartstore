@@ -68,7 +68,7 @@ namespace Smartstore.Core.Catalog.Products
                 .ToList();
 
             // Process in batches to avoid errors due to too long SQL statements.
-            foreach (var productsChunk in products.Slice(100))
+            foreach (var productsChunk in products.Chunk(100))
             {
                 var productIdsChunk = productsChunk
                     .Select(x => x.Id)

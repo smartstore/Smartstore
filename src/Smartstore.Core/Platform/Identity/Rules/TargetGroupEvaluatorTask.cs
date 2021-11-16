@@ -92,7 +92,7 @@ namespace Smartstore.Core.Identity.Rules
                     // Add mappings.
                     if (ruleSetCustomerIds.Any())
                     {
-                        foreach (var chunk in ruleSetCustomerIds.Slice(500))
+                        foreach (var chunk in ruleSetCustomerIds.Chunk(500))
                         {
                             if (cancelToken.IsCancellationRequested)
                                 return;
@@ -116,7 +116,9 @@ namespace Smartstore.Core.Identity.Rules
                         {
                             scope.DbContext.DetachEntities<CustomerRoleMapping>();
                         }
-                        catch { }
+                        catch 
+                        { 
+                        }
                     }
                 }
             }

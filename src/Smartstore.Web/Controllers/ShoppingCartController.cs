@@ -1081,7 +1081,7 @@ namespace Smartstore.Web.Controllers
                             };
 
                             var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
-                            var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount.Amount);
+                            var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount);
                             var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, currency);
                             soModel.Price = rate.WithPostFormat(shippingTaxFormat).ToString();
 

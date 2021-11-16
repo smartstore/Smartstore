@@ -87,9 +87,9 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="shippingOption">Shipping option.</param>
         /// <param name="shippingMethods">Shipping methods.</param>
         /// <returns>Adjusted shipping rate in the primary currency.</returns>
-        Task<(Money Amount, Discount AppliedDiscount)> AdjustShippingRateAsync(
+        Task<(decimal Amount, Discount AppliedDiscount)> AdjustShippingRateAsync(
             ShoppingCart cart,
-            Money shippingRate,
+            decimal shippingRate,
             ShippingOption shippingOption,
             IList<ShippingMethod> shippingMethods);
 

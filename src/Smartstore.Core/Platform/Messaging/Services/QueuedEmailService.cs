@@ -63,7 +63,7 @@ namespace Smartstore.Core.Messaging
                 await using (var client = await _mailService.ConnectAsync(account))
                 {
                     // Limit email chunks to 100.
-                    foreach (var batch in group.Slice(100))
+                    foreach (var batch in group.Chunk(100))
                     {
                         if (cancelToken.IsCancellationRequested)
                             break;

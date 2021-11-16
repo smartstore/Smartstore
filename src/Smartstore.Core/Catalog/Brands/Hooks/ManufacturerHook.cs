@@ -35,7 +35,7 @@ namespace Smartstore.Core.Catalog.Brands
                 .OfType<Manufacturer>()
                 .ToList();
 
-            foreach (var manufacturersChunk in manufacturers.Slice(100))
+            foreach (var manufacturersChunk in manufacturers.Chunk(100))
             {
                 var manufacturerIdsChunk = manufacturersChunk
                     .Select(x => x.Id)

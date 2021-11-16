@@ -43,7 +43,7 @@ namespace Smartstore.Core.Catalog.Attributes
             if (productIds.Any())
             {
                 // Process the products in batches as they can have a large number of variant combinations assigned to them.
-                foreach (var productIdsChunk in productIds.Slice(100))
+                foreach (var productIdsChunk in productIds.Chunk(100))
                 {
                     var lowestPricesQuery =
                         from x in _db.ProductVariantAttributeCombinations

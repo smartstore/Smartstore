@@ -367,7 +367,7 @@ namespace Smartstore.Core.Catalog.Products
                 .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
                 .ToList();
 
-            foreach (var chunk in productLinkageValues.Slice(100))
+            foreach (var chunk in productLinkageValues.Chunk(100))
             {
                 var linkedProductIds = chunk.Select(x => x.LinkedProductId).Distinct().ToArray();
                 var linkedProducts = await _db.Products.GetManyAsync(linkedProductIds, true);

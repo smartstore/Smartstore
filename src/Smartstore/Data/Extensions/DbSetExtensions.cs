@@ -272,16 +272,16 @@ namespace Smartstore
                 if (cascade)
                 {
                     var records = query.ToList();
-                    foreach (var chunk in records.Slice(500))
+                    foreach (var chunk in records.Chunk(500))
                     {
-                        dbSet.RemoveRange(chunk.ToList());
+                        dbSet.RemoveRange(chunk);
                         numDeleted += ctx.SaveChanges();
                     }
                 }
                 else
                 {
                     var entities = query.Select(x => new TEntity { Id = x.Id }).ToList();
-                    foreach (var chunk in entities.Slice(500))
+                    foreach (var chunk in entities.Chunk(500))
                     {
                         dbSet.RemoveRange(chunk);
                         numDeleted += ctx.SaveChanges();
@@ -321,16 +321,16 @@ namespace Smartstore
                 if (cascade)
                 {
                     var records = await query.ToListAsync();
-                    foreach (var chunk in records.Slice(500))
+                    foreach (var chunk in records.Chunk(500))
                     {
-                        dbSet.RemoveRange(chunk.ToList());
+                        dbSet.RemoveRange(chunk);
                         numDeleted += await ctx.SaveChangesAsync();
                     }
                 }
                 else
                 {
                     var entities = await query.Select(x => new T { Id = x.Id }).ToListAsync();
-                    foreach (var chunk in entities.Slice(500))
+                    foreach (var chunk in entities.Chunk(500))
                     {
                         dbSet.RemoveRange(chunk);
                         numDeleted += await ctx.SaveChangesAsync();

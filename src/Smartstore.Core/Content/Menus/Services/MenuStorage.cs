@@ -135,7 +135,7 @@ namespace Smartstore.Core.Content.Menus
                 var ids = new HashSet<int> { item.Id };
                 await GetChildIdsAsync(item.Id, ids);
 
-                foreach (var chunk in ids.Slice(200))
+                foreach (var chunk in ids.Chunk(200))
                 {
                     var items = await _db.MenuItems
                         .Where(x => chunk.Contains(x.Id))

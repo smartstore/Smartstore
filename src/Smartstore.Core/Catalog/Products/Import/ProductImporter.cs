@@ -844,7 +844,7 @@ namespace Smartstore.Core.DataExchange.Import
             parentProductIds.Clear();
             var associatedIds = newIds.Keys.ToArray();
 
-            foreach (var associatedIdsChunk in associatedIds.Slice(100))
+            foreach (var associatedIdsChunk in associatedIds.Chunk(100))
             {
                 var associatedProducts = await _db.Products
                     .AsQueryable()
