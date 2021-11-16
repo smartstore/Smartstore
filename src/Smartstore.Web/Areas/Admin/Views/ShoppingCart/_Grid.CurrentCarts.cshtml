@@ -7,6 +7,9 @@
     var quantityString = T("Admin.CurrentCarts.Quantity");
     var unitPriceString = T("Admin.CurrentCarts.UnitPrice");
     var totalString = T("Admin.CurrentCarts.Total");
+
+    // TODO: (mg) (core) Vue throws on expanding subgrid (duplicate row warning).
+    // TODO: (mg) (core) Navigating to customer throws: MVC model mismatch.
 }
 
 <datagrid id="current-carts-grid"
@@ -29,6 +32,7 @@
         <partial name="_Grid.CurrentCarts.Search" model="parentModel" />
     </search-panel>
     <columns>
+        @* TODO: (mg) (core) Please enable this column and see how it looks in UI. Ugly! Repetitive title and wrong value formatting. Please fix here and in all other places I could have missed. *@
         <column for="CustomerId" visible="false" />
         <column for="CustomerEmail" hideable="false">
             <display-template>
@@ -53,7 +57,7 @@
                          :paging="{ enabled: false }"
                          :sorting="{ enabled: false }">
                 <template v-slot:display-productname="item">
-                    <span class='mr-1 badge' :class="'badge-' + item.row.ProductTypeLabelHint">{{ item.row.ProductTypeName }}</span>
+                    <span class='mr-1 badge' v-bind:class="'badge-' + item.row.ProductTypeLabelHint">{{ item.row.ProductTypeName }}</span>
                     <a class="text-truncate" v-bind:href="item.row.ProductEditUrl">{{ item.value }}</a>
                 </template>
             </sm-datagrid>
