@@ -69,7 +69,6 @@ namespace Smartstore.Core.Packaging
         public async Task<CheckUpdateResult> CheckUpdateAsync(bool enforce = false)
         {
             var curVersion = SmartstoreVersion.CurrentFullVersion;
-            curVersion = "4.0.0.0";
             var lang = _workContext.WorkingLanguage.UniqueSeoCode;
             var cacheKey = "{0}-{1}".FormatInvariant(CacheKeyPrefix, lang);
 

@@ -38,17 +38,6 @@ namespace Smartstore.Admin.Controllers
             _asyncState = asyncState;
         }
 
-        public async Task<IActionResult> LanguageSelected(int customerlanguage)
-        {
-            var language = await _db.Languages.FindByIdAsync(customerlanguage, false);
-            if (language != null && language.Published)
-            {
-                Services.WorkContext.WorkingLanguage = language;
-            }
-
-            return Content(T("Admin.Common.DataEditSuccess"));
-        }
-
         public IActionResult Index()
         {
             return RedirectToAction(nameof(List));
@@ -84,13 +73,24 @@ namespace Smartstore.Admin.Controllers
             return View(models);
         }
 
+        public async Task<IActionResult> LanguageSelected(int customerlanguage)
+        {
+            var language = await _db.Languages.FindByIdAsync(customerlanguage, false);
+            if (language != null && language.Published)
+            {
+                Services.WorkContext.WorkingLanguage = language;
+            }
+
+            return Content(T("Admin.Common.DataEditSuccess"));
+        }
+
         [Permission(Permissions.Configuration.Language.Read)]
         public async Task<IActionResult> AvailableLanguages(bool enforce = false)
         {
             var languages = _languageService.GetAllLanguages(true);
             var languageDic = languages.ToDictionarySafe(x => x.LanguageCulture, StringComparer.OrdinalIgnoreCase);
 
-            var downloadState = _asyncState.Get<LanguageDownloadState>();
+            var downloadState = await _asyncState.GetAsync<LanguageDownloadState>();
             var lastImportInfos = await GetLastResourcesImportInfos();
             var checkResult = await CheckAvailableResources(enforce);
 
@@ -133,6 +133,7 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
+                    // TODO: (mg) (core) Never instantiate HttpClient, we don't do this anymore. Instead use IHttpClientFactory with one of the pre-configured client names (see WebStarter.cs)
                     using (var client = new HttpClient())
                     {
                         client.Timeout = TimeSpan.FromMilliseconds(10000);
