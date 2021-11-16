@@ -1,0 +1,96 @@
+﻿@model Smartstore.Admin.Models.Localization.LanguageModel
+
+@{
+    var countryFlags = ViewBag.CountryFlags as List<SelectListItem>;
+}
+
+<div asp-validation-summary="All"></div>
+<input type="hidden" asp-for="Id" />
+
+<tabstrip id="language-edit" sm-nav-style="Material">
+    <tab sm-title="@T("Admin.Common.Info")" sm-selected="true">
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Name" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="LanguageCulture" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="LanguageCulture" asp-items="ViewBag.Cultures"></select>
+                    <span asp-validation-for="LanguageCulture"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="UniqueSeoCode" />
+                </div>
+                <div class="adminData">
+                    <select asp-for="UniqueSeoCode" asp-items="ViewBag.TwoLetterLanguageCodes"></select>
+                    <span asp-validation-for="UniqueSeoCode"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="FlagImageFileName" />
+                </div>
+                <div class="adminData">
+                    <select name="FlagImageFileName" data-placeholder="@T("Common.Unspecified")">
+                        <option></option>
+                        @foreach (var item in countryFlags)
+                        {
+                            <option value="@item.Value"
+                                    data-imageurl='@Url.Content("~/images/flags/")@item.Value'
+                                    attr-selected='(item.Value.EqualsNoCase(Model.FlagImageFileName), "selected")'>
+                                @item.Text
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="FlagImageFileName"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Rtl" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="Rtl" />
+                    <span asp-validation-for="Rtl"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayOrder" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="DisplayOrder" />
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedStoreIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedStoreIds" />
+                    <span asp-validation-for="SelectedStoreIds"></span>
+                </div>
+            </div>
+            <div sm-if="Model.LastResourcesImportOnString.HasValue()" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="LastResourcesImportOnString" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="LastResourcesImportOnString" sm-plaintext="true" readonly />
+                </div>
+            </div>
+        </div>
+    </tab>
+</tabstrip>

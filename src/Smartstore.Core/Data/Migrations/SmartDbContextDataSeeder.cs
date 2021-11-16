@@ -616,6 +616,7 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Orders.Products.AddNew.BackToList",
             //    "Admin.ReturnRequests.BackToList",
             //    "Admin.RecurringPayments.BackToList",
+            //    "Admin.Configuration.Languages.BackToList",
             //    );
 
 

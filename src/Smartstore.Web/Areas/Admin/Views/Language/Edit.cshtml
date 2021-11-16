@@ -1,0 +1,180 @@
+﻿@using Smartstore.Admin.Models.Localization
+
+@model Smartstore.Admin.Models.Localization.LanguageModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Languages.EditLanguageDetails").Value;
+
+    var downloadableLanguages = ViewBag.DownloadableLanguages as List<AvailableLanguageModel>;
+}
+
+<form asp-action="Edit">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-language"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+
+            <a asp-action="ExportXml" asp-route-id="@Model.Id" class="btn btn-secondary confirm">
+                <i class="fa fa-upload"></i>
+                <span>@T("Admin.Configuration.Languages.Export")</span>
+            </a>
+            <a href="#importxml-window" data-toggle="modal" class="btn btn-secondary">
+                <i class="fa fa-download"></i>
+                <span>@T("Admin.Configuration.Languages.Import")</span>
+            </a>
+
+            <button type="submit" id="language-delete" name="language-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="language-delete" />
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" />
+</form>
+
+<modal id="importxml-window" sm-size="Large">
+    <modal-header sm-title="@T("Admin.Configuration.Languages.Import")"></modal-header>
+    <modal-body>
+        <form enctype="multipart/form-data" method="post" asp-action="ImportXml" asp-route-id="@Model.Id">
+            <tabstrip id="language-import-tab" sm-nav-style="Material">
+                <tab sm-title="@T("Admin.Configuration.Languages.XmlFile")" sm-selected="true">
+                    <div class="form-group">
+                        <input type="file" id="importxmlfile" name="importxmlfile" class="form-control-file" accept=".xml" />
+                    </div>
+                </tab>
+                <tab sm-title="@T("Common.Download")">
+                    <div sm-if="!downloadableLanguages.Any()" class="alert alert-warning">
+                        @T("Admin.Configuration.Languages.NoAvailableLanguagesFound", SmartstoreVersion.CurrentFullVersion)
+                    </div>
+                    <div sm-if="downloadableLanguages.Any()" class="adminContent">
+                        <div class="adminRow">
+                            <div class="adminTitle">
+                                <smart-label asp-for="AvailableLanguageSetId" />
+                            </div>
+                            <div class="adminData">
+                                <select id="@Html.IdFor(x => x.AvailableLanguageSetId)"
+                                        name="@Html.NameFor(x => x.AvailableLanguageSetId)"
+                                        class="form-control form-control-lg select-customtemplate drop-customtemplate"
+                                        data-placeholder="@T("Common.Unspecified")">
+                                    <option></option>
+                                    @foreach (var item in downloadableLanguages.OrderBy(x => x.DisplayOrder))
+                                    {
+                                        var translated = T("Admin.Configuration.Languages.TranslatedPercentage", item.TranslatedPercentage.ToString("G29"));
+                                        if (item.TranslatedPercentageAtLastImport.HasValue)
+                                        {
+                                            translated += ". " + T("Admin.Configuration.Languages.TranslatedPercentageAtLastImport", item.TranslatedPercentageAtLastImport.Value.ToString("G29"));
+                                        }
+                                        <option value="@item.Id" data-imagename="@item.FlagImageFileName" data-translated="@(translated).">@item.Name</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="AvailableLanguageSetId"></span>
+                            </div>
+                        </div>
+                    </div>
+                </tab>
+            </tabstrip>
+
+            <div class="mt-3">
+                <div class="form-check">
+                    @Html.RadioButton("mode", "3", true, new { id = "importxmlmode_3", @class = "form-check-input" })
+                    <label class="form-check-label" for="importxmlmode_3">@T("Admin.Configuration.Languages.Import.InsertUpdate")</label>
+                </div>
+                <div class="form-check">
+                    @Html.RadioButton("mode", "1", false, new { id = "importxmlmode_1", @class = "form-check-input" })
+                    <label class="form-check-label" for="importxmlmode_1">@T("Admin.Configuration.Languages.Import.Insert")</label>
+                </div>
+                <div class="form-check">
+                    @Html.RadioButton("mode", "2", false, new { id = "importxmlmode_2", @class = "form-check-input" })
+                    <label class="form-check-label" for="importxmlmode_2">@T("Admin.Configuration.Languages.Import.Update")</label>
+                </div>
+                <hr />
+                <div class="form-check">
+                    @Html.CheckBox("updatetouched", false, new { id = "importxmlupdatetouched", @class = "form-check-input" })
+                    <label class="form-check-label" for="importxmlupdatetouched">@T("Admin.Configuration.Languages.Import.UpdateTouched")</label>
+                </div>
+            </div>
+        </form>
+    </modal-body>
+    <modal-footer>
+        <button type="button" class="btn btn-secondary btn-flat" data-dismiss="modal">
+            <span>@T("Admin.Common.Cancel")</span>
+        </button>
+        <button id="importxmlsubmit" type="button" class="btn btn-primary">
+            <span>@T("Admin.Configuration.Languages.Import")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="scripts" data-origin="language-edit">
+    $(function () {
+        // Submit import form.
+        $('#importxmlsubmit').on('click', function (e) {
+            e.preventDefault();
+            $('#importxml-window').find('form').submit();
+        });
+
+        // Import mode changed.
+        $('#importxml-window input[name=mode]').on('change', function () {
+            var id = $(this).attr("id");
+            var chk = $("#importxmlupdatetouched");
+            if (id == "importxmlmode_1") {
+                chk.prop('disabled', true).parent().find(">span").addClass("muted");
+            }
+            else {
+                chk.removeAttr("disabled").parent().find(">span").removeClass("muted");
+            }
+        });
+
+        $('#@Html.IdFor(x => x.AvailableLanguageSetId)').selectWrapper({
+            allowClear: true,
+            minimumResultsForSearch: 16,
+            templateResult: availableLanguagesSelectItemFormatting,
+            templateSelection: availableLanguagesSelectItemFormatting
+        });
+
+        function availableLanguagesSelectItemFormatting(item) {
+            try {
+                var option = $(item.element);
+
+                if (option.length === 0) {
+                    option = $('#@Html.IdFor(x => x.AvailableLanguageSetId)').find('option[value="' + item.id + '"]');
+                }
+
+                var html = '<div class="form-row flex-nowrap align-items-center">';
+                var imageName = option.attr('data-imagename');
+
+                if (imageName.length > 0) {
+                    html += '<div class="col" style="max-width:48px; width:48px"><div class="img-center-container">';
+                    html += '<img class="img-fluid" src="@Url.Content("~/images/flags/")' + imageName + '" /></div></div>';
+				}
+
+				html += '<div class="col">';
+				html += '<div class="fs-xs font-weight-medium">' + item.text + '</div>';
+				html += '<div class="text-muted fs-xs">' + option.attr('data-translated') + '</div>';
+                html += '</div>';
+                html += '</div>';
+
+                return $(html);
+            }
+            catch (e) { }
+
+            return item.text;
+        }
+    });
+</script>
