@@ -29,7 +29,7 @@ namespace Smartstore.Tax.Migrations
                     .WithColumn(nameof(TaxRateEntity.StateProvinceId)).AsInt32().NotNullable()
                         .Indexed("IX_StateProvinceId")
                         .ForeignKey(nameof(StateProvince), id).OnDelete(Rule.Cascade)
-                    .WithColumn(nameof(TaxRateEntity.Zip)).AsString(10).NotNullable()
+                    .WithColumn(nameof(TaxRateEntity.Zip)).AsString(100).NotNullable()
                     .WithColumn(nameof(TaxRateEntity.Percentage)).AsDecimal(4, 18).NotNullable();
             }
         }

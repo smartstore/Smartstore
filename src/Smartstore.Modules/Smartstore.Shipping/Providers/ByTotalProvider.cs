@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.Shipping.Settings;
+using Smartstore.Utilities;
 
 namespace Smartstore.Shipping
 {
@@ -56,11 +56,24 @@ namespace Smartstore.Shipping
         {
             decimal? shippingTotal = null;
 
-            // TODO: (mh) (core) Does not do what Classic did. Where's "subtotal"?
-            var shippingByTotalRecord = await _db.ShippingRatesByTotal()
-                .Where(x => x.StoreId == storeId && x.ShippingMethodId == shippingMethodId)
-                .ApplyRegionFilter(countryId, stateProvinceId, zip)
-                .LastOrDefaultAsync();
+            var shippingByTotalRecords = await _db.ShippingRatesByTotal()
+                .Where(x => x.StoreId == storeId || x.StoreId == 0)
+                .Where(x => x.ShippingMethodId == shippingMethodId
+                    && subtotal >= x.From
+                    && (x.To == null || subtotal <= x.To.Value))
+                .ApplyRegionFilter(countryId, stateProvinceId)
+                .ToListAsync();
+
+            if (zip == null)
+            {
+                zip = string.Empty;
+            }
+
+            zip = zip.Trim();
+
+            var shippingByTotalRecord = shippingByTotalRecords
+                .Where(x => (zip.IsEmpty() && x.Zip.IsEmpty()) || ZipMatches(zip, x.Zip))
+                .LastOrDefault();
 
             if (shippingByTotalRecord == null)
             {
@@ -101,6 +114,36 @@ namespace Smartstore.Shipping
             }
 
             return shippingTotal;
+        }
+
+        private static bool ZipMatches(string zip, string pattern)
+        {
+            if (pattern.IsEmpty() || pattern == "*")
+            {
+                return true; // catch all
+            }
+
+            var patterns = pattern.Contains(',')
+                ? pattern.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim())
+                : new string[] { pattern };
+
+            try
+            {
+                foreach (var entry in patterns)
+                {
+                    var wildcard = new Wildcard(entry, true);
+                    if (wildcard.IsMatch(zip))
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch
+            {
+                return zip.EqualsNoCase(pattern);
+            }
+
+            return false;
         }
 
         public RouteInfo GetConfigurationRoute()
