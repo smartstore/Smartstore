@@ -27,15 +27,18 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly ILanguageService _languageService;
         private readonly IAsyncState _asyncState;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public LanguageController(
             SmartDbContext db,
             ILanguageService languageService,
-            IAsyncState asyncState)
+            IAsyncState asyncState,
+            IHttpClientFactory httpClientFactory)
         {
             _db = db;
             _languageService = languageService;
             _asyncState = asyncState;
+            _httpClientFactory = httpClientFactory;
         }
 
         public IActionResult Index()
@@ -133,23 +136,21 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
-                    // TODO: (mg) (core) Never instantiate HttpClient, we don't do this anymore. Instead use IHttpClientFactory with one of the pre-configured client names (see WebStarter.cs)
-                    using (var client = new HttpClient())
+                    var client = _httpClientFactory.CreateClient();
+                    
+                    client.Timeout = TimeSpan.FromMilliseconds(10000);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.DefaultRequestHeaders.UserAgent.ParseAdd("Smartstore " + currentVersion);
+                    client.DefaultRequestHeaders.Add("Authorization-Key", Services.StoreContext.CurrentStore.Url.EmptyNull().TrimEnd('/'));
+
+                    var url = Services.ApplicationContext.AppConfiguration.TranslateCheckUrl.FormatInvariant(currentVersion);
+                    var response = await client.GetAsync(url);
+
+                    if (response.StatusCode == HttpStatusCode.OK)
                     {
-                        client.Timeout = TimeSpan.FromMilliseconds(10000);
-                        client.DefaultRequestHeaders.Accept.Clear();
-                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                        client.DefaultRequestHeaders.UserAgent.ParseAdd("Smartstore " + currentVersion);
-                        client.DefaultRequestHeaders.Add("Authorization-Key", Services.StoreContext.CurrentStore.Url.EmptyNull().TrimEnd('/'));
-
-                        var url = Services.ApplicationContext.AppConfiguration.TranslateCheckUrl.FormatInvariant(currentVersion);
-                        var response = await client.GetAsync(url);
-
-                        if (response.StatusCode == HttpStatusCode.OK)
-                        {
-                            jsonString = await response.Content.ReadAsStringAsync();
-                            HttpContext.Session.SetString(cacheKey, jsonString);
-                        }
+                        jsonString = await response.Content.ReadAsStringAsync();
+                        HttpContext.Session.SetString(cacheKey, jsonString);
                     }
                 }
                 catch (Exception ex)
