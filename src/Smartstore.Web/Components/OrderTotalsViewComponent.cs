@@ -109,8 +109,7 @@ namespace Smartstore.Web.Components
             }
 
             // Shipping info
-            // TODO: (mh) (core) Re-implement when any payment method has been implemented
-            model.RequiresShipping = false;// cart.IsShippingRequired();
+            model.RequiresShipping = cart.IsShippingRequired();
             if (model.RequiresShipping)
             {
                 var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
@@ -145,21 +144,21 @@ namespace Smartstore.Web.Components
             }
             else
             {
-                (Money Price, TaxRatesDictionary TaxRates) cartTaxBase = (new Money(1.19m, currency), new TaxRatesDictionary());//await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
-                var cartTax = _currencyService.ConvertFromPrimaryCurrency(cartTaxBase.Price.Amount, currency);
+                (Money price, TaxRatesDictionary taxRates) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
+                var cartTax = _currencyService.ConvertFromPrimaryCurrency(price.Amount, currency);
 
-                if (cartTaxBase.Price == decimal.Zero && _taxSettings.HideZeroTax)
+                if (price == decimal.Zero && _taxSettings.HideZeroTax)
                 {
                     displayTax = false;
                     displayTaxRates = false;
                 }
                 else
                 {
-                    displayTaxRates = _taxSettings.DisplayTaxRates && cartTaxBase.TaxRates.Count > 0;
+                    displayTaxRates = _taxSettings.DisplayTaxRates && taxRates.Count > 0;
                     displayTax = !displayTaxRates;
                     model.Tax = cartTax.ToString(true);
 
-                    foreach (var taxRate in cartTaxBase.TaxRates)
+                    foreach (var taxRate in taxRates)
                     {
                         var rate = _taxService.FormatTaxRate(taxRate.Key);
                         var labelKey = "ShoppingCart.Totals.TaxRateLine" + (Services.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax ? "Incl" : "Excl");
@@ -180,25 +179,7 @@ namespace Smartstore.Web.Components
             model.ShowConfirmOrderLegalHint = _shoppingCartSettings.ShowConfirmOrderLegalHint;
 
             // Cart total
-            // TODO: (mh) (core) Re-implement when any payment method has been implemented
-            //var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
-
-            var cartTotal = new ShoppingCartTotal
-            {
-                Total = new(decimal.Zero, currency),
-                ToNearestRounding = new(decimal.Zero, currency),
-                DiscountAmount = new(15, currency),
-                AppliedDiscount = (await _db.Discounts.FirstOrDefaultAsync()) ?? new(),
-                RedeemedRewardPoints = 10,
-                RedeemedRewardPointsAmount = new(10, currency),
-                CreditBalance = new(decimal.Zero, currency),
-                AppliedGiftCards = new() { new() { GiftCard = (await _db.GiftCards.Include(x=>x.GiftCardUsageHistory).FirstOrDefaultAsync()) ?? new(), UsableAmount = new(50m, _currencyService.PrimaryCurrency) } },
-                ConvertedAmount = new ShoppingCartTotal.ConvertedAmounts
-                {
-                    Total = new(decimal.Zero, currency),
-                    ToNearestRounding = new(decimal.Zero, currency)
-                }
-            };
+            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 
             if (cartTotal.ConvertedAmount.Total.HasValue)
             {
@@ -245,7 +226,7 @@ namespace Smartstore.Web.Components
                 }
             }
 
-           // Reward points
+            // Reward points
             if (cartTotal.RedeemedRewardPointsAmount > decimal.Zero)
             {
                 var redeemedRewardPointsAmountInCustomerCurrency = _currencyService.ConvertFromPrimaryCurrency(cartTotal.RedeemedRewardPointsAmount.Amount, currency);
