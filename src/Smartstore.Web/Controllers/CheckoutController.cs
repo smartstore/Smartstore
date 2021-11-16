@@ -6,18 +6,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
+using Smartstore.Web.Models.Cart;
 using Smartstore.Web.Models.Checkout;
 using Smartstore.Web.Models.Common;
-using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.Web.Controllers
 {
@@ -31,6 +35,10 @@ namespace Smartstore.Web.Controllers
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly IProviderManager _providerManager;
+        private readonly ModuleManager _moduleManager;
+        private readonly ICurrencyService _currencyService;
+        private readonly ITaxCalculator _taxCalculator;
         private readonly ShippingSettings _shippingSettings;
         private readonly PaymentSettings _paymentSettings;
         private readonly OrderSettings _orderSettings;
@@ -41,9 +49,13 @@ namespace Smartstore.Web.Controllers
             IPaymentService paymentService,
             IShippingService shippingService,
             IShoppingCartService shoppingCartService,
+            IShoppingCartValidator shoppingCartValidator,
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
-            IShoppingCartValidator shoppingCartValidator,
+            IProviderManager providerManager,
+            ModuleManager moduleManager,
+            ICurrencyService currencyService,
+            ITaxCalculator taxCalculator,
             ShippingSettings shippingSettings,
             PaymentSettings paymentSettings,
             OrderSettings orderSettings)
@@ -56,6 +68,10 @@ namespace Smartstore.Web.Controllers
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
             _shoppingCartValidator = shoppingCartValidator;
+            _providerManager = providerManager;
+            _moduleManager = moduleManager;
+            _currencyService = currencyService;
+            _taxCalculator = taxCalculator;
             _shippingSettings = shippingSettings;
             _paymentSettings = paymentSettings;
             _orderSettings = orderSettings;
@@ -93,6 +109,87 @@ namespace Smartstore.Web.Controllers
             // And map billing / shipping addresses.
             var model = new CheckoutAddressModel();
             await addresses.MapAsync(model, shipping, selectedCountryId);
+
+            return model;
+        }
+
+        [NonAction]
+        protected async Task<CheckoutShippingMethodModel> PrepareShippingMethodModelAsync(ShippingOptionResponse shippingOptionResponse, ShoppingCart cart)
+        {
+            var model = new CheckoutShippingMethodModel();
+            var store = Services.StoreContext.CurrentStore;
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (shippingOptionResponse.Success)
+            {
+                // Performance optimization. cache returned shipping options.
+                // We'll use them later (after a customer has selected an option).
+                customer.GenericAttributes.OfferedShippingOptions = shippingOptionResponse.ShippingOptions;
+
+                var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(store.Id);
+
+                foreach (var shippingOption in shippingOptionResponse.ShippingOptions)
+                {
+                    var soModel = new CheckoutShippingMethodModel.ShippingMethodModel
+                    {
+                        ShippingMethodId = shippingOption.ShippingMethodId,
+                        Name = shippingOption.Name,
+                        Description = shippingOption.Description,
+                        ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName,
+                    };
+
+                    var srcmProvider = _providerManager.GetProvider<IShippingRateComputationMethod>(shippingOption.ShippingRateComputationMethodSystemName);
+
+                    if (srcmProvider != null)
+                    {
+                        soModel.BrandUrl = _moduleManager.GetBrandImageUrl(srcmProvider.Metadata);
+                    }
+
+                    // Adjust rate.
+                    var shippingTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
+                    var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
+                    var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount);
+                    var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, Services.WorkContext.WorkingCurrency);
+                    soModel.Fee = rate.WithPostFormat(shippingTaxFormat);
+
+                    model.ShippingMethods.Add(soModel);
+                }
+
+                // Find a selected (previously) shipping method.
+                var selectedShippingOption = customer.GenericAttributes.SelectedShippingOption;
+                if (selectedShippingOption != null)
+                {
+                    var shippingOptionToSelect = model.ShippingMethods
+                        .ToList()
+                        .Find(
+                            so => so.Name.HasValue() && 
+                                  so.Name.EqualsNoCase(selectedShippingOption.Name) &&
+                                  so.ShippingRateComputationMethodSystemName.HasValue() &&
+                                  so.ShippingRateComputationMethodSystemName.EqualsNoCase(selectedShippingOption.ShippingRateComputationMethodSystemName));
+
+                    if (shippingOptionToSelect != null)
+                    {
+                        shippingOptionToSelect.Selected = true;
+                    }
+                }
+
+                // If no option has been selected, let's do it for the first one.
+                if (model.ShippingMethods.Where(so => so.Selected).FirstOrDefault() == null)
+                {
+                    var shippingOptionToSelect = model.ShippingMethods.FirstOrDefault();
+                    if (shippingOptionToSelect != null)
+                    {
+                        shippingOptionToSelect.Selected = true;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var error in shippingOptionResponse.Errors)
+                {
+                    model.Warnings.Add(error);
+                }
+            }
 
             return model;
         }
@@ -265,51 +362,34 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction(nameof(PaymentMethod));
             }
 
-            // TODO: (mh) (core) Wait with implementation until any provider for shipping rate computation has been implemented.
-            //var response = _shippingService.GetShippingOptions(cart, customer.ShippingAddress, storeId: storeId);
-            //var options = response.ShippingOptions;
-            //var state = HttpContext.GetCheckoutState();
+            var response = await _shippingService.GetShippingOptionsAsync(cart, customer.ShippingAddress, storeId: storeId);
+            var options = response.ShippingOptions;
+            var state = HttpContext.GetCheckoutState();
 
-            //if (state.CustomProperties.ContainsKey("HasOnlyOneActiveShippingMethod"))
-            //{
-            //    state.CustomProperties["HasOnlyOneActiveShippingMethod"] = options.Count == 1;
-            //}
-            //else
-            //{
-            //    state.CustomProperties.Add("HasOnlyOneActiveShippingMethod", options.Count == 1);
-            //}
-
-            //if (options.Count <= 1 && _shippingSettings.SkipShippingIfSingleOption && response.Success)
-            //{
-            //    customer.GenericAttributes.SelectedShippingOption = options.FirstOrDefault();
-            //    await customer.GenericAttributes.SaveChangesAsync();
-
-            //    var referrer = Services.WebHelper.GetUrlReferrer();
-            //    if (referrer.EndsWith("/PaymentMethod") || referrer.EndsWith("/Confirm"))
-            //    {
-            //        return RedirectToAction(nameof(ShippingAddress));
-            //    }
-
-            //    return RedirectToAction(nameof(PaymentMethod));
-            //}
-
-            var model = new CheckoutShippingMethodModel();
-            await cart.MapAsync(model);
-
-            // TODO: (mh) (core) Remove dummy shipping method model.
-            // This creates a dummy ShippingMethodModel. It is needed as long as no other shipping method is implemented.
-            var methodModel = new CheckoutShippingMethodModel.ShippingMethodModel
+            if (state.CustomProperties.ContainsKey("HasOnlyOneActiveShippingMethod"))
             {
-                ShippingMethodId = 100,
-                ShippingRateComputationMethodSystemName = "TestDummy",
-                Name = "Test",
-                BrandUrl = "test.de",
-                Description = "Dies ist eine dummy shipping method",
-                Fee = new(5, Services.StoreContext.CurrentStore.PrimaryStoreCurrency),
-                Selected = true
-            };
+                state.CustomProperties["HasOnlyOneActiveShippingMethod"] = options.Count == 1;
+            }
+            else
+            {
+                state.CustomProperties.Add("HasOnlyOneActiveShippingMethod", options.Count == 1);
+            }
 
-            model.ShippingMethods.Add(methodModel);
+            if (options.Count <= 1 && _shippingSettings.SkipShippingIfSingleOption && response.Success)
+            {
+                customer.GenericAttributes.SelectedShippingOption = options.FirstOrDefault();
+                await customer.GenericAttributes.SaveChangesAsync();
+
+                var referrer = Services.WebHelper.GetUrlReferrer().AbsolutePath;
+                if (referrer.EndsWith("/PaymentMethod") || referrer.EndsWith("/Confirm"))
+                {
+                    return RedirectToAction(nameof(ShippingAddress));
+                }
+
+                return RedirectToAction(nameof(PaymentMethod));
+            }
+
+            var model = await PrepareShippingMethodModelAsync(response, cart);
 
             return View(model);
         }
