@@ -2,6 +2,8 @@
 
 @model FixedRateModel
 
+@* TODO: (mh) (core) Refreshing grid throws in console. *@
+
 <datagrid id="fixed-rate-grid"
           allow-resize="true"
           allow-column-reordering="true"
@@ -11,6 +13,7 @@
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <columns>
         <column for="ShippingMethodName" width="2fr" hideable="false" readonly />
+        @* TODO: (mh) (core) Totally shitty edit behaviour and wrong alignment. Please test!!! *@
         <column for="Rate" />
     </columns>
     <row-commands>

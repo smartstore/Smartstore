@@ -429,7 +429,6 @@ namespace Smartstore.Admin.Controllers
                 return StatusCode(501, ex.Message);
             }
 
-            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
             return StatusCode(200);
         }
 
