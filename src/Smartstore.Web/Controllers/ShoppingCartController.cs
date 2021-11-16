@@ -1026,7 +1026,6 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> GetEstimateShipping(EstimateShippingModel shippingModel, ProductVariantQuery query)
         {
-            // TODO: (mh) (core) Testing when there are payment / shipping methods ready
             var storeId = Services.StoreContext.CurrentStore.Id;
             var currency = Services.WorkContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartAsync(storeId: storeId);
@@ -1044,7 +1043,7 @@ namespace Smartstore.Web.Controllers
 
             if (cart.IncludesMatchingItems(x => x.IsShippingEnabled))
             {
-                var shippingInfoUrl = Url.TopicAsync("ShippingInfo").ToString();
+                var shippingInfoUrl = await Url.TopicAsync("ShippingInfo");
                 if (shippingInfoUrl.HasValue())
                 {
                     model.EstimateShipping.ShippingInfoUrl = shippingInfoUrl;
