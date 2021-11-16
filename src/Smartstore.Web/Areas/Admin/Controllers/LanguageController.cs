@@ -725,7 +725,7 @@ namespace Smartstore.Admin.Controllers
                     client.Timeout = TimeSpan.FromMilliseconds(10000);
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
-                    client.DefaultRequestHeaders.UserAgent.ParseAdd("Smartstore " + currentVersion);
+                    // INFO: (mg) (core) The factory preconfigures the default client by adding the User-Agent header.
                     client.DefaultRequestHeaders.Add("Authorization-Key", Services.StoreContext.CurrentStore.Url.EmptyNull().TrimEnd('/'));
 
                     var url = Services.ApplicationContext.AppConfiguration.TranslateCheckUrl.FormatInvariant(currentVersion);
@@ -762,7 +762,6 @@ namespace Smartstore.Admin.Controllers
 
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Text.Xml));
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Smartstore " + SmartstoreVersion.CurrentFullVersion);
             client.DefaultRequestHeaders.Add("Authorization-Key", storeUrl.EmptyNull().TrimEnd('/'));
 
             using var inStream = await client.GetStreamAsync(downloadUrl, cancelToken);
