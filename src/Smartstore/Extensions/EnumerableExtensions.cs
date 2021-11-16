@@ -11,67 +11,57 @@ using Dasync.Collections;
 using Microsoft.Extensions.Primitives;
 using Smartstore.ComponentModel;
 using Smartstore.Domain;
-using Smartstore.Extensions.Internal;
 
 namespace Smartstore
 {
-    public static class CollectionSlicer
+    public static class CollectionChunker
     {
         /// <summary>
-        /// Slices the iteration over an enumerable by the given slice sizes.
+        /// Split the elements of a sequence into chunks of size at most <paramref name="size"/>.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source sequence to slice</param>
-        /// <param name="sizes">
-        /// Slice sizes. At least one size is required. Multiple sizes result in differently sized slices,
-        /// whereat the last size is used for the "rest" (if any)
-        /// </param>
-        /// <returns>The sliced enumerable</returns>
-        public static IEnumerable<IEnumerable<T>> Slice<T>(this IEnumerable<T> source, params int[] sizes)
+        /// <remarks>
+        /// Every chunk except the last will be of size <paramref name="size"/>.
+        /// The last chunk will contain the remaining elements and may be of a smaller size.
+        /// </remarks>
+        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> whose elements to chunk.</param>
+        /// <param name="size">Maximum size of each chunk.</param>
+        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+        /// <returns>
+        /// An <see cref="IAsyncEnumerable{T}"/> that contains the elements the input sequence split into chunks of size <paramref name="size"/>.
+        /// </returns>
+        public static IAsyncEnumerable<T[]> ChunkAsync<T>(this IAsyncEnumerable<T> source, int size, CancellationToken cancelToken = default)
         {
-            if (!sizes.Any(step => step != 0))
-            {
-                throw new InvalidOperationException("Can't slice a collection with step length 0.");
-            }
+            Guard.NotNull(source, nameof(source));
+            Guard.IsPositive(size, nameof(size));
 
-            return new EnumerableSlicer<T>(source.GetEnumerator(), sizes).Slice();
+            return AsyncChunkIterator(source, size, cancelToken);
         }
 
-        /// <summary>
-        /// Slices the iteration over an async enumerable by the given slice sizes.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The async source sequence to slice</param>
-        /// <param name="sizes">
-        /// Slice sizes. At least one size is required. Multiple sizes result in differently sized slices,
-        /// whereat the last size is used for the "rest" (if any)
-        /// </param>
-        /// <returns>The sliced async enumerable</returns>
-        public static IAsyncEnumerable<List<T>> SliceAsync<T>(this IAsyncEnumerable<T> source, params int[] sizes)
+        private static async IAsyncEnumerable<TSource[]> AsyncChunkIterator<TSource>(IAsyncEnumerable<TSource> source, int size, [EnumeratorCancellation] CancellationToken cancelToken = default)
         {
-            return SliceAsync(source, CancellationToken.None, sizes);
-        }
-
-        /// <summary>
-        /// Slices the iteration over an async enumerable by the given slice sizes.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The async source sequence to slice</param>
-        /// <param name="sizes">
-        /// Slice sizes. At least one size is required. Multiple sizes result in differently sized slices,
-        /// whereat the last size is used for the "rest" (if any)
-        /// </param>
-        /// <returns>The sliced async enumerable</returns>
-        public static IAsyncEnumerable<List<T>> SliceAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancelToken, params int[] sizes)
-        {
-            if (!sizes.Any(step => step != 0))
+            await using IAsyncEnumerator<TSource> e = source.GetAsyncEnumerator(cancelToken);
+            while (await e.MoveNextAsync())
             {
-                throw new InvalidOperationException("Can't slice a collection with step length 0.");
+                TSource[] chunk = new TSource[size];
+                chunk[0] = e.Current;
+
+                int i = 1;
+                for (; i < chunk.Length && await e.MoveNextAsync(); i++)
+                {
+                    chunk[i] = e.Current;
+                }
+
+                if (i == chunk.Length)
+                {
+                    yield return chunk;
+                }
+                else
+                {
+                    Array.Resize(ref chunk, i);
+                    yield return chunk;
+                    yield break;
+                }
             }
-
-            return new AsyncEnumerableSlicer<T>(source.GetAsyncEnumerator(cancelToken), sizes).SliceAsync(cancelToken);
-
-            //return source.Batch(100);
         }
     }
 

@@ -351,7 +351,7 @@ namespace Smartstore.Core.Content.Media
             }
 
             // (perf) Batch result data...
-            await foreach (var batch in allTracks.SliceAsync(500))
+            await foreach (var batch in allTracks.ChunkAsync(500, cancelToken))
             {
                 cancelToken.ThrowIfCancellationRequested();
                 // process the batch

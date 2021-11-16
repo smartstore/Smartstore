@@ -305,7 +305,7 @@ namespace Smartstore.Core.Seo
                     {
                         var entities = EnlistEntitiesAsync(providers);
 
-                        await foreach (var batch in entities.SliceAsync(ctx.CancellationToken, MaximumSiteMapNodeCount))
+                        await foreach (var batch in entities.ChunkAsync(MaximumSiteMapNodeCount, ctx.CancellationToken))
                         {
                             if (ctx.CancellationToken.IsCancellationRequested)
                             {
