@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Localization
@@ -45,7 +46,8 @@ namespace Smartstore.Admin.Models.Localization
             SetId = setId;
         }
 
-        public int SetId { get; private set; }
+        public int SetId { get; }
+        public CancellationToken AppShutdownCancellationToken { get; set; }
         public CheckAvailableResourcesResult AvailableResources { get; set; }
     }
 }

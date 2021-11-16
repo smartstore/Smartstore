@@ -856,9 +856,14 @@ namespace Smartstore.Web.Controllers
             var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
             var crypt = Services.Resolve<IEncryptor>();
 
-            _db.Logs.Remove(999999);
-            var num = await _db.SaveChangesAsync();
-            content.AppendLine($"removed num {num}");
+            var dir = await Services.ApplicationContext.WebRoot.GetDirectoryAsync("images/flags");
+            var flags = await dir.EnumerateFilesAsync().ToListAsync();
+
+            foreach (var flag in flags)
+            {
+                content.AppendLine($"{flag.NameWithoutExtension} {flag.Name}");
+            }
+
 
             //var orderId = 32123;
             //var order = await _db.Orders.FindByIdAsync(orderId);
@@ -887,53 +892,41 @@ namespace Smartstore.Web.Controllers
             //await _db.SaveChangesAsync();
 
 
-            var shipmentId = 22054;
-            var shipment = await _db.Shipments
-                .Include(x => x.Order)
-                .FindByIdAsync(shipmentId);
+            //var shipmentId = 22054;
+            //var shipment = await _db.Shipments
+            //    .Include(x => x.Order)
+            //    .FindByIdAsync(shipmentId);
 
-            await _db.LoadReferenceAsync(shipment.Order, x => x.RedeemedRewardPointsEntry);
+            //await _db.LoadReferenceAsync(shipment.Order, x => x.RedeemedRewardPointsEntry);
 
-            await _db.LoadReferenceAsync(shipment.Order, x => x.Customer, false, q => q
-                .Include(x => x.RewardPointsHistory)
-                .Include(x => x.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole));
+            //await _db.LoadReferenceAsync(shipment.Order, x => x.Customer, false, q => q
+            //    .Include(x => x.RewardPointsHistory)
+            //    .Include(x => x.CustomerRoleMappings)
+            //    .ThenInclude(x => x.CustomerRole));
 
-            await _db.LoadCollectionAsync(shipment.Order, x => x.OrderItems, false, q =>
-            {
-                q = q.Include(x => x.Product);
+            //await _db.LoadCollectionAsync(shipment.Order, x => x.OrderItems, false, q =>
+            //{
+            //    q = q.Include(x => x.Product);
 
-                q = q.Include(x => x.Order.Shipments)
-                    .ThenInclude(x => x.ShipmentItems);
+            //    q = q.Include(x => x.Order.Shipments)
+            //        .ThenInclude(x => x.ShipmentItems);
 
-                return q;
-            });
+            //    return q;
+            //});
 
-            //var shipmentQuery = _db.Shipments
-            //    .Include(x => x.Order.ShippingAddress)
-            //    .Include(x => x.Order.Customer)
-            //    .ThenInclude(x => x.RewardPointsHistory)
-            //    .Include(x => x.Order.Customer.CustomerRoleMappings)
-            //    .ThenInclude(x => x.CustomerRole)
-            //    .Include(x => x.Order.Shipments)
-            //    .ThenInclude(x => x.ShipmentItems)
-            //    .Include(x => x.Order.OrderItems)
-            //    .ThenInclude(x => x.Product);
-            //var shipment = await shipmentQuery.FirstOrDefaultAsync(x => x.Id == shipmentId);
+            //content.AppendLine($"order {shipment.Order.Id}");
+            //content.AppendLine($"customer {shipment.Order.Customer.Email}");
+            //content.AppendLine($"order items {shipment.Order.OrderItems.Count}");
+            //content.AppendLine($"shipments {shipment.Order.Shipments.Count}");
+            //content.AppendLine($"shipment items {shipment.Order.Shipments?.FirstOrDefault()?.ShipmentItems?.Count ?? 0}");
 
-            content.AppendLine($"order {shipment.Order.Id}");
-            content.AppendLine($"customer {shipment.Order.Customer.Email}");
-            content.AppendLine($"order items {shipment.Order.OrderItems.Count}");
-            content.AppendLine($"shipments {shipment.Order.Shipments.Count}");
-            content.AppendLine($"shipment items {shipment.Order.Shipments?.FirstOrDefault()?.ShipmentItems?.Count ?? 0}");
+            //var orderItem = shipment.Order.OrderItems.First();
+            //// This works! Even if there is no include for it!
+            //var deepShippmentCount = orderItem.Order.Shipments?.Count ?? 0;
+            //var deepShippmentItemCount = orderItem.Order.Shipments.FirstOrDefault()?.ShipmentItems?.Count ?? 0;
 
-            var orderItem = shipment.Order.OrderItems.First();
-            // This works! Even if there is no include for it!
-            var deepShippmentCount = orderItem.Order.Shipments?.Count ?? 0;
-            var deepShippmentItemCount = orderItem.Order.Shipments.FirstOrDefault()?.ShipmentItems?.Count ?? 0;
-
-            content.AppendLine($"deep shipments {deepShippmentCount}");
-            content.AppendLine($"deep shipment items {deepShippmentItemCount}");
+            //content.AppendLine($"deep shipments {deepShippmentCount}");
+            //content.AppendLine($"deep shipment items {deepShippmentItemCount}");
 
 
             //_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools"));
