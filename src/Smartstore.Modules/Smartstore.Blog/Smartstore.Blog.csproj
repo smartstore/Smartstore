@@ -9,7 +9,4 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
-	<ItemGroup>
-	  <PackageReference Include="Smartstore.FFmpeg.Native.win-x64" Version="4.2.1" />
-	</ItemGroup>
 </Project>
