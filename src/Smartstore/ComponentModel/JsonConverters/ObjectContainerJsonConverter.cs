@@ -7,11 +7,6 @@ namespace Smartstore.ComponentModel.JsonConverters
 {
     public class ObjectContainerJsonConverter : JsonConverter<IObjectContainer>
     {
-        public ObjectContainerJsonConverter()
-        {
-            var yo = true;
-        }
-
         public override bool CanRead
             => true;
 

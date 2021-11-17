@@ -7,17 +7,13 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Smartstore.ComponentModel;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    // TODO: (core) Remove $('.t-grid.grid-preservestate').on('dataBound', ...) handler from smartstore.common.js
-
     [Flags]
     public enum DataGridBorderStyle
     {

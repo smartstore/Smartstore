@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -37,6 +38,7 @@ namespace Smartstore.Data.Batching
         public string FullTempTableName => $"{SchemaFormatted}[{TempDBPrefix}{TempTableName}]";
         public string FullTempOutputTableName => $"{SchemaFormatted}[{TempDBPrefix}{TempTableName}Output]";
 
+        [SuppressMessage("Performance", "CA1822:declare member as static", Justification = "No")]
         public bool CreatedOutputTable => false;
 
         public bool InsertToTempTable { get; set; }
@@ -55,6 +57,8 @@ namespace Smartstore.Data.Batching
         public Dictionary<string, INavigation> OwnedTypesDict { get; set; } = new Dictionary<string, INavigation>();
         public HashSet<string> ShadowProperties { get; set; } = new HashSet<string>();
         public Dictionary<string, ValueConverter> ConvertibleProperties { get; set; } = new Dictionary<string, ValueConverter>();
+
+        [SuppressMessage("Performance", "CA1822:declare member as static", Justification = "No")]
         public string TimeStampOutColumnType => "varbinary(8)";
         public string TimeStampColumnName { get; set; }
 
@@ -113,7 +117,7 @@ namespace Smartstore.Data.Batching
 
             if (!BulkConfig.UseTempDB || BulkConfig.UniqueTableNameTempDb)
             {
-                TempTableSufix += Guid.NewGuid().ToString().Substring(0, 8); // 8 chars of Guid as tableNameSufix to avoid same name collision with other tables
+                TempTableSufix += Guid.NewGuid().ToString()[..8]; // 8 chars of Guid as tableNameSufix to avoid same name collision with other tables
             }
 
             bool areSpecifiedUpdateByProperties = BulkConfig.UpdateByProperties?.Count > 0;
@@ -152,12 +156,12 @@ namespace Smartstore.Data.Batching
 
             // TimeStamp prop. is last column in OutputTable since it is added later with varbinary(8) type in which Output can be inserted
             OutputPropertyColumnNamesDict = allPropertiesExceptTimeStamp.Concat(timeStampProperties).ToDictionary(a => a.Name, b => b.GetColumnName(storeObjectIdent).Replace("]", "]]")); // square brackets have to be escaped
-            ColumnNameContainsSquareBracket = allPropertiesExceptTimeStamp.Concat(timeStampProperties).Any(a => a.GetColumnName(storeObjectIdent).Contains("]"));
+            ColumnNameContainsSquareBracket = allPropertiesExceptTimeStamp.Concat(timeStampProperties).Any(a => a.GetColumnName(storeObjectIdent).Contains(']'));
 
-            bool AreSpecifiedPropertiesToInclude = BulkConfig.PropertiesToInclude?.Count() > 0;
-            bool AreSpecifiedPropertiesToExclude = BulkConfig.PropertiesToExclude?.Count() > 0;
+            bool areSpecifiedPropertiesToInclude = BulkConfig.PropertiesToInclude?.Count > 0;
+            bool areSpecifiedPropertiesToExclude = BulkConfig.PropertiesToExclude?.Count > 0;
 
-            if (AreSpecifiedPropertiesToInclude)
+            if (areSpecifiedPropertiesToInclude)
             {
                 if (areSpecifiedUpdateByProperties) // Adds UpdateByProperties to PropertyToInclude if they are not already explicitly listed
                 {
@@ -191,13 +195,13 @@ namespace Smartstore.Data.Batching
 
             UpdateByPropertiesAreNullable = properties.Any(a => PrimaryKeys != null && PrimaryKeys.Contains(a.Name) && a.IsNullable);
 
-            if (AreSpecifiedPropertiesToInclude || AreSpecifiedPropertiesToExclude)
+            if (areSpecifiedPropertiesToInclude || areSpecifiedPropertiesToExclude)
             {
-                if (AreSpecifiedPropertiesToInclude && AreSpecifiedPropertiesToExclude)
+                if (areSpecifiedPropertiesToInclude && areSpecifiedPropertiesToExclude)
                     throw new InvalidOperationException("Only one group of properties, either PropertiesToInclude or PropertiesToExclude can be specified, specifying both not allowed.");
-                if (AreSpecifiedPropertiesToInclude)
+                if (areSpecifiedPropertiesToInclude)
                     properties = properties.Where(a => BulkConfig.PropertiesToInclude.Contains(a.Name));
-                if (AreSpecifiedPropertiesToExclude)
+                if (areSpecifiedPropertiesToExclude)
                     properties = properties.Where(a => !BulkConfig.PropertiesToExclude.Contains(a.Name));
             }
 
@@ -266,11 +270,11 @@ namespace Smartstore.Data.Batching
                                 var ownedPropertyType = Nullable.GetUnderlyingType(ownedProperty.PropertyType) ?? ownedProperty.PropertyType;
 
                                 bool doAddProperty = true;
-                                if (AreSpecifiedPropertiesToInclude && !BulkConfig.PropertiesToInclude.Contains(columnName))
+                                if (areSpecifiedPropertiesToInclude && !BulkConfig.PropertiesToInclude.Contains(columnName))
                                 {
                                     doAddProperty = false;
                                 }
-                                if (AreSpecifiedPropertiesToExclude && BulkConfig.PropertiesToExclude.Contains(columnName))
+                                if (areSpecifiedPropertiesToExclude && BulkConfig.PropertiesToExclude.Contains(columnName))
                                 {
                                     doAddProperty = false;
                                 }

@@ -31,11 +31,9 @@ namespace Smartstore.Core.Installation
         private readonly DbMigrator<SmartDbContext> _migrator;
         private readonly IMessageTemplateService _messageTemplateService;
         private readonly SeedDataConfiguration _config;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        
-        private InvariantSeedData _data;
+        private readonly InvariantSeedData _data;
+
         private IXmlResourceManager _xmlResourceManager;
-        private IUrlService _urlService;
         private int _defaultStoreId;
 
         public InstallationDataSeeder(
@@ -43,20 +41,17 @@ namespace Smartstore.Core.Installation
             DbMigrator<SmartDbContext> migrator,
             IMessageTemplateService messageTemplateService,
             SeedDataConfiguration configuration,
-            ILogger logger,
-            IHttpContextAccessor httpContextAccessor)
+            ILogger logger)
             : base(appContext, logger)
         {
             Guard.NotNull(migrator, nameof(migrator));
             Guard.NotNull(configuration, nameof(configuration));
             Guard.NotNull(configuration.Language, "SeedDataConfiguration.Language");
             Guard.NotNull(configuration.Data, "SeedDataConfiguration.SeedData");
-            Guard.NotNull(httpContextAccessor, nameof(httpContextAccessor));
 
             _migrator = migrator;
             _messageTemplateService = messageTemplateService;
             _config = configuration;
-            _httpContextAccessor = httpContextAccessor;
             _data = configuration.Data;
         }
 
