@@ -7,8 +7,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
-    <PackageReference Include="DotLiquid" Version="2.2.548" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+    <PackageReference Include="DotLiquid" Version="2.2.580" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="FluentMigrator" Version="3.3.1" />
     <PackageReference Include="FluentMigrator.Runner" Version="3.3.1" />
@@ -17,18 +17,18 @@
     <PackageReference Include="MaxMind.Db" Version="3.0.0" />
     <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0-rc.1.21452.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0-rc.1.21452.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0" />
     <PackageReference Include="Parlot" Version="0.0.17" />
-    <PackageReference Include="PreMailer.Net" Version="2.2.0" />
+    <PackageReference Include="PreMailer.Net" Version="2.4.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
-    <PackageReference Include="Serilog.Expressions" Version="3.2.0" />
+    <PackageReference Include="Serilog.Expressions" Version="3.2.1" />
     <PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
     <PackageReference Include="Serilog.Sinks.Map" Version="1.0.2" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.0" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.12" />
-    <PackageReference Include="System.ServiceModel.Http" Version="4.9.0-rc1.21431.2" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.14" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.9.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />
   </ItemGroup>
 

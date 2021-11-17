@@ -39,24 +39,24 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.16.0" />
+    <PackageReference Include="AngleSharp" Version="0.16.1" />
     <PackageReference Include="AngleSharp.Css" Version="0.16.1" />
     <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
     <PackageReference Include="CronExpressionDescriptor" Version="2.16.0" />
-    <PackageReference Include="HtmlSanitizer" Version="6.0.441" />
-    <PackageReference Include="Humanizer" Version="2.11.10" />
+    <PackageReference Include="HtmlSanitizer" Version="6.0.453" />
+    <PackageReference Include="Humanizer" Version="2.13.14" />
     <PackageReference Include="MailKit" Version="2.15.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0-rc.1.21452.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0-rc.1.21452.10" />
-		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="5.0.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0" />
+	<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
     <PackageReference Include="ncrontab" Version="3.3.1" />
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
     <PackageReference Include="NuGet.Protocol" Version="6.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.12" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.14" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="6.0.0" />
   </ItemGroup>
 
 	<ItemGroup>
