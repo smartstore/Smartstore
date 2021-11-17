@@ -376,7 +376,7 @@ namespace Smartstore.Admin.Controllers
 
                 return continueEditing 
                     ? RedirectToAction(nameof(Edit), new { id = category.Id }) 
-                    : RedirectToAction("Index");
+                    : RedirectToAction(nameof(Index));
             }
 
             await PrepareCategoryModel(model, null);
@@ -456,7 +456,7 @@ namespace Smartstore.Admin.Controllers
 
                 return continueEditing
                     ? RedirectToAction(nameof(Edit), category.Id)
-                    : RedirectToAction("Index");
+                    : RedirectToAction(nameof(Index));
             }
 
             await PrepareCategoryModel(model, category);

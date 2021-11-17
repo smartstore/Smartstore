@@ -36,7 +36,7 @@ namespace Smartstore.DevTools.Controllers
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
-            return RedirectToAction("Configure");
+            return RedirectToAction(nameof(Configure));
         }
     }
 }

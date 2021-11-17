@@ -198,7 +198,6 @@ namespace Smartstore.Shipping.Controllers
         [Permission(Permissions.Configuration.Shipping.Delete)]
         public async Task<IActionResult> ByTotalDelete(GridSelection selection)
         {
-            // TODO: (mh) (core) We still need the Delete button in edit template.
             var success = false;
             var numDeleted = 0;
             var ids = selection.GetEntityIds();

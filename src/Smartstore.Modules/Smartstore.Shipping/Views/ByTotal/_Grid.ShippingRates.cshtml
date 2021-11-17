@@ -2,8 +2,6 @@
 
 @model ByTotalModel
 
-@* TODO: (mh) (core) Sorting grid throws! *@
-
 <datagrid id="shipping-rates-bytotal-grid"
           allow-resize="true"
           allow-row-selection="true"
@@ -37,11 +35,11 @@
     </toolbar>
     <columns>
         @*INFO: I don't want to hide any columns here so the shop admin doesn't miss any oportunities to configure his rates.*@
-        <column for="StoreName" readonly />
-        <column for="CountryName" readonly />
-        <column for="StateProvinceName" readonly />
+        <column for="StoreName" readonly entity-member="StoreId" />
+        <column for="CountryName" readonly entity-member="Country.Name" />
+        <column for="StateProvinceName" readonly entity-member="StateProvince.Name" />
         <column for="Zip" />
-        <column for="ShippingMethodName" width="1fr" readonly hideable="false" />
+        <column for="ShippingMethodName" entity-member="ShippingMethod.Name" width="1fr" readonly hideable="false" />
         <column for="From" />
         <column for="To" />
         <column for="UsePercentage" halign="center" />

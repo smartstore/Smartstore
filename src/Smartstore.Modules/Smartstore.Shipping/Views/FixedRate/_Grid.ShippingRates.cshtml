@@ -2,9 +2,8 @@
 
 @model FixedRateModel
 
-@* TODO: (mh) (core) Refreshing grid throws in console. *@
-
-<datagrid id="fixed-rate-grid"
+<datagrid id="fixed-rate-grid" 
+          key-member="ShippingMethodId"
           allow-resize="true"
           allow-column-reordering="true"
           allow-edit="true">
@@ -13,8 +12,7 @@
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <columns>
         <column for="ShippingMethodName" width="2fr" hideable="false" readonly />
-        @* TODO: (mh) (core) Totally shitty edit behaviour and wrong alignment. Please test!!! *@
-        <column for="Rate" />
+        <column for="Rate" width="1fr" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>

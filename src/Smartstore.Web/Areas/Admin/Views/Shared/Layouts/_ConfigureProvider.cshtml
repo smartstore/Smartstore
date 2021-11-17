@@ -46,7 +46,6 @@
     $(function () {
         $('.section-header .options').on('click', '[type=submit]', function (e) {
             // On SubmitButtonClick, post the form programmatically, as the button is not a child of the form...
-            // INFO: (mh) (core) Didn't work! Please test before pushing! Settings cannot be saved anymore!
             var btn = $(e.currentTarget);
             let form = !!(btn.data("target"))
                 ? $(btn.data("target")).first()

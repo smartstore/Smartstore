@@ -183,6 +183,10 @@ input.form-control-plaintext {
 
     &.dg-cell-wrap {
         white-space: normal;
+
+        p:last-child {
+            margin-bottom: 0;
+        }
     }
 }
 
