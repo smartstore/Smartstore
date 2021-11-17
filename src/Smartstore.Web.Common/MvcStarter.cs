@@ -240,7 +240,8 @@ namespace Smartstore.Web
 
             builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app => 
             {
-                if (appContext.HostEnvironment.IsDevelopment() || appContext.AppConfiguration.UseDeveloperExceptionPage)
+                bool useDevExceptionPage = appContext.AppConfiguration.UseDeveloperExceptionPage ?? appContext.HostEnvironment.IsDevelopment();
+                if (useDevExceptionPage)
                 {
                     app.UseDeveloperExceptionPage();
                 }

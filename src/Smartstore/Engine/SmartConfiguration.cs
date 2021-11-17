@@ -125,9 +125,9 @@
         /// <summary>
         /// Gets or sets a value indicating whether to display exception
         /// always with full stack trace and other infos, even in production mode.
-        /// Default is False.
+        /// Default is <c>null</c> (fall back to current host's environment name).
         /// </summary>
-        public bool UseDeveloperExceptionPage { get; set; }
+        public bool? UseDeveloperExceptionPage { get; set; }
 
         public GoogleConfiguration Google { get; set; } = new();
 

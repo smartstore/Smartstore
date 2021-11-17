@@ -529,12 +529,22 @@
                 else {
                     try {
                         var data = JSON.parse(xhr.responseText);
-                        if (data.error && data.message) {
+                        if (data.message) {
                             displayNotification(decode(data.message), "error");
                         }
                     }
                     catch (ex) {
-                        displayNotification(xhr.responseText, "error");
+                        function tryStripHeaders(message) {
+                            // Removes the annoying HEADERS part of message that
+                            // DeveloperExceptionPageMiddleware adds to the output.
+                            var idx = message.indexOf("\r\nHEADERS\r\n=======");
+                            if (idx === -1) {
+                                return message;
+                            }
+                            return message.substring(0, idx).trim();
+                        }
+
+                        displayNotification(tryStripHeaders(xhr.responseText), "error");
                     }
                 }
             });
