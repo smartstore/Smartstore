@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Localization
@@ -23,6 +24,8 @@ namespace Smartstore.Admin.Models.Localization
         public string ResourceName { get; set; }
 
         [LocalizedDisplay("*Value")]
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 1)]
         public string ResourceValue { get; set; }
 
         [LocalizedDisplay("*LanguageName")]
