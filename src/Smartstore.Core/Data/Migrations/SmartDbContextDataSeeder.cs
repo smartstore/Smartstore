@@ -312,6 +312,20 @@ namespace Smartstore.Core.Data.Migrations
                 "Sets the end date of the search.",
                 "Legt das Enddatum der Suche fest.");
 
+            builder.AddOrUpdate("Admin.Configuration.Languages.Resources.List.Name",
+                "Resource name",
+                "Ressourcenname",
+                "Filter list by resource name.",
+                "Liste nach dem Ressourcenname filtern.");
+
+            builder.AddOrUpdate("Admin.Configuration.Languages.Resources.List.Value",
+                "Resource value",
+                "Ressourcenwert",
+                "Filter list by resource vvalue.",
+                "Liste nach dem Ressourcenwert filtern.");
+
+            builder.AddOrUpdate("Admin.Configuration.Languages.Resources", "Resources", "Ressourcen");
+
             #endregion
 
             #region Packaging

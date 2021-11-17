@@ -115,7 +115,7 @@
             context: $('#AvailableLanguages'),
             elementsSelector: '.task-progress',
             defaultProgressMessage: @T("Admin.System.ScheduleTasks.RunNow.IsRunning").JsValue,
-            pollUrl: '@Url.Action("DownloadProgress")',
+            pollUrl: '@Url.Action("DownloadProgress", "Language")',
             onTaskStarted: function (task, el) {
                 var tr = el.closest('tr');
 

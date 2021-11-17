@@ -3,6 +3,19 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Localization
 {
+    [LocalizedDisplay("Admin.Configuration.Languages.Resources.List.")]
+    public class LanguageResourceListModel : ModelBase
+    {
+        public int LanguageId { get; set; }
+        public string LanguageName { get; set; }
+
+        [LocalizedDisplay("*Name")]
+        public string ResourceName { get; set; }
+
+        [LocalizedDisplay("*Value")]
+        public string ResourceValue { get; set; }
+    }
+
     [LocalizedDisplay("Admin.Configuration.Languages.Resources.Fields.")]
     public class LanguageResourceModel : EntityModelBase
     {

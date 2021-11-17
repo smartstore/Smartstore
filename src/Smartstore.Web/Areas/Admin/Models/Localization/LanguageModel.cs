@@ -71,10 +71,11 @@ namespace Smartstore.Admin.Models.Localization
                         return false;
                     }
                 })
-                .WithMessage(T("*LanguageCulture.Validation"));
+                .WithMessage(T("Admin.Configuration.Languages.Fields.LanguageCulture.Validation"));
 
             RuleFor(x => x.UniqueSeoCode).NotEmpty();
-            RuleFor(x => x.UniqueSeoCode).Length(x => 2);
+            // Annoying, never validating rule.
+            //RuleFor(x => x.UniqueSeoCode).Length(2);
         }
     }
 }

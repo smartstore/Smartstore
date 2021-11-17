@@ -163,7 +163,9 @@ Smartstore.Admin = {
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             window.clearInterval(interval);
-                            console.error(thrownError);
+                            if (thrownError) {
+                                console.error(thrownError);
+                            }
                         }
                     });
                 }
