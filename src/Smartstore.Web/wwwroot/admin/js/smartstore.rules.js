@@ -39,6 +39,7 @@ Smartstore.Admin.Rules = (function () {
         target.append(html);
         enableRuleValueControl(target.find('.rule:last'));
         $('#excute-result').addClass('hide');
+        applyCommonPlugins(target);
     }
 
     function getRuleData() {

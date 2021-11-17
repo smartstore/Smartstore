@@ -514,7 +514,7 @@ namespace Smartstore.Admin.Controllers
                     var checkResult = await CheckAvailableResources();
                     var availableResources = checkResult.Resources.First(x => x.Id == availableLanguageSetId.Value);
 
-                    using var client = _httpClientFactory.CreateClient();
+                    var client = _httpClientFactory.CreateClient();
                     var xmlDoc = await DownloadAvailableResources(client, availableResources.DownloadUrl, Services.StoreContext.CurrentStore.Url);
 
                     await _xmlResourceManager.ImportResourcesFromXmlAsync(language, xmlDoc, null, false, mode, updateTouched);
@@ -585,7 +585,7 @@ namespace Smartstore.Admin.Controllers
 
                 asyncState.Create(state, null, false, cts);
 
-                using var client = httpClientFactory.CreateClient();
+                var client = httpClientFactory.CreateClient();
                 var resources = context.AvailableResources.Resources.First(x => x.Id == context.SetId);
                 var xmlDoc = DownloadAvailableResources(client, resources.DownloadUrl, services.StoreContext.CurrentStore.Url, cancelToken).Await();
 
@@ -682,7 +682,7 @@ namespace Smartstore.Admin.Controllers
             {
                 try
                 {
-                    using var client = _httpClientFactory.CreateClient();
+                    var client = _httpClientFactory.CreateClient();
                     
                     client.Timeout = TimeSpan.FromMilliseconds(10000);
                     client.DefaultRequestHeaders.Accept.Clear();

@@ -1,20 +1,21 @@
-﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
-
-@model IRuleExpression
+﻿@model IRuleExpression
 
 @{
     var metadata = Model.Descriptor.Metadata;
     var id = "rule-value-" + Model.Id;
-
-    var viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
-    {
-        { "min", metadata.Get("min") },
-        { "max", metadata.Get("max") },
-        { "step", metadata.Get("step") },
-        { "postfix", metadata.Get("postfix") }
-    };
+    var step = metadata.Get("step") as double?;
+    var decimals = (metadata.Get("decimals") as uint?) ?? 4;
 }
 
-@* TODO: (mg) (core) Use NumericInput once available *@
 @*INFO: onRuleValueChanged (enables save button) called by handler in smartstore.rules.js.*@
-@Html.Editor("Value", "Decimal", id, viewData)
+<input type="number"
+       id="@id"
+       name="@id"
+       value="@Model.RawValue"
+       sm-decimals="@decimals"
+       sm-postfix="@metadata.Get("postfix")"
+       placeholder="@T("Common.Empty")"
+       min="@metadata.Get("min")"
+       max="@metadata.Get("max")"
+       attr-step='(step > 0, step?.ToStringInvariant())'
+       class="form-control" />

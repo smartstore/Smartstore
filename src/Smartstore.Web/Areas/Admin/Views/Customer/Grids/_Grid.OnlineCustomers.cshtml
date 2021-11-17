@@ -4,7 +4,7 @@
     <datasource read="@Url.Action("OnlineCustomersList")" />
     <paging position="Bottom" show-size-chooser="true" />
     <columns>
-        <column for="Id" />
+        <column for="Id" halign="center" visible="false" type="string" />
         <column for="CustomerInfo" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">
