@@ -22,7 +22,7 @@ namespace Smartstore.News.Migrations
             if (!Schema.Table(newsItem).Exists())
             {
                 Create.Table(newsItem)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(NewsItem.Title)).AsString(450).NotNullable()
                         .Indexed("IX_Title")
                     .WithColumn(nameof(NewsItem.Short)).AsString(4000).NotNullable()
@@ -52,7 +52,7 @@ namespace Smartstore.News.Migrations
             if (!Schema.Table(newsComment).Exists())
             {
                 Create.Table(newsComment)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(NewsComment.CommentTitle)).AsString(450).Nullable()
                     .WithColumn(nameof(NewsComment.CommentText)).AsString(int.MaxValue).Nullable()
                     .WithColumn(nameof(NewsComment.NewsItemId)).AsInt32().NotNullable()

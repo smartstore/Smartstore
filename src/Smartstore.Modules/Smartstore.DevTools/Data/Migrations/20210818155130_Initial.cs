@@ -13,7 +13,7 @@ namespace Smartstore.DevTools.Data.Migrations
             if (!Schema.Table(TABLE_NAME).Exists())
             {
                 Create.Table(TABLE_NAME)
-                    .WithColumn("Id").AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn("Name").AsString(400).NotNullable()
                     .WithColumn("Description").AsString(int.MaxValue).Nullable()
                     .WithColumn("PageSize").AsInt32().Nullable()

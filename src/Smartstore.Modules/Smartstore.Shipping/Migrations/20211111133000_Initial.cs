@@ -23,7 +23,7 @@ namespace Smartstore.Shipping.Migrations
             if (!Schema.Table(ShippingByTotal).Exists())
             {
                 Create.Table(ShippingByTotal)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(ShippingRateByTotal.ShippingMethodId)).AsInt32().NotNullable()
                         .Indexed("IX_ShippingMethodId")
                         .ForeignKey(nameof(ShippingMethod), id)

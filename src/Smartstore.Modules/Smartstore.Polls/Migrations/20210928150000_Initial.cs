@@ -22,7 +22,7 @@ namespace Smartstore.Polls.Migrations
             if (!Schema.Table(poll).Exists())
             {
                 Create.Table(poll)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(Poll.Name)).AsString(450).NotNullable()
                         .Indexed("IX_Title")
                     .WithColumn(nameof(Poll.SystemKeyword)).AsString(200).Nullable()
@@ -42,7 +42,7 @@ namespace Smartstore.Polls.Migrations
             if (!Schema.Table(pollAnswer).Exists())
             {
                 Create.Table(pollAnswer)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(PollAnswer.Name)).AsString(450).Nullable()
                     .WithColumn(nameof(PollAnswer.NumberOfVotes)).AsInt32().NotNullable()
                     .WithColumn(nameof(PollAnswer.DisplayOrder)).AsInt32().NotNullable()
@@ -58,7 +58,7 @@ namespace Smartstore.Polls.Migrations
             if (!Schema.Table(pollVotingRecord).Exists())
             {
                 Create.Table(pollVotingRecord)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(PollVotingRecord.PollAnswerId)).AsInt32().NotNullable()
                         .Indexed("IX_PollAnswerId")
                         .ForeignKey(pollAnswer, id).OnDelete(Rule.Cascade);

@@ -19,7 +19,7 @@ namespace Smartstore.Tax.Migrations
             if (!Schema.Table(taxRate).Exists())
             {
                 Create.Table(taxRate)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(TaxRateEntity.TaxCategoryId)).AsInt32().NotNullable()
                         .Indexed("IX_TaxCategoryId")
                         .ForeignKey(nameof(TaxCategory), id).OnDelete(Rule.Cascade)

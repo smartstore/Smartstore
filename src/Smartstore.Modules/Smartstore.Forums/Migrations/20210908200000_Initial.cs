@@ -26,7 +26,7 @@ namespace Smartstore.Forums.Migrations
             if (!Schema.Table(forumGroup).Exists())
             {
                 Create.Table(forumGroup)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(ForumGroup.Name)).AsString(200).NotNullable()
                     .WithColumn(nameof(ForumGroup.Description)).AsString(int.MaxValue).Nullable()
                     .WithColumn(nameof(ForumGroup.DisplayOrder)).AsInt32().NotNullable()
@@ -43,7 +43,7 @@ namespace Smartstore.Forums.Migrations
             if (!Schema.Table(forum).Exists())
             {
                 Create.Table(forum)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(Domain.Forum.ForumGroupId)).AsInt32().NotNullable()
                         .Indexed().ForeignKey(forumGroup, id).OnDelete(Rule.Cascade)
                     .WithColumn(nameof(Domain.Forum.Name)).AsString(200).NotNullable()
@@ -71,7 +71,7 @@ namespace Smartstore.Forums.Migrations
             if (!Schema.Table(forumTopic).Exists())
             {
                 Create.Table(forumTopic)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(ForumTopic.ForumId)).AsInt32().NotNullable()
                         .Indexed().ForeignKey(forum, id).OnDelete(Rule.Cascade)
                     .WithColumn(nameof(ForumTopic.CustomerId)).AsInt32().NotNullable()
@@ -109,7 +109,7 @@ namespace Smartstore.Forums.Migrations
             if (!Schema.Table(forumPost).Exists())
             {
                 Create.Table(forumPost)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(ForumPost.TopicId)).AsInt32().NotNullable()
                         .Indexed().ForeignKey(forumTopic, id).OnDelete(Rule.Cascade)
                     .WithColumn(nameof(ForumPost.CustomerId)).AsInt32().NotNullable()
@@ -127,7 +127,7 @@ namespace Smartstore.Forums.Migrations
             if (!Schema.Table(forumSubscription).Exists())
             {
                 Create.Table(forumSubscription)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(ForumSubscription.SubscriptionGuid)).AsGuid().NotNullable()
                     .WithColumn(nameof(ForumSubscription.CustomerId)).AsInt32().NotNullable()
                         .Indexed().ForeignKey(nameof(Customer), id)
@@ -142,7 +142,7 @@ namespace Smartstore.Forums.Migrations
             if (!Schema.Table(forumPostVote).Exists())
             {
                 Create.Table(forumPostVote)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(ForumPostVote.ForumPostId)).AsInt32().NotNullable()
                         .Indexed().ForeignKey(forumPost, id).OnDelete(Rule.Cascade)
                     .WithColumn(nameof(ForumPostVote.Vote)).AsBoolean().NotNullable();
@@ -156,7 +156,7 @@ namespace Smartstore.Forums.Migrations
             if (!Schema.Table(privateMessage).Exists())
             {
                 Create.Table(privateMessage)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(PrivateMessage.StoreId)).AsInt32().NotNullable()
                     .WithColumn(nameof(PrivateMessage.FromCustomerId)).AsInt32().NotNullable()
                         .Indexed().ForeignKey(nameof(Customer), id)

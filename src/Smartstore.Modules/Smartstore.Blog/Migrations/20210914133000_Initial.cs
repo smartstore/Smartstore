@@ -22,7 +22,7 @@ namespace Smartstore.Blog.Migrations
             if (!Schema.Table(blogPost).Exists())
             {
                 Create.Table(blogPost)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(BlogPost.Title)).AsString(450).NotNullable()
                         .Indexed("IX_Title")
                     .WithColumn(nameof(BlogPost.Body)).AsString(int.MaxValue).Nullable()
@@ -56,7 +56,7 @@ namespace Smartstore.Blog.Migrations
             if (!Schema.Table(blogComment).Exists())
             {
                 Create.Table(blogComment)
-                    .WithColumn(id).AsInt32().PrimaryKey().Identity().NotNullable()
+                    .WithIdColumn()
                     .WithColumn(nameof(BlogComment.CommentText)).AsString(int.MaxValue).Nullable()
                     .WithColumn(nameof(BlogComment.BlogPostId)).AsInt32().NotNullable()
                         .ForeignKey(blogPost, id).OnDelete(Rule.Cascade);
