@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Smartstore.Domain;
 using Smartstore.Utilities;
 
-namespace Smartstore.Caching.OutputCache
+namespace Smartstore.Core.OutputCache
 {
     /// <summary>
     /// Responsible for collecting displayed entities during a request
@@ -32,9 +33,9 @@ namespace Smartstore.Caching.OutputCache
         /// </summary>
         bool IsUncacheableRequest { get; }
 
-        IEnumerable<string> GetCacheControlTagsFor(BaseEntity entity);
+        Task<IEnumerable<string>> GetCacheControlTagsForAsync(BaseEntity entity);
 
-        IEnumerable<string> GetAllCacheControlTags();
+        Task<string[]> GetAllCacheControlTagsAsync();
 
         IDisposable BeginIdleScope();
     }
@@ -46,19 +47,11 @@ namespace Smartstore.Caching.OutputCache
         {
             if (entities != null)
             {
-                entities.Each(x => displayedEntities.Announce(x));
+                foreach (var entity in entities)
+                {
+                    displayedEntities.Announce(entity);
+                }
             }
         }
-    }
-
-    public class NullDisplayControl : IDisplayControl
-    {
-        public bool IsUncacheableRequest => false;
-        public void Announce(BaseEntity entity) { }
-        public IDisposable BeginIdleScope() => new ActionDisposable();
-        public IEnumerable<string> GetAllCacheControlTags() => Enumerable.Empty<string>();
-        public IEnumerable<string> GetCacheControlTagsFor(BaseEntity entity) => Enumerable.Empty<string>();
-        public bool IsDisplayed(BaseEntity entity) => false;
-        public void MarkRequestAsUncacheable() { }
     }
 }

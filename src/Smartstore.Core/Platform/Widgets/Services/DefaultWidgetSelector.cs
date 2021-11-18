@@ -10,10 +10,10 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Localization;
 using Smartstore.Collections;
-using Smartstore.Caching.OutputCache;
 using Smartstore.Domain;
 using Smartstore.Data.Hooks;
 using System.Threading;
+using Smartstore.Core.OutputCache;
 
 namespace Smartstore.Core.Widgets
 {

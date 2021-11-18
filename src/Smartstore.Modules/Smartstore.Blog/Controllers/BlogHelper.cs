@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Blog.Models.Mappers;
 using Smartstore.Blog.Models.Public;
-using Smartstore.Caching.OutputCache;
 using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.OutputCache;
 
 namespace Smartstore.Blog.Controllers
 {

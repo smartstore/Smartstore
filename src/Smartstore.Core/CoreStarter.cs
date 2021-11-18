@@ -57,6 +57,7 @@ namespace Smartstore.Core.Bootstrapping
 
             services.AddDbQuerySettings();
             services.AddDbMigrator(appContext);
+            services.AddDisplayControl();
             services.AddWkHtmlToPdf();
 
             // Application DbContext as pooled factory

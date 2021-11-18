@@ -2,13 +2,13 @@
 using Autofac;
 using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
-using Smartstore.Caching.OutputCache;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.OutputCache;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;

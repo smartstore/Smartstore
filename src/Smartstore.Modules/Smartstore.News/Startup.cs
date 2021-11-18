@@ -14,7 +14,10 @@ using Smartstore.Engine.Builders;
 using Smartstore.Web.Controllers;
 using Smartstore.Core.Seo;
 using Smartstore.News.Controllers;
-using Autofac;
+using Smartstore.Core.OutputCache;
+using Smartstore.News.Domain;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Smartstore.News
 {
@@ -28,6 +31,13 @@ namespace Smartstore.News
             services.AddScoped<ILinkProvider, NewsLinkProvider>();
 
             SlugRouteTransformer.RegisterRouter(new NewsSlugRouter());
+
+            // Output cache display control
+            DisplayControl.RegisterHandlerFor(typeof(NewsItem), (x, d, c)
+                => Task.FromResult<IEnumerable<string>>(new[] { "n" + x.Id }));
+
+            DisplayControl.RegisterHandlerFor(typeof(NewsComment), (x, d, c)
+                => Task.FromResult<IEnumerable<string>>(new[] { "n" + ((NewsComment)x).NewsItemId }));
 
             if (appContext.IsInstalled)
             {

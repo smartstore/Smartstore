@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Autofac;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Blog.Controllers;
+using Smartstore.Blog.Domain;
 using Smartstore.Blog.Filters;
 using Smartstore.Blog.Services;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using Smartstore.Core.OutputCache;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
@@ -32,6 +36,13 @@ namespace Smartstore.Blog
             }
 
             SlugRouteTransformer.RegisterRouter(new BlogSlugRouter());
+
+            // Output cache display control
+            DisplayControl.RegisterHandlerFor(typeof(BlogComment), (x, d, c) 
+                => Task.FromResult<IEnumerable<string>>(new[] { "b" + ((BlogComment)x).BlogPostId }));
+
+            DisplayControl.RegisterHandlerFor(typeof(BlogPost), (x, d, c) 
+                => Task.FromResult<IEnumerable<string>>(new[] { "b" + x.Id }));
 
             services.Configure<MvcOptions>(o =>
             {

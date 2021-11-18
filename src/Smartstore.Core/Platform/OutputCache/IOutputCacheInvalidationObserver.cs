@@ -6,7 +6,7 @@ using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using Smartstore.Engine;
 
-namespace Smartstore.Caching.OutputCache
+namespace Smartstore.Core.OutputCache
 {
     public class ObserveEntityContext
     {

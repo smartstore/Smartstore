@@ -2,7 +2,7 @@
 using Smartstore.Collections;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Caching.OutputCache
+namespace Smartstore.Core.OutputCache
 {
     public interface IOutputCacheProvider : IProvider
     {

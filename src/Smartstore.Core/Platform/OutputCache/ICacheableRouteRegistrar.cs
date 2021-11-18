@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Smartstore.Caching.OutputCache
+namespace Smartstore.Core.OutputCache
 {
     public interface ICacheableRouteRegistrar
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Smartstore.Caching.OutputCache
+namespace Smartstore.Core.OutputCache
 {
     [Serializable]
     [DebuggerDisplay("{CacheKey}, Url: {Url}, Query: {QueryString}, Duration: {Duration}, Tags: {Tags}")]
