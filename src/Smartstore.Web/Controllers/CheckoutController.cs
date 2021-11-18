@@ -16,6 +16,7 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
@@ -188,6 +189,85 @@ namespace Smartstore.Web.Controllers
                 foreach (var error in shippingOptionResponse.Errors)
                 {
                     model.Warnings.Add(error);
+                }
+            }
+
+            return model;
+        }
+
+        [NonAction]
+        protected async Task<CheckoutPaymentMethodModel> PreparePaymentMethodModelAsync(ShoppingCart cart)
+        {
+            var model = new CheckoutPaymentMethodModel();
+            
+            // Was shipping skipped.
+            var shippingOptions = (await _shippingService.GetShippingOptionsAsync(cart, cart.Customer.ShippingAddress, string.Empty, cart.StoreId)).ShippingOptions;
+
+            if (!cart.IsShippingRequired() || (shippingOptions.Count <= 1 && _shippingSettings.SkipShippingIfSingleOption))
+            {
+                model.SkippedSelectShipping = true;
+            }
+
+            var paymentTypes = new PaymentMethodType[] { PaymentMethodType.Standard, PaymentMethodType.Redirection, PaymentMethodType.StandardAndRedirection };
+            var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(cart, cart.StoreId, paymentTypes);
+            var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync(cart.StoreId);
+
+            foreach (var pm in boundPaymentMethods)
+            {
+                if (cart.ContainsRecurringItem() && pm.Value.RecurringPaymentType == RecurringPaymentType.NotSupported)
+                    continue;
+
+                var pmModel = new CheckoutPaymentMethodModel.PaymentMethodModel
+                {
+                    Name = _moduleManager.GetLocalizedFriendlyName(pm.Metadata),
+                    Description = _moduleManager.GetLocalizedDescription(pm.Metadata),
+                    PaymentMethodSystemName = pm.Metadata.SystemName,
+                    InfoWidget = pm.Value.GetPaymentInfoWidget(),
+                    RequiresInteraction = pm.Value.RequiresInteraction
+                };
+
+                if (allPaymentMethods.TryGetValue(pm.Metadata.SystemName, out var paymentMethod))
+                {
+                    pmModel.FullDescription = paymentMethod.GetLocalized(x => x.FullDescription, Services.WorkContext.WorkingLanguage);
+                }
+
+                pmModel.BrandUrl = _moduleManager.GetBrandImageUrl(pm.Metadata);
+
+                // Payment method additional fee.
+                (decimal paymentMethodAdditionalFee, _) = await pm.Value.GetPaymentFeeInfoAsync(cart);
+
+                var paymentTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.PaymentFee);
+                var rateBase = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentMethodAdditionalFee);
+                var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, Services.WorkContext.WorkingCurrency);
+                
+                if (rate.Amount != decimal.Zero)
+                {
+                    pmModel.Fee = rate.WithPostFormat(paymentTaxFormat);
+                }
+                
+                model.PaymentMethods.Add(pmModel);
+            }
+
+            // Find a selected (previously) payment method.
+            var selected = false;
+            var selectedPaymentMethodSystemName = cart.Customer.GenericAttributes.SelectedPaymentMethod;
+            if (selectedPaymentMethodSystemName.HasValue())
+            {
+                var paymentMethodToSelect = model.PaymentMethods.Find(pm => pm.PaymentMethodSystemName.EqualsNoCase(selectedPaymentMethodSystemName));
+                if (paymentMethodToSelect != null)
+                {
+                    paymentMethodToSelect.Selected = true;
+                    selected = true;
+                }
+            }
+
+            // If no option has been selected, let's select the first one.
+            if (!selected)
+            {
+                var paymentMethodToSelect = model.PaymentMethods.FirstOrDefault();
+                if (paymentMethodToSelect != null)
+                {
+                    paymentMethodToSelect.Selected = true;
                 }
             }
 
@@ -486,32 +566,11 @@ namespace Smartstore.Web.Controllers
             Money? shoppingCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
             var isPaymentWorkflowRequired = shoppingCartTotal.GetValueOrDefault() != decimal.Zero;
 
-            var model = new CheckoutPaymentMethodModel();
-            await cart.MapAsync(model);
+            // TODO: (mh) (core) Implement mapper.
+            //var model = new CheckoutPaymentMethodModel();
+            //await cart.MapAsync(model);
 
-            // TODO: (mh) (core) Remove test data later.
-            model.PaymentMethods.Add(new CheckoutPaymentMethodModel.PaymentMethodModel
-            {
-                Name = "Super dummy payment",
-                PaymentMethodSystemName = "Super dummy payments",
-                Selected = true,
-                BrandUrl = "test.de",
-                Description = "This is a test payment method.",
-                FullDescription = new("This is a test payment methods full description.", language, language),
-                Fee = new(5, Services.StoreContext.CurrentStore.PrimaryStoreCurrency),
-                RequiresInteraction = false,
-            });
-            model.PaymentMethods.Add(new CheckoutPaymentMethodModel.PaymentMethodModel
-            {
-                Name = "Super dummy payment2",
-                PaymentMethodSystemName = "Super dummy payments2",
-                Selected = true,
-                BrandUrl = "test2.de",
-                Description = "This is a test payment method2.",
-                FullDescription = new("This is a test payment methods full description2.", language, language),
-                Fee = new(6, Services.StoreContext.CurrentStore.PrimaryStoreCurrency),
-                RequiresInteraction = false,
-            });
+            var model = await PreparePaymentMethodModelAsync(cart);
 
             var onlyOnePassiveMethod = model.PaymentMethods.Count == 1 && !model.PaymentMethods[0].RequiresInteraction;
 
