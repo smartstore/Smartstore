@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Smartstore.Core.Identity
 {
@@ -27,30 +26,6 @@ namespace Smartstore.Core.Identity
             }
 
             return query;
-        }
-
-        /// <summary>
-        /// Applies a time filter and sorts by <see cref="CustomerContent.CreatedOnUtc"/> descending.
-        /// </summary>
-        /// <param name="query">Customer content query.</param>
-        /// <param name="startTime">Start time in UTC.</param>
-        /// <param name="endTime">End time in UTC.</param>
-        /// <returns>Customer content query.</returns>
-        public static IOrderedQueryable<CustomerContent> ApplyTimeFilter(this IQueryable<CustomerContent> query, DateTime? startTime = null, DateTime? endTime = null)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            if (startTime.HasValue)
-            {
-                query = query.Where(x => x.CreatedOnUtc >= startTime.Value);
-            }
-
-            if (endTime.HasValue)
-            {
-                query = query.Where(x => x.CreatedOnUtc <= endTime.Value);
-            }
-
-            return query.OrderByDescending(x => x.CreatedOnUtc);
         }
     }
 }
