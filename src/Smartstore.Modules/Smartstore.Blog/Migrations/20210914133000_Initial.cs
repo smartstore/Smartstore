@@ -25,7 +25,7 @@ namespace Smartstore.Blog.Migrations
                     .WithIdColumn()
                     .WithColumn(nameof(BlogPost.Title)).AsString(450).NotNullable()
                         .Indexed("IX_Title")
-                    .WithColumn(nameof(BlogPost.Body)).AsString(int.MaxValue).Nullable()
+                    .WithColumn(nameof(BlogPost.Body)).AsMaxString().Nullable()
                     .WithColumn(nameof(BlogPost.AllowComments)).AsBoolean().NotNullable()
                     .WithColumn(nameof(BlogPost.ApprovedCommentCount)).AsInt32().NotNullable()
                     .WithColumn(nameof(BlogPost.NotApprovedCommentCount)).AsInt32().NotNullable()
@@ -38,7 +38,7 @@ namespace Smartstore.Blog.Migrations
                     .WithColumn(nameof(BlogPost.LimitedToStores)).AsBoolean().NotNullable()
                     .WithColumn(nameof(BlogPost.CreatedOnUtc)).AsDateTime2().Nullable()
                     .WithColumn(nameof(BlogPost.SectionBg)).AsString(100).Nullable()
-                    .WithColumn(nameof(BlogPost.Intro)).AsString(int.MaxValue).Nullable()
+                    .WithColumn(nameof(BlogPost.Intro)).AsMaxString().Nullable()
                     .WithColumn(nameof(BlogPost.DisplayTagsInPreview)).AsBoolean().NotNullable()
                     .WithColumn(nameof(BlogPost.IsPublished)).AsBoolean().NotNullable()
                     .WithColumn(nameof(BlogPost.PreviewDisplayType)).AsInt32().NotNullable()
@@ -57,7 +57,7 @@ namespace Smartstore.Blog.Migrations
             {
                 Create.Table(blogComment)
                     .WithIdColumn()
-                    .WithColumn(nameof(BlogComment.CommentText)).AsString(int.MaxValue).Nullable()
+                    .WithColumn(nameof(BlogComment.CommentText)).AsMaxString().Nullable()
                     .WithColumn(nameof(BlogComment.BlogPostId)).AsInt32().NotNullable()
                         .ForeignKey(blogPost, id).OnDelete(Rule.Cascade);
 

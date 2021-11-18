@@ -26,7 +26,7 @@ namespace Smartstore.News.Migrations
                     .WithColumn(nameof(NewsItem.Title)).AsString(450).NotNullable()
                         .Indexed("IX_Title")
                     .WithColumn(nameof(NewsItem.Short)).AsString(4000).NotNullable()
-                    .WithColumn(nameof(NewsItem.Full)).AsString(int.MaxValue).NotNullable()
+                    .WithColumn(nameof(NewsItem.Full)).AsMaxString().NotNullable()
                     .WithColumn(nameof(NewsItem.Published)).AsBoolean().NotNullable()
                     .WithColumn(nameof(NewsItem.StartDateUtc)).AsDateTime2().Nullable()
                     .WithColumn(nameof(NewsItem.EndDateUtc)).AsDateTime2().Nullable()
@@ -54,7 +54,7 @@ namespace Smartstore.News.Migrations
                 Create.Table(newsComment)
                     .WithIdColumn()
                     .WithColumn(nameof(NewsComment.CommentTitle)).AsString(450).Nullable()
-                    .WithColumn(nameof(NewsComment.CommentText)).AsString(int.MaxValue).Nullable()
+                    .WithColumn(nameof(NewsComment.CommentText)).AsMaxString().Nullable()
                     .WithColumn(nameof(NewsComment.NewsItemId)).AsInt32().NotNullable()
                         .ForeignKey(newsItem, id).OnDelete(Rule.Cascade);
 

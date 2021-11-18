@@ -15,7 +15,7 @@ namespace Smartstore.DevTools.Data.Migrations
                 Create.Table(TABLE_NAME)
                     .WithIdColumn()
                     .WithColumn("Name").AsString(400).NotNullable()
-                    .WithColumn("Description").AsString(int.MaxValue).Nullable()
+                    .WithColumn("Description").AsMaxString().Nullable()
                     .WithColumn("PageSize").AsInt32().Nullable()
                     .WithColumn("LimitedToStores").AsBoolean().NotNullable().Indexed("IX_LimitedToStores")
                     .WithColumn("SubjectToAcl").AsBoolean().NotNullable().Indexed("IX_SubjectToAcl")
