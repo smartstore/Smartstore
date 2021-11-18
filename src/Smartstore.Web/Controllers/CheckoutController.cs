@@ -114,166 +114,6 @@ namespace Smartstore.Web.Controllers
             return model;
         }
 
-        [NonAction]
-        protected async Task<CheckoutShippingMethodModel> PrepareShippingMethodModelAsync(ShippingOptionResponse shippingOptionResponse, ShoppingCart cart)
-        {
-            var model = new CheckoutShippingMethodModel();
-            var store = Services.StoreContext.CurrentStore;
-            var customer = Services.WorkContext.CurrentCustomer;
-
-            if (shippingOptionResponse.Success)
-            {
-                // Performance optimization. cache returned shipping options.
-                // We'll use them later (after a customer has selected an option).
-                customer.GenericAttributes.OfferedShippingOptions = shippingOptionResponse.ShippingOptions;
-
-                var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(store.Id);
-
-                foreach (var shippingOption in shippingOptionResponse.ShippingOptions)
-                {
-                    var soModel = new CheckoutShippingMethodModel.ShippingMethodModel
-                    {
-                        ShippingMethodId = shippingOption.ShippingMethodId,
-                        Name = shippingOption.Name,
-                        Description = shippingOption.Description,
-                        ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName,
-                    };
-
-                    var srcmProvider = _providerManager.GetProvider<IShippingRateComputationMethod>(shippingOption.ShippingRateComputationMethodSystemName);
-
-                    if (srcmProvider != null)
-                    {
-                        soModel.BrandUrl = _moduleManager.GetBrandImageUrl(srcmProvider.Metadata);
-                    }
-
-                    // Adjust rate.
-                    var shippingTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
-                    var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
-                    var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount);
-                    var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, Services.WorkContext.WorkingCurrency);
-                    soModel.Fee = rate.WithPostFormat(shippingTaxFormat);
-
-                    model.ShippingMethods.Add(soModel);
-                }
-
-                // Find a selected (previously) shipping method.
-                var selectedShippingOption = customer.GenericAttributes.SelectedShippingOption;
-                if (selectedShippingOption != null)
-                {
-                    var shippingOptionToSelect = model.ShippingMethods
-                        .ToList()
-                        .Find(
-                            so => so.Name.HasValue() && 
-                                  so.Name.EqualsNoCase(selectedShippingOption.Name) &&
-                                  so.ShippingRateComputationMethodSystemName.HasValue() &&
-                                  so.ShippingRateComputationMethodSystemName.EqualsNoCase(selectedShippingOption.ShippingRateComputationMethodSystemName));
-
-                    if (shippingOptionToSelect != null)
-                    {
-                        shippingOptionToSelect.Selected = true;
-                    }
-                }
-
-                // If no option has been selected, let's do it for the first one.
-                if (model.ShippingMethods.Where(so => so.Selected).FirstOrDefault() == null)
-                {
-                    var shippingOptionToSelect = model.ShippingMethods.FirstOrDefault();
-                    if (shippingOptionToSelect != null)
-                    {
-                        shippingOptionToSelect.Selected = true;
-                    }
-                }
-            }
-            else
-            {
-                foreach (var error in shippingOptionResponse.Errors)
-                {
-                    model.Warnings.Add(error);
-                }
-            }
-
-            return model;
-        }
-
-        [NonAction]
-        protected async Task<CheckoutPaymentMethodModel> PreparePaymentMethodModelAsync(ShoppingCart cart)
-        {
-            var model = new CheckoutPaymentMethodModel();
-            
-            // Was shipping skipped.
-            var shippingOptions = (await _shippingService.GetShippingOptionsAsync(cart, cart.Customer.ShippingAddress, string.Empty, cart.StoreId)).ShippingOptions;
-
-            if (!cart.IsShippingRequired() || (shippingOptions.Count <= 1 && _shippingSettings.SkipShippingIfSingleOption))
-            {
-                model.SkippedSelectShipping = true;
-            }
-
-            var paymentTypes = new PaymentMethodType[] { PaymentMethodType.Standard, PaymentMethodType.Redirection, PaymentMethodType.StandardAndRedirection };
-            var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(cart, cart.StoreId, paymentTypes);
-            var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync(cart.StoreId);
-
-            foreach (var pm in boundPaymentMethods)
-            {
-                if (cart.ContainsRecurringItem() && pm.Value.RecurringPaymentType == RecurringPaymentType.NotSupported)
-                    continue;
-
-                var pmModel = new CheckoutPaymentMethodModel.PaymentMethodModel
-                {
-                    Name = _moduleManager.GetLocalizedFriendlyName(pm.Metadata),
-                    Description = _moduleManager.GetLocalizedDescription(pm.Metadata),
-                    PaymentMethodSystemName = pm.Metadata.SystemName,
-                    InfoWidget = pm.Value.GetPaymentInfoWidget(),
-                    RequiresInteraction = pm.Value.RequiresInteraction
-                };
-
-                if (allPaymentMethods.TryGetValue(pm.Metadata.SystemName, out var paymentMethod))
-                {
-                    pmModel.FullDescription = paymentMethod.GetLocalized(x => x.FullDescription, Services.WorkContext.WorkingLanguage);
-                }
-
-                pmModel.BrandUrl = _moduleManager.GetBrandImageUrl(pm.Metadata);
-
-                // Payment method additional fee.
-                (decimal paymentMethodAdditionalFee, _) = await pm.Value.GetPaymentFeeInfoAsync(cart);
-
-                var paymentTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.PaymentFee);
-                var rateBase = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentMethodAdditionalFee);
-                var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, Services.WorkContext.WorkingCurrency);
-                
-                if (rate.Amount != decimal.Zero)
-                {
-                    pmModel.Fee = rate.WithPostFormat(paymentTaxFormat);
-                }
-                
-                model.PaymentMethods.Add(pmModel);
-            }
-
-            // Find a selected (previously) payment method.
-            var selected = false;
-            var selectedPaymentMethodSystemName = cart.Customer.GenericAttributes.SelectedPaymentMethod;
-            if (selectedPaymentMethodSystemName.HasValue())
-            {
-                var paymentMethodToSelect = model.PaymentMethods.Find(pm => pm.PaymentMethodSystemName.EqualsNoCase(selectedPaymentMethodSystemName));
-                if (paymentMethodToSelect != null)
-                {
-                    paymentMethodToSelect.Selected = true;
-                    selected = true;
-                }
-            }
-
-            // If no option has been selected, let's select the first one.
-            if (!selected)
-            {
-                var paymentMethodToSelect = model.PaymentMethods.FirstOrDefault();
-                if (paymentMethodToSelect != null)
-                {
-                    paymentMethodToSelect.Selected = true;
-                }
-            }
-
-            return model;
-        }
-
         [LocalizedRoute("/checkout", Name = "Checkout")]
         public async Task<IActionResult> Index()
         {
@@ -469,7 +309,8 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction(nameof(PaymentMethod));
             }
 
-            var model = await PrepareShippingMethodModelAsync(response, cart);
+            var model = new CheckoutShippingMethodModel();
+            await cart.MapAsync(model);
 
             return View(model);
         }
@@ -566,11 +407,8 @@ namespace Smartstore.Web.Controllers
             Money? shoppingCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
             var isPaymentWorkflowRequired = shoppingCartTotal.GetValueOrDefault() != decimal.Zero;
 
-            // TODO: (mh) (core) Implement mapper.
-            //var model = new CheckoutPaymentMethodModel();
-            //await cart.MapAsync(model);
-
-            var model = await PreparePaymentMethodModelAsync(cart);
+            var model = new CheckoutPaymentMethodModel();
+            await cart.MapAsync(model);
 
             var onlyOnePassiveMethod = model.PaymentMethods.Count == 1 && !model.PaymentMethods[0].RequiresInteraction;
 
