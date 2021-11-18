@@ -37,9 +37,9 @@ namespace Smartstore.Core.OutputCache
         public string JoinTags()
         {
             if (Tags == null || Tags.Length == 0)
-                return "";
+                return string.Empty;
 
-            return string.Join(";", Tags);
+            return string.Join(';', Tags);
         }
 
         public OutputCacheItem Clone()
