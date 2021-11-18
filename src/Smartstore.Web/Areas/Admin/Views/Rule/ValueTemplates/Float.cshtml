@@ -6,20 +6,17 @@
     var min = metadata.Get("min") as float?;
     var max = metadata.Get("max") as float?;
     var step = metadata.Get("step") as float?;
-
-    var value = Model.Value != null
-        ? Convert.ToSingle(Model.Value, System.Globalization.CultureInfo.InvariantCulture)
-        : (float?)null;
+    var decimals = (metadata.Get("decimals") as uint?) ?? 2;
 }
 
-@* TODO: (mg) (core) Use NumericInput once available *@
 @*INFO: onRuleValueChanged (enables save button) called by handler in smartstore.rules.js.*@
-<div class="numberinput-group flex-grow-1">
-    <input id="@id" name="@id"
-           value="@value"
-           class="form-control"
-           placeholder="@T("Common.EnterValue").Value"
-           min="@min"
-           max="@max"
-           step="@(step ?? 1)" />
-</div>
+<input type="number"
+       id="@id" 
+       name="@id"
+       value="@Model.RawValue"
+       sm-decimals="@decimals"
+       placeholder="@T("Common.Empty")"
+       min="@min"
+       max="@max"
+       attr-step='(step > 0, step?.ToStringInvariant())'
+       class="form-control" />

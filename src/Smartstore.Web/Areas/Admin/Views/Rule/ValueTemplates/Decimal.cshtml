@@ -3,6 +3,8 @@
 @{
     var metadata = Model.Descriptor.Metadata;
     var id = "rule-value-" + Model.Id;
+    var min = metadata.Get("min") as double?;
+    var max = metadata.Get("max") as double?;
     var step = metadata.Get("step") as double?;
     var decimals = (metadata.Get("decimals") as uint?) ?? 4;
 }
@@ -15,7 +17,7 @@
        sm-decimals="@decimals"
        sm-postfix="@metadata.Get("postfix")"
        placeholder="@T("Common.Empty")"
-       min="@metadata.Get("min")"
-       max="@metadata.Get("max")"
+       min="@min"
+       max="@max"
        attr-step='(step > 0, step?.ToStringInvariant())'
        class="form-control" />

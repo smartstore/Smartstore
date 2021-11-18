@@ -659,7 +659,6 @@ namespace Smartstore.Admin.Controllers
             {
                 if (rules.TryGetValue(data.RuleId, out var entity))
                 {
-                    // TODO: (mg) (core) culture-invariant rule value converting is probably not necessary anymore. Test it.
                     if (data.Value.HasValue())
                     {
                         var descriptor = descriptors.FindDescriptor(entity.RuleType);
@@ -668,14 +667,6 @@ namespace Smartstore.Admin.Controllers
                             data.Op == RuleOperator.IsNull || data.Op == RuleOperator.IsNotNull)
                         {
                             data.Value = null;
-                        }
-                        //else if (descriptor.RuleType == RuleType.Money)
-                        //{
-                        //    data.Value = data.Value.Convert<decimal>(CultureInfo.CurrentCulture).ToString(CultureInfo.InvariantCulture);
-                        //}
-                        else if (descriptor.RuleType == RuleType.Float || descriptor.RuleType == RuleType.NullableFloat)
-                        {
-                            data.Value = data.Value.Convert<float>(CultureInfo.CurrentCulture).ToString(CultureInfo.InvariantCulture);
                         }
                         else if (descriptor.RuleType == RuleType.DateTime || descriptor.RuleType == RuleType.NullableDateTime)
                         {

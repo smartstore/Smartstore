@@ -5,21 +5,21 @@ namespace Smartstore.Core.Rules
 {
     public sealed class RuleType
     {
-        public readonly static RuleType Boolean = new RuleType("bool", typeof(bool));
-        public readonly static RuleType Int = new RuleType("int", typeof(int));
-        public readonly static RuleType Float = new RuleType("float", typeof(float));
-        public readonly static RuleType Money = new RuleType("money", typeof(decimal));
-        public readonly static RuleType Guid = new RuleType("Guid", typeof(Guid));
-        public readonly static RuleType DateTime = new RuleType("Date", typeof(DateTime));
-        public readonly static RuleType NullableBoolean = new RuleType("bool?", typeof(bool?));
-        public readonly static RuleType NullableInt = new RuleType("int?", typeof(int?));
-        public readonly static RuleType NullableFloat = new RuleType("float?", typeof(float?));
-        public readonly static RuleType NullableGuid = new RuleType("Guid?", typeof(Guid?));
-        public readonly static RuleType NullableDateTime = new RuleType("Date?", typeof(DateTime?));
-        public readonly static RuleType String = new RuleType("String", typeof(string));
-        public readonly static RuleType IntArray = new RuleType("IntArray", typeof(List<int>));
-        public readonly static RuleType FloatArray = new RuleType("FloatArray", typeof(List<float>));
-        public readonly static RuleType StringArray = new RuleType("StringArray", typeof(List<string>));
+        public readonly static RuleType Boolean = new("bool", typeof(bool));
+        public readonly static RuleType Int = new("int", typeof(int));
+        public readonly static RuleType Float = new("float", typeof(float));
+        public readonly static RuleType Money = new("money", typeof(decimal));
+        public readonly static RuleType Guid = new("Guid", typeof(Guid));
+        public readonly static RuleType DateTime = new("Date", typeof(DateTime));
+        public readonly static RuleType NullableBoolean = new("bool?", typeof(bool?));
+        public readonly static RuleType NullableInt = new("int?", typeof(int?));
+        public readonly static RuleType NullableFloat = new("float?", typeof(float?));
+        public readonly static RuleType NullableGuid = new("Guid?", typeof(Guid?));
+        public readonly static RuleType NullableDateTime = new("Date?", typeof(DateTime?));
+        public readonly static RuleType String = new("String", typeof(string));
+        public readonly static RuleType IntArray = new("IntArray", typeof(List<int>));
+        public readonly static RuleType FloatArray = new("FloatArray", typeof(List<float>));
+        public readonly static RuleType StringArray = new("StringArray", typeof(List<string>));
 
         private RuleType(string name, Type clrType)
         {
