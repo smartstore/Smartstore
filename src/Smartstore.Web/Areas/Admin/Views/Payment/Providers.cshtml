@@ -1,0 +1,49 @@
+﻿@using Smartstore.Admin.Models.Payments
+
+@model IEnumerable<PaymentMethodModel>
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Payment.Methods").Value;
+
+    async Task YesNoLabel(bool value)
+    {
+        if (value)
+        {
+            <span class="badge badge-success">@T("Common.Yes")</span>
+        }
+        else
+        {
+            <span class="badge badge-dark">@T("Common.No")</span>
+        }
+    }
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="far fa-credit-card"></i>
+        @T("Admin.Configuration.Payment.Methods")
+    </div>
+    <div class="options">
+        <zone name="admin_button_toolbar_before" />
+        <zone name="admin_button_toolbar_after" />
+    </div>
+</div>
+
+<div class="provider-list">
+    @(await Html.ProviderList(Model,
+        @<div>
+		    <table class="payment-method-features">
+			    <tr><td>@T("Admin.Configuration.Payment.Methods.Fields.RecurringPaymentType"):</td><td>@item.RecurringPaymentType</td></tr>
+			    <tr><td>@Html.DisplayNameFor(model => model.SupportCapture):</td><td>@{await YesNoLabel(item.SupportCapture);}</td></tr>
+			    <tr><td>@Html.DisplayNameFor(model => model.SupportRefund):</td><td>@{await YesNoLabel(item.SupportRefund);}</td></tr>
+			    <tr><td>@Html.DisplayNameFor(model => model.SupportPartiallyRefund):</td><td>@{await YesNoLabel(item.SupportPartiallyRefund);}</td></tr>
+			    <tr><td>@Html.DisplayNameFor(model => model.SupportVoid):</td><td>@{await YesNoLabel(item.SupportVoid);}</td></tr>
+            </table>
+        </div>,
+        @<div>
+            <a class="activate-provider btn btn-@(item.IsActive ? "secondary btn-to-danger" : "success")" style="min-width: 150px"
+                data-href='@Url.Action("ActivateProvider")' href="javascript:;" data-systemname="@item.SystemName" data-activate="@(!item.IsActive ? "true" : "false")">
+                @T("Admin.Common.{0}".FormatInvariant(item.IsActive ? "Deactivate" : "Activate"))
+            </a>
+        </div>))
+</div>
