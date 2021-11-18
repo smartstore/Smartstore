@@ -32,7 +32,7 @@
     }
 }
 
-<div class="date datetimepicker-group d-flex flex-grow-1" id="@id-parent" data-date="@strValue" data-target-input="nearest">
+<div class="date datetimepicker-group d-flex flex-grow-1 datepicker-rule-value" id="@id-parent" data-date="@strValue" data-target-input="nearest">
     <input type="text"
            id="@id"
            name="@id"
@@ -45,9 +45,3 @@
         <span class="input-group-text"><i class="far @iconClass"></i></span>
     </div>
 </div>
-@*INFO: do not use "sm-target-zone=scripts". Causes initialization issues of the datetime picker.*@
-<script>
-    $(function () {
-        $('#@(id)-parent').on('change.datetimepicker', Smartstore.Admin.Rules.onRuleValueChanged);
-	});
-</script>

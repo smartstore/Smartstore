@@ -1,9 +1,12 @@
 Smartstore.Admin.Rules = (function () {
     return {
-        onRuleValueChanged: function () {
+        onRuleValueChanged: function (dirty) {
+            if (dirty === undefined) {
+                dirty = true;
+            }
             var ctx = $('#ruleset-root');
-            ctx.find('.ruleset-save:first').prop('disabled', false);
-            ctx.data('dirty', true);
+            ctx.find('.ruleset-save:first').prop('disabled', !dirty);
+            ctx.data('dirty', dirty);
         }
     };
 })();
@@ -102,6 +105,10 @@ Smartstore.Admin.Rules = (function () {
         }
     });
 
+    $(document).ready(function () {
+        Smartstore.Admin.Rules.onRuleValueChanged(false);
+    });
+
     // Save rule set.
     $(document).on('click', 'button[name="save"]', function (e) {
         var strData = root.data('dirty')
@@ -196,6 +203,10 @@ Smartstore.Admin.Rules = (function () {
 
     // Change state of save rules button.
     $(document).on('change', ':input[name^="rule-value-"]', function () {
+        Smartstore.Admin.Rules.onRuleValueChanged();
+    });
+
+    $(document).on('change.datetimepicker', '.datepicker-rule-value', function () {
         Smartstore.Admin.Rules.onRuleValueChanged();
     });
 
