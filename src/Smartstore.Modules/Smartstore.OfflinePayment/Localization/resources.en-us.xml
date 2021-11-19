@@ -1,0 +1,226 @@
+﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
+
+  <LocaleResource Name="Plugins.FriendlyName.SmartStore.OfflinePayment" AppendRootKey="false">
+    <Value>Offline payment methods</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Description.SmartStore.OfflinePayment" AppendRootKey="false">
+    <Value>Provides offline payment methods, e.g. direct debit, credit card, invoice, prepayment, cash on delivery etc.</Value>
+  </LocaleResource>
+
+  <LocaleResource Name="DescriptionText">
+    <Value>Description</Value>
+  </LocaleResource>
+  <LocaleResource Name="DescriptionText.Hint">
+    <Value>Enter info that will be shown to customers during checkout.</Value>
+  </LocaleResource>
+  <LocaleResource Name="PaymentMethodLogo">
+	<Value>Logo</Value>
+  </LocaleResource>
+  <LocaleResource Name="PaymentMethodLogo.Hint">
+	<Value>Upload an image which will be displayed as thumbnail of the payment method on the payment selection page.</Value>
+  </LocaleResource>
+
+  <!-- CashOnDelivery -->
+  <LocaleResource Name="Plugins.FriendlyName.Payments.CashOnDelivery" AppendRootKey="false">
+    <Value>Cash on delivery</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.CashOnDelivery" AppendRootKey="false">
+    <Children>
+      <LocaleResource Name="AdminInstruction">
+        <Value>
+          <![CDATA[ ]]>
+        </Value>
+      </LocaleResource>
+      <LocaleResource Name="PaymentInfoDescription">
+        <Value>
+          <![CDATA[
+            Once your order is placed, you will be contacted by our staff to confirm the order.
+          ]]>
+        </Value>
+      </LocaleResource>
+    </Children>
+  </LocaleResource>
+
+  <!-- Invoice -->
+  <LocaleResource Name="Plugins.FriendlyName.Payments.Invoice" AppendRootKey="false">
+    <Value>Invoice</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Invoice" AppendRootKey="false">
+    <Children>
+      <LocaleResource Name="AdminInstruction">
+        <Value>
+          <![CDATA[ ]]>
+        </Value>
+      </LocaleResource>
+      <LocaleResource Name="PaymentInfoDescription">
+        <Value>
+          <![CDATA[
+            Once your order is placed, you will be contacted by our staff to confirm the order.
+          ]]>
+        </Value>
+      </LocaleResource>
+    </Children>
+  </LocaleResource>
+
+  <!-- PayInStore -->
+  <LocaleResource Name="Plugins.FriendlyName.Payments.PayInStore" AppendRootKey="false">
+    <Value>Pay in store</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.PayInStore" AppendRootKey="false">
+    <Children>
+      <LocaleResource Name="AdminInstruction">
+        <Value>
+          <![CDATA[ ]]>
+        </Value>
+      </LocaleResource>
+      <LocaleResource Name="PaymentInfoDescription">
+        <Value>
+          <![CDATA[
+            Reserve items at your local store, and pay in store when you pick up your order.
+          ]]>
+        </Value>
+      </LocaleResource>
+    </Children>
+  </LocaleResource>
+
+  <!-- Prepayment -->
+  <LocaleResource Name="Plugins.FriendlyName.Payments.Prepayment" AppendRootKey="false">
+    <Value>Prepayment</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payment.Prepayment" AppendRootKey="false">
+    <Children>
+      <LocaleResource Name="AdminInstruction">
+        <Value>
+          <![CDATA[ ]]>
+        </Value>
+      </LocaleResource>
+      <LocaleResource Name="PaymentInfoDescription">
+        <Value>
+          <![CDATA[
+            Once your order is placed, you will be contacted by our staff to confirm the order.
+          ]]>
+        </Value>
+      </LocaleResource>
+    </Children>
+  </LocaleResource>
+
+  <!-- Manual -->
+  <LocaleResource Name="Plugins.FriendlyName.Payments.Manual" AppendRootKey="false">
+    <Value>Credit card (manual)</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payments.Manual" AppendRootKey="false">
+    <Children>
+      <LocaleResource Name="AdminInstruction">
+        <Value>
+          <![CDATA[ ]]>
+        </Value>
+      </LocaleResource>
+	  <LocaleResource Name="PaymentInfoDescription">
+		<Value>
+		  <![CDATA[
+            Once your order is placed, you will be contacted by our staff to confirm the order.
+          ]]>
+		</Value>
+	  </LocaleResource>
+      <LocaleResource Name="Fields.TransactMode">
+        <Value>Payment status after order completion</Value>
+      </LocaleResource>
+      <LocaleResource Name="Fields.TransactMode.Hint">
+        <Value>Specifies the payment status after order completion.</Value>
+      </LocaleResource>
+      <LocaleResource Name="ExcludedCreditCards">
+        <Value>Excluded credit cards</Value>
+      </LocaleResource>
+      <LocaleResource Name="ExcludedCreditCards.Hint">
+        <Value>Credit cards that customers may not pay with.</Value>
+      </LocaleResource>
+    </Children>
+  </LocaleResource>
+
+  <!-- DirectDebit -->
+  <LocaleResource Name="Plugins.FriendlyName.Payments.DirectDebit" AppendRootKey="false">
+    <Value>Direct Debit</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payments.DirectDebit" AppendRootKey="false">
+    <Children>
+      <LocaleResource Name="AdminInstruction">
+        <Value>
+          <![CDATA[ ]]>
+        </Value>
+      </LocaleResource>
+      <LocaleResource Name="PaymentInfoDescription">
+        <Value>
+          <![CDATA[
+             Once your order is placed, you will be contacted by our staff to confirm the order.
+          ]]>
+        </Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitAccountHolder">
+        <Value>Account holder name</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitAccountHolder.Hint">
+        <Value>Holder name of the bank account</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitAccountNumber">
+        <Value>Account number</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitBankCode">
+        <Value>Bank code</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitBankCode.Hint">
+        <Value>Bank code number</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitCountry">
+        <Value>Country</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitCountry.Hint">
+        <Value>Country of your bank account.</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitBankName">
+        <Value>Bank name</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitBankName.Hint">
+        <Value>Name of your bank.</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitIban">
+        <Value>IBAN</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitIban.Hint">
+        <Value>International Bank Account Number</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitBic">
+        <Value>BIC</Value>
+      </LocaleResource>
+      <LocaleResource Name="DirectDebitBic.Hint">
+        <Value>Bank Interchange Code</Value>
+      </LocaleResource>
+      <LocaleResource Name="EnterIban">
+        <Value>Enter IBAN</Value>
+      </LocaleResource>
+      <LocaleResource Name="NoEnterIban">
+        <Value>No</Value>
+      </LocaleResource>
+      <LocaleResource Name="YesEnterIban">
+        <Value>Yes</Value>
+      </LocaleResource>
+    </Children>
+  </LocaleResource>
+
+  <!-- PuchaseOrderNumber -->
+  <LocaleResource Name="Plugins.FriendlyName.SmartStore.PurchaseOrderNumber" AppendRootKey="false">
+    <Value>Purchase order</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Payments.PurchaseOrder" AppendRootKey="false">
+    <Children>
+      <LocaleResource Name="AdminInstruction">
+        <Value>
+          <![CDATA[ ]]>
+        </Value>
+      </LocaleResource>
+      <LocaleResource Name="PurchaseOrderNumber">
+        <Value>Purchase order number</Value>
+      </LocaleResource>
+    </Children>
+  </LocaleResource>
+ 
+</Language>

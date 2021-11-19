@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+		<Product>Smartstore OfflinePayment</Product>
+		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.OfflinePayment</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Remove="Views\OfflinePayment\ManualConfigure.cshtml" />
+    <Content Remove="Views\Shared\Components\Default.cshtml" />
+    <Content Remove="Views\Shared\Components\Manual\Default.cshtml" />
+    <Content Remove="Views\Shared\Components\OfflinePaymentGeneric\Default.cshtml" />
+    <Content Remove="Views\Shared\Components\DirectDebit\Default.cshtml" />
+    <Content Remove="Views\Shared\Components\PurchaseOrderNumber\Default.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Views\_ViewImports.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Shared\Components\DirectDebit\Default.cshtml" />
+  </ItemGroup>
+</Project>

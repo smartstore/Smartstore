@@ -1,0 +1,11 @@
+{
+  "Group": "Payment",
+  "SystemName": "Smartstore.OfflinePayment",
+  "FriendlyName": "Adds offline payment methods to the store",
+  "Description": "",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Order": 1,
+  "AssemblyName": "Smartstore.OfflinePayment.dll",
+  "ResourceRootKey": "Plugins.Smartstore.OfflinePayment"
+}

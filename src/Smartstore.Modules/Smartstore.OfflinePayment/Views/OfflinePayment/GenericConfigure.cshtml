@@ -1,0 +1,55 @@
+﻿@model ConfigurationModelBase
+
+@{
+    Layout = "_ConfigureProvider";
+}
+
+@await Component.InvokeAsync("StoreScope")
+
+<widget target-zone="admin_button_toolbar_before">
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+        <i class="fa fa-check"></i>
+        <span>@T("Admin.Common.Save")</span>
+    </button>
+</widget>
+
+<form asp-action="@Model.PostActionName">
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DescriptionText" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="DescriptionText" />
+                <span asp-validation-for="DescriptionText"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PaymentMethodLogo" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="PaymentMethodLogo" />
+                <span asp-validation-for="PaymentMethodLogo"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFee" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="AdditionalFee" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                <span asp-validation-for="AdditionalFee"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFeePercentage" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="AdditionalFeePercentage" />
+                <span asp-validation-for="AdditionalFeePercentage"></span>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,107 @@
+﻿@model DirectDebitPaymentInfoModel
+
+<input type="hidden" name="OfflinePaymentMethodType" value="DirectDebit" />
+
+@if (Model.ThumbnailUrl.HasValue())
+{
+    <div class="media">
+        <img class="media-object img-fluid pr-2" src="@Model.ThumbnailUrl">
+        <div class="media-body">
+            @Html.Raw(Model.DescriptionText)
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-muted">
+        @Html.Raw(Model.DescriptionText)
+    </div>
+}
+
+<div class="opt-form">
+    <div class="form-group row">
+        <label asp-for="EnterIBAN" class="col-md-3 col-form-label"></label>
+        <div class="col-md-9">
+            <div class="form-inline form-control-plaintext">
+                <div class="form-check form-check-inline">
+                    <input type="radio" id="EnterIBAN_1" name="EnterIBAN" value="no-iban" attr-checked='(Model.EnterIBAN == "no-iban", "checked")' class="form-check-input" />
+                    <label for="EnterIBAN_1" class="form-check-label">@T("Plugins.Payments.DirectDebit.NoEnterIBAN")</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" id="EnterIBAN_2" name="EnterIBAN" value="iban" attr-checked='(Model.EnterIBAN == "iban", "checked")' class="form-check-input" />
+                    <label for="EnterIBAN_2" class="form-check-label">@T("Plugins.Payments.DirectDebit.YesEnterIBAN")</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label asp-for="DirectDebitAccountHolder" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            <input asp-for="DirectDebitAccountHolder" sm-required="true" />
+            <span asp-validation-for="DirectDebitAccountHolder"></span>
+        </div>
+    </div>
+
+    <div class="ipayment-no-iban">
+        <div class="form-group row">
+            <label asp-for="DirectDebitAccountNumber" class="col-md-3 col-form-label required"></label>
+            <div class="col-md-9">
+                <input asp-for="DirectDebitAccountNumber" sm-required="true" />
+                <span asp-validation-for="DirectDebitAccountNumber"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="DirectDebitBankCode" class="col-md-3 col-form-label required"></label>
+            <div class="col-md-9">
+                <input asp-for="DirectDebitBankCode" sm-required="true" />
+                <span asp-validation-for="DirectDebitBankCode"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="DirectDebitCountry" class="col-md-3 col-form-label required"></label>
+            <div class="col-md-9">
+                <input asp-for="DirectDebitCountry" sm-required="true" />
+                <span asp-validation-for="DirectDebitCountry"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="ipayment-iban">
+        <div class="form-group row">
+            <label asp-for="DirectDebitIban" class="col-md-3 col-form-label required"></label>
+            <div class="col-md-9">
+                <input asp-for="DirectDebitIban" sm-required="true" />
+                <span asp-validation-for="DirectDebitIban"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="DirectDebitBic" class="col-md-3 col-form-label required"></label>
+            <div class="col-md-9">
+                <input asp-for="DirectDebitBic" sm-required="true" />
+                <span asp-validation-for="DirectDebitBic"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label asp-for="DirectDebitBankName" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            <input asp-for="DirectDebitBankName" sm-required="true" />
+            <span asp-validation-for="DirectDebitBankName"></span>
+        </div>
+    </div>
+</div>
+
+<script sm-target-zone="Scripts" data-origin="DirectDebit">
+    $(function () {
+        $('input[name=EnterIBAN]').on('change', function () {
+            SwitchEnterIban($(this).filter(':checked').val());
+        }).trigger('change');
+    });
+
+    function SwitchEnterIban(newType) {
+        $('.ipayment-' + newType).slideDown('fast');
+        $('.ipayment-' + (newType === 'iban' ? 'no-iban' : 'iban')).slideUp('fast');
+    }
+</script>
