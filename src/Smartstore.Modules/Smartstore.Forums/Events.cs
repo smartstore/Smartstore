@@ -20,7 +20,6 @@ using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Data.Batching;
 using Smartstore.Events;
 using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models;

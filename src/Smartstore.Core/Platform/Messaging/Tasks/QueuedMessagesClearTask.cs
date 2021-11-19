@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Smartstore.Scheduling;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
-using Smartstore.Data.Batching;
+using Microsoft.EntityFrameworkCore;
 
 namespace Smartstore.Core.Messaging.Tasks
 {

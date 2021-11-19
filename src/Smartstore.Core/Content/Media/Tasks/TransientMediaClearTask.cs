@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Scheduling;
 using Smartstore.Core.Data;
 using Smartstore.Data;
-using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Content.Media.Tasks
@@ -45,7 +44,9 @@ namespace Smartstore.Core.Content.Media.Tasks
 
                 await _db.SaveChangesAsync(cancelToken);
 
-                numDeleted += await _db.Downloads.Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan).BatchDeleteAsync(cancelToken);
+                numDeleted += await _db.Downloads
+                    .Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan)
+                    .BatchDeleteAsync(cancelToken);
 
                 if (numDeleted > 0 && _db.DataProvider.CanShrink)
                 {
@@ -53,7 +54,9 @@ namespace Smartstore.Core.Content.Media.Tasks
                     {
                         await _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
                     }
-                    catch { }
+                    catch 
+                    { 
+                    }
                 }
             }
         }

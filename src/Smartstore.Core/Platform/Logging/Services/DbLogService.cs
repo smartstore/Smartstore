@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
-using Smartstore.Data.Batching;
 
 namespace Smartstore.Core.Logging
 {

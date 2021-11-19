@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
-using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Localization

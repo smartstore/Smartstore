@@ -64,7 +64,7 @@ namespace Smartstore.Data.SqlServer
                 .ReplaceService<IConventionSetBuilder, FixedRuntimeConventionSetBuilder>()
                 .UseSqlServer(connectionString, sql =>
                 {
-                    sql.CommandTimeout(commandTimeout);
+                    sql.CommandTimeout(commandTimeout).UseBulk();
                 });
 
             return (TContext)Activator.CreateInstance(typeof(TContext), new object[] { optionsBuilder.Options });
@@ -75,7 +75,9 @@ namespace Smartstore.Data.SqlServer
             return builder.UseSqlServer(connectionString, sql =>
             {
                 var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
-                
+
+                sql.UseBulk();
+
                 if (extension != null)
                 {
                     if (extension.CommandTimeout.HasValue)

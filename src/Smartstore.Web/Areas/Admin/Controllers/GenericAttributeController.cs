@@ -11,7 +11,6 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
-using Smartstore.Data.Batching;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
 
