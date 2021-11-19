@@ -32,5 +32,6 @@ namespace Smartstore
         public static readonly Regex IsIban = new(@"[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{4}[0-9]{7}([a-zA-Z0-9]?){0,16}", RegexOptions.Singleline | RegexOptions.Compiled);
         public static readonly Regex IsBic = new(@"([a-zA-Z]{4}[a-zA-Z]{2}[a-zA-Z0-9]{2}([a-zA-Z0-9]{3})?)", RegexOptions.Singleline | RegexOptions.Compiled);
         public static readonly Regex IsMinFile = new(@"^.+\.min(\.[^\.]*)?$", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+        public static readonly Regex IsCvv = new(@"^[0-9]{3,4}$", RegexOptions.Singleline | RegexOptions.Compiled);
     }
 }

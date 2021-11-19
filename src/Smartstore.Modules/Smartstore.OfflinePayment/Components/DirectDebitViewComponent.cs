@@ -44,6 +44,7 @@ namespace Smartstore.OfflinePayment.Components
         }
 
         // TODO: (mh) (core) Helper functions or base class???
+        // RE: Yes please: make a base ViewComponent in this folder.
         private async Task<TModel> PaymentInfoGetAsync<TModel, TSetting>(Action<TModel, TSetting> fn = null)
             where TModel : PaymentInfoModelBase, new()
             where TSetting : PaymentSettingsBase, new()
@@ -62,7 +63,7 @@ namespace Smartstore.OfflinePayment.Components
 
         private string GetLocalizedText(string text)
         {
-            if (text.EmptyNull().StartsWith("@"))
+            if (text.EmptyNull().StartsWith('@'))
             {
                 return T(text[1..]);
             }

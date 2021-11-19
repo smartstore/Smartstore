@@ -9,12 +9,12 @@ using Smartstore.Web.Components;
 
 namespace Smartstore.OfflinePayment.Components
 {
-    public class OfflinePaymentGenericViewComponent : SmartViewComponent
+    public class GenericPaymentViewComponent : SmartViewComponent
     {
         private readonly IComponentContext _ctx;
         private readonly IMediaService _mediaService;
         
-        public OfflinePaymentGenericViewComponent(IComponentContext ctx, IMediaService mediaService)
+        public GenericPaymentViewComponent(IComponentContext ctx, IMediaService mediaService)
         {
             _ctx = ctx;
             _mediaService = mediaService;

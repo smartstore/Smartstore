@@ -80,12 +80,14 @@ namespace Smartstore.Web.Controllers
 
         protected async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod)
         {
-            // TODO: (mh) (core) Throws because returns null
-            var warnings = await paymentMethod.IsPaymentDataValidAsync();
+            var warnings = await paymentMethod.GetPaymentDataWarningsAsync();
 
-            foreach (var warning in warnings)
+            if (warnings != null)
             {
-                ModelState.AddModelError(string.Empty, warning);
+                foreach (var warning in warnings)
+                {
+                    ModelState.AddModelError(string.Empty, warning);
+                }
             }
 
             if (!ModelState.IsValid)
@@ -97,7 +99,9 @@ namespace Smartstore.Web.Controllers
             //var paymentInfo = paymentMethod.GetPaymentInfo();
             //HttpContext.Session.TrySetObject<ProcessPaymentRequest>("OrderPaymentInfo", paymentInfo);
 
-            // TODO: (mh) (core) Throws because returns null
+            // TODO: (mh) (core) Getting state now works, but this will never be saved in session.
+            // Session state in ASP.NET Core is not in-memory anymore (it can only handle string or byte arrays).
+            // So after updating any (deserialized) session object you must save the object explicitly.
             HttpContext.GetCheckoutState().PaymentSummary = await paymentMethod.GetPaymentSummaryAsync();
 
             return true;
@@ -480,9 +484,11 @@ namespace Smartstore.Web.Controllers
             //}
 
             // Save payment data so that the user must not re-enter it.
+            // TODO: (mh) (core) Really bad, bad, bad. Please see TODO above.
+            var state = HttpContext.GetCheckoutState();
             foreach (var kvp in form)
             {
-                HttpContext.GetCheckoutState().PaymentData.Add(kvp.Key, kvp.Value);
+                state.PaymentData.Add(kvp.Key, kvp.Value);
             }
             
             return RedirectToAction(nameof(Confirm));

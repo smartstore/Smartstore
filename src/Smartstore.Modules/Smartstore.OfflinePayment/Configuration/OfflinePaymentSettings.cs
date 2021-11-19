@@ -2,6 +2,27 @@
 
 namespace Smartstore.OfflinePayment.Settings
 {
+    /// <summary>
+    /// Represents manual payment processor transaction mode
+    /// </summary>
+    public enum TransactMode
+    {
+        /// <summary>
+        /// Pending
+        /// </summary>
+        Pending = 0,
+
+        /// <summary>
+        /// Authorize
+        /// </summary>
+        Authorize = 1,
+
+        /// <summary>
+        /// Paid
+        /// </summary>
+        Paid = 2
+    }
+
     public abstract class PaymentSettingsBase : ISettings
     {
         public string DescriptionText { get; set; }
@@ -69,26 +90,5 @@ namespace Smartstore.OfflinePayment.Settings
         {
             DescriptionText = "@Plugins.Payment.Prepayment.PaymentInfoDescription";
         }
-    }
-
-    /// <summary>
-    /// Represents manual payment processor transaction mode
-    /// </summary>
-    public enum TransactMode
-    {
-        /// <summary>
-        /// Pending
-        /// </summary>
-        Pending = 0,
-
-        /// <summary>
-        /// Authorize
-        /// </summary>
-        Authorize = 1,
-
-        /// <summary>
-        /// Paid
-        /// </summary>
-        Paid = 2
     }
 }
