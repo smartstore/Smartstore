@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Core.Catalog.Products;
@@ -19,6 +20,15 @@ namespace Smartstore.Admin.Controllers
 {
     public class ProductReviewController : AdminController
     {
+        private readonly static SelectListItem[] _ratings = new[]
+        {
+            new SelectListItem { Text = "5", Value = "5" },
+            new SelectListItem { Text = "4", Value = "4" },
+            new SelectListItem { Text = "3", Value = "3" },
+            new SelectListItem { Text = "2", Value = "2" },
+            new SelectListItem { Text = "1", Value = "1" }
+        };
+
         private readonly SmartDbContext _db;
         private readonly IProductService _productService;
         private readonly ICustomerService _customerService;
@@ -42,6 +52,9 @@ namespace Smartstore.Admin.Controllers
         public IActionResult List()
         {
             var model = new ProductReviewListModel();
+
+            ViewBag.Ratings = _ratings;
+
             return View(model);
         }
 

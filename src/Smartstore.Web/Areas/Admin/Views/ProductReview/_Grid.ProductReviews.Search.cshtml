@@ -10,5 +10,5 @@
 </div>
 <div class="form-group">
     <smart-label asp-for="Ratings" />
-    <select asp-for="Ratings" multiple="multiple" data-tags="true"></select>
+    <select asp-for="Ratings" asp-items="ViewBag.Ratings" multiple="multiple"></select>
 </div>
