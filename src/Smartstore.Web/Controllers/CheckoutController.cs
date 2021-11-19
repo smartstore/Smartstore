@@ -80,6 +80,7 @@ namespace Smartstore.Web.Controllers
 
         protected async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod)
         {
+            // TODO: (mh) (core) Throws because returns null
             var warnings = await paymentMethod.IsPaymentDataValidAsync();
 
             foreach (var warning in warnings)
@@ -96,6 +97,7 @@ namespace Smartstore.Web.Controllers
             //var paymentInfo = paymentMethod.GetPaymentInfo();
             //HttpContext.Session.TrySetObject<ProcessPaymentRequest>("OrderPaymentInfo", paymentInfo);
 
+            // TODO: (mh) (core) Throws because returns null
             HttpContext.GetCheckoutState().PaymentSummary = await paymentMethod.GetPaymentSummaryAsync();
 
             return true;
@@ -438,7 +440,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost, ActionName("PaymentMethod")]
         [FormValueRequired("nextstep")]
-        public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, CheckoutPaymentMethodModel model)
+        public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, CheckoutPaymentMethodModel model, IFormCollection form)
         {            
             var storeId = Services.StoreContext.CurrentStore.Id;
             var customer = Services.WorkContext.CurrentCustomer;
@@ -460,27 +462,29 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction(nameof(PaymentMethod));
             }
 
-            // TODO: (mh) (core) Implement load payment method provider if at least one payment method provider is implemented.
-            //var paymentMethodProvider = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethod, true, storeId);
-            //if (paymentMethodProvider == null)
+            var paymentMethodProvider = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethod, true, storeId);
+            if (paymentMethodProvider == null)
+            {
+                return RedirectToAction(nameof(PaymentMethod));
+            }
+
+            // Save payment method for customer.
+            customer.GenericAttributes.SelectedPaymentMethod = paymentMethod;
+            await customer.GenericAttributes.SaveChangesAsync();
+
+            // TODO: (mh) (core) New validation framework seems to be shitty. But maybe I'm missing something. @mc Lets talk about it.
+            // Validate info
+            //if (!await ValidatePaymentDataAsync(paymentMethodProvider.Value))
             //{
             //    return RedirectToAction(nameof(PaymentMethod));
             //}
 
-            //// Save
-            //customer.GenericAttributes.SelectedPaymentMethod = paymentMethod;
-            //await customer.GenericAttributes.SaveChangesAsync();
-
-
-            //// Calidate info
-            //if (!ValidatePaymentDataAsync(paymentMethodProvider.Value))
-            //{
-            //    return RedirectToAction(nameof(PaymentMethod));
-            //}
-
-            //// Save payment data so that the user must not re-enter it
-            //form.CopyTo(HttpContext.GetCheckoutState().PaymentData, true);
-
+            // Save payment data so that the user must not re-enter it.
+            foreach (var kvp in form)
+            {
+                HttpContext.GetCheckoutState().PaymentData.Add(kvp.Key, kvp.Value);
+            }
+            
             return RedirectToAction(nameof(Confirm));
         }
 
@@ -497,7 +501,6 @@ namespace Smartstore.Web.Controllers
                 return new NotFoundResult();
             }
 
-            // TODO: (mh) (core) Wait until any payment method has been implemented.
             var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
             if (paymentMethod == null)
             {
@@ -510,7 +513,6 @@ namespace Smartstore.Web.Controllers
                 return new EmptyResult();
             }
 
-            // TODO: (mh) (core) Test that invoke widget works as intended.
             return Content(await InvokeWidgetAsync(infoWidget));
         }
 
@@ -652,7 +654,6 @@ namespace Smartstore.Web.Controllers
 
             return RedirectToAction(nameof(Completed));
         }
-
 
         public async Task<IActionResult> Completed()
         {

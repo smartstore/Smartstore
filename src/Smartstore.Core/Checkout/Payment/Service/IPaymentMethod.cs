@@ -145,11 +145,6 @@ namespace Smartstore.Core.Checkout.Payment
         Task<bool> CanRePostProcessPaymentAsync(Order order);
 
         /// <summary>
-        /// Gets the widget invoker for provider configuration. Returns <c>null</c> when there is nothing to render.
-        /// </summary>
-        WidgetInvoker GetConfigurationWidget();
-
-        /// <summary>
         /// Gets the widget invoker for payment info. Return <c>null</c> when there's nothing to render.
         /// </summary>
         WidgetInvoker GetPaymentInfoWidget();

@@ -69,7 +69,7 @@
 
                                     @if (!(description.HasValue() && !paymentMethod.RequiresInteraction))
                                     {
-                                        await paymentMethod.InfoWidget.InvokeAsync(ViewContext);
+                                        @await paymentMethod.InfoWidget.InvokeAsync(ViewContext);
                                     }
                                 </div>
                             }

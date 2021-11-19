@@ -5,6 +5,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
@@ -29,6 +30,7 @@ namespace Smartstore.Web.Models.Checkout
         private readonly ICurrencyService _currencyService;
         private readonly IPaymentService _paymentService;
         private readonly IShippingService _shippingService;
+        private readonly IOrderCalculationService _orderCalculationService;
         private readonly ITaxCalculator _taxCalculator;
         private readonly ShippingSettings _shippingSettings;
 
@@ -38,6 +40,7 @@ namespace Smartstore.Web.Models.Checkout
             IPaymentService paymentService,
             ICurrencyService currencyService,
             IShippingService shippingService,
+            IOrderCalculationService orderCalculationService,
             ITaxCalculator taxCalculator,
             ShippingSettings shippingSettings)
         {
@@ -46,6 +49,7 @@ namespace Smartstore.Web.Models.Checkout
             _paymentService = paymentService;
             _currencyService = currencyService;
             _shippingService = shippingService;
+            _orderCalculationService = orderCalculationService;
             _taxCalculator = taxCalculator;
             _shippingSettings = shippingSettings;
         }
@@ -92,15 +96,13 @@ namespace Smartstore.Web.Models.Checkout
                 pmModel.BrandUrl = _moduleManager.GetBrandImageUrl(pm.Metadata);
 
                 // Payment method additional fee.
-                (decimal paymentMethodAdditionalFee, _) = await pm.Value.GetPaymentFeeInfoAsync(from);
-
+                var paymentMethodAdditionalFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(from, pm.Metadata.SystemName);
                 var paymentTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.PaymentFee);
-                var rateBase = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentMethodAdditionalFee);
-                var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, _services.WorkContext.WorkingCurrency);
+                var rateBase = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentMethodAdditionalFee.Amount);
 
-                if (rate.Amount != decimal.Zero)
+                if (paymentMethodAdditionalFee.Amount != decimal.Zero)
                 {
-                    pmModel.Fee = rate.WithPostFormat(paymentTaxFormat);
+                    pmModel.Fee = paymentMethodAdditionalFee.WithPostFormat(paymentTaxFormat);
                 }
 
                 to.PaymentMethods.Add(pmModel);

@@ -112,9 +112,6 @@ namespace Smartstore.Core.Checkout.Payment
             => Task.FromResult(false);
 
         /// <inheritdoc/>
-        public abstract WidgetInvoker GetConfigurationWidget();
-
-        /// <inheritdoc/>
         public abstract WidgetInvoker GetPaymentInfoWidget();
 
         #endregion
