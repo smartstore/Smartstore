@@ -1,0 +1,14 @@
+﻿@model ProductReviewListModel
+
+<div class="form-group">
+    <smart-label asp-for="CreatedOnFrom" />
+    <editor asp-for="CreatedOnFrom" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="CreatedOnTo" />
+    <editor asp-for="CreatedOnTo" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="Ratings" />
+    <select asp-for="Ratings" multiple="multiple" data-tags="true"></select>
+</div>

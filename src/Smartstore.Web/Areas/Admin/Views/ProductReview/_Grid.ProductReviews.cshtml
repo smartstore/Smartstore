@@ -1,0 +1,112 @@
+﻿@model ProductReviewModel
+
+@{
+    var parentModel = ViewData["Parent"] as ProductReviewListModel;
+}
+
+<datagrid id="productreviews-grid"
+          allow-resize="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true"
+          allow-row-selection="true"
+          onrowclass="productreviewsGrid_onRowClass">
+    <datasource read="@Url.Action("ProductReviewList")" delete="@Url.Action("ProductReviewDelete")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ReactToSelection" 
+                    type="button" 
+                    id="approve-selected" 
+                    class="btn btn-warning btn-flat"
+                    data-url="@Url.Action("ApproveSelected")">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Catalog.ProductReviews.ApproveSelected")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.ReactToSelection" 
+                    type="button" 
+                    id="disapprove-selected" 
+                    class="btn btn-secondary btn-to-danger btn-flat"
+                    data-url="@Url.Action("DisapproveSelected")">
+                <i class="fa fa-times"></i>
+                <span>@T("Admin.Catalog.ProductReviews.DisapproveSelected")</span>
+            </button>
+        </toolbar-group>
+        <toolbar-group class="omega">
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_after"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.ProductReviews.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" halign="center" visible="false" type="string" />
+        <column for="ProductId" entity-member="Product.Name">
+            <display-template>
+                <div v-if="item.row.ProductEditUrl" class="text-truncate">
+                    @Html.LabeledProductName(urlExpression: "item.row.ProductEditUrl", valueExpression: "item.row.ProductName")
+                </div>
+                <div v-if="!item.row.ProductEditUrl" class="text-truncate" v-html="item.row.ProductName"></div>
+            </display-template>
+        </column>
+        <column for="Title" hideable="false">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a>
+            </display-template>
+        </column>
+        <column for="ReviewText" encoded="true" wrap="true" />
+        <column for="CustomerId">
+            <display-template>
+                <a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerName }}</a>
+            </display-template>
+        </column>
+        <column for="Rating" halign="center" />
+        <column for="IsApproved" halign="center" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
+        <column for="HelpfulYesTotal" halign="center" visible="false" />
+        <column for="HelpfulNoTotal" halign="center" visible="false" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="productreviews-grid">
+    function productreviewsGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.ProductEditUrl
+        };
+    }
+
+    $(function () {
+        // Approve\disapprove.
+        $(document).on('click', '#approve-selected, #disapprove-selected', function (e) {
+            e.preventDefault();
+
+            const grid = $('#productreviews-grid').parent().data('datagrid');
+            var selectedIds = grid.selectedRowKeys;
+            var btn = $(this);
+
+            $({}).postData({
+                url: btn.data('url'),
+                ask: @T("Admin.Common.AskToProceed").JsValue,
+                data: { selectedIds }
+            });
+
+            return false;
+        });
+    });
+</script>

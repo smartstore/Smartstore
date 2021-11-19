@@ -356,7 +356,8 @@ DELETE TOP(20000) c
 
 			if (_rewardPointsSettings.Enabled && _rewardPointsSettings.PointsForProductReview > 0)
 			{
-				var message = T(add ? "RewardPoints.Message.EarnedForProductReview" : "RewardPoints.Message.ReducedForProductReview", product.GetLocalized(x => x.Name)).ToString();
+				var productName = product?.GetLocalized(x => x.Name) ?? StringExtensions.NotAvailable;
+				var message = T(add ? "RewardPoints.Message.EarnedForProductReview" : "RewardPoints.Message.ReducedForProductReview", productName).ToString();
 
 				customer.AddRewardPointsHistoryEntry(_rewardPointsSettings.PointsForProductReview * (add ? 1 : -1), message);
 			}

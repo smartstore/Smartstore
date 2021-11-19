@@ -326,6 +326,32 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Configuration.Languages.Resources", "Resources", "Ressourcen");
 
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.Fields.HelpfulYesTotal", 
+                "Helpful",
+                "Hilfreich",
+                "The number of reviews rated as helpful.",
+                "Die Anzahl der als hilfreich eingestuften Bewertungen.");
+
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.Fields.HelpfulNoTotal",
+                "Not helpful",
+                "Nicht hilfreich",
+                "The number of reviews rated as not helpful.",
+                "Die Anzahl der als nicht hilfreich eingestuften Bewertungen.");
+
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.List.Rating",
+                "Rating",
+                "Bewertung",
+                "Filter list by rating.",
+                "Liste nach Bewertung filtern.");
+
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.NumberApprovedReviews",
+                "There were {0} product reviews approved.",
+                "Es wurden {0} Produkt Rezensionen genehmigt.");
+
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.NumberDisapprovedReviews",
+                "There were {0} product reviews disapproved.",
+                "Es wurden {0} Produkt Rezensionen abgelehnt.");
+
             #endregion
 
             #region Packaging
@@ -631,6 +657,7 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.ReturnRequests.BackToList",
             //    "Admin.RecurringPayments.BackToList",
             //    "Admin.Configuration.Languages.BackToList",
+            //    "Admin.Catalog.ProductReviews.BackToList",
             //    );
 
 

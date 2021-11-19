@@ -1,0 +1,145 @@
+﻿@model ProductReviewModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.ProductReviews.EditProductReviewDetails");
+}
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star-half"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <button type="submit" id="productreview-delete" name="productreview-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="productreview-delete" />
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ProductName" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @if (Model.ProductEditUrl.HasValue())
+                    {
+                        <a href="@Model.ProductEditUrl">@Model.ProductName</a>
+                    }
+                    else
+                    {
+                        <span class="muted">@string.Empty.NaIfEmpty()</span>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CustomerId" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @if (Model.CustomerEditUrl.HasValue())
+                    {
+                        <a href="@Model.CustomerEditUrl">@Model.CustomerName</a>
+                    }
+                    else
+                    {
+                        <span class="muted">@string.Empty.NaIfEmpty()</span>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IpAddress" />
+            </div>
+            <div class="adminData">
+                <input asp-for="IpAddress" sm-plaintext="true" readonly />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Title" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Title" />
+                <span asp-validation-for="Title"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ReviewText" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="ReviewText" />
+                <span asp-validation-for="ReviewText"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Rating" />
+            </div>
+            <div class="adminData">
+                <input asp-for="Rating" sm-plaintext="true" readonly />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="HelpfulYesTotal" />
+            </div>
+            <div class="adminData">
+                <input asp-for="HelpfulYesTotal" sm-plaintext="true" readonly />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="HelpfulNoTotal" />
+            </div>
+            <div class="adminData">
+                <input asp-for="HelpfulNoTotal" sm-plaintext="true" readonly />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IsApproved" />
+            </div>
+            <div class="adminData">
+                <input asp-for="IsApproved" />
+                <span asp-validation-for="IsApproved"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CreatedOn" />
+            </div>
+            <div class="adminData">
+                <div class="form-control-plaintext">
+                    @Model.CreatedOn
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

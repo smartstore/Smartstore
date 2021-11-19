@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Web.Modelling;
 
@@ -12,6 +13,9 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*CreatedOnTo")]
         public DateTime? CreatedOnTo { get; set; }
+
+        [LocalizedDisplay("*Rating")]
+        public int[] Ratings { get; set; }
     }
 
     [LocalizedDisplay("Admin.Catalog.ProductReviews.Fields.")]
@@ -35,6 +39,8 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Title")]
         public string Title { get; set; }
 
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 6)]
         [LocalizedDisplay("*ReviewText")]
         public string ReviewText { get; set; }
 
@@ -47,7 +53,18 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
 
+        [LocalizedDisplay("Common.UpdatedOn")]
+        public DateTime UpdatedOn { get; set; }
+
+        [LocalizedDisplay("*HelpfulYesTotal")]
+        public int HelpfulYesTotal { get; set; }
+
+        [LocalizedDisplay("*HelpfulNoTotal")]
+        public int HelpfulNoTotal { get; set; }
+
         public string EditUrl { get; set; }
+        public string ProductEditUrl { get; set; }
+        public string CustomerEditUrl { get; set; }
     }
 
     public partial class ProductReviewValidator : AbstractValidator<ProductReviewModel>

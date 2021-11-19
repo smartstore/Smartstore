@@ -197,7 +197,9 @@
                 <smart-label asp-for="CreatedOn" />
             </div>
             <div class="adminData">
-                <input asp-for="CreatedOn" sm-plaintext="true" readonly />
+                <div class="form-control-plaintext">
+                    @Model.CreatedOn
+                </div>
             </div>
         </div>
         <div class="adminRow">

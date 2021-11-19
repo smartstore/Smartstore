@@ -9,8 +9,8 @@ using Smartstore.Admin.Models.Catalog;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
@@ -59,11 +59,15 @@ namespace Smartstore.Admin.Controllers
                 ? null
                 : dtHelper.ConvertToUtcTime(model.CreatedOnTo.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
-            var query = _db.CustomerContent
-                .AsNoTracking()
-                .ApplyAuditDateFilter(createdFrom, createdTo)
-                .OfType<ProductReview>()
-                .Include(x => x.Product);
+            var query = _db.ProductReviews
+                .Include(x => x.Product)
+                .Include(x => x.Customer).ThenInclude(x => x.CustomerRoleMappings).ThenInclude(x => x.CustomerRole)
+                .ApplyAuditDateFilter(createdFrom, createdTo);
+
+            if (model.Ratings?.Any() ?? false)
+            {
+                query = query.Where(x => model.Ratings.Contains(x.Rating));
+            }
 
             var productReviews = await query
                 .OrderByDescending(x => x.CreatedOnUtc)
@@ -111,11 +115,7 @@ namespace Smartstore.Admin.Controllers
                     .Where(x => productIds.Contains(x.Id))
                     .ToListAsync();
 
-                foreach (var product in products)
-                {
-                    _productService.ApplyProductReviewTotals(product);
-                }
-
+                products.Each(x => _productService.ApplyProductReviewTotals(x));
                 await _db.SaveChangesAsync();
 
                 success = true;
@@ -187,14 +187,21 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                var approvedChanged = productReview.IsApproved != model.IsApproved;
+
                 productReview.Title = model.Title;
                 productReview.ReviewText = model.ReviewText;
                 productReview.IsApproved = model.IsApproved;
 
-                _productService.ApplyProductReviewTotals(productReview.Product);
-                _customerService.ApplyRewardPointsForProductReview(productReview.Customer, productReview.Product, productReview.IsApproved);
-
                 await _db.SaveChangesAsync();
+
+                if (approvedChanged)
+                {                   
+                    _productService.ApplyProductReviewTotals(productReview.Product);
+                    _customerService.ApplyRewardPointsForProductReview(productReview.Customer, productReview.Product, productReview.IsApproved);
+
+                    await _db.SaveChangesAsync();
+                }                
 
                 NotifySuccess(T("Admin.Catalog.ProductReviews.Updated"));
 
@@ -209,81 +216,110 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Catalog.ProductReview.Approve)]
-        public async Task<IActionResult> ApproveSelected(ICollection<int> selectedIds)
+        public async Task<IActionResult> ApproveSelected(string selectedIds)
         {
-            await UpdateApproved(selectedIds, true);
+            var numApproved = await UpdateApproved(selectedIds, true);
 
-            NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+            NotifySuccess(T("Admin.Catalog.ProductReviews.NumberApprovedReviews", numApproved));
 
-            return Json(new { success = true });
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]
         [Permission(Permissions.Catalog.ProductReview.Approve)]
-        public async Task<IActionResult> DisapproveSelected(ICollection<int> selectedIds)
+        public async Task<IActionResult> DisapproveSelected(string selectedIds)
         {
-            await UpdateApproved(selectedIds, false);
+            var numDisapproved = await UpdateApproved(selectedIds, false);
             
-            NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+            NotifySuccess(T("Admin.Catalog.ProductReviews.NumberDisapprovedReviews", numDisapproved));
 
-            return Json(new { success = true });
+            return RedirectToAction(nameof(List));
         }
 
-        private void PrepareProductReviewModel(ProductReviewModel model, ProductReview productReview, bool excludeProperties, bool formatReviewText)
+        private void PrepareProductReviewModel(ProductReviewModel model, ProductReview productReview, bool excludeProperties, bool forList)
         {
             Guard.NotNull(model, nameof(model));
             Guard.NotNull(productReview, nameof(productReview));
 
+            var product = productReview.Product;
+            var customer = productReview?.Customer;
+
             model.Id = productReview.Id;
             model.ProductId = productReview.ProductId;
-            model.ProductName = productReview.Product.Name;
-            model.ProductTypeName = productReview.Product.GetProductTypeLabel(Services.Localization);
-            model.ProductTypeLabelHint = productReview.Product.ProductTypeLabelHint;
+            model.ProductName = product?.GetLocalized(x => x.Name) ?? StringExtensions.NotAvailable;
+            model.ProductTypeName = product?.GetProductTypeLabel(Services.Localization);
+            model.ProductTypeLabelHint = product?.ProductTypeLabelHint;
             model.CustomerId = productReview.CustomerId;
-            model.CustomerName = productReview.Customer.GetDisplayName(T);
+            model.CustomerName = customer?.GetDisplayName(T);
             model.IpAddress = productReview.IpAddress;
             model.Rating = productReview.Rating;
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(productReview.CreatedOnUtc, DateTimeKind.Utc);
-            model.EditUrl = Url.Action("Edit", "Product", new { Id = productReview.ProductId });
+            model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(productReview.UpdatedOnUtc, DateTimeKind.Utc);
+            model.HelpfulYesTotal = productReview.HelpfulYesTotal;
+            model.HelpfulNoTotal = productReview.HelpfulNoTotal;
+            model.EditUrl = Url.Action(nameof(Edit), new { productReview.Id });
+
+            if (customer != null)
+            {
+                model.CustomerEditUrl = Url.Action("Edit", "Customer", new { Id = productReview.CustomerId });
+            }
+
+            if (product != null)
+            {
+                model.ProductEditUrl = Url.Action("Edit", "Product", new { Id = productReview.ProductId });
+            }
 
             if (!excludeProperties)
             {
                 model.Title = productReview.Title;
                 model.IsApproved = productReview.IsApproved;
 
-                model.ReviewText = formatReviewText
-                    ? HtmlUtility.ConvertPlainTextToHtml(productReview.ReviewText.HtmlEncode())
+                model.ReviewText = forList
+                    ? productReview.ReviewText.Truncate(400, "…")
                     : productReview.ReviewText;
             }
         }
 
-        private async Task<int> UpdateApproved(ICollection<int> selectedIds, bool approved)
+        private async Task<int> UpdateApproved(string selectedIds, bool approved)
         {
-            var numApproved = 0;
+            var numUpdated = 0;
+            var ids = selectedIds.ToIntArray();
 
-            if (selectedIds?.Any() ?? false)
+            if (ids.Any())
             {
                 var productReviews = await _db.CustomerContent
                     .OfType<ProductReview>()
-                    .Include(x => x.Product)
-                    .Include(x => x.Customer)
-                    .Where(x => selectedIds.Contains(x.Id))
+                    .Include(x => x.Customer).ThenInclude(x => x.RewardPointsHistory)
+                    .Where(x => ids.Contains(x.Id) && x.IsApproved != approved)
                     .ToListAsync();
 
-                productReviews.Each(x => x.IsApproved = approved);
-
-                numApproved = await _db.SaveChangesAsync();
-
-                foreach (var productReview in productReviews)
+                if (productReviews.Any())
                 {
-                    _productService.ApplyProductReviewTotals(productReview.Product);
-                    _customerService.ApplyRewardPointsForProductReview(productReview.Customer, productReview.Product, productReview.IsApproved);
-                }
+                    productReviews.Each(x => x.IsApproved = approved);
 
-                await _db.SaveChangesAsync();
+                    numUpdated = await _db.SaveChangesAsync();
+
+                    // Update product review totals.
+                    var productIds = productReviews.ToDistinctArray(x => x.ProductId);
+
+                    var products = await _db.Products
+                        .Include(x => x.ProductReviews)
+                        .Where(x => productIds.Contains(x.Id))
+                        .ToDictionaryAsync(x => x.Id, x => x);
+
+                    products.Each(x => _productService.ApplyProductReviewTotals(x.Value));
+
+                    // Update reward points history.
+                    foreach (var productReview in productReviews)
+                    {
+                        _customerService.ApplyRewardPointsForProductReview(productReview.Customer, products.Get(productReview.ProductId), productReview.IsApproved);
+                    }
+
+                    await _db.SaveChangesAsync();
+                }
             }
 
-            return numApproved;
+            return numUpdated;
         }
     }
 }
