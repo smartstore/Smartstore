@@ -32,7 +32,7 @@ namespace Smartstore.Core.Messaging
     {
         const string LoremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
 
-        private Dictionary<string, Func<Task<object>>> _testModelFactories = new(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, Func<Task<object>>> _testModelFactories;
 
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
@@ -638,7 +638,7 @@ namespace Smartstore.Core.Messaging
                     }
                 }
 
-                return factory?.Invoke();
+                return await factory?.Invoke();
             }
         }
 
