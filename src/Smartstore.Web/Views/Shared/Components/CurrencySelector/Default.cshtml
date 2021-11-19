@@ -6,7 +6,7 @@
         return;
     }
 
-    var activeCurr = currencies.Where(x => x.Id == WorkContext.WorkingCurrency.Id).FirstOrDefault();
+    var activeCurr = currencies.FirstOrDefault(x => x.Id == WorkContext.WorkingCurrency.Id) ?? currencies.FirstOrDefault();
 }
 
 <div class="dropdown currency-selector">

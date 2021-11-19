@@ -6,7 +6,7 @@
         return;
     }
 
-    var activeLang = languages.Where(x => x.Id == WorkContext.WorkingLanguage.Id).FirstOrDefault();
+    var activeLang = languages.FirstOrDefault(x => x.Id == WorkContext.WorkingLanguage.Id) ?? languages.FirstOrDefault();
 }
 
 <div class="dropdown language-selector">
