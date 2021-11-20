@@ -88,9 +88,10 @@ namespace Smartstore.Core.Content.Blocks
 			}
 		}
 
-		public virtual void AfterSave(IBlockContainer container, IBlockEntity entity)
+		public virtual Task AfterSaveAsync(IBlockContainer container, IBlockEntity entity)
 		{
 			// Default impl does nothing.
+			return Task.CompletedTask;
 		}
 
 		public virtual void BeforeRender(IBlockContainer container, StoryViewMode viewMode, IBlockHtmlParts htmlParts)
@@ -98,9 +99,9 @@ namespace Smartstore.Core.Content.Blocks
 			// Default impl does nothing.
 		}
 
-		public virtual string Clone(IBlockEntity sourceEntity, IBlockEntity clonedEntity)
+		public virtual Task<string> CloneAsync(IBlockEntity sourceEntity, IBlockEntity clonedEntity)
 		{
-			return sourceEntity.Model;
+			return Task.FromResult(sourceEntity.Model);
 		}
 
 		public Task RenderAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)

@@ -10,13 +10,13 @@ using Smartstore.Web.Components;
 
 namespace Smartstore.OfflinePayment.Components
 {
-    public class PurchaseOrderNumber : SmartViewComponent
+    public class PurchaseOrderNumberViewComponent : SmartViewComponent
     {
         private readonly IComponentContext _ctx;
         private readonly IMediaService _mediaService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         
-        public PurchaseOrderNumber(
+        public PurchaseOrderNumberViewComponent(
             IComponentContext ctx,
             IMediaService mediaService,
             IHttpContextAccessor httpContextAccessor)

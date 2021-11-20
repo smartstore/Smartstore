@@ -15,7 +15,6 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
-using Smartstore.Data.Batching;
 using Smartstore.Domain;
 using Smartstore.Events;
 using Smartstore.Utilities;

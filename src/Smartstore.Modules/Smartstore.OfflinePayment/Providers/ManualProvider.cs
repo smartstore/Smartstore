@@ -17,7 +17,7 @@ namespace Smartstore.OfflinePayment
     {
         protected override Type GetViewComponentType()
         {
-            return typeof(ManualViewComponent);
+            return typeof(ManualPaymentViewComponent);
         }
 
         protected override string GetProviderName()
@@ -39,6 +39,7 @@ namespace Smartstore.OfflinePayment
                     new SelectListItem { Text = "Discover", Value = "Discover" },
                     new SelectListItem { Text = "Amex", Value = "Amex" }
                 };
+
                 return creditCardTypes;
             }
         }

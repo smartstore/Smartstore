@@ -31,6 +31,13 @@ namespace Smartstore.Payment
             await DeleteSettingsAsync<PurchaseOrderNumberPaymentSettings>();
 
             await DeleteLanguageResourcesAsync();
+            await DeleteLanguageResourcesAsync("Plugins.Payment.CashOnDelivery");
+            await DeleteLanguageResourcesAsync("Plugins.Payment.Invoice");
+            await DeleteLanguageResourcesAsync("Plugins.Payment.PayInStore");
+            await DeleteLanguageResourcesAsync("Plugins.Payment.Prepayment");
+            await DeleteLanguageResourcesAsync("Plugins.Payment.Manual");
+            await DeleteLanguageResourcesAsync("Plugins.Payment.DirectDebit");
+
             await base.UninstallAsync();
         }
     }

@@ -6,7 +6,6 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
-using Smartstore.Data.Batching;
 using Smartstore.Http;
 using Smartstore.Utilities;
 using Smartstore.Web.Controllers;

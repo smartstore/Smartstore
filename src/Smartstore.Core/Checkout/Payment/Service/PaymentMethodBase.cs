@@ -53,19 +53,19 @@ namespace Smartstore.Core.Checkout.Payment
 
         /// <inheritdoc/>
         public virtual Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
-            => null;
+            => Task.CompletedTask;
 
         /// <inheritdoc/>
         public virtual Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
             => Task.FromResult((decimal.Zero, false));
 
         /// <inheritdoc/>
-        public virtual Task<IList<string>> IsPaymentDataValidAsync()
-            => null;
+        public virtual Task<List<string>> GetPaymentDataWarningsAsync()
+            => Task.FromResult<List<string>>(null);
 
         /// <inheritdoc/>
         public virtual Task<string> GetPaymentSummaryAsync()
-            => null;
+            => Task.FromResult((string)null);
 
         /// <inheritdoc/>
         public virtual Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)

@@ -110,9 +110,7 @@ namespace Smartstore.OfflinePayment.Models
         {
             RuleFor(x => x.CardholderName).NotEmpty();
             RuleFor(x => x.CardNumber).CreditCard().WithMessage(T("Payment.CardNumber.Wrong"));
-
-            // TODO: (mh) (core) Add Validator Extension
-            //RuleFor(x => x.CardCode).CreditCardCvvNumber();
+            RuleFor(x => x.CardCode).CreditCardCvvNumber();
         }
     }
 

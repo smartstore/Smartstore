@@ -16,7 +16,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Data.Batching;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Categories

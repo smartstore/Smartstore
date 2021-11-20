@@ -8,7 +8,6 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Data.Batching;
 
 namespace Smartstore.Core.Content.Menus
 {

@@ -13,7 +13,7 @@ namespace Smartstore.OfflinePayment
     {
         protected override Type GetViewComponentType()
         {
-            return typeof(OfflinePaymentGenericViewComponent);
+            return typeof(GenericPaymentViewComponent);
         }
 
         protected override string GetProviderName()

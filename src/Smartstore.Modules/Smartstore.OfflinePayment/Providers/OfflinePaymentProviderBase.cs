@@ -36,6 +36,7 @@ namespace Smartstore.OfflinePayment
             {
                 NewPaymentStatus = PaymentStatus.Pending
             };
+
             return  Task.FromResult(result);
         }
     }

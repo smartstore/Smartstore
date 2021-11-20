@@ -30,6 +30,7 @@
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.14" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.9.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />
+    <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk" Version="6.0.27-preview" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core;
 using Smartstore.Core.Configuration;
@@ -45,7 +46,6 @@ namespace Smartstore.Engine.Modularity
         /// <summary>
         /// Deletes all language resource for the current module if <see cref="IModuleDescriptor.ResourceRootKey"/> is not empty.
         /// </summary>
-        /// <returns></returns>
         protected Task DeleteLanguageResourcesAsync()
         {
             if (Descriptor.ResourceRootKey.IsEmpty())
@@ -54,6 +54,15 @@ namespace Smartstore.Engine.Modularity
             }
             
             return Services.Localization.DeleteLocaleStringResourcesAsync(Descriptor.ResourceRootKey);
+        }
+
+        /// <summary>
+        /// Deletes all language resource starting with the given <paramref name="rootKey"/>.
+        /// </summary>
+        protected Task DeleteLanguageResourcesAsync(string rootKey)
+        {
+            Guard.NotEmpty(rootKey, nameof(rootKey));
+            return Services.Localization.DeleteLocaleStringResourcesAsync(rootKey);
         }
 
         /// <summary>

@@ -13,6 +13,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.0" />
+		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.MySql" Version="6.0.27-preview" />
 	</ItemGroup>
 
 </Project>

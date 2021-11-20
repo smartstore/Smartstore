@@ -14,7 +14,6 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
-using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using EState = Smartstore.Data.EntityState;

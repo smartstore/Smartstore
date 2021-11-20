@@ -16,7 +16,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 using Smartstore.Forums.Domain;
 using Smartstore.Utilities.Html;

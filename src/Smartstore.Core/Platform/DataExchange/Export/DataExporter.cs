@@ -38,7 +38,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Data.Batching;
 using Smartstore.Data.Caching;
 using Smartstore.Domain;
 using Smartstore.Engine.Modularity;
