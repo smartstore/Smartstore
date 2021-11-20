@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
-using Org.BouncyCastle.Crypto.Signers;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
@@ -181,6 +180,27 @@ namespace Smartstore
         /// Loads many entities from database sorted by the given id sequence.
         /// Sort is applied in-memory.
         /// </summary>
+        public static IList<TEntity> GetMany<TEntity, TProperty>(this IIncludableQueryable<TEntity, TProperty> query, IEnumerable<int> ids, bool tracked = false)
+            where TEntity : BaseEntity
+        {
+            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(ids, nameof(ids));
+
+            if (!ids.Any())
+                return new List<TEntity>();
+
+            var items = query
+                .ApplyTracking(tracked)
+                .Where(a => ids.Contains(a.Id))
+                .ToList();
+
+            return items.OrderBySequence(ids).ToList();
+        }
+
+        /// <summary>
+        /// Loads many entities from database sorted by the given id sequence.
+        /// Sort is applied in-memory.
+        /// </summary>
         public static async Task<List<TEntity>> GetManyAsync<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids, bool tracked = false)
             where TEntity : BaseEntity
         {
@@ -191,6 +211,27 @@ namespace Smartstore
                 return new List<TEntity>();
 
             var items = await dbSet
+                .ApplyTracking(tracked)
+                .Where(a => ids.Contains(a.Id))
+                .ToListAsync();
+
+            return items.OrderBySequence(ids).ToList();
+        }
+
+        /// <summary>
+        /// Loads many entities from database sorted by the given id sequence.
+        /// Sort is applied in-memory.
+        /// </summary>
+        public static async Task<List<TEntity>> GetManyAsync<TEntity, TProperty>(this IIncludableQueryable<TEntity, TProperty> query, IEnumerable<int> ids, bool tracked = false)
+            where TEntity : BaseEntity
+        {
+            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(ids, nameof(ids));
+
+            if (!ids.Any())
+                return new List<TEntity>();
+
+            var items = await query
                 .ApplyTracking(tracked)
                 .Where(a => ids.Contains(a.Id))
                 .ToListAsync();

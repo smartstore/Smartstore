@@ -39,7 +39,7 @@ namespace Smartstore.Core.Content.Blocks
         /// <param name="entity">
         /// The corresponding entity record for the block.
         /// </param>
-        void AfterSave(IBlockContainer container, IBlockEntity entity);
+        Task AfterSaveAsync(IBlockContainer container, IBlockEntity entity);
 
         /// <summary>
         /// Clones <see cref="IBlockEntity.Model"/>. In most cases it is sufficient to directly return the serialized model, but there may be cases
@@ -48,7 +48,7 @@ namespace Smartstore.Core.Content.Blocks
         /// <param name="sourceEntity">The source entity.</param>
         /// <param name="clonedEntity">The target entity clone which is about to be saved in the data storage.</param>
         /// <returns>The serialized block clone.</returns>
-        string Clone(IBlockEntity sourceEntity, IBlockEntity clonedEntity);
+        Task<string> CloneAsync(IBlockEntity sourceEntity, IBlockEntity clonedEntity);
 
         /// <summary>
         /// returns the block's render result as string.

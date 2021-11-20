@@ -32,7 +32,7 @@
 		<Content Include="module.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="wwwroot\*">
+		<Content Include="wwwroot\**\*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Content Include="Localization\*.xml">
@@ -45,15 +45,18 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Smartstore.Core\Smartstore.Core.csproj">
-			<Private>false</Private>
+			<Private>False</Private>
+			<CopyLocal>False</CopyLocal>
 			<CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
 		<ProjectReference Include="..\..\Smartstore.Web.Common\Smartstore.Web.Common.csproj">
-			<Private>false</Private>
+			<Private>False</Private>
+			<CopyLocal>False</CopyLocal>
 			<CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
 		<ProjectReference Include="..\..\Smartstore\Smartstore.csproj">
-			<Private>false</Private>
+			<Private>False</Private>
+			<CopyLocal>False</CopyLocal>
 			<CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
 		</ProjectReference>
 	</ItemGroup>
