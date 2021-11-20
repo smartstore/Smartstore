@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +14,6 @@ using Smartstore.Threading;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -148,7 +146,7 @@ namespace Smartstore.Admin.Controllers
             _ = _taskScheduler.RunSingleTaskAsync(id, taskParams);
 
             // The most tasks are completed rather quickly. Wait a while...
-            Thread.Sleep(200);
+            await Task.Delay(200);
 
             // ...check and return suitable notifications.
             var lastExecutionInfo = await _taskStore.GetLastExecutionInfoByTaskIdAsync(id);
