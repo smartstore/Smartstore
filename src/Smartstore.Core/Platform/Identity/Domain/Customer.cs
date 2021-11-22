@@ -39,7 +39,11 @@ namespace Smartstore.Core.Identity
                         .HasForeignKey("Customer_Id")
                         .HasConstraintName("FK_dbo.CustomerAddresses_dbo.Customer_Customer_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("Customer_Id", "Address_Id"));
+                    c =>
+                    {
+                        c.HasIndex("Customer_Id");
+                        c.HasKey("Customer_Id", "Address_Id");
+                    });
 
             builder
                 .HasOne(c => c.BillingAddress)
