@@ -151,17 +151,9 @@ namespace Smartstore.Data.Providers
                 $"SELECT column_name From INFORMATION_SCHEMA.COLUMNS WHERE table_name = {tableName} And column_name = {columnName}").AnyAsync(x => true);
         }
 
-        public virtual string[] GetTableNames()
-        {
-            return Database.ExecuteQueryRaw<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE'").ToArray();
-        }
+        public abstract string[] GetTableNames();
 
-        public virtual async Task<string[]> GetTableNamesAsync()
-        {
-            return await Database.ExecuteQueryRawAsync<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE'").AsyncToArray();
-        }
+        public abstract Task<string[]> GetTableNamesAsync();
 
         #endregion
 

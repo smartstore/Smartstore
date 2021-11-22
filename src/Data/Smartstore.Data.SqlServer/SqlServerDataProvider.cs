@@ -85,6 +85,18 @@ namespace Smartstore.Data.SqlServer
             return identifier.EnsureStartsWith('[').EnsureEndsWith(']');
         }
 
+        public override string[] GetTableNames()
+        {
+            return Database.ExecuteQueryRaw<string>(
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_catalog = '{Database.GetDbConnection().Database}'").ToArray();
+        }
+
+        public override async Task<string[]> GetTableNamesAsync()
+        {
+            return await Database.ExecuteQueryRawAsync<string>(
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_catalog = '{Database.GetDbConnection().Database}'").AsyncToArray();
+        }
+
         public override int ShrinkDatabase()
         {
             return Database.ExecuteSqlRaw("DBCC SHRINKDATABASE(0)");
