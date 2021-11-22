@@ -23,7 +23,7 @@ namespace Smartstore.Core.Catalog.Categories
             builder.HasOne(c => c.MediaFile)
                 .WithMany()
                 .HasForeignKey(c => c.MediaFileId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasMany(c => c.RuleSets)

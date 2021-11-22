@@ -18,11 +18,7 @@ namespace Smartstore.Core.Checkout.Attributes
             builder.HasOne(x => x.MediaFile)
                 .WithMany()
                 .HasForeignKey(x => x.MediaFileId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            //builder.HasOne(x => x.CheckoutAttribute)
-            //    .WithMany(x => x.CheckoutAttributeValues)
-            //    .HasForeignKey(x => x.CheckoutAttributeId);
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 
