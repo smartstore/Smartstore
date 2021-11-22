@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -43,6 +42,18 @@ namespace Smartstore.Data.MySql
         {
             Guard.NotEmpty(identifier, nameof(identifier));
             return identifier.EnsureStartsWith('`').EnsureEndsWith('`');
+        }
+
+        public override string[] GetTableNames()
+        {
+            return Database.ExecuteQueryRaw<string>(
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_schema = '{Database.GetDbConnection().Database}'").ToArray();
+        }
+
+        public override async Task<string[]> GetTableNamesAsync()
+        {
+            return await Database.ExecuteQueryRawAsync<string>(
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE' and table_schema = '{Database.GetDbConnection().Database}'").AsyncToArray();
         }
 
         protected override int? GetTableIncrementCore(string tableName)
