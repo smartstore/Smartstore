@@ -87,13 +87,11 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the customer comments.
         /// </summary>
-        [StringLength(4000)]
         public string CustomerComments { get; set; }
 
         /// <summary>
         /// Gets or sets the staff notes.
         /// </summary>
-        [StringLength(4000)]
         public string StaffNotes { get; set; }
 
         /// <summary>

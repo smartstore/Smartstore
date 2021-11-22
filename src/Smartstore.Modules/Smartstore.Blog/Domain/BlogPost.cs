@@ -121,6 +121,7 @@ namespace Smartstore.Blog.Domain
         /// <summary>
         /// Gets or sets background for the blog post.
         /// </summary>
+        [StringLength(100)]
         public string SectionBg { get; set; }
 
         /// <summary>
@@ -131,6 +132,7 @@ namespace Smartstore.Blog.Domain
         /// <summary>
         /// Gets or sets the blog post intro.
         /// </summary>
+        [MaxLength]
         public string Intro { get; set; }
 
         /// <summary>
@@ -162,6 +164,7 @@ namespace Smartstore.Blog.Domain
         /// <summary>
         /// Gets or sets the blog tags.
         /// </summary>
+        [StringLength(4000)]
         public string Tags { get; set; }
 
         /// <summary>
@@ -183,6 +186,7 @@ namespace Smartstore.Blog.Domain
         /// <summary>
         /// Gets or sets the meta description.
         /// </summary>
+        [StringLength(4000)]
         public string MetaDescription { get; set; }
 
         /// <summary>

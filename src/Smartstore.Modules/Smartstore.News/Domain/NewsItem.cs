@@ -72,13 +72,13 @@ namespace Smartstore.News.Domain
         /// <summary>
         /// Gets or sets the news title.
         /// </summary>
-        [Required]
+        [Required, StringLength(450)]
         public string Title { get; set; }
 
         /// <summary>
         /// Gets or sets the short text.
         /// </summary>
-        [Required]
+        [Required, StringLength(4000)]
         public string Short { get; set; }
 
         /// <summary>
@@ -172,6 +172,7 @@ namespace Smartstore.News.Domain
         /// <summary>
         /// Gets or sets the meta description.
         /// </summary>
+        [StringLength(4000)]
         public string MetaDescription { get; set; }
 
         /// <summary>

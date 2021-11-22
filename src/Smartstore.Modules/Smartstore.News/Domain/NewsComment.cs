@@ -38,6 +38,7 @@ namespace Smartstore.News.Domain
         /// <summary>
         /// Gets or sets the comment title.
         /// </summary>
+        [StringLength(450)]
         public string CommentTitle { get; set; }
 
         /// <summary>
