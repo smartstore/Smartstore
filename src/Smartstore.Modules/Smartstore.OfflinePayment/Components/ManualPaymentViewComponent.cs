@@ -5,7 +5,6 @@ using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Core.Content.Media;
 using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;
 
@@ -13,21 +12,11 @@ namespace Smartstore.OfflinePayment.Components
 {
     public class ManualPaymentViewComponent : OfflinePaymentViewComponentBase
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public ManualPaymentViewComponent(
-            IComponentContext ctx,
-            IMediaService mediaService,
-            IHttpContextAccessor httpContextAccessor) : base(ctx, mediaService)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
-
         public override async Task<IViewComponentResult> InvokeAsync(string providerName)
         {
-            var model = await PaymentInfoGetAsync<ManualPaymentInfoModel, ManualPaymentSettings>((m, s) =>
+            var model = await GetPaymentInfoModelAsync<ManualPaymentInfoModel, ManualPaymentSettings>((m, s) =>
             {
-                var excludedCreditCards = s.ExcludedCreditCards.SplitSafe(",");
+                var excludedCreditCards = s.ExcludedCreditCards.SplitSafe(',');
 
                 foreach (var creditCard in ManualProvider.CreditCardTypes)
                 {
@@ -57,27 +46,27 @@ namespace Smartstore.OfflinePayment.Components
             }
 
             // set postback values
-            var paymentData = _httpContextAccessor.HttpContext.GetCheckoutState().PaymentData;
+            var paymentData = HttpContext.GetCheckoutState().PaymentData;
             model.CardholderName = (string)paymentData.Get("CardholderName");
             model.CardNumber = (string)paymentData.Get("CardNumber");
             model.CardCode = (string)paymentData.Get("CardCode");
 
             var creditCardType = (string)paymentData.Get("CreditCardType");
-            var selectedCcType = model.CreditCardTypes.Where(x => x.Value.Equals(creditCardType, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            var selectedCcType = model.CreditCardTypes.Where(x => x.Value.EqualsNoCase(creditCardType)).FirstOrDefault();
             if (selectedCcType != null)
             {
                 selectedCcType.Selected = true;
             }
             
             var expireMonth = (string)paymentData.Get("ExpireMonth");
-            var selectedMonth = model.ExpireMonths.Where(x => x.Value.Equals(expireMonth, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            var selectedMonth = model.ExpireMonths.Where(x => x.Value.EqualsNoCase(expireMonth)).FirstOrDefault();
             if (selectedMonth != null)
             {
                 selectedMonth.Selected = true;
             }
             
             var expireYear = (string)paymentData.Get("ExpireYear");
-            var selectedYear = model.ExpireYears.Where(x => x.Value.Equals(expireYear, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            var selectedYear = model.ExpireYears.Where(x => x.Value.EqualsNoCase(expireYear)).FirstOrDefault();
             if (selectedYear != null)
             {
                 selectedYear.Selected = true;

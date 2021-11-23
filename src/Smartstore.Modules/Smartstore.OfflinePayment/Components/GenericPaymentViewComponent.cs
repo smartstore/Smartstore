@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Autofac;
 using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Content.Media;
 using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;
 
@@ -9,30 +8,32 @@ namespace Smartstore.OfflinePayment.Components
 {
     public class GenericPaymentViewComponent : OfflinePaymentViewComponentBase
     {
-        public GenericPaymentViewComponent(IComponentContext ctx, IMediaService mediaService) : base(ctx, mediaService)
-        {
-        }
-
-        // TODO: (mh) (core) Try to pass settings class instead of providerName. Then the whole switch statement can be spared.
         public override async Task<IViewComponentResult> InvokeAsync(string providerName)
         {
+            PaymentInfoModelBase model = null;
+
             switch (providerName)
             {
                 case "CashOnDeliveryProvider":
-                    var cashOnDeliveryPaymentInfoModel = await PaymentInfoGetAsync<CashOnDeliveryPaymentInfoModel, CashOnDeliveryPaymentSettings>();
-                    return View(cashOnDeliveryPaymentInfoModel);
+                    model = await GetPaymentInfoModelAsync<CashOnDeliveryPaymentInfoModel, CashOnDeliveryPaymentSettings>();
+                    break;
                 case "InvoiceProvider":
-                    var invoicePaymentInfoModel = await PaymentInfoGetAsync<InvoicePaymentInfoModel, InvoicePaymentSettings>();
-                    return View(invoicePaymentInfoModel);
+                    model = await GetPaymentInfoModelAsync<InvoicePaymentInfoModel, InvoicePaymentSettings>();
+                    break;
                 case "PayInStoreProvider":
-                    var payInStorePaymentInfoModel = await PaymentInfoGetAsync<PayInStorePaymentInfoModel, PayInStorePaymentSettings>();
-                    return View(payInStorePaymentInfoModel);
+                    model = await GetPaymentInfoModelAsync<PayInStorePaymentInfoModel, PayInStorePaymentSettings>();
+                    break;
                 case "PrepaymentProvider":
-                    var prepaymentPaymentInfoModel = await PaymentInfoGetAsync<PrepaymentPaymentInfoModel, PrepaymentPaymentSettings>();
-                    return View(prepaymentPaymentInfoModel);
+                    model = await GetPaymentInfoModelAsync<PrepaymentPaymentInfoModel, PrepaymentPaymentSettings>();
+                    break;
             }
 
-            return View();
+            if (model == null)
+            {
+                return View(model);
+            }
+
+            return Empty();
         }
     }
 }
