@@ -56,14 +56,6 @@ namespace Smartstore.Shipping
         {
             decimal? shippingTotal = null;
 
-            var shippingByTotalRecords = await _db.ShippingRatesByTotal()
-                .Where(x => x.StoreId == storeId || x.StoreId == 0)
-                .Where(x => x.ShippingMethodId == shippingMethodId
-                    && subtotal >= x.From
-                    && (x.To == null || subtotal <= x.To.Value))
-                .ApplyRegionFilter(countryId, stateProvinceId)
-                .ToListAsync();
-
             if (zip == null)
             {
                 zip = string.Empty;
@@ -71,8 +63,15 @@ namespace Smartstore.Shipping
 
             zip = zip.Trim();
 
+            var shippingByTotalRecords = await _db.ShippingRatesByTotal()
+                .Where(x => x.StoreId == storeId || x.StoreId == 0)
+                .Where(x => x.ShippingMethodId == shippingMethodId)
+                .ApplySubTotalFilter(subtotal)
+                .ApplyRegionFilter(countryId, stateProvinceId, zip)
+                .ToListAsync();
+
             var shippingByTotalRecord = shippingByTotalRecords
-                .Where(x => (zip.IsEmpty() && x.Zip.IsEmpty()) || ZipMatches(zip, x.Zip))
+                .Where(x => ZipMatches(zip, x.Zip))
                 .LastOrDefault();
 
             if (shippingByTotalRecord == null)
