@@ -25,7 +25,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
-using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
@@ -1199,45 +1198,5 @@ namespace Smartstore.Web.Controllers
         }
 
         #endregion
-
-        // INFO: (mh) (core) Current CountryController just has this one method. Details TBD.
-        // RE: But it does NOT belong here. Find another - perhaps more generic - controller please.
-        /// <summary>
-        /// This action method gets called via an ajax request.
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> StatesByCountryId(string countryId, bool addEmptyStateIfRequired)
-        {
-            // TODO: (mh) (core) Don't throw in frontend.
-            if (!countryId.HasValue())
-                throw new ArgumentNullException(nameof(countryId));
-
-            string cacheKey = string.Format(ModelCacheInvalidator.STATEPROVINCES_BY_COUNTRY_MODEL_KEY, countryId, addEmptyStateIfRequired, Services.WorkContext.WorkingLanguage.Id);
-            var cacheModel = await _cache.GetAsync(cacheKey, async () =>
-            {
-                var country = await _db.Countries
-                    .AsNoTracking()
-                    .Where(x => x.Id == Convert.ToInt32(countryId))
-                    .FirstOrDefaultAsync();
-
-                var states = await _db.StateProvinces
-                    .AsNoTracking()
-                    .ApplyCountryFilter(country != null ? country.Id : 0)
-                    .ToListAsync();
-
-                var result = (from s in states
-                              select new { id = s.Id, name = s.GetLocalized(x => x.Name).Value })
-                              .ToList();
-
-                if (addEmptyStateIfRequired && result.Count == 0)
-                {
-                    result.Insert(0, new { id = 0, name = T("Address.OtherNonUS").Value });
-                }
-                
-                return result;
-            });
-
-            return Json(cacheModel);
-        }
     }
 }

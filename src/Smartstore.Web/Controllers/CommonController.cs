@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Caching;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
@@ -19,6 +20,7 @@ using Smartstore.Core.Theming;
 using Smartstore.Core.Web;
 using Smartstore.Http;
 using Smartstore.Utilities;
+using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Controllers
@@ -34,6 +36,7 @@ namespace Smartstore.Web.Controllers
         private readonly IWebHelper _webHelper;
         private readonly IThemeContext _themeContext;
         private readonly IThemeRegistry _themeRegistry;
+        private readonly ICacheManager _cache;
         private readonly ThemeSettings _themeSettings;
         private readonly SeoSettings _seoSettings;
         private readonly LocalizationSettings _localizationSettings;
@@ -48,7 +51,8 @@ namespace Smartstore.Web.Controllers
             UrlPolicy urlPolicy,
             IWebHelper webHelper,
             IThemeContext themeContext, 
-            IThemeRegistry themeRegistry, 
+            IThemeRegistry themeRegistry,
+            ICacheManager cache,
             ThemeSettings themeSettings,
             SeoSettings seoSettings,
             LocalizationSettings localizationSettings,
@@ -63,6 +67,7 @@ namespace Smartstore.Web.Controllers
             _webHelper = webHelper;
             _themeContext = themeContext;
             _themeRegistry = themeRegistry;
+            _cache = cache;
             _themeSettings = themeSettings;
             _seoSettings = seoSettings;
             _localizationSettings = localizationSettings;
@@ -228,6 +233,44 @@ namespace Smartstore.Web.Controllers
             returnUrl = helper.FullPath;
 
             return RedirectToReferrer(returnUrl);
+        }
+
+        /// <summary>
+        /// This action method gets called via an ajax request.
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> StatesByCountryId(string countryId, bool addEmptyStateIfRequired)
+        {
+            // This should never happen. But just in case we return an empty List to don't throw in frontend.
+            if (!countryId.HasValue())
+                return Json(new List<string>());
+
+            string cacheKey = string.Format(ModelCacheInvalidator.STATEPROVINCES_BY_COUNTRY_MODEL_KEY, countryId, addEmptyStateIfRequired, Services.WorkContext.WorkingLanguage.Id);
+            var cacheModel = await _cache.GetAsync(cacheKey, async () =>
+            {
+                var country = await _db.Countries
+                    .AsNoTracking()
+                    .Where(x => x.Id == Convert.ToInt32(countryId))
+                    .FirstOrDefaultAsync();
+
+                var states = await _db.StateProvinces
+                    .AsNoTracking()
+                    .ApplyCountryFilter(country != null ? country.Id : 0)
+                    .ToListAsync();
+
+                var result = (from s in states
+                              select new { id = s.Id, name = s.GetLocalized(x => x.Name).Value })
+                              .ToList();
+
+                if (addEmptyStateIfRequired && result.Count == 0)
+                {
+                    result.Insert(0, new { id = 0, name = T("Address.OtherNonUS").Value });
+                }
+
+                return result;
+            });
+
+            return Json(cacheModel);
         }
 
         #region CookieManager

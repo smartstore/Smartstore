@@ -53,7 +53,7 @@
                 <select asp-for="CountryId" asp-items="Model.AvailableCountries"
                         class="noskin country-input country-selector"
                         data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
-                        data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
+                        data-states-ajax-url="@Url.Action("StatesByCountryId", "Common")"
                         data-addEmptyStateIfRequired="true"></select>
                 <span asp-validation-for="CountryId"></span>
             </div>

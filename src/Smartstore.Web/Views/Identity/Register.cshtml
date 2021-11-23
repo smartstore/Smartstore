@@ -183,7 +183,7 @@
                             <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
                                     class="country-input country-selector remember"
                                     data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
-                                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
+                                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Common")"
                                     data-addEmptyStateIfRequired="true">
                             </select>
                         </div>
