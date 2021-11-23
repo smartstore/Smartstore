@@ -8,7 +8,7 @@
         Model.AvatarColor = "light";
     }
 
-    var canViewProfile = Model.AllowViewingProfiles && !(Request?.RouteValues?.IsSameRoute("Profile", "Index") ?? false);
+    var canViewProfile = Model.AllowViewingProfiles && !(Request?.RouteValues?.IsSameRoute("Identity", "CustomerProfile") ?? false);
     var textColor = Model.AvatarColor == "light" ? "text-muted" : "text-light";
 
     async Task Avatar()

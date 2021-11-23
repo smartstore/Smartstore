@@ -1,7 +1,7 @@
 ﻿using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Customers;
 
-namespace Smartstore.Web.Models.Profiles
+namespace Smartstore.Web.Models.Identity
 {
     public partial class ProfileIndexModel : TabbableModel
     {
