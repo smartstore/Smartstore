@@ -34,6 +34,7 @@ namespace Smartstore.Web.Controllers
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IProviderManager _providerManager;
         private readonly ModuleManager _moduleManager;
         private readonly ICurrencyService _currencyService;
@@ -51,6 +52,7 @@ namespace Smartstore.Web.Controllers
             IShoppingCartValidator shoppingCartValidator,
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
+            ICheckoutStateAccessor checkoutStateAccessor,
             IProviderManager providerManager,
             ModuleManager moduleManager,
             ICurrencyService currencyService,
@@ -66,6 +68,7 @@ namespace Smartstore.Web.Controllers
             _shoppingCartService = shoppingCartService;
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
+            _checkoutStateAccessor = checkoutStateAccessor;
             _shoppingCartValidator = shoppingCartValidator;
             _providerManager = providerManager;
             _moduleManager = moduleManager;
@@ -97,9 +100,8 @@ namespace Smartstore.Web.Controllers
             //var paymentInfo = await paymentMethod.ProcessPaymentAsync();
             //HttpContext.Session.TrySetObject<ProcessPaymentRequest>("OrderPaymentInfo", paymentInfo);
 
-            var state = HttpContext.GetCheckoutState();
+            var state = _checkoutStateAccessor.CheckoutState;
             state.PaymentSummary = await paymentMethod.GetPaymentSummaryAsync();
-            HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, state);
 
             return true;
         }
@@ -287,7 +289,7 @@ namespace Smartstore.Web.Controllers
 
             var response = await _shippingService.GetShippingOptionsAsync(cart, customer.ShippingAddress, storeId: storeId);
             var options = response.ShippingOptions;
-            var state = HttpContext.GetCheckoutState();
+            var state = _checkoutStateAccessor.CheckoutState;
 
             if (state.CustomProperties.ContainsKey("HasOnlyOneActiveShippingMethod"))
             {
@@ -415,7 +417,7 @@ namespace Smartstore.Web.Controllers
 
             var onlyOnePassiveMethod = model.PaymentMethods.Count == 1 && !model.PaymentMethods[0].RequiresInteraction;
 
-            var checkoutState = HttpContext.GetCheckoutState();
+            var checkoutState = _checkoutStateAccessor.CheckoutState;
             checkoutState.CustomProperties["HasOnlyOneActivePaymentMethod"] = model.PaymentMethods.Count == 1;
             checkoutState.IsPaymentSelectionSkipped = !isPaymentWorkflowRequired || _paymentSettings.BypassPaymentMethodSelectionIfOnlyOne && onlyOnePassiveMethod;
 
@@ -480,12 +482,11 @@ namespace Smartstore.Web.Controllers
             }
 
             // Save payment data so that the user must not re-enter it.
-            var state = HttpContext.GetCheckoutState();
+            var state = _checkoutStateAccessor.CheckoutState;
             foreach (var kvp in form)
             {
                 state.PaymentData.Add(kvp.Key, kvp.Value.ToString());
             }
-            HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, state);
 
             return RedirectToAction(nameof(Confirm));
         }
@@ -582,7 +583,7 @@ namespace Smartstore.Web.Controllers
                     var cartTotalBase = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
 
                     if (cartTotalBase.Total.HasValue && cartTotalBase.Total.Value == decimal.Zero 
-                        || HttpContext.GetCheckoutState().IsPaymentSelectionSkipped)
+                        || _checkoutStateAccessor.CheckoutState.IsPaymentSelectionSkipped)
                     {
                         return RedirectToAction(nameof(PaymentMethod));
                     }

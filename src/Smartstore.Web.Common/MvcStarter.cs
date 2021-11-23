@@ -268,8 +268,8 @@ namespace Smartstore.Web
 
             builder.Configure(StarterOrdering.EarlyMiddleware, app =>
             {
-                // TODO: (core) Configure session
                 app.UseSession();
+                app.UseCheckoutState();
 
                 if (appContext.IsInstalled)
                 {

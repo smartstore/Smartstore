@@ -84,6 +84,7 @@ namespace Smartstore.Web.Models.Cart
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ModuleManager _moduleManager;
@@ -103,6 +104,7 @@ namespace Smartstore.Web.Models.Cart
             IHttpContextAccessor httpContextAccessor,
             IShoppingCartValidator shoppingCartValidator,
             IOrderCalculationService orderCalculationService,
+            ICheckoutStateAccessor checkoutStateAccessor,
             ICheckoutAttributeFormatter checkoutAttributeFormatter,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             ModuleManager moduleManager,
@@ -125,6 +127,7 @@ namespace Smartstore.Web.Models.Cart
             _httpContextAccessor = httpContextAccessor;
             _shoppingCartValidator = shoppingCartValidator;
             _orderCalculationService = orderCalculationService;
+            _checkoutStateAccessor = checkoutStateAccessor;
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _moduleManager = moduleManager;
@@ -475,7 +478,7 @@ namespace Smartstore.Web.Models.Cart
 
             if (prepareAndDisplayOrderReviewData)
             {
-                var checkoutState = _httpContextAccessor.HttpContext?.GetCheckoutState();
+                var checkoutState = _checkoutStateAccessor.CheckoutState;
 
                 to.OrderReviewData.Display = true;
 

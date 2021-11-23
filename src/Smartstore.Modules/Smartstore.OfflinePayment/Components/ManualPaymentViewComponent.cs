@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;
 
@@ -12,6 +12,13 @@ namespace Smartstore.OfflinePayment.Components
 {
     public class ManualPaymentViewComponent : OfflinePaymentViewComponentBase
     {
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+
+        public ManualPaymentViewComponent(ICheckoutStateAccessor checkoutStateAccessor)
+        {
+            _checkoutStateAccessor = checkoutStateAccessor;
+        }
+
         public override async Task<IViewComponentResult> InvokeAsync(string providerName)
         {
             var model = await GetPaymentInfoModelAsync<ManualPaymentInfoModel, ManualPaymentSettings>((m, s) =>
@@ -46,7 +53,7 @@ namespace Smartstore.OfflinePayment.Components
             }
 
             // set postback values
-            var paymentData = HttpContext.GetCheckoutState().PaymentData;
+            var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
             model.CardholderName = (string)paymentData.Get("CardholderName");
             model.CardNumber = (string)paymentData.Get("CardNumber");
             model.CardCode = (string)paymentData.Get("CardCode");

@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Autofac;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;
 
@@ -9,10 +8,17 @@ namespace Smartstore.OfflinePayment.Components
 {
     public class DirectDebitViewComponent : OfflinePaymentViewComponentBase
     {
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+
+        public DirectDebitViewComponent(ICheckoutStateAccessor checkoutStateAccessor)
+        {
+            _checkoutStateAccessor = checkoutStateAccessor;
+        }
+
         public override async Task<IViewComponentResult> InvokeAsync(string providerName)
         {
             var model = await GetPaymentInfoModelAsync<DirectDebitPaymentInfoModel, DirectDebitPaymentSettings>();
-            var paymentData = HttpContext.GetCheckoutState().PaymentData;
+            var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
             
             model.DirectDebitAccountHolder = (string)paymentData.Get("DirectDebitAccountHolder");
             model.DirectDebitAccountNumber = (string)paymentData.Get("DirectDebitAccountNumber");
