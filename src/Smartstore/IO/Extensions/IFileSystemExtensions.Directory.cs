@@ -622,7 +622,7 @@ namespace Smartstore
             Guard.NotNull(fs, nameof(fs));
             Guard.NotEmpty(subpath, nameof(subpath));
 
-            var entry = fs.GetEntry(subpath);
+            var entry = fs.GetDirectory(subpath);
             if (entry is not IDirectory dir)
             {
                 throw new FileSystemException($"Path '{subpath}' must point to a directory, not to a file.");
