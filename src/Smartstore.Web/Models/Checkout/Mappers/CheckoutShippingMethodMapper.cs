@@ -56,8 +56,9 @@ namespace Smartstore.Web.Models.Checkout
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
-            
-            var shippingOptionResponse = parameters?.ShippingOptionResponse as ShippingOptionResponse;
+
+            // TODO: (mh) (core) Throws, because parameters?.ShippingOptionResponse is always null;
+            var shippingOptionResponse = (parameters?.ShippingOptionResponse as ShippingOptionResponse) ?? new ShippingOptionResponse();
             Guard.NotNull(shippingOptionResponse, nameof(shippingOptionResponse));
 
             var store = _services.StoreContext.CurrentStore;
