@@ -28,7 +28,7 @@ namespace Smartstore.Tax.Migrations
                         .ForeignKey(nameof(Country), id).OnDelete(Rule.Cascade)
                     .WithColumn(nameof(TaxRateEntity.StateProvinceId)).AsInt32().NotNullable()
                         .Indexed("IX_StateProvinceId")
-                        .ForeignKey(nameof(StateProvince), id).OnDelete(Rule.Cascade)
+                        .ForeignKey(nameof(StateProvince), id).OnDelete(Rule.None)
                     .WithColumn(nameof(TaxRateEntity.Zip)).AsString(100).NotNullable()
                     .WithColumn(nameof(TaxRateEntity.Percentage)).AsDecimal(4, 18).NotNullable();
             }

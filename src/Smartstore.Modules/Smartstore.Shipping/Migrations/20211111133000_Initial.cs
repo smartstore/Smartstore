@@ -36,7 +36,7 @@ namespace Smartstore.Shipping.Migrations
                     .WithColumn(nameof(ShippingRateByTotal.StateProvinceId)).AsInt32().NotNullable()
                         .Indexed("IX_StateProvinceId")
                         .ForeignKey(nameof(StateProvince), id)
-                        .OnDelete(Rule.Cascade)
+                        .OnDelete(Rule.None)
                     .WithColumn(nameof(ShippingRateByTotal.Zip)).AsString(100).NotNullable()
                     .WithColumn(nameof(ShippingRateByTotal.From)).AsDecimal().NotNullable()
                     .WithColumn(nameof(ShippingRateByTotal.To)).AsDecimal().Nullable()
@@ -48,6 +48,8 @@ namespace Smartstore.Shipping.Migrations
             }
             else
             {
+                // TODO: (mh) (core) configuration for delete behaviour missing here and in other migrations.
+                // See ICreateForeignKeyCascadeSyntax.OnDelete.
                 if (!Schema.Table(ShippingByTotal).Index("IX_ShippingMethodId").Exists())
                 {
                     Create.Index("IX_ShippingMethodId")

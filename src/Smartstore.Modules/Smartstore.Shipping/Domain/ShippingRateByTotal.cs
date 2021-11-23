@@ -24,10 +24,11 @@ namespace Smartstore.Shipping.Domain
                 .HasForeignKey(c => c.CountryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // INFO: cascade-delete not possible due to multiple cascade paths (see Country > StateProvince foreign key).
             builder.HasOne(c => c.StateProvince)
                 .WithMany()
                 .HasForeignKey(c => c.StateProvinceId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 
