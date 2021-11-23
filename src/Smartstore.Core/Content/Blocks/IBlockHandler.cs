@@ -77,7 +77,7 @@ namespace Smartstore.Core.Content.Blocks
         /// <param name="entity">The serialized entity to load a block instance for.</param>
         /// <param name="viewMode">Depending on view mode, some data may be loaded or not.</param>
         /// <returns>A concrete block implementation instance.</returns>
-        T Load(IBlockEntity entity, StoryViewMode viewMode);
+        Task<T> LoadAsync(IBlockEntity entity, StoryViewMode viewMode); // -------
 
         bool IsValid(T block);
 
@@ -89,6 +89,6 @@ namespace Smartstore.Core.Content.Blocks
         /// The corresponding entity record for the block. In most cases <paramref name="block"/> will
         /// be converted to JSON and assigned to <see cref="IBlockEntity.Model"/> property, which then will be saved in the data storage.
         /// </param>
-        void Save(T block, IBlockEntity entity);
+        Task SaveAsync(T block, IBlockEntity entity);
     }
 }

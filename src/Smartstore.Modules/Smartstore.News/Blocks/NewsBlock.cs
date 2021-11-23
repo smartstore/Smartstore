@@ -14,15 +14,15 @@ namespace Smartstore.News.Blocks
     [Block("news", Icon = "far fa-newspaper", FriendlyName = "News", DisplayOrder = 200)]
     public class NewsBlockHandler : BlockHandlerBase<NewsBlock>
     {
-        public override NewsBlock Load(IBlockEntity entity, StoryViewMode viewMode)
+        public override NewsBlock LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
         {
-            var block = base.Load(entity, viewMode);
+            var block = base.LoadAsync(entity, viewMode);
             return block;
         }
 
-        public override void Save(NewsBlock block, IBlockEntity entity)
+        public override void SaveAsync(NewsBlock block, IBlockEntity entity)
         {
-            base.Save(block, entity);
+            base.SaveAsync(block, entity);
         }
 
         protected override async Task RenderCoreAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)

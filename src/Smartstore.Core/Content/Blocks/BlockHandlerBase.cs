@@ -36,7 +36,7 @@ namespace Smartstore.Core.Content.Blocks
 			return Activator.CreateInstance<T>();
 		}
 
-		public virtual T Load(IBlockEntity entity, StoryViewMode viewMode)
+		protected virtual T Load(IBlockEntity entity, StoryViewMode viewMode)
 		{
 			Guard.NotNull(entity, nameof(entity));
 
@@ -59,12 +59,13 @@ namespace Smartstore.Core.Content.Blocks
 			return block;
 		}
 
-		public virtual bool IsValid(T block)
-		{
-			return true;
-		}
+		public virtual Task<T> LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
+			=> Task.FromResult(Load(entity, viewMode));
 
-		public virtual void Save(T block, IBlockEntity entity)
+		public virtual bool IsValid(T block)
+			=> true;
+
+		protected virtual void Save(T block, IBlockEntity entity)
 		{
 			Guard.NotNull(entity, nameof(entity));
 
@@ -86,6 +87,12 @@ namespace Smartstore.Core.Content.Blocks
 				entity.BindEntityId = bindableBlock.BindEntityId;
 				entity.BindEntityName = bindableBlock.BindEntityName;
 			}
+		}
+
+		public virtual Task SaveAsync(T block, IBlockEntity entity)
+		{
+			Save(block, entity);
+			return Task.CompletedTask;
 		}
 
 		public virtual Task AfterSaveAsync(IBlockContainer container, IBlockEntity entity)
