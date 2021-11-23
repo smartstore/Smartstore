@@ -16,11 +16,13 @@ namespace Smartstore.Core.Catalog.Categories
             builder.HasOne(c => c.Category)
                 .WithMany()
                 .HasForeignKey(c => c.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
 
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductCategories)
                 .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
         }
     }
@@ -31,6 +33,7 @@ namespace Smartstore.Core.Catalog.Categories
     [Table("Product_Category_Mapping")]
     [Index(nameof(IsFeaturedProduct), Name = "IX_IsFeaturedProduct")]
     [Index(nameof(IsSystemMapping), Name = "IX_IsSystemMapping")]
+    [Index(nameof(CategoryId), Name = "IX_CategoryId")]
     [Index(nameof(CategoryId), nameof(ProductId), Name = "IX_PCM_Product_and_Category")]
     public partial class ProductCategory : BaseEntity, IDisplayOrder
     {

@@ -15,20 +15,18 @@ namespace Smartstore.Core.Catalog.Products
     {
         public void Configure(EntityTypeBuilder<ProductBundleItem> builder)
         {
-            // SQL Server does not support multiple cascade deletes.
             builder
                 .HasOne(c => c.Product)
                 .WithMany()
                 .HasForeignKey(c => c.ProductId)
                 .IsRequired(false);
-                //.OnDelete(DeleteBehavior.Cascade);
 
             builder
                 .HasOne(c => c.BundleProduct)
                 .WithMany(c => c.ProductBundleItems)
                 .HasForeignKey(c => c.BundleProductId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
-                //.OnDelete(DeleteBehavior.Cascade);
         }
     }
 

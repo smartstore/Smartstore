@@ -16,11 +16,13 @@ namespace Smartstore.Core.Catalog.Brands
             builder.HasOne(c => c.Manufacturer)
                 .WithMany()
                 .HasForeignKey(c => c.ManufacturerId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
 
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductManufacturers)
                 .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
         }
     }
@@ -30,6 +32,7 @@ namespace Smartstore.Core.Catalog.Brands
     /// </summary>
     [Table("Product_Manufacturer_Mapping")]
     [Index(nameof(IsFeaturedProduct), Name = "IX_IsFeaturedProduct")]
+    [Index(nameof(ManufacturerId), Name = "IX_ManufacturerId")]
     [Index(nameof(ManufacturerId), nameof(ProductId), Name = "IX_PMM_Product_and_Manufacturer")]
     public partial class ProductManufacturer : BaseEntity, IDisplayOrder
     {

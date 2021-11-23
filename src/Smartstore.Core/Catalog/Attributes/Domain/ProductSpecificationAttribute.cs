@@ -20,6 +20,7 @@ namespace Smartstore.Core.Catalog.Attributes
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductSpecificationAttributes)
                 .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
         }
     }
@@ -28,6 +29,7 @@ namespace Smartstore.Core.Catalog.Attributes
     /// Represents a product specification attribute mapping.
     /// </summary>
     [Table("Product_SpecificationAttribute_Mapping")]
+    [Index(nameof(SpecificationAttributeOptionId), Name = "IX_SpecificationAttributeOptionId")]
     public partial class ProductSpecificationAttribute : BaseEntity, IDisplayOrder
     {
         public ProductSpecificationAttribute()

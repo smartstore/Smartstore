@@ -69,7 +69,11 @@ namespace Smartstore.Core.Catalog.Products
                         .HasForeignKey("Product_Id")
                         .HasConstraintName("FK_dbo.Product_ProductTag_Mapping_dbo.Product_Product_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("Product_Id", "ProductTag_Id"));
+                    c =>
+                    {
+                        c.HasIndex("Product_Id");
+                        c.HasKey("Product_Id", "ProductTag_Id");
+                    });
         }
     }
 

@@ -42,7 +42,11 @@ namespace Smartstore.Core.Content.Media
                         .HasForeignKey("MediaFile_Id")
                         .HasConstraintName("FK_dbo.MediaFile_Tag_Mapping_dbo.MediaFile_MediaFile_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("MediaFile_Id", "MediaTag_Id"));
+                    c =>
+                    {
+                        c.HasIndex("MediaFile_Id");
+                        c.HasKey("MediaFile_Id", "MediaTag_Id");
+                    });
         }
     }
 

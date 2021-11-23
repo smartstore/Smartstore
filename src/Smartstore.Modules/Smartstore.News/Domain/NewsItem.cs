@@ -14,6 +14,9 @@ using Smartstore.Domain;
 
 namespace Smartstore.News.Domain
 {
+    // TODO: (mg) (core) property NewsItem.NewsImporterGuid and index IX_News_NewsImporterGuid is missing.
+    // Only required by News-Importer and accessed by native SQL.
+
     internal class NewsItemMap : IEntityTypeConfiguration<NewsItem>
     {
         public void Configure(EntityTypeBuilder<NewsItem> builder)

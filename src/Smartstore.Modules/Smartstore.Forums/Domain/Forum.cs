@@ -4,29 +4,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Seo;
 using Smartstore.Domain;
 
 namespace Smartstore.Forums.Domain
 {
-    internal class ForumMap : IEntityTypeConfiguration<Forum>
-    {
-        public void Configure(EntityTypeBuilder<Forum> builder)
-        {
-            builder.HasOne(c => c.ForumGroup)
-                .WithMany(c => c.Forums)
-                .HasForeignKey(c => c.ForumGroupId)
-                .OnDelete(DeleteBehavior.Cascade);
-        }
-    }
-
     /// <summary>
     /// Represents a forum.
     /// </summary>
     [Table("Forums_Forum")]
     [Index(nameof(DisplayOrder), Name = "IX_Forums_Forum_DisplayOrder")]
+    [Index(nameof(ForumGroupId), Name = "IX_Forums_Forum_ForumGroupId")]
     [Index(nameof(ForumGroupId), nameof(DisplayOrder), Name = "IX_ForumGroupId_DisplayOrder")]
     public partial class Forum : BaseEntity, IAuditable, ILocalizedEntity, ISlugSupported
     {

@@ -26,10 +26,11 @@ namespace Smartstore.Core.Checkout.Cart
             //    .HasForeignKey(x => x.ProductId)
             //    .IsRequired(false);
 
+            // INFO: DeleteBehavior.NoAction required to avoid multiple cascade paths exception (see ProductBundleItem.BundleProductId).
             builder.HasOne(x => x.BundleItem)
                 .WithMany()
                 .HasForeignKey(x => x.BundleItemId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 

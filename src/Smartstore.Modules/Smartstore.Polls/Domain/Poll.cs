@@ -5,28 +5,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 
 namespace Smartstore.Polls.Domain
 {
-    internal class PollMap : IEntityTypeConfiguration<Poll>
-    {
-        public void Configure(EntityTypeBuilder<Poll> builder)
-        {
-            builder.HasOne(c => c.Language)
-                .WithMany()
-                .HasForeignKey(c => c.LanguageId)
-                .OnDelete(DeleteBehavior.NoAction);
-        }
-    }
-
     /// <summary>
     /// Represents a poll.
     /// </summary>
-    [Table("Poll")] // Enables EF TPT inheritance
+    [Table("Poll")]
     [Index(nameof(Name), Name = "IX_Title")]
     [Index(nameof(SystemKeyword), Name = "IX_SystemKeyword")]
     public partial class Poll : BaseEntity, IStoreRestricted
