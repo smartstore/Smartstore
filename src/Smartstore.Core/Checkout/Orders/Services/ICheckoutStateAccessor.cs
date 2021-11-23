@@ -13,9 +13,9 @@ namespace Smartstore.Core.Checkout.Orders
         bool IsStateLoaded { get; }
 
         /// <summary>
-        /// Checks whether the <see cref="CheckoutState"/> instance was loaded for the current request and has been changed.
+        /// Gets or sets a value indicating whether the <see cref="CheckoutState"/> instance has been changed.
         /// </summary>
-        bool HasStateChanged { get; }
+        bool HasStateChanged { get; set; }
 
         /// <summary>
         /// The <see cref="CheckoutState"/> instance. Returns <c>null</c> if HttpContext cannot be accessed.

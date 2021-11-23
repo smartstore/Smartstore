@@ -21,7 +21,11 @@ namespace Smartstore.Core.Checkout.Orders
 
         public bool IsStateLoaded => _state == null;
 
-        public bool HasStateChanged => _dirty;
+        public bool HasStateChanged
+        {
+            get => _dirty;
+            set => _dirty = value;
+        }
 
         public CheckoutState CheckoutState
         {
