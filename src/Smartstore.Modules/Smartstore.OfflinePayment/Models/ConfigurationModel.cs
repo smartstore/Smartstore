@@ -12,7 +12,6 @@ namespace Smartstore.OfflinePayment.Models
 
         public string PrimaryStoreCurrencyCode { get; set; }
 
-        // TODO: (mh) (core) Can this also be an HTML editor
         [UIHint("TextArea")]
         [AdditionalMetadata("rows", 6)]
         [LocalizedDisplay("Plugins.SmartStore.OfflinePayment.DescriptionText")]

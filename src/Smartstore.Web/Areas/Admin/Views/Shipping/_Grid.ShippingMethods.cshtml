@@ -29,7 +29,6 @@
             </display-template>
         </column>
         <column for="Description" width="1fr" wrap="true" v-bind:value="item.value">
-            @* TODO: (mh) (core) Don't render encoded. Looks ugly in datagrid with bottom margin. *@
             <display-template>
                 <div v-html="item.value"></div>
             </display-template>

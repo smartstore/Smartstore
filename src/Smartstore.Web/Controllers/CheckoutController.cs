@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.Orders;
@@ -16,7 +15,6 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
@@ -96,13 +94,12 @@ namespace Smartstore.Web.Controllers
             }
 
             // TODO: (mh) (core) Wait for payment methods, check how to retrieve processPaymentRequest now.
-            //var paymentInfo = paymentMethod.GetPaymentInfo();
+            //var paymentInfo = await paymentMethod.ProcessPaymentAsync();
             //HttpContext.Session.TrySetObject<ProcessPaymentRequest>("OrderPaymentInfo", paymentInfo);
 
-            // TODO: (mh) (core) Getting state now works, but this will never be saved in session.
-            // Session state in ASP.NET Core is not in-memory anymore (it can only handle string or byte arrays).
-            // So after updating any (deserialized) session object you must save the object explicitly.
-            HttpContext.GetCheckoutState().PaymentSummary = await paymentMethod.GetPaymentSummaryAsync();
+            var state = HttpContext.GetCheckoutState();
+            state.PaymentSummary = await paymentMethod.GetPaymentSummaryAsync();
+            HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, state);
 
             return true;
         }
@@ -476,21 +473,20 @@ namespace Smartstore.Web.Controllers
             customer.GenericAttributes.SelectedPaymentMethod = paymentMethod;
             await customer.GenericAttributes.SaveChangesAsync();
 
-            // TODO: (mh) (core) New validation framework seems to be shitty. But maybe I'm missing something. @mc Lets talk about it.
             // Validate info
-            //if (!await ValidatePaymentDataAsync(paymentMethodProvider.Value))
-            //{
-            //    return RedirectToAction(nameof(PaymentMethod));
-            //}
+            if (!await ValidatePaymentDataAsync(paymentMethodProvider.Value))
+            {
+                return RedirectToAction(nameof(PaymentMethod));
+            }
 
             // Save payment data so that the user must not re-enter it.
-            // TODO: (mh) (core) Really bad, bad, bad. Please see TODO above.
             var state = HttpContext.GetCheckoutState();
             foreach (var kvp in form)
             {
-                state.PaymentData.Add(kvp.Key, kvp.Value);
+                state.PaymentData.Add(kvp.Key, kvp.Value.ToString());
             }
-            
+            HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, state);
+
             return RedirectToAction(nameof(Confirm));
         }
 

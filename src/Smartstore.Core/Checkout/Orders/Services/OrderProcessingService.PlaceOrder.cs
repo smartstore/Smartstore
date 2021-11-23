@@ -306,12 +306,11 @@ namespace Smartstore.Core.Checkout.Orders
             // Payment.
             if (!warnings.Any() && !skipPaymentWorkflow)
             {
-                // TODO: (mh) (core) Wait for implementation of any payment method.
-                //var isPaymentMethodActive = await _paymentService.IsPaymentMethodActiveAsync(paymentMethodSystemName, cart, paymentRequest.StoreId);
-                //if (!isPaymentMethodActive)
-                //{
-                //    warnings.Add(T("Payment.MethodNotAvailable"));
-                //}
+                var isPaymentMethodActive = await _paymentService.IsPaymentMethodActiveAsync(paymentMethodSystemName, cart, paymentRequest.StoreId);
+                if (!isPaymentMethodActive)
+                {
+                    warnings.Add(T("Payment.MethodNotAvailable"));
+                }
             }
 
             // Recurring or standard shopping cart?

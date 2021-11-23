@@ -7,10 +7,6 @@ using Smartstore.Web.Components;
 
 namespace Smartstore.Forums.Components
 {
-    // TODO: (mh) (core) "View(customerId)" throws InvalidOperationException: The model item passed into the ViewDataDictionary is of type 'System.Int32',
-    // but this ViewDataDictionary instance requires a model item of type 'Smartstore.Forums.Models.Public.SendPrivateMessageModel'.
-    // T("Common.MethodNotSupportedForGuests") notification not necessary here (just renders something or nothing).
-
     /// <summary>
     /// Button to send a private message injected into the customer's profile page.
     /// </summary>
@@ -34,29 +30,18 @@ namespace Smartstore.Forums.Components
                 .IncludeCustomerRoles()
                 .FindByIdAsync(customerId, false);
 
-            if (customer != null)
-            {
-                if (!customer.IsGuest())
-                {
-                    var model = new SendPrivateMessageModel
-                    {
-                        ToCustomerId = customerId,
-                        CustomerToName = customer.FormatUserName()
-                    };
-
-                    return View(model);
-                }
-                else
-                {
-                    NotifyError(T("Common.MethodNotSupportedForGuests"));
-                }
-            }
-            else
+            if (customer == null || customer.IsGuest())
             {
                 return Empty();
             }
+                
+            var model = new SendPrivateMessageModel
+            {
+                ToCustomerId = customerId,
+                CustomerToName = customer.FormatUserName()
+            };
 
-            return View(customerId);
+            return View(model);
         }
     }
 }
