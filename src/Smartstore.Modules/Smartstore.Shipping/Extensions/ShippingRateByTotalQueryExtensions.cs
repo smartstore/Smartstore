@@ -11,7 +11,7 @@ namespace Smartstore.Shipping
         /// <param name="query">ShippingByTotalEntity query</param>
         /// <param name="countryId">Country identifier</param>
         /// <param name="stateProvinceId">State province identifier</param>
-        /// <param name="zip">Zip code. Only filters out empty entities if param is empty itself. 
+        /// <param name="zip">Zip code. Only excludes empty entities if param is empty itself. 
         /// Real filtering for specific zipcode must be done outside this filter.</param>
         /// <returns>ShippingByTotalEntity query</returns>
         public static IQueryable<ShippingRateByTotal> ApplyRegionFilter(this IQueryable<ShippingRateByTotal> query, 
@@ -23,15 +23,16 @@ namespace Smartstore.Shipping
 
             if (countryId > 0)
             {
-                query = query.Where(x => x.CountryId.GetValueOrDefault() == countryId || x.CountryId.GetValueOrDefault() == 0);
+                query = query.Where(x => x.CountryId == countryId || x.CountryId == 0);
             }
 
             if (stateProvinceId > 0)
             {
-                query = query.Where(x => x.StateProvinceId.GetValueOrDefault() == stateProvinceId || x.StateProvinceId.GetValueOrDefault() == 0);
+                query = query.Where(x => x.StateProvinceId == stateProvinceId || x.StateProvinceId == 0);
             }
 
-            query = query.Where(x => zip.IsEmpty() && x.Zip.IsEmpty());
+            var zipIsEmpty = zip.IsEmpty();
+            query = query.Where(x => (zipIsEmpty && string.IsNullOrEmpty(x.Zip)) || (!zipIsEmpty && !string.IsNullOrEmpty(x.Zip)));
             
             return query;
         }

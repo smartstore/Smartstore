@@ -56,12 +56,7 @@ namespace Smartstore.Shipping
         {
             decimal? shippingTotal = null;
 
-            if (zip == null)
-            {
-                zip = string.Empty;
-            }
-
-            zip = zip.Trim();
+            zip = zip.EmptyNull().Trim();
 
             var shippingByTotalRecords = await _db.ShippingRatesByTotal()
                 .Where(x => x.StoreId == storeId || x.StoreId == 0)
