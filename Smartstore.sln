@@ -63,6 +63,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Microsoft.Auth",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Tax", "src\Smartstore.Modules\Smartstore.Tax\Smartstore.Tax.csproj", "{23B1A1CF-55B5-405F-A21A-DCC936CD73D4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.OfflinePayment", "src\Smartstore.Modules\Smartstore.OfflinePayment\Smartstore.OfflinePayment.csproj", "{BFFCA72C-F9A8-4966-8691-F3243EE9D472}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Shipping", "src\Smartstore.Modules\Smartstore.Shipping\Smartstore.Shipping.csproj", "{F945B5FE-0B1F-443F-8395-C441A6F84348}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -153,6 +157,14 @@ Global
 		{23B1A1CF-55B5-405F-A21A-DCC936CD73D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23B1A1CF-55B5-405F-A21A-DCC936CD73D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23B1A1CF-55B5-405F-A21A-DCC936CD73D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFFCA72C-F9A8-4966-8691-F3243EE9D472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFFCA72C-F9A8-4966-8691-F3243EE9D472}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFFCA72C-F9A8-4966-8691-F3243EE9D472}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFFCA72C-F9A8-4966-8691-F3243EE9D472}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F945B5FE-0B1F-443F-8395-C441A6F84348}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F945B5FE-0B1F-443F-8395-C441A6F84348}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F945B5FE-0B1F-443F-8395-C441A6F84348}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F945B5FE-0B1F-443F-8395-C441A6F84348}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -176,6 +188,8 @@ Global
 		{3084396C-7945-4DDB-9B54-ED68A69C4892} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{4BE8C64B-5301-486C-AB35-F89BA829EB00} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{23B1A1CF-55B5-405F-A21A-DCC936CD73D4} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{BFFCA72C-F9A8-4966-8691-F3243EE9D472} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{F945B5FE-0B1F-443F-8395-C441A6F84348} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}

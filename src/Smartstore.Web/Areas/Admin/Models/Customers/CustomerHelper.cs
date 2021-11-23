@@ -17,7 +17,8 @@ namespace Smartstore.Admin.Models.Customers
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly CustomerSettings _customerSettings;
-        // INFO: (mh) (core) Controllers seem to be instanciated before the HttpContext scope is available. Therefore IUrlHelper resolution will fail when passed to a controller ctor.
+        // INFO: (mh) (core) Controllers seem to be instanciated before the HttpContext scope is available.
+        // Therefore IUrlHelper resolution will fail when passed to a controller ctor > Allways pass Lazy<IUrlHelper>
         private readonly Lazy<IUrlHelper> _urlHelper;
         
         public CustomerHelper(SmartDbContext db, ICommonServices services, CustomerSettings customerSettings, Lazy<IUrlHelper> urlHelper)

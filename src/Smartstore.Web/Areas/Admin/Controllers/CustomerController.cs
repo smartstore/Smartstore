@@ -570,7 +570,6 @@ namespace Smartstore.Admin.Controllers
                         }
                     }
 
-                    // TODO: (mh) (core) Something is wrong here...
                     // Customer roles.
                     newCustomerRoles.Each(x => 
                     {
@@ -985,14 +984,12 @@ namespace Smartstore.Admin.Controllers
 
                 var customModel = new NamedModelPart("Generic")
                 {
-                    ["ReplyTo"] = emailAccount.ToMailAddress(),
+                    ["ReplyTo"] = emailAccount.ToMailAddress().ToString(),
                     ["Email"] = customer.Email,
                     ["Subject"] = model.Subject,
                     ["Body"] = model.Body
                 };
 
-                // TODO: (mh) (core) Model building fails.
-                // RE: Why? Please don't move on before resolving such important issues.
                 await _messageFactory.CreateMessageAsync(messageContext, true, customer, Services.StoreContext.CurrentStore, customModel);
 
                 NotifySuccess(T("Admin.Customers.Customers.SendEmail.Queued"));
