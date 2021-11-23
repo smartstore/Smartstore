@@ -8,27 +8,22 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Content.Media;
 using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;
-using Smartstore.Web.Components;
 
 namespace Smartstore.OfflinePayment.Components
 {
-    public class ManualPaymentViewComponent : SmartViewComponent
+    public class ManualPaymentViewComponent : OfflinePaymentViewComponentBase
     {
-        private readonly IComponentContext _ctx;
-        private readonly IMediaService _mediaService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        
+
         public ManualPaymentViewComponent(
             IComponentContext ctx,
             IMediaService mediaService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor) : base(ctx, mediaService)
         {
-            _ctx = ctx;
-            _mediaService = mediaService;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public override async Task<IViewComponentResult> InvokeAsync(string providerName)
         {
             var model = await PaymentInfoGetAsync<ManualPaymentInfoModel, ManualPaymentSettings>((m, s) =>
             {
@@ -89,33 +84,6 @@ namespace Smartstore.OfflinePayment.Components
             }
             
             return View(model);
-        }
-
-        // TODO: (mh) (core) Helper functions or base class???
-        private async Task<TModel> PaymentInfoGetAsync<TModel, TSetting>(Action<TModel, TSetting> fn = null)
-            where TModel : PaymentInfoModelBase, new()
-            where TSetting : PaymentSettingsBase, new()
-        {
-            var settings = _ctx.Resolve<TSetting>();
-            var model = new TModel
-            {
-                DescriptionText = GetLocalizedText(settings.DescriptionText),
-                ThumbnailUrl = await _mediaService.GetUrlAsync(settings.ThumbnailPictureId, 120, null, false)
-            };
-
-            fn?.Invoke(model, settings);
-
-            return model;
-        }
-
-        private string GetLocalizedText(string text)
-        {
-            if (text.EmptyNull().StartsWith("@"))
-            {
-                return T(text[1..]);
-            }
-
-            return text;
         }
     }
 }
