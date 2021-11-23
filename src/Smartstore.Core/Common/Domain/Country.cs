@@ -127,7 +127,6 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the state/provinces
         /// </summary>
-        [JsonIgnore]
         public ICollection<StateProvince> StateProvinces
         {
             get => _stateProvinces ?? LazyLoader.Load(this, ref _stateProvinces) ?? (_stateProvinces ??= new HashSet<StateProvince>());

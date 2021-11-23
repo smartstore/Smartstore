@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
+using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
@@ -250,14 +251,13 @@ namespace Smartstore.Web.Controllers
             {
                 var country = await _db.Countries
                     .AsNoTracking()
+                    .Include(x => x.StateProvinces)
                     .Where(x => x.Id == Convert.ToInt32(countryId))
                     .FirstOrDefaultAsync();
 
-                var states = await _db.StateProvinces
-                    .AsNoTracking()
-                    .ApplyCountryFilter(country != null ? country.Id : 0)
-                    .ToListAsync();
+                var states = country?.StateProvinces ?? Array.Empty<StateProvince>();
 
+                // TODO: (mh) (core) Caching anonymous aobjects is a bad idea. Please use SelectListItem or something else.
                 var result = (from s in states
                               select new { id = s.Id, name = s.GetLocalized(x => x.Name).Value })
                               .ToList();
