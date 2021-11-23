@@ -34,7 +34,11 @@ namespace Smartstore.Core.Checkout.Shipping
                         .HasForeignKey("ShippingMethod_Id")
                         .HasConstraintName("FK_dbo.RuleSet_ShippingMethod_Mapping_dbo.ShippingMethod_ShippingMethod_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("ShippingMethod_Id", "RuleSetEntity_Id"));
+                    c =>
+                    {
+                        c.HasIndex("ShippingMethod_Id");
+                        c.HasKey("ShippingMethod_Id", "RuleSetEntity_Id");
+                    });
         }
     }
 

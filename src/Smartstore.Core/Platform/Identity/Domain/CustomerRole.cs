@@ -35,7 +35,11 @@ namespace Smartstore.Core.Identity
                         .HasForeignKey("CustomerRole_Id")
                         .HasConstraintName("FK_dbo.RuleSet_CustomerRole_Mapping_dbo.CustomerRole_CustomerRole_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("CustomerRole_Id", "RuleSetEntity_Id"));
+                    c =>
+                    {
+                        c.HasIndex("CustomerRole_Id");
+                        c.HasKey("CustomerRole_Id", "RuleSetEntity_Id");
+                    });
         }
     }
 

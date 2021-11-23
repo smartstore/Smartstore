@@ -16,6 +16,7 @@ namespace Smartstore.Core.Catalog.Pricing
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.TierPrices)
                 .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
 
             builder.HasOne(c => c.CustomerRole)

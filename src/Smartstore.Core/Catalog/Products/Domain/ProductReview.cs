@@ -16,6 +16,7 @@ namespace Smartstore.Core.Catalog.Products
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductReviews)
                 .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
         }
     }
@@ -23,7 +24,7 @@ namespace Smartstore.Core.Catalog.Products
     /// <summary>
     /// Represents a product review.
     /// </summary>
-    [Table("ProductReview")] // Enables EF TPT inheritance
+    [Table("ProductReview")]
     public partial class ProductReview : CustomerContent
     {
         public ProductReview()

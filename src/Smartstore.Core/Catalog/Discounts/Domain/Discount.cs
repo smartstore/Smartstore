@@ -38,7 +38,11 @@ namespace Smartstore.Core.Catalog.Discounts
                         .HasForeignKey("Discount_Id")
                         .HasConstraintName("FK_dbo.RuleSet_Discount_Mapping_dbo.Discount_Discount_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("Discount_Id", "RuleSetEntity_Id"));
+                    c =>
+                    {
+                        c.HasIndex("Discount_Id");
+                        c.HasKey("Discount_Id", "RuleSetEntity_Id");
+                    });
 
             builder
                 .HasMany(c => c.AppliedToManufacturers)

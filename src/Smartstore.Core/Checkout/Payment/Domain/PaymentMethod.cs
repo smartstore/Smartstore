@@ -34,7 +34,11 @@ namespace Smartstore.Core.Checkout.Payment
                         .HasForeignKey("PaymentMethod_Id")
                         .HasConstraintName("FK_dbo.RuleSet_PaymentMethod_Mapping_dbo.PaymentMethod_PaymentMethod_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("PaymentMethod_Id", "RuleSetEntity_Id"));
+                    c =>
+                    {
+                        c.HasIndex("PaymentMethod_Id");
+                        c.HasKey("PaymentMethod_Id", "RuleSetEntity_Id");
+                    });
         }
     }
 

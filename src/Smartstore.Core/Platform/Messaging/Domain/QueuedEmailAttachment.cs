@@ -13,11 +13,6 @@ namespace Smartstore.Core.Messaging
     {
         public void Configure(EntityTypeBuilder<QueuedEmailAttachment> builder)
         {
-            //builder.HasOne(x => x.QueuedEmail)
-            //    .WithMany(c => c.Attachments)
-            //    .HasForeignKey(c => c.QueuedEmailId)
-            //    .OnDelete(DeleteBehavior.Cascade);
-
             builder.HasOne(c => c.MediaFile)
                 .WithMany()
                 .HasForeignKey(c => c.MediaFileId)
@@ -26,14 +21,13 @@ namespace Smartstore.Core.Messaging
             builder.HasOne(c => c.MediaStorage)
                 .WithMany()
                 .HasForeignKey(c => c.MediaStorageId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
     /// <summary>
     /// Represents an e-mail attachment.
     /// </summary>
-    /// 
     [Index(nameof(QueuedEmailId), Name = "IX_QueuedEmailId")]
     [Index(nameof(MediaStorageId), Name = "IX_MediaStorageId")]
     [Index(nameof(MediaFileId), Name = "IX_MediaFileId")]

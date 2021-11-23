@@ -42,7 +42,11 @@ namespace Smartstore.Core.Catalog.Categories
                         .HasForeignKey("Category_Id")
                         .HasConstraintName("FK_dbo.RuleSet_Category_Mapping_dbo.Category_Category_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("Category_Id", "RuleSetEntity_Id"));
+                    c =>
+                    {
+                        c.HasIndex("Category_Id");
+                        c.HasKey("Category_Id", "RuleSetEntity_Id");
+                    });
         }
     }
 

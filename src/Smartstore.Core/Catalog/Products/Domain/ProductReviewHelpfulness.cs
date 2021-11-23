@@ -11,17 +11,17 @@ namespace Smartstore.Core.Catalog.Products
     {
         public void Configure(EntityTypeBuilder<ProductReviewHelpfulness> builder)
         {
-            //builder.HasOne(c => c.ProductReview)
-            //    .WithMany(c => c.ProductReviewHelpfulnessEntries)
-            //    .HasForeignKey(c => c.ProductReviewId)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(c => c.ProductReview)
+                .WithMany(c => c.ProductReviewHelpfulnessEntries)
+                .HasForeignKey(c => c.ProductReviewId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 
     /// <summary>
     /// Represents a product review helpfulness.
     /// </summary>
-    [Table("ProductReviewHelpfulness")] // Enables EF TPT inheritance
+    [Table("ProductReviewHelpfulness")]
     public partial class ProductReviewHelpfulness : CustomerContent
     {
         public ProductReviewHelpfulness()
