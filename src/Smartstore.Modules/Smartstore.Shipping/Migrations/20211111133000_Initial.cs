@@ -17,9 +17,6 @@ namespace Smartstore.Shipping.Migrations
             const string ShippingByTotal = "ShippingByTotal";
             const string id = nameof(BaseEntity.Id);
 
-            // TODO: (mh) (core) In update scenarios (4.x to 5) we have to add the new foreign keys to the database.
-            // Please alter the schema here and in Tax module.
-            
             if (!Schema.Table(ShippingByTotal).Exists())
             {
                 Create.Table(ShippingByTotal)
@@ -48,6 +45,57 @@ namespace Smartstore.Shipping.Migrations
                     .WithColumn(nameof(ShippingRateByTotal.ShippingChargeAmount)).AsDecimal().NotNullable()
                     .WithColumn(nameof(ShippingRateByTotal.BaseCharge)).AsDecimal().NotNullable()
                     .WithColumn(nameof(ShippingRateByTotal.MaxCharge)).AsDecimal().Nullable();
+            }
+            else
+            {
+                if (!Schema.Table(ShippingByTotal).Index("IX_ShippingMethodId").Exists())
+                {
+                    Create.Index("IX_ShippingMethodId")
+                        .OnTable(ShippingByTotal)
+                        .OnColumn(nameof(ShippingRateByTotal.ShippingMethodId));
+
+                    Create.ForeignKey()
+                        .FromTable(ShippingByTotal)
+                        .ForeignColumn(id)
+                        .ToTable(nameof(StateProvince))
+                        .PrimaryColumn(id);
+                }
+                if (!Schema.Table(ShippingByTotal).Index("IX_StoreId").Exists())
+                {
+                    Create.Index("IX_StoreId")
+                        .OnTable(ShippingByTotal)
+                        .OnColumn(nameof(ShippingRateByTotal.StoreId));
+
+                    Create.ForeignKey()
+                        .FromTable(ShippingByTotal)
+                        .ForeignColumn(id)
+                        .ToTable(nameof(Store))
+                        .PrimaryColumn(id);
+                }
+                if (!Schema.Table(ShippingByTotal).Index("IX_CountryId").Exists())
+                {
+                    Create.Index("IX_CountryId")
+                        .OnTable(ShippingByTotal)
+                        .OnColumn(nameof(ShippingRateByTotal.CountryId));
+
+                    Create.ForeignKey()
+                        .FromTable(ShippingByTotal)
+                        .ForeignColumn(id)
+                        .ToTable(nameof(Country))
+                        .PrimaryColumn(id);
+                }
+                if (!Schema.Table(ShippingByTotal).Index("IX_StateProvinceId").Exists())
+                {
+                    Create.Index("IX_StateProvinceId")
+                        .OnTable(ShippingByTotal)
+                        .OnColumn(nameof(ShippingRateByTotal.StateProvinceId));
+
+                    Create.ForeignKey()
+                        .FromTable(ShippingByTotal)
+                        .ForeignColumn(id)
+                        .ToTable(nameof(StateProvince))
+                        .PrimaryColumn(id);
+                }
             }
         }
 

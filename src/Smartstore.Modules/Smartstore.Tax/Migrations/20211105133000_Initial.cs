@@ -32,6 +32,45 @@ namespace Smartstore.Tax.Migrations
                     .WithColumn(nameof(TaxRateEntity.Zip)).AsString(100).NotNullable()
                     .WithColumn(nameof(TaxRateEntity.Percentage)).AsDecimal(4, 18).NotNullable();
             }
+            else
+            {
+                if (!Schema.Table(taxRate).Index("IX_TaxCategoryId").Exists())
+                {
+                    Create.Index("IX_ShippingMethodId")
+                        .OnTable(taxRate)
+                        .OnColumn(nameof(TaxRateEntity.TaxCategoryId));
+
+                    Create.ForeignKey()
+                        .FromTable(taxRate)
+                        .ForeignColumn(id)
+                        .ToTable(nameof(StateProvince))
+                        .PrimaryColumn(id);
+                }
+                if (!Schema.Table(taxRate).Index("IX_CountryId").Exists())
+                {
+                    Create.Index("IX_CountryId")
+                        .OnTable(taxRate)
+                        .OnColumn(nameof(TaxRateEntity.CountryId));
+
+                    Create.ForeignKey()
+                        .FromTable(taxRate)
+                        .ForeignColumn(id)
+                        .ToTable(nameof(Country))
+                        .PrimaryColumn(id);
+                }
+                if (!Schema.Table(taxRate).Index("IX_StateProvinceId").Exists())
+                {
+                    Create.Index("IX_StateProvinceId")
+                        .OnTable(taxRate)
+                        .OnColumn(nameof(TaxRateEntity.StateProvinceId));
+
+                    Create.ForeignKey()
+                        .FromTable(taxRate)
+                        .ForeignColumn(id)
+                        .ToTable(nameof(StateProvince))
+                        .PrimaryColumn(id);
+                }
+            }
         }
 
         public override void Down()
