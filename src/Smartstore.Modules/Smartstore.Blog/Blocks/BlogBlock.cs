@@ -15,15 +15,15 @@ namespace Smartstore.Blog.Blocks
     [Block("blog", Icon = "fa fa-blog", FriendlyName = "Blog", DisplayOrder = 150)]
     public class BlogBlockHandler : BlockHandlerBase<BlogBlock>
     {
-        public override BlogBlock LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
+        public override Task<BlogBlock> LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
         {
             var block = base.LoadAsync(entity, viewMode);
             return block;
         }
 
-        public override void SaveAsync(BlogBlock block, IBlockEntity entity)
+        public override Task SaveAsync(BlogBlock block, IBlockEntity entity)
         {
-            base.SaveAsync(block, entity);
+            return base.SaveAsync(block, entity);
         }
 
         protected override async Task RenderCoreAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
