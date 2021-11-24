@@ -198,7 +198,7 @@ namespace Smartstore.Core.Content.Blocks
 			var originalRouteData = originalContext.RouteData;
 			var routeData = new RouteData(originalRouteData);
 			routeData.Values.Merge(originalRouteData.Values);
-			routeData.DataTokens["area"] = element.Metadata.AreaName; // TODO: (core) Check whether DataTokens["area"] is still the right place for Area replacement in AspNetCore.
+			routeData.DataTokens["area"] = element.Metadata.ModuleName; // TODO: (core) Check whether DataTokens["area"] is still the right place for Area replacement in AspNetCore.
 
 			return new ActionContext
 			{
