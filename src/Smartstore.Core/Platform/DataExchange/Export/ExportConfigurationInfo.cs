@@ -22,10 +22,5 @@ namespace Smartstore.Core.DataExchange.Export
         /// Type of the view model.
         /// </summary>
         public Type ModelType { get; set; }
-
-        /// <summary>
-        /// Callback to initialize the view model. Can be <c>null</c>.
-        /// </summary>
-        public Action<object> Initialize { get; set; }
     }
 }

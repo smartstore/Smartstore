@@ -285,8 +285,8 @@
                             var configViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
                             configViewData.TemplateInfo.HtmlFieldPrefix = "CustomProperties[ProviderConfigData]";
                             configViewData.ModelState.Merge(ViewData.ModelState);
-                            await Model.Provider.ConfigurationWidget.InvokeAsync(ViewContext.Clone(configViewData));
-                            @*TODO: (mg) (core) test invoking of export provider configuration.*@
+                            
+                            @await Model.Provider.ConfigurationWidget.InvokeAsync(ViewContext.Clone(configViewData), Model.Provider.ConfigData);
                         }
                         catch (Exception ex)
                         {

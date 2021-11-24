@@ -1003,18 +1003,6 @@ namespace Smartstore.Admin.Controllers
                         model.Provider.ConfigurationWidget = configInfo.ConfigurationWidget;
                         model.Provider.ConfigDataType = configInfo.ModelType;
                         model.Provider.ConfigData = XmlHelper.Deserialize(profile.ProviderConfigData, configInfo.ModelType);
-
-                        if (configInfo.Initialize != null)
-                        {
-                            try
-                            {
-                                configInfo.Initialize(model.Provider.ConfigData);
-                            }
-                            catch (Exception ex)
-                            {
-                                NotifyWarning(ex.ToAllMessages());
-                            }
-                        }
                     }
                 }
                 catch (Exception ex)
