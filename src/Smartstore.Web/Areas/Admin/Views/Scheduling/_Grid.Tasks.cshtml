@@ -1,6 +1,7 @@
 ﻿@model TaskModel
 
 <datagrid id="tasks-grid" 
+        striped="false"
 		allow-resize="true" 
 		allow-column-reordering="true" 
 		preserve-grid-state="true"
@@ -53,8 +54,7 @@
 <script sm-target-zone="scripts" data-origin="tasks-grid">
     function tasksGrid_onRowClass(row) {
         return {
-            "active-row": row.LastExecutionInfo.IsRunning, // TODO: (mg) (core) Check if active-row is still required. Formerly: IsRunning = always show grid buttons, !IsRunning = show buttons on-hover only.
-            "text-muted": !row.Enabled // TODO: (mg) (core) No sufficient styling!
+            "text-muted": !row.Enabled // TODO: (mh) (core) as discussed. Disabled tasks should have a gray background-color (previously 'table-light').
         };
     }
 </script>

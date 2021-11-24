@@ -23,13 +23,12 @@
 			pollUrl: '@Url.Action("GetRunningTasks")',
 			onTaskStarted: function (task, el) {
 				var tr = el.closest('tr');
-				tr.addClass('active-row');
 				tr.find('.btn-run-task').addClass('hide').next().removeClass('hide');
 				tr.find('.next-run-info').addClass('hide');
 			},
 			onTaskCompleted: function (taskId, el) {
 				var tr = el.closest('tr');
-				tr.removeClass('active-row').find('.btn-run-task').removeClass('hide').next().addClass('hide');
+				tr.find('.btn-run-task').removeClass('hide').next().addClass('hide');
 
 				$.ajax({
 					cache: false,
