@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
@@ -391,17 +390,22 @@ namespace Smartstore.Core.Installation
 
         private async Task PopulateProducts()
         {
-            var products = _data.Products();
-            await SaveRangeAsync(products);
+            var allProducts = _data.Products();
 
-            _data.AddDownloads(products);
+            // INFO: chunk to avoid MySqlException "Error submitting ...MB packet; ensure 'max_allowed_packet' is greater than ...MB".
+            foreach (var products in allProducts.Chunk(10))
+            {
+                await SaveRangeAsync(products);
+            }
+
+            _data.AddDownloads(allProducts);
 
             // Fix MainPictureId
             await ProductPictureHelper.FixProductMainPictureIds(Context);
 
-            await PopulateUrlRecordsFor(products);
+            await PopulateUrlRecordsFor(allProducts);
 
-            _data.AssignGroupedProducts(products);
+            _data.AssignGroupedProducts(allProducts);
         }
 
         private async Task PopulateTopics()

@@ -37,14 +37,14 @@ namespace Smartstore.Blog.Services
             var blogsImported = new List<BlogPost>();
             var table = _db.Set<BlogPost>();
             var sourceBlogs = LoadAllAsync();
-            var dbBlogMap = (await table.ToListAsync())
+            var existingBlogs = (await table.ToListAsync())
                 .ToMultimap(x => x.Title, x => x, StringComparer.OrdinalIgnoreCase);
 
             await foreach (var source in sourceBlogs)
             {
-                if (dbBlogMap.ContainsKey(source.Title))
+                if (existingBlogs.ContainsKey(source.Title))
                 {
-                    foreach (var target in dbBlogMap[source.Title])
+                    foreach (var target in existingBlogs[source.Title])
                     {
                         if (source.Title.HasValue()) target.Title = source.Title;
                         if (source.MetaTitle.HasValue()) target.MetaTitle = source.MetaTitle;
@@ -69,10 +69,14 @@ namespace Smartstore.Blog.Services
 
                     blogsImported.Add(blogPost);
                     table.Add(blogPost);
+
+                    // INFO: save immediately to avoid MySqlException "Error submitting ...MB packet; ensure 'max_allowed_packet' is greater than ...MB".
+                    await _db.SaveChangesAsync();
                 }
             }
 
             await _db.SaveChangesAsync();
+
             return blogsImported;
         }
 
