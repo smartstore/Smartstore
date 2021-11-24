@@ -68,6 +68,16 @@ namespace Smartstore.Core.Checkout.Orders
             }
         }
 
+        public void Abandon()
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext != null)
+            {
+                httpContext.Session.Remove(CheckoutStateSessionKey);
+                _state = null;
+            }
+        }
+
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e) => _dirty = true;
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) => _dirty = true;
     }

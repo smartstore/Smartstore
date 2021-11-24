@@ -23,8 +23,13 @@ namespace Smartstore.Core.Checkout.Orders
         CheckoutState CheckoutState { get; }
 
         /// <summary>
-        /// Saves the current <see cref="CheckoutState"/> instance to the underlying storage.
+        /// Saves the current <see cref="CheckoutState"/> instance to the underlying storage if it was loaded/accessed before.
         /// </summary>
         void Save();
+
+        /// <summary>
+        /// Removes the current <see cref="CheckoutState"/> instance from the underlying storage if it is present.
+        /// </summary>
+        void Abandon();
     }
 }
