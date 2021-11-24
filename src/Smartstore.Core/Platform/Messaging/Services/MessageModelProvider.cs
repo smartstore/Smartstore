@@ -63,7 +63,7 @@ namespace Smartstore.Core.Messaging
         private readonly ILocalizationService _localizationService;
         private readonly ModuleManager _moduleManager;
         private readonly MessageModelHelper _helper;
-        private readonly IUrlHelper _urlHelper;
+        private readonly Lazy<IUrlHelper> _urlHelper;
         
         public MessageModelProvider(
             SmartDbContext db,
@@ -73,7 +73,7 @@ namespace Smartstore.Core.Messaging
             ILocalizationService localizationService,
             ModuleManager moduleManager,
             MessageModelHelper helper,
-            IUrlHelper urlHelper)
+            Lazy<IUrlHelper> urlHelper)
         {
             _db = db;
             _services = services;

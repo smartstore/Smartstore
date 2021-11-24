@@ -65,7 +65,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IUrlService _urlService;
         private readonly IMailService _mailService;
-        private readonly IUrlHelper _urlHelper;
+        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly ITaxCalculator _taxCalculator;
         private readonly IProviderManager _providerManager;
@@ -93,7 +93,7 @@ namespace Smartstore.Core.DataExchange.Export
             ILocalizedEntityService localizedEntityService,
             IUrlService urlService,
             IMailService mailService,
-            IUrlHelper urlHelper,
+            Lazy<IUrlHelper> urlHelper,
             ProductUrlHelper productUrlHelper,
             ITaxCalculator taxCalculator,
             IProviderManager providerManager,
@@ -1458,7 +1458,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (ctx.IsFileBasedExport && ctx.ZipFile.Exists)
             {
-                var downloadUrl = _urlHelper.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, ctx.ZipFile.Name }, protocol);
+                var downloadUrl = _urlHelper.Value.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, ctx.ZipFile.Name }, protocol);
                 body.AppendFormat("<p><a href='{0}' download>{1}</a></p>", downloadUrl, ctx.ZipFile.Name);
             }
 
@@ -1467,7 +1467,7 @@ namespace Smartstore.Core.DataExchange.Export
                 body.Append("<p>");
                 foreach (var file in ctx.Result.Files)
                 {
-                    var downloadUrl = _urlHelper.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, name = file.FileName }, protocol);
+                    var downloadUrl = _urlHelper.Value.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, name = file.FileName }, protocol);
                     body.AppendFormat("<div><a href='{0}' download>{1}</a></div>", downloadUrl, file.FileName);
                 }
                 body.Append("</p>");

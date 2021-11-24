@@ -34,7 +34,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly IApplicationContext _appContext;
         private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _localizationService;
-        private readonly IUrlHelper _urlHelper;
+        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly ITaskStore _taskStore;
         private readonly IProviderManager _providerManager;
         private readonly DataExchangeSettings _dataExchangeSettings;
@@ -44,7 +44,7 @@ namespace Smartstore.Core.DataExchange.Export
             IApplicationContext appContext,
             IStoreContext storeContext,
             ILocalizationService localizationService,
-            IUrlHelper urlHelper,
+            Lazy<IUrlHelper> urlHelper,
             ITaskStore taskStore,
             IProviderManager providerManager,
             DataExchangeSettings dataExchangeSettings)
@@ -171,7 +171,7 @@ namespace Smartstore.Core.DataExchange.Export
                 // so that IIS application path can be prepended if applicable. 
                 var path = WebHelper.ToAppRelativePath(_appContext.WebRoot.PathCombine(DataExporter.PublicDirectoryName, deployment.SubFolder));
 
-                return store.Url.TrimEnd('/') + _urlHelper.Content(path).EnsureEndsWith("/");
+                return store.Url.TrimEnd('/') + _urlHelper.Value.Content(path).EnsureEndsWith("/");
             }
 
             return null;

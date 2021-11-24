@@ -34,7 +34,7 @@ namespace Smartstore.Core.Messaging
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IDateTimeHelper _dtHelper;
         private readonly ModuleManager _moduleManager;
-        private readonly IUrlHelper _urlHelper;
+        private readonly Lazy<IUrlHelper> _urlHelper;
 
         public MessageModelHelper(
             SmartDbContext db,
@@ -47,7 +47,7 @@ namespace Smartstore.Core.Messaging
             IProductAttributeMaterializer productAttributeMaterializer,
             IDateTimeHelper dtHelper,
             ModuleManager moduleManager,
-            IUrlHelper urlHelper)
+            Lazy<IUrlHelper> urlHelper)
         {
             _db = db;
             _services = services;
@@ -78,19 +78,19 @@ namespace Smartstore.Core.Messaging
         public string BuildRouteUrl(object routeValues, MessageContext ctx)
         {
             // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
-            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.RouteUrl(routeValues);
+            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper.Value?.RouteUrl(routeValues);
         }
 
         public string BuildRouteUrl(string routeName, object routeValues, MessageContext ctx)
         {
             // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
-            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.RouteUrl(routeName, routeValues);
+            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper.Value?.RouteUrl(routeName, routeValues);
         }
 
         public string BuildActionUrl(string action, string controller, object routeValues, MessageContext ctx)
         {
             // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
-            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.Action(action, controller, routeValues);
+            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper.Value?.Action(action, controller, routeValues);
         }
 
         public async Task PublishModelPartCreatedEventAsync<T>(T source, dynamic part) where T : class

@@ -69,7 +69,7 @@ namespace Smartstore.Scheduling
 
             var qs = QueryString.Create(taskParameters);
 
-            return CallEndpoint("run/{0}{1}".FormatInvariant(taskId, qs.ToString()), false);
+            return CallEndpoint($"run/{taskId}{qs}", false);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
