@@ -390,22 +390,17 @@ namespace Smartstore.Core.Installation
 
         private async Task PopulateProducts()
         {
-            var allProducts = _data.Products();
+            var products = _data.Products();
+            await SaveRangeAsync(products);
 
-            // INFO: chunk to avoid MySqlException "Error submitting ...MB packet; ensure 'max_allowed_packet' is greater than ...MB".
-            foreach (var products in allProducts.Chunk(10))
-            {
-                await SaveRangeAsync(products);
-            }
-
-            _data.AddDownloads(allProducts);
+            _data.AddDownloads(products);
 
             // Fix MainPictureId
             await ProductPictureHelper.FixProductMainPictureIds(Context);
 
-            await PopulateUrlRecordsFor(allProducts);
+            await PopulateUrlRecordsFor(products);
 
-            _data.AssignGroupedProducts(allProducts);
+            _data.AssignGroupedProducts(products);
         }
 
         private async Task PopulateTopics()
