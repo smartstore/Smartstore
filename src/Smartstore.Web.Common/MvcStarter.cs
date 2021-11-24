@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -36,6 +37,7 @@ using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Razor;
+using Smartstore.Web.Routing;
 
 namespace Smartstore.Web
 {
@@ -209,23 +211,7 @@ namespace Smartstore.Web
             builder.RegisterType<StoreDependingSettingHelper>().AsSelf().InstancePerLifetimeScope();
 
             // Convenience: Register IUrlHelper as transient dependency.
-            builder.Register<IUrlHelper>(c =>
-            {
-                var httpContext = c.Resolve<IHttpContextAccessor>().HttpContext;
-                if (httpContext?.Items != null && httpContext.Items.TryGetValue(typeof(IUrlHelper), out var value) && value is IUrlHelper urlHelper)
-                {
-                    // We know for sure that IUrlHelper is saved in HttpContext.Items
-                    return urlHelper;
-                }
-
-                var actionContext = c.Resolve<IActionContextAccessor>().ActionContext;
-                if (actionContext != null)
-                {
-                    return c.Resolve<IUrlHelperFactory>().GetUrlHelper(actionContext);
-                }
-
-                throw new InvalidOperationException($"Cannot resolve '{nameof(IUrlHelper)}' because '{nameof(ActionContext)}' was null. Pass '{typeof(Lazy<IUrlHelper>).Name}' or '{typeof(IUrlHelperFactory).Name}' to the constructor instead.");
-            }).InstancePerDependency();
+            builder.Register<IUrlHelper>(ResolveUrlHelper).InstancePerDependency();
 
             if (appContext.IsInstalled)
             {
@@ -302,6 +288,44 @@ namespace Smartstore.Web
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private static IUrlHelper ResolveUrlHelper(IComponentContext c)
+        {
+            var httpContext = c.Resolve<IHttpContextAccessor>().HttpContext;
+
+            if (httpContext?.Items == null)
+            {
+                throw new InvalidOperationException($"Cannot resolve '{nameof(IUrlHelper)}' because '{nameof(HttpContext)}.{nameof(HttpContext.Items)}' was null. Pass '{typeof(Lazy<IUrlHelper>).Name}' or '{typeof(IUrlHelperFactory).Name}' to the constructor instead.");
+            }
+
+            if (httpContext.Items.TryGetValue(typeof(IUrlHelper), out var value) && value is IUrlHelper urlHelper)
+            {
+                // We know for sure that IUrlHelper is saved in HttpContext.Items
+                return urlHelper;
+            }
+
+            var actionContext = c.Resolve<IActionContextAccessor>().ActionContext;
+            if (actionContext != null)
+            {
+                // ActionContext is available (also Endpoint). Resolve EndpointRoutingUrlHelper.
+                return c.Resolve<IUrlHelperFactory>().GetUrlHelper(actionContext);
+            }
+
+            // No ActionContext. Create an IUrlHelper that can work outside of routing endpoints (e.g. in middlewares)
+            var routeData = httpContext.GetRouteData();
+            if (routeData == null)
+            {
+                routeData = new RouteData();
+            }
+
+            urlHelper = new SmartUrlHelper(
+                new ActionContext(httpContext, routeData, new ActionDescriptor()), 
+                c.Resolve<LinkGenerator>());
+
+            httpContext.Items[typeof(IUrlHelper)] = urlHelper;
+
+            return urlHelper;
         }
     }
 }
