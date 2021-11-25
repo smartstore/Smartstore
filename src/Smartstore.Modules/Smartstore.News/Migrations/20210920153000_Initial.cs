@@ -1,11 +1,11 @@
 ﻿using System.Data;
 using FluentMigrator;
-using Smartstore.News.Domain;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Domain;
+using Smartstore.News.Domain;
 
 namespace Smartstore.News.Migrations
 {
@@ -14,7 +14,7 @@ namespace Smartstore.News.Migrations
     {
         public override void Up()
         {
-            const string newsItem = "NewsItem";
+            const string newsItem = "News";
             const string newsComment = "NewsComment";
 
             const string id = nameof(BaseEntity.Id);
@@ -34,7 +34,7 @@ namespace Smartstore.News.Migrations
                     .WithColumn(nameof(NewsItem.ApprovedCommentCount)).AsInt32().NotNullable()
                     .WithColumn(nameof(NewsItem.NotApprovedCommentCount)).AsInt32().NotNullable()
                     .WithColumn(nameof(NewsItem.LimitedToStores)).AsBoolean().NotNullable()
-                    .WithColumn(nameof(NewsItem.CreatedOnUtc)).AsDateTime2().Nullable()
+                    .WithColumn(nameof(NewsItem.CreatedOnUtc)).AsDateTime2().NotNullable()
                     .WithColumn(nameof(NewsItem.MetaKeywords)).AsString(400).Nullable()
                     .WithColumn(nameof(NewsItem.MetaDescription)).AsString(4000).Nullable()
                     .WithColumn(nameof(NewsItem.MetaTitle)).AsString(400).Nullable()
@@ -44,7 +44,7 @@ namespace Smartstore.News.Migrations
                     .WithColumn(nameof(NewsItem.PreviewMediaFileId)).AsInt32().Nullable()
                         .Indexed("IX_PreviewMediaFileId")
                         .ForeignKey(nameof(MediaFile), id).OnDelete(Rule.None)
-                    .WithColumn(nameof(NewsItem.LanguageId)).AsInt32().NotNullable()
+                    .WithColumn(nameof(NewsItem.LanguageId)).AsInt32().Nullable()
                         .Indexed("IX_LanguageId")
                         .ForeignKey(nameof(Language), id).OnDelete(Rule.None);
             }
@@ -56,7 +56,7 @@ namespace Smartstore.News.Migrations
                     .WithColumn(nameof(NewsComment.CommentTitle)).AsString(450).Nullable()
                     .WithColumn(nameof(NewsComment.CommentText)).AsMaxString().Nullable()
                     .WithColumn(nameof(NewsComment.NewsItemId)).AsInt32().NotNullable()
-                        .ForeignKey(newsItem, id).OnDelete(Rule.Cascade);
+                        .Indexed().ForeignKey(newsItem, id).OnDelete(Rule.Cascade);
 
                 Create.ForeignKey()
                     .FromTable(newsComment).ForeignColumn(id)
