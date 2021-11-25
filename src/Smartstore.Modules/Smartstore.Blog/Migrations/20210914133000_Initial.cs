@@ -25,7 +25,7 @@ namespace Smartstore.Blog.Migrations
                     .WithIdColumn()
                     .WithColumn(nameof(BlogPost.Title)).AsString(450).NotNullable()
                         .Indexed("IX_Title")
-                    .WithColumn(nameof(BlogPost.Body)).AsMaxString().Nullable()
+                    .WithColumn(nameof(BlogPost.Body)).AsMaxString().NotNullable()
                     .WithColumn(nameof(BlogPost.AllowComments)).AsBoolean().NotNullable()
                     .WithColumn(nameof(BlogPost.ApprovedCommentCount)).AsInt32().NotNullable()
                     .WithColumn(nameof(BlogPost.NotApprovedCommentCount)).AsInt32().NotNullable()
@@ -36,7 +36,7 @@ namespace Smartstore.Blog.Migrations
                     .WithColumn(nameof(BlogPost.MetaDescription)).AsString(4000).Nullable()
                     .WithColumn(nameof(BlogPost.MetaTitle)).AsString(400).Nullable()
                     .WithColumn(nameof(BlogPost.LimitedToStores)).AsBoolean().NotNullable()
-                    .WithColumn(nameof(BlogPost.CreatedOnUtc)).AsDateTime2().Nullable()
+                    .WithColumn(nameof(BlogPost.CreatedOnUtc)).AsDateTime2().NotNullable()
                     .WithColumn(nameof(BlogPost.SectionBg)).AsString(100).Nullable()
                     .WithColumn(nameof(BlogPost.Intro)).AsMaxString().Nullable()
                     .WithColumn(nameof(BlogPost.DisplayTagsInPreview)).AsBoolean().NotNullable()
@@ -48,7 +48,7 @@ namespace Smartstore.Blog.Migrations
                     .WithColumn(nameof(BlogPost.PreviewMediaFileId)).AsInt32().Nullable()
                         .Indexed("IX_PreviewMediaFileId")
                         .ForeignKey(nameof(MediaFile), id).OnDelete(Rule.None)
-                    .WithColumn(nameof(BlogPost.LanguageId)).AsInt32().NotNullable()
+                    .WithColumn(nameof(BlogPost.LanguageId)).AsInt32().Nullable()
                         .Indexed("IX_LanguageId")
                         .ForeignKey(nameof(Language), id).OnDelete(Rule.None);
             }
