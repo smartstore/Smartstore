@@ -23,7 +23,7 @@ namespace Smartstore.Polls.Domain
     /// <summary>
     /// Represents a poll answer.
     /// </summary>
-    [Table("PollAnswer")] // Enables EF TPT inheritance
+    [Table("PollAnswer")]
     public partial class PollAnswer : BaseEntity
     {
         public PollAnswer()

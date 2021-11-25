@@ -36,7 +36,7 @@ namespace Smartstore.Polls.Migrations
                     .WithColumn(nameof(Poll.LimitedToStores)).AsBoolean().NotNullable()
                     .WithColumn(nameof(Poll.LanguageId)).AsInt32().NotNullable()
                         .Indexed("IX_LanguageId")
-                        .ForeignKey(nameof(Language), id).OnDelete(Rule.None);
+                        .ForeignKey(nameof(Language), id).OnDelete(Rule.Cascade);
             }
 
             if (!Schema.Table(pollAnswer).Exists())
@@ -49,10 +49,6 @@ namespace Smartstore.Polls.Migrations
                     .WithColumn(nameof(PollAnswer.PollId)).AsInt32().NotNullable()
                         .Indexed("IX_PollId")
                         .ForeignKey(poll, id).OnDelete(Rule.Cascade);
-
-                Create.ForeignKey()
-                    .FromTable(pollAnswer).ForeignColumn(id)
-                    .ToTable(nameof(CustomerContent)).PrimaryColumn(id);
             }
 
             if (!Schema.Table(pollVotingRecord).Exists())
