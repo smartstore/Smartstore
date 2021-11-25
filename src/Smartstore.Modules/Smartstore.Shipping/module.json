@@ -6,6 +6,7 @@
   "Description": "Provides shipping methods for fixed rate shipping and computation based on weight.",
   "Version": "5.0",
   "MinAppVersion": "5.0",
+  "Author": "SmartStore AG",
   "Order": 0,
   "ResourceRootKey": "Plugins.SmartStore.Shipping"
 }

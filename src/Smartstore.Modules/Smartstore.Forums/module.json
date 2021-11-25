@@ -6,6 +6,7 @@
   "Description": "Adds a forum to the store.",
   "Version": "5.0",
   "MinAppVersion": "5.0",
+  "Author": "SmartStore AG",
   "Order": 1,
   "ResourceRootKey": "Plugins.Smartstore.Forums"
 }
