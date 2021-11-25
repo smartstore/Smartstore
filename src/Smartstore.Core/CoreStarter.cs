@@ -55,7 +55,6 @@ namespace Smartstore.Core.Bootstrapping
             // CodePages dependency required by ExcelDataReader to avoid NotSupportedException "No data is available for encoding 1252."
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            services.AddDbQuerySettings();
             services.AddDbMigrator(appContext);
             services.AddDisplayControl();
             services.AddWkHtmlToPdf();
@@ -120,6 +119,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterModule(new LocalizationModule());
             builder.RegisterModule(new CommonServicesModule());
             builder.RegisterModule(new DbHooksModule(appContext));
+            builder.RegisterModule(new DbQuerySettingsModule());
             builder.RegisterModule(new StoresModule());
         }
     }
