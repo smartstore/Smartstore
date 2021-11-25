@@ -1,37 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Common;
 using Smartstore.Domain;
 
 namespace Smartstore.Shipping.Domain
 {
-    internal class ShippingRateEntityMap : IEntityTypeConfiguration<ShippingRateByTotal>
-    {
-        public void Configure(EntityTypeBuilder<ShippingRateByTotal> builder)
-        {
-            builder.HasOne(c => c.ShippingMethod)
-                .WithMany()
-                .HasForeignKey(c => c.ShippingMethodId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne(c => c.Country)
-                .WithMany()
-                .HasForeignKey(c => c.CountryId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // INFO: cascade-delete not possible due to multiple cascade paths (see Country > StateProvince foreign key).
-            builder.HasOne(c => c.StateProvince)
-                .WithMany()
-                .HasForeignKey(c => c.StateProvinceId)
-                .OnDelete(DeleteBehavior.NoAction);
-        }
-    }
-
     /// <summary>
     /// Represents a Shipping rate.
     /// </summary>
@@ -53,16 +27,6 @@ namespace Smartstore.Shipping.Domain
         /// </summary>
         public int ShippingMethodId { get; set; }
 
-        private ShippingMethod _shippingMethod;
-        /// <summary>
-        /// Gets or sets the store.
-        /// </summary>
-        public ShippingMethod ShippingMethod
-        {
-            get => _shippingMethod ?? LazyLoader.Load(this, ref _shippingMethod);
-            set => _shippingMethod = value;
-        }
-
         /// <summary>
         /// Gets or sets the store identifier
         /// </summary>
@@ -73,30 +37,10 @@ namespace Smartstore.Shipping.Domain
         /// </summary>
         public int? CountryId { get; set; }
 
-        private Country _country;
-        /// <summary>
-        /// Gets or sets the country.
-        /// </summary>
-        public Country Country
-        {
-            get => _country ?? LazyLoader.Load(this, ref _country);
-            set => _country = value;
-        }
-
         /// <summary>
         /// Gets or sets the state/province identifier
         /// </summary>
         public int? StateProvinceId { get; set; }
-
-        private StateProvince _stateProvince;
-        /// <summary>
-        /// Gets or sets the state province.
-        /// </summary>
-        public StateProvince StateProvince
-        {
-            get => _stateProvince ?? LazyLoader.Load(this, ref _stateProvince);
-            set => _stateProvince = value;
-        }
 
         /// <summary>
         /// Gets or sets the zip code.

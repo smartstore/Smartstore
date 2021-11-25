@@ -1,11 +1,6 @@
 ﻿using FluentMigrator;
-using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Common;
 using Smartstore.Core.Data.Migrations;
-using Smartstore.Core.Stores;
-using Smartstore.Domain;
 using Smartstore.Shipping.Domain;
-using System.Data;
 
 namespace Smartstore.Shipping.Migrations
 {
@@ -15,30 +10,15 @@ namespace Smartstore.Shipping.Migrations
         public override void Up()
         {
             const string ShippingByTotal = "ShippingByTotal";
-            const string id = nameof(BaseEntity.Id);
 
             if (!Schema.Table(ShippingByTotal).Exists())
             {
-                // TODO: (mg) (core) Store navigation property missing.
-
                 Create.Table(ShippingByTotal)
                     .WithIdColumn()
                     .WithColumn(nameof(ShippingRateByTotal.ShippingMethodId)).AsInt32().NotNullable()
-                        .Indexed("IX_ShippingMethodId")
-                        .ForeignKey(nameof(ShippingMethod), id)
-                        .OnDelete(Rule.Cascade)
                     .WithColumn(nameof(ShippingRateByTotal.StoreId)).AsInt32().NotNullable()
-                        .Indexed("IX_StoreId")
-                        .ForeignKey(nameof(Store), id)
-                        .OnDelete(Rule.Cascade)
-                    .WithColumn(nameof(ShippingRateByTotal.CountryId)).AsInt32().NotNullable()
-                        .Indexed("IX_CountryId")
-                        .ForeignKey(nameof(Country), id)
-                        .OnDelete(Rule.Cascade)
-                    .WithColumn(nameof(ShippingRateByTotal.StateProvinceId)).AsInt32().NotNullable()
-                        .Indexed("IX_StateProvinceId")
-                        .ForeignKey(nameof(StateProvince), id)
-                        .OnDelete(Rule.None)
+                    .WithColumn(nameof(ShippingRateByTotal.CountryId)).AsInt32().Nullable()
+                    .WithColumn(nameof(ShippingRateByTotal.StateProvinceId)).AsInt32().Nullable()
                     .WithColumn(nameof(ShippingRateByTotal.Zip)).AsString(100).Nullable()
                     .WithColumn(nameof(ShippingRateByTotal.From)).AsDecimal(18, 4).NotNullable()
                     .WithColumn(nameof(ShippingRateByTotal.To)).AsDecimal(18, 4).Nullable()
@@ -47,64 +27,6 @@ namespace Smartstore.Shipping.Migrations
                     .WithColumn(nameof(ShippingRateByTotal.ShippingChargeAmount)).AsDecimal(18, 4).NotNullable()
                     .WithColumn(nameof(ShippingRateByTotal.BaseCharge)).AsDecimal(18, 4).NotNullable()
                     .WithColumn(nameof(ShippingRateByTotal.MaxCharge)).AsDecimal(18, 4).Nullable();
-            }
-            else
-            {
-                // TODO: (mg) (core) configuration for delete behaviour missing here and in other migrations.
-                // See ICreateForeignKeyCascadeSyntax.OnDelete.
-                // TODO: (mg) (core) FK existence check via the index name is super vulnerable.
-
-                if (!Schema.Table(ShippingByTotal).Index("IX_ShippingMethodId").Exists())
-                {
-                    Create.Index("IX_ShippingMethodId")
-                        .OnTable(ShippingByTotal)
-                        .OnColumn(nameof(ShippingRateByTotal.ShippingMethodId));
-
-                    Create.ForeignKey()
-                        .FromTable(ShippingByTotal)
-                        .ForeignColumn(id)
-                        .ToTable(nameof(StateProvince))
-                        .PrimaryColumn(id);
-                }
-
-                if (!Schema.Table(ShippingByTotal).Index("IX_StoreId").Exists())
-                {
-                    Create.Index("IX_StoreId")
-                        .OnTable(ShippingByTotal)
-                        .OnColumn(nameof(ShippingRateByTotal.StoreId));
-
-                    Create.ForeignKey()
-                        .FromTable(ShippingByTotal)
-                        .ForeignColumn(id)
-                        .ToTable(nameof(Store))
-                        .PrimaryColumn(id);
-                }
-
-                if (!Schema.Table(ShippingByTotal).Index("IX_CountryId").Exists())
-                {
-                    Create.Index("IX_CountryId")
-                        .OnTable(ShippingByTotal)
-                        .OnColumn(nameof(ShippingRateByTotal.CountryId));
-
-                    Create.ForeignKey()
-                        .FromTable(ShippingByTotal)
-                        .ForeignColumn(id)
-                        .ToTable(nameof(Country))
-                        .PrimaryColumn(id);
-                }
-
-                if (!Schema.Table(ShippingByTotal).Index("IX_StateProvinceId").Exists())
-                {
-                    Create.Index("IX_StateProvinceId")
-                        .OnTable(ShippingByTotal)
-                        .OnColumn(nameof(ShippingRateByTotal.StateProvinceId));
-
-                    Create.ForeignKey()
-                        .FromTable(ShippingByTotal)
-                        .ForeignColumn(id)
-                        .ToTable(nameof(StateProvince))
-                        .PrimaryColumn(id);
-                }
             }
         }
 

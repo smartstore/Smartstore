@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -131,16 +130,27 @@ namespace Smartstore.Shipping.Controllers
         {
             var shippingRates = await _db.ShippingRatesByTotal()
                 .AsNoTracking()
-                .Include(x => x.ShippingMethod)
-                .Include(x => x.Country)
-                .Include(x => x.StateProvince)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var shippingMethods = await _db.ShippingMethods.ToDictionaryAsync(x => x.Id, x => x);
+            
+            var countries = await _db.Countries
+                .Include(x => x.StateProvinces)
+                .ToDictionaryAsync(x => x.Id, x => x);
+
+            var stateProvinces = countries.Values
+                .SelectMany(x => x.StateProvinces)
+                .ToDictionarySafe(x => x.Id, x => x);
+
             var shippingRateModels = shippingRates.Select(x =>
             {
                 var store = Services.StoreContext.GetStoreById(x.StoreId);
+                var shippingMethod = shippingMethods.Get(x.ShippingMethodId);
+                var country = x.CountryId.HasValue ? countries.Get(x.CountryId.Value) : null;
+                var stateProvince = x.StateProvinceId.HasValue ? stateProvinces.Get(x.StateProvinceId.Value) : null;
+
                 var m = new ByTotalModel
                 {
                     Id = x.Id,
@@ -157,9 +167,9 @@ namespace Smartstore.Shipping.Controllers
                     BaseCharge = x.BaseCharge,
                     MaxCharge = x.MaxCharge,
                     StoreName = store == null ? "*" : store.Name,
-                    ShippingMethodName = x.ShippingMethod == null ? string.Empty.NaIfEmpty() : x.ShippingMethod.Name,
-                    CountryName = x.Country == null ? "*" : x.Country.Name,
-                    StateProvinceName = x.StateProvince == null ? "*" : x.StateProvince.Name
+                    ShippingMethodName = shippingMethod?.Name ?? StringExtensions.NotAvailable,
+                    CountryName = country?.Name ?? "*",
+                    StateProvinceName = stateProvince?.Name ?? "*"
                 };
 
                 return m;
@@ -169,7 +179,7 @@ namespace Smartstore.Shipping.Controllers
             var gridModel = new GridModel<ByTotalModel>
             {
                 Rows = shippingRateModels,
-                Total = await shippingRates.GetTotalCountAsync()
+                Total = shippingRates.TotalCount
             };
 
             return Json(gridModel);
@@ -180,7 +190,6 @@ namespace Smartstore.Shipping.Controllers
         public async Task<IActionResult> ByTotalUpdate(ByTotalModel model)
         {
             var success = false;
-
             var shippingRate = await _db.ShippingRatesByTotal().FindByIdAsync(model.Id);
             
             if (shippingRate != null)
