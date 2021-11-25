@@ -1,5 +1,5 @@
 {
-  "$schema": "../../Smartstore.Web/Properties/module.schema.json",
+  "$schema": "../module.schema.json",
   "Group": "CMS",
   "SystemName": "Smartstore.Blog",
   "FriendlyName": "Smartstore Blog",

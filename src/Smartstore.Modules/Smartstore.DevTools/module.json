@@ -1,5 +1,5 @@
 {
-  "$schema": "../../Smartstore.Web/Properties/module.schema.json",
+  "$schema": "../module.schema.json",
   "Group": "Developer",
   "SystemName": "Smartstore.DevTools",
   "FriendlyName": "Smartstore Developer Tools (MiniProfiler and other goodies)",

@@ -1,5 +1,5 @@
 {
-  "$schema": "../../Smartstore.Web/Properties/module.schema.json",
+  "$schema": "../module.schema.json",
   "Group": "Payment",
   "SystemName": "Smartstore.OfflinePayment",
   "FriendlyName": "Adds offline payment methods to the store",

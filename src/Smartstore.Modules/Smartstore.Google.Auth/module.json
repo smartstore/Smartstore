@@ -1,5 +1,5 @@
 {
-  "$schema": "../../Smartstore.Web/Properties/module.schema.json",
+  "$schema": "../module.schema.json",
   "Group": "Security",
   "SystemName": "Smartstore.Google.Auth",
   "FriendlyName": "Google Authentication",
