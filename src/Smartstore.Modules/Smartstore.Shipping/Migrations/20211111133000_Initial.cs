@@ -19,6 +19,8 @@ namespace Smartstore.Shipping.Migrations
 
             if (!Schema.Table(ShippingByTotal).Exists())
             {
+                // TODO: (mg) (core) Store navigation property missing.
+
                 Create.Table(ShippingByTotal)
                     .WithIdColumn()
                     .WithColumn(nameof(ShippingRateByTotal.ShippingMethodId)).AsInt32().NotNullable()
@@ -37,19 +39,21 @@ namespace Smartstore.Shipping.Migrations
                         .Indexed("IX_StateProvinceId")
                         .ForeignKey(nameof(StateProvince), id)
                         .OnDelete(Rule.None)
-                    .WithColumn(nameof(ShippingRateByTotal.Zip)).AsString(100).NotNullable()
-                    .WithColumn(nameof(ShippingRateByTotal.From)).AsDecimal().NotNullable()
-                    .WithColumn(nameof(ShippingRateByTotal.To)).AsDecimal().Nullable()
+                    .WithColumn(nameof(ShippingRateByTotal.Zip)).AsString(100).Nullable()
+                    .WithColumn(nameof(ShippingRateByTotal.From)).AsDecimal(18, 4).NotNullable()
+                    .WithColumn(nameof(ShippingRateByTotal.To)).AsDecimal(18, 4).Nullable()
                     .WithColumn(nameof(ShippingRateByTotal.UsePercentage)).AsBoolean()
-                    .WithColumn(nameof(ShippingRateByTotal.ShippingChargePercentage)).AsDecimal(4, 18).NotNullable()
-                    .WithColumn(nameof(ShippingRateByTotal.ShippingChargeAmount)).AsDecimal().NotNullable()
-                    .WithColumn(nameof(ShippingRateByTotal.BaseCharge)).AsDecimal().NotNullable()
-                    .WithColumn(nameof(ShippingRateByTotal.MaxCharge)).AsDecimal().Nullable();
+                    .WithColumn(nameof(ShippingRateByTotal.ShippingChargePercentage)).AsDecimal(18, 4).NotNullable()
+                    .WithColumn(nameof(ShippingRateByTotal.ShippingChargeAmount)).AsDecimal(18, 4).NotNullable()
+                    .WithColumn(nameof(ShippingRateByTotal.BaseCharge)).AsDecimal(18, 4).NotNullable()
+                    .WithColumn(nameof(ShippingRateByTotal.MaxCharge)).AsDecimal(18, 4).Nullable();
             }
             else
             {
-                // TODO: (mh) (core) configuration for delete behaviour missing here and in other migrations.
+                // TODO: (mg) (core) configuration for delete behaviour missing here and in other migrations.
                 // See ICreateForeignKeyCascadeSyntax.OnDelete.
+                // TODO: (mg) (core) FK existence check via the index name is super vulnerable.
+
                 if (!Schema.Table(ShippingByTotal).Index("IX_ShippingMethodId").Exists())
                 {
                     Create.Index("IX_ShippingMethodId")
@@ -62,6 +66,7 @@ namespace Smartstore.Shipping.Migrations
                         .ToTable(nameof(StateProvince))
                         .PrimaryColumn(id);
                 }
+
                 if (!Schema.Table(ShippingByTotal).Index("IX_StoreId").Exists())
                 {
                     Create.Index("IX_StoreId")
@@ -74,6 +79,7 @@ namespace Smartstore.Shipping.Migrations
                         .ToTable(nameof(Store))
                         .PrimaryColumn(id);
                 }
+
                 if (!Schema.Table(ShippingByTotal).Index("IX_CountryId").Exists())
                 {
                     Create.Index("IX_CountryId")
@@ -86,6 +92,7 @@ namespace Smartstore.Shipping.Migrations
                         .ToTable(nameof(Country))
                         .PrimaryColumn(id);
                 }
+
                 if (!Schema.Table(ShippingByTotal).Index("IX_StateProvinceId").Exists())
                 {
                     Create.Index("IX_StateProvinceId")
