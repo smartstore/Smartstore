@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -135,10 +137,17 @@ namespace Smartstore.Shipping.Controllers
                 .LoadAsync();
 
             var shippingMethods = await _db.ShippingMethods.ToDictionaryAsync(x => x.Id, x => x);
-            
-            var countries = await _db.Countries
-                .Include(x => x.StateProvinces)
-                .ToDictionaryAsync(x => x.Id, x => x);
+
+            var countryIds = shippingRates
+                .Where(x => x.CountryId.HasValue)
+                .ToDistinctArray(x => x.CountryId.Value);
+
+            var countries = countryIds.Any()
+                ? await _db.Countries
+                    .Include(x => x.StateProvinces)
+                    .Where(x => countryIds.Contains(x.Id))
+                    .ToDictionaryAsync(x => x.Id, x => x)
+                : new Dictionary<int, Country>();
 
             var stateProvinces = countries.Values
                 .SelectMany(x => x.StateProvinces)
