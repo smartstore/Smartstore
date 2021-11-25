@@ -323,7 +323,8 @@ namespace Smartstore.Web
                 new ActionContext(httpContext, routeData, new ActionDescriptor()), 
                 c.Resolve<LinkGenerator>());
 
-            httpContext.Items[typeof(IUrlHelper)] = urlHelper;
+            // Better not to interfere with UrlHelperFactory, so don't save in Items.
+            // httpContext.Items[typeof(IUrlHelper)] = urlHelper;
 
             return urlHelper;
         }

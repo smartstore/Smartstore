@@ -1,4 +1,5 @@
 {
+  "$schema": "../../Smartstore.Web/Properties/module.schema.json",
   "Group": "Tax",
   "SystemName": "Smartstore.Tax",
   "FriendlyName": "Default Tax Providers",
@@ -6,6 +7,5 @@
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Order": 0,
-  "AssemblyName": "Smartstore.Tax.dll",
   "ResourceRootKey": "Plugins.SmartStore.Tax"
 }

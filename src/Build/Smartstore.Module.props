@@ -61,4 +61,10 @@
 		</ProjectReference>
 	</ItemGroup>
 	
+	<ProjectExtensions>
+		<VisualStudio>
+			<UserProperties module_1json__JsonSchema="..\..\Smartstore.Web\Properties\module.schema.json#" />
+		</VisualStudio>
+	</ProjectExtensions>
+	
 </Project>

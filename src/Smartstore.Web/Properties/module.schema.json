@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "Schema for module JSON file format",
+  "type": "object",
+  "required": [ "FriendlyName", "SystemName", "Version" ],
+  "properties": {
+    "FriendlyName": {
+      "type": "string",
+      "description": "English (unlocalized) friendly name."
+    },
+    "Description": {
+      "type": "string",
+      "description": "English (unlocalized) description."
+    },
+    "SystemName": {
+      "type": "string",
+      "description": "Module system name (usually the assembly name without extension)."
+    },
+    "Author": {
+      "type": "string",
+      "description": "Author name."
+    },
+    "ProjectUrl": {
+      "type": "string",
+      "description": "Link to project's or author's homepage."
+    },
+    "Tags": {
+      "type": "string",
+      "description": "Comma-separated tags."
+    },
+    "Version": {
+      "type": "string",
+      "description": "The current version of module, e.g. '2.1.0'."
+    },
+    "MinAppVersion": {
+      "type": "string",
+      "description": "The minimum compatible application version, e.g. '5.0.0'."
+    },
+    "ResourceRootKey": {
+      "type": "string",
+      "description": "Root key for language resources."
+    },
+    "AssemblyName": {
+      "type": "string",
+      "description": "Optional assembly name. By default '{SystemName}.dll' is assumed to be the assembly name."
+    },
+    "Order": {
+      "type": "integer",
+      "description": "The display order in the module manager group."
+    },
+    "PrivateReferences": {
+      "type": "array",
+      "description": "Optional array of private dependency package names that this module references. By default, referenced packages are not copied to the module's output directory because it is assumed that the application core references them already. Any module private package should be listed here (including the complete dependency chain).",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "DependsOn": {
+      "type": "array",
+      "description": "Optional array of module system names that this module depends on.",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "Group": {
+      "description": "Conceptual group name. Used to visually categorize module in module listings.",
+      "enum": [
+        "Admin",
+        "Marketing",
+        "Payment",
+        "Shipping",
+        "Tax",
+        "Analytics",
+        "CMS",
+        "Media",
+        "SEO",
+        "Data",
+        "Globalization",
+        "Api",
+        "Mobile",
+        "Social",
+        "Security",
+        "Developer",
+        "Sales",
+        "Design",
+        "Performance",
+        "B2B",
+        "Storefront",
+        "Law"
+      ]
+    }
+  }
+}

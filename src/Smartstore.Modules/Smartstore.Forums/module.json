@@ -1,4 +1,5 @@
 {
+  "$schema": "../../Smartstore.Web/Properties/module.schema.json",
   "Group": "CMS",
   "SystemName": "Smartstore.Forums",
   "FriendlyName": "Smartstore Forums",
@@ -6,6 +7,5 @@
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Order": 1,
-  "AssemblyName": "Smartstore.Forums.dll",
   "ResourceRootKey": "Plugins.Smartstore.Forums"
 }

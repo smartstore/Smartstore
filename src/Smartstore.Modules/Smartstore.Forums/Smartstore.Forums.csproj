@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-  <PropertyGroup>
+	<PropertyGroup>
 		<Product>Smartstore Forums</Product>
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Forums</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
-  </PropertyGroup>
+	</PropertyGroup>
 	<ItemGroup>
 		<Content Include="App_Data\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk" Version="6.0.27-preview" />
+		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk" Version="6.0.27-preview" />
 	</ItemGroup>
 </Project>
