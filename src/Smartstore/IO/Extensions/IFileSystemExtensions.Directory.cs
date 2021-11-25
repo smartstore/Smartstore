@@ -620,12 +620,11 @@ namespace Smartstore
         public static DirectoryHasher GetDirectoryHasher(this IFileSystem fs, string subpath, IDirectory storageDir, string searchPattern = "*", bool deep = false)
         {
             Guard.NotNull(fs, nameof(fs));
-            Guard.NotEmpty(subpath, nameof(subpath));
 
-            var entry = fs.GetEntry(subpath);
-            if (entry is not IDirectory dir)
+            var dir = fs.GetDirectory(subpath);
+            if (!dir.Exists)
             {
-                throw new FileSystemException($"Path '{subpath}' must point to a directory, not to a file.");
+                throw new DirectoryNotFoundException($"Directory '{subpath}' does not exist.");
             }
 
             return new DirectoryHasher(dir, storageDir, searchPattern, deep);
