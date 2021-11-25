@@ -23,7 +23,7 @@ namespace Smartstore.Core.Stores
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
         private readonly ICacheManager _cache;
-        private IDictionary<string, StoreMappingCollection> _prefetchedCollections;
+        private readonly IDictionary<string, StoreMappingCollection> _prefetchedCollections;
 
         public StoreMappingService(ICacheManager cache, IStoreContext storeContext, SmartDbContext db)
         {
@@ -175,7 +175,7 @@ namespace Smartstore.Core.Stores
                     }
 
                     var min = entityIds[0];
-                    var max = entityIds[entityIds.Length - 1];
+                    var max = entityIds[^1];
 
                     if (entityIds.Length == 2 && max > min + 1)
                     {

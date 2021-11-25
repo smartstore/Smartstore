@@ -65,7 +65,7 @@ namespace Smartstore.Web.Modelling
                 else
                 {
                     // Is Complex type
-                    var modelName = key.Substring(0, key.Length - subPropertyName.Length - 1);
+                    var modelName = key[..(key.Length - subPropertyName.Length - 1)];
                     var valueType = GetValueType(keys, modelName, bindingContext.ValueProvider);
                     if (!valueType.HasAttribute<CustomModelPartAttribute>(false))
                     {

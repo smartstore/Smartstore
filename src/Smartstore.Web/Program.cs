@@ -28,7 +28,7 @@ namespace Smartstore.Web
 {
     public class Program
     {
-        private static readonly Regex _rgSystemSource = new Regex("^File|^System|^Microsoft|^Serilog|^Autofac|^Castle|^MiniProfiler|^Newtonsoft|^Pipelines|^StackExchange|^Superpower", RegexOptions.Compiled);
+        private static readonly Regex _rgSystemSource = new("^File|^System|^Microsoft|^Serilog|^Autofac|^Castle|^MiniProfiler|^Newtonsoft|^Pipelines|^StackExchange|^Superpower", RegexOptions.Compiled);
         private static IConfiguration _configuration;
 
         private static IConfiguration BuildConfiguration()

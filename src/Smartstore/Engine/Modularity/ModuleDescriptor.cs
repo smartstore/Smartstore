@@ -270,7 +270,7 @@ namespace Smartstore.Engine.Modularity
                         var key = doc.SelectSingleNode(@"//Language/LocaleResource")?.Attributes["Name"]?.InnerText;
                         if (key.HasValue() && key.Contains('.'))
                         {
-                            return key.Substring(0, key.LastIndexOf('.'));
+                            return key[..key.LastIndexOf('.')];
                         }
                     }
                 }
