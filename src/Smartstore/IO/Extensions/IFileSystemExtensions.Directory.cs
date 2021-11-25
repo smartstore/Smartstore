@@ -263,7 +263,7 @@ namespace Smartstore
         /// <summary>
         /// Safe way to delete all directory content
         /// </summary>
-        /// <param name="subpath">Directory path</param>
+        /// <param name="directory">Directory</param>
         /// <param name="deleteIfEmpfy">Delete dir too if it doesn't contain any entries after deletion anymore</param>
         /// <param name="olderThan">Delete only files older than this TimeSpan</param>
         /// <param name="ignoreFiles">Name of files to ignore (not to delete).</param>
