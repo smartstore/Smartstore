@@ -20,8 +20,7 @@ namespace Smartstore.Core.Checkout.GiftCards
             builder.HasOne(x => x.UsedWithOrder)
                 .WithMany(x => x.GiftCardUsageHistory)
                 .HasForeignKey(x => x.UsedWithOrderId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

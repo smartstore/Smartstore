@@ -16,14 +16,12 @@ namespace Smartstore.Core.Catalog.Brands
             builder.HasOne(c => c.Manufacturer)
                 .WithMany()
                 .HasForeignKey(c => c.ManufacturerId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductManufacturers)
                 .HasForeignKey(c => c.ProductId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

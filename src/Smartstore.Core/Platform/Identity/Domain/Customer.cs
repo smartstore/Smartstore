@@ -45,6 +45,7 @@ namespace Smartstore.Core.Identity
                         c.HasKey("Customer_Id", "Address_Id");
                     });
 
+            // INFO: we cannot set both addresses to DeleteBehavior.SetNull. It would produce cycles or multiple cascade paths.
             builder
                 .HasOne(c => c.BillingAddress)
                 .WithOne(navigationName: null)
@@ -53,7 +54,8 @@ namespace Smartstore.Core.Identity
             builder
                 .HasOne(c => c.ShippingAddress)
                 .WithOne(navigationName: null)
-                .HasForeignKey<Customer>(c => c.ShippingAddressId);
+                .HasForeignKey<Customer>(c => c.ShippingAddressId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 

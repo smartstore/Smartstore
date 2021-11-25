@@ -20,8 +20,7 @@ namespace Smartstore.Core.Checkout.Payment
             builder.HasOne(x => x.InitialOrder)
                 .WithMany()
                 .HasForeignKey(x => x.InitialOrderId)
-                .OnDelete(DeleteBehavior.NoAction)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 

@@ -43,7 +43,8 @@ namespace Smartstore.Core.Checkout.Orders
             builder
                 .HasOne(o => o.ShippingAddress)
                 .WithMany()
-                .HasForeignKey(o => o.ShippingAddressId);
+                .HasForeignKey(o => o.ShippingAddressId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 

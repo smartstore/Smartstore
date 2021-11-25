@@ -25,7 +25,6 @@ namespace Smartstore.Core.Logging
             builder
                 .HasOne(c => c.Customer)
                 .WithMany()
-                .IsRequired(false)
                 .HasForeignKey(c => c.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

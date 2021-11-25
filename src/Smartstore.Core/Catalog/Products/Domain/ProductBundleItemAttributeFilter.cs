@@ -2,22 +2,10 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    internal class ProductBundleItemAttributeFilterMap : IEntityTypeConfiguration<ProductBundleItemAttributeFilter>
-    {
-        public void Configure(EntityTypeBuilder<ProductBundleItemAttributeFilter> builder)
-        {
-            //builder.HasOne(c => c.BundleItem)
-            //    .WithMany(c => c.AttributeFilters)
-            //    .HasForeignKey(c => c.BundleItemId)
-            //    .OnDelete(DeleteBehavior.Cascade);
-        }
-    }
-
     /// <summary>
     /// Represents a filter for a product bundle item.
     /// </summary>

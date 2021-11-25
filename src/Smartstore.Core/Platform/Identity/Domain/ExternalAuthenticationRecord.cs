@@ -2,23 +2,10 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
-    internal class ExternalAuthenticationRecordMap : IEntityTypeConfiguration<ExternalAuthenticationRecord>
-    {
-        public void Configure(EntityTypeBuilder<ExternalAuthenticationRecord> builder)
-        {
-            //builder.HasOne(c => c.Customer)
-            //    .WithMany(c => c.ExternalAuthenticationRecords)
-            //    .HasForeignKey(c => c.CustomerId)
-            //    .IsRequired(false)
-            //    .OnDelete(DeleteBehavior.Cascade);
-        }
-    }
-
     /// <summary>
     /// Represents an external authentication record.
     /// </summary>

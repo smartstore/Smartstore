@@ -15,18 +15,19 @@ namespace Smartstore.Core.Catalog.Products
     {
         public void Configure(EntityTypeBuilder<ProductBundleItem> builder)
         {
+            // INFO: DeleteBehavior.ClientSetNull required because of cycles or multiple cascade paths.
             builder
                 .HasOne(c => c.Product)
                 .WithMany()
                 .HasForeignKey(c => c.ProductId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
+            // INFO: required because the property names do not meet the EF conventions.
             builder
                 .HasOne(c => c.BundleProduct)
                 .WithMany(c => c.ProductBundleItems)
                 .HasForeignKey(c => c.BundleProductId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

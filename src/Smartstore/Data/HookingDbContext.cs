@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Smartstore.Data.Hooks;
@@ -347,22 +346,6 @@ namespace Smartstore.Data
                 entityType.SetTableName(entityType.DisplayName());
             }
         }
-
-        //private static void ApplySetNullDeleteBehaviorConvention(IMutableEntityType entityType)
-        //{
-        //    // Only touch optional relationships where delete behavior is the EF default.
-        //    var foreignKeys = entityType.GetForeignKeys()
-        //        .Where(fk => !fk.IsRequired && fk.DeleteBehavior == DeleteBehavior.ClientSetNull);
-
-        //    foreach (var fk in foreignKeys)
-        //    {
-        //        //var declaringKey = fk.DeclaringEntityType.ClrType.Name + "." + fk.Properties.First()?.Name;
-        //        fk.ToDebugString(MetadataDebugStringOptions.SingleLineDefault).Dump();
-
-        //        // SqlException (0x80131904): Introducing FOREIGN KEY constraint ... on table ... may cause cycles or multiple cascade paths.
-        //        fk.DeleteBehavior = DeleteBehavior.SetNull;
-        //    }
-        //}
 
         [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Required")]
         private static void ApplyDecimalPrecisionConvention(IMutableProperty property)

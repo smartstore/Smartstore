@@ -17,8 +17,10 @@ namespace Smartstore.Core.Common
         {
             builder.HasOne(a => a.Country)
                 .WithMany()
-                .HasForeignKey(a => a.CountryId);
+                .HasForeignKey(a => a.CountryId)
+                .OnDelete(DeleteBehavior.SetNull);
 
+            // INFO: DeleteBehavior.SetNull not possible because of cycles or multiple cascade paths.
             builder.HasOne(a => a.StateProvince)
                 .WithMany()
                 .HasForeignKey(a => a.StateProvinceId);

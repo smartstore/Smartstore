@@ -17,7 +17,8 @@ namespace Smartstore.Core.Checkout.GiftCards
         {   
             builder.HasOne(x => x.PurchasedWithOrderItem)
                 .WithMany(x => x.AssociatedGiftCards)
-                .HasForeignKey(x => x.PurchasedWithOrderItemId);
+                .HasForeignKey(x => x.PurchasedWithOrderItemId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 

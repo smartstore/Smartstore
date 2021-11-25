@@ -19,7 +19,6 @@ namespace Smartstore.Core.Catalog.Attributes
             builder.HasOne(c => c.ProductAttributeOptionsSet)
                 .WithMany(c => c.ProductAttributeOptions)
                 .HasForeignKey(c => c.ProductAttributeOptionsSetId)
-                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

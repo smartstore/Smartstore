@@ -19,7 +19,8 @@ namespace Smartstore.Core.Common
             builder
                 .HasOne(x => x.DefaultCurrency)
                 .WithMany()
-                .HasForeignKey(x => x.DefaultCurrencyId);
+                .HasForeignKey(x => x.DefaultCurrencyId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder
                 .HasMany(x => x.StateProvinces)

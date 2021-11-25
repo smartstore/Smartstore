@@ -17,8 +17,7 @@ namespace Smartstore.Core.Checkout.Shipping
             builder.HasOne(x => x.Order)
                 .WithMany(x => x.Shipments)
                 .HasForeignKey(x => x.OrderId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

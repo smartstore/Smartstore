@@ -20,8 +20,7 @@ namespace Smartstore.Core.Catalog.Attributes
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductVariantAttributeCombinations)
                 .HasForeignKey(c => c.ProductId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(c => c.DeliveryTime)
                 .WithMany()

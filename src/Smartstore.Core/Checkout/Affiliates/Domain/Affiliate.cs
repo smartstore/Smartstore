@@ -17,7 +17,6 @@ namespace Smartstore.Core.Checkout.Affiliates
 
             builder.HasOne(x => x.Address)
                 .WithMany()
-                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

@@ -16,8 +16,7 @@ namespace Smartstore.Core.Catalog.Products
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductReviews)
                 .HasForeignKey(c => c.ProductId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

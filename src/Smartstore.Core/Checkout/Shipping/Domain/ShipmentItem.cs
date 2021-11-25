@@ -1,23 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
-    internal class ShipmentItemMap : IEntityTypeConfiguration<ShipmentItem>
-    {
-        public void Configure(EntityTypeBuilder<ShipmentItem> builder)
-        {
-            builder.HasOne(x => x.Shipment)
-                .WithMany(x => x.ShipmentItems)
-                .HasForeignKey(x => x.ShipmentId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
-        }
-    }
-
     /// <summary>
     /// Represents a shipment order product variant
     /// </summary>

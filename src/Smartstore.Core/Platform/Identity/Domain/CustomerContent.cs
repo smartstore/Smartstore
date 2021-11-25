@@ -15,8 +15,7 @@ namespace Smartstore.Core.Identity
             builder.HasOne(c => c.Customer)
                 .WithMany(c => c.CustomerContent)
                 .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

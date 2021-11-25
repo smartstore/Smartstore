@@ -14,8 +14,7 @@ namespace Smartstore.Core.Checkout.Payment
             builder.HasOne(x => x.RecurringPayment)
                 .WithMany(x => x.RecurringPaymentHistory)
                 .HasForeignKey(x => x.RecurringPaymentId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Entity framework issue if we have navigation property to 'Order'.
             // 1. save recurring payment with an order
