@@ -32,6 +32,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.DevTools", "src\Smartstore.Modules\Smartstore.DevTools\Smartstore.DevTools.csproj", "{62C64D0B-D937-40B2-B89D-198B2409FC84}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4C0385CB-1ABE-4569-AA9D-0C3DCBE44479}"
+	ProjectSection(SolutionItems) = preProject
+		src\Smartstore.Modules\module.schema.json = src\Smartstore.Modules\module.schema.json
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1DE93C7F-22CE-462C-BB6E-7282F4403F2E}"
 	ProjectSection(SolutionItems) = preProject
