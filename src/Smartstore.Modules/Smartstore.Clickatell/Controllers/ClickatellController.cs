@@ -5,14 +5,21 @@ using Smartstore.Clickatell.Models;
 using Smartstore.Clickatell.Services;
 using Smartstore.Clickatell.Settings;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.Clickatell.Controllers
 {
-    [Area("Admin")]
-    public class ClickatellController : ModuleController
+    public class ClickatellController : AdminController
     {
+        private readonly ClickatellHttpClient _client;
+        
+        public ClickatellController(ClickatellHttpClient client)
+        {
+            _client = client;
+        }
+
         [LoadSetting]
         public IActionResult Configure(ClickatellSettings settings)
         {
@@ -36,7 +43,7 @@ namespace Smartstore.Clickatell.Controllers
 
         [LoadSetting]
         [HttpPost, ActionName("Configure"), FormValueRequired("test-sms")]
-        public async Task<IActionResult> TestSmsAsync(ConfigurationModel model, ClickatellSettings settings)
+        public async Task<IActionResult> TestSms(ConfigurationModel model, ClickatellSettings settings)
         {
             try
             {
@@ -47,7 +54,7 @@ namespace Smartstore.Clickatell.Controllers
                 }
                 else
                 {
-                    await ClickatellSmsSender.SendSmsAsync(settings, model.TestMessage);
+                    await _client.SendSmsAsync(model.TestMessage, settings);
 
                     model.TestSucceeded = true;
                     model.TestSmsResult = T("Plugins.Sms.Clickatell.TestSuccess");

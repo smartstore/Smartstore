@@ -125,7 +125,7 @@ namespace Smartstore.Engine.Modularity
             }
         }
 
-        private bool IsActiveForStore(IModuleDescriptor module, int storeId)
+        public bool IsActiveForStore(IModuleDescriptor module, int storeId)
         {
             if (storeId == 0)
             {

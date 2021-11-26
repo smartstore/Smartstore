@@ -13,6 +13,8 @@ using Smartstore.Clickatell.Settings;
 
 namespace Smartstore.Clickatell.Services
 {
+    // INFO: (mh) (core) WTF!!!!!! A STATIC service class?! Really? The logger will never be injected.
+    // The HttpClient instance is static and will NEVER be disposed (leading to massive mem leaks). The usage of HttpClient is utterly wrong.
     public static class ClickatellSmsSender
     {
         private static ILogger Logger { get; set; } = NullLogger.Instance;

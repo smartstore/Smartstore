@@ -28,9 +28,6 @@ namespace Smartstore.Web.Controllers
     [AutoValidateAntiforgeryToken]
     [AuthorizeAdmin]
     [ValidateAdminIpAddress]
-    [RequireSsl]
-    [TrackActivity(Order = 100)]
-    [SaveChanges(typeof(SmartDbContext), Order = int.MaxValue)]
     public abstract class AdminController : ManageController
     {
     }

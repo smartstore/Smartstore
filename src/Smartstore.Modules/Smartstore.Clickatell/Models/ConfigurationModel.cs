@@ -16,6 +16,7 @@ namespace Smartstore.Clickatell.Models
 
         [LocalizedDisplay("*TestMessage")]
         public string TestMessage { get; set; }
+
         public bool TestSucceeded { get; set; }
         public string TestSmsResult { get; set; }
         public string TestSmsDetailResult { get; set; }

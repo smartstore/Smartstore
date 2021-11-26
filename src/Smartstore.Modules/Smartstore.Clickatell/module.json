@@ -1,5 +1,5 @@
 {
-  "$schema": "../../Smartstore.Web/Properties/module.schema.json",
+  "$schema": "../module.schema.json",
   "Author": "SmartStore AG",
   "Group": "Mobile",
   "SystemName": "Smartstore.Clickatell",
@@ -8,7 +8,5 @@
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Order": 1,
-  "AssemblyName": "Smartstore.Clickatell.dll",
-  "ResourceRootKey": "Plugins.Sms.Clickatell",
-  "ProjectUrl": ""
+  "ResourceRootKey": "Plugins.Sms.Clickatell"
 }

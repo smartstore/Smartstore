@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core;
+using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -11,6 +12,9 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Controllers
 {
+    [RequireSsl]
+    [TrackActivity(Order = 100)]
+    [SaveChanges(typeof(SmartDbContext), Order = int.MaxValue)]
     public abstract class ManageController : SmartController
     {
         /// <summary>

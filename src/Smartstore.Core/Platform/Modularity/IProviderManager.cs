@@ -39,5 +39,12 @@ namespace Smartstore.Engine.Modularity
         /// Applies a user setting for the given provider. The caller is responsible for database commit.
         /// </summary>
         ApplySettingResult ApplyUserSetting<T>(ProviderMetadata metadata, Expression<Func<ProviderMetadata, T>> propertyAccessor);
+
+        /// <summary>
+        /// Checks whether a given <paramref name="module"/> is activated for a particular <paramref name="storeId"/>.
+        /// </summary>
+        /// <param name="module">Module to check</param>
+        /// <param name="storeId">Store ID to check.</param>
+        bool IsActiveForStore(IModuleDescriptor module, int storeId);
     }
 }

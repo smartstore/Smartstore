@@ -1,58 +1,45 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Smartstore.Clickatell.Services;
 using Smartstore.Clickatell.Settings;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders.Events;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Engine.Modularity;
 using Smartstore.Events;
 
 namespace Smartstore.Clickatell
 {
     public class Events : IConsumer
     {
-        private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly ClickatellSettings _clickatellSettings;
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public Events(SmartDbContext db, ICommonServices services, ClickatellSettings clickatellSettings)
+        public async Task HandleEventAsync(OrderPlacedEvent message,
+            ClickatellHttpClient client,
+            ICommonServices services,
+            ClickatellSettings clickatellSettings,
+            IProviderManager providerManager,
+            CancellationToken cancelToken)
         {
-            _db = db;
-            _services = services;
-            _clickatellSettings = clickatellSettings;
-
-            T = NullLocalizer.Instance;
-        }
-
-        public Localizer T { get; set; }
-
-        public async Task HandleEventAsync(OrderPlacedEvent message)
-        {
-            if (!_clickatellSettings.Enabled)
-                return;
-
-            // TODO: (mh) (core) How to get out of here if the Plugin isn't active? Lets discuss with MC first.
-            //var descriptor = _pluginFinder.GetPluginDescriptorBySystemName(ClickatellSmsProvider.SystemName);
-            //if (descriptor == null)
-            //    return;
-
-            //var storeId = _services.StoreContext.CurrentStore.Id;
-
-            //if (!(storeId == 0 || _services.Settings.GetSettingByKey<string>(descriptor.GetSettingKey("LimitedToStores")).ToIntArrayContains(storeId, true)))
-            //    return;
-
-            //var plugin = descriptor.Instance() as ClickatellSmsProvider;
-            //if (plugin == null)
-            //    return;
-
-            try
+            if (!clickatellSettings.Enabled)
             {
-                await ClickatellSmsSender.SendSmsAsync(_clickatellSettings, T("Plugins.Sms.Clickatell.OrderPlacedMessage", message.Order.GetOrderNumber()));
-
-                message.Order.AddOrderNote(T("Plugins.Sms.Clickatell.SmsSentNote"));
-                await _db.SaveChangesAsync();
+                return;
             }
-            catch { }
+
+            var module = services.ApplicationContext.ModuleCatalog.GetModuleByAssembly(typeof(Events).Assembly);
+            if (!providerManager.IsActiveForStore(module, services.StoreContext.CurrentStore.Id))
+            {
+                return;
+            }
+
+
+            await client.SendSmsAsync(
+                T("Plugins.Sms.Clickatell.OrderPlacedMessage", message.Order.GetOrderNumber()), 
+                clickatellSettings, 
+                cancelToken);
+
+            message.Order.AddOrderNote(T("Plugins.Sms.Clickatell.SmsSentNote"));
+            await services.DbContext.SaveChangesAsync(cancelToken);
         }
     }
 }
