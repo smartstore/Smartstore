@@ -26,6 +26,7 @@ namespace Smartstore.Web.Razor
         private IPageAssetBuilder _assets;
         private IUserAgent _userAgent;
         private ILinkResolver _linkResolver;
+        private ICommonServices _services;
 
         public SmartRazorPage()
         {
@@ -74,6 +75,11 @@ namespace Smartstore.Web.Razor
         protected ILinkResolver LinkResolver 
         { 
             get => _linkResolver ??= base.Context.RequestServices.GetRequiredService<ILinkResolver>(); 
+        }
+
+        protected ICommonServices CommonServices
+        {
+            get => _services ??= base.Context.RequestServices.GetRequiredService<ICommonServices>();
         }
 
         /// <summary>

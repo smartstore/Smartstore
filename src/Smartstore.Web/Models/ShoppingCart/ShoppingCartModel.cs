@@ -78,7 +78,7 @@ namespace Smartstore.Web.Models.Cart
 
                 if (PriceAdjustment.HasValue())
                 {
-                    label += " ({0})".FormatWith(PriceAdjustment);
+                    label += " ({0})".FormatCurrent(PriceAdjustment);
                 }
 
                 return label;

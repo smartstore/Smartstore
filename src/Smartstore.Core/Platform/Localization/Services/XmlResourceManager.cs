@@ -106,7 +106,7 @@ namespace Smartstore.Core.Localization
                 if (rootKey.HasValue())
                 {
                     if (!xel.GetAttributeText("AppendRootKey").EqualsNoCase("false"))
-                        name = "{0}.{1}".FormatWith(rootKey, name);
+                        name = "{0}.{1}".FormatCurrent(rootKey, name);
                 }
 
                 if (resources.TryGetValue(name, out var resource))

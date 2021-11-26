@@ -315,7 +315,7 @@ namespace Smartstore.Engine.Modularity
         public string GetSettingKey(string name)
         {
             // Compat: DON'T change Plugin > Module
-            return "PluginSetting.{0}.{1}".FormatWith(SystemName, name);
+            return "PluginSetting.{0}.{1}".FormatCurrent(SystemName, name);
         }
 
         public override string ToString()

@@ -47,11 +47,6 @@ namespace Smartstore
             => string.Format(CultureInfo.CurrentUICulture, format, objects);
 
         [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string FormatWith(this string format, params object[] args)
-            => FormatWith(format, CultureInfo.CurrentCulture, args);
-
-        [DebuggerStepThrough]
         public static string FormatWith(this string format, IFormatProvider provider, params object[] args)
             => string.Format(provider, format, args);
 

@@ -17,7 +17,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
 
@@ -48,7 +47,7 @@ namespace Smartstore.Core.Content.Blocks
 				return block;
 			}
 
-			JsonConvert.PopulateObject(json, block);
+			JsonConvert.PopulateObject(json, block, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
 
 			if (block is IBindableBlock bindableBlock)
 			{
@@ -76,12 +75,13 @@ namespace Smartstore.Core.Content.Blocks
 
 			var settings = new JsonSerializerSettings
 			{
-				ObjectCreationHandling = ObjectCreationHandling.Replace
+				ObjectCreationHandling = ObjectCreationHandling.Replace,
+				TypeNameHandling = TypeNameHandling.None
 			};
 
 			entity.Model = JsonConvert.SerializeObject(block, Formatting.None, settings);
 
-			// save BindEntintyName & BindEntintyId
+			// Save BindEntintyName & BindEntintyId
 			if (block is IBindableBlock bindableBlock)
 			{
 				entity.BindEntityId = bindableBlock.BindEntityId;
@@ -140,7 +140,7 @@ namespace Smartstore.Core.Content.Blocks
 
             if (viewResult == null)
             {
-                var msg = string.Format("No template found for '{0}'. Searched locations:\n{1}.", string.Join(", ", templates), string.Join("\n", searchedLocations));
+                var msg = string.Format("No template found for '{0}'. Searched locations:\n{1}.", string.Join(", ", templates), string.Join('\n', searchedLocations));
                 Logger.Debug(msg);
                 throw new FileNotFoundException(msg);
             }
@@ -198,7 +198,7 @@ namespace Smartstore.Core.Content.Blocks
 			var originalRouteData = originalContext.RouteData;
 			var routeData = new RouteData(originalRouteData);
 			routeData.Values.Merge(originalRouteData.Values);
-			routeData.DataTokens["area"] = element.Metadata.ModuleName; // TODO: (core) Check whether DataTokens["area"] is still the right place for Area replacement in AspNetCore.
+			routeData.DataTokens["module"] = element.Metadata.ModuleName;
 
 			return new ActionContext
 			{
