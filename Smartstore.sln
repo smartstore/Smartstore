@@ -70,6 +70,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.OfflinePayment",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Shipping", "src\Smartstore.Modules\Smartstore.Shipping\Smartstore.Shipping.csproj", "{F945B5FE-0B1F-443F-8395-C441A6F84348}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Clickatell", "src\Smartstore.Modules\Smartstore.Clickatell\Smartstore.Clickatell.csproj", "{54FBCDEA-FF29-4988-A699-F1592C790DA3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -168,6 +170,10 @@ Global
 		{F945B5FE-0B1F-443F-8395-C441A6F84348}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F945B5FE-0B1F-443F-8395-C441A6F84348}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F945B5FE-0B1F-443F-8395-C441A6F84348}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54FBCDEA-FF29-4988-A699-F1592C790DA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54FBCDEA-FF29-4988-A699-F1592C790DA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54FBCDEA-FF29-4988-A699-F1592C790DA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54FBCDEA-FF29-4988-A699-F1592C790DA3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -193,6 +199,7 @@ Global
 		{23B1A1CF-55B5-405F-A21A-DCC936CD73D4} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{BFFCA72C-F9A8-4966-8691-F3243EE9D472} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{F945B5FE-0B1F-443F-8395-C441A6F84348} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{54FBCDEA-FF29-4988-A699-F1592C790DA3} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}
