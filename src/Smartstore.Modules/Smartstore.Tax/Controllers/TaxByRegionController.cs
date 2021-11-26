@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Tax.Domain;
 using Smartstore.Tax.Models;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -90,18 +92,35 @@ namespace Smartstore.Tax.Controllers
         public async Task<IActionResult> List(GridCommand command)
         {
             var taxRates = await _db.TaxRates()
-                .Include(x => x.TaxCategory)
-                .Include(x => x.Country)
-                .Include(x => x.StateProvince)
                 .ApplyRegionFilter(null, null, null, null)
                 .ApplyGridCommand(command, false)
                 .ToPagedList(command)
                 .LoadAsync();
 
             var unavailable = T("Common.Unavailable").Value;
+            var taxCategories = await _db.TaxCategories.ToDictionaryAsync(x => x.Id, x => x);
+
+            var countryIds = taxRates
+                .Where(x => x.CountryId != 0)
+                .ToDistinctArray(x => x.CountryId);
+
+            var countries = countryIds.Any()
+                ? await _db.Countries
+                    .Include(x => x.StateProvinces)
+                    .Where(x => countryIds.Contains(x.Id))
+                    .ToDictionaryAsync(x => x.Id, x => x)
+                : new Dictionary<int, Country>();
+
+            var stateProvinces = countries.Values
+                .SelectMany(x => x.StateProvinces)
+                .ToDictionarySafe(x => x.Id, x => x);
 
             var taxRateModels = taxRates.Select(x =>
             {
+                var taxCategory = taxCategories.Get(x.TaxCategoryId);
+                var country = countries.Get(x.CountryId);
+                var stateProvince = stateProvinces.Get(x.StateProvinceId);
+
                 var m = new ByRegionTaxRateModel
                 {
                     Id = x.Id,
@@ -110,9 +129,9 @@ namespace Smartstore.Tax.Controllers
                     StateProvinceId = x.StateProvinceId,
                     Zip = x.Zip.HasValue() ? x.Zip : "*",
                     Percentage = x.Percentage,
-                    TaxCategoryName = x.TaxCategory?.Name.EmptyNull(),
-                    CountryName = x.Country?.Name ?? unavailable,
-                    StateProvinceName = x.StateProvince?.Name ?? "*"
+                    TaxCategoryName = taxCategory?.Name.EmptyNull(),
+                    CountryName = country?.Name ?? unavailable,
+                    StateProvinceName = stateProvince?.Name ?? "*"
                 };
 
                 return m;
@@ -122,7 +141,7 @@ namespace Smartstore.Tax.Controllers
             var gridModel = new GridModel<ByRegionTaxRateModel>
             {
                 Rows = taxRateModels,
-                Total = await taxRates.GetTotalCountAsync()
+                Total = taxRates.TotalCount
             };
 
             return Json(gridModel);

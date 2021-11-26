@@ -1,37 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Domain;
 
 namespace Smartstore.Tax.Domain
 {
-    internal class TaxRateEntityMap : IEntityTypeConfiguration<TaxRateEntity>
-    {
-        public void Configure(EntityTypeBuilder<TaxRateEntity> builder)
-        {
-            builder.HasOne(c => c.TaxCategory)
-                .WithMany()
-                .HasForeignKey(c => c.TaxCategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne(c => c.Country)
-                .WithMany()
-                .HasForeignKey(c => c.CountryId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // INFO: cascade-delete not possible due to multiple cascade paths (see Country > StateProvince foreign key).
-            builder.HasOne(c => c.StateProvince)
-                .WithMany()
-                .HasForeignKey(c => c.StateProvinceId)
-                .OnDelete(DeleteBehavior.NoAction);
-        }
-    }
-
     /// <summary>
     /// Represents a tax rate.
     /// </summary>
@@ -49,49 +23,19 @@ namespace Smartstore.Tax.Domain
         }
 
         /// <summary>
-        /// Gets or sets the tax category identifier
+        /// Gets or sets the tax category identifier.
         /// </summary>
         public int TaxCategoryId { get; set; }
 
-        private TaxCategory _taxCategory;
         /// <summary>
-        /// Gets or sets the tax category.
-        /// </summary>
-        public TaxCategory TaxCategory
-        {
-            get => _taxCategory ?? LazyLoader.Load(this, ref _taxCategory);
-            set => _taxCategory = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the country identifier
+        /// Gets or sets the country identifier.
         /// </summary>
         public int CountryId { get; set; }
 
-        private Country _country;
         /// <summary>
-        /// Gets or sets the country.
-        /// </summary>
-        public Country Country
-        {
-            get => _country ?? LazyLoader.Load(this, ref _country);
-            set => _country = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the state/province identifier
+        /// Gets or sets the state/province identifier.
         /// </summary>
         public int StateProvinceId { get; set; }
-
-        private StateProvince _stateProvince;
-        /// <summary>
-        /// Gets or sets the state province.
-        /// </summary>
-        public StateProvince StateProvince
-        {
-            get => _stateProvince ?? LazyLoader.Load(this, ref _stateProvince);
-            set => _stateProvince = value;
-        }
 
         /// <summary>
         /// Gets or sets the zip code.
