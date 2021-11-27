@@ -29,13 +29,13 @@ namespace Smartstore.Core.Widgets
         public string Key { get; set; }
 
         /// <summary>
-        /// Invokes (renders) the widget.
+        /// Invokes the widget and returns its content.
         /// </summary>
         /// <returns>The result HTML content.</returns>
         public abstract Task<IHtmlContent> InvokeAsync(ViewContext viewContext);
 
         /// <summary>
-        /// Invokes (renders) the widget.
+        /// Invokes the widget and returns its content.
         /// </summary>
         /// <param name="model">Optional model</param>
         /// <returns>The result HTML content.</returns>

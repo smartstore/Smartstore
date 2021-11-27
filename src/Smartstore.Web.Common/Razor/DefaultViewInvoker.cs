@@ -44,6 +44,8 @@ namespace Smartstore.Web.Razor
             get => _viewDataAccessor.ViewData;
         }
 
+        #region Invoke*
+
         public Task<HtmlString> InvokeViewAsync(string viewName, string module, ViewDataDictionary viewData)
         {
             Guard.NotEmpty(viewName, nameof(viewName));
@@ -56,7 +58,7 @@ namespace Smartstore.Web.Razor
                 TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
             };
 
-            return ExecuteResultAsync(actionContext, result);
+            return ExecuteResultCapturedAsync(actionContext, result);
         }
 
         public Task<HtmlString> InvokePartialViewAsync(string viewName, string module, ViewDataDictionary viewData)
@@ -71,7 +73,7 @@ namespace Smartstore.Web.Razor
                 TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
             };
 
-            return ExecuteResultAsync(actionContext, result);
+            return ExecuteResultCapturedAsync(actionContext, result);
         }
 
         public Task<HtmlString> InvokeComponentAsync(string componentName, string module, ViewDataDictionary viewData, object arguments)
@@ -88,7 +90,7 @@ namespace Smartstore.Web.Razor
                 TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
             };
 
-            return ExecuteResultAsync(actionContext, result);
+            return ExecuteResultCapturedAsync(actionContext, result);
         }
 
         public Task<HtmlString> InvokeComponentAsync(Type componentType, ViewDataDictionary viewData, object arguments)
@@ -105,10 +107,12 @@ namespace Smartstore.Web.Razor
                 TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
             };
 
-            return ExecuteResultAsync(actionContext, result);
+            return ExecuteResultCapturedAsync(actionContext, result);
         }
 
-        protected virtual async Task<HtmlString> ExecuteResultAsync(ActionContext actionContext, IActionResult result)
+        #endregion
+
+        protected virtual async Task<HtmlString> ExecuteResultCapturedAsync(ActionContext actionContext, IActionResult result)
         {
             var response = actionContext.HttpContext.Response;
             var body = response.Body;

@@ -52,7 +52,7 @@ namespace Smartstore.Net
                 .Add(discriminator)
                 .CombinedHashString;
 
-            return hash;
+            return '\"' + hash + '\"';
         }
     }
 }

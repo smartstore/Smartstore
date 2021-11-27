@@ -45,7 +45,6 @@ namespace Smartstore.Core.Widgets
         /// <returns>View component rendering result</returns>
         Task<HtmlString> InvokeComponentAsync(string componentName, string module, ViewDataDictionary viewData, object arguments);
 
-
         /// <summary>
         /// Invokes a view component and returns its html content.
         /// </summary>
@@ -65,22 +64,29 @@ namespace Smartstore.Core.Widgets
         /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         public static Task<HtmlString> InvokeViewAsync(this IViewInvoker invoker, string viewName, object model)
-            => invoker.InvokeViewAsync(viewName, null, new ViewDataDictionary(invoker.ViewData) { Model = model });
+        {
+            return invoker.InvokeViewAsync(viewName, null, new ViewDataDictionary(invoker.ViewData) { Model = model });
+        }
 
         /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         public static Task<HtmlString> InvokeViewAsync(this IViewInvoker invoker, string viewName, string module, object model)
-            => invoker.InvokeViewAsync(viewName, module, new ViewDataDictionary(invoker.ViewData) { Model = model });
+        {
+            return invoker.InvokeViewAsync(viewName, module, new ViewDataDictionary(invoker.ViewData) { Model = model });
+        }
 
         /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
         public static Task<HtmlString> InvokeViewAsync(this IViewInvoker invoker, string viewName, ViewDataDictionary viewData)
-            => invoker.InvokeViewAsync(viewName, null, viewData);
+        {
+            return invoker.InvokeViewAsync(viewName, null, viewData);
+        }
 
         /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         /// <param name="additionalViewData">Additional view data</param>
         public static Task<HtmlString> InvokeViewAsync(this IViewInvoker invoker, string viewName, object model, object additionalViewData)
         {
+            // TODO: (core) Will fail probably --> EnsureCompatible().
             var viewData = new ViewDataDictionary(invoker.ViewData) { Model = model };
 
             if (additionalViewData != null)
@@ -100,22 +106,29 @@ namespace Smartstore.Core.Widgets
         /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         public static Task<HtmlString> InvokePartialViewAsync(this IViewInvoker invoker, string viewName, object model)
-            => invoker.InvokePartialViewAsync(viewName, null, new ViewDataDictionary(invoker.ViewData) { Model = model });
+        {
+            return invoker.InvokePartialViewAsync(viewName, null, new ViewDataDictionary(invoker.ViewData) { Model = model });
+        }
 
         /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         public static Task<HtmlString> InvokePartialViewAsync(this IViewInvoker invoker, string viewName, string module, object model)
-            => invoker.InvokePartialViewAsync(viewName, module, new ViewDataDictionary(invoker.ViewData) { Model = model });
+        {
+            return invoker.InvokePartialViewAsync(viewName, module, new ViewDataDictionary(invoker.ViewData) { Model = model });
+        }
 
         /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
         public static Task<HtmlString> InvokePartialViewAsync(this IViewInvoker invoker, string viewName, ViewDataDictionary viewData)
-            => invoker.InvokePartialViewAsync(viewName, null, viewData);
+        {
+            return invoker.InvokePartialViewAsync(viewName, null, viewData);
+        }
 
         /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         /// <param name="additionalViewData">Additional view data</param>
         public static Task<HtmlString> InvokePartialViewAsync(this IViewInvoker invoker, string viewName, object model, object additionalViewData)
         {
+            // TODO: (core) Will fail probably --> EnsureCompatible().
             var viewData = new ViewDataDictionary(invoker.ViewData) { Model = model };
 
             if (additionalViewData != null)
@@ -135,6 +148,8 @@ namespace Smartstore.Core.Widgets
         /// <inheritdoc cref="IViewInvoker.InvokeComponentAsync(string, string, ViewDataDictionary, object)"/>
         /// <param name="model">Model</param>
         public static Task<HtmlString> InvokeComponentAsync(this IViewInvoker invoker, string componentName, ViewDataDictionary viewData, object arguments)
-            => invoker.InvokeComponentAsync(componentName, null, viewData, arguments);
+        {
+            return invoker.InvokeComponentAsync(componentName, null, viewData, arguments);
+        }
     }
 }

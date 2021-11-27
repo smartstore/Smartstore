@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
@@ -128,14 +128,14 @@ namespace Smartstore.Core.Content.Blocks
 			return RenderByViewAsync(element, templates, htmlHelper, textWriter);
 		}
 
-        protected Task RenderByViewAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
+        protected virtual Task RenderByViewAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
         {
             Guard.NotNull(element, nameof(element));
             Guard.NotNull(templates, nameof(templates));
             Guard.NotNull(htmlHelper, nameof(htmlHelper));
-            Guard.NotNull(textWriter, nameof(textWriter));
 
-            var actionContext = GetActionContextFor(element, htmlHelper.ViewContext);
+			var viewContext = htmlHelper.ViewContext;
+            var actionContext = GetActionContextFor(element, viewContext);
             var viewResult = FindFirstView(element.Metadata, templates, actionContext, out var searchedLocations);
 
             if (viewResult == null)
@@ -145,32 +145,34 @@ namespace Smartstore.Core.Content.Blocks
                 throw new FileNotFoundException(msg);
             }
 
-			var mvcViewOptions = actionContext.HttpContext.RequestServices.GetRequiredService<IOptions<MvcViewOptions>>();
-			var modelMetadataProvider = actionContext.HttpContext.RequestServices.GetRequiredService<IModelMetadataProvider>();
-			var viewData = new ViewDataDictionary(modelMetadataProvider, htmlHelper.ViewContext.ModelState)
+			viewContext = new ViewContext(
+				viewContext,
+				viewResult.View,
+				CreateViewData(element, viewContext),
+				textWriter ?? viewContext.Writer);
+
+			return viewResult.View.RenderAsync(viewContext);
+        }
+
+		protected ViewDataDictionary CreateViewData(IBlockContainer element, ViewContext viewContext)
+        {
+			var modelMetadataProvider = viewContext.HttpContext.RequestServices.GetRequiredService<IModelMetadataProvider>();
+
+			var viewData = new ViewDataDictionary(modelMetadataProvider, viewContext.ModelState)
 			{
 				Model = element.Block
 			};
-            viewData.TemplateInfo.HtmlFieldPrefix = "Block";
 
-            var viewContext = new ViewContext(
-                htmlHelper.ViewContext,
-                viewResult.View,
-                viewData,
-                htmlHelper.ViewContext.TempData,
-                textWriter,
-				mvcViewOptions.Value.HtmlHelperOptions);
+			viewData.TemplateInfo.HtmlFieldPrefix = "Block";
 
-			// TODO: (core) Use IRazorViewInvoker?
-			return viewResult.View.RenderAsync(viewContext);
-        }
+			return viewData;
+		}
 
 		protected virtual async Task RenderByWidgetAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
         {
 			Guard.NotNull(element, nameof(element));
 			Guard.NotNull(templates, nameof(templates));
 			Guard.NotNull(htmlHelper, nameof(htmlHelper));
-			Guard.NotNull(textWriter, nameof(textWriter));
 
 			var widget = templates.Select(x => GetWidget(element, x)).FirstOrDefault(x => x != null);
 			if (widget == null)
@@ -178,8 +180,9 @@ namespace Smartstore.Core.Content.Blocks
 				throw new InvalidOperationException("The return value of the 'GetWidget()' method cannot be NULL.");
 			}
 
-			// TODO: (core) Implement BlockHandlerBase.RenderByWidgetAsync() properly
-			await widget.InvokeAsync(htmlHelper.ViewContext);
+			textWriter ??= htmlHelper.ViewContext.Writer;
+			var content = await widget.InvokeAsync(htmlHelper.ViewContext);
+            content.WriteTo(textWriter, HtmlEncoder.Default);
 		}
 
 		protected virtual WidgetInvoker GetWidget(IBlockContainer element, string template)
@@ -189,22 +192,13 @@ namespace Smartstore.Core.Content.Blocks
 
 		private static ActionContext GetActionContextFor(IBlockContainer element, ActionContext originalContext)
 		{
-			if (element.Metadata.IsInbuilt)
-			{
-				return originalContext;
-			}
-
-			// Change "area" token in RouteData in order to begin search in the module's view folder.
-			var originalRouteData = originalContext.RouteData;
-			var routeData = new RouteData(originalRouteData);
-			routeData.Values.Merge(originalRouteData.Values);
+			// Change "module" token in RouteData in order to begin search in the module's view folder.
+			var routeData = new RouteData(originalContext.RouteData);
 			routeData.DataTokens["module"] = element.Metadata.ModuleName;
 
-			return new ActionContext
+			return new ActionContext(originalContext)
 			{
-				RouteData = routeData,
-				HttpContext = originalContext.HttpContext,
-				ActionDescriptor = originalContext.ActionDescriptor
+				RouteData = routeData
 			};
 		}
 

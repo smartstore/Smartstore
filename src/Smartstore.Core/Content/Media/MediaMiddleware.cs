@@ -239,7 +239,7 @@ namespace Smartstore.Core.Content.Media
                 EnableRangeProcessing = true,
                 // INFO: (core)(perf)I think ETag is sufficient and ignoring this reduces header comparison by one item.
                 //LastModified = file.LastModified,
-                EntityTag = new EntityTagHeaderValue('\"' + ETagUtility.GenerateETag(file) + '\"')
+                EntityTag = new EntityTagHeaderValue(ETagUtility.GenerateETag(file))
             };
         }
 
