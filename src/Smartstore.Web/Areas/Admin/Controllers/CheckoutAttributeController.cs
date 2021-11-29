@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -25,6 +26,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IActivityLogger _activityLogger;
         private readonly ILanguageService _languageService;
         private readonly ILocalizedEntityService _localizedEntityService;
+        private readonly ICurrencyService _currencyService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly MeasureSettings _measureSettings;
         private readonly AdminAreaSettings _adminAreaSettings;
@@ -34,6 +36,7 @@ namespace Smartstore.Admin.Controllers
             IActivityLogger activityLogger,
             ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
+            ICurrencyService currencyService,
             MeasureSettings measureSettings,
             IStoreMappingService storeMappingService,
             AdminAreaSettings adminAreaSettings)
@@ -42,6 +45,7 @@ namespace Smartstore.Admin.Controllers
             _activityLogger = activityLogger;
             _languageService = languageService;
             _localizedEntityService = localizedEntityService;
+            _currencyService = currencyService;
             _measureSettings = measureSettings;
             _storeMappingService = storeMappingService;
             _adminAreaSettings = adminAreaSettings;
@@ -102,7 +106,7 @@ namespace Smartstore.Admin.Controllers
 
             model.CheckoutAttributeId = attribute?.Id ?? 0;
             model.IsListTypeAttribute = attribute?.IsListTypeAttribute ?? false;
-            model.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             model.BaseWeightIn = baseWeight != null ? baseWeight.GetLocalized(x => x.Name) : string.Empty;
         }
 

@@ -349,7 +349,7 @@ namespace Smartstore.Core.DataExchange.Export
             return result;
         }
 
-        private static dynamic ToDynamic(Store store, DataExporterContext ctx)
+        private dynamic ToDynamic(Store store, DataExporterContext ctx)
         {
             if (store == null)
             {
@@ -358,8 +358,8 @@ namespace Smartstore.Core.DataExchange.Export
 
             dynamic result = new DynamicEntity(store);
 
-            result.PrimaryStoreCurrency = ToDynamic(store.PrimaryStoreCurrency, ctx);
-            result.PrimaryExchangeRateCurrency = ToDynamic(store.PrimaryExchangeRateCurrency, ctx);
+            result.PrimaryStoreCurrency = ToDynamic(_currencyService.PrimaryCurrency, ctx);
+            result.PrimaryExchangeRateCurrency = ToDynamic(_currencyService.PrimaryExchangeCurrency, ctx);
 
             return result;
         }
@@ -660,7 +660,7 @@ namespace Smartstore.Core.DataExchange.Export
             return result;
         }
 
-        private static dynamic ToDynamic(NewsletterSubscription subscription, DataExporterContext ctx)
+        private dynamic ToDynamic(NewsletterSubscription subscription, DataExporterContext ctx)
         {
             if (subscription == null)
             {

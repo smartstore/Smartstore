@@ -10,6 +10,8 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
@@ -25,17 +27,22 @@ namespace Smartstore.Core.Identity.Rules
         private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _localizationService;
 
+        private readonly Currency _primaryCurrency;
+
         public TargetGroupService(
             SmartDbContext db,
             IRuleService ruleService,
             IStoreContext storeContext,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+            ICurrencyService currencyService)
             : base(RuleScope.Customer)
         {
             _db = db;
             _ruleService = ruleService;
             _storeContext = storeContext;
             _localizationService = localizationService;
+
+            _primaryCurrency = currencyService.PrimaryCurrency;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -425,7 +432,7 @@ namespace Smartstore.Core.Identity.Rules
 
             descriptors
                 .Where(x => x.RuleType == RuleType.Money)
-                .Each(x => x.Metadata["postfix"] = _storeContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode);
+                .Each(x => x.Metadata["postfix"] = _primaryCurrency.CurrencyCode);
 
             return Task.FromResult(descriptors.Cast<RuleDescriptor>());
         }

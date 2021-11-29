@@ -49,6 +49,7 @@ namespace Smartstore.Admin.Controllers
     public class SettingController : AdminController
     {
         private readonly SmartDbContext _db;
+        private readonly ICurrencyService _currencyService;
         private readonly ILanguageService _languageService;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly StoreDependingSettingHelper _storeDependingSettingHelper;
@@ -66,6 +67,7 @@ namespace Smartstore.Admin.Controllers
 
         public SettingController(
             SmartDbContext db,
+            ICurrencyService currencyService,
             ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
             StoreDependingSettingHelper storeDependingSettingHelper,
@@ -82,6 +84,7 @@ namespace Smartstore.Admin.Controllers
             Lazy<ModuleManager> moduleManager)
         {
             _db = db;
+            _currencyService = currencyService;
             _languageService = languageService;
             _localizedEntityService = localizedEntityService;
             _storeDependingSettingHelper = storeDependingSettingHelper;
@@ -1204,7 +1207,7 @@ namespace Smartstore.Admin.Controllers
             var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
             var model = await MapperFactory.MapAsync<RewardPointsSettings, RewardPointsSettingsModel>(settings);
 
-            model.PrimaryStoreCurrencyCode = store.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
             return View(model);
         }
@@ -1267,7 +1270,7 @@ namespace Smartstore.Admin.Controllers
             var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
             var model = await MapperFactory.MapAsync<ShippingSettings, ShippingSettingsModel>(settings);
 
-            model.PrimaryStoreCurrencyCode = store.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
             var todayShipmentHours = new List<SelectListItem>();
 
@@ -1399,7 +1402,7 @@ namespace Smartstore.Admin.Controllers
             var store = storeScope == 0 ? Services.StoreContext.CurrentStore : allStores.FirstOrDefault(x => x.Id == storeScope);
             var model = await MapperFactory.MapAsync<OrderSettings, OrderSettingsModel>(settings);
 
-            model.PrimaryStoreCurrencyCode = store.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             model.StoreCount = allStores.Count;
 
             AddLocales(model.Locales, (locale, languageId) =>

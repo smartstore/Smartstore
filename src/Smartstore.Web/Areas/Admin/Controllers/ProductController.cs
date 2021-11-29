@@ -57,6 +57,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IAclService _aclService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly ICurrencyService _currencyService;
         private readonly IDiscountService _discountService;
         private readonly Lazy<IProductCloner> _productCloner;
         private readonly Lazy<ICategoryService> _categoryService;
@@ -88,6 +89,7 @@ namespace Smartstore.Admin.Controllers
             IAclService aclService,
             IStoreMappingService storeMappingService,
             IDateTimeHelper dateTimeHelper,
+            ICurrencyService currencyService,
             IDiscountService discountService,
             Lazy<IProductCloner> productCloner,
             Lazy<ICategoryService> categoryService,
@@ -121,6 +123,7 @@ namespace Smartstore.Admin.Controllers
             _aclService = aclService;
             _storeMappingService = storeMappingService;
             _dateTimeHelper = dateTimeHelper;
+            _currencyService = currencyService;
             _discountService = discountService;
             _productAttributeService = productAttributeService;
             _productAttributeMaterializer = productAttributeMaterializer;
@@ -1525,7 +1528,7 @@ namespace Smartstore.Admin.Controllers
                 model.AddPictureModel.PictureId = product.MainPictureId ?? 0;
             }
 
-            model.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
             var measure = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
             var dimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);

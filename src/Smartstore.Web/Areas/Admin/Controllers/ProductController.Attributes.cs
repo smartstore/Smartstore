@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
-//using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -641,7 +640,7 @@ namespace Smartstore.Admin.Controllers
             var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId);
 
             model.ProductId = product.Id;
-            model.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             model.BaseDimensionIn = baseDimension?.GetLocalized(x => x.Name) ?? string.Empty;
 
             if (entity == null)

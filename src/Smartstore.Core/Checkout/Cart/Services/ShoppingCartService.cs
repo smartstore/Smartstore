@@ -10,6 +10,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -47,6 +48,7 @@ namespace Smartstore.Core.Checkout.Cart
             IShoppingCartValidator cartValidator,
             IProductAttributeMaterializer productAttributeMaterializer,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+            ICurrencyService currencyService,
             ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
@@ -58,7 +60,8 @@ namespace Smartstore.Core.Checkout.Cart
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _shoppingCartSettings = shoppingCartSettings;
-            _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
+
+            _primaryCurrency = currencyService.PrimaryCurrency;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;

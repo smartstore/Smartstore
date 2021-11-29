@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -25,17 +26,20 @@ namespace Smartstore.Shipping.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IShippingService _shippingService;
+        private readonly ICurrencyService _currencyService;
         private readonly IProviderManager _providerManager;
         private readonly ShippingByTotalSettings _shippingByTotalSettings;
 
         public ByTotalController(
             SmartDbContext db, 
-            IShippingService shippingService, 
+            IShippingService shippingService,
+            ICurrencyService currencyService,
             IProviderManager providerManager, 
             ShippingByTotalSettings shippingByTotalSettings)
         {
             _db = db;
             _shippingService = shippingService;
+            _currencyService = currencyService;
             _providerManager = providerManager;
             _shippingByTotalSettings = shippingByTotalSettings;
         }
@@ -58,7 +62,7 @@ namespace Smartstore.Shipping.Controllers
             var stateProvincesOfFirstCountry = stateProvinces.Values.Where(x => x.CountryId == countries.Values.FirstOrDefault().Id).ToList();
 
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems();
-            ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
             ViewBag.AvailableShippingMethods = shippingMethods.Values.Select(x => new SelectListItem
             {
@@ -103,7 +107,7 @@ namespace Smartstore.Shipping.Controllers
                 SmallQuantityThreshold = _shippingByTotalSettings.SmallQuantityThreshold,
                 SmallQuantitySurcharge = _shippingByTotalSettings.SmallQuantitySurcharge,
                 CalculateTotalIncludingTax = _shippingByTotalSettings.CalculateTotalIncludingTax,
-                PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode
+                PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode
             };
 
             await PrepareViewBagAsync();

@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 
@@ -9,10 +10,12 @@ namespace Smartstore.Core.Checkout.Rules.Impl
     internal class SpentAmountRule : IRule
     {
         private readonly SmartDbContext _db;
+        private readonly ICurrencyService _currencyService;
 
-        public SpentAmountRule(SmartDbContext db)
+        public SpentAmountRule(SmartDbContext db, ICurrencyService currencyService)
         {
             _db = db;
+            _currencyService = currencyService;
         }
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
@@ -23,7 +26,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                 .ApplyStatusFilter(new[] { (int)OrderStatus.Complete });
 
             var spentAmount = await query.SumAsync(x => (decimal?)x.OrderTotal);
-            var roundedAmount = decimal.Round(spentAmount ?? decimal.Zero, context.Store.PrimaryStoreCurrency.RoundNumDecimals);
+            var roundedAmount = decimal.Round(spentAmount ?? decimal.Zero, _currencyService.PrimaryCurrency.RoundNumDecimals);
 
             return expression.Operator.Match(roundedAmount, expression.Value);
         }

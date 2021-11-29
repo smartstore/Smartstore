@@ -19,6 +19,7 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
@@ -53,6 +54,7 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IExportProfileService _exportProfileService;
         private readonly ICategoryService _categoryService;
+        private readonly ICurrencyService _currencyService;
         private readonly IDataExporter _dataExporter;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IProviderManager _providerManager;
@@ -65,6 +67,7 @@ namespace Smartstore.Admin.Controllers
             SmartDbContext db,
             IExportProfileService exportProfileService,
             ICategoryService categoryService,
+            ICurrencyService currencyService,
             IDataExporter dataExporter,
             ITaskScheduler taskScheduler,
             IProviderManager providerManager,
@@ -76,6 +79,7 @@ namespace Smartstore.Admin.Controllers
             _db = db;
             _exportProfileService = exportProfileService;
             _categoryService = categoryService;
+            _currencyService = currencyService;
             _dataExporter = dataExporter;
             _taskScheduler = taskScheduler;
             _providerManager = providerManager;
@@ -875,7 +879,7 @@ namespace Smartstore.Admin.Controllers
             model.CompletedEmailAddresses = profile.CompletedEmailAddresses.SplitSafe(',').ToArray();
             model.CreateZipArchive = profile.CreateZipArchive;
             model.Cleanup = profile.Cleanup;
-            model.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             model.FileNamePatternExample = profile.ResolveFileNamePattern(store, 1, _dataExchangeSettings.MaxFileNameLength);
 
             ViewBag.EmailAccounts = emailAccounts

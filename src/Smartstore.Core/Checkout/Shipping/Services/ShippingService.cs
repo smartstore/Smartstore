@@ -30,7 +30,6 @@ namespace Smartstore.Core.Checkout.Shipping
         private readonly ShippingSettings _shippingSettings;
         private readonly IProviderManager _providerManager;
         private readonly ISettingFactory _settingFactory;
-        private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
         private readonly SmartDbContext _db;
 
@@ -41,7 +40,6 @@ namespace Smartstore.Core.Checkout.Shipping
             ShippingSettings shippingSettings,
             IProviderManager providerManager,
             ISettingFactory settingFactory,
-            IStoreContext storeContext,
             IWorkContext workContext,
             SmartDbContext db)
         {
@@ -51,7 +49,6 @@ namespace Smartstore.Core.Checkout.Shipping
             _shippingSettings = shippingSettings;
             _providerManager = providerManager;
             _settingFactory = settingFactory;
-            _storeContext = storeContext;
             _workContext = workContext;
             _db = db;
         }
@@ -167,7 +164,6 @@ namespace Smartstore.Core.Checkout.Shipping
             }
 
             // Get shipping options.
-            var primaryCurrency = _storeContext.CurrentStore.PrimaryStoreCurrency;
             var workingCurrency = _workContext.WorkingCurrency;
             var result = new ShippingOptionResponse();
 

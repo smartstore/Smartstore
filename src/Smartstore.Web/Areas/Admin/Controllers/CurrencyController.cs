@@ -260,7 +260,7 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                var primaryExchangeCurrency = _services.StoreContext.CurrentStore.PrimaryExchangeRateCurrency;
+                var primaryExchangeCurrency = _currencyService.PrimaryExchangeCurrency;
                 if (primaryExchangeCurrency == null)
                 {
                     throw new SmartException(T("Admin.System.Warnings.ExchangeCurrency.NotSet"));

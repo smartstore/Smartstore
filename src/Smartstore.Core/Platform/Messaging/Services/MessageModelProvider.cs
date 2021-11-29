@@ -453,6 +453,8 @@ namespace Smartstore.Core.Messaging
             Guard.NotNull(messageContext, nameof(messageContext));
             Guard.NotNull(part, nameof(part));
 
+            var currencyService = _services.Resolve<ICurrencyService>();
+
             var host = messageContext.BaseUri.ToString();
             var logoFile = await _services.MediaService.GetFileByIdAsync(messageContext.Store.LogoMediaFileId, MediaLoadFlags.AsNoTracking);
             
@@ -463,8 +465,8 @@ namespace Smartstore.Core.Messaging
                 { "Name", part.Name },
                 { "Url", host },
                 { "Cdn", part.ContentDeliveryNetwork },
-                { "PrimaryStoreCurrency", part.PrimaryStoreCurrency?.CurrencyCode },
-                { "PrimaryExchangeRateCurrency", part.PrimaryExchangeRateCurrency?.CurrencyCode },
+                { "PrimaryStoreCurrency", currencyService.PrimaryCurrency.CurrencyCode },
+                { "PrimaryExchangeRateCurrency", currencyService.PrimaryExchangeCurrency.CurrencyCode },
                 { "Logo", await CreateModelPartAsync(logoFile, messageContext, host, null, new Size(400, 75)) },
                 { "Company", await CreateCompanyModelPartAsync(messageContext) },
                 { "Contact", await CreateContactModelPartAsync(messageContext) },

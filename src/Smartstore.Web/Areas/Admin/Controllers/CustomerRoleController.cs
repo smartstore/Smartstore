@@ -27,6 +27,7 @@ using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
 using Smartstore.Web.Rendering;
+using Smartstore.Core.Common.Services;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -35,6 +36,7 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly RoleManager<CustomerRole> _roleManager;
         private readonly IRuleService _ruleService;
+        private readonly ICurrencyService _currencyService;
         private readonly Lazy<ITaskStore> _taskStore;
         private readonly Lazy<ITaskScheduler> _taskScheduler;
         private readonly CustomerSettings _customerSettings;
@@ -43,6 +45,7 @@ namespace Smartstore.Admin.Controllers
             SmartDbContext db,
             RoleManager<CustomerRole> roleManager,
             IRuleService ruleService,
+            ICurrencyService currencyService,
             Lazy<ITaskStore> taskStore,
             Lazy<ITaskScheduler> taskScheduler,
             CustomerSettings customerSettings)
@@ -51,6 +54,7 @@ namespace Smartstore.Admin.Controllers
             _roleManager = roleManager;
             _taskStore = taskStore;
             _ruleService = ruleService;
+            _currencyService = currencyService;
             _taskScheduler = taskScheduler;
             _customerSettings = customerSettings;
         }
@@ -390,7 +394,7 @@ namespace Smartstore.Admin.Controllers
 
                 ViewBag.ShowRuleApplyButton = showRuleApplyButton;
                 ViewBag.PermissionTree = await Services.Permissions.GetPermissionTreeAsync(role, true);
-                ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+                ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             }
 
             ViewBag.TaxDisplayTypes = model.TaxDisplayType.HasValue

@@ -18,6 +18,7 @@ using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
+using Smartstore.Core.Common.Services;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -25,11 +26,16 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IRuleService _ruleService;
+        private readonly ICurrencyService _currencyService;
 
-        public DiscountController(SmartDbContext db, IRuleService ruleService)
+        public DiscountController(
+            SmartDbContext db, 
+            IRuleService ruleService,
+            ICurrencyService currencyService)
         {
             _db = db;
             _ruleService = ruleService;
+            _currencyService = currencyService;
         }
 
         /// <summary>
@@ -342,7 +348,7 @@ namespace Smartstore.Admin.Controllers
                 ViewBag.AppliedToProducts = new List<DiscountAppliedToEntityModel>();
             }
 
-            ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
         }
     }
 }
