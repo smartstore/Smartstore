@@ -226,7 +226,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Export.Update)]
         public async Task<IActionResult> Edit(ExportProfileModel model, bool continueEditing)
         {
-            var (profile, provider) = await LoadProfileAndProvider(model.Id, true);
+            var (profile, provider) = await LoadProfileAndProvider(model.Id);
             if (profile == null)
             {
                 return NotFound();
@@ -318,7 +318,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Export.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
-            var (profile, _) = await LoadProfileAndProvider(id, true);
+            var (profile, _) = await LoadProfileAndProvider(id);
             if (profile == null)
             {
                 return NotFound();
@@ -1216,12 +1216,11 @@ namespace Smartstore.Admin.Controllers
             fileInfos.Add(fi);
         }
 
-        public async Task<(ExportProfile Profile, Provider<IExportProvider> Provider)> LoadProfileAndProvider(int profileId, bool tracked = false)
+        private async Task<(ExportProfile Profile, Provider<IExportProvider> Provider)> LoadProfileAndProvider(int profileId)
         {
             if (profileId != 0)
             {
                 var profile = await _db.ExportProfiles
-                    .ApplyTracking(tracked)
                     .ApplyStandardFilter()
                     .FirstOrDefaultAsync(x => x.Id == profileId);
 

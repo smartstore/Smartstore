@@ -78,7 +78,6 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             _requestCache.RemoveByPattern(CategoryService.CATEGORIES_PATTERN_KEY);
-            _requestCache.RemoveByPattern(CategoryService.PRODUCTCATEGORIES_PATTERN_KEY);
         }
 
         private async Task<bool> IsValidCategoryHierarchy(int categoryId, int parentCategoryId, CancellationToken cancelToken)

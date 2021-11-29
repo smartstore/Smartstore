@@ -32,10 +32,6 @@ namespace Smartstore.Core.Catalog.Categories
         private const string CATEGORIES_BY_PARENT_CATEGORY_ID_KEY = "category:byparent-{0}-{1}-{2}-{3}";
         internal const string CATEGORIES_PATTERN_KEY = "category:*";
 
-        // {0} = IncludeHidden, {1} = CustomerId, {2} = StoreId, {3} ProductIds
-        private const string PRODUCTCATEGORIES_BYPRODUCTIDS_KEY = "productcategory:byproductids-{0}-{1}-{2}-{3}";
-        internal const string PRODUCTCATEGORIES_PATTERN_KEY = "productcategory:*";
-
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
@@ -78,8 +74,6 @@ namespace Smartstore.Core.Catalog.Categories
             await SoftDeleteCategories(subCategoryIds);
 
             await _db.SaveChangesAsync();
-
-            _requestCache.RemoveByPattern(PRODUCTCATEGORIES_PATTERN_KEY);
 
             async Task<IEnumerable<int>> GetSubCategoryIds(IEnumerable<int> categoryIds)
             {
@@ -411,37 +405,26 @@ namespace Smartstore.Core.Catalog.Categories
                 return new List<ProductCategory>();
             }
 
-            var storeId = _storeContext.CurrentStore.Id;
-            var cacheKey = PRODUCTCATEGORIES_BYPRODUCTIDS_KEY.FormatInvariant(includeHidden, _workContext.CurrentCustomer.Id, storeId, string.Join(",", productIds));
+            var storeId = includeHidden ? 0 : _storeContext.CurrentStore.Id;
+            var customerRoleIds = includeHidden ? null : _workContext.CurrentCustomer.GetRoleIds();
 
-            var result = await _requestCache.GetAsync(cacheKey, async () =>
-            {
-                var customerRoleIds = includeHidden ? null : _workContext.CurrentCustomer.GetRoleIds();
+            var categoriesQuery = _db.Categories
+                .AsNoTracking()
+                .ApplyStandardFilter(includeHidden, customerRoleIds, storeId);
 
-                var categoriesQuery = _db.Categories
-                    .AsNoTracking()
-                    .Include(x => x.MediaFile)
-                    .ApplyStandardFilter(includeHidden, customerRoleIds, includeHidden ? 0 : storeId);
+            var productCategoriesQuery = _db.ProductCategories
+                .AsNoTracking()
+                .Include(x => x.Category).ThenInclude(x => x.MediaFile)
+                .Include(x => x.Category).ThenInclude(x => x.AppliedDiscounts);
 
-                var productCategoriesQuery = _db.ProductCategories
-                    .AsNoTracking()
-                    .Include(x => x.Category);
+            var query =
+                from pc in productCategoriesQuery
+                join c in categoriesQuery on pc.CategoryId equals c.Id
+                where productIds.Contains(pc.ProductId)
+                orderby pc.DisplayOrder
+                select pc;
 
-                var query =
-                    from pc in productCategoriesQuery
-                        .AsNoTracking()
-                        .Include(x => x.Category)
-                        .ThenInclude(x => x.AppliedDiscounts)
-                    join c in categoriesQuery on pc.CategoryId equals c.Id
-                    where productIds.Contains(pc.ProductId)
-                    orderby pc.DisplayOrder
-                    select pc;
-
-                var entities = await query.ToListAsync();
-                return entities;
-            });
-
-            return result;
+            return await query.ToListAsync();
         }
 
         public virtual async Task<string> GetCategoryPathAsync(

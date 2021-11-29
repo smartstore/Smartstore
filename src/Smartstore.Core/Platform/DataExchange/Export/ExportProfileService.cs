@@ -65,8 +65,35 @@ namespace Smartstore.Core.DataExchange.Export
 
         protected override Task<HookResult> OnUpdatingAsync(ExportProfile entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            // No more validation of 'FolderName' necessary anymore. Contains only the name of the export folder (no more path information).
-            entity.FolderName = _regexFolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName).TrimEnd('/'), string.Empty);
+            // Validation of 'FolderName' not necessary anymore. Contains only the name of the export folder (no more path information).
+            if (entity.FolderName.HasValue() && entity.FolderName[0] == '~')
+            {
+                // Map legacy folder names. Examples:
+                // ~/App_Data/ExportProfiles/smartstorecategorycsv
+                // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
+                var newFolderName = _regexFolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName).TrimEnd('/'), string.Empty);
+
+                if (newFolderName.IsEmpty())
+                {
+                    // Profile folder is root folder '~/App_Data/ExportProfiles/'.
+                    var cleanedProviderName = entity.ProviderSystemName
+                        .Replace("Exports.", string.Empty)
+                        .Replace("Feeds.", string.Empty)
+                        .Replace("/", string.Empty)
+                        .Replace("-", string.Empty);
+
+                    var folderName = SeoHelper.BuildSlug(cleanedProviderName, true, false, false)
+                        .ToValidPath()
+                        .Truncate(_dataExchangeSettings.MaxFileNameLength);
+
+                    newFolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(EXPORT_FILE_ROOT, folderName);
+                }
+
+                if (newFolderName.HasValue())
+                {
+                    entity.FolderName = newFolderName;
+                }
+            }
 
             return Task.FromResult(HookResult.Ok);
         }
@@ -299,20 +326,19 @@ namespace Smartstore.Core.DataExchange.Export
             profile.ProviderSystemName = providerSystemName;
             profile.TaskId = task.Id;
 
-            var cleanedSystemName = providerSystemName
+            var cleanedProviderName = providerSystemName
                 .Replace("Exports.", string.Empty)
                 .Replace("Feeds.", string.Empty)
                 .Replace("/", string.Empty)
                 .Replace("-", string.Empty);
 
-            var folderName = SeoHelper.BuildSlug(cleanedSystemName, true, false, false)
+            var folderName = SeoHelper.BuildSlug(cleanedProviderName, true, false, false)
                 .ToValidPath()
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
             profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(EXPORT_FILE_ROOT, folderName);
-
             profile.SystemName = profileSystemName.IsEmpty() && isSystemProfile
-                ? cleanedSystemName
+                ? cleanedProviderName
                 : profileSystemName;
 
             _db.ExportProfiles.Add(profile);

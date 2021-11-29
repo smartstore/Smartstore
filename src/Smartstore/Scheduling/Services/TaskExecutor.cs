@@ -113,7 +113,7 @@ namespace Smartstore.Scheduling
                 await Task.Delay(1, cts.Token);
 
                 // Remove me later... just for testing:
-                //if (normalizedTypeName == "ProductRuleEvaluatorTask")
+                //if (normalizedTypeName == "DataExportTask")
                 //    await job.Run(ctx, cts.Token);
                 //else
                 //    await Task.Delay(1, cts.Token);

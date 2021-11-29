@@ -52,8 +52,6 @@ namespace Smartstore.Core.Catalog.Brands
             }
 
             await _db.SaveChangesAsync(cancelToken);
-
-            _requestCache.RemoveByPattern(ManufacturerService.PRODUCTMANUFACTURERS_PATTERN_KEY);
         }
     }
 }
