@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+    <PackageReference Include="CoreFtp" Version="1.4.0" />
     <PackageReference Include="DotLiquid" Version="2.2.580" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="FluentMigrator" Version="3.3.1" />

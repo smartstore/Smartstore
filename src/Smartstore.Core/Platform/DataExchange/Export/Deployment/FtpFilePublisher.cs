@@ -3,13 +3,101 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using CoreFtp;
+using CoreFtp.Enum;
+using CoreFtp.Infrastructure;
 using Dasync.Collections;
 using Microsoft.Extensions.Logging;
 using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
 {
+    public class FtpFilePublisher : IFilePublisher
+    {
+        private ExportDeployment _deployment;
+        private ExportDeploymentContext _context;
+        private CancellationToken _cancelToken;
+        private int _succeededFiles;
+        private string _ftpRootUrl;
+
+        public async Task PublishAsync(ExportDeployment deployment, ExportDeploymentContext context, CancellationToken cancelToken)
+        {
+            _deployment = deployment;
+            _context = context;
+            _cancelToken = cancelToken;
+            _succeededFiles = 0;
+            _ftpRootUrl = deployment.Url;
+
+            if (!_ftpRootUrl.StartsWith("ftp://", StringComparison.InvariantCultureIgnoreCase))
+            {
+                _ftpRootUrl = "ftp://" + _ftpRootUrl;
+            }
+
+            _ftpRootUrl = _ftpRootUrl.EnsureEndsWith("/");
+
+            var host = new Uri(_ftpRootUrl).Host;
+
+            using var ftpClient = new FtpClient(new FtpClientConfiguration
+            {
+                Host = host,
+                Username = _deployment.Username,
+                Password = _deployment.Password,
+                Port = _deployment.UseSsl ? Constants.FtpsPort : Constants.FtpPort,
+                EncryptionType = FtpEncryption.Implicit
+            });
+
+            ftpClient.Logger = context.Log;
+
+
+
+            if (context.CreateZipArchive)
+            {
+                if (context.ZipFile?.Exists ?? false)
+                {
+                    await UploadFile(context.ZipFile, _ftpRootUrl + context.ZipFile.Name, false);
+                }
+            }
+            else
+            {
+                await FtpCopyDirectory(context.ExportDirectory);
+            }
+
+            context.Log.Info($"{_succeededFiles} file(s) successfully uploaded via FTP.");
+        }
+
+        private async Task FtpCopyDirectory(IDirectory directory)
+        {
+            if (directory.SubPath.IsEmpty())
+            {
+                return;
+            }
+
+            var files = await directory.EnumerateFilesAsync().ToListAsync(_cancelToken);
+            //var lastFile = files.Last();
+
+            foreach (var file in files)
+            {
+                var url = BuildUrl(file);
+
+            }
+
+            //....
+        }
+
+        private async Task<bool> UploadFile(IFile file, string fileUrl, bool keepAlive = true)
+        {
+            await Task.Delay(10);
+            return false;
+        }
+
+        private string BuildUrl(IFileEntry entry)
+        {
+            return _ftpRootUrl + entry.SubPath[_context.ExportDirectory.SubPath.Length..].TrimStart('/', '\\').Replace('\\', '/');
+        }
+    }
+
     // TODO: (mg) (core) Replace obsolete FtpWebRequest with a 3rdparty FTP library (e.g. "FluentFtp")
+    /*
     public class FtpFilePublisher : IFilePublisher
     {
         private ExportDeployment _deployment;
@@ -165,4 +253,5 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             return _ftpRootUrl + entry.SubPath[_context.ExportDirectory.SubPath.Length..].TrimStart('/', '\\').Replace('\\', '/');
         }
     }
+    */
 }
