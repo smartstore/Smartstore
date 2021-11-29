@@ -1133,9 +1133,9 @@ namespace Smartstore.Core.DataExchange.Export
 
                 ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<Product>
                 (
-                    async () => await LoadEntities<Product>(ctx),
+                    () => LoadEntities<Product>(ctx),
                     dataLoaded,
-                    async entity => await Convert(entity, ctx),
+                    entity => Convert(entity, ctx),
                     offset, PageSize, limit, recordsPerSegment, totalRecords
                 );
             }
@@ -1159,9 +1159,9 @@ namespace Smartstore.Core.DataExchange.Export
 
                 ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<Order>
                 (
-                    async () => await LoadEntities<Order>(ctx),
+                    () => LoadEntities<Order>(ctx),
                     dataLoaded,
-                    async entity => await Convert(entity, ctx),
+                    entity => Convert(entity, ctx),
                     offset, PageSize, limit, recordsPerSegment, totalRecords
                 );
             }
@@ -1175,9 +1175,9 @@ namespace Smartstore.Core.DataExchange.Export
 
                 ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<Manufacturer>
                 (
-                    async () => await LoadEntities<Manufacturer>(ctx),
+                    () => LoadEntities<Manufacturer>(ctx),
                     dataLoaded,
-                    async entity => await Convert(entity, ctx),
+                    entity => Convert(entity, ctx),
                     offset, PageSize, limit, recordsPerSegment, totalRecords
                 );
             }
@@ -1191,9 +1191,9 @@ namespace Smartstore.Core.DataExchange.Export
 
                 ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<Category>
                 (
-                    async () => await LoadEntities<Category>(ctx),
+                    () => LoadEntities<Category>(ctx),
                     dataLoaded,
-                    async entity => await Convert(entity, ctx),
+                    entity => Convert(entity, ctx),
                     offset, PageSize, limit, recordsPerSegment, totalRecords
                 );
             }
@@ -1207,9 +1207,9 @@ namespace Smartstore.Core.DataExchange.Export
 
                 ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<Customer>
                 (
-                    async () => await LoadEntities<Customer>(ctx),
+                    () => LoadEntities<Customer>(ctx),
                     dataLoaded,
-                    async entity => await Convert(entity, ctx),
+                    entity => Convert(entity, ctx),
                     offset, PageSize, limit, recordsPerSegment, totalRecords
                 );
             }
@@ -1217,9 +1217,9 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<NewsletterSubscription>
                 (
-                    async () => await LoadEntities<NewsletterSubscription>(ctx),
+                    () => LoadEntities<NewsletterSubscription>(ctx),
                     null,
-                    async entity => await Convert(entity, ctx),
+                    entity => Convert(entity, ctx),
                     offset, PageSize, limit, recordsPerSegment, totalRecords
                 );
             }
@@ -1238,9 +1238,9 @@ namespace Smartstore.Core.DataExchange.Export
 
                 ctx.ExecuteContext.DataSegmenter = new ExportDataSegmenter<ShoppingCartItem>
                 (
-                    async () => await LoadEntities<ShoppingCartItem>(ctx),
+                    () => LoadEntities<ShoppingCartItem>(ctx),
                     dataLoaded,
-                    async entity => await Convert(entity, ctx),
+                    entity => Convert(entity, ctx),
                     offset, PageSize, limit, recordsPerSegment, totalRecords
                 );
             }
