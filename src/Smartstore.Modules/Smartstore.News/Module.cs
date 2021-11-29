@@ -20,15 +20,11 @@ namespace Smartstore.News
             => new("List", "NewsAdmin", new { area = "Admin" });
 
         public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
-        {
-            return new ComponentWidgetInvoker(typeof(HomepageNewsViewComponent), null);
-        }
+            => new ComponentWidgetInvoker(typeof(HomepageNewsViewComponent), null);
 
         public string[] GetWidgetZones()
-        {
-            return new string[] { "home_page_after_tags" };
-        }
-
+            => new string[] { "home_page_after_tags" };
+        
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
             await TrySaveSettingsAsync<NewsSettings>();

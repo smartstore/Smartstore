@@ -28,7 +28,7 @@
                         <smart-label asp-for="SmallQuantityThreshold" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="SmallQuantityThreshold" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                        <editor asp-for="SmallQuantityThreshold" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode" />
                         <span asp-validation-for="SmallQuantityThreshold"></span>
                     </div>
                 </div>
@@ -37,7 +37,7 @@
                         <smart-label asp-for="SmallQuantitySurcharge" />
                     </div>
                     <div class="adminData">
-                        <editor asp-for="SmallQuantitySurcharge" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
+                        <editor asp-for="SmallQuantitySurcharge" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode" />
                         <span asp-validation-for="SmallQuantitySurcharge"></span>
                     </div>
                 </div>

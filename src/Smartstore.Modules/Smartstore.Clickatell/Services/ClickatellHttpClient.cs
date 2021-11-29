@@ -18,16 +18,12 @@ namespace Smartstore.Clickatell.Services
 
         public ClickatellHttpClient(HttpClient client, ILogger logger)
         {
-            // INFO: (mh) (core) The HttpClient instance is automatically injected and managed by IHttpClientFactory. See Startup.cs.
-            // INFO: (mh) (core) ILogger needs to be ctor injected, because this class is not instantiated by Autofac (and only Autofac can inject property dependencies).
             _client = client;
             _logger = logger;
         }
 
         public async Task SendSmsAsync(string text, ClickatellSettings settings, CancellationToken cancelToken = default)
         {
-            // INFO: (mh) (core) Untested code!
-            
             if (text.IsEmpty())
             {
                 return;
@@ -80,7 +76,6 @@ namespace Smartstore.Clickatell.Services
             if (error.HasValue())
             {
                 _logger.Error(error);
-                //throw new SmartException(error); // INFO: (mh) (core) EventInvoker will log twice otherwise.
             }
         }
     }

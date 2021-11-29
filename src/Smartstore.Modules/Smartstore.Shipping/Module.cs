@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Smartstore.Engine.Modularity;
-using Smartstore.Http;
 using Smartstore.Shipping.Settings;
 
 namespace Smartstore.Shipping

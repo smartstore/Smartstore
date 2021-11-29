@@ -16,6 +16,7 @@ using Smartstore.Shipping.Domain;
 using Smartstore.Shipping.Models;
 using Smartstore.Shipping.Settings;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
@@ -101,29 +102,17 @@ namespace Smartstore.Shipping.Controllers
                 NotifyWarning(T("Admin.Configuration.Shipping.Methods.NoMethodsLoaded"));
             }
 
-            var model = new ByTotalListModel
-            {
-                LimitMethodsToCreated = _shippingByTotalSettings.LimitMethodsToCreated,
-                SmallQuantityThreshold = _shippingByTotalSettings.SmallQuantityThreshold,
-                SmallQuantitySurcharge = _shippingByTotalSettings.SmallQuantitySurcharge,
-                CalculateTotalIncludingTax = _shippingByTotalSettings.CalculateTotalIncludingTax,
-                PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode
-            };
-
+            var model = MiniMapper.Map<ShippingByTotalSettings, ByTotalListModel>(_shippingByTotalSettings);
+            
             await PrepareViewBagAsync();
 
             return View(model);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Configure(ByTotalListModel model)
+        [HttpPost, SaveSetting]
+        public IActionResult Configure(ByTotalListModel model, ShippingByTotalSettings settings)
         {
-            _shippingByTotalSettings.LimitMethodsToCreated = model.LimitMethodsToCreated;
-            _shippingByTotalSettings.SmallQuantityThreshold = model.SmallQuantityThreshold;
-            _shippingByTotalSettings.SmallQuantitySurcharge = model.SmallQuantitySurcharge;
-            _shippingByTotalSettings.CalculateTotalIncludingTax = model.CalculateTotalIncludingTax;
-
-            await Services.SettingFactory.SaveSettingsAsync(_shippingByTotalSettings);
+            MiniMapper.Map(model, settings);
 
             NotifySuccess(T("Admin.Configuration.Updated"));
 

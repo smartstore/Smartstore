@@ -16,7 +16,5 @@ namespace Smartstore.Shipping.Models
 
         [LocalizedDisplay("*CalculateTotalIncludingTax")]
         public bool CalculateTotalIncludingTax { get; set; }
-
-        public string PrimaryStoreCurrencyCode { get; set; }
     }
 }

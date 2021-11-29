@@ -3,7 +3,7 @@
   "Group": "Shipping",
   "SystemName": "Smartstore.Shipping",
   "FriendlyName": "Default Shipping Providers",
-  "Description": "Provides shipping methods for fixed rate shipping and computation based on weight.",
+  "Description": "Provides shipping methods for fixed rate shipping and computation based on total.",
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Author": "SmartStore AG",
