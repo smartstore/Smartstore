@@ -230,7 +230,6 @@ namespace Smartstore.Core.DataExchange.Export
                                 if (allDeploymentsSucceeded && profile.Cleanup)
                                 {
                                     ctx.Log.Info("Cleaning up export folder.");
-                                    // TODO: (mg) (core) does not work. Files are still locked here.
                                     dir.FileSystem.ClearDirectory(dir, false, TimeSpan.Zero);
                                 }
                             }
@@ -1271,20 +1270,19 @@ namespace Smartstore.Core.DataExchange.Export
 
             try
             {
-                Stream stream = ctx.IsFileBasedExport && file != null
+                await using Stream stream = ctx.IsFileBasedExport && file != null
                     ? new FileStream(file.PhysicalPath, FileMode.Create, FileAccess.Write)
                     : new MemoryStream();
 
-                using (context.DataStream = new ExportFileStream(stream))
+                context.DataStream = new ExportFileStream(stream);
+
+                if (method == "Execute")
                 {
-                    if (method == "Execute")
-                    {
-                        await provider.ExecuteAsync(context, ctx.CancelToken);
-                    }
-                    else if (method == "OnExecuted")
-                    {
-                        await provider.OnExecutedAsync(context, ctx.CancelToken);
-                    }
+                    await provider.ExecuteAsync(context, ctx.CancelToken);
+                }
+                else if (method == "OnExecuted")
+                {
+                    await provider.OnExecutedAsync(context, ctx.CancelToken);
                 }
             }
             catch (Exception ex)
