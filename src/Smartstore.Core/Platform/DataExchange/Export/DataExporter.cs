@@ -168,15 +168,20 @@ namespace Smartstore.Core.DataExchange.Export
             // The export directory is the "Content" subfolder. ZIP and LOG file are in the parent folder.
             var dir = await _exportProfileService.GetExportDirectoryAsync(profile, "Content", true);
             var logFile = await dir.Parent.GetFileAsync("log.txt");
+            var zipFile = await dir.Parent.GetFileAsync(dir.Parent.Name.ToValidFileName() + ".zip");
+
+            await dir.FileSystem.TryDeleteFileAsync(logFile);
+            await dir.FileSystem.TryDeleteFileAsync(zipFile);
+            dir.FileSystem.ClearDirectory(dir, false, TimeSpan.Zero);
 
             using (await AsyncLock.KeyedAsync(lockKey, null, cancelToken))
             using (var logger = new TraceLogger(logFile, false))
             {
                 try
                 {
-                    ctx.Log = ctx.ExecuteContext.Log = logger;
                     ctx.ExportDirectory = ctx.ExecuteContext.ExportDirectory = dir;
-                    ctx.ZipFile = await dir.Parent.GetFileAsync(dir.Parent.Name.ToValidFileName() + ".zip");
+                    ctx.Log = ctx.ExecuteContext.Log = logger;
+                    ctx.ZipFile = zipFile;
 
                     if (request?.Provider?.Value?.FileExtension?.HasValue() ?? false)
                     {
@@ -225,7 +230,8 @@ namespace Smartstore.Core.DataExchange.Export
                                 if (allDeploymentsSucceeded && profile.Cleanup)
                                 {
                                     ctx.Log.Info("Cleaning up export folder.");
-                                    ctx.ExportDirectory.FileSystem.ClearDirectory(ctx.ExportDirectory, false, TimeSpan.Zero);
+                                    // TODO: (mg) (core) does not work. Files are still locked here.
+                                    dir.FileSystem.ClearDirectory(dir, false, TimeSpan.Zero);
                                 }
                             }
                         }
@@ -1345,8 +1351,8 @@ namespace Smartstore.Core.DataExchange.Export
         {
             var allSucceeded = true;
             var deployments = ctx.Request.Profile.Deployments
-                .OrderBy(x => x.DeploymentTypeId)
                 .Where(x => x.Enabled)
+                .OrderBy(x => x.Id)
                 .ToArray();
 
             if (!deployments.Any())
