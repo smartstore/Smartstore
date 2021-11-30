@@ -106,7 +106,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
         private string BuildTargetPath(IFileEntry file)
         {
-            return _rootPath + file.SubPath[_context.ExportDirectory.SubPath.Length..].TrimStart('/', '\\').Replace('\\', '/');
+            return _rootPath + file.SubPath[_context.ExportDirectory.SubPath.Length..].TrimStart(PathUtility.PathSeparators).Replace('\\', '/');
         }
     }
 
