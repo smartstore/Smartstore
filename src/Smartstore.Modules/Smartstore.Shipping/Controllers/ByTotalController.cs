@@ -62,6 +62,7 @@ namespace Smartstore.Shipping.Controllers
 
             var stateProvincesOfFirstCountry = stateProvinces.Values.Where(x => x.CountryId == countries.Values.FirstOrDefault().Id).ToList();
 
+
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems();
             ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 

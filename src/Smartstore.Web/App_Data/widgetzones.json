@@ -16,22 +16,23 @@
 			]
 		},
 		{
+			// TODO: (mh) (core) Most of them doesn't exist anymore. Add new names & remove nonexistent
 			"name": "Admin.Common.Global",
-      "zones": [
-        "main_column_before",
-        "main_column_after",
-        "body_start_html_tag_after",
-        "content_before",
-        "teaser",
-        "aside_left_before",
-        "aside_left_after",
-        "aside_right_before",
-        "aside_right_after",
-        "content_after",
-        "body_end_html_tag_before",
-        "head_html_tag",
-        "footer_before"
-      ]
+			"zones": [
+				"main_column_before",
+				"main_column_after",
+				"body_start_html_tag_after",
+				"content_before",
+				"teaser",
+				"aside_left_before",
+				"aside_left_after",
+				"aside_right_before",
+				"aside_right_after",
+				"content_after",
+				"body_end_html_tag_before",
+				"head_html_tag",
+				"footer_before"
+			]
 		},
 		{
 			"name": "Admin.ContentManagement.Blog",
