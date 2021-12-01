@@ -239,6 +239,11 @@ namespace Smartstore.Core.DataExchange.Import
         private async Task SendCompletionEmail(ImportProfile profile, DataImporterContext ctx)
         {
             var emailAccount = _emailAccountService.GetDefaultEmailAccount();
+            if (emailAccount.Host.IsEmpty())
+            {
+                return;
+            }
+
             var result = ctx.ExecuteContext.Result;
             var store = _services.StoreContext.CurrentStore;
             var storeInfo = $"{store.Name} ({store.Url})";
@@ -353,7 +358,7 @@ namespace Smartstore.Core.DataExchange.Import
             sb.AppendLine();
             sb.AppendLine(new string('-', 40));
             sb.AppendLine("Smartstore: v." + SmartstoreVersion.CurrentFullVersion);
-            sb.AppendLine("Import profile: " + profile.Name);
+            sb.Append("Import profile: " + profile.Name);
             sb.AppendLine(profile.Id == 0 ? " (transient)" : $" (ID {profile.Id})");
 
             foreach (var fileGroup in files)

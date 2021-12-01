@@ -870,8 +870,8 @@ namespace Smartstore.Web.Controllers
             //}
 
 
-            //var orderId = 32123;
-            //var order = await _db.Orders.FindByIdAsync(orderId);
+            var orderId = 32123;
+            var order = await _db.Orders.FindByIdAsync(orderId);
 
             //order.AllowStoringCreditCardNumber = true;
             //order.CardType = crypt.EncryptText("Visa Debit");
