@@ -856,6 +856,19 @@ namespace Smartstore.Web.Controllers
             //var crypt = Services.Resolve<IEncryptor>();
             //var eps = Services.Resolve<IExportProfileService>();
 
+            //using var stream = new FileStream(@"C:\Downloads\export\" + Guid.NewGuid() + ".csv", FileMode.Create, FileAccess.Write);
+            //await Request.Body.CopyToAsync(stream);
+
+            //$"got files {Request?.Form?.Files?.Count ?? 0}".Dump();
+            //if (Request?.Form?.Files?.Any() ?? false)
+            //{
+            //    foreach (var file in Request.Form.Files)
+            //    {
+            //        using var stream = new FileStream(@"C:\Downloads\export\" + file.FileName.NaIfEmpty(), FileMode.Create, FileAccess.Write);
+            //        await file.CopyToAsync(stream);
+            //    }
+            //}
+
 
             //var orderId = 32123;
             //var order = await _db.Orders.FindByIdAsync(orderId);

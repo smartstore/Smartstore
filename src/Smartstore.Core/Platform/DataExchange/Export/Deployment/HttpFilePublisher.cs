@@ -34,7 +34,6 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 ? new NetworkCredential(deployment.Username, deployment.Password)
                 : null;
 
-            using var formData = new MultipartFormDataContent();
             var client = credentials == null
                 ? _httpClientFactory.CreateClient()
                 : new HttpClient(new HttpClientHandler { Credentials = credentials }, true);
@@ -42,10 +41,12 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             if (deployment.HttpTransmissionType == ExportHttpTransmissionType.MultipartFormDataPost)
             {
                 var num = 0;
-                
+                using var formData = new MultipartFormDataContent();
+
                 foreach (var file in files)
                 {
-                    formData.Add(new StreamContent(file.OpenRead()), "file {0}".FormatInvariant(++num), file.Name);
+                    num++;
+                    formData.Add(new StreamContent(file.OpenRead()), $"file {num}", file.Name);
                 }
 
                 var response = await client.PostAsync(uri, formData, cancelToken);
