@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -14,6 +14,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.GoogleAnalytics.Settings;
+using Smartstore.Utilities;
 using Smartstore.Web.Components;
 
 namespace Smartstore.GoogleAnalytics.Components
@@ -157,8 +158,8 @@ namespace Smartstore.GoogleAnalytics.Components
                     : FixIllegalJavaScriptChars(order.BillingAddress.Country.Name));
                 ecScript = ecScript.Replace("{CURRENCY}", order.CustomerCurrencyCode);
 
-                // TODO: (mh) (core) Use StringBuilder from pool.
-                var sb = new StringBuilder();
+                using var psb = StringBuilderPool.Instance.Get(out var sb);
+                using var writer = new StringWriter(sb);
                 if (_settings.EcommerceDetailScript.HasValue())
                 {
                     foreach (var item in order.OrderItems)
