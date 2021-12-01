@@ -16,7 +16,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            if (Placeholder != null && Placeholder.Length > 0)
+            if (Placeholder != null)
             {
                 await output.GetChildContentAsync();
                 output.PreContent.AppendHtml($"<option>{Placeholder}</option>");

@@ -55,6 +55,10 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(StyleAttributeName)]
         public NumberInputStyle Style { get; set; }
 
+        [HtmlAttributeNotBound]
+        [ViewContext]
+        public ViewContext ViewContext { get; set; }
+
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             output.AppendCssClass("numberinput");
@@ -120,6 +124,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                 }
 
                 context.Items.Add("IsNumberInput", true);
+            }
+            else if (ViewContext.ViewData.TryGetValue("size", out var size) && size is string sizeStr)
+            {
+                group.AppendCssClass($"input-group-{sizeStr}");
             }
 
             output.WrapElementWith(group);
