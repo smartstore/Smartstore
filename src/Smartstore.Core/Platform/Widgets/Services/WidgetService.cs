@@ -13,7 +13,7 @@ namespace Smartstore.Core.Widgets
     {
         const string WIDGETS_ALLMETADATA_KEY = "widgets:allmetadata";
         const string WIDGETS_ACTIVE_KEY = "Smartstore.widgets.active-{0}";
-        const string WIDGETS_ZONEMAPPED_KEY = "Smartstore.widgets.zonemapped-{0}-{1}";
+        const string WIDGETS_BYZONE_KEY = "Smartstore.widgets.byzone-{0}-{1}";
 
         private readonly WidgetSettings _widgetSettings;
         private readonly IProviderManager _providerManager;
@@ -48,11 +48,16 @@ namespace Smartstore.Core.Widgets
 
         public virtual IEnumerable<Provider<IWidget>> LoadActiveWidgetsByWidgetZone(string widgetZone, int storeId = 0)
         {
+            if (widgetZone.IsEmpty())
+            {
+                return Enumerable.Empty<Provider<IWidget>>();
+            }
+
             var map = GetWidgetMetadataMap();
 
-            if (widgetZone.HasValue() && map.TryGetValues(widgetZone.ToLower(), out var widgetMetadatas))
+            if (map.TryGetValues(widgetZone.ToLower(), out var widgetMetadatas))
             {
-                return _requestCache.Get(WIDGETS_ZONEMAPPED_KEY.FormatInvariant(storeId, widgetZone), () =>
+                return _requestCache.Get(WIDGETS_BYZONE_KEY.FormatInvariant(widgetZone, storeId), () =>
                 {
                     var providers = widgetMetadatas
                         .Where(m => _widgetSettings.ActiveWidgetSystemNames.Contains(m.SystemName, StringComparer.InvariantCultureIgnoreCase))
