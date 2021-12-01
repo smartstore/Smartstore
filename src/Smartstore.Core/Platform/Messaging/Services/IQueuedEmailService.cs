@@ -18,13 +18,5 @@ namespace Smartstore.Core.Messaging
         /// <param name="queuedEmails">Queued emails. Entities must be tracked.</param>
         /// <returns>Whether the operation succeeded</returns>
         Task<bool> SendMailsAsync(IEnumerable<QueuedEmail> queuedEmails, CancellationToken cancelToken = default);
-
-        // TODO: (MH) (core) This is only used in one ocasion. Use code there (QueuedEmailController > DownloadAttachment) directly. 
-        /// <summary>
-        /// Loads binary data of a queued email attachment.
-        /// </summary>
-        /// <param name="attachment">Queued email attachment</param>
-        /// <returns>Binary data if <c>attachment.StorageLocation</c> is <c>EmailAttachmentStorageLocation.Blob</c>, otherwise <c>null</c></returns>
-        byte[] LoadQueuedMailAttachmentBinary(QueuedEmailAttachment attachment);
     }
 }

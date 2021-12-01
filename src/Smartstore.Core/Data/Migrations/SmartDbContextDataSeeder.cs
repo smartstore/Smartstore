@@ -658,6 +658,7 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.RecurringPayments.BackToList",
             //    "Admin.Configuration.Languages.BackToList",
             //    "Admin.Catalog.ProductReviews.BackToList",
+            //    "Admin.System.QueuedEmails.BackToList",
             //    );
 
 

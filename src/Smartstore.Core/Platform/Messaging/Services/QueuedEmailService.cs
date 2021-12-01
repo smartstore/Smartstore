@@ -77,19 +77,6 @@ namespace Smartstore.Core.Messaging
             return result;
         }
 
-        // TODO: (MH) (core) This is only used in one ocasion. Use code there (QueuedEmailController > DownloadAttachment) directly. 
-        public virtual byte[] LoadQueuedMailAttachmentBinary(QueuedEmailAttachment attachment)
-        {
-            Guard.NotNull(attachment, nameof(attachment));
-
-            if (attachment.StorageLocation == EmailAttachmentStorageLocation.Blob)
-            {
-                return attachment.MediaStorage?.Data ?? Array.Empty<byte>();
-            }
-
-            return null;
-        }
-
         /// <summary>
         /// Sends batch of <see cref="QueuedEmail"/>.
         /// </summary>

@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentValidation;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Common.Services;
+using Smartstore.Core.Data;
 using Smartstore.Core.Messaging;
 using Smartstore.Web.Modelling;
 
@@ -78,17 +81,41 @@ namespace Smartstore.Admin.Models.Messages
         }
     }
 
-    public class QueuedEmailMapper : Mapper<QueuedEmail, QueuedEmailModel>
+    internal class QueuedEmailMapper : Mapper<QueuedEmail, QueuedEmailModel>
     {
-        protected override void Map(QueuedEmail from, QueuedEmailModel to, dynamic parameters = null)
+        private readonly SmartDbContext _db;
+        private readonly IDateTimeHelper _dateTimeHelper;
+
+        public QueuedEmailMapper(SmartDbContext db, IDateTimeHelper dateTimeHelper)
         {
+            _db = db;
+            _dateTimeHelper = dateTimeHelper;
+        }
+
+        protected override void Map(QueuedEmail from, QueuedEmailModel to, dynamic parameters = null)
+            => throw new NotImplementedException();
+
+        public override async Task MapAsync(QueuedEmail from, QueuedEmailModel to, dynamic parameters = null)
+        {
+            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(to, nameof(to));
+
             MiniMapper.Map(from, to);
+
+            await _db.LoadReferenceAsync(from, x => x.EmailAccount);
+            await _db.LoadCollectionAsync(from, x => x.Attachments);
                         
             to.EmailAccountName = from.EmailAccount?.FriendlyName ?? string.Empty;
             to.AttachmentsCount = from.Attachments?.Count ?? 0;
             to.Attachments = from.Attachments
                 .Select(x => new QueuedEmailModel.QueuedEmailAttachmentModel { Id = x.Id, Name = x.Name, MimeType = x.MimeType })
                 .ToList();
+
+            to.CreatedOn = _dateTimeHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc);
+            if (from.SentOnUtc.HasValue)
+            {
+                to.SentOn = _dateTimeHelper.ConvertToUserTime(from.SentOnUtc.Value, DateTimeKind.Utc);
+            }
         }
     }
 }

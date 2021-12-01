@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Messages;
 using Smartstore.ComponentModel;
@@ -11,10 +15,6 @@ using Smartstore.Utilities;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -61,41 +61,37 @@ namespace Smartstore.Admin.Controllers
             var query = _db.QueuedEmails
                 .AsNoTracking()
                 .Include(x => x.EmailAccount)
+                .Include(x => x.Attachments)
                 .ApplyTimeFilter(startDateValue, endDateValue, model.SearchLoadNotSent)
                 .ApplyMailAddressFilter(model.SearchFromEmail, model.SearchToEmail)
-                .Where(x => x.SentTries < model.SearchMaxSentTries)
-                .ApplyGridCommand(command, false);
+                .Where(x => x.SentTries < model.SearchMaxSentTries);
 
             if (model.SearchSendManually.HasValue)
             {
                 query = query.Where(x => x.SendManually == model.SearchSendManually);
             }
 
-            var queuedEmails = await query.ToPagedList(command).LoadAsync();
+            var queuedEmails = await query
+                .ApplySorting(true)
+                .ApplyGridCommand(command, false)
+                .ToPagedList(command)
+                .LoadAsync();
 
-            var gridModel = new GridModel<QueuedEmailModel>
+            var rows = await queuedEmails.SelectAsync(async x =>
             {
-                Rows = await queuedEmails.SelectAsync(async x =>
-                {
-                    var model = new QueuedEmailModel();
-                    await MapperFactory.MapAsync(x, model);
+                var model = await MapperFactory.MapAsync<QueuedEmail, QueuedEmailModel>(x);
 
-                    model.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                    if (x.SentOnUtc.HasValue)
-                    {
-                        model.SentOn = _dateTimeHelper.ConvertToUserTime(x.SentOnUtc.Value, DateTimeKind.Utc);
-                    }
+                model.ViewUrl = Url.Action(nameof(Edit), "QueuedEmail", new { id = x.Id });
 
-                    model.ViewUrl = Url.Action(nameof(Edit), "QueuedEmail", new { id = x.Id });
+                return model;
+            })
+            .AsyncToList();
 
-                    return model;
-                })
-                .AsyncToList(),
-
+            return Json(new GridModel<QueuedEmailModel>
+            {
+                Rows = rows,
                 Total = queuedEmails.TotalCount
-            };
-
-            return Json(gridModel);
+            });
         }
 
         [HttpPost]
@@ -147,18 +143,17 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Message.Read)]
         public async Task<IActionResult> Edit(int id)
         {
-            var email = await _db.QueuedEmails.FindByIdAsync(id, false);
+            var email = await _db.QueuedEmails
+                .Include(x => x.EmailAccount)
+                .Include(x => x.Attachments)
+                .FindByIdAsync(id, false);
+
             if (email == null)
             {
                 return RedirectToAction(nameof(List));
             }
 
             var model = await MapperFactory.MapAsync<QueuedEmail, QueuedEmailModel>(email);
-            model.CreatedOn = _dateTimeHelper.ConvertToUserTime(email.CreatedOnUtc, DateTimeKind.Utc);
-            if (email.SentOnUtc.HasValue)
-            {
-                model.SentOn = _dateTimeHelper.ConvertToUserTime(email.SentOnUtc.Value, DateTimeKind.Utc);
-            }
 
             return View(model);
         }
@@ -168,26 +163,25 @@ namespace Smartstore.Admin.Controllers
         [ParameterBasedOnFormName("save-continue", "continueEditing")]
         public async Task<IActionResult> Edit(QueuedEmailModel model, bool continueEditing)
         {
-            var email = await _db.QueuedEmails.FindByIdAsync(model.Id);
-            if (email == null)
+            var queuedEmail = await _db.QueuedEmails.FindByIdAsync(model.Id);
+            if (queuedEmail == null)
             {
                 return RedirectToAction(nameof(List));
             }
 
             if (ModelState.IsValid)
             {
-                await MapperFactory.MapAsync(model, email);
+                await MapperFactory.MapAsync(model, queuedEmail);
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.System.QueuedEmails.Updated"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = email.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = queuedEmail.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
-            model.CreatedOn = _dateTimeHelper.ConvertToUserTime(email.CreatedOnUtc, DateTimeKind.Utc);
-            if (email.SentOnUtc.HasValue)
-            {
-                model.SentOn = _dateTimeHelper.ConvertToUserTime(email.SentOnUtc.Value, DateTimeKind.Utc);
-            }
+            await MapperFactory.MapAsync(queuedEmail, model);
 
             return View(model);
         }
@@ -228,7 +222,10 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ActionName("Edit"), FormValueRequired("sendnow")]
         public async Task<IActionResult> SendNow(QueuedEmailModel queuedEmailModel)
         {
-            var queuedEmail = await _db.QueuedEmails.FindByIdAsync(queuedEmailModel.Id, false);
+            var queuedEmail = await _db.QueuedEmails
+                .Include(x => x.EmailAccount)
+                .FindByIdAsync(queuedEmailModel.Id);
+
             if (queuedEmail == null)
             {
                 return RedirectToAction(nameof(List));
@@ -251,10 +248,11 @@ namespace Smartstore.Admin.Controllers
         [FormValueRequired("go-to-email-by-number")]
         public async Task<IActionResult> GoToEmailByNumber(QueuedEmailListModel model)
         {
-            var queuedEmail = await _db.QueuedEmails.FindByIdAsync(model.GoDirectlyToNumber ?? 0, false);
-            if (queuedEmail != null)
+            var id = model.GoDirectlyToNumber ?? 0;
+
+            if (id != 0 && await _db.QueuedEmails.AnyAsync(x => x.Id == id))
             {
-                return RedirectToAction(nameof(Edit), "QueuedEmail", new { id = queuedEmail.Id });
+                return RedirectToAction(nameof(Edit), new { id });
             }
 
             return RedirectToAction(nameof(List));
@@ -263,7 +261,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Message.Read)]
         public async Task<IActionResult> DownloadAttachment(int id)
         {
-            var qea = await _db.QueuedEmailAttachments.FindByIdAsync(id, false);
+            var qea = await _db.QueuedEmailAttachments
+                .Include(x => x.MediaStorage)
+                .FindByIdAsync(id, false);
+
             if (qea == null)
             {
                 return NotFound();
@@ -271,11 +272,9 @@ namespace Smartstore.Admin.Controllers
 
             if (qea.StorageLocation == EmailAttachmentStorageLocation.Blob)
             {
-                var data = _queuedEmailService.LoadQueuedMailAttachmentBinary(qea);
-                if (data != null)
-                {
-                    return File(data, qea.MimeType, qea.Name);
-                }
+                var data = qea.MediaStorage?.Data ?? Array.Empty<byte>();
+
+                return File(data, qea.MimeType, qea.Name);
             }
             else if (qea.StorageLocation == EmailAttachmentStorageLocation.Path)
             {

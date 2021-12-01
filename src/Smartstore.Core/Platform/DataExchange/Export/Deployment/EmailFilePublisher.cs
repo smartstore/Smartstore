@@ -36,7 +36,6 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             var emailAccount = await _db.EmailAccounts.FindByIdAsync(deployment.EmailAccountId, false, cancelToken);
             var fromEmailAddress = emailAccount.ToMailAddress();
             var files = await context.GetDeploymentFilesAsync(cancelToken);
-            var canStreamBlob = _db.DataProvider.CanStreamBlob;
             var num = 0;
 
             foreach (var emailAddress in emailAddresses)
@@ -71,7 +70,8 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 _db.QueuedEmails.Add(queuedEmail);
 
                 // Blob data could be large, so better not bulk commit here.
-                num += await _db.SaveChangesAsync(cancelToken);
+                await _db.SaveChangesAsync(cancelToken);
+                num++;
             }
 
             context.Log.Info($"{num} email(s) created and queued for deployment.");

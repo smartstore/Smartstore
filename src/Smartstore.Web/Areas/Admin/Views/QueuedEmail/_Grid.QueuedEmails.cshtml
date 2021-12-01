@@ -9,8 +9,9 @@
           onrowclass="queuedEmails_onRowClass">
     <datasource read="@Url.Action("QueuedEmailList")" delete="@Url.Action("QueuedEmailDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
-    <sorting enabled="true" allow-unsort="true" allow-multisort="false">
-        <sort by="CreatedOn" descending="true" />
+    <sorting enabled="true" allow-unsort="true" allow-multisort="true">
+        <sort by="Priority" descending="true" />
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>
     <toolbar>
         <toolbar-group>
@@ -40,13 +41,13 @@
             </display-template>
         </column>
         <column for="AttachmentsCount" halign="center" sortable="false" icon="fa fa-paperclip" width="max-content" resizable="false" title="" />
-        <column for="EmailAccountName" width="300px" title="@T("Admin.System.QueuedEmails.Fields.From")" />
+        <column for="EmailAccountName" width="300px" title="@T("Admin.System.QueuedEmails.Fields.From")" entity-member="EmailAccount.DisplayName" />
         <column for="To" width="300px" />
+        <column for="Priority" halign="center" />
         <column for="SentTries" halign="center" />
         <column for="SentOn" entity-member="SentOnUtc" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
 
-        <column for="Priority" halign="center" visible="false" />
         <column for="SendManually" halign="center" visible="false" />
         <column for="From" visible="false" width="300px" />
         <column for="CC" visible="false" width="300px" />
