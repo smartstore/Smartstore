@@ -480,13 +480,13 @@
 			try {
 				if (item.text.length > 0) {
 					var option = $(item.element);
-					var isLocalized = (item.id.indexOf(']', item.id.length - 1) !== -1);
+					var isLocalized = item.id.indexOf(']', item.id.length - 1) !== -1;
 					var html = '';
 
 					if (option.length === 0) {
 						html += '<div class="mapping-list-item">';
 						html += '<span class="pr-2 d-inline-block">';
-						html += '	<i class="fa fa-fw ' + (isLocalized ? 'fa-globe' : 'fa-unlink') + ' text-success" />';
+						html += '	<i class="fa fa-fw ' + (isLocalized ? 'fa-globe' : 'fa-unlink') + ' text-success"></i>';
 						html += '</span>';
 					}
 					else {
@@ -510,8 +510,8 @@
 						html += '<span class="pr-2 d-inline-block">';
 						html += '<i class="fa fa-fw ';
 						html += (isLocalized ? 'fa-globe' : (mappingIndex === -1 ? 'fa-unlink' : 'fa-link'));
-						html += (mappingIndex === -1 ? ' text-success" />' : ' text-warning" />');
-						html += '</span>';
+						html += (mappingIndex === -1 ? ' text-success">' : ' text-warning">');
+                        html += '</i></span>';
 					}
 
 					html += '<span class="ml-1 d-inline-block"';
