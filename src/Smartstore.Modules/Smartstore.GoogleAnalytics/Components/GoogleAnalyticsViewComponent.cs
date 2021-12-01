@@ -42,15 +42,18 @@ namespace Smartstore.GoogleAnalytics.Components
 
         public async Task<IViewComponentResult> InvokeAsync() 
         { 
-            string globalScript = string.Empty;
-            var routeData = Services.WebHelper.HttpContext.GetRouteData();
+            var globalScript = string.Empty;
+            var routeData = HttpContext.GetRouteData();
 
             try
             {
                 var cookiesAllowed = _cookieConsentManager.IsCookieAllowed(CookieType.Analytics);
 
                 // Special case, if we are in last step of checkout, we can use order total for conversion value
-                if (routeData.Values["controller"].ToString().EqualsNoCase("checkout") && routeData.Values["action"].ToString().EqualsNoCase("completed"))
+                var controller = routeData.Values.GetControllerName();
+                var action = routeData.Values.GetActionName();
+
+                if (controller.EqualsNoCase("checkout") && action.EqualsNoCase("completed"))
                 {
                     var lastOrder = await GetLastOrderAsync();
                     globalScript += await GetEcommerceScriptAsync(lastOrder, cookiesAllowed);
@@ -198,12 +201,8 @@ namespace Smartstore.GoogleAnalytics.Components
 
         private static string FixIllegalJavaScriptChars(string text)
         {
-            if (!text.HasValue())
-                return text;
-
             //replace ' with \' (http://stackoverflow.com/questions/4292761/need-to-url-encode-labels-when-tracking-events-with-google-analytics)
-            text = text.Replace("'", "\\'");
-            return text;
+            return text?.Replace("'", "\\'") ?? string.Empty;
         }
     }
 }

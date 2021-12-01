@@ -28,18 +28,15 @@ namespace Smartstore.GoogleAnalytics
 
         public string[] GetWidgetZones()
         {
-            var zones = new string[] { "head" };
-
-            if (_googleAnalyticsSettings.WidgetZone.HasValue())
-            {
-                zones = new string[] { _googleAnalyticsSettings.WidgetZone };
-            }
-
-            return zones;
+            return _googleAnalyticsSettings.WidgetZone.HasValue()
+                ? new[] { _googleAnalyticsSettings.WidgetZone }
+                : new[] { "head" };
         }
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
+            // TODO (mh) (core) Missing setting initialization
+            // TODO (mh) (core) Missing cookie publisher stuff
             await ImportLanguageResourcesAsync();
             await TrySaveSettingsAsync<GoogleAnalyticsSettings>();
             await base.InstallAsync(context);

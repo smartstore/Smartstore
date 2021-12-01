@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.GoogleAnalytics.Models;
-using Smartstore.GoogleAnalytics.Services;
 using Smartstore.GoogleAnalytics.Settings;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
@@ -44,11 +43,11 @@ namespace Smartstore.GoogleAnalytics.Controllers
 
         [HttpPost, SaveSetting]
         [ActionName("Configure"), FormValueRequired("restore-scripts")]
-        public ActionResult RestoreScripts(GoogleAnalyticsSettings settings)
+        public IActionResult RestoreScripts(GoogleAnalyticsSettings settings)
         {
-            settings.TrackingScript = GoogleAnalyticsScriptHelper.GetTrackingScript();
-            settings.EcommerceScript = GoogleAnalyticsScriptHelper.GetEcommerceScript();
-            settings.EcommerceDetailScript = GoogleAnalyticsScriptHelper.GetEcommerceDetailScript();
+            settings.TrackingScript = AnalyticsScriptUtility.GetTrackingScript();
+            settings.EcommerceScript = AnalyticsScriptUtility.GetEcommerceScript();
+            settings.EcommerceDetailScript = AnalyticsScriptUtility.GetEcommerceDetailScript();
 
             return RedirectToAction(nameof(Configure));
         }

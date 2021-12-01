@@ -9,18 +9,18 @@ namespace Smartstore.GoogleAnalytics.Models
         [LocalizedDisplay("Admin.ContentManagement.Widgets.ChooseZone")]
         public string WidgetZone { get; set; }
         
-        [LocalizedDisplay("GoogleId")]
+        [LocalizedDisplay("*GoogleId")]
         public string GoogleId { get; set; }
 
-        [LocalizedDisplay("TrackingScript")]
+        [LocalizedDisplay("*TrackingScript")]
         [UIHint("TextArea"), AdditionalMetadata("rows", 12)]
         public string TrackingScript { get; set; }
 
-        [LocalizedDisplay("EcommerceScript")]
+        [LocalizedDisplay("*EcommerceScript")]
         [UIHint("TextArea"), AdditionalMetadata("rows", 12)]
         public string EcommerceScript { get; set; }
 
-        [LocalizedDisplay("EcommerceDetailScript")]
+        [LocalizedDisplay("*EcommerceDetailScript")]
         [UIHint("TextArea"), AdditionalMetadata("rows", 8)]
         public string EcommerceDetailScript { get; set; }
     }

@@ -1,4 +1,4 @@
-﻿namespace Smartstore.GoogleAnalytics.Services
+﻿namespace Smartstore.GoogleAnalytics
 {
     /// <summary>
     /// Provides ready to use scripts for plugin settings. 
@@ -7,7 +7,7 @@
     /// Code formatting (everything is squeezed to the edge) was done intentionally like this. 
     /// Else whitespace would be copied into the setting properties and effect the configuration page in a negative way.
     /// </remarks>
-    public partial class GoogleAnalyticsScriptHelper
+    internal static class AnalyticsScriptUtility
 	{
 		internal static string GetTrackingScript()
 		{
