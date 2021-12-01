@@ -15,7 +15,6 @@ using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -850,19 +849,12 @@ namespace Smartstore.Web.Controllers
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
             var customer = Services.WorkContext.CurrentCustomer;
-            var pam = Services.Resolve<IProductAttributeMaterializer>();
-            var scs = Services.Resolve<IShoppingCartService>();
-            var schs = Services.Resolve<IShippingService>();
-            var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
-            var crypt = Services.Resolve<IEncryptor>();
-
-            var dir = await Services.ApplicationContext.WebRoot.GetDirectoryAsync("images/flags");
-            var flags = await dir.EnumerateFilesAsync().ToListAsync();
-
-            foreach (var flag in flags)
-            {
-                content.AppendLine($"{flag.NameWithoutExtension} {flag.Name}");
-            }
+            //var pam = Services.Resolve<IProductAttributeMaterializer>();
+            //var scs = Services.Resolve<IShoppingCartService>();
+            //var schs = Services.Resolve<IShippingService>();
+            //var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
+            //var crypt = Services.Resolve<IEncryptor>();
+            //var eps = Services.Resolve<IExportProfileService>();
 
 
             //var orderId = 32123;

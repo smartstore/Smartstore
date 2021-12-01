@@ -1,7 +1,9 @@
-﻿using System.Threading;
+﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Smartstore.Engine;
+using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
 {
@@ -22,13 +24,16 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 return;
             }
 
-            var source = _appContext.ContentRoot.AttachEntry(context.ExportDirectory);
-            var webRootDir = await _appContext.WebRoot.GetDirectoryAsync(null);
-            var newPath = deploymentDir.FileSystem.PathCombine(webRootDir.Name, deploymentDir.SubPath);
-            
-            await source.FileSystem.CopyDirectoryAsync(source.SubPath, newPath);
+            var root = PathUtility.IsAbsolutePhysicalPath(deployment.FileSystemPath)
+                ? new LocalFileSystem(Directory.GetDirectoryRoot(deployment.FileSystemPath))
+                : _appContext.ContentRoot;
 
-            context.Log.Info($"Export data files are copied to {newPath}.");
+            var source = root.AttachEntry(context.ExportDirectory);
+            var target = root.AttachEntry(deploymentDir);
+
+            source.FileSystem.CopyDirectory(source, target);
+
+            context.Log.Info($"Export data files are copied to {target.SubPath}.");
         }
     }
 }
