@@ -13,7 +13,7 @@ namespace Smartstore.Core.Widgets
     {
         const string WIDGETS_ALLMETADATA_KEY = "widgets:allmetadata";
         const string WIDGETS_ACTIVE_KEY = "Smartstore.widgets.active-{0}";
-        const string WIDGETS_ZONEMAPPED_KEY = "Smartstore.widgets.zonemapped-{0}";
+        const string WIDGETS_ZONEMAPPED_KEY = "Smartstore.widgets.zonemapped-{0}-{1}";
 
         private readonly WidgetSettings _widgetSettings;
         private readonly IProviderManager _providerManager;
@@ -52,7 +52,7 @@ namespace Smartstore.Core.Widgets
 
             if (widgetZone.HasValue() && map.TryGetValues(widgetZone.ToLower(), out var widgetMetadatas))
             {
-                return _requestCache.Get(WIDGETS_ZONEMAPPED_KEY.FormatInvariant(storeId), () =>
+                return _requestCache.Get(WIDGETS_ZONEMAPPED_KEY.FormatInvariant(storeId, widgetZone), () =>
                 {
                     var providers = widgetMetadatas
                         .Where(m => _widgetSettings.ActiveWidgetSystemNames.Contains(m.SystemName, StringComparer.InvariantCultureIgnoreCase))
