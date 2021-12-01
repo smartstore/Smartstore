@@ -42,7 +42,7 @@ namespace Smartstore.GoogleAnalytics.Controllers
         }
 
         [HttpPost, SaveSetting]
-        [ActionName("Configure"), FormValueRequired("restore-scripts")]
+        [ActionName("Configure"), FormValueRequired("restore-scripts")] 
         public IActionResult RestoreScripts(GoogleAnalyticsSettings settings)
         {
             settings.TrackingScript = AnalyticsScriptUtility.GetTrackingScript();
