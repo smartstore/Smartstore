@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+		<Product>Smartstore Google Analytics</Product>
+		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.GoogleAnalytics</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Views\_ViewImports.cshtml" />
+  </ItemGroup>
+</Project>

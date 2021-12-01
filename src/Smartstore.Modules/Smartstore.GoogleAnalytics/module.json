@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "Author": "Smartstore AG",
+  "Group": "Analytics",
+  "SystemName": "Smartstore.GoogleAnalytics",
+  "FriendlyName": "Google Analytics",
+  "Description": "Adds Google Analytics tracking scripts to the shop",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.Widgets.GoogleAnalytics",
+  "ProjectUrl": "http://community.smartstore.com/marketplace/file/25-google-analytics/"
+}

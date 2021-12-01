@@ -62,6 +62,12 @@ namespace Smartstore.Core.Data.Migrations
             {
                 settings.RemoveRange(minUppercaseCharsInPassword);
             }
+
+            var gaWidgetZone = await settings.Where(x => x.Name == "GoogleAnalyticsSettings.WidgetZone").ToListAsync(cancellationToken: cancelToken);
+            if (gaWidgetZone.Any())
+            {
+                gaWidgetZone.Each(x => x.Value = x.Value == "head_html_tag" ? "head" : "end");
+            }
         }
 
         public static void MigrateLocaleResources(LocaleResourcesBuilder builder)
