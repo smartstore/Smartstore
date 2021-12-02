@@ -75,6 +75,7 @@ namespace Smartstore.Core.DataExchange.Import
             ImportExecuteContext context,
             DbContextScope scope,
             IEnumerable<ImportRow<TEntity>> batch,
+            string keyGroup,
             IDictionary<string, Expression<Func<TEntity, string>>> localizableProperties)
             where TEntity : BaseEntity, ILocalizedEntity
         {
@@ -100,7 +101,6 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             var shouldSave = false;
-            var keyGroup = nameof(TEntity);
             var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds);
 
             foreach (var row in batch)
@@ -113,7 +113,8 @@ namespace Smartstore.Core.DataExchange.Import
                         if (row.TryGetDataValue(prop /* ColumnName */, language.UniqueSeoCode, out string value))
                         {
                             var localizedProperty = collection.Find(language.Id, row.Entity.Id, keyGroup);
-                            if (localizedProperty != null)
+
+                            if (localizedProperty != null && localizedProperty.Id != 0)
                             {
                                 if (string.IsNullOrEmpty(value))
                                 {
@@ -171,7 +172,8 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessStoreMappingsAsync<TEntity>(
             ImportExecuteContext context,
             DbContextScope scope,
-            IEnumerable<ImportRow<TEntity>> batch)
+            IEnumerable<ImportRow<TEntity>> batch,
+            string entityName)
             where TEntity : BaseEntity, IStoreRestricted
         {
             var shouldSave = false;
@@ -181,7 +183,7 @@ namespace Smartstore.Core.DataExchange.Import
                 return 0;
             }
 
-            var collection = await _storeMappingService.GetStoreMappingCollectionAsync(nameof(TEntity), entityIds);
+            var collection = await _storeMappingService.GetStoreMappingCollectionAsync(entityName, entityIds);
 
             foreach (var row in batch)
             {

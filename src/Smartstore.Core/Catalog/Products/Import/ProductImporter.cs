@@ -84,6 +84,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task ProcessProductsAsync(ImportExecuteContext context)
         {
+            var entityName = nameof(Product);
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Product>();
 
@@ -123,7 +124,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessSlugsAsync(context, batch, typeof(Product).Name);
+                        await ProcessSlugsAsync(context, batch, entityName);
                     }
                     catch (Exception ex)
                     {
@@ -138,7 +139,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessStoreMappingsAsync(context, scope, batch);
+                        await ProcessStoreMappingsAsync(context, scope, batch, entityName);
                     }
                     catch (Exception ex)
                     {
@@ -151,7 +152,7 @@ namespace Smartstore.Core.DataExchange.Import
                 // ===========================================================================
                 try
                 {
-                    await ProcessLocalizationsAsync(context, scope, batch, _localizableProperties);
+                    await ProcessLocalizationsAsync(context, scope, batch, entityName, _localizableProperties);
                 }
                 catch (Exception ex)
                 {

@@ -52,6 +52,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
+            var entityName = nameof(Category);
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Category>();
 
@@ -93,7 +94,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessSlugsAsync(context, batch, typeof(Category).Name);
+                        await ProcessSlugsAsync(context, batch, entityName);
                     }
                     catch (Exception ex)
                     {
@@ -108,7 +109,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessStoreMappingsAsync(context, scope, batch);
+                        await ProcessStoreMappingsAsync(context, scope, batch, entityName);
                     }
                     catch (Exception ex)
                     {
@@ -121,7 +122,7 @@ namespace Smartstore.Core.DataExchange.Import
                 // ===========================================================================
                 try
                 {
-                    await ProcessLocalizationsAsync(context, scope, batch, _localizableProperties);
+                    await ProcessLocalizationsAsync(context, scope, batch, entityName, _localizableProperties);
                 }
                 catch (Exception ex)
                 {
@@ -135,11 +136,18 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
+                        // We need the media file ID.
+                        _db.SuppressCommit = false;
+
                         await ProcessPicturesAsync(context, scope, batch);
                     }
                     catch (Exception ex)
                     {
                         context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessPicturesAsync));
+                    }
+                    finally
+                    {
+                        _db.SuppressCommit = true;
                     }
                 }
 
@@ -341,7 +349,8 @@ namespace Smartstore.Core.DataExchange.Import
                             {
                                 var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Catalog, image.FileName);
                                 var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
-                                fileId = saveFileResult.File.Id;
+
+                                fileId = saveFileResult.Id;
                             }
 
                             if (fileId != 0)
@@ -423,8 +432,6 @@ namespace Smartstore.Core.DataExchange.Import
                 return (ImporterCargoData)value;
             }
 
-            var catalogAlbumId = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value.Id;
-
             var categoryTemplates = await _db.CategoryTemplates
                 .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)
@@ -433,7 +440,8 @@ namespace Smartstore.Core.DataExchange.Import
             // Do not pass entities here because of batch scope!
             var result = new ImporterCargoData
             {
-                TemplateViewPaths = categoryTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id)
+                TemplateViewPaths = categoryTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id),
+                CatalogAlbumId = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value.Id
             };
 
             context.CustomProperties[CARGO_DATA_KEY] = result;
